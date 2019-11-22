@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9423A1063A0
+	by mail.lfdr.de (Postfix) with ESMTP id 2608810639F
 	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:11:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728168AbfKVGLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:11:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34244 "EHLO mail.kernel.org"
+        id S1729152AbfKVF41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:56:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729146AbfKVF40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:26 -0500
+        id S1729147AbfKVF41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E655420659;
-        Fri, 22 Nov 2019 05:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 149862071F;
+        Fri, 22 Nov 2019 05:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402185;
-        bh=VAQuNsQmSre+s2/0iXEv1rQrYfM5/lf41sEGigsfDzA=;
+        s=default; t=1574402186;
+        bh=puEy/f7+ZYZ6FdHQS/eQpBxy58+YBZzkDNytPQt3Aww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgXefGPLPImCVd9N70pWHFpurTAIrrmTihT7FaXrDBb6IEIGVSDbFWXZEsB1D6Cjt
-         y0CNmeRWeMCgjYqPUl+96eqhu20wQX5IGOwytaSZ4HGW0GmsOcXSFv0lB7wGpzhq3A
-         4F7QsGKpBZFGJpSBDMI93pbcKX8M5IH30RGOLYYo=
+        b=t0+y3+AGfuGZ/i70OG2tq9mZXQ+d1vkKCV1qOuVmY0hE43dHtJfQPD1MbvlL9IQeU
+         0xi06HaEC3WAHU/U92f5AXqZQB2GXCtW4h52a9cPhSlTR1FSiSr/mzXvfYUkAqDMQ5
+         Bki2SUFu8VHmyVCiRcGJKaH0sJiBiNBwR7mwZn/I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 036/127] vfio-mdev/samples: Use u8 instead of char for handle functions
-Date:   Fri, 22 Nov 2019 00:54:14 -0500
-Message-Id: <20191122055544.3299-35-sashal@kernel.org>
+Cc:     Martin Schiller <ms@dev.tdt.de>, John Crispin <john@phrozen.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 037/127] pinctrl: xway: fix gpio-hog related boot issues
+Date:   Fri, 22 Nov 2019 00:54:15 -0500
+Message-Id: <20191122055544.3299-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -44,150 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit 8ba35b3a0046d6573c98f00461d9bd1b86250d35 ]
+[ Upstream commit 9b4924da4711674e62d97d4f5360446cc78337af ]
 
-Clang warns:
+This patch is based on commit a86caa9ba5d7 ("pinctrl: msm: fix gpio-hog
+related boot issues").
 
-samples/vfio-mdev/mtty.c:592:39: warning: implicit conversion from 'int'
-to 'char' changes value from 162 to -94 [-Wconstant-conversion]
-                *buf = UART_MSR_DSR | UART_MSR_DDSR | UART_MSR_DCD;
-                     ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
-1 warning generated.
+It fixes the issue that the gpio ranges needs to be defined before
+gpiochip_add().
 
-Turns out that all uses of buf in this function ultimately end up stored
-or cast to an unsigned type. Just use u8, which has the same number of
-bits but can store this larger number so Clang no longer warns.
+Therefore, we also have to swap the order of registering the pinctrl
+driver and registering the gpio chip.
 
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+You also have to add the "gpio-ranges" property to the pinctrl device
+node to get it finally working.
+
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Acked-by: John Crispin <john@phrozen.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/vfio-mdev/mtty.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/pinctrl/pinctrl-xway.c | 39 +++++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
-index ca495686b9c31..f8c7249fa705d 100644
---- a/samples/vfio-mdev/mtty.c
-+++ b/samples/vfio-mdev/mtty.c
-@@ -171,7 +171,7 @@ static struct mdev_state *find_mdev_state_by_uuid(uuid_le uuid)
- 	return NULL;
- }
- 
--void dump_buffer(char *buf, uint32_t count)
-+void dump_buffer(u8 *buf, uint32_t count)
- {
- #if defined(DEBUG)
- 	int i;
-@@ -250,7 +250,7 @@ static void mtty_create_config_space(struct mdev_state *mdev_state)
- }
- 
- static void handle_pci_cfg_write(struct mdev_state *mdev_state, u16 offset,
--				 char *buf, u32 count)
-+				 u8 *buf, u32 count)
- {
- 	u32 cfg_addr, bar_mask, bar_index = 0;
- 
-@@ -304,7 +304,7 @@ static void handle_pci_cfg_write(struct mdev_state *mdev_state, u16 offset,
- }
- 
- static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
--				u16 offset, char *buf, u32 count)
-+				u16 offset, u8 *buf, u32 count)
- {
- 	u8 data = *buf;
- 
-@@ -475,7 +475,7 @@ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
- }
- 
- static void handle_bar_read(unsigned int index, struct mdev_state *mdev_state,
--			    u16 offset, char *buf, u32 count)
-+			    u16 offset, u8 *buf, u32 count)
- {
- 	/* Handle read requests by guest */
- 	switch (offset) {
-@@ -650,7 +650,7 @@ static void mdev_read_base(struct mdev_state *mdev_state)
+diff --git a/drivers/pinctrl/pinctrl-xway.c b/drivers/pinctrl/pinctrl-xway.c
+index f9e98a7d4f0ce..1b0c5958c56a7 100644
+--- a/drivers/pinctrl/pinctrl-xway.c
++++ b/drivers/pinctrl/pinctrl-xway.c
+@@ -1748,14 +1748,6 @@ static int pinmux_xway_probe(struct platform_device *pdev)
  	}
+ 	xway_pctrl_desc.pins = xway_info.pads;
+ 
+-	/* register the gpio chip */
+-	xway_chip.parent = &pdev->dev;
+-	ret = devm_gpiochip_add_data(&pdev->dev, &xway_chip, NULL);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Failed to register gpio chip\n");
+-		return ret;
+-	}
+-
+ 	/* setup the data needed by pinctrl */
+ 	xway_pctrl_desc.name	= dev_name(&pdev->dev);
+ 	xway_pctrl_desc.npins	= xway_chip.ngpio;
+@@ -1777,10 +1769,33 @@ static int pinmux_xway_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	/* finish with registering the gpio range in pinctrl */
+-	xway_gpio_range.npins = xway_chip.ngpio;
+-	xway_gpio_range.base = xway_chip.base;
+-	pinctrl_add_gpio_range(xway_info.pctrl, &xway_gpio_range);
++	/* register the gpio chip */
++	xway_chip.parent = &pdev->dev;
++	xway_chip.owner = THIS_MODULE;
++	xway_chip.of_node = pdev->dev.of_node;
++	ret = devm_gpiochip_add_data(&pdev->dev, &xway_chip, NULL);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to register gpio chip\n");
++		return ret;
++	}
++
++	/*
++	 * For DeviceTree-supported systems, the gpio core checks the
++	 * pinctrl's device node for the "gpio-ranges" property.
++	 * If it is present, it takes care of adding the pin ranges
++	 * for the driver. In this case the driver can skip ahead.
++	 *
++	 * In order to remain compatible with older, existing DeviceTree
++	 * files which don't set the "gpio-ranges" property or systems that
++	 * utilize ACPI the driver has to call gpiochip_add_pin_range().
++	 */
++	if (!of_property_read_bool(pdev->dev.of_node, "gpio-ranges")) {
++		/* finish with registering the gpio range in pinctrl */
++		xway_gpio_range.npins = xway_chip.ngpio;
++		xway_gpio_range.base = xway_chip.base;
++		pinctrl_add_gpio_range(xway_info.pctrl, &xway_gpio_range);
++	}
++
+ 	dev_info(&pdev->dev, "Init done\n");
+ 	return 0;
  }
- 
--static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
-+static ssize_t mdev_access(struct mdev_device *mdev, u8 *buf, size_t count,
- 			   loff_t pos, bool is_write)
- {
- 	struct mdev_state *mdev_state;
-@@ -698,7 +698,7 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
- #if defined(DEBUG_REGS)
- 			pr_info("%s: BAR%d  WR @0x%llx %s val:0x%02x dlab:%d\n",
- 				__func__, index, offset, wr_reg[offset],
--				(u8)*buf, mdev_state->s[index].dlab);
-+				*buf, mdev_state->s[index].dlab);
- #endif
- 			handle_bar_write(index, mdev_state, offset, buf, count);
- 		} else {
-@@ -708,7 +708,7 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
- #if defined(DEBUG_REGS)
- 			pr_info("%s: BAR%d  RD @0x%llx %s val:0x%02x dlab:%d\n",
- 				__func__, index, offset, rd_reg[offset],
--				(u8)*buf, mdev_state->s[index].dlab);
-+				*buf, mdev_state->s[index].dlab);
- #endif
- 		}
- 		break;
-@@ -827,7 +827,7 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
- 		if (count >= 4 && !(*ppos % 4)) {
- 			u32 val;
- 
--			ret =  mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret =  mdev_access(mdev, (u8 *)&val, sizeof(val),
- 					   *ppos, false);
- 			if (ret <= 0)
- 				goto read_err;
-@@ -839,7 +839,7 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
- 		} else if (count >= 2 && !(*ppos % 2)) {
- 			u16 val;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
- 					  *ppos, false);
- 			if (ret <= 0)
- 				goto read_err;
-@@ -851,7 +851,7 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
- 		} else {
- 			u8 val;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
- 					  *ppos, false);
- 			if (ret <= 0)
- 				goto read_err;
-@@ -889,7 +889,7 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
- 			if (copy_from_user(&val, buf, sizeof(val)))
- 				goto write_err;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
- 					  *ppos, true);
- 			if (ret <= 0)
- 				goto write_err;
-@@ -901,7 +901,7 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
- 			if (copy_from_user(&val, buf, sizeof(val)))
- 				goto write_err;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
- 					  *ppos, true);
- 			if (ret <= 0)
- 				goto write_err;
-@@ -913,7 +913,7 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
- 			if (copy_from_user(&val, buf, sizeof(val)))
- 				goto write_err;
- 
--			ret = mdev_access(mdev, (char *)&val, sizeof(val),
-+			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
- 					  *ppos, true);
- 			if (ret <= 0)
- 				goto write_err;
 -- 
 2.20.1
 
