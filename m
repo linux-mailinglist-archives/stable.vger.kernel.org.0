@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CB8106564
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9D5E106561
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbfKVFvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:51:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56680 "EHLO mail.kernel.org"
+        id S1728181AbfKVFvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:51:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728165AbfKVFvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:51:32 -0500
+        id S1726802AbfKVFvd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:51:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D35E20726;
-        Fri, 22 Nov 2019 05:51:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE3F72073F;
+        Fri, 22 Nov 2019 05:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401891;
-        bh=NxGRVXtjD/aXIsPUuHL37B5BbTj3nmk8XEn0YOKo7Kc=;
+        s=default; t=1574401892;
+        bh=cE1PO+QmHaBe5myBtegunEdnraOxCVMCTh1gItlg7xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDzEDFNFrxQAGO7Dcjn04273De5jXJx5+uGNpGumGTMczJuTfuwjq4l9dV1U//Guj
-         w/ZHbL4GmjL1K9sFhGszdcDss32niFyYN0PuLsJmce1UshgwBbA92eo3iJhz/l2Oke
-         YJOSF9SM1xbfa6VwJSNIdgBHJeEL3tuNyHUHGDVE=
+        b=zrtEukCoZN2xenMkX+M23pqmlskHC53quzMHKoT5agdE5Xrk4XKwElfB7NUZoD+ml
+         YcSU74J/zEEjzjuxTP3DEicp4RAMy8kH+OET7/sDzXSqGED14gXbquEBHr0hOnLVAd
+         uLHkY2UdgFzaqa1AilfvqZoiFJGqZv5hf9Gc5cB8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Sam Bobroff <sbobroff@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 124/219] powerpc/powernv/eeh/npu: Fix uninitialized variables in opal_pci_eeh_freeze_status
-Date:   Fri, 22 Nov 2019 00:47:36 -0500
-Message-Id: <20191122054911.1750-117-sashal@kernel.org>
+Cc:     Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        drbd-dev@lists.linbit.com, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 125/219] drbd: ignore "all zero" peer volume sizes in handshake
+Date:   Fri, 22 Nov 2019 00:47:37 -0500
+Message-Id: <20191122054911.1750-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,82 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Lars Ellenberg <lars.ellenberg@linbit.com>
 
-[ Upstream commit c20577014f85f36d4e137d3d52a1f61225b4a3d2 ]
+[ Upstream commit 94c43a13b8d6e3e0dd77b3536b5e04a84936b762 ]
 
-The current implementation of the OPAL_PCI_EEH_FREEZE_STATUS call in
-skiboot's NPU driver does not touch the pci_error_type parameter so
-it might have garbage but the powernv code analyzes it nevertheless.
+During handshake, if we are diskless ourselves, we used to accept any size
+presented by the peer.
 
-This initializes pcierr and fstate to zero in all call sites.
+Which could be zero if that peer was just brought up and connected
+to us without having a disk attached first, in which case both
+peers would just "flip" their volume sizes.
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Now, even a diskless node will ignore "zero" sizes
+presented by a diskless peer.
+
+Also a currently Diskless Primary will refuse to shrink during handshake:
+it may be frozen, and waiting for a "suitable" local disk or peer to
+re-appear (on-no-data-accessible suspend-io). If the peer is smaller
+than what we used to be, it is not suitable.
+
+The logic for a diskless node during handshake is now supposed to be:
+believe the peer, if
+ - I don't have a current size myself
+ - we agree on the size anyways
+ - I do have a current size, am Secondary, and he has the only disk
+ - I do have a current size, am Primary, and he has the only disk,
+   which is larger than my current size
+
+Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/eeh-powernv.c | 8 ++++----
- arch/powerpc/platforms/powernv/pci-ioda.c    | 4 ++--
- arch/powerpc/platforms/powernv/pci.c         | 4 ++--
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/block/drbd/drbd_receiver.c | 33 +++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/powernv/eeh-powernv.c b/arch/powerpc/platforms/powernv/eeh-powernv.c
-index 3c1beae29f2d8..9dd5b8909178b 100644
---- a/arch/powerpc/platforms/powernv/eeh-powernv.c
-+++ b/arch/powerpc/platforms/powernv/eeh-powernv.c
-@@ -578,8 +578,8 @@ static void pnv_eeh_get_phb_diag(struct eeh_pe *pe)
- static int pnv_eeh_get_phb_state(struct eeh_pe *pe)
- {
- 	struct pnv_phb *phb = pe->phb->private_data;
--	u8 fstate;
--	__be16 pcierr;
-+	u8 fstate = 0;
-+	__be16 pcierr = 0;
- 	s64 rc;
- 	int result = 0;
+diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
+index 3cdadf75c82da..c9e8d61dea248 100644
+--- a/drivers/block/drbd/drbd_receiver.c
++++ b/drivers/block/drbd/drbd_receiver.c
+@@ -3980,6 +3980,7 @@ static int receive_sizes(struct drbd_connection *connection, struct packet_info
+ 	struct o_qlim *o = (connection->agreed_features & DRBD_FF_WSAME) ? p->qlim : NULL;
+ 	enum determine_dev_size dd = DS_UNCHANGED;
+ 	sector_t p_size, p_usize, p_csize, my_usize;
++	sector_t new_size, cur_size;
+ 	int ldsc = 0; /* local disk size changed */
+ 	enum dds_flags ddsf;
  
-@@ -617,8 +617,8 @@ static int pnv_eeh_get_phb_state(struct eeh_pe *pe)
- static int pnv_eeh_get_pe_state(struct eeh_pe *pe)
- {
- 	struct pnv_phb *phb = pe->phb->private_data;
--	u8 fstate;
--	__be16 pcierr;
-+	u8 fstate = 0;
-+	__be16 pcierr = 0;
- 	s64 rc;
- 	int result;
+@@ -3987,6 +3988,7 @@ static int receive_sizes(struct drbd_connection *connection, struct packet_info
+ 	if (!peer_device)
+ 		return config_unknown_volume(connection, pi);
+ 	device = peer_device->device;
++	cur_size = drbd_get_capacity(device->this_bdev);
  
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
-index 326ca6288bb12..ee63749a2d47e 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -605,8 +605,8 @@ static int pnv_ioda_unfreeze_pe(struct pnv_phb *phb, int pe_no, int opt)
- static int pnv_ioda_get_pe_state(struct pnv_phb *phb, int pe_no)
- {
- 	struct pnv_ioda_pe *slave, *pe;
--	u8 fstate, state;
--	__be16 pcierr;
-+	u8 fstate = 0, state;
-+	__be16 pcierr = 0;
- 	s64 rc;
+ 	p_size = be64_to_cpu(p->d_size);
+ 	p_usize = be64_to_cpu(p->u_size);
+@@ -3997,7 +3999,6 @@ static int receive_sizes(struct drbd_connection *connection, struct packet_info
+ 	device->p_size = p_size;
  
- 	/* Sanity check on PE number */
-diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
-index 13aef2323bbca..db230a35609bf 100644
---- a/arch/powerpc/platforms/powernv/pci.c
-+++ b/arch/powerpc/platforms/powernv/pci.c
-@@ -602,8 +602,8 @@ static void pnv_pci_handle_eeh_config(struct pnv_phb *phb, u32 pe_no)
- static void pnv_pci_config_check_eeh(struct pci_dn *pdn)
- {
- 	struct pnv_phb *phb = pdn->phb->private_data;
--	u8	fstate;
--	__be16	pcierr;
-+	u8	fstate = 0;
-+	__be16	pcierr = 0;
- 	unsigned int pe_no;
- 	s64	rc;
+ 	if (get_ldev(device)) {
+-		sector_t new_size, cur_size;
+ 		rcu_read_lock();
+ 		my_usize = rcu_dereference(device->ldev->disk_conf)->disk_size;
+ 		rcu_read_unlock();
+@@ -4015,7 +4016,6 @@ static int receive_sizes(struct drbd_connection *connection, struct packet_info
+ 		/* Never shrink a device with usable data during connect.
+ 		   But allow online shrinking if we are connected. */
+ 		new_size = drbd_new_dev_size(device, device->ldev, p_usize, 0);
+-		cur_size = drbd_get_capacity(device->this_bdev);
+ 		if (new_size < cur_size &&
+ 		    device->state.disk >= D_OUTDATED &&
+ 		    device->state.conn < C_CONNECTED) {
+@@ -4080,9 +4080,36 @@ static int receive_sizes(struct drbd_connection *connection, struct packet_info
+ 		 *
+ 		 * However, if he sends a zero current size,
+ 		 * take his (user-capped or) backing disk size anyways.
++		 *
++		 * Unless of course he does not have a disk himself.
++		 * In which case we ignore this completely.
+ 		 */
++		sector_t new_size = p_csize ?: p_usize ?: p_size;
+ 		drbd_reconsider_queue_parameters(device, NULL, o);
+-		drbd_set_my_capacity(device, p_csize ?: p_usize ?: p_size);
++		if (new_size == 0) {
++			/* Ignore, peer does not know nothing. */
++		} else if (new_size == cur_size) {
++			/* nothing to do */
++		} else if (cur_size != 0 && p_size == 0) {
++			drbd_warn(device, "Ignored diskless peer device size (peer:%llu != me:%llu sectors)!\n",
++					(unsigned long long)new_size, (unsigned long long)cur_size);
++		} else if (new_size < cur_size && device->state.role == R_PRIMARY) {
++			drbd_err(device, "The peer's device size is too small! (%llu < %llu sectors); demote me first!\n",
++					(unsigned long long)new_size, (unsigned long long)cur_size);
++			conn_request_state(peer_device->connection, NS(conn, C_DISCONNECTING), CS_HARD);
++			return -EIO;
++		} else {
++			/* I believe the peer, if
++			 *  - I don't have a current size myself
++			 *  - we agree on the size anyways
++			 *  - I do have a current size, am Secondary,
++			 *    and he has the only disk
++			 *  - I do have a current size, am Primary,
++			 *    and he has the only disk,
++			 *    which is larger than my current size
++			 */
++			drbd_set_my_capacity(device, new_size);
++		}
+ 	}
  
+ 	if (get_ldev(device)) {
 -- 
 2.20.1
 
