@@ -2,103 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE94107F1E
-	for <lists+stable@lfdr.de>; Sat, 23 Nov 2019 16:46:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A85AD107F9F
+	for <lists+stable@lfdr.de>; Sat, 23 Nov 2019 18:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726760AbfKWPqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Nov 2019 10:46:36 -0500
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:33530 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726705AbfKWPqg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Nov 2019 10:46:36 -0500
-Received: by mail-ot1-f66.google.com with SMTP id q23so3032514otn.0;
-        Sat, 23 Nov 2019 07:46:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=0ibVY5ijfSNAQqr6MkO+fpC/kqmnu7Rl35afJGb+3jg=;
-        b=IfrNp9P0r4hArkY6s7pKgzY4orNwNim9YiAuSBa7BFEkLcUH49hoNEnEn8doVQUej8
-         fup4ov2BSNu2/Wu8BPay5AVXz5SNqirA4dUIaDETOxilWTxxK3Nc7P0rnDhUH/ZAjo2B
-         rKUPkmU+uqX4WanvY1vFfFeZldBDH1pO4BpHuy63d101d4hnGyyTbiqHWcXBOZBOaP7I
-         pMc+hiKqgEO8fU9S878fILXuan/42U8MvXXPIkIYlKXvAJBeTNiVJw5sKtqBgiMh5PdX
-         cCsXM7U5T451Y8PL+ljBmKmK1VBK3etOVJRoA5JZdwe6ZXG3EQXEiUtxS26md3BY6ZPO
-         WxYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=0ibVY5ijfSNAQqr6MkO+fpC/kqmnu7Rl35afJGb+3jg=;
-        b=eqAkf9SxZShlj1MHRbdQ6VkqzFgffpo6lJSxJg32LqQF6lZb7rdRqh/eQqkEcfo2bB
-         DoRc3xDlUONC4QkP6fKBa20JE6tGl3ziQ/oOwTWx5i2oaYFdrLCPeQD7xVL221Tzk6Wt
-         CRhNmzyi3jbXPnRwXhSdtP8M3QopfGrJLQsvrnMteFhBXR0SV+JcfrG1m0T6ujHHOSqS
-         1qYpZwkBDJTMLmkhrLiXIZdT4553IaAGiANvtYjuF9EUqLbUNlKijH8guhMPTrBam6Mm
-         HkDYKDFD3mg0HDYv/j/9NtvBk12dk9R46vjPv1LGzqvjfyzU57zglUc81PGjQ4XI1A+R
-         cWJw==
-X-Gm-Message-State: APjAAAUAwd8pf+qsQXkizorLYOO2lp2L8BKKlDBuckr3wvgW2iW1bREN
-        7JeIbDaq4kpvZwMnLgf9u1twVEZa
-X-Google-Smtp-Source: APXvYqwqg8jdfUuN6xTtlenQnqojGc1uhvh7rPsvna4sqOkyZL/E3MIgzKVj0VltMqlLehccxm88bA==
-X-Received: by 2002:a9d:27c6:: with SMTP id c64mr14343440otb.307.1574523993282;
-        Sat, 23 Nov 2019 07:46:33 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v8sm366959oto.52.2019.11.23.07.46.30
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 23 Nov 2019 07:46:31 -0800 (PST)
-Subject: Re: [PATCH 4.4 000/159] 4.4.203-stable review
-To:     Jon Hunter <jonathanh@nvidia.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S1726735AbfKWR3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Nov 2019 12:29:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60864 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726705AbfKWR3O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 Nov 2019 12:29:14 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C13F02067D;
+        Sat, 23 Nov 2019 17:29:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574530154;
+        bh=8mN30eUOUA6iFm0aORtj3oVwwIyWOi6kmdmngRYjnFk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dVWygiwt39YkKlH6Pyy2rwS7Lv/5ACQetw9LrqtU2kRjax0a04EGPAp+l+mxCnqDf
+         dMuX/wAIbH5/bjxdwkFPHHx5pWK/DjIWjfEIlR/OTfTDYCvdj2KlkJampu3tlDUNG6
+         hvNAXjKD10j1XlmtAteYSUZbIvYeJVT/3aQ5rdmE=
+Date:   Sat, 23 Nov 2019 18:29:12 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191122100704.194776704@linuxfoundation.org>
- <f0f505ae-5113-1abd-d4f7-0c3535c83de4@nvidia.com>
- <20191122133931.GA2033651@kroah.com> <20191122134131.GA2050590@kroah.com>
- <20191122134627.GB2050590@kroah.com>
- <9f976044-2dbc-6c19-11e7-210cd7ab35ea@nvidia.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a5d68f07-5f9a-2809-404d-bcd8ca593d70@roeck-us.net>
-Date:   Sat, 23 Nov 2019 07:46:29 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.3 0/6] 5.3.13-stable review
+Message-ID: <20191123172912.GA2135561@kroah.com>
+References: <20191122100320.878809004@linuxfoundation.org>
+ <d750d6a0-c0a8-5d0e-370d-511b2de3409b@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <9f976044-2dbc-6c19-11e7-210cd7ab35ea@nvidia.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d750d6a0-c0a8-5d0e-370d-511b2de3409b@linaro.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/22/19 6:48 AM, Jon Hunter wrote:
-
-[ ... ]
-
-> Error: arch/arm/boot/dts/omap5-board-common.dtsi:636.1-6 Label or path dwc3 not found
-> FATAL ERROR: Syntax error parsing input tree
-> scripts/Makefile.lib:293: recipe for target 'arch/arm/boot/dts/omap5-igep0050.dtb' failed
-> make[1]: *** [arch/arm/boot/dts/omap5-igep0050.dtb] Error 1
-> arch/arm/Makefile:338: recipe for target 'dtbs' failed
-> make: *** [dtbs] Error 2
+On Fri, Nov 22, 2019 at 05:50:52PM -0600, Daniel Díaz wrote:
+> Hello!
 > 
+> On 11/22/19 4:30 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.3.13 release.
+> > There are 6 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun, 24 Nov 2019 09:59:19 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.13-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> This is caused by the following commit ...
-> 
-> commit d0abc07b3d752cbe2a8d315f662c53c772caed0f
-> Author: H. Nikolaus Schaller <hns@goldelico.com>
-> Date:   Fri Sep 28 17:54:00 2018 +0200
-> 
->      ARM: dts: omap5: enable OTG role for DWC3 controller
-> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-On top of the breakage caused by this patch, I would also argue
-that it is not a bug fix and should not have been included
-in the first place.
+Thanks for testing all of these and letting me know.
 
-The dwc3 label was added with commit 4c387984618fe ("ARM: dts: omap5:
-Add l4 interconnect hierarchy and ti-sysc data"). Given the size of
-that patch, I highly doubt that a backport to 4.4 would work.
-
-Guenter
+greg k-h
