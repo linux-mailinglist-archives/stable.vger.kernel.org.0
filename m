@@ -2,59 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 668BE107DEB
-	for <lists+stable@lfdr.de>; Sat, 23 Nov 2019 10:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9A1107E17
+	for <lists+stable@lfdr.de>; Sat, 23 Nov 2019 11:43:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726304AbfKWJ1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Nov 2019 04:27:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40660 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726141AbfKWJ1F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Nov 2019 04:27:05 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C817D20719;
-        Sat, 23 Nov 2019 09:27:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574501224;
-        bh=Mnf2M58/rhc8aWQSqhoykSytTknTxW16bUn0An3Nr00=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NBlkZeAgegxDeezSpfAAicIqkFD2CqFhmm57mNmqlswt9sHBEWvCfaNOBwD5opLOH
-         yhEkOCizO72GwuJfMTHzpKv7lPvuNV2gMb+xLJXoCyEtDSiBePO5tcmlunEErmdqvJ
-         dxDPai3CI92uCQZrxDgyw/z6PXcf1Kv/HIRUWyxw=
-Date:   Sat, 23 Nov 2019 10:27:01 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Bob Funk <bobfunk11@gmail.com>
-Cc:     sashal@kernel.org, stable@vger.kernel.org
-Subject: Re: Bug Report - Kernel Branch 4.4.y - asus-wmi.c
-Message-ID: <20191123092701.GA2129125@kroah.com>
-References: <33bfa93a-3853-85f5-47f9-8a69ed9c656e@gmail.com>
+        id S1726368AbfKWKnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Nov 2019 05:43:02 -0500
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:36463 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726141AbfKWKnB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Nov 2019 05:43:01 -0500
+Received: by mail-ot1-f66.google.com with SMTP id f10so8493483oto.3
+        for <stable@vger.kernel.org>; Sat, 23 Nov 2019 02:43:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=ppTOrINXiA6H/1ThQXgoDiJ/zMj1cEFffiNs/xhB7AE=;
+        b=o+Dy+FawafGLJjFldAMVbMjaNn30d327w6mgJ9lOWJ5Kggbk7JR6ejXwEha7Hm7m9k
+         rOHQTxziAUnDN9w8yzxT1Na+5j/NZh+gx6jQ7Z1Ffsy2qr/ovsQEa6oYN/pUdItKCprf
+         RNwu3nvU4SvBp2LTst28vvwjgFlaI2pAPu4QjVwIKqF0KUskxqhVb52Qeuogcan62yIl
+         YTA/j/8Y5P0BS21Zz71TmOqZDNbyMiO0Sf6F5DT8ys0rKt7QprZ0Za2HNd3wB6czyi4I
+         lrMy8R+TC9YmVsqj3XelyYms2PO3TrY2tNLgFTh2Ok9JATWEXCCDOGNydzUpqyJxVTWR
+         zL5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=ppTOrINXiA6H/1ThQXgoDiJ/zMj1cEFffiNs/xhB7AE=;
+        b=Nh0Qc1Yv+mC9/DcpvS07ixjOLbRjJYl2AuAqKGsNiUK6mJym6wDWHR8pJ3/4JMCR7f
+         9sGqUvCpyQT6NmFIWejWiSdW0GKv8sMvBdBjrra4s4qJr/xx1WhoLKE61RMZGRuE6NAg
+         jRbb+HFH3nieTbUhFkIge83a62tu+tWmSiwh3ffaqi8HADIFloOMkrBoxw3GFEvDYAe/
+         65IdMfSHmwqwRct5rMumNFQEbV0frij5lau6X0T5ZmiqAbL9wytgjC8KSOe+DikVbQ2k
+         z7v8dDYht83w3cJ5K0j2Da65gqThzzeHtWqYM8VgchQUffCZTuE4t0fsoCpEcUos1Yk3
+         0b5w==
+X-Gm-Message-State: APjAAAUe/ugz+fc0BhJKuHpXPuba5ovhgH6c431V/aMYXxEshJHf4q82
+        T0kCMutfqHlFFjjoAsjLHUHsqt7yeTKHBK2gFh8=
+X-Google-Smtp-Source: APXvYqwhpQwLReT4dA0XFK5ggDXsng7h3i6PLZzdLuD3I5qbyANrZxha/SEr4wXCHi/cNlu4MhwXtqYGxASPoCvhqLQ=
+X-Received: by 2002:a05:6830:1088:: with SMTP id y8mr13969627oto.328.1574505781356;
+ Sat, 23 Nov 2019 02:43:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33bfa93a-3853-85f5-47f9-8a69ed9c656e@gmail.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Received: by 2002:ac9:6157:0:0:0:0:0 with HTTP; Sat, 23 Nov 2019 02:43:00
+ -0800 (PST)
+Reply-To: cfffdfd8brahim4@yandex.com
+From:   Salah Ibrahim <musahamed100@gmail.com>
+Date:   Sat, 23 Nov 2019 02:43:00 -0800
+Message-ID: <CALPqmR3F0XbjDSvGROwpiJDb+wmXdF-kiTq1miZv1saztQqMTg@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 08:33:46PM -0600, Bob Funk wrote:
-> Hello,
-> 
-> I am contacting the stable branch maintainers with a bug report concerning
-> the asus-wmi kernel driver in the 4.4 kernel branch. I had initially
-> contacted
-> maintainers for the specific driver and received a response stating that I
-> should contact the stable branch maintainers about the issue instead. Their
-> opinion was that the patch in question should be reverted rather than
-> debugged. I will append my initial report here and let you decide what to do
-> with the bug.
-
-Any reason you can not just use 5.3 or newer for this hardware?  Why are
-you stuck on 4.4?
-
-thanks,
-
-greg k-h
+Assalamu alaikum,
+I have a business Proposal for you and I need mutual respect, trust,
+honesty, transparency, adequate support and assistance, Hope to hear
+from you for more details.
+Warmest regards
+Salah Ibrahim
