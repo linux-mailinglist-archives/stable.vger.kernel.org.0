@@ -2,151 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A06EB107D49
-	for <lists+stable@lfdr.de>; Sat, 23 Nov 2019 07:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79BEF107D4B
+	for <lists+stable@lfdr.de>; Sat, 23 Nov 2019 07:37:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726208AbfKWGUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Nov 2019 01:20:52 -0500
-Received: from wtarreau.pck.nerim.net ([62.212.114.60]:24412 "EHLO 1wt.eu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725973AbfKWGUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 Nov 2019 01:20:52 -0500
-Received: (from willy@localhost)
-        by pcw.home.local (8.15.2/8.15.2/Submit) id xAN6KltE015343;
-        Sat, 23 Nov 2019 07:20:47 +0100
-Date:   Sat, 23 Nov 2019 07:20:47 +0100
-From:   Willy Tarreau <w@1wt.eu>
-To:     Bob Funk <bobfunk11@gmail.com>
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: Bug Report - Kernel Branch 4.4.y - asus-wmi.c
-Message-ID: <20191123062047.GB14713@1wt.eu>
-References: <33bfa93a-3853-85f5-47f9-8a69ed9c656e@gmail.com>
- <20191123061446.GA14713@1wt.eu>
+        id S1725973AbfKWGhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Nov 2019 01:37:00 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:45387 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725800AbfKWGhA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Nov 2019 01:37:00 -0500
+Received: by mail-wr1-f68.google.com with SMTP id z10so11160870wrs.12
+        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 22:36:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yKUfq+g6QHq1ruh2+Ak/9FpYSW1wbWX2u5i25e8aGjc=;
+        b=PbXlGNvA/YYVcyVr2SGQJY7h1EpNjbVXzLy6X644gdRaoPdSAXrpBC+GejO1kfwxYI
+         EYXUXvLo7HslKnPHi+8huweylSk/of2PtAHf3OqqSOw9ijOzCd/EuyCSdQRrC8gbTBT9
+         8pn8f/GA5/8dz9sqHYhZubSo57e3iDcREGajHlsQ6msf9LuEaeDQdZYlkcxy/CvQa5QP
+         kUjFZwA+2VDQOyxt/7r4IH3ZCkWrAHZ7FJ9rPSwkwY72y7W6VHeAoKTHwjDUrWUhd6ul
+         Y4ey+jt2K1TCi3Gxh6HwhQ8SHy5c95l1bL2cQlzz430B/7A+DJC2pG5FMStcB4H5sJVC
+         aNEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yKUfq+g6QHq1ruh2+Ak/9FpYSW1wbWX2u5i25e8aGjc=;
+        b=pzkp0lchG7UPwDV5kGJnvKAkK9hdpnIMYLChHxL3XxPhJlyxS40YoOnc0A+wiKpktG
+         xZd6IOg1JEpLS7+2GGtJ1CRn43/CRFX+XghH5PZqDSKMIikedx+RohCDzzBQ8zABo02x
+         cdIFR0Sk986Lu6yGZK0sTi0zfyGsmUujK3D1IDVH4yisIaSb/RVsC7cKTn9NAJcqWvVI
+         0oHDbLw+bqVanSnNq/ueLyQ1b6jB6CTjRHEWmaVHTy7ntmlNT9MbETywoPqYCBjzxV7Q
+         KDAn4gLwCqPoX64e6kAON6ggM7LAKGEy7wamFTed1rxEAc9DD6KdTknT7cXgkM31ElIm
+         s77A==
+X-Gm-Message-State: APjAAAVZm++enHbpHztTwjO93gdN9TLF2euMLPatFDWC+YRWCOU645rJ
+        6Z78ZsilksKfnyvLOXG2xhhCLpAvIFWLeQ==
+X-Google-Smtp-Source: APXvYqxeAK0DI8PwOdauVHgCU/CU7scExdWORQV67uinewPXpjnzAv5J9mbTAOrHAaX/mHflQfsM8A==
+X-Received: by 2002:adf:b193:: with SMTP id q19mr20082900wra.78.1574491018246;
+        Fri, 22 Nov 2019 22:36:58 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l4sm807902wme.4.2019.11.22.22.36.57
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Nov 2019 22:36:57 -0800 (PST)
+Message-ID: <5dd8d389.1c69fb81.a8774.30c5@mx.google.com>
+Date:   Fri, 22 Nov 2019 22:36:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191123061446.GA14713@1wt.eu>
-User-Agent: Mutt/1.6.1 (2016-04-27)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.155-123-gd40687ee9ee0
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 90 boots: 1 failed,
+ 84 passed with 5 offline (v4.14.155-123-gd40687ee9ee0)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y boot: 90 boots: 1 failed, 84 passed with 5 offline (=
+v4.14.155-123-gd40687ee9ee0)
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.155-123-gd40687ee9ee0/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.155-123-gd40687ee9ee0/
 
-On Sat, Nov 23, 2019 at 07:14:46AM +0100, Willy Tarreau wrote:
-> I suspect that this is caused by missing commit 401fee81, which fixes
-> 78f3ac76d9e5, was backported to 4.19 but not to 4.4. However you will
-> have to backport it by hand as it doesn't apply due to context
-> differences, but it trivial to do.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.155-123-gd40687ee9ee0
+Git Commit: d40687ee9ee01c874516a9a510f5d6a56311bd83
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 58 unique boards, 19 SoC families, 13 builds out of 201
 
-Please try the attached patch. I haven't even tried to compile it but
-I think it's OK.
+Boot Failure Detected:
 
-Willy
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
 
+Offline Platforms:
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename="0001-platform-x86-asus-wmi-Only-Tell-EC-the-OS-will-handl.patch"
-Content-Transfer-Encoding: 8bit
+arm:
 
-From cfc80c044499f17e82c3ede448a4e1462572ae39 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Wed, 12 Jun 2019 09:02:02 +0200
-Subject: platform/x86: asus-wmi: Only Tell EC the OS will handle display
- hotkeys from asus_nb_wmi
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-commit 401fee8195d401b2b94dee57383f627050724d5b upstream.
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-Commit 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will
-handle the display off hotkey") causes the backlight to be permanently off
-on various EeePC laptop models using the eeepc-wmi driver (Asus EeePC
-1015BX, Asus EeePC 1025C).
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
-The asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL) call added
-by that commit is made conditional in this commit and only enabled in
-the quirk_entry structs in the asus-nb-wmi driver fixing the broken
-display / backlight on various EeePC laptop models.
-
-Cc: João Paulo Rechi Vita <jprvita@endlessm.com>
-Fixes: 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will handle the display off hotkey")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-[wt: dropped changes for missing quirks]
-Signed-off-by: Willy Tarreau <w@1wt.eu>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 4 ++++
- drivers/platform/x86/asus-wmi.c    | 2 +-
- drivers/platform/x86/asus-wmi.h    | 1 +
- 3 files changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index a284a2b..bbea208 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -57,6 +57,7 @@ static struct quirk_entry *quirks;
- 
- static struct quirk_entry quirk_asus_unknown = {
- 	.wapf = 0,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- /*
-@@ -67,15 +68,18 @@ static struct quirk_entry quirk_asus_unknown = {
- static struct quirk_entry quirk_asus_x55u = {
- 	.wapf = 4,
- 	.wmi_backlight_power = true,
-+	.wmi_backlight_set_devstate = true,
- 	.no_display_toggle = true,
- };
- 
- static struct quirk_entry quirk_asus_wapf4 = {
- 	.wapf = 4,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_x200ca = {
- 	.wapf = 2,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static int dmi_matched(const struct dmi_system_id *dmi)
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 7c1defa..c4386ae 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -2084,7 +2084,7 @@ static int asus_wmi_add(struct platform_device *pdev)
- 		err = asus_wmi_backlight_init(asus);
- 		if (err && err != -ENODEV)
- 			goto fail_backlight;
--	} else
-+	} else if (asus->driver->quirks->wmi_backlight_set_devstate)
- 		err = asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL);
- 
- 	status = wmi_install_notify_handler(asus->driver->event_guid,
-diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-index 4da4c8b..0f565cc 100644
---- a/drivers/platform/x86/asus-wmi.h
-+++ b/drivers/platform/x86/asus-wmi.h
-@@ -42,6 +42,7 @@ struct quirk_entry {
- 	bool scalar_panel_brightness;
- 	bool store_backlight_power;
- 	bool wmi_backlight_power;
-+	bool wmi_backlight_set_devstate;
- 	int wapf;
- 	/*
- 	 * For machines with AMD graphic chips, it will send out WMI event
--- 
-2.9.0
-
-
---LZvS9be/3tNcYl/X--
+For more info write to <info@kernelci.org>
