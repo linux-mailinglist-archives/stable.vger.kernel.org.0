@@ -2,80 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D94B108420
-	for <lists+stable@lfdr.de>; Sun, 24 Nov 2019 17:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7EA1084F1
+	for <lists+stable@lfdr.de>; Sun, 24 Nov 2019 21:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726765AbfKXQET convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 24 Nov 2019 11:04:19 -0500
-Received: from customer-187-141-72-141-sta.uninet-ide.com.mx ([187.141.72.141]:36556
-        "EHLO correo.opb.gob.mx" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1726680AbfKXQET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Nov 2019 11:04:19 -0500
-X-Greylist: delayed 6463 seconds by postgrey-1.27 at vger.kernel.org; Sun, 24 Nov 2019 11:04:19 EST
-Received: from localhost (localhost [127.0.0.1])
-        by correo.opb.gob.mx (Postfix) with ESMTP id 29D461A37F1;
-        Sun, 24 Nov 2019 07:33:49 -0500 (EST)
-Received: from correo.opb.gob.mx ([127.0.0.1])
-        by localhost (correo.opb.gob.mx [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id Y2-_-UwJX2_R; Sun, 24 Nov 2019 07:33:48 -0500 (EST)
-Received: from localhost (localhost [127.0.0.1])
-        by correo.opb.gob.mx (Postfix) with ESMTP id 84D5D1A37CC;
-        Sun, 24 Nov 2019 07:33:45 -0500 (EST)
-X-Virus-Scanned: amavisd-new at opb.gob.mx
-Received: from correo.opb.gob.mx ([127.0.0.1])
-        by localhost (correo.opb.gob.mx [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id JX4vLHxwk3Lg; Sun, 24 Nov 2019 07:33:45 -0500 (EST)
-Received: from correo.opb.gob.mx (correo.opb.gob.mx [172.16.254.57])
-        by correo.opb.gob.mx (Postfix) with ESMTP id D3FA71A37D5;
-        Sun, 24 Nov 2019 07:33:41 -0500 (EST)
-Date:   Sun, 24 Nov 2019 06:33:41 -0600 (CST)
-From:   "Mr.WEHNER DAVID M." <jesus.valencia@opb.gob.mx>
-Reply-To: "Mr.WEHNER DAVID M." <info@zbukgroupltd.info>
-Message-ID: <1443148055.28375.1574598821791.JavaMail.zimbra@opb.gob.mx>
-In-Reply-To: <495850738.28297.1574598770715.JavaMail.zimbra@opb.gob.mx>
-Subject: =?utf-8?Q?Pengar_=C3=B6verf=C3=B6rs?=
+        id S1726926AbfKXUbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Nov 2019 15:31:51 -0500
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:16532 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726840AbfKXUbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Nov 2019 15:31:51 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5ddae8b10000>; Sun, 24 Nov 2019 12:31:45 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Sun, 24 Nov 2019 12:31:50 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Sun, 24 Nov 2019 12:31:50 -0800
+Received: from [10.26.11.72] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sun, 24 Nov
+ 2019 20:31:48 +0000
+Subject: Re: [PATCH 4.4 000/159] 4.4.203-stable review
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <shuah@kernel.org>,
+        <patches@kernelci.org>, <ben.hutchings@codethink.co.uk>,
+        <lkft-triage@lists.linaro.org>, <stable@vger.kernel.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191122100704.194776704@linuxfoundation.org>
+ <f0f505ae-5113-1abd-d4f7-0c3535c83de4@nvidia.com>
+ <20191122133931.GA2033651@kroah.com> <20191122134131.GA2050590@kroah.com>
+ <20191122134627.GB2050590@kroah.com>
+ <9f976044-2dbc-6c19-11e7-210cd7ab35ea@nvidia.com>
+ <a5d68f07-5f9a-2809-404d-bcd8ca593d70@roeck-us.net>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <7edc9531-347e-9ac7-2583-5efb49acffdb@nvidia.com>
+Date:   Sun, 24 Nov 2019 20:31:46 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [159.203.190.229]
-X-Mailer: Zimbra 8.0.7_GA_6021 (ZimbraWebClient - GC75 (Win)/8.0.7_GA_6021)
-Thread-Topic: Pengar =?utf-8?B?w7Z2ZXJmw7Zycw==?=
-Thread-Index: q0u7hwNbXiurGLSmt7HkuXpiq0V0IA==
-To:     unlisted-recipients:; (no To-header on input)
+In-Reply-To: <a5d68f07-5f9a-2809-404d-bcd8ca593d70@roeck-us.net>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1574627505; bh=00RRY3NaEJ+g/qehFKv0amPP36sLphWXusYUYs+gDpA=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=nYZ/N/gvrod1y9ak8zagU6vP3NjfW17eLBEl9WyXCjGPKS554H0nJ6caP6AwRytBb
+         c94UB12i42wof58w//PupvHdlAPQc1I/eZztaBO5x80ykrvJijn0559SZn9zVVwewF
+         woF85np56xaK6ZFtxpHhHQJ4c7t4FkA708oqREPhMATjs4EKRoUKTu2z9dKqMDDJ0M
+         Lv8pBQbviLwjkoOrSd/Y6YxL0Us4Raw/bPBh6olPkIwoQvL/vJNM0Z0JGtejtlM4Fa
+         wTZ3RdvhOve4aAHsWnOsMhOEqJ3kSpPp6ldDdMICuFnUEciHMToWRAfgxBw0a/rGJC
+         rhu4uAtaAeCKg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Office Of The Head
-Internationell överföring
-Operation Zenith Bank
-(UK) Ltd LONDON United
-Storbritannien och Irland
-Tel: +44 203 389 5674
-Fax: +44 704 307 1539
 
-Hälsning,
+On 23/11/2019 15:46, Guenter Roeck wrote:
+> On 11/22/19 6:48 AM, Jon Hunter wrote:
+>=20
+> [ ... ]
+>=20
+>> Error: arch/arm/boot/dts/omap5-board-common.dtsi:636.1-6 Label or path
+>> dwc3 not found
+>> FATAL ERROR: Syntax error parsing input tree
+>> scripts/Makefile.lib:293: recipe for target
+>> 'arch/arm/boot/dts/omap5-igep0050.dtb' failed
+>> make[1]: *** [arch/arm/boot/dts/omap5-igep0050.dtb] Error 1
+>> arch/arm/Makefile:338: recipe for target 'dtbs' failed
+>> make: *** [dtbs] Error 2
+>>
+>>
+>> This is caused by the following commit ...
+>>
+>> commit d0abc07b3d752cbe2a8d315f662c53c772caed0f
+>> Author: H. Nikolaus Schaller <hns@goldelico.com>
+>> Date:=C2=A0=C2=A0 Fri Sep 28 17:54:00 2018 +0200
+>>
+>> =C2=A0=C2=A0=C2=A0=C2=A0 ARM: dts: omap5: enable OTG role for DWC3 contr=
+oller
+>>
+>=20
+> On top of the breakage caused by this patch, I would also argue
+> that it is not a bug fix and should not have been included
+> in the first place.
+>=20
+> The dwc3 label was added with commit 4c387984618fe ("ARM: dts: omap5:
+> Add l4 interconnect hierarchy and ti-sysc data"). Given the size of
+> that patch, I highly doubt that a backport to 4.4 would work.
 
-Din e-postadress kom upp i ett slumpmässigt drag som genomfördes i Zenith Banks huvudkontor, International Transfer Operation i London, Storbritannien.
+FYI ... I am still seeing a build failure because of this with -rc2 ...
 
-Jag är Mr.WEHNER DAVID M.A personlig bokföring till avdöd Michael Blair som arbetade med Shell British Petroleum. Mr.Michael Blair, en välkänd filantropist, innan han dog, gjorde en testamente i ett advokatbyrå om att 12,5 miljoner US dollar (tolv miljoner femhundra tusen amerikanska dollar) bör doneras till någon lycklig individuell filantrop eller välgörenhetsorganisation utomlands.
+Test results for stable-v4.4:
+    6 builds:	3 pass, 3 fail
+    6 boots:	6 pass, 0 fail
+    11 tests:	11 pass, 0 fail
 
-Zenith Bank Abp är en överenskommelse med sena Michael Blair om att donera fonden till alla lyckliga individer i Amerika, Europa, Asien och Afrika i andra för att förbättra liv och företag
+Linux version:	4.4.203-rc2-gdbaac4c54573
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-Vi har gjort vårt slumpmässiga drag och din e-postadress valdes för att ta emot denna fond som mottagare av hans testament. Vänligen snälla tillbaka till mig
-så snart du har fått vårt e-postmeddelande för att aktivera överföringen
-Operationen riktar dig till vad du ska göra för att få denna fond lagligen.
+Cheers
+Jon
 
-Du rekommenderas att ta med följande nedan:
-
-FULLSTÄNDIGA NAMN:
-
-FULL KONTAKTADRESS:
-
-TELEFON- OCH FAXNUMMER:
-
-Med vänliga hälsningar,
-Mr.WEHNER DAVID M.
-Chef, internationell överföringsoperation
-Zenith Bank (UK) Abp
+--=20
+nvpublic
