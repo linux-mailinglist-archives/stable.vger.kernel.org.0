@@ -2,71 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A0A1083C1
-	for <lists+stable@lfdr.de>; Sun, 24 Nov 2019 15:14:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D94B108420
+	for <lists+stable@lfdr.de>; Sun, 24 Nov 2019 17:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726797AbfKXOOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Nov 2019 09:14:37 -0500
-Received: from sonic312-20.consmr.mail.bf2.yahoo.com ([74.6.128.82]:44625 "EHLO
-        sonic312-20.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726779AbfKXOOh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Nov 2019 09:14:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1574604874; bh=E+ks7AydzaUb4ISZTuxin7s0E6gVmk5020fTLYVYB5E=; h=Date:From:Reply-To:Subject:From:Subject; b=ZU8s0AEpuZnmMErojuCXFkuWLBl93xzgZE08frpO8SRcsybeSdE6S7SH6pUS0n73sn4J0a5O7pv0SDZPcoaxMIg+/PzQzBrXu/Kn/dFQ/mMAFWMZgyUXjupGHGHSbbxmD2Ee+lHnSDi1ho7Ha38QcAhSWipbcfgspTMuI3MfipOvRXymN/AcTubDMyiWSHSMJVj8hM6viZeK81xEcvSrZ0AhDcQdIbBh14GO1pdFgRdEluSovbIvBB1pEqXnUIMjP8KjEDyyJSw/b6vRBFjBjBLG0LKVglNck4GOuy1fldhzvqKT+fXBkKY+fRS6IjF4ZyLr4uxXyCZpjz2wtIRJeg==
-X-YMail-OSG: 4r5gtjoVM1kNL4SDoJ.cR.Mg31rqVJkx_2Mr70VQXDqNK3cNnZD.GrcuqW4Fygo
- GmyCkGR9.FzD3ihq2_y_LyhvW0BHNmIQnhJ7iPGflxWWZOzGzjmt8S6qtfIW94T6vP3i5eIw18i9
- FDC.5iE5IFWFNMpgsdACu06DLu_tPVWf22v4E_hXQ15ce8q5tvCDqLspd7yrZ9gTLuUNJk0qpWyk
- Liq_POJKB6uyM5rBDClV.SOABlfmGo2qUOJ9Xd3RntdHrX3JCIcuAHz.V4WH.pUkjDQGJ9KVhZkx
- Amvw_HDoHi5o85LjdbpU_QH4uMcYyPlI_80wxwsjGToMj2qOofYpHZRQcrsNuZUqdW9S.QWsbcbW
- xS6FsY6iS66qwlkGS.77B9Mfmzw3c9Px9hVJo3YGj1aSKVrPnkL44mF9bEhBLivpe_fE.CRVdaKJ
- iH9l2RmYTdjwmxZRaXMiAxbpG9VbS8YRphO8Y2pzHGsBfM3S871GuHGUzlCXVUq_NrAULi4WcDhU
- jnpY8tAyaVWN4zB29jzQaG5_FeBgRelp0ANI9hCHJwoKOMF70ZOrWpqm1PacQJootI9kuVDaitz_
- SRxWmbhmFCJEESe4WxpghkFZmbsfRULwbsabrEqxHIilBJmgdo4_oHCln_iZe0zcyvWHGe_A5B1M
- A1p6xRRS72RkKx3xKGEHPjRMIVMr2jdcnN4wJN0ieDkrk3sspk5nDw_J5yA7ICLMlllGv3C6Omrb
- 1Sn_9fADaXNGCRXr57csDg6vZNEhtABxJ52QHp9h3.ChYAH70JFDhOl242iGJsbvYlLNfkf_x.N6
- Z9k9LdSIBcYiBvCdO5ongvCfjtDTT0OjNeRFe7Jd1SsM.4mT6EmjFDNUBI0hSUGzUNZoqYYl0Lus
- rlmN9hIowREqJQSKu5lDtWExshMEmSrQkHZ1N3A2Igk1V0dwt7ZTAmQ5vcWlW7k0dB2KKTNUZsyr
- nuwnPl0hM3YJKZueI7mmSakORIxSspha9goyUEKnu1aFBW1WVyxjp_H1FfhGwq8ALEceBDmcDipY
- NUGJ8eokfXa4inbegaD8L6v5w7OzzEW4vGS49WX2XbVVIQx.X.OaaytK5gQ2PNrHcpMdciKknkcT
- _b5eqn6GfdxQZ8KLDIo4Rif1FkLkpRaFJtPBzNW86LcB._YTNVH28OfO3ygkhdvUNWb9IZoaY3nY
- K8obBT.jew_fjZJz7tfavJcjOab6E.VrFDRCdo5sECf1Ey8qupp0wamD.MBTu8.f6iAtvz.CYmD1
- ckkqnP54aS1slcHkwt8ozGMKb7jpvn0zpUAeGD7DtFygA72dGvzJNnJqgQ73yHRW3jTf3b6Pu6CU
- GHIVwlKx3j9_L4wEfsFTbRlmxVKif
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.bf2.yahoo.com with HTTP; Sun, 24 Nov 2019 14:14:34 +0000
-Date:   Sun, 24 Nov 2019 14:14:32 +0000 (UTC)
-From:   Aisha Gaddafi <agaddafibb@gmail.com>
-Reply-To: gaddafia504@gmail.com
-Message-ID: <1915827318.3032794.1574604872619@mail.yahoo.com>
-Subject: Dear Friend,
+        id S1726765AbfKXQET convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 24 Nov 2019 11:04:19 -0500
+Received: from customer-187-141-72-141-sta.uninet-ide.com.mx ([187.141.72.141]:36556
+        "EHLO correo.opb.gob.mx" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1726680AbfKXQET (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Nov 2019 11:04:19 -0500
+X-Greylist: delayed 6463 seconds by postgrey-1.27 at vger.kernel.org; Sun, 24 Nov 2019 11:04:19 EST
+Received: from localhost (localhost [127.0.0.1])
+        by correo.opb.gob.mx (Postfix) with ESMTP id 29D461A37F1;
+        Sun, 24 Nov 2019 07:33:49 -0500 (EST)
+Received: from correo.opb.gob.mx ([127.0.0.1])
+        by localhost (correo.opb.gob.mx [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id Y2-_-UwJX2_R; Sun, 24 Nov 2019 07:33:48 -0500 (EST)
+Received: from localhost (localhost [127.0.0.1])
+        by correo.opb.gob.mx (Postfix) with ESMTP id 84D5D1A37CC;
+        Sun, 24 Nov 2019 07:33:45 -0500 (EST)
+X-Virus-Scanned: amavisd-new at opb.gob.mx
+Received: from correo.opb.gob.mx ([127.0.0.1])
+        by localhost (correo.opb.gob.mx [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id JX4vLHxwk3Lg; Sun, 24 Nov 2019 07:33:45 -0500 (EST)
+Received: from correo.opb.gob.mx (correo.opb.gob.mx [172.16.254.57])
+        by correo.opb.gob.mx (Postfix) with ESMTP id D3FA71A37D5;
+        Sun, 24 Nov 2019 07:33:41 -0500 (EST)
+Date:   Sun, 24 Nov 2019 06:33:41 -0600 (CST)
+From:   "Mr.WEHNER DAVID M." <jesus.valencia@opb.gob.mx>
+Reply-To: "Mr.WEHNER DAVID M." <info@zbukgroupltd.info>
+Message-ID: <1443148055.28375.1574598821791.JavaMail.zimbra@opb.gob.mx>
+In-Reply-To: <495850738.28297.1574598770715.JavaMail.zimbra@opb.gob.mx>
+Subject: =?utf-8?Q?Pengar_=C3=B6verf=C3=B6rs?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: [159.203.190.229]
+X-Mailer: Zimbra 8.0.7_GA_6021 (ZimbraWebClient - GC75 (Win)/8.0.7_GA_6021)
+Thread-Topic: Pengar =?utf-8?B?w7Z2ZXJmw7Zycw==?=
+Thread-Index: q0u7hwNbXiurGLSmt7HkuXpiq0V0IA==
 To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+Office Of The Head
+Internationell överföring
+Operation Zenith Bank
+(UK) Ltd LONDON United
+Storbritannien och Irland
+Tel: +44 203 389 5674
+Fax: +44 704 307 1539
 
-I came across your e-mail contact prior a private search while in need of 
-your assistance. My name is Aisha  Gaddafi a single Mother and a Widow with 
-three Children. I am the only biological Daughter of late Libyan President 
-(Late Colonel Muammar Gaddafi).
+Hälsning,
 
-I have investment funds worth Twenty Seven Million Five Hundred Thousand 
-United State Dollar ($27.500.000.00 ) and i need a trusted investment 
-Manager/Partner because of my current refugee status, however, I am 
-interested in you for investment project assistance in your country, may be 
-from there, we can build business relationship in the nearest future.
+Din e-postadress kom upp i ett slumpmässigt drag som genomfördes i Zenith Banks huvudkontor, International Transfer Operation i London, Storbritannien.
 
-I am willing to negotiate investment/business profit sharing ratio with you 
-base on the future investment earning profits.
+Jag är Mr.WEHNER DAVID M.A personlig bokföring till avdöd Michael Blair som arbetade med Shell British Petroleum. Mr.Michael Blair, en välkänd filantropist, innan han dog, gjorde en testamente i ett advokatbyrå om att 12,5 miljoner US dollar (tolv miljoner femhundra tusen amerikanska dollar) bör doneras till någon lycklig individuell filantrop eller välgörenhetsorganisation utomlands.
 
-If you are willing to handle this project on my behalf kindly reply urgent 
-to enable me provide you more information about the investment funds.
+Zenith Bank Abp är en överenskommelse med sena Michael Blair om att donera fonden till alla lyckliga individer i Amerika, Europa, Asien och Afrika i andra för att förbättra liv och företag
 
-Your Urgent Reply Will Be Appreciated.
+Vi har gjort vårt slumpmässiga drag och din e-postadress valdes för att ta emot denna fond som mottagare av hans testament. Vänligen snälla tillbaka till mig
+så snart du har fått vårt e-postmeddelande för att aktivera överföringen
+Operationen riktar dig till vad du ska göra för att få denna fond lagligen.
 
-Best Regards
-Mrs Aisha Gaddafi
-(gaddafia504@gmail.com)
+Du rekommenderas att ta med följande nedan:
+
+FULLSTÄNDIGA NAMN:
+
+FULL KONTAKTADRESS:
+
+TELEFON- OCH FAXNUMMER:
+
+Med vänliga hälsningar,
+Mr.WEHNER DAVID M.
+Chef, internationell överföringsoperation
+Zenith Bank (UK) Abp
