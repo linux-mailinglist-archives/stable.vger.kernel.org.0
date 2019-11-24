@@ -2,64 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2FE710826B
-	for <lists+stable@lfdr.de>; Sun, 24 Nov 2019 08:00:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CFE0108294
+	for <lists+stable@lfdr.de>; Sun, 24 Nov 2019 10:21:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726912AbfKXHAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Nov 2019 02:00:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55044 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725813AbfKXHAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 Nov 2019 02:00:39 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0043207FC;
-        Sun, 24 Nov 2019 07:00:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574578838;
-        bh=NzzqisF+akJ9nukjZHOfzaIXXKGif2YRt2J9cwGPjwc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ie1Bb5/q33DsFwagOoqV8xwsLY5P0dDbLONgbo8+lDgTQfIv/FMse0gB/8jssPf2Z
-         CnITMSdepSBzqfInRmKqIs86B4v9TUEr36WgzqhDd8KDkIEPwIs/T0qRgDFzwHOJvM
-         9YdA1xCD8s4gXzJSScRmbu6bU5KvzvDYZUIEQxqg=
-Date:   Sun, 24 Nov 2019 08:00:34 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.3 0/6] 5.3.13-stable review
-Message-ID: <20191124070034.GA2229527@kroah.com>
-References: <20191122100320.878809004@linuxfoundation.org>
- <20191122181407.GE13514@roeck-us.net>
+        id S1726004AbfKXJVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Nov 2019 04:21:46 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:35438 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725980AbfKXJVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Nov 2019 04:21:46 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id AD4911C1EAF; Sun, 24 Nov 2019 10:21:44 +0100 (CET)
+Date:   Sun, 24 Nov 2019 10:21:43 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 025/220] SUNRPC: Fix priority queue fairness
+Message-ID: <20191124092143.GA31120@amd>
+References: <20191122100912.732983531@linuxfoundation.org>
+ <20191122100914.283665562@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
 Content-Disposition: inline
-In-Reply-To: <20191122181407.GE13514@roeck-us.net>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191122100914.283665562@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 10:14:07AM -0800, Guenter Roeck wrote:
-> On Fri, Nov 22, 2019 at 11:30:02AM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.3.13 release.
-> > There are 6 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sun, 24 Nov 2019 09:59:19 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 156 pass: 156 fail: 0
-> Qemu test results:
-> 	total: 390 pass: 390 fail: 0
 
-Thanks for testing all of these and letting me know.
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+On Fri 2019-11-22 11:26:30, Greg Kroah-Hartman wrote:
+> From: Trond Myklebust <trond.myklebust@hammerspace.com>
+>=20
+> [ Upstream commit f42f7c283078ce3c1e8368b140e270755b1ae313 ]
+>=20
+> Fix up the priority queue to not batch by owner, but by queue, so that
+> we allow '1 << priority' elements to be dequeued before switching to
+> the next priority queue.
+> The owner field is still used to wake up requests in round robin order
+> by owner to avoid single processes hogging the RPC layer by loading the
+> queues.
+
+
+>  include/linux/sunrpc/sched.h |   2 -
+>  net/sunrpc/sched.c           | 109 +++++++++++++++++------------------
+>  2 files changed, 54 insertions(+), 57 deletions(-)
+
+While this might improve things, it is not fixing a serious bug.
+
+Plus, it is over limit for stable.
+
+Best regards,
+								Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl3aS6cACgkQMOfwapXb+vLt+gCgtW8z0jM4oPxIc0G2qQrdmIqr
+GRsAoIf+WnKF9jLMujiStSY2R8+gldEI
+=6TmO
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--
