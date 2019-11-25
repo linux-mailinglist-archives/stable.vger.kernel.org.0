@@ -2,116 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 697B0109147
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 16:50:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5886F10917C
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 17:02:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728658AbfKYPuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 10:50:51 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:39607 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728592AbfKYPuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 10:50:51 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iZGdP-0008Sa-Ou; Mon, 25 Nov 2019 16:50:43 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 467F51C1AF2;
-        Mon, 25 Nov 2019 16:50:43 +0100 (CET)
-Date:   Mon, 25 Nov 2019 15:50:43 -0000
-From:   "tip-bot2 for Andy Lutomirski" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/entry/32: Fix FIXUP_ESPFIX_STACK with user CR3
-Cc:     Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        <stable@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+        id S1728732AbfKYQCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 11:02:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728650AbfKYQCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 11:02:47 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4AF820679;
+        Mon, 25 Nov 2019 16:02:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574697766;
+        bh=skJc9fG/eJBZo5SjIMjAN61t7JCkmNqQuuiP8i9fmKQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pa+ghNJa5+QXMJvuY5ttkyuMX0HqhGsl9Zu/52uR3DekV5IvbVz/c1e6iG/QOxw/d
+         ZvYEYmn9ev7xLmKyq886nUCod9HSLkfjW6NFUHNogq2WTD39jvft7Po8rFm6wkTCiC
+         joae7KFqi1JMldRAnUR9X54gDa7g3GcMOUW5Oycw=
+Date:   Mon, 25 Nov 2019 17:02:44 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Jon Hunter <jonathanh@nvidia.com>, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 000/159] 4.4.203-stable review
+Message-ID: <20191125160244.GC2683321@kroah.com>
+References: <20191122100704.194776704@linuxfoundation.org>
+ <f0f505ae-5113-1abd-d4f7-0c3535c83de4@nvidia.com>
+ <20191122133931.GA2033651@kroah.com>
+ <20191122134131.GA2050590@kroah.com>
+ <20191122134627.GB2050590@kroah.com>
+ <9f976044-2dbc-6c19-11e7-210cd7ab35ea@nvidia.com>
+ <a5d68f07-5f9a-2809-404d-bcd8ca593d70@roeck-us.net>
+ <7edc9531-347e-9ac7-2583-5efb49acffdb@nvidia.com>
+ <20191125094116.GA2340170@kroah.com>
+ <db428001-f6b5-3132-2d93-ef04f67078dc@roeck-us.net>
 MIME-Version: 1.0
-Message-ID: <157469704311.21853.13499142066823391029.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <db428001-f6b5-3132-2d93-ef04f67078dc@roeck-us.net>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Mon, Nov 25, 2019 at 06:08:17AM -0800, Guenter Roeck wrote:
+> On 11/25/19 1:41 AM, Greg Kroah-Hartman wrote:
+> > On Sun, Nov 24, 2019 at 08:31:46PM +0000, Jon Hunter wrote:
+> > > 
+> > > On 23/11/2019 15:46, Guenter Roeck wrote:
+> > > > On 11/22/19 6:48 AM, Jon Hunter wrote:
+> > > > 
+> > > > [ ... ]
+> > > > 
+> > > > > Error: arch/arm/boot/dts/omap5-board-common.dtsi:636.1-6 Label or path
+> > > > > dwc3 not found
+> > > > > FATAL ERROR: Syntax error parsing input tree
+> > > > > scripts/Makefile.lib:293: recipe for target
+> > > > > 'arch/arm/boot/dts/omap5-igep0050.dtb' failed
+> > > > > make[1]: *** [arch/arm/boot/dts/omap5-igep0050.dtb] Error 1
+> > > > > arch/arm/Makefile:338: recipe for target 'dtbs' failed
+> > > > > make: *** [dtbs] Error 2
+> > > > > 
+> > > > > 
+> > > > > This is caused by the following commit ...
+> > > > > 
+> > > > > commit d0abc07b3d752cbe2a8d315f662c53c772caed0f
+> > > > > Author: H. Nikolaus Schaller <hns@goldelico.com>
+> > > > > Date:   Fri Sep 28 17:54:00 2018 +0200
+> > > > > 
+> > > > >       ARM: dts: omap5: enable OTG role for DWC3 controller
+> > > > > 
+> > > > 
+> > > > On top of the breakage caused by this patch, I would also argue
+> > > > that it is not a bug fix and should not have been included
+> > > > in the first place.
+> > > > 
+> > > > The dwc3 label was added with commit 4c387984618fe ("ARM: dts: omap5:
+> > > > Add l4 interconnect hierarchy and ti-sysc data"). Given the size of
+> > > > that patch, I highly doubt that a backport to 4.4 would work.
+> > 
+> > Good catch, I have now dropped both of these patches and pushed out a
+> > -rc3
+> > 
+> > > FYI ... I am still seeing a build failure because of this with -rc2 ...
+> > 
+> > Can you see if -rc3 is also giving you problems?
+> > 
+> 
+> For v4.4.202-157-g2576206c30b5:
+> 
+> Build results:
+> 	total: 170 pass: 170 fail: 0
+> Qemu test results:
+> 	total: 324 pass: 324 fail: 0
 
-Commit-ID:     4a13b0e3e10996b9aa0b45a764ecfe49f6fcd360
-Gitweb:        https://git.kernel.org/tip/4a13b0e3e10996b9aa0b45a764ecfe49f6fcd360
-Author:        Andy Lutomirski <luto@kernel.org>
-AuthorDate:    Sun, 24 Nov 2019 08:50:03 -08:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Mon, 25 Nov 2019 09:36:47 +01:00
+Thanks for testing, I'll go with this tree now.
 
-x86/entry/32: Fix FIXUP_ESPFIX_STACK with user CR3
-
-UNWIND_ESPFIX_STACK needs to read the GDT, and the GDT mapping that
-can be accessed via %fs is not mapped in the user pagetables.  Use
-SGDT to find the cpu_entry_area mapping and read the espfix offset
-from that instead.
-
-Reported-and-tested-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
----
- arch/x86/entry/entry_32.S | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
-
-diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
-index 0b8c931..f07baf0 100644
---- a/arch/x86/entry/entry_32.S
-+++ b/arch/x86/entry/entry_32.S
-@@ -415,7 +415,8 @@
- 
- .macro CHECK_AND_APPLY_ESPFIX
- #ifdef CONFIG_X86_ESPFIX32
--#define GDT_ESPFIX_SS PER_CPU_VAR(gdt_page) + (GDT_ENTRY_ESPFIX_SS * 8)
-+#define GDT_ESPFIX_OFFSET (GDT_ENTRY_ESPFIX_SS * 8)
-+#define GDT_ESPFIX_SS PER_CPU_VAR(gdt_page) + GDT_ESPFIX_OFFSET
- 
- 	ALTERNATIVE	"jmp .Lend_\@", "", X86_BUG_ESPFIX
- 
-@@ -1147,12 +1148,26 @@ ENDPROC(entry_INT80_32)
-  * We can't call C functions using the ESPFIX stack. This code reads
-  * the high word of the segment base from the GDT and swiches to the
-  * normal stack and adjusts ESP with the matching offset.
-+ *
-+ * We might be on user CR3 here, so percpu data is not mapped and we can't
-+ * access the GDT through the percpu segment.  Instead, use SGDT to find
-+ * the cpu_entry_area alias of the GDT.
-  */
- #ifdef CONFIG_X86_ESPFIX32
- 	/* fixup the stack */
--	mov	GDT_ESPFIX_SS + 4, %al /* bits 16..23 */
--	mov	GDT_ESPFIX_SS + 7, %ah /* bits 24..31 */
-+	pushl	%ecx
-+	subl	$2*4, %esp
-+	sgdt	(%esp)
-+	movl	2(%esp), %ecx				/* GDT address */
-+	/*
-+	 * Careful: ECX is a linear pointer, so we need to force base
-+	 * zero.  %cs is the only known-linear segment we have right now.
-+	 */
-+	mov	%cs:GDT_ESPFIX_OFFSET + 4(%ecx), %al	/* bits 16..23 */
-+	mov	%cs:GDT_ESPFIX_OFFSET + 7(%ecx), %ah	/* bits 24..31 */
- 	shl	$16, %eax
-+	addl	$2*4, %esp
-+	popl	%ecx
- 	addl	%esp, %eax			/* the adjusted stack pointer */
- 	pushl	$__KERNEL_DS
- 	pushl	%eax
+greg k-h
