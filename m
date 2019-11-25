@@ -2,77 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA6D108EEE
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 14:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 994D8108EF3
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 14:33:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725862AbfKYNbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 08:31:42 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:43477 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727682AbfKYNbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 08:31:41 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D22ED2278C;
-        Mon, 25 Nov 2019 08:31:40 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 25 Nov 2019 08:31:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=qKi5FNT3OnBwe/nIrEyGbeeR9p2
-        mFGXBjImjMtwWN6A=; b=rzlFTr6uKoqYzGUchlc7iGR+BS8DH6Y+Exrav1uJi4q
-        /U3xA8bV06IQB8hoU8/tS3yvnIdvPa8QLY+FHVMn0b2EaK9DYUnJe0vs/vZ/uMzY
-        bE3aUHKALzqF1cBtyC/woa7/V5Csc88iQTUdeKD3y1iQZhyZ88RX0jSm1qvTSnwv
-        95dr4fb5JZBhQIzgks9Z3VC5nauzfLuN4q+LU/wPKaigCxQYsgajdB76GYS2FZrH
-        y5dprn+r3JWWrvSd5qRCzk3KOjUdqBX7dd0xVmhlagacgMlY8bRbWY6LStMjCftB
-        rlWxQmZ0Xd10ANTzZCf0BboN8jiFelg6GJf/aHOs2DQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=qKi5FN
-        T3OnBwe/nIrEyGbeeR9p2mFGXBjImjMtwWN6A=; b=VkPMzBqC+FQDm5cjyisixy
-        HH6Hh+wqh9OYyOV/di/NWUSdCO7W8qlW0rtYHtyfIsL0yogM9tK5lYyznxejeCMP
-        KyYe+cR0w2kyw+Kw8V2hwHgyIMuoft9gm14ehcvZmXTt10fWR6h6EeqBV0uqT7SD
-        D/5dtwoo1Hstz2wU7JCsskmTjdiwmwWKdp/glj6SBOZTIESw+6E3C7lon4Ycuct4
-        mfJ7kruASvlzHYQoKSsdhPnekDUDu0f8KCjvSPuFjwThzABqGI7pDc9MyQjTZulx
-        bPMv59c3iMInioXghwDOTnnOZRRibU6O2TK+cuCeuwk1qkNuzlPTj237gjeLpW2Q
-        ==
-X-ME-Sender: <xms:vNfbXaY0FxyFW143KmNnEDTc8YIZnHETzx7nYf2M6Vr2Li7wg8U4Mg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeiuddgheegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:vNfbXQ5EDoIrD_nN8n2mrhB1L62ICj5NZXrTaIvmduoNaiZvoc1jlg>
-    <xmx:vNfbXbtob2ArnHj8sgFXrqXFpJo0eqB3v-AM7qebc4gxA3m9vZs-0w>
-    <xmx:vNfbXa6WrrEcip-QXbZ1x4QfE9qLzQmRxmLxU0gU-_jB-1_mygYx-w>
-    <xmx:vNfbXReLS8gELrI52wokXjuVtKr7WxTB0zVIoA_OzbkqeIz5gq8Ehg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5D671306005E;
-        Mon, 25 Nov 2019 08:31:40 -0500 (EST)
-Date:   Mon, 25 Nov 2019 14:31:38 +0100
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20191125133138.GA2625950@kroah.com>
-References: <20191124.215449.619700122316097004.davem@davemloft.net>
+        id S1727677AbfKYNdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 08:33:50 -0500
+Received: from wtarreau.pck.nerim.net ([62.212.114.60]:25599 "EHLO 1wt.eu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727497AbfKYNdu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 08:33:50 -0500
+Received: (from willy@localhost)
+        by pcw.home.local (8.15.2/8.15.2/Submit) id xAPDXiV3018216;
+        Mon, 25 Nov 2019 14:33:44 +0100
+Date:   Mon, 25 Nov 2019 14:33:44 +0100
+From:   Willy Tarreau <w@1wt.eu>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Bob Funk <bobfunk11@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
+Subject: Re: Bug Report - Kernel Branch 4.4.y - asus-wmi.c
+Message-ID: <20191125133344.GE15261@1wt.eu>
+References: <33bfa93a-3853-85f5-47f9-8a69ed9c656e@gmail.com>
+ <20191123092701.GA2129125@kroah.com>
+ <e452278c-4b5c-59fc-441c-94b41d817503@gmail.com>
+ <20191123192244.GA16156@1wt.eu>
+ <20191125133048.GA12367@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191124.215449.619700122316097004.davem@davemloft.net>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191125133048.GA12367@sasha-vm>
+User-Agent: Mutt/1.6.1 (2016-04-27)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 24, 2019 at 09:54:49PM -0800, David Miller wrote:
+On Mon, Nov 25, 2019 at 08:30:48AM -0500, Sasha Levin wrote:
+> On Sat, Nov 23, 2019 at 08:22:44PM +0100, Willy Tarreau wrote:
+> > On Sat, Nov 23, 2019 at 01:08:03PM -0600, Bob Funk wrote:
+> > > For the record, the patch that Willy offered does fix the issue on my
+> > > affected
+> > > system. That might be a better choice than my request to revert as per the
+> > > original email.
+> > 
+> > Greg, FWIW I did nothing more than a regular backport so that you can take
+> > it as-is. I think you dropped it from 4.4 because it did not apply well
+> > and was not worth the hassle, but given that it fixes a regression caused
+> > by another backport I think it makes sense to take it, at least so that
+> > some users do not stop updating. The fix was only merged into 4.19, not
+> > 4.4/4.9/4.14.
+> > 
+> > The backports for 4.9 and 4.14 are easy to do, if you're willing to take
+> > the patches I can do them as well, just let me know.
 > 
-> Please queue up the following networking bug fixes for v4.19 and v5.3
-> -stable, respectively.
+> Let's try something like this:
+> 
+> For 4.14 and 4.9 I'll also grab db2582afa744 ("platform/x86:
+> asus-nb-wmi: Support ALS on the Zenbook UX430UQ") which makes 401fee819
+> apply cleanly.
+> 
+> For 4.4, I'll grab this long list:
+> 
+> 92a505e8055f ("platform/x86: asus-wmi: add SERIO_I8042 dependency")
+> db2582afa744 ("platform/x86: asus-nb-wmi: Support ALS on the Zenbook UX430UQ")
+> 71f38c11cdb8 ("platform/x86: asus-wmi: Set specified XUSB2PR value for X550LB")
+> 999d4376c628 ("platform/x86: asus-wmi: fix asus ux303ub brightness issue")
+> a961a285b479 ("asus-wmi: Add quirk_no_rfkill_wapf4 for the Asus X456UF")
+> a977e59c0c67 ("asus-wmi: Create quirk for airplane_mode LED")
+> 6b7ff2af5286 ("asus-wmi: Add quirk_no_rfkill for the Asus Z550MA")
+> 02db9ff7af18 ("asus-wmi: Add quirk_no_rfkill for the Asus U303LB")
+> 2d735244b798 ("asus-wmi: Add quirk_no_rfkill for the Asus N552VW")
+> b5643539b825 ("platform/x86: asus-wmi: Filter buggy scan codes on ASUS Q500A")
+> 7c1c184bb571 ("platform/x86: asus-wmi: try to set als by default")
+> aca234f63788 ("asus-wmi: provide access to ALS control")
+> 
+> Which looks scary, but it's all quirks for laptops folks are actually
+> using with this kernel. Then 401fee819 also applies cleanly on 4.4.
 
-All now queued up, thanks!
+Ah the joy of dealing with stable branches :-) I agree that all of them
+are sufficiently small and isolated to be easy to deal with, and if they
+can avoid bug reports that's always a bonus.
 
-greg k-h
+Willy
