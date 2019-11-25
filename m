@@ -2,107 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20271109379
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 19:25:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5FA10937B
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 19:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727555AbfKYSZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 13:25:47 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:51109 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727269AbfKYSZr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 13:25:47 -0500
-Received: by mail-wm1-f68.google.com with SMTP id l17so386561wmh.0
-        for <stable@vger.kernel.org>; Mon, 25 Nov 2019 10:25:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=L18Z1pkukvs4+t/dQnfMfP/fIVsDfb5z1Omz/Ism5ts=;
-        b=X9514pwmhBqfA+7SYh8Gv00FJqpkcpuuCPbq021pMG9nvFIflRoTJ7OMG5GcMwqYh5
-         nfqVZHAnuR8JoDKGXcszM6Qq4p3Pa8q2F+l/LiFBd2pD8byT8SsrtPbOPgLlRIgTazVm
-         pANtLdrtoVuO+9sWju/UdYo76GQIFUe8gYljAqeOY/xFj3HzKLzLeb79t3AyJ50cNn01
-         /57q1JSPytMvhhSj2IF5mOKY49ctgBL0rjqdWBp8IJMjXI8RfNGWOp3kKvMcEEU51EQp
-         TEHySey4OsE2rNAYttFgLNc/9XPyZJRTsjc9BJFsj0aXrsSCWr5llD0EZFouZ4TgENIG
-         vqvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=L18Z1pkukvs4+t/dQnfMfP/fIVsDfb5z1Omz/Ism5ts=;
-        b=KLxYWbHsS6byRN1uYMp0Xc0RmLV0PihCCUKKh8l/m11a2XV6tTH0xy7ssrF0KiE+AV
-         nXWBVJDzaoXUSp5VLmj2LRshXueZAY/xAYekLE2xXVYEmFj0wRcSUp2xhR1FPhqAXRQg
-         scjgZ1ucI/gnAogUBP2UlbP82CvzRAR2ml978kYLZHDBTcRPVwgqPFxj29BvFrz1MHK2
-         +HWMsfO6C7r1VWUIakyz7SWOtjzAUscGhxGP+gE3UHemKPfF5OfDAQKtjmk9CTheVYvf
-         vqSoSajAo6yQHHxcVAz2ZQ0F1wQdaJnZHITWnGYI0v3zRqM9eraK/PEDh5M2pktdpTMy
-         baDw==
-X-Gm-Message-State: APjAAAXZ82fy/8sGcQtPHOMZI2n9AmaXgVEessOX0c73YpERyl8so9T2
-        R4+B9xGiQ2Co6yzSKkJaQe5BX5+qEyU=
-X-Google-Smtp-Source: APXvYqwxQz+GSnU8WW4L1taEBxK16pIAcgaD8Nul8USX6bWzDwXapUFPSs11LTqeXfXQZdjM1jCpKA==
-X-Received: by 2002:a7b:c7c7:: with SMTP id z7mr174841wmk.133.1574706344692;
-        Mon, 25 Nov 2019 10:25:44 -0800 (PST)
-Received: from dell ([95.149.164.72])
-        by smtp.gmail.com with ESMTPSA id x8sm149912wmi.10.2019.11.25.10.25.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2019 10:25:43 -0800 (PST)
-Date:   Mon, 25 Nov 2019 18:25:29 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 3/8] arm64: fix for bad_mode() handler to always
- result in panic
-Message-ID: <20191125182529.GH3296@dell>
-References: <20191122105253.11375-1-lee.jones@linaro.org>
- <20191122105253.11375-3-lee.jones@linaro.org>
- <20191125134700.GA5861@sasha-vm>
- <20191125144429.GF3296@dell>
- <20191125174103.GA2872072@kroah.com>
+        id S1727719AbfKYS1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 13:27:20 -0500
+Received: from 50-87-157-213.static.tentacle.fi ([213.157.87.50]:44858 "EHLO
+        bitmer.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727269AbfKYS1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 13:27:20 -0500
+Received: from dsl-hkibng31-54fae3-94.dhcp.inet.fi ([84.250.227.94] helo=[192.168.1.42])
+        by bitmer.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.84_2)
+        (envelope-from <jarkko.nikula@bitmer.com>)
+        id 1iZJ4u-0007De-2W; Mon, 25 Nov 2019 20:27:16 +0200
+Subject: Re: [PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection
+ GPIO polarity
+To:     Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Cc:     linux-omap@vger.kernel.org, stable@vger.kernel.org
+References: <20191116151651.7042-1-jarkko.nikula@bitmer.com>
+ <20191125111125.AF5D720836@mail.kernel.org>
+From:   Jarkko Nikula <jarkko.nikula@bitmer.com>
+Message-ID: <27e677de-4e45-7eef-45b5-796e29fd39c0@bitmer.com>
+Date:   Mon, 25 Nov 2019 20:27:12 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
+In-Reply-To: <20191125111125.AF5D720836@mail.kernel.org>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191125174103.GA2872072@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 25 Nov 2019, Greg KH wrote:
-
-> On Mon, Nov 25, 2019 at 02:44:29PM +0000, Lee Jones wrote:
-> > On Mon, 25 Nov 2019, Sasha Levin wrote:
-> > 
-> > > On Fri, Nov 22, 2019 at 10:52:48AM +0000, Lee Jones wrote:
-> > > > From: Hari Vyas <hari.vyas@broadcom.com>
-> > > > 
-> > > > [ Upstream commit e4ba15debcfd27f60d43da940a58108783bff2a6 ]
-> > > > 
-> > > > The bad_mode() handler is called if we encounter an uunknown exception,
-> > > > with the expectation that the subsequent call to panic() will halt the
-> > > > system. Unfortunately, if the exception calling bad_mode() is taken from
-> > > > EL0, then the call to die() can end up killing the current user task and
-> > > > calling schedule() instead of falling through to panic().
-> > > > 
-> > > > Remove the die() call altogether, since we really want to bring down the
-> > > > machine in this "impossible" case.
-> > > 
-> > > Should this be in newer LTS kernels too? I don't see it in 4.14. We
-> > > can't take anything into older kernels if it's not in newer ones - we
-> > > don't want to break users who update their kernels.
-> > 
-> > Only; 3.18, 4.4, 4.9 and 5.3 were studied.
-> > 
-> > I can look at others if it helps.
+On 11/25/19 1:11 PM, Sasha Levin wrote:
+> Hi,
 > 
-> You have to look at others, we can't have regressions if people move
-> from one LTS to a newer one.
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards").
+> 
+> The bot has tested the following trees: v5.3.12, v4.19.85, v4.14.155, v4.9.202, v4.4.202.
+> 
+> v5.3.12: Build OK!
+> v4.19.85: Build OK!
+> v4.14.155: Build OK!
+> v4.9.202: Failed to apply! Possible dependencies:
+>     1a177cf72b3a ("ARM: dts: dra72-evm-tps65917: Add voltage supplies to usb_phy, mmc, dss")
+>     45ea75eb92a4 ("ARM: dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"")
+>     5d080aa30681 ("ARM: dts: dra72: Add separate dtsi for tps65917")
+>     6eebfeb9cf0d ("ARM: dts: Add support for dra718-evm")
+>     e9a05fbd21de ("ARM: dts: dra72-evm: Fix modelling of regulators")
+> 
+> v4.4.202: Failed to apply! Possible dependencies:
+>     12ca468306a2 ("ARM: dts: am57xx: cl-som-am57x: add dual EMAC support")
+>     1a472e14ba08 ("ARM: dts: am57xx: cl-som-am57x: dts: add RTC support")
+>     27ddd846cb25 ("ARM: dts: am57xx: cl-som-am57x: add USB support")
+>     2c7cf1f48f36 ("ARM: dts: am57xx: cl-som-am57x: add EEPROM support")
+>     2d47fc3b9801 ("ARM: dts: am57xx: cl-som-am57x: add touchscreen support")
+>     317d15679a5e ("ARM: dts: dra72-evm: Mark uart1 rxd as wakeup capable")
+>     387450fc882e ("ARM: dts: am57xx: cl-som-am57x: add basic module support")
+>     3a1de8082405 ("ARM: dts: dra7xx: Fix compatible string for PCF8575 chip")
+>     4424cd009648 ("ARM: dts: am57xx: cl-som-am57x: add analog audio support")
+>     45ea75eb92a4 ("ARM: dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"")
+>     488f270d90e1 ("ARM: dts: dra7: Fix NAND device nodes")
+>     4e8603eff519 ("ARM: dts: omap: remove unneeded unit name for sound nodes")
+>     6686f744df70 ("ARM: dts: DRA72-EVM: Add regulator-allow-bypass property for ldo1 and ldo2")
+>     6cfec12f2545 ("ARM: dts: dra72-evm: Enable AFIFO use for McASP3")
+>     6eebfeb9cf0d ("ARM: dts: Add support for dra718-evm")
+>     8deb60f535fa ("ARM: dts: am57xx: cl-som-am57x: add eMMC support")
+>     9255ea8472d2 ("ARM: dts: dra72-evm: Use DRA7XX_CORE_IOPAD pinmux macro")
+>     a23fc1558487 ("ARM: dts: dra7x-evm: Provide NAND ready pin")
+>     a4240d3af677 ("ARM: dts: Add support for dra72-evm rev C (SR2.0)")
+>     a7cac713f90a ("ARM: dts: AM572x-IDK Initial Support")
+>     cc2d681420d0 ("ARM: dts: am57xx: cl-som-am57x: add spi-flash support")
+>     e1fdd060f08d ("ARM: dts: am57xx: sbc-am57x: add basic board support")
+>     e9a05fbd21de ("ARM: dts: dra72-evm: Fix modelling of regulators")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
+Ah, it doesn't apply to v4.4 and v4.9 due the commit 45ea75eb92a4 ("ARM:
+dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"") but that commit
+doesn't apply either stable and probably even should not even if it would.
 
-Sure, I understand. Will do from now on.
+I believe best is me to submit a separate version for v4.4/v4.9.
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Jarkko
