@@ -2,100 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 789AB108F4B
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 14:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B4B108F78
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 15:01:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727462AbfKYNyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 08:54:07 -0500
-Received: from mail-wm1-f50.google.com ([209.85.128.50]:40676 "EHLO
-        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727609AbfKYNyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 08:54:07 -0500
-Received: by mail-wm1-f50.google.com with SMTP id y5so16039774wmi.5
-        for <stable@vger.kernel.org>; Mon, 25 Nov 2019 05:54:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=evptul7kVBn5fFlescDSwpCxkVdHMtmZwublR8Xe3ts=;
-        b=nQxteiW3er8bUdN63ekaQJXS/AuLeu7u4SmJZ78cvX8DSpXU4NtMTJrRApT6sgoI4i
-         5aZxeu5NG7O/HpR7iXZbNYpMAygbeTBR4FUuyZcEGHbA2AuSMKJeweszP2fjVEC7Ci/N
-         KkOfWjvXwCNYyEpZjTRm5/F79B8PgcuIh0Prdud57wmz11yYevSAsajnJkPTrjmvfMJU
-         Wf1/+XVDUsviY/xnuIOXXp//w3OdXbzsO6mZQoLk9JIpJhc25Ya1WSdEVgel4GJXFx1S
-         osb5j84cE33d796sWnYAolacSrsq4xwAevnvIPUFrwx1UNJXbsfIyCLaAoFsbWZvLRAJ
-         IPyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=evptul7kVBn5fFlescDSwpCxkVdHMtmZwublR8Xe3ts=;
-        b=YPkBJsuemPOPHl3jsZiDWlHPqIIRVel+sQV9ff8eZ0RJfYJglU1C2ZfGA2k7+maXFK
-         vtuTcyjRgn6MZqVzREpcxGJGKuxjLOc0e7eNjyDzCg38En9geqm2rQwk0mRqpULyuv0I
-         He2YRA0eoLRjiswNxdtVqs+wajKW+g/EFDcm9DgaT/S32FLSVq00podkR+tkPOEm+t2j
-         /EyIeNplEJUWj+pzcTKTooOpwB5tQ3c0rhjfb3BQv9I3Q2B1ZFgtFp8eftxyrD7ve+Ao
-         Gngw1UE53srjc/SCsdjlkpX2bdAGBmp8w0odCKVe5lc/J1mc0HF0gsphVKLbhr4Z8uGC
-         njvQ==
-X-Gm-Message-State: APjAAAWIUmLuIKHxDvQmUej67ADSv5Gr9Zf4xa0iw0pVZ5q81a2xNfCK
-        qtPe7F74Ts8kxd8poYOghrh+G2inItIONQ==
-X-Google-Smtp-Source: APXvYqy2QPN7y2tJpCa/I2xqrSG4lMoDtXMTUfMg/O5HKXXio2JEuntylFh17Dclx49UevuUWJdFjA==
-X-Received: by 2002:a05:600c:2911:: with SMTP id i17mr28307111wmd.83.1574690045169;
-        Mon, 25 Nov 2019 05:54:05 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a26sm8118125wmm.14.2019.11.25.05.54.04
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2019 05:54:04 -0800 (PST)
-Message-ID: <5ddbdcfc.1c69fb81.58851.8ef6@mx.google.com>
-Date:   Mon, 25 Nov 2019 05:54:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727823AbfKYOBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 09:01:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727695AbfKYOBX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 09:01:23 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9082D20679;
+        Mon, 25 Nov 2019 14:01:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574690482;
+        bh=RKHkvJasBb9XZlFJJM88//Z1Z+h2at816g2Wx2thnNU=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=MWOotXo1F/R2WSj5r8nX+ONxRG0aEigugR2ZzYON2qBwjIPkPxiquPymK1FDusmay
+         xH5zPQBFjnqU7M+6zOLlCMZy7Pwb33qQ9YjPfaDI3fytPtzo/ipcGjTjIC9llPwo4L
+         0eJc0Y/Oxt49SV4C4jvX4P4VUisv6EXWFaj7G+FY=
+Date:   Mon, 25 Nov 2019 09:01:21 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     dsterba@suse.cz, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Liu Bo <bo.liu@linux.alibaba.com>,
+        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 028/237] Btrfs: fix alignment in declaration
+ and prototype of btrfs_get_extent
+Message-ID: <20191125140121.GD5861@sasha-vm>
+References: <20191116154113.7417-1-sashal@kernel.org>
+ <20191116154113.7417-28-sashal@kernel.org>
+ <20191118111143.GE3001@twin.jikos.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.203
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.9.y boot: 51 boots: 2 failed, 49 passed (v4.9.203)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20191118111143.GE3001@twin.jikos.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y boot: 51 boots: 2 failed, 49 passed (v4.9.203)
+On Mon, Nov 18, 2019 at 12:11:43PM +0100, David Sterba wrote:
+>On Sat, Nov 16, 2019 at 10:37:43AM -0500, Sasha Levin wrote:
+>> From: Liu Bo <bo.liu@linux.alibaba.com>
+>>
+>> [ Upstream commit de2c6615dcddf2af868c5cbd1db2e9e73b4beb58 ]
+>>
+>> This fixes btrfs_get_extent to be consistent with our existing
+>> declaration style.
+>
+>The patch is pure white space fix with no effects. I don't see that it
+>would be needed for a followup patch. What was the reason to add it to
+>autosel/stable ?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-9.y/kernel/v4.9.203/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.203/
+Oh I grabbed it as a dependency for a follow up patch which I ended up
+dropping, and forgot this one in. I'll drop it as well, sorry for the
+noise.
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.203
-Git Commit: a777e9dd40fe85dfd0cc5cb2b6c22a9cd1d08c0d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 28 unique boards, 14 SoC families, 10 builds out of 197
-
-Boot Regressions Detected:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8:
-          tegra124-nyan-big:
-              lab-collabora: new failure (last pass: v4.9.202)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            tegra124-nyan-big: 1 failed lab
-
-    tegra_defconfig:
-        gcc-8:
-            tegra124-nyan-big: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+Sasha
