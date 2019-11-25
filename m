@@ -2,97 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C13F9108B13
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 10:41:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52DD5108B5B
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 11:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727279AbfKYJlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 04:41:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727261AbfKYJlT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Nov 2019 04:41:19 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75E61207FD;
-        Mon, 25 Nov 2019 09:41:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574674878;
-        bh=+Y6FIMc4+xqo5D5vbmeoa59aQM+tiG4yrw3isimy21M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RdZ/Ar69kyQ4p7MLxhA2LWC/rkl+WJhM0vwykksYnDs8Mf+E1RCYSNzCma8THvDOF
-         LWrRk4mMf07uylhXs1X60LCbztuv8Qzq9B7rei6FCUQEtD8qauGpuU4gXlUiNKPs78
-         gL28Gwxp4rxEgUuDXS1LwRzkc5EkMRIuNPV2yAXI=
-Date:   Mon, 25 Nov 2019 10:41:16 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.4 000/159] 4.4.203-stable review
-Message-ID: <20191125094116.GA2340170@kroah.com>
-References: <20191122100704.194776704@linuxfoundation.org>
- <f0f505ae-5113-1abd-d4f7-0c3535c83de4@nvidia.com>
- <20191122133931.GA2033651@kroah.com>
- <20191122134131.GA2050590@kroah.com>
- <20191122134627.GB2050590@kroah.com>
- <9f976044-2dbc-6c19-11e7-210cd7ab35ea@nvidia.com>
- <a5d68f07-5f9a-2809-404d-bcd8ca593d70@roeck-us.net>
- <7edc9531-347e-9ac7-2583-5efb49acffdb@nvidia.com>
+        id S1727316AbfKYKGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 05:06:24 -0500
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:38537 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727133AbfKYKGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 05:06:24 -0500
+Received: by mail-ot1-f66.google.com with SMTP id z25so12059312oti.5
+        for <stable@vger.kernel.org>; Mon, 25 Nov 2019 02:06:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=KPbcLzmN3JirQxcIsMNAPGvvWsFgMpVPgXZTiKQLiRk=;
+        b=C/LMv+LgeMNv0VYTXswcjPtVF/LmIhhk8gB/QzHwW4pdaQXziGXEQEV+INxzXH1n8W
+         2oQ5sIU5L/TNkbyPMIG11N7Nod4nWhYPXmQvZy6/Ufld992xaIHEUNTbfaaF5r+bd2cd
+         Nk95oZV0IsYjLYbNCTd+a4P4UuWJamFFXewfIA9rSGFujIqX2wCRGLnEjiT/QAwq6LFg
+         ZJKhHVaObDIsmK3FIUl7TMixVDJWU1ICIcaKKuzJzPl1B0HD5P1AvN0Xqmh1JnFnLwDb
+         WjDSxmxRG27/7FM/DZW/UE789gqa60HMgUn5KdvGXLK6i3jDbvaH+quMmRR8tMVS8tIS
+         yopQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=KPbcLzmN3JirQxcIsMNAPGvvWsFgMpVPgXZTiKQLiRk=;
+        b=Pn34m6sfH2LTaCb3vR0IQZGBiwkssvIdXTSfMR/EWAVi9ljBf2M2TtZaoijmSetHG0
+         ImJBB2QwtvOYFil4rVrW65fBrpNGpjJzMDfc4upgUNiuqxDibLoWPELbWCWz2RFBGNQv
+         0s8z0s9H7buzcQJFz/HZFDxZZaWL+xD/UYt6Y1QtzrERSPNeuijXh0prZc2SdV/1AzBr
+         YpM+6QC68+mGBWqteX7xHPfGy6fJEIRCD5DSYb1A3fMO/1UI6MzC9OvKUrsE7j6Ogj4i
+         eVilM3Htk4BHNDmB9RjOku+PNRTwixX0ex5M61ZgP24IMBPRh57D0y3TJ8CV/cOhY4gg
+         DZtQ==
+X-Gm-Message-State: APjAAAV2GuNd2iFeF+enZBnlIdxUfTXnr6uXF1rL18/yzZsd36vnSXgm
+        9EEUmKKTc4JIZmav40BD4bk2pCqcqbaxoFtYdTs=
+X-Google-Smtp-Source: APXvYqzozKkSMrTSfzlQfVsHP9awg3yjza7g1kmlBSfctTVRt+dOGSYK9jePCQ1AcuLzAV9h+BCpxh7VG7bpTyTKsp4=
+X-Received: by 2002:a9d:75c7:: with SMTP id c7mr19293123otl.12.1574676383861;
+ Mon, 25 Nov 2019 02:06:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7edc9531-347e-9ac7-2583-5efb49acffdb@nvidia.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Received: by 2002:a4a:9486:0:0:0:0:0 with HTTP; Mon, 25 Nov 2019 02:06:23
+ -0800 (PST)
+Reply-To: m.lirnalaboso@yandex.com
+From:   mrtapioka_lirnalaboso <venuseranist@gmail.com>
+Date:   Mon, 25 Nov 2019 11:06:23 +0100
+Message-ID: <CAF+tTD5a0fhRc2C+xnU5Mda8ngZTM7dvOOKdMmAyWqVN6sX-nQ@mail.gmail.com>
+Subject: very very urgent
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 24, 2019 at 08:31:46PM +0000, Jon Hunter wrote:
-> 
-> On 23/11/2019 15:46, Guenter Roeck wrote:
-> > On 11/22/19 6:48 AM, Jon Hunter wrote:
-> > 
-> > [ ... ]
-> > 
-> >> Error: arch/arm/boot/dts/omap5-board-common.dtsi:636.1-6 Label or path
-> >> dwc3 not found
-> >> FATAL ERROR: Syntax error parsing input tree
-> >> scripts/Makefile.lib:293: recipe for target
-> >> 'arch/arm/boot/dts/omap5-igep0050.dtb' failed
-> >> make[1]: *** [arch/arm/boot/dts/omap5-igep0050.dtb] Error 1
-> >> arch/arm/Makefile:338: recipe for target 'dtbs' failed
-> >> make: *** [dtbs] Error 2
-> >>
-> >>
-> >> This is caused by the following commit ...
-> >>
-> >> commit d0abc07b3d752cbe2a8d315f662c53c772caed0f
-> >> Author: H. Nikolaus Schaller <hns@goldelico.com>
-> >> Date:   Fri Sep 28 17:54:00 2018 +0200
-> >>
-> >>      ARM: dts: omap5: enable OTG role for DWC3 controller
-> >>
-> > 
-> > On top of the breakage caused by this patch, I would also argue
-> > that it is not a bug fix and should not have been included
-> > in the first place.
-> > 
-> > The dwc3 label was added with commit 4c387984618fe ("ARM: dts: omap5:
-> > Add l4 interconnect hierarchy and ti-sysc data"). Given the size of
-> > that patch, I highly doubt that a backport to 4.4 would work.
+Iam Mr Taptoka Lornalaboso.
 
-Good catch, I have now dropped both of these patches and pushed out a
--rc3
+I have a Geniue business transaction of 18.5 Million Us Dollars to do
+with You Hence You Co-operate with me I am assured you that within (7)
+seven banking working days, this said amount will enter your given
+Bank account with immediate alacrity. If you agree to my business
+proposal, further details of the transfer will be forwarded to you as
+soon as I receive your wiliness to join hand with me. Am awaiting your
+urgent response with this informations Name:...................
+Sex:...............
+Age:...................
+Occupation:........
+Address:...............
+Tel/ Fax:...............
+State:.............
+Country Of origin:..........
 
-> FYI ... I am still seeing a build failure because of this with -rc2 ...
+You have to contact me through my private e-mail at
+(m.lirnalaboso@yandex.com)
 
-Can you see if -rc3 is also giving you problems?
-
-thanks,
-
-greg k-h
+Have a nice day!!
