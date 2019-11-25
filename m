@@ -2,133 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 339E710912A
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 16:42:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 697B0109147
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 16:50:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728525AbfKYPmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 10:42:20 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:52960 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727785AbfKYPmU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 10:42:20 -0500
-Received: by mail-wm1-f67.google.com with SMTP id l1so15948161wme.2
-        for <stable@vger.kernel.org>; Mon, 25 Nov 2019 07:42:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lGz91ZnF8AXB8jQPCfD4agQ0YrDEZianIdzKyDVKQnk=;
-        b=c4M/bZl+J5zCWC9Da0rMaOmrUoO4q4GcULNZfAk4MRoh9EvZ/jRDYtEI28BbZr5Qr6
-         YfC7hOU0bUckGKJTQAWSrph9xpRY6s+L/bdGWgPPqDicM/D73W+9lGH23Y7sgOg5gDTY
-         9pSVWV5DXa8hNr9KxhEhk+I50QfEFoPtxdyT+cUWYNhX9kfSmQJiI1sMCVlxKp4vRB/o
-         Uzy1MzyXOYQWhU9rv5VJF9PIaG+vcWtbYDrW8d3pBwgs4x9AUNv6q4Og4dJI41q3ueAf
-         n7li5/1chNh5/HvIZ8eq/I5F4vwx0hb1DA+XEO/EEE57tB+IYCts92sU96TeBRHygKSM
-         vC+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lGz91ZnF8AXB8jQPCfD4agQ0YrDEZianIdzKyDVKQnk=;
-        b=ZhmiqOWWVZjCFU3vQ62biiYIGDGqPqZp+cZEJwGhjeVVgjTfEYNiGkzG0fKXafglUR
-         GdTNewErBKvTuHO/PQsztZJp6axJ4WSGwon+o3ZFTma5Vtbc4y7HBPYFYSfhtbsz1vsr
-         lEES8cT4D1pOY65GxpMcbbb1b2gBsPgGA3pwcKwJkwfJmtG6OlJaL5OiqzT3QPJmN2f1
-         PvLzc63hnMFvnRCiELBDFyQ0QvGPjdtfMGJOvQp93pEiyBRJKK1+RvPstkYnMJNRVC2i
-         JoooZbtFO4M3Uf22DNeGRq4ymjUE6PFhojXM3Q43rl22WmoQOGUm3J8MWAqTHA8ikhKG
-         6Xag==
-X-Gm-Message-State: APjAAAWKtdldP3/R2qfwCyyVRq/UDkKbJOUlDNOVeS38brO67QSTI1Iy
-        l5QF/TdTPPsQa14LlB21dCpJ+O5GwEI4Mw==
-X-Google-Smtp-Source: APXvYqxYq6SvqLr6ol9yp2X3rvrWq9njcpEBnwRr1+vLQBZpv8OZeXBijOXeOKX+/6YHmh8AfpYFjg==
-X-Received: by 2002:a1c:39c2:: with SMTP id g185mr28656517wma.88.1574696538083;
-        Mon, 25 Nov 2019 07:42:18 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id t185sm9230568wmf.45.2019.11.25.07.42.16
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2019 07:42:17 -0800 (PST)
-Message-ID: <5ddbf659.1c69fb81.b872f.ee69@mx.google.com>
-Date:   Mon, 25 Nov 2019 07:42:17 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1728658AbfKYPuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 10:50:51 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:39607 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728592AbfKYPuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 10:50:51 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iZGdP-0008Sa-Ou; Mon, 25 Nov 2019 16:50:43 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 467F51C1AF2;
+        Mon, 25 Nov 2019 16:50:43 +0100 (CET)
+Date:   Mon, 25 Nov 2019 15:50:43 -0000
+From:   "tip-bot2 for Andy Lutomirski" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/entry/32: Fix FIXUP_ESPFIX_STACK with user CR3
+Cc:     Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        <stable@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.202-157-g2576206c30b5
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 84 boots: 2 failed,
- 76 passed with 5 offline, 1 conflict (v4.4.202-157-g2576206c30b5)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <157469704311.21853.13499142066823391029.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 84 boots: 2 failed, 76 passed with 5 offline, 1=
- conflict (v4.4.202-157-g2576206c30b5)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.202-157-g2576206c30b5/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.202-157-g2576206c30b5/
+Commit-ID:     4a13b0e3e10996b9aa0b45a764ecfe49f6fcd360
+Gitweb:        https://git.kernel.org/tip/4a13b0e3e10996b9aa0b45a764ecfe49f6fcd360
+Author:        Andy Lutomirski <luto@kernel.org>
+AuthorDate:    Sun, 24 Nov 2019 08:50:03 -08:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Mon, 25 Nov 2019 09:36:47 +01:00
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.202-157-g2576206c30b5
-Git Commit: 2576206c30b586012e4469b22f4aa3cd04869305
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 43 unique boards, 17 SoC families, 13 builds out of 190
+x86/entry/32: Fix FIXUP_ESPFIX_STACK with user CR3
 
-Boot Regressions Detected:
+UNWIND_ESPFIX_STACK needs to read the GDT, and the GDT mapping that
+can be accessed via %fs is not mapped in the user pagetables.  Use
+SGDT to find the cpu_entry_area mapping and read the espfix offset
+from that instead.
 
-arm:
-
-    tegra_defconfig:
-        gcc-8:
-          tegra124-nyan-big:
-              lab-collabora: new failure (last pass: v4.4.202-159-gdbaac4c5=
-4573)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            tegra124-nyan-big: 1 failed lab
-
-    tegra_defconfig:
-        gcc-8:
-            tegra124-nyan-big: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
+Reported-and-tested-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ arch/x86/entry/entry_32.S | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index 0b8c931..f07baf0 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -415,7 +415,8 @@
+ 
+ .macro CHECK_AND_APPLY_ESPFIX
+ #ifdef CONFIG_X86_ESPFIX32
+-#define GDT_ESPFIX_SS PER_CPU_VAR(gdt_page) + (GDT_ENTRY_ESPFIX_SS * 8)
++#define GDT_ESPFIX_OFFSET (GDT_ENTRY_ESPFIX_SS * 8)
++#define GDT_ESPFIX_SS PER_CPU_VAR(gdt_page) + GDT_ESPFIX_OFFSET
+ 
+ 	ALTERNATIVE	"jmp .Lend_\@", "", X86_BUG_ESPFIX
+ 
+@@ -1147,12 +1148,26 @@ ENDPROC(entry_INT80_32)
+  * We can't call C functions using the ESPFIX stack. This code reads
+  * the high word of the segment base from the GDT and swiches to the
+  * normal stack and adjusts ESP with the matching offset.
++ *
++ * We might be on user CR3 here, so percpu data is not mapped and we can't
++ * access the GDT through the percpu segment.  Instead, use SGDT to find
++ * the cpu_entry_area alias of the GDT.
+  */
+ #ifdef CONFIG_X86_ESPFIX32
+ 	/* fixup the stack */
+-	mov	GDT_ESPFIX_SS + 4, %al /* bits 16..23 */
+-	mov	GDT_ESPFIX_SS + 7, %ah /* bits 24..31 */
++	pushl	%ecx
++	subl	$2*4, %esp
++	sgdt	(%esp)
++	movl	2(%esp), %ecx				/* GDT address */
++	/*
++	 * Careful: ECX is a linear pointer, so we need to force base
++	 * zero.  %cs is the only known-linear segment we have right now.
++	 */
++	mov	%cs:GDT_ESPFIX_OFFSET + 4(%ecx), %al	/* bits 16..23 */
++	mov	%cs:GDT_ESPFIX_OFFSET + 7(%ecx), %ah	/* bits 24..31 */
+ 	shl	$16, %eax
++	addl	$2*4, %esp
++	popl	%ecx
+ 	addl	%esp, %eax			/* the adjusted stack pointer */
+ 	pushl	$__KERNEL_DS
+ 	pushl	%eax
