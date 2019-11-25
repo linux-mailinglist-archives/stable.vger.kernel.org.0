@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3151093DA
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 20:02:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B6A1093E3
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 20:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725823AbfKYTCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 14:02:07 -0500
-Received: from mga04.intel.com ([192.55.52.120]:63776 "EHLO mga04.intel.com"
+        id S1725818AbfKYTE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 14:04:59 -0500
+Received: from mga17.intel.com ([192.55.52.151]:18948 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725818AbfKYTCH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Nov 2019 14:02:07 -0500
+        id S1725799AbfKYTE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 14:04:58 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Nov 2019 11:02:06 -0800
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Nov 2019 11:04:57 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.69,242,1571727600"; 
-   d="scan'208";a="211184605"
+   d="scan'208";a="291480287"
 Received: from sjchrist-coffee.jf.intel.com ([10.54.74.41])
-  by orsmga006.jf.intel.com with ESMTP; 25 Nov 2019 11:02:06 -0800
+  by orsmga001.jf.intel.com with ESMTP; 25 Nov 2019 11:04:57 -0800
 From:   Sean Christopherson <sean.j.christopherson@intel.com>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -27,9 +27,9 @@ Cc:     Paolo Bonzini <pbonzini@redhat.com>,
         Dan Williams <dan.j.williams@intel.com>,
         David Hildenbrand <david@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 4.14 STABLE] KVM: MMU: Do not treat ZONE_DEVICE pages as being reserved
-Date:   Mon, 25 Nov 2019 11:02:05 -0800
-Message-Id: <20191125190205.28474-1-sean.j.christopherson@intel.com>
+Subject: [PATCH 4.19 STABLE] KVM: MMU: Do not treat ZONE_DEVICE pages as being reserved
+Date:   Mon, 25 Nov 2019 11:04:56 -0800
+Message-Id: <20191125190456.28679-1-sean.j.christopherson@intel.com>
 X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -79,10 +79,10 @@ Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
  3 files changed, 28 insertions(+), 7 deletions(-)
 
 diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index 8cd26e50d41c..c0b0135ef07f 100644
+index d7db7608de5f..eddf91a0e363 100644
 --- a/arch/x86/kvm/mmu.c
 +++ b/arch/x86/kvm/mmu.c
-@@ -3177,7 +3177,7 @@ static void transparent_hugepage_adjust(struct kvm_vcpu *vcpu,
+@@ -3261,7 +3261,7 @@ static void transparent_hugepage_adjust(struct kvm_vcpu *vcpu,
  	 * here.
  	 */
  	if (!is_error_noslot_pfn(pfn) && !kvm_is_reserved_pfn(pfn) &&
@@ -91,7 +91,7 @@ index 8cd26e50d41c..c0b0135ef07f 100644
  	    PageTransCompoundMap(pfn_to_page(pfn)) &&
  	    !mmu_gfn_lpage_is_disallowed(vcpu, gfn, PT_DIRECTORY_LEVEL)) {
  		unsigned long mask;
-@@ -5344,9 +5344,9 @@ static bool kvm_mmu_zap_collapsible_spte(struct kvm *kvm,
+@@ -5709,9 +5709,9 @@ static bool kvm_mmu_zap_collapsible_spte(struct kvm *kvm,
  		 * the guest, and the guest page table is using 4K page size
  		 * mapping if the indirect sp has level = 1.
  		 */
@@ -105,10 +105,10 @@ index 8cd26e50d41c..c0b0135ef07f 100644
  			need_tlb_flush = 1;
  			goto restart;
 diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index bb4758ffd403..7668c68ddb5b 100644
+index 96207939d862..748016ae01e3 100644
 --- a/include/linux/kvm_host.h
 +++ b/include/linux/kvm_host.h
-@@ -890,6 +890,7 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu);
+@@ -911,6 +911,7 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu);
  void kvm_vcpu_kick(struct kvm_vcpu *vcpu);
  
  bool kvm_is_reserved_pfn(kvm_pfn_t pfn);
@@ -117,11 +117,11 @@ index bb4758ffd403..7668c68ddb5b 100644
  struct kvm_irq_ack_notifier {
  	struct hlist_node link;
 diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index ea61162b2b53..cdaacdf7bc87 100644
+index 7a0d86d52230..df3fc0f214ec 100644
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -142,10 +142,30 @@ __weak void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
- {
+@@ -147,10 +147,30 @@ __weak int kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+ 	return 0;
  }
  
 +bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
@@ -152,7 +152,7 @@ index ea61162b2b53..cdaacdf7bc87 100644
  
  	return true;
  }
-@@ -1730,7 +1750,7 @@ static void kvm_release_pfn_dirty(kvm_pfn_t pfn)
+@@ -1727,7 +1747,7 @@ EXPORT_SYMBOL_GPL(kvm_release_pfn_dirty);
  
  void kvm_set_pfn_dirty(kvm_pfn_t pfn)
  {
@@ -161,7 +161,7 @@ index ea61162b2b53..cdaacdf7bc87 100644
  		struct page *page = pfn_to_page(pfn);
  
  		if (!PageReserved(page))
-@@ -1741,7 +1761,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
+@@ -1738,7 +1758,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
  
  void kvm_set_pfn_accessed(kvm_pfn_t pfn)
  {
