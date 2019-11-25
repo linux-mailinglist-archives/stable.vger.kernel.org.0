@@ -2,112 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D625108A52
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 09:50:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C13F9108B13
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 10:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725991AbfKYIum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 03:50:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53900 "EHLO mail.kernel.org"
+        id S1727279AbfKYJlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 04:41:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725793AbfKYIum (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Nov 2019 03:50:42 -0500
+        id S1727261AbfKYJlT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 04:41:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 069582071E;
-        Mon, 25 Nov 2019 08:50:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75E61207FD;
+        Mon, 25 Nov 2019 09:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574671841;
-        bh=EYDZogHNR80OurKQa482fcMeSSGrugoBB+rl4NZ8Qpk=;
+        s=default; t=1574674878;
+        bh=+Y6FIMc4+xqo5D5vbmeoa59aQM+tiG4yrw3isimy21M=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BJSw/xxoG6F7JI9BGq9vZNLbF9UJ9nyMPs4H6wUtqlWfWP8AdA7npwZD/A0p4pq/f
-         ljZrVFKpcEaK4hxavDwxzXz70xhJ0HXpAbf2ftzey/SJCQyy5YLqJG7imSvWr93ngF
-         Xu650y88z2wwy0S015Uk6Bl6DNW06wxCnzvGZpnA=
-Date:   Mon, 25 Nov 2019 09:50:39 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Chanwoo Choi <cw00.choi@samsung.com>
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        rafael.j.wysocki@intel.com, myungjoo.ham@samsung.com,
-        kyungmin.park@samsung.com, chanwoo@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] PM / devfreq: Add new name attribute for sysfs
-Message-ID: <20191125085039.GA2301674@kroah.com>
-References: <CGME20191125005755epcas1p2404d0f095e6ce543d36e55e2427282f8@epcas1p2.samsung.com>
- <20191125010357.27153-1-cw00.choi@samsung.com>
+        b=RdZ/Ar69kyQ4p7MLxhA2LWC/rkl+WJhM0vwykksYnDs8Mf+E1RCYSNzCma8THvDOF
+         LWrRk4mMf07uylhXs1X60LCbztuv8Qzq9B7rei6FCUQEtD8qauGpuU4gXlUiNKPs78
+         gL28Gwxp4rxEgUuDXS1LwRzkc5EkMRIuNPV2yAXI=
+Date:   Mon, 25 Nov 2019 10:41:16 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 000/159] 4.4.203-stable review
+Message-ID: <20191125094116.GA2340170@kroah.com>
+References: <20191122100704.194776704@linuxfoundation.org>
+ <f0f505ae-5113-1abd-d4f7-0c3535c83de4@nvidia.com>
+ <20191122133931.GA2033651@kroah.com>
+ <20191122134131.GA2050590@kroah.com>
+ <20191122134627.GB2050590@kroah.com>
+ <9f976044-2dbc-6c19-11e7-210cd7ab35ea@nvidia.com>
+ <a5d68f07-5f9a-2809-404d-bcd8ca593d70@roeck-us.net>
+ <7edc9531-347e-9ac7-2583-5efb49acffdb@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20191125010357.27153-1-cw00.choi@samsung.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7edc9531-347e-9ac7-2583-5efb49acffdb@nvidia.com>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 25, 2019 at 10:03:57AM +0900, Chanwoo Choi wrote:
-> The commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for
-> sysfs") changed the node name to devfreq(x). After this commit, it is not
-> possible to get the device name through /sys/class/devfreq/devfreq(X)/*.
+On Sun, Nov 24, 2019 at 08:31:46PM +0000, Jon Hunter wrote:
 > 
-> Add new name attribute in order to get device name.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for sysfs")
-> Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
-> ---
->  Changes from v2:
-> - Change the order of name_show() according to the sequence in devfreq_attrs[]
-> 
-> Changes from v1:
-> - Update sysfs-class-devfreq documentation
-> - Show device name directly from 'devfreq->dev.parent'
-> 
+> On 23/11/2019 15:46, Guenter Roeck wrote:
+> > On 11/22/19 6:48 AM, Jon Hunter wrote:
+> > 
+> > [ ... ]
+> > 
+> >> Error: arch/arm/boot/dts/omap5-board-common.dtsi:636.1-6 Label or path
+> >> dwc3 not found
+> >> FATAL ERROR: Syntax error parsing input tree
+> >> scripts/Makefile.lib:293: recipe for target
+> >> 'arch/arm/boot/dts/omap5-igep0050.dtb' failed
+> >> make[1]: *** [arch/arm/boot/dts/omap5-igep0050.dtb] Error 1
+> >> arch/arm/Makefile:338: recipe for target 'dtbs' failed
+> >> make: *** [dtbs] Error 2
+> >>
+> >>
+> >> This is caused by the following commit ...
+> >>
+> >> commit d0abc07b3d752cbe2a8d315f662c53c772caed0f
+> >> Author: H. Nikolaus Schaller <hns@goldelico.com>
+> >> Date:   Fri Sep 28 17:54:00 2018 +0200
+> >>
+> >>      ARM: dts: omap5: enable OTG role for DWC3 controller
+> >>
+> > 
+> > On top of the breakage caused by this patch, I would also argue
+> > that it is not a bug fix and should not have been included
+> > in the first place.
+> > 
+> > The dwc3 label was added with commit 4c387984618fe ("ARM: dts: omap5:
+> > Add l4 interconnect hierarchy and ti-sysc data"). Given the size of
+> > that patch, I highly doubt that a backport to 4.4 would work.
 
-Shouldn't you just revert the original patch here?  Why did the sysfs
-file change?
+Good catch, I have now dropped both of these patches and pushed out a
+-rc3
 
-> Documentation/ABI/testing/sysfs-class-devfreq | 7 +++++++
->  drivers/devfreq/devfreq.c                     | 9 +++++++++
->  2 files changed, 16 insertions(+)
-> 
-> diff --git a/Documentation/ABI/testing/sysfs-class-devfreq b/Documentation/ABI/testing/sysfs-class-devfreq
-> index 01196e19afca..75897e2fde43 100644
-> --- a/Documentation/ABI/testing/sysfs-class-devfreq
-> +++ b/Documentation/ABI/testing/sysfs-class-devfreq
-> @@ -7,6 +7,13 @@ Description:
->  		The name of devfreq object denoted as ... is same as the
->  		name of device using devfreq.
->  
-> +What:		/sys/class/devfreq/.../name
-> +Date:		November 2019
-> +Contact:	Chanwoo Choi <cw00.choi@samsung.com>
-> +Description:
-> +		The /sys/class/devfreq/.../name shows the name of device
-> +		of the corresponding devfreq object.
-> +
->  What:		/sys/class/devfreq/.../governor
->  Date:		September 2011
->  Contact:	MyungJoo Ham <myungjoo.ham@samsung.com>
-> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-> index 65a4b6cf3fa5..6f4d93d2a651 100644
-> --- a/drivers/devfreq/devfreq.c
-> +++ b/drivers/devfreq/devfreq.c
-> @@ -1169,6 +1169,14 @@ int devfreq_remove_governor(struct devfreq_governor *governor)
->  }
->  EXPORT_SYMBOL(devfreq_remove_governor);
->  
-> +static ssize_t name_show(struct device *dev,
-> +			struct device_attribute *attr, char *buf)
-> +{
-> +	struct devfreq *devfreq = to_devfreq(dev);
-> +	return sprintf(buf, "%s\n", dev_name(devfreq->dev.parent));
+> FYI ... I am still seeing a build failure because of this with -rc2 ...
 
-Why is the parent's name being set here, and not the device name?
+Can you see if -rc3 is also giving you problems?
 
-The device name should be the name of the directory, and the parent's
-name is the name of the parent directory, why is a sysfs attribute for a
-name needed at all?
-
-confused,
+thanks,
 
 greg k-h
