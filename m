@@ -2,90 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F12B21092E2
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 18:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F035E1092FA
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 18:41:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727164AbfKYReB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 12:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44818 "EHLO mail.kernel.org"
+        id S1725868AbfKYRlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 12:41:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725868AbfKYReB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Nov 2019 12:34:01 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1725851AbfKYRlF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 12:41:05 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6352A20748;
-        Mon, 25 Nov 2019 17:34:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EABD220835;
+        Mon, 25 Nov 2019 17:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574703240;
-        bh=uUrEY8zIBLwh1LeqziC1u72nUhPp4JCyM4AdtCAQuys=;
+        s=default; t=1574703665;
+        bh=B705o2O9nueunH95SS6+Tbmc79pENOFph/Yp7UTp9y4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=skO7wDhLwg4V4BroVYOX8CjQxnXPVmY4zPodoOCa146RJLZSW2TEZoqsKwvAnfD60
-         eqImISvQ8p/JPAm+vFvM2bzNrHsAYNg7DCkSNno9a+G0gEiP2ihyVJl+ckMMG50199
-         X8lLxEcjEXCnT0xlPdfpIuFIcvQ/vKTvq0IsTAbc=
-Date:   Mon, 25 Nov 2019 12:33:59 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     chenyi.qiang@intel.com, pbonzini@redhat.com, xiaoyao.li@intel.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: X86: Fix initialization of MSR
- lists" failed to apply to 5.3-stable tree
-Message-ID: <20191125173359.GH5861@sasha-vm>
-References: <15740905382212@kroah.com>
+        b=TWTF+Rc+1QNj+TF6e/5EYlY7s0rlyPDkdx4+xTwy4rSH5Gosc9wnFMPC4uB2GFsoF
+         sa/xH7rmhOqe4W08IGtv2kPul9qzxZ8+fHGCYwuDzU2QxYhfU3dPwa2sy6BwS6kzfh
+         DjkHt5SNlI7l5ebsHd2pA7udDQPhx3QeBBoIIZVY=
+Date:   Mon, 25 Nov 2019 18:41:03 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 3/8] arm64: fix for bad_mode() handler to always
+ result in panic
+Message-ID: <20191125174103.GA2872072@kroah.com>
+References: <20191122105253.11375-1-lee.jones@linaro.org>
+ <20191122105253.11375-3-lee.jones@linaro.org>
+ <20191125134700.GA5861@sasha-vm>
+ <20191125144429.GF3296@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15740905382212@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191125144429.GF3296@dell>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 18, 2019 at 04:22:18PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.3-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 7a5ee6edb42e0bb487954806d34877995b6b8d59 Mon Sep 17 00:00:00 2001
->From: Chenyi Qiang <chenyi.qiang@intel.com>
->Date: Wed, 6 Nov 2019 14:35:20 +0800
->Subject: [PATCH] KVM: X86: Fix initialization of MSR lists
->
->The three MSR lists(msrs_to_save[], emulated_msrs[] and
->msr_based_features[]) are global arrays of kvm.ko, which are
->adjusted (copy supported MSRs forward to override the unsupported MSRs)
->when insmod kvm-{intel,amd}.ko, but it doesn't reset these three arrays
->to their initial value when rmmod kvm-{intel,amd}.ko. Thus, at the next
->installation, kvm-{intel,amd}.ko will do operations on the modified
->arrays with some MSRs lost and some MSRs duplicated.
->
->So define three constant arrays to hold the initial MSR lists and
->initialize msrs_to_save[], emulated_msrs[] and msr_based_features[]
->based on the constant arrays.
->
->Cc: stable@vger.kernel.org
->Reviewed-by: Xiaoyao Li <xiaoyao.li@intel.com>
->Signed-off-by: Chenyi Qiang <chenyi.qiang@intel.com>
->[Remove now useless conditionals. - Paolo]
->Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+On Mon, Nov 25, 2019 at 02:44:29PM +0000, Lee Jones wrote:
+> On Mon, 25 Nov 2019, Sasha Levin wrote:
+> 
+> > On Fri, Nov 22, 2019 at 10:52:48AM +0000, Lee Jones wrote:
+> > > From: Hari Vyas <hari.vyas@broadcom.com>
+> > > 
+> > > [ Upstream commit e4ba15debcfd27f60d43da940a58108783bff2a6 ]
+> > > 
+> > > The bad_mode() handler is called if we encounter an uunknown exception,
+> > > with the expectation that the subsequent call to panic() will halt the
+> > > system. Unfortunately, if the exception calling bad_mode() is taken from
+> > > EL0, then the call to die() can end up killing the current user task and
+> > > calling schedule() instead of falling through to panic().
+> > > 
+> > > Remove the die() call altogether, since we really want to bring down the
+> > > machine in this "impossible" case.
+> > 
+> > Should this be in newer LTS kernels too? I don't see it in 4.14. We
+> > can't take anything into older kernels if it's not in newer ones - we
+> > don't want to break users who update their kernels.
+> 
+> Only; 3.18, 4.4, 4.9 and 5.3 were studied.
+> 
+> I can look at others if it helps.
 
-Would it make sense taking the commits below to make this patch apply on
-5.3?
+You have to look at others, we can't have regressions if people move
+from one LTS to a newer one.
 
-7a5ee6edb42e ("KVM: X86: Fix initialization of MSR lists")
-e2ada66ec418 ("kvm: x86: Add Intel PMU MSRs to msrs_to_save[]")
-24c29b7ac0da ("KVM: x86: omit absent pmu MSRs from MSR list")
-cf05a67b68b8 ("KVM: x86: omit "impossible" pmu MSRs from MSR list")
+thanks,
 
--- 
-Thanks,
-Sasha
+greg k-h
