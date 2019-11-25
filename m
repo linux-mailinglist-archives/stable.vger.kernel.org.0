@@ -2,101 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8B8109120
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 16:39:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 339E710912A
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 16:42:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728539AbfKYPjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 10:39:09 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50857 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728525AbfKYPjI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 10:39:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574696348;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=VsAK8fAT6IoBWsUTU5eNZ/mMVj2S5/lNLs9J4QbChX8=;
-        b=imDn/JSqLhxSccJVUDCeOYy3TKvfJidvUbVBGDczVteLxg8s60zZ8e8wQvpLiZnw8reERd
-        yM2Gx5uEyOtkg0gbpf9JMLzcG4V9GQ/W+1khdNFmrrNHx+Iy/aruDeAh8I9MeqqAYzWqEb
-        IAD6baBYev961DzH7w5Qjp+GVYGSoi0=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-65-B1iWcfonNQixKS4CQCDM6A-1; Mon, 25 Nov 2019 10:39:05 -0500
-Received: by mail-wr1-f71.google.com with SMTP id y1so9073351wrl.0
-        for <stable@vger.kernel.org>; Mon, 25 Nov 2019 07:39:04 -0800 (PST)
+        id S1728525AbfKYPmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 10:42:20 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:52960 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727785AbfKYPmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 10:42:20 -0500
+Received: by mail-wm1-f67.google.com with SMTP id l1so15948161wme.2
+        for <stable@vger.kernel.org>; Mon, 25 Nov 2019 07:42:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lGz91ZnF8AXB8jQPCfD4agQ0YrDEZianIdzKyDVKQnk=;
+        b=c4M/bZl+J5zCWC9Da0rMaOmrUoO4q4GcULNZfAk4MRoh9EvZ/jRDYtEI28BbZr5Qr6
+         YfC7hOU0bUckGKJTQAWSrph9xpRY6s+L/bdGWgPPqDicM/D73W+9lGH23Y7sgOg5gDTY
+         9pSVWV5DXa8hNr9KxhEhk+I50QfEFoPtxdyT+cUWYNhX9kfSmQJiI1sMCVlxKp4vRB/o
+         Uzy1MzyXOYQWhU9rv5VJF9PIaG+vcWtbYDrW8d3pBwgs4x9AUNv6q4Og4dJI41q3ueAf
+         n7li5/1chNh5/HvIZ8eq/I5F4vwx0hb1DA+XEO/EEE57tB+IYCts92sU96TeBRHygKSM
+         vC+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=JfeNkKRQpB3nyKxT13T4aFmOpj0a4eWI57/SBtH5GLA=;
-        b=EYHDaOQR7JMtE4JdXveqZin11XtYYCGI5cVUgP+1CyKPo9X7Uy9pjIDFhqzFJY2A6g
-         n7kCuoKN63xZ+KGx1GWiJMQ+m/gQegTqzI8X+AGwglfA5ltTz1XG8N6cpIKt6LQNU+nN
-         3m3FyV44y5JiXNZc13ohnDGYnFRXm7ozHGfUk69VUjjrNh+Uk/1VpVNlPbvNlwOM/RBZ
-         wSX2uTh7Lbpm1XrWtLSjZzFu+faMYFH+S2KvbkpABghTPMqB7/AiDTx4MhQPkyZDp0xG
-         edAQSY3DrM7ywqVKTRc1ecYV3Y9lySMXxaFmmfdtIlwGcvQFSvjpT6AZ7DHpOAsxVreO
-         goTw==
-X-Gm-Message-State: APjAAAVbifRokSY4ijC5TLQ8xZ/eultg/jYM9hNYkilYp5MdKyZWyp/7
-        ufMR6z5L1Xj91UhPamLiM7wjS3kYZf/Tj5inA7OaAyhof/pxr4L/g012ExYKjcQDn+Trl0yjEYw
-        98uufDs1sY9boP7lR
-X-Received: by 2002:a7b:c651:: with SMTP id q17mr16270840wmk.109.1574696343789;
-        Mon, 25 Nov 2019 07:39:03 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyO92aD7lZFKUlvx8u4ehuiAiIep59+uZl4Saozmql0UvAIXMTYDsNQ03IoHgafVad3nl7USg==
-X-Received: by 2002:a7b:c651:: with SMTP id q17mr16270827wmk.109.1574696343540;
-        Mon, 25 Nov 2019 07:39:03 -0800 (PST)
-Received: from steredhat (host192-186-dynamic.51-79-r.retail.telecomitalia.it. [79.51.186.192])
-        by smtp.gmail.com with ESMTPSA id x8sm10799389wrm.7.2019.11.25.07.39.02
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lGz91ZnF8AXB8jQPCfD4agQ0YrDEZianIdzKyDVKQnk=;
+        b=ZhmiqOWWVZjCFU3vQ62biiYIGDGqPqZp+cZEJwGhjeVVgjTfEYNiGkzG0fKXafglUR
+         GdTNewErBKvTuHO/PQsztZJp6axJ4WSGwon+o3ZFTma5Vtbc4y7HBPYFYSfhtbsz1vsr
+         lEES8cT4D1pOY65GxpMcbbb1b2gBsPgGA3pwcKwJkwfJmtG6OlJaL5OiqzT3QPJmN2f1
+         PvLzc63hnMFvnRCiELBDFyQ0QvGPjdtfMGJOvQp93pEiyBRJKK1+RvPstkYnMJNRVC2i
+         JoooZbtFO4M3Uf22DNeGRq4ymjUE6PFhojXM3Q43rl22WmoQOGUm3J8MWAqTHA8ikhKG
+         6Xag==
+X-Gm-Message-State: APjAAAWKtdldP3/R2qfwCyyVRq/UDkKbJOUlDNOVeS38brO67QSTI1Iy
+        l5QF/TdTPPsQa14LlB21dCpJ+O5GwEI4Mw==
+X-Google-Smtp-Source: APXvYqxYq6SvqLr6ol9yp2X3rvrWq9njcpEBnwRr1+vLQBZpv8OZeXBijOXeOKX+/6YHmh8AfpYFjg==
+X-Received: by 2002:a1c:39c2:: with SMTP id g185mr28656517wma.88.1574696538083;
+        Mon, 25 Nov 2019 07:42:18 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id t185sm9230568wmf.45.2019.11.25.07.42.16
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Nov 2019 07:39:03 -0800 (PST)
-Date:   Mon, 25 Nov 2019 16:39:00 +0100
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Michael Tsirkin <mst@redhat.com>
-Subject: Please backport 6dbd3e66e778 vhost/vsock: split packets to send
- using multiple buffers
-Message-ID: <CAGxU2F5NAbrFGF7LaVSyWSNy2kdkL=dATfujaUi3V7iXwqRcGg@mail.gmail.com>
+        Mon, 25 Nov 2019 07:42:17 -0800 (PST)
+Message-ID: <5ddbf659.1c69fb81.b872f.ee69@mx.google.com>
+Date:   Mon, 25 Nov 2019 07:42:17 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-MC-Unique: B1iWcfonNQixKS4CQCDM6A-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+X-Kernelci-Kernel: v4.4.202-157-g2576206c30b5
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 84 boots: 2 failed,
+ 76 passed with 5 offline, 1 conflict (v4.4.202-157-g2576206c30b5)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-with Michael, we realized that this patch merged upstream solves an
-issue in the device emulation in the vhost-vsock module.
-Before this patch, the emulation did not meet the VIRTIO vsock
-specification, assuming that the buffer in the RX virtqueue was always 4 KB=
-,
-without checking the actual size.
+stable-rc/linux-4.4.y boot: 84 boots: 2 failed, 76 passed with 5 offline, 1=
+ conflict (v4.4.202-157-g2576206c30b5)
 
-Please, backport the following patch to fix this issue:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.202-157-g2576206c30b5/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.202-157-g2576206c30b5/
 
-commit 6dbd3e66e7785a2f055bf84d98de9b8fd31ff3f5
-Author: Stefano Garzarella <sgarzare@redhat.com>
-Date:   Tue Jul 30 17:43:33 2019 +0200
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.202-157-g2576206c30b5
+Git Commit: 2576206c30b586012e4469b22f4aa3cd04869305
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 43 unique boards, 17 SoC families, 13 builds out of 190
 
-    vhost/vsock: split packets to send using multiple buffers
-  =20
-    If the packets to sent to the guest are bigger than the buffer
-    available, we can split them, using multiple buffers and fixing
-    the length in the packet header.
-    This is safe since virtio-vsock supports only stream sockets.
-  =20
-    Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-    Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-    Acked-by: Michael S. Tsirkin <mst@redhat.com>
-    Signed-off-by: David S. Miller <davem@davemloft.net>
+Boot Regressions Detected:
 
+arm:
 
-The commit applies and builds against 4.14, 4.19, and 5.3
+    tegra_defconfig:
+        gcc-8:
+          tegra124-nyan-big:
+              lab-collabora: new failure (last pass: v4.4.202-159-gdbaac4c5=
+4573)
 
-Thanks,
-Stefano
+Boot Failures Detected:
 
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            tegra124-nyan-big: 1 failed lab
+
+    tegra_defconfig:
+        gcc-8:
+            tegra124-nyan-big: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
