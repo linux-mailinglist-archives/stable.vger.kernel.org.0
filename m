@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EED20109306
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 18:44:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92156109307
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 18:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727483AbfKYRoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 12:44:09 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:37771 "EHLO
+        id S1727026AbfKYRoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 12:44:18 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46829 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725851AbfKYRoJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 12:44:09 -0500
+        by vger.kernel.org with ESMTP id S1725851AbfKYRoS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 12:44:18 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 117102275D;
-        Mon, 25 Nov 2019 12:44:08 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 25 Nov 2019 12:44:08 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id C5AC8226BD;
+        Mon, 25 Nov 2019 12:44:16 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 25 Nov 2019 12:44:16 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=35NRYw
-        tilGojHnSasR/TKGn1LIE1Uv1FDSYavWqNzIU=; b=R8/ynM+ArmDBRb4KSTnYVQ
-        0NsA/qzh6uvKjG2z1zE1Ng2rkewvw91sSn65xU3Zg5bDtlahAhr5merBzHZZMbKo
-        7okcHqMeICmnOxpI1kLb5Bp2y321vyw8FJ+/67QC1wtdTyX6CLZcz7uxPIxRFGyI
-        9pyWyD7sBASth47MGYhyc73db0bRAINBUJ4CxjcjTrcEbeP4t4QxeQc63F6C2XnI
-        V1pT0cBIbq4fyRhHA98v9JS4zbSmCEUqKg5w3NgOTV2cIe8UtTDXMj+dGk5baERk
-        Eq4pFrfSMGXthP3liQsPDrWWosTYScvPHKbYnO1B2J8Q8VHAZ0Mfrp7uP0x5fDdQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jJM6cN
+        DsH2Xfhix74A8EDdfdPkulZRRBt+7pUbVyewQ=; b=iRRncW4UAvwJIEGyRzZXuI
+        4nKtXV6GxI8xszSvTZNtCF3TJpoxXUrV5+Ythc1QhGD1w9NfS0ZNY98vVgEH2fQv
+        fuXogh3u4AhaUEKD74qgUtXcX65EvSVF59dRpMMmEeOVBpUwWFYMg8aYidNwE5eQ
+        eKgZMxZ90QeP2/V8/z0UC8uU7GrBn3n+qAhZGOHDO0Wq5RsaCcf1stLznZ5FioTA
+        vdkxi1jsF4IopvsXn3mya2UQfiOzfJ0hT0o+KljUizFG6REaM7WMF7xNlBevhtkW
+        2cCvWTFGJgX7rWwky0Qh7rkxLTO1qjtj1C5EEF2HdnVFtq9YZ2ouRwicFw9k4nNQ
         ==
-X-ME-Sender: <xms:5xLcXYVNQJQ1ZdJ5KTU1hgRtbpBx0-E4pgZgMBn6XUDOcro5f0G6sw>
+X-ME-Sender: <xms:8BLcXcjIu2oz7UsTsZ9UD00AV71jGUIG-iLqZ8b6OGvR4GFjI1jGeA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeiuddguddthecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:5xLcXffhLaCr9cvs0t0nMmxe4GFxiSUlaPdZKQhOcx4Wpl8H3Zri-Q>
-    <xmx:5xLcXdO_tM-_mOqhqg5ILKAqFywoXNX19idollT_ZFP0gidYtANxYQ>
-    <xmx:5xLcXZIUjtY3PanZWmjcD8tDpK5znXUZR77MhY74hIDV3W1Lcs9IVw>
-    <xmx:6BLcXbUZO-HzIXdBDBchSg-EbXLrcv4U48C6GrYY-qiRePQ0OIO42g>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:8BLcXTLXqVTmgTwG_K2jiBD4Vsr945bwNmvHb9oLRi03GrUqBF8kow>
+    <xmx:8BLcXerjthl_zM_3mtotwDi9z_wAE7ydl7vs6xwy-zblzWz9rciyIA>
+    <xmx:8BLcXRxd_9TLjJ8aV0Gz-epFgj2oSa9BjHGDl4JSFJ2YhEuPUQkmlg>
+    <xmx:8BLcXXfC33L6nOjYsEyTEydJsMzo2CGAP6mIDWzTzuugZIGLc3G4QQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8458B306005F;
-        Mon, 25 Nov 2019 12:44:07 -0500 (EST)
-Subject: FAILED: patch "[PATCH] virtio_console: allocate inbufs in add_port() only if it is" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3FC5C80061;
+        Mon, 25 Nov 2019 12:44:16 -0500 (EST)
+Subject: FAILED: patch "[PATCH] virtio_console: allocate inbufs in add_port() only if it is" failed to apply to 4.4-stable tree
 To:     lvivier@redhat.com, mst@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Nov 2019 18:44:05 +0100
-Message-ID: <15747038452146@kroah.com>
+Date:   Mon, 25 Nov 2019 18:44:06 +0100
+Message-ID: <157470384623143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
