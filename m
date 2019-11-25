@@ -2,81 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 397DF10932D
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 18:59:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB3B3109334
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 19:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727602AbfKYR7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 12:59:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52800 "EHLO mail.kernel.org"
+        id S1727594AbfKYSBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 13:01:55 -0500
+Received: from mga02.intel.com ([134.134.136.20]:48573 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725823AbfKYR7O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Nov 2019 12:59:14 -0500
-Received: from localhost (unknown [104.132.0.81])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1721720679;
-        Mon, 25 Nov 2019 17:59:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574704754;
-        bh=KeQcj2AKHVhcae5ILgNCmFk/tRvBlisVKhy3DFIZA1c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yAhngtwOvHCL1fYdnEEbD3QRzDnSUoSdtwsxjwj6+a1i1oT56fZJhYAeDWOX9pYoJ
-         xqaYgcyIFhuTi5dVMgwAvRXZ0wF5ScvW9P8jBQhJVFk86A8Oz0PT3jLdQXlMaD6ayz
-         ORtsLGOdmTQelG61JjEYrNOPWeP55O76jyMrx3o4=
-Date:   Mon, 25 Nov 2019 09:59:13 -0800
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org
-Subject: Re: [PATCH v2] loop: avoid EAGAIN, if offset or block_size are
- changed
-Message-ID: <20191125175913.GC71634@jaegeuk-macbookpro.roam.corp.google.com>
-References: <20190518004751.18962-1-jaegeuk@kernel.org>
- <20190518005304.GA19446@jaegeuk-macbookpro.roam.corp.google.com>
- <1e1aae74-bd6b-dddb-0c88-660aac33872c@acm.org>
+        id S1725823AbfKYSBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 13:01:55 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Nov 2019 10:01:36 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,242,1571727600"; 
+   d="scan'208";a="198548773"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.41])
+  by orsmga007.jf.intel.com with ESMTP; 25 Nov 2019 10:01:36 -0800
+Date:   Mon, 25 Nov 2019 10:01:36 -0800
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     gregkh@linuxfoundation.org, dan.j.williams@intel.com,
+        david@redhat.com, kilobyte@angband.pl, pbonzini@redhat.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: MMU: Do not treat ZONE_DEVICE pages
+ as being reserved" failed to apply to 4.19-stable tree
+Message-ID: <20191125180136.GE12178@linux.intel.com>
+References: <1574090560219@kroah.com>
+ <20191125174359.GI5861@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1e1aae74-bd6b-dddb-0c88-660aac33872c@acm.org>
-User-Agent: Mutt/1.8.2 (2017-04-18)
+In-Reply-To: <20191125174359.GI5861@sasha-vm>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/19, Bart Van Assche wrote:
-> On 5/17/19 5:53 PM, Jaegeuk Kim wrote:
-> > This patch tries to avoid EAGAIN due to nrpages!=0 that was originally trying
-> > to drop stale pages resulting in wrong data access.
-> > 
-> > Report: https://bugs.chromium.org/p/chromium/issues/detail?id=938958#c38
+On Mon, Nov 25, 2019 at 12:43:59PM -0500, Sasha Levin wrote:
+> On Mon, Nov 18, 2019 at 04:22:40PM +0100, gregkh@linuxfoundation.org wrote:
+> >
+> >The patch below does not apply to the 4.19-stable tree.
+> >If someone wants it applied there, or to any other stable or longterm
+> >tree, then please email the backport, including the original git commit
+> >id to <stable@vger.kernel.org>.
+> >
+> >thanks,
+> >
+> >greg k-h
+> >
+> >------------------ original commit in Linus's tree ------------------
+> >
+> >From a78986aae9b2988f8493f9f65a587ee433e83bc3 Mon Sep 17 00:00:00 2001
+> >From: Sean Christopherson <sean.j.christopherson@intel.com>
+> >Date: Mon, 11 Nov 2019 14:12:27 -0800
+> >Subject: [PATCH] KVM: MMU: Do not treat ZONE_DEVICE pages as being reserved
+> >
+> >Explicitly exempt ZONE_DEVICE pages from kvm_is_reserved_pfn() and
+> >instead manually handle ZONE_DEVICE on a case-by-case basis.  For things
+> >like page refcounts, KVM needs to treat ZONE_DEVICE pages like normal
+> >pages, e.g. put pages grabbed via gup().  But for flows such as setting
+> >A/D bits or shifting refcounts for transparent huge pages, KVM needs to
+> >to avoid processing ZONE_DEVICE pages as the flows in question lack the
+> >underlying machinery for proper handling of ZONE_DEVICE pages.
+> >
+> >This fixes a hang reported by Adam Borowski[*] in dev_pagemap_cleanup()
+> >when running a KVM guest backed with /dev/dax memory, as KVM straight up
+> >doesn't put any references to ZONE_DEVICE pages acquired by gup().
+> >
+> >Note, Dan Williams proposed an alternative solution of doing put_page()
+> >on ZONE_DEVICE pages immediately after gup() in order to simplify the
+> >auditing needed to ensure is_zone_device_page() is called if and only if
+> >the backing device is pinned (via gup()).  But that approach would break
+> >kvm_vcpu_{un}map() as KVM requires the page to be pinned from map() 'til
+> >unmap() when accessing guest memory, unlike KVM's secondary MMU, which
+> >coordinates with mmu_notifier invalidations to avoid creating stale
+> >page references, i.e. doesn't rely on pages being pinned.
+> >
+> >[*] http://lkml.kernel.org/r/20190919115547.GA17963@angband.pl
+> >
+> >Reported-by: Adam Borowski <kilobyte@angband.pl>
+> >Analyzed-by: David Hildenbrand <david@redhat.com>
+> >Acked-by: Dan Williams <dan.j.williams@intel.com>
+> >Cc: stable@vger.kernel.org
+> >Fixes: 3565fce3a659 ("mm, x86: get_user_pages() for dax mappings")
+> >Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> >Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > 
-> Please provide a more detailed commit description. What is wrong with the
-> current implementation and why is the new behavior considered the correct
-> behavior?
+> I also took e7912386ede8 ("KVM: x86: reintroduce pte_list_remove, but
+> including mmu_spte_clear_track_bits") and queued both for 4.19-4.9.
 
-Some history would be:
+I don't think that will work, you'd also have to pull in commit 8daf346226b2
+("KVM: x86: rename pte_list_remove to __pte_list_remove").  And e7912386ede8
+in particular isn't stable material.
 
-Original bug fix is:
-commit 5db470e229e2 ("loop: drop caches if offset or block_size are changed"),
-which returns EAGAIN so that user land like Chrome would require enhancing their
-error handling routines.
-
-So, this patch tries to avoid EAGAIN while addressing the original bug.
-
-> 
-> This patch moves draining code from before the following comment to after
-> that comment:
-> 
-> /* I/O need to be drained during transfer transition */
-> 
-> Is that comment still correct or should it perhaps be updated?
-
-IMHO, it's still valid.
-
-> 
-> Thanks,
-> 
-
-> Bart.
+I'll send a proper backport for 4.19 and earlier, the conflicts should be
+easy to resolve.
