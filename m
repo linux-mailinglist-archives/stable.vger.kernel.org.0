@@ -2,96 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5FA10937B
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 19:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D654109390
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 19:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727719AbfKYS1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 13:27:20 -0500
-Received: from 50-87-157-213.static.tentacle.fi ([213.157.87.50]:44858 "EHLO
-        bitmer.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727269AbfKYS1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 Nov 2019 13:27:20 -0500
-Received: from dsl-hkibng31-54fae3-94.dhcp.inet.fi ([84.250.227.94] helo=[192.168.1.42])
-        by bitmer.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.84_2)
-        (envelope-from <jarkko.nikula@bitmer.com>)
-        id 1iZJ4u-0007De-2W; Mon, 25 Nov 2019 20:27:16 +0200
-Subject: Re: [PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection
- GPIO polarity
-To:     Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Cc:     linux-omap@vger.kernel.org, stable@vger.kernel.org
-References: <20191116151651.7042-1-jarkko.nikula@bitmer.com>
- <20191125111125.AF5D720836@mail.kernel.org>
-From:   Jarkko Nikula <jarkko.nikula@bitmer.com>
-Message-ID: <27e677de-4e45-7eef-45b5-796e29fd39c0@bitmer.com>
-Date:   Mon, 25 Nov 2019 20:27:12 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1727772AbfKYSef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 13:34:35 -0500
+Received: from mga17.intel.com ([192.55.52.151]:16672 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727771AbfKYSef (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 Nov 2019 13:34:35 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Nov 2019 10:34:35 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,242,1571727600"; 
+   d="scan'208";a="206225556"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.41])
+  by fmsmga008.fm.intel.com with ESMTP; 25 Nov 2019 10:34:34 -0800
+Date:   Mon, 25 Nov 2019 10:34:34 -0800
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     gregkh@linuxfoundation.org, dan.j.williams@intel.com,
+        david@redhat.com, kilobyte@angband.pl, pbonzini@redhat.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: MMU: Do not treat ZONE_DEVICE pages
+ as being reserved" failed to apply to 4.19-stable tree
+Message-ID: <20191125183434.GG12178@linux.intel.com>
+References: <1574090560219@kroah.com>
+ <20191125174359.GI5861@sasha-vm>
+ <20191125180136.GE12178@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20191125111125.AF5D720836@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191125180136.GE12178@linux.intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/25/19 1:11 PM, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards").
-> 
-> The bot has tested the following trees: v5.3.12, v4.19.85, v4.14.155, v4.9.202, v4.4.202.
-> 
-> v5.3.12: Build OK!
-> v4.19.85: Build OK!
-> v4.14.155: Build OK!
-> v4.9.202: Failed to apply! Possible dependencies:
->     1a177cf72b3a ("ARM: dts: dra72-evm-tps65917: Add voltage supplies to usb_phy, mmc, dss")
->     45ea75eb92a4 ("ARM: dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"")
->     5d080aa30681 ("ARM: dts: dra72: Add separate dtsi for tps65917")
->     6eebfeb9cf0d ("ARM: dts: Add support for dra718-evm")
->     e9a05fbd21de ("ARM: dts: dra72-evm: Fix modelling of regulators")
-> 
-> v4.4.202: Failed to apply! Possible dependencies:
->     12ca468306a2 ("ARM: dts: am57xx: cl-som-am57x: add dual EMAC support")
->     1a472e14ba08 ("ARM: dts: am57xx: cl-som-am57x: dts: add RTC support")
->     27ddd846cb25 ("ARM: dts: am57xx: cl-som-am57x: add USB support")
->     2c7cf1f48f36 ("ARM: dts: am57xx: cl-som-am57x: add EEPROM support")
->     2d47fc3b9801 ("ARM: dts: am57xx: cl-som-am57x: add touchscreen support")
->     317d15679a5e ("ARM: dts: dra72-evm: Mark uart1 rxd as wakeup capable")
->     387450fc882e ("ARM: dts: am57xx: cl-som-am57x: add basic module support")
->     3a1de8082405 ("ARM: dts: dra7xx: Fix compatible string for PCF8575 chip")
->     4424cd009648 ("ARM: dts: am57xx: cl-som-am57x: add analog audio support")
->     45ea75eb92a4 ("ARM: dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"")
->     488f270d90e1 ("ARM: dts: dra7: Fix NAND device nodes")
->     4e8603eff519 ("ARM: dts: omap: remove unneeded unit name for sound nodes")
->     6686f744df70 ("ARM: dts: DRA72-EVM: Add regulator-allow-bypass property for ldo1 and ldo2")
->     6cfec12f2545 ("ARM: dts: dra72-evm: Enable AFIFO use for McASP3")
->     6eebfeb9cf0d ("ARM: dts: Add support for dra718-evm")
->     8deb60f535fa ("ARM: dts: am57xx: cl-som-am57x: add eMMC support")
->     9255ea8472d2 ("ARM: dts: dra72-evm: Use DRA7XX_CORE_IOPAD pinmux macro")
->     a23fc1558487 ("ARM: dts: dra7x-evm: Provide NAND ready pin")
->     a4240d3af677 ("ARM: dts: Add support for dra72-evm rev C (SR2.0)")
->     a7cac713f90a ("ARM: dts: AM572x-IDK Initial Support")
->     cc2d681420d0 ("ARM: dts: am57xx: cl-som-am57x: add spi-flash support")
->     e1fdd060f08d ("ARM: dts: am57xx: sbc-am57x: add basic board support")
->     e9a05fbd21de ("ARM: dts: dra72-evm: Fix modelling of regulators")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
-> 
-Ah, it doesn't apply to v4.4 and v4.9 due the commit 45ea75eb92a4 ("ARM:
-dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"") but that commit
-doesn't apply either stable and probably even should not even if it would.
+On Mon, Nov 25, 2019 at 10:01:36AM -0800, Sean Christopherson wrote:
+> On Mon, Nov 25, 2019 at 12:43:59PM -0500, Sasha Levin wrote:
+> > On Mon, Nov 18, 2019 at 04:22:40PM +0100, gregkh@linuxfoundation.org wrote:
+> > >
+> > >The patch below does not apply to the 4.19-stable tree.
 
-I believe best is me to submit a separate version for v4.4/v4.9.
+...
 
--- 
-Jarkko
+> > >Reported-by: Adam Borowski <kilobyte@angband.pl>
+> > >Analyzed-by: David Hildenbrand <david@redhat.com>
+> > >Acked-by: Dan Williams <dan.j.williams@intel.com>
+> > >Cc: stable@vger.kernel.org
+> > >Fixes: 3565fce3a659 ("mm, x86: get_user_pages() for dax mappings")
+> > >Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> > >Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> > 
+> > I also took e7912386ede8 ("KVM: x86: reintroduce pte_list_remove, but
+> > including mmu_spte_clear_track_bits") and queued both for 4.19-4.9.
+> 
+> I don't think that will work, you'd also have to pull in commit 8daf346226b2
+> ("KVM: x86: rename pte_list_remove to __pte_list_remove").  And e7912386ede8
+> in particular isn't stable material.
+> 
+> I'll send a proper backport for 4.19 and earlier, the conflicts should be
+> easy to resolve.
+
+I have a silly backporting question regarding SOBs.  Should I add a second
+SOB for myself, reorder the SOBs, or leave it as is?  E.g. (A) is the most
+correct from a chronological handling perspective, but having two SOBs
+feels weird.
+
+  Option A:
+    Fixes: 3565fce3a659 ("mm, x86: get_user_pages() for dax mappings")
+    Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+    Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+    [sean: backport to 4.x; resolve conflict in mmu.c]
+    Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+
+  Option B:
+    Fixes: 3565fce3a659 ("mm, x86: get_user_pages() for dax mappings")
+    Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+    [sean: backport to 4.x; resolve conflict in mmu.c]
+    Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+
+  Option C:
+    Fixes: 3565fce3a659 ("mm, x86: get_user_pages() for dax mappings")
+    Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+    Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
