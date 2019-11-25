@@ -2,51 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8A8310930C
-	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 18:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2075F10930F
+	for <lists+stable@lfdr.de>; Mon, 25 Nov 2019 18:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727590AbfKYRop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 12:44:45 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39571 "EHLO
+        id S1727640AbfKYRpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Nov 2019 12:45:40 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:53989 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725851AbfKYRoo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 12:44:44 -0500
+        by vger.kernel.org with ESMTP id S1727617AbfKYRpk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 12:45:40 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E181422764;
-        Mon, 25 Nov 2019 12:44:43 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 25 Nov 2019 12:44:43 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id EBCD92275D;
+        Mon, 25 Nov 2019 12:45:38 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 25 Nov 2019 12:45:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fmf76T
-        ZYGu/Jhqjs5HxCHMg4plKtPUTgqkBU7UKODtk=; b=i4EgGKh2XlpKKrGVcjvaBO
-        7aJ/2a6sPc5Hh1Bsw8slBw8t4jG52vKy9v9RFqhJDss1VzHoF0P2myTXwemzB6NB
-        tBlzbQpkzbonPZrdb3sWjW9dS+8+WGYpPl+HQVR1GztVixMjHoQlrbv1uZysmgE7
-        3Byb7vTaXQr7YgHGsd/y96BLyw5KkUSWUJ5ejwOP+n6+4KsCX/CMImf36mD5Db2V
-        QWghXqVsF6EVZt8uYMAX6nu82MVI2JYGPB55x/BXo++pP4f7rTpo7IkmL4Qk0FlE
-        1dWs/BhwvNy0P6SP4jM8oxud7SwKeS0O3z948TLTUIl9rv/7BvpLLdZaPaWudXdw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zK5OOD
+        e7fXW2mWMJpK7RybrNY2xcdWM8kmBgCQYuxWU=; b=uOmYH3ftfT2HSMqkdBr+iE
+        +DotVMNMXNF3vZigQPY2qWs4N9fjXZ5q6rD6heMordsl+gsGFQsM8hKhMnHLIdj2
+        eeudh2599GBv2LsCBidUTAowX54mtk3B5XmPYKQsSy3/+b+mc4y2R941+ZKva9iA
+        JAHfXQzcsTMvBvQSzeCtV/hC3GXCrDH8k69ttquLKjMTnrzbra7g8xEJgGqouHwo
+        YuiOqNjQju5MJfC3umT7xIe9Xy0qK/R84Lo9Tyk8PSJxmkq9qaqxoDi+bhh+ultm
+        6QVoKiR/8oS7j8UPb8MaMpsh0OYOF4TOHt7P9ni76ePoAxPGcSZaWHc7/F31FidQ
         ==
-X-ME-Sender: <xms:CxPcXTni87cm0sxf7m-pp-4Fa7bqXDIzw9ESsYJxKqnhYmzPYSsrgQ>
+X-ME-Sender: <xms:QhPcXSs97wqbc2BXKDTCGu5iZhgZn5CvfB0CpDUsikmBT5F1IzL0Pg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeiuddguddthecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
-X-ME-Proxy: <xmx:CxPcXSO7jwdCI3FmYvmvq0jso_bRSSonIZhrUbH1C6ozgQxOaBoc4A>
-    <xmx:CxPcXXYiAEjXIKPoNccBCbeUjHFQrBJkXIX1Yp4yAIVXXniQLzVlSg>
-    <xmx:CxPcXSHn-622pHekrvosh1oLZMpnzDHo000tafeyLxw7DSFqHInSUg>
-    <xmx:CxPcXarNQ00LTv4skDEg5ahxwFzemB5-kT_v1syjaOLOS-fGLqbLcQ>
+    necuuegrihhlohhuthemuceftddtnecufghrlhcuvffnffculddvmdenucfjughrpefuvf
+    fhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihf
+    ohhunhgurghtihhonhdrohhrgheqnecuffhomhgrihhnpehlkhhmlhdrohhrghdpkhgvrh
+    hnvghlrdhorhhgpdhqvghmuhdqphhrohhjvggtthdrohhrghenucfkphepkeefrdekiedr
+    keelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:QhPcXcBA8Sg3YooZvhEaqA-2vf9IH8FMPOFRaqE2sYz9Do1znXBT7A>
+    <xmx:QhPcXa6RxaBV692SFR-NNUoDrQHI7SeQOfYfh1jePvpCFBsK_H5XxA>
+    <xmx:QhPcXUDsJGha6gH5VNH6ONczKppX42mX9gG7BqZrGwhMh5XqpC1ejQ>
+    <xmx:QhPcXZpJbZRsYtbA-a7D5Zhea2LED4oo3oy4z1WLeIfOXiVGkHDQaw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 58607306005F;
-        Mon, 25 Nov 2019 12:44:43 -0500 (EST)
-Subject: FAILED: patch "[PATCH] virtio_balloon: fix shrinker count" failed to apply to 4.19-stable tree
-To:     wei.w.wang@intel.com, david@redhat.com, mst@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id D5A288005B;
+        Mon, 25 Nov 2019 12:45:37 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm/memory_hotplug: don't access uninitialized memmaps in" failed to apply to 4.14-stable tree
+To:     david@redhat.com, akpm@linux-foundation.org,
+        alexander.h.duyck@linux.intel.com, aneesh.kumar@linux.ibm.com,
+        anshuman.khandual@arm.com, benh@kernel.crashing.org,
+        borntraeger@de.ibm.com, bp@alien8.de, cai@lca.pw,
+        catalin.marinas@arm.com, christophe.leroy@c-s.fr, dalias@libc.org,
+        damian.tometzki@gmail.com, dan.j.williams@intel.com,
+        dave.hansen@linux.intel.com, fenghua.yu@intel.com,
+        gerald.schaefer@de.ibm.com, glider@google.com, gor@linux.ibm.com,
+        gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com,
+        hpa@zytor.com, ira.weiny@intel.com, jgg@ziepe.ca,
+        logang@deltatee.com, luto@kernel.org, mark.rutland@arm.com,
+        mgorman@techsingularity.net, mhocko@suse.com, mingo@redhat.com,
+        mpe@ellerman.id.au, osalvador@suse.de, pagupta@redhat.com,
+        pasha.tatashin@soleen.com, pasic@linux.ibm.com, paulus@samba.org,
+        pavel.tatashin@microsoft.com, peterz@infradead.org,
+        richard.weiyang@gmail.com, richardw.yang@linux.intel.com,
+        robin.murphy@arm.com, rppt@linux.ibm.com, stable@vger.kernel.org,
+        steve.capper@arm.com, t-fukasawa@vx.jp.nec.com, tglx@linutronix.de,
+        thomas.lendacky@amd.com, tony.luck@intel.com,
+        torvalds@linux-foundation.org, vbabka@suse.cz, will@kernel.org,
+        willy@infradead.org, yamada.masahiro@socionext.com,
+        yaojun8558363@gmail.com, ysato@users.sourceforge.jp,
+        yuzhao@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Nov 2019 18:44:42 +0100
-Message-ID: <1574703882140153@kroah.com>
+Date:   Mon, 25 Nov 2019 18:45:36 +0100
+Message-ID: <157470393617291@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +80,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,32 +91,176 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c9a6820fc0da2603be3054ee7590eb9f350508a7 Mon Sep 17 00:00:00 2001
-From: Wei Wang <wei.w.wang@intel.com>
-Date: Tue, 19 Nov 2019 05:02:33 -0500
-Subject: [PATCH] virtio_balloon: fix shrinker count
+From 7ce700bf11b5e2cb84e4352bbdf2123a7a239c84 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Thu, 21 Nov 2019 17:53:56 -0800
+Subject: [PATCH] mm/memory_hotplug: don't access uninitialized memmaps in
+ shrink_zone_span()
 
-Instead of multiplying by page order, virtio balloon divided by page
-order. The result is that it can return 0 if there are a bit less
-than MAX_ORDER - 1 pages in use, and then shrinker scan won't be called.
+Let's limit shrinking to !ZONE_DEVICE so we can fix the current code.
+We should never try to touch the memmap of offline sections where we
+could have uninitialized memmaps and could trigger BUGs when calling
+page_to_nid() on poisoned pages.
 
-Cc: stable@vger.kernel.org
-Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+There is no reliable way to distinguish an uninitialized memmap from an
+initialized memmap that belongs to ZONE_DEVICE, as we don't have
+anything like SECTION_IS_ONLINE we can use similar to
+pfn_to_online_section() for !ZONE_DEVICE memory.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 51134f9a3ee7..e05679c478e2 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -826,7 +826,7 @@ static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
- 	unsigned long count;
+E.g., set_zone_contiguous() similarly relies on pfn_to_online_section()
+and will therefore never set a ZONE_DEVICE zone consecutive.  Stopping
+to shrink the ZONE_DEVICE therefore results in no observable changes,
+besides /proc/zoneinfo indicating different boundaries - something we
+can totally live with.
+
+Before commit d0dc12e86b31 ("mm/memory_hotplug: optimize memory
+hotplug"), the memmap was initialized with 0 and the node with the right
+value.  So the zone might be wrong but not garbage.  After that commit,
+both the zone and the node will be garbage when touching uninitialized
+memmaps.
+
+Toshiki reported a BUG (race between delayed initialization of
+ZONE_DEVICE memmaps without holding the memory hotplug lock and
+concurrent zone shrinking).
+
+  https://lkml.org/lkml/2019/11/14/1040
+
+"Iteration of create and destroy namespace causes the panic as below:
+
+      kernel BUG at mm/page_alloc.c:535!
+      CPU: 7 PID: 2766 Comm: ndctl Not tainted 5.4.0-rc4 #6
+      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+      RIP: 0010:set_pfnblock_flags_mask+0x95/0xf0
+      Call Trace:
+       memmap_init_zone_device+0x165/0x17c
+       memremap_pages+0x4c1/0x540
+       devm_memremap_pages+0x1d/0x60
+       pmem_attach_disk+0x16b/0x600 [nd_pmem]
+       nvdimm_bus_probe+0x69/0x1c0
+       really_probe+0x1c2/0x3e0
+       driver_probe_device+0xb4/0x100
+       device_driver_attach+0x4f/0x60
+       bind_store+0xc9/0x110
+       kernfs_fop_write+0x116/0x190
+       vfs_write+0xa5/0x1a0
+       ksys_write+0x59/0xd0
+       do_syscall_64+0x5b/0x180
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  While creating a namespace and initializing memmap, if you destroy the
+  namespace and shrink the zone, it will initialize the memmap outside
+  the zone and trigger VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page),
+  pfn), page) in set_pfnblock_flags_mask()."
+
+This BUG is also mitigated by this commit, where we for now stop to
+shrink the ZONE_DEVICE zone until we can do it in a safe and clean way.
+
+Link: http://lkml.kernel.org/r/20191006085646.5768-5-david@redhat.com
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reported-by: Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Damian Tometzki <damian.tometzki@gmail.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Halil Pasic <pasic@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Jun Yao <yaojun8558363@gmail.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Pankaj Gupta <pagupta@redhat.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Yu Zhao <yuzhao@google.com>
+Cc: <stable@vger.kernel.org>	[4.13+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 3b62a9ff8ea0..f307bd82d750 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -331,7 +331,7 @@ static unsigned long find_smallest_section_pfn(int nid, struct zone *zone,
+ 				     unsigned long end_pfn)
+ {
+ 	for (; start_pfn < end_pfn; start_pfn += PAGES_PER_SUBSECTION) {
+-		if (unlikely(!pfn_valid(start_pfn)))
++		if (unlikely(!pfn_to_online_page(start_pfn)))
+ 			continue;
  
- 	count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
--	count += vb->num_free_page_blocks >> VIRTIO_BALLOON_FREE_PAGE_ORDER;
-+	count += vb->num_free_page_blocks << VIRTIO_BALLOON_FREE_PAGE_ORDER;
+ 		if (unlikely(pfn_to_nid(start_pfn) != nid))
+@@ -356,7 +356,7 @@ static unsigned long find_biggest_section_pfn(int nid, struct zone *zone,
+ 	/* pfn is the end pfn of a memory section. */
+ 	pfn = end_pfn - 1;
+ 	for (; pfn >= start_pfn; pfn -= PAGES_PER_SUBSECTION) {
+-		if (unlikely(!pfn_valid(pfn)))
++		if (unlikely(!pfn_to_online_page(pfn)))
+ 			continue;
  
- 	return count;
- }
+ 		if (unlikely(pfn_to_nid(pfn) != nid))
+@@ -415,7 +415,7 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+ 	 */
+ 	pfn = zone_start_pfn;
+ 	for (; pfn < zone_end_pfn; pfn += PAGES_PER_SUBSECTION) {
+-		if (unlikely(!pfn_valid(pfn)))
++		if (unlikely(!pfn_to_online_page(pfn)))
+ 			continue;
+ 
+ 		if (page_zone(pfn_to_page(pfn)) != zone)
+@@ -471,6 +471,16 @@ static void __remove_zone(struct zone *zone, unsigned long start_pfn,
+ 	struct pglist_data *pgdat = zone->zone_pgdat;
+ 	unsigned long flags;
+ 
++#ifdef CONFIG_ZONE_DEVICE
++	/*
++	 * Zone shrinking code cannot properly deal with ZONE_DEVICE. So
++	 * we will not try to shrink the zones - which is okay as
++	 * set_zone_contiguous() cannot deal with ZONE_DEVICE either way.
++	 */
++	if (zone_idx(zone) == ZONE_DEVICE)
++		return;
++#endif
++
+ 	pgdat_resize_lock(zone->zone_pgdat, &flags);
+ 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
+ 	update_pgdat_span(pgdat);
 
