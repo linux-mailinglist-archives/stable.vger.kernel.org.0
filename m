@@ -2,183 +2,371 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12892109B45
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 10:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C832109B41
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 10:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727388AbfKZJdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 04:33:22 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48184 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727275AbfKZJdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 04:33:21 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAQ9WFWL002413
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 04:33:19 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wfju971np-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 04:33:19 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 26 Nov 2019 09:33:17 -0000
-Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
-        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Tue, 26 Nov 2019 09:33:13 -0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id xAQ9XCf021037316
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Nov 2019 09:33:12 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7352BA405F;
-        Tue, 26 Nov 2019 09:33:12 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0CF99A4060;
-        Tue, 26 Nov 2019 09:33:12 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.145.22.13])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Nov 2019 09:33:11 +0000 (GMT)
-Subject: Re: [PATCH] mm: memcg/slab: wait for !root kmem_cache refcnt killing
- on root kmem_cache destruction
-To:     Michal Hocko <mhocko@kernel.org>, Roman Gushchin <guro@fb.com>
-Cc:     linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        linux-kernel@vger.kernel.org, kernel-team@fb.com,
+        id S1727400AbfKZJbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 04:31:32 -0500
+Received: from mailout1.samsung.com ([203.254.224.24]:37834 "EHLO
+        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727408AbfKZJbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 04:31:32 -0500
+Received: from epcas1p4.samsung.com (unknown [182.195.41.48])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20191126093128epoutp01801cf1379e0b649d9885e6c05cb306e8~arICW2oo30246702467epoutp01N
+        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 09:31:28 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20191126093128epoutp01801cf1379e0b649d9885e6c05cb306e8~arICW2oo30246702467epoutp01N
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1574760688;
+        bh=mkL/g7/FB0iJ6KzjxbDyFtYw0Eg+RbHKsFbTLxR6QFQ=;
+        h=Subject:To:Cc:From:Date:In-Reply-To:References:From;
+        b=NszlaGR0xEPzTPGBXdZO1qvzMqlNs+nHLVoKNi8xUU8BRbvtT9ac4TEl1iVLgAsXK
+         9ZMuaiVe4Z54E5pjXecluL8QyXqUmUDuTRiz5dhIiOZvVytsQQQfBPiFGKPAWRL3j7
+         2G+7HibEktTqgsoFT9dilSVfH0dYnMw4TwX9JTsU=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+        epcas1p4.samsung.com (KnoxPortal) with ESMTP id
+        20191126093127epcas1p424c21ba1b884603e0a87a08afb74fb94~arIBorT4l1182811828epcas1p4A;
+        Tue, 26 Nov 2019 09:31:27 +0000 (GMT)
+Received: from epsmges1p2.samsung.com (unknown [182.195.40.156]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 47MdvK0RrLzMqYkh; Tue, 26 Nov
+        2019 09:31:25 +0000 (GMT)
+Received: from epcas1p3.samsung.com ( [182.195.41.47]) by
+        epsmges1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        CA.8A.48498.CE0FCDD5; Tue, 26 Nov 2019 18:31:25 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas1p4.samsung.com (KnoxPortal) with ESMTPA id
+        20191126093124epcas1p47390a83ab7a7bb11f65aa99e8c550cf4~arH_x_jAA1172811728epcas1p4-;
+        Tue, 26 Nov 2019 09:31:24 +0000 (GMT)
+Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20191126093124epsmtrp17bd3c8637e009fef25b59cc21f2ed6ec~arH_xQa3j3066030660epsmtrp1P;
+        Tue, 26 Nov 2019 09:31:24 +0000 (GMT)
+X-AuditID: b6c32a36-a3dff7000001bd72-9c-5ddcf0ec233d
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        13.D1.06569.CE0FCDD5; Tue, 26 Nov 2019 18:31:24 +0900 (KST)
+Received: from [10.113.221.102] (unknown [10.113.221.102]) by
+        epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20191126093123epsmtip213dd40477ace5d24157f28d65ee257e5~arH_kvZz21145911459epsmtip2j;
+        Tue, 26 Nov 2019 09:31:23 +0000 (GMT)
+Subject: Re: [PATCH v3] PM / devfreq: Add new name attribute for sysfs
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        rafael.j.wysocki@intel.com, myungjoo.ham@samsung.com,
+        kyungmin.park@samsung.com, chanwoo@kernel.org,
         stable@vger.kernel.org
-References: <20191125185453.278468-1-guro@fb.com>
- <20191126092918.GB20912@dhcp22.suse.cz>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Autocrypt: addr=borntraeger@de.ibm.com; prefer-encrypt=mutual; keydata=
- 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
- nS4h0HDFPrrp1C2EMVYIQrMokWvlFZbCpsdYbBI=
-Date:   Tue, 26 Nov 2019 10:33:11 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
+From:   Chanwoo Choi <cw00.choi@samsung.com>
+Organization: Samsung Electronics
+Message-ID: <2545ff50-8e59-ff9f-1ba0-cb2661d5119a@samsung.com>
+Date:   Tue, 26 Nov 2019 18:37:29 +0900
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+        Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <20191126092918.GB20912@dhcp22.suse.cz>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20191126091541.GB1371943@kroah.com>
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 19112609-0012-0000-0000-0000036C6207
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19112609-0013-0000-0000-000021A805A9
-Message-Id: <abe23ff5-a0fb-2b85-cf7b-1166e47609d6@de.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
- definitions=2019-11-26_01:2019-11-26,2019-11-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 impostorscore=0 clxscore=1011 bulkscore=0 adultscore=0
- priorityscore=1501 malwarescore=0 spamscore=0 phishscore=0 mlxlogscore=484
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1910280000 definitions=main-1911260087
+X-Brightmail-Tracker: H4sIAAAAAAAAA01Se0hTYRTn293urtHqa1meJMpuaaWZu7PZ7aEESo0KEoSKaNjNXdTcq91N
+        sqCXZBq9LII0NU0iJ9rITC2NhdrL1B5WWNkDk9KVWVlhCdHubpH//c7vnPP7nfN9hyLULjKY
+        Src4eLuFM9HkOHldy/yoyMHPPQZNdbuMze9+LGezy90k27H/o5LtulZEssNHWhH7Yl8Fyb6t
+        GFSypZd60QpKX940INPXVOaRek9xlVJ/tLYS6YdrZiQqNmUsT+M5I28P4S0pVmO6JTWWXpOU
+        HJ+si9EwkcwSdjEdYuHMfCydsDYxcmW6yTcLHZLJmZw+KpETBDoqbrnd6nTwIWlWwRFL8zaj
+        ybbEtlDgzILTkrowxWpeymg0Wp2vcEtG2v5j2TJbx7Yd3e3F5F7UtP4QCqAAL4IzDf3yQ2gc
+        pcYNCG4PdSqk4CuC1pLGv8EPBCdcLehfi/tZOZIS1xF0/qgipGAIQVf7T5lYNRmvBHdjr1zE
+        gXgeDNx87jchcCOC+/1lSjFB4nDw9HeTIp6IZ8GTkbc+WYpS4Ti4nO8UaTkOBffFc4RIT8Eb
+        4d53TqRVeBLcLejzywdgBgqOuPwqBA6C531nZRKeCfWDRf7ZAI+S8LPutVzUAZwApZ44aZnJ
+        4L1dq5RwMAwcy/mLd4Hrbisp9eYiqPU8UEiJaPCcPykTdQg8H9zXoiR6FlwdLUaS7wT49P2w
+        QrJSQW6OWiqZDV1vXsokPA3KD+aRxxFdOGabwjEbFI7ZoPC/WSmSV6KpvE0wp/ICY9OO/ewa
+        5D/T8JgGdK5zbTPCFKLHq0Y6XhjUCi5TyDI3I6AIOlAV0dJjUKuMXNZO3m5NtjtNvNCMdL63
+        zieCp6RYfUdvcSQzOm10dDS7iInRMQwdpKJGHhrUOJVz8Bk8b+Pt//pkVEDwXlQT9P7TDf3S
+        0AP59WvW9V5tY999G85ckHir58MOPruobVWWoWTrlz7XnpwwhtmsKR0tcyu88W/c24c2RZS0
+        Mb/cF8LuBE4MVeZ6PYunJ+XN+X1+bpZXO/h7+rtHbeip56vyVXXVxqT1Jae1+urO+L6EZeSV
+        U6s37D69tWCz7aOR8obTciGNY8IJu8D9AfiPGam8AwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprKIsWRmVeSWpSXmKPExsWy7bCSvO6bD3diDTYfYLGYeOMKi0Xz4vVs
+        Fmeb3rBbXN41h83ic+8RRovbjSvYLB6veMtusWDjI0YHDo/Fe14yeWxa1cnmsX/uGnaPvi2r
+        GD0+b5ILYI3isklJzcksSy3St0vgymjqb2YqOJtVcePMXLYGxj1hXYycHBICJhLrby5m7GLk
+        4hAS2M0oce3JTnaIhKTEtItHmbsYOYBsYYnDh4shat4yStx9vAOsRljATWL97kcsILaIgIbE
+        y6O3WECKmEEGLZu8C2rqWyaJv1//sIFUsQloSex/cQPM5hdQlLj64zEjyAZeATuJzRNLQcIs
+        AqoS69ctYgaxRQUiJJ5vv8EIYvMKCEqcnPkEbBmngKHEzN6VYGOYBdQl/sy7xAxhi0vcejKf
+        CcKWl9j+dg7zBEbhWUjaZyFpmYWkZRaSlgWMLKsYJVMLinPTc4sNC4zyUsv1ihNzi0vz0vWS
+        83M3MYIjS0trB+OJE/GHGAU4GJV4eH+cvR0rxJpYVlyZe4hRgoNZSYRX+/CdWCHelMTKqtSi
+        /Pii0pzU4kOM0hwsSuK88vnHIoUE0hNLUrNTUwtSi2CyTBycUg2MM+9In39T57nEOk8+ebcZ
+        z70lngsTeWZF/H/b6uDF/4K/Xc5nu+n5LUrTtL4JT43b+Hr97PCsL7v/mqf7TFKwXjdH26bt
+        fM2ceLN7uZnr+48vPrVxy5rlKs/Wqt6ZljNtg8NVbn1ZwRdex8NUl6laG7s98PRXUkicNtX0
+        t/7hZ70vNy3bJMWYq8RSnJFoqMVcVJwIADbuL9qoAgAA
+X-CMS-MailID: 20191126093124epcas1p47390a83ab7a7bb11f65aa99e8c550cf4
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20191125005755epcas1p2404d0f095e6ce543d36e55e2427282f8
+References: <CGME20191125005755epcas1p2404d0f095e6ce543d36e55e2427282f8@epcas1p2.samsung.com>
+        <20191125010357.27153-1-cw00.choi@samsung.com>
+        <20191125085039.GA2301674@kroah.com>
+        <48cadf42-4675-ffe1-a3d4-a97a37538955@samsung.com>
+        <20191126075333.GA1231308@kroah.com>
+        <c5c9dc78-8209-3b42-4b16-cb40b00b8508@samsung.com>
+        <20191126091541.GB1371943@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 26.11.19 10:29, Michal Hocko wrote:
-> On Mon 25-11-19 10:54:53, Roman Gushchin wrote:
->> Christian reported a warning like the following obtained during running some
->> KVM-related tests on s390:
+On 11/26/19 6:15 PM, Greg KH wrote:
+> On Tue, Nov 26, 2019 at 05:35:28PM +0900, Chanwoo Choi wrote:
+>> On 11/26/19 4:53 PM, Greg KH wrote:
+>>> On Tue, Nov 26, 2019 at 12:08:18PM +0900, Chanwoo Choi wrote:
+>>>> Hi Greg,
+>>>>
+>>>> On 11/25/19 5:50 PM, Greg KH wrote:
+>>>>> On Mon, Nov 25, 2019 at 10:03:57AM +0900, Chanwoo Choi wrote:
+>>>>>> The commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for
+>>>>>> sysfs") changed the node name to devfreq(x). After this commit, it is not
+>>>>>> possible to get the device name through /sys/class/devfreq/devfreq(X)/*.
+>>>>>>
+>>>>>> Add new name attribute in order to get device name.
+>>>>>>
+>>>>>> Cc: stable@vger.kernel.org
+>>>>>> Fixes: 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for sysfs")
+>>>>>> Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+>>>>>> ---
+>>>>>>  Changes from v2:
+>>>>>> - Change the order of name_show() according to the sequence in devfreq_attrs[]
+>>>>>>
+>>>>>> Changes from v1:
+>>>>>> - Update sysfs-class-devfreq documentation
+>>>>>> - Show device name directly from 'devfreq->dev.parent'
+>>>>>>
+>>>>>
+>>>>> Shouldn't you just revert the original patch here?  Why did the sysfs
+>>>>> file change?
+>>>>
+>>>> The initial devfreq code used the parent device name for device name
+>>>> corresponding to devfreq object instead of 'devfreq%d' style.
+>>>> Before applied The commit 4585fbcb5331 ("PM / devfreq: Modify
+>>>> the device name as devfreq(X) for sysfs"), the devfreq sysfs
+>>>> showed the parent device name as following:
+>>>>
+>>>> For example on Odroid-XU3 board before applied the commit 4585fbcb5331,
+>>>> 	/sys/class/devfreq/soc:bus_wcore
+>>>> 	/sys/class/devfreq/soc:bus_noc
+>>>> 	...(skip)
+>>>>
+>>>>
+>>>> But, I think that devfreq subsystem had to show the consistent
+>>>> sysfs entry name for devfreq device like input, thermal, hwmon subsystem.
+>>>>
+>>>> For example on Odroid-XU3 board,
+>>>> - The input subsystem show the 'input%d' style for input device.
+>>>> $root@localhost:/# ls /sys/class/input/                                         
+>>>> event0  event1  input0  input1  mice  mouse0
+>>>>
+>>>> - The thermal subsystem show the 'cooling_device%d' style for thermal cooling device.
+>>>> $ root@localhost:/# ls /sys/class/thermal/                                       
+>>>> cooling_device0  cooling_device2  thermal_zone1  thermal_zone3
+>>>> cooling_device1  thermal_zone0    thermal_zone2  thermal_zone4
+>>>>
+>>>> - The hwmon subsystem show the 'hwmon%d' style for h/w monitor device.
+>>>> $root@localhost:/# ls /sys/class/hwmon/                                         
+>>>> hwmon0
+>>>>
+>>>>
+>>>> So, I tried to make the consistent sysfs entry name for devfreq device
+>>>> by contributing commit 4585fbcb5331 ("PM / devfreq: Modify the device name as
+>>>> devfreq(X) for sysfs"). But, The commit 4585fbcb5331 have missed that sysfs
+>>>> interface had to provide the real device name. Some subsystem like thermal
+>>>> and hwmon provide the device type or device name through sysfs interface.
+>>>> It is possible to make the user to find their own specific device by iteration
+>>>> on user-space.
+>>>>
+>>>> root@localhost:/# cat /sys/class/thermal/cooling_device0/type 
+>>>> pwm-fan
+>>>> root@localhost:/# cat /sys/class/thermal/cooling_device1/type                  
+>>>> thermal-cpufreq-0
+>>>> root@localhost:/# cat /sys/class/thermal/cooling_device2/type                  
+>>>> thermal-cpufreq-1
+>>>>
+>>>> root@localhost:/# cat /sys/class/hwmon/hwmon0/name                             
+>>>> pwmfan
+>>>>
+>>>>
+>>>> So, I add the new 'name' attribute of sysfs for devfreq device.
+>>>>
+>>>>>
+>>>>>> Documentation/ABI/testing/sysfs-class-devfreq | 7 +++++++
+>>>>>>  drivers/devfreq/devfreq.c                     | 9 +++++++++
+>>>>>>  2 files changed, 16 insertions(+)
+>>>>>>
+>>>>>> diff --git a/Documentation/ABI/testing/sysfs-class-devfreq b/Documentation/ABI/testing/sysfs-class-devfreq
+>>>>>> index 01196e19afca..75897e2fde43 100644
+>>>>>> --- a/Documentation/ABI/testing/sysfs-class-devfreq
+>>>>>> +++ b/Documentation/ABI/testing/sysfs-class-devfreq
+>>>>>> @@ -7,6 +7,13 @@ Description:
+>>>>>>  		The name of devfreq object denoted as ... is same as the
+>>>>>>  		name of device using devfreq.
+>>>>>>  
+>>>>>> +What:		/sys/class/devfreq/.../name
+>>>>>> +Date:		November 2019
+>>>>>> +Contact:	Chanwoo Choi <cw00.choi@samsung.com>
+>>>>>> +Description:
+>>>>>> +		The /sys/class/devfreq/.../name shows the name of device
+>>>>>> +		of the corresponding devfreq object.
+>>>>>> +
+>>>>>>  What:		/sys/class/devfreq/.../governor
+>>>>>>  Date:		September 2011
+>>>>>>  Contact:	MyungJoo Ham <myungjoo.ham@samsung.com>
+>>>>>> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+>>>>>> index 65a4b6cf3fa5..6f4d93d2a651 100644
+>>>>>> --- a/drivers/devfreq/devfreq.c
+>>>>>> +++ b/drivers/devfreq/devfreq.c
+>>>>>> @@ -1169,6 +1169,14 @@ int devfreq_remove_governor(struct devfreq_governor *governor)
+>>>>>>  }
+>>>>>>  EXPORT_SYMBOL(devfreq_remove_governor);
+>>>>>>  
+>>>>>> +static ssize_t name_show(struct device *dev,
+>>>>>> +			struct device_attribute *attr, char *buf)
+>>>>>> +{
+>>>>>> +	struct devfreq *devfreq = to_devfreq(dev);
+>>>>>> +	return sprintf(buf, "%s\n", dev_name(devfreq->dev.parent));
+>>>>>
+>>>>> Why is the parent's name being set here, and not the device name?
+>>>>
+>>>> The device name style in struct devfreq is 'devfreq%d' instead of
+>>>> parent device name in order to keep the consistent naming style for devfreq device
+>>>> as I mentioned above. 'devfreq%d' name is consistent name style for devfreq device.
+>>>> But, it don't show the real h/w device name. So, show the parent device name
+>>>> which is specified on device-tree file.
+>>>
+>>> I'm sorry, but I still do not understand.  Can you show me the directory
+>>> tree before and after here?
+>>>
 >>
->> WARNING: CPU: 8 PID: 208 at lib/percpu-refcount.c:108 percpu_ref_exit+0x50/0x58
->> Modules linked in: kvm(-) xt_CHECKSUM xt_MASQUERADE bonding xt_tcpudp ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_na>
->> CPU: 8 PID: 208 Comm: kworker/8:1 Not tainted 5.2.0+ #66
->> Hardware name: IBM 2964 NC9 712 (LPAR)
->> Workqueue: events sysfs_slab_remove_workfn
->> Krnl PSW : 0704e00180000000 0000001529746850 (percpu_ref_exit+0x50/0x58)
->>            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
->> Krnl GPRS: 00000000ffff8808 0000001529746740 000003f4e30e8e18 0036008100000000
->>            0000001f00000000 0035008100000000 0000001fb3573ab8 0000000000000000
->>            0000001fbdb6de00 0000000000000000 0000001529f01328 0000001fb3573b00
->>            0000001fbb27e000 0000001fbdb69300 000003e009263d00 000003e009263cd0
->> Krnl Code: 0000001529746842: f0a0000407fe        srp        4(11,%r0),2046,0
->>            0000001529746848: 47000700            bc         0,1792
->>           #000000152974684c: a7f40001            brc        15,152974684e
->>           >0000001529746850: a7f4fff2            brc        15,1529746834
->>            0000001529746854: 0707                bcr        0,%r7
->>            0000001529746856: 0707                bcr        0,%r7
->>            0000001529746858: eb8ff0580024        stmg       %r8,%r15,88(%r15)
->>            000000152974685e: a738ffff            lhi        %r3,-1
->> Call Trace:
->> ([<000003e009263d00>] 0x3e009263d00)
->>  [<00000015293252ea>] slab_kmem_cache_release+0x3a/0x70
->>  [<0000001529b04882>] kobject_put+0xaa/0xe8
->>  [<000000152918cf28>] process_one_work+0x1e8/0x428
->>  [<000000152918d1b0>] worker_thread+0x48/0x460
->>  [<00000015291942c6>] kthread+0x126/0x160
->>  [<0000001529b22344>] ret_from_fork+0x28/0x30
->>  [<0000001529b2234c>] kernel_thread_starter+0x0/0x10
->> Last Breaking-Event-Address:
->>  [<000000152974684c>] percpu_ref_exit+0x4c/0x58
->> ---[ end trace b035e7da5788eb09 ]---
+>> I'm sorry for not enough description. I add the following example on Odroid-XU3 board.
 >>
->> The problem occurs because kmem_cache_destroy() is called immediately
->> after deleting of a memcg, so it races with the memcg kmem_cache
->> deactivation.
 >>
->> flush_memcg_workqueue() at the beginning of kmem_cache_destroy()
->> is supposed to guarantee that all deactivation processes are finished,
->> but failed to do so. It waits for an rcu grace period, after which all
->> children kmem_caches should be deactivated. During the deactivation
->> percpu_ref_kill() is called for non root kmem_cache refcounters,
->> but it requires yet another rcu grace period to finish the transition
->> to the atomic (dead) state.
+>> 1. Before applied commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X),
 >>
->> So in a rare case when not all children kmem_caches are destroyed
->> at the moment when the root kmem_cache is about to be gone, we need
->> to wait another rcu grace period before destroying the root
->> kmem_cache.
+>> root@localhost:~# ls /sys/class/devfreq                                        
+>> soc:bus_disp1       soc:bus_fsys_apb  soc:bus_gscl_scaler  soc:bus_mscl
+>> soc:bus_disp1_fimd  soc:bus_g2d       soc:bus_jpeg         soc:bus_noc
+>> soc:bus_fsys        soc:bus_g2d_acp   soc:bus_jpeg_apb     soc:bus_peri
+>> soc:bus_fsys2       soc:bus_gen       soc:bus_mfc          soc:bus_wcore
+>>
+>> root@localhost:~# ls -al /sys/class/devfreq
+>> total 0
+>> drwxr-xr-x  2 root root 0 Jan  1 09:00 .
+>> drwxr-xr-x 52 root root 0 Jan  1 09:00 ..
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_disp1 -> ../../devices/platform/soc/soc:bus_disp1/devfreq/soc:bus_disp1
 > 
-> Could you explain how rare this really is please? I still have to wrap
-> my head around the overall logic here. It looks quite fragile to me TBH.
-> I am worried that is relies on implementation detail of the PCP ref
-> counters too much.
+> Ah, that's odd, ok.
+> 
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_disp1_fimd -> ../../devices/platform/soc/soc:bus_disp1_fimd/devfreq/soc:bus_did
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_fsys -> ../../devices/platform/soc/soc:bus_fsys/devfreq/soc:bus_fsys
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_fsys2 -> ../../devices/platform/soc/soc:bus_fsys2/devfreq/soc:bus_fsys2
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_fsys_apb -> ../../devices/platform/soc/soc:bus_fsys_apb/devfreq/soc:bus_fsys_ab
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_g2d -> ../../devices/platform/soc/soc:bus_g2d/devfreq/soc:bus_g2d
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_g2d_acp -> ../../devices/platform/soc/soc:bus_g2d_acp/devfreq/soc:bus_g2d_acp
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_gen -> ../../devices/platform/soc/soc:bus_gen/devfreq/soc:bus_gen
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_gscl_scaler -> ../../devices/platform/soc/soc:bus_gscl_scaler/devfreq/soc:bus_r
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_jpeg -> ../../devices/platform/soc/soc:bus_jpeg/devfreq/soc:bus_jpeg
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_jpeg_apb -> ../../devices/platform/soc/soc:bus_jpeg_apb/devfreq/soc:bus_jpeg_ab
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_mfc -> ../../devices/platform/soc/soc:bus_mfc/devfreq/soc:bus_mfc
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_mscl -> ../../devices/platform/soc/soc:bus_mscl/devfreq/soc:bus_mscl
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_noc -> ../../devices/platform/soc/soc:bus_noc/devfreq/soc:bus_noc
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_peri -> ../../devices/platform/soc/soc:bus_peri/devfreq/soc:bus_peri
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_wcore -> ../../devices/platform/soc/soc:bus_wcore/devfreq/soc:bus_wcore
+>>
+>>
+>>
+>> 2. After applied commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X),
+>>
+>> root@localhost:~# ls  /sys/class/devfreq                                       
+>> devfreq0   devfreq11  devfreq14  devfreq3  devfreq6  devfreq9
+>> devfreq1   devfreq12  devfreq15  devfreq4  devfreq7
+>> devfreq10  devfreq13  devfreq2   devfreq5  devfreq8
+> 
+> That's better.
+> 
+>>
+>> root@localhost:~# ls -al /sys/class/devfreq                                    
+>> total 0
+>> drwxr-xr-x  2 root root 0 Jan  1 09:02 .
+>> drwxr-xr-x 52 root root 0 Jan  1 09:02 ..
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq0 -> ../../devices/platform/soc/soc:bus_wcore/devfreq/devfreq0
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq1 -> ../../devices/platform/soc/soc:bus_noc/devfreq/devfreq1
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq10 -> ../../devices/platform/soc/soc:bus_jpeg/devfreq/devfreq10
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq11 -> ../../devices/platform/soc/soc:bus_jpeg_apb/devfreq/devfreq11
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq12 -> ../../devices/platform/soc/soc:bus_disp1_fimd/devfreq/devfreq12
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq13 -> ../../devices/platform/soc/soc:bus_disp1/devfreq/devfreq13
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq14 -> ../../devices/platform/soc/soc:bus_gscl_scaler/devfreq/devfreq14
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq15 -> ../../devices/platform/soc/soc:bus_mscl/devfreq/devfreq15
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq2 -> ../../devices/platform/soc/soc:bus_fsys_apb/devfreq/devfreq2
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq3 -> ../../devices/platform/soc/soc:bus_fsys/devfreq/devfreq3
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq4 -> ../../devices/platform/soc/soc:bus_fsys2/devfreq/devfreq4
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq5 -> ../../devices/platform/soc/soc:bus_mfc/devfreq/devfreq5
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq6 -> ../../devices/platform/soc/soc:bus_gen/devfreq/devfreq6
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq7 -> ../../devices/platform/soc/soc:bus_peri/devfreq/devfreq7
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq8 -> ../../devices/platform/soc/soc:bus_g2d/devfreq/devfreq8
+>> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq9 -> ../../devices/platform/soc/soc:bus_g2d_acp/devfreq/devfreq9
+> 
+> Ok, this looks a bit better, but why is there the extra "devfreq"
+> directory in there?  That was in the original as well, but that feels
+> odd.
 
-I can actually reproduce this very reliably by doing an
+What extra directory are you talking about? I didn't create
+the any extra directory for devfreq.
 
-# virsh destroy <lastguest>; rmmod kvm
+If you mention the following 'devfreq' directory, 
+it is created by basic device driver code in linux kernel.
+- /sys/devices/platform/soc/soc\:bus_wcore/devfreq/
 
+or
+
+Each devfreq0~15 directories indicates the each devfreq device.
+
+
+For example, show the info of each path
+root@localhost:~# ls -al /sys/devices/platform/soc/soc\:bus_wcore/             
+total 0
+drwxr-xr-x   4 root root    0 Jan  1 09:56 .
+drwxr-xr-x 109 root root    0 Jan  1 09:56 ..
+drwxr-xr-x   3 root root    0 Jan  1 09:56 devfreq
+lrwxrwxrwx   1 root root    0 Jan  1 09:57 driver -> ../../../../bus/platform/drivers/exynos-bus
+-rw-r--r--   1 root root 4096 Jan  1 09:57 driver_override
+-r--r--r--   1 root root 4096 Jan  1 09:57 modalias
+lrwxrwxrwx   1 root root    0 Jan  1 09:57 of_node -> ../../../../firmware/devicetree/base/soc/bus_wcore
+drwxr-xr-x   2 root root    0 Jan  1 09:57 power
+lrwxrwxrwx   1 root root    0 Jan  1 09:56 subsystem -> ../../../../bus/platform
+-rw-r--r--   1 root root 4096 Jan  1 09:56 uevent
+
+root@localhost:~# ls -al /sys/devices/platform/soc/soc\:bus_wcore/devfreq/     
+total 0
+drwxr-xr-x 3 root root 0 Jan  1 09:56 .
+drwxr-xr-x 4 root root 0 Jan  1 09:56 ..
+drwxr-xr-x 3 root root 0 Jan  1 09:56 devfreq0
+
+root@localhost:~# ls -al /sys/devices/platform/soc/soc\:bus_wcore/devfreq/devfreq0
+drwxr-xr-x 3 root root    0 Jan  1 09:56 .
+drwxr-xr-x 3 root root    0 Jan  1 09:56 ..
+-r--r--r-- 1 root root 4096 Jan  1 10:03 available_frequencies
+-r--r--r-- 1 root root 4096 Jan  1 10:03 available_governors
+-r--r--r-- 1 root root 4096 Jan  1 10:03 cur_freq
+lrwxrwxrwx 1 root root    0 Jan  1 10:03 device -> ../../../soc:bus_wcore
+-rw-r--r-- 1 root root 4096 Jan  1 10:03 governor
+-rw-r--r-- 1 root root 4096 Jan  1 10:03 max_freq
+-rw-r--r-- 1 root root 4096 Jan  1 10:03 min_freq
+-r--r--r-- 1 root root 4096 Jan  1 10:03 name
+-rw-r--r-- 1 root root 4096 Jan  1 10:03 polling_interval
+drwxr-xr-x 2 root root    0 Jan  1 10:03 power
+lrwxrwxrwx 1 root root    0 Jan  1 09:56 subsystem -> ../../../../../../class/devfreq
+-r--r--r-- 1 root root 4096 Jan  1 10:03 target_freq
+-r--r--r-- 1 root root 4096 Jan  1 10:03 trans_stat
+-rw-r--r-- 1 root root 4096 Jan  1 09:56 uevent
+
+
+
+
+-- 
+Best Regards,
+Chanwoo Choi
+Samsung Electronics
