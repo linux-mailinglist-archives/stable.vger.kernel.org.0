@@ -2,110 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80970109F87
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 14:50:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C13A109F9D
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 14:54:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727821AbfKZNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 08:50:13 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:40865 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726672AbfKZNuN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 08:50:13 -0500
-Received: by mail-wm1-f68.google.com with SMTP id y5so3382860wmi.5
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 05:50:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=tsj4AXaBf2OKH3JD14NeJEXvf/A3qIm9YxHg9zWu5J8=;
-        b=Fhb28BbRAFf7tgmvMgmztYdvmGnqRCNYJKoxNFd/ipMkYuCojA27OwcvKMt8+Fj+ey
-         zvX6GRfBv3ddgdXg8SFwICbvAUwuYor3ZRTdP8f1zJGuaYERgsP9pajF0JhfSr+NCI2X
-         H0CF8O3uzY/Xbz0FFZ6blsu8Me6W0XDGO9MOu9Z89jMFQxC5UyN3xaygNWA5z6Xwxpdb
-         oZF8/lsWLoYG7Q+pUzYKn3wsl3RmZ8inRhga+dm+PIqRsaHHulS7r4YBe2ImFq2jCfuZ
-         pOg+xvnNJ7KnBIIvKuz8ZGIhi/U3V3RJ3UHOdgx+XpxD+f90RosVF0L1HylrdwXP8Iky
-         UxJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=tsj4AXaBf2OKH3JD14NeJEXvf/A3qIm9YxHg9zWu5J8=;
-        b=G95Jr2Zk/sHSIZpSQu8qdrJMQt+3uakqo/QqFjoDN/k7bwBkMcUMCroChXKHNUBhHS
-         shTjIT/GiQfM8t19BdtcSQNvV269wZg15i49skqsmFpeDDo4MLKFTGCWhXwPcw7eF3zP
-         PrHNmhDyXiMqiCM+MphulVLrNdgupCp4n14BVzVWKWArQwNcxM4vdC6G1hpOUn0EATK7
-         e6fWUcch0BS/Ugaq4GjDRy7bEevu5FLrpBiU4TXqcs+79XQylq3yGWNZ18m4lJ6f100y
-         uSHUn1wQowbwMxNoOghSqhcZb3jbJ3xJzbIYdt9hT6BWngcgfgsh315KEDGzAPQaoFVa
-         WLrw==
-X-Gm-Message-State: APjAAAX6IZS/GpIsW5TLslYc28WJt1Pjn5CNRkiaDylOAX6hXwZlwyd7
-        tmvp++An54G9Eh1r6dylYpvjyQ==
-X-Google-Smtp-Source: APXvYqwom14V0WbU96pWp+N29yC0tS77lBFl3cYph2bFmUoicKN5Tc2Wy41CBK8MJkz5L3a9R6XEug==
-X-Received: by 2002:a05:600c:2052:: with SMTP id p18mr4347815wmg.92.1574776211849;
-        Tue, 26 Nov 2019 05:50:11 -0800 (PST)
-Received: from dell ([95.149.164.72])
-        by smtp.gmail.com with ESMTPSA id a206sm3240152wmf.15.2019.11.26.05.50.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2019 05:50:11 -0800 (PST)
-Date:   Tue, 26 Nov 2019 13:49:57 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 3/8] arm64: fix for bad_mode() handler to always
- result in panic
-Message-ID: <20191126134957.GI3296@dell>
-References: <20191122105253.11375-1-lee.jones@linaro.org>
- <20191122105253.11375-3-lee.jones@linaro.org>
- <20191125134700.GA5861@sasha-vm>
- <20191125144429.GF3296@dell>
- <20191125174103.GA2872072@kroah.com>
- <20191125182529.GH3296@dell>
+        id S1727983AbfKZNyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 08:54:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43752 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727374AbfKZNyH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Nov 2019 08:54:07 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A25EB20656;
+        Tue, 26 Nov 2019 13:54:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574776445;
+        bh=WB68jC+jemRFQsyYyY7vTIqpOvzaGEr1Zo2arfN6Pcw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AYR9Ny8Nwj+2LhVPyTgC3E+b/PGJc0sW1x2kOSf8XTEkRO2Qfq12xRl90RScLGaa5
+         MNafBn2bsCyoqMJcr/i/EbNjnT8Kba0ygss+lE0/XfNeK5UP9886FXAoOvV5N+jm3I
+         ZRlrPoOIhmNJZslpiLisb+lQ2Zz8u97tvHTNc8Kk=
+Date:   Tue, 26 Nov 2019 14:54:02 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>
+Cc:     stable@vger.kernel.org, davem@davemloft.net
+Subject: Re: Patch "mdio_bus: fix mdio_register_device when RESET_CONTROLLER
+ is disabled" has been added to the 5.3-stable tree
+Message-ID: <20191126135402.GA1429066@kroah.com>
+References: <157468851123632@kroah.com>
+ <20191125144538.276daf86@dellmb>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191125182529.GH3296@dell>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191125144538.276daf86@dellmb>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 25 Nov 2019, Lee Jones wrote:
+On Mon, Nov 25, 2019 at 02:45:38PM +0100, Marek Beh�n wrote:
+> Upstream reverted this commit (2c61e821da7a) and then used 6e4ff1c94a04
+> instead.
 
-> On Mon, 25 Nov 2019, Greg KH wrote:
-> 
-> > On Mon, Nov 25, 2019 at 02:44:29PM +0000, Lee Jones wrote:
-> > > On Mon, 25 Nov 2019, Sasha Levin wrote:
-> > > 
-> > > > On Fri, Nov 22, 2019 at 10:52:48AM +0000, Lee Jones wrote:
-> > > > > From: Hari Vyas <hari.vyas@broadcom.com>
-> > > > > 
-> > > > > [ Upstream commit e4ba15debcfd27f60d43da940a58108783bff2a6 ]
-> > > > > 
-> > > > > The bad_mode() handler is called if we encounter an uunknown exception,
-> > > > > with the expectation that the subsequent call to panic() will halt the
-> > > > > system. Unfortunately, if the exception calling bad_mode() is taken from
-> > > > > EL0, then the call to die() can end up killing the current user task and
-> > > > > calling schedule() instead of falling through to panic().
-> > > > > 
-> > > > > Remove the die() call altogether, since we really want to bring down the
-> > > > > machine in this "impossible" case.
-> > > > 
-> > > > Should this be in newer LTS kernels too? I don't see it in 4.14. We
-> > > > can't take anything into older kernels if it's not in newer ones - we
-> > > > don't want to break users who update their kernels.
-> > > 
-> > > Only; 3.18, 4.4, 4.9 and 5.3 were studied.
-> > > 
-> > > I can look at others if it helps.
-> > 
-> > You have to look at others, we can't have regressions if people move
-> > from one LTS to a newer one.
+Thanks for the info, I'll go make that change here too.
 
-Okay, now sent appropriate patches to linux-4.14.y and linux-4.19.y.
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+greg k-h
