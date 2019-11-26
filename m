@@ -2,84 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26778109BF1
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 11:10:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D7A109C17
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 11:15:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727930AbfKZKKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 05:10:08 -0500
-Received: from 8bytes.org ([81.169.241.247]:52882 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727837AbfKZKKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Nov 2019 05:10:08 -0500
-Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id 72D5B3A4; Tue, 26 Nov 2019 11:10:06 +0100 (CET)
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     hpa@zytor.com, x86@kernel.org, linux-kernel@vger.kernel.org,
-        Joerg Roedel <jroedel@suse.de>, stable@vger.kernel.org
-Subject: [PATCH -tip] x86/mm/32: Sync only to LDT_BASE_ADDR in vmalloc_sync_all()
-Date:   Tue, 26 Nov 2019 11:09:42 +0100
-Message-Id: <20191126100942.13059-1-joro@8bytes.org>
-X-Mailer: git-send-email 2.17.1
+        id S1727816AbfKZKPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 05:15:33 -0500
+Received: from mx2.suse.de ([195.135.220.15]:37090 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727388AbfKZKPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Nov 2019 05:15:33 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id CCCB3B9FD;
+        Tue, 26 Nov 2019 10:15:31 +0000 (UTC)
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     airlied@redhat.com, daniel@ffwll.ch, john.p.donnelly@oracle.com,
+        kraxel@redhat.com, sam@ravnborg.org
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        "Y.C. Chen" <yc_chen@aspeedtech.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/3] drm/mgag200: Extract device type from flags
+Date:   Tue, 26 Nov 2019 11:15:27 +0100
+Message-Id: <20191126101529.20356-2-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191126101529.20356-1-tzimmermann@suse.de>
+References: <20191126101529.20356-1-tzimmermann@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+Adds a conversion function that extracts the device type from the
+PCI id-table flags. Allows for storing additional information in the
+other flag bits.
 
-When vmalloc_sync_all() iterates over the address space until
-FIX_ADDR_TOP it will sync the whole kernel address space starting from
-VMALLOC_START.
-
-This is not a problem when the kernel address range is identical in
-all page-tables, but this is no longer the case when PTI is enabled on
-x86-32. In that case the per-process LDT is mapped in the kernel
-address range and vmalloc_sync_all() clears the LDT mapping for all
-processes.
-
-To make LDT working again vmalloc_sync_all() must only iterate over
-the volatile parts of the kernel address range that are identical
-between all processes. This includes the VMALLOC and the PKMAP areas
-on x86-32.
-
-The order of the ranges in the address space is:
-
-	VMALLOC -> PKMAP -> LDT -> CPU_ENTRY_AREA -> FIX_ADDR
-
-So the right check in vmalloc_sync_all() is "address < LDT_BASE_ADDR"
-to make sure the VMALLOC and PKMAP areas are synchronized and the LDT
-mapping is not falsely overwritten. the CPU_ENTRY_AREA and
-the FIXMAP area are no longer synced as well, but these
-ranges are synchronized on page-table creation time and do
-not change during runtime.
-
-This change fixes the ldt_gdt selftest in my setup.
-
-Fixes: 7757d607c6b3 ("x86/pti: AllowCONFIG_PAGE_TABLE_ISOLATION for x86_32")
-Cc: stable@vger.kernel.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 81da87f63a1e ("drm: Replace drm_gem_vram_push_to_system() with kunmap + unpin")
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: John Donnelly <john.p.donnelly@oracle.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: "José Roberto de Souza" <jose.souza@intel.com>
+Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.3+
 ---
- arch/x86/mm/fault.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/mgag200/mgag200_drv.h  | 7 +++++++
+ drivers/gpu/drm/mgag200/mgag200_main.c | 2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index 9ceacd1156db..144329c44436 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -197,7 +197,7 @@ void vmalloc_sync_all(void)
- 		return;
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
+index 0ea9a525e57d..976404634092 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.h
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+@@ -150,6 +150,8 @@ enum mga_type {
+ 	G200_EW3,
+ };
  
- 	for (address = VMALLOC_START & PMD_MASK;
--	     address >= TASK_SIZE_MAX && address < FIXADDR_TOP;
-+	     address >= TASK_SIZE_MAX && address < LDT_BASE_ADDR;
- 	     address += PMD_SIZE) {
- 		struct page *page;
++#define MGAG200_TYPE_MASK	(0x000000ff)
++
+ #define IS_G200_SE(mdev) (mdev->type == G200_SE_A || mdev->type == G200_SE_B)
  
+ struct mga_device {
+@@ -181,6 +183,11 @@ struct mga_device {
+ 	u32 unique_rev_id;
+ };
+ 
++static inline enum mga_type
++mgag200_type_from_driver_data(kernel_ulong_t driver_data)
++{
++	return (enum mga_type)(driver_data & MGAG200_TYPE_MASK);
++}
+ 				/* mgag200_mode.c */
+ int mgag200_modeset_init(struct mga_device *mdev);
+ void mgag200_modeset_fini(struct mga_device *mdev);
+diff --git a/drivers/gpu/drm/mgag200/mgag200_main.c b/drivers/gpu/drm/mgag200/mgag200_main.c
+index 5f74aabcd3df..517c5693ad69 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_main.c
++++ b/drivers/gpu/drm/mgag200/mgag200_main.c
+@@ -94,7 +94,7 @@ static int mgag200_device_init(struct drm_device *dev,
+ 	struct mga_device *mdev = dev->dev_private;
+ 	int ret, option;
+ 
+-	mdev->type = flags;
++	mdev->type = mgag200_type_from_driver_data(flags);
+ 
+ 	/* Hardcode the number of CRTCs to 1 */
+ 	mdev->num_crtc = 1;
 -- 
-2.16.4
+2.23.0
 
