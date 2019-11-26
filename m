@@ -2,252 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58E0B109AE9
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 10:15:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BAFA109B35
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 10:28:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727150AbfKZJPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 04:15:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727028AbfKZJPu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Nov 2019 04:15:50 -0500
+        id S1727388AbfKZJ2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 04:28:17 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:56539 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727275AbfKZJ2R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 04:28:17 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id CA42022821;
+        Tue, 26 Nov 2019 04:28:16 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 26 Nov 2019 04:28:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=N+OVSa
+        pgF7fdBJrTzYud/UTMTNe1/79C5spLCDllcXU=; b=JHKEeGPiZCQyJjN856PbCW
+        kPUQA+fu2cHPtNRcvDUg2y6ouZ5JashNAM5zXq6EEF7PVjm+0zRbc52bqpb+/B1h
+        qRehYST2FmAkQLnQPwkRH0fZZQCNJg2zN/s2BNi/QVvm/u2NX6supBSkhUi7Wr2g
+        sg19xHC1t3fW6h9c9BlqtDjjJkjwPmYCTOSnLy/MxL0mNLfpncQRSX+HU905Uprh
+        uGd0BGiBz5hcdcsENE4LzIFQXO4iijrxNDw/mBbLllYmceDUpKX9Il+zPORKY6mN
+        nH5Wqzi4N0pGNKpcYPFY4sUR6YrKKXuFfQ6m7AKH7dCSD8KIgK8QwKNE9pIIwaQw
+        ==
+X-ME-Sender: <xms:MPDcXe4J9x7l_f0VN-nn3nXYw8AHh_ObemmjHFdzaWO0naLQs8ATFg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeifedgtdehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekgedrvdeguddrudelgedrleeinecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:MPDcXd0vcypedKdeJBUFNACI87VlQKvIUxdYfO2LfMcPaMQDPy292w>
+    <xmx:MPDcXamONbv5hXrgEsqcYoVfl5BvzU5g601RDVQhMtKadNHfjrsOGQ>
+    <xmx:MPDcXb6er37q2RJ5Kp6UKPtJ4brd3iMpLmpyiIEySui0ZA5gQwvurA>
+    <xmx:MPDcXR8Mw95-XExK4xiBod4XPIc-hLAb49xEyCRAr46akB8_XTBHmg>
 Received: from localhost (unknown [84.241.194.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C26620678;
-        Tue, 26 Nov 2019 09:15:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574759749;
-        bh=xU5slxWEQomkNhOAgoIOnTbVrLTSUpdMjGZHUb5nLxY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RcNYzeVk09+Vyahnw5p2Cl5Hb1Kp4DOa5hKlvajob7ZbGvsPs+0CYQF6Scne0h5aU
-         zIf5ngX7sTXuR0H26DY2udzHvDoMpGLLtqfoU5IRwgyOekatyrc1D6z11BDsgQXK9k
-         XHeo+iaTZYsyZdzgex5rx3EPa4JIevVWkX38ISKE=
-Date:   Tue, 26 Nov 2019 10:15:41 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Chanwoo Choi <cw00.choi@samsung.com>
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        rafael.j.wysocki@intel.com, myungjoo.ham@samsung.com,
-        kyungmin.park@samsung.com, chanwoo@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] PM / devfreq: Add new name attribute for sysfs
-Message-ID: <20191126091541.GB1371943@kroah.com>
-References: <CGME20191125005755epcas1p2404d0f095e6ce543d36e55e2427282f8@epcas1p2.samsung.com>
- <20191125010357.27153-1-cw00.choi@samsung.com>
- <20191125085039.GA2301674@kroah.com>
- <48cadf42-4675-ffe1-a3d4-a97a37538955@samsung.com>
- <20191126075333.GA1231308@kroah.com>
- <c5c9dc78-8209-3b42-4b16-cb40b00b8508@samsung.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3E19C3060061;
+        Tue, 26 Nov 2019 04:28:16 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ath10k: restore QCA9880-AR1A (v1) detection" failed to apply to 4.14-stable tree
+To:     chunkeey@gmail.com, kvalo@codeaurora.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 26 Nov 2019 10:28:13 +0100
+Message-ID: <1574760493128155@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c5c9dc78-8209-3b42-4b16-cb40b00b8508@samsung.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 26, 2019 at 05:35:28PM +0900, Chanwoo Choi wrote:
-> On 11/26/19 4:53 PM, Greg KH wrote:
-> > On Tue, Nov 26, 2019 at 12:08:18PM +0900, Chanwoo Choi wrote:
-> >> Hi Greg,
-> >>
-> >> On 11/25/19 5:50 PM, Greg KH wrote:
-> >>> On Mon, Nov 25, 2019 at 10:03:57AM +0900, Chanwoo Choi wrote:
-> >>>> The commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for
-> >>>> sysfs") changed the node name to devfreq(x). After this commit, it is not
-> >>>> possible to get the device name through /sys/class/devfreq/devfreq(X)/*.
-> >>>>
-> >>>> Add new name attribute in order to get device name.
-> >>>>
-> >>>> Cc: stable@vger.kernel.org
-> >>>> Fixes: 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for sysfs")
-> >>>> Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
-> >>>> ---
-> >>>>  Changes from v2:
-> >>>> - Change the order of name_show() according to the sequence in devfreq_attrs[]
-> >>>>
-> >>>> Changes from v1:
-> >>>> - Update sysfs-class-devfreq documentation
-> >>>> - Show device name directly from 'devfreq->dev.parent'
-> >>>>
-> >>>
-> >>> Shouldn't you just revert the original patch here?  Why did the sysfs
-> >>> file change?
-> >>
-> >> The initial devfreq code used the parent device name for device name
-> >> corresponding to devfreq object instead of 'devfreq%d' style.
-> >> Before applied The commit 4585fbcb5331 ("PM / devfreq: Modify
-> >> the device name as devfreq(X) for sysfs"), the devfreq sysfs
-> >> showed the parent device name as following:
-> >>
-> >> For example on Odroid-XU3 board before applied the commit 4585fbcb5331,
-> >> 	/sys/class/devfreq/soc:bus_wcore
-> >> 	/sys/class/devfreq/soc:bus_noc
-> >> 	...(skip)
-> >>
-> >>
-> >> But, I think that devfreq subsystem had to show the consistent
-> >> sysfs entry name for devfreq device like input, thermal, hwmon subsystem.
-> >>
-> >> For example on Odroid-XU3 board,
-> >> - The input subsystem show the 'input%d' style for input device.
-> >> $root@localhost:/# ls /sys/class/input/                                         
-> >> event0  event1  input0  input1  mice  mouse0
-> >>
-> >> - The thermal subsystem show the 'cooling_device%d' style for thermal cooling device.
-> >> $ root@localhost:/# ls /sys/class/thermal/                                       
-> >> cooling_device0  cooling_device2  thermal_zone1  thermal_zone3
-> >> cooling_device1  thermal_zone0    thermal_zone2  thermal_zone4
-> >>
-> >> - The hwmon subsystem show the 'hwmon%d' style for h/w monitor device.
-> >> $root@localhost:/# ls /sys/class/hwmon/                                         
-> >> hwmon0
-> >>
-> >>
-> >> So, I tried to make the consistent sysfs entry name for devfreq device
-> >> by contributing commit 4585fbcb5331 ("PM / devfreq: Modify the device name as
-> >> devfreq(X) for sysfs"). But, The commit 4585fbcb5331 have missed that sysfs
-> >> interface had to provide the real device name. Some subsystem like thermal
-> >> and hwmon provide the device type or device name through sysfs interface.
-> >> It is possible to make the user to find their own specific device by iteration
-> >> on user-space.
-> >>
-> >> root@localhost:/# cat /sys/class/thermal/cooling_device0/type 
-> >> pwm-fan
-> >> root@localhost:/# cat /sys/class/thermal/cooling_device1/type                  
-> >> thermal-cpufreq-0
-> >> root@localhost:/# cat /sys/class/thermal/cooling_device2/type                  
-> >> thermal-cpufreq-1
-> >>
-> >> root@localhost:/# cat /sys/class/hwmon/hwmon0/name                             
-> >> pwmfan
-> >>
-> >>
-> >> So, I add the new 'name' attribute of sysfs for devfreq device.
-> >>
-> >>>
-> >>>> Documentation/ABI/testing/sysfs-class-devfreq | 7 +++++++
-> >>>>  drivers/devfreq/devfreq.c                     | 9 +++++++++
-> >>>>  2 files changed, 16 insertions(+)
-> >>>>
-> >>>> diff --git a/Documentation/ABI/testing/sysfs-class-devfreq b/Documentation/ABI/testing/sysfs-class-devfreq
-> >>>> index 01196e19afca..75897e2fde43 100644
-> >>>> --- a/Documentation/ABI/testing/sysfs-class-devfreq
-> >>>> +++ b/Documentation/ABI/testing/sysfs-class-devfreq
-> >>>> @@ -7,6 +7,13 @@ Description:
-> >>>>  		The name of devfreq object denoted as ... is same as the
-> >>>>  		name of device using devfreq.
-> >>>>  
-> >>>> +What:		/sys/class/devfreq/.../name
-> >>>> +Date:		November 2019
-> >>>> +Contact:	Chanwoo Choi <cw00.choi@samsung.com>
-> >>>> +Description:
-> >>>> +		The /sys/class/devfreq/.../name shows the name of device
-> >>>> +		of the corresponding devfreq object.
-> >>>> +
-> >>>>  What:		/sys/class/devfreq/.../governor
-> >>>>  Date:		September 2011
-> >>>>  Contact:	MyungJoo Ham <myungjoo.ham@samsung.com>
-> >>>> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-> >>>> index 65a4b6cf3fa5..6f4d93d2a651 100644
-> >>>> --- a/drivers/devfreq/devfreq.c
-> >>>> +++ b/drivers/devfreq/devfreq.c
-> >>>> @@ -1169,6 +1169,14 @@ int devfreq_remove_governor(struct devfreq_governor *governor)
-> >>>>  }
-> >>>>  EXPORT_SYMBOL(devfreq_remove_governor);
-> >>>>  
-> >>>> +static ssize_t name_show(struct device *dev,
-> >>>> +			struct device_attribute *attr, char *buf)
-> >>>> +{
-> >>>> +	struct devfreq *devfreq = to_devfreq(dev);
-> >>>> +	return sprintf(buf, "%s\n", dev_name(devfreq->dev.parent));
-> >>>
-> >>> Why is the parent's name being set here, and not the device name?
-> >>
-> >> The device name style in struct devfreq is 'devfreq%d' instead of
-> >> parent device name in order to keep the consistent naming style for devfreq device
-> >> as I mentioned above. 'devfreq%d' name is consistent name style for devfreq device.
-> >> But, it don't show the real h/w device name. So, show the parent device name
-> >> which is specified on device-tree file.
-> > 
-> > I'm sorry, but I still do not understand.  Can you show me the directory
-> > tree before and after here?
-> > 
-> 
-> I'm sorry for not enough description. I add the following example on Odroid-XU3 board.
-> 
-> 
-> 1. Before applied commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X),
-> 
-> root@localhost:~# ls /sys/class/devfreq                                        
-> soc:bus_disp1       soc:bus_fsys_apb  soc:bus_gscl_scaler  soc:bus_mscl
-> soc:bus_disp1_fimd  soc:bus_g2d       soc:bus_jpeg         soc:bus_noc
-> soc:bus_fsys        soc:bus_g2d_acp   soc:bus_jpeg_apb     soc:bus_peri
-> soc:bus_fsys2       soc:bus_gen       soc:bus_mfc          soc:bus_wcore
-> 
-> root@localhost:~# ls -al /sys/class/devfreq
-> total 0
-> drwxr-xr-x  2 root root 0 Jan  1 09:00 .
-> drwxr-xr-x 52 root root 0 Jan  1 09:00 ..
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_disp1 -> ../../devices/platform/soc/soc:bus_disp1/devfreq/soc:bus_disp1
 
-Ah, that's odd, ok.
-
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_disp1_fimd -> ../../devices/platform/soc/soc:bus_disp1_fimd/devfreq/soc:bus_did
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_fsys -> ../../devices/platform/soc/soc:bus_fsys/devfreq/soc:bus_fsys
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_fsys2 -> ../../devices/platform/soc/soc:bus_fsys2/devfreq/soc:bus_fsys2
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_fsys_apb -> ../../devices/platform/soc/soc:bus_fsys_apb/devfreq/soc:bus_fsys_ab
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_g2d -> ../../devices/platform/soc/soc:bus_g2d/devfreq/soc:bus_g2d
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_g2d_acp -> ../../devices/platform/soc/soc:bus_g2d_acp/devfreq/soc:bus_g2d_acp
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_gen -> ../../devices/platform/soc/soc:bus_gen/devfreq/soc:bus_gen
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_gscl_scaler -> ../../devices/platform/soc/soc:bus_gscl_scaler/devfreq/soc:bus_r
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_jpeg -> ../../devices/platform/soc/soc:bus_jpeg/devfreq/soc:bus_jpeg
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_jpeg_apb -> ../../devices/platform/soc/soc:bus_jpeg_apb/devfreq/soc:bus_jpeg_ab
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_mfc -> ../../devices/platform/soc/soc:bus_mfc/devfreq/soc:bus_mfc
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_mscl -> ../../devices/platform/soc/soc:bus_mscl/devfreq/soc:bus_mscl
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_noc -> ../../devices/platform/soc/soc:bus_noc/devfreq/soc:bus_noc
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_peri -> ../../devices/platform/soc/soc:bus_peri/devfreq/soc:bus_peri
-> lrwxrwxrwx  1 root root 0 Jan  1 09:00 soc:bus_wcore -> ../../devices/platform/soc/soc:bus_wcore/devfreq/soc:bus_wcore
-> 
-> 
-> 
-> 2. After applied commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X),
-> 
-> root@localhost:~# ls  /sys/class/devfreq                                       
-> devfreq0   devfreq11  devfreq14  devfreq3  devfreq6  devfreq9
-> devfreq1   devfreq12  devfreq15  devfreq4  devfreq7
-> devfreq10  devfreq13  devfreq2   devfreq5  devfreq8
-
-That's better.
-
-> 
-> root@localhost:~# ls -al /sys/class/devfreq                                    
-> total 0
-> drwxr-xr-x  2 root root 0 Jan  1 09:02 .
-> drwxr-xr-x 52 root root 0 Jan  1 09:02 ..
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq0 -> ../../devices/platform/soc/soc:bus_wcore/devfreq/devfreq0
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq1 -> ../../devices/platform/soc/soc:bus_noc/devfreq/devfreq1
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq10 -> ../../devices/platform/soc/soc:bus_jpeg/devfreq/devfreq10
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq11 -> ../../devices/platform/soc/soc:bus_jpeg_apb/devfreq/devfreq11
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq12 -> ../../devices/platform/soc/soc:bus_disp1_fimd/devfreq/devfreq12
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq13 -> ../../devices/platform/soc/soc:bus_disp1/devfreq/devfreq13
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq14 -> ../../devices/platform/soc/soc:bus_gscl_scaler/devfreq/devfreq14
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq15 -> ../../devices/platform/soc/soc:bus_mscl/devfreq/devfreq15
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq2 -> ../../devices/platform/soc/soc:bus_fsys_apb/devfreq/devfreq2
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq3 -> ../../devices/platform/soc/soc:bus_fsys/devfreq/devfreq3
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq4 -> ../../devices/platform/soc/soc:bus_fsys2/devfreq/devfreq4
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq5 -> ../../devices/platform/soc/soc:bus_mfc/devfreq/devfreq5
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq6 -> ../../devices/platform/soc/soc:bus_gen/devfreq/devfreq6
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq7 -> ../../devices/platform/soc/soc:bus_peri/devfreq/devfreq7
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq8 -> ../../devices/platform/soc/soc:bus_g2d/devfreq/devfreq8
-> lrwxrwxrwx  1 root root 0 Jan  1 09:02 devfreq9 -> ../../devices/platform/soc/soc:bus_g2d_acp/devfreq/devfreq9
-
-Ok, this looks a bit better, but why is there the extra "devfreq"
-directory in there?  That was in the original as well, but that feels
-odd.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 Mon Sep 17 00:00:00 2001
+From: Christian Lamparter <chunkeey@gmail.com>
+Date: Fri, 6 Sep 2019 23:54:23 +0200
+Subject: [PATCH] ath10k: restore QCA9880-AR1A (v1) detection
+
+This patch restores the old behavior that read
+the chip_id on the QCA988x before resetting the
+chip. This needs to be done in this order since
+the unsupported QCA988x AR1A chips fall off the
+bus when resetted. Otherwise the next MMIO Op
+after the reset causes a BUS ERROR and panic.
+
+Cc: stable@vger.kernel.org
+Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index bc3dc79de01a..bb44f5a0941b 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3486,7 +3486,7 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 	struct ath10k_pci *ar_pci;
+ 	enum ath10k_hw_rev hw_rev;
+ 	struct ath10k_bus_params bus_params = {};
+-	bool pci_ps;
++	bool pci_ps, is_qca988x = false;
+ 	int (*pci_soft_reset)(struct ath10k *ar);
+ 	int (*pci_hard_reset)(struct ath10k *ar);
+ 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
+@@ -3496,6 +3496,7 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 	case QCA988X_2_0_DEVICE_ID:
+ 		hw_rev = ATH10K_HW_QCA988X;
+ 		pci_ps = false;
++		is_qca988x = true;
+ 		pci_soft_reset = ath10k_pci_warm_reset;
+ 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
+ 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
+@@ -3615,25 +3616,34 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 		goto err_deinit_irq;
+ 	}
+ 
++	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
++	bus_params.link_can_suspend = true;
++	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
++	 * fall off the bus during chip_reset. These chips have the same pci
++	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
++	 */
++	if (is_qca988x) {
++		bus_params.chip_id =
++			ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
++		if (bus_params.chip_id != 0xffffffff) {
++			if (!ath10k_pci_chip_is_supported(pdev->device,
++							  bus_params.chip_id))
++				goto err_unsupported;
++		}
++	}
++
+ 	ret = ath10k_pci_chip_reset(ar);
+ 	if (ret) {
+ 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
+ 		goto err_free_irq;
+ 	}
+ 
+-	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
+-	bus_params.link_can_suspend = true;
+ 	bus_params.chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+-	if (bus_params.chip_id == 0xffffffff) {
+-		ath10k_err(ar, "failed to get chip id\n");
+-		goto err_free_irq;
+-	}
++	if (bus_params.chip_id == 0xffffffff)
++		goto err_unsupported;
+ 
+-	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id)) {
+-		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
+-			   pdev->device, bus_params.chip_id);
++	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
+ 		goto err_free_irq;
+-	}
+ 
+ 	ret = ath10k_core_register(ar, &bus_params);
+ 	if (ret) {
+@@ -3643,6 +3653,10 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 
+ 	return 0;
+ 
++err_unsupported:
++	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
++		   pdev->device, bus_params.chip_id);
++
+ err_free_irq:
+ 	ath10k_pci_free_irq(ar);
+ 	ath10k_pci_rx_retry_sync(ar);
+
