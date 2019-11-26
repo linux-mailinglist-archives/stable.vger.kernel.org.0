@@ -2,90 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7581010A216
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 17:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2EA10A2F3
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 18:05:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbfKZQ25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 11:28:57 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:52909 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725972AbfKZQ25 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 11:28:57 -0500
-Received: by mail-wm1-f66.google.com with SMTP id l1so3893970wme.2
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 08:28:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=68KQCaosWeDo+hQhdYuCzvCTI2yuojVXzy5tuG8R55o=;
-        b=ygVjXhQ/4XFONa8lQ8DB5rL+SmDIjgsb/NWD9Pg2aL1rmGTWBH5BuLHb1DRmAr8M0C
-         vbshC3jXyDu5QbQxYClLsrvMK1tYyViVG5DW0VDCEiw9Gm0LQ8wRjGs9sKRlCBcoj8ah
-         XCMl0SW+Ji17oLlMlfsjrcG9VqTeaCMZUH3t61/p7vH/RTK+SPT3dKO4yI80yMopzuQd
-         bkNBniGa75YxLvqXThj5Q6icTVvk2+USH8z9GJ2TXOEfhmTR8uw9JLVEI3nXHi79Y3k7
-         DJDdSaW1K7u/tDpacEpNTSba+Gn6F3slWnj2Ko69wne+2sGSCunfJCz0P0WyCxWi+05q
-         bi5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=68KQCaosWeDo+hQhdYuCzvCTI2yuojVXzy5tuG8R55o=;
-        b=DUOhkblDsZUvZQn2GGE4XnKSvwDGcvjCGrPh5Q1Q/oCRRf7RCO0b+yUFk9dSkykrdu
-         /sUEYMHDUfNAM4QKJBJITGly9196rK989EOwfG2T+5iaGGQ+gKAii+23eY1+RTyzd6OW
-         iJ99IKlVfOAJjGOj2dpX0GGoy1hUt99XVcIpskxsurF78aBZF0mhnM8oONkSPW68/UZR
-         qw4XThHCupUQvCfsGmP7PI5wDR54/I4puZ7Ye0j444tQ5d+kNjvlQJT9S0u58TVYbAb9
-         VJQt2fGnoOZ2OBKOyyf4tFssvDBbP+wbaZAAhNyzAn0vzQr1thlnrRb0oGmx8Qlm8nbK
-         8nAg==
-X-Gm-Message-State: APjAAAX4+t5B43dx3GrJwBffUgaCMtR0ihh4uRjbhI0VAUbM+G9/9QXc
-        pOZVjFiRaS6mmhF1iFMaoHOh6oa3BrE=
-X-Google-Smtp-Source: APXvYqzBx6K4EetpeCR4ass7xQUmXNEL+s+vxvMP9KaKGikgL95AvG8SLif0FmIGalxelEisXRmiHQ==
-X-Received: by 2002:a1c:9c54:: with SMTP id f81mr5190647wme.89.1574785733947;
-        Tue, 26 Nov 2019 08:28:53 -0800 (PST)
-Received: from dell ([95.149.164.72])
-        by smtp.gmail.com with ESMTPSA id r15sm16077075wrc.5.2019.11.26.08.28.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2019 08:28:53 -0800 (PST)
-Date:   Tue, 26 Nov 2019 16:28:40 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 3/3] ocfs2: remove ocfs2_is_o2cb_active()
-Message-ID: <20191126162840.GK3296@dell>
-References: <20191126134741.12629-1-lee.jones@linaro.org>
- <20191126134741.12629-3-lee.jones@linaro.org>
- <20191126162416.GA1657337@kroah.com>
+        id S1728558AbfKZRF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 12:05:58 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:28702 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727309AbfKZRF5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 12:05:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574787956;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VH/jX/dZgBdbxvSHzbbJtYI83fSwS9ikHw9OyhUvX10=;
+        b=OP9PumkSHFPStkU8J3PdTkTrMbM1tsKnjzH3XhKO0MIWw7nvkeBcdxiPd5iJQFpVl7CZWN
+        sqxW7za7K9jQ1ni7Jfmqf/bYn0Za8sp1Cjl8B5AlBTXmWcrcji/nWx/yXlz0RRawCRaFhd
+        QPnvR2bzcmNo9jD0t7UnYeOXOQnUyF4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-313-dM6vPsgEP9OLAjDP4lZ1oA-1; Tue, 26 Nov 2019 12:05:52 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B90FF101F4E0;
+        Tue, 26 Nov 2019 17:05:51 +0000 (UTC)
+Received: from localhost (unknown [10.18.25.174])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6DD0A5D9CA;
+        Tue, 26 Nov 2019 17:05:51 +0000 (UTC)
+Date:   Tue, 26 Nov 2019 12:05:50 -0500
+From:   Mike Snitzer <snitzer@redhat.com>
+To:     gregkh@linuxfoundation.org
+Cc:     vcaputo@pengaru.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] Revert "dm crypt: use WQ_HIGHPRI for the
+ IO and crypt" failed to apply to 4.19-stable tree
+Message-ID: <20191126170550.GA2718@redhat.com>
+References: <157476486318662@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <157476486318662@kroah.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: dM6vPsgEP9OLAjDP4lZ1oA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191126162416.GA1657337@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 26 Nov 2019, Greg KH wrote:
+On Tue, Nov 26 2019 at  5:41am -0500,
+gregkh@linuxfoundation.org <gregkh@linuxfoundation.org> wrote:
 
-> On Tue, Nov 26, 2019 at 01:47:41PM +0000, Lee Jones wrote:
-> > From: Gang He <ghe@suse.com>
-> > 
-> > [ Upstream commit 9d452c602f0558ec3b0aeab1040bdf4dfbc590eb ]
-> 
-> That's not a valid git commit id in Linus's tree :(
+>=20
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>=20
+> thanks,
+>=20
+> greg k-h
+>=20
 
-That's odd. I'll check my scripts.
+I assume you didn't first pull in the prereq commit detailed in the
+commit header with:
+ Requires: ed0302e83098d ("dm crypt: make workqueue names device-specific")
 
-They are new and you are the victim of the first run!
+?
 
-> These series are a mess.  Can you redo them all and resend them so that
-> I can apply them, and so I know what branch to apply them to?  :)
+Because this worked for me:
+git cherry-pick ed0302e83098d
+git cherry-pick f612b2132db529feac4f965f28a1b9258ea7c22b
 
-I can do that.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> ------------------ original commit in Linus's tree ------------------
+>=20
+> From f612b2132db529feac4f965f28a1b9258ea7c22b Mon Sep 17 00:00:00 2001
+> From: Mike Snitzer <snitzer@redhat.com>
+> Date: Wed, 20 Nov 2019 17:27:39 -0500
+> Subject: [PATCH] Revert "dm crypt: use WQ_HIGHPRI for the IO and crypt
+>  workqueues"
+>=20
+> This reverts commit a1b89132dc4f61071bdeaab92ea958e0953380a1.
+>=20
+> Revert required hand-patching due to subsequent changes that were
+> applied since commit a1b89132dc4f61071bdeaab92ea958e0953380a1.
+>=20
+> Requires: ed0302e83098d ("dm crypt: make workqueue names device-specific"=
+)
+> Cc: stable@vger.kernel.org
+> Bug: https://bugzilla.kernel.org/show_bug.cgi?id=3D199857
+> Reported-by: Vito Caputo <vcaputo@pengaru.com>
+> Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+>=20
+> diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+> index f87f6495652f..eb9782fc93fe 100644
+> --- a/drivers/md/dm-crypt.c
+> +++ b/drivers/md/dm-crypt.c
+> @@ -2700,21 +2700,18 @@ static int crypt_ctr(struct dm_target *ti, unsign=
+ed int argc, char **argv)
+>  =09}
+> =20
+>  =09ret =3D -ENOMEM;
+> -=09cc->io_queue =3D alloc_workqueue("kcryptd_io/%s",
+> -=09=09=09=09       WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
+> -=09=09=09=09       1, devname);
+> +=09cc->io_queue =3D alloc_workqueue("kcryptd_io/%s", WQ_MEM_RECLAIM, 1, =
+devname);
+>  =09if (!cc->io_queue) {
+>  =09=09ti->error =3D "Couldn't create kcryptd io queue";
+>  =09=09goto bad;
+>  =09}
+> =20
+>  =09if (test_bit(DM_CRYPT_SAME_CPU, &cc->flags))
+> -=09=09cc->crypt_queue =3D alloc_workqueue("kcryptd/%s",
+> -=09=09=09=09=09=09  WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
+> +=09=09cc->crypt_queue =3D alloc_workqueue("kcryptd/%s", WQ_CPU_INTENSIVE=
+ | WQ_MEM_RECLAIM,
+>  =09=09=09=09=09=09  1, devname);
+>  =09else
+>  =09=09cc->crypt_queue =3D alloc_workqueue("kcryptd/%s",
+> -=09=09=09=09=09=09  WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_=
+UNBOUND,
+> +=09=09=09=09=09=09  WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_UNBOUND,
+>  =09=09=09=09=09=09  num_online_cpus(), devname);
+>  =09if (!cc->crypt_queue) {
+>  =09=09ti->error =3D "Couldn't create kcryptd queue";
+>=20
+
