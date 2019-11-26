@@ -2,116 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DE110A081
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 15:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A7910A0CC
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 15:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727209AbfKZOkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 09:40:36 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:36236 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726101AbfKZOkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 09:40:35 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z3so22729099wru.3
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 06:40:33 -0800 (PST)
+        id S1728215AbfKZOzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 09:55:47 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:36875 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727171AbfKZOzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 09:55:46 -0500
+Received: by mail-wr1-f65.google.com with SMTP id g7so2124523wrw.4
+        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 06:55:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
+        d=linaro.org; s=google;
+        h=date:from:to:subject:message-id:references:mime-version
          :content-disposition:content-transfer-encoding:in-reply-to
          :user-agent;
-        bh=vDlRkpzIOrPRGh5pysj0vN3V4ARniTOU0E64e7Y7I4k=;
-        b=We11rIf9pkSTfvXQfufaU9H4/tUZLZP0zPiq0QyBZx7rXYqB/Lbo00B9w3TyI38XDv
-         IhhGUDrIyAjy3QwAIPo/ExlDP8YSHI0593gfyeq7rRfh69HiUpK3fujAH1PdUg1sySIg
-         sCASiOk+mxUmzGq9FfOGPhaUbRwd8+9WobLFc=
+        bh=E9Iw0yWrvAGuBf0vrdUF8hB1LHd9Wo63w17xqbhUTCY=;
+        b=lyht2B11vwm5kHnWD04qo041Ui0Eul+0eotWEXI60gaPxztj/xAtX+AI3TnvlbR0iu
+         ENypGulE045ID05II38/fAwBgx/wAc35xGn/yFICLojkFOGU7nfD6qK4RXJ5CGkiQ7KM
+         g4eZhb/naADHuN0G8ldNnIBw2hJTxangeaG8ZWzbNO85MLMVwWbuvWKeoIb2slALz5Kk
+         Fcpw6Bwx0WxNwARyym8R9FKv2HC/0kn8SzU5HwPzhDIDxj4AmXst5h97HSZTpjtq3P0J
+         uvNer4PsaDlGta+ThpAtgBG3mO+oHfwS+TQAeZQaZEzXqJgmkA4E6rljhGCe1gvA71aE
+         rMFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+        h=x-gm-message-state:date:from:to:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to:user-agent;
-        bh=vDlRkpzIOrPRGh5pysj0vN3V4ARniTOU0E64e7Y7I4k=;
-        b=BkoPpZAD9uEZxeca2qNKDQHTu+EUI1WCOr60r8fpcFUt2atqKvVVto4PSOG+tJHnIZ
-         kzBLzKOnTBzbPfClJUKtwPAURg0In3UGwpMbQ+QKTpTh8WAlHHlh6g5vyWIXB6gfGGxW
-         9BAtzS6JVd+QTgIUqUORHoRx5T6R/BQJcmYM/+YtSJLXs3WtvB+KiJNNqBAsjKV8wIaF
-         OPYdO5ltNVUiw1mr5lF3nVqZ8NwsV0kQydaBBvY3YsilNVjjRVb0DSbgCr4Cvmn/kefA
-         gQ3CG5p/eEL7WjCNxpvnJFPvEgpGo3wbidLBv5ZtylvW9pf2mYABtALwoDAGFGk3NiME
-         CTzA==
-X-Gm-Message-State: APjAAAVamedIcmg3DSlb5sJrRQSebQnT8mq2dWr5dPOBrXX2r7N10zCx
-        LaGNaH537/FR7fcghKuE1nE7kw==
-X-Google-Smtp-Source: APXvYqxUmVBdcCYS7XSP5o8fYGZrhfhKicMhDiOZnyWOiksf2+PAvxuADqC946BHGNEBKb39ApM0Fg==
-X-Received: by 2002:a05:6000:12c9:: with SMTP id l9mr1904540wrx.304.1574779233142;
-        Tue, 26 Nov 2019 06:40:33 -0800 (PST)
-Received: from phenom.ffwll.local (212-51-149-96.fiber7.init7.net. [212.51.149.96])
-        by smtp.gmail.com with ESMTPSA id z26sm1479738wmk.33.2019.11.26.06.40.31
+        bh=E9Iw0yWrvAGuBf0vrdUF8hB1LHd9Wo63w17xqbhUTCY=;
+        b=QEQ0NqMBT+WgAMNb/Z/70Uxkgsbb1FJdQ0B1V0R8h3qAWjf8sOyxxmoUm29kh46RG9
+         2QUcEjpXvyqsGa7+E7ym9H2UU4RGRH8FbQeYTK4XOFenmeu9SCpHVuv6gzTclKLReJYC
+         jaNk1xnWNEcygGXB5KKNx9kwEmSoJCbCtfscvNMBg9CLlkMxGZkWVQMhmMykdTGqgfKd
+         psIdq8te6EcV3x55dbUuCvf9ITfkx8od86AqOVQqH/c7YXljtDYlG/I2Onh12ulTaImv
+         zAK9PJ081J709a6ayIiunX8U9saAP4GhJgLGXyxJcSF/U2RwSfpNT99v0mWMXRUalIfg
+         H4xw==
+X-Gm-Message-State: APjAAAX3xbaM3PS0Hrn0LGagfPc+CSNPaYCWSW++dZ0ev3xWYu196YCL
+        BCeHusC+uvNFqn+RkdagtHpmwF3402c=
+X-Google-Smtp-Source: APXvYqxt0OHayV165wpIwr9PCV5sI0PI0olZdWlPJwSN1fywvqlBf4l0M2l5HceEA1FaUEmO3Fuikg==
+X-Received: by 2002:adf:b64b:: with SMTP id i11mr17327474wre.58.1574780144725;
+        Tue, 26 Nov 2019 06:55:44 -0800 (PST)
+Received: from dell ([95.149.164.72])
+        by smtp.gmail.com with ESMTPSA id b3sm3241993wmj.44.2019.11.26.06.55.43
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2019 06:40:32 -0800 (PST)
-Date:   Tue, 26 Nov 2019 15:40:30 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Benjamin Gaignard <benjamin.gaignard@st.com>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 1/4] drm/rect: Avoid division by zero
-Message-ID: <20191126144030.GY29965@phenom.ffwll.local>
-References: <20191122175623.13565-1-ville.syrjala@linux.intel.com>
- <20191122175623.13565-2-ville.syrjala@linux.intel.com>
+        Tue, 26 Nov 2019 06:55:44 -0800 (PST)
+Date:   Tue, 26 Nov 2019 14:55:30 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 1/5] ARM: 8904/1: skip nomap memblocks while finding
+ the lowmem/highmem boundary
+Message-ID: <20191126145530.GJ3296@dell>
+References: <20191126134830.12747-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191122175623.13565-2-ville.syrjala@linux.intel.com>
-X-Operating-System: Linux phenom 5.3.0-2-amd64 
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191126134830.12747-1-lee.jones@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 07:56:20PM +0200, Ville Syrjala wrote:
-> From: Ville Syrj‰l‰ <ville.syrjala@linux.intel.com>
+Sorry, guys, copy/paste error.
+
+These 5 patches are headed for 4.14 NOT 4.19.
+
+On Tue, 26 Nov 2019, Lee Jones wrote:
+
+> From: Chester Lin <clin@suse.com>
 > 
-> Check for zero width/height destination rectangle in
-> drm_rect_clip_scaled() to avoid a division by zero.
+> [ Upstream commit 59f200ef45852141dd45847563bf8e4c11a48f3f ]
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: f96bdf564f3e ("drm/rect: Handle rounding errors in drm_rect_clip_scaled, v3.")
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: Benjamin Gaignard <benjamin.gaignard@st.com>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Testcase: igt/kms_selftest/drm_rect_clip_scaled_div_by_zero
-> Signed-off-by: Ville Syrj‰l‰ <ville.syrjala@linux.intel.com>
-
-Clamping src to 0 if dst is 0 makes sense to me.
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
+> adjust_lowmem_bounds() checks every memblocks in order to find the boundary
+> between lowmem and highmem. However some memblocks could be marked as NOMAP
+> so they are not used by kernel, which should be skipped while calculating
+> the boundary.
+> 
+> Signed-off-by: Chester Lin <clin@suse.com>
+> Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  drivers/gpu/drm/drm_rect.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+>  arch/arm/mm/mmu.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> diff --git a/drivers/gpu/drm/drm_rect.c b/drivers/gpu/drm/drm_rect.c
-> index b8363aaa9032..818738e83d06 100644
-> --- a/drivers/gpu/drm/drm_rect.c
-> +++ b/drivers/gpu/drm/drm_rect.c
-> @@ -54,7 +54,12 @@ EXPORT_SYMBOL(drm_rect_intersect);
+> diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+> index 70e560cf8ca0..d8cbe772f690 100644
+> --- a/arch/arm/mm/mmu.c
+> +++ b/arch/arm/mm/mmu.c
+> @@ -1195,6 +1195,9 @@ void __init adjust_lowmem_bounds(void)
+>  		phys_addr_t block_start = reg->base;
+>  		phys_addr_t block_end = reg->base + reg->size;
 >  
->  static u32 clip_scaled(u32 src, u32 dst, u32 clip)
->  {
-> -	u64 tmp = mul_u32_u32(src, dst - clip);
-> +	u64 tmp;
+> +		if (memblock_is_nomap(reg))
+> +			continue;
 > +
-> +	if (dst == 0)
-> +		return 0;
-> +
-> +	tmp = mul_u32_u32(src, dst - clip);
->  
->  	/*
->  	 * Round toward 1.0 when clipping so that we don't accidentally
-> -- 
-> 2.23.0
-> 
+>  		if (reg->base < vmalloc_limit) {
+>  			if (block_end > lowmem_limit)
+>  				/*
 
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Lee Jones [ÊùéÁêºÊñØ]
+Linaro Services Technical Lead
+Linaro.org ‚îÇ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
