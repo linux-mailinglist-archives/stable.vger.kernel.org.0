@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DA6109A59
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 09:43:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BABC109A5C
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 09:43:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727017AbfKZInP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 03:43:15 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:25481 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725862AbfKZInO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 03:43:14 -0500
+        id S1727135AbfKZInc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 03:43:32 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:55951 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725940AbfKZInb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 03:43:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574757793;
+        s=mimecast20190719; t=1574757810;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:openpgp:openpgp;
-        bh=GwEyhX4VjG5sUB4FdduoQGJY96vfjRUGReOuxVzCQHY=;
-        b=ctmv59u8Bm5WCAxmXGbZu3K6bCmQPVxAU51OlSdDy2GqTKqyA5O8CbNyIz9QG2dy5aPIOB
-        BZVdPP4V7OwjJFdsX1knylAhW3YGQ10/w4dRC2++nG7OjuNsULC/6x/u+IjtVyBgZjKpHs
-        TqcMyy+cvW9OEaaT9ghnNI6wFwRT6Gw=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-216-dm5ZMG7MNmCDFkgAkG6-Jg-1; Tue, 26 Nov 2019 03:43:09 -0500
-Received: by mail-wm1-f71.google.com with SMTP id g8so813153wmg.6
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 00:43:09 -0800 (PST)
+        bh=qRebXvy1MrUFFQVKp4nVYsX6imAAqHN+087BgM7udBw=;
+        b=h3pVz7sA3GpUKGssHhBFLCAEekYW52zowjfZD+ldseLLft0dBi6bhKbpA6xv5ZJ9cK7EKD
+        JyEBeRTZV5Sml9KmMOPQ+m6ATL6BKXpArQigpwbNFJf4nO+DQmlDy7DxSBrayPQdUQF+7N
+        tdTzF+0+8YOQBxyn5khUOThxeVO+5J8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-281-6JGIp6EXMTqIc9HyYZOnqA-1; Tue, 26 Nov 2019 03:43:27 -0500
+Received: by mail-wr1-f72.google.com with SMTP id h7so10218510wrb.2
+        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 00:43:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=GwEyhX4VjG5sUB4FdduoQGJY96vfjRUGReOuxVzCQHY=;
-        b=mAP3biRGZSOTvAxHuN411Ch4zo++73F4nG9wlYEA8Gwt/bccVhXFQ4QgtSWmWHBDMP
-         htyvtP5ERfZEyejIUVjOM07VojPjnYdDGyMhRoNTXn3eEZwPzCE/YZWPx5XneRX5owoG
-         Wep9foVPbcRV6X6kEQD0/oi12MBCmxH9/FAVLdJFC4V0s57nLIuAEagLSOmjMyGj16AD
-         cMbeyzcGr9BX8RM1UtKjfp8AsB13R3DK/uLURKQzG/iYv0YyGaOi4t2zANX+JWT1c8vx
-         KkwhcTQR/m6Llfcr8Qd8uoiX0AB69yXWwbWGXvTJPl+PfL3/Myg55ZN1HbNpCPjlqTqq
-         Hm1A==
-X-Gm-Message-State: APjAAAWSYpp2q93Lu6vSfCVVslT8qqpjrP/JVCaa4KNxI1M1kt2J9PSp
-        V1o6xH9sQ9TAqlSBSmovVTxbWq+vp7nnWCDHBNdVDfYOaB62//lDTLICrV/ov8AA7bAYJnFnjbC
-        MrMjc+ymK3pNE20Os
-X-Received: by 2002:adf:f010:: with SMTP id j16mr36908544wro.206.1574757788325;
-        Tue, 26 Nov 2019 00:43:08 -0800 (PST)
-X-Google-Smtp-Source: APXvYqz9wxamg4+M+0j2Fdgy8QtQYYW/Vc8Xmw+mi29tyIuzKI4DBEseu9fYCBGhU/OvYDbfEKyl9Q==
-X-Received: by 2002:adf:f010:: with SMTP id j16mr36908503wro.206.1574757787851;
-        Tue, 26 Nov 2019 00:43:07 -0800 (PST)
+        bh=qRebXvy1MrUFFQVKp4nVYsX6imAAqHN+087BgM7udBw=;
+        b=gLTAT8uJRaS3/oueem5F2AJmHU98NIqi2iHNPBQng6Qyde1tSdkJJzmzUHKNpjon4z
+         EtB90mNX4HXf4+6E1E+1qM3I++PCPtEwLqDXgANU6pC7gPSnS8sUQn9+JZ+0IZqpG2R/
+         Gr8rjDQpr0v7jQL7vFk+4TepP8LKwmj/f1o7H4OeAE2ZyiHkl2eXL/L195Ynx2d1gitE
+         /J2S+k+FRUiTKNo6zT2b66yCv6ZhlQYl58jWviVnkdDjpKe5nWCaApYhECKijJFRkjY1
+         VJSSYpEvjZtfUjo+s8Cmc/18I+tA4mPA2lXURlM9MjIPx5fDoeeW49RkZ/tGiy5Ahc8l
+         B5+w==
+X-Gm-Message-State: APjAAAWRnD+pdskl/CPzrqoolG/USsBazEsTfLwkeHiQ46gvQ56Q4+bp
+        OzXZc32tf0dMZkXLZGZcl3fhi83Ucekktp5gHbXSZrbQgIIcw+8CryU31/oT0WFm4fjhJFZuGCJ
+        O1JfP7EXJvdVpqjZT
+X-Received: by 2002:a7b:c4c5:: with SMTP id g5mr3126955wmk.149.1574757805764;
+        Tue, 26 Nov 2019 00:43:25 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxLrI8+d0wHGbyZ5QRRU1gJlX4ez4u6d5OVvbwvaBXMv7PHoj4BXzLpaEbMWY3tbsAi1jvzQQ==
+X-Received: by 2002:a7b:c4c5:: with SMTP id g5mr3126923wmk.149.1574757805345;
+        Tue, 26 Nov 2019 00:43:25 -0800 (PST)
 Received: from ?IPv6:2001:b07:6468:f312:5454:a592:5a0a:75c? ([2001:b07:6468:f312:5454:a592:5a0a:75c])
-        by smtp.gmail.com with ESMTPSA id u1sm2243735wmc.3.2019.11.26.00.43.06
+        by smtp.gmail.com with ESMTPSA id z15sm2166228wmi.12.2019.11.26.00.43.24
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Nov 2019 00:43:07 -0800 (PST)
-Subject: Re: [PATCH 4.9 STABLE] KVM: MMU: Do not treat ZONE_DEVICE pages as
+        Tue, 26 Nov 2019 00:43:24 -0800 (PST)
+Subject: Re: [PATCH 4.14 STABLE] KVM: MMU: Do not treat ZONE_DEVICE pages as
  being reserved
 To:     Sean Christopherson <sean.j.christopherson@intel.com>,
         stable@vger.kernel.org,
@@ -58,17 +58,17 @@ To:     Sean Christopherson <sean.j.christopherson@intel.com>,
 Cc:     Dan Williams <dan.j.williams@intel.com>,
         David Hildenbrand <david@redhat.com>,
         linux-kernel@vger.kernel.org
-References: <20191125190020.28274-1-sean.j.christopherson@intel.com>
+References: <20191125190205.28474-1-sean.j.christopherson@intel.com>
 From:   Paolo Bonzini <pbonzini@redhat.com>
 Openpgp: preference=signencrypt
-Message-ID: <0a470253-5363-0917-0abe-4c8568191a94@redhat.com>
-Date:   Tue, 26 Nov 2019 09:43:06 +0100
+Message-ID: <8fb87848-325b-41ea-5db1-cba9cec2355a@redhat.com>
+Date:   Tue, 26 Nov 2019 09:43:24 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20191125190020.28274-1-sean.j.christopherson@intel.com>
+In-Reply-To: <20191125190205.28474-1-sean.j.christopherson@intel.com>
 Content-Language: en-US
-X-MC-Unique: dm5ZMG7MNmCDFkgAkG6-Jg-1
+X-MC-Unique: 6JGIp6EXMTqIc9HyYZOnqA-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
@@ -77,7 +77,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/11/19 20:00, Sean Christopherson wrote:
+On 25/11/19 20:02, Sean Christopherson wrote:
 > [ Upstream commit a78986aae9b2988f8493f9f65a587ee433e83bc3 ]
 > 
 > Explicitly exempt ZONE_DEVICE pages from kvm_is_reserved_pfn() and
@@ -119,10 +119,10 @@ On 25/11/19 20:00, Sean Christopherson wrote:
 >  3 files changed, 28 insertions(+), 7 deletions(-)
 > 
 > diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-> index f0f180158c26..3a281a2decde 100644
+> index 8cd26e50d41c..c0b0135ef07f 100644
 > --- a/arch/x86/kvm/mmu.c
 > +++ b/arch/x86/kvm/mmu.c
-> @@ -2934,7 +2934,7 @@ static void transparent_hugepage_adjust(struct kvm_vcpu *vcpu,
+> @@ -3177,7 +3177,7 @@ static void transparent_hugepage_adjust(struct kvm_vcpu *vcpu,
 >  	 * here.
 >  	 */
 >  	if (!is_error_noslot_pfn(pfn) && !kvm_is_reserved_pfn(pfn) &&
@@ -131,7 +131,7 @@ On 25/11/19 20:00, Sean Christopherson wrote:
 >  	    PageTransCompoundMap(pfn_to_page(pfn)) &&
 >  	    !mmu_gfn_lpage_is_disallowed(vcpu, gfn, PT_DIRECTORY_LEVEL)) {
 >  		unsigned long mask;
-> @@ -4890,9 +4890,9 @@ static bool kvm_mmu_zap_collapsible_spte(struct kvm *kvm,
+> @@ -5344,9 +5344,9 @@ static bool kvm_mmu_zap_collapsible_spte(struct kvm *kvm,
 >  		 * the guest, and the guest page table is using 4K page size
 >  		 * mapping if the indirect sp has level = 1.
 >  		 */
@@ -145,10 +145,10 @@ On 25/11/19 20:00, Sean Christopherson wrote:
 >  			need_tlb_flush = 1;
 >  			goto restart;
 > diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index 0590e7d47b02..ab90a8541aaa 100644
+> index bb4758ffd403..7668c68ddb5b 100644
 > --- a/include/linux/kvm_host.h
 > +++ b/include/linux/kvm_host.h
-> @@ -843,6 +843,7 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu);
+> @@ -890,6 +890,7 @@ int kvm_cpu_has_pending_timer(struct kvm_vcpu *vcpu);
 >  void kvm_vcpu_kick(struct kvm_vcpu *vcpu);
 >  
 >  bool kvm_is_reserved_pfn(kvm_pfn_t pfn);
@@ -157,10 +157,10 @@ On 25/11/19 20:00, Sean Christopherson wrote:
 >  struct kvm_irq_ack_notifier {
 >  	struct hlist_node link;
 > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 0fc93519e63e..c0dff5337a50 100644
+> index ea61162b2b53..cdaacdf7bc87 100644
 > --- a/virt/kvm/kvm_main.c
 > +++ b/virt/kvm/kvm_main.c
-> @@ -131,10 +131,30 @@ __weak void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+> @@ -142,10 +142,30 @@ __weak void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
 >  {
 >  }
 >  
@@ -192,7 +192,7 @@ On 25/11/19 20:00, Sean Christopherson wrote:
 >  
 >  	return true;
 >  }
-> @@ -1758,7 +1778,7 @@ static void kvm_release_pfn_dirty(kvm_pfn_t pfn)
+> @@ -1730,7 +1750,7 @@ static void kvm_release_pfn_dirty(kvm_pfn_t pfn)
 >  
 >  void kvm_set_pfn_dirty(kvm_pfn_t pfn)
 >  {
@@ -201,7 +201,7 @@ On 25/11/19 20:00, Sean Christopherson wrote:
 >  		struct page *page = pfn_to_page(pfn);
 >  
 >  		if (!PageReserved(page))
-> @@ -1769,7 +1789,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
+> @@ -1741,7 +1761,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
 >  
 >  void kvm_set_pfn_accessed(kvm_pfn_t pfn)
 >  {
