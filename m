@@ -2,85 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AAB410A4FC
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 21:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D01A710A588
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 21:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726199AbfKZUBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 15:01:21 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:36625 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725970AbfKZUBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 15:01:21 -0500
-Received: by mail-lj1-f195.google.com with SMTP id k15so21713037lja.3
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 12:01:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9gYplPhtVE/YGLO3x1smraYGKvZdNPRdzDgfUGwplws=;
-        b=GIRldqEdiwGN3YNe6c76Ggzly2TLHRFCWdEE02G+zF+8N2KcF8j+jZ7WokzK3KR1jo
-         /yPaNkdQ0wHsOvzOfc/G7e+o6IifetbIk+4AiYUdw6r/FbJKR1y0htKWfJQiYuSzTiI6
-         DosXBqB1wRDvH6FY5kC4YS7TjMZaLBpwXex/yrgMIpL8f13YiVi2lUSE3rs1r2p5urn+
-         yxOGgZAJ+vHP4NVbQfWv14U0yXnPuqRtpRAwPApmMtb1cviCfSs/aUuO4+zCgIT8ecPB
-         WttE4aMeG8NTlccrGQsIbB9JmiVoRfRr8gLGSKByL7PSvln/J5CBgFA0nBzYm3II9pyv
-         l+Ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9gYplPhtVE/YGLO3x1smraYGKvZdNPRdzDgfUGwplws=;
-        b=EzrZLDRXcN+8iUGrSn1s2tHCldwBCKj8DwTOqCUmvYUteRJNKo9qbtU2UN0SUvEqka
-         yQChjBIKuQJNZr9dATtgbNNNvUJnHU5xdF6Q38tt5lFl72+ai7osMD+zU+6WHbLIIPdc
-         EkQz71lm5zzjW66xj338HsZRQdB9bYF9dSupnSx1PRJOQ9T/uGk0+4B2GX31tvBDXNeN
-         52X+1h68t/zoL73FK4+sySrS80orSFaiygp4sfvmP5qLh13YwOtBjdSsnW7Yalnr2j/r
-         nkRpEwKgJzkclar9oqC7GVGzUgXBUneF4UB2syEtrCqvC7zTYEOetc7YIWxdrBzYgEiy
-         McAg==
-X-Gm-Message-State: APjAAAXtEj2P5JdM+bdlNFIlnQjYjZslcZ9RVLlrmKeOlgDL55/hPnpm
-        Jyx7GUOCHGcRHiRgPfr2leDdkyf5brI=
-X-Google-Smtp-Source: APXvYqxMydKAw0SnQ/rYZD0FFMTLmbLErH0qXFuFIDX2swa/M1Ot0o1BirTQP/nA/jNMfD5RfERQkw==
-X-Received: by 2002:a2e:81c1:: with SMTP id s1mr27477310ljg.83.1574798479363;
-        Tue, 26 Nov 2019 12:01:19 -0800 (PST)
-Received: from octofox.cadence.com (jcmvbkbc-1-pt.tunnel.tserv24.sto1.ipv6.he.net. [2001:470:27:1fa::2])
-        by smtp.gmail.com with ESMTPSA id g11sm5767129lfb.94.2019.11.26.12.01.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2019 12:01:18 -0800 (PST)
-From:   Max Filippov <jcmvbkbc@gmail.com>
-To:     linux-xtensa@linux-xtensa.org
-Cc:     Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] xtensa: fix syscall_set_return_value
-Date:   Tue, 26 Nov 2019 12:01:07 -0800
-Message-Id: <20191126200107.13008-1-jcmvbkbc@gmail.com>
-X-Mailer: git-send-email 2.20.1
+        id S1727091AbfKZUfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 15:35:43 -0500
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:48637 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727104AbfKZUfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 15:35:42 -0500
+X-Originating-IP: 78.194.159.98
+Received: from gandi.net (unknown [78.194.159.98])
+        (Authenticated sender: thibaut@sautereau.fr)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 2758A60004;
+        Tue, 26 Nov 2019 20:35:39 +0000 (UTC)
+Date:   Tue, 26 Nov 2019 21:35:38 +0100
+From:   Thibaut Sautereau <thibaut@sautereau.fr>
+To:     stable@vger.kernel.org
+Cc:     akpm@linux-foundation.org, cl@linux.com, glider@google.com,
+        keescook@chromium.org, labbott@redhat.com,
+        mm-commits@vger.kernel.org
+Subject: Re: [merged]
+ mm-slub-init_on_free=1-should-wipe-freelist-ptr-for-bulk-allocations.patch
+ removed from -mm tree
+Message-ID: <20191126203538.GA856@gandi.net>
+References: <20191015181442.O6zEw6y50%akpm@linux-foundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20191015181442.O6zEw6y50%akpm@linux-foundation.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-syscall return value is in the register a2, not a0.
+On Tue, Oct 15, 2019 at 11:14:42AM -0700, akpm@linux-foundation.org wrote:
+> 
+> The patch titled
+>      Subject: mm/slub.c: init_on_free=1 should wipe freelist ptr for bulk allocations
+> has been removed from the -mm tree.  Its filename was
+>      mm-slub-init_on_free=1-should-wipe-freelist-ptr-for-bulk-allocations.patch
+> 
+> This patch was dropped because it was merged into mainline or a subsystem tree
+> 
+> ------------------------------------------------------
+> From: Alexander Potapenko <glider@google.com>
+> Subject: mm/slub.c: init_on_free=1 should wipe freelist ptr for bulk allocations
+> 
+> slab_alloc_node() already zeroed out the freelist pointer if init_on_free
+> was on.  Thibaut Sautereau noticed that the same needs to be done for
+> kmem_cache_alloc_bulk(), which performs the allocations separately.
+> 
+> kmem_cache_alloc_bulk() is currently used in two places in the kernel, so
+> this change is unlikely to have a major performance impact.
+> 
+> SLAB doesn't require a similar change, as auto-initialization makes the
+> allocator store the freelist pointers off-slab.
+> 
+> Link: http://lkml.kernel.org/r/20191007091605.30530-1-glider@google.com
+> Fixes: 6471384af2a6 ("mm: security: introduce init_on_alloc=1 and init_on_free=1 boot options")
+> Signed-off-by: Alexander Potapenko <glider@google.com>
+> Reported-by: Thibaut Sautereau <thibaut@sautereau.fr>
+> Reported-by: Kees Cook <keescook@chromium.org>
+> Cc: Christoph Lameter <cl@linux.com>
+> Cc: Laura Abbott <labbott@redhat.com>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+> 
+>  mm/slub.c |   22 ++++++++++++++++------
+>  1 file changed, 16 insertions(+), 6 deletions(-)
+> 
+> --- a/mm/slub.c~mm-slub-init_on_free=1-should-wipe-freelist-ptr-for-bulk-allocations
+> +++ a/mm/slub.c
+> @@ -2672,6 +2672,17 @@ static void *__slab_alloc(struct kmem_ca
+>  }
+>  
+>  /*
+> + * If the object has been wiped upon free, make sure it's fully initialized by
+> + * zeroing out freelist pointer.
+> + */
+> +static __always_inline void maybe_wipe_obj_freeptr(struct kmem_cache *s,
+> +						   void *obj)
+> +{
+> +	if (unlikely(slab_want_init_on_free(s)) && obj)
+> +		memset((void *)((char *)obj + s->offset), 0, sizeof(void *));
+> +}
+> +
+> +/*
+>   * Inlined fastpath so that allocation functions (kmalloc, kmem_cache_alloc)
+>   * have the fastpath folded into their functions. So no function call
+>   * overhead for requests that can be satisfied on the fastpath.
+> @@ -2759,12 +2770,8 @@ redo:
+>  		prefetch_freepointer(s, next_object);
+>  		stat(s, ALLOC_FASTPATH);
+>  	}
+> -	/*
+> -	 * If the object has been wiped upon free, make sure it's fully
+> -	 * initialized by zeroing out freelist pointer.
+> -	 */
+> -	if (unlikely(slab_want_init_on_free(s)) && object)
+> -		memset(object + s->offset, 0, sizeof(void *));
+> +
+> +	maybe_wipe_obj_freeptr(s, object);
+>  
+>  	if (unlikely(slab_want_init_on_alloc(gfpflags, s)) && object)
+>  		memset(object, 0, s->object_size);
+> @@ -3178,10 +3185,13 @@ int kmem_cache_alloc_bulk(struct kmem_ca
+>  				goto error;
+>  
+>  			c = this_cpu_ptr(s->cpu_slab);
+> +			maybe_wipe_obj_freeptr(s, p[i]);
+> +
+>  			continue; /* goto for-loop */
+>  		}
+>  		c->freelist = get_freepointer(s, object);
+>  		p[i] = object;
+> +		maybe_wipe_obj_freeptr(s, p[i]);
+>  	}
+>  	c->tid = next_tid(c->tid);
+>  	local_irq_enable();
+> _
 
-Cc: stable@vger.kernel.org # v5.0+
-Fixes: 9f24f3c1067c ("xtensa: implement tracehook functions and enable HAVE_ARCH_TRACEHOOK")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
----
- arch/xtensa/include/asm/syscall.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Can this be backported to stable 5.3 please? It's commit 0f181f9fbea8
+upstream. Thanks!
 
-diff --git a/arch/xtensa/include/asm/syscall.h b/arch/xtensa/include/asm/syscall.h
-index 359ab40e935a..c90fb944f9d8 100644
---- a/arch/xtensa/include/asm/syscall.h
-+++ b/arch/xtensa/include/asm/syscall.h
-@@ -51,7 +51,7 @@ static inline void syscall_set_return_value(struct task_struct *task,
- 					    struct pt_regs *regs,
- 					    int error, long val)
- {
--	regs->areg[0] = (long) error ? error : val;
-+	regs->areg[2] = (long) error ? error : val;
- }
- 
- #define SYSCALL_MAX_ARGS 6
 -- 
-2.20.1
-
+Thibaut Sautereau
