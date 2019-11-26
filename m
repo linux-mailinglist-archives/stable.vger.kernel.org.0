@@ -2,299 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC751099AC
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 08:45:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 757BB1099B7
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 08:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727142AbfKZHpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 02:45:06 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:46023 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725972AbfKZHpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 02:45:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574754304;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=JJzXfjlUQ6JpwmHumN09HHee0PIpjsbGXCbslNqJQg0=;
-        b=ApFGDYF0/+bqzLdZ/DmUs8/2tHbOAYCJEhHMaamwkyGmPS+3wkMjQWa+JswgenkQGptSjk
-        xhFyARndFElx+LHz4WoelmjdnqHL5EAHbMK1QH1Nc+78a/c1JcSoUVo/7D1JkAtiX9Yein
-        K+ccK9cpQthERbdAJZ9MWtIHjJzAjk8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-36-F8BXNNwNPaGYhRp18ShcJg-1; Tue, 26 Nov 2019 02:45:02 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725794AbfKZHxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 02:53:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53708 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725372AbfKZHxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 Nov 2019 02:53:36 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 16C30800D5F
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 07:45:02 +0000 (UTC)
-Received: from [172.54.50.241] (cpt-1014.paas.prod.upshift.rdu2.redhat.com [10.0.19.41])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B1F15600C6;
-        Tue, 26 Nov 2019 07:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0352F20722;
+        Tue, 26 Nov 2019 07:53:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574754815;
+        bh=wQdtNaWZwMn/VthN9UOum8HGrZ6SoeLpgE8ITQInHco=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Uh/RZq2HX9nYZVe4mG/SxhxTMAPdHlJWWaPFegqaTzNEh2+ua0rIps3b8Ql97KEDW
+         J8EmxgWUBBWCCN174jr6vvpeVPaGl6NraEJlO0X8QrqNKFwhaA76grU+Vx/KxMjkyh
+         9gl2GtFSGk6aNt2IkC+RQ+X0HcXe/fnQA25NjEYg=
+Date:   Tue, 26 Nov 2019 08:53:33 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Chanwoo Choi <cw00.choi@samsung.com>
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        rafael.j.wysocki@intel.com, myungjoo.ham@samsung.com,
+        kyungmin.park@samsung.com, chanwoo@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] PM / devfreq: Add new name attribute for sysfs
+Message-ID: <20191126075333.GA1231308@kroah.com>
+References: <CGME20191125005755epcas1p2404d0f095e6ce543d36e55e2427282f8@epcas1p2.samsung.com>
+ <20191125010357.27153-1-cw00.choi@samsung.com>
+ <20191125085039.GA2301674@kroah.com>
+ <48cadf42-4675-ffe1-a3d4-a97a37538955@samsung.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.13-7058bd1.cki
- (stable-queue)
-Date:   Tue, 26 Nov 2019 07:44:56 -0000
-CC:     Christine Flood <chf@redhat.com>
-Message-ID: <cki.B6DD973236.ND71RJ69CM@redhat.com>
-X-Gitlab-Pipeline-ID: 307910
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/307910
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-MC-Unique: F8BXNNwNPaGYhRp18ShcJg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <48cadf42-4675-ffe1-a3d4-a97a37538955@samsung.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Nov 26, 2019 at 12:08:18PM +0900, Chanwoo Choi wrote:
+> Hi Greg,
+> 
+> On 11/25/19 5:50 PM, Greg KH wrote:
+> > On Mon, Nov 25, 2019 at 10:03:57AM +0900, Chanwoo Choi wrote:
+> >> The commit 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for
+> >> sysfs") changed the node name to devfreq(x). After this commit, it is not
+> >> possible to get the device name through /sys/class/devfreq/devfreq(X)/*.
+> >>
+> >> Add new name attribute in order to get device name.
+> >>
+> >> Cc: stable@vger.kernel.org
+> >> Fixes: 4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for sysfs")
+> >> Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+> >> ---
+> >>  Changes from v2:
+> >> - Change the order of name_show() according to the sequence in devfreq_attrs[]
+> >>
+> >> Changes from v1:
+> >> - Update sysfs-class-devfreq documentation
+> >> - Show device name directly from 'devfreq->dev.parent'
+> >>
+> > 
+> > Shouldn't you just revert the original patch here?  Why did the sysfs
+> > file change?
+> 
+> The initial devfreq code used the parent device name for device name
+> corresponding to devfreq object instead of 'devfreq%d' style.
+> Before applied The commit 4585fbcb5331 ("PM / devfreq: Modify
+> the device name as devfreq(X) for sysfs"), the devfreq sysfs
+> showed the parent device name as following:
+> 
+> For example on Odroid-XU3 board before applied the commit 4585fbcb5331,
+> 	/sys/class/devfreq/soc:bus_wcore
+> 	/sys/class/devfreq/soc:bus_noc
+> 	...(skip)
+> 
+> 
+> But, I think that devfreq subsystem had to show the consistent
+> sysfs entry name for devfreq device like input, thermal, hwmon subsystem.
+> 
+> For example on Odroid-XU3 board,
+> - The input subsystem show the 'input%d' style for input device.
+> $root@localhost:/# ls /sys/class/input/                                         
+> event0  event1  input0  input1  mice  mouse0
+> 
+> - The thermal subsystem show the 'cooling_device%d' style for thermal cooling device.
+> $ root@localhost:/# ls /sys/class/thermal/                                       
+> cooling_device0  cooling_device2  thermal_zone1  thermal_zone3
+> cooling_device1  thermal_zone0    thermal_zone2  thermal_zone4
+> 
+> - The hwmon subsystem show the 'hwmon%d' style for h/w monitor device.
+> $root@localhost:/# ls /sys/class/hwmon/                                         
+> hwmon0
+> 
+> 
+> So, I tried to make the consistent sysfs entry name for devfreq device
+> by contributing commit 4585fbcb5331 ("PM / devfreq: Modify the device name as
+> devfreq(X) for sysfs"). But, The commit 4585fbcb5331 have missed that sysfs
+> interface had to provide the real device name. Some subsystem like thermal
+> and hwmon provide the device type or device name through sysfs interface.
+> It is possible to make the user to find their own specific device by iteration
+> on user-space.
+> 
+> root@localhost:/# cat /sys/class/thermal/cooling_device0/type 
+> pwm-fan
+> root@localhost:/# cat /sys/class/thermal/cooling_device1/type                  
+> thermal-cpufreq-0
+> root@localhost:/# cat /sys/class/thermal/cooling_device2/type                  
+> thermal-cpufreq-1
+> 
+> root@localhost:/# cat /sys/class/hwmon/hwmon0/name                             
+> pwmfan
+> 
+> 
+> So, I add the new 'name' attribute of sysfs for devfreq device.
+> 
+> > 
+> >> Documentation/ABI/testing/sysfs-class-devfreq | 7 +++++++
+> >>  drivers/devfreq/devfreq.c                     | 9 +++++++++
+> >>  2 files changed, 16 insertions(+)
+> >>
+> >> diff --git a/Documentation/ABI/testing/sysfs-class-devfreq b/Documentation/ABI/testing/sysfs-class-devfreq
+> >> index 01196e19afca..75897e2fde43 100644
+> >> --- a/Documentation/ABI/testing/sysfs-class-devfreq
+> >> +++ b/Documentation/ABI/testing/sysfs-class-devfreq
+> >> @@ -7,6 +7,13 @@ Description:
+> >>  		The name of devfreq object denoted as ... is same as the
+> >>  		name of device using devfreq.
+> >>  
+> >> +What:		/sys/class/devfreq/.../name
+> >> +Date:		November 2019
+> >> +Contact:	Chanwoo Choi <cw00.choi@samsung.com>
+> >> +Description:
+> >> +		The /sys/class/devfreq/.../name shows the name of device
+> >> +		of the corresponding devfreq object.
+> >> +
+> >>  What:		/sys/class/devfreq/.../governor
+> >>  Date:		September 2011
+> >>  Contact:	MyungJoo Ham <myungjoo.ham@samsung.com>
+> >> diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+> >> index 65a4b6cf3fa5..6f4d93d2a651 100644
+> >> --- a/drivers/devfreq/devfreq.c
+> >> +++ b/drivers/devfreq/devfreq.c
+> >> @@ -1169,6 +1169,14 @@ int devfreq_remove_governor(struct devfreq_governor *governor)
+> >>  }
+> >>  EXPORT_SYMBOL(devfreq_remove_governor);
+> >>  
+> >> +static ssize_t name_show(struct device *dev,
+> >> +			struct device_attribute *attr, char *buf)
+> >> +{
+> >> +	struct devfreq *devfreq = to_devfreq(dev);
+> >> +	return sprintf(buf, "%s\n", dev_name(devfreq->dev.parent));
+> > 
+> > Why is the parent's name being set here, and not the device name?
+> 
+> The device name style in struct devfreq is 'devfreq%d' instead of
+> parent device name in order to keep the consistent naming style for devfreq device
+> as I mentioned above. 'devfreq%d' name is consistent name style for devfreq device.
+> But, it don't show the real h/w device name. So, show the parent device name
+> which is specified on device-tree file.
 
-Hello,
+I'm sorry, but I still do not understand.  Can you show me the directory
+tree before and after here?
 
-We ran automated tests on a recent commit from this kernel tree:
+thanks,
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
-able-queue.git
-            Commit: 7058bd1431da - net/mlx5: Update the list of the PCI sup=
-ported devices
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/307910
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9D=8C jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+greg k-h
