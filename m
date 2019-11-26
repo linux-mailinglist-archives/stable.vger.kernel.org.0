@@ -2,59 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD4110A48E
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 20:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAB410A4FC
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 21:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727319AbfKZTaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 14:30:46 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:42995 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727312AbfKZTaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 14:30:46 -0500
-Received: by mail-lj1-f193.google.com with SMTP id n5so21574835ljc.9;
-        Tue, 26 Nov 2019 11:30:44 -0800 (PST)
+        id S1726199AbfKZUBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 15:01:21 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:36625 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725970AbfKZUBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 15:01:21 -0500
+Received: by mail-lj1-f195.google.com with SMTP id k15so21713037lja.3
+        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 12:01:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=N1fma/rzZbsK0KgJkH5gDE4TEHvO2HL1ft3nAMVM09o=;
-        b=DH9OE1isC9wMnuJMDGOHRni1GwxOUfsJU0ywmLSPLdfWPuomlkUHP8ykBHs1KwwoNZ
-         IJftDyO+OQGKxgrWaR0Bird2WXdpg7JQ9WPQTWKm7kLMz5l8yTUSlLy9lR6+twon3BEh
-         EB6ZMe5P7AwiA+ntl+Nn8ygQu1ODMZv5/opG4sn7DXVu57YHDoSxUbWgOblojTYE5OiK
-         6bpufoW/OvY8x5WIF4Ugk/rykcm4PGNjfe4M7+WT1L9t2ngWMLGuZy5LhvaJbQV+cYRT
-         865N738hDX8lXfnjCAPGvdp10UKPvPSQjjmjkLYLAW8NOmVywCz/EaS7QwF/z0HlnYgV
-         sXUw==
+        bh=9gYplPhtVE/YGLO3x1smraYGKvZdNPRdzDgfUGwplws=;
+        b=GIRldqEdiwGN3YNe6c76Ggzly2TLHRFCWdEE02G+zF+8N2KcF8j+jZ7WokzK3KR1jo
+         /yPaNkdQ0wHsOvzOfc/G7e+o6IifetbIk+4AiYUdw6r/FbJKR1y0htKWfJQiYuSzTiI6
+         DosXBqB1wRDvH6FY5kC4YS7TjMZaLBpwXex/yrgMIpL8f13YiVi2lUSE3rs1r2p5urn+
+         yxOGgZAJ+vHP4NVbQfWv14U0yXnPuqRtpRAwPApmMtb1cviCfSs/aUuO4+zCgIT8ecPB
+         WttE4aMeG8NTlccrGQsIbB9JmiVoRfRr8gLGSKByL7PSvln/J5CBgFA0nBzYm3II9pyv
+         l+Ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=N1fma/rzZbsK0KgJkH5gDE4TEHvO2HL1ft3nAMVM09o=;
-        b=HCpTZltzV4WqwYmTjJrkfsa72bpQysuzKFjlxARVOH20xsiF8+mzNhEr8QqpIEIyie
-         XbwLau1cDvjvJaqaOXsak+inpX96WbgNEgGq54nvYp2KfPFhG9PXEwGBzgFOow8hfPFp
-         S9XFi+VVF/D8Zpwz1wVJxSAONYk4mCl1/urMD1M8Mr5WMq5sgifeDHoJt+GR3R3zSZbO
-         FObWoTjRQhhYnkNw5jlwIrMbWjm8bIugIep2YX8agUVil8j57qO7Fl+tDlGCEQ+z1OVI
-         aiWkBhiZvjOr6+fRMavY5Z5QF8QnhXXTguXF90iYUx4UqOdOPeJjeWBpewJndxLsyw1H
-         ZfOA==
-X-Gm-Message-State: APjAAAWuSrIa00Y7qChAI4lXUP+0aW23WCVIvi5vcYJUcZadpMq5E+Pq
-        x9lusRPmlJmKxbTAlGZa2l8=
-X-Google-Smtp-Source: APXvYqx9/2noQaJq7x/KWqh0xaR3KlZk66kcGXCNzZVnDIkbRFG0nnLsPyaQcfSma3Bx0Mn7mgvzSg==
-X-Received: by 2002:a2e:894b:: with SMTP id b11mr28263730ljk.118.1574796643636;
-        Tue, 26 Nov 2019 11:30:43 -0800 (PST)
+        bh=9gYplPhtVE/YGLO3x1smraYGKvZdNPRdzDgfUGwplws=;
+        b=EzrZLDRXcN+8iUGrSn1s2tHCldwBCKj8DwTOqCUmvYUteRJNKo9qbtU2UN0SUvEqka
+         yQChjBIKuQJNZr9dATtgbNNNvUJnHU5xdF6Q38tt5lFl72+ai7osMD+zU+6WHbLIIPdc
+         EkQz71lm5zzjW66xj338HsZRQdB9bYF9dSupnSx1PRJOQ9T/uGk0+4B2GX31tvBDXNeN
+         52X+1h68t/zoL73FK4+sySrS80orSFaiygp4sfvmP5qLh13YwOtBjdSsnW7Yalnr2j/r
+         nkRpEwKgJzkclar9oqC7GVGzUgXBUneF4UB2syEtrCqvC7zTYEOetc7YIWxdrBzYgEiy
+         McAg==
+X-Gm-Message-State: APjAAAXtEj2P5JdM+bdlNFIlnQjYjZslcZ9RVLlrmKeOlgDL55/hPnpm
+        Jyx7GUOCHGcRHiRgPfr2leDdkyf5brI=
+X-Google-Smtp-Source: APXvYqxMydKAw0SnQ/rYZD0FFMTLmbLErH0qXFuFIDX2swa/M1Ot0o1BirTQP/nA/jNMfD5RfERQkw==
+X-Received: by 2002:a2e:81c1:: with SMTP id s1mr27477310ljg.83.1574798479363;
+        Tue, 26 Nov 2019 12:01:19 -0800 (PST)
 Received: from octofox.cadence.com (jcmvbkbc-1-pt.tunnel.tserv24.sto1.ipv6.he.net. [2001:470:27:1fa::2])
-        by smtp.gmail.com with ESMTPSA id m18sm6134434ljg.3.2019.11.26.11.30.40
+        by smtp.gmail.com with ESMTPSA id g11sm5767129lfb.94.2019.11.26.12.01.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2019 11:30:43 -0800 (PST)
+        Tue, 26 Nov 2019 12:01:18 -0800 (PST)
 From:   Max Filippov <jcmvbkbc@gmail.com>
 To:     linux-xtensa@linux-xtensa.org
-Cc:     Chris Zankel <chris@zankel.net>, linux-gpio@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] drivers/gpio/gpio-xtensa: fix driver build
-Date:   Tue, 26 Nov 2019 11:30:27 -0800
-Message-Id: <20191126193027.11970-1-jcmvbkbc@gmail.com>
+Cc:     Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] xtensa: fix syscall_set_return_value
+Date:   Tue, 26 Nov 2019 12:01:07 -0800
+Message-Id: <20191126200107.13008-1-jcmvbkbc@gmail.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -63,41 +59,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr") removed
-{RSR,WSR}_CPENABLE from xtensa code, but did not fix up all users,
-breaking gpio-xtensa driver build.
-Update gpio-xtensa to use new xtensa_{get,set}_sr API.
+syscall return value is in the register a2, not a0.
 
 Cc: stable@vger.kernel.org # v5.0+
-Fixes: cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr")
+Fixes: 9f24f3c1067c ("xtensa: implement tracehook functions and enable HAVE_ARCH_TRACEHOOK")
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 ---
- drivers/gpio/gpio-xtensa.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/xtensa/include/asm/syscall.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-xtensa.c b/drivers/gpio/gpio-xtensa.c
-index 43d3fa5f511a..0fb2211f9573 100644
---- a/drivers/gpio/gpio-xtensa.c
-+++ b/drivers/gpio/gpio-xtensa.c
-@@ -44,15 +44,14 @@ static inline unsigned long enable_cp(unsigned long *cpenable)
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	RSR_CPENABLE(*cpenable);
--	WSR_CPENABLE(*cpenable | BIT(XCHAL_CP_ID_XTIOP));
--
-+	*cpenable = xtensa_get_sr(cpenable);
-+	xtensa_set_sr(*cpenable | BIT(XCHAL_CP_ID_XTIOP), cpenable);
- 	return flags;
- }
- 
- static inline void disable_cp(unsigned long flags, unsigned long cpenable)
+diff --git a/arch/xtensa/include/asm/syscall.h b/arch/xtensa/include/asm/syscall.h
+index 359ab40e935a..c90fb944f9d8 100644
+--- a/arch/xtensa/include/asm/syscall.h
++++ b/arch/xtensa/include/asm/syscall.h
+@@ -51,7 +51,7 @@ static inline void syscall_set_return_value(struct task_struct *task,
+ 					    struct pt_regs *regs,
+ 					    int error, long val)
  {
--	WSR_CPENABLE(cpenable);
-+	xtensa_set_sr(cpenable, cpenable);
- 	local_irq_restore(flags);
+-	regs->areg[0] = (long) error ? error : val;
++	regs->areg[2] = (long) error ? error : val;
  }
  
+ #define SYSCALL_MAX_ARGS 6
 -- 
 2.20.1
 
