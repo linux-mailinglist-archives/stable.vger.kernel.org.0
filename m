@@ -2,51 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C13A109F9D
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 14:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9C910A00A
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 15:14:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727983AbfKZNyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 08:54:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43752 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727374AbfKZNyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Nov 2019 08:54:07 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A25EB20656;
-        Tue, 26 Nov 2019 13:54:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574776445;
-        bh=WB68jC+jemRFQsyYyY7vTIqpOvzaGEr1Zo2arfN6Pcw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AYR9Ny8Nwj+2LhVPyTgC3E+b/PGJc0sW1x2kOSf8XTEkRO2Qfq12xRl90RScLGaa5
-         MNafBn2bsCyoqMJcr/i/EbNjnT8Kba0ygss+lE0/XfNeK5UP9886FXAoOvV5N+jm3I
-         ZRlrPoOIhmNJZslpiLisb+lQ2Zz8u97tvHTNc8Kk=
-Date:   Tue, 26 Nov 2019 14:54:02 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>
-Cc:     stable@vger.kernel.org, davem@davemloft.net
-Subject: Re: Patch "mdio_bus: fix mdio_register_device when RESET_CONTROLLER
- is disabled" has been added to the 5.3-stable tree
-Message-ID: <20191126135402.GA1429066@kroah.com>
-References: <157468851123632@kroah.com>
- <20191125144538.276daf86@dellmb>
+        id S1726200AbfKZOOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 09:14:20 -0500
+Received: from mail.stusta.mhn.de ([141.84.69.5]:50850 "EHLO
+        mail.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726536AbfKZOOU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 09:14:20 -0500
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        by mail.stusta.mhn.de (Postfix) with ESMTPSA id 47MlyK1jz3z23;
+        Tue, 26 Nov 2019 15:04:25 +0100 (CET)
+From:   Adrian Bunk <bunk@kernel.org>
+To:     stable@vger.kernel.org, netdev@vger.kernel.org
+Cc:     Max Uvarov <muvarov@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Adrian Bunk <bunk@kernel.org>
+Subject: [4.14/4.19 patch 1/2] net: phy: dp83867: fix speed 10 in sgmii mode
+Date:   Tue, 26 Nov 2019 16:04:05 +0200
+Message-Id: <20191126140406.6451-1-bunk@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191125144538.276daf86@dellmb>
-User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 25, 2019 at 02:45:38PM +0100, Marek Behún wrote:
-> Upstream reverted this commit (2c61e821da7a) and then used 6e4ff1c94a04
-> instead.
+From: Max Uvarov <muvarov@gmail.com>
 
-Thanks for the info, I'll go make that change here too.
+Commit 333061b924539c0de081339643f45514f5f1c1e6 upstream.
 
-greg k-h
+For supporting 10Mps speed in SGMII mode DP83867_10M_SGMII_RATE_ADAPT bit
+of DP83867_10M_SGMII_CFG register has to be cleared by software.
+That does not affect speeds 100 and 1000 so can be done on init.
+
+Signed-off-by: Max Uvarov <muvarov@gmail.com>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[ adapted for kernels without phy_modify_mmd ]
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
+---
+- already in 5.3
+- applies and builds against 4.14 and 4.19
+- tested with 4.14
+---
+ drivers/net/phy/dp83867.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index 12b09e6e03ba..81106314e6da 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -37,6 +37,8 @@
+ #define DP83867_STRAP_STS1	0x006E
+ #define DP83867_RGMIIDCTL	0x0086
+ #define DP83867_IO_MUX_CFG	0x0170
++#define DP83867_10M_SGMII_CFG   0x016F
++#define DP83867_10M_SGMII_RATE_ADAPT_MASK BIT(7)
+ 
+ #define DP83867_SW_RESET	BIT(15)
+ #define DP83867_SW_RESTART	BIT(14)
+@@ -283,6 +285,23 @@ static int dp83867_config_init(struct phy_device *phydev)
+ 		}
+ 	}
+ 
++	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
++		/* For support SPEED_10 in SGMII mode
++		 * DP83867_10M_SGMII_RATE_ADAPT bit
++		 * has to be cleared by software. That
++		 * does not affect SPEED_100 and
++		 * SPEED_1000.
++		 */
++		val = phy_read_mmd(phydev, DP83867_DEVADDR,
++				   DP83867_10M_SGMII_CFG);
++		val &= ~DP83867_10M_SGMII_RATE_ADAPT_MASK;
++		ret = phy_write_mmd(phydev, DP83867_DEVADDR,
++				    DP83867_10M_SGMII_CFG, val);
++
++		if (ret)
++			return ret;
++	}
++
+ 	/* Enable Interrupt output INT_OE in CFG3 register */
+ 	if (phy_interrupt_is_valid(phydev)) {
+ 		val = phy_read(phydev, DP83867_CFG3);
+-- 
+2.20.1
+
