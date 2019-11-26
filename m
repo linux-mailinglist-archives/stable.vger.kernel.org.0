@@ -2,100 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BBF5109C2B
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 11:19:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C61F109C6C
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 11:41:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727726AbfKZKTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 05:19:31 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:33128 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727688AbfKZKTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 Nov 2019 05:19:31 -0500
-Received: from zn.tnic (p200300EC2F0EC20064FC04F570E1B7F9.dip0.t-ipconnect.de [IPv6:2003:ec:2f0e:c200:64fc:4f5:70e1:b7f9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 921071EC0CCE;
-        Tue, 26 Nov 2019 11:19:29 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1574763569;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=haVL+dkqsD/o7fe1hvHolTBqze2NBMzLiLmc9pvNU5E=;
-        b=YBGK7122KKv+pHSfXF4Nwx5xHHfiSMzlTEfMJXb9+KAbDN/iFLTKEzGDxd4hIEtnXjNTfd
-        YcI29/8Y5/h1foaydwS0LSLaxSLVFYkHzAvCrp7ISDjqHTwU2BH0iKqX3OlffH6aLRMtRz
-        nQy3NNgjWWz9U0/xyEofvo1LCiiMeS0=
-Date:   Tue, 26 Nov 2019 11:19:22 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>, hpa@zytor.com,
-        x86@kernel.org, linux-kernel@vger.kernel.org,
-        Joerg Roedel <jroedel@suse.de>, stable@vger.kernel.org
-Subject: Re: [PATCH -tip] x86/mm/32: Sync only to LDT_BASE_ADDR in
- vmalloc_sync_all()
-Message-ID: <20191126101922.GB31379@zn.tnic>
-References: <20191126100942.13059-1-joro@8bytes.org>
+        id S1727771AbfKZKlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 05:41:07 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60613 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727603AbfKZKlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 05:41:07 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 68560227AA;
+        Tue, 26 Nov 2019 05:41:06 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 26 Nov 2019 05:41:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=NBb6+J
+        p86IInN5utlmBdqotvCJD2GlLm1UGmdbPJlo4=; b=lycWUGbs+tpUI2nF12ppBn
+        50HUO5FkGnWsF1X8/v1dEwpV8Ek9qpdU0XEFhyIq7oiU2X7FBUgr/L7549qCLoJZ
+        7xtE8jjGsjfGX8QgZYkdQJXqgQfKVWPolbdm4AzbpWijxe+8dypPnJ/6RCdZkbg1
+        w0rue1K2Uzh//9Crzzwh7gR+T15S12w3fvX5DkJa413JLO/uLbR4KAtVaXId0Iw6
+        vglK/ZP1lRamytn0RRsjyC3DQkiQRJMVGmCwec7jBiQ3xu33uIHvMZxiJb8dFlkv
+        ZHY2IAHebWwf8AnmLg3Yvs91ET6eajvg4qxbVLIpEoHAJX+rfkQfdE1psNM+tAPQ
+        ==
+X-ME-Sender: <xms:QgHdXSFTtlJ8ooh6gL3Z1iC3QdrCQblB2ZTmCWVgcN9xHYL0OJIfpQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeifedgudelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeegrddvgedurddule
+    egrdelieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:QgHdXU4HxA_TW0eP3jLJ3dRk9pyDt1_36QIzPdin20uVB9w-wEHytg>
+    <xmx:QgHdXScXu6wPvwDTFRKY7vKnMQQRMzLmBmiOAkBH0SjxCOz5IJlgXA>
+    <xmx:QgHdXX4eEEBNT-7J2Ye3Ei8oYeIctlsMbnXyG6jIvIjXtwr2IqehLg>
+    <xmx:QgHdXemiQCSLjg0HyUtCUeuMv13BHckJS-iP4fvQfz1VwnVhztqcFQ>
+Received: from localhost (unknown [84.241.194.96])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7CA178005B;
+        Tue, 26 Nov 2019 05:41:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] Revert "dm crypt: use WQ_HIGHPRI for the IO and crypt" failed to apply to 4.19-stable tree
+To:     snitzer@redhat.com, vcaputo@pengaru.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 26 Nov 2019 11:41:03 +0100
+Message-ID: <157476486318662@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191126100942.13059-1-joro@8bytes.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 26, 2019 at 11:09:42AM +0100, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
-> 
-> When vmalloc_sync_all() iterates over the address space until
-> FIX_ADDR_TOP it will sync the whole kernel address space starting from
-> VMALLOC_START.
-> 
-> This is not a problem when the kernel address range is identical in
-> all page-tables, but this is no longer the case when PTI is enabled on
-> x86-32. In that case the per-process LDT is mapped in the kernel
-> address range and vmalloc_sync_all() clears the LDT mapping for all
-> processes.
-> 
-> To make LDT working again vmalloc_sync_all() must only iterate over
-> the volatile parts of the kernel address range that are identical
-> between all processes. This includes the VMALLOC and the PKMAP areas
-> on x86-32.
-> 
-> The order of the ranges in the address space is:
-> 
-> 	VMALLOC -> PKMAP -> LDT -> CPU_ENTRY_AREA -> FIX_ADDR
-> 
-> So the right check in vmalloc_sync_all() is "address < LDT_BASE_ADDR"
-> to make sure the VMALLOC and PKMAP areas are synchronized and the LDT
-> mapping is not falsely overwritten. the CPU_ENTRY_AREA and
-> the FIXMAP area are no longer synced as well, but these
-> ranges are synchronized on page-table creation time and do
-> not change during runtime.
-> 
-> This change fixes the ldt_gdt selftest in my setup.
-> 
-> Fixes: 7757d607c6b3 ("x86/pti: AllowCONFIG_PAGE_TABLE_ISOLATION for x86_32")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> ---
->  arch/x86/mm/fault.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Reported-by: Borislav Petkov <bp@suse.de>
-Tested-by: Borislav Petkov <bp@suse.de>
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Thx Jörg!
+thanks,
 
--- 
-Regards/Gruss,
-    Boris.
+greg k-h
 
-https://people.kernel.org/tglx/notes-about-netiquette
+------------------ original commit in Linus's tree ------------------
+
+From f612b2132db529feac4f965f28a1b9258ea7c22b Mon Sep 17 00:00:00 2001
+From: Mike Snitzer <snitzer@redhat.com>
+Date: Wed, 20 Nov 2019 17:27:39 -0500
+Subject: [PATCH] Revert "dm crypt: use WQ_HIGHPRI for the IO and crypt
+ workqueues"
+
+This reverts commit a1b89132dc4f61071bdeaab92ea958e0953380a1.
+
+Revert required hand-patching due to subsequent changes that were
+applied since commit a1b89132dc4f61071bdeaab92ea958e0953380a1.
+
+Requires: ed0302e83098d ("dm crypt: make workqueue names device-specific")
+Cc: stable@vger.kernel.org
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=199857
+Reported-by: Vito Caputo <vcaputo@pengaru.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+
+diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+index f87f6495652f..eb9782fc93fe 100644
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2700,21 +2700,18 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
+ 	}
+ 
+ 	ret = -ENOMEM;
+-	cc->io_queue = alloc_workqueue("kcryptd_io/%s",
+-				       WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
+-				       1, devname);
++	cc->io_queue = alloc_workqueue("kcryptd_io/%s", WQ_MEM_RECLAIM, 1, devname);
+ 	if (!cc->io_queue) {
+ 		ti->error = "Couldn't create kcryptd io queue";
+ 		goto bad;
+ 	}
+ 
+ 	if (test_bit(DM_CRYPT_SAME_CPU, &cc->flags))
+-		cc->crypt_queue = alloc_workqueue("kcryptd/%s",
+-						  WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
++		cc->crypt_queue = alloc_workqueue("kcryptd/%s", WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
+ 						  1, devname);
+ 	else
+ 		cc->crypt_queue = alloc_workqueue("kcryptd/%s",
+-						  WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_UNBOUND,
++						  WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_UNBOUND,
+ 						  num_online_cpus(), devname);
+ 	if (!cc->crypt_queue) {
+ 		ti->error = "Couldn't create kcryptd queue";
+
