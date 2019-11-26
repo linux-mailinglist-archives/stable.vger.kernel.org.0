@@ -2,238 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31EE7109808
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 04:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC22109874
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 06:18:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727237AbfKZDQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Nov 2019 22:16:50 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:60765 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726016AbfKZDQu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Nov 2019 22:16:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574738208;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Jl1u/d3OF4wtJ3JlU7a1NcFg98apjNfr1QgSMWwPKGA=;
-        b=K7rD7VgrFYnK3JMapqVeEa4nnxp75jydIYdutf3y9yUI7vIR5SBiQpXEGPgG/DlNSki8VP
-        py9i0yVuQsrjhAZr/1b8qpkFVbhipQb+C/LLbQQn9VMv2OYvu35tWyMQAGNjD8c4NRtGhk
-        bp/Fca5bX7VzuZdoPKk6HawEFFaWe6g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-417-tsU8BujWOWCRMlAHNJAD6Q-1; Mon, 25 Nov 2019 22:16:46 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A4AC5107ACE3
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 03:16:45 +0000 (UTC)
-Received: from [172.54.50.241] (cpt-1014.paas.prod.upshift.rdu2.redhat.com [10.0.19.41])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E56F75C1D8;
-        Tue, 26 Nov 2019 03:16:42 +0000 (UTC)
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.13-3f74633.cki
- (stable-queue)
-Date:   Tue, 26 Nov 2019 03:16:42 -0000
-Message-ID: <cki.94660FE4E1.0VFNP0XKHB@redhat.com>
-X-Gitlab-Pipeline-ID: 308040
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/308040
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-MC-Unique: tsU8BujWOWCRMlAHNJAD6Q-1
-X-Mimecast-Spam-Score: 0
+        id S1725877AbfKZFSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 00:18:20 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:38942 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725372AbfKZFSU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 00:18:20 -0500
+Received: by mail-wr1-f67.google.com with SMTP id y11so17715442wrt.6
+        for <stable@vger.kernel.org>; Mon, 25 Nov 2019 21:18:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=uHeKbIudSxtXd80x+XZSEmzb8rWoLTCsOtw7ruFzyHw=;
+        b=Eu+hms6RU6KdxV7eGdafDcxyaJvnFu82Q5trgYNKGj38w4ONEcYc6rbu0X+nXRiwK9
+         x8ir3CTxTWE/g7Vy8L52LOQE5NAI0lMulATy9wrFY9vnWq1hFVue0cWEhaoWFaF6TVRk
+         ffUSBuDx9/jNFI9S/H77FrhFzDzNFmKjR2P7V8cUVw7TFha2i4unY3nkPseS1ViD9u8c
+         SwaYmkUgj49ICS2YG3scXTDW2cmJJSnTolETShDv168gyg+Ny4pHbBQTYKw5U6WeVBpI
+         BQ/R1XXOrMpehcCLVElfTwSntMKxMubMrGAGAnK0CnDZYVPn1FiMG0I0ZHphKeCZJJ/g
+         w5pQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=uHeKbIudSxtXd80x+XZSEmzb8rWoLTCsOtw7ruFzyHw=;
+        b=fJ/aEfmCze5Bd0FIbvEHZSA4QLy7Me21YqOvkDwPj0Hq+npfiZyvhYEiQGrIDbaUjG
+         MXNhdkT9t7DwQYUdbdrNN+2Mwh+FUFkwH4Lk6F5PIcYXkqNVMni4PaqFECHjQjLbaIFf
+         cD2VyOQwduaQENjv/F3ghl141cOHefuLl0eM43Lcyp4De39lX0Gh1Ody5uO6VTvhsbb/
+         ZX+rvyUMEVzWEnsUP90tJr9kJRVcOvh6QcB/zmQVzuk6aNJLtEBJ8dQz8RdXOnJfx93M
+         PgzNNEb2GJzfRlre2C2sjtW5UMn6lpjAFl8S+UkDTO/xe/1tbWHio0JtaI7T04D4u1cz
+         H0yw==
+X-Gm-Message-State: APjAAAWUrV5/4iMaCsdDo0EUs2GPBa/mnq4u67LCivgYvOpihbGZaRTG
+        r/fTpqWqCyL2nusrJnUX5BI4beJYp7mdJQ==
+X-Google-Smtp-Source: APXvYqwJ318rfguQbfqEhfB50fFxpv3PjcmyxpdNjSqouDeqhxoDExVDgQU8+GzL2MConFg6xdyt/A==
+X-Received: by 2002:adf:f18c:: with SMTP id h12mr35468155wro.122.1574745496133;
+        Mon, 25 Nov 2019 21:18:16 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id j67sm1744327wmb.43.2019.11.25.21.18.15
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Nov 2019 21:18:15 -0800 (PST)
+Message-ID: <5ddcb597.1c69fb81.4f944.7ba3@mx.google.com>
+Date:   Mon, 25 Nov 2019 21:18:15 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.203
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 90 boots: 2 failed,
+ 79 passed with 5 offline, 4 conflicts (v4.4.203)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 90 boots: 2 failed, 79 passed with 5 offline, 4=
+ conflicts (v4.4.203)
 
-Hello,
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.203/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.203/
 
-We ran automated tests on a recent commit from this kernel tree:
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.203
+Git Commit: 48a16935fdcdb0926ed5e743a9d8d238bbc9c243
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 17 SoC families, 13 builds out of 190
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
-able-queue.git
-            Commit: 3f746337e557 - drm/i915/userptr: Try to acquire the pag=
-e lock around set_page_dirty()
+Boot Regressions Detected:
 
-The results of these automated tests are provided below.
+arm:
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+    tegra_defconfig:
+        gcc-8:
+          tegra124-nyan-big:
+              lab-collabora: failing since 1 day (last pass: v4.4.202-159-g=
+dbaac4c54573 - first fail: v4.4.202-157-g2576206c30b5)
 
-All kernel binaries, config files, and logs are available for download here=
-:
+Boot Failures Detected:
 
-  https://artifacts.cki-project.org/pipelines/308040
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            tegra124-nyan-big: 1 failed lab
 
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
+    tegra_defconfig:
+        gcc-8:
+            tegra124-nyan-big: 1 failed lab
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
+Offline Platforms:
 
-Compile testing
----------------
+arm:
 
-We compiled the kernel for 3 architectures:
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
 
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+arm:
+    multi_v7_defconfig:
+        sun7i-a20-cubieboard2:
+            lab-clabbe: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+    sunxi_defconfig:
+        sun7i-a20-cubieboard2:
+            lab-clabbe: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
 
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-
-    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
-arked
-    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+---
+For more info write to <info@kernelci.org>
