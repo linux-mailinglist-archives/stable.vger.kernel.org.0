@@ -2,372 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2394F10A1DD
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 17:19:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AD0610A1E1
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 17:19:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728788AbfKZQS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 11:18:58 -0500
-Received: from mout.kundenserver.de ([212.227.17.13]:36079 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728482AbfKZQSl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 11:18:41 -0500
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue106 [212.227.15.145]) with ESMTPA (Nemesis) id
- 1MXpM2-1iJ6CU1iea-00Y739; Tue, 26 Nov 2019 17:18:34 +0100
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     linux-media@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     y2038@lists.linaro.org, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
-Subject: [PATCH v5 3/8] media: v4l2-core: compat: ignore native command codes
-Date:   Tue, 26 Nov 2019 17:18:19 +0100
-Message-Id: <20191126161824.337724-4-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
-In-Reply-To: <20191126161824.337724-1-arnd@arndb.de>
-References: <20191126161824.337724-1-arnd@arndb.de>
+        id S1727600AbfKZQTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 11:19:52 -0500
+Received: from mx0a-00328301.pphosted.com ([148.163.145.46]:60208 "EHLO
+        mx0a-00328301.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726101AbfKZQTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 11:19:52 -0500
+Received: from pps.filterd (m0156134.ppops.net [127.0.0.1])
+        by mx0a-00328301.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAQGBfBr009357;
+        Tue, 26 Nov 2019 08:19:50 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=invensense.com; h=from : to : cc :
+ subject : date : message-id : content-type : mime-version; s=pfpt1;
+ bh=+ndRgLfGy+YOow2PBv1QtiCFVRAkX0IrkeUcPKnklY8=;
+ b=NBjMm5DQlfoLNgGrMJDc+imK4h6dCI0kCoEsWKpyqGEfttGEltSdX3oxbJzBYMXLehfX
+ W2flmUhPHO/Z2RVaRmgLn/fExBk3XL8+Eld1oYFhkrhm4fhJqubai6iUK/4mKFvc7jCX
+ dk+magy55pk4y4cDQGaM8ePCm2VUHf3qGbCo+WHn4XdY0DRk4fUY86Euo9rH5yPG00/s
+ cApQNHMgDJIP5ywRtDx/GqKBXOraRG0MrH++a1Iu9MrN1OMcb7FYO6NccHHGf4ky1xhR
+ aKQsqKgMEQZaqlwFv6/8tS0KZBW2/l0GX9wNRt13YklOPSXYTJiMxifcGKiD+uQ+gC41 Eg== 
+Received: from nam04-bn3-obe.outbound.protection.outlook.com (mail-bn3nam04lp2050.outbound.protection.outlook.com [104.47.46.50])
+        by mx0a-00328301.pphosted.com with ESMTP id 2wf14thmdy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Nov 2019 08:19:49 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=EIx0k7QcUncfK7UxCCQfx26qg9XZa7U9Yyvy1KdXaCSsiXusejBJd4V5qYAmnLXhb08yluqquZysYy+nP8ue6Jfnfn9Xy0APIAdFF7kUN2Crej0ES2q2b4Gm4lS2b4nB0TCgol/KPP0+5Tkg5JrbhLvVuRDNRJxNJFJK8xzA6zQsDLfD5MGTnntY02uxV2/i1jNSS1YRObxMwFiNdDNA6L2b6ohz2iYzWzHKHT7cfwuh8FCNwom4kGCg2QsaTbn+ghdC6t6eUua1BHjXDp7k8OqgRXZ8ksS4hAGqCiYVDkhMZxuvp3BeJfxupAnJI+dGj2lc05i2PkAqpRbRig8uaw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+ndRgLfGy+YOow2PBv1QtiCFVRAkX0IrkeUcPKnklY8=;
+ b=mLTIN50NgMnV8x60aNtPeizPpy9cbvj81oqQQbMkrgQc8xw3ahXGuLCPyYixYbEnkUwDTsD1UO50Zkkt8zwWkVDTZkjJY9GKZvVbTe/AXVuc9fbDykXHk9E6/mCkpaE3mmseF4YjhXEP0kh+8VO5n0f6zQYK+momjposSy+Uv7RI5ZM2WVRwC2czPYrc2BpOsZ6BcXvXDIuCLZ45WDcvra7fEKqp+k4W2uatFBVIH8XcUDTaPXR4H0ATLVdtXu0FF+ZBrQZrY/ti1fB8o1E5otfylrRA0ao/TVLvIexwB9u2rVSueVub7PPb53spUT+fwZnwXT1J4LT/vH7d2LPsxQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=invensense.com; dmarc=pass action=none
+ header.from=invensense.com; dkim=pass header.d=invensense.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=invensense.onmicrosoft.com; s=selector2-invensense-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+ndRgLfGy+YOow2PBv1QtiCFVRAkX0IrkeUcPKnklY8=;
+ b=dyayK0aTXn0eveZmQ/POR+RVECyHCZOVu6cAYQ0Lf7+pom0uVxsa2NKSW1L0YfzEdtF9rD7VMCUVAQQajI979ion6s0l+8K58wjtElVjkYS1xXwv/aJXzzBkzMgF6vf4tQNl+XFYBeqlBK/k/5NE6rsbUrNOdYV6O+PPZIWlOIU=
+Received: from MN2PR12MB3373.namprd12.prod.outlook.com (20.178.242.33) by
+ MN2PR12MB3230.namprd12.prod.outlook.com (20.179.84.19) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2474.21; Tue, 26 Nov 2019 16:19:47 +0000
+Received: from MN2PR12MB3373.namprd12.prod.outlook.com
+ ([fe80::95a9:35cd:3e40:8ed3]) by MN2PR12MB3373.namprd12.prod.outlook.com
+ ([fe80::95a9:35cd:3e40:8ed3%3]) with mapi id 15.20.2474.023; Tue, 26 Nov 2019
+ 16:19:46 +0000
+From:   Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+To:     jic23@kernel.org
+Cc:     linux-iio@vger.kernel.org,
+        Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/2] iio: imu: inv_mpu6050: fix temperature reporting using bad unit
+Date:   Tue, 26 Nov 2019 17:19:12 +0100
+Message-Id: <20191126161912.24683-1-jmaneyrol@invensense.com>
+X-Mailer: git-send-email 2.17.1
+Content-Type: text/plain
+X-ClientProxiedBy: LNXP265CA0056.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:5d::20) To MN2PR12MB3373.namprd12.prod.outlook.com
+ (2603:10b6:208:c8::33)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:8TVU09gCY/FDOx2lpPLRMrqStt5USuA8OZ/VNhJVsJd7Gp2m6VG
- /CCIxU67Re6TN6SAYn+YT/I9ENEI+kNFH8azFfNX8g3VlCFAaio0bk4ceLXZotffLjceA8o
- +0UAIkt8AM4ad6h0wa+aWlWuF3T3z2Oze0/WR8mnh3McT2/BvwRVuAwru8AgKlqh2OEYs5/
- UiH7sZBj+mycLuCRblppQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:3g7yQIiD7f0=:w9zH2Q7cCkdJYLv/T7HEIv
- Coqr90Cou4tLIM8r88ERA15pv2UlJpp8o4tVGTc3r8ttTGUHTd3Xi2/DHi0c4Uq3rDMjIjacF
- ULP/r3VTJMYTCNXF94MniIvaQpcTTUvarr2ktYhxqsgFYmhDUzh9YSAgm1UR4p6Ep9ms6jdFU
- 9TrWcAdGYR2LuCflaLeXr5sRuz6K4p6cqqbKBSL+7ywcZjgpDWeazCE4hGEn7G25OLcbFEBy0
- 5eoJJPXPzK9NKgM9otoAf0tAqE1XWdM7iDR7nJ3nP1pCIRsoo0+RVshyoLYrjPyYBiAyJfR1H
- WzKT/pYjVGaZBL/Vfe3JDLicZEjbUE+IL4vQsdwrXpw1yms3YB360P1jO4BMKHt0A/mckKW4t
- 9RWhvjRxpUYZxKXaOwe993II2bW17ITAQl8RNeDv2oHsXpSULHbhLN4SolADAnrEuGM5UdVxA
- Dkej/SrNWJJoC0B09dOD3GnbI7FJ09ipow2SwaYtFCgkbEvjR17kxl0XCt4YQQEufZ2iSdDOZ
- YayhC+g3Mr6X/lYT/k1K39Xdi3RDvoxmzTnj7GJAiV3HOAuSD3mStvgEUoyYSrgRYA6sTBAqp
- XadhDDLQudcCCrLS5kwyZ7XW2z6qG0D3dwD3Aw3mUX6vxHuJ5S0hsI1iFE4XxskVB0+1gZ16f
- oxosnRe53BOH0xUHF4SNB3ghjK/23OKWdd6xhjsQIk/feDHcY4xLqxLSam8XNtzrclXZlAskX
- 3gUbrT2nLAS79D4IWJq36RBzHVauAsg/JuAIMfQjE0UroVCobGWPy3JXeZXpdStSIDOZgCTnc
- 1m0OvClYAo4quobSsLstKuO9GAkX5/DoAEtDnnC03du8d1gYUXllSYfVTGqaGUHDYijNpRd9t
- MCqtTKXbThlg0+PpuXyQ==
+X-Mailer: git-send-email 2.17.1
+X-Originating-IP: [77.157.193.39]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7efdad38-1e48-4cf9-ccec-08d7728c742d
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3230:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <MN2PR12MB32305CAA044C0F169E48E26BC4450@MN2PR12MB3230.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
+X-Forefront-PRVS: 0233768B38
+X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(376002)(136003)(366004)(39850400004)(346002)(396003)(189003)(199004)(50226002)(478600001)(305945005)(7736002)(6916009)(52116002)(2616005)(6666004)(36756003)(2906002)(25786009)(86362001)(81166006)(66946007)(50466002)(47776003)(16586007)(4326008)(51416003)(66476007)(8936002)(6436002)(6486002)(1076003)(8676002)(48376002)(14454004)(80792005)(99286004)(2351001)(386003)(6506007)(66066001)(316002)(6116002)(26005)(3846002)(186003)(6512007)(5660300002)(66556008)(81156014)(2361001);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR12MB3230;H:MN2PR12MB3373.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+Received-SPF: None (protection.outlook.com: invensense.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 2hruaan0yvnlr6WDGTcpuD0EWIe4G3PQcElRl6UIOQ3atAB5wzMBlezXfv1FlWG4QOMlwbzAML+Uy3aBFfJKwup1nGClpvSStN+S8a1P0LMFnylzirKJyF4+bQ0yddZOj+N5UOeoVe+BEUDLcAtUjcdVq3/O/O0cPT+5lhnoRf4YwjgBb13udzzgHVaTbrx30/3jai0iUQt+rHQPDJi4FRiWDmsgyBVbZcwxzPNgLOy6PWBfy2aMxsJ48erj0A+QW4pkg/Dysz9FHybyqVPbt2V0RylpsiHpNo/y1F8d3jPFcexNimZylkbyByFdnijvqdXeeP2ABAluZ703E21dl8zjWoIGYmpJXwTiTnrDy5Ob6zU6v1vFn6R94bJ7u6nt3ad/6E9bc1hRbcbgaTHvTVtR2nBi+TA3/WRAm4ray6HR661JUJzcum2PHtZYSxqQ
+X-OriginatorOrg: invensense.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7efdad38-1e48-4cf9-ccec-08d7728c742d
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Nov 2019 16:19:46.9059
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 462b3b3b-e42b-47ea-801a-f1581aac892d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: iO8MiKut49F8KExAmr9cz8JpRP66q22C5gonmSkTWa7wrS2XMja4WiLAJy5ajDJImxhrGc5OlQAJo36Kp0aNKsGBh16CCnDizHWSsTWtEak=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3230
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
+ definitions=2019-11-26_04:2019-11-26,2019-11-26 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
+ malwarescore=0 mlxlogscore=999 phishscore=0 mlxscore=0 adultscore=0
+ priorityscore=1501 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ suspectscore=1 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1910280000 definitions=main-1911260138
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The do_video_ioctl() compat handler converts the compat command
-codes into the native ones before processing further, but this
-causes problems for 32-bit user applications that pass a command
-code that matches a 64-bit native number, which will then be
-handled the same way.
+Temperature should be reported in milli-degrees, not degrees. Fix
+scale and offset values to use the correct unit.
 
-Specifically, this breaks VIDIOC_DQEVENT_TIME from user space
-applications with 64-bit time_t, as the structure layout is
-the same as the native 64-bit layout on many architectures
-(x86 being the notable exception).
-
-Change the handler to use the converted command code only for
-passing into the native ioctl handler, not for deciding on the
-conversion, in order to make the compat behavior match the
-native behavior.
-
-Actual support for the 64-bit time_t version of VIDIOC_DQEVENT_TIME
-and other commands still needs to be added in a separate patch.
-
+Fixes: 1615fe41a195 ("iio: imu: mpu6050: Fix FIFO layout for ICM20602")
 Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
 ---
- drivers/media/v4l2-core/v4l2-compat-ioctl32.c | 148 +++++++++---------
- 1 file changed, 75 insertions(+), 73 deletions(-)
+ drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 23 +++++++++++-----------
+ drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  | 16 +++++++++++----
+ 2 files changed, 24 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-compat-ioctl32.c b/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-index e1eaf1135c7f..7ad6db8dd9f6 100644
---- a/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-+++ b/drivers/media/v4l2-core/v4l2-compat-ioctl32.c
-@@ -1183,36 +1183,38 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	u32 aux_space;
- 	int compatible_arg = 1;
- 	long err = 0;
-+	unsigned int ncmd;
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+index 23c0557891a0..268240644adf 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+@@ -117,6 +117,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6050,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 1024,
++		.temp = {INV_MPU6050_TEMP_OFFSET, INV_MPU6050_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_MPU6500_WHOAMI_VALUE,
+@@ -124,6 +125,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 512,
++		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_MPU6515_WHOAMI_VALUE,
+@@ -131,6 +133,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 512,
++		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_MPU6000_WHOAMI_VALUE,
+@@ -138,6 +141,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6050,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 1024,
++		.temp = {INV_MPU6050_TEMP_OFFSET, INV_MPU6050_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_MPU9150_WHOAMI_VALUE,
+@@ -145,6 +149,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6050,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 1024,
++		.temp = {INV_MPU6050_TEMP_OFFSET, INV_MPU6050_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_MPU9250_WHOAMI_VALUE,
+@@ -152,6 +157,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 512,
++		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_MPU9255_WHOAMI_VALUE,
+@@ -159,6 +165,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 512,
++		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_ICM20608_WHOAMI_VALUE,
+@@ -166,6 +173,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 512,
++		.temp = {INV_ICM20608_TEMP_OFFSET, INV_ICM20608_TEMP_SCALE},
+ 	},
+ 	{
+ 		.whoami = INV_ICM20602_WHOAMI_VALUE,
+@@ -173,6 +181,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.reg = &reg_set_icm20602,
+ 		.config = &chip_config_6050,
+ 		.fifo_size = 1008,
++		.temp = {INV_ICM20608_TEMP_OFFSET, INV_ICM20608_TEMP_SCALE},
+ 	},
+ };
  
- 	/*
- 	 * 1. When struct size is different, converts the command.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_G_FMT32: cmd = VIDIOC_G_FMT; break;
--	case VIDIOC_S_FMT32: cmd = VIDIOC_S_FMT; break;
--	case VIDIOC_QUERYBUF32: cmd = VIDIOC_QUERYBUF; break;
--	case VIDIOC_G_FBUF32: cmd = VIDIOC_G_FBUF; break;
--	case VIDIOC_S_FBUF32: cmd = VIDIOC_S_FBUF; break;
--	case VIDIOC_QBUF32: cmd = VIDIOC_QBUF; break;
--	case VIDIOC_DQBUF32: cmd = VIDIOC_DQBUF; break;
--	case VIDIOC_ENUMSTD32: cmd = VIDIOC_ENUMSTD; break;
--	case VIDIOC_ENUMINPUT32: cmd = VIDIOC_ENUMINPUT; break;
--	case VIDIOC_TRY_FMT32: cmd = VIDIOC_TRY_FMT; break;
--	case VIDIOC_G_EXT_CTRLS32: cmd = VIDIOC_G_EXT_CTRLS; break;
--	case VIDIOC_S_EXT_CTRLS32: cmd = VIDIOC_S_EXT_CTRLS; break;
--	case VIDIOC_TRY_EXT_CTRLS32: cmd = VIDIOC_TRY_EXT_CTRLS; break;
--	case VIDIOC_DQEVENT32: cmd = VIDIOC_DQEVENT; break;
--	case VIDIOC_OVERLAY32: cmd = VIDIOC_OVERLAY; break;
--	case VIDIOC_STREAMON32: cmd = VIDIOC_STREAMON; break;
--	case VIDIOC_STREAMOFF32: cmd = VIDIOC_STREAMOFF; break;
--	case VIDIOC_G_INPUT32: cmd = VIDIOC_G_INPUT; break;
--	case VIDIOC_S_INPUT32: cmd = VIDIOC_S_INPUT; break;
--	case VIDIOC_G_OUTPUT32: cmd = VIDIOC_G_OUTPUT; break;
--	case VIDIOC_S_OUTPUT32: cmd = VIDIOC_S_OUTPUT; break;
--	case VIDIOC_CREATE_BUFS32: cmd = VIDIOC_CREATE_BUFS; break;
--	case VIDIOC_PREPARE_BUF32: cmd = VIDIOC_PREPARE_BUF; break;
--	case VIDIOC_G_EDID32: cmd = VIDIOC_G_EDID; break;
--	case VIDIOC_S_EDID32: cmd = VIDIOC_S_EDID; break;
-+	case VIDIOC_G_FMT32: ncmd = VIDIOC_G_FMT; break;
-+	case VIDIOC_S_FMT32: ncmd = VIDIOC_S_FMT; break;
-+	case VIDIOC_QUERYBUF32: ncmd = VIDIOC_QUERYBUF; break;
-+	case VIDIOC_G_FBUF32: ncmd = VIDIOC_G_FBUF; break;
-+	case VIDIOC_S_FBUF32: ncmd = VIDIOC_S_FBUF; break;
-+	case VIDIOC_QBUF32: ncmd = VIDIOC_QBUF; break;
-+	case VIDIOC_DQBUF32: ncmd = VIDIOC_DQBUF; break;
-+	case VIDIOC_ENUMSTD32: ncmd = VIDIOC_ENUMSTD; break;
-+	case VIDIOC_ENUMINPUT32: ncmd = VIDIOC_ENUMINPUT; break;
-+	case VIDIOC_TRY_FMT32: ncmd = VIDIOC_TRY_FMT; break;
-+	case VIDIOC_G_EXT_CTRLS32: ncmd = VIDIOC_G_EXT_CTRLS; break;
-+	case VIDIOC_S_EXT_CTRLS32: ncmd = VIDIOC_S_EXT_CTRLS; break;
-+	case VIDIOC_TRY_EXT_CTRLS32: ncmd = VIDIOC_TRY_EXT_CTRLS; break;
-+	case VIDIOC_DQEVENT32: ncmd = VIDIOC_DQEVENT; break;
-+	case VIDIOC_OVERLAY32: ncmd = VIDIOC_OVERLAY; break;
-+	case VIDIOC_STREAMON32: ncmd = VIDIOC_STREAMON; break;
-+	case VIDIOC_STREAMOFF32: ncmd = VIDIOC_STREAMOFF; break;
-+	case VIDIOC_G_INPUT32: ncmd = VIDIOC_G_INPUT; break;
-+	case VIDIOC_S_INPUT32: ncmd = VIDIOC_S_INPUT; break;
-+	case VIDIOC_G_OUTPUT32: ncmd = VIDIOC_G_OUTPUT; break;
-+	case VIDIOC_S_OUTPUT32: ncmd = VIDIOC_S_OUTPUT; break;
-+	case VIDIOC_CREATE_BUFS32: ncmd = VIDIOC_CREATE_BUFS; break;
-+	case VIDIOC_PREPARE_BUF32: ncmd = VIDIOC_PREPARE_BUF; break;
-+	case VIDIOC_G_EDID32: ncmd = VIDIOC_G_EDID; break;
-+	case VIDIOC_S_EDID32: ncmd = VIDIOC_S_EDID; break;
-+	default: ncmd = cmd; break;
- 	}
+@@ -481,12 +490,8 @@ inv_mpu6050_read_raw(struct iio_dev *indio_dev,
  
- 	/*
-@@ -1221,11 +1223,11 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * argument into it.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_OVERLAY:
--	case VIDIOC_STREAMON:
--	case VIDIOC_STREAMOFF:
--	case VIDIOC_S_INPUT:
--	case VIDIOC_S_OUTPUT:
-+	case VIDIOC_OVERLAY32:
-+	case VIDIOC_STREAMON32:
-+	case VIDIOC_STREAMOFF32:
-+	case VIDIOC_S_INPUT32:
-+	case VIDIOC_S_OUTPUT32:
- 		err = alloc_userspace(sizeof(unsigned int), 0, &new_p64);
- 		if (!err && assign_in_user((unsigned int __user *)new_p64,
- 					   (compat_uint_t __user *)p32))
-@@ -1233,23 +1235,23 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
+ 			return IIO_VAL_INT_PLUS_MICRO;
+ 		case IIO_TEMP:
+-			*val = 0;
+-			if (st->chip_type == INV_ICM20602)
+-				*val2 = INV_ICM20602_TEMP_SCALE;
+-			else
+-				*val2 = INV_MPU6050_TEMP_SCALE;
+-
++			*val = st->hw->temp.scale / 1000000;
++			*val2 = st->hw->temp.scale % 1000000;
+ 			return IIO_VAL_INT_PLUS_MICRO;
+ 		case IIO_MAGN:
+ 			return inv_mpu_magn_get_scale(st, chan, val, val2);
+@@ -496,11 +501,7 @@ inv_mpu6050_read_raw(struct iio_dev *indio_dev,
+ 	case IIO_CHAN_INFO_OFFSET:
+ 		switch (chan->type) {
+ 		case IIO_TEMP:
+-			if (st->chip_type == INV_ICM20602)
+-				*val = INV_ICM20602_TEMP_OFFSET;
+-			else
+-				*val = INV_MPU6050_TEMP_OFFSET;
+-
++			*val = st->hw->temp.offset;
+ 			return IIO_VAL_INT;
+ 		default:
+ 			return -EINVAL;
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+index f1fb7b6bdab1..b096e010d4ee 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+@@ -107,6 +107,7 @@ struct inv_mpu6050_chip_config {
+  *  @reg:   register map of the chip.
+  *  @config:    configuration of the chip.
+  *  @fifo_size:	size of the FIFO in bytes.
++ *  @temp:	offset and scale to apply to raw temperature.
+  */
+ struct inv_mpu6050_hw {
+ 	u8 whoami;
+@@ -114,6 +115,10 @@ struct inv_mpu6050_hw {
+ 	const struct inv_mpu6050_reg_map *reg;
+ 	const struct inv_mpu6050_chip_config *config;
+ 	size_t fifo_size;
++	struct {
++		int offset;
++		int scale;
++	} temp;
+ };
  
--	case VIDIOC_G_INPUT:
--	case VIDIOC_G_OUTPUT:
-+	case VIDIOC_G_INPUT32:
-+	case VIDIOC_G_OUTPUT32:
- 		err = alloc_userspace(sizeof(unsigned int), 0, &new_p64);
- 		compatible_arg = 0;
- 		break;
+ /*
+@@ -279,16 +284,19 @@ struct inv_mpu6050_state {
+ #define INV_MPU6050_REG_UP_TIME_MIN          5000
+ #define INV_MPU6050_REG_UP_TIME_MAX          10000
  
--	case VIDIOC_G_EDID:
--	case VIDIOC_S_EDID:
-+	case VIDIOC_G_EDID32:
-+	case VIDIOC_S_EDID32:
- 		err = alloc_userspace(sizeof(struct v4l2_edid), 0, &new_p64);
- 		if (!err)
- 			err = get_v4l2_edid32(new_p64, p32);
- 		compatible_arg = 0;
- 		break;
+-#define INV_MPU6050_TEMP_OFFSET	             12421
+-#define INV_MPU6050_TEMP_SCALE               2941
++#define INV_MPU6050_TEMP_OFFSET	             12420
++#define INV_MPU6050_TEMP_SCALE               2941176
+ #define INV_MPU6050_MAX_GYRO_FS_PARAM        3
+ #define INV_MPU6050_MAX_ACCL_FS_PARAM        3
+ #define INV_MPU6050_THREE_AXIS               3
+ #define INV_MPU6050_GYRO_CONFIG_FSR_SHIFT    3
+ #define INV_MPU6050_ACCL_CONFIG_FSR_SHIFT    3
  
--	case VIDIOC_G_FMT:
--	case VIDIOC_S_FMT:
--	case VIDIOC_TRY_FMT:
-+	case VIDIOC_G_FMT32:
-+	case VIDIOC_S_FMT32:
-+	case VIDIOC_TRY_FMT32:
- 		err = bufsize_v4l2_format(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_format),
-@@ -1262,7 +1264,7 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
+-#define INV_ICM20602_TEMP_OFFSET	     8170
+-#define INV_ICM20602_TEMP_SCALE		     3060
++#define INV_MPU6500_TEMP_OFFSET              7011
++#define INV_MPU6500_TEMP_SCALE               2995178
++
++#define INV_ICM20608_TEMP_OFFSET	     8170
++#define INV_ICM20608_TEMP_SCALE		     3059976
  
--	case VIDIOC_CREATE_BUFS:
-+	case VIDIOC_CREATE_BUFS32:
- 		err = bufsize_v4l2_create(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_create_buffers),
-@@ -1275,10 +1277,10 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_PREPARE_BUF:
--	case VIDIOC_QUERYBUF:
--	case VIDIOC_QBUF:
--	case VIDIOC_DQBUF:
-+	case VIDIOC_PREPARE_BUF32:
-+	case VIDIOC_QUERYBUF32:
-+	case VIDIOC_QBUF32:
-+	case VIDIOC_DQBUF32:
- 		err = bufsize_v4l2_buffer(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_buffer),
-@@ -1291,7 +1293,7 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_S_FBUF:
-+	case VIDIOC_S_FBUF32:
- 		err = alloc_userspace(sizeof(struct v4l2_framebuffer), 0,
- 				      &new_p64);
- 		if (!err)
-@@ -1299,13 +1301,13 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_FBUF:
-+	case VIDIOC_G_FBUF32:
- 		err = alloc_userspace(sizeof(struct v4l2_framebuffer), 0,
- 				      &new_p64);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_ENUMSTD:
-+	case VIDIOC_ENUMSTD32:
- 		err = alloc_userspace(sizeof(struct v4l2_standard), 0,
- 				      &new_p64);
- 		if (!err)
-@@ -1313,16 +1315,16 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_ENUMINPUT:
-+	case VIDIOC_ENUMINPUT32:
- 		err = alloc_userspace(sizeof(struct v4l2_input), 0, &new_p64);
- 		if (!err)
- 			err = get_v4l2_input32(new_p64, p32);
- 		compatible_arg = 0;
- 		break;
- 
--	case VIDIOC_G_EXT_CTRLS:
--	case VIDIOC_S_EXT_CTRLS:
--	case VIDIOC_TRY_EXT_CTRLS:
-+	case VIDIOC_G_EXT_CTRLS32:
-+	case VIDIOC_S_EXT_CTRLS32:
-+	case VIDIOC_TRY_EXT_CTRLS32:
- 		err = bufsize_v4l2_ext_controls(p32, &aux_space);
- 		if (!err)
- 			err = alloc_userspace(sizeof(struct v4l2_ext_controls),
-@@ -1334,7 +1336,7 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 		}
- 		compatible_arg = 0;
- 		break;
--	case VIDIOC_DQEVENT:
-+	case VIDIOC_DQEVENT32:
- 		err = alloc_userspace(sizeof(struct v4l2_event), 0, &new_p64);
- 		compatible_arg = 0;
- 		break;
-@@ -1352,9 +1354,9 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * Otherwise, it will pass the newly allocated @new_p64 argument.
- 	 */
- 	if (compatible_arg)
--		err = native_ioctl(file, cmd, (unsigned long)p32);
-+		err = native_ioctl(file, ncmd, (unsigned long)p32);
- 	else
--		err = native_ioctl(file, cmd, (unsigned long)new_p64);
-+		err = native_ioctl(file, ncmd, (unsigned long)new_p64);
- 
- 	if (err == -ENOTTY)
- 		return err;
-@@ -1370,13 +1372,13 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * the blocks to maximum allowed value.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_G_EXT_CTRLS:
--	case VIDIOC_S_EXT_CTRLS:
--	case VIDIOC_TRY_EXT_CTRLS:
-+	case VIDIOC_G_EXT_CTRLS32:
-+	case VIDIOC_S_EXT_CTRLS32:
-+	case VIDIOC_TRY_EXT_CTRLS32:
- 		if (put_v4l2_ext_controls32(file, new_p64, p32))
- 			err = -EFAULT;
- 		break;
--	case VIDIOC_S_EDID:
-+	case VIDIOC_S_EDID32:
- 		if (put_v4l2_edid32(new_p64, p32))
- 			err = -EFAULT;
- 		break;
-@@ -1389,49 +1391,49 @@ static long do_video_ioctl(struct file *file, unsigned int cmd, unsigned long ar
- 	 * the original 32 bits structure.
- 	 */
- 	switch (cmd) {
--	case VIDIOC_S_INPUT:
--	case VIDIOC_S_OUTPUT:
--	case VIDIOC_G_INPUT:
--	case VIDIOC_G_OUTPUT:
-+	case VIDIOC_S_INPUT32:
-+	case VIDIOC_S_OUTPUT32:
-+	case VIDIOC_G_INPUT32:
-+	case VIDIOC_G_OUTPUT32:
- 		if (assign_in_user((compat_uint_t __user *)p32,
- 				   ((unsigned int __user *)new_p64)))
- 			err = -EFAULT;
- 		break;
- 
--	case VIDIOC_G_FBUF:
-+	case VIDIOC_G_FBUF32:
- 		err = put_v4l2_framebuffer32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_DQEVENT:
-+	case VIDIOC_DQEVENT32:
- 		err = put_v4l2_event32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_G_EDID:
-+	case VIDIOC_G_EDID32:
- 		err = put_v4l2_edid32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_G_FMT:
--	case VIDIOC_S_FMT:
--	case VIDIOC_TRY_FMT:
-+	case VIDIOC_G_FMT32:
-+	case VIDIOC_S_FMT32:
-+	case VIDIOC_TRY_FMT32:
- 		err = put_v4l2_format32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_CREATE_BUFS:
-+	case VIDIOC_CREATE_BUFS32:
- 		err = put_v4l2_create32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_PREPARE_BUF:
--	case VIDIOC_QUERYBUF:
--	case VIDIOC_QBUF:
--	case VIDIOC_DQBUF:
-+	case VIDIOC_PREPARE_BUF32:
-+	case VIDIOC_QUERYBUF32:
-+	case VIDIOC_QBUF32:
-+	case VIDIOC_DQBUF32:
- 		err = put_v4l2_buffer32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_ENUMSTD:
-+	case VIDIOC_ENUMSTD32:
- 		err = put_v4l2_standard32(new_p64, p32);
- 		break;
- 
--	case VIDIOC_ENUMINPUT:
-+	case VIDIOC_ENUMINPUT32:
- 		err = put_v4l2_input32(new_p64, p32);
- 		break;
- 	}
+ /* 6 + 6 + 7 (for MPU9x50) = 19 round up to 24 and plus 8 */
+ #define INV_MPU6050_OUTPUT_DATA_SIZE         32
 -- 
-2.20.0
+2.17.1
 
