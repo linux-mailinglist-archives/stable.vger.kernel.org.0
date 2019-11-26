@@ -2,70 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB52010A475
-	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 20:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD4110A48E
+	for <lists+stable@lfdr.de>; Tue, 26 Nov 2019 20:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726072AbfKZT1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Nov 2019 14:27:24 -0500
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:41303 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726033AbfKZT1Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 14:27:24 -0500
-Received: by mail-qk1-f194.google.com with SMTP id m125so17159506qkd.8
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 11:27:24 -0800 (PST)
+        id S1727319AbfKZTaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Nov 2019 14:30:46 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:42995 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727312AbfKZTaq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Nov 2019 14:30:46 -0500
+Received: by mail-lj1-f193.google.com with SMTP id n5so21574835ljc.9;
+        Tue, 26 Nov 2019 11:30:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=to:cc:from:subject:message-id:date:user-agent:mime-version
-         :content-transfer-encoding:content-language;
-        bh=pqEek6iJJMqcyDblxZodrD/8h6Zp+g54pA6x0F/hDDE=;
-        b=jCUCqPy7jEp+Makst3iesebZI2932dsNiL+0qPC7oe3eP3r8vzlK73OmejKHC4q4mF
-         W3gV6zOyxla5MSYnWczpX5QTgYjgM8ZaX/Z17EzA4OVRIdf0ZtecvuVVKwtLxSf+bdgY
-         OWflkfMeTDM8whtZFE16LqhqXvXWLvfvyP0ZB46SMrhrcLaqTSrYMgLPPhkt2If01oCk
-         5ZwLPm/FrUVbPez1LSuOA0FXsFYJH7GNyPySrX9sehS5dTEcuCv3/vL1tlgsheQ3PO7V
-         cAiq1H6VahZAhaWWbM49NuBem1qJMe2pljQQep27iOOOiv6MZrsD8UJBBlODyzPaNZtp
-         gkTA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=N1fma/rzZbsK0KgJkH5gDE4TEHvO2HL1ft3nAMVM09o=;
+        b=DH9OE1isC9wMnuJMDGOHRni1GwxOUfsJU0ywmLSPLdfWPuomlkUHP8ykBHs1KwwoNZ
+         IJftDyO+OQGKxgrWaR0Bird2WXdpg7JQ9WPQTWKm7kLMz5l8yTUSlLy9lR6+twon3BEh
+         EB6ZMe5P7AwiA+ntl+Nn8ygQu1ODMZv5/opG4sn7DXVu57YHDoSxUbWgOblojTYE5OiK
+         6bpufoW/OvY8x5WIF4Ugk/rykcm4PGNjfe4M7+WT1L9t2ngWMLGuZy5LhvaJbQV+cYRT
+         865N738hDX8lXfnjCAPGvdp10UKPvPSQjjmjkLYLAW8NOmVywCz/EaS7QwF/z0HlnYgV
+         sXUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
-         :mime-version:content-transfer-encoding:content-language;
-        bh=pqEek6iJJMqcyDblxZodrD/8h6Zp+g54pA6x0F/hDDE=;
-        b=PsSsRBX4Q3ZYBC1DUjdv/IUMqY1lJRe0rvUa+ZnLZ6lm0kHax9l1JyfLQ5uQN10nd1
-         XCUWFCbxWumLcu/bEcJqha5PHOy3dLn58+0Frc9NCGKCoAZi/+c6ZjcZmbkP3zEUVOH7
-         mL9vywh1zVaKbwwP1X+6GllwkilXBy3p3gnolAeM685dhnY/fPWdludrmzs5OA3An3Ib
-         xRH9lgUggMsLJwR6ByubBnR1y0oCVQSTiIdw6iSQNT5Iqt7gg7wyKVFR20+XmhxAif3I
-         GMs0i7yg8HlIf67CEig8wkMY81U60stfJDyLO/nrU5yDXR/7rYMZrv75oNauvfq1vkzM
-         qwxg==
-X-Gm-Message-State: APjAAAWL4+CjwtJp07021jDhOVUW1oi7moyZ+SIJhp/9DczC5EfDBthB
-        6Hmz3uQ9PFdr1KCTrQv8Qep2afaxHjNKBw==
-X-Google-Smtp-Source: APXvYqwGjkoJ5BNGgrXk9fbl3mDr9T0A7lPLQHQaaL4oDPSBfU0siu2xel1UoTZ0ACkW6SY3j+cFYw==
-X-Received: by 2002:a05:620a:112c:: with SMTP id p12mr32035024qkk.179.1574796443633;
-        Tue, 26 Nov 2019 11:27:23 -0800 (PST)
-Received: from ?IPv6:2804:14d:72b1:8920:a2ce:f815:f14d:bfac? ([2804:14d:72b1:8920:a2ce:f815:f14d:bfac])
-        by smtp.gmail.com with ESMTPSA id c6sm5661174qka.111.2019.11.26.11.27.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Nov 2019 11:27:23 -0800 (PST)
-To:     stable@vger.kernel.org
-Cc:     skhan@linuxfoundation.org, gregkh@linuxfoundation.org,
-        linux-kernel-mentees@lists.linuxfoundation.org
-From:   "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>
-Subject: Linux 5.3.13 BOOT TEST: Compiled, Booted, everything OK.
-Message-ID: <55294cee-5a17-bcd1-1014-b0f51c4360bd@gmail.com>
-Date:   Tue, 26 Nov 2019 16:19:42 -0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=N1fma/rzZbsK0KgJkH5gDE4TEHvO2HL1ft3nAMVM09o=;
+        b=HCpTZltzV4WqwYmTjJrkfsa72bpQysuzKFjlxARVOH20xsiF8+mzNhEr8QqpIEIyie
+         XbwLau1cDvjvJaqaOXsak+inpX96WbgNEgGq54nvYp2KfPFhG9PXEwGBzgFOow8hfPFp
+         S9XFi+VVF/D8Zpwz1wVJxSAONYk4mCl1/urMD1M8Mr5WMq5sgifeDHoJt+GR3R3zSZbO
+         FObWoTjRQhhYnkNw5jlwIrMbWjm8bIugIep2YX8agUVil8j57qO7Fl+tDlGCEQ+z1OVI
+         aiWkBhiZvjOr6+fRMavY5Z5QF8QnhXXTguXF90iYUx4UqOdOPeJjeWBpewJndxLsyw1H
+         ZfOA==
+X-Gm-Message-State: APjAAAWuSrIa00Y7qChAI4lXUP+0aW23WCVIvi5vcYJUcZadpMq5E+Pq
+        x9lusRPmlJmKxbTAlGZa2l8=
+X-Google-Smtp-Source: APXvYqx9/2noQaJq7x/KWqh0xaR3KlZk66kcGXCNzZVnDIkbRFG0nnLsPyaQcfSma3Bx0Mn7mgvzSg==
+X-Received: by 2002:a2e:894b:: with SMTP id b11mr28263730ljk.118.1574796643636;
+        Tue, 26 Nov 2019 11:30:43 -0800 (PST)
+Received: from octofox.cadence.com (jcmvbkbc-1-pt.tunnel.tserv24.sto1.ipv6.he.net. [2001:470:27:1fa::2])
+        by smtp.gmail.com with ESMTPSA id m18sm6134434ljg.3.2019.11.26.11.30.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Nov 2019 11:30:43 -0800 (PST)
+From:   Max Filippov <jcmvbkbc@gmail.com>
+To:     linux-xtensa@linux-xtensa.org
+Cc:     Chris Zankel <chris@zankel.net>, linux-gpio@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] drivers/gpio/gpio-xtensa: fix driver build
+Date:   Tue, 26 Nov 2019 11:30:27 -0800
+Message-Id: <20191126193027.11970-1-jcmvbkbc@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-No crashes and no new errors on dmesg.
+Commit cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr") removed
+{RSR,WSR}_CPENABLE from xtensa code, but did not fix up all users,
+breaking gpio-xtensa driver build.
+Update gpio-xtensa to use new xtensa_{get,set}_sr API.
 
+Cc: stable@vger.kernel.org # v5.0+
+Fixes: cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+---
+ drivers/gpio/gpio-xtensa.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-Thanks,
-
-Daniel.
+diff --git a/drivers/gpio/gpio-xtensa.c b/drivers/gpio/gpio-xtensa.c
+index 43d3fa5f511a..0fb2211f9573 100644
+--- a/drivers/gpio/gpio-xtensa.c
++++ b/drivers/gpio/gpio-xtensa.c
+@@ -44,15 +44,14 @@ static inline unsigned long enable_cp(unsigned long *cpenable)
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+-	RSR_CPENABLE(*cpenable);
+-	WSR_CPENABLE(*cpenable | BIT(XCHAL_CP_ID_XTIOP));
+-
++	*cpenable = xtensa_get_sr(cpenable);
++	xtensa_set_sr(*cpenable | BIT(XCHAL_CP_ID_XTIOP), cpenable);
+ 	return flags;
+ }
+ 
+ static inline void disable_cp(unsigned long flags, unsigned long cpenable)
+ {
+-	WSR_CPENABLE(cpenable);
++	xtensa_set_sr(cpenable, cpenable);
+ 	local_irq_restore(flags);
+ }
+ 
+-- 
+2.20.1
 
