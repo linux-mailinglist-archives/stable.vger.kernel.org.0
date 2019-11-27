@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D0310BF5D
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B0B10BFC8
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729192AbfK0Vmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:42:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43838 "EHLO mail.kernel.org"
+        id S1727594AbfK0Ue2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:34:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728191AbfK0Ujj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:39:39 -0500
+        id S1727606AbfK0Ue2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:34:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 966A8215A4;
-        Wed, 27 Nov 2019 20:39:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 934CB207DD;
+        Wed, 27 Nov 2019 20:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887178;
-        bh=lAZNK7op+4kcA3x47WinCxta+04F2Aa6+QacMSUXaLw=;
+        s=default; t=1574886867;
+        bh=nPLnhoyEpSNYbbY/+bpz2p1gwo7gOztCcj7a3ZCP/Lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoitYU7bCqaIfdoEqHt7UZ4fQVOf9dWOck8uHjtxFN/gHTkVmEWOOqygXdH6HYKca
-         oumTi8t++TjGT5n/YoNCo95Dh7nX1JsIXmqOHn3JcLD3ubRpwK5U30AZOQJhrqvwF8
-         /7QMnluHwrlZnN7igtYPaDEn5cUSWeLD0mD85k7Y=
+        b=N5/ki10MBJhfU9V4vh1enhTVmJllOTcPWO/iNZ4YDEuaG7BnB/WI9CtLufTE4DGGv
+         UA3EtMVKR2dimC7RBZiVyamw8r70NUe6sAAk0J/RsxbCgKs5kIL+f34U/vjdmHhLSp
+         3+UY+BNb8NQ2n4UHE/qaOKUwf0q2k60M0Uwt7c2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 011/151] platform/x86: asus-wmi: Only Tell EC the OS will handle display hotkeys from asus_nb_wmi
-Date:   Wed, 27 Nov 2019 21:29:54 +0100
-Message-Id: <20191127203008.230205776@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 004/132] net: rtnetlink: prevent underflows in do_setvfinfo()
+Date:   Wed, 27 Nov 2019 21:29:55 +0100
+Message-Id: <20191127202900.817644291@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,111 +43,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 401fee8195d401b2b94dee57383f627050724d5b ]
+[ Upstream commit d658c8f56ec7b3de8051a24afb25da9ba3c388c5 ]
 
-Commit 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will
-handle the display off hotkey") causes the backlight to be permanently off
-on various EeePC laptop models using the eeepc-wmi driver (Asus EeePC
-1015BX, Asus EeePC 1025C).
+The "ivm->vf" variable is a u32, but the problem is that a number of
+drivers cast it to an int and then forget to check for negatives.  An
+example of this is in the cxgb4 driver.
 
-The asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL) call added
-by that commit is made conditional in this commit and only enabled in
-the quirk_entry structs in the asus-nb-wmi driver fixing the broken
-display / backlight on various EeePC laptop models.
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+  2890  static int cxgb4_mgmt_get_vf_config(struct net_device *dev,
+  2891                                      int vf, struct ifla_vf_info *ivi)
+                                            ^^^^^^
+  2892  {
+  2893          struct port_info *pi = netdev_priv(dev);
+  2894          struct adapter *adap = pi->adapter;
+  2895          struct vf_info *vfinfo;
+  2896
+  2897          if (vf >= adap->num_vfs)
+                    ^^^^^^^^^^^^^^^^^^^
+  2898                  return -EINVAL;
+  2899          vfinfo = &adap->vfinfo[vf];
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Cc: João Paulo Rechi Vita <jprvita@endlessm.com>
-Fixes: 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will handle the display off hotkey")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There are 48 functions affected.
+
+drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c:8435 hclge_set_vf_vlan_filter() warn: can 'vfid' underflow 's32min-2147483646'
+drivers/net/ethernet/freescale/enetc/enetc_pf.c:377 enetc_pf_set_vf_mac() warn: can 'vf' underflow 's32min-2147483646'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:2899 cxgb4_mgmt_get_vf_config() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:2960 cxgb4_mgmt_set_vf_rate() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3019 cxgb4_mgmt_set_vf_rate() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3038 cxgb4_mgmt_set_vf_vlan() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3086 cxgb4_mgmt_set_vf_link_state() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb/cxgb2.c:791 get_eeprom() warn: can 'i' underflow 's32min-(-4),0,4-s32max'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:82 bnxt_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:164 bnxt_set_vf_trust() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:186 bnxt_get_vf_config() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:228 bnxt_set_vf_mac() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:264 bnxt_set_vf_vlan() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:293 bnxt_set_vf_bw() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:333 bnxt_set_vf_link_state() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c:2595 bnx2x_vf_op_prep() warn: can 'vfidx' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c:2595 bnx2x_vf_op_prep() warn: can 'vfidx' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2281 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2285 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2286 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2292 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2297 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1832 qlcnic_sriov_set_vf_mac() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1864 qlcnic_sriov_set_vf_tx_rate() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1937 qlcnic_sriov_set_vf_vlan() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:2005 qlcnic_sriov_get_vf_config() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:2036 qlcnic_sriov_set_vf_spoofchk() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/emulex/benet/be_main.c:1914 be_get_vf_config() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:1915 be_get_vf_config() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:1922 be_set_vf_tvt() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:1951 be_clear_vf_tvt() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:2063 be_set_vf_tx_rate() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:2091 be_set_vf_link_state() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:2609 ice_set_vf_port_vlan() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3050 ice_get_vf_cfg() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3103 ice_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3181 ice_set_vf_mac() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3237 ice_set_vf_trust() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3286 ice_set_vf_link_state() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:3919 i40e_validate_vf() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:3957 i40e_ndo_set_vf_mac() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4104 i40e_ndo_set_vf_port_vlan() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4263 i40e_ndo_set_vf_bw() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4309 i40e_ndo_get_vf_config() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4371 i40e_ndo_set_vf_link_state() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4441 i40e_ndo_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4441 i40e_ndo_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4504 i40e_ndo_set_vf_trust() warn: can 'vf_id' underflow 's32min-2147483646'
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 8 ++++++++
- drivers/platform/x86/asus-wmi.c    | 2 +-
- drivers/platform/x86/asus-wmi.h    | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ net/core/rtnetlink.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index 4c35419608f7c..0fd7e40b86a0d 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -78,10 +78,12 @@ static bool asus_q500a_i8042_filter(unsigned char data, unsigned char str,
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -1549,6 +1549,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_MAC]) {
+ 		struct ifla_vf_mac *ivm = nla_data(tb[IFLA_VF_MAC]);
  
- static struct quirk_entry quirk_asus_unknown = {
- 	.wapf = 0,
-+	.wmi_backlight_set_devstate = true,
- };
++		if (ivm->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_mac)
+ 			err = ops->ndo_set_vf_mac(dev, ivm->vf,
+@@ -1560,6 +1562,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_VLAN]) {
+ 		struct ifla_vf_vlan *ivv = nla_data(tb[IFLA_VF_VLAN]);
  
- static struct quirk_entry quirk_asus_q500a = {
- 	.i8042_filter = asus_q500a_i8042_filter,
-+	.wmi_backlight_set_devstate = true,
- };
++		if (ivv->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_vlan)
+ 			err = ops->ndo_set_vf_vlan(dev, ivv->vf, ivv->vlan,
+@@ -1572,6 +1576,8 @@ static int do_setvfinfo(struct net_devic
+ 		struct ifla_vf_tx_rate *ivt = nla_data(tb[IFLA_VF_TX_RATE]);
+ 		struct ifla_vf_info ivf;
  
- /*
-@@ -92,15 +94,18 @@ static struct quirk_entry quirk_asus_q500a = {
- static struct quirk_entry quirk_asus_x55u = {
- 	.wapf = 4,
- 	.wmi_backlight_power = true,
-+	.wmi_backlight_set_devstate = true,
- 	.no_display_toggle = true,
- };
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_get_vf_config)
+ 			err = ops->ndo_get_vf_config(dev, ivt->vf, &ivf);
+@@ -1590,6 +1596,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_RATE]) {
+ 		struct ifla_vf_rate *ivt = nla_data(tb[IFLA_VF_RATE]);
  
- static struct quirk_entry quirk_asus_wapf4 = {
- 	.wapf = 4,
-+	.wmi_backlight_set_devstate = true,
- };
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_rate)
+ 			err = ops->ndo_set_vf_rate(dev, ivt->vf,
+@@ -1602,6 +1610,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_SPOOFCHK]) {
+ 		struct ifla_vf_spoofchk *ivs = nla_data(tb[IFLA_VF_SPOOFCHK]);
  
- static struct quirk_entry quirk_asus_x200ca = {
- 	.wapf = 2,
-+	.wmi_backlight_set_devstate = true,
- };
++		if (ivs->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_spoofchk)
+ 			err = ops->ndo_set_vf_spoofchk(dev, ivs->vf,
+@@ -1613,6 +1623,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_LINK_STATE]) {
+ 		struct ifla_vf_link_state *ivl = nla_data(tb[IFLA_VF_LINK_STATE]);
  
- static struct quirk_entry quirk_no_rfkill = {
-@@ -114,13 +119,16 @@ static struct quirk_entry quirk_no_rfkill_wapf4 = {
++		if (ivl->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_link_state)
+ 			err = ops->ndo_set_vf_link_state(dev, ivl->vf,
+@@ -1626,6 +1638,8 @@ static int do_setvfinfo(struct net_devic
  
- static struct quirk_entry quirk_asus_ux303ub = {
- 	.wmi_backlight_native = true,
-+	.wmi_backlight_set_devstate = true,
- };
+ 		err = -EOPNOTSUPP;
+ 		ivrssq_en = nla_data(tb[IFLA_VF_RSS_QUERY_EN]);
++		if (ivrssq_en->vf >= INT_MAX)
++			return -EINVAL;
+ 		if (ops->ndo_set_vf_rss_query_en)
+ 			err = ops->ndo_set_vf_rss_query_en(dev, ivrssq_en->vf,
+ 							   ivrssq_en->setting);
+@@ -1636,6 +1650,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_TRUST]) {
+ 		struct ifla_vf_trust *ivt = nla_data(tb[IFLA_VF_TRUST]);
  
- static struct quirk_entry quirk_asus_x550lb = {
-+	.wmi_backlight_set_devstate = true,
- 	.xusb2pr = 0x01D9,
- };
- 
- static struct quirk_entry quirk_asus_forceals = {
-+	.wmi_backlight_set_devstate = true,
- 	.wmi_force_als_set = true,
- };
- 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 10bd13b301784..aede41a92cacb 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -2154,7 +2154,7 @@ static int asus_wmi_add(struct platform_device *pdev)
- 		err = asus_wmi_backlight_init(asus);
- 		if (err && err != -ENODEV)
- 			goto fail_backlight;
--	} else
-+	} else if (asus->driver->quirks->wmi_backlight_set_devstate)
- 		err = asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL);
- 
- 	status = wmi_install_notify_handler(asus->driver->event_guid,
-diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-index 5db052d1de1e1..53bab79780e22 100644
---- a/drivers/platform/x86/asus-wmi.h
-+++ b/drivers/platform/x86/asus-wmi.h
-@@ -45,6 +45,7 @@ struct quirk_entry {
- 	bool store_backlight_power;
- 	bool wmi_backlight_power;
- 	bool wmi_backlight_native;
-+	bool wmi_backlight_set_devstate;
- 	bool wmi_force_als_set;
- 	int wapf;
- 	/*
--- 
-2.20.1
-
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_trust)
+ 			err = ops->ndo_set_vf_trust(dev, ivt->vf, ivt->setting);
 
 
