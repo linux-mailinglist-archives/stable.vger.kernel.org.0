@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 671BF10BDFC
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5803410BEF1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730610AbfK0Uwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:52:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40026 "EHLO mail.kernel.org"
+        id S1727244AbfK0Unw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:43:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730606AbfK0Uw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:52:28 -0500
+        id S1729498AbfK0Unw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:43:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E69E21882;
-        Wed, 27 Nov 2019 20:52:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2B082080F;
+        Wed, 27 Nov 2019 20:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887947;
-        bh=SKDZpY9gfO13SASawCeW4cUWQ4spZq5Ne+lfp2vOYwI=;
+        s=default; t=1574887431;
+        bh=X6ttkquxGdzmq27hYfoMMXPCacDoaTT04oI9WcFh5Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HdAUXzPG6UUeBLtZjBuuDy3mhyi8bjmSHTCh9DAvCyLr72ZZBY8Pg00UL7nEmqZ+2
-         FwL6pjPA2vD/LrhGecOdHbtjC9h0WD77cIvTzs7A4azDzLlTR2hNHMdKPgTcTPhCZ0
-         f7v5BaVZHeelRZDiRutjXRKWt/2vYX7UZt9CVzI8=
+        b=jjxqogca/VsWPMcOFXr36pg2fpdJ2z3B2dMV9HLbqSWQg7j1q5/5eZcY7WMoaFbmw
+         +r6+hLNdFGJHyR2CQ2/aGpmvgi3fM+G8vNn0O0PxyvNxhWP4CMLZhZ183mSGPoDqoY
+         0ZrhK+GrF6qQ19GgBVyKCE6Dj6kuy9fV4nLPSe3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 156/211] pinctrl: lpc18xx: Use define directive for PIN_CONFIG_GPIO_PIN_INT
+Subject: [PATCH 4.9 106/151] pinctrl: zynq: Use define directive for PIN_CONFIG_IO_STANDARD
 Date:   Wed, 27 Nov 2019 21:31:29 +0100
-Message-Id: <20191127203108.723960643@linuxfoundation.org>
+Message-Id: <20191127203041.219369016@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,20 +48,20 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit f24bfb39975c241374cadebbd037c17960cf1412 ]
+[ Upstream commit cd8a145a066a1a3beb0ae615c7cb2ee4217418d7 ]
 
 Clang warns when one enumerated type is implicitly converted to another:
 
-drivers/pinctrl/pinctrl-lpc18xx.c:643:29: warning: implicit conversion
-from enumeration type 'enum lpc18xx_pin_config_param' to different
-enumeration type 'enum pin_config_param' [-Wenum-conversion]
-        {"nxp,gpio-pin-interrupt", PIN_CONFIG_GPIO_PIN_INT, 0},
-        ~                          ^~~~~~~~~~~~~~~~~~~~~~~
-drivers/pinctrl/pinctrl-lpc18xx.c:648:12: warning: implicit conversion
-from enumeration type 'enum lpc18xx_pin_config_param' to different
-enumeration type 'enum pin_config_param' [-Wenum-conversion]
-        PCONFDUMP(PIN_CONFIG_GPIO_PIN_INT, "gpio pin int", NULL, true),
-        ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/pinctrl/pinctrl-zynq.c:985:18: warning: implicit conversion from
+enumeration type 'enum zynq_pin_config_param' to different enumeration
+type 'enum pin_config_param' [-Wenum-conversion]
+        {"io-standard", PIN_CONFIG_IOSTANDARD, zynq_iostd_lvcmos18},
+        ~               ^~~~~~~~~~~~~~~~~~~~~
+drivers/pinctrl/pinctrl-zynq.c:990:16: warning: implicit conversion from
+enumeration type 'enum zynq_pin_config_param' to different enumeration
+type 'enum pin_config_param' [-Wenum-conversion]
+        = { PCONFDUMP(PIN_CONFIG_IOSTANDARD, "IO-standard", NULL, true),
+            ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
 macro 'PCONFDUMP'
         .param = a, .display = b, .format = c, .has_arg = d     \
@@ -73,35 +74,37 @@ isn't an issue. Most drivers that take advantage of this define the
 PIN_CONFIG variables as constants, rather than enumerated values. Do the
 same thing here so that Clang no longer warns.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/140
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-lpc18xx.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/pinctrl/pinctrl-zynq.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-lpc18xx.c b/drivers/pinctrl/pinctrl-lpc18xx.c
-index d090f37ca4a11..8b4e3582af6e0 100644
---- a/drivers/pinctrl/pinctrl-lpc18xx.c
-+++ b/drivers/pinctrl/pinctrl-lpc18xx.c
-@@ -630,14 +630,8 @@ static const struct pinctrl_pin_desc lpc18xx_pins[] = {
- 	LPC18XX_PIN(i2c0_sda, PIN_I2C0_SDA),
+diff --git a/drivers/pinctrl/pinctrl-zynq.c b/drivers/pinctrl/pinctrl-zynq.c
+index e0ecffcbe11f6..f8b54cfc90c7d 100644
+--- a/drivers/pinctrl/pinctrl-zynq.c
++++ b/drivers/pinctrl/pinctrl-zynq.c
+@@ -967,15 +967,12 @@ enum zynq_io_standards {
+ 	zynq_iostd_max
  };
  
 -/**
-- * enum lpc18xx_pin_config_param - possible pin configuration parameters
-- * @PIN_CONFIG_GPIO_PIN_INT: route gpio to the gpio pin interrupt
-- * 	controller.
-- */
--enum lpc18xx_pin_config_param {
--	PIN_CONFIG_GPIO_PIN_INT = PIN_CONFIG_END + 1,
+- * enum zynq_pin_config_param - possible pin configuration parameters
+- * @PIN_CONFIG_IOSTANDARD: if the pin can select an IO standard, the argument to
++/*
++ * PIN_CONFIG_IOSTANDARD: if the pin can select an IO standard, the argument to
+  *	this parameter (on a custom format) tells the driver which alternative
+  *	IO standard to use.
+  */
+-enum zynq_pin_config_param {
+-	PIN_CONFIG_IOSTANDARD = PIN_CONFIG_END + 1,
 -};
-+/* PIN_CONFIG_GPIO_PIN_INT: route gpio to the gpio pin interrupt controller */
-+#define PIN_CONFIG_GPIO_PIN_INT		(PIN_CONFIG_END + 1)
++#define PIN_CONFIG_IOSTANDARD		(PIN_CONFIG_END + 1)
  
- static const struct pinconf_generic_params lpc18xx_params[] = {
- 	{"nxp,gpio-pin-interrupt", PIN_CONFIG_GPIO_PIN_INT, 0},
+ static const struct pinconf_generic_params zynq_dt_params[] = {
+ 	{"io-standard", PIN_CONFIG_IOSTANDARD, zynq_iostd_lvcmos18},
 -- 
 2.20.1
 
