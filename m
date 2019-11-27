@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D9E10BB7B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF81410BB34
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387412AbfK0VND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:13:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44706 "EHLO mail.kernel.org"
+        id S1733060AbfK0VKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:10:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387406AbfK0VNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:13:02 -0500
+        id S1733055AbfK0VKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:10:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFE73217F9;
-        Wed, 27 Nov 2019 21:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B48BF2154A;
+        Wed, 27 Nov 2019 21:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889182;
-        bh=Xm1l4jck4nbnQDoioOAsUALDtTZS1OsKdbYJlQLPRdw=;
+        s=default; t=1574889035;
+        bh=uO8J9GrsInOqTtJumeYPqJ41rEgZjMm0EPfbFPPGY0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1dHAwH+ONp1QzF3PHF5Wmt4sF6KGglBQ9t7Cpf1o7ASIlOaAtz7Z0dl8oEfjrPGU
-         9jUJyZbkpsRKProigj+rSUQRNFIAAsZFkViqT1ZrLdJUl9zSzN2w/XQPy/omomwoT2
-         Eu2L0EeyS2gEA7sDEH+aZ4On0N3j9PKxcmGEt2H4=
+        b=JD4z3ZGJdriTGJFaBnXHaL2jXDuAdQXyQTRP2fZYy0fI7neyQ73rKhZaS3n8T/w4b
+         Bz83YuGFIOeaq1Xdho56DQrDEPKCqoZaG1Q3vrDtCqkn1viA4QDCderpQU0dMbMvfB
+         XGIFcM0cLwvZQcCX1iMeTAUpyTgI8s5Au6ZWTSyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 5.4 20/66] x86/entry/32: Use %ss segment where required
-Date:   Wed, 27 Nov 2019 21:32:15 +0100
-Message-Id: <20191127202655.050736858@linuxfoundation.org>
+Subject: [PATCH 5.3 59/95] x86/entry/32: Move FIXUP_FRAME after pushing %fs in SAVE_ALL
+Date:   Wed, 27 Nov 2019 21:32:16 +0100
+Message-Id: <20191127202925.348245607@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andy Lutomirski <luto@kernel.org>
 
-commit 4c4fd55d3d59a41ddfa6ecba7e76928921759f43 upstream.
+commit 82cb8a0b1d8d07817b5d59f7fa1438e1fceafab2 upstream.
 
-When re-building the IRET frame we use %eax as an destination %esp,
-make sure to then also match the segment for when there is a nonzero
-SS base (ESPFIX).
+This will allow us to get percpu access working before FIXUP_FRAME,
+which will allow us to unwind ESPFIX earlier.
 
-[peterz: Changelog and minor edits]
-Fixes: 3c88c692c287 ("x86/stackframe/32: Provide consistent pt_regs")
 Signed-off-by: Andy Lutomirski <luto@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/entry/entry_32.S |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ arch/x86/entry/entry_32.S |   66 ++++++++++++++++++++++++----------------------
+ 1 file changed, 35 insertions(+), 31 deletions(-)
 
 --- a/arch/x86/entry/entry_32.S
 +++ b/arch/x86/entry/entry_32.S
-@@ -210,6 +210,8 @@
- 	/*
- 	 * The high bits of the CS dword (__csh) are used for CS_FROM_*.
- 	 * Clear them in case hardware didn't do this for us.
-+	 *
-+	 * Be careful: we may have nonzero SS base due to ESPFIX.
+@@ -213,54 +213,58 @@
+ 	 *
+ 	 * Be careful: we may have nonzero SS base due to ESPFIX.
  	 */
- 	andl	$0x0000ffff, 3*4(%esp)
+-	andl	$0x0000ffff, 3*4(%esp)
++	andl	$0x0000ffff, 4*4(%esp)
  
-@@ -263,6 +265,13 @@
+ #ifdef CONFIG_VM86
+-	testl	$X86_EFLAGS_VM, 4*4(%esp)
++	testl	$X86_EFLAGS_VM, 5*4(%esp)
+ 	jnz	.Lfrom_usermode_no_fixup_\@
+ #endif
+-	testl	$USER_SEGMENT_RPL_MASK, 3*4(%esp)
++	testl	$USER_SEGMENT_RPL_MASK, 4*4(%esp)
+ 	jnz	.Lfrom_usermode_no_fixup_\@
+ 
+-	orl	$CS_FROM_KERNEL, 3*4(%esp)
++	orl	$CS_FROM_KERNEL, 4*4(%esp)
+ 
+ 	/*
+ 	 * When we're here from kernel mode; the (exception) stack looks like:
+ 	 *
+-	 *  5*4(%esp) - <previous context>
+-	 *  4*4(%esp) - flags
+-	 *  3*4(%esp) - cs
+-	 *  2*4(%esp) - ip
+-	 *  1*4(%esp) - orig_eax
+-	 *  0*4(%esp) - gs / function
++	 *  6*4(%esp) - <previous context>
++	 *  5*4(%esp) - flags
++	 *  4*4(%esp) - cs
++	 *  3*4(%esp) - ip
++	 *  2*4(%esp) - orig_eax
++	 *  1*4(%esp) - gs / function
++	 *  0*4(%esp) - fs
+ 	 *
+ 	 * Lets build a 5 entry IRET frame after that, such that struct pt_regs
+ 	 * is complete and in particular regs->sp is correct. This gives us
+-	 * the original 5 enties as gap:
++	 * the original 6 enties as gap:
+ 	 *
+-	 * 12*4(%esp) - <previous context>
+-	 * 11*4(%esp) - gap / flags
+-	 * 10*4(%esp) - gap / cs
+-	 *  9*4(%esp) - gap / ip
+-	 *  8*4(%esp) - gap / orig_eax
+-	 *  7*4(%esp) - gap / gs / function
+-	 *  6*4(%esp) - ss
+-	 *  5*4(%esp) - sp
+-	 *  4*4(%esp) - flags
+-	 *  3*4(%esp) - cs
+-	 *  2*4(%esp) - ip
+-	 *  1*4(%esp) - orig_eax
+-	 *  0*4(%esp) - gs / function
++	 * 14*4(%esp) - <previous context>
++	 * 13*4(%esp) - gap / flags
++	 * 12*4(%esp) - gap / cs
++	 * 11*4(%esp) - gap / ip
++	 * 10*4(%esp) - gap / orig_eax
++	 *  9*4(%esp) - gap / gs / function
++	 *  8*4(%esp) - gap / fs
++	 *  7*4(%esp) - ss
++	 *  6*4(%esp) - sp
++	 *  5*4(%esp) - flags
++	 *  4*4(%esp) - cs
++	 *  3*4(%esp) - ip
++	 *  2*4(%esp) - orig_eax
++	 *  1*4(%esp) - gs / function
++	 *  0*4(%esp) - fs
+ 	 */
+ 
+ 	pushl	%ss		# ss
+ 	pushl	%esp		# sp (points at ss)
+-	addl	$6*4, (%esp)	# point sp back at the previous context
+-	pushl	6*4(%esp)	# flags
+-	pushl	6*4(%esp)	# cs
+-	pushl	6*4(%esp)	# ip
+-	pushl	6*4(%esp)	# orig_eax
+-	pushl	6*4(%esp)	# gs / function
++	addl	$7*4, (%esp)	# point sp back at the previous context
++	pushl	7*4(%esp)	# flags
++	pushl	7*4(%esp)	# cs
++	pushl	7*4(%esp)	# ip
++	pushl	7*4(%esp)	# orig_eax
++	pushl	7*4(%esp)	# gs / function
++	pushl	7*4(%esp)	# fs
+ .Lfrom_usermode_no_fixup_\@:
  .endm
  
- .macro IRET_FRAME
-+	/*
-+	 * We're called with %ds, %es, %fs, and %gs from the interrupted
-+	 * frame, so we shouldn't use them.  Also, we may be in ESPFIX
-+	 * mode and therefore have a nonzero SS base and an offset ESP,
-+	 * so any attempt to access the stack needs to use SS.  (except for
-+	 * accesses through %esp, which automatically use SS.)
-+	 */
- 	testl $CS_FROM_KERNEL, 1*4(%esp)
- 	jz .Lfinished_frame_\@
- 
-@@ -276,20 +285,20 @@
- 	movl	5*4(%esp), %eax		# (modified) regs->sp
- 
- 	movl	4*4(%esp), %ecx		# flags
--	movl	%ecx, -4(%eax)
-+	movl	%ecx, %ss:-1*4(%eax)
- 
- 	movl	3*4(%esp), %ecx		# cs
- 	andl	$0x0000ffff, %ecx
--	movl	%ecx, -8(%eax)
-+	movl	%ecx, %ss:-2*4(%eax)
- 
- 	movl	2*4(%esp), %ecx		# ip
--	movl	%ecx, -12(%eax)
-+	movl	%ecx, %ss:-3*4(%eax)
- 
- 	movl	1*4(%esp), %ecx		# eax
--	movl	%ecx, -16(%eax)
-+	movl	%ecx, %ss:-4*4(%eax)
- 
- 	popl	%ecx
--	lea	-16(%eax), %esp
-+	lea	-4*4(%eax), %esp
- 	popl	%eax
- .Lfinished_frame_\@:
- .endm
+@@ -308,8 +312,8 @@
+ .if \skip_gs == 0
+ 	PUSH_GS
+ .endif
+-	FIXUP_FRAME
+ 	pushl	%fs
++	FIXUP_FRAME
+ 	pushl	%es
+ 	pushl	%ds
+ 	pushl	\pt_regs_ax
 
 
