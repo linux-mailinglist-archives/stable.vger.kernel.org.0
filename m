@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0126F10BFC9
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D075C10BF54
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727627AbfK0Uec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:34:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34956 "EHLO mail.kernel.org"
+        id S1728300AbfK0Ujn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:39:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727615AbfK0Uea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:34:30 -0500
+        id S1728149AbfK0Ujn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:39:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E714521556;
-        Wed, 27 Nov 2019 20:34:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93B8C20863;
+        Wed, 27 Nov 2019 20:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886869;
-        bh=tFlNYrOC3KCwkdNeWPxNBnmiaoq8RUFA4FkuPLjYP9U=;
+        s=default; t=1574887183;
+        bh=yaJoh/7AyG+itmJ2dxC94svgjgemr1sqw9xtDGBeWVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sEs+GtmcJsMREQgCWbq4O6saPMHIAIjXotEHe2QLAarfORqH3ww9xjAqQZ2ZzP8DB
-         n1MUEyaI4hoKnA2Xsj6NwRuilDbaCTyH/dB2ZzTxsCdqxvVCaU4C7tyJXN2JDB4KCp
-         KpHU+Ozti1SzjZdFeDgvbkVcDyRXx+e24Bu3WX68=
+        b=m3jnV+4lhUNGzXZ8BNFzZFvo1RgN9+nRZ3SXLjhclfHvEjclH1kFCRafM7AQ3rjpP
+         2JaEsLj7e5cxTL/WuOgFlB1zrns+Ea3tZM/JKAmPHX6nrgTKxznfVUw2N3MlHzVJM8
+         UnJgucRpDqB19q+xwZ9B6cnhqfyzGE94UTlquRr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Thomas Voegtle <tv@lio96.de>, Changwei Ge <gechangwei@live.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 005/132] Revert "fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()"
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 013/151] ALSA: isight: fix leak of reference to firewire unit in error path of .probe callback
 Date:   Wed, 27 Nov 2019 21:29:56 +0100
-Message-Id: <20191127202902.263557775@linuxfoundation.org>
+Message-Id: <20191127203008.996732126@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,111 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 94b07b6f9e2e996afff7395de6b35f34f4cb10bf upstream.
+[ Upstream commit 51e68fb0929c29e47e9074ca3e99ffd6021a1c5a ]
 
-This reverts commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d.
+In some error paths, reference count of firewire unit is not decreased.
+This commit fixes the bug.
 
-Commit 56e94ea132bb ("fs: ocfs2: fix possible null-pointer dereferences
-in ocfs2_xa_prepare_entry()") introduces a regression that fail to
-create directory with mount option user_xattr and acl.  Actually the
-reported NULL pointer dereference case can be correctly handled by
-loc->xl_ops->xlo_add_entry(), so revert it.
-
-Link: http://lkml.kernel.org/r/1573624916-83825-1-git-send-email-joseph.qi@linux.alibaba.com
-Fixes: 56e94ea132bb ("fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Thomas Voegtle <tv@lio96.de>
-Acked-by: Changwei Ge <gechangwei@live.cn>
-Cc: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 5b14ec25a79b('ALSA: firewire: release reference count of firewire unit in .remove callback of bus driver')
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/xattr.c |   56 ++++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 23 deletions(-)
+ sound/firewire/isight.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/fs/ocfs2/xattr.c
-+++ b/fs/ocfs2/xattr.c
-@@ -1475,6 +1475,18 @@ static int ocfs2_xa_check_space(struct o
- 	return loc->xl_ops->xlo_check_space(loc, xi);
+diff --git a/sound/firewire/isight.c b/sound/firewire/isight.c
+index 48d6dca471c6b..6c8daf5b391ff 100644
+--- a/sound/firewire/isight.c
++++ b/sound/firewire/isight.c
+@@ -639,7 +639,7 @@ static int isight_probe(struct fw_unit *unit,
+ 	if (!isight->audio_base) {
+ 		dev_err(&unit->device, "audio unit base not found\n");
+ 		err = -ENXIO;
+-		goto err_unit;
++		goto error;
+ 	}
+ 	fw_iso_resources_init(&isight->resources, unit);
+ 
+@@ -668,12 +668,12 @@ static int isight_probe(struct fw_unit *unit,
+ 	dev_set_drvdata(&unit->device, isight);
+ 
+ 	return 0;
+-
+-err_unit:
+-	fw_unit_put(isight->unit);
+-	mutex_destroy(&isight->mutex);
+ error:
+ 	snd_card_free(card);
++
++	mutex_destroy(&isight->mutex);
++	fw_unit_put(isight->unit);
++
+ 	return err;
  }
  
-+static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
-+{
-+	loc->xl_ops->xlo_add_entry(loc, name_hash);
-+	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
-+	/*
-+	 * We can't leave the new entry's xe_name_offset at zero or
-+	 * add_namevalue() will go nuts.  We set it to the size of our
-+	 * storage so that it can never be less than any other entry.
-+	 */
-+	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
-+}
-+
- static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
- 				   struct ocfs2_xattr_info *xi)
- {
-@@ -2106,31 +2118,29 @@ static int ocfs2_xa_prepare_entry(struct
- 	if (rc)
- 		goto out;
- 
--	if (!loc->xl_entry) {
--		rc = -EINVAL;
--		goto out;
--	}
--
--	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
--		orig_value_size = loc->xl_entry->xe_value_size;
--		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
--		if (rc)
--			goto out;
--		goto alloc_value;
--	}
-+	if (loc->xl_entry) {
-+		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
-+			orig_value_size = loc->xl_entry->xe_value_size;
-+			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
-+			if (rc)
-+				goto out;
-+			goto alloc_value;
-+		}
- 
--	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
--		orig_clusters = ocfs2_xa_value_clusters(loc);
--		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
--		if (rc) {
--			mlog_errno(rc);
--			ocfs2_xa_cleanup_value_truncate(loc,
--							"overwriting",
--							orig_clusters);
--			goto out;
-+		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
-+			orig_clusters = ocfs2_xa_value_clusters(loc);
-+			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
-+			if (rc) {
-+				mlog_errno(rc);
-+				ocfs2_xa_cleanup_value_truncate(loc,
-+								"overwriting",
-+								orig_clusters);
-+				goto out;
-+			}
- 		}
--	}
--	ocfs2_xa_wipe_namevalue(loc);
-+		ocfs2_xa_wipe_namevalue(loc);
-+	} else
-+		ocfs2_xa_add_entry(loc, name_hash);
- 
- 	/*
- 	 * If we get here, we have a blank entry.  Fill it.  We grow our
+-- 
+2.20.1
+
 
 
