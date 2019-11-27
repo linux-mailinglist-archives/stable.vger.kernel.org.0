@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FDD810BF16
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5EBC10BE23
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729839AbfK0Vkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:40:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48930 "EHLO mail.kernel.org"
+        id S1728054AbfK0VeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:34:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728800AbfK0Umb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:42:31 -0500
+        id S1727217AbfK0UvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:51:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2F7C21787;
-        Wed, 27 Nov 2019 20:42:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1A93218A3;
+        Wed, 27 Nov 2019 20:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887351;
-        bh=8Kv7niCE8O2wh2JRY/jGBmWd1SUqQ/uG75wLCFEuY+c=;
+        s=default; t=1574887877;
+        bh=EbbfNz2ZlOjuyLlZQPVnXYerkBR9NFHbNmfKODEnyRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iaBhIPW6ryjmqkWRw+1/OG1rmmWlgROGuj6nNJBFqNZ1/Ce3xV5R281EtnVK6g/dx
-         0dFHbvTcQ7Bq8wAP9kKwEsDn1SMqoA/mgrywybqg4iXv/wtiqw05Zpfts8Teng9wKb
-         D4MLJdqR2M1JKbXECeIm1hejCBksvmcBhWEtS/+4=
+        b=gsMP067vnv8Cfuw9XZgiWNwPoCWvBDlTgDQ2c/dIPcIPirB65QH6XfVtKZREx3b5m
+         VnFHzfv9YHX0T+2jHiil8/5q0FuCULbIq/Yl69FEnxOGJbc1qcvdOkUjyMACu8R67q
+         rJ2K80BbKsTWF/cRu2vRHqsERCLWNbyAFORaMT5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "=?UTF-8?q?Ernesto=20A . =20Fern=C3=A1ndez?=" 
-        <ernesto.mnd.fernandez@gmail.com>,
-        Vyacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar.Eggemann@arm.com,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, patrick.bellasi@arm.com,
+        vincent.guittot@linaro.org, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 078/151] hfs: update timestamp on truncate()
+Subject: [PATCH 4.14 128/211] sched/fair: Dont increase sd->balance_interval on newidle balance
 Date:   Wed, 27 Nov 2019 21:31:01 +0100
-Message-Id: <20191127203035.544961197@linuxfoundation.org>
+Message-Id: <20191127203106.189140425@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,36 +49,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 8cd3cb5061730af085a3f9890a3352f162b4e20c ]
+[ Upstream commit 3f130a37c442d5c4d66531b240ebe9abfef426b5 ]
 
-The vfs takes care of updating mtime on ftruncate(), but on truncate() it
-must be done by the module.
+When load_balance() fails to move some load because of task affinity,
+we end up increasing sd->balance_interval to delay the next periodic
+balance in the hopes that next time we look, that annoying pinned
+task(s) will be gone.
 
-Link: http://lkml.kernel.org/r/e1611eda2985b672ed2d8677350b4ad8c2d07e8a.1539316825.git.ernesto.mnd.fernandez@gmail.com
-Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
-Reviewed-by: Vyacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+However, idle_balance() pays no attention to sd->balance_interval, yet
+it will still lead to an increase in balance_interval in case of
+pinned tasks.
+
+If we're going through several newidle balances (e.g. we have a
+periodic task), this can lead to a huge increase of the
+balance_interval in a very small amount of time.
+
+To prevent that, don't increase the balance interval when going
+through a newidle balance.
+
+This is a similar approach to what is done in commit 58b26c4c0257
+("sched: Increment cache_nice_tries only on periodic lb"), where we
+disregard newidle balance and rely on periodic balance for more stable
+results.
+
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Dietmar.Eggemann@arm.com
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: patrick.bellasi@arm.com
+Cc: vincent.guittot@linaro.org
+Link: http://lkml.kernel.org/r/1537974727-30788-2-git-send-email-valentin.schneider@arm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/fair.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
-index f776acf2378a1..de0d6d4c46b68 100644
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -641,6 +641,8 @@ int hfs_inode_setattr(struct dentry *dentry, struct iattr * attr)
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index feeb52880d353..67433fbdcb5a4 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -8319,13 +8319,22 @@ static int load_balance(int this_cpu, struct rq *this_rq,
+ 	sd->nr_balance_failed = 0;
  
- 		truncate_setsize(inode, attr->ia_size);
- 		hfs_file_truncate(inode);
-+		inode->i_atime = inode->i_mtime = inode->i_ctime =
-+						  current_time(inode);
- 	}
- 
- 	setattr_copy(inode, attr);
+ out_one_pinned:
++	ld_moved = 0;
++
++	/*
++	 * idle_balance() disregards balance intervals, so we could repeatedly
++	 * reach this code, which would lead to balance_interval skyrocketting
++	 * in a short amount of time. Skip the balance_interval increase logic
++	 * to avoid that.
++	 */
++	if (env.idle == CPU_NEWLY_IDLE)
++		goto out;
++
+ 	/* tune up the balancing interval */
+ 	if (((env.flags & LBF_ALL_PINNED) &&
+ 			sd->balance_interval < MAX_PINNED_INTERVAL) ||
+ 			(sd->balance_interval < sd->max_interval))
+ 		sd->balance_interval *= 2;
+-
+-	ld_moved = 0;
+ out:
+ 	return ld_moved;
+ }
 -- 
 2.20.1
 
