@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 543CB10B967
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA34D10B7EC
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728996AbfK0Uww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:52:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40766 "EHLO mail.kernel.org"
+        id S1728705AbfK0UiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:38:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728367AbfK0Uwv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:52:51 -0500
+        id S1727813AbfK0UiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7DD9218BA;
-        Wed, 27 Nov 2019 20:52:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50B4A21772;
+        Wed, 27 Nov 2019 20:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887970;
-        bh=2co9lHg6uzJ9YvHrVxx5Q7MS4Y0UybG2r3nFMozNXKE=;
+        s=default; t=1574887092;
+        bh=yjg5mbcT2qayoGiXGeuj4+AiaU2IiMtfvk/0rI/sPF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7qXflnD5vBxeOFJiipXU/VM5XKQ4IPrPD7Wl4uX5xQSH+aD9KLZi7vTwWTrJVeiE
-         BTnYJTekcx6ToWLkfGdxnn2IbaPJJOqOzpmkMDYyEt7JaLb8HcRhNrz311JmSVIm7T
-         wIEtuKVpadiZN+xAGeGfEGzlHy/GAeaXueNG9WEI=
+        b=ad+oVc0xmlkOVwbgR+SvEI2aMhmB1mI9wwz8Ugymg7WON7z40RpgIfe0TWSnZXK1H
+         lmZrRex2yCY9sknUljTVN4W4maKh+2Awb6Pic/AAFGCjnaLVr/JTHLdo5/bMlFNof8
+         LXUqKveaiCo6e6FAWkM70rkyAIUatEl1sitzKxd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Borowski <kilobyte@angband.pl>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        David Hildenbrand <david@redhat.com>
-Subject: [PATCH 4.14 165/211] KVM: MMU: Do not treat ZONE_DEVICE pages as being reserved
-Date:   Wed, 27 Nov 2019 21:31:38 +0100
-Message-Id: <20191127203109.490545555@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        linux-doc@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Tyler Hicks <tyhicks@canonical.com>, x86-ml <x86@kernel.org>
+Subject: [PATCH 4.4 108/132] x86/speculation: Fix incorrect MDS/TAA mitigation status
+Date:   Wed, 27 Nov 2019 21:31:39 +0100
+Message-Id: <20191127203027.431819899@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,134 +53,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Waiman Long <longman@redhat.com>
 
-commit a78986aae9b2988f8493f9f65a587ee433e83bc3 upstream.
+commit 64870ed1b12e235cfca3f6c6da75b542c973ff78 upstream.
 
-Explicitly exempt ZONE_DEVICE pages from kvm_is_reserved_pfn() and
-instead manually handle ZONE_DEVICE on a case-by-case basis.  For things
-like page refcounts, KVM needs to treat ZONE_DEVICE pages like normal
-pages, e.g. put pages grabbed via gup().  But for flows such as setting
-A/D bits or shifting refcounts for transparent huge pages, KVM needs to
-to avoid processing ZONE_DEVICE pages as the flows in question lack the
-underlying machinery for proper handling of ZONE_DEVICE pages.
+For MDS vulnerable processors with TSX support, enabling either MDS or
+TAA mitigations will enable the use of VERW to flush internal processor
+buffers at the right code path. IOW, they are either both mitigated
+or both not. However, if the command line options are inconsistent,
+the vulnerabilites sysfs files may not report the mitigation status
+correctly.
 
-This fixes a hang reported by Adam Borowski[*] in dev_pagemap_cleanup()
-when running a KVM guest backed with /dev/dax memory, as KVM straight up
-doesn't put any references to ZONE_DEVICE pages acquired by gup().
+For example, with only the "mds=off" option:
 
-Note, Dan Williams proposed an alternative solution of doing put_page()
-on ZONE_DEVICE pages immediately after gup() in order to simplify the
-auditing needed to ensure is_zone_device_page() is called if and only if
-the backing device is pinned (via gup()).  But that approach would break
-kvm_vcpu_{un}map() as KVM requires the page to be pinned from map() 'til
-unmap() when accessing guest memory, unlike KVM's secondary MMU, which
-coordinates with mmu_notifier invalidations to avoid creating stale
-page references, i.e. doesn't rely on pages being pinned.
+  vulnerabilities/mds:Vulnerable; SMT vulnerable
+  vulnerabilities/tsx_async_abort:Mitigation: Clear CPU buffers; SMT vulnerable
 
-[*] http://lkml.kernel.org/r/20190919115547.GA17963@angband.pl
+The mds vulnerabilities file has wrong status in this case. Similarly,
+the taa vulnerability file will be wrong with mds mitigation on, but
+taa off.
 
-Reported-by: Adam Borowski <kilobyte@angband.pl>
-Analyzed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Dan Williams <dan.j.williams@intel.com>
-Cc: stable@vger.kernel.org
-Fixes: 3565fce3a659 ("mm, x86: get_user_pages() for dax mappings")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sean: backport to 4.x; resolve conflict in mmu.c]
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Change taa_select_mitigation() to sync up the two mitigation status
+and have them turned off if both "mds=off" and "tsx_async_abort=off"
+are present.
+
+Update documentation to emphasize the fact that both "mds=off" and
+"tsx_async_abort=off" have to be specified together for processors that
+are affected by both TAA and MDS to be effective.
+
+ [ bp: Massage and add kernel-parameters.txt change too. ]
+
+Fixes: 1b42f017415b ("x86/speculation/taa: Add mitigation for TSX Async Abort")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: linux-doc@vger.kernel.org
+Cc: Mark Gross <mgross@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Cc: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Tyler Hicks <tyhicks@canonical.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20191115161445.30809-2-longman@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kvm/mmu.c       |    8 ++++----
- include/linux/kvm_host.h |    1 +
- virt/kvm/kvm_main.c      |   26 +++++++++++++++++++++++---
- 3 files changed, 28 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -3177,7 +3177,7 @@ static void transparent_hugepage_adjust(
- 	 * here.
+---
+ Documentation/hw-vuln/mds.rst             |    7 +++++--
+ Documentation/hw-vuln/tsx_async_abort.rst |    5 ++++-
+ Documentation/kernel-parameters.txt       |   11 +++++++++++
+ arch/x86/kernel/cpu/bugs.c                |   17 +++++++++++++++--
+ 4 files changed, 35 insertions(+), 5 deletions(-)
+
+--- a/Documentation/hw-vuln/mds.rst
++++ b/Documentation/hw-vuln/mds.rst
+@@ -262,8 +262,11 @@ time with the option "mds=". The valid a
+ 
+   ============  =============================================================
+ 
+-Not specifying this option is equivalent to "mds=full".
+-
++Not specifying this option is equivalent to "mds=full". For processors
++that are affected by both TAA (TSX Asynchronous Abort) and MDS,
++specifying just "mds=off" without an accompanying "tsx_async_abort=off"
++will have no effect as the same mitigation is used for both
++vulnerabilities.
+ 
+ Mitigation selection guide
+ --------------------------
+--- a/Documentation/hw-vuln/tsx_async_abort.rst
++++ b/Documentation/hw-vuln/tsx_async_abort.rst
+@@ -169,7 +169,10 @@ the option "tsx_async_abort=". The valid
+                 systems will have no effect.
+   ============  =============================================================
+ 
+-Not specifying this option is equivalent to "tsx_async_abort=full".
++Not specifying this option is equivalent to "tsx_async_abort=full". For
++processors that are affected by both TAA and MDS, specifying just
++"tsx_async_abort=off" without an accompanying "mds=off" will have no
++effect as the same mitigation is used for both vulnerabilities.
+ 
+ The kernel command line also allows to control the TSX feature using the
+ parameter "tsx=" on CPUs which support TSX control. MSR_IA32_TSX_CTRL is used
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -2054,6 +2054,12 @@ bytes respectively. Such letter suffixes
+ 			full    - Enable MDS mitigation on vulnerable CPUs
+ 			off     - Unconditionally disable MDS mitigation
+ 
++			On TAA-affected machines, mds=off can be prevented by
++			an active TAA mitigation as both vulnerabilities are
++			mitigated with the same mechanism so in order to disable
++			this mitigation, you need to specify tsx_async_abort=off
++			too.
++
+ 			Not specifying this option is equivalent to
+ 			mds=full.
+ 
+@@ -4105,6 +4111,11 @@ bytes respectively. Such letter suffixes
+ 
+ 			off        - Unconditionally disable TAA mitigation
+ 
++			On MDS-affected machines, tsx_async_abort=off can be
++			prevented by an active MDS mitigation as both vulnerabilities
++			are mitigated with the same mechanism so in order to disable
++			this mitigation, you need to specify mds=off too.
++
+ 			Not specifying this option is equivalent to
+ 			tsx_async_abort=full.  On CPUs which are MDS affected
+ 			and deploy MDS mitigation, TAA mitigation is not
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -283,8 +283,12 @@ static void __init taa_select_mitigation
+ 		return;
+ 	}
+ 
+-	/* TAA mitigation is turned off on the cmdline (tsx_async_abort=off) */
+-	if (taa_mitigation == TAA_MITIGATION_OFF)
++	/*
++	 * TAA mitigation via VERW is turned off if both
++	 * tsx_async_abort=off and mds=off are specified.
++	 */
++	if (taa_mitigation == TAA_MITIGATION_OFF &&
++	    mds_mitigation == MDS_MITIGATION_OFF)
+ 		goto out;
+ 
+ 	if (boot_cpu_has(X86_FEATURE_MD_CLEAR))
+@@ -315,6 +319,15 @@ static void __init taa_select_mitigation
  	 */
- 	if (!is_error_noslot_pfn(pfn) && !kvm_is_reserved_pfn(pfn) &&
--	    level == PT_PAGE_TABLE_LEVEL &&
-+	    !kvm_is_zone_device_pfn(pfn) && level == PT_PAGE_TABLE_LEVEL &&
- 	    PageTransCompoundMap(pfn_to_page(pfn)) &&
- 	    !mmu_gfn_lpage_is_disallowed(vcpu, gfn, PT_DIRECTORY_LEVEL)) {
- 		unsigned long mask;
-@@ -5344,9 +5344,9 @@ restart:
- 		 * the guest, and the guest page table is using 4K page size
- 		 * mapping if the indirect sp has level = 1.
- 		 */
--		if (sp->role.direct &&
--			!kvm_is_reserved_pfn(pfn) &&
--			PageTransCompoundMap(pfn_to_page(pfn))) {
-+		if (sp->role.direct && !kvm_is_reserved_pfn(pfn) &&
-+		    !kvm_is_zone_device_pfn(pfn) &&
-+		    PageTransCompoundMap(pfn_to_page(pfn))) {
- 			drop_spte(kvm, sptep);
- 			need_tlb_flush = 1;
- 			goto restart;
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -890,6 +890,7 @@ int kvm_cpu_has_pending_timer(struct kvm
- void kvm_vcpu_kick(struct kvm_vcpu *vcpu);
+ 	static_branch_enable(&mds_user_clear);
  
- bool kvm_is_reserved_pfn(kvm_pfn_t pfn);
-+bool kvm_is_zone_device_pfn(kvm_pfn_t pfn);
- 
- struct kvm_irq_ack_notifier {
- 	struct hlist_node link;
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -142,10 +142,30 @@ __weak void kvm_arch_mmu_notifier_invali
- {
- }
- 
-+bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
-+{
 +	/*
-+	 * The metadata used by is_zone_device_page() to determine whether or
-+	 * not a page is ZONE_DEVICE is guaranteed to be valid if and only if
-+	 * the device has been pinned, e.g. by get_user_pages().  WARN if the
-+	 * page_count() is zero to help detect bad usage of this helper.
++	 * Update MDS mitigation, if necessary, as the mds_user_clear is
++	 * now enabled for TAA mitigation.
 +	 */
-+	if (!pfn_valid(pfn) || WARN_ON_ONCE(!page_count(pfn_to_page(pfn))))
-+		return false;
-+
-+	return is_zone_device_page(pfn_to_page(pfn));
-+}
-+
- bool kvm_is_reserved_pfn(kvm_pfn_t pfn)
- {
-+	/*
-+	 * ZONE_DEVICE pages currently set PG_reserved, but from a refcounting
-+	 * perspective they are "normal" pages, albeit with slightly different
-+	 * usage rules.
-+	 */
- 	if (pfn_valid(pfn))
--		return PageReserved(pfn_to_page(pfn));
-+		return PageReserved(pfn_to_page(pfn)) &&
-+		       !kvm_is_zone_device_pfn(pfn);
- 
- 	return true;
++	if (mds_mitigation == MDS_MITIGATION_OFF &&
++	    boot_cpu_has_bug(X86_BUG_MDS)) {
++		mds_mitigation = MDS_MITIGATION_FULL;
++		mds_select_mitigation();
++	}
+ out:
+ 	pr_info("%s\n", taa_strings[taa_mitigation]);
  }
-@@ -1730,7 +1750,7 @@ static void kvm_release_pfn_dirty(kvm_pf
- 
- void kvm_set_pfn_dirty(kvm_pfn_t pfn)
- {
--	if (!kvm_is_reserved_pfn(pfn)) {
-+	if (!kvm_is_reserved_pfn(pfn) && !kvm_is_zone_device_pfn(pfn)) {
- 		struct page *page = pfn_to_page(pfn);
- 
- 		if (!PageReserved(page))
-@@ -1741,7 +1761,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
- 
- void kvm_set_pfn_accessed(kvm_pfn_t pfn)
- {
--	if (!kvm_is_reserved_pfn(pfn))
-+	if (!kvm_is_reserved_pfn(pfn) && !kvm_is_zone_device_pfn(pfn))
- 		mark_page_accessed(pfn_to_page(pfn));
- }
- EXPORT_SYMBOL_GPL(kvm_set_pfn_accessed);
 
 
