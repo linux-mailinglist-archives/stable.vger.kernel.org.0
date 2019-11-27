@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1524E10B8DA
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1B3010B8DE
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730006AbfK0Urc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:47:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60412 "EHLO mail.kernel.org"
+        id S1729300AbfK0Urj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:47:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729995AbfK0Urb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:47:31 -0500
+        id S1728115AbfK0Uri (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:47:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E512B217C3;
-        Wed, 27 Nov 2019 20:47:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EECE21843;
+        Wed, 27 Nov 2019 20:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887650;
-        bh=pHdX6CY6Rf7zrpKNhcJf+fkTXPMjxTYy8EVKOPNPvA4=;
+        s=default; t=1574887657;
+        bh=I7BJNofsoP6hl8a//GDoTm7cBtYa5RqLyPJ2jwXpwQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4sI+P3YmDi9KdUKQA04RZma9oI18Qik8dE0q/fzcveLsVeA8sgIde2oOJlDhLPW+
-         sy9FX1zciYwsq+EjvwPs5fPkIM6N2TE964GlZvmWmpwvbJfVQEMUpSIiZj6a50lrAN
-         HFsSAgdhzq3iB6hP0HOcIRgzX2utmBPCYX7o0ztM=
+        b=FiJa4tIwAx/t7dpJFRRk2xS3Acqpb6OqMkxej9N+3CY86vRDFC8hahaj51W/4O61t
+         NcQHn+D0GyuI4179jEnZqcPPWOJw1cygQuYvB82LW1iLyEt47LwkW0BG2s1AAfze9l
+         48ZqlQXHs4tqMufliggM01+acVbXHeNzFYc75p+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Rahul Verma <rahul.verma@cavium.com>,
+        Ariel Elior <ariel.elior@cavium.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 040/211] pwm: lpss: Only set update bit if we are actually changing the settings
-Date:   Wed, 27 Nov 2019 21:29:33 +0100
-Message-Id: <20191127203056.021797006@linuxfoundation.org>
+Subject: [PATCH 4.14 042/211] qed: Align local and global PTT to propagate through the APIs.
+Date:   Wed, 27 Nov 2019 21:29:35 +0100
+Message-Id: <20191127203058.099147480@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -44,94 +45,199 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rahul Verma <Rahul.Verma@cavium.com>
 
-[ Upstream commit 2153bbc12f77fb2203276befc0f0dddbfb023bb1 ]
+[ Upstream commit 706d08913d1f68610c32b4a001026aa989878dd9 ]
 
-According to the datasheet the update bit must be set if the on-time-div
-or the base-unit changes.
+    Align the use of local PTT to propagate through the qed_mcp* API's.
+    Global ptt should not be used.
 
-Now that we properly order device resume on Cherry Trail so that the GFX0
-_PS0 method no longer exits with an error, we end up with a sequence of
-events where we are writing the same values twice in a row.
+    Register access should be done through layers. Register address is
+    mapped into a PTT, PF translation table. Several interface functions
+    require a PTT to direct read/write into register. There is a pool of
+    PTT maintained, and several PTT are used simultaneously to access
+    device registers in different flows. Same PTT should not be used in
+    flows that can run concurrently.
+    To avoid running out of PTT resources, too many PTT should not be
+    acquired without releasing them. Every PF has a global PTT, which is
+    used throughout the life of PF, in most important flows for register
+    access. Generic functions acquire the PTT locally and release after
+    the use. This patch aligns the use of Global PTT and Local PTT
+    accordingly.
 
-First the _PS0 method restores the duty cycle of 0% the GPU driver set
-on suspend and then the GPU driver first updates just the enabled bit in
-the pwm_state from 0 to 1, causing us to write the same values again,
-before restoring the pre-suspend duty-cycle in a separate pwm_apply call.
-
-When writing the update bit the second time, without changing any of
-the values the update bit clears immediately / instantly, instead of
-staying 1 for a while as usual. After this the next setting of the update
-bit seems to be ignored, causing the restoring of the pre-suspend
-duty-cycle to not get applied. This makes the backlight come up with
-a 0% dutycycle after suspend/resume.
-
-Any further brightness changes after this do work.
-
-This commit moves the setting of the update bit into pwm_lpss_prepare()
-and only sets the bit if we have actually changed any of the values.
-
-This avoids the setting of the update bit the second time we configure
-the PWM to 0% dutycycle, this fixes the backlight coming up with 0%
-duty-cycle after a suspend/resume.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Rahul Verma <rahul.verma@cavium.com>
+Signed-off-by: Ariel Elior <ariel.elior@cavium.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpss.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed.h      |  2 +-
+ drivers/net/ethernet/qlogic/qed/qed_main.c | 22 ++++++++++++++----
+ drivers/net/ethernet/qlogic/qed/qed_mcp.c  | 27 ++++++++++------------
+ drivers/net/ethernet/qlogic/qed/qed_mcp.h  |  5 ++--
+ drivers/net/ethernet/qlogic/qed/qed_vf.c   |  2 +-
+ 5 files changed, 35 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/pwm/pwm-lpss.c b/drivers/pwm/pwm-lpss.c
-index 4721a264bac25..1e69c1c9ec096 100644
---- a/drivers/pwm/pwm-lpss.c
-+++ b/drivers/pwm/pwm-lpss.c
-@@ -97,7 +97,7 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
- 	unsigned long long on_time_div;
- 	unsigned long c = lpwm->info->clk_rate, base_unit_range;
- 	unsigned long long base_unit, freq = NSEC_PER_SEC;
--	u32 ctrl;
-+	u32 orig_ctrl, ctrl;
- 
- 	do_div(freq, period_ns);
- 
-@@ -114,13 +114,17 @@ static void pwm_lpss_prepare(struct pwm_lpss_chip *lpwm, struct pwm_device *pwm,
- 	do_div(on_time_div, period_ns);
- 	on_time_div = 255ULL - on_time_div;
- 
--	ctrl = pwm_lpss_read(pwm);
-+	orig_ctrl = ctrl = pwm_lpss_read(pwm);
- 	ctrl &= ~PWM_ON_TIME_DIV_MASK;
- 	ctrl &= ~(base_unit_range << PWM_BASE_UNIT_SHIFT);
- 	base_unit &= base_unit_range;
- 	ctrl |= (u32) base_unit << PWM_BASE_UNIT_SHIFT;
- 	ctrl |= on_time_div;
--	pwm_lpss_write(pwm, ctrl);
-+
-+	if (orig_ctrl != ctrl) {
-+		pwm_lpss_write(pwm, ctrl);
-+		pwm_lpss_write(pwm, ctrl | PWM_SW_UPDATE);
-+	}
+diff --git a/drivers/net/ethernet/qlogic/qed/qed.h b/drivers/net/ethernet/qlogic/qed/qed.h
+index 91003bc6f00bd..6c4714a8b54ce 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed.h
++++ b/drivers/net/ethernet/qlogic/qed/qed.h
+@@ -829,7 +829,7 @@ u16 qed_get_cm_pq_idx_vf(struct qed_hwfn *p_hwfn, u16 vf);
+ /* Prototypes */
+ int qed_fill_dev_info(struct qed_dev *cdev,
+ 		      struct qed_dev_info *dev_info);
+-void qed_link_update(struct qed_hwfn *hwfn);
++void qed_link_update(struct qed_hwfn *hwfn, struct qed_ptt *ptt);
+ u32 qed_unzip_data(struct qed_hwfn *p_hwfn,
+ 		   u32 input_len, u8 *input_buf,
+ 		   u32 max_size, u8 *unzip_buf);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
+index 557332f1f886c..52e747fd9c839 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_main.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
+@@ -1389,6 +1389,7 @@ static int qed_get_link_data(struct qed_hwfn *hwfn,
  }
  
- static inline void pwm_lpss_cond_enable(struct pwm_device *pwm, bool cond)
-@@ -144,7 +148,6 @@ static int pwm_lpss_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 				return ret;
- 			}
- 			pwm_lpss_prepare(lpwm, pwm, state->duty_cycle, state->period);
--			pwm_lpss_write(pwm, pwm_lpss_read(pwm) | PWM_SW_UPDATE);
- 			pwm_lpss_cond_enable(pwm, lpwm->info->bypass == false);
- 			ret = pwm_lpss_wait_for_update(pwm);
- 			if (ret) {
-@@ -157,7 +160,6 @@ static int pwm_lpss_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 			if (ret)
- 				return ret;
- 			pwm_lpss_prepare(lpwm, pwm, state->duty_cycle, state->period);
--			pwm_lpss_write(pwm, pwm_lpss_read(pwm) | PWM_SW_UPDATE);
- 			return pwm_lpss_wait_for_update(pwm);
- 		}
- 	} else if (pwm_is_enabled(pwm)) {
+ static void qed_fill_link(struct qed_hwfn *hwfn,
++			  struct qed_ptt *ptt,
+ 			  struct qed_link_output *if_link)
+ {
+ 	struct qed_mcp_link_params params;
+@@ -1469,7 +1470,7 @@ static void qed_fill_link(struct qed_hwfn *hwfn,
+ 
+ 	/* TODO - fill duplex properly */
+ 	if_link->duplex = DUPLEX_FULL;
+-	qed_mcp_get_media_type(hwfn->cdev, &media_type);
++	qed_mcp_get_media_type(hwfn, ptt, &media_type);
+ 	if_link->port = qed_get_port_type(media_type);
+ 
+ 	if_link->autoneg = params.speed.autoneg;
+@@ -1525,21 +1526,34 @@ static void qed_fill_link(struct qed_hwfn *hwfn,
+ static void qed_get_current_link(struct qed_dev *cdev,
+ 				 struct qed_link_output *if_link)
+ {
++	struct qed_hwfn *hwfn;
++	struct qed_ptt *ptt;
+ 	int i;
+ 
+-	qed_fill_link(&cdev->hwfns[0], if_link);
++	hwfn = &cdev->hwfns[0];
++	if (IS_PF(cdev)) {
++		ptt = qed_ptt_acquire(hwfn);
++		if (ptt) {
++			qed_fill_link(hwfn, ptt, if_link);
++			qed_ptt_release(hwfn, ptt);
++		} else {
++			DP_NOTICE(hwfn, "Failed to fill link; No PTT\n");
++		}
++	} else {
++		qed_fill_link(hwfn, NULL, if_link);
++	}
+ 
+ 	for_each_hwfn(cdev, i)
+ 		qed_inform_vf_link_state(&cdev->hwfns[i]);
+ }
+ 
+-void qed_link_update(struct qed_hwfn *hwfn)
++void qed_link_update(struct qed_hwfn *hwfn, struct qed_ptt *ptt)
+ {
+ 	void *cookie = hwfn->cdev->ops_cookie;
+ 	struct qed_common_cb_ops *op = hwfn->cdev->protocol_ops.common;
+ 	struct qed_link_output if_link;
+ 
+-	qed_fill_link(hwfn, &if_link);
++	qed_fill_link(hwfn, ptt, &if_link);
+ 	qed_inform_vf_link_state(hwfn);
+ 
+ 	if (IS_LEAD_HWFN(hwfn) && cookie)
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
+index 7938abe9a3010..ef17ca09d3038 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
+@@ -1352,7 +1352,7 @@ static void qed_mcp_handle_link_change(struct qed_hwfn *p_hwfn,
+ 	if (p_hwfn->mcp_info->capabilities & FW_MB_PARAM_FEATURE_SUPPORT_EEE)
+ 		qed_mcp_read_eee_config(p_hwfn, p_ptt, p_link);
+ 
+-	qed_link_update(p_hwfn);
++	qed_link_update(p_hwfn, p_ptt);
+ out:
+ 	spin_unlock_bh(&p_hwfn->mcp_info->link_lock);
+ }
+@@ -1722,12 +1722,10 @@ int qed_mcp_get_mbi_ver(struct qed_hwfn *p_hwfn,
+ 	return 0;
+ }
+ 
+-int qed_mcp_get_media_type(struct qed_dev *cdev, u32 *p_media_type)
++int qed_mcp_get_media_type(struct qed_hwfn *p_hwfn,
++			   struct qed_ptt *p_ptt, u32 *p_media_type)
+ {
+-	struct qed_hwfn *p_hwfn = &cdev->hwfns[0];
+-	struct qed_ptt  *p_ptt;
+-
+-	if (IS_VF(cdev))
++	if (IS_VF(p_hwfn->cdev))
+ 		return -EINVAL;
+ 
+ 	if (!qed_mcp_is_init(p_hwfn)) {
+@@ -1735,16 +1733,15 @@ int qed_mcp_get_media_type(struct qed_dev *cdev, u32 *p_media_type)
+ 		return -EBUSY;
+ 	}
+ 
+-	*p_media_type = MEDIA_UNSPECIFIED;
+-
+-	p_ptt = qed_ptt_acquire(p_hwfn);
+-	if (!p_ptt)
+-		return -EBUSY;
+-
+-	*p_media_type = qed_rd(p_hwfn, p_ptt, p_hwfn->mcp_info->port_addr +
+-			       offsetof(struct public_port, media_type));
++	if (!p_ptt) {
++		*p_media_type = MEDIA_UNSPECIFIED;
++		return -EINVAL;
++	}
+ 
+-	qed_ptt_release(p_hwfn, p_ptt);
++	*p_media_type = qed_rd(p_hwfn, p_ptt,
++			       p_hwfn->mcp_info->port_addr +
++			       offsetof(struct public_port,
++					media_type));
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.h b/drivers/net/ethernet/qlogic/qed/qed_mcp.h
+index f1fe5e3427ea5..8fcdb2c3e5dba 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_mcp.h
++++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.h
+@@ -284,14 +284,15 @@ int qed_mcp_get_mbi_ver(struct qed_hwfn *p_hwfn,
+  * @brief Get media type value of the port.
+  *
+  * @param cdev      - qed dev pointer
++ * @param p_ptt
+  * @param mfw_ver    - media type value
+  *
+  * @return int -
+  *      0 - Operation was successul.
+  *      -EBUSY - Operation failed
+  */
+-int qed_mcp_get_media_type(struct qed_dev      *cdev,
+-			   u32                  *media_type);
++int qed_mcp_get_media_type(struct qed_hwfn *p_hwfn,
++			   struct qed_ptt *p_ptt, u32 *media_type);
+ 
+ /**
+  * @brief General function for sending commands to the MCP
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_vf.c b/drivers/net/ethernet/qlogic/qed/qed_vf.c
+index 3220086f99dea..a2a9921b467b1 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_vf.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_vf.c
+@@ -1669,7 +1669,7 @@ static void qed_handle_bulletin_change(struct qed_hwfn *hwfn)
+ 	ops->ports_update(cookie, vxlan_port, geneve_port);
+ 
+ 	/* Always update link configuration according to bulletin */
+-	qed_link_update(hwfn);
++	qed_link_update(hwfn, NULL);
+ }
+ 
+ void qed_iov_vf_task(struct work_struct *work)
 -- 
 2.20.1
 
