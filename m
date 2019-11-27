@@ -2,109 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2AE810ACF2
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 10:54:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFFCE10AD48
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 11:10:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726181AbfK0Jy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 04:54:56 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:40208 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726133AbfK0Jyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 04:54:55 -0500
-Received: by mail-wm1-f66.google.com with SMTP id y5so6665226wmi.5
-        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 01:54:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=OhFYn38kxpOYTcrPm+Y/EegqNgkowYI0yN7z0gECY2U=;
-        b=JsUhvvBump6XmCXgypDmK7of/3YvnLdCDtAAeiz7O3hLDFF8W7iGemUaE4GS+cv8D6
-         T3v8eygIIxvP2wJzvFiQL42iEkWYIr/CeU1q93+wap8ifKqZsQKDaUq76OIe2So9fYgn
-         pGoBDNTt01+8OiOuQVi0NMaoX6IIHU9qyxLvPG7M2doeX5XdG2buyL2MvnMget7lIaJf
-         YFXZzdfYJAt2V2XsKndQH3dSyDIlRgJyCnQ6GrFa7bplwWTozfg/2Dg5xp7fwQNKrT+y
-         lswhIUOoGvSv/Ww6TIiH15ctxbrx7r7H975WIF1yNVzkIMmcMVd3MWQM5W/ek87PgTJs
-         htug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=OhFYn38kxpOYTcrPm+Y/EegqNgkowYI0yN7z0gECY2U=;
-        b=L0ADiTsoxHhjWBlIiBllMqthnhDStC3lgF/dYhXqwfhBbT8mHovjsn36R7U0L3w7Fh
-         /5Eo2nZ3+TOAAlPbq7Tfa/jV0AJ/+gVdjbql7LK+33/1a3kj79g6NyKIOdSuMsXsegsZ
-         NJ2RYuqG64Gk1BTJ21I7ho5sk+LsM3ocxgIg7EZMOWaUtU6pz0kb+MHRrO95Uvvzg0cB
-         uEO3bzenipfPGagDWn0ByFl01nEKjtmdzjwgtqpFANv80B2GjdFxt6pyPOPYZDiedDhm
-         AtUAsDnXLLckpE2PNmLlliiAXu5bnSPvP2xfkmvYvSP49H1sezpwWy2wZm/waHgDtzPu
-         AdeQ==
-X-Gm-Message-State: APjAAAWMRDG4XtgUtN6+9KfNeB1hPdzkRBzvKmUssiH04KLOMDCZzATm
-        QiD36ZeLyXl4ij2GiF0NHgaeSwNZu+s=
-X-Google-Smtp-Source: APXvYqy2BUqfd0uLt8jDNsz8zuEtFbR/K1hU7H4CN17bdfp8S+/HIbet1s/Q/CdvEMVxzSgoSWSqhA==
-X-Received: by 2002:a1c:a750:: with SMTP id q77mr3656975wme.76.1574848494085;
-        Wed, 27 Nov 2019 01:54:54 -0800 (PST)
-Received: from dell ([185.80.132.160])
-        by smtp.gmail.com with ESMTPSA id m25sm5910937wmi.46.2019.11.27.01.54.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Nov 2019 01:54:53 -0800 (PST)
-Date:   Wed, 27 Nov 2019 09:54:41 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 1/6] can: dev: can_dellink(): remove return at end of
- void function
-Message-ID: <20191127095441.GM3296@dell>
-References: <20191127072124.30445-1-lee.jones@linaro.org>
- <20191127075115.GB1821634@kroah.com>
+        id S1726191AbfK0KKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 05:10:20 -0500
+Received: from mail.avm.de ([212.42.244.94]:50690 "EHLO mail.avm.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726143AbfK0KKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 05:10:20 -0500
+X-Greylist: delayed 443 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Nov 2019 05:10:19 EST
+Received: from mail-notes.avm.de (unknown [172.16.0.1])
+        by mail.avm.de (Postfix) with ESMTP;
+        Wed, 27 Nov 2019 11:02:53 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+        t=1574848973; bh=bM7HJclnHitbSVl2mny3UXzuCplra0Tu4NKTA1ja5z0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=c0/QUa9dhOa2zDdNJps0fnC5N+Qm9LfqnZCGRk0wbPslcosCwMLE3eRB/5qBfVnx1
+         mAvR70S1TJBxTNFEN0qgwb96R2rAz8aVhfIa9EELJ1dnyD5TI1HQExne4KXDDptKXs
+         DVw4UMpHrRBR5hhvSpR8juoU+SJNwNSnDJ9fbReo=
+Received: from buildd.avm.de. ([172.16.0.225])
+          by mail-notes.avm.de (IBM Domino Release 10.0.1FP3)
+          with ESMTP id 2019112711025287-4798 ;
+          Wed, 27 Nov 2019 11:02:52 +0100 
+From:   Nicolas Schier <n.schier@avm.de>
+To:     stable@vger.kernel.org
+Cc:     Nicolas Schier <n.schier@avm.de>,
+        Guillaume Nault <g.nault@alphalink.fr>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: [PATCH 0/1] Missing l2tp patch in v4.9.y series
+Date:   Wed, 27 Nov 2019 11:02:48 +0100
+Message-Id: <cover.1574846983.git.n.schier@avm.de>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+X-MIMETrack: Itemize by SMTP Server on ANIS1/AVM(Release 10.0.1FP3|August 09, 2019) at
+ 27.11.2019 11:02:52,
+        Serialize by Router on ANIS1/AVM(Release 10.0.1FP3|August 09, 2019) at
+ 27.11.2019 11:02:52,
+        Serialize complete at 27.11.2019 11:02:52
+X-TNEFEvaluated: 1
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191127075115.GB1821634@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-purgate-ID: 149429::1574848973-000004EC-6E50139F/0/0
+X-purgate-type: clean
+X-purgate-size: 593
+X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
+X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
+X-purgate: clean
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 27 Nov 2019, Greg KH wrote:
+Hi,
 
-> On Wed, Nov 27, 2019 at 07:21:19AM +0000, Lee Jones wrote:
-> > From: Marc Kleine-Budde <mkl@pengutronix.de>
-> > 
-> > [ Upstream commit d36673f5918c8fd3533f7c0d4bac041baf39c7bb ]
-> > 
-> > This patch remove the return at the end of the void function
-> > can_dellink().
-> > 
-> > Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  drivers/net/can/dev.c | 1 -
-> >  1 file changed, 1 deletion(-)
-> > 
-> > diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
-> > index 9dd968ee792e..e0d067701edc 100644
-> > --- a/drivers/net/can/dev.c
-> > +++ b/drivers/net/can/dev.c
-> > @@ -1041,7 +1041,6 @@ static int can_newlink(struct net *src_net, struct net_device *dev,
-> >  
-> >  static void can_dellink(struct net_device *dev, struct list_head *head)
-> >  {
-> > -	return;
-> >  }
-> >  
-> >  static struct rtnl_link_ops can_link_ops __read_mostly = {
-> 
-> Also, this showed up in 5.4, so why did you not include it in all of
-> your patch series that you sent?  I can't take patches for older kernels
-> and skip newer ones for no good reason.
+the following l2tp patch originates from v4.14 and has been backported
+to 3.16.y and 4.13.y but it is missing in the 4.9.y branch
+(accidentally?).  As it applies cleanly to 4.9.y and as I couldn't find
+any mails discouraging the inclusion into 4.9, I am now asking for
+inclusion into 4.9.y.
 
-Right. I pulled it from the other branches as it wasn't suitable.
+Kind regards,
+Nicolas
 
-Looks like this was left behind.
+
+Guillaume Nault (1):
+  l2tp: don't use l2tp_tunnel_find() in l2tp_ip and l2tp_ip6
+
+ net/l2tp/l2tp_ip.c  | 24 +++++++++---------------
+ net/l2tp/l2tp_ip6.c | 24 +++++++++---------------
+ 2 files changed, 18 insertions(+), 30 deletions(-)
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.24.0
+
