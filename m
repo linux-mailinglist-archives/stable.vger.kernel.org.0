@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB5310B793
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AD2010B946
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:52:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727794AbfK0UfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:35:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35926 "EHLO mail.kernel.org"
+        id S1730520AbfK0Uvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:51:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727790AbfK0UfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:35:06 -0500
+        id S1730519AbfK0Uvl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:51:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D304420866;
-        Wed, 27 Nov 2019 20:35:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DE7221847;
+        Wed, 27 Nov 2019 20:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886905;
-        bh=QCIZeCkQ0r6C4cbohp8AQg8/ULaLDHBUimyrxqpfD38=;
+        s=default; t=1574887901;
+        bh=yBjFzhPXopZMDn2CcBcQl8G9pKCxB5RUD8DZ79AQZmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jo85GqCp7+OlHPPQXflKNnaXWex3gsuDTbHXJqsQs+QF7uJHnrsqVEZM0ujvglmrC
-         gScbm3deGhW5LjByEiP+zQbKmuhJPWdFCeyR+kkl2PUKI4RpD+1vdV1nMjnExC2//6
-         mvw5p4r1PobRuN73nu8DQfa45IYH9DlkoaSa+Jy0=
+        b=i46KiZl4Hl7Q87cVfegSrFZYYSHVgpUtXMyDw5j5M3gr1a6Y2czzahoNM/xBsgCdr
+         zk3JaZohOVVr6Dwbxdu4JFPU15mOpkdIMQbVs45o28jznFtcgoHJmaVvwtmTTEm2at
+         QiGpP3vhtmGPB4hvFUgAExuWo2MvT3B3VQAQRmWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 039/132] clk: mmp2: fix the clock id for sdh2_clk and sdh3_clk
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>,
+        Jianchao Wang <jianchao.w.wang@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 097/211] block: fix the DISCARD request merge
 Date:   Wed, 27 Nov 2019 21:30:30 +0100
-Message-Id: <20191127202935.165639162@linuxfoundation.org>
+Message-Id: <20191127203102.866467733@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Jianchao Wang <jianchao.w.wang@oracle.com>
 
-[ Upstream commit 4917fb90eec7c26dac1497ada3bd4a325f670fcc ]
+[ Upstream commit 69840466086d2248898020a08dda52732686c4e6 ]
 
-A typo that makes it impossible to get the correct clocks for
-MMP2_CLK_SDH2 and MMP2_CLK_SDH3.
+There are two cases when handle DISCARD merge.
+If max_discard_segments == 1, the bios/requests need to be contiguous
+to merge. If max_discard_segments > 1, it takes every bio as a range
+and different range needn't to be contiguous.
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Fixes: 1ec770d92a62 ("clk: mmp: add mmp2 DT support for clock driver")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+But now, attempt_merge screws this up. It always consider contiguity
+for DISCARD for the case max_discard_segments > 1 and cannot merge
+contiguous DISCARD for the case max_discard_segments == 1, because
+rq_attempt_discard_merge always returns false in this case.
+This patch fixes both of the two cases above.
+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jianchao Wang <jianchao.w.wang@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mmp/clk-of-mmp2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/blk-merge.c | 46 ++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 36 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.c
-index f261b1d292c74..8b45cb2caed1b 100644
---- a/drivers/clk/mmp/clk-of-mmp2.c
-+++ b/drivers/clk/mmp/clk-of-mmp2.c
-@@ -227,8 +227,8 @@ static struct mmp_param_gate_clk apmu_gate_clks[] = {
- 	/* The gate clocks has mux parent. */
- 	{MMP2_CLK_SDH0, "sdh0_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH0, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
- 	{MMP2_CLK_SDH1, "sdh1_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH1, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
--	{MMP2_CLK_SDH1, "sdh2_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH2, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
--	{MMP2_CLK_SDH1, "sdh3_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH3, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
-+	{MMP2_CLK_SDH2, "sdh2_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH2, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
-+	{MMP2_CLK_SDH3, "sdh3_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH3, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
- 	{MMP2_CLK_DISP0, "disp0_clk", "disp0_div", CLK_SET_RATE_PARENT, APMU_DISP0, 0x1b, 0x1b, 0x0, 0, &disp0_lock},
- 	{MMP2_CLK_DISP0_SPHY, "disp0_sphy_clk", "disp0_sphy_div", CLK_SET_RATE_PARENT, APMU_DISP0, 0x1024, 0x1024, 0x0, 0, &disp0_lock},
- 	{MMP2_CLK_DISP1, "disp1_clk", "disp1_div", CLK_SET_RATE_PARENT, APMU_DISP1, 0x1b, 0x1b, 0x0, 0, &disp1_lock},
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index 8d60a5bbcef93..94650cdf2924b 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -659,6 +659,31 @@ static void blk_account_io_merge(struct request *req)
+ 		part_stat_unlock();
+ 	}
+ }
++/*
++ * Two cases of handling DISCARD merge:
++ * If max_discard_segments > 1, the driver takes every bio
++ * as a range and send them to controller together. The ranges
++ * needn't to be contiguous.
++ * Otherwise, the bios/requests will be handled as same as
++ * others which should be contiguous.
++ */
++static inline bool blk_discard_mergable(struct request *req)
++{
++	if (req_op(req) == REQ_OP_DISCARD &&
++	    queue_max_discard_segments(req->q) > 1)
++		return true;
++	return false;
++}
++
++enum elv_merge blk_try_req_merge(struct request *req, struct request *next)
++{
++	if (blk_discard_mergable(req))
++		return ELEVATOR_DISCARD_MERGE;
++	else if (blk_rq_pos(req) + blk_rq_sectors(req) == blk_rq_pos(next))
++		return ELEVATOR_BACK_MERGE;
++
++	return ELEVATOR_NO_MERGE;
++}
+ 
+ /*
+  * For non-mq, this has to be called with the request spinlock acquired.
+@@ -676,12 +701,6 @@ static struct request *attempt_merge(struct request_queue *q,
+ 	if (req_op(req) != req_op(next))
+ 		return NULL;
+ 
+-	/*
+-	 * not contiguous
+-	 */
+-	if (blk_rq_pos(req) + blk_rq_sectors(req) != blk_rq_pos(next))
+-		return NULL;
+-
+ 	if (rq_data_dir(req) != rq_data_dir(next)
+ 	    || req->rq_disk != next->rq_disk
+ 	    || req_no_special_merge(next))
+@@ -705,11 +724,19 @@ static struct request *attempt_merge(struct request_queue *q,
+ 	 * counts here. Handle DISCARDs separately, as they
+ 	 * have separate settings.
+ 	 */
+-	if (req_op(req) == REQ_OP_DISCARD) {
++
++	switch (blk_try_req_merge(req, next)) {
++	case ELEVATOR_DISCARD_MERGE:
+ 		if (!req_attempt_discard_merge(q, req, next))
+ 			return NULL;
+-	} else if (!ll_merge_requests_fn(q, req, next))
++		break;
++	case ELEVATOR_BACK_MERGE:
++		if (!ll_merge_requests_fn(q, req, next))
++			return NULL;
++		break;
++	default:
+ 		return NULL;
++	}
+ 
+ 	/*
+ 	 * If failfast settings disagree or any of the two is already
+@@ -834,8 +861,7 @@ bool blk_rq_merge_ok(struct request *rq, struct bio *bio)
+ 
+ enum elv_merge blk_try_merge(struct request *rq, struct bio *bio)
+ {
+-	if (req_op(rq) == REQ_OP_DISCARD &&
+-	    queue_max_discard_segments(rq->q) > 1)
++	if (blk_discard_mergable(rq))
+ 		return ELEVATOR_DISCARD_MERGE;
+ 	else if (blk_rq_pos(rq) + blk_rq_sectors(rq) == bio->bi_iter.bi_sector)
+ 		return ELEVATOR_BACK_MERGE;
 -- 
 2.20.1
 
