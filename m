@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DEC10BC52
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 876C810BAC1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726593AbfK0VUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:20:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36484 "EHLO mail.kernel.org"
+        id S1732399AbfK0VGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:06:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732914AbfK0VJl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:09:41 -0500
+        id S1727351AbfK0VGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:06:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F59D216F4;
-        Wed, 27 Nov 2019 21:09:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC93021770;
+        Wed, 27 Nov 2019 21:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888981;
-        bh=IKdccxMPNFCHWURegItuiQel6JPzSusxwke9CMW8mUM=;
+        s=default; t=1574888777;
+        bh=dZvexBe28LkdVb8dTGUN63UBYjHJZ+tVRGX71Tjw5LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGLCfT6zvBRpNQ9/8ZUPNp4QPcaWcpjDuobeq6EWpupDJR+4529k9gpIfW17vEq+7
-         5OEAFp0Zs1hwS78284R5bcV+ctaKy8pUqjqXB2XGsj7tl0pEmD9mlp352evt6P1Y+s
-         +dgHdktvA4NAM2Q5IUtXeRZSmorOigY/gV/r4Z2U=
+        b=CzufqzpQ3UxIuvZAEgBB3OY0S+MytgJpsmFFoVfBx5f96FkZMU3LqB1L/ammYmHQx
+         kTyoGo982D+J+9qtzj/wqds1XUDH/w37ZknoycBljPWqlcAeMSgWyC5dlpyEMq3whK
+         xc4JcsDqWFvsJpV7z/lAu3Gw0lTUNANVmPNnJRpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
-        syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Alexander Potapenko <glider@google.com>
-Subject: [PATCH 5.3 36/95] Bluetooth: Fix invalid-free in bcsp_close()
-Date:   Wed, 27 Nov 2019 21:31:53 +0100
-Message-Id: <20191127202900.816842845@linuxfoundation.org>
+        stable@vger.kernel.org, Gang He <ghe@suse.com>,
+        Joseph Qi <jiangqi903@gmail.com>, Eric Ren <zren@suse.com>,
+        Changwei Ge <ge.changwei@h3c.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.19 264/306] ocfs2: remove ocfs2_is_o2cb_active()
+Date:   Wed, 27 Nov 2019 21:31:54 +0100
+Message-Id: <20191127203134.120845835@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +50,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Bortoli <tomasbortoli@gmail.com>
+From: Gang He <ghe@suse.com>
 
-commit cf94da6f502d8caecabd56b194541c873c8a7a3c upstream.
+commit a634644751c46238df58bbfe992e30c1668388db upstream.
 
-Syzbot reported an invalid-free that I introduced fixing a memleak.
+Remove ocfs2_is_o2cb_active().  We have similar functions to identify
+which cluster stack is being used via osb->osb_cluster_stack.
 
-bcsp_recv() also frees bcsp->rx_skb but never nullifies its value.
-Nullify bcsp->rx_skb every time it is freed.
+Secondly, the current implementation of ocfs2_is_o2cb_active() is not
+totally safe.  Based on the design of stackglue, we need to get
+ocfs2_stack_lock before using ocfs2_stack related data structures, and
+that active_stack pointer can be NULL in the case of mount failure.
 
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-Reported-by: syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Alexander Potapenko <glider@google.com>
+Link: http://lkml.kernel.org/r/1495441079-11708-1-git-send-email-ghe@suse.com
+Signed-off-by: Gang He <ghe@suse.com>
+Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
+Reviewed-by: Eric Ren <zren@suse.com>
+Acked-by: Changwei Ge <ge.changwei@h3c.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/hci_bcsp.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ocfs2/dlmglue.c   |    2 +-
+ fs/ocfs2/stackglue.c |    6 ------
+ fs/ocfs2/stackglue.h |    3 ---
+ 3 files changed, 1 insertion(+), 10 deletions(-)
 
---- a/drivers/bluetooth/hci_bcsp.c
-+++ b/drivers/bluetooth/hci_bcsp.c
-@@ -591,6 +591,7 @@ static int bcsp_recv(struct hci_uart *hu
- 			if (*ptr == 0xc0) {
- 				BT_ERR("Short BCSP packet");
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_START;
- 				bcsp->rx_count = 0;
- 			} else
-@@ -606,6 +607,7 @@ static int bcsp_recv(struct hci_uart *hu
- 			    bcsp->rx_skb->data[2])) != bcsp->rx_skb->data[3]) {
- 				BT_ERR("Error in BCSP hdr checksum");
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
- 				bcsp->rx_count = 0;
- 				continue;
-@@ -630,6 +632,7 @@ static int bcsp_recv(struct hci_uart *hu
- 				       bscp_get_crc(bcsp));
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3603,7 +3603,7 @@ static int ocfs2_downconvert_lock(struct
+ 	 * we can recover correctly from node failure. Otherwise, we may get
+ 	 * invalid LVB in LKB, but without DLM_SBF_VALNOTVALID being set.
+ 	 */
+-	if (!ocfs2_is_o2cb_active() &&
++	if (ocfs2_userspace_stack(osb) &&
+ 	    lockres->l_ops->flags & LOCK_TYPE_USES_LVB)
+ 		lvb = 1;
  
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
- 				bcsp->rx_count = 0;
- 				continue;
+--- a/fs/ocfs2/stackglue.c
++++ b/fs/ocfs2/stackglue.c
+@@ -48,12 +48,6 @@ static char ocfs2_hb_ctl_path[OCFS2_MAX_
+  */
+ static struct ocfs2_stack_plugin *active_stack;
+ 
+-inline int ocfs2_is_o2cb_active(void)
+-{
+-	return !strcmp(active_stack->sp_name, OCFS2_STACK_PLUGIN_O2CB);
+-}
+-EXPORT_SYMBOL_GPL(ocfs2_is_o2cb_active);
+-
+ static struct ocfs2_stack_plugin *ocfs2_stack_lookup(const char *name)
+ {
+ 	struct ocfs2_stack_plugin *p;
+--- a/fs/ocfs2/stackglue.h
++++ b/fs/ocfs2/stackglue.h
+@@ -298,9 +298,6 @@ void ocfs2_stack_glue_set_max_proto_vers
+ int ocfs2_stack_glue_register(struct ocfs2_stack_plugin *plugin);
+ void ocfs2_stack_glue_unregister(struct ocfs2_stack_plugin *plugin);
+ 
+-/* In ocfs2_downconvert_lock(), we need to know which stack we are using */
+-int ocfs2_is_o2cb_active(void);
+-
+ extern struct kset *ocfs2_kset;
+ 
+ #endif  /* STACKGLUE_H */
 
 
