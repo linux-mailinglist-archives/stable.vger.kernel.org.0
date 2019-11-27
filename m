@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06B1010BCA1
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3F410BC3E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729977AbfK0VFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:05:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59528 "EHLO mail.kernel.org"
+        id S1731941AbfK0VKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:10:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727372AbfK0VFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:05:43 -0500
+        id S1732979AbfK0VKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:10:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B92F21741;
-        Wed, 27 Nov 2019 21:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09C11215E5;
+        Wed, 27 Nov 2019 21:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888742;
-        bh=cY1lYufDsOuH9eYiHBsjkA1HrylGeF39ZhwcLFZxWqg=;
+        s=default; t=1574889006;
+        bh=SqMW4hCcldfW2mDahIlh2I9tVtwkezDvEFTypsIIOdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8sW0VMiH2xnpLeOpGcZjQ2WpdnLR6lK91dlvkTZi8G4JX1XYcQAmP7x2IFpQXxSz
-         Zo2avjEj6swz3f0c2aL3NEbWZYFdEc5LKpaBPhP1c4CZ2rsE8Ru6+kWTbEl3hdtJ9P
-         HvOKjEC1BDwVHoLjHvrkjWjlM8fnBnwU1RUggz6o=
+        b=qxgKPebAQgD66ZGyC4fWP4bpu5TuO2/vZdj8aQysQOrRQiCDy2wHRKP/e2rTJMdjL
+         a1rBYrRgDhAiww5a3Dko6SaoG83mwI1NJ8L81qdoMQcPQWoB5e9snNWIgNK+cbdn+h
+         56ba7L7YHMHVWerIhylI6NV0VLagcqJwRxWKQ6rM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Manning <mmanning@vyatta.att-mail.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 235/306] vrf: mark skb for multicast or link-local as enslaved to VRF
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.3 08/95] net/mlxfw: Verify FSM error code translation doesnt exceed array size
 Date:   Wed, 27 Nov 2019 21:31:25 +0100
-Message-Id: <20191127203132.178090957@linuxfoundation.org>
+Message-Id: <20191127202849.812027680@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Manning <mmanning@vyatta.att-mail.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit 6f12fa775530195a501fb090d092c637f32d0cc5 ]
+[ Upstream commit 30e9e0550bf693c94bc15827781fe42dd60be634 ]
 
-The skb for packets that are multicast or to a link-local address are
-not marked as being enslaved to a VRF, if they are received on a socket
-bound to the VRF. This is needed for ND and it is preferable for the
-kernel not to have to deal with the additional use-cases if ll or mcast
-packets are handled as enslaved. However, this does not allow service
-instances listening on unbound and bound to VRF sockets to distinguish
-the VRF used, if packets are sent as multicast or to a link-local
-address. The fix is for the VRF driver to also mark these skb as being
-enslaved to the VRF.
+Array mlxfw_fsm_state_err_str contains value to string translation, when
+values are provided by mlxfw_dev. If value is larger than
+MLXFW_FSM_STATE_ERR_MAX, return "unknown error" as expected instead of
+reading an address than exceed array size.
 
-Signed-off-by: Mike Manning <mmanning@vyatta.att-mail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Tested-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 410ed13cae39 ("Add the mlxfw module for Mellanox firmware flash process")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vrf.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/mellanox/mlxfw/mlxfw_fsm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index 9f895083bc0aa..7f5ee6bb44300 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -993,24 +993,23 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
- 				   struct sk_buff *skb)
- {
- 	int orig_iif = skb->skb_iif;
--	bool need_strict;
-+	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
-+	bool is_ndisc = ipv6_ndisc_frame(skb);
+--- a/drivers/net/ethernet/mellanox/mlxfw/mlxfw_fsm.c
++++ b/drivers/net/ethernet/mellanox/mlxfw/mlxfw_fsm.c
+@@ -66,6 +66,8 @@ retry:
+ 		return err;
  
--	/* loopback traffic; do not push through packet taps again.
--	 * Reset pkt_type for upper layers to process skb
-+	/* loopback, multicast & non-ND link-local traffic; do not push through
-+	 * packet taps again. Reset pkt_type for upper layers to process skb
- 	 */
--	if (skb->pkt_type == PACKET_LOOPBACK) {
-+	if (skb->pkt_type == PACKET_LOOPBACK || (need_strict && !is_ndisc)) {
- 		skb->dev = vrf_dev;
- 		skb->skb_iif = vrf_dev->ifindex;
- 		IP6CB(skb)->flags |= IP6SKB_L3SLAVE;
--		skb->pkt_type = PACKET_HOST;
-+		if (skb->pkt_type == PACKET_LOOPBACK)
-+			skb->pkt_type = PACKET_HOST;
- 		goto out;
- 	}
- 
--	/* if packet is NDISC or addressed to multicast or link-local
--	 * then keep the ingress interface
--	 */
--	need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
--	if (!ipv6_ndisc_frame(skb) && !need_strict) {
-+	/* if packet is NDISC then keep the ingress interface */
-+	if (!is_ndisc) {
- 		vrf_rx_stats(vrf_dev, skb->len);
- 		skb->dev = vrf_dev;
- 		skb->skb_iif = vrf_dev->ifindex;
--- 
-2.20.1
-
+ 	if (fsm_state_err != MLXFW_FSM_STATE_ERR_OK) {
++		fsm_state_err = min_t(enum mlxfw_fsm_state_err,
++				      fsm_state_err, MLXFW_FSM_STATE_ERR_MAX);
+ 		pr_err("Firmware flash failed: %s\n",
+ 		       mlxfw_fsm_state_err_str[fsm_state_err]);
+ 		NL_SET_ERR_MSG_MOD(extack, "Firmware flash failed");
 
 
