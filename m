@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAEE210B93E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:52:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B62E910B85A
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:42:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730465AbfK0UvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:51:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37976 "EHLO mail.kernel.org"
+        id S1728520AbfK0Umg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:42:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730462AbfK0UvU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:51:20 -0500
+        id S1729336AbfK0Umf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:42:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F6132184C;
-        Wed, 27 Nov 2019 20:51:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CEC321780;
+        Wed, 27 Nov 2019 20:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887879;
-        bh=Y4lAoQyQxZwgpe8S14AlWKNoT/13S/b0oclnwxddKWY=;
+        s=default; t=1574887354;
+        bh=Ubzdtado8qpF9VSRmYdGAtTkvjECdbzj1U/T/2pUfco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYqPotm8GTsuqhrJ7qaPf0UmjPoKpl5O2H5OXmYS5Z2xQJlN8D1K40oEgS+XGLX1G
-         iKhgrBiKfeAu8w2/5ZeJI59Lg2j2YulA3/Y9KfGF7vdbmUy6GIEYziuMnTpPWMCVoT
-         Z2O42BL3hVM0c9aojzB7vW5EKch0uEvjDvoLmISI=
+        b=uTG0UzGGxmagRce0NK+8dFR1xYqXBJNjnWOCTtVOmCiObzDn8ZJ1hXKFc2DNVTt2o
+         LZDNSNKx1cPUbhAVIaf3tnmny4we+CZC9bzXP1Mewej29EFnGNgUSvSXKU7KJnIQCD
+         h+XYBOw11Bpv/K5aTMPE/xLYCHG2ZQk81kmlbpF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Ernesto A. Fernndez" <ernesto.mnd.fernandez@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Hin-Tak Leung <htl10@users.sourceforge.net>,
+        Vyacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 129/211] openvswitch: fix linking without CONFIG_NF_CONNTRACK_LABELS
+Subject: [PATCH 4.9 079/151] fs/hfs/extent.c: fix array out of bounds read of array extent
 Date:   Wed, 27 Nov 2019 21:31:02 +0100
-Message-Id: <20191127203106.276796645@linuxfoundation.org>
+Message-Id: <20191127203035.695941897@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +50,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit a277d516de5f498c91d91189717ef7e01102ad27 ]
+[ Upstream commit 6c9a3f843a29d6894dfc40df338b91dbd78f0ae3 ]
 
-When CONFIG_CC_OPTIMIZE_FOR_DEBUGGING is enabled, the compiler
-fails to optimize out a dead code path, which leads to a link failure:
+Currently extent and index i are both being incremented causing an array
+out of bounds read on extent[i].  Fix this by removing the extraneous
+increment of extent.
 
-net/openvswitch/conntrack.o: In function `ovs_ct_set_labels':
-conntrack.c:(.text+0x2e60): undefined reference to `nf_connlabels_replace'
+Ernesto said:
 
-In this configuration, we can take a shortcut, and completely
-remove the contrack label code. This may also help the regular
-optimization.
+: This is only triggered when deleting a file with a resource fork.  I
+: may be wrong because the documentation isn't clear, but I don't think
+: you can create those under linux.  So I guess nobody was testing them.
+:
+: > A disk space leak, perhaps?
+:
+: That's what it looks like in general.  hfs_free_extents() won't do
+: anything if the block count doesn't add up, and the error will be
+: ignored.  Now, if the block count randomly does add up, we could see
+: some corruption.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Detected by CoverityScan, CID#711541 ("Out of bounds read")
+
+Link: http://lkml.kernel.org/r/20180831140538.31566-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Ernesto A. Fernndez <ernesto.mnd.fernandez@gmail.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Hin-Tak Leung <htl10@users.sourceforge.net>
+Cc: Vyacheslav Dubeyko <slava@dubeyko.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/conntrack.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/hfs/extent.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
-index 0171b27a2b81b..48d81857961ca 100644
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -1083,7 +1083,8 @@ static int ovs_ct_commit(struct net *net, struct sw_flow_key *key,
- 					 &info->labels.mask);
- 		if (err)
- 			return err;
--	} else if (labels_nonzero(&info->labels.mask)) {
-+	} else if (IS_ENABLED(CONFIG_NF_CONNTRACK_LABELS) &&
-+		   labels_nonzero(&info->labels.mask)) {
- 		err = ovs_ct_set_labels(ct, key, &info->labels.value,
- 					&info->labels.mask);
- 		if (err)
+diff --git a/fs/hfs/extent.c b/fs/hfs/extent.c
+index 16819d2a978b4..cbe4fca96378a 100644
+--- a/fs/hfs/extent.c
++++ b/fs/hfs/extent.c
+@@ -304,7 +304,7 @@ int hfs_free_fork(struct super_block *sb, struct hfs_cat_file *file, int type)
+ 		return 0;
+ 
+ 	blocks = 0;
+-	for (i = 0; i < 3; extent++, i++)
++	for (i = 0; i < 3; i++)
+ 		blocks += be16_to_cpu(extent[i].count);
+ 
+ 	res = hfs_free_extents(sb, extent, blocks, blocks);
 -- 
 2.20.1
 
