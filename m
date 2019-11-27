@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F2210BD24
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A45AD10BD26
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731796AbfK0VBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:01:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54430 "EHLO mail.kernel.org"
+        id S1731244AbfK0VB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:01:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729757AbfK0VBz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:01:55 -0500
+        id S1731806AbfK0VB6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:01:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DF8921741;
-        Wed, 27 Nov 2019 21:01:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01F7F2084B;
+        Wed, 27 Nov 2019 21:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888515;
-        bh=VPtjYK0w0uuloqDArLaAMixd8sNqxlmnTNrSoitDDRs=;
+        s=default; t=1574888517;
+        bh=w0/xY84kePr1FeSz8bEq9jbc2HkpuXp4oF3+DxCx8oU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKzdSvct2Kt3JVpO1lSp67ytYywdt52Ivq9RhpJJNa6kkjeXJDdY+AFvm02l0OFDC
-         ojZpsVMxESLNis9SYCVOzspxGjfubBrKbPL5qMjuJFPzmu6SrdtXXQzam9fXRwPL86
-         a9is3hgH3xRSH/dOUMUfZo63L3qbXiT+RqtvCaTw=
+        b=o868asB1Kc7rkBDXn3Uj+c6JmAb4EcXN3BRRA4f1LPBHSX91cXSqjdziq7RE9rR8h
+         +IeQEJYA7jRGZBNxfurTltMHbSTAme61ukaRTzrPowQrsdnCP1Z6SoeSj98FCWLC0m
+         USWihsUHdHlSQE90h98PgJmU75mKCPr/sVJs3gUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 164/306] selftests/powerpc/cache_shape: Fix out-of-tree build
-Date:   Wed, 27 Nov 2019 21:30:14 +0100
-Message-Id: <20191127203127.433244913@linuxfoundation.org>
+Subject: [PATCH 4.19 165/306] block: call rq_qos_exit() after queue is frozen
+Date:   Wed, 27 Nov 2019 21:30:15 +0100
+Message-Id: <20191127203127.492254648@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,41 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 69f8117f17b332a68cd8f4bf8c2d0d3d5b84efc5 ]
+[ Upstream commit c57cdf7a9e51d97a43e29b8f4a04157875104000 ]
 
-Use TEST_GEN_PROGS and don't redefine all, this makes the out-of-tree
-build work. We need to move the extra dependencies below the include
-of lib.mk, because it adds the $(OUTPUT) prefix if it's defined.
+rq_qos_exit() removes the current q->rq_qos, this action has to be
+done after queue is frozen, otherwise the IO queue path may never
+be waken up, then IO hang is caused.
 
-We can also drop the clean rule, lib.mk does it for us.
+So fixes this issue by moving rq_qos_exit() after queue is frozen.
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/cache_shape/Makefile | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ block/blk-core.c  | 3 +++
+ block/blk-sysfs.c | 2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/powerpc/cache_shape/Makefile b/tools/testing/selftests/powerpc/cache_shape/Makefile
-index ede4d3dae7505..689f6c8ebcd8d 100644
---- a/tools/testing/selftests/powerpc/cache_shape/Makefile
-+++ b/tools/testing/selftests/powerpc/cache_shape/Makefile
-@@ -1,12 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
--TEST_PROGS := cache_shape
--
--all: $(TEST_PROGS)
--
--$(TEST_PROGS): ../harness.c ../utils.c
-+TEST_GEN_PROGS := cache_shape
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 074ae9376189b..ea33d6abdcfc9 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -784,6 +784,9 @@ void blk_cleanup_queue(struct request_queue *q)
+ 	 * prevent that q->request_fn() gets invoked after draining finished.
+ 	 */
+ 	blk_freeze_queue(q);
++
++	rq_qos_exit(q);
++
+ 	spin_lock_irq(lock);
+ 	queue_flag_set(QUEUE_FLAG_DEAD, q);
+ 	spin_unlock_irq(lock);
+diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+index bab47a17b96f4..8286640d4d663 100644
+--- a/block/blk-sysfs.c
++++ b/block/blk-sysfs.c
+@@ -997,8 +997,6 @@ void blk_unregister_queue(struct gendisk *disk)
+ 	kobject_del(&q->kobj);
+ 	blk_trace_remove_sysfs(disk_to_dev(disk));
  
- top_srcdir = ../../../../..
- include ../../lib.mk
- 
--clean:
--	rm -f $(TEST_PROGS) *.o
-+$(TEST_GEN_PROGS): ../harness.c ../utils.c
+-	rq_qos_exit(q);
+-
+ 	mutex_lock(&q->sysfs_lock);
+ 	if (q->request_fn || (q->mq_ops && q->elevator))
+ 		elv_unregister_queue(q);
 -- 
 2.20.1
 
