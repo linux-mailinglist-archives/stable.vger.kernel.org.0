@@ -2,53 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 276E310B71F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E81110B733
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:12:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727316AbfK0UAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:00:24 -0500
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:48331 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727305AbfK0UAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 15:00:23 -0500
-Received: from callcc.thunk.org (97-71-153.205.biz.bhn.net [97.71.153.205] (may be forged))
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id xARK0FIN002934
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Nov 2019 15:00:16 -0500
-Received: by callcc.thunk.org (Postfix, from userid 15806)
-        id 21F7D4202FD; Wed, 27 Nov 2019 15:00:15 -0500 (EST)
-Date:   Wed, 27 Nov 2019 15:00:15 -0500
-From:   "Theodore Y. Ts'o" <tytso@mit.edu>
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-ext4@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ext4: Fix ext4_empty_dir() for directories with holes
-Message-ID: <20191127200015.GC22921@mit.edu>
-References: <20191127131258.1163-1-jack@suse.cz>
+        id S1726729AbfK0UMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:12:31 -0500
+Received: from mga18.intel.com ([134.134.136.126]:21533 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726703AbfK0UMb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:12:31 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Nov 2019 12:12:29 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,250,1571727600"; 
+   d="scan'208";a="261104299"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by FMSMGA003.fm.intel.com with SMTP; 27 Nov 2019 12:12:26 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Wed, 27 Nov 2019 22:12:26 +0200
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        Paulo Zanoni <paulo.r.zanoni@intel.com>,
+        Jian-Hong Pan <jian-hong@endlessm.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: [PATCH v2 01/14] drm/i915/fbc: Disable fbc by default on all glk+
+Date:   Wed, 27 Nov 2019 22:12:09 +0200
+Message-Id: <20191127201222.16669-2-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191127201222.16669-1-ville.syrjala@linux.intel.com>
+References: <20191127201222.16669-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191127131258.1163-1-jack@suse.cz>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 27, 2019 at 02:12:58PM +0100, Jan Kara wrote:
-> Function ext4_empty_dir() doesn't correctly handle directories with
-> holes and crashes on bh->b_data dereference when bh is NULL. Reorganize
-> the loop to use 'offset' variable all the times instead of comparing
-> pointers to current direntry with bh->b_data pointer. Also add more
-> strict checking of '.' and '..' directory entries to avoid entering loop
-> in possibly invalid state on corrupted filesystems.
-> 
-> References: CVE-2019-19037
-> CC: stable@vger.kernel.org
-> Fixes: 4e19d6b65fb4 ("ext4: allow directory holes")
-> Signed-off-by: Jan Kara <jack@suse.cz>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Thanks, applied.
+We're missing a workaround in the fbc code for all glk+ platforms
+which can cause corruption around the top of the screen. So
+enabling fbc by default is a bad idea. I'm not keen to backport
+the w/a so let's start by disabling fbc by default on all glk+.
+We'll lift the restriction once the w/a is in place.
 
-					- Ted
+Cc: stable@vger.kernel.org
+Cc: Daniel Drake <drake@endlessm.com>
+Cc: Paulo Zanoni <paulo.r.zanoni@intel.com>
+Cc: Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_fbc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_fbc.c b/drivers/gpu/drm/i915/display/intel_fbc.c
+index 92c7eb243559..3cc1f4b4b5a3 100644
+--- a/drivers/gpu/drm/i915/display/intel_fbc.c
++++ b/drivers/gpu/drm/i915/display/intel_fbc.c
+@@ -1284,7 +1284,7 @@ static int intel_sanitize_fbc_option(struct drm_i915_private *dev_priv)
+ 		return 0;
+ 
+ 	/* https://bugs.freedesktop.org/show_bug.cgi?id=108085 */
+-	if (IS_GEMINILAKE(dev_priv))
++	if (INTEL_GEN(dev_priv) >= 10 || IS_GEMINILAKE(dev_priv))
+ 		return 0;
+ 
+ 	if (IS_BROADWELL(dev_priv) || INTEL_GEN(dev_priv) >= 9)
+-- 
+2.23.0
+
