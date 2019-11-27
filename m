@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0410D10BCE4
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:25:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB48310BCD1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:24:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727379AbfK0VYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:24:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56646 "EHLO mail.kernel.org"
+        id S1732038AbfK0VD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:03:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732033AbfK0VD0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:03:26 -0500
+        id S1732034AbfK0VD2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:03:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F39A2086A;
-        Wed, 27 Nov 2019 21:03:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB8A721569;
+        Wed, 27 Nov 2019 21:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888605;
-        bh=XCMPhZzUIyaYLTWfmA4EALBPYmZN3wjg1g3cx3t6HTQ=;
+        s=default; t=1574888608;
+        bh=tgII95yNo67R1JXOG2XCEJcU+1k6nHpaACezIMZWUnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IozsAO8OyqMsdHN731aDgBanKG7Z654bMJxd1wV2kTRmpiHfkqWvPQXR9iO07rasS
-         2qfSqPuqt0/HtLRS+ukuFEYc3S9rXMeG9lQN2H/JCBfBD1GMJ6G1WVViMi6Pss+Nc1
-         NdvsX4loDTXGXRf3SGxOoqr4F+4MaTSn7fu5HvZE=
+        b=nHDkbWhWZwmZyycaVshUFbLM1iEdayfv63ao/c+qJqMKlpCc245qO/T9CK4gySCiS
+         vB5OAqI5iI1Ql+1BClhAR2tPN1VMM0CazERVWlP1Fd+W7f8FwlJeoC0bTyjqbQMiPo
+         WjJON82BSO36fkeVXLnaSkfmbCFlGTiepcjAe3wU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 200/306] net: do not abort bulk send on BQL status
-Date:   Wed, 27 Nov 2019 21:30:50 +0100
-Message-Id: <20191127203129.788862966@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 201/306] sched/topology: Fix off by one bug
+Date:   Wed, 27 Nov 2019 21:30:51 +0100
+Message-Id: <20191127203129.854002540@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,49 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit fe60faa5063822f2d555f4f326c7dd72a60929bf ]
+[ Upstream commit 993f0b0510dad98b4e6e39506834dab0d13fd539 ]
 
-Before calling dev_hard_start_xmit(), upper layers tried
-to cook optimal skb list based on BQL budget.
+With the addition of the NUMA identity level, we increased @level by
+one and will run off the end of the array in the distance sort loop.
 
-Problem is that GSO packets can end up comsuming more than
-the BQL budget.
-
-Breaking the loop is not useful, since requeued packets
-are ahead of any packets still in the qdisc.
-
-It is also more expensive, since next TX completion will
-push these packets later, while skbs are not in cpu caches.
-
-It is also a behavior difference with TSO packets, that can
-break the BQL limit by a large amount.
-
-Note that drivers should use __netdev_tx_sent_queue()
-in order to have optimal xmit_more support, and avoid
-useless atomic operations as shown in the following patch.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixed: 051f3ca02e46 ("sched/topology: Introduce NUMA identity node sched domain")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 2 +-
+ kernel/sched/topology.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index e96c88b1465d7..91179febdeee1 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3277,7 +3277,7 @@ struct sk_buff *dev_hard_start_xmit(struct sk_buff *first, struct net_device *de
- 		}
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index c0a7514649715..74b694392f2fd 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1329,7 +1329,7 @@ void sched_init_numa(void)
+ 	int level = 0;
+ 	int i, j, k;
  
- 		skb = next;
--		if (netif_xmit_stopped(txq) && skb) {
-+		if (netif_tx_queue_stopped(txq) && skb) {
- 			rc = NETDEV_TX_BUSY;
- 			break;
- 		}
+-	sched_domains_numa_distance = kzalloc(sizeof(int) * nr_node_ids, GFP_KERNEL);
++	sched_domains_numa_distance = kzalloc(sizeof(int) * (nr_node_ids + 1), GFP_KERNEL);
+ 	if (!sched_domains_numa_distance)
+ 		return;
+ 
 -- 
 2.20.1
 
