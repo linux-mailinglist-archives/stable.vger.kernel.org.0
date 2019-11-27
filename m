@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AED1C10BC66
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D56110BB84
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727368AbfK0VHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:07:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33420 "EHLO mail.kernel.org"
+        id S2387435AbfK0VNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:13:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732576AbfK0VHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:07:18 -0500
+        id S1731515AbfK0VNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:13:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0223F21774;
-        Wed, 27 Nov 2019 21:07:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E61F32086A;
+        Wed, 27 Nov 2019 21:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888837;
-        bh=T1MXmbsTb5l21gkuQES/GB8e+xI4ESof/KURkbDXcow=;
+        s=default; t=1574889200;
+        bh=TcgEOZy2tdbZnFR7pwvTCI0uoNIrtmp6FAYmtxIsDF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OTZnUV16QqnLo2+JldCwWGx6xDYq/Is4EF3sedh/lchf0/20uP+6tpo2G7gYGikFJ
-         i/ltaoVLS3NWEoGhCc376//B+o0FWgaNwLf914PgZxmFbX4RXCI/V7aurUGIIJR7bS
-         zTCmGsLWmiOJhzvwDwPjzedC0aIJaPmw4kS7YYKk=
+        b=gdn8ISF8o9OsmOu7aPTeDIY7j0Xj/e2JhB+O5gCd0Fyj52GVJ5YR2gQEjwCmWWzQm
+         bDe3JmkSmQjfRF0K7//GiqDttCLXiq0EgkYm2ldAS0s2DGKD5cJ7as3yu+LLkgEC4t
+         LIg9GMdWiPgO/Kw5/JEWbYX3eE+JN/TU5fNK8X0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f49d12d34f2321cf4df2@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 290/306] media: imon: invalid dereference in imon_touch_event
-Date:   Wed, 27 Nov 2019 21:32:20 +0100
-Message-Id: <20191127203135.948976481@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>, stable@kernel.org,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.4 26/66] x86/pti/32: Calculate the various PTI cpu_entry_area sizes correctly, make the CPU_ENTRY_AREA_PAGES assert precise
+Date:   Wed, 27 Nov 2019 21:32:21 +0100
+Message-Id: <20191127202659.227959442@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,88 +47,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Ingo Molnar <mingo@kernel.org>
 
-commit f3f5ba42c58d56d50f539854d8cc188944e96087 upstream.
+commit 05b042a1944322844eaae7ea596d5f154166d68a upstream.
 
-The touch timer is set up in intf1. If the second interface does not exist,
-the timer and touch input device are not setup and we get the following
-error, when touch events are reported via intf0.
+When two recent commits that increased the size of the 'struct cpu_entry_area'
+were merged in -tip, the 32-bit defconfig build started failing on the following
+build time assert:
 
-kernel BUG at kernel/time/timer.c:956!
-invalid opcode: 0000 [#1] SMP KASAN
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-rc1+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__mod_timer kernel/time/timer.c:956 [inline]
-RIP: 0010:__mod_timer kernel/time/timer.c:949 [inline]
-RIP: 0010:mod_timer+0x5a2/0xb50 kernel/time/timer.c:1100
-Code: 45 10 c7 44 24 14 ff ff ff ff 48 89 44 24 08 48 8d 45 20 48 c7 44 24 18 00 00 00 00 48 89 04 24 e9 5a fc ff ff e8 ae ce 0e 00 <0f> 0b e8 a7 ce 0e 00 4c 89 74 24 20 e9 37 fe ff ff e8 98 ce 0e 00
-RSP: 0018:ffff8881db209930 EFLAGS: 00010006
-RAX: ffffffff86c2b200 RBX: 00000000ffffa688 RCX: ffffffff83efc583
-RDX: 0000000000000100 RSI: ffffffff812f4d82 RDI: ffff8881d2356200
-RBP: ffff8881d23561e8 R08: ffffffff86c2b200 R09: ffffed103a46abeb
-R10: ffffed103a46abea R11: ffff8881d2355f53 R12: dffffc0000000000
-R13: 1ffff1103b64132d R14: ffff8881d2355f50 R15: 0000000000000006
-FS:  0000000000000000(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f75e2799000 CR3: 00000001d3b07000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <IRQ>
- imon_touch_event drivers/media/rc/imon.c:1348 [inline]
- imon_incoming_packet.isra.0+0x2546/0x2f10 drivers/media/rc/imon.c:1603
- usb_rx_callback_intf0+0x151/0x1e0 drivers/media/rc/imon.c:1734
- __usb_hcd_giveback_urb+0x1f2/0x470 drivers/usb/core/hcd.c:1654
- usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1719
- dummy_timer+0x120f/0x2fa2 drivers/usb/gadget/udc/dummy_hcd.c:1965
- call_timer_fn+0x179/0x650 kernel/time/timer.c:1404
- expire_timers kernel/time/timer.c:1449 [inline]
- __run_timers kernel/time/timer.c:1773 [inline]
- __run_timers kernel/time/timer.c:1740 [inline]
- run_timer_softirq+0x5e3/0x1490 kernel/time/timer.c:1786
- __do_softirq+0x221/0x912 kernel/softirq.c:292
- invoke_softirq kernel/softirq.c:373 [inline]
- irq_exit+0x178/0x1a0 kernel/softirq.c:413
- exiting_irq arch/x86/include/asm/apic.h:536 [inline]
- smp_apic_timer_interrupt+0x12f/0x500 arch/x86/kernel/apic/apic.c:1137
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
- </IRQ>
-RIP: 0010:default_idle+0x28/0x2e0 arch/x86/kernel/process.c:581
-Code: 90 90 41 56 41 55 65 44 8b 2d 44 3a 8f 7a 41 54 55 53 0f 1f 44 00 00 e8 36 ee d0 fb e9 07 00 00 00 0f 00 2d fa dd 4f 00 fb f4 <65> 44 8b 2d 20 3a 8f 7a 0f 1f 44 00 00 5b 5d 41 5c 41 5d 41 5e c3
-RSP: 0018:ffffffff86c07da8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
-RAX: 0000000000000007 RBX: ffffffff86c2b200 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffffff86c2ba4c
-RBP: fffffbfff0d85640 R08: ffffffff86c2b200 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- cpuidle_idle_call kernel/sched/idle.c:154 [inline]
- do_idle+0x3b6/0x500 kernel/sched/idle.c:263
- cpu_startup_entry+0x14/0x20 kernel/sched/idle.c:355
- start_kernel+0x82a/0x864 init/main.c:784
- secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
-Modules linked in:
+  ./include/linux/compiler.h:391:38: error: call to ‘__compiletime_assert_189’ declared with attribute error: BUILD_BUG_ON failed: CPU_ENTRY_AREA_PAGES * PAGE_SIZE < CPU_ENTRY_AREA_MAP_SIZE
+  arch/x86/mm/cpu_entry_area.c:189:2: note: in expansion of macro ‘BUILD_BUG_ON’
+  In function ‘setup_cpu_entry_area_ptes’,
 
-Reported-by: syzbot+f49d12d34f2321cf4df2@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Which corresponds to the following build time assert:
+
+	BUILD_BUG_ON(CPU_ENTRY_AREA_PAGES * PAGE_SIZE < CPU_ENTRY_AREA_MAP_SIZE);
+
+The purpose of this assert is to sanity check the fixed-value definition of
+CPU_ENTRY_AREA_PAGES arch/x86/include/asm/pgtable_32_types.h:
+
+	#define CPU_ENTRY_AREA_PAGES    (NR_CPUS * 41)
+
+The '41' is supposed to match sizeof(struct cpu_entry_area)/PAGE_SIZE, which value
+we didn't want to define in such a low level header, because it would cause
+dependency hell.
+
+Every time the size of cpu_entry_area is changed, we have to adjust CPU_ENTRY_AREA_PAGES
+accordingly - and this assert is checking that constraint.
+
+But the assert is both imprecise and buggy, primarily because it doesn't
+include the single readonly IDT page that is mapped at CPU_ENTRY_AREA_BASE
+(which begins at a PMD boundary).
+
+This bug was hidden by the fact that by accident CPU_ENTRY_AREA_PAGES is defined
+too large upstream (v5.4-rc8):
+
+	#define CPU_ENTRY_AREA_PAGES    (NR_CPUS * 40)
+
+While 'struct cpu_entry_area' is 155648 bytes, or 38 pages. So we had two extra
+pages, which hid the bug.
+
+The following commit (not yet upstream) increased the size to 40 pages:
+
+  x86/iopl: ("Restrict iopl() permission scope")
+
+... but increased CPU_ENTRY_AREA_PAGES only 41 - i.e. shortening the gap
+to just 1 extra page.
+
+Then another not-yet-upstream commit changed the size again:
+
+  880a98c33996: ("x86/cpu_entry_area: Add guard page for entry stack on 32bit")
+
+Which increased the cpu_entry_area size from 38 to 39 pages, but
+didn't change CPU_ENTRY_AREA_PAGES (kept it at 40). This worked
+fine, because we still had a page left from the accidental 'reserve'.
+
+But when these two commits were merged into the same tree, the
+combined size of cpu_entry_area grew from 38 to 40 pages, while
+CPU_ENTRY_AREA_PAGES finally caught up to 40 as well.
+
+Which is fine in terms of functionality, but the assert broke:
+
+	BUILD_BUG_ON(CPU_ENTRY_AREA_PAGES * PAGE_SIZE < CPU_ENTRY_AREA_MAP_SIZE);
+
+because CPU_ENTRY_AREA_MAP_SIZE is the total size of the area,
+which is 1 page larger due to the IDT page.
+
+To fix all this, change the assert to two precise asserts:
+
+	BUILD_BUG_ON((CPU_ENTRY_AREA_PAGES+1)*PAGE_SIZE != CPU_ENTRY_AREA_MAP_SIZE);
+	BUILD_BUG_ON(CPU_ENTRY_AREA_TOTAL_SIZE != CPU_ENTRY_AREA_MAP_SIZE);
+
+This takes the IDT page into account, and also connects the size-based
+define of CPU_ENTRY_AREA_TOTAL_SIZE with the address-subtraction based
+define of CPU_ENTRY_AREA_MAP_SIZE.
+
+Also clean up some of the names which made it rather confusing:
+
+ - 'CPU_ENTRY_AREA_TOT_SIZE' wasn't actually the 'total' size of
+   the cpu-entry-area, but the per-cpu array size, so rename this
+   to CPU_ENTRY_AREA_ARRAY_SIZE.
+
+ - Introduce CPU_ENTRY_AREA_TOTAL_SIZE that _is_ the total mapping
+   size, with the IDT included.
+
+ - Add comments where '+1' denotes the IDT mapping - it wasn't
+   obvious and took me about 3 hours to decode...
+
+Finally, because this particular commit is actually applied after
+this patch:
+
+  880a98c33996: ("x86/cpu_entry_area: Add guard page for entry stack on 32bit")
+
+Fix the CPU_ENTRY_AREA_PAGES value from 40 pages to the correct 39 pages.
+
+All future commits that change cpu_entry_area will have to adjust
+this value precisely.
+
+As a side note, we should probably attempt to remove CPU_ENTRY_AREA_PAGES
+and derive its value directly from the structure, without causing
+header hell - but that is an adventure for another day! :-)
+
+Fixes: 880a98c33996: ("x86/cpu_entry_area: Add guard page for entry stack on 32bit")
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/imon.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/include/asm/cpu_entry_area.h   |   12 +++++++-----
+ arch/x86/include/asm/pgtable_32_types.h |    8 ++++----
+ arch/x86/mm/cpu_entry_area.c            |    4 +++-
+ 3 files changed, 14 insertions(+), 10 deletions(-)
 
---- a/drivers/media/rc/imon.c
-+++ b/drivers/media/rc/imon.c
-@@ -1607,8 +1607,7 @@ static void imon_incoming_packet(struct
- 	spin_unlock_irqrestore(&ictx->kc_lock, flags);
+--- a/arch/x86/include/asm/cpu_entry_area.h
++++ b/arch/x86/include/asm/cpu_entry_area.h
+@@ -98,7 +98,6 @@ struct cpu_entry_area {
+ 	 */
+ 	struct cea_exception_stacks estacks;
+ #endif
+-#ifdef CONFIG_CPU_SUP_INTEL
+ 	/*
+ 	 * Per CPU debug store for Intel performance monitoring. Wastes a
+ 	 * full page at the moment.
+@@ -109,11 +108,13 @@ struct cpu_entry_area {
+ 	 * Reserve enough fixmap PTEs.
+ 	 */
+ 	struct debug_store_buffers cpu_debug_buffers;
+-#endif
+ };
  
- 	/* send touchscreen events through input subsystem if touchpad data */
--	if (ictx->display_type == IMON_DISPLAY_TYPE_VGA && len == 8 &&
--	    buf[7] == 0x86) {
-+	if (ictx->touch && len == 8 && buf[7] == 0x86) {
- 		imon_touch_event(ictx, buf);
- 		return;
+-#define CPU_ENTRY_AREA_SIZE	(sizeof(struct cpu_entry_area))
+-#define CPU_ENTRY_AREA_TOT_SIZE	(CPU_ENTRY_AREA_SIZE * NR_CPUS)
++#define CPU_ENTRY_AREA_SIZE		(sizeof(struct cpu_entry_area))
++#define CPU_ENTRY_AREA_ARRAY_SIZE	(CPU_ENTRY_AREA_SIZE * NR_CPUS)
++
++/* Total size includes the readonly IDT mapping page as well: */
++#define CPU_ENTRY_AREA_TOTAL_SIZE	(CPU_ENTRY_AREA_ARRAY_SIZE + PAGE_SIZE)
  
+ DECLARE_PER_CPU(struct cpu_entry_area *, cpu_entry_area);
+ DECLARE_PER_CPU(struct cea_exception_stacks *, cea_exception_stacks);
+@@ -121,13 +122,14 @@ DECLARE_PER_CPU(struct cea_exception_sta
+ extern void setup_cpu_entry_areas(void);
+ extern void cea_set_pte(void *cea_vaddr, phys_addr_t pa, pgprot_t flags);
+ 
++/* Single page reserved for the readonly IDT mapping: */
+ #define	CPU_ENTRY_AREA_RO_IDT		CPU_ENTRY_AREA_BASE
+ #define CPU_ENTRY_AREA_PER_CPU		(CPU_ENTRY_AREA_RO_IDT + PAGE_SIZE)
+ 
+ #define CPU_ENTRY_AREA_RO_IDT_VADDR	((void *)CPU_ENTRY_AREA_RO_IDT)
+ 
+ #define CPU_ENTRY_AREA_MAP_SIZE			\
+-	(CPU_ENTRY_AREA_PER_CPU + CPU_ENTRY_AREA_TOT_SIZE - CPU_ENTRY_AREA_BASE)
++	(CPU_ENTRY_AREA_PER_CPU + CPU_ENTRY_AREA_ARRAY_SIZE - CPU_ENTRY_AREA_BASE)
+ 
+ extern struct cpu_entry_area *get_cpu_entry_area(int cpu);
+ 
+--- a/arch/x86/include/asm/pgtable_32_types.h
++++ b/arch/x86/include/asm/pgtable_32_types.h
+@@ -44,11 +44,11 @@ extern bool __vmalloc_start_set; /* set
+  * Define this here and validate with BUILD_BUG_ON() in pgtable_32.c
+  * to avoid include recursion hell
+  */
+-#define CPU_ENTRY_AREA_PAGES	(NR_CPUS * 40)
++#define CPU_ENTRY_AREA_PAGES	(NR_CPUS * 39)
+ 
+-#define CPU_ENTRY_AREA_BASE						\
+-	((FIXADDR_TOT_START - PAGE_SIZE * (CPU_ENTRY_AREA_PAGES + 1))   \
+-	 & PMD_MASK)
++/* The +1 is for the readonly IDT page: */
++#define CPU_ENTRY_AREA_BASE	\
++	((FIXADDR_TOT_START - PAGE_SIZE*(CPU_ENTRY_AREA_PAGES+1)) & PMD_MASK)
+ 
+ #define LDT_BASE_ADDR		\
+ 	((CPU_ENTRY_AREA_BASE - PAGE_SIZE) & PMD_MASK)
+--- a/arch/x86/mm/cpu_entry_area.c
++++ b/arch/x86/mm/cpu_entry_area.c
+@@ -178,7 +178,9 @@ static __init void setup_cpu_entry_area_
+ #ifdef CONFIG_X86_32
+ 	unsigned long start, end;
+ 
+-	BUILD_BUG_ON(CPU_ENTRY_AREA_PAGES * PAGE_SIZE < CPU_ENTRY_AREA_MAP_SIZE);
++	/* The +1 is for the readonly IDT: */
++	BUILD_BUG_ON((CPU_ENTRY_AREA_PAGES+1)*PAGE_SIZE != CPU_ENTRY_AREA_MAP_SIZE);
++	BUILD_BUG_ON(CPU_ENTRY_AREA_TOTAL_SIZE != CPU_ENTRY_AREA_MAP_SIZE);
+ 	BUG_ON(CPU_ENTRY_AREA_BASE & ~PMD_MASK);
+ 
+ 	start = CPU_ENTRY_AREA_BASE;
 
 
