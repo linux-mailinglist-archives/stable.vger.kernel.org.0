@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3247610BAA6
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A9710BCA6
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732270AbfK0VFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:05:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58948 "EHLO mail.kernel.org"
+        id S1730842AbfK0VFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:05:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732268AbfK0VFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:05:17 -0500
+        id S1732275AbfK0VFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:05:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72B9B20637;
-        Wed, 27 Nov 2019 21:05:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C105420637;
+        Wed, 27 Nov 2019 21:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888716;
-        bh=kZ8zWA2dW+43AmUKUBWUQPRKVQv73HqDZw+2W139/QY=;
+        s=default; t=1574888719;
+        bh=/UtcM2CJ+MzcFJltihVFYIShK9Fi91fdbH/dA9RjkHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rB2y9KGXpuDDOpDAY4v8+YsHwUY5IIXAs20kb+7kcXlMiHnPkdKkdXAqO/JwMNV3D
-         6CtXli7Qd+WGF9TLl2Ib27CFhYpWUjJeOgxtUvqhTSlOXK+d7fnvrZJ+GUVv7/BKCK
-         P68NGW9tQsw7IZ4ICs1udTxswYcAR4eOQB4oBjsk=
+        b=PQMgRuGgyeKP9h6vm6K04acIZRKJshpKxxvDP9X8v0SF+MdN0cVLORjon7cyOQMDW
+         eAl/huRppm4vhRwTno2DXkZAhHTTxCAlisZyPaj0uBKqpZn4kxNV6GAUn/YVaplhm3
+         HYFLXYRr+WjWdiQD19pfcXZwIkL9GPHodavA4Iag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sriram R <srirrama@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 243/306] cfg80211: Prevent regulatory restore during STA disconnect in concurrent interfaces
-Date:   Wed, 27 Nov 2019 21:31:33 +0100
-Message-Id: <20191127203132.706702903@linuxfoundation.org>
+Subject: [PATCH 4.19 244/306] pinctrl: qcom: spmi-gpio: fix gpio-hog related boot issues
+Date:   Wed, 27 Nov 2019 21:31:34 +0100
+Message-Id: <20191127203132.771581174@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,50 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriram R <srirrama@codeaurora.org>
+From: Brian Masney <masneyb@onstation.org>
 
-[ Upstream commit 113f3aaa81bd56aba02659786ed65cbd9cb9a6fc ]
+[ Upstream commit 149a96047237574b756d872007c006acd0cc6687 ]
 
-Currently when an AP and STA interfaces are active in the same or different
-radios, regulatory settings are restored whenever the STA disconnects. This
-restores all channel information including dfs states in all radios.
-For example, if an AP interface is active in one radio and STA in another,
-when radar is detected on the AP interface, the dfs state of the channel
-will be changed to UNAVAILABLE. But when the STA interface disconnects,
-this issues a regulatory disconnect hint which restores all regulatory
-settings in all the radios attached and thereby losing the stored dfs
-state on the other radio where the channel was marked as unavailable
-earlier. Hence prevent such regulatory restore whenever another active
-beaconing interface is present in the same or other radios.
+When attempting to setup up a gpio hog, device probing would repeatedly
+fail with -EPROBE_DEFERED errors. It was caused by a circular dependency
+between the gpio and pinctrl frameworks. If the gpio-ranges property is
+present in device tree, then the gpio framework will handle the gpio pin
+registration and eliminate the circular dependency.
 
-Signed-off-by: Sriram R <srirrama@codeaurora.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+See Christian Lamparter's commit a86caa9ba5d7 ("pinctrl: msm: fix
+gpio-hog related boot issues") for a detailed commit message that
+explains the issue in much more detail. The code comment in this commit
+came from Christian's commit.
+
+Signed-off-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/sme.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/pinctrl/qcom/pinctrl-spmi-gpio.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/net/wireless/sme.c b/net/wireless/sme.c
-index d536b07582f8c..c7047c7b4e80f 100644
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -642,11 +642,15 @@ static bool cfg80211_is_all_idle(void)
- 	 * All devices must be idle as otherwise if you are actively
- 	 * scanning some new beacon hints could be learned and would
- 	 * count as new regulatory hints.
-+	 * Also if there is any other active beaconing interface we
-+	 * need not issue a disconnect hint and reset any info such
-+	 * as chan dfs state, etc.
- 	 */
- 	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
- 		list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
- 			wdev_lock(wdev);
--			if (wdev->conn || wdev->current_bss)
-+			if (wdev->conn || wdev->current_bss ||
-+			    cfg80211_beaconing_iface_active(wdev))
- 				is_all_idle = false;
- 			wdev_unlock(wdev);
- 		}
+diff --git a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
+index cf82db78e69e6..0c30f5eb4c714 100644
+--- a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
++++ b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
+@@ -1028,10 +1028,23 @@ static int pmic_gpio_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = gpiochip_add_pin_range(&state->chip, dev_name(dev), 0, 0, npins);
+-	if (ret) {
+-		dev_err(dev, "failed to add pin range\n");
+-		goto err_range;
++	/*
++	 * For DeviceTree-supported systems, the gpio core checks the
++	 * pinctrl's device node for the "gpio-ranges" property.
++	 * If it is present, it takes care of adding the pin ranges
++	 * for the driver. In this case the driver can skip ahead.
++	 *
++	 * In order to remain compatible with older, existing DeviceTree
++	 * files which don't set the "gpio-ranges" property or systems that
++	 * utilize ACPI the driver has to call gpiochip_add_pin_range().
++	 */
++	if (!of_property_read_bool(dev->of_node, "gpio-ranges")) {
++		ret = gpiochip_add_pin_range(&state->chip, dev_name(dev), 0, 0,
++					     npins);
++		if (ret) {
++			dev_err(dev, "failed to add pin range\n");
++			goto err_range;
++		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.20.1
 
