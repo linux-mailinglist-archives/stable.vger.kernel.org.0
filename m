@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72DF810B872
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C350110B7D8
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729468AbfK0Unb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:43:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51414 "EHLO mail.kernel.org"
+        id S1728583AbfK0Uha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729463AbfK0Unb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:31 -0500
+        id S1728580AbfK0Uh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:37:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F129E21780;
-        Wed, 27 Nov 2019 20:43:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B971420862;
+        Wed, 27 Nov 2019 20:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887410;
-        bh=3ezIcSOyWYw8I4efjEO+0CwCb+ZkrQdkz6h7FNO1ffM=;
+        s=default; t=1574887049;
+        bh=Ear3GYjHcm6aXs1U2mblM6eBMGjbS/W5opmAxtJII2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJJY4fwceE62U8ifZ3gvHVQBHYphJ8hFuU3b9sGlFjr0Y97041jwnWhwwnTzyWFYS
-         H4nEicAjneJyOaDIsSQuYn/9ZdWJc4p5HXUfAOuOTbDIo9yst6qLjCv8bGXOsszJv9
-         bYO9AB8ziBe4RK3mdwfjFF4PTey21mRBaaf5HkGc=
+        b=eRA3k4tzQ5dw43Gwgh3LxEP+pJZqOKFbxmGBvGERZliRMBNGvoJFSXgXT5/X0hqtQ
+         q2i8zqUnHPPPsIXI0roJoGmgpxbEblS2ce1h/0TNosW6M/cimhSqDqhnj9CehvrGQd
+         TqRxXbWZKXXy7B7d0Cj2hwAgzhpXKOjc+MOM66ZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org,
+        David Barmann <david.barmann@stackpath.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 099/151] dlm: fix invalid free
-Date:   Wed, 27 Nov 2019 21:31:22 +0100
-Message-Id: <20191127203039.119387024@linuxfoundation.org>
+Subject: [PATCH 4.4 093/132] sock: Reset dst when changing sk_mark via setsockopt
+Date:   Wed, 27 Nov 2019 21:31:24 +0100
+Message-Id: <20191127203020.182005605@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: David Barmann <david.barmann@stackpath.com>
 
-[ Upstream commit d968b4e240cfe39d39d80483bac8bca8716fd93c ]
+[ Upstream commit 50254256f382c56bde87d970f3d0d02fdb76ec70 ]
 
-dlm_config_nodes() does not allocate nodes on failure, so we should not
-free() nodes when it fails.
+When setting the SO_MARK socket option, if the mark changes, the dst
+needs to be reset so that a new route lookup is performed.
 
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Signed-off-by: David Teigland <teigland@redhat.com>
+This fixes the case where an application wants to change routing by
+setting a new sk_mark.  If this is done after some packets have already
+been sent, the dst is cached and has no effect.
+
+Signed-off-by: David Barmann <david.barmann@stackpath.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/member.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/core/sock.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dlm/member.c b/fs/dlm/member.c
-index 9c47f1c14a8ba..a47ae99f7bcbc 100644
---- a/fs/dlm/member.c
-+++ b/fs/dlm/member.c
-@@ -683,7 +683,7 @@ int dlm_ls_start(struct dlm_ls *ls)
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 8aa4a5f895723..92d5f6232ec76 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -951,10 +951,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ 			clear_bit(SOCK_PASSSEC, &sock->flags);
+ 		break;
+ 	case SO_MARK:
+-		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
++		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+ 			ret = -EPERM;
+-		else
++		} else if (val != sk->sk_mark) {
+ 			sk->sk_mark = val;
++			sk_dst_reset(sk);
++		}
+ 		break;
  
- 	error = dlm_config_nodes(ls->ls_name, &nodes, &count);
- 	if (error < 0)
--		goto fail;
-+		goto fail_rv;
- 
- 	spin_lock(&ls->ls_recover_lock);
- 
-@@ -715,8 +715,9 @@ int dlm_ls_start(struct dlm_ls *ls)
- 	return 0;
- 
-  fail:
--	kfree(rv);
- 	kfree(nodes);
-+ fail_rv:
-+	kfree(rv);
- 	return error;
- }
- 
+ 	case SO_RXQ_OVFL:
 -- 
 2.20.1
 
