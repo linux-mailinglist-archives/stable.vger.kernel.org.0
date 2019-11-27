@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5AA010B70E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 20:53:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AB310B70F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 20:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727169AbfK0TxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 14:53:06 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:47293 "EHLO
+        id S1727193AbfK0TxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 14:53:14 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:46801 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726729AbfK0TxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 14:53:05 -0500
+        by vger.kernel.org with ESMTP id S1726729AbfK0TxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 14:53:13 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 85BFF22819;
-        Wed, 27 Nov 2019 14:53:04 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 27 Nov 2019 14:53:04 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 624CB2278C;
+        Wed, 27 Nov 2019 14:53:12 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 27 Nov 2019 14:53:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Q93Gcl
-        LHlN+8SFJ7/7MUXUMhwd7X/JQ7HurQGy1MqUg=; b=sJJuSTwTzdjbgQO5KhVtyL
-        uCORSVGfGNzkSTFQvN8X1xhdXPIIsY7amstD903f6B+ptEnRMiELhCJweuyJsuri
-        RsKZ+Ka9+Qmt22V46SCE/XD0HbWDVz9bsbPaZckjenBRnDvaqlG38sLvL5KFBghn
-        GHFVAO5SYIWrzqkWht1gUa18RkxfyvagqE7LbiYn4NShXJMDZktUp9CCY+3T5UAn
-        x2CSdCvl+mYyx/aK26BKRv/eXp0Fh0YvBbCP4Geg82EPriVaUGiaeEV6wo+nVqxM
-        Gr0T3UKbn6LpBfG6LwqVs5QQceaxy8hzzVyMPWrf+R+NeYGbtqAFiGd/pkWNzwOg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2cpWQt
+        yfnqXxN5NDXnQ9VcZX/rpGPtVQLQi32cAvIUE=; b=qWSr/uCZvdipzk8LgakxdH
+        iaopbvBq5W01vbNS6MFRv4zqaUucPH4hVxdhaWevv7VE4lRN3HTdeGBEJQokfal9
+        lL7r6qDc/oMk40gNULiZSjL7vGl/i+BY6WOdjXpg6BjarLxoDgOSeEb9SXHJrwBb
+        QrVT1qz32yPHIHmMqPnyjCdv20ZOaVvvY0di/AERCJZtCwEkiS0DdAQINsmyPSHy
+        bOo5MzyNC9jdONjYPvjqFIvG/jMRPtSmXjRXMAJNd+/imXNuxgHbbbIWI2rnSH+d
+        82ezOzEo4YCvEXsuRyFHJFR/k4Uf7aGvR16uUZsGnJLMZakxg/XeFjc5HwuRTLtQ
         ==
-X-ME-Sender: <xms:H9TeXZmpbo0bN3QdEQfE0Th-YM1qJySIubQZE5828Q4CpA2FvHspRA>
+X-ME-Sender: <xms:KNTeXYh64bqKxltyzQJSo1jlyOD5TOLOG0VLkVO4is59Xy4VIdbPnQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeihedguddvlecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-    necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:INTeXZGhrkwPvpxameJzy5GOfZZR32zNK1Md2r8G3-NUnqRdIzcq5A>
-    <xmx:INTeXar92fy2SRh-3reDUwHqCqyzrUhT-g2tD4nmbcytWO_EYgqoRA>
-    <xmx:INTeXd7GbtaKajsXqDK6UEi2CO1j5B_EUZK40SMq9CUl3f_qbcT8eA>
-    <xmx:INTeXX16gxgwwj-Ah7uMST99PDTgmlSl4kvQ6ZIM7F-wmYXI5r4ZDg>
+    necuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:KNTeXfjj4SprLvgOC8iHPmzEh0xp3V2tSzQvqjCkNardtMPQt8ATxw>
+    <xmx:KNTeXbkfvQtP9Uafg-c_2_mbO1CDg8D9aIaGnAF9B51BrH_jfzEfWQ>
+    <xmx:KNTeXTZLDnmt8hypS4YQB_C8E70lZdDQa7KpqWXe_AVB7pP89zVRrg>
+    <xmx:KNTeXbGIWueO3tLXO998GXDaIg19qXVI7E_xP58an1xOCHrbfy7duw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8F5098005A;
-        Wed, 27 Nov 2019 14:53:03 -0500 (EST)
-Subject: FAILED: patch "[PATCH] usbip: Fix uninitialized symbol 'nents' in" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0010B3060062;
+        Wed, 27 Nov 2019 14:53:11 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usbip: Fix uninitialized symbol 'nents' in" failed to apply to 4.4-stable tree
 To:     suwan.kim027@gmail.com, dan.carpenter@oracle.com,
         gregkh@linuxfoundation.org, lkp@intel.com,
         skhan@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 Nov 2019 20:53:01 +0100
-Message-ID: <1574884381220214@kroah.com>
+Date:   Wed, 27 Nov 2019 20:53:02 +0100
+Message-ID: <157488438219127@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
