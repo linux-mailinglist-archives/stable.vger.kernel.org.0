@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE6C10B98F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F212310B991
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:54:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730854AbfK0Uyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:54:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1728382AbfK0Uyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:54:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730850AbfK0Uyf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:54:35 -0500
+        id S1730528AbfK0Uyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:54:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 963202068E;
-        Wed, 27 Nov 2019 20:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 049EA21582;
+        Wed, 27 Nov 2019 20:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888075;
-        bh=ojrFRNvFLVR2LGgdBtxSAT4sGVQfR5C+nA6g2kvAguo=;
+        s=default; t=1574888082;
+        bh=+6aS1ImT4WmV3f7OiaiYoesrNZb5/9pfsLPO4niE78A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zeNG8qDRfrng5wujlzqDidjuQpzerc45UVXuTvQcf/rGjX2Im9HC5pQ8dkoH4jCvH
-         FOm7KSFXMGsaXA187CU9a+UDI2ksZSfHf+d1ulbyRErcyHzafRrj1CvK4eYX2wbzk2
-         P4ubsr+6bkhoFseffV22JIhm7SjaICEZeZGN/02w=
+        b=XZ78xCCqTrdRSlyJR2L7Y6xK4ia3NngnfQvPtrXOTS2aOekxEFX8vYpAsKvgKaTT0
+         5ez5/UbBaMOKRPpvyeUKo/C1Qn/0Jczmvcr4HRlthS/t95naPpya0lYG5sZ9KZEWTi
+         iWYC3AjO8W+8dL6StfRUP5fYn10zgp4TIVDrEHfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 206/211] USB: serial: option: add support for Foxconn T77W968 LTE modules
-Date:   Wed, 27 Nov 2019 21:32:19 +0100
-Message-Id: <20191127203113.001861513@linuxfoundation.org>
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Daniel Axtens <dja@axtens.net>
+Subject: [PATCH 4.14 209/211] powerpc/book3s64: Fix link stack flush on context switch
+Date:   Wed, 27 Nov 2019 21:32:22 +0100
+Message-Id: <20191127203113.272304781@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -44,61 +45,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit f0797095423e6ea3b4be61134ee353c7f504d440 upstream.
+commit 39e72bf96f5847ba87cc5bd7a3ce0fed813dc9ad upstream.
 
-These are the Foxconn-branded variants of the Dell DW5821e modules,
-same USB layout as those. The device exposes AT, NMEA and DIAG ports
-in both USB configurations.
+In commit ee13cb249fab ("powerpc/64s: Add support for software count
+cache flush"), I added support for software to flush the count
+cache (indirect branch cache) on context switch if firmware told us
+that was the required mitigation for Spectre v2.
 
-P:  Vendor=0489 ProdID=e0b4 Rev=03.18
-S:  Manufacturer=FII
-S:  Product=T77W968 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+As part of that code we also added a software flush of the link
+stack (return address stack), which protects against Spectre-RSB
+between user processes.
 
-P:  Vendor=0489 ProdID=e0b4 Rev=03.18
-S:  Manufacturer=FII
-S:  Product=T77W968 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+That is all correct for CPUs that activate that mitigation, which is
+currently Power9 Nimbus DD2.3.
 
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
-[ johan: drop id defines ]
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+What I got wrong is that on older CPUs, where firmware has disabled
+the count cache, we also need to flush the link stack on context
+switch.
+
+To fix it we create a new feature bit which is not set by firmware,
+which tells us we need to flush the link stack. We set that when
+firmware tells us that either of the existing Spectre v2 mitigations
+are enabled.
+
+Then we adjust the patching code so that if we see that feature bit we
+enable the link stack flush. If we're also told to flush the count
+cache in software then we fall through and do that also.
+
+On the older CPUs we don't need to do do the software count cache
+flush, firmware has disabled it, so in that case we patch in an early
+return after the link stack flush.
+
+The naming of some of the functions is awkward after this patch,
+because they're called "count cache" but they also do link stack. But
+we'll fix that up in a later commit to ease backporting.
+
+This is the fix for CVE-2019-18660.
+
+Reported-by: Anthony Steinhauser <asteinhauser@google.com>
+Fixes: ee13cb249fab ("powerpc/64s: Add support for software count cache flush")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+[dja: straightforward backport to v4.14]
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/include/asm/asm-prototypes.h    |    1 
+ arch/powerpc/include/asm/security_features.h |    3 +
+ arch/powerpc/kernel/entry_64.S               |    6 +++
+ arch/powerpc/kernel/security.c               |   48 ++++++++++++++++++++++++---
+ 4 files changed, 54 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1995,6 +1995,10 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0xa31d, 0xff, 0x06, 0x13) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0xa31d, 0xff, 0x06, 0x14) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0xa31d, 0xff, 0x06, 0x1b) },
-+	{ USB_DEVICE(0x0489, 0xe0b4),						/* Foxconn T77W968 */
-+	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-+	{ USB_DEVICE(0x0489, 0xe0b5),						/* Foxconn T77W968 ESIM */
-+	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
- 	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 */
- 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
- 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
+--- a/arch/powerpc/include/asm/asm-prototypes.h
++++ b/arch/powerpc/include/asm/asm-prototypes.h
+@@ -129,6 +129,7 @@ unsigned long prepare_ftrace_return(unsi
+ /* Patch sites */
+ extern s32 patch__call_flush_count_cache;
+ extern s32 patch__flush_count_cache_return;
++extern s32 patch__flush_link_stack_return;
+ 
+ extern long flush_count_cache;
+ 
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -81,6 +81,9 @@ static inline bool security_ftr_enabled(
+ // Software required to flush count cache on context switch
+ #define SEC_FTR_FLUSH_COUNT_CACHE	0x0000000000000400ull
+ 
++// Software required to flush link stack on context switch
++#define SEC_FTR_FLUSH_LINK_STACK	0x0000000000001000ull
++
+ 
+ // Features enabled by default
+ #define SEC_FTR_DEFAULT \
+--- a/arch/powerpc/kernel/entry_64.S
++++ b/arch/powerpc/kernel/entry_64.S
+@@ -524,6 +524,7 @@ flush_count_cache:
+ 	/* Save LR into r9 */
+ 	mflr	r9
+ 
++	// Flush the link stack
+ 	.rept 64
+ 	bl	.+4
+ 	.endr
+@@ -533,6 +534,11 @@ flush_count_cache:
+ 	.balign 32
+ 	/* Restore LR */
+ 1:	mtlr	r9
++
++	// If we're just flushing the link stack, return here
++3:	nop
++	patch_site 3b patch__flush_link_stack_return
++
+ 	li	r9,0x7fff
+ 	mtctr	r9
+ 
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -24,6 +24,7 @@ enum count_cache_flush_type {
+ 	COUNT_CACHE_FLUSH_HW	= 0x4,
+ };
+ static enum count_cache_flush_type count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++static bool link_stack_flush_enabled;
+ 
+ bool barrier_nospec_enabled;
+ static bool no_nospec;
+@@ -204,11 +205,19 @@ ssize_t cpu_show_spectre_v2(struct devic
+ 
+ 		if (ccd)
+ 			seq_buf_printf(&s, "Indirect branch cache disabled");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (count_cache_flush_type != COUNT_CACHE_FLUSH_NONE) {
+ 		seq_buf_printf(&s, "Mitigation: Software count cache flush");
+ 
+ 		if (count_cache_flush_type == COUNT_CACHE_FLUSH_HW)
+ 			seq_buf_printf(&s, " (hardware accelerated)");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (btb_flush_enabled) {
+ 		seq_buf_printf(&s, "Mitigation: Branch predictor state flush");
+ 	} else {
+@@ -369,18 +378,40 @@ static __init int stf_barrier_debugfs_in
+ device_initcall(stf_barrier_debugfs_init);
+ #endif /* CONFIG_DEBUG_FS */
+ 
++static void no_count_cache_flush(void)
++{
++	count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++	pr_info("count-cache-flush: software flush disabled.\n");
++}
++
+ static void toggle_count_cache_flush(bool enable)
+ {
+-	if (!enable || !security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE) &&
++	    !security_ftr_enabled(SEC_FTR_FLUSH_LINK_STACK))
++		enable = false;
++
++	if (!enable) {
+ 		patch_instruction_site(&patch__call_flush_count_cache, PPC_INST_NOP);
+-		count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
+-		pr_info("count-cache-flush: software flush disabled.\n");
++		pr_info("link-stack-flush: software flush disabled.\n");
++		link_stack_flush_enabled = false;
++		no_count_cache_flush();
+ 		return;
+ 	}
+ 
++	// This enables the branch from _switch to flush_count_cache
+ 	patch_branch_site(&patch__call_flush_count_cache,
+ 			  (u64)&flush_count_cache, BRANCH_SET_LINK);
+ 
++	pr_info("link-stack-flush: software flush enabled.\n");
++	link_stack_flush_enabled = true;
++
++	// If we just need to flush the link stack, patch an early return
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++		patch_instruction_site(&patch__flush_link_stack_return, PPC_INST_BLR);
++		no_count_cache_flush();
++		return;
++	}
++
+ 	if (!security_ftr_enabled(SEC_FTR_BCCTR_FLUSH_ASSIST)) {
+ 		count_cache_flush_type = COUNT_CACHE_FLUSH_SW;
+ 		pr_info("count-cache-flush: full software flush sequence enabled.\n");
+@@ -399,11 +430,20 @@ void setup_count_cache_flush(void)
+ 	if (no_spectrev2 || cpu_mitigations_off()) {
+ 		if (security_ftr_enabled(SEC_FTR_BCCTRL_SERIALISED) ||
+ 		    security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED))
+-			pr_warn("Spectre v2 mitigations not under software control, can't disable\n");
++			pr_warn("Spectre v2 mitigations not fully under software control, can't disable\n");
+ 
+ 		enable = false;
+ 	}
+ 
++	/*
++	 * There's no firmware feature flag/hypervisor bit to tell us we need to
++	 * flush the link stack on context switch. So we set it here if we see
++	 * either of the Spectre v2 mitigations that aim to protect userspace.
++	 */
++	if (security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED) ||
++	    security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE))
++		security_ftr_set(SEC_FTR_FLUSH_LINK_STACK);
++
+ 	toggle_count_cache_flush(enable);
+ }
+ 
 
 
