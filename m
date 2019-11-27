@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16CA510BEC7
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A24C10BDDE
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:32:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729749AbfK0Upc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:45:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56416 "EHLO mail.kernel.org"
+        id S1730293AbfK0UyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:54:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729744AbfK0Upb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:45:31 -0500
+        id S1730304AbfK0UyJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:54:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 731C721741;
-        Wed, 27 Nov 2019 20:45:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCBAF2086A;
+        Wed, 27 Nov 2019 20:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887530;
-        bh=hy5EQTqdIO32KN9Xs+iYv16VQJmB7JjIp8RDms98nas=;
+        s=default; t=1574888049;
+        bh=5W9Egi4zKehIZf+zXK06b5qupqNkKPfecanbW4wj9z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mh4/Vg+9/2Nh+UPyQiVGHYJFGuPUDP0GpWoW8og98xzMFGMBwvHy6BKG9a1P+/Zdk
-         5WL+JlHfMgVDaYpR4iwpEouFYmTkaNgu3GBQKskaY7cMrdY94BW2xWBrFPHbSIPHu2
-         V1pXgFvrEeMu61t+hB7dZOfdR3HlwQkrDx1IOjXs=
+        b=fK/OZmT1ROoS0wwmyLXWxdUvAKhXDxiLGsygGD6ToWnPdwzzP/qh3nVoX9rvoBQ4w
+         CujJuP+3tTiXeOtgMir5wdH4SWZhQ5DCGR945VinnCDoLnz3DDtE/NVhgTej18UPCj
+         hV1g78ROtAjvbIfm/f/OfIUDRxCmw6ebmSaZOSrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 146/151] USB: serial: option: add support for DW5821e with eSIM support
-Date:   Wed, 27 Nov 2019 21:32:09 +0100
-Message-Id: <20191127203047.443093890@linuxfoundation.org>
+        stable@vger.kernel.org, Hewenliang <hewenliang4@huawei.com>
+Subject: [PATCH 4.14 197/211] usbip: tools: fix fd leakage in the function of read_attr_usbip_status
+Date:   Wed, 27 Nov 2019 21:32:10 +0100
+Message-Id: <20191127203112.241810566@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Hewenliang <hewenliang4@huawei.com>
 
-commit 957c31ea082e3fe5196f46d5b04018b10de47400 upstream.
+commit 26a4d4c00f85cb844dd11dd35e848b079c2f5e8f upstream.
 
-The device exposes AT, NMEA and DIAG ports in both USB configurations.
-Exactly same layout as the default DW5821e module, just a different
-vid/pid.
+We should close the fd before the return of read_attr_usbip_status.
 
-P:  Vendor=413c ProdID=81e0 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5821e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-
-P:  Vendor=413c ProdID=81e0 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5821e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Fixes: 3391ba0e2792 ("usbip: tools: Extract generic code to be shared with vudc backend")
+Signed-off-by: Hewenliang <hewenliang4@huawei.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191025043515.20053-1-hewenliang4@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ tools/usb/usbip/libsrc/usbip_host_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -200,6 +200,7 @@ static void option_instat_callback(struc
- #define DELL_PRODUCT_5804_MINICARD_ATT		0x819b  /* Novatel E371 */
+--- a/tools/usb/usbip/libsrc/usbip_host_common.c
++++ b/tools/usb/usbip/libsrc/usbip_host_common.c
+@@ -69,7 +69,7 @@ static int32_t read_attr_usbip_status(st
+ 	}
  
- #define DELL_PRODUCT_5821E			0x81d7
-+#define DELL_PRODUCT_5821E_ESIM			0x81e0
+ 	value = atoi(status);
+-
++	close(fd);
+ 	return value;
+ }
  
- #define KYOCERA_VENDOR_ID			0x0c88
- #define KYOCERA_PRODUCT_KPC650			0x17da
-@@ -1043,6 +1044,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(DELL_VENDOR_ID, DELL_PRODUCT_5804_MINICARD_ATT, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E),
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-+	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E_ESIM),
-+	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_E100A) },	/* ADU-E100, ADU-310 */
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_500A) },
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_620UW) },
 
 
