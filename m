@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBDE10B898
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AA3710B801
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:39:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729663AbfK0Uox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:44:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54836 "EHLO mail.kernel.org"
+        id S1728822AbfK0Uiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:38:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729662AbfK0Uow (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:44:52 -0500
+        id S1728831AbfK0Uiy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B0FD2166E;
-        Wed, 27 Nov 2019 20:44:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB29A20863;
+        Wed, 27 Nov 2019 20:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887492;
-        bh=2B1TO9U0JJWHutMSGqxzc5uvWPcGaGlSdTFQaLGEKu8=;
+        s=default; t=1574887134;
+        bh=hy5EQTqdIO32KN9Xs+iYv16VQJmB7JjIp8RDms98nas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwzMusWoFka51C2ROcepNNhiF98Gre1MZ3DciL1GeAJXJ0GKJEYjJuA1zH1ZybHk5
-         pfjhVdbFLUdMZOgczN3Re5gMAKR/cHT9IEJMmwGkux39WdIFAYE0ZK98/tVzbPobVc
-         a2Q+SdAQe10JfnO22f3HQBZ+PHSbhfzoiD2DPt08=
+        b=m5nKLkgDbimvRqCp3LDjBXGtdkUSKG3ddBHUkjyIqsBHPesl7jfCnMZRPz1rS67wL
+         hnuc9rJXRC4NdHcXNNTHE39/vOqOARB9YAqeI/qYNdUXaGjOfkc40psKF19440PALX
+         CutdlYSFtqZZAOWkHaJVxqeEKKzIZkVJQ6KI9MtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 132/151] virtio_console: reset on out of memory
-Date:   Wed, 27 Nov 2019 21:31:55 +0100
-Message-Id: <20191127203046.392102374@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 127/132] USB: serial: option: add support for DW5821e with eSIM support
+Date:   Wed, 27 Nov 2019 21:31:58 +0100
+Message-Id: <20191127203033.825160841@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-[ Upstream commit 5c60300d68da32ca77f7f978039dc72bfc78b06b ]
+commit 957c31ea082e3fe5196f46d5b04018b10de47400 upstream.
 
-When out of memory and we can't add ctrl vq buffers,
-probe fails. Unfortunately the error handling is
-out of spec: it calls del_vqs without bothering
-to reset the device first.
+The device exposes AT, NMEA and DIAG ports in both USB configurations.
+Exactly same layout as the default DW5821e module, just a different
+vid/pid.
 
-To fix, call the full cleanup function in this case.
+P:  Vendor=413c ProdID=81e0 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+P:  Vendor=413c ProdID=81e0 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/char/virtio_console.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 800ced0a5a247..43724bd8a0c0a 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -2073,6 +2073,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -200,6 +200,7 @@ static void option_instat_callback(struc
+ #define DELL_PRODUCT_5804_MINICARD_ATT		0x819b  /* Novatel E371 */
  
- 	spin_lock_init(&portdev->ports_lock);
- 	INIT_LIST_HEAD(&portdev->ports);
-+	INIT_LIST_HEAD(&portdev->list);
+ #define DELL_PRODUCT_5821E			0x81d7
++#define DELL_PRODUCT_5821E_ESIM			0x81e0
  
- 	virtio_device_ready(portdev->vdev);
- 
-@@ -2090,8 +2091,15 @@ static int virtcons_probe(struct virtio_device *vdev)
- 		if (!nr_added_bufs) {
- 			dev_err(&vdev->dev,
- 				"Error allocating buffers for control queue\n");
--			err = -ENOMEM;
--			goto free_vqs;
-+			/*
-+			 * The host might want to notify mgmt sw about device
-+			 * add failure.
-+			 */
-+			__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
-+					   VIRTIO_CONSOLE_DEVICE_READY, 0);
-+			/* Device was functional: we need full cleanup. */
-+			virtcons_remove(vdev);
-+			return -ENOMEM;
- 		}
- 	} else {
- 		/*
-@@ -2122,11 +2130,6 @@ static int virtcons_probe(struct virtio_device *vdev)
- 
- 	return 0;
- 
--free_vqs:
--	/* The host might want to notify mgmt sw about device add failure */
--	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
--			   VIRTIO_CONSOLE_DEVICE_READY, 0);
--	remove_vqs(portdev);
- free_chrdev:
- 	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
- free:
--- 
-2.20.1
-
+ #define KYOCERA_VENDOR_ID			0x0c88
+ #define KYOCERA_PRODUCT_KPC650			0x17da
+@@ -1043,6 +1044,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(DELL_VENDOR_ID, DELL_PRODUCT_5804_MINICARD_ATT, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E),
+ 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
++	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E_ESIM),
++	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_E100A) },	/* ADU-E100, ADU-310 */
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_500A) },
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_620UW) },
 
 
