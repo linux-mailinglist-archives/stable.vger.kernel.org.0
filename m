@@ -2,440 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BCA210B2F4
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 17:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 095C510B2FB
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 17:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726933AbfK0QIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 11:08:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56424 "EHLO mail.kernel.org"
+        id S1726634AbfK0QMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 11:12:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726593AbfK0QIL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 11:08:11 -0500
+        id S1726514AbfK0QMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 11:12:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23DD720674;
-        Wed, 27 Nov 2019 16:08:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D95A20684;
+        Wed, 27 Nov 2019 16:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574870888;
-        bh=zFj3KtjGKu77nAOsr2kv5sZZORtzDbw4BhWk83GZPM0=;
-        h=Subject:To:From:Date:From;
-        b=SwKIXmG34FcdM/tXo27FOxYV5JHbOHlyhp22eeiK0IY/w8oi2PP1SVmTuwyGYVIwQ
-         mPEikFASH2Or3O4MfE6IgQbDOS4obVBrE9BLePkkbhplXVO0+1RopZqOgqpqWAzWR+
-         4ttwOhEfJzQnmeiagA6OCBJ1rjbrYSuiOOaCgsXo=
-Subject: patch "Revert "serial/8250: Add support for NI-Serial PXI/PXIe+485 devices"" added to tty-next
-To:     je.yen.tam@ni.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 Nov 2019 17:07:57 +0100
-Message-ID: <157487087753154@kroah.com>
+        s=default; t=1574871165;
+        bh=6NR44PuhrjoGjvGmuylhFPAC5zEf1CiBlnr3kbxPI6c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gXntM1LLDSmzVDF6A446dj/xvVdEsqhpyoZft/VQduQ0xo/G5fw1CtYUlV/JwPV4f
+         dnttWv7Xp2i7Dg1y8R3oZOV24Cos82/4KrxPWxIGdFaOamfhPkDVXD+2x5gjUr75Ah
+         8lUhsFULU3T48pERZLFYWD0RjcTogWqXv7m/IfQQ=
+Date:   Wed, 27 Nov 2019 17:12:43 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.4.y v2] ALSA: hda - Disable audio component for legacy
+ Nvidia HDMI codecs
+Message-ID: <20191127161243.GA3059210@kroah.com>
+References: <20191127153647.24752-1-tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191127153647.24752-1-tiwai@suse.de>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Nov 27, 2019 at 04:36:47PM +0100, Takashi Iwai wrote:
+> commit 5a858e79c911330678b5a9be91a24830e94a0dc9 upstream.
+> 
+> The old Nvidia chips have multiple HD-audio codecs on the same
+> HD-audio controller, and this doesn't work as expected with the current
+> audio component binding that is implemented under the one-codec-per-
+> controller assumption; at the probe time, the driver leads to several
+> kernel WARNING messages.
+> 
+> For the proper support, we may change the pin2port and port2pin to
+> traverse the codec list per the given pin number, but this needs more
+> development and testing.
+> 
+> As a quick workaround, instead, this patch drops the binding in the
+> audio side for these legacy chips since the audio component support in
+> nouveau graphics driver is still not merged (hence it's basically
+> unused).
+> 
+> [ Unlike the original commit, this patch actually disables the audio
+>   component binding for all Nvidia chips, not only for legacy chips.
+>   It doesn't matter much, though: nouveau gfx driver still doesn't
+>   provide the audio component binding on 5.4.y, so it's only a
+>   placeholder for now.  Also, another difference from the original
+>   commit is that this removes the nvhdmi_audio_ops and other
+>   definitions completely in order to avoid a compile warning due to
+>   unused stuff.  -- tiwai ]
+> 
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205625
+> Fixes: ade49db337a9 ("ALSA: hda/hdmi - Allow audio component for AMD/ATI and Nvidia HDMI")
+> Link: https://lore.kernel.org/r/20191122132000.4460-1-tiwai@suse.de
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> ---
+>  sound/pci/hda/patch_hdmi.c | 22 ----------------------
+>  1 file changed, 22 deletions(-)
 
-This is a note to let you know that I've just added the patch titled
+This worked, thanks!
 
-    Revert "serial/8250: Add support for NI-Serial PXI/PXIe+485 devices"
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 27ed14d0ecb38516b6f3c6fdcd62c25c9454f979 Mon Sep 17 00:00:00 2001
-From: Je Yen Tam <je.yen.tam@ni.com>
-Date: Wed, 27 Nov 2019 15:53:01 +0800
-Subject: Revert "serial/8250: Add support for NI-Serial PXI/PXIe+485 devices"
-
-This reverts commit fdc2de87124f5183a98ea7eced1f76dbdba22951 ("serial/8250:
-Add support for NI-Serial PXI/PXIe+485 devices").
-
-The commit fdc2de87124f ("serial/8250: Add support for NI-Serial
-PXI/PXIe+485 devices") introduced a breakage on NI-Serial PXI(e)-RS485
-devices, RS-232 variants have no issue. The Linux system can enumerate the
-NI-Serial PXI(e)-RS485 devices, but it broke the R/W operation on the
-ports.
-
-However, the implementation is working on the NI internal Linux RT kernel
-but it does not work in the Linux main tree kernel. This is only affecting
-NI products, specifically the RS-485 variants. Reverting the upstream
-until a proper implementation that can apply to both NI internal Linux
-kernel and Linux mainline kernel is figured out.
-
-Signed-off-by: Je Yen Tam <je.yen.tam@ni.com>
-Fixes: fdc2de87124f ("serial/8250: Add support for NI-Serial PXI/PXIe+485 devices")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191127075301.9866-1-je.yen.tam@ni.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/8250/8250_pci.c | 292 +----------------------------
- 1 file changed, 4 insertions(+), 288 deletions(-)
-
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index 6adbadd6a56a..8a01d034f9d1 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -745,16 +745,8 @@ static int pci_ni8430_init(struct pci_dev *dev)
- }
- 
- /* UART Port Control Register */
--#define NI16550_PCR_OFFSET	0x0f
--#define NI16550_PCR_RS422	0x00
--#define NI16550_PCR_ECHO_RS485	0x01
--#define NI16550_PCR_DTR_RS485	0x02
--#define NI16550_PCR_AUTO_RS485	0x03
--#define NI16550_PCR_WIRE_MODE_MASK	0x03
--#define NI16550_PCR_TXVR_ENABLE_BIT	BIT(3)
--#define NI16550_PCR_RS485_TERMINATION_BIT	BIT(6)
--#define NI16550_ACR_DTR_AUTO_DTR	(0x2 << 3)
--#define NI16550_ACR_DTR_MANUAL_DTR	(0x0 << 3)
-+#define NI8430_PORTCON	0x0f
-+#define NI8430_PORTCON_TXVR_ENABLE	(1 << 3)
- 
- static int
- pci_ni8430_setup(struct serial_private *priv,
-@@ -776,117 +768,14 @@ pci_ni8430_setup(struct serial_private *priv,
- 		return -ENOMEM;
- 
- 	/* enable the transceiver */
--	writeb(readb(p + offset + NI16550_PCR_OFFSET) | NI16550_PCR_TXVR_ENABLE_BIT,
--	       p + offset + NI16550_PCR_OFFSET);
-+	writeb(readb(p + offset + NI8430_PORTCON) | NI8430_PORTCON_TXVR_ENABLE,
-+	       p + offset + NI8430_PORTCON);
- 
- 	iounmap(p);
- 
- 	return setup_port(priv, port, bar, offset, board->reg_shift);
- }
- 
--static int pci_ni8431_config_rs485(struct uart_port *port,
--	struct serial_rs485 *rs485)
--{
--	u8 pcr, acr;
--	struct uart_8250_port *up;
--
--	up = container_of(port, struct uart_8250_port, port);
--	acr = up->acr;
--	pcr = port->serial_in(port, NI16550_PCR_OFFSET);
--	pcr &= ~NI16550_PCR_WIRE_MODE_MASK;
--
--	if (rs485->flags & SER_RS485_ENABLED) {
--		/* RS-485 */
--		if ((rs485->flags & SER_RS485_RX_DURING_TX) &&
--			(rs485->flags & SER_RS485_RTS_ON_SEND)) {
--			dev_dbg(port->dev, "Invalid 2-wire mode\n");
--			return -EINVAL;
--		}
--
--		if (rs485->flags & SER_RS485_RX_DURING_TX) {
--			/* Echo */
--			dev_vdbg(port->dev, "2-wire DTR with echo\n");
--			pcr |= NI16550_PCR_ECHO_RS485;
--			acr |= NI16550_ACR_DTR_MANUAL_DTR;
--		} else {
--			/* Auto or DTR */
--			if (rs485->flags & SER_RS485_RTS_ON_SEND) {
--				/* Auto */
--				dev_vdbg(port->dev, "2-wire Auto\n");
--				pcr |= NI16550_PCR_AUTO_RS485;
--				acr |= NI16550_ACR_DTR_AUTO_DTR;
--			} else {
--				/* DTR-controlled */
--				/* No Echo */
--				dev_vdbg(port->dev, "2-wire DTR no echo\n");
--				pcr |= NI16550_PCR_DTR_RS485;
--				acr |= NI16550_ACR_DTR_MANUAL_DTR;
--			}
--		}
--	} else {
--		/* RS-422 */
--		dev_vdbg(port->dev, "4-wire\n");
--		pcr |= NI16550_PCR_RS422;
--		acr |= NI16550_ACR_DTR_MANUAL_DTR;
--	}
--
--	dev_dbg(port->dev, "write pcr: 0x%08x\n", pcr);
--	port->serial_out(port, NI16550_PCR_OFFSET, pcr);
--
--	up->acr = acr;
--	port->serial_out(port, UART_SCR, UART_ACR);
--	port->serial_out(port, UART_ICR, up->acr);
--
--	/* Update the cache. */
--	port->rs485 = *rs485;
--
--	return 0;
--}
--
--static int pci_ni8431_setup(struct serial_private *priv,
--		 const struct pciserial_board *board,
--		 struct uart_8250_port *uart, int idx)
--{
--	u8 pcr, acr;
--	struct pci_dev *dev = priv->dev;
--	void __iomem *addr;
--	unsigned int bar, offset = board->first_offset;
--
--	if (idx >= board->num_ports)
--		return 1;
--
--	bar = FL_GET_BASE(board->flags);
--	offset += idx * board->uart_offset;
--
--	addr = pci_ioremap_bar(dev, bar);
--	if (!addr)
--		return -ENOMEM;
--
--	/* enable the transceiver */
--	writeb(readb(addr + NI16550_PCR_OFFSET) | NI16550_PCR_TXVR_ENABLE_BIT,
--		addr + NI16550_PCR_OFFSET);
--
--	pcr = readb(addr + NI16550_PCR_OFFSET);
--	pcr &= ~NI16550_PCR_WIRE_MODE_MASK;
--
--	/* set wire mode to default RS-422 */
--	pcr |= NI16550_PCR_RS422;
--	acr = NI16550_ACR_DTR_MANUAL_DTR;
--
--	/* write port configuration to register */
--	writeb(pcr, addr + NI16550_PCR_OFFSET);
--
--	/* access and write to UART acr register */
--	writeb(UART_ACR, addr + UART_SCR);
--	writeb(acr, addr + UART_ICR);
--
--	uart->port.rs485_config = &pci_ni8431_config_rs485;
--
--	iounmap(addr);
--
--	return setup_port(priv, uart, bar, offset, board->reg_shift);
--}
--
- static int pci_netmos_9900_setup(struct serial_private *priv,
- 				const struct pciserial_board *board,
- 				struct uart_8250_port *port, int idx)
-@@ -2023,15 +1912,6 @@ pci_moxa_setup(struct serial_private *priv,
- #define PCI_DEVICE_ID_ACCESIO_PCIE_COM_8SM	0x10E9
- #define PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4SM	0x11D8
- 
--#define PCIE_DEVICE_ID_NI_PXIE8430_2328	0x74C2
--#define PCIE_DEVICE_ID_NI_PXIE8430_23216	0x74C1
--#define PCI_DEVICE_ID_NI_PXI8431_4852	0x7081
--#define PCI_DEVICE_ID_NI_PXI8431_4854	0x70DE
--#define PCI_DEVICE_ID_NI_PXI8431_4858	0x70E3
--#define PCI_DEVICE_ID_NI_PXI8433_4852	0x70E9
--#define PCI_DEVICE_ID_NI_PXI8433_4854	0x70ED
--#define PCIE_DEVICE_ID_NI_PXIE8431_4858	0x74C4
--#define PCIE_DEVICE_ID_NI_PXIE8431_48516	0x74C3
- 
- #define	PCI_DEVICE_ID_MOXA_CP102E	0x1024
- #define	PCI_DEVICE_ID_MOXA_CP102EL	0x1025
-@@ -2269,87 +2149,6 @@ static struct pci_serial_quirk pci_serial_quirks[] __refdata = {
- 		.setup		= pci_ni8430_setup,
- 		.exit		= pci_ni8430_exit,
- 	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCIE_DEVICE_ID_NI_PXIE8430_2328,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8430_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCIE_DEVICE_ID_NI_PXIE8430_23216,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8430_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCI_DEVICE_ID_NI_PXI8431_4852,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8431_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCI_DEVICE_ID_NI_PXI8431_4854,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8431_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCI_DEVICE_ID_NI_PXI8431_4858,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8431_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCI_DEVICE_ID_NI_PXI8433_4852,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8431_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCI_DEVICE_ID_NI_PXI8433_4854,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8431_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCIE_DEVICE_ID_NI_PXIE8431_4858,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8431_setup,
--		.exit		= pci_ni8430_exit,
--	},
--	{
--		.vendor		= PCI_VENDOR_ID_NI,
--		.device		= PCIE_DEVICE_ID_NI_PXIE8431_48516,
--		.subvendor	= PCI_ANY_ID,
--		.subdevice	= PCI_ANY_ID,
--		.init		= pci_ni8430_init,
--		.setup		= pci_ni8431_setup,
--		.exit		= pci_ni8430_exit,
--	},
- 	/* Quatech */
- 	{
- 		.vendor		= PCI_VENDOR_ID_QUATECH,
-@@ -3106,13 +2905,6 @@ enum pci_board_num_t {
- 	pbn_ni8430_4,
- 	pbn_ni8430_8,
- 	pbn_ni8430_16,
--	pbn_ni8430_pxie_8,
--	pbn_ni8430_pxie_16,
--	pbn_ni8431_2,
--	pbn_ni8431_4,
--	pbn_ni8431_8,
--	pbn_ni8431_pxie_8,
--	pbn_ni8431_pxie_16,
- 	pbn_ADDIDATA_PCIe_1_3906250,
- 	pbn_ADDIDATA_PCIe_2_3906250,
- 	pbn_ADDIDATA_PCIe_4_3906250,
-@@ -3765,55 +3557,6 @@ static struct pciserial_board pci_boards[] = {
- 		.uart_offset	= 0x10,
- 		.first_offset	= 0x800,
- 	},
--	[pbn_ni8430_pxie_16] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 16,
--		.base_baud	= 3125000,
--		.uart_offset	= 0x10,
--		.first_offset	= 0x800,
--	},
--	[pbn_ni8430_pxie_8] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 8,
--		.base_baud	= 3125000,
--		.uart_offset	= 0x10,
--		.first_offset	= 0x800,
--	},
--	[pbn_ni8431_8] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 8,
--		.base_baud	= 3686400,
--		.uart_offset	= 0x10,
--		.first_offset	= 0x800,
--	},
--	[pbn_ni8431_4] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 4,
--		.base_baud	= 3686400,
--		.uart_offset	= 0x10,
--		.first_offset	= 0x800,
--	},
--	[pbn_ni8431_2] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 2,
--		.base_baud	= 3686400,
--		.uart_offset	= 0x10,
--		.first_offset	= 0x800,
--	},
--	[pbn_ni8431_pxie_16] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 16,
--		.base_baud	= 3125000,
--		.uart_offset	= 0x10,
--		.first_offset	= 0x800,
--	},
--	[pbn_ni8431_pxie_8] = {
--		.flags		= FL_BASE0,
--		.num_ports	= 8,
--		.base_baud	= 3125000,
--		.uart_offset	= 0x10,
--		.first_offset	= 0x800,
--	},
- 	/*
- 	 * ADDI-DATA GmbH PCI-Express communication cards <info@addi-data.com>
- 	 */
-@@ -5567,33 +5310,6 @@ static const struct pci_device_id serial_pci_tbl[] = {
- 	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PCI8432_2324,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 		pbn_ni8430_4 },
--	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8430_2328,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8430_pxie_8 },
--	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8430_23216,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8430_pxie_16 },
--	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8431_4852,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8431_2 },
--	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8431_4854,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8431_4 },
--	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8431_4858,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8431_8 },
--	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8431_4858,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8431_pxie_8 },
--	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8431_48516,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8431_pxie_16 },
--	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8433_4852,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8431_2 },
--	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8433_4854,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--		pbn_ni8431_4 },
- 
- 	/*
- 	 * MOXA
--- 
-2.24.0
-
-
+greg k-h
