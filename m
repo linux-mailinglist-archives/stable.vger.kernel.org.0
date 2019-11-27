@@ -2,108 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6894A10AB2D
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:29:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEF010AB4F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:50:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726092AbfK0H3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 02:29:24 -0500
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:40364 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726111AbfK0H3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:29:24 -0500
-Received: by mail-ot1-f66.google.com with SMTP id m15so18304205otq.7
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 23:29:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=u8oUQFRZy3gf3+1yf0zkKS6+wd9DrvcbQ832mANUPWo=;
-        b=S/SdAfsNtNo4n8om7tQ8ej8pWPma3kUq5jV16c0NRtI0d+7+cBogG4aHNIEOFRIssG
-         DqNvD128D3m2Dw4hHw/EN5U0fY7Y+9+GVaZ2wbUCqpTFItYtg4m1gXzE3FX9kTacD0KE
-         EzIgZ6gTcM/+yjIjDFAg0X7QxSA48QIcYpxEor2LIp5K7ip6lECTtMlDnVT8s6nRoVp+
-         VxhuDmKkPxn3I7TnYd6R+VAn8Byx2sKZrpIKL570sT3n5WZFSaQVFQHvgbcQq0cs1w9V
-         +idjzBgwlDMcXNa06M1IXARDreMzmjRFdZ6blxE8OrCksjV71MpuuONorciuI3YLPWrM
-         CG6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=u8oUQFRZy3gf3+1yf0zkKS6+wd9DrvcbQ832mANUPWo=;
-        b=M855EP2MAVcLqPIovlRmcIm65FqOvJbvFhNTgkr7YRLUF3wPG/VzyHKBus5vs/3017
-         wOfBkFDur8HKurSmAgNe8CndTrrOYzVE/odbCiqk4BlrCe/KublaOvqBKx8xzBOueDDK
-         2YQi+H91+rNDd4OUGDGbsxi1rigX/0k/nmea6EQzHxtmxxQDx/IjKBoDUUVYhqybp2rc
-         eBrIWRPVELhMoZWgMwe9WJdiiG+78hwDkCLEayvk2XU21h3JzEFNstETqlI6l8YKZTqZ
-         +f9vxYAC7V5jIhnOFPi+1LXAVeL+mdnsSc0KYfg87w8p/8+j0Ti35efD0fWUGyuR1jed
-         kdtQ==
-X-Gm-Message-State: APjAAAXXwTcoUE1VSXZyMsLfFccR2ngjE3PRlfbZrRhu1hpKLvZ+JCSA
-        xFJMG0hsUJBS1H6yW3IYxUKFU0ihbxDMaQ78zW47n6aF
-X-Google-Smtp-Source: APXvYqwUJpU+ywaP4+HdQDqIrP53KyP5oXj3UgopnsUkAWzWQFz8KbbiHHCui0ide4gn0Mof0rjjgxah85RHCbxbzM8=
-X-Received: by 2002:a9d:65cd:: with SMTP id z13mr2544801oth.85.1574839762873;
- Tue, 26 Nov 2019 23:29:22 -0800 (PST)
+        id S1726145AbfK0HuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 02:50:25 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:50323 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726092AbfK0HuZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:50:25 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 3918A993;
+        Wed, 27 Nov 2019 02:50:24 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 27 Nov 2019 02:50:24 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=2SfCE91CPr2KLJgfyZexBHtnhDA
+        APcWjiFSbvLAb1ts=; b=RhWdS1Zqyex17ifPVrh1DWW1A3f3iF0BkkYvL3U8CVV
+        JdsoBaJi40ABIIawEKLJQwSBK4dj9eqoxGnPQkeyqROiwxIqT/AbNVi+TeGGVE+3
+        52EPZQWttPquUZiIhLPDMnxoNkdzVqJjTSWhavZfjVO984DedcKksX+n7xTH9+nz
+        QnvF/Tl2jWbwWlVFhuwyGVHYeDf9Ap3uBXOPvYumrCGc8gFdfwyYyPnXKAhB6b1a
+        4EvX09ebj42eXvSrjA6xlVgoE6ocwL2/R8RHFxVS7vAEPWi4qAViLmtw8ifoCsnJ
+        g4heMDDT2q2E6Ed4Gs6nUG43CM0CTUT25EeX1+9xpdQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2SfCE9
+        1CPr2KLJgfyZexBHtnhDAAPcWjiFSbvLAb1ts=; b=j28eobMq6AnaMpzNbLM5xA
+        9wwUO1Aag0uFQrAgXUZxEB8PgDKL/uWPxqCC4sZyIE+e/BDpYjg1yMaFtmX4yc7/
+        KwH/oZ/z09bo25CYw0ywBXRSJkJCZIXG6VSTyA3KOz/I9VQnGdR04WQ7Jy85Yc5W
+        GT9ZJp1WKZdLb7JfHm7sU1mmusRRT8fsSz/vCWLkUQVB9ohTSb4n6CIbG3okJQBC
+        VEYKpW0Rrwr8MYvM6YtumlYF1gJ133XdA9XmhvAenDBFVgXG/VVMdnglR5ZSWxLa
+        DIABYFgTeV4bKzELcziUhtanzxVtN1glGpZbt3hsq9DqVSqsvkzcKmmhMqWyqLpQ
+        ==
+X-ME-Sender: <xms:vyreXd7MdW2ZFKR6Mg-zIle9yFBdgbZlHsunRzTcWTwhq1DetfHjEQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeigedguddufecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:vyreXXWTTQROFgS4974A66677S26L2W7v_ouTSAY6iwZOF1G1kDPeA>
+    <xmx:vyreXTWsv9DS_91G_IBXjbCbogh81vkvmugUItsK5fGjPxwGUHVx_g>
+    <xmx:vyreXcT8d7L0WGU3_AoKo5evtKikKLMlW5VujiGTMt9Y1x0Vit6xHw>
+    <xmx:vyreXWKbDLTpTisDd7ODzYGAbNe5ImHPS1jSiOcOIAKYUmNUoQPKnQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 53D7180062;
+        Wed, 27 Nov 2019 02:50:23 -0500 (EST)
+Date:   Wed, 27 Nov 2019 08:50:21 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 1/6] can: dev: can_dellink(): remove return at end of
+ void function
+Message-ID: <20191127075021.GA1821634@kroah.com>
+References: <20191127072124.30445-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-References: <20191126193027.11970-1-jcmvbkbc@gmail.com>
-In-Reply-To: <20191126193027.11970-1-jcmvbkbc@gmail.com>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Wed, 27 Nov 2019 08:29:12 +0100
-Message-ID: <CAMpxmJV6qCGWKadeDyJLqCDtZ3zFBQAZ0yZuWkYiy3ZqWUFGiA@mail.gmail.com>
-Subject: Re: [PATCH] drivers/gpio/gpio-xtensa: fix driver build
-To:     Max Filippov <jcmvbkbc@gmail.com>
-Cc:     linux-xtensa@linux-xtensa.org, Chris Zankel <chris@zankel.net>,
-        linux-gpio <linux-gpio@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Baruch Siach <baruch@tkos.co.il>,
-        "Stable # 4 . 20+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191127072124.30445-1-lee.jones@linaro.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-wt., 26 lis 2019 o 20:30 Max Filippov <jcmvbkbc@gmail.com> napisa=C5=82(a):
->
-> Commit cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr") removed
-> {RSR,WSR}_CPENABLE from xtensa code, but did not fix up all users,
-> breaking gpio-xtensa driver build.
-> Update gpio-xtensa to use new xtensa_{get,set}_sr API.
->
-> Cc: stable@vger.kernel.org # v5.0+
-> Fixes: cad6fade6e78 ("xtensa: clean up WSR*/RSR*/get_sr/set_sr")
-> Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+On Wed, Nov 27, 2019 at 07:21:19AM +0000, Lee Jones wrote:
+> From: Marc Kleine-Budde <mkl@pengutronix.de>
+> 
+> [ Upstream commit d36673f5918c8fd3533f7c0d4bac041baf39c7bb ]
+> 
+> This patch remove the return at the end of the void function
+> can_dellink().
+> 
+> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  drivers/gpio/gpio-xtensa.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/gpio/gpio-xtensa.c b/drivers/gpio/gpio-xtensa.c
-> index 43d3fa5f511a..0fb2211f9573 100644
-> --- a/drivers/gpio/gpio-xtensa.c
-> +++ b/drivers/gpio/gpio-xtensa.c
-> @@ -44,15 +44,14 @@ static inline unsigned long enable_cp(unsigned long *=
-cpenable)
->         unsigned long flags;
->
->         local_irq_save(flags);
-> -       RSR_CPENABLE(*cpenable);
-> -       WSR_CPENABLE(*cpenable | BIT(XCHAL_CP_ID_XTIOP));
-> -
-> +       *cpenable =3D xtensa_get_sr(cpenable);
-> +       xtensa_set_sr(*cpenable | BIT(XCHAL_CP_ID_XTIOP), cpenable);
->         return flags;
->  }
->
->  static inline void disable_cp(unsigned long flags, unsigned long cpenabl=
-e)
+>  drivers/net/can/dev.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+> index 9dd968ee792e..e0d067701edc 100644
+> --- a/drivers/net/can/dev.c
+> +++ b/drivers/net/can/dev.c
+> @@ -1041,7 +1041,6 @@ static int can_newlink(struct net *src_net, struct net_device *dev,
+>  
+>  static void can_dellink(struct net_device *dev, struct list_head *head)
 >  {
-> -       WSR_CPENABLE(cpenable);
-> +       xtensa_set_sr(cpenable, cpenable);
->         local_irq_restore(flags);
+> -	return;
 >  }
->
-> --
-> 2.20.1
->
+>  
+>  static struct rtnl_link_ops can_link_ops __read_mostly = {
+> -- 
+> 2.24.0
+> 
 
-Patch applied, thanks!
+How does this patch meet the stable kernel rules?
 
-Bart
+greg k-h
