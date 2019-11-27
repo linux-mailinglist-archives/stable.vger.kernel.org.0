@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E17810BE85
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13ACF10BEAC
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728863AbfK0Ur5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:47:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32884 "EHLO mail.kernel.org"
+        id S1729093AbfK0UqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:46:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728261AbfK0Ur4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:47:56 -0500
+        id S1729291AbfK0UqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:46:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAC77217D6;
-        Wed, 27 Nov 2019 20:47:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D316821775;
+        Wed, 27 Nov 2019 20:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887676;
-        bh=2+2UrcNQKOmqNWVIJvaoWFdOKn0xaQmXMVSbHEEMVUw=;
+        s=default; t=1574887573;
+        bh=g6tQzpPav/HyLLUIHmdIMx0pZsXaRsRBu3POfBuvuyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvFZOTzIqDtl023kc7So7Lm3jYPldOdB714+9Sg2gvaqGkb5cWCU82Hv2Yk1d95zX
-         OsE4gV73bnkImbtQm2mnHMViACfIzJC1dK0oeWbpIVAyxrxT6Za+4zNASqTj+foznJ
-         jASvk6rBObySZhp/xbKx1kDLzV4JVZYLlp5WsrFI=
+        b=GGJctMCBNZiDzYGa0Y/3+XlpzFUp05O9WjHjpDppsG9/tJc4OXdFM1OQ82xYgfrpl
+         5dfw6/32e29+8i7FJlQz2K4wwslq9zZEcLgFAiTbeWfXKfB3Qr9k2TFxvRal70VW4v
+         v9G88O1vc6FSusylzVzyDjwNR1omCoeoFi0WFnac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Mike Christie <mchristi@redhat.com>,
-        Sun Ke <sunke32@huawei.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 010/211] nbd:fix memory leak in nbd_get_socket()
-Date:   Wed, 27 Nov 2019 21:29:03 +0100
-Message-Id: <20191127203050.799096716@linuxfoundation.org>
+        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Thomas Voegtle <tv@lio96.de>, Changwei Ge <gechangwei@live.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 012/211] Revert "fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()"
+Date:   Wed, 27 Nov 2019 21:29:05 +0100
+Message-Id: <20191127203051.329138588@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -44,33 +50,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sun Ke <sunke32@huawei.com>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-commit dff10bbea4be47bdb615b036c834a275b7c68133 upstream.
+commit 94b07b6f9e2e996afff7395de6b35f34f4cb10bf upstream.
 
-Before returning NULL, put the sock first.
+This reverts commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d.
 
-Cc: stable@vger.kernel.org
-Fixes: cf1b2326b734 ("nbd: verify socket is supported during setup")
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Sun Ke <sunke32@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Commit 56e94ea132bb ("fs: ocfs2: fix possible null-pointer dereferences
+in ocfs2_xa_prepare_entry()") introduces a regression that fail to
+create directory with mount option user_xattr and acl.  Actually the
+reported NULL pointer dereference case can be correctly handled by
+loc->xl_ops->xlo_add_entry(), so revert it.
+
+Link: http://lkml.kernel.org/r/1573624916-83825-1-git-send-email-joseph.qi@linux.alibaba.com
+Fixes: 56e94ea132bb ("fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reported-by: Thomas Voegtle <tv@lio96.de>
+Acked-by: Changwei Ge <gechangwei@live.cn>
+Cc: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/nbd.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ocfs2/xattr.c |   56 ++++++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 33 insertions(+), 23 deletions(-)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -931,6 +931,7 @@ static struct socket *nbd_get_socket(str
- 	if (sock->ops->shutdown == sock_no_shutdown) {
- 		dev_err(disk_to_dev(nbd->disk), "Unsupported socket: shutdown callout must be supported.\n");
- 		*err = -EINVAL;
-+		sockfd_put(sock);
- 		return NULL;
- 	}
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -1497,6 +1497,18 @@ static int ocfs2_xa_check_space(struct o
+ 	return loc->xl_ops->xlo_check_space(loc, xi);
+ }
  
++static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
++{
++	loc->xl_ops->xlo_add_entry(loc, name_hash);
++	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
++	/*
++	 * We can't leave the new entry's xe_name_offset at zero or
++	 * add_namevalue() will go nuts.  We set it to the size of our
++	 * storage so that it can never be less than any other entry.
++	 */
++	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
++}
++
+ static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
+ 				   struct ocfs2_xattr_info *xi)
+ {
+@@ -2128,31 +2140,29 @@ static int ocfs2_xa_prepare_entry(struct
+ 	if (rc)
+ 		goto out;
+ 
+-	if (!loc->xl_entry) {
+-		rc = -EINVAL;
+-		goto out;
+-	}
+-
+-	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
+-		orig_value_size = loc->xl_entry->xe_value_size;
+-		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
+-		if (rc)
+-			goto out;
+-		goto alloc_value;
+-	}
++	if (loc->xl_entry) {
++		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
++			orig_value_size = loc->xl_entry->xe_value_size;
++			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
++			if (rc)
++				goto out;
++			goto alloc_value;
++		}
+ 
+-	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
+-		orig_clusters = ocfs2_xa_value_clusters(loc);
+-		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
+-		if (rc) {
+-			mlog_errno(rc);
+-			ocfs2_xa_cleanup_value_truncate(loc,
+-							"overwriting",
+-							orig_clusters);
+-			goto out;
++		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
++			orig_clusters = ocfs2_xa_value_clusters(loc);
++			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
++			if (rc) {
++				mlog_errno(rc);
++				ocfs2_xa_cleanup_value_truncate(loc,
++								"overwriting",
++								orig_clusters);
++				goto out;
++			}
+ 		}
+-	}
+-	ocfs2_xa_wipe_namevalue(loc);
++		ocfs2_xa_wipe_namevalue(loc);
++	} else
++		ocfs2_xa_add_entry(loc, name_hash);
+ 
+ 	/*
+ 	 * If we get here, we have a blank entry.  Fill it.  We grow our
 
 
