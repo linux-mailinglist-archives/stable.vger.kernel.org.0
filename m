@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA3710B801
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F59510B89B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728822AbfK0Uiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:38:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
+        id S1729668AbfK0UpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:45:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbfK0Uiy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:38:54 -0500
+        id S1729682AbfK0UpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:45:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB29A20863;
-        Wed, 27 Nov 2019 20:38:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B23A02166E;
+        Wed, 27 Nov 2019 20:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887134;
-        bh=hy5EQTqdIO32KN9Xs+iYv16VQJmB7JjIp8RDms98nas=;
+        s=default; t=1574887502;
+        bh=Rd+0N2tiW1RD9LnB2DhtsXFYTisBldFFm7TiN3h3SQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m5nKLkgDbimvRqCp3LDjBXGtdkUSKG3ddBHUkjyIqsBHPesl7jfCnMZRPz1rS67wL
-         hnuc9rJXRC4NdHcXNNTHE39/vOqOARB9YAqeI/qYNdUXaGjOfkc40psKF19440PALX
-         CutdlYSFtqZZAOWkHaJVxqeEKKzIZkVJQ6KI9MtM=
+        b=hxvWlEKD0iMRv8UV+27/roa4JNK1Z+rVpG8ac3R5QMdFHPIFRtqpAK1CXupDnFZvo
+         8WEUh73QHekX6y9V2DHmWWsbfimSLf//7clmDQKh4ixk9W03tzpLEbaMKChdSaFUzk
+         flgvfULqx8PeNJlqRTzThzNL7dLb6tR3/cfhXuhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 127/132] USB: serial: option: add support for DW5821e with eSIM support
-Date:   Wed, 27 Nov 2019 21:31:58 +0100
-Message-Id: <20191127203033.825160841@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 136/151] virtio_console: fix uninitialized variable use
+Date:   Wed, 27 Nov 2019 21:31:59 +0100
+Message-Id: <20191127203046.807989445@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-commit 957c31ea082e3fe5196f46d5b04018b10de47400 upstream.
+[ Upstream commit 2055997f983c6db7b5c3940ce5f8f822657d5bc3 ]
 
-The device exposes AT, NMEA and DIAG ports in both USB configurations.
-Exactly same layout as the default DW5821e module, just a different
-vid/pid.
+We try to disable callbacks on c_ivq even without multiport
+even though that vq is not initialized in this configuration.
 
-P:  Vendor=413c ProdID=81e0 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5821e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-
-P:  Vendor=413c ProdID=81e0 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5821e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c743d09dbd01 ("virtio: console: Disable callbacks for virtqueues at start of S4 freeze")
+Suggested-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/virtio_console.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -200,6 +200,7 @@ static void option_instat_callback(struc
- #define DELL_PRODUCT_5804_MINICARD_ATT		0x819b  /* Novatel E371 */
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index d7ee031d776d8..7de24040f39c1 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -2203,14 +2203,16 @@ static int virtcons_freeze(struct virtio_device *vdev)
  
- #define DELL_PRODUCT_5821E			0x81d7
-+#define DELL_PRODUCT_5821E_ESIM			0x81e0
+ 	vdev->config->reset(vdev);
  
- #define KYOCERA_VENDOR_ID			0x0c88
- #define KYOCERA_PRODUCT_KPC650			0x17da
-@@ -1043,6 +1044,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(DELL_VENDOR_ID, DELL_PRODUCT_5804_MINICARD_ATT, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E),
- 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-+	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E_ESIM),
-+	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_E100A) },	/* ADU-E100, ADU-310 */
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_500A) },
- 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_620UW) },
+-	virtqueue_disable_cb(portdev->c_ivq);
++	if (use_multiport(portdev))
++		virtqueue_disable_cb(portdev->c_ivq);
+ 	cancel_work_sync(&portdev->control_work);
+ 	cancel_work_sync(&portdev->config_work);
+ 	/*
+ 	 * Once more: if control_work_handler() was running, it would
+ 	 * enable the cb as the last step.
+ 	 */
+-	virtqueue_disable_cb(portdev->c_ivq);
++	if (use_multiport(portdev))
++		virtqueue_disable_cb(portdev->c_ivq);
+ 	remove_controlq_data(portdev);
+ 
+ 	list_for_each_entry(port, &portdev->ports, list) {
+-- 
+2.20.1
+
 
 
