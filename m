@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A21C610BE84
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E17810BE85
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728317AbfK0Ury (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:47:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32850 "EHLO mail.kernel.org"
+        id S1728863AbfK0Ur5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:47:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728869AbfK0Ury (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:47:54 -0500
+        id S1728261AbfK0Ur4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:47:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4021C217C3;
-        Wed, 27 Nov 2019 20:47:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAC77217D6;
+        Wed, 27 Nov 2019 20:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887673;
-        bh=zvYRrz4rzu32n8VzU68nDZUGzYohu/DbbQ7Rr99+HhM=;
+        s=default; t=1574887676;
+        bh=2+2UrcNQKOmqNWVIJvaoWFdOKn0xaQmXMVSbHEEMVUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SI26OGNggPFYWZmfcP/lfJq3mCjOzqskOfUdvYbZ4/UYogjqVFjJDSFZoWwLyhdK9
-         eeMhKw7Z1Lhpxd3uHYduyqReRj880/YRtOpF2zkZDDFYKKmMxoBBHRNDCCYZcAhTrE
-         kbXt5JGdEoKGALRJLHf7K2GuLyj32JiQeoHLorHg=
+        b=hvFZOTzIqDtl023kc7So7Lm3jYPldOdB714+9Sg2gvaqGkb5cWCU82Hv2Yk1d95zX
+         OsE4gV73bnkImbtQm2mnHMViACfIzJC1dK0oeWbpIVAyxrxT6Za+4zNASqTj+foznJ
+         jASvk6rBObySZhp/xbKx1kDLzV4JVZYLlp5WsrFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4.14 009/211] tools: gpio: Correctly add make dependencies for gpio_utils
-Date:   Wed, 27 Nov 2019 21:29:02 +0100
-Message-Id: <20191127203050.644445653@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Mike Christie <mchristi@redhat.com>,
+        Sun Ke <sunke32@huawei.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 010/211] nbd:fix memory leak in nbd_get_socket()
+Date:   Wed, 27 Nov 2019 21:29:03 +0100
+Message-Id: <20191127203050.799096716@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -43,74 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
+From: Sun Ke <sunke32@huawei.com>
 
-commit 0161a94e2d1c713bd34d72bc0239d87c31747bf7 upstream.
+commit dff10bbea4be47bdb615b036c834a275b7c68133 upstream.
 
-gpio tools fail to build correctly with make parallelization:
+Before returning NULL, put the sock first.
 
-$ make -s -j24
-ld: gpio-utils.o: file not recognized: file truncated
-make[1]: *** [/home/labbott/linux_upstream/tools/build/Makefile.build:145: lsgpio-in.o] Error 1
-make: *** [Makefile:43: lsgpio-in.o] Error 2
-make: *** Waiting for unfinished jobs....
-
-This is because gpio-utils.o is used across multiple targets.
-Fix this by making gpio-utios.o a proper dependency.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: stable@vger.kernel.org
+Fixes: cf1b2326b734 ("nbd: verify socket is supported during setup")
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Sun Ke <sunke32@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/gpio/Build    |    1 +
- tools/gpio/Makefile |   10 +++++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/block/nbd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/gpio/Build
-+++ b/tools/gpio/Build
-@@ -1,3 +1,4 @@
-+gpio-utils-y += gpio-utils.o
- lsgpio-y += lsgpio.o gpio-utils.o
- gpio-hammer-y += gpio-hammer.o gpio-utils.o
- gpio-event-mon-y += gpio-event-mon.o gpio-utils.o
---- a/tools/gpio/Makefile
-+++ b/tools/gpio/Makefile
-@@ -35,11 +35,15 @@ $(OUTPUT)include/linux/gpio.h: ../../inc
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -931,6 +931,7 @@ static struct socket *nbd_get_socket(str
+ 	if (sock->ops->shutdown == sock_no_shutdown) {
+ 		dev_err(disk_to_dev(nbd->disk), "Unsupported socket: shutdown callout must be supported.\n");
+ 		*err = -EINVAL;
++		sockfd_put(sock);
+ 		return NULL;
+ 	}
  
- prepare: $(OUTPUT)include/linux/gpio.h
- 
-+GPIO_UTILS_IN := $(output)gpio-utils-in.o
-+$(GPIO_UTILS_IN): prepare FORCE
-+	$(Q)$(MAKE) $(build)=gpio-utils
-+
- #
- # lsgpio
- #
- LSGPIO_IN := $(OUTPUT)lsgpio-in.o
--$(LSGPIO_IN): prepare FORCE
-+$(LSGPIO_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=lsgpio
- $(OUTPUT)lsgpio: $(LSGPIO_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-@@ -48,7 +52,7 @@ $(OUTPUT)lsgpio: $(LSGPIO_IN)
- # gpio-hammer
- #
- GPIO_HAMMER_IN := $(OUTPUT)gpio-hammer-in.o
--$(GPIO_HAMMER_IN): prepare FORCE
-+$(GPIO_HAMMER_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=gpio-hammer
- $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-@@ -57,7 +61,7 @@ $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
- # gpio-event-mon
- #
- GPIO_EVENT_MON_IN := $(OUTPUT)gpio-event-mon-in.o
--$(GPIO_EVENT_MON_IN): prepare FORCE
-+$(GPIO_EVENT_MON_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=gpio-event-mon
- $(OUTPUT)gpio-event-mon: $(GPIO_EVENT_MON_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
 
 
