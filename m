@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0B910BEB4
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E165C10BF8F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728228AbfK0Upu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:45:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
+        id S1727779AbfK0UiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:38:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728185AbfK0Upt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:45:49 -0500
+        id S1727784AbfK0UiG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C9B22178F;
-        Wed, 27 Nov 2019 20:45:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B24F6216F4;
+        Wed, 27 Nov 2019 20:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887549;
-        bh=E7bp0BOM3t1qTKZFsIcbtokzuEIIenJD4UwrpLkgBBE=;
+        s=default; t=1574887085;
+        bh=nQbGLp7kUFBI5MTtVDyufswpa9SdBhEAvYm8NlWKD2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSi5PPV6g/7TT52jlO+XxvYZ9tt5xvNBPpFQFBN3BACLHqkTQp0+q+91RGXdqyrNv
-         NZmnQJ5kLElLjQnlxnyAQeuCl5FVVKO62ugPAYncVv8vgP0kOuH2Qjmgk/wVwncBck
-         cPBdgLbM1SwOE1AL85Jce4pHidva/s1Gw30WpAHU=
+        b=v7tQFzwNfoIcSg6g0GuM9Ws2QGdztat7+6qU5J5WQz7RZ3JPHX0eQixfbU6Mh7ocD
+         JeV1njKB/Y8gDSxVcB34M92e1c9XZP85SVT1cA0sn0r/C+pW3E5eRAI1krm62lSxa1
+         LmbcSKjK14sXCrBNAIiQorCdNNcKi4z4Re4bmF/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bart Van Assche <bart.vanassche@sandisk.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 113/151] dm: use blk_set_queue_dying() in __dm_destroy()
-Date:   Wed, 27 Nov 2019 21:31:36 +0100
-Message-Id: <20191127203043.434613352@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.4 106/132] ARC: perf: Accommodate big-endian CPU
+Date:   Wed, 27 Nov 2019 21:31:37 +0100
+Message-Id: <20191127203026.308055463@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bart.vanassche@sandisk.com>
+From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
 
-commit 2e91c3694181dc500faffec16c5aaa0ac5e15449 upstream.
+commit 5effc09c4907901f0e71e68e5f2e14211d9a203f upstream.
 
-After QUEUE_FLAG_DYING has been set any code that is waiting in
-get_request() should be woken up.  But to get this behaviour
-blk_set_queue_dying() must be used instead of only setting
-QUEUE_FLAG_DYING.
+8-letter strings representing ARC perf events are stores in two
+32-bit registers as ASCII characters like that: "IJMP", "IALL", "IJMPTAK" etc.
 
-Signed-off-by: Bart Van Assche <bart.vanassche@sandisk.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+And the same order of bytes in the word is used regardless CPU endianness.
+
+Which means in case of big-endian CPU core we need to swap bytes to get
+the same order as if it was on little-endian CPU.
+
+Otherwise we're seeing the following error message on boot:
+------------------------->8----------------------
+ARC perf        : 8 counters (32 bits), 40 conditions, [overflow IRQ support]
+sysfs: cannot create duplicate filename '/devices/arc_pct/events/pmji'
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
+Stack Trace:
+  arc_unwind_core+0xd4/0xfc
+  dump_stack+0x64/0x80
+  sysfs_warn_dup+0x46/0x58
+  sysfs_add_file_mode_ns+0xb2/0x168
+  create_files+0x70/0x2a0
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1 at kernel/events/core.c:12144 perf_event_sysfs_init+0x70/0xa0
+Failed to register pmu: arc_pct, reason -17
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
+Stack Trace:
+  arc_unwind_core+0xd4/0xfc
+  dump_stack+0x64/0x80
+  __warn+0x9c/0xd4
+  warn_slowpath_fmt+0x22/0x2c
+  perf_event_sysfs_init+0x70/0xa0
+---[ end trace a75fb9a9837bd1ec ]---
+------------------------->8----------------------
+
+What happens here we're trying to register more than one raw perf event
+with the same name "PMJI". Why? Because ARC perf events are 4 to 8 letters
+and encoded into two 32-bit words. In this particular case we deal with 2
+events:
+ * "IJMP____" which counts all jump & branch instructions
+ * "IJMPC___" which counts only conditional jumps & branches
+
+Those strings are split in two 32-bit words this way "IJMP" + "____" &
+"IJMP" + "C___" correspondingly. Now if we read them swapped due to CPU core
+being big-endian then we read "PMJI" + "____" & "PMJI" + "___C".
+
+And since we interpret read array of ASCII letters as a null-terminated string
+on big-endian CPU we end up with 2 events of the same name "PMJI".
+
+Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/md/dm.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1946,9 +1946,7 @@ static void __dm_destroy(struct mapped_d
- 	set_bit(DMF_FREEING, &md->flags);
- 	spin_unlock(&_minor_lock);
+
+---
+ arch/arc/kernel/perf_event.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/arc/kernel/perf_event.c
++++ b/arch/arc/kernel/perf_event.c
+@@ -486,8 +486,8 @@ static int arc_pmu_device_probe(struct p
+ 	/* loop thru all available h/w condition indexes */
+ 	for (j = 0; j < cc_bcr.c; j++) {
+ 		write_aux_reg(ARC_REG_CC_INDEX, j);
+-		cc_name.indiv.word0 = read_aux_reg(ARC_REG_CC_NAME0);
+-		cc_name.indiv.word1 = read_aux_reg(ARC_REG_CC_NAME1);
++		cc_name.indiv.word0 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME0));
++		cc_name.indiv.word1 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME1));
  
--	spin_lock_irq(q->queue_lock);
--	queue_flag_set(QUEUE_FLAG_DYING, q);
--	spin_unlock_irq(q->queue_lock);
-+	blk_set_queue_dying(q);
- 
- 	if (dm_request_based(md) && md->kworker_task)
- 		kthread_flush_worker(&md->kworker);
+ 		/* See if it has been mapped to a perf event_id */
+ 		for (i = 0; i < ARRAY_SIZE(arc_pmu_ev_hw_map); i++) {
 
 
