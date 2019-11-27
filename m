@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2AA210BD85
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09DDF10BD44
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730591AbfK0U46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:56:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47862 "EHLO mail.kernel.org"
+        id S1731437AbfK0V1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:27:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729982AbfK0U45 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:56:57 -0500
+        id S1731399AbfK0U7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:59:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7189B20862;
-        Wed, 27 Nov 2019 20:56:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D32C2084B;
+        Wed, 27 Nov 2019 20:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888216;
-        bh=Al3MLSwLyZfkvCTgN5ublWP4WIeHsKA9ZsvFAGAi18w=;
+        s=default; t=1574888357;
+        bh=Mjp9Ayi7gHDEl4RyIz4743czz+ZO/l4kYbTirM1WaXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7hcQr+1eqOOYiWZE6AYIjdx2JaxCbOFbdJrTQ8geVqffASH9JJMuHQ27v8ZAb+2K
-         y+ang97hk4tLYbzaJt+tU+8ORUULmFVo4A0eLowi9+DPTKT+sBnqQAavvFp+DoRcq0
-         2YU3iHShZN/Dl2lHwi0w9M52r3kDMLiKtM90vsog=
+        b=X3/pDK9Kpqx3wrx7+biu/ygFnUgoqSC9RDrD6J2CA16K/yyI1eBuXL8OgsvqyDL22
+         0R9cpb8L2ytrK8VhEV3dBOGjuinDqo41nzd8h8HLFICTSJMNwTUtfsC+EDpVXf4lku
+         uQc4t0GB7rXcrtlE1Htsh2x7lvC0x7U8MqhXoqpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Honghui Zhang <honghui.zhang@mediatek.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
+        stable@vger.kernel.org, Duncan Laurie <dlaurie@chromium.org>,
+        Vadim Bendebury <vbendeb@chromium.org>,
+        Stefan Reinauer <reinauer@chromium.org>,
+        Furquan Shaikh <furquan@google.com>,
+        Furquan Shaikh <furquan@chromium.org>,
+        Aaron Durbin <adurbin@chromium.org>,
+        Justin TerAvest <teravest@chromium.org>,
+        Ross Zwisler <zwisler@google.com>,
+        Guenter Roeck <groeck@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/306] PCI: mediatek: Fix class type for MT7622 to PCI_CLASS_BRIDGE_PCI
-Date:   Wed, 27 Nov 2019 21:28:17 +0100
-Message-Id: <20191127203118.246542347@linuxfoundation.org>
+Subject: [PATCH 4.19 050/306] gsmi: Fix bug in append_to_eventlog sysfs handler
+Date:   Wed, 27 Nov 2019 21:28:20 +0100
+Message-Id: <20191127203118.448242319@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -45,44 +51,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Honghui Zhang <honghui.zhang@mediatek.com>
+From: Duncan Laurie <dlaurie@chromium.org>
 
-[ Upstream commit a7f172ab6a8e755e60311f27512034b0441ef421 ]
+[ Upstream commit 655603de68469adaff16842ac17a5aec9c9ce89b ]
 
-commit 101c92dc80c8 ("PCI: mediatek: Set up vendor ID and class
-type for MT7622") erroneously set the class type for MT7622 to
-PCI_CLASS_BRIDGE_HOST.
+The sysfs handler should return the number of bytes consumed, which in the
+case of a successful write is the entire buffer.  Also fix a bug where
+param.data_len was being set to (count - (2 * sizeof(u32))) instead of just
+(count - sizeof(u32)).  The latter is correct because we skip over the
+leading u32 which is our param.type, but we were also incorrectly
+subtracting sizeof(u32) on the line where we were actually setting
+param.data_len:
 
-The PCIe controller of MT7622 integrates a Root Port that has type 1
-configuration space header and related bridge windows.
+	param.data_len = count - sizeof(u32);
 
-The HW default value of this bridge's class type is invalid.
+This meant that for our example event.kernel_software_watchdog with total
+length 10 bytes, param.data_len was just 2 prior to this change.
 
-Fix its class type and set it to PCI_CLASS_BRIDGE_PCI to
-match the hardware implementation.
+To test, successfully append an event to the log with gsmi sysfs.
+This sample event is for a "Kernel Software Watchdog"
 
-Fixes: 101c92dc80c8 ("PCI: mediatek: Set up vendor ID and class type for MT7622")
-Signed-off-by: Honghui Zhang <honghui.zhang@mediatek.com>
-[lorenzo.pieralisi@arm.com: reworked the commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Ryder Lee <ryder.lee@mediatek.com>
+> xxd -g 1 event.kernel_software_watchdog
+0000000: 01 00 00 00 ad de 06 00 00 00
+
+> cat event.kernel_software_watchdog > /sys/firmware/gsmi/append_to_eventlog
+
+> mosys eventlog list | tail -1
+14 | 2012-06-25 10:14:14 | Kernl Event | Software Watchdog
+
+Signed-off-by: Duncan Laurie <dlaurie@chromium.org>
+Reviewed-by: Vadim Bendebury <vbendeb@chromium.org>
+Reviewed-by: Stefan Reinauer <reinauer@chromium.org>
+Signed-off-by: Furquan Shaikh <furquan@google.com>
+Tested-by: Furquan Shaikh <furquan@chromium.org>
+Reviewed-by: Aaron Durbin <adurbin@chromium.org>
+Reviewed-by: Justin TerAvest <teravest@chromium.org>
+[zwisler: updated changelog for 2nd bug fix and upstream]
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mediatek.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/google/gsmi.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
-index 0d100f56cb884..8d1364c317747 100644
---- a/drivers/pci/controller/pcie-mediatek.c
-+++ b/drivers/pci/controller/pcie-mediatek.c
-@@ -432,7 +432,7 @@ static int mtk_pcie_startup_port_v2(struct mtk_pcie_port *port)
- 		val = PCI_VENDOR_ID_MEDIATEK;
- 		writew(val, port->base + PCIE_CONF_VEND_ID);
+diff --git a/drivers/firmware/google/gsmi.c b/drivers/firmware/google/gsmi.c
+index c8f169bf2e27d..62337be07afcb 100644
+--- a/drivers/firmware/google/gsmi.c
++++ b/drivers/firmware/google/gsmi.c
+@@ -480,11 +480,10 @@ static ssize_t eventlog_write(struct file *filp, struct kobject *kobj,
+ 	if (count < sizeof(u32))
+ 		return -EINVAL;
+ 	param.type = *(u32 *)buf;
+-	count -= sizeof(u32);
+ 	buf += sizeof(u32);
  
--		val = PCI_CLASS_BRIDGE_HOST;
-+		val = PCI_CLASS_BRIDGE_PCI;
- 		writew(val, port->base + PCIE_CONF_CLASS_ID);
- 	}
+ 	/* The remaining buffer is the data payload */
+-	if (count > gsmi_dev.data_buf->length)
++	if ((count - sizeof(u32)) > gsmi_dev.data_buf->length)
+ 		return -EINVAL;
+ 	param.data_len = count - sizeof(u32);
+ 
+@@ -504,7 +503,7 @@ static ssize_t eventlog_write(struct file *filp, struct kobject *kobj,
+ 
+ 	spin_unlock_irqrestore(&gsmi_dev.lock, flags);
+ 
+-	return rc;
++	return (rc == 0) ? count : rc;
+ 
+ }
  
 -- 
 2.20.1
