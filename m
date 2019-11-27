@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 568D910BBCC
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC8310BACE
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732392AbfK0VNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:13:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46374 "EHLO mail.kernel.org"
+        id S1727307AbfK0VGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:06:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733005AbfK0VNq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:13:46 -0500
+        id S1732481AbfK0VGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:06:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 357C5216F4;
-        Wed, 27 Nov 2019 21:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AA43215F2;
+        Wed, 27 Nov 2019 21:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889225;
-        bh=JIsUz9vlmfY/6ZXR6VzpR0e6jx9ksj38fQGrlFkR4eQ=;
+        s=default; t=1574888804;
+        bh=eaBjrtbhJ62pLWppLNZsKpx+Q5x1JcT00JxRyiiPxLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUbWY83pPUMWfk/U2u0dusEMNmoC41qygPUudvVI9/HiCeC8kdije/6BaW191cCai
-         knkSjsopwZR2PfzzJqSQVHS4H2/9M6UjQm/VGKeVOB6As3q5HLkjkE2dQ+pnQFENOP
-         1oxGGuB6cEqwBexwqSRWmFx3Py5of73u32Sgg/ME=
+        b=pGcB67N9WWrB0p24er6ubVEYl1jppP+/PxxrHK///nEnPRCCDRtogNfRf8DyTtIv9
+         u9RrrFVgd26vVj6ISe97ptM4pNDeXC+HUIxDKQiTwLn3xpSEFGnnw2T+Fcy376512h
+         2BiGm/zAPiifM0d2KSQznaY1BaBwKlSW49En0Jac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Alexander Kapshuk <alexander.kapshuk@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
-Subject: [PATCH 5.4 09/66] x86/insn: Fix awk regexp warnings
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 4.19 274/306] selftests/x86/mov_ss_trap: Fix the SYSENTER test
 Date:   Wed, 27 Nov 2019 21:32:04 +0100
-Message-Id: <20191127202645.904126805@linuxfoundation.org>
+Message-Id: <20191127203134.829308234@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,88 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Kapshuk <alexander.kapshuk@gmail.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 700c1018b86d0d4b3f1f2d459708c0cdf42b521d upstream.
+commit 8caa016bfc129f2c925d52da43022171d1d1de91 upstream.
 
-gawk 5.0.1 generates the following regexp warnings:
+For reasons that I haven't quite fully diagnosed, running
+mov_ss_trap_32 on a 32-bit kernel results in an infinite loop in
+userspace.  This appears to be because the hacky SYSENTER test
+doesn't segfault as desired; instead it corrupts the program state
+such that it infinite loops.
 
-  GEN      /home/sasha/torvalds/tools/objtool/arch/x86/lib/inat-tables.c
-  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:260: warning: regexp escape sequence `\:' is not a known regexp operator
-  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:350: (FILENAME=../arch/x86/lib/x86-opcode-map.txt FNR=41) warning: regexp escape sequence `\&' is  not a known regexp operator
+Fix it by explicitly clearing EBP before doing SYSENTER.  This will
+give a more reliable segfault.
 
-Ealier versions of gawk are not known to generate these warnings. The
-gawk manual referenced below does not list characters ':' and '&' as
-needing escaping, so 'unescape' them. See
-
-  https://www.gnu.org/software/gawk/manual/html_node/Escape-Sequences.html
-
-for more info.
-
-Running diff on the output generated by the script before and after
-applying the patch reported no differences.
-
- [ bp: Massage commit message. ]
-
-[ Caught the respective tools header discrepancy. ]
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Alexander Kapshuk <alexander.kapshuk@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190924044659.3785-1-alexander.kapshuk@gmail.com
+Fixes: 59c2a7226fc5 ("x86/selftests: Add mov_to_ss test")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/tools/gen-insn-attr-x86.awk       |    4 ++--
- tools/arch/x86/tools/gen-insn-attr-x86.awk |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/x86/mov_ss_trap.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/tools/gen-insn-attr-x86.awk
-+++ b/arch/x86/tools/gen-insn-attr-x86.awk
-@@ -69,7 +69,7 @@ BEGIN {
- 
- 	lprefix1_expr = "\\((66|!F3)\\)"
- 	lprefix2_expr = "\\(F3\\)"
--	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
-+	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
- 	lprefix_expr = "\\((66|F2|F3)\\)"
- 	max_lprefix = 4
- 
-@@ -257,7 +257,7 @@ function convert_operands(count,opnd,
- 	return add_flags(imm, mod)
- }
- 
--/^[0-9a-f]+\:/ {
-+/^[0-9a-f]+:/ {
- 	if (NR == 1)
- 		next
- 	# get index
---- a/tools/arch/x86/tools/gen-insn-attr-x86.awk
-+++ b/tools/arch/x86/tools/gen-insn-attr-x86.awk
-@@ -69,7 +69,7 @@ BEGIN {
- 
- 	lprefix1_expr = "\\((66|!F3)\\)"
- 	lprefix2_expr = "\\(F3\\)"
--	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
-+	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
- 	lprefix_expr = "\\((66|F2|F3)\\)"
- 	max_lprefix = 4
- 
-@@ -257,7 +257,7 @@ function convert_operands(count,opnd,
- 	return add_flags(imm, mod)
- }
- 
--/^[0-9a-f]+\:/ {
-+/^[0-9a-f]+:/ {
- 	if (NR == 1)
- 		next
- 	# get index
+--- a/tools/testing/selftests/x86/mov_ss_trap.c
++++ b/tools/testing/selftests/x86/mov_ss_trap.c
+@@ -257,7 +257,8 @@ int main()
+ 			err(1, "sigaltstack");
+ 		sethandler(SIGSEGV, handle_and_longjmp, SA_RESETHAND | SA_ONSTACK);
+ 		nr = SYS_getpid;
+-		asm volatile ("mov %[ss], %%ss; SYSENTER" : "+a" (nr)
++		/* Clear EBP first to make sure we segfault cleanly. */
++		asm volatile ("xorl %%ebp, %%ebp; mov %[ss], %%ss; SYSENTER" : "+a" (nr)
+ 			      : [ss] "m" (ss) : "flags", "rcx"
+ #ifdef __x86_64__
+ 				, "r11"
 
 
