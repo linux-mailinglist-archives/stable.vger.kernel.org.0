@@ -2,113 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E790F10AB57
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC7CB10AB61
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 09:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726227AbfK0H6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 02:58:06 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:40795 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726111AbfK0H6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:58:05 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id D233199B;
-        Wed, 27 Nov 2019 02:58:04 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 27 Nov 2019 02:58:05 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=EVuFkfM4drVnSoDf+l5B9PIcNFB
-        23a6yWkCKyQ5AdYs=; b=RXqos6jDxE49h8zdEMP1BYd5y1hoWDGGwQhLeRjxKzj
-        AghAEF4H/czv+wpr4Efe4robAEnBMpfj6ocjSrJ+CMvTSd6Q3YOsJ6HwkkqsZcOu
-        OA8mBwg3hsWzA93npYtNXfb8D7jhwKZ4yMfrPZzIxkhFxQeF37WdQQE4T/RY3zZE
-        ++gI67cXMiJoW6tnnqrGZL7Z7UBf7CuUB+RoIGO+Iyq5kIoWEn5zyS1RzAOlCuE2
-        OI+aW3W3sAeeftelnfyIdbWQLxznZCYPc1nYGmUM21A8SK6qRMYC3fhYIOQaas5k
-        ZWi58UlNLCWPqatObEQLDOIihMlwAt1wEsxYzK2a5Lw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=EVuFkf
-        M4drVnSoDf+l5B9PIcNFB23a6yWkCKyQ5AdYs=; b=W71CHSxnU0vpi6am4XEO/1
-        L9Q25Fno5GceQoII1Cs7nTl0Us+SNiZY/PWYT35+1KGV19HuCdJN77yiCSs3NA59
-        CKax3V6h9zOSgWfc6HSeAmU+Gy4/ICu4DkjiHWpd7uLQ/17p05aYYKynsj6k1qE0
-        77mCzC0rBC2KGdawElCUk/gpCkHovGLMzPUd18by/lUaFcGo258ufKzEKHcEs+I+
-        ZaQhIqFReHR8ve1tjxOG3rE1s4QdRM9ZSWuu5VHTgjCh4RSb6EZ9urOPvAV8SBk3
-        EOS8uJYUt5pXxXEnqCKUxAzn/nsOvX4Nk+2Yvr9VegNTpak8/xFjRSzhcK5k7lrg
-        ==
-X-ME-Sender: <xms:jCzeXSxPK6i04jzNrxCUC3V-fcnePoScRSk8wlRRftnDVLTyYoogyg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeigedguddugecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:jCzeXbP7rjt_rQ9mljXnk79KLU3DKzOyKiQlK4xs1eUmb2jOeQRUcw>
-    <xmx:jCzeXf8akVfHBBc7CzZr8bm4Kk8hvPbzDoRoxxj81SCrc89NuJq2iA>
-    <xmx:jCzeXQ4nXNR85U-vNmaotHoiVwxXfQ60Yer-Ek4kCBqXRZQAX_XAZQ>
-    <xmx:jCzeXdCcB4EYhSbBmFECS1Jla4kLOYbLg6MBduIyVclcJR15XT2JgQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 16F99306005C;
-        Wed, 27 Nov 2019 02:58:03 -0500 (EST)
-Date:   Wed, 27 Nov 2019 08:58:02 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 2/3] media: siano: Use kmemdup instead of
- duplicating its function
-Message-ID: <20191127075802.GA1822469@kroah.com>
-References: <20191127072210.30715-1-lee.jones@linaro.org>
- <20191127072210.30715-2-lee.jones@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191127072210.30715-2-lee.jones@linaro.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+        id S1726133AbfK0IBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 03:01:37 -0500
+Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:34430 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726130AbfK0IBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 03:01:37 -0500
+Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 1AF5EC0089;
+        Wed, 27 Nov 2019 08:01:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1574841696; bh=09dgk+hW6TJG7TYxyAIHrqyQO/iUQcOtqxjGgerQ3TM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YJKCeqOugtUW3Nqi+6gDVs9Dscd6SC4sodYLHdWyzmcjibtecLVZG+0GfKHNbtm89
+         WtuDOoxveuW9Lr/zhXZ0p8U70apyVaA94wPhssysqANn+q+XCD3thzHK5lGRQIMSCo
+         9qONG1v+PwFB33PDvApg1sGC2aMFpqpf4wBA4h2+Pp+W5nk2gam7Llhno54eQMPYR+
+         yyZkBHz4NKr3KU7imRjdSCu7nDavagC6k11cFlvKvaT/KO1N7ls3hxgDu/oeMBaqq8
+         NTrZGTHDJOBjdAgBqg70AAy9eQqz6njPjeo7wRCdf0tUgV3qz7O7k9dCZuc85YWv02
+         rIyppgKjfHuBQ==
+Received: from ru20arcgnu1.internal.synopsys.com (ru20arcgnu1.internal.synopsys.com [10.121.9.48])
+        by mailhost.synopsys.com (Postfix) with ESMTP id EE9C6A0065;
+        Wed, 27 Nov 2019 08:01:33 +0000 (UTC)
+From:   Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+To:     stable@vger.kernel.org
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-snps-arc@lists.infradead.org,
+        Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+Subject: [PATCH] ARC: perf: Accommodate big-endian CPU
+Date:   Wed, 27 Nov 2019 11:01:23 +0300
+Message-Id: <20191127080123.21890-1-abrodkin@synopsys.com>
+X-Mailer: git-send-email 2.16.2
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 27, 2019 at 07:22:09AM +0000, Lee Jones wrote:
-> From: Wen Yang <wen.yang99@zte.com.cn>
-> 
-> [ Upstream commit 0f4bb10857e22a657e6c8cca5d1d54b641e94628 ]
-> 
-> kmemdup has implemented the function that kmalloc() + memcpy().
-> We prefer to kmemdup rather than code opened implementation.
-> 
-> This issue was detected with the help of coccinelle.
-> 
-> Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-> CC: Tomoki Sekiyama <tomoki.sekiyama@gmail.com>
-> CC: linux-kernel@vger.kernel.org
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  drivers/media/usb/siano/smsusb.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/media/usb/siano/smsusb.c b/drivers/media/usb/siano/smsusb.c
-> index 3071d9bc77f4..38ea773eac97 100644
-> --- a/drivers/media/usb/siano/smsusb.c
-> +++ b/drivers/media/usb/siano/smsusb.c
-> @@ -225,10 +225,9 @@ static int smsusb_sendrequest(void *context, void *buffer, size_t size)
->  		return -ENOENT;
->  	}
->  
-> -	phdr = kmalloc(size, GFP_KERNEL);
-> +	phdr = kmemdup(buffer, size, GFP_KERNEL);
->  	if (!phdr)
->  		return -ENOMEM;
-> -	memcpy(phdr, buffer, size);
->  
->  	pr_debug("sending %s(%d) size: %d\n",
->  		  smscore_translate_msg(phdr->msg_type), phdr->msg_type,
-> -- 
-> 2.24.0
-> 
+8-letter strings representing ARC perf events are stores in two
+32-bit registers as ASCII characters like that: "IJMP", "IALL", "IJMPTAK" etc.
 
-Why does this patch qualify for stable inclusion?
+And the same order of bytes in the word is used regardless CPU endianness.
 
+Which means in case of big-endian CPU core we need to swap bytes to get
+the same order as if it was on little-endian CPU.
+
+Otherwise we're seeing the following error message on boot:
+------------------------->8----------------------
+ARC perf        : 8 counters (32 bits), 40 conditions, [overflow IRQ support]
+sysfs: cannot create duplicate filename '/devices/arc_pct/events/pmji'
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
+Stack Trace:
+  arc_unwind_core+0xd4/0xfc
+  dump_stack+0x64/0x80
+  sysfs_warn_dup+0x46/0x58
+  sysfs_add_file_mode_ns+0xb2/0x168
+  create_files+0x70/0x2a0
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1 at kernel/events/core.c:12144 perf_event_sysfs_init+0x70/0xa0
+Failed to register pmu: arc_pct, reason -17
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
+Stack Trace:
+  arc_unwind_core+0xd4/0xfc
+  dump_stack+0x64/0x80
+  __warn+0x9c/0xd4
+  warn_slowpath_fmt+0x22/0x2c
+  perf_event_sysfs_init+0x70/0xa0
+---[ end trace a75fb9a9837bd1ec ]---
+------------------------->8----------------------
+
+What happens here we're trying to register more than one raw perf event
+with the same name "PMJI". Why? Because ARC perf events are 4 to 8 letters
+and encoded into two 32-bit words. In this particular case we deal with 2
+events:
+ * "IJMP____" which counts all jump & branch instructions
+ * "IJMPC___" which counts only conditional jumps & branches
+
+Those strings are split in two 32-bit words this way "IJMP" + "____" &
+"IJMP" + "C___" correspondingly. Now if we read them swapped due to CPU core
+being big-endian then we read "PMJI" + "____" & "PMJI" + "___C".
+
+And since we interpret read array of ASCII letters as a null-terminated string
+on big-endian CPU we end up with 2 events of the same name "PMJI".
+
+Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Cc: stable@vger.kernel.org
+---
+
+Greg, Sasha, this is the same patch as
+commit 5effc09c4907 ("ARC: perf: Accommodate big-endian CPU")
+but fine-tuned to be applicable to kernels 4.19 and older.
+
+ arch/arc/kernel/perf_event.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arc/kernel/perf_event.c b/arch/arc/kernel/perf_event.c
+index 8aec462d90fb..30f66b123541 100644
+--- a/arch/arc/kernel/perf_event.c
++++ b/arch/arc/kernel/perf_event.c
+@@ -490,8 +490,8 @@ static int arc_pmu_device_probe(struct platform_device *pdev)
+ 	/* loop thru all available h/w condition indexes */
+ 	for (j = 0; j < cc_bcr.c; j++) {
+ 		write_aux_reg(ARC_REG_CC_INDEX, j);
+-		cc_name.indiv.word0 = read_aux_reg(ARC_REG_CC_NAME0);
+-		cc_name.indiv.word1 = read_aux_reg(ARC_REG_CC_NAME1);
++		cc_name.indiv.word0 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME0));
++		cc_name.indiv.word1 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME1));
+ 
+ 		/* See if it has been mapped to a perf event_id */
+ 		for (i = 0; i < ARRAY_SIZE(arc_pmu_ev_hw_map); i++) {
+-- 
+2.16.2
 
