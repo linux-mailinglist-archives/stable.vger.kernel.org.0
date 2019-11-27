@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FEEF10B88A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:44:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D5110B973
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729602AbfK0Uoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:44:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
+        id S1729593AbfK0UxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:53:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729598AbfK0Uo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:44:29 -0500
+        id S1728369AbfK0UxR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:53:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8085F2166E;
-        Wed, 27 Nov 2019 20:44:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C6FE21774;
+        Wed, 27 Nov 2019 20:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887469;
-        bh=X/58Tm7eKCZC7D2HzvHgjcaueL9E+HraeIKt33xEIWA=;
+        s=default; t=1574887995;
+        bh=GHyibZdtqyM93/tKyg/s+yrkfnswkKAkX+djBS+Mm5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTNNAAch8rM+VATAe5Rl4QadnxLyx4SLzT6+/o2sTcqF9VgF6g95xRCBhWurwu61a
-         DSj+vBZrh6mfr2ole/7U+ohzwVBZgkN71ZcZeseVatmm85e81ZuLwLW4wvXOrGA1II
-         pS1VDrW1LvHBat0Bt9DUU5+Z9OOgHnwE1HJ6A5DA=
+        b=B79faTrSKN4p/gV9RontcaUWgg3n889lG2AGohIvoiwvlQqVtKnAZC2/qfDJqdekO
+         FGA+N7LITqZPdvly74eHMbLzcf4BiwaF3EI0iKkeElPXDiVPEj89zYRST0j564LPzD
+         lP50aZawUibrvVZwkQAnpxGv7Bc6ptow8ATk885A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vandana BN <bnvandana@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.9 124/151] media: vivid: Set vid_cap_streaming and vid_out_streaming to true
+        stable@vger.kernel.org, Gang He <ghe@suse.com>,
+        Joseph Qi <jiangqi903@gmail.com>, Eric Ren <zren@suse.com>,
+        Changwei Ge <ge.changwei@h3c.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 174/211] ocfs2: remove ocfs2_is_o2cb_active()
 Date:   Wed, 27 Nov 2019 21:31:47 +0100
-Message-Id: <20191127203045.445126141@linuxfoundation.org>
+Message-Id: <20191127203110.297597909@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +50,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vandana BN <bnvandana@gmail.com>
+From: Gang He <ghe@suse.com>
 
-commit b4add02d2236fd5f568db141cfd8eb4290972eb3 upstream.
+commit a634644751c46238df58bbfe992e30c1668388db upstream.
 
-When vbi stream is started, followed by video streaming,
-the vid_cap_streaming and vid_out_streaming were not being set to true,
-which would cause the video stream to stop when vbi stream is stopped.
-This patch allows to set vid_cap_streaming and vid_out_streaming to true.
-According to Hans Verkuil it appears that these 'if (dev->kthread_vid_cap)'
-checks are a left-over from the original vivid development and should never
-have been there.
+Remove ocfs2_is_o2cb_active().  We have similar functions to identify
+which cluster stack is being used via osb->osb_cluster_stack.
 
-Signed-off-by: Vandana BN <bnvandana@gmail.com>
-Cc: <stable@vger.kernel.org>      # for v3.18 and up
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Secondly, the current implementation of ocfs2_is_o2cb_active() is not
+totally safe.  Based on the design of stackglue, we need to get
+ocfs2_stack_lock before using ocfs2_stack related data structures, and
+that active_stack pointer can be NULL in the case of mount failure.
+
+Link: http://lkml.kernel.org/r/1495441079-11708-1-git-send-email-ghe@suse.com
+Signed-off-by: Gang He <ghe@suse.com>
+Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
+Reviewed-by: Eric Ren <zren@suse.com>
+Acked-by: Changwei Ge <ge.changwei@h3c.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/vivid/vivid-vid-cap.c |    3 ---
- drivers/media/platform/vivid/vivid-vid-out.c |    3 ---
- 2 files changed, 6 deletions(-)
+ fs/ocfs2/dlmglue.c   |    2 +-
+ fs/ocfs2/stackglue.c |    6 ------
+ fs/ocfs2/stackglue.h |    3 ---
+ 3 files changed, 1 insertion(+), 10 deletions(-)
 
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -236,9 +236,6 @@ static int vid_cap_start_streaming(struc
- 	if (vb2_is_streaming(&dev->vb_vid_out_q))
- 		dev->can_loop_video = vivid_vid_can_loop(dev);
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3422,7 +3422,7 @@ static int ocfs2_downconvert_lock(struct
+ 	 * we can recover correctly from node failure. Otherwise, we may get
+ 	 * invalid LVB in LKB, but without DLM_SBF_VALNOTVALID being set.
+ 	 */
+-	if (!ocfs2_is_o2cb_active() &&
++	if (ocfs2_userspace_stack(osb) &&
+ 	    lockres->l_ops->flags & LOCK_TYPE_USES_LVB)
+ 		lvb = 1;
  
--	if (dev->kthread_vid_cap)
--		return 0;
--
- 	dev->vid_cap_seq_count = 0;
- 	dprintk(dev, 1, "%s\n", __func__);
- 	for (i = 0; i < VIDEO_MAX_FRAME; i++)
---- a/drivers/media/platform/vivid/vivid-vid-out.c
-+++ b/drivers/media/platform/vivid/vivid-vid-out.c
-@@ -158,9 +158,6 @@ static int vid_out_start_streaming(struc
- 	if (vb2_is_streaming(&dev->vb_vid_cap_q))
- 		dev->can_loop_video = vivid_vid_can_loop(dev);
+--- a/fs/ocfs2/stackglue.c
++++ b/fs/ocfs2/stackglue.c
+@@ -48,12 +48,6 @@ static char ocfs2_hb_ctl_path[OCFS2_MAX_
+  */
+ static struct ocfs2_stack_plugin *active_stack;
  
--	if (dev->kthread_vid_out)
--		return 0;
+-inline int ocfs2_is_o2cb_active(void)
+-{
+-	return !strcmp(active_stack->sp_name, OCFS2_STACK_PLUGIN_O2CB);
+-}
+-EXPORT_SYMBOL_GPL(ocfs2_is_o2cb_active);
 -
- 	dev->vid_out_seq_count = 0;
- 	dprintk(dev, 1, "%s\n", __func__);
- 	if (dev->start_streaming_error) {
+ static struct ocfs2_stack_plugin *ocfs2_stack_lookup(const char *name)
+ {
+ 	struct ocfs2_stack_plugin *p;
+--- a/fs/ocfs2/stackglue.h
++++ b/fs/ocfs2/stackglue.h
+@@ -298,9 +298,6 @@ void ocfs2_stack_glue_set_max_proto_vers
+ int ocfs2_stack_glue_register(struct ocfs2_stack_plugin *plugin);
+ void ocfs2_stack_glue_unregister(struct ocfs2_stack_plugin *plugin);
+ 
+-/* In ocfs2_downconvert_lock(), we need to know which stack we are using */
+-int ocfs2_is_o2cb_active(void);
+-
+ extern struct kset *ocfs2_kset;
+ 
+ #endif  /* STACKGLUE_H */
 
 
