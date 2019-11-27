@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 049BF10BCC0
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:23:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E9910BC75
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732161AbfK0VEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:04:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58304 "EHLO mail.kernel.org"
+        id S1729315AbfK0VI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:08:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731580AbfK0VEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:04:44 -0500
+        id S1732745AbfK0VI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:08:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0896121771;
-        Wed, 27 Nov 2019 21:04:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D62A121775;
+        Wed, 27 Nov 2019 21:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888683;
-        bh=rzlFMkmivZ6Tw8GRPSvnVO/UpRCEyuNnI37LYXz/4rg=;
+        s=default; t=1574888905;
+        bh=CtSLhzyb06Smd4jXF1wFX4VZf1mgeLast+tdXdmpxPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvDWfFUMGk1zGlzFF4Kc9X8CnBsNY4SW2of1vfRgvgr0GbJwz48aKVlCaRx9REjeE
-         SoABjal1ZAW2qlQj4DhtA39cwVu/uROCfOgI8VDASrkeuKtX3MRRGBUvzD1CfGOcb8
-         XEYmAMdWCDuG7vRPk9GpDqTmnszC6dPS3T8JTBqQ=
+        b=lVJfSbbxjLye4Lel78cngdYn8Y08XkW/VJzqkYm6BLLMR5jlCZz2CR7t+mNlrN4VV
+         8siR9taU2tFUFw1RN8xjkMpVRd5GwpRI/gXZs7s6eXFtH3uZK8DRSwz4PwmtDJ0fcX
+         UeFFonEZfbhQqLiMnBELlatVYbKfvP2ajMiGFqys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 227/306] scsi: megaraid_sas: Fix msleep granularity
-Date:   Wed, 27 Nov 2019 21:31:17 +0100
-Message-Id: <20191127203131.617510989@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 01/95] mlxsw: spectrum_router: Fix determining underlay for a GRE tunnel
+Date:   Wed, 27 Nov 2019 21:31:18 +0100
+Message-Id: <20191127202847.038070792@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,46 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit 9155cf30a3c4ef97e225d6daddf9bd4b173267e8 ]
+[ Upstream commit 1fc1657775dc1b19e9ac1d46b4054ed8ae5d99ab ]
 
-In megasas_transition_to_ready() driver waits 180seconds for controller to
-change FW state. Here we are calling msleep(1) in a loop for this.  As
-explained in timers-howto.txt, msleep(1) will actually sleep longer than
-1ms. If a faulty controller is connected, we will end up waiting for much
-more than 180 seconds causing unnecessary delays during load.
+The helper mlxsw_sp_ipip_dev_ul_tb_id() determines the underlay VRF of a
+GRE tunnel. For a tunnel without a bound device, it uses the same VRF that
+the tunnel is in. However in Linux, a GRE tunnel without a bound device
+uses the main VRF as the underlay. Fix the function accordingly.
 
-Change the granularity of msleep() call from 1ms to 1000ms.
+mlxsw further assumed that moving a tunnel to a different VRF could cause
+conflict in local tunnel endpoint address, which cannot be offloaded.
+However, the only way that an underlay could be changed by moving the
+tunnel device itself is if the tunnel device does not have a bound device.
+But in that case the underlay is always the main VRF, so there is no
+opportunity to introduce a conflict by moving such device. Thus this check
+constitutes a dead code, and can be removed, which do.
 
-Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6ddb7426a7d4 ("mlxsw: spectrum_router: Introduce loopback RIFs")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c |   19 ------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index bc37666f998e6..2f94ab9c23540 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -3894,12 +3894,12 @@ megasas_transition_to_ready(struct megasas_instance *instance, int ocr)
- 		/*
- 		 * The cur_state should not last for more than max_wait secs
- 		 */
--		for (i = 0; i < (max_wait * 1000); i++) {
-+		for (i = 0; i < max_wait; i++) {
- 			curr_abs_state = instance->instancet->
- 				read_fw_status_reg(instance->reg_set);
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -994,7 +994,7 @@ u32 mlxsw_sp_ipip_dev_ul_tb_id(const str
+ 	if (d)
+ 		return l3mdev_fib_table(d) ? : RT_TABLE_MAIN;
+ 	else
+-		return l3mdev_fib_table(ol_dev) ? : RT_TABLE_MAIN;
++		return RT_TABLE_MAIN;
+ }
  
- 			if (abs_state == curr_abs_state) {
--				msleep(1);
-+				msleep(1000);
- 			} else
- 				break;
- 		}
--- 
-2.20.1
-
+ static struct mlxsw_sp_rif *
+@@ -1598,27 +1598,10 @@ static int mlxsw_sp_netdevice_ipip_ol_vr
+ {
+ 	struct mlxsw_sp_ipip_entry *ipip_entry =
+ 		mlxsw_sp_ipip_entry_find_by_ol_dev(mlxsw_sp, ol_dev);
+-	enum mlxsw_sp_l3proto ul_proto;
+-	union mlxsw_sp_l3addr saddr;
+-	u32 ul_tb_id;
+ 
+ 	if (!ipip_entry)
+ 		return 0;
+ 
+-	/* For flat configuration cases, moving overlay to a different VRF might
+-	 * cause local address conflict, and the conflicting tunnels need to be
+-	 * demoted.
+-	 */
+-	ul_tb_id = mlxsw_sp_ipip_dev_ul_tb_id(ol_dev);
+-	ul_proto = mlxsw_sp->router->ipip_ops_arr[ipip_entry->ipipt]->ul_proto;
+-	saddr = mlxsw_sp_ipip_netdev_saddr(ul_proto, ol_dev);
+-	if (mlxsw_sp_ipip_demote_tunnel_by_saddr(mlxsw_sp, ul_proto,
+-						 saddr, ul_tb_id,
+-						 ipip_entry)) {
+-		mlxsw_sp_ipip_entry_demote_tunnel(mlxsw_sp, ipip_entry);
+-		return 0;
+-	}
+-
+ 	return __mlxsw_sp_ipip_entry_update_tunnel(mlxsw_sp, ipip_entry,
+ 						   true, false, false, extack);
+ }
 
 
