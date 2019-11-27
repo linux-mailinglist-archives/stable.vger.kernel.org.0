@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6B510B84E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:42:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB6710B905
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:49:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729292AbfK0UmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:42:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
+        id S1728093AbfK0UtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:49:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729288AbfK0UmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:42:06 -0500
+        id S1730203AbfK0UtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:49:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DE5621787;
-        Wed, 27 Nov 2019 20:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7166217C3;
+        Wed, 27 Nov 2019 20:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887326;
-        bh=XP4W78k7tWdh+OxHKfg/hOgoXSYlnsAKcT0blXHT8RY=;
+        s=default; t=1574887743;
+        bh=ciBTAO0/irxf/1CCJl7nrAegNLguTJ7+lSjQc6WKeCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdkV5iJB4BgisIrrjnXjJ2nKUyZoxtaQxuz2+qkfUkBJRVeQ0bYPpkbFS32N3fBSg
-         GMdMbWzaREvvyH9JD/CjeskVvsh8MYhjinPo5CK0uGSPUcDxYoMGdngbE2f/bEhal+
-         37kCax0fTrAbwWh+FVPPbPLG+Ei5Me5wRuVo+Zxs=
+        b=rh/J+w4EmrTyji4Y8nkR1Dfk15hG31WourVaS2kjXO4DsWT8S0m07cVjeiUptnciB
+         +FLxQntjFGQ4ilLedOsYZIeAhNV2ZRjzS2/9dgE74tXmrEAJoVMyDUgESGfWySstiZ
+         JObYjiEP5jVjQCRxbHnH7CvLnwuVSjuXjTB63nGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 025/151] misc: mic: fix a DMA pool free failure
-Date:   Wed, 27 Nov 2019 21:30:08 +0100
-Message-Id: <20191127203016.158952166@linuxfoundation.org>
+Subject: [PATCH 4.14 076/211] rtc: s35390a: Change bufs type to u8 in s35390a_init
+Date:   Wed, 27 Nov 2019 21:30:09 +0100
+Message-Id: <20191127203101.003581038@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wang6495@umn.edu>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 6b995f4eec34745f6cb20d66d5277611f0b3c3fa ]
+[ Upstream commit ef0f02fd69a02b50e468a4ddbe33e3d81671e248 ]
 
-In _scif_prog_signal(), the boolean variable 'x100' is used to indicate
-whether the MIC Coprocessor is X100. If 'x100' is true, the status
-descriptor will be used to write the value to the destination. Otherwise, a
-DMA pool will be allocated for this purpose. Specifically, if the DMA pool
-is allocated successfully, two memory addresses will be returned. One is
-for the CPU and the other is for the device to access the DMA pool. The
-former is stored to the variable 'status' and the latter is stored to the
-variable 'src'. After the allocation, the address in 'src' is saved to
-'status->src_dma_addr', which is actually in the DMA pool, and 'src' is
-then modified.
+Clang warns:
 
-Later on, if an error occurs, the execution flow will transfer to the label
-'dma_fail', which will check 'x100' and free up the allocated DMA pool if
-'x100' is false. The point here is that 'status->src_dma_addr' is used for
-freeing up the DMA pool. As mentioned before, 'status->src_dma_addr' is in
-the DMA pool. And thus, the device is able to modify this data. This can
-potentially cause failures when freeing up the DMA pool because of the
-modified device address.
+drivers/rtc/rtc-s35390a.c:124:27: warning: implicit conversion from
+'int' to 'char' changes value from 192 to -64 [-Wconstant-conversion]
+        buf = S35390A_FLAG_RESET | S35390A_FLAG_24H;
+            ~ ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+1 warning generated.
 
-This patch avoids the above issue by using the variable 'src' (with
-necessary calculation) to free up the DMA pool.
+Update buf to be an unsigned 8-bit integer, which matches the buf member
+in struct i2c_msg.
 
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+https://github.com/ClangBuiltLinux/linux/issues/145
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/scif/scif_fence.c | 2 +-
+ drivers/rtc/rtc-s35390a.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/mic/scif/scif_fence.c b/drivers/misc/mic/scif/scif_fence.c
-index cac3bcc308a7e..7bb929f05d852 100644
---- a/drivers/misc/mic/scif/scif_fence.c
-+++ b/drivers/misc/mic/scif/scif_fence.c
-@@ -272,7 +272,7 @@ static int _scif_prog_signal(scif_epd_t epd, dma_addr_t dst, u64 val)
- dma_fail:
- 	if (!x100)
- 		dma_pool_free(ep->remote_dev->signal_pool, status,
--			      status->src_dma_addr);
-+			      src - offsetof(struct scif_status, val));
- alloc_fail:
- 	return err;
- }
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index 7067bca5c20d9..6bfff0a6d6552 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -108,7 +108,7 @@ static int s35390a_get_reg(struct s35390a *s35390a, int reg, char *buf, int len)
+ 
+ static int s35390a_init(struct s35390a *s35390a)
+ {
+-	char buf;
++	u8 buf;
+ 	int ret;
+ 	unsigned initcount = 0;
+ 
 -- 
 2.20.1
 
