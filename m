@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDEFF10B9A0
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A83A10B9D9
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:57:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729914AbfK0UzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:55:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45792 "EHLO mail.kernel.org"
+        id S1730891AbfK0U5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:57:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729273AbfK0UzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:55:19 -0500
+        id S1730884AbfK0U5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:57:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AC7D2070B;
-        Wed, 27 Nov 2019 20:55:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E4EF21741;
+        Wed, 27 Nov 2019 20:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888118;
-        bh=j82QhQpXPv5+VtTXBhJZUJkVcMlz5UdcKmH4gmp6dvw=;
+        s=default; t=1574888238;
+        bh=QEMWNmOumGvVa7PmGCQpbUiSZpjeUwPy1tf5ZaAlhRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbaufDDVT1Rxe946ub9EJ6pBT7dbih2iBC3zaxrcxhc5yAJee7AOxAG9gmWiQcxmQ
-         KohSBJt+q7wLlDjsm2uOoLROFmYZPid4v4hr4Y7QXuu6/tYRT+e+zPELTBJ9c6IxAq
-         Ld6nOapaP/aIVuiNuaXBFHEKfhuqF7qInT6KCLAw=
+        b=J4LzWTD7IFxZVVN3gV8uiMCk1nRQKRNynmmYy2hN7htCsbtAFIhoL+bhajDKdRwGi
+         AmKRWa6AhbhHib7kk1Nbe/jog7ZcamqluaIeshMNw4nHM7TNQBreD0s3fJot+Mui04
+         uCLnELhYQmAQKqKXNhr4pPgsOcIAtc1H9ZkGdn8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 004/306] net: rtnetlink: prevent underflows in do_setvfinfo()
-Date:   Wed, 27 Nov 2019 21:27:34 +0100
-Message-Id: <20191127203115.077884468@linuxfoundation.org>
+Subject: [PATCH 4.19 005/306] net/sched: act_pedit: fix WARN() in the traffic path
+Date:   Wed, 27 Nov 2019 21:27:35 +0100
+Message-Id: <20191127203115.143626227@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,189 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit d658c8f56ec7b3de8051a24afb25da9ba3c388c5 ]
+[ Upstream commit f67169fef8dbcc1ac6a6a109ecaad0d3b259002c ]
 
-The "ivm->vf" variable is a u32, but the problem is that a number of
-drivers cast it to an int and then forget to check for negatives.  An
-example of this is in the cxgb4 driver.
+when configuring act_pedit rules, the number of keys is validated only on
+addition of a new entry. This is not sufficient to avoid hitting a WARN()
+in the traffic path: for example, it is possible to replace a valid entry
+with a new one having 0 extended keys, thus causing splats in dmesg like:
 
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-  2890  static int cxgb4_mgmt_get_vf_config(struct net_device *dev,
-  2891                                      int vf, struct ifla_vf_info *ivi)
-                                            ^^^^^^
-  2892  {
-  2893          struct port_info *pi = netdev_priv(dev);
-  2894          struct adapter *adap = pi->adapter;
-  2895          struct vf_info *vfinfo;
-  2896
-  2897          if (vf >= adap->num_vfs)
-                    ^^^^^^^^^^^^^^^^^^^
-  2898                  return -EINVAL;
-  2899          vfinfo = &adap->vfinfo[vf];
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ pedit BUG: index 42
+ WARNING: CPU: 2 PID: 4054 at net/sched/act_pedit.c:410 tcf_pedit_act+0xc84/0x1200 [act_pedit]
+ [...]
+ RIP: 0010:tcf_pedit_act+0xc84/0x1200 [act_pedit]
+ Code: 89 fa 48 c1 ea 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e ac 00 00 00 48 8b 44 24 10 48 c7 c7 a0 c4 e4 c0 8b 70 18 e8 1c 30 95 ea <0f> 0b e9 a0 fa ff ff e8 00 03 f5 ea e9 14 f4 ff ff 48 89 58 40 e9
+ RSP: 0018:ffff888077c9f320 EFLAGS: 00010286
+ RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffffffac2983a2
+ RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffff888053927bec
+ RBP: dffffc0000000000 R08: ffffed100a726209 R09: ffffed100a726209
+ R10: 0000000000000001 R11: ffffed100a726208 R12: ffff88804beea780
+ R13: ffff888079a77400 R14: ffff88804beea780 R15: ffff888027ab2000
+ FS:  00007fdeec9bd740(0000) GS:ffff888053900000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007ffdb3dfd000 CR3: 000000004adb4006 CR4: 00000000001606e0
+ Call Trace:
+  tcf_action_exec+0x105/0x3f0
+  tcf_classify+0xf2/0x410
+  __dev_queue_xmit+0xcbf/0x2ae0
+  ip_finish_output2+0x711/0x1fb0
+  ip_output+0x1bf/0x4b0
+  ip_send_skb+0x37/0xa0
+  raw_sendmsg+0x180c/0x2430
+  sock_sendmsg+0xdb/0x110
+  __sys_sendto+0x257/0x2b0
+  __x64_sys_sendto+0xdd/0x1b0
+  do_syscall_64+0xa5/0x4e0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ RIP: 0033:0x7fdeeb72e993
+ Code: 48 8b 0d e0 74 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 0d d6 2c 00 00 75 13 49 89 ca b8 2c 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 34 c3 48 83 ec 08 e8 4b cc 00 00 48 89 04 24
+ RSP: 002b:00007ffdb3de8a18 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+ RAX: ffffffffffffffda RBX: 000055c81972b700 RCX: 00007fdeeb72e993
+ RDX: 0000000000000040 RSI: 000055c81972b700 RDI: 0000000000000003
+ RBP: 00007ffdb3dea130 R08: 000055c819728510 R09: 0000000000000010
+ R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000040
+ R13: 000055c81972b6c0 R14: 000055c81972969c R15: 0000000000000080
 
-There are 48 functions affected.
+Fix this moving the check on 'nkeys' earlier in tcf_pedit_init(), so that
+attempts to install rules having 0 keys are always rejected with -EINVAL.
 
-drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c:8435 hclge_set_vf_vlan_filter() warn: can 'vfid' underflow 's32min-2147483646'
-drivers/net/ethernet/freescale/enetc/enetc_pf.c:377 enetc_pf_set_vf_mac() warn: can 'vf' underflow 's32min-2147483646'
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:2899 cxgb4_mgmt_get_vf_config() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:2960 cxgb4_mgmt_set_vf_rate() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3019 cxgb4_mgmt_set_vf_rate() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3038 cxgb4_mgmt_set_vf_vlan() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3086 cxgb4_mgmt_set_vf_link_state() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/chelsio/cxgb/cxgb2.c:791 get_eeprom() warn: can 'i' underflow 's32min-(-4),0,4-s32max'
-drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:82 bnxt_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:164 bnxt_set_vf_trust() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:186 bnxt_get_vf_config() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:228 bnxt_set_vf_mac() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:264 bnxt_set_vf_vlan() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:293 bnxt_set_vf_bw() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:333 bnxt_set_vf_link_state() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c:2595 bnx2x_vf_op_prep() warn: can 'vfidx' underflow 's32min-63'
-drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c:2595 bnx2x_vf_op_prep() warn: can 'vfidx' underflow 's32min-63'
-drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2281 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
-drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2285 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
-drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2286 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
-drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2292 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
-drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2297 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
-drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1832 qlcnic_sriov_set_vf_mac() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1864 qlcnic_sriov_set_vf_tx_rate() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1937 qlcnic_sriov_set_vf_vlan() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:2005 qlcnic_sriov_get_vf_config() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:2036 qlcnic_sriov_set_vf_spoofchk() warn: can 'vf' underflow 's32min-254'
-drivers/net/ethernet/emulex/benet/be_main.c:1914 be_get_vf_config() warn: can 'vf' underflow 's32min-65534'
-drivers/net/ethernet/emulex/benet/be_main.c:1915 be_get_vf_config() warn: can 'vf' underflow 's32min-65534'
-drivers/net/ethernet/emulex/benet/be_main.c:1922 be_set_vf_tvt() warn: can 'vf' underflow 's32min-65534'
-drivers/net/ethernet/emulex/benet/be_main.c:1951 be_clear_vf_tvt() warn: can 'vf' underflow 's32min-65534'
-drivers/net/ethernet/emulex/benet/be_main.c:2063 be_set_vf_tx_rate() warn: can 'vf' underflow 's32min-65534'
-drivers/net/ethernet/emulex/benet/be_main.c:2091 be_set_vf_link_state() warn: can 'vf' underflow 's32min-65534'
-drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:2609 ice_set_vf_port_vlan() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3050 ice_get_vf_cfg() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3103 ice_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3181 ice_set_vf_mac() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3237 ice_set_vf_trust() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3286 ice_set_vf_link_state() warn: can 'vf_id' underflow 's32min-65534'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:3919 i40e_validate_vf() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:3957 i40e_ndo_set_vf_mac() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4104 i40e_ndo_set_vf_port_vlan() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4263 i40e_ndo_set_vf_bw() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4309 i40e_ndo_get_vf_config() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4371 i40e_ndo_set_vf_link_state() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4441 i40e_ndo_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4441 i40e_ndo_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-2147483646'
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4504 i40e_ndo_set_vf_trust() warn: can 'vf_id' underflow 's32min-2147483646'
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/rtnetlink.c |   23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ net/sched/act_pedit.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -2126,6 +2126,8 @@ static int do_setvfinfo(struct net_devic
- 	if (tb[IFLA_VF_MAC]) {
- 		struct ifla_vf_mac *ivm = nla_data(tb[IFLA_VF_MAC]);
+--- a/net/sched/act_pedit.c
++++ b/net/sched/act_pedit.c
+@@ -46,7 +46,7 @@ static struct tcf_pedit_key_ex *tcf_pedi
+ 	int err = -EINVAL;
+ 	int rem;
  
-+		if (ivm->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = -EOPNOTSUPP;
- 		if (ops->ndo_set_vf_mac)
- 			err = ops->ndo_set_vf_mac(dev, ivm->vf,
-@@ -2137,6 +2139,8 @@ static int do_setvfinfo(struct net_devic
- 	if (tb[IFLA_VF_VLAN]) {
- 		struct ifla_vf_vlan *ivv = nla_data(tb[IFLA_VF_VLAN]);
+-	if (!nla || !n)
++	if (!nla)
+ 		return NULL;
  
-+		if (ivv->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = -EOPNOTSUPP;
- 		if (ops->ndo_set_vf_vlan)
- 			err = ops->ndo_set_vf_vlan(dev, ivv->vf, ivv->vlan,
-@@ -2169,6 +2173,8 @@ static int do_setvfinfo(struct net_devic
- 		if (len == 0)
- 			return -EINVAL;
- 
-+		if (ivvl[0]->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = ops->ndo_set_vf_vlan(dev, ivvl[0]->vf, ivvl[0]->vlan,
- 					   ivvl[0]->qos, ivvl[0]->vlan_proto);
- 		if (err < 0)
-@@ -2179,6 +2185,8 @@ static int do_setvfinfo(struct net_devic
- 		struct ifla_vf_tx_rate *ivt = nla_data(tb[IFLA_VF_TX_RATE]);
- 		struct ifla_vf_info ivf;
- 
-+		if (ivt->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = -EOPNOTSUPP;
- 		if (ops->ndo_get_vf_config)
- 			err = ops->ndo_get_vf_config(dev, ivt->vf, &ivf);
-@@ -2197,6 +2205,8 @@ static int do_setvfinfo(struct net_devic
- 	if (tb[IFLA_VF_RATE]) {
- 		struct ifla_vf_rate *ivt = nla_data(tb[IFLA_VF_RATE]);
- 
-+		if (ivt->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = -EOPNOTSUPP;
- 		if (ops->ndo_set_vf_rate)
- 			err = ops->ndo_set_vf_rate(dev, ivt->vf,
-@@ -2209,6 +2219,8 @@ static int do_setvfinfo(struct net_devic
- 	if (tb[IFLA_VF_SPOOFCHK]) {
- 		struct ifla_vf_spoofchk *ivs = nla_data(tb[IFLA_VF_SPOOFCHK]);
- 
-+		if (ivs->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = -EOPNOTSUPP;
- 		if (ops->ndo_set_vf_spoofchk)
- 			err = ops->ndo_set_vf_spoofchk(dev, ivs->vf,
-@@ -2220,6 +2232,8 @@ static int do_setvfinfo(struct net_devic
- 	if (tb[IFLA_VF_LINK_STATE]) {
- 		struct ifla_vf_link_state *ivl = nla_data(tb[IFLA_VF_LINK_STATE]);
- 
-+		if (ivl->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = -EOPNOTSUPP;
- 		if (ops->ndo_set_vf_link_state)
- 			err = ops->ndo_set_vf_link_state(dev, ivl->vf,
-@@ -2233,6 +2247,8 @@ static int do_setvfinfo(struct net_devic
- 
- 		err = -EOPNOTSUPP;
- 		ivrssq_en = nla_data(tb[IFLA_VF_RSS_QUERY_EN]);
-+		if (ivrssq_en->vf >= INT_MAX)
-+			return -EINVAL;
- 		if (ops->ndo_set_vf_rss_query_en)
- 			err = ops->ndo_set_vf_rss_query_en(dev, ivrssq_en->vf,
- 							   ivrssq_en->setting);
-@@ -2243,6 +2259,8 @@ static int do_setvfinfo(struct net_devic
- 	if (tb[IFLA_VF_TRUST]) {
- 		struct ifla_vf_trust *ivt = nla_data(tb[IFLA_VF_TRUST]);
- 
-+		if (ivt->vf >= INT_MAX)
-+			return -EINVAL;
- 		err = -EOPNOTSUPP;
- 		if (ops->ndo_set_vf_trust)
- 			err = ops->ndo_set_vf_trust(dev, ivt->vf, ivt->setting);
-@@ -2253,15 +2271,18 @@ static int do_setvfinfo(struct net_devic
- 	if (tb[IFLA_VF_IB_NODE_GUID]) {
- 		struct ifla_vf_guid *ivt = nla_data(tb[IFLA_VF_IB_NODE_GUID]);
- 
-+		if (ivt->vf >= INT_MAX)
-+			return -EINVAL;
- 		if (!ops->ndo_set_vf_guid)
- 			return -EOPNOTSUPP;
--
- 		return handle_vf_guid(dev, ivt, IFLA_VF_IB_NODE_GUID);
+ 	keys_ex = kcalloc(n, sizeof(*k), GFP_KERNEL);
+@@ -169,6 +169,10 @@ static int tcf_pedit_init(struct net *ne
  	}
  
- 	if (tb[IFLA_VF_IB_PORT_GUID]) {
- 		struct ifla_vf_guid *ivt = nla_data(tb[IFLA_VF_IB_PORT_GUID]);
- 
-+		if (ivt->vf >= INT_MAX)
-+			return -EINVAL;
- 		if (!ops->ndo_set_vf_guid)
- 			return -EOPNOTSUPP;
- 
+ 	parm = nla_data(pattr);
++	if (!parm->nkeys) {
++		NL_SET_ERR_MSG_MOD(extack, "Pedit requires keys to be passed");
++		return -EINVAL;
++	}
+ 	ksize = parm->nkeys * sizeof(struct tc_pedit_key);
+ 	if (nla_len(pattr) < sizeof(*parm) + ksize) {
+ 		NL_SET_ERR_MSG_ATTR(extack, pattr, "Length of TCA_PEDIT_PARMS or TCA_PEDIT_PARMS_EX pedit attribute is invalid");
+@@ -182,12 +186,6 @@ static int tcf_pedit_init(struct net *ne
+ 	index = parm->index;
+ 	err = tcf_idr_check_alloc(tn, &index, a, bind);
+ 	if (!err) {
+-		if (!parm->nkeys) {
+-			tcf_idr_cleanup(tn, index);
+-			NL_SET_ERR_MSG_MOD(extack, "Pedit requires keys to be passed");
+-			ret = -EINVAL;
+-			goto out_free;
+-		}
+ 		ret = tcf_idr_create(tn, index, est, a,
+ 				     &act_pedit_ops, bind, false);
+ 		if (ret) {
 
 
