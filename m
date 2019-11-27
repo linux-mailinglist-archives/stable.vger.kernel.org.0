@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 962E210BC6C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E3DA10BB46
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732285AbfK0VHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:07:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33930 "EHLO mail.kernel.org"
+        id S1733127AbfK0VLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:11:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732638AbfK0VHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:07:41 -0500
+        id S1732722AbfK0VLJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:11:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45E532176D;
-        Wed, 27 Nov 2019 21:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7A68217BA;
+        Wed, 27 Nov 2019 21:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888860;
-        bh=OgxL2iwhe6dwLzG1pjdCdEAEYq0yaI02Z8MvenuIPBA=;
+        s=default; t=1574889068;
+        bh=jgZhuF8duSwxHtm8Ldfjn86FE4kAix6Su0REliUcJSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXr+gQXunEVWK25oJeim/H2DvfGHqMejXbt6paFnzB/c2unj9cDhPIRvJobFIA4tB
-         L4jKg9sYKlQz9eLeYzDdGmQZNYqUbovIyYpbq2Ao/9FyJUY9oxSDglN9LimRY9VETj
-         4WEbKh4UWGXu3esAYDQbKK/OviMJgQm/3IJXJ+7I=
+        b=SMjvAcwev2PBc36XWeoUnupo/gXVHeY+iL13umcKge+9V6CODf2HG9Fy46xIpMkJR
+         AX7cMDTfp6x2TvQLh2x9EqAY/RNzgNVSFMbSqhhKlY29LwWhIT1Frhc1os9TGtMTgc
+         /AxlJas17RYInNWo1jsA3nxVb4Hj5LNdzIUEyZR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pavel=20L=C3=B6bl?= <pavel@loebl.cz>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 298/306] USB: serial: mos7840: add USB ID to support Moxa UPort 2210
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.3 71/95] media: vivid: Fix wrong locking that causes race conditions on streaming stop
 Date:   Wed, 27 Nov 2019 21:32:28 +0100
-Message-Id: <20191127203136.504581655@linuxfoundation.org>
+Message-Id: <20191127202937.596975780@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +45,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Löbl <pavel@loebl.cz>
+From: Alexander Popov <alex.popov@linux.com>
 
-commit e696d00e65e81d46e911f24b12e441037bf11b38 upstream.
+commit 6dcd5d7a7a29c1e4b8016a06aed78cd650cd8c27 upstream.
 
-Add USB ID for MOXA UPort 2210. This device contains mos7820 but
-it passes GPIO0 check implemented by driver and it's detected as
-mos7840. Hence product id check is added to force mos7820 mode.
+There is the same incorrect approach to locking implemented in
+vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
+sdr_cap_stop_streaming().
 
-Signed-off-by: Pavel Löbl <pavel@loebl.cz>
-Cc: stable <stable@vger.kernel.org>
-[ johan: rename id defines and add vendor-id check ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+These functions are called during streaming stopping with vivid_dev.mutex
+locked. And they all do the same mistake while stopping their kthreads,
+which need to lock this mutex as well. See the example from
+vivid_stop_generating_vid_cap():
+  /* shutdown control thread */
+  vivid_grab_controls(dev, false);
+  mutex_unlock(&dev->mutex);
+  kthread_stop(dev->kthread_vid_cap);
+  dev->kthread_vid_cap = NULL;
+  mutex_lock(&dev->mutex);
+
+But when this mutex is unlocked, another vb2_fop_read() can lock it
+instead of vivid_thread_vid_cap() and manipulate the buffer queue.
+That causes a use-after-free access later.
+
+To fix those issues let's:
+  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
+vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
+  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
+the loops of the vivid kthread handlers.
+
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v3.18 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/mos7840.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/media/platform/vivid/vivid-kthread-cap.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-kthread-out.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-sdr-cap.c     |    8 +++++---
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -118,11 +118,15 @@
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-  * ATEN UC2322 device using Moschip MCS7820
-+ * MOXA UPort 2210 device using Moschip MCS7820
-  */
- #define USB_VENDOR_ID_ATENINTL		0x0557
- #define ATENINTL_DEVICE_ID_UC2324	0x2011
- #define ATENINTL_DEVICE_ID_UC2322	0x7820
+--- a/drivers/media/platform/vivid/vivid-kthread-cap.c
++++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
+@@ -796,7 +796,11 @@ static int vivid_thread_vid_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
  
-+#define USB_VENDOR_ID_MOXA		0x110a
-+#define MOXA_DEVICE_ID_2210		0x2210
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
 +
- /* Interrupt Routine Defines    */
+ 		cur_jiffies = jiffies;
+ 		if (dev->cap_seq_resync) {
+ 			dev->jiffies_vid_cap = cur_jiffies;
+@@ -956,8 +960,6 @@ void vivid_stop_generating_vid_cap(struc
  
- #define SERIAL_IIR_RLS      0x06
-@@ -193,6 +197,7 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
-+	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
- 	{}			/* terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, id_table);
-@@ -2053,6 +2058,7 @@ static int mos7840_probe(struct usb_seri
- 				const struct usb_device_id *id)
- {
- 	u16 product = le16_to_cpu(serial->dev->descriptor.idProduct);
-+	u16 vid = le16_to_cpu(serial->dev->descriptor.idVendor);
- 	u8 *buf;
- 	int device_type;
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_cap);
+ 	dev->kthread_vid_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-kthread-out.c
++++ b/drivers/media/platform/vivid/vivid-kthread-out.c
+@@ -143,7 +143,11 @@ static int vivid_thread_vid_out(void *da
+ 		if (kthread_should_stop())
+ 			break;
  
-@@ -2062,6 +2068,11 @@ static int mos7840_probe(struct usb_seri
- 		goto out;
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->out_seq_resync) {
+ 			dev->jiffies_vid_out = cur_jiffies;
+@@ -301,8 +305,6 @@ void vivid_stop_generating_vid_out(struc
+ 
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_out);
+ 	dev->kthread_vid_out = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-sdr-cap.c
++++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
+@@ -141,7 +141,11 @@ static int vivid_thread_sdr_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->sdr_cap_seq_resync) {
+ 			dev->jiffies_sdr_cap = cur_jiffies;
+@@ -303,10 +307,8 @@ static void sdr_cap_stop_streaming(struc
  	}
  
-+	if (vid == USB_VENDOR_ID_MOXA && product == MOXA_DEVICE_ID_2210) {
-+		device_type = MOSCHIP_DEVICE_ID_7820;
-+		goto out;
-+	}
-+
- 	buf = kzalloc(VENDOR_READ_LENGTH, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
+ 	/* shutdown control thread */
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_sdr_cap);
+ 	dev->kthread_sdr_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+ 
+ static void sdr_cap_buf_request_complete(struct vb2_buffer *vb)
 
 
