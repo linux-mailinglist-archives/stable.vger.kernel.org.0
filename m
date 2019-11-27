@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 876C810BAC1
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8435310BC39
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732399AbfK0VGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:06:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60300 "EHLO mail.kernel.org"
+        id S1731923AbfK0VJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:09:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727351AbfK0VGS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:06:18 -0500
+        id S1732272AbfK0VJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:09:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC93021770;
-        Wed, 27 Nov 2019 21:06:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2403A2176D;
+        Wed, 27 Nov 2019 21:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888777;
-        bh=dZvexBe28LkdVb8dTGUN63UBYjHJZ+tVRGX71Tjw5LE=;
+        s=default; t=1574888983;
+        bh=zCgDrU9ezIbzq7CMalImPFPEn0zCQPijFbbT/nGqanM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CzufqzpQ3UxIuvZAEgBB3OY0S+MytgJpsmFFoVfBx5f96FkZMU3LqB1L/ammYmHQx
-         kTyoGo982D+J+9qtzj/wqds1XUDH/w37ZknoycBljPWqlcAeMSgWyC5dlpyEMq3whK
-         xc4JcsDqWFvsJpV7z/lAu3Gw0lTUNANVmPNnJRpc=
+        b=sNcmbRO163bWazM4EU2RRpeDVY8BQfrccoe64GODT0j0gKsgDKy0BFbCsg+h8G/zY
+         NXcQYRbj7PoUnE/6E+3/bIEEvcxVaK7ehMzf5LtNEvAAFuuz6D/GWZc+Pz/XciRT/d
+         0gMv+eRspThqvBjd/QsdwMgY1/wur03jN6OKGpcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gang He <ghe@suse.com>,
-        Joseph Qi <jiangqi903@gmail.com>, Eric Ren <zren@suse.com>,
-        Changwei Ge <ge.changwei@h3c.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 264/306] ocfs2: remove ocfs2_is_o2cb_active()
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.3 37/95] ath10k: restore QCA9880-AR1A (v1) detection
 Date:   Wed, 27 Nov 2019 21:31:54 +0100
-Message-Id: <20191127203134.120845835@linuxfoundation.org>
+Message-Id: <20191127202902.258066364@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,74 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gang He <ghe@suse.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit a634644751c46238df58bbfe992e30c1668388db upstream.
+commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream.
 
-Remove ocfs2_is_o2cb_active().  We have similar functions to identify
-which cluster stack is being used via osb->osb_cluster_stack.
+This patch restores the old behavior that read
+the chip_id on the QCA988x before resetting the
+chip. This needs to be done in this order since
+the unsupported QCA988x AR1A chips fall off the
+bus when resetted. Otherwise the next MMIO Op
+after the reset causes a BUS ERROR and panic.
 
-Secondly, the current implementation of ocfs2_is_o2cb_active() is not
-totally safe.  Based on the design of stackglue, we need to get
-ocfs2_stack_lock before using ocfs2_stack related data structures, and
-that active_stack pointer can be NULL in the case of mount failure.
-
-Link: http://lkml.kernel.org/r/1495441079-11708-1-git-send-email-ghe@suse.com
-Signed-off-by: Gang He <ghe@suse.com>
-Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
-Reviewed-by: Eric Ren <zren@suse.com>
-Acked-by: Changwei Ge <ge.changwei@h3c.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Cc: stable@vger.kernel.org
+Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/dlmglue.c   |    2 +-
- fs/ocfs2/stackglue.c |    6 ------
- fs/ocfs2/stackglue.h |    3 ---
- 3 files changed, 1 insertion(+), 10 deletions(-)
+ drivers/net/wireless/ath/ath10k/pci.c |   36 +++++++++++++++++++++++-----------
+ 1 file changed, 25 insertions(+), 11 deletions(-)
 
---- a/fs/ocfs2/dlmglue.c
-+++ b/fs/ocfs2/dlmglue.c
-@@ -3603,7 +3603,7 @@ static int ocfs2_downconvert_lock(struct
- 	 * we can recover correctly from node failure. Otherwise, we may get
- 	 * invalid LVB in LKB, but without DLM_SBF_VALNOTVALID being set.
- 	 */
--	if (!ocfs2_is_o2cb_active() &&
-+	if (ocfs2_userspace_stack(osb) &&
- 	    lockres->l_ops->flags & LOCK_TYPE_USES_LVB)
- 		lvb = 1;
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3490,7 +3490,7 @@ static int ath10k_pci_probe(struct pci_d
+ 	struct ath10k_pci *ar_pci;
+ 	enum ath10k_hw_rev hw_rev;
+ 	struct ath10k_bus_params bus_params = {};
+-	bool pci_ps;
++	bool pci_ps, is_qca988x = false;
+ 	int (*pci_soft_reset)(struct ath10k *ar);
+ 	int (*pci_hard_reset)(struct ath10k *ar);
+ 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
+@@ -3500,6 +3500,7 @@ static int ath10k_pci_probe(struct pci_d
+ 	case QCA988X_2_0_DEVICE_ID:
+ 		hw_rev = ATH10K_HW_QCA988X;
+ 		pci_ps = false;
++		is_qca988x = true;
+ 		pci_soft_reset = ath10k_pci_warm_reset;
+ 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
+ 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
+@@ -3619,25 +3620,34 @@ static int ath10k_pci_probe(struct pci_d
+ 		goto err_deinit_irq;
+ 	}
  
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -48,12 +48,6 @@ static char ocfs2_hb_ctl_path[OCFS2_MAX_
-  */
- static struct ocfs2_stack_plugin *active_stack;
++	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
++	bus_params.link_can_suspend = true;
++	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
++	 * fall off the bus during chip_reset. These chips have the same pci
++	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
++	 */
++	if (is_qca988x) {
++		bus_params.chip_id =
++			ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
++		if (bus_params.chip_id != 0xffffffff) {
++			if (!ath10k_pci_chip_is_supported(pdev->device,
++							  bus_params.chip_id))
++				goto err_unsupported;
++		}
++	}
++
+ 	ret = ath10k_pci_chip_reset(ar);
+ 	if (ret) {
+ 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
+ 		goto err_free_irq;
+ 	}
  
--inline int ocfs2_is_o2cb_active(void)
--{
--	return !strcmp(active_stack->sp_name, OCFS2_STACK_PLUGIN_O2CB);
--}
--EXPORT_SYMBOL_GPL(ocfs2_is_o2cb_active);
--
- static struct ocfs2_stack_plugin *ocfs2_stack_lookup(const char *name)
- {
- 	struct ocfs2_stack_plugin *p;
---- a/fs/ocfs2/stackglue.h
-+++ b/fs/ocfs2/stackglue.h
-@@ -298,9 +298,6 @@ void ocfs2_stack_glue_set_max_proto_vers
- int ocfs2_stack_glue_register(struct ocfs2_stack_plugin *plugin);
- void ocfs2_stack_glue_unregister(struct ocfs2_stack_plugin *plugin);
+-	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
+-	bus_params.link_can_suspend = true;
+ 	bus_params.chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+-	if (bus_params.chip_id == 0xffffffff) {
+-		ath10k_err(ar, "failed to get chip id\n");
+-		goto err_free_irq;
+-	}
++	if (bus_params.chip_id == 0xffffffff)
++		goto err_unsupported;
  
--/* In ocfs2_downconvert_lock(), we need to know which stack we are using */
--int ocfs2_is_o2cb_active(void);
--
- extern struct kset *ocfs2_kset;
+-	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id)) {
+-		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
+-			   pdev->device, bus_params.chip_id);
++	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
+ 		goto err_free_irq;
+-	}
  
- #endif  /* STACKGLUE_H */
+ 	ret = ath10k_core_register(ar, &bus_params);
+ 	if (ret) {
+@@ -3647,6 +3657,10 @@ static int ath10k_pci_probe(struct pci_d
+ 
+ 	return 0;
+ 
++err_unsupported:
++	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
++		   pdev->device, bus_params.chip_id);
++
+ err_free_irq:
+ 	ath10k_pci_free_irq(ar);
+ 	ath10k_pci_rx_retry_sync(ar);
 
 
