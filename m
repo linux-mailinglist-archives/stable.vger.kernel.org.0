@@ -2,130 +2,315 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E4610B056
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 14:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 702BC10B156
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 15:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727240AbfK0NgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 08:36:02 -0500
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:57571 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726320AbfK0NgC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 08:36:02 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 4AEB3701;
-        Wed, 27 Nov 2019 08:36:01 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 27 Nov 2019 08:36:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iZcMcz
-        DixH3XjV6pIUu6jVrLY4CzPGah+dvSN72yAF4=; b=qSXq6SoNCuwdnEflVlPqoz
-        zOKa6oTykhoDu4uvJ68huccvtionGWOYZ0pNi2XQS3ElD1FKpfZq8IhNs4Sgj70J
-        4Dc/Qzpn7tESxqVdhtzOH0iMlBlyCfVxdce8koOVB4ZacDqK9vQzlnOczCF4iEEp
-        OWjAQbo7GoUnwrUEgLdO96rIrU4D6t7yYJFDTBAvR7E6jyj2Upvidrg2IuOP5G2F
-        u0RRNZwUWyWvwwRalPEbdBYUJ7AUWfji4VWCQovEdEZkHVx5BbsPUsAeednnMw/D
-        FKPmXFWOL8oAnAEfmxyJpz/oPTVIdbmtgw9jDlUo7whPInXdgBQx1TZV/2VbexpQ
-        ==
-X-ME-Sender: <xms:wHveXSW8L-pG-Ma6ptYlgHCRzy4ivfQaQG7I9Q6BUctTaZPsjySoXg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeihedghedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:wHveXRWmwknGICI870PEzgCWU5M6Sr2MTCGdGjhmuZY4DuhALvEBhA>
-    <xmx:wHveXTQw0C37XOLCqDC1__xNLE5n5rUB-JDNnY-NV19Xwr8HOfxJdg>
-    <xmx:wHveXQ3v4RFS0_38uborrDpv6jvFXjizpQ4WwO6CCmpKZngzbRNfiQ>
-    <xmx:wHveXTXybv1I6PfG_jcOAFyQqiT0Y7m1Nj8oF9g3kVYt4h--3ftdhw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 810F43060060;
-        Wed, 27 Nov 2019 08:36:00 -0500 (EST)
-Subject: FAILED: patch "[PATCH] media: uvcvideo: Fix error path in control parsing failure" failed to apply to 4.4-stable tree
-To:     laurent.pinchart@ideasonboard.com, mchehab+samsung@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 Nov 2019 14:35:59 +0100
-Message-ID: <157486175917263@kroah.com>
+        id S1726985AbfK0Oar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 09:30:47 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:43908 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726655AbfK0Oaq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 09:30:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574865045;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=5nP2Bw49pySmu+7vJG97siZLNmNNJsTAupzZnyNSZbI=;
+        b=e0uMnvFzlKMLkirjBBDf77k1hmqxHU6G/TvInPgUtj/fmIBw5/UbaMgQnv78j5NlQDLIrT
+        bvHZFSXzslOFY1BkVdLCBtm3r1v7mtN+f0nPvnkzX4nNnPy9NAFWeC8rAqnUO5chT10Z74
+        5VEpUqG47ob6YdfesmytZe1cjMCYYaY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-40-ADiYiS4qN4WqYBrvArKxBw-1; Wed, 27 Nov 2019 09:30:41 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A306480183C;
+        Wed, 27 Nov 2019 14:30:40 +0000 (UTC)
+Received: from [172.54.116.159] (cpt-1047.paas.prod.upshift.rdu2.redhat.com [10.0.19.63])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6AC285C21B;
+        Wed, 27 Nov 2019 14:30:34 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.13-cc9917b.cki
+ (stable-queue)
+Date:   Wed, 27 Nov 2019 14:30:34 -0000
+CC:     Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Xiong Zhou <xzhou@redhat.com>
+Message-ID: <cki.B4696121A3.SRVKVUGWT3@redhat.com>
+X-Gitlab-Pipeline-ID: 309848
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/309848
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-MC-Unique: ADiYiS4qN4WqYBrvArKxBw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Hello,
 
-thanks,
+We ran automated tests on a recent commit from this kernel tree:
 
-greg k-h
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
+able-queue.git
+            Commit: cc9917b40848 - mdio_bus: Fix init if CONFIG_RESET_CONTR=
+OLLER=3Dn
 
------------------- original commit in Linus's tree ------------------
+The results of these automated tests are provided below.
 
-From 8c279e9394cade640ed86ec6c6645a0e7df5e0b6 Mon Sep 17 00:00:00 2001
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Date: Mon, 29 Jul 2019 23:14:55 -0300
-Subject: [PATCH] media: uvcvideo: Fix error path in control parsing failure
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
-When parsing the UVC control descriptors fails, the error path tries to
-cleanup a media device that hasn't been initialised, potentially
-resulting in a crash. Fix this by initialising the media device before
-the error handling path can be reached.
+All kernel binaries, config files, and logs are available for download here=
+:
 
-Fixes: 5a254d751e52 ("[media] uvcvideo: Register a v4l2_device")
-Reported-by: syzbot+c86454eb3af9e8a4da20@syzkaller.appspotmail.com
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+  https://artifacts.cki-project.org/pipelines/309848
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 66ee168ddc7e..428235ca2635 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -2151,6 +2151,20 @@ static int uvc_probe(struct usb_interface *intf,
- 			   sizeof(dev->name) - len);
- 	}
- 
-+	/* Initialize the media device. */
-+#ifdef CONFIG_MEDIA_CONTROLLER
-+	dev->mdev.dev = &intf->dev;
-+	strscpy(dev->mdev.model, dev->name, sizeof(dev->mdev.model));
-+	if (udev->serial)
-+		strscpy(dev->mdev.serial, udev->serial,
-+			sizeof(dev->mdev.serial));
-+	usb_make_path(udev, dev->mdev.bus_info, sizeof(dev->mdev.bus_info));
-+	dev->mdev.hw_revision = le16_to_cpu(udev->descriptor.bcdDevice);
-+	media_device_init(&dev->mdev);
-+
-+	dev->vdev.mdev = &dev->mdev;
-+#endif
-+
- 	/* Parse the Video Class control descriptor. */
- 	if (uvc_parse_control(dev) < 0) {
- 		uvc_trace(UVC_TRACE_PROBE, "Unable to parse UVC "
-@@ -2171,19 +2185,7 @@ static int uvc_probe(struct usb_interface *intf,
- 			"linux-uvc-devel mailing list.\n");
- 	}
- 
--	/* Initialize the media device and register the V4L2 device. */
--#ifdef CONFIG_MEDIA_CONTROLLER
--	dev->mdev.dev = &intf->dev;
--	strscpy(dev->mdev.model, dev->name, sizeof(dev->mdev.model));
--	if (udev->serial)
--		strscpy(dev->mdev.serial, udev->serial,
--			sizeof(dev->mdev.serial));
--	usb_make_path(udev, dev->mdev.bus_info, sizeof(dev->mdev.bus_info));
--	dev->mdev.hw_revision = le16_to_cpu(udev->descriptor.bcdDevice);
--	media_device_init(&dev->mdev);
--
--	dev->vdev.mdev = &dev->mdev;
--#endif
-+	/* Register the V4L2 device. */
- 	if (v4l2_device_register(&intf->dev, &dev->vdev) < 0)
- 		goto error;
- 
+One or more kernel tests failed:
+
+    ppc64le:
+     =E2=9D=8C LTP
+     =E2=9D=8C xfstests: xfs
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
+
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9D=8C LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9D=8C xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Storage SAN device stress - mpt3sas driver
+
+    Host 3:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Storage SAN device stress - megaraid_sas
+
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
+est
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/bas=
+ic
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
