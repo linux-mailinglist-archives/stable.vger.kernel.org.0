@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4ADF10BDC3
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:31:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FBED10BF6D
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727782AbfK0VbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:31:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45036 "EHLO mail.kernel.org"
+        id S1727720AbfK0Uiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:38:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730866AbfK0Uyp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:54:45 -0500
+        id S1728816AbfK0Uit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EDFF2086A;
-        Wed, 27 Nov 2019 20:54:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCA8021555;
+        Wed, 27 Nov 2019 20:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888084;
-        bh=eaBjrtbhJ62pLWppLNZsKpx+Q5x1JcT00JxRyiiPxLQ=;
+        s=default; t=1574887129;
+        bh=5dB7ozyKoi/M5ntKoqDhWKGmzdvlVlMFbQ5HSRIXi3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQ+Ur8RxTHX6nNXmsLPWUxQJv3riqMujx7FOqjE3j4Ol4v9w6z6e6CrvUGArBGhtp
-         MlkFwi15vHT1bc9jag/eOIb0gyESleSdmBrdyW7PDEOY9W6RxHjb1eRY/W41iFRPS3
-         E4V8VnkqXcMERSmv8gjUN0YQvqb9okbvhig4f3as=
+        b=c+npvHSryn9x190Ni+IrU6TYZXMU4BSAadaPyV9ZXO00eZuIEtuSLLdpKoeKzNKre
+         EWr0+gzHo/zWAM3anCzIXVqK7mzoVeno5o1ByKCu3rrEjlqOiwTNHB1zuHF0FkJn8A
+         ryz1qxeDWXQj7KQJTRy05h5w6uVOFuryhfEyEuzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 4.14 183/211] selftests/x86/mov_ss_trap: Fix the SYSENTER test
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 125/132] USB: serial: mos7720: fix remote wakeup
 Date:   Wed, 27 Nov 2019 21:31:56 +0100
-Message-Id: <20191127203111.057361704@linuxfoundation.org>
+Message-Id: <20191127203033.186728038@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit 8caa016bfc129f2c925d52da43022171d1d1de91 upstream.
+commit ea422312a462696093b5db59d294439796cba4ad upstream.
 
-For reasons that I haven't quite fully diagnosed, running
-mov_ss_trap_32 on a 32-bit kernel results in an infinite loop in
-userspace.  This appears to be because the hacky SYSENTER test
-doesn't segfault as desired; instead it corrupts the program state
-such that it infinite loops.
+The driver was setting the device remote-wakeup feature during probe in
+violation of the USB specification (which says it should only be set
+just prior to suspending the device). This could potentially waste
+power during suspend as well as lead to spurious wakeups.
 
-Fix it by explicitly clearing EBP before doing SYSENTER.  This will
-give a more reliable segfault.
+Note that USB core would clear the remote-wakeup feature at first
+resume.
 
-Fixes: 59c2a7226fc5 ("x86/selftests: Add mov_to_ss test")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@kernel.org
+Fixes: 0f64478cbc7a ("USB: add USB serial mos7720 driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/x86/mov_ss_trap.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/mos7720.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/tools/testing/selftests/x86/mov_ss_trap.c
-+++ b/tools/testing/selftests/x86/mov_ss_trap.c
-@@ -257,7 +257,8 @@ int main()
- 			err(1, "sigaltstack");
- 		sethandler(SIGSEGV, handle_and_longjmp, SA_RESETHAND | SA_ONSTACK);
- 		nr = SYS_getpid;
--		asm volatile ("mov %[ss], %%ss; SYSENTER" : "+a" (nr)
-+		/* Clear EBP first to make sure we segfault cleanly. */
-+		asm volatile ("xorl %%ebp, %%ebp; mov %[ss], %%ss; SYSENTER" : "+a" (nr)
- 			      : [ss] "m" (ss) : "flags", "rcx"
- #ifdef __x86_64__
- 				, "r11"
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -1941,10 +1941,6 @@ static int mos7720_startup(struct usb_se
+ 		}
+ 	}
+ 
+-	/* setting configuration feature to one */
+-	usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
+-			(__u8)0x03, 0x00, 0x01, 0x00, NULL, 0x00, 5000);
+-
+ #ifdef CONFIG_USB_SERIAL_MOS7715_PARPORT
+ 	if (product == MOSCHIP_DEVICE_ID_7715) {
+ 		ret_val = mos7715_parport_init(serial);
 
 
