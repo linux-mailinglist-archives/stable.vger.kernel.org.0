@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 445B810BF5B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E52610BFCC
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729165AbfK0Vme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:42:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44220 "EHLO mail.kernel.org"
+        id S1727683AbfK0Uem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:34:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728492AbfK0Ujy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:39:54 -0500
+        id S1727671AbfK0Uek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:34:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0647320863;
-        Wed, 27 Nov 2019 20:39:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6620320866;
+        Wed, 27 Nov 2019 20:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887193;
-        bh=LZp/NX6ULwok7KISCfKKkJI5x6JyKuh3DkWBM1uLWIw=;
+        s=default; t=1574886879;
+        bh=n8NCEYBKHalDrvOC5Y1rXkVKFs3fXokk5s3Ewux9a58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSg4jg9hpDb7a/W8Vk677vDoT1hkZbudjSyG/gKY96jF5qV7ubZPT24/8xseeXinF
-         b0x0sZknlReAfZKaD/BH4BXcdC+hDvJKPq82+P714GB5RKUY32TddbEhPm5eM6T8Sg
-         JCvvyyB+RjwK4d6ajn6wXBG9+yZSBa3SE6nk0DIg=
+        b=i002y96wLHbC19Gv/OcUsftKHQYfv5O5FByZKRsBlPD2LcQ+0wkZmGEa5iL+UvwI3
+         so98n8RZffcFPRNtnE16f9rfcNQVczCtEOpz/uQBKHnKyqV9kGrlYCjV/2B9VGFCWk
+         VSh61lNF97km3wH9gZwfKtAbxgRoIWea4vpCvY6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Geoff Levand <geoff@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Corentin Chary <corentin.chary@gmail.com>,
+        Darren Hart <dvhart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 017/151] powerpc: Fix signedness bug in update_flash_db()
+Subject: [PATCH 4.4 009/132] asus-wmi: Add quirk_no_rfkill for the Asus N552VW
 Date:   Wed, 27 Nov 2019 21:30:00 +0100
-Message-Id: <20191127203010.440341531@linuxfoundation.org>
+Message-Id: <20191127202908.242276604@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: João Paulo Rechi Vita <jprvita@gmail.com>
 
-[ Upstream commit 014704e6f54189a203cc14c7c0bb411b940241bc ]
+[ Upstream commit 2d735244b798f0c8bf93ace1facfafdc1f7a4e6e ]
 
-The "count < sizeof(struct os_area_db)" comparison is type promoted to
-size_t so negative values of "count" are treated as very high values
-and we accidentally return success instead of a negative error code.
+The Asus N552VW has an airplane-mode indicator LED and the WMI WLAN user
+bit set, so asus-wmi uses ASUS_WMI_DEVID_WLAN_LED (0x00010002) to store
+the wlan state, which has a side-effect of driving the airplane mode
+indicator LED in an inverted fashion. quirk_no_rfkill prevents asus-wmi
+from registering RFKill switches at all for this laptop and allows
+asus-wireless to drive the LED through the ASHS ACPI device.
 
-This doesn't really change runtime much but it fixes a static checker
-warning.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Geoff Levand <geoff@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+Reviewed-by: Corentin Chary <corentin.chary@gmail.com>
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/ps3/os-area.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/asus-nb-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/powerpc/platforms/ps3/os-area.c b/arch/powerpc/platforms/ps3/os-area.c
-index 3db53e8aff927..9b2ef76578f06 100644
---- a/arch/powerpc/platforms/ps3/os-area.c
-+++ b/arch/powerpc/platforms/ps3/os-area.c
-@@ -664,7 +664,7 @@ static int update_flash_db(void)
- 	db_set_64(db, &os_area_db_id_rtc_diff, saved_params.rtc_diff);
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 904f210327a1c..0322b1cde825d 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -333,6 +333,15 @@ static const struct dmi_system_id asus_quirks[] = {
+ 		},
+ 		.driver_data = &quirk_no_rfkill,
+ 	},
++	{
++		.callback = dmi_matched,
++		.ident = "ASUSTeK COMPUTER INC. N552VW",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "N552VW"),
++		},
++		.driver_data = &quirk_no_rfkill,
++	},
+ 	{},
+ };
  
- 	count = os_area_flash_write(db, sizeof(struct os_area_db), pos);
--	if (count < sizeof(struct os_area_db)) {
-+	if (count < 0 || count < sizeof(struct os_area_db)) {
- 		pr_debug("%s: os_area_flash_write failed %zd\n", __func__,
- 			 count);
- 		error = count < 0 ? count : -EIO;
 -- 
 2.20.1
 
