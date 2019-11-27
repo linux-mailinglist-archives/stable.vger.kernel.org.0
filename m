@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E8910B949
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:52:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A1410B79A
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:35:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729067AbfK0Uvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:51:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38760 "EHLO mail.kernel.org"
+        id S1727843AbfK0UfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:35:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730533AbfK0Uvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:51:48 -0500
+        id S1727191AbfK0UfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:35:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B155A218AE;
-        Wed, 27 Nov 2019 20:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75B0621582;
+        Wed, 27 Nov 2019 20:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887906;
-        bh=aTkknpA7PYRoAKFfak6Ht2aOudN4LbMl57GR686Cthc=;
+        s=default; t=1574886918;
+        bh=HGFXd98nD+PFSmAQmggNFOCRGpwtpq835HAnak/s208=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xn6bxmr7pv15X0gJ/4WKRpfLIJejXQhmOUx8L7K2YdQBNVHuyu6S1QkCmr2kRJe4y
-         AzjQAZwsoKmpL6e1U1rEta0hRKEyrZvtzRT3otWxwmang7yHvZ8P6cQGYG05vLvwxj
-         kDDSzjQcEWrhhyeHT8uR6yDLni3PnfDT2LjicspM=
+        b=a+34tSr2ysbe8Za8UtyNhTbB3+To7lyAzfWtpOzA0Y8rcMmGUH/O4xtbyRFx7lJ7o
+         Mklr7TQuJ0MC1QBUrfE8zR2lIgF5MWS4LDXEWRft1pLxXB03WfCkeXbgGD+MI8rkp6
+         D4bmjnQL/vRGrNFoe70upKqndVO92T/6fLY92/LA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 099/211] i2c: uniphier-f: fix occasional timeout error
-Date:   Wed, 27 Nov 2019 21:30:32 +0100
-Message-Id: <20191127203103.046030866@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 043/132] kprobes, x86/ptrace.h: Make regs_get_kernel_stack_nth() not fault on bad stack
+Date:   Wed, 27 Nov 2019 21:30:34 +0100
+Message-Id: <20191127202939.740492140@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,136 +51,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 39226aaa85f002d695e3cafade3309e12ffdaecd ]
+[ Upstream commit c2712b858187f5bcd7b042fe4daa3ba3a12635c0 ]
 
-Currently, a timeout error could happen at a repeated START condition.
+Andy had some concerns about using regs_get_kernel_stack_nth() in a new
+function regs_get_kernel_argument() as if there's any error in the stack
+code, it could cause a bad memory access. To be on the safe side, call
+probe_kernel_read() on the stack address to be extra careful in accessing
+the memory. A helper function, regs_get_kernel_stack_nth_addr(), was added
+to just return the stack address (or NULL if not on the stack), that will be
+used to find the address (and could be used by other functions) and read the
+address with kernel_probe_read().
 
-For a (non-repeated) START condition, the controller starts sending
-data when the UNIPHIER_FI2C_CR_STA bit is set. However, for a repeated
-START condition, the hardware starts running when the slave address is
-written to the TX FIFO - the write to the UNIPHIER_FI2C_CR register is
-actually unneeded.
-
-Because the hardware is already running before the IRQ is enabled for
-a repeated START, the driver may miss the IRQ event. In most cases,
-this problem does not show up since modern CPUs are much faster than
-the I2C transfer. However, it is still possible that a context switch
-happens after the controller starts, but before the IRQ register is
-set up.
-
-To fix this,
-
- - Do not write UNIPHIER_FI2C_CR for repeated START conditions.
-
- - Enable IRQ *before* writing the slave address to the TX FIFO.
-
- - Disable IRQ for the current CPU while queuing up the TX FIFO;
-   If the CPU is interrupted by some task, the interrupt handler
-   might be invoked due to the empty TX FIFO before completing the
-   setup.
-
-Fixes: 6a62974b667f ("i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver")
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Requested-by: Andy Lutomirski <luto@amacapital.net>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20181017165951.09119177@gandalf.local.home
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-uniphier-f.c | 33 ++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/ptrace.h | 42 +++++++++++++++++++++++++++++------
+ 1 file changed, 35 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index b9a0690b4fd73..bbd5b137aa216 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -260,6 +260,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr)
- {
- 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_TE;
-+	uniphier_fi2c_set_irqs(priv);
-+
- 	/* do not use TX byte counter */
- 	writel(0, priv->membase + UNIPHIER_FI2C_TBC);
- 	/* set slave address */
-@@ -292,6 +294,8 @@ static void uniphier_fi2c_rx_init(struct uniphier_fi2c_priv *priv, u16 addr)
- 		priv->enabled_irqs |= UNIPHIER_FI2C_INT_RF;
- 	}
- 
-+	uniphier_fi2c_set_irqs(priv);
-+
- 	/* set slave address with RD bit */
- 	writel(UNIPHIER_FI2C_DTTX_CMD | UNIPHIER_FI2C_DTTX_RD | addr << 1,
- 	       priv->membase + UNIPHIER_FI2C_DTTX);
-@@ -315,14 +319,16 @@ static void uniphier_fi2c_recover(struct uniphier_fi2c_priv *priv)
+diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
+index 0d8e0831b1a07..3daec418c822f 100644
+--- a/arch/x86/include/asm/ptrace.h
++++ b/arch/x86/include/asm/ptrace.h
+@@ -205,24 +205,52 @@ static inline int regs_within_kernel_stack(struct pt_regs *regs,
+ 		(kernel_stack_pointer(regs) & ~(THREAD_SIZE - 1)));
  }
  
- static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
--					 struct i2c_msg *msg, bool stop)
-+					 struct i2c_msg *msg, bool repeat,
-+					 bool stop)
++/**
++ * regs_get_kernel_stack_nth_addr() - get the address of the Nth entry on stack
++ * @regs:	pt_regs which contains kernel stack pointer.
++ * @n:		stack entry number.
++ *
++ * regs_get_kernel_stack_nth() returns the address of the @n th entry of the
++ * kernel stack which is specified by @regs. If the @n th entry is NOT in
++ * the kernel stack, this returns NULL.
++ */
++static inline unsigned long *regs_get_kernel_stack_nth_addr(struct pt_regs *regs, unsigned int n)
++{
++	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
++
++	addr += n;
++	if (regs_within_kernel_stack(regs, (unsigned long)addr))
++		return addr;
++	else
++		return NULL;
++}
++
++/* To avoid include hell, we can't include uaccess.h */
++extern long probe_kernel_read(void *dst, const void *src, size_t size);
++
+ /**
+  * regs_get_kernel_stack_nth() - get Nth entry of the stack
+  * @regs:	pt_regs which contains kernel stack pointer.
+  * @n:		stack entry number.
+  *
+  * regs_get_kernel_stack_nth() returns @n th entry of the kernel stack which
+- * is specified by @regs. If the @n th entry is NOT in the kernel stack,
++ * is specified by @regs. If the @n th entry is NOT in the kernel stack
+  * this returns 0.
+  */
+ static inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
+ 						      unsigned int n)
  {
- 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
- 	bool is_read = msg->flags & I2C_M_RD;
- 	unsigned long time_left, flags;
- 
--	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
--		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
-+	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, repeat=%d, stop=%d\n",
-+		is_read ? "receive" : "transmit", msg->addr, msg->len,
-+		repeat, stop);
- 
- 	priv->len = msg->len;
- 	priv->buf = msg->buf;
-@@ -338,16 +344,24 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 	writel(UNIPHIER_FI2C_RST_TBRST | UNIPHIER_FI2C_RST_RBRST,
- 	       priv->membase + UNIPHIER_FI2C_RST);	/* reset TX/RX FIFO */
- 
-+	spin_lock_irqsave(&priv->lock, flags);
+-	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
+-	addr += n;
+-	if (regs_within_kernel_stack(regs, (unsigned long)addr))
+-		return *addr;
+-	else
+-		return 0;
++	unsigned long *addr;
++	unsigned long val;
++	long ret;
 +
- 	if (is_read)
- 		uniphier_fi2c_rx_init(priv, msg->addr);
- 	else
- 		uniphier_fi2c_tx_init(priv, msg->addr);
++	addr = regs_get_kernel_stack_nth_addr(regs, n);
++	if (addr) {
++		ret = probe_kernel_read(&val, addr, sizeof(val));
++		if (!ret)
++			return val;
++	}
++	return 0;
+ }
  
--	uniphier_fi2c_set_irqs(priv);
--
- 	dev_dbg(&adap->dev, "start condition\n");
--	writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STA,
--	       priv->membase + UNIPHIER_FI2C_CR);
-+	/*
-+	 * For a repeated START condition, writing a slave address to the FIFO
-+	 * kicks the controller. So, the UNIPHIER_FI2C_CR register should be
-+	 * written only for a non-repeated START condition.
-+	 */
-+	if (!repeat)
-+		writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STA,
-+		       priv->membase + UNIPHIER_FI2C_CR);
-+
-+	spin_unlock_irqrestore(&priv->lock, flags);
- 
- 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
- 
-@@ -408,6 +422,7 @@ static int uniphier_fi2c_master_xfer(struct i2c_adapter *adap,
- 				     struct i2c_msg *msgs, int num)
- {
- 	struct i2c_msg *msg, *emsg = msgs + num;
-+	bool repeat = false;
- 	int ret;
- 
- 	ret = uniphier_fi2c_check_bus_busy(adap);
-@@ -418,9 +433,11 @@ static int uniphier_fi2c_master_xfer(struct i2c_adapter *adap,
- 		/* Emit STOP if it is the last message or I2C_M_STOP is set. */
- 		bool stop = (msg + 1 == emsg) || (msg->flags & I2C_M_STOP);
- 
--		ret = uniphier_fi2c_master_xfer_one(adap, msg, stop);
-+		ret = uniphier_fi2c_master_xfer_one(adap, msg, repeat, stop);
- 		if (ret)
- 			return ret;
-+
-+		repeat = !stop;
- 	}
- 
- 	return num;
+ #define arch_has_single_step()	(1)
 -- 
 2.20.1
 
