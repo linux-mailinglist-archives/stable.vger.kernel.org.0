@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0D910BBC9
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:16:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D632110BAE6
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387566AbfK0VOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:14:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
+        id S1732273AbfK0VHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:07:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387559AbfK0VOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:14:37 -0500
+        id S1732032AbfK0VHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:07:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6F2421556;
-        Wed, 27 Nov 2019 21:14:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE07D20637;
+        Wed, 27 Nov 2019 21:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889277;
-        bh=8dLYzmD6yVg83Y8rOOwXkUvVYdDu+qUDgfphnIUNfzc=;
+        s=default; t=1574888858;
+        bh=O4kljrPt375tBeZnHIE1KU1ZosopXyMxljzp2rRX/gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XHEBZcrmifSBokdQBMcSeRS3ASRtKenlfBcPhYb1bcIYB7eRe5GLOdlxEUG5gTui0
-         Xqu5G2IALjewUJgtNFSazvScI2/YslolOK/3sB0ikVAEjpfMZU6ofXuZFo+X4TdR52
-         AdON0QsITR4iYoPBVFG0F7/wcKtYEkn6mk4uaoZQ=
+        b=nL9T8hW+m9M1VGOqejePn1P9JMQROGN8uw73bSZm75r0disBYXIqtQzVSG9OUNQOl
+         9u9rtuZeoqmgOXN+ZFKw1y2tMZswIKcgRZlFtLm0MaLl6T3Vg61qiKlQ86RIc8K9/v
+         /vWu5ddj/6f3bkW7Ln1qTYXnKjQoEJ7pS/vtzs/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 15/66] x86/xen/32: Simplify ring check in xen_iret_crit_fixup()
+        stable@vger.kernel.org,
+        syzbot+a36ab65c6653d7ccdd62@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 280/306] ALSA: usb-audio: Fix NULL dereference at parsing BADD
 Date:   Wed, 27 Nov 2019 21:32:10 +0100
-Message-Id: <20191127202650.644009359@linuxfoundation.org>
+Message-Id: <20191127203135.243292483@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 922eea2ce5c799228d9ff1be9890e6873ce8fff6 upstream.
+commit 9435f2bb66874a0c4dd25e7c978957a7ca2c93b1 upstream.
 
-This can be had with two instead of six insns, by just checking the high
-CS.RPL bit.
+snd_usb_mixer_controls_badd() that parses UAC3 BADD profiles misses a
+NULL check for the given interfaces.  When a malformed USB descriptor
+is passed, this may lead to an Oops, as spotted by syzkaller.
+Skip the iteration if the interface doesn't exist for avoiding the
+crash.
 
-Also adjust the comment - there would be no #GP in the mentioned cases, as
-there's no segment limit violation or alike. Instead there'd be #PF, but
-that one reports the target EIP of said branch, not the address of the
-branch insn itself.
-
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lkml.kernel.org/r/a5986837-01eb-7bf8-bf42-4d3084d6a1f5@suse.com
+Fixes: 17156f23e93c ("ALSA: usb: add UAC3 BADD profiles support")
+Reported-by: syzbot+a36ab65c6653d7ccdd62@syzkaller.appspotmail.com
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191122112840.24797-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/xen/xen-asm_32.S |   15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ sound/usb/mixer.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/xen/xen-asm_32.S
-+++ b/arch/x86/xen/xen-asm_32.S
-@@ -153,22 +153,15 @@ hyper_iret:
-  * it's still on stack), we need to restore its value here.
-  */
- ENTRY(xen_iret_crit_fixup)
--	pushl %ecx
- 	/*
- 	 * Paranoia: Make sure we're really coming from kernel space.
- 	 * One could imagine a case where userspace jumps into the
- 	 * critical range address, but just before the CPU delivers a
--	 * GP, it decides to deliver an interrupt instead.  Unlikely?
--	 * Definitely.  Easy to avoid?  Yes.  The Intel documents
--	 * explicitly say that the reported EIP for a bad jump is the
--	 * jump instruction itself, not the destination, but some
--	 * virtual environments get this wrong.
-+	 * PF, it decides to deliver an interrupt instead.  Unlikely?
-+	 * Definitely.  Easy to avoid?  Yes.
- 	 */
--	movl 3*4(%esp), %ecx		/* nested CS */
--	andl $SEGMENT_RPL_MASK, %ecx
--	cmpl $USER_RPL, %ecx
--	popl %ecx
--	je 2f
-+	testb $2, 2*4(%esp)		/* nested CS */
-+	jnz 2f
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -2949,6 +2949,9 @@ static int snd_usb_mixer_controls_badd(s
+ 			continue;
  
- 	/*
- 	 * If eip is before iret_restore_end then stack
+ 		iface = usb_ifnum_to_if(dev, intf);
++		if (!iface)
++			continue;
++
+ 		num = iface->num_altsetting;
+ 
+ 		if (num < 2)
 
 
