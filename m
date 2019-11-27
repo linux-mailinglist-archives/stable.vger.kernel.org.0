@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EBBD10BDDC
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:32:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CA510BEC7
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730797AbfK0UyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:54:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43792 "EHLO mail.kernel.org"
+        id S1729749AbfK0Upc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:45:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730441AbfK0UyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:54:07 -0500
+        id S1729744AbfK0Upb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:45:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 498AA2086A;
-        Wed, 27 Nov 2019 20:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 731C721741;
+        Wed, 27 Nov 2019 20:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888046;
-        bh=9g0VDAiO7v6skVpYkFvuxrUHXJfpcXe6xW0ulDnGKY0=;
+        s=default; t=1574887530;
+        bh=hy5EQTqdIO32KN9Xs+iYv16VQJmB7JjIp8RDms98nas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1UTsK+ZyMfdM9jzPpgivlTF0+vbPf8AIVv4kuZ0FI3uHyC0fnmLG/p8tXHo4nMd6
-         q/9RGUak+ARrYAoZPpuKSbXfU1dt2vU49CYJO+ZSZETpVQGfB8xXUrHEj3l64uOc63
-         b/RgAydSj0cz4Ep/80HcXCsSI1S0S25fRA7vhke4=
+        b=mh4/Vg+9/2Nh+UPyQiVGHYJFGuPUDP0GpWoW8og98xzMFGMBwvHy6BKG9a1P+/Zdk
+         5WL+JlHfMgVDaYpR4iwpEouFYmTkaNgu3GBQKskaY7cMrdY94BW2xWBrFPHbSIPHu2
+         V1pXgFvrEeMu61t+hB7dZOfdR3HlwQkrDx1IOjXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 196/211] virtio_ring: fix return code on DMA mapping fails
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 146/151] USB: serial: option: add support for DW5821e with eSIM support
 Date:   Wed, 27 Nov 2019 21:32:09 +0100
-Message-Id: <20191127203112.156790907@linuxfoundation.org>
+Message-Id: <20191127203047.443093890@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-[ Upstream commit f7728002c1c7bfa787b276a31c3ef458739b8e7c ]
+commit 957c31ea082e3fe5196f46d5b04018b10de47400 upstream.
 
-Commit 780bc7903a32 ("virtio_ring: Support DMA APIs")  makes
-virtqueue_add() return -EIO when we fail to map our I/O buffers. This is
-a very realistic scenario for guests with encrypted memory, as swiotlb
-may run out of space, depending on it's size and the I/O load.
+The device exposes AT, NMEA and DIAG ports in both USB configurations.
+Exactly same layout as the default DW5821e module, just a different
+vid/pid.
 
-The virtio-blk driver interprets -EIO form virtqueue_add() as an IO
-error, despite the fact that swiotlb full is in absence of bugs a
-recoverable condition.
+P:  Vendor=413c ProdID=81e0 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
 
-Let us change the return code to -ENOMEM, and make the block layer
-recover form these failures when virtio-blk encounters the condition
-described above.
+P:  Vendor=413c ProdID=81e0 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
 
-Cc: stable@vger.kernel.org
-Fixes: 780bc7903a32 ("virtio_ring: Support DMA APIs")
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Michael Mueller <mimu@linux.ibm.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/virtio/virtio_ring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index cc9d421c0929b..b82bb0b081615 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -432,7 +432,7 @@ unmap_release:
- 		kfree(desc);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -200,6 +200,7 @@ static void option_instat_callback(struc
+ #define DELL_PRODUCT_5804_MINICARD_ATT		0x819b  /* Novatel E371 */
  
- 	END_USE(vq);
--	return -EIO;
-+	return -ENOMEM;
- }
+ #define DELL_PRODUCT_5821E			0x81d7
++#define DELL_PRODUCT_5821E_ESIM			0x81e0
  
- /**
--- 
-2.20.1
-
+ #define KYOCERA_VENDOR_ID			0x0c88
+ #define KYOCERA_PRODUCT_KPC650			0x17da
+@@ -1043,6 +1044,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(DELL_VENDOR_ID, DELL_PRODUCT_5804_MINICARD_ATT, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E),
+ 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
++	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E_ESIM),
++	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_E100A) },	/* ADU-E100, ADU-310 */
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_500A) },
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_620UW) },
 
 
