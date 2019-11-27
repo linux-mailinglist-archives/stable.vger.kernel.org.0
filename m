@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 963F310BC9E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43DEC10BC52
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732391AbfK0VGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:06:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60246 "EHLO mail.kernel.org"
+        id S1726593AbfK0VUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:20:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731779AbfK0VGP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:06:15 -0500
+        id S1732914AbfK0VJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:09:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C19921770;
-        Wed, 27 Nov 2019 21:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F59D216F4;
+        Wed, 27 Nov 2019 21:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888775;
-        bh=50r3+lS2bYLKDE8An6J7pWIC2ESHw5CG8oao+HF9j7c=;
+        s=default; t=1574888981;
+        bh=IKdccxMPNFCHWURegItuiQel6JPzSusxwke9CMW8mUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJZxlQPabG/l2W7VkpWZoKzUgLsnencR/Ei3o7TAOgkJPNzNDb0JAjhcDPIhqzhZl
-         r5mN4qPeEJXnNuIQFOl8IPHCRxObuZJrBCYyzjybIE56nTNpQAAUOEi1nYQqZ7E7eA
-         B23MfJ7jEHYX00diIqY3u2D2FKJAnyGuZV1nR41Q=
+        b=sGLCfT6zvBRpNQ9/8ZUPNp4QPcaWcpjDuobeq6EWpupDJR+4529k9gpIfW17vEq+7
+         5OEAFp0Zs1hwS78284R5bcV+ctaKy8pUqjqXB2XGsj7tl0pEmD9mlp352evt6P1Y+s
+         +dgHdktvA4NAM2Q5IUtXeRZSmorOigY/gV/r4Z2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Uvarov <muvarov@gmail.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Adrian Bunk <bunk@kernel.org>
-Subject: [PATCH 4.19 263/306] net: phy: dp83867: increase SGMII autoneg timer duration
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Alexander Potapenko <glider@google.com>
+Subject: [PATCH 5.3 36/95] Bluetooth: Fix invalid-free in bcsp_close()
 Date:   Wed, 27 Nov 2019 21:31:53 +0100
-Message-Id: <20191127203134.051968917@linuxfoundation.org>
+Message-Id: <20191127202900.816842845@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Uvarov <muvarov@gmail.com>
+From: Tomas Bortoli <tomasbortoli@gmail.com>
 
-commit 1a97a477e666cbdededab93bd3754e508f0c09d7 upstream.
+commit cf94da6f502d8caecabd56b194541c873c8a7a3c upstream.
 
-After reset SGMII Autoneg timer is set to 2us (bits 6 and 5 are 01).
-That is not enough to finalize autonegatiation on some devices.
-Increase this timer duration to maximum supported 16ms.
+Syzbot reported an invalid-free that I introduced fixing a memleak.
 
-Signed-off-by: Max Uvarov <muvarov@gmail.com>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[ adapted for kernels without phy_modify_mmd ]
-Signed-off-by: Adrian Bunk <bunk@kernel.org>
+bcsp_recv() also frees bcsp->rx_skb but never nullifies its value.
+Nullify bcsp->rx_skb every time it is freed.
+
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Alexander Potapenko <glider@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/phy/dp83867.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/bluetooth/hci_bcsp.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/phy/dp83867.c
-+++ b/drivers/net/phy/dp83867.c
-@@ -33,6 +33,12 @@
+--- a/drivers/bluetooth/hci_bcsp.c
++++ b/drivers/bluetooth/hci_bcsp.c
+@@ -591,6 +591,7 @@ static int bcsp_recv(struct hci_uart *hu
+ 			if (*ptr == 0xc0) {
+ 				BT_ERR("Short BCSP packet");
+ 				kfree_skb(bcsp->rx_skb);
++				bcsp->rx_skb = NULL;
+ 				bcsp->rx_state = BCSP_W4_PKT_START;
+ 				bcsp->rx_count = 0;
+ 			} else
+@@ -606,6 +607,7 @@ static int bcsp_recv(struct hci_uart *hu
+ 			    bcsp->rx_skb->data[2])) != bcsp->rx_skb->data[3]) {
+ 				BT_ERR("Error in BCSP hdr checksum");
+ 				kfree_skb(bcsp->rx_skb);
++				bcsp->rx_skb = NULL;
+ 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
+ 				bcsp->rx_count = 0;
+ 				continue;
+@@ -630,6 +632,7 @@ static int bcsp_recv(struct hci_uart *hu
+ 				       bscp_get_crc(bcsp));
  
- /* Extended Registers */
- #define DP83867_CFG4            0x0031
-+#define DP83867_CFG4_SGMII_ANEG_MASK (BIT(5) | BIT(6))
-+#define DP83867_CFG4_SGMII_ANEG_TIMER_11MS   (3 << 5)
-+#define DP83867_CFG4_SGMII_ANEG_TIMER_800US  (2 << 5)
-+#define DP83867_CFG4_SGMII_ANEG_TIMER_2US    (1 << 5)
-+#define DP83867_CFG4_SGMII_ANEG_TIMER_16MS   (0 << 5)
-+
- #define DP83867_RGMIICTL	0x0032
- #define DP83867_STRAP_STS1	0x006E
- #define DP83867_RGMIIDCTL	0x0086
-@@ -311,6 +317,18 @@ static int dp83867_config_init(struct ph
- 
- 		if (ret)
- 			return ret;
-+
-+		/* After reset SGMII Autoneg timer is set to 2us (bits 6 and 5
-+		 * are 01). That is not enough to finalize autoneg on some
-+		 * devices. Increase this timer duration to maximum 16ms.
-+		 */
-+		val = phy_read_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4);
-+		val &= ~DP83867_CFG4_SGMII_ANEG_MASK;
-+		val |= DP83867_CFG4_SGMII_ANEG_TIMER_16MS;
-+		ret = phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4, val);
-+
-+		if (ret)
-+			return ret;
- 	}
- 
- 	/* Enable Interrupt output INT_OE in CFG3 register */
+ 				kfree_skb(bcsp->rx_skb);
++				bcsp->rx_skb = NULL;
+ 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
+ 				bcsp->rx_count = 0;
+ 				continue;
 
 
