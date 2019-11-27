@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8010E10B886
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85DFA10B7F3
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729091AbfK0UoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:44:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53348 "EHLO mail.kernel.org"
+        id S1727790AbfK0Ui0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:38:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728761AbfK0UoR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:44:17 -0500
+        id S1728707AbfK0UiX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C86D021823;
-        Wed, 27 Nov 2019 20:44:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CDD121569;
+        Wed, 27 Nov 2019 20:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887456;
-        bh=rgx9Bd8iM1fnHKDpbjw1h/k2ckoOW3Pp1F64s3jJUdw=;
+        s=default; t=1574887102;
+        bh=OyBQ+ISoZ+8SjXKCn5QTowWkqTtFsajvubXfBdi/IyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B9LJxgVuXSTYzk6q5jkLwilDQduhjBbxibzRIrPM3gcQIzIJrai/jIdiC7mv1l2wi
-         B5mFZFWKkIySwj1eCveXiygUai9HKOVQeLoZxrZD957BM7ruUITphLtHAOxoNs5hx+
-         PtdlHUVtuux7D7IXdwg8ICidd2453WoBGMEgxY0I=
+        b=k/+K3kmCBIKNt5EEIv97Ci2JCTrJkqfyxamXl6bi4oLn4Z2N51JLxwTnZQlkWUUKc
+         M2lgQLI2ekNw/9mf2Ozg6R0U1NsnAkfDvoKAzCahiCHrQ0Xny404KxAz+jbY3VzqHy
+         lQCM/PbmR9zcHVc6O153auyecQle954r4VGc/Rw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Alexander Kapshuk <alexander.kapshuk@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
-Subject: [PATCH 4.9 119/151] x86/insn: Fix awk regexp warnings
-Date:   Wed, 27 Nov 2019 21:31:42 +0100
-Message-Id: <20191127203044.640688209@linuxfoundation.org>
+        stable@vger.kernel.org, Kai Shen <shenkai8@huawei.com>,
+        Feilong Lin <linfeilong@huawei.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.4 112/132] cpufreq: Add NULL checks to show() and store() methods of cpufreq
+Date:   Wed, 27 Nov 2019 21:31:43 +0100
+Message-Id: <20191127203030.193845897@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,88 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Kapshuk <alexander.kapshuk@gmail.com>
+From: Kai Shen <shenkai8@huawei.com>
 
-commit 700c1018b86d0d4b3f1f2d459708c0cdf42b521d upstream.
+commit e6e8df07268c1f75dd9215536e2ce4587b70f977 upstream.
 
-gawk 5.0.1 generates the following regexp warnings:
+Add NULL checks to show() and store() in cpufreq.c to avoid attempts
+to invoke a NULL callback.
 
-  GEN      /home/sasha/torvalds/tools/objtool/arch/x86/lib/inat-tables.c
-  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:260: warning: regexp escape sequence `\:' is not a known regexp operator
-  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:350: (FILENAME=../arch/x86/lib/x86-opcode-map.txt FNR=41) warning: regexp escape sequence `\&' is  not a known regexp operator
+Though some interfaces of cpufreq are set as read-only, users can
+still get write permission using chmod which can lead to a kernel
+crash, as follows:
 
-Ealier versions of gawk are not known to generate these warnings. The
-gawk manual referenced below does not list characters ':' and '&' as
-needing escaping, so 'unescape' them. See
+chmod +w /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+echo 1 >  /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
 
-  https://www.gnu.org/software/gawk/manual/html_node/Escape-Sequences.html
+This bug was found in linux 4.19.
 
-for more info.
-
-Running diff on the output generated by the script before and after
-applying the patch reported no differences.
-
- [ bp: Massage commit message. ]
-
-[ Caught the respective tools header discrepancy. ]
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Alexander Kapshuk <alexander.kapshuk@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190924044659.3785-1-alexander.kapshuk@gmail.com
+Signed-off-by: Kai Shen <shenkai8@huawei.com>
+Reported-by: Feilong Lin <linfeilong@huawei.com>
+Reviewed-by: Feilong Lin <linfeilong@huawei.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+[ rjw: Subject & changelog ]
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/tools/gen-insn-attr-x86.awk               |    4 ++--
- tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/cpufreq/cpufreq.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/tools/gen-insn-attr-x86.awk
-+++ b/arch/x86/tools/gen-insn-attr-x86.awk
-@@ -68,7 +68,7 @@ BEGIN {
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -821,6 +821,9 @@ static ssize_t show(struct kobject *kobj
+ 	struct freq_attr *fattr = to_attr(attr);
+ 	ssize_t ret;
  
- 	lprefix1_expr = "\\((66|!F3)\\)"
- 	lprefix2_expr = "\\(F3\\)"
--	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
-+	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
- 	lprefix_expr = "\\((66|F2|F3)\\)"
- 	max_lprefix = 4
++	if (!fattr->show)
++		return -EIO;
++
+ 	down_read(&policy->rwsem);
  
-@@ -256,7 +256,7 @@ function convert_operands(count,opnd,
- 	return add_flags(imm, mod)
- }
+ 	if (fattr->show)
+@@ -840,6 +843,9 @@ static ssize_t store(struct kobject *kob
+ 	struct freq_attr *fattr = to_attr(attr);
+ 	ssize_t ret = -EINVAL;
  
--/^[0-9a-f]+\:/ {
-+/^[0-9a-f]+:/ {
- 	if (NR == 1)
- 		next
- 	# get index
---- a/tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk
-+++ b/tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk
-@@ -68,7 +68,7 @@ BEGIN {
++	if (!fattr->store)
++		return -EIO;
++
+ 	get_online_cpus();
  
- 	lprefix1_expr = "\\((66|!F3)\\)"
- 	lprefix2_expr = "\\(F3\\)"
--	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
-+	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
- 	lprefix_expr = "\\((66|F2|F3)\\)"
- 	max_lprefix = 4
- 
-@@ -256,7 +256,7 @@ function convert_operands(count,opnd,
- 	return add_flags(imm, mod)
- }
- 
--/^[0-9a-f]+\:/ {
-+/^[0-9a-f]+:/ {
- 	if (NR == 1)
- 		next
- 	# get index
+ 	if (!cpu_online(policy->cpu))
 
 
