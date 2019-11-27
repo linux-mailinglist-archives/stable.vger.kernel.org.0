@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC6110BE64
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1297D10BE67
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729232AbfK0UqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:46:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58288 "EHLO mail.kernel.org"
+        id S1729879AbfK0Uqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:46:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729863AbfK0UqX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:46:23 -0500
+        id S1729876AbfK0Uq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:46:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAFFC217AB;
-        Wed, 27 Nov 2019 20:46:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D55ED2158A;
+        Wed, 27 Nov 2019 20:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887583;
-        bh=9onU8VwIgp6xAGBwTDZAdRpmNruixRMCUYDO6TYiaog=;
+        s=default; t=1574887588;
+        bh=FknDXqjToftO/T1ZTrO4rNNhR0VU4cU3YPNxDSoszY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBot9XydZzI2qwm0vJTsxyBha/Sedl2Yy+K81/VVxljvLLF3lOcWeWwkXEa7zckpo
-         xgZikb7vi4XBqCFLCpxqVea4TEBW8QiqNqDKv0gCXOY0Le+zb0jhxaEHr7H5mgYfMK
-         y0ozo4F8M5uW6CYjJFzdcx5pOkp5F+2gDfx99PG8=
+        b=KBczJEdxH+mCh+TuKeMD24AJ7Ny9Sj9hXZd65PP3moYy+klkapS6UR7ENXDp7cBrv
+         Q2G9hfxJRmg2dawUG0hlZjncJJ1GSxwZOr7vm72Wb+KZAdm1pSAnO+3N3XAfbf033f
+         j6KziNynYqkYtmildzP1tJqvduHZp9yr7BkHCQHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 016/211] platform/x86: asus-wmi: Only Tell EC the OS will handle display hotkeys from asus_nb_wmi
-Date:   Wed, 27 Nov 2019 21:29:09 +0100
-Message-Id: <20191127203052.202481453@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 018/211] ALSA: isight: fix leak of reference to firewire unit in error path of .probe callback
+Date:   Wed, 27 Nov 2019 21:29:11 +0100
+Message-Id: <20191127203052.656103970@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -46,106 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 401fee8195d401b2b94dee57383f627050724d5b ]
+[ Upstream commit 51e68fb0929c29e47e9074ca3e99ffd6021a1c5a ]
 
-Commit 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will
-handle the display off hotkey") causes the backlight to be permanently off
-on various EeePC laptop models using the eeepc-wmi driver (Asus EeePC
-1015BX, Asus EeePC 1025C).
+In some error paths, reference count of firewire unit is not decreased.
+This commit fixes the bug.
 
-The asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL) call added
-by that commit is made conditional in this commit and only enabled in
-the quirk_entry structs in the asus-nb-wmi driver fixing the broken
-display / backlight on various EeePC laptop models.
-
-Cc: João Paulo Rechi Vita <jprvita@endlessm.com>
-Fixes: 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will handle the display off hotkey")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 5b14ec25a79b('ALSA: firewire: release reference count of firewire unit in .remove callback of bus driver')
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 8 ++++++++
- drivers/platform/x86/asus-wmi.c    | 2 +-
- drivers/platform/x86/asus-wmi.h    | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ sound/firewire/isight.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index b6f2ff95c3ed9..59f3a37a44d7a 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -78,10 +78,12 @@ static bool asus_q500a_i8042_filter(unsigned char data, unsigned char str,
+diff --git a/sound/firewire/isight.c b/sound/firewire/isight.c
+index 5826aa8362f10..9edb26ab16e90 100644
+--- a/sound/firewire/isight.c
++++ b/sound/firewire/isight.c
+@@ -639,7 +639,7 @@ static int isight_probe(struct fw_unit *unit,
+ 	if (!isight->audio_base) {
+ 		dev_err(&unit->device, "audio unit base not found\n");
+ 		err = -ENXIO;
+-		goto err_unit;
++		goto error;
+ 	}
+ 	fw_iso_resources_init(&isight->resources, unit);
  
- static struct quirk_entry quirk_asus_unknown = {
- 	.wapf = 0,
-+	.wmi_backlight_set_devstate = true,
- };
+@@ -668,12 +668,12 @@ static int isight_probe(struct fw_unit *unit,
+ 	dev_set_drvdata(&unit->device, isight);
  
- static struct quirk_entry quirk_asus_q500a = {
- 	.i8042_filter = asus_q500a_i8042_filter,
-+	.wmi_backlight_set_devstate = true,
- };
+ 	return 0;
+-
+-err_unit:
+-	fw_unit_put(isight->unit);
+-	mutex_destroy(&isight->mutex);
+ error:
+ 	snd_card_free(card);
++
++	mutex_destroy(&isight->mutex);
++	fw_unit_put(isight->unit);
++
+ 	return err;
+ }
  
- /*
-@@ -92,26 +94,32 @@ static struct quirk_entry quirk_asus_q500a = {
- static struct quirk_entry quirk_asus_x55u = {
- 	.wapf = 4,
- 	.wmi_backlight_power = true,
-+	.wmi_backlight_set_devstate = true,
- 	.no_display_toggle = true,
- };
- 
- static struct quirk_entry quirk_asus_wapf4 = {
- 	.wapf = 4,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_x200ca = {
- 	.wapf = 2,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_ux303ub = {
- 	.wmi_backlight_native = true,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_x550lb = {
-+	.wmi_backlight_set_devstate = true,
- 	.xusb2pr = 0x01D9,
- };
- 
- static struct quirk_entry quirk_asus_forceals = {
-+	.wmi_backlight_set_devstate = true,
- 	.wmi_force_als_set = true,
- };
- 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 3f662cd774d7a..1c1999600717c 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -2147,7 +2147,7 @@ static int asus_wmi_add(struct platform_device *pdev)
- 		err = asus_wmi_backlight_init(asus);
- 		if (err && err != -ENODEV)
- 			goto fail_backlight;
--	} else
-+	} else if (asus->driver->quirks->wmi_backlight_set_devstate)
- 		err = asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL);
- 
- 	status = wmi_install_notify_handler(asus->driver->event_guid,
-diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-index 6c1311f4b04de..57a79bddb2861 100644
---- a/drivers/platform/x86/asus-wmi.h
-+++ b/drivers/platform/x86/asus-wmi.h
-@@ -44,6 +44,7 @@ struct quirk_entry {
- 	bool store_backlight_power;
- 	bool wmi_backlight_power;
- 	bool wmi_backlight_native;
-+	bool wmi_backlight_set_devstate;
- 	bool wmi_force_als_set;
- 	int wapf;
- 	/*
 -- 
 2.20.1
 
