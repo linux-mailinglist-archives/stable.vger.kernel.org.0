@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE66310BE53
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9687A10BF42
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:42:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729838AbfK0VfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:35:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35248 "EHLO mail.kernel.org"
+        id S1729079AbfK0Ukr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:40:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729031AbfK0Utf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:49:35 -0500
+        id S1729075AbfK0Ukq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:40:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DE2421787;
-        Wed, 27 Nov 2019 20:49:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AABF215A5;
+        Wed, 27 Nov 2019 20:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887774;
-        bh=ArEb2f18QmJygKaaZnogCTVHbEhcpUrues3qVydbb7o=;
+        s=default; t=1574887245;
+        bh=05CNfXklO5AkLQeHnG44yjPSeuDjG6GdgTpsbdsJ3LU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9Ry6CGWMB18q8ChyGazloMHKT/mo4Baa/sEPsMuyp+NVco7g5cu4+5ocuYM0G2zY
-         8n3NX/aga1gOYplPXOtEgglfomayGTcp67lwftPXrRwf17C5atoOL/O7nQHTRzyJ+l
-         HLLiXrKD+3hE2PipJgfBUagEP+01H2t0XVJjbvSM=
+        b=HESOFqJOUI9F3m86RACdvQk5VoaMTEwRNvRSzythhbRh81TdPvtTe9vHDIkrbJ3pR
+         p6lkWO5GH7J5gtHbQ+c8f14WypH/RsXLF4slj6e+BJs8iJrY6h0zw8q22kGbtZ0YRE
+         11qVN/1qKQSNQVcE3yhcPFo7Ki/EwgKtvZ9hGDS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Hoemann <jerry.hoemann@hpe.com>,
-        "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
+        stable@vger.kernel.org, Kyeongdon Kim <kyeongdon.kim@lge.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/211] selftests: watchdog: Fix error message.
+Subject: [PATCH 4.9 037/151] net: fix warning in af_unix
 Date:   Wed, 27 Nov 2019 21:30:20 +0100
-Message-Id: <20191127203101.981889610@linuxfoundation.org>
+Message-Id: <20191127203023.103006467@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
+From: Kyeongdon Kim <kyeongdon.kim@lge.com>
 
-[ Upstream commit 04d5e4bd37516ad60854eb74592c7dbddd75d277 ]
+[ Upstream commit 33c4368ee2589c165aebd8d388cbd91e9adb9688 ]
 
-Printf's say errno but print the string version of error.
-Make consistent.
+This fixes the "'hash' may be used uninitialized in this function"
 
-Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-Signed-off-by: Shuah Khan (Samsung OSG) <shuah@kernel.org>
+net/unix/af_unix.c:1041:20: warning: 'hash' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  addr->hash = hash ^ sk->sk_type;
+
+Signed-off-by: Kyeongdon Kim <kyeongdon.kim@lge.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/watchdog/watchdog-test.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/unix/af_unix.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/watchdog/watchdog-test.c b/tools/testing/selftests/watchdog/watchdog-test.c
-index e029e2017280f..f1c6e025cbe54 100644
---- a/tools/testing/selftests/watchdog/watchdog-test.c
-+++ b/tools/testing/selftests/watchdog/watchdog-test.c
-@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
- 				printf("Last boot is caused by: %s.\n", (flags != 0) ?
- 					"Watchdog" : "Power-On-Reset");
- 			else
--				printf("WDIOC_GETBOOTSTATUS errno '%s'\n", strerror(errno));
-+				printf("WDIOC_GETBOOTSTATUS error '%s'\n", strerror(errno));
- 			break;
- 		case 'd':
- 			flags = WDIOS_DISABLECARD;
-@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
- 			if (!ret)
- 				printf("Watchdog card disabled.\n");
- 			else
--				printf("WDIOS_DISABLECARD errno '%s'\n", strerror(errno));
-+				printf("WDIOS_DISABLECARD error '%s'\n", strerror(errno));
- 			break;
- 		case 'e':
- 			flags = WDIOS_ENABLECARD;
-@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
- 			if (!ret)
- 				printf("Watchdog card enabled.\n");
- 			else
--				printf("WDIOS_ENABLECARD errno '%s'\n", strerror(errno));
-+				printf("WDIOS_ENABLECARD error '%s'\n", strerror(errno));
- 			break;
- 		case 'p':
- 			ping_rate = strtoul(optarg, NULL, 0);
-@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
- 			if (!ret)
- 				printf("Watchdog timeout set to %u seconds.\n", flags);
- 			else
--				printf("WDIOC_SETTIMEOUT errno '%s'\n", strerror(errno));
-+				printf("WDIOC_SETTIMEOUT error '%s'\n", strerror(errno));
- 			break;
- 		default:
- 			usage(argv[0]);
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index cecf51a5aec4f..32ae82a5596d9 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -224,6 +224,8 @@ static inline void unix_release_addr(struct unix_address *addr)
+ 
+ static int unix_mkname(struct sockaddr_un *sunaddr, int len, unsigned int *hashp)
+ {
++	*hashp = 0;
++
+ 	if (len <= sizeof(short) || len > sizeof(*sunaddr))
+ 		return -EINVAL;
+ 	if (!sunaddr || sunaddr->sun_family != AF_UNIX)
 -- 
 2.20.1
 
