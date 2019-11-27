@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6100A10BE1E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:34:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B4510BF98
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728894AbfK0Uvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:51:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38258 "EHLO mail.kernel.org"
+        id S1728019AbfK0Vnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:43:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730490AbfK0Uva (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:51:30 -0500
+        id S1728742AbfK0Uib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 610682084D;
-        Wed, 27 Nov 2019 20:51:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4760F21569;
+        Wed, 27 Nov 2019 20:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887889;
-        bh=e0kwQxqjl/q5q36XpJycaaUijSZMetJRcSRLw0P4rkw=;
+        s=default; t=1574887110;
+        bh=QI1gw+r06sE5VELa9ZX/A+y3EYDXLyXaTUSzj6BhIYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNGSA3f6nTzl6qLfsC/XwtWchdVBvyBusLhvqYLM6ZZ+Wb5+MUkrfYHuqe+PNEVnR
-         0Jw1lvaIixoQrgOAKW5hHpqKJR+pw46qCAgDnOP46jOFTwHsMX0fiU+fzaVoiMb0Vf
-         Er9j6S/5OH70e+pxOAapIIHOHwWcQIgGXBZLDhS4=
+        b=Im5dkBPWaT8LKF9kU3BFkVPLBrumljK4OpmmTxTjsRg5K20FEq6hmEF1883C44AEr
+         MqdL7RRPX0wHyQo3+m3NrOpt4F8dmYBrKEKAseHTP0hj8x6w6+tq6hgo77mT82ASob
+         vbvDM4E3y1cUnR2q+wMHqkvhMb4YSKLEYs+hrHsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Changbin Du <changbin.du@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        "Gerd W. Haeussler" <gerd.haeussler@cesys-it.com>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 132/211] btrfs: avoid link error with CONFIG_NO_AUTO_INLINE
+Subject: [PATCH 4.4 074/132] ntb_netdev: fix sleep time mismatch
 Date:   Wed, 27 Nov 2019 21:31:05 +0100
-Message-Id: <20191127203106.519625908@linuxfoundation.org>
+Message-Id: <20191127203008.618703311@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jon Mason <jdmason@kudzu.us>
 
-[ Upstream commit 7e17916b35797396f681a3270245fd29c1e4c250 ]
+[ Upstream commit a861594b1b7ffd630f335b351c4e9f938feadb8e ]
 
-Note: this patch fixes a problem in a feature outside of btrfs ("kernel
-hacking: add a config option to disable compiler auto-inlining") and is
-applied ahead of time due to cross-subsystem dependencies.
+The tx_time should be in usecs (according to the comment above the
+variable), but the setting of the timer during the rearming is done in
+msecs.  Change it to match the expected units.
 
-On 32-bit ARM with gcc-8, I see a link error with the addition of the
-CONFIG_NO_AUTO_INLINE option:
-
-fs/btrfs/super.o: In function `btrfs_statfs':
-super.c:(.text+0x67b8): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x67fc): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x6858): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x6920): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x693c): undefined reference to `__aeabi_uldivmod'
-fs/btrfs/super.o:super.c:(.text+0x6958): more undefined references to `__aeabi_uldivmod' follow
-
-So far this is the only file that shows the behavior, so I'd propose
-to just work around it by marking the functions as 'static inline'
-that normally get inlined here.
-
-The reference to __aeabi_uldivmod comes from a div_u64() which has an
-optimization for a constant division that uses a straight '/' operator
-when the result should be known to the compiler. My interpretation is
-that as we turn off inlining, gcc still expects the result to be constant
-but fails to use that constant value.
-
-Link: https://lkml.kernel.org/r/20181103153941.1881966-1-arnd@arndb.de
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-[ add the note ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e74bfeedad08 ("NTB: Add flow control to the ntb_netdev")
+Suggested-by: Gerd W. Haeussler <gerd.haeussler@cesys-it.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/super.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ntb_netdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 49a02bf091aea..204d585e012a8 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -1863,7 +1863,7 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
- }
+diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
+index a9acf71568555..03009f1becddc 100644
+--- a/drivers/net/ntb_netdev.c
++++ b/drivers/net/ntb_netdev.c
+@@ -236,7 +236,7 @@ static void ntb_netdev_tx_timer(unsigned long data)
+ 	struct ntb_netdev *dev = netdev_priv(ndev);
  
- /* Used to sort the devices by max_avail(descending sort) */
--static int btrfs_cmp_device_free_bytes(const void *dev_info1,
-+static inline int btrfs_cmp_device_free_bytes(const void *dev_info1,
- 				       const void *dev_info2)
- {
- 	if (((struct btrfs_device_info *)dev_info1)->max_avail >
-@@ -1892,8 +1892,8 @@ static inline void btrfs_descending_sort_devices(
-  * The helper to calc the free space on the devices that can be used to store
-  * file data.
-  */
--static int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
--				       u64 *free_bytes)
-+static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
-+					      u64 *free_bytes)
- {
- 	struct btrfs_device_info *devices_info;
- 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
+ 	if (ntb_transport_tx_free_entry(dev->qp) < tx_stop) {
+-		mod_timer(&dev->tx_timer, jiffies + msecs_to_jiffies(tx_time));
++		mod_timer(&dev->tx_timer, jiffies + usecs_to_jiffies(tx_time));
+ 	} else {
+ 		/* Make sure anybody stopping the queue after this sees the new
+ 		 * value of ntb_transport_tx_free_entry()
 -- 
 2.20.1
 
