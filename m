@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A0F10BF2B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB9B10BE13
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728632AbfK0UlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:41:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46310 "EHLO mail.kernel.org"
+        id S1730526AbfK0Uvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:51:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729151AbfK0UlP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:41:15 -0500
+        id S1730519AbfK0Uvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:51:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA1D2215A4;
-        Wed, 27 Nov 2019 20:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2832B21850;
+        Wed, 27 Nov 2019 20:51:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887274;
-        bh=zI3xcxvCQysGTBFWmHA5NurhjEb3GfQ/9uuZ9tBRuQs=;
+        s=default; t=1574887903;
+        bh=NjWy5znEkoWXqsJzxRB5cmvhQBP3xr8ifrgF/0d3lR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dk/AXnipiSYAfU1qWfm3GlRJtYXCu+2BH/YQX482LMP9TzBzmOdT7QMJmee+Rfx21
-         5AVB6thy+BJXpMRqgifbj5F26ADaMi+pgj98agOOWpMFyBm+Y5WF7m1LHReopgZQoC
-         Rrui8ie/4rXtmRbmo3/KmGNEYPYLslmWH3JP8Pl8=
+        b=qJ9feTuZMp0dR3VBrbKEQOMG6SYWXAliVWa0ovxYus+yj96FH8T8N+NrAf77SxLC0
+         JKCjV6SEENcciUcIpJDRhvi0NbHzLRPmmRSV87P3VGnXqD8D4//swaOIVgNLyJ8c6G
+         kHzZz6PBbeQX43rZhpj7qFtxTuh7qepbqJzda6xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 047/151] atm: zatm: Fix empty body Clang warnings
-Date:   Wed, 27 Nov 2019 21:30:30 +0100
-Message-Id: <20191127203028.753438863@linuxfoundation.org>
+Subject: [PATCH 4.14 098/211] i2c: uniphier-f: make driver robust against concurrency
+Date:   Wed, 27 Nov 2019 21:30:31 +0100
+Message-Id: <20191127203102.959083592@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,173 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 64b9d16e2d02ca6e5dc8fcd30cfd52b0ecaaa8f4 ]
+[ Upstream commit f1fdcbbdf45d9609f3d4063b67e9ea941ba3a58f ]
 
-Clang warns:
+This is unlikely to happen, but it is possible for a CPU to enter
+the interrupt handler just after wait_for_completion_timeout() has
+expired. If this happens, the hardware is accessed from multiple
+contexts concurrently.
 
-drivers/atm/zatm.c:513:7: error: while loop has empty body
-[-Werror,-Wempty-body]
-        zwait;
-             ^
-drivers/atm/zatm.c:513:7: note: put the semicolon on a separate line to
-silence this warning
+Disable the IRQ after wait_for_completion_timeout(), and do nothing
+from the handler when the IRQ is disabled.
 
-Get rid of this warning by using an empty do-while loop. While we're at
-it, add parentheses to make it clear that this is a function-like macro.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/42
-Suggested-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6a62974b667f ("i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver")
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/zatm.c | 42 +++++++++++++++++++++---------------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ drivers/i2c/busses/i2c-uniphier-f.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/atm/zatm.c b/drivers/atm/zatm.c
-index a0b88f1489905..e23e2672a1d6b 100644
---- a/drivers/atm/zatm.c
-+++ b/drivers/atm/zatm.c
-@@ -126,7 +126,7 @@ static unsigned long dummy[2] = {0,0};
- #define zin_n(r) inl(zatm_dev->base+r*4)
- #define zin(r) inl(zatm_dev->base+uPD98401_##r*4)
- #define zout(v,r) outl(v,zatm_dev->base+uPD98401_##r*4)
--#define zwait while (zin(CMR) & uPD98401_BUSY)
-+#define zwait() do {} while (zin(CMR) & uPD98401_BUSY)
+diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
+index bc26ec822e268..b9a0690b4fd73 100644
+--- a/drivers/i2c/busses/i2c-uniphier-f.c
++++ b/drivers/i2c/busses/i2c-uniphier-f.c
+@@ -98,6 +98,7 @@ struct uniphier_fi2c_priv {
+ 	unsigned int flags;
+ 	unsigned int busy_cnt;
+ 	unsigned int clk_cycle;
++	spinlock_t lock;	/* IRQ synchronization */
+ };
  
- /* RX0, RX1, TX0, TX1 */
- static const int mbx_entries[NR_MBX] = { 1024,1024,1024,1024 };
-@@ -140,7 +140,7 @@ static const int mbx_esize[NR_MBX] = { 16,16,4,4 }; /* entry size in bytes */
+ static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
+@@ -162,7 +163,10 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ 	struct uniphier_fi2c_priv *priv = dev_id;
+ 	u32 irq_status;
  
- static void zpokel(struct zatm_dev *zatm_dev,u32 value,u32 addr)
- {
--	zwait;
-+	zwait();
- 	zout(value,CER);
- 	zout(uPD98401_IND_ACC | uPD98401_IA_BALL |
- 	    (uPD98401_IA_TGT_CM << uPD98401_IA_TGT_SHIFT) | addr,CMR);
-@@ -149,10 +149,10 @@ static void zpokel(struct zatm_dev *zatm_dev,u32 value,u32 addr)
++	spin_lock(&priv->lock);
++
+ 	irq_status = readl(priv->membase + UNIPHIER_FI2C_INT);
++	irq_status &= priv->enabled_irqs;
  
- static u32 zpeekl(struct zatm_dev *zatm_dev,u32 addr)
- {
--	zwait;
-+	zwait();
- 	zout(uPD98401_IND_ACC | uPD98401_IA_BALL | uPD98401_IA_RW |
- 	  (uPD98401_IA_TGT_CM << uPD98401_IA_TGT_SHIFT) | addr,CMR);
--	zwait;
-+	zwait();
- 	return zin(CER);
+ 	dev_dbg(&priv->adap.dev,
+ 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
+@@ -230,6 +234,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ 		goto handled;
+ 	}
+ 
++	spin_unlock(&priv->lock);
++
+ 	return IRQ_NONE;
+ 
+ data_done:
+@@ -246,6 +252,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ handled:
+ 	uniphier_fi2c_clear_irqs(priv);
+ 
++	spin_unlock(&priv->lock);
++
+ 	return IRQ_HANDLED;
  }
  
-@@ -241,7 +241,7 @@ static void refill_pool(struct atm_dev *dev,int pool)
- 	}
- 	if (first) {
- 		spin_lock_irqsave(&zatm_dev->lock, flags);
--		zwait;
-+		zwait();
- 		zout(virt_to_bus(first),CER);
- 		zout(uPD98401_ADD_BAT | (pool << uPD98401_POOL_SHIFT) | count,
- 		    CMR);
-@@ -508,9 +508,9 @@ static int open_rx_first(struct atm_vcc *vcc)
- 	}
- 	if (zatm_vcc->pool < 0) return -EMSGSIZE;
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
--	zwait;
-+	zwait();
- 	zout(uPD98401_OPEN_CHAN,CMR);
--	zwait;
-+	zwait();
- 	DPRINTK("0x%x 0x%x\n",zin(CMR),zin(CER));
- 	chan = (zin(CMR) & uPD98401_CHAN_ADDR) >> uPD98401_CHAN_ADDR_SHIFT;
- 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
-@@ -571,21 +571,21 @@ static void close_rx(struct atm_vcc *vcc)
- 		pos = vcc->vci >> 1;
- 		shift = (1-(vcc->vci & 1)) << 4;
- 		zpokel(zatm_dev,zpeekl(zatm_dev,pos) & ~(0xffff << shift),pos);
--		zwait;
-+		zwait();
- 		zout(uPD98401_NOP,CMR);
--		zwait;
-+		zwait();
- 		zout(uPD98401_NOP,CMR);
- 		spin_unlock_irqrestore(&zatm_dev->lock, flags);
- 	}
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
--	zwait;
-+	zwait();
- 	zout(uPD98401_DEACT_CHAN | uPD98401_CHAN_RT | (zatm_vcc->rx_chan <<
- 	    uPD98401_CHAN_ADDR_SHIFT),CMR);
--	zwait;
-+	zwait();
- 	udelay(10); /* why oh why ... ? */
- 	zout(uPD98401_CLOSE_CHAN | uPD98401_CHAN_RT | (zatm_vcc->rx_chan <<
- 	    uPD98401_CHAN_ADDR_SHIFT),CMR);
--	zwait;
-+	zwait();
- 	if (!(zin(CMR) & uPD98401_CHAN_ADDR))
- 		printk(KERN_CRIT DEV_LABEL "(itf %d): can't close RX channel "
- 		    "%d\n",vcc->dev->number,zatm_vcc->rx_chan);
-@@ -699,7 +699,7 @@ printk("NONONONOO!!!!\n");
- 	skb_queue_tail(&zatm_vcc->tx_queue,skb);
- 	DPRINTK("QRP=0x%08lx\n",zpeekl(zatm_dev,zatm_vcc->tx_chan*VC_SIZE/4+
- 	  uPD98401_TXVC_QRP));
--	zwait;
-+	zwait();
- 	zout(uPD98401_TX_READY | (zatm_vcc->tx_chan <<
- 	    uPD98401_CHAN_ADDR_SHIFT),CMR);
- 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
-@@ -891,12 +891,12 @@ static void close_tx(struct atm_vcc *vcc)
- 	}
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
- #if 0
--	zwait;
-+	zwait();
- 	zout(uPD98401_DEACT_CHAN | (chan << uPD98401_CHAN_ADDR_SHIFT),CMR);
- #endif
--	zwait;
-+	zwait();
- 	zout(uPD98401_CLOSE_CHAN | (chan << uPD98401_CHAN_ADDR_SHIFT),CMR);
--	zwait;
-+	zwait();
- 	if (!(zin(CMR) & uPD98401_CHAN_ADDR))
- 		printk(KERN_CRIT DEV_LABEL "(itf %d): can't close TX channel "
- 		    "%d\n",vcc->dev->number,chan);
-@@ -926,9 +926,9 @@ static int open_tx_first(struct atm_vcc *vcc)
- 	zatm_vcc->tx_chan = 0;
- 	if (vcc->qos.txtp.traffic_class == ATM_NONE) return 0;
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
--	zwait;
-+	zwait();
- 	zout(uPD98401_OPEN_CHAN,CMR);
--	zwait;
-+	zwait();
- 	DPRINTK("0x%x 0x%x\n",zin(CMR),zin(CER));
- 	chan = (zin(CMR) & uPD98401_CHAN_ADDR) >> uPD98401_CHAN_ADDR_SHIFT;
- 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
-@@ -1559,7 +1559,7 @@ static void zatm_phy_put(struct atm_dev *dev,unsigned char value,
- 	struct zatm_dev *zatm_dev;
+@@ -311,7 +319,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+ {
+ 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
+ 	bool is_read = msg->flags & I2C_M_RD;
+-	unsigned long time_left;
++	unsigned long time_left, flags;
  
- 	zatm_dev = ZATM_DEV(dev);
--	zwait;
-+	zwait();
- 	zout(value,CER);
- 	zout(uPD98401_IND_ACC | uPD98401_IA_B0 |
- 	    (uPD98401_IA_TGT_PHY << uPD98401_IA_TGT_SHIFT) | addr,CMR);
-@@ -1571,10 +1571,10 @@ static unsigned char zatm_phy_get(struct atm_dev *dev,unsigned long addr)
- 	struct zatm_dev *zatm_dev;
+ 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
+ 		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
+@@ -342,6 +350,12 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+ 	       priv->membase + UNIPHIER_FI2C_CR);
  
- 	zatm_dev = ZATM_DEV(dev);
--	zwait;
-+	zwait();
- 	zout(uPD98401_IND_ACC | uPD98401_IA_B0 | uPD98401_IA_RW |
- 	  (uPD98401_IA_TGT_PHY << uPD98401_IA_TGT_SHIFT) | addr,CMR);
--	zwait;
-+	zwait();
- 	return zin(CER) & 0xff;
- }
+ 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
++
++	spin_lock_irqsave(&priv->lock, flags);
++	priv->enabled_irqs = 0;
++	uniphier_fi2c_set_irqs(priv);
++	spin_unlock_irqrestore(&priv->lock, flags);
++
+ 	if (!time_left) {
+ 		dev_err(&adap->dev, "transaction timeout.\n");
+ 		uniphier_fi2c_recover(priv);
+@@ -546,6 +560,7 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
  
+ 	priv->clk_cycle = clk_rate / bus_speed;
+ 	init_completion(&priv->comp);
++	spin_lock_init(&priv->lock);
+ 	priv->adap.owner = THIS_MODULE;
+ 	priv->adap.algo = &uniphier_fi2c_algo;
+ 	priv->adap.dev.parent = dev;
 -- 
 2.20.1
 
