@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF74210BF6E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4277110BDE2
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:32:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728798AbfK0Uir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:38:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42652 "EHLO mail.kernel.org"
+        id S1729605AbfK0UyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:54:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727720AbfK0Uiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:38:46 -0500
+        id S1730814AbfK0UyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:54:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC91220863;
-        Wed, 27 Nov 2019 20:38:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 051B62086A;
+        Wed, 27 Nov 2019 20:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887126;
-        bh=UP8xhnwm9mOQf3lkpaDQYpf15dpt1IpTihG2vFWLnpM=;
+        s=default; t=1574888057;
+        bh=/owAWAfWpzYBTAYkM82lVwXJD9Kz4nA/JxzbBtagY9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+VDwY5WdPGJlwL5auea+zGjjlrm6JHDK64+9zbrP9QIg9WcdyHvH3qrPF+j3ARNH
-         iJC35xJSoykQv9QOB1SsKXy8fXD1Do13AMFcwml2WBrDahgKRIag8LTi8FrrpfMdVX
-         YT8rwHjeq6Su/+T2L93syxuAlsOw7BMMoasd4FnM=
+        b=yqcTOVvjDeEDuqRNvBMphExFLh1HJnNlCol/EuVSucQWTguhmBaU1H1xAYvLwuGlc
+         dgKg/CaAhviPFgQbCZwbOsvjro8MvvgxXy8r6SUmwwD8d2miSZWgS4bIeOm3AmgNkx
+         Hx0FCZEe3gXE2XTklVvfx/c5PF70Yw64hHsdfLWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pavel=20L=C3=B6bl?= <pavel@loebl.cz>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 124/132] USB: serial: mos7840: add USB ID to support Moxa UPort 2210
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 4.14 182/211] x86/cpu_entry_area: Add guard page for entry stack on 32bit
 Date:   Wed, 27 Nov 2019 21:31:55 +0100
-Message-Id: <20191127203033.079895968@linuxfoundation.org>
+Message-Id: <20191127203110.976968442@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Löbl <pavel@loebl.cz>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit e696d00e65e81d46e911f24b12e441037bf11b38 upstream.
+commit 880a98c339961eaa074393e3a2117cbe9125b8bb upstream.
 
-Add USB ID for MOXA UPort 2210. This device contains mos7820 but
-it passes GPIO0 check implemented by driver and it's detected as
-mos7840. Hence product id check is added to force mos7820 mode.
+The entry stack in the cpu entry area is protected against overflow by the
+readonly GDT on 64-bit, but on 32-bit the GDT needs to be writeable and
+therefore does not trigger a fault on stack overflow.
 
-Signed-off-by: Pavel Löbl <pavel@loebl.cz>
-Cc: stable <stable@vger.kernel.org>
-[ johan: rename id defines and add vendor-id check ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Add a guard page.
+
+Fixes: c482feefe1ae ("x86/entry/64: Make cpu_entry_area.tss read-only")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/mos7840.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/x86/include/asm/cpu_entry_area.h |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -131,11 +131,15 @@
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-  * ATEN UC2322 device using Moschip MCS7820
-+ * MOXA UPort 2210 device using Moschip MCS7820
-  */
- #define USB_VENDOR_ID_ATENINTL		0x0557
- #define ATENINTL_DEVICE_ID_UC2324	0x2011
- #define ATENINTL_DEVICE_ID_UC2322	0x7820
+--- a/arch/x86/include/asm/cpu_entry_area.h
++++ b/arch/x86/include/asm/cpu_entry_area.h
+@@ -20,8 +20,12 @@ struct cpu_entry_area {
  
-+#define USB_VENDOR_ID_MOXA		0x110a
-+#define MOXA_DEVICE_ID_2210		0x2210
-+
- /* Interrupt Routine Defines    */
+ 	/*
+ 	 * The GDT is just below entry_stack and thus serves (on x86_64) as
+-	 * a a read-only guard page.
++	 * a read-only guard page. On 32-bit the GDT must be writeable, so
++	 * it needs an extra guard page.
+ 	 */
++#ifdef CONFIG_X86_32
++	char guard_entry_stack[PAGE_SIZE];
++#endif
+ 	struct entry_stack_page entry_stack_page;
  
- #define SERIAL_IIR_RLS      0x06
-@@ -206,6 +210,7 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
-+	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
- 	{}			/* terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, id_table);
-@@ -2089,6 +2094,7 @@ static int mos7840_probe(struct usb_seri
- 				const struct usb_device_id *id)
- {
- 	u16 product = le16_to_cpu(serial->dev->descriptor.idProduct);
-+	u16 vid = le16_to_cpu(serial->dev->descriptor.idVendor);
- 	u8 *buf;
- 	int device_type;
- 
-@@ -2098,6 +2104,11 @@ static int mos7840_probe(struct usb_seri
- 		goto out;
- 	}
- 
-+	if (vid == USB_VENDOR_ID_MOXA && product == MOXA_DEVICE_ID_2210) {
-+		device_type = MOSCHIP_DEVICE_ID_7820;
-+		goto out;
-+	}
-+
- 	buf = kzalloc(VENDOR_READ_LENGTH, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
+ 	/*
 
 
