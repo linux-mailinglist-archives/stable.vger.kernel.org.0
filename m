@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCA6C10BC14
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:18:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13C7D10BBBB
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732694AbfK0VL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:11:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
+        id S2387690AbfK0VPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:15:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733237AbfK0VLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:11:55 -0500
+        id S2387696AbfK0VPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:15:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F4C0215F1;
-        Wed, 27 Nov 2019 21:11:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4BF8217BA;
+        Wed, 27 Nov 2019 21:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889114;
-        bh=+jjDHJxZIeqTOnINzZNlGxXqKuwC1sqvGEFai89MMkY=;
+        s=default; t=1574889323;
+        bh=AlwgF7E2mI6erGYqN5kKF/eu6Vfv7Kl9Yb2gkgrbzkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8MguYgLe4O7T3QYaCGhWaphdIs12bcNIu/SbCjY2Tgzw8FR5E+np9PShFj2o5sZT
-         jGaEfyGlst12yF/T7J6iPNqxDXjEyfPodLiF3l8FnObNfYtsLTxnZLUPCdYO+REzDB
-         ZzNGYfIrLb2pOLxhR0S5VDQnC8aGVqvKIk5HV1Gk=
+        b=Rp8C2tK6NG5zi1YmaCn1S2JWlt2P6XwQhPxGSYQQTjZB2I3Y4LXX8npnhV/SwqfVb
+         tEHaBxz+yqFw8JYzmV3aTPvcdjdRJIAHaDoh7g7v+B4rUF8m6y79rIx1fKiQ7/RwSJ
+         q4WYAJi3zxh/i++sATwNIroIWq2xYRWmqYO13wLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pavel=20L=C3=B6bl?= <pavel@loebl.cz>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 87/95] USB: serial: mos7840: add USB ID to support Moxa UPort 2210
-Date:   Wed, 27 Nov 2019 21:32:44 +0100
-Message-Id: <20191127202955.993827613@linuxfoundation.org>
+        syzbot+f49d12d34f2321cf4df2@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.4 50/66] media: imon: invalid dereference in imon_touch_event
+Date:   Wed, 27 Nov 2019 21:32:45 +0100
+Message-Id: <20191127202731.441813935@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Löbl <pavel@loebl.cz>
+From: Sean Young <sean@mess.org>
 
-commit e696d00e65e81d46e911f24b12e441037bf11b38 upstream.
+commit f3f5ba42c58d56d50f539854d8cc188944e96087 upstream.
 
-Add USB ID for MOXA UPort 2210. This device contains mos7820 but
-it passes GPIO0 check implemented by driver and it's detected as
-mos7840. Hence product id check is added to force mos7820 mode.
+The touch timer is set up in intf1. If the second interface does not exist,
+the timer and touch input device are not setup and we get the following
+error, when touch events are reported via intf0.
 
-Signed-off-by: Pavel Löbl <pavel@loebl.cz>
-Cc: stable <stable@vger.kernel.org>
-[ johan: rename id defines and add vendor-id check ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+kernel BUG at kernel/time/timer.c:956!
+invalid opcode: 0000 [#1] SMP KASAN
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-rc1+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__mod_timer kernel/time/timer.c:956 [inline]
+RIP: 0010:__mod_timer kernel/time/timer.c:949 [inline]
+RIP: 0010:mod_timer+0x5a2/0xb50 kernel/time/timer.c:1100
+Code: 45 10 c7 44 24 14 ff ff ff ff 48 89 44 24 08 48 8d 45 20 48 c7 44 24 18 00 00 00 00 48 89 04 24 e9 5a fc ff ff e8 ae ce 0e 00 <0f> 0b e8 a7 ce 0e 00 4c 89 74 24 20 e9 37 fe ff ff e8 98 ce 0e 00
+RSP: 0018:ffff8881db209930 EFLAGS: 00010006
+RAX: ffffffff86c2b200 RBX: 00000000ffffa688 RCX: ffffffff83efc583
+RDX: 0000000000000100 RSI: ffffffff812f4d82 RDI: ffff8881d2356200
+RBP: ffff8881d23561e8 R08: ffffffff86c2b200 R09: ffffed103a46abeb
+R10: ffffed103a46abea R11: ffff8881d2355f53 R12: dffffc0000000000
+R13: 1ffff1103b64132d R14: ffff8881d2355f50 R15: 0000000000000006
+FS:  0000000000000000(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f75e2799000 CR3: 00000001d3b07000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ imon_touch_event drivers/media/rc/imon.c:1348 [inline]
+ imon_incoming_packet.isra.0+0x2546/0x2f10 drivers/media/rc/imon.c:1603
+ usb_rx_callback_intf0+0x151/0x1e0 drivers/media/rc/imon.c:1734
+ __usb_hcd_giveback_urb+0x1f2/0x470 drivers/usb/core/hcd.c:1654
+ usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1719
+ dummy_timer+0x120f/0x2fa2 drivers/usb/gadget/udc/dummy_hcd.c:1965
+ call_timer_fn+0x179/0x650 kernel/time/timer.c:1404
+ expire_timers kernel/time/timer.c:1449 [inline]
+ __run_timers kernel/time/timer.c:1773 [inline]
+ __run_timers kernel/time/timer.c:1740 [inline]
+ run_timer_softirq+0x5e3/0x1490 kernel/time/timer.c:1786
+ __do_softirq+0x221/0x912 kernel/softirq.c:292
+ invoke_softirq kernel/softirq.c:373 [inline]
+ irq_exit+0x178/0x1a0 kernel/softirq.c:413
+ exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+ smp_apic_timer_interrupt+0x12f/0x500 arch/x86/kernel/apic/apic.c:1137
+ apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
+ </IRQ>
+RIP: 0010:default_idle+0x28/0x2e0 arch/x86/kernel/process.c:581
+Code: 90 90 41 56 41 55 65 44 8b 2d 44 3a 8f 7a 41 54 55 53 0f 1f 44 00 00 e8 36 ee d0 fb e9 07 00 00 00 0f 00 2d fa dd 4f 00 fb f4 <65> 44 8b 2d 20 3a 8f 7a 0f 1f 44 00 00 5b 5d 41 5c 41 5d 41 5e c3
+RSP: 0018:ffffffff86c07da8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+RAX: 0000000000000007 RBX: ffffffff86c2b200 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffffff86c2ba4c
+RBP: fffffbfff0d85640 R08: ffffffff86c2b200 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ cpuidle_idle_call kernel/sched/idle.c:154 [inline]
+ do_idle+0x3b6/0x500 kernel/sched/idle.c:263
+ cpu_startup_entry+0x14/0x20 kernel/sched/idle.c:355
+ start_kernel+0x82a/0x864 init/main.c:784
+ secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
+Modules linked in:
+
+Reported-by: syzbot+f49d12d34f2321cf4df2@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/mos7840.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/media/rc/imon.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -119,11 +119,15 @@
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-  * ATEN UC2322 device using Moschip MCS7820
-+ * MOXA UPort 2210 device using Moschip MCS7820
-  */
- #define USB_VENDOR_ID_ATENINTL		0x0557
- #define ATENINTL_DEVICE_ID_UC2324	0x2011
- #define ATENINTL_DEVICE_ID_UC2322	0x7820
+--- a/drivers/media/rc/imon.c
++++ b/drivers/media/rc/imon.c
+@@ -1598,8 +1598,7 @@ static void imon_incoming_packet(struct
+ 	spin_unlock_irqrestore(&ictx->kc_lock, flags);
  
-+#define USB_VENDOR_ID_MOXA		0x110a
-+#define MOXA_DEVICE_ID_2210		0x2210
-+
- /* Interrupt Routine Defines    */
+ 	/* send touchscreen events through input subsystem if touchpad data */
+-	if (ictx->display_type == IMON_DISPLAY_TYPE_VGA && len == 8 &&
+-	    buf[7] == 0x86) {
++	if (ictx->touch && len == 8 && buf[7] == 0x86) {
+ 		imon_touch_event(ictx, buf);
+ 		return;
  
- #define SERIAL_IIR_RLS      0x06
-@@ -195,6 +199,7 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
-+	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
- 	{}			/* terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, id_table);
-@@ -2020,6 +2025,7 @@ static int mos7840_probe(struct usb_seri
- 				const struct usb_device_id *id)
- {
- 	u16 product = le16_to_cpu(serial->dev->descriptor.idProduct);
-+	u16 vid = le16_to_cpu(serial->dev->descriptor.idVendor);
- 	u8 *buf;
- 	int device_type;
- 
-@@ -2030,6 +2036,11 @@ static int mos7840_probe(struct usb_seri
- 		goto out;
- 	}
- 
-+	if (vid == USB_VENDOR_ID_MOXA && product == MOXA_DEVICE_ID_2210) {
-+		device_type = MOSCHIP_DEVICE_ID_7820;
-+		goto out;
-+	}
-+
- 	buf = kzalloc(VENDOR_READ_LENGTH, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
 
 
