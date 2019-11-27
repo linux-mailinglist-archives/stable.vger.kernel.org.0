@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CD510BF86
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6D310BE06
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727664AbfK0Uhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:37:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40600 "EHLO mail.kernel.org"
+        id S1729275AbfK0UwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:52:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728588AbfK0Uhc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:37:32 -0500
+        id S1730588AbfK0UwP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:52:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35390215A5;
-        Wed, 27 Nov 2019 20:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 028BB218AF;
+        Wed, 27 Nov 2019 20:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887051;
-        bh=tHz6rQfVRrlihB6AmfT2FhFCw8KS4l93N13Y6nXzowU=;
+        s=default; t=1574887934;
+        bh=5dEbdlruILwkWbOUiIwYdpi3k5zAZe2wyIRORJgY8cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWHH52AnS3JRYbBA2HSpMAJQ64KC12wjNC22m7urZkWp/5BpxSAPmfjBwBIFeh9L/
-         rldgn+Roq3EEWHHcoJN1u9LYyvzwAAkm6O9HwyICZwWhG7rXzLG3uNaCE7D933VDpK
-         E/AGpndM0VTWRGkrtxSsS2k+5vXfMS0mcrM4ImzY=
+        b=z5Z/o2gpHN1l3ZhrDP9Rg1wm27h9627Pa+RaLA8UkyuHuD4rzlGQrduq3LQ5RwUlG
+         1edFvMycDevhAVigXP9XcCeYVDqI8ob2Fp3ac2r5lLyd5eIUQbQwstNk/CVQEeqQ2H
+         xl4oVoaISdiMD0iDfzNZjhqvgwlQ3ETUKkPZKx6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        David Barmann <david.barmann@stackpath.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 094/132] pinctrl: qcom: spmi-gpio: fix gpio-hog related boot issues
+Subject: [PATCH 4.14 152/211] sock: Reset dst when changing sk_mark via setsockopt
 Date:   Wed, 27 Nov 2019 21:31:25 +0100
-Message-Id: <20191127203020.871800932@linuxfoundation.org>
+Message-Id: <20191127203108.385631857@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <masneyb@onstation.org>
+From: David Barmann <david.barmann@stackpath.com>
 
-[ Upstream commit 149a96047237574b756d872007c006acd0cc6687 ]
+[ Upstream commit 50254256f382c56bde87d970f3d0d02fdb76ec70 ]
 
-When attempting to setup up a gpio hog, device probing would repeatedly
-fail with -EPROBE_DEFERED errors. It was caused by a circular dependency
-between the gpio and pinctrl frameworks. If the gpio-ranges property is
-present in device tree, then the gpio framework will handle the gpio pin
-registration and eliminate the circular dependency.
+When setting the SO_MARK socket option, if the mark changes, the dst
+needs to be reset so that a new route lookup is performed.
 
-See Christian Lamparter's commit a86caa9ba5d7 ("pinctrl: msm: fix
-gpio-hog related boot issues") for a detailed commit message that
-explains the issue in much more detail. The code comment in this commit
-came from Christian's commit.
+This fixes the case where an application wants to change routing by
+setting a new sk_mark.  If this is done after some packets have already
+been sent, the dst is cached and has no effect.
 
-Signed-off-by: Brian Masney <masneyb@onstation.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David Barmann <david.barmann@stackpath.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-spmi-gpio.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ net/core/sock.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-index 4ea810cafaac6..913b2604d3454 100644
---- a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-+++ b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-@@ -793,10 +793,23 @@ static int pmic_gpio_probe(struct platform_device *pdev)
- 		goto err_chip;
- 	}
- 
--	ret = gpiochip_add_pin_range(&state->chip, dev_name(dev), 0, 0, npins);
--	if (ret) {
--		dev_err(dev, "failed to add pin range\n");
--		goto err_range;
-+	/*
-+	 * For DeviceTree-supported systems, the gpio core checks the
-+	 * pinctrl's device node for the "gpio-ranges" property.
-+	 * If it is present, it takes care of adding the pin ranges
-+	 * for the driver. In this case the driver can skip ahead.
-+	 *
-+	 * In order to remain compatible with older, existing DeviceTree
-+	 * files which don't set the "gpio-ranges" property or systems that
-+	 * utilize ACPI the driver has to call gpiochip_add_pin_range().
-+	 */
-+	if (!of_property_read_bool(dev->of_node, "gpio-ranges")) {
-+		ret = gpiochip_add_pin_range(&state->chip, dev_name(dev), 0, 0,
-+					     npins);
-+		if (ret) {
-+			dev_err(dev, "failed to add pin range\n");
-+			goto err_range;
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 7ccbcd853cbce..78c9aa310ce6b 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -985,10 +985,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ 			clear_bit(SOCK_PASSSEC, &sock->flags);
+ 		break;
+ 	case SO_MARK:
+-		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
++		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+ 			ret = -EPERM;
+-		else
++		} else if (val != sk->sk_mark) {
+ 			sk->sk_mark = val;
++			sk_dst_reset(sk);
 +		}
- 	}
+ 		break;
  
- 	return 0;
+ 	case SO_RXQ_OVFL:
 -- 
 2.20.1
 
