@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A575B10BF3E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:42:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC7A10BF75
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728406AbfK0Ukm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:40:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S1728039AbfK0Ugb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:36:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727418AbfK0Ukl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:40:41 -0500
+        id S1727127AbfK0Ug3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:36:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7462C21772;
-        Wed, 27 Nov 2019 20:40:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DC2721770;
+        Wed, 27 Nov 2019 20:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887240;
-        bh=zVi3l48Dj1pEq/lXVT7CWip3HEIXhUTRhaX6jVURMJE=;
+        s=default; t=1574886989;
+        bh=+BzdJ6LDlqS6iccz6NVyrV0+MjE0C9nKxm+/FH2c3oA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqdVzfG9eGzlQoHGTG48kshgDGuLwezzXWBZaauzNseCJPa1ixUOZCN7Vil6h9mVC
-         udb/VHP30i3FtJkOitucPBOQhNpil/kxnay2i8sIAAPLO3n47J3VMN6qAhwf+VZPI5
-         t1nrPqiHV37A3gTvPOqHMROEaxmvXNDIE4bi3v28=
+        b=p9koiqlQweOJDdHP8KsMsfYnqbQaONmNMTxXwOG+KArNxQzF4Q4yOEvEbN7NdNbYU
+         ch3tTod87VlI9h5AZT0xjTBE3Cq1XDqLcmZvF/pAQyNWcshKDV7F6ow+Jnk6Xn4q8H
+         YM1irkoy59AF8EMI5956avvJHAO5qC2Z/uZP76vA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 035/151] scsi: dc395x: fix dma API usage in srb_done
+Subject: [PATCH 4.4 027/132] brcmsmac: AP mode: update beacon when TIM changes
 Date:   Wed, 27 Nov 2019 21:30:18 +0100
-Message-Id: <20191127203022.003091759@linuxfoundation.org>
+Message-Id: <20191127202924.379661969@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>
 
-[ Upstream commit 3a5bd7021184dec2946f2a4d7a8943f8a5713e52 ]
+[ Upstream commit 2258ee58baa554609a3cc3996276e4276f537b6d ]
 
-We can't just transfer ownership to the CPU and then unmap, as this will
-break with swiotlb.
+Beacons are not updated to reflect TIM changes. This is not compliant with
+power-saving client stations as the beacons do not have valid TIM and can
+cause the network to stall at random occasions and to have highly variable
+latencies.
+Fix it by updating beacon templates on mac80211 set_tim callback.
 
-Instead unmap the command and sense buffer a little earlier in the I/O
-completion handler and get rid of the pci_dma_sync_sg_for_cpu call
-entirely.
+Addresses an issue described in:
+https://marc.info/?i=20180911163534.21312d08%20()%20manjaro
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ali MJ Al-Nasrawy <alimjalnasrawy@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/dc395x.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ .../wireless/brcm80211/brcmsmac/mac80211_if.c | 26 +++++++++++++++++++
+ .../net/wireless/brcm80211/brcmsmac/main.h    |  1 +
+ 2 files changed, 27 insertions(+)
 
-diff --git a/drivers/scsi/dc395x.c b/drivers/scsi/dc395x.c
-index 5ee7f44cf869b..9da0ac360848f 100644
---- a/drivers/scsi/dc395x.c
-+++ b/drivers/scsi/dc395x.c
-@@ -3450,14 +3450,12 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
- 		}
+diff --git a/drivers/net/wireless/brcm80211/brcmsmac/mac80211_if.c b/drivers/net/wireless/brcm80211/brcmsmac/mac80211_if.c
+index 61ae2768132a0..e3b01d804cf24 100644
+--- a/drivers/net/wireless/brcm80211/brcmsmac/mac80211_if.c
++++ b/drivers/net/wireless/brcm80211/brcmsmac/mac80211_if.c
+@@ -502,6 +502,7 @@ brcms_ops_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
  	}
  
--	if (dir != PCI_DMA_NONE && scsi_sg_count(cmd))
--		pci_dma_sync_sg_for_cpu(acb->dev, scsi_sglist(cmd),
--					scsi_sg_count(cmd), dir);
--
- 	ckc_only = 0;
- /* Check Error Conditions */
-       ckc_e:
- 
-+	pci_unmap_srb(acb, srb);
+ 	spin_lock_bh(&wl->lock);
++	wl->wlc->vif = vif;
+ 	wl->mute_tx = false;
+ 	brcms_c_mute(wl->wlc, false);
+ 	if (vif->type == NL80211_IFTYPE_STATION)
+@@ -519,6 +520,11 @@ brcms_ops_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ static void
+ brcms_ops_remove_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ {
++	struct brcms_info *wl = hw->priv;
 +
- 	if (cmd->cmnd[0] == INQUIRY) {
- 		unsigned char *base = NULL;
- 		struct ScsiInqData *ptr;
-@@ -3511,7 +3509,6 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
- 			cmd, cmd->result);
- 		srb_free_insert(acb, srb);
- 	}
--	pci_unmap_srb(acb, srb);
++	spin_lock_bh(&wl->lock);
++	wl->wlc->vif = NULL;
++	spin_unlock_bh(&wl->lock);
+ }
  
- 	cmd->scsi_done(cmd);
- 	waiting_process_next(acb);
+ static int brcms_ops_config(struct ieee80211_hw *hw, u32 changed)
+@@ -937,6 +943,25 @@ static void brcms_ops_set_tsf(struct ieee80211_hw *hw,
+ 	spin_unlock_bh(&wl->lock);
+ }
+ 
++static int brcms_ops_beacon_set_tim(struct ieee80211_hw *hw,
++				 struct ieee80211_sta *sta, bool set)
++{
++	struct brcms_info *wl = hw->priv;
++	struct sk_buff *beacon = NULL;
++	u16 tim_offset = 0;
++
++	spin_lock_bh(&wl->lock);
++	if (wl->wlc->vif)
++		beacon = ieee80211_beacon_get_tim(hw, wl->wlc->vif,
++						  &tim_offset, NULL);
++	if (beacon)
++		brcms_c_set_new_beacon(wl->wlc, beacon, tim_offset,
++				       wl->wlc->vif->bss_conf.dtim_period);
++	spin_unlock_bh(&wl->lock);
++
++	return 0;
++}
++
+ static const struct ieee80211_ops brcms_ops = {
+ 	.tx = brcms_ops_tx,
+ 	.start = brcms_ops_start,
+@@ -955,6 +980,7 @@ static const struct ieee80211_ops brcms_ops = {
+ 	.flush = brcms_ops_flush,
+ 	.get_tsf = brcms_ops_get_tsf,
+ 	.set_tsf = brcms_ops_set_tsf,
++	.set_tim = brcms_ops_beacon_set_tim,
+ };
+ 
+ void brcms_dpc(unsigned long data)
+diff --git a/drivers/net/wireless/brcm80211/brcmsmac/main.h b/drivers/net/wireless/brcm80211/brcmsmac/main.h
+index c4d135cff04ad..9f76b880814e8 100644
+--- a/drivers/net/wireless/brcm80211/brcmsmac/main.h
++++ b/drivers/net/wireless/brcm80211/brcmsmac/main.h
+@@ -563,6 +563,7 @@ struct brcms_c_info {
+ 
+ 	struct wiphy *wiphy;
+ 	struct scb pri_scb;
++	struct ieee80211_vif *vif;
+ 
+ 	struct sk_buff *beacon;
+ 	u16 beacon_tim_offset;
 -- 
 2.20.1
 
