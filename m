@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D21FA10BCB4
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:23:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C2E10BB21
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732224AbfK0VXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:23:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58482 "EHLO mail.kernel.org"
+        id S1727777AbfK0VJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:09:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732211AbfK0VEy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:04:54 -0500
+        id S1732942AbfK0VJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:09:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D07C215E5;
-        Wed, 27 Nov 2019 21:04:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71EFB216F4;
+        Wed, 27 Nov 2019 21:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888693;
-        bh=fRUURmYgm8UhXimVKMvg0rTCwjxJZmDs2BqzLEzYf2w=;
+        s=default; t=1574888990;
+        bh=6C57Nlkzwm0bhSffZe8KZa3he0hKp7R7qPVEzCJSg/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lk/V6JGMUgH8zlmVZ1vUbh5r2GfsbePodMRrP2juoUzZLRpXnApZNdZT80lPmDGrL
-         /N6igJ6EiC5u4komzrkA+P3Z1pXdEfYBPP8TNl1pzTNWoA8TKfwYOqN2jA+U03V/xd
-         6AEpgc/f9qjTNzaBdgH0YmI0vQlBK+BQE0onNHEQ=
+        b=gN8C1o/xIe8FtOwYlDJR3w2UfQDLepso86B+bUu9Ixu75ANbjUb5um/ukSheR+eri
+         ThymZR/iBzxLErsgh/i9xpUvxkKzDcg2EP/ZBlvUkzpBdKbgc8OKyF/YU1CCb5zQ2y
+         uv002ryD9hkK1jfyVrQpiZM2NWbmVKJZKhZSy5b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        Hannes Reinecke <hare@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 231/306] scsi: lpfc: Correct loss of fc4 type on remote port address change
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 04/95] net: rtnetlink: prevent underflows in do_setvfinfo()
 Date:   Wed, 27 Nov 2019 21:31:21 +0100
-Message-Id: <20191127203131.889279398@linuxfoundation.org>
+Message-Id: <20191127202849.603027733@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +43,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d83ca3ea833d7a66d49225e4191c4e37cab8f079 ]
+[ Upstream commit d658c8f56ec7b3de8051a24afb25da9ba3c388c5 ]
 
-An address change for a remote port cause PRLI for the wrong protocol
-to be sent.  The node copy done in the discovery code skipped copying
-the fc4 protocols supported as well.
+The "ivm->vf" variable is a u32, but the problem is that a number of
+drivers cast it to an int and then forget to check for negatives.  An
+example of this is in the cxgb4 driver.
 
-Fix the copy logic for the address change.  Beefed up log messages in
-this area as well.
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+  2890  static int cxgb4_mgmt_get_vf_config(struct net_device *dev,
+  2891                                      int vf, struct ifla_vf_info *ivi)
+                                            ^^^^^^
+  2892  {
+  2893          struct port_info *pi = netdev_priv(dev);
+  2894          struct adapter *adap = pi->adapter;
+  2895          struct vf_info *vfinfo;
+  2896
+  2897          if (vf >= adap->num_vfs)
+                    ^^^^^^^^^^^^^^^^^^^
+  2898                  return -EINVAL;
+  2899          vfinfo = &adap->vfinfo[vf];
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There are 48 functions affected.
+
+drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c:8435 hclge_set_vf_vlan_filter() warn: can 'vfid' underflow 's32min-2147483646'
+drivers/net/ethernet/freescale/enetc/enetc_pf.c:377 enetc_pf_set_vf_mac() warn: can 'vf' underflow 's32min-2147483646'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:2899 cxgb4_mgmt_get_vf_config() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:2960 cxgb4_mgmt_set_vf_rate() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3019 cxgb4_mgmt_set_vf_rate() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3038 cxgb4_mgmt_set_vf_vlan() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c:3086 cxgb4_mgmt_set_vf_link_state() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/chelsio/cxgb/cxgb2.c:791 get_eeprom() warn: can 'i' underflow 's32min-(-4),0,4-s32max'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:82 bnxt_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:164 bnxt_set_vf_trust() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:186 bnxt_get_vf_config() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:228 bnxt_set_vf_mac() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:264 bnxt_set_vf_vlan() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:293 bnxt_set_vf_bw() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c:333 bnxt_set_vf_link_state() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c:2595 bnx2x_vf_op_prep() warn: can 'vfidx' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c:2595 bnx2x_vf_op_prep() warn: can 'vfidx' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2281 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2285 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2286 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2292 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.c:2297 bnx2x_post_vf_bulletin() warn: can 'vf' underflow 's32min-63'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1832 qlcnic_sriov_set_vf_mac() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1864 qlcnic_sriov_set_vf_tx_rate() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:1937 qlcnic_sriov_set_vf_vlan() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:2005 qlcnic_sriov_get_vf_config() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c:2036 qlcnic_sriov_set_vf_spoofchk() warn: can 'vf' underflow 's32min-254'
+drivers/net/ethernet/emulex/benet/be_main.c:1914 be_get_vf_config() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:1915 be_get_vf_config() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:1922 be_set_vf_tvt() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:1951 be_clear_vf_tvt() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:2063 be_set_vf_tx_rate() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/emulex/benet/be_main.c:2091 be_set_vf_link_state() warn: can 'vf' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:2609 ice_set_vf_port_vlan() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3050 ice_get_vf_cfg() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3103 ice_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3181 ice_set_vf_mac() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3237 ice_set_vf_trust() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c:3286 ice_set_vf_link_state() warn: can 'vf_id' underflow 's32min-65534'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:3919 i40e_validate_vf() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:3957 i40e_ndo_set_vf_mac() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4104 i40e_ndo_set_vf_port_vlan() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4263 i40e_ndo_set_vf_bw() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4309 i40e_ndo_get_vf_config() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4371 i40e_ndo_set_vf_link_state() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4441 i40e_ndo_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4441 i40e_ndo_set_vf_spoofchk() warn: can 'vf_id' underflow 's32min-2147483646'
+drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4504 i40e_ndo_set_vf_trust() warn: can 'vf_id' underflow 's32min-2147483646'
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c       | 27 +++++++++++++++++++++++----
- drivers/scsi/lpfc/lpfc_nportdisc.c |  5 +++--
- 2 files changed, 26 insertions(+), 6 deletions(-)
+ net/core/rtnetlink.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index e263a486b1c6c..222fa9b7f4788 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1556,8 +1556,10 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 	 */
- 	new_ndlp = lpfc_findnode_wwpn(vport, &sp->portName);
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -2195,6 +2195,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_MAC]) {
+ 		struct ifla_vf_mac *ivm = nla_data(tb[IFLA_VF_MAC]);
  
-+	/* return immediately if the WWPN matches ndlp */
- 	if (new_ndlp == ndlp && NLP_CHK_NODE_ACT(new_ndlp))
- 		return ndlp;
-+
- 	if (phba->sli_rev == LPFC_SLI_REV4) {
- 		active_rrqs_xri_bitmap = mempool_alloc(phba->active_rrq_pool,
- 						       GFP_KERNEL);
-@@ -1566,9 +1568,13 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 			       phba->cfg_rrq_xri_bitmap_sz);
++		if (ivm->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_mac)
+ 			err = ops->ndo_set_vf_mac(dev, ivm->vf,
+@@ -2206,6 +2208,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_VLAN]) {
+ 		struct ifla_vf_vlan *ivv = nla_data(tb[IFLA_VF_VLAN]);
+ 
++		if (ivv->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_vlan)
+ 			err = ops->ndo_set_vf_vlan(dev, ivv->vf, ivv->vlan,
+@@ -2238,6 +2242,8 @@ static int do_setvfinfo(struct net_devic
+ 		if (len == 0)
+ 			return -EINVAL;
+ 
++		if (ivvl[0]->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = ops->ndo_set_vf_vlan(dev, ivvl[0]->vf, ivvl[0]->vlan,
+ 					   ivvl[0]->qos, ivvl[0]->vlan_proto);
+ 		if (err < 0)
+@@ -2248,6 +2254,8 @@ static int do_setvfinfo(struct net_devic
+ 		struct ifla_vf_tx_rate *ivt = nla_data(tb[IFLA_VF_TX_RATE]);
+ 		struct ifla_vf_info ivf;
+ 
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_get_vf_config)
+ 			err = ops->ndo_get_vf_config(dev, ivt->vf, &ivf);
+@@ -2266,6 +2274,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_RATE]) {
+ 		struct ifla_vf_rate *ivt = nla_data(tb[IFLA_VF_RATE]);
+ 
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_rate)
+ 			err = ops->ndo_set_vf_rate(dev, ivt->vf,
+@@ -2278,6 +2288,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_SPOOFCHK]) {
+ 		struct ifla_vf_spoofchk *ivs = nla_data(tb[IFLA_VF_SPOOFCHK]);
+ 
++		if (ivs->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_spoofchk)
+ 			err = ops->ndo_set_vf_spoofchk(dev, ivs->vf,
+@@ -2289,6 +2301,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_LINK_STATE]) {
+ 		struct ifla_vf_link_state *ivl = nla_data(tb[IFLA_VF_LINK_STATE]);
+ 
++		if (ivl->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_link_state)
+ 			err = ops->ndo_set_vf_link_state(dev, ivl->vf,
+@@ -2302,6 +2316,8 @@ static int do_setvfinfo(struct net_devic
+ 
+ 		err = -EOPNOTSUPP;
+ 		ivrssq_en = nla_data(tb[IFLA_VF_RSS_QUERY_EN]);
++		if (ivrssq_en->vf >= INT_MAX)
++			return -EINVAL;
+ 		if (ops->ndo_set_vf_rss_query_en)
+ 			err = ops->ndo_set_vf_rss_query_en(dev, ivrssq_en->vf,
+ 							   ivrssq_en->setting);
+@@ -2312,6 +2328,8 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_TRUST]) {
+ 		struct ifla_vf_trust *ivt = nla_data(tb[IFLA_VF_TRUST]);
+ 
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		err = -EOPNOTSUPP;
+ 		if (ops->ndo_set_vf_trust)
+ 			err = ops->ndo_set_vf_trust(dev, ivt->vf, ivt->setting);
+@@ -2322,15 +2340,18 @@ static int do_setvfinfo(struct net_devic
+ 	if (tb[IFLA_VF_IB_NODE_GUID]) {
+ 		struct ifla_vf_guid *ivt = nla_data(tb[IFLA_VF_IB_NODE_GUID]);
+ 
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		if (!ops->ndo_set_vf_guid)
+ 			return -EOPNOTSUPP;
+-
+ 		return handle_vf_guid(dev, ivt, IFLA_VF_IB_NODE_GUID);
  	}
  
--	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS,
--		 "3178 PLOGI confirm: ndlp %p x%x: new_ndlp %p\n",
--		 ndlp, ndlp->nlp_DID, new_ndlp);
-+	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS | LOG_NODE,
-+			 "3178 PLOGI confirm: ndlp x%x x%x x%x: "
-+			 "new_ndlp x%x x%x x%x\n",
-+			 ndlp->nlp_DID, ndlp->nlp_flag,  ndlp->nlp_fc4_type,
-+			 (new_ndlp ? new_ndlp->nlp_DID : 0),
-+			 (new_ndlp ? new_ndlp->nlp_flag : 0),
-+			 (new_ndlp ? new_ndlp->nlp_fc4_type : 0));
+ 	if (tb[IFLA_VF_IB_PORT_GUID]) {
+ 		struct ifla_vf_guid *ivt = nla_data(tb[IFLA_VF_IB_PORT_GUID]);
  
- 	if (!new_ndlp) {
- 		rc = memcmp(&ndlp->nlp_portname, name,
-@@ -1617,6 +1623,14 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 			       phba->cfg_rrq_xri_bitmap_sz);
- 	}
++		if (ivt->vf >= INT_MAX)
++			return -EINVAL;
+ 		if (!ops->ndo_set_vf_guid)
+ 			return -EOPNOTSUPP;
  
-+	/* At this point in this routine, we know new_ndlp will be
-+	 * returned. however, any previous GID_FTs that were done
-+	 * would have updated nlp_fc4_type in ndlp, so we must ensure
-+	 * new_ndlp has the right value.
-+	 */
-+	if (vport->fc_flag & FC_FABRIC)
-+		new_ndlp->nlp_fc4_type = ndlp->nlp_fc4_type;
-+
- 	lpfc_unreg_rpi(vport, new_ndlp);
- 	new_ndlp->nlp_DID = ndlp->nlp_DID;
- 	new_ndlp->nlp_prev_state = ndlp->nlp_prev_state;
-@@ -1666,7 +1680,6 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 		if (ndlp->nrport) {
- 			ndlp->nrport = NULL;
- 			lpfc_nlp_put(ndlp);
--			new_ndlp->nlp_fc4_type = ndlp->nlp_fc4_type;
- 		}
- 
- 		/* We shall actually free the ndlp with both nlp_DID and
-@@ -1740,6 +1753,12 @@ lpfc_plogi_confirm_nport(struct lpfc_hba *phba, uint32_t *prsp,
- 	    active_rrqs_xri_bitmap)
- 		mempool_free(active_rrqs_xri_bitmap,
- 			     phba->active_rrq_pool);
-+
-+	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS | LOG_NODE,
-+			 "3173 PLOGI confirm exit: new_ndlp x%x x%x x%x\n",
-+			 new_ndlp->nlp_DID, new_ndlp->nlp_flag,
-+			 new_ndlp->nlp_fc4_type);
-+
- 	return new_ndlp;
- }
- 
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index c15f3265eefeb..bd8dc6a2243c0 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -2868,8 +2868,9 @@ lpfc_disc_state_machine(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 	/* DSM in event <evt> on NPort <nlp_DID> in state <cur_state> */
- 	lpfc_printf_vlog(vport, KERN_INFO, LOG_DISCOVERY,
- 			 "0211 DSM in event x%x on NPort x%x in "
--			 "state %d Data: x%x\n",
--			 evt, ndlp->nlp_DID, cur_state, ndlp->nlp_flag);
-+			 "state %d Data: x%x x%x\n",
-+			 evt, ndlp->nlp_DID, cur_state,
-+			 ndlp->nlp_flag, ndlp->nlp_fc4_type);
- 
- 	lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_DSM,
- 		 "DSM in:          evt:%d ste:%d did:x%x",
--- 
-2.20.1
-
 
 
