@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB0410B982
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F376610B8A3
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbfK0Uxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:53:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43184 "EHLO mail.kernel.org"
+        id S1729722AbfK0UpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:45:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730776AbfK0Uxw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:53:52 -0500
+        id S1727487AbfK0UpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:45:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E662120862;
-        Wed, 27 Nov 2019 20:53:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A3E821780;
+        Wed, 27 Nov 2019 20:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888031;
-        bh=TJK7wwduTNpV7U4RlAnrTK6SDI4g++CbzCrtYmcfz40=;
+        s=default; t=1574887516;
+        bh=k16vSFfB3VcnFtGPPlm6toStzxruCtOzTNuNmFq9ccA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9mJE4ItDo4C6laucxsKFXivwcewDBL/7z0cVpHgdbIn0lpvmpUPa9tX8zK6M5x40
-         W4MGgyAUvZRjrWkyTKhyTMWxUdtqxxywzeOAdNOACmwYrj9Dmpxx1aLKCQsKJJSaKU
-         t3tti6/VxfzIbdsxu0ZTwY82olFSbw0lfS5oRgY0=
+        b=SDQmre/qGg3Netny21fYegGrSkmGsDxeTwKCfO7Ednp1bC6WeXkWqp0JhaXYgVKC7
+         SaIiGVH2lHnxYI2b9dtBJ8UM24bBe/rN4LzOvqJMuHA+RCKDxFIOAP4qhWJoTlSXqh
+         q29ig4eXv+KbZQQESWvtZMQea1R4k+Azmb9Llv5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 190/211] media: usbvision: Fix races among open, close, and disconnect
-Date:   Wed, 27 Nov 2019 21:32:03 +0100
-Message-Id: <20191127203111.644123253@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH 4.9 141/151] USB: chaoskey: fix error case of a timeout
+Date:   Wed, 27 Nov 2019 21:32:04 +0100
+Message-Id: <20191127203047.107855223@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,131 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 9e08117c9d4efc1e1bc6fce83dab856d9fd284b6 upstream.
+commit 92aa5986f4f7b5a8bf282ca0f50967f4326559f5 upstream.
 
-Visual inspection of the usbvision driver shows that it suffers from
-three races between its open, close, and disconnect handlers.  In
-particular, the driver is careful to update its usbvision->user and
-usbvision->remove_pending flags while holding the private mutex, but:
+In case of a timeout or if a signal aborts a read
+communication with the device needs to be ended
+lest we overwrite an active URB the next time we
+do IO to the device, as the URB may still be active.
 
-	usbvision_v4l2_close() and usbvision_radio_close() don't hold
-	the mutex while they check the value of
-	usbvision->remove_pending;
-
-	usbvision_disconnect() doesn't hold the mutex while checking
-	the value of usbvision->user; and
-
-	also, usbvision_v4l2_open() and usbvision_radio_open() don't
-	check whether the device has been unplugged before allowing
-	the user to open the device files.
-
-Each of these can potentially lead to usbvision_release() being called
-twice and use-after-free errors.
-
-This patch fixes the races by reading the flags while the mutex is
-still held and checking for pending removes before allowing an open to
-succeed.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191107142856.16774-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/usbvision/usbvision-video.c |   21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/usb/misc/chaoskey.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
---- a/drivers/media/usb/usbvision/usbvision-video.c
-+++ b/drivers/media/usb/usbvision/usbvision-video.c
-@@ -328,6 +328,10 @@ static int usbvision_v4l2_open(struct fi
- 	if (mutex_lock_interruptible(&usbvision->v4l2_lock))
- 		return -ERESTARTSYS;
+--- a/drivers/usb/misc/chaoskey.c
++++ b/drivers/usb/misc/chaoskey.c
+@@ -412,13 +412,17 @@ static int _chaoskey_fill(struct chaoske
+ 		!dev->reading,
+ 		(started ? NAK_TIMEOUT : ALEA_FIRST_TIMEOUT) );
  
-+	if (usbvision->remove_pending) {
-+		err_code = -ENODEV;
-+		goto unlock;
-+	}
- 	if (usbvision->user) {
- 		err_code = -EBUSY;
- 	} else {
-@@ -391,6 +395,7 @@ unlock:
- static int usbvision_v4l2_close(struct file *file)
- {
- 	struct usb_usbvision *usbvision = video_drvdata(file);
-+	int r;
- 
- 	PDEBUG(DBG_IO, "close");
- 
-@@ -405,9 +410,10 @@ static int usbvision_v4l2_close(struct f
- 	usbvision_scratch_free(usbvision);
- 
- 	usbvision->user--;
-+	r = usbvision->remove_pending;
- 	mutex_unlock(&usbvision->v4l2_lock);
- 
--	if (usbvision->remove_pending) {
-+	if (r) {
- 		printk(KERN_INFO "%s: Final disconnect\n", __func__);
- 		usbvision_release(usbvision);
- 		return 0;
-@@ -1091,6 +1097,11 @@ static int usbvision_radio_open(struct f
- 
- 	if (mutex_lock_interruptible(&usbvision->v4l2_lock))
- 		return -ERESTARTSYS;
-+
-+	if (usbvision->remove_pending) {
-+		err_code = -ENODEV;
-+		goto out;
-+	}
- 	err_code = v4l2_fh_open(file);
- 	if (err_code)
+-	if (result < 0)
++	if (result < 0) {
++		usb_kill_urb(dev->urb);
  		goto out;
-@@ -1123,6 +1134,7 @@ out:
- static int usbvision_radio_close(struct file *file)
++	}
+ 
+-	if (result == 0)
++	if (result == 0) {
+ 		result = -ETIMEDOUT;
+-	else
++		usb_kill_urb(dev->urb);
++	} else {
+ 		result = dev->valid;
++	}
+ out:
+ 	/* Let the device go back to sleep eventually */
+ 	usb_autopm_put_interface(dev->interface);
+@@ -554,7 +558,21 @@ static int chaoskey_suspend(struct usb_i
+ 
+ static int chaoskey_resume(struct usb_interface *interface)
  {
- 	struct usb_usbvision *usbvision = video_drvdata(file);
-+	int r;
- 
- 	PDEBUG(DBG_IO, "");
- 
-@@ -1135,9 +1147,10 @@ static int usbvision_radio_close(struct
- 	usbvision_audio_off(usbvision);
- 	usbvision->radio = 0;
- 	usbvision->user--;
-+	r = usbvision->remove_pending;
- 	mutex_unlock(&usbvision->v4l2_lock);
- 
--	if (usbvision->remove_pending) {
-+	if (r) {
- 		printk(KERN_INFO "%s: Final disconnect\n", __func__);
- 		v4l2_fh_release(file);
- 		usbvision_release(usbvision);
-@@ -1562,6 +1575,7 @@ err_usb:
- static void usbvision_disconnect(struct usb_interface *intf)
- {
- 	struct usb_usbvision *usbvision = to_usbvision(usb_get_intfdata(intf));
-+	int u;
- 
- 	PDEBUG(DBG_PROBE, "");
- 
-@@ -1578,13 +1592,14 @@ static void usbvision_disconnect(struct
- 	v4l2_device_disconnect(&usbvision->v4l2_dev);
- 	usbvision_i2c_unregister(usbvision);
- 	usbvision->remove_pending = 1;	/* Now all ISO data will be ignored */
-+	u = usbvision->user;
- 
- 	usb_put_dev(usbvision->dev);
- 	usbvision->dev = NULL;	/* USB device is no more */
- 
- 	mutex_unlock(&usbvision->v4l2_lock);
- 
--	if (usbvision->user) {
-+	if (u) {
- 		printk(KERN_INFO "%s: In use, disconnect pending\n",
- 		       __func__);
- 		wake_up_interruptible(&usbvision->wait_frame);
++	struct chaoskey *dev;
++	struct usb_device *udev = interface_to_usbdev(interface);
++
+ 	usb_dbg(interface, "resume");
++	dev = usb_get_intfdata(interface);
++
++	/*
++	 * We may have lost power.
++	 * In that case the device that needs a long time
++	 * for the first requests needs an extended timeout
++	 * again
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == ALEA_VENDOR_ID)
++		dev->reads_started = false;
++
+ 	return 0;
+ }
+ #else
 
 
