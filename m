@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4998810B84A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A8710B929
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729234AbfK0Ul4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:41:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47572 "EHLO mail.kernel.org"
+        id S1730354AbfK0Uu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:50:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729260AbfK0Ulx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:41:53 -0500
+        id S1728335AbfK0Uu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:50:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C00A221775;
-        Wed, 27 Nov 2019 20:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F9D42158A;
+        Wed, 27 Nov 2019 20:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887313;
-        bh=G+bUnZIIGo0TF/ZYi61/DRntB0hbkjdnF5/2+ThSJ3w=;
+        s=default; t=1574887825;
+        bh=febHDCnmAbc7A9SiF0v4GbyjctYAv1LCzcdfJi+6TSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWqtUSiaujTVjKd1y1iyel02RwGPB098IoS4sQ43p50P2MVI5DJMMDx5IniTW++I/
-         f8hojvgnOcmXGoB9c+obBIapCLiv7dS5DCLcD8ViYJH5EZx0/J00JeEBuE2FP17IYm
-         JRhT8BDc5smWQx4JOGeQCkC3iWhNwldAKXj8T9eI=
+        b=iE/tFR85UZkM512aBlAa/3Db6GFHKTyNN0NDAPElbAjbCynWBj3UaqsColgG+AvkB
+         +9pW8K7TLhZhw/wN9IfsAP+42eeH9cd0mRQUY206+jkWtbQodDAICQ3g6zbshGglLe
+         Peie0UIomu12QXaBLrWd474QS6H3LDn08rupZREE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
+        stable@vger.kernel.org,
+        "=?UTF-8?q?Ernesto=20A . =20Fern=C3=A1ndez?=" 
+        <ernesto.mnd.fernandez@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 060/151] selftests/ftrace: Fix to test kprobe $comm arg only if available
+Subject: [PATCH 4.14 110/211] hfs: fix BUG on bnode parent update
 Date:   Wed, 27 Nov 2019 21:30:43 +0100
-Message-Id: <20191127203032.997599346@linuxfoundation.org>
+Message-Id: <20191127203104.491510210@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
 
-[ Upstream commit 2452c96e617a0ff6fb2692e55217a3fa57a7322c ]
+[ Upstream commit ef75bcc5763d130451a99825f247d301088b790b ]
 
-Test $comm in kprobe-event argument syntax testcase
-only if it is supported on the kernel because
-$comm has been introduced 4.8 kernel.
-So on older stable kernel, it should be skipped.
+hfs_brec_update_parent() may hit BUG_ON() if the first record of both a
+leaf node and its parent are changed, and if this forces the parent to
+be split.  It is not possible for this to happen on a valid hfs
+filesystem because the index nodes have fixed length keys.
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Shuah Khan (Samsung OSG) <shuah@kernel.org>
+For reasons I ignore, the hfs module does have support for a number of
+hfsplus features.  A corrupt btree header may report variable length
+keys and trigger this BUG, so it's better to fix it.
+
+Link: http://lkml.kernel.org/r/cf9b02d57f806217a2b1bf5db8c3e39730d8f603.1535682463.git.ernesto.mnd.fernandez@gmail.com
+Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc       | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/hfs/brec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc
-index 231bcd2c4eb59..1e7ac6f3362ff 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc
-@@ -71,8 +71,11 @@ test_badarg "\$stackp" "\$stack0+10" "\$stack1-10"
- echo "r ${PROBEFUNC} \$retval" > kprobe_events
- ! echo "p ${PROBEFUNC} \$retval" > kprobe_events
+diff --git a/fs/hfs/brec.c b/fs/hfs/brec.c
+index da25c49203cc5..896396554bcc1 100644
+--- a/fs/hfs/brec.c
++++ b/fs/hfs/brec.c
+@@ -445,6 +445,7 @@ static int hfs_brec_update_parent(struct hfs_find_data *fd)
+ 			/* restore search_key */
+ 			hfs_bnode_read_key(node, fd->search_key, 14);
+ 		}
++		new_node = NULL;
+ 	}
  
-+# $comm was introduced in 4.8, older kernels reject it.
-+if grep -A1 "fetcharg:" README | grep -q '\$comm' ; then
- : "Comm access"
- test_goodarg "\$comm"
-+fi
- 
- : "Indirect memory access"
- test_goodarg "+0(${GOODREG})" "-0(${GOODREG})" "+10(\$stack)" \
+ 	if (!rec && node->parent)
 -- 
 2.20.1
 
