@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E677C10BC8B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA02310BC16
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:18:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732478AbfK0VGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:06:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60908 "EHLO mail.kernel.org"
+        id S1727821AbfK0VSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:18:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732473AbfK0VGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:06:42 -0500
+        id S1728507AbfK0VLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:11:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 647B62080F;
-        Wed, 27 Nov 2019 21:06:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34C612176D;
+        Wed, 27 Nov 2019 21:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888801;
-        bh=/owAWAfWpzYBTAYkM82lVwXJD9Kz4nA/JxzbBtagY9I=;
+        s=default; t=1574889099;
+        bh=2Z0PeulUKiddpx7Y+aKFqPHyf9rEQImC8/nS7AD3Qp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5DZ015a4XIhWIyj6ynOx2JauxTOOu6/13S7R16G28MW3loOnSI+ue3NcIeebmGuT
-         gnwc2YfVOh/6lphokBZ7qUprcmwjebBhw3JnoxXyGGEk5ujERuDJcavfOOsVzLeoWp
-         QuCYMCAUMlUh5+XYSKDSfj47msjN/Uiyybp2cfww=
+        b=CRzWJikJe4KEQ0edlndVCp5e+kxREnLj+bW8Sdd+1hYrmrkwykj+5KhUEZ07SB5ZQ
+         xeOZQ5Z5MtFey/yWTIbfx7pzpodGLnszW49nY0tp4lgmhLEOcaO55Rf3l2y13QiI4N
+         XHIxguMg9iH/SGfCV/q+q9IhhdjPOSl2jjsq+iMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 4.19 273/306] x86/cpu_entry_area: Add guard page for entry stack on 32bit
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Alexander Kapshuk <alexander.kapshuk@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
+Subject: [PATCH 5.3 46/95] x86/insn: Fix awk regexp warnings
 Date:   Wed, 27 Nov 2019 21:32:03 +0100
-Message-Id: <20191127203134.762505647@linuxfoundation.org>
+Message-Id: <20191127202912.086499210@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +51,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Alexander Kapshuk <alexander.kapshuk@gmail.com>
 
-commit 880a98c339961eaa074393e3a2117cbe9125b8bb upstream.
+commit 700c1018b86d0d4b3f1f2d459708c0cdf42b521d upstream.
 
-The entry stack in the cpu entry area is protected against overflow by the
-readonly GDT on 64-bit, but on 32-bit the GDT needs to be writeable and
-therefore does not trigger a fault on stack overflow.
+gawk 5.0.1 generates the following regexp warnings:
 
-Add a guard page.
+  GEN      /home/sasha/torvalds/tools/objtool/arch/x86/lib/inat-tables.c
+  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:260: warning: regexp escape sequence `\:' is not a known regexp operator
+  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:350: (FILENAME=../arch/x86/lib/x86-opcode-map.txt FNR=41) warning: regexp escape sequence `\&' is  not a known regexp operator
 
-Fixes: c482feefe1ae ("x86/entry/64: Make cpu_entry_area.tss read-only")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@kernel.org
+Ealier versions of gawk are not known to generate these warnings. The
+gawk manual referenced below does not list characters ':' and '&' as
+needing escaping, so 'unescape' them. See
+
+  https://www.gnu.org/software/gawk/manual/html_node/Escape-Sequences.html
+
+for more info.
+
+Running diff on the output generated by the script before and after
+applying the patch reported no differences.
+
+ [ bp: Massage commit message. ]
+
+[ Caught the respective tools header discrepancy. ]
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Alexander Kapshuk <alexander.kapshuk@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190924044659.3785-1-alexander.kapshuk@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/cpu_entry_area.h |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/tools/gen-insn-attr-x86.awk               |    4 ++--
+ tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/x86/include/asm/cpu_entry_area.h
-+++ b/arch/x86/include/asm/cpu_entry_area.h
-@@ -20,8 +20,12 @@ struct cpu_entry_area {
+--- a/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -69,7 +69,7 @@ BEGIN {
  
- 	/*
- 	 * The GDT is just below entry_stack and thus serves (on x86_64) as
--	 * a a read-only guard page.
-+	 * a read-only guard page. On 32-bit the GDT must be writeable, so
-+	 * it needs an extra guard page.
- 	 */
-+#ifdef CONFIG_X86_32
-+	char guard_entry_stack[PAGE_SIZE];
-+#endif
- 	struct entry_stack_page entry_stack_page;
+ 	lprefix1_expr = "\\((66|!F3)\\)"
+ 	lprefix2_expr = "\\(F3\\)"
+-	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
++	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
+ 	lprefix_expr = "\\((66|F2|F3)\\)"
+ 	max_lprefix = 4
  
- 	/*
+@@ -257,7 +257,7 @@ function convert_operands(count,opnd,
+ 	return add_flags(imm, mod)
+ }
+ 
+-/^[0-9a-f]+\:/ {
++/^[0-9a-f]+:/ {
+ 	if (NR == 1)
+ 		next
+ 	# get index
+--- a/tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -69,7 +69,7 @@ BEGIN {
+ 
+ 	lprefix1_expr = "\\((66|!F3)\\)"
+ 	lprefix2_expr = "\\(F3\\)"
+-	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
++	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
+ 	lprefix_expr = "\\((66|F2|F3)\\)"
+ 	max_lprefix = 4
+ 
+@@ -257,7 +257,7 @@ function convert_operands(count,opnd,
+ 	return add_flags(imm, mod)
+ }
+ 
+-/^[0-9a-f]+\:/ {
++/^[0-9a-f]+:/ {
+ 	if (NR == 1)
+ 		next
+ 	# get index
 
 
