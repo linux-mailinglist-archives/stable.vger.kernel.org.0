@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E4410BC58
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A1A10BCA7
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728349AbfK0VU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:20:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35532 "EHLO mail.kernel.org"
+        id S1730560AbfK0VWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:22:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732817AbfK0VI7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:08:59 -0500
+        id S1727459AbfK0VFd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:05:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54B6F2086A;
-        Wed, 27 Nov 2019 21:08:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E19B2080F;
+        Wed, 27 Nov 2019 21:05:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888938;
-        bh=zvYRrz4rzu32n8VzU68nDZUGzYohu/DbbQ7Rr99+HhM=;
+        s=default; t=1574888732;
+        bh=PV75VkIsQLSgJfMJKGoDxgGY1yV4axR33hw/nS5ls3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMuT0ZGWGko8P+uaJr4zVGFeSu7J8ODAqhXyWfVgKVSAP5fmky29Z0FOoSxG6RiTG
-         CGxCc43JzfHWROH+xzt+pYTAWVMurQYcIi+NyR6A77PMwDWwVUezXst5UFmPPHyW7K
-         jiu0VxvKhnShFEeufy5vmdLImO5fjhTc52eIKYkE=
+        b=gi5RZJsAhPF4iz/AVgy3HeWZZRmedDCvY1UFGbZpRYu/l2oyDlDwc5qTOzgsgTpSQ
+         k0N9LgXmqoy7wXqjJCZXIi6QopEQ4VcwwjOASWmBCwZUpcH+cp7Odx6m6CNzz6SsWc
+         RUvlD2kcc5nsG4Gzu2Eq7kty2L34BkJwwNqVHcoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.3 21/95] tools: gpio: Correctly add make dependencies for gpio_utils
-Date:   Wed, 27 Nov 2019 21:31:38 +0100
-Message-Id: <20191127202850.501283175@linuxfoundation.org>
+        stable@vger.kernel.org, Igor Konopko <igor.j.konopko@intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 249/306] nvme-pci: fix surprise removal
+Date:   Wed, 27 Nov 2019 21:31:39 +0100
+Message-Id: <20191127203133.104515360@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,74 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
+From: Igor Konopko <igor.j.konopko@intel.com>
 
-commit 0161a94e2d1c713bd34d72bc0239d87c31747bf7 upstream.
+[ Upstream commit 751a0cc0cd3a0d51e6aaf6fd3b8bd31f4ecfaf3e ]
 
-gpio tools fail to build correctly with make parallelization:
+When a PCIe NVMe device is not present, nvme_dev_remove_admin() calls
+blk_cleanup_queue() on the admin queue, which frees the hctx for that
+queue.  Moments later, on the same path nvme_kill_queues() calls
+blk_mq_unquiesce_queue() on admin queue and tries to access hctx of it,
+which leads to following OOPS:
 
-$ make -s -j24
-ld: gpio-utils.o: file not recognized: file truncated
-make[1]: *** [/home/labbott/linux_upstream/tools/build/Makefile.build:145: lsgpio-in.o] Error 1
-make: *** [Makefile:43: lsgpio-in.o] Error 2
-make: *** Waiting for unfinished jobs....
+Oops: 0000 [#1] SMP PTI
+RIP: 0010:sbitmap_any_bit_set+0xb/0x40
+Call Trace:
+ blk_mq_run_hw_queue+0xd5/0x150
+ blk_mq_run_hw_queues+0x3a/0x50
+ nvme_kill_queues+0x26/0x50
+ nvme_remove_namespaces+0xb2/0xc0
+ nvme_remove+0x60/0x140
+ pci_device_remove+0x3b/0xb0
 
-This is because gpio-utils.o is used across multiple targets.
-Fix this by making gpio-utios.o a proper dependency.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: cb4bfda62afa2 ("nvme-pci: fix hot removal during error handling")
+Signed-off-by: Igor Konopko <igor.j.konopko@intel.com>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/gpio/Build    |    1 +
- tools/gpio/Makefile |   10 +++++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/nvme/host/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/gpio/Build
-+++ b/tools/gpio/Build
-@@ -1,3 +1,4 @@
-+gpio-utils-y += gpio-utils.o
- lsgpio-y += lsgpio.o gpio-utils.o
- gpio-hammer-y += gpio-hammer.o gpio-utils.o
- gpio-event-mon-y += gpio-event-mon.o gpio-utils.o
---- a/tools/gpio/Makefile
-+++ b/tools/gpio/Makefile
-@@ -35,11 +35,15 @@ $(OUTPUT)include/linux/gpio.h: ../../inc
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 5d0f99bcc987f..44da9fe5b27b8 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3647,7 +3647,7 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl)
+ 	down_read(&ctrl->namespaces_rwsem);
  
- prepare: $(OUTPUT)include/linux/gpio.h
+ 	/* Forcibly unquiesce queues to avoid blocking dispatch */
+-	if (ctrl->admin_q)
++	if (ctrl->admin_q && !blk_queue_dying(ctrl->admin_q))
+ 		blk_mq_unquiesce_queue(ctrl->admin_q);
  
-+GPIO_UTILS_IN := $(output)gpio-utils-in.o
-+$(GPIO_UTILS_IN): prepare FORCE
-+	$(Q)$(MAKE) $(build)=gpio-utils
-+
- #
- # lsgpio
- #
- LSGPIO_IN := $(OUTPUT)lsgpio-in.o
--$(LSGPIO_IN): prepare FORCE
-+$(LSGPIO_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=lsgpio
- $(OUTPUT)lsgpio: $(LSGPIO_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-@@ -48,7 +52,7 @@ $(OUTPUT)lsgpio: $(LSGPIO_IN)
- # gpio-hammer
- #
- GPIO_HAMMER_IN := $(OUTPUT)gpio-hammer-in.o
--$(GPIO_HAMMER_IN): prepare FORCE
-+$(GPIO_HAMMER_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=gpio-hammer
- $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-@@ -57,7 +61,7 @@ $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
- # gpio-event-mon
- #
- GPIO_EVENT_MON_IN := $(OUTPUT)gpio-event-mon-in.o
--$(GPIO_EVENT_MON_IN): prepare FORCE
-+$(GPIO_EVENT_MON_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=gpio-event-mon
- $(OUTPUT)gpio-event-mon: $(GPIO_EVENT_MON_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+ 	list_for_each_entry(ns, &ctrl->namespaces, list)
+-- 
+2.20.1
+
 
 
