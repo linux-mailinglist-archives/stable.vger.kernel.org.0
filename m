@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7E710BC1A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:19:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A242510BB85
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733096AbfK0VK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:10:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38616 "EHLO mail.kernel.org"
+        id S2387441AbfK0VNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:13:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730786AbfK0VKx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:10:53 -0500
+        id S2387440AbfK0VNX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:13:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 967EC2178F;
-        Wed, 27 Nov 2019 21:10:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A6002154A;
+        Wed, 27 Nov 2019 21:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889053;
+        s=default; t=1574889202;
         bh=u8OllIDv3yRMJ9j8X65aPhaHYNuwoOxjnb0WOQlmxDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgfVHRCYgbYi8YPmwnRt0Jkv+2Ds2XWrPAPpi9BoyaemY5A20s4LHt1cG7DxDkyx3
-         g6AwkCx8wLtEvzTw85onV64iVG4O1Etqotz8na7eMsf7nio4K6qoavGr4RaN0OVG8O
-         PEx6dRr8EaxCkbauvD1ysSCkrUtb14PTVCr8wVVU=
+        b=x1yogHmrei2qR6zuApIZslt9uz7D4cHr6yEVOPvzfBxWcWLVSpcuyndLikDzQFlhH
+         cjDEfRrTdUpytVQ0NU8ZpVKFuzW96slaXrebzzStgGKp+7BkL6lwfcEPJeIhkKVT2M
+         y6b741pnM+suQEOlAC8AfTpPYJKPnSvdVZTmpijg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>
-Subject: [PATCH 5.3 65/95] x86/entry/32: Fix FIXUP_ESPFIX_STACK with user CR3
+Subject: [PATCH 5.4 27/66] x86/entry/32: Fix FIXUP_ESPFIX_STACK with user CR3
 Date:   Wed, 27 Nov 2019 21:32:22 +0100
-Message-Id: <20191127202930.003997819@linuxfoundation.org>
+Message-Id: <20191127202659.813744898@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
