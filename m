@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E4110BC94
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C026B10BB23
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727351AbfK0VGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:06:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60420 "EHLO mail.kernel.org"
+        id S1732306AbfK0VJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:09:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732410AbfK0VGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:06:23 -0500
+        id S1732561AbfK0VJz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:09:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 029882080F;
-        Wed, 27 Nov 2019 21:06:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BA17216F4;
+        Wed, 27 Nov 2019 21:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888782;
-        bh=W3hwjXMYKbNOB98aUJ5wPNlUM3SaFCCFZQLG1S7wBjQ=;
+        s=default; t=1574888994;
+        bh=57A37uReFpaoVHM91/3bIBAXphIRLjuVkZlIK30VGwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lme+Ct4YpZ5wxD5UGXj6bMi/+CrKXQCGbBJ0bzpqx5S1shL8VoIQFMMwYR15HjyQv
-         YPK5PwqWFWrYopAjgmbTH0aJHvhHWdZberNagsyTw+dJ01JicT8rpkjg5Cuf+xaqv+
-         CI+IHBk1uR0kZdzBSkNbf+cg9ilQJ9RF7M3dym84=
+        b=cThZn7NmW4EfARCzFit9hn68ysHhIVtVsq8bozAU4ak0+Rg69SBzJOrHI+zJT9G8q
+         cKu3ilmdkdiiLQOH5pZJmM8nBn8A9kqCOWU73ZV1LjFBY2lSiGUxcagBi4axN6MV8d
+         Los0wobamBn5xS6hMD7hHCDQdPveEd49ABzQykjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.19 266/306] ARC: perf: Accommodate big-endian CPU
-Date:   Wed, 27 Nov 2019 21:31:56 +0100
-Message-Id: <20191127203134.266441817@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rajkumar Manoharan <rmanohar@qca.qualcomm.com>,
+        "John W. Linville" <linville@tuxdriver.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 5.3 40/95] ath9k_hw: fix uninitialized variable data
+Date:   Wed, 27 Nov 2019 21:31:57 +0100
+Message-Id: <20191127202906.069482258@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+From: Denis Efremov <efremov@linux.com>
 
-commit 5effc09c4907901f0e71e68e5f2e14211d9a203f upstream.
+commit 80e84f36412e0c5172447b6947068dca0d04ee82 upstream.
 
-8-letter strings representing ARC perf events are stores in two
-32-bit registers as ASCII characters like that: "IJMP", "IALL", "IJMPTAK" etc.
+Currently, data variable in ar9003_hw_thermo_cal_apply() could be
+uninitialized if ar9300_otp_read_word() will fail to read the value.
+Initialize data variable with 0 to prevent an undefined behavior. This
+will be enough to handle error case when ar9300_otp_read_word() fails.
 
-And the same order of bytes in the word is used regardless CPU endianness.
-
-Which means in case of big-endian CPU core we need to swap bytes to get
-the same order as if it was on little-endian CPU.
-
-Otherwise we're seeing the following error message on boot:
-------------------------->8----------------------
-ARC perf        : 8 counters (32 bits), 40 conditions, [overflow IRQ support]
-sysfs: cannot create duplicate filename '/devices/arc_pct/events/pmji'
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  sysfs_warn_dup+0x46/0x58
-  sysfs_add_file_mode_ns+0xb2/0x168
-  create_files+0x70/0x2a0
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1 at kernel/events/core.c:12144 perf_event_sysfs_init+0x70/0xa0
-Failed to register pmu: arc_pct, reason -17
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  __warn+0x9c/0xd4
-  warn_slowpath_fmt+0x22/0x2c
-  perf_event_sysfs_init+0x70/0xa0
----[ end trace a75fb9a9837bd1ec ]---
-------------------------->8----------------------
-
-What happens here we're trying to register more than one raw perf event
-with the same name "PMJI". Why? Because ARC perf events are 4 to 8 letters
-and encoded into two 32-bit words. In this particular case we deal with 2
-events:
- * "IJMP____" which counts all jump & branch instructions
- * "IJMPC___" which counts only conditional jumps & branches
-
-Those strings are split in two 32-bit words this way "IJMP" + "____" &
-"IJMP" + "C___" correspondingly. Now if we read them swapped due to CPU core
-being big-endian then we read "PMJI" + "____" & "PMJI" + "___C".
-
-And since we interpret read array of ASCII letters as a null-terminated string
-on big-endian CPU we end up with 2 events of the same name "PMJI".
-
-Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Fixes: 80fe43f2bbd5 ("ath9k_hw: Read and configure thermocal for AR9462")
+Cc: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
+Cc: John W. Linville <linville@tuxdriver.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
 Cc: stable@vger.kernel.org
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
-
 ---
- arch/arc/kernel/perf_event.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/ar9003_eeprom.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arc/kernel/perf_event.c
-+++ b/arch/arc/kernel/perf_event.c
-@@ -490,8 +490,8 @@ static int arc_pmu_device_probe(struct p
- 	/* loop thru all available h/w condition indexes */
- 	for (j = 0; j < cc_bcr.c; j++) {
- 		write_aux_reg(ARC_REG_CC_INDEX, j);
--		cc_name.indiv.word0 = read_aux_reg(ARC_REG_CC_NAME0);
--		cc_name.indiv.word1 = read_aux_reg(ARC_REG_CC_NAME1);
-+		cc_name.indiv.word0 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME0));
-+		cc_name.indiv.word1 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME1));
+--- a/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
++++ b/drivers/net/wireless/ath/ath9k/ar9003_eeprom.c
+@@ -4183,7 +4183,7 @@ static void ar9003_hw_thermometer_apply(
  
- 		/* See if it has been mapped to a perf event_id */
- 		for (i = 0; i < ARRAY_SIZE(arc_pmu_ev_hw_map); i++) {
+ static void ar9003_hw_thermo_cal_apply(struct ath_hw *ah)
+ {
+-	u32 data, ko, kg;
++	u32 data = 0, ko, kg;
+ 
+ 	if (!AR_SREV_9462_20_OR_LATER(ah))
+ 		return;
 
 
