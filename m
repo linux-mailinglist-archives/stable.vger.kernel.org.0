@@ -2,187 +2,325 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8601A10AD49
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 11:10:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4989C10AD3D
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 11:08:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726143AbfK0KKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 05:10:21 -0500
-Received: from mail.avm.de ([212.42.244.94]:50692 "EHLO mail.avm.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726149AbfK0KKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 05:10:20 -0500
-Received: from mail-notes.avm.de (unknown [172.16.0.1])
-        by mail.avm.de (Postfix) with ESMTP;
-        Wed, 27 Nov 2019 11:02:56 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-        t=1574848976; bh=xuETXxlsDVW1SR9RRejhuTraJnE3uAPUPmjVYd9yZ/Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqw0++Fo+ScN6BJ3y8KxJl3mRsaDVOzBsqkcGkFLK7N4068zMrebeTjsv9xH8vLpZ
-         u0MBBc3kUqAhHtAYqvM7Itp+IpmD563PChPsCvfsvQfvqdBHcq1cCXsGk+qR1SPFFb
-         8cjM3SlBXKHaS4OBkHhTLmFc+2pta4YruCW2lfEE=
-Received: from buildd.avm.de. ([172.16.0.225])
-          by mail-notes.avm.de (IBM Domino Release 10.0.1FP3)
-          with ESMTP id 2019112711025606-4799 ;
-          Wed, 27 Nov 2019 11:02:56 +0100 
-From:   Nicolas Schier <n.schier@avm.de>
-To:     stable@vger.kernel.org
-Cc:     Nicolas Schier <n.schier@avm.de>,
-        Guillaume Nault <g.nault@alphalink.fr>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 1/1] l2tp: don't use l2tp_tunnel_find() in l2tp_ip and l2tp_ip6
-Date:   Wed, 27 Nov 2019 11:02:49 +0100
-Message-Id: <bd3a519ba6770a838d09550f1a6602d5fb7e80cb.1574846983.git.n.schier@avm.de>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <cover.1574846983.git.n.schier@avm.de>
-References: <cover.1574846983.git.n.schier@avm.de>
+        id S1726133AbfK0KIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 05:08:09 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:58201 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726092AbfK0KIJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 05:08:09 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 36D30B7B;
+        Wed, 27 Nov 2019 05:08:08 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 27 Nov 2019 05:08:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jEGoVu
+        6xLGYKz3irXASgnW7/EwOLWyIuzmKPSgQGk4s=; b=IICsUZv66mAxXzmVVLhFV5
+        eurM6yxlnIOLi5a8T9pyXEddn5IFYY+LC1Jvfy6jk76ujefjBlkRyfiZbBKvpm+r
+        NTPcr/hJfsPP5dDIeJjinQopuCMMtcFYhWJMIO2q6iMty7JfosDsDpY8G/zEdskc
+        mbTjTQUI68M0U+be52yOT3HQcDJ+3FBkAXn/SlMT0Raiy1DmETsNKX4BeaNzse/E
+        3VJewzvMXfsd7n7qihx9gRNQ+y0+Pbx6HsGfNa8LUzjNkdp9lbw0do29PhQmCGpD
+        8P8JBD+kgOL6C5V/o0JH3BB0yajSUYlxCfFrpon8vkAvLSsOIH8c7yrh9H4Tj/Vg
+        ==
+X-ME-Sender: <xms:BkveXfmeyIn3cSOborsA3dFA27V9GxBxxvOYFO36ooQl0K-72BohgQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeihedgudduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:BkveXaCrpid8QJvTxh_30QjIEx-4PNLSdZEtDiSdX0bttZnjmsOnRA>
+    <xmx:BkveXaDJB0DR-1OCPgN0nGEn1qTuoEM_lQUH9Ca5h0AGSUpl8LAWMg>
+    <xmx:BkveXQQDefxAenONTHCcK1BWeUK0r_wMjOJrwS303i4ym_c5aFoyRg>
+    <xmx:B0veXbuyHHoTy1ACcec0RQhZ4hHvLxAPZIdgBsF2m5kaOfc6tHETXg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 85F033060060;
+        Wed, 27 Nov 2019 05:08:06 -0500 (EST)
+Subject: FAILED: patch "[PATCH] futex: Prevent robust futex exit race" failed to apply to 4.19-stable tree
+To:     yang.tao172@zte.com.cn, mingo@kernel.org, peterz@infradead.org,
+        tglx@linutronix.de, wang.yi59@zte.com.cn
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 27 Nov 2019 11:08:05 +0100
+Message-ID: <1574849285203208@kroah.com>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ANIS1/AVM(Release 10.0.1FP3|August 09, 2019) at
- 27.11.2019 11:02:56,
-        Serialize by Router on ANIS1/AVM(Release 10.0.1FP3|August 09, 2019) at
- 27.11.2019 11:02:56,
-        Serialize complete at 27.11.2019 11:02:56
-X-TNEFEvaluated: 1
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-purgate-ID: 149429::1574848976-000004EC-CB64EA4C/0/0
-X-purgate-type: clean
-X-purgate-size: 4338
-X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
-X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
-X-purgate: clean
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit 8f7dc9ae4a7aece9fbc3e6637bdfa38b36bcdf09 upstream.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Using l2tp_tunnel_find() in l2tp_ip_recv() is wrong for two reasons:
+thanks,
 
-  * It doesn't take a reference on the returned tunnel, which makes the
-    call racy wrt. concurrent tunnel deletion.
+greg k-h
 
-  * The lookup is only based on the tunnel identifier, so it can return
-    a tunnel that doesn't match the packet's addresses or protocol.
+------------------ original commit in Linus's tree ------------------
 
-For example, a packet sent to an L2TPv3 over IPv6 tunnel can be
-delivered to an L2TPv2 over UDPv4 tunnel. This is worse than a simple
-cross-talk: when delivering the packet to an L2TP over UDP tunnel, the
-corresponding socket is UDP, where ->sk_backlog_rcv() is NULL. Calling
-sk_receive_skb() will then crash the kernel by trying to execute this
-callback.
+From ca16d5bee59807bf04deaab0a8eccecd5061528c Mon Sep 17 00:00:00 2001
+From: Yang Tao <yang.tao172@zte.com.cn>
+Date: Wed, 6 Nov 2019 22:55:35 +0100
+Subject: [PATCH] futex: Prevent robust futex exit race
 
-And l2tp_tunnel_find() isn't even needed here. __l2tp_ip_bind_lookup()
-properly checks the socket binding and connection settings. It was used
-as a fallback mechanism for finding tunnels that didn't have their data
-path registered yet. But it's not limited to this case and can be used
-to replace l2tp_tunnel_find() in the general case.
+Robust futexes utilize the robust_list mechanism to allow the kernel to
+release futexes which are held when a task exits. The exit can be voluntary
+or caused by a signal or fault. This prevents that waiters block forever.
 
-Fix l2tp_ip6 in the same way.
+The futex operations in user space store a pointer to the futex they are
+either locking or unlocking in the op_pending member of the per task robust
+list.
 
-Fixes: 0d76751fad77 ("l2tp: Add L2TPv3 IP encapsulation (no UDP) support")
-Fixes: a32e0eec7042 ("l2tp: introduce L2TPv3 IP encapsulation support for IPv6")
-Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Nicolas Schier <n.schier@avm.de>
----
-Please consider queuing this patch for v4.9.y.
+After a lock operation has succeeded the futex is queued in the robust list
+linked list and the op_pending pointer is cleared.
 
- net/l2tp/l2tp_ip.c  | 24 +++++++++---------------
- net/l2tp/l2tp_ip6.c | 24 +++++++++---------------
- 2 files changed, 18 insertions(+), 30 deletions(-)
+After an unlock operation has succeeded the futex is removed from the
+robust list linked list and the op_pending pointer is cleared.
 
-diff --git a/net/l2tp/l2tp_ip.c b/net/l2tp/l2tp_ip.c
-index 03a696d3bcd9..4a88c4eb2301 100644
---- a/net/l2tp/l2tp_ip.c
-+++ b/net/l2tp/l2tp_ip.c
-@@ -116,6 +116,7 @@ static int l2tp_ip_recv(struct sk_buff *skb)
- 	unsigned char *ptr, *optr;
- 	struct l2tp_session *session;
- 	struct l2tp_tunnel *tunnel = NULL;
-+	struct iphdr *iph;
- 	int length;
+The robust list exit code checks for the pending operation and any futex
+which is queued in the linked list. It carefully checks whether the futex
+value is the TID of the exiting task. If so, it sets the OWNER_DIED bit and
+tries to wake up a potential waiter.
+
+This is race free for the lock operation but unlock has two race scenarios
+where waiters might not be woken up. These issues can be observed with
+regular robust pthread mutexes. PI aware pthread mutexes are not affected.
+
+(1) Unlocking task is killed after unlocking the futex value in user space
+    before being able to wake a waiter.
+
+        pthread_mutex_unlock()
+                |
+                V
+        atomic_exchange_rel (&mutex->__data.__lock, 0)
+                        <------------------------killed
+            lll_futex_wake ()                   |
+                                                |
+                                                |(__lock = 0)
+                                                |(enter kernel)
+                                                |
+                                                V
+                                            do_exit()
+                                            exit_mm()
+                                          mm_release()
+                                        exit_robust_list()
+                                        handle_futex_death()
+                                                |
+                                                |(__lock = 0)
+                                                |(uval = 0)
+                                                |
+                                                V
+        if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
+                return 0;
+
+    The sanity check which ensures that the user space futex is owned by
+    the exiting task prevents the wakeup of waiters which in consequence
+    block infinitely.
+
+(2) Waiting task is killed after a wakeup and before it can acquire the
+    futex in user space.
+
+        OWNER                         WAITER
+				futex_wait()
+   pthread_mutex_unlock()               |
+                |                       |
+                |(__lock = 0)           |
+                |                       |
+                V                       |
+         futex_wake() ------------>  wakeup()
+                                        |
+                                        |(return to userspace)
+                                        |(__lock = 0)
+                                        |
+                                        V
+                        oldval = mutex->__data.__lock
+                                          <-----------------killed
+    atomic_compare_and_exchange_val_acq (&mutex->__data.__lock,  |
+                        id | assume_other_futex_waiters, 0)      |
+                                                                 |
+                                                                 |
+                                                   (enter kernel)|
+                                                                 |
+                                                                 V
+                                                         do_exit()
+                                                        |
+                                                        |
+                                                        V
+                                        handle_futex_death()
+                                        |
+                                        |(__lock = 0)
+                                        |(uval = 0)
+                                        |
+                                        V
+        if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
+                return 0;
+
+    The sanity check which ensures that the user space futex is owned
+    by the exiting task prevents the wakeup of waiters, which seems to
+    be correct as the exiting task does not own the futex value, but
+    the consequence is that other waiters wont be woken up and block
+    infinitely.
+
+In both scenarios the following conditions are true:
+
+   - task->robust_list->list_op_pending != NULL
+   - user space futex value == 0
+   - Regular futex (not PI)
+
+If these conditions are met then it is reasonably safe to wake up a
+potential waiter in order to prevent the above problems.
+
+As this might be a false positive it can cause spurious wakeups, but the
+waiter side has to handle other types of unrelated wakeups, e.g. signals
+gracefully anyway. So such a spurious wakeup will not affect the
+correctness of these operations.
+
+This workaround must not touch the user space futex value and cannot set
+the OWNER_DIED bit because the lock value is 0, i.e. uncontended. Setting
+OWNER_DIED in this case would result in inconsistent state and subsequently
+in malfunction of the owner died handling in user space.
+
+The rest of the user space state is still consistent as no other task can
+observe the list_op_pending entry in the exiting tasks robust list.
+
+The eventually woken up waiter will observe the uncontended lock value and
+take it over.
+
+[ tglx: Massaged changelog and comment. Made the return explicit and not
+  	depend on the subsequent check and added constants to hand into
+  	handle_futex_death() instead of plain numbers. Fixed a few coding
+	style issues. ]
+
+Fixes: 0771dfefc9e5 ("[PATCH] lightweight robust futexes: core")
+Signed-off-by: Yang Tao <yang.tao172@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1573010582-35297-1-git-send-email-wang.yi59@zte.com.cn
+Link: https://lkml.kernel.org/r/20191106224555.943191378@linutronix.de
+
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 43229f8999fc..49eaf5be851a 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3452,11 +3452,16 @@ SYSCALL_DEFINE3(get_robust_list, int, pid,
+ 	return ret;
+ }
  
- 	if (!pskb_may_pull(skb, 4))
-@@ -174,24 +175,17 @@ static int l2tp_ip_recv(struct sk_buff *skb)
- 		goto discard;
++/* Constants for the pending_op argument of handle_futex_death */
++#define HANDLE_DEATH_PENDING	true
++#define HANDLE_DEATH_LIST	false
++
+ /*
+  * Process a futex-list entry, check whether it's owned by the
+  * dying task, and do notification if so:
+  */
+-static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int pi)
++static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
++			      bool pi, bool pending_op)
+ {
+ 	u32 uval, uninitialized_var(nval), mval;
+ 	int err;
+@@ -3469,6 +3474,42 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr, int p
+ 	if (get_user(uval, uaddr))
+ 		return -1;
  
- 	tunnel_id = ntohl(*(__be32 *) &skb->data[4]);
--	tunnel = l2tp_tunnel_find(net, tunnel_id);
--	if (tunnel) {
--		sk = tunnel->sock;
--		sock_hold(sk);
--	} else {
--		struct iphdr *iph = (struct iphdr *) skb_network_header(skb);
--
--		read_lock_bh(&l2tp_ip_lock);
--		sk = __l2tp_ip_bind_lookup(net, iph->daddr, iph->saddr,
--					   inet_iif(skb), tunnel_id);
--		if (!sk) {
--			read_unlock_bh(&l2tp_ip_lock);
--			goto discard;
--		}
-+	iph = (struct iphdr *)skb_network_header(skb);
++	/*
++	 * Special case for regular (non PI) futexes. The unlock path in
++	 * user space has two race scenarios:
++	 *
++	 * 1. The unlock path releases the user space futex value and
++	 *    before it can execute the futex() syscall to wake up
++	 *    waiters it is killed.
++	 *
++	 * 2. A woken up waiter is killed before it can acquire the
++	 *    futex in user space.
++	 *
++	 * In both cases the TID validation below prevents a wakeup of
++	 * potential waiters which can cause these waiters to block
++	 * forever.
++	 *
++	 * In both cases the following conditions are met:
++	 *
++	 *	1) task->robust_list->list_op_pending != NULL
++	 *	   @pending_op == true
++	 *	2) User space futex value == 0
++	 *	3) Regular futex: @pi == false
++	 *
++	 * If these conditions are met, it is safe to attempt waking up a
++	 * potential waiter without touching the user space futex value and
++	 * trying to set the OWNER_DIED bit. The user space futex value is
++	 * uncontended and the rest of the user space mutex state is
++	 * consistent, so a woken waiter will just take over the
++	 * uncontended futex. Setting the OWNER_DIED bit would create
++	 * inconsistent state and malfunction of the user space owner died
++	 * handling.
++	 */
++	if (pending_op && !pi && !uval) {
++		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
++		return 0;
++	}
++
+ 	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
+ 		return 0;
  
--		sock_hold(sk);
-+	read_lock_bh(&l2tp_ip_lock);
-+	sk = __l2tp_ip_bind_lookup(net, iph->daddr, iph->saddr, inet_iif(skb),
-+				   tunnel_id);
-+	if (!sk) {
- 		read_unlock_bh(&l2tp_ip_lock);
-+		goto discard;
+@@ -3588,10 +3629,11 @@ void exit_robust_list(struct task_struct *curr)
+ 		 * A pending lock might already be on the list, so
+ 		 * don't process it twice:
+ 		 */
+-		if (entry != pending)
++		if (entry != pending) {
+ 			if (handle_futex_death((void __user *)entry + futex_offset,
+-						curr, pi))
++						curr, pi, HANDLE_DEATH_LIST))
+ 				return;
++		}
+ 		if (rc)
+ 			return;
+ 		entry = next_entry;
+@@ -3605,9 +3647,10 @@ void exit_robust_list(struct task_struct *curr)
+ 		cond_resched();
  	}
-+	sock_hold(sk);
-+	read_unlock_bh(&l2tp_ip_lock);
  
- 	if (!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb))
- 		goto discard_put;
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index 8d412b9b0214..423cb095ad37 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -128,6 +128,7 @@ static int l2tp_ip6_recv(struct sk_buff *skb)
- 	unsigned char *ptr, *optr;
- 	struct l2tp_session *session;
- 	struct l2tp_tunnel *tunnel = NULL;
-+	struct ipv6hdr *iph;
- 	int length;
+-	if (pending)
++	if (pending) {
+ 		handle_futex_death((void __user *)pending + futex_offset,
+-				   curr, pip);
++				   curr, pip, HANDLE_DEATH_PENDING);
++	}
+ }
  
- 	if (!pskb_may_pull(skb, 4))
-@@ -187,24 +188,17 @@ static int l2tp_ip6_recv(struct sk_buff *skb)
- 		goto discard;
+ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+@@ -3784,7 +3827,8 @@ void compat_exit_robust_list(struct task_struct *curr)
+ 		if (entry != pending) {
+ 			void __user *uaddr = futex_uaddr(entry, futex_offset);
  
- 	tunnel_id = ntohl(*(__be32 *) &skb->data[4]);
--	tunnel = l2tp_tunnel_find(net, tunnel_id);
--	if (tunnel) {
--		sk = tunnel->sock;
--		sock_hold(sk);
--	} else {
--		struct ipv6hdr *iph = ipv6_hdr(skb);
--
--		read_lock_bh(&l2tp_ip6_lock);
--		sk = __l2tp_ip6_bind_lookup(net, &iph->daddr, &iph->saddr,
--					    inet6_iif(skb), tunnel_id);
--		if (!sk) {
--			read_unlock_bh(&l2tp_ip6_lock);
--			goto discard;
--		}
-+	iph = ipv6_hdr(skb);
+-			if (handle_futex_death(uaddr, curr, pi))
++			if (handle_futex_death(uaddr, curr, pi,
++					       HANDLE_DEATH_LIST))
+ 				return;
+ 		}
+ 		if (rc)
+@@ -3803,7 +3847,7 @@ void compat_exit_robust_list(struct task_struct *curr)
+ 	if (pending) {
+ 		void __user *uaddr = futex_uaddr(pending, futex_offset);
  
--		sock_hold(sk);
-+	read_lock_bh(&l2tp_ip6_lock);
-+	sk = __l2tp_ip6_bind_lookup(net, &iph->daddr, &iph->saddr,
-+				    inet6_iif(skb), tunnel_id);
-+	if (!sk) {
- 		read_unlock_bh(&l2tp_ip6_lock);
-+		goto discard;
+-		handle_futex_death(uaddr, curr, pip);
++		handle_futex_death(uaddr, curr, pip, HANDLE_DEATH_PENDING);
  	}
-+	sock_hold(sk);
-+	read_unlock_bh(&l2tp_ip6_lock);
+ }
  
- 	if (!xfrm6_policy_check(sk, XFRM_POLICY_IN, skb))
- 		goto discard_put;
--- 
-2.24.0
 
