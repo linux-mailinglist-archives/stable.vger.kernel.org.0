@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B58A610BC18
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:18:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0422510BAF1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732745AbfK0VL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:11:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39982 "EHLO mail.kernel.org"
+        id S1732674AbfK0VIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:08:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733179AbfK0VL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:11:27 -0500
+        id S1732684AbfK0VH7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:07:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBAE8216F4;
-        Wed, 27 Nov 2019 21:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3583121774;
+        Wed, 27 Nov 2019 21:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889086;
-        bh=v3MWzvn0YJzItHPCQQwMkMqD7KQdqDf1JizHExGJBTM=;
+        s=default; t=1574888878;
+        bh=8bfZahvHy7/rq2D7BKa9hoWITidWgRWH6dOH0FcTapg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XghcoleIVyy1Eb2cXg7kqQv+WHTkZISEj896c1D5fMADrBxb9CM15lkYIRy0hchrX
-         dCiuWvUkXoJeuEe76FlMWyP+m9IkgSDPnQq8ezjm2o5RK0onuPKyqyQrfyLMB+8LNi
-         okzZMqC/QQEGkmesfERyvOrsfyEis5wDcztO5k8w=
+        b=gEDeyPM19aXSwFMMN7hilXPmy7I2kHqIE7/DBE8PgYl1ukVssKDT1VyAmk6crb4zl
+         iecwsoRf2eywte2z/YtfwObkOoBzSx1jlthLamHvXOHBj4Bwed65PKDQHkuUF9cGIP
+         3VrUQjTfJ/xAJbpIIlNPgFn17Lv4na7ld+ydZVwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vito Caputo <vcaputo@pengaru.com>,
-        syzbot <syzkaller@googlegroups.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.3 77/95] media: cxusb: detect cxusb_ctrl_msg error in query
-Date:   Wed, 27 Nov 2019 21:32:34 +0100
-Message-Id: <20191127202945.633083568@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 305/306] powerpc/book3s64: Fix link stack flush on context switch
+Date:   Wed, 27 Nov 2019 21:32:35 +0100
+Message-Id: <20191127203136.996614545@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +44,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vito Caputo <vcaputo@pengaru.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit ca8f245f284eeffa56f3b7a5eb6fc503159ee028 upstream.
+commit 39e72bf96f5847ba87cc5bd7a3ce0fed813dc9ad upstream.
 
-Don't use uninitialized ircode[] in cxusb_rc_query() when
-cxusb_ctrl_msg() fails to populate its contents.
+In commit ee13cb249fab ("powerpc/64s: Add support for software count
+cache flush"), I added support for software to flush the count
+cache (indirect branch cache) on context switch if firmware told us
+that was the required mitigation for Spectre v2.
 
-syzbot reported:
+As part of that code we also added a software flush of the link
+stack (return address stack), which protects against Spectre-RSB
+between user processes.
 
-dvb-usb: bulk message failed: -22 (1/-30591)
-=====================================================
-BUG: KMSAN: uninit-value in ir_lookup_by_scancode drivers/media/rc/rc-main.c:494 [inline]
-BUG: KMSAN: uninit-value in rc_g_keycode_from_table drivers/media/rc/rc-main.c:582 [inline]
-BUG: KMSAN: uninit-value in rc_keydown+0x1a6/0x6f0 drivers/media/rc/rc-main.c:816
-CPU: 1 PID: 11436 Comm: kworker/1:2 Not tainted 5.3.0-rc7+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events dvb_usb_read_remote_control
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x191/0x1f0 lib/dump_stack.c:113
- kmsan_report+0x13a/0x2b0 mm/kmsan/kmsan_report.c:108
- __msan_warning+0x73/0xe0 mm/kmsan/kmsan_instr.c:250
- bsearch+0x1dd/0x250 lib/bsearch.c:41
- ir_lookup_by_scancode drivers/media/rc/rc-main.c:494 [inline]
- rc_g_keycode_from_table drivers/media/rc/rc-main.c:582 [inline]
- rc_keydown+0x1a6/0x6f0 drivers/media/rc/rc-main.c:816
- cxusb_rc_query+0x2e1/0x360 drivers/media/usb/dvb-usb/cxusb.c:548
- dvb_usb_read_remote_control+0xf9/0x290 drivers/media/usb/dvb-usb/dvb-usb-remote.c:261
- process_one_work+0x1572/0x1ef0 kernel/workqueue.c:2269
- worker_thread+0x111b/0x2460 kernel/workqueue.c:2415
- kthread+0x4b5/0x4f0 kernel/kthread.c:256
- ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:355
+That is all correct for CPUs that activate that mitigation, which is
+currently Power9 Nimbus DD2.3.
 
-Uninit was stored to memory at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:150 [inline]
- kmsan_internal_chain_origin+0xd2/0x170 mm/kmsan/kmsan.c:314
- __msan_chain_origin+0x6b/0xe0 mm/kmsan/kmsan_instr.c:184
- rc_g_keycode_from_table drivers/media/rc/rc-main.c:583 [inline]
- rc_keydown+0x2c4/0x6f0 drivers/media/rc/rc-main.c:816
- cxusb_rc_query+0x2e1/0x360 drivers/media/usb/dvb-usb/cxusb.c:548
- dvb_usb_read_remote_control+0xf9/0x290 drivers/media/usb/dvb-usb/dvb-usb-remote.c:261
- process_one_work+0x1572/0x1ef0 kernel/workqueue.c:2269
- worker_thread+0x111b/0x2460 kernel/workqueue.c:2415
- kthread+0x4b5/0x4f0 kernel/kthread.c:256
- ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:355
+What I got wrong is that on older CPUs, where firmware has disabled
+the count cache, we also need to flush the link stack on context
+switch.
 
-Local variable description: ----ircode@cxusb_rc_query
-Variable was created at:
- cxusb_rc_query+0x4d/0x360 drivers/media/usb/dvb-usb/cxusb.c:543
- dvb_usb_read_remote_control+0xf9/0x290 drivers/media/usb/dvb-usb/dvb-usb-remote.c:261
+To fix it we create a new feature bit which is not set by firmware,
+which tells us we need to flush the link stack. We set that when
+firmware tells us that either of the existing Spectre v2 mitigations
+are enabled.
 
-Signed-off-by: Vito Caputo <vcaputo@pengaru.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Then we adjust the patching code so that if we see that feature bit we
+enable the link stack flush. If we're also told to flush the count
+cache in software then we fall through and do that also.
+
+On the older CPUs we don't need to do do the software count cache
+flush, firmware has disabled it, so in that case we patch in an early
+return after the link stack flush.
+
+The naming of some of the functions is awkward after this patch,
+because they're called "count cache" but they also do link stack. But
+we'll fix that up in a later commit to ease backporting.
+
+This is the fix for CVE-2019-18660.
+
+Reported-by: Anthony Steinhauser <asteinhauser@google.com>
+Fixes: ee13cb249fab ("powerpc/64s: Add support for software count cache flush")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/media/usb/dvb-usb/cxusb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/asm-prototypes.h    |    1 
+ arch/powerpc/include/asm/security_features.h |    3 +
+ arch/powerpc/kernel/entry_64.S               |    6 +++
+ arch/powerpc/kernel/security.c               |   48 ++++++++++++++++++++++++---
+ 4 files changed, 54 insertions(+), 4 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/cxusb.c
-+++ b/drivers/media/usb/dvb-usb/cxusb.c
-@@ -542,7 +542,8 @@ static int cxusb_rc_query(struct dvb_usb
+--- a/arch/powerpc/include/asm/asm-prototypes.h
++++ b/arch/powerpc/include/asm/asm-prototypes.h
+@@ -146,6 +146,7 @@ void _kvmppc_save_tm_pr(struct kvm_vcpu
+ /* Patch sites */
+ extern s32 patch__call_flush_count_cache;
+ extern s32 patch__flush_count_cache_return;
++extern s32 patch__flush_link_stack_return;
+ extern s32 patch__memset_nocache, patch__memcpy_nocache;
+ 
+ extern long flush_count_cache;
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -81,6 +81,9 @@ static inline bool security_ftr_enabled(
+ // Software required to flush count cache on context switch
+ #define SEC_FTR_FLUSH_COUNT_CACHE	0x0000000000000400ull
+ 
++// Software required to flush link stack on context switch
++#define SEC_FTR_FLUSH_LINK_STACK	0x0000000000001000ull
++
+ 
+ // Features enabled by default
+ #define SEC_FTR_DEFAULT \
+--- a/arch/powerpc/kernel/entry_64.S
++++ b/arch/powerpc/kernel/entry_64.S
+@@ -533,6 +533,7 @@ flush_count_cache:
+ 	/* Save LR into r9 */
+ 	mflr	r9
+ 
++	// Flush the link stack
+ 	.rept 64
+ 	bl	.+4
+ 	.endr
+@@ -542,6 +543,11 @@ flush_count_cache:
+ 	.balign 32
+ 	/* Restore LR */
+ 1:	mtlr	r9
++
++	// If we're just flushing the link stack, return here
++3:	nop
++	patch_site 3b patch__flush_link_stack_return
++
+ 	li	r9,0x7fff
+ 	mtctr	r9
+ 
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -24,6 +24,7 @@ enum count_cache_flush_type {
+ 	COUNT_CACHE_FLUSH_HW	= 0x4,
+ };
+ static enum count_cache_flush_type count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++static bool link_stack_flush_enabled;
+ 
+ bool barrier_nospec_enabled;
+ static bool no_nospec;
+@@ -204,11 +205,19 @@ ssize_t cpu_show_spectre_v2(struct devic
+ 
+ 		if (ccd)
+ 			seq_buf_printf(&s, "Indirect branch cache disabled");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (count_cache_flush_type != COUNT_CACHE_FLUSH_NONE) {
+ 		seq_buf_printf(&s, "Mitigation: Software count cache flush");
+ 
+ 		if (count_cache_flush_type == COUNT_CACHE_FLUSH_HW)
+ 			seq_buf_printf(&s, " (hardware accelerated)");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (btb_flush_enabled) {
+ 		seq_buf_printf(&s, "Mitigation: Branch predictor state flush");
+ 	} else {
+@@ -369,18 +378,40 @@ static __init int stf_barrier_debugfs_in
+ device_initcall(stf_barrier_debugfs_init);
+ #endif /* CONFIG_DEBUG_FS */
+ 
++static void no_count_cache_flush(void)
++{
++	count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++	pr_info("count-cache-flush: software flush disabled.\n");
++}
++
+ static void toggle_count_cache_flush(bool enable)
  {
- 	u8 ircode[4];
+-	if (!enable || !security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE) &&
++	    !security_ftr_enabled(SEC_FTR_FLUSH_LINK_STACK))
++		enable = false;
++
++	if (!enable) {
+ 		patch_instruction_site(&patch__call_flush_count_cache, PPC_INST_NOP);
+-		count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
+-		pr_info("count-cache-flush: software flush disabled.\n");
++		pr_info("link-stack-flush: software flush disabled.\n");
++		link_stack_flush_enabled = false;
++		no_count_cache_flush();
+ 		return;
+ 	}
  
--	cxusb_ctrl_msg(d, CMD_GET_IR_CODE, NULL, 0, ircode, 4);
-+	if (cxusb_ctrl_msg(d, CMD_GET_IR_CODE, NULL, 0, ircode, 4) < 0)
-+		return 0;
++	// This enables the branch from _switch to flush_count_cache
+ 	patch_branch_site(&patch__call_flush_count_cache,
+ 			  (u64)&flush_count_cache, BRANCH_SET_LINK);
  
- 	if (ircode[2] || ircode[3])
- 		rc_keydown(d->rc_dev, RC_PROTO_NEC,
++	pr_info("link-stack-flush: software flush enabled.\n");
++	link_stack_flush_enabled = true;
++
++	// If we just need to flush the link stack, patch an early return
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++		patch_instruction_site(&patch__flush_link_stack_return, PPC_INST_BLR);
++		no_count_cache_flush();
++		return;
++	}
++
+ 	if (!security_ftr_enabled(SEC_FTR_BCCTR_FLUSH_ASSIST)) {
+ 		count_cache_flush_type = COUNT_CACHE_FLUSH_SW;
+ 		pr_info("count-cache-flush: full software flush sequence enabled.\n");
+@@ -399,11 +430,20 @@ void setup_count_cache_flush(void)
+ 	if (no_spectrev2 || cpu_mitigations_off()) {
+ 		if (security_ftr_enabled(SEC_FTR_BCCTRL_SERIALISED) ||
+ 		    security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED))
+-			pr_warn("Spectre v2 mitigations not under software control, can't disable\n");
++			pr_warn("Spectre v2 mitigations not fully under software control, can't disable\n");
+ 
+ 		enable = false;
+ 	}
+ 
++	/*
++	 * There's no firmware feature flag/hypervisor bit to tell us we need to
++	 * flush the link stack on context switch. So we set it here if we see
++	 * either of the Spectre v2 mitigations that aim to protect userspace.
++	 */
++	if (security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED) ||
++	    security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE))
++		security_ftr_set(SEC_FTR_FLUSH_LINK_STACK);
++
+ 	toggle_count_cache_flush(enable);
+ }
+ 
 
 
