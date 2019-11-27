@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D761D10BB41
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 977ED10BC6A
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:21:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731898AbfK0VLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:11:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38978 "EHLO mail.kernel.org"
+        id S1727416AbfK0VHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:07:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730786AbfK0VLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:11:01 -0500
+        id S1729909AbfK0VHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:07:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C33F21774;
-        Wed, 27 Nov 2019 21:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B7CB2086A;
+        Wed, 27 Nov 2019 21:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889061;
-        bh=pf8vHl++j1XR6IXLl1oZf1CJuHieiqhwzC6AzRFcam0=;
+        s=default; t=1574888850;
+        bh=keyMyZOrwHJ8/Mma4YkJTZvdUatq7dXMHRjU0gDH6+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymgCPq4+fseDewG6JTjUmAiWs+WNCfS49KuYmq4vfpmZJFMFnbbjbUCJzzPr/+OJe
-         LfrVM5f8G9ajPZ76xtT0xKxdVvinTpiySCOTi8fI8VYeMmychje5FUnKKTxnC9WQA8
-         5chvgRN8EX8ey3LGGhqIuQBkpMQQ257frdS3djw0=
+        b=iCKDSmyFFOOL1z/viCDmo6Lueyw6na7dPnh/BvseE3AspegCHDRNshcUzDZ+lzzuO
+         ksvWeQxmvrQQdMRMmkFurG45EkMlOsqp651ebplQBSrs096E/c5gk7s6pKLFkXUmxy
+         j2dIYYb1QPVDgZ+RuUassLhBrnZugsZykKwyyB7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+711468aa5c3a1eabf863@syzkaller.appspotmail.com
-Subject: [PATCH 5.3 68/95] nfc: port100: handle command failure cleanly
+        stable@vger.kernel.org,
+        Joel Jennings <joel.jennings@makeitlabs.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 295/306] usb-serial: cp201x: support Mark-10 digital force gauge
 Date:   Wed, 27 Nov 2019 21:32:25 +0100
-Message-Id: <20191127202932.374553291@linuxfoundation.org>
+Message-Id: <20191127203136.294693099@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 5f9f0b11f0816b35867f2cf71e54d95f53f03902 upstream.
+commit 347bc8cb26388791c5881a3775cb14a3f765a674 upstream.
 
-If starting the transfer of a command suceeds but the transfer for the reply
-fails, it is not enough to initiate killing the transfer for the
-command may still be running. You need to wait for the killing to finish
-before you can reuse URB and buffer.
+Add support for the Mark-10 digital force gauge device to the cp201x
+driver.
 
-Reported-and-tested-by: syzbot+711468aa5c3a1eabf863@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Based on a report and a larger patch from Joel Jennings
+
+Reported-by: Joel Jennings <joel.jennings@makeitlabs.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191118092119.GA153852@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nfc/port100.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/nfc/port100.c
-+++ b/drivers/nfc/port100.c
-@@ -783,7 +783,7 @@ static int port100_send_frame_async(stru
- 
- 	rc = port100_submit_urb_for_ack(dev, GFP_KERNEL);
- 	if (rc)
--		usb_unlink_urb(dev->out_urb);
-+		usb_kill_urb(dev->out_urb);
- 
- exit:
- 	mutex_unlock(&dev->out_urb_lock);
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -125,6 +125,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x8341) }, /* Siemens MC35PU GPRS Modem */
+ 	{ USB_DEVICE(0x10C4, 0x8382) }, /* Cygnal Integrated Products, Inc. */
+ 	{ USB_DEVICE(0x10C4, 0x83A8) }, /* Amber Wireless AMB2560 */
++	{ USB_DEVICE(0x10C4, 0x83AA) }, /* Mark-10 Digital Force Gauge */
+ 	{ USB_DEVICE(0x10C4, 0x83D8) }, /* DekTec DTA Plus VHF/UHF Booster/Attenuator */
+ 	{ USB_DEVICE(0x10C4, 0x8411) }, /* Kyocera GPS Module */
+ 	{ USB_DEVICE(0x10C4, 0x8418) }, /* IRZ Automation Teleport SG-10 GSM/GPRS Modem */
 
 
