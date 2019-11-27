@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B159310BBD4
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7A910BB5C
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727247AbfK0VOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:14:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47816 "EHLO mail.kernel.org"
+        id S1731019AbfK0VLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:11:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733087AbfK0VOT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:14:19 -0500
+        id S1733221AbfK0VLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:11:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7582A2154A;
-        Wed, 27 Nov 2019 21:14:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFF0A21555;
+        Wed, 27 Nov 2019 21:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889258;
-        bh=FG/Jm42DCBugQbP6zVmTLHDstw7KCJCFRfGe7IJlsZE=;
+        s=default; t=1574889109;
+        bh=LfA1WHC3J8XPfL/CFiTC6sNIBPjDAA/6b3KwEk0Dals=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLuQIqv4crKH6DeIrmSBLmo/IiVunbKCGQDyuMI/+v72tPM6/izClqdj61TXhJv4v
-         K88PskVbgJuux2ZEfkiFKWgq6XQnHTDyZF/Um199vRohOfj7k5svU/BM4Iu3ltbFJw
-         oqTKrTC9/fgcB/eHUtAClxKqddO7cRP3jNe/O2Vg=
+        b=JrQoHrrpwcTJXNE0Z4067HF/veqUB6DN7nn/V/vhhadGUfywPnOLZkjJZfBaHBouB
+         Dto9b588Ht1Ys2gsTv2HNOq5/JnQvSVfCMuAZimv5n7RP0nFAOixOObGl1e5xErFgO
+         Liuc8xUJZTn3Yp4HcEJwFjUntsnb93WNrZz3uTiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c86454eb3af9e8a4da20@syzkaller.appspotmail.com,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.4 47/66] media: uvcvideo: Fix error path in control parsing failure
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH 5.3 85/95] USB: chaoskey: fix error case of a timeout
 Date:   Wed, 27 Nov 2019 21:32:42 +0100
-Message-Id: <20191127202727.633594453@linuxfoundation.org>
+Message-Id: <20191127202953.570882475@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 8c279e9394cade640ed86ec6c6645a0e7df5e0b6 upstream.
+commit 92aa5986f4f7b5a8bf282ca0f50967f4326559f5 upstream.
 
-When parsing the UVC control descriptors fails, the error path tries to
-cleanup a media device that hasn't been initialised, potentially
-resulting in a crash. Fix this by initialising the media device before
-the error handling path can be reached.
+In case of a timeout or if a signal aborts a read
+communication with the device needs to be ended
+lest we overwrite an active URB the next time we
+do IO to the device, as the URB may still be active.
 
-Fixes: 5a254d751e52 ("[media] uvcvideo: Register a v4l2_device")
-Reported-by: syzbot+c86454eb3af9e8a4da20@syzkaller.appspotmail.com
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191107142856.16774-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/uvc/uvc_driver.c |   28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ drivers/usb/misc/chaoskey.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -2151,6 +2151,20 @@ static int uvc_probe(struct usb_interfac
- 			   sizeof(dev->name) - len);
- 	}
+--- a/drivers/usb/misc/chaoskey.c
++++ b/drivers/usb/misc/chaoskey.c
+@@ -384,13 +384,17 @@ static int _chaoskey_fill(struct chaoske
+ 		!dev->reading,
+ 		(started ? NAK_TIMEOUT : ALEA_FIRST_TIMEOUT) );
  
-+	/* Initialize the media device. */
-+#ifdef CONFIG_MEDIA_CONTROLLER
-+	dev->mdev.dev = &intf->dev;
-+	strscpy(dev->mdev.model, dev->name, sizeof(dev->mdev.model));
-+	if (udev->serial)
-+		strscpy(dev->mdev.serial, udev->serial,
-+			sizeof(dev->mdev.serial));
-+	usb_make_path(udev, dev->mdev.bus_info, sizeof(dev->mdev.bus_info));
-+	dev->mdev.hw_revision = le16_to_cpu(udev->descriptor.bcdDevice);
-+	media_device_init(&dev->mdev);
+-	if (result < 0)
++	if (result < 0) {
++		usb_kill_urb(dev->urb);
+ 		goto out;
++	}
+ 
+-	if (result == 0)
++	if (result == 0) {
+ 		result = -ETIMEDOUT;
+-	else
++		usb_kill_urb(dev->urb);
++	} else {
+ 		result = dev->valid;
++	}
+ out:
+ 	/* Let the device go back to sleep eventually */
+ 	usb_autopm_put_interface(dev->interface);
+@@ -526,7 +530,21 @@ static int chaoskey_suspend(struct usb_i
+ 
+ static int chaoskey_resume(struct usb_interface *interface)
+ {
++	struct chaoskey *dev;
++	struct usb_device *udev = interface_to_usbdev(interface);
 +
-+	dev->vdev.mdev = &dev->mdev;
-+#endif
+ 	usb_dbg(interface, "resume");
++	dev = usb_get_intfdata(interface);
 +
- 	/* Parse the Video Class control descriptor. */
- 	if (uvc_parse_control(dev) < 0) {
- 		uvc_trace(UVC_TRACE_PROBE, "Unable to parse UVC "
-@@ -2171,19 +2185,7 @@ static int uvc_probe(struct usb_interfac
- 			"linux-uvc-devel mailing list.\n");
- 	}
- 
--	/* Initialize the media device and register the V4L2 device. */
--#ifdef CONFIG_MEDIA_CONTROLLER
--	dev->mdev.dev = &intf->dev;
--	strscpy(dev->mdev.model, dev->name, sizeof(dev->mdev.model));
--	if (udev->serial)
--		strscpy(dev->mdev.serial, udev->serial,
--			sizeof(dev->mdev.serial));
--	usb_make_path(udev, dev->mdev.bus_info, sizeof(dev->mdev.bus_info));
--	dev->mdev.hw_revision = le16_to_cpu(udev->descriptor.bcdDevice);
--	media_device_init(&dev->mdev);
--
--	dev->vdev.mdev = &dev->mdev;
--#endif
-+	/* Register the V4L2 device. */
- 	if (v4l2_device_register(&intf->dev, &dev->vdev) < 0)
- 		goto error;
- 
++	/*
++	 * We may have lost power.
++	 * In that case the device that needs a long time
++	 * for the first requests needs an extended timeout
++	 * again
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == ALEA_VENDOR_ID)
++		dev->reads_started = false;
++
+ 	return 0;
+ }
+ #else
 
 
