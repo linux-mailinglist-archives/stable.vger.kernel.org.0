@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 858FD10BDF4
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0B910BEB4
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730646AbfK0Uwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:52:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
+        id S1728228AbfK0Upu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:45:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729982AbfK0Uwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:52:45 -0500
+        id S1728185AbfK0Upt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:45:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C58F5218BA;
-        Wed, 27 Nov 2019 20:52:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C9B22178F;
+        Wed, 27 Nov 2019 20:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887965;
-        bh=oh0ks+X54M4go9LLQLOV8qujEqe3WNtVIJ2zrYgMEqc=;
+        s=default; t=1574887549;
+        bh=E7bp0BOM3t1qTKZFsIcbtokzuEIIenJD4UwrpLkgBBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoWv/Dt8q95AdnWR1XEAbMcYtFRkhUlMEcjXV7yHQlr6fSbL5ljAduryv5c1vArpN
-         nby0k6Dge+u8TjhaHE6qa2m/B+6XGrvUZK8NmQiFQVpqsRLez2FJd8ocv75HFVHxfx
-         0prBzlrMv599Y1gy4ywMcXLwqUV58DdhthW7guHM=
+        b=LSi5PPV6g/7TT52jlO+XxvYZ9tt5xvNBPpFQFBN3BACLHqkTQp0+q+91RGXdqyrNv
+         NZmnQJ5kLElLjQnlxnyAQeuCl5FVVKO62ugPAYncVv8vgP0kOuH2Qjmgk/wVwncBck
+         cPBdgLbM1SwOE1AL85Jce4pHidva/s1Gw30WpAHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 163/211] cfg80211: call disconnect_wk when AP stops
+        stable@vger.kernel.org,
+        Bart Van Assche <bart.vanassche@sandisk.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 113/151] dm: use blk_set_queue_dying() in __dm_destroy()
 Date:   Wed, 27 Nov 2019 21:31:36 +0100
-Message-Id: <20191127203109.296527722@linuxfoundation.org>
+Message-Id: <20191127203043.434613352@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Bart Van Assche <bart.vanassche@sandisk.com>
 
-[ Upstream commit e005bd7ddea06784c1eb91ac5bb6b171a94f3b05 ]
+commit 2e91c3694181dc500faffec16c5aaa0ac5e15449 upstream.
 
-Since we now prevent regulatory restore during STA disconnect
-if concurrent AP interfaces are active, we need to reschedule
-this check when the AP state changes. This fixes never doing
-a restore when an AP is the last interface to stop. Or to put
-it another way: we need to re-check after anything we check
-here changes.
+After QUEUE_FLAG_DYING has been set any code that is waiting in
+get_request() should be woken up.  But to get this behaviour
+blk_set_queue_dying() must be used instead of only setting
+QUEUE_FLAG_DYING.
 
-Cc: stable@vger.kernel.org
-Fixes: 113f3aaa81bd ("cfg80211: Prevent regulatory restore during STA disconnect in concurrent interfaces")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Bart Van Assche <bart.vanassche@sandisk.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/wireless/ap.c   | 2 ++
- net/wireless/core.h | 2 ++
- net/wireless/sme.c  | 2 +-
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/md/dm.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/wireless/ap.c b/net/wireless/ap.c
-index 63682176c96cb..c4bd3ecef5089 100644
---- a/net/wireless/ap.c
-+++ b/net/wireless/ap.c
-@@ -40,6 +40,8 @@ int __cfg80211_stop_ap(struct cfg80211_registered_device *rdev,
- 		cfg80211_sched_dfs_chan_update(rdev);
- 	}
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1946,9 +1946,7 @@ static void __dm_destroy(struct mapped_d
+ 	set_bit(DMF_FREEING, &md->flags);
+ 	spin_unlock(&_minor_lock);
  
-+	schedule_work(&cfg80211_disconnect_work);
-+
- 	return err;
- }
+-	spin_lock_irq(q->queue_lock);
+-	queue_flag_set(QUEUE_FLAG_DYING, q);
+-	spin_unlock_irq(q->queue_lock);
++	blk_set_queue_dying(q);
  
-diff --git a/net/wireless/core.h b/net/wireless/core.h
-index 90f90c7d8bf9b..507ec6446eb67 100644
---- a/net/wireless/core.h
-+++ b/net/wireless/core.h
-@@ -429,6 +429,8 @@ void cfg80211_process_wdev_events(struct wireless_dev *wdev);
- bool cfg80211_does_bw_fit_range(const struct ieee80211_freq_range *freq_range,
- 				u32 center_freq_khz, u32 bw_khz);
- 
-+extern struct work_struct cfg80211_disconnect_work;
-+
- /**
-  * cfg80211_chandef_dfs_usable - checks if chandef is DFS usable
-  * @wiphy: the wiphy to validate against
-diff --git a/net/wireless/sme.c b/net/wireless/sme.c
-index 66cccd16c24af..8344153800e27 100644
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -667,7 +667,7 @@ static void disconnect_work(struct work_struct *work)
- 	rtnl_unlock();
- }
- 
--static DECLARE_WORK(cfg80211_disconnect_work, disconnect_work);
-+DECLARE_WORK(cfg80211_disconnect_work, disconnect_work);
- 
- 
- /*
--- 
-2.20.1
-
+ 	if (dm_request_based(md) && md->kworker_task)
+ 		kthread_flush_worker(&md->kworker);
 
 
