@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A20D10BB66
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB2510BBA1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:15:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733265AbfK0VMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:12:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42196 "EHLO mail.kernel.org"
+        id S1731340AbfK0VOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:14:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733264AbfK0VMI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:12:08 -0500
+        id S1732210AbfK0VOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:14:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CC48217BC;
-        Wed, 27 Nov 2019 21:12:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19B542086A;
+        Wed, 27 Nov 2019 21:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889127;
+        s=default; t=1574889271;
         bh=k6AYE9IRxjT7DXWWP/QLm26U5fRTVcN27W+J5Ij7gIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wivpTDMSayhN4xSYshWk4s0eU2lcYqE30EWe2cppOqvlUOD982orFsEDyrpjfqIwK
-         RvHj5orVh/klxY0gen4LawC03Db2jmhJ+M0d+dWju7iLQ2iOk4KQuOxRZ8gq7O8UjE
-         zrx/8wNeiZ8RFMFosSi+DEk/sQf3rec+hi7pbkUg=
+        b=Bl0XipLV7Su+WFqiB8UPCyPW2xP9n1TbUsYgRk150CwlKZU05dSG/c+kwpkCZb5kp
+         j888itAfkAOvWI3KueLtOncMKRziD7CzAUsKfgyBQiGe7o+knuQSjKrGVELBguooPC
+         bEfKUtVNfxK/zSZAT0itoDjUT+F2kFdJWHTpbY8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.3 51/95] x86/stackframe/32: Repair 32-bit Xen PV
+Subject: [PATCH 5.4 13/66] x86/stackframe/32: Repair 32-bit Xen PV
 Date:   Wed, 27 Nov 2019 21:32:08 +0100
-Message-Id: <20191127202918.214267481@linuxfoundation.org>
+Message-Id: <20191127202649.327030931@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
