@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BE210BD66
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D7A10BD68
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731247AbfK0U6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:58:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49166 "EHLO mail.kernel.org"
+        id S1730680AbfK0U6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:58:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730680AbfK0U6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:58:00 -0500
+        id S1730054AbfK0U6D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:58:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCDAB20862;
-        Wed, 27 Nov 2019 20:57:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 599E42084D;
+        Wed, 27 Nov 2019 20:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888280;
-        bh=0kjC/bhYkd5uVA3EYta0Z8i5/4EmS3pkzPHQm41NAXU=;
+        s=default; t=1574888282;
+        bh=OKqeG2P+tPeyHFAyZKVWcBe8xkMu2lCZ2qbbeu6ZUeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MyXehrt5GjYtQcNn+fj3NQJ+2dep2WuOPkAAj87N7Yvrx27Na9yzAYTqdnkwf62jK
-         1XMemnaKMcVoKCGu01xl2UfvJeLXF1GRqqhnhyD5WKRQDiMt0l00NrGEajlQJal2vC
-         3t7Z7TgdClr+PAXzTuuWPBAfBBVDU7Q0GyiIh7dk=
+        b=t+Wm45zeLQg0eRG/yQge8a7zbK5adzzvENgx0F5qEuV4Yt1aTjs76eLAXe/tvaxvc
+         WeaL6yTt1xTnAU3+Cp2+A+BUZUZSmuJ0mVB1Cf6wSqauNt8OXrH4cxdQHPDY4vsWN9
+         dg0QbnXaLujRBtmCCGwQyUWGz0rJz6dBJgdmRMeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
         Nick Desaulniers <ndesaulniers@google.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/306] scsi: iscsi_tcp: Explicitly cast param in iscsi_sw_tcp_host_get_param
-Date:   Wed, 27 Nov 2019 21:28:43 +0100
-Message-Id: <20191127203120.176097617@linuxfoundation.org>
+Subject: [PATCH 4.19 074/306] crypto: ccree - avoid implicit enum conversion
+Date:   Wed, 27 Nov 2019 21:28:44 +0100
+Message-Id: <20191127203120.260795091@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -48,44 +49,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 20054597f169090109fc3f0dfa1a48583f4178a4 ]
+[ Upstream commit 18e732b8035d175181aae2ded127994cb01694f7 ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+Clang warns when one enumerated type is implicitly converted to another
+and this happens in several locations in this driver, ultimately related
+to the set_cipher_{mode,config0} functions. set_cipher_mode expects a mode
+of type drv_cipher_mode and set_cipher_config0 expects a mode of type
+drv_crypto_direction.
 
-drivers/scsi/iscsi_tcp.c:803:15: warning: implicit conversion from
-enumeration type 'enum iscsi_host_param' to different enumeration type
-'enum iscsi_param' [-Wenum-conversion]
-                                                 &addr, param, buf);
-                                                        ^~~~~
-1 warning generated.
+drivers/crypto/ccree/cc_ivgen.c:58:35: warning: implicit conversion from
+enumeration type 'enum cc_desc_direction' to different enumeration type
+'enum drv_crypto_direction' [-Wenum-conversion]
+        set_cipher_config0(&iv_seq[idx], DESC_DIRECTION_ENCRYPT_ENCRYPT);
 
-iscsi_conn_get_addr_param handles ISCSI_HOST_PARAM_IPADDRESS just fine
-so add an explicit cast to iscsi_param to make it clear to Clang that
-this is expected behavior.
+drivers/crypto/ccree/cc_hash.c:99:28: warning: implicit conversion from
+enumeration type 'enum cc_hash_conf_pad' to different enumeration type
+'enum drv_crypto_direction' [-Wenum-conversion]
+                set_cipher_config0(desc, HASH_DIGEST_RESULT_LITTLE_ENDIAN);
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/153
+drivers/crypto/ccree/cc_aead.c:1643:30: warning: implicit conversion
+from enumeration type 'enum drv_hash_hw_mode' to different enumeration
+type 'enum drv_cipher_mode' [-Wenum-conversion]
+        set_cipher_mode(&desc[idx], DRV_HASH_HW_GHASH);
+
+Since this fundamentally isn't a problem because these values just
+represent simple integers for a shift operation, make it clear to Clang
+that this is okay by making the mode parameter in both functions an int.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/46
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Gilad Ben-Yossef <gilad@benyossef.com>
 Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/iscsi_tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_hw_queue_defs.h | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index b025a0b743417..23354f206533b 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -800,7 +800,8 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
- 			return rc;
- 
- 		return iscsi_conn_get_addr_param((struct sockaddr_storage *)
--						 &addr, param, buf);
-+						 &addr,
-+						 (enum iscsi_param)param, buf);
- 	default:
- 		return iscsi_host_get_param(shost, param, buf);
- 	}
+diff --git a/drivers/crypto/ccree/cc_hw_queue_defs.h b/drivers/crypto/ccree/cc_hw_queue_defs.h
+index a091ae57f9024..45985b955d2c8 100644
+--- a/drivers/crypto/ccree/cc_hw_queue_defs.h
++++ b/drivers/crypto/ccree/cc_hw_queue_defs.h
+@@ -449,8 +449,7 @@ static inline void set_flow_mode(struct cc_hw_desc *pdesc,
+  * @pdesc: pointer HW descriptor struct
+  * @mode:  Any one of the modes defined in [CC7x-DESC]
+  */
+-static inline void set_cipher_mode(struct cc_hw_desc *pdesc,
+-				   enum drv_cipher_mode mode)
++static inline void set_cipher_mode(struct cc_hw_desc *pdesc, int mode)
+ {
+ 	pdesc->word[4] |= FIELD_PREP(WORD4_CIPHER_MODE, mode);
+ }
+@@ -461,8 +460,7 @@ static inline void set_cipher_mode(struct cc_hw_desc *pdesc,
+  * @pdesc: pointer HW descriptor struct
+  * @mode: Any one of the modes defined in [CC7x-DESC]
+  */
+-static inline void set_cipher_config0(struct cc_hw_desc *pdesc,
+-				      enum drv_crypto_direction mode)
++static inline void set_cipher_config0(struct cc_hw_desc *pdesc, int mode)
+ {
+ 	pdesc->word[4] |= FIELD_PREP(WORD4_CIPHER_CONF0, mode);
+ }
 -- 
 2.20.1
 
