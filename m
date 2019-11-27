@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4654A10BF59
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7977710BE88
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728490AbfK0Vmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:42:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44574 "EHLO mail.kernel.org"
+        id S1730096AbfK0UsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:48:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727269AbfK0UkH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:40:07 -0500
+        id S1730104AbfK0UsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:48:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C75C21774;
-        Wed, 27 Nov 2019 20:40:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74FEA217C3;
+        Wed, 27 Nov 2019 20:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887206;
-        bh=PQFfqQZTJt8OhFGzdF6KtpgMwrzOwM6x4oU3BMvFibs=;
+        s=default; t=1574887692;
+        bh=ZbZQWLNVEAwI0OA//as0xFt12U2YZ+kzigbVogJ9SX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsn3t79rZn7CqgFN6W5OZR6mVGwsdqht0c1ieERIhvxIlkmhcew59omYV0S3Bhp/Y
-         sx+U1Ev7SObpyrpm7umGdXk+neZymeZ9WA+OyAHmMYi1dBtGmoEpCvQbZ1nfmn3MTn
-         UmZdpbkcE+Z2aNHbZPiMlAv5/aS7BNE0lPVFtzzE=
+        b=KzS0/Jh2kM/c38z+JBYz5ded9a+I8q0H3yQuVYDi2AfzxKH7Nns/RqLxpLIARN147
+         jBHyWL6OPO5wZLyiwQ4nHX6t9bG0oy6Ikausu62oUjAStOnfg+ZY6FtVqXYi1x/ggs
+         kS5pA21L4hCutcEdGkVcIcrwxp5ItnXGvWuwqfks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Thierry Reding <treding@nvidia.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4.9 006/151] gpio: max77620: Fixup debounce delays
-Date:   Wed, 27 Nov 2019 21:29:49 +0100
-Message-Id: <20191127203004.790459008@linuxfoundation.org>
+        stable@vger.kernel.org, Netanel Belgazal <netanel@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 058/211] net: ena: Fix Kconfig dependency on X86
+Date:   Wed, 27 Nov 2019 21:29:51 +0100
+Message-Id: <20191127203059.565077941@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Netanel Belgazal <netanel@amazon.com>
 
-commit b0391479ae04dfcbd208b9571c375064caad9a57 upstream.
+[ Upstream commit 8c590f9776386b8f697fd0b7ed6142ae6e3de79e ]
 
-When converting milliseconds to microseconds in commit fffa6af94894
-("gpio: max77620: Use correct unit for debounce times") some ~1 ms gaps
-were introduced between the various ranges supported by the controller.
-Fix this by changing the start of each range to the value immediately
-following the end of the previous range. This way a debounce time of,
-say 8250 us will translate into 16 ms instead of returning an -EINVAL
-error.
+The Kconfig limitation of X86 is to too wide.
+The ENA driver only requires a little endian dependency.
 
-Typically the debounce delay is only ever set through device tree and
-specified in milliseconds, so we can never really hit this issue because
-debounce times are always a multiple of 1000 us.
+Change the dependency to be on little endian CPU.
 
-The only notable exception for this is drivers/mmc/host/mmc-spi.c where
-the CD GPIO is requested, which passes a 1 us debounce time. According
-to a comment preceeding that code this should actually be 1 ms (i.e.
-1000 us).
-
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Acked-by: Pavel Machek <pavel@denx.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Netanel Belgazal <netanel@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-max77620.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/amazon/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-max77620.c
-+++ b/drivers/gpio/gpio-max77620.c
-@@ -167,13 +167,13 @@ static int max77620_gpio_set_debounce(st
- 	case 0:
- 		val = MAX77620_CNFG_GPIO_DBNC_None;
- 		break;
--	case 1000 ... 8000:
-+	case 1 ... 8000:
- 		val = MAX77620_CNFG_GPIO_DBNC_8ms;
- 		break;
--	case 9000 ... 16000:
-+	case 8001 ... 16000:
- 		val = MAX77620_CNFG_GPIO_DBNC_16ms;
- 		break;
--	case 17000 ... 32000:
-+	case 16001 ... 32000:
- 		val = MAX77620_CNFG_GPIO_DBNC_32ms;
- 		break;
- 	default:
+diff --git a/drivers/net/ethernet/amazon/Kconfig b/drivers/net/ethernet/amazon/Kconfig
+index 99b30353541ab..9e87d7b8360f5 100644
+--- a/drivers/net/ethernet/amazon/Kconfig
++++ b/drivers/net/ethernet/amazon/Kconfig
+@@ -17,7 +17,7 @@ if NET_VENDOR_AMAZON
+ 
+ config ENA_ETHERNET
+ 	tristate "Elastic Network Adapter (ENA) support"
+-	depends on (PCI_MSI && X86)
++	depends on PCI_MSI && !CPU_BIG_ENDIAN
+ 	---help---
+ 	  This driver supports Elastic Network Adapter (ENA)"
+ 
+-- 
+2.20.1
+
 
 
