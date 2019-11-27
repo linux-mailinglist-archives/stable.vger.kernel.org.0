@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CE4C10BF1D
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1C410BFB4
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729252AbfK0Ulv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:41:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47472 "EHLO mail.kernel.org"
+        id S1727958AbfK0Ufq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:35:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729234AbfK0Ulu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:41:50 -0500
+        id S1727955AbfK0Ufq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:35:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF36B20863;
-        Wed, 27 Nov 2019 20:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6367F21569;
+        Wed, 27 Nov 2019 20:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887310;
-        bh=dG+zSrw7iEHZfFQEuCJ+9sfjj9LTzYBKGyDmPJzLAbU=;
+        s=default; t=1574886945;
+        bh=sgFMomuJpgJia9iF3oPr/+Riich2tDYbIAx20glD344=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBt4vf84RYxRNfeWCIVApsLOgdQBE8YUN/dvQ5JPGtUcNY4PeLVXfnkXkXWibukd+
-         fBmQe3viJ81LxYdniE0wju96O9CPRW+LYmHIqZRiVHAvP6AWb5PjvGFaoqtDp9ELan
-         lj/jDTASENU/q3pkvp+CvARzCdLixmuSbFASWP/I=
+        b=N/FViRwxe9HBepXBhd2hrgIWhYTySpMZx+a/NjW8xA0b9aLDtvRRGjiuK8MRsBPpi
+         4W17RXaKTMIk8mVVvt+3+3zCPCdNXLhBtc8qkiRED3AVYKzE13HnCPkAAP5VDn4mmn
+         A4N0xhiEpTyvxeMAwnyeXDKxI9UlTpKTS2g8gY2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 059/151] mfd: max8997: Enale irq-wakeup unconditionally
-Date:   Wed, 27 Nov 2019 21:30:42 +0100
-Message-Id: <20191127203032.846787093@linuxfoundation.org>
+Subject: [PATCH 4.4 052/132] ceph: fix dentry leak in ceph_readdir_prepopulate
+Date:   Wed, 27 Nov 2019 21:30:43 +0100
+Message-Id: <20191127202950.126491988@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Yan, Zheng <zyan@redhat.com>
 
-[ Upstream commit efddff27c886e729a7f84a7205bd84d7d4af7336 ]
+[ Upstream commit c58f450bd61511d897efc2ea472c69630635b557 ]
 
-IRQ wake up support for MAX8997 driver was initially configured by
-respective property in pdata. However, after the driver conversion to
-device-tree, setting it was left as 'todo'. Nowadays most of other PMIC MFD
-drivers initialized from device-tree assume that they can be an irq wakeup
-source, so enable it also for MAX8997. This fixes support for wakeup from
-MAX8997 RTC alarm.
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/max8997.c       | 8 +-------
- include/linux/mfd/max8997.h | 1 -
- 2 files changed, 1 insertion(+), 8 deletions(-)
+ fs/ceph/inode.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
-index 2d6e2c3927862..4a2fc59d59016 100644
---- a/drivers/mfd/max8997.c
-+++ b/drivers/mfd/max8997.c
-@@ -155,12 +155,6 @@ static struct max8997_platform_data *max8997_i2c_parse_dt_pdata(
- 
- 	pd->ono = irq_of_parse_and_map(dev->of_node, 1);
- 
--	/*
--	 * ToDo: the 'wakeup' member in the platform data is more of a linux
--	 * specfic information. Hence, there is no binding for that yet and
--	 * not parsed here.
--	 */
--
- 	return pd;
- }
- 
-@@ -248,7 +242,7 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
- 	 */
- 
- 	/* MAX8997 has a power button input. */
--	device_init_wakeup(max8997->dev, pdata->wakeup);
-+	device_init_wakeup(max8997->dev, true);
- 
- 	return ret;
- 
-diff --git a/include/linux/mfd/max8997.h b/include/linux/mfd/max8997.h
-index cf815577bd686..3ae1fe743bc34 100644
---- a/include/linux/mfd/max8997.h
-+++ b/include/linux/mfd/max8997.h
-@@ -178,7 +178,6 @@ struct max8997_led_platform_data {
- struct max8997_platform_data {
- 	/* IRQ */
- 	int ono;
--	int wakeup;
- 
- 	/* ---- PMIC ---- */
- 	struct max8997_regulator_data *regulators;
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 2ad3f4ab4dcfa..0be931cf3c44c 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -1515,7 +1515,6 @@ int ceph_readdir_prepopulate(struct ceph_mds_request *req,
+ 			if (IS_ERR(realdn)) {
+ 				err = PTR_ERR(realdn);
+ 				d_drop(dn);
+-				dn = NULL;
+ 				goto next_item;
+ 			}
+ 			dn = realdn;
 -- 
 2.20.1
 
