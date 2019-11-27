@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6DD910BEF2
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB6D710BFA5
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729035AbfK0UoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:44:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52788 "EHLO mail.kernel.org"
+        id S1727989AbfK0VpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:45:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727894AbfK0UoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:44:04 -0500
+        id S1728073AbfK0UgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:36:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4976221775;
-        Wed, 27 Nov 2019 20:44:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94CC721582;
+        Wed, 27 Nov 2019 20:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887443;
-        bh=99+ozqhw15jcn46i8tnsS5mRIbqSjBnEL4IOQNmNxSk=;
+        s=default; t=1574886976;
+        bh=dvvlDb/+0VMhtBKkl1moFhh/et82E8jtpyGoaFbPt7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fu4fXE75p9Y3wxeISfKvmur8vyLgkX5lT/yU8fYN5lgCAuv5K/PZttlpT65XKKyPS
-         r9DhmpJWYBINLoaj5S6ScoGfvp/+rX3a35VCXUOUbkdK9cam+QP5f2rcuusk94Fpbt
-         up6cXipHWxywlgIuIEsOTpQKOUYR+eHf0Sq1GXxg=
+        b=KMYYhf1z0uFLZdjQ2uhXolBrWg2Z2mxzaqiaWBe0pQpJDARagG/rY3hnziOLq1pT6
+         7Nr+6wnYQ48WOH+6qCELUx6AqGyZBwg3F0RUzZc9Xc0wmedO2jiLz1Pj8pl7/NjHyw
+         iFzvNLIDa1GVytphdL73BsJorTragtG7vgbt//tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "=?UTF-8?q?Ernesto=20A . =20Fern=C3=A1ndez?=" 
-        <ernesto.mnd.fernandez@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 071/151] hfsplus: fix BUG on bnode parent update
+Subject: [PATCH 4.4 063/132] um: Make line/tty semantics use true write IRQ
 Date:   Wed, 27 Nov 2019 21:30:54 +0100
-Message-Id: <20191127203034.579519020@linuxfoundation.org>
+Message-Id: <20191127203000.660825178@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,54 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-[ Upstream commit 19a9d0f1acf75e8be8cfba19c1a34e941846fa2b ]
+[ Upstream commit 917e2fd2c53eb3c4162f5397555cbd394390d4bc ]
 
-Creating, renaming or deleting a file may hit BUG_ON() if the first
-record of both a leaf node and its parent are changed, and if this
-forces the parent to be split.  This bug is triggered by xfstests
-generic/027, somewhat rarely; here is a more reliable reproducer:
+This fixes a long standing bug where large amounts of output
+could freeze the tty (most commonly seen on stdio console).
+While the bug has always been there it became more pronounced
+after moving to the new interrupt controller.
 
-  truncate -s 50M fs.iso
-  mkfs.hfsplus fs.iso
-  mount fs.iso /mnt
-  i=1000
-  while [ $i -le 2400 ]; do
-    touch /mnt/$i &>/dev/null
-    ((++i))
-  done
-  i=2400
-  while [ $i -ge 1000 ]; do
-    mv /mnt/$i /mnt/$(perl -e "print $i x61") &>/dev/null
-    ((--i))
-  done
+The line semantics are now changed to have true IRQ write
+semantics which should further improve the tty/line subsystem
+stability and performance
 
-The issue is that a newly created bnode is being put twice.  Reset
-new_node to NULL in hfs_brec_update_parent() before reaching goto again.
-
-Link: http://lkml.kernel.org/r/5ee1db09b60373a15890f6a7c835d00e76bf601d.1535682461.git.ernesto.mnd.fernandez@gmail.com
-Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/brec.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/um/drivers/line.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/hfsplus/brec.c b/fs/hfsplus/brec.c
-index 1002a0c08319b..20ce698251ad1 100644
---- a/fs/hfsplus/brec.c
-+++ b/fs/hfsplus/brec.c
-@@ -447,6 +447,7 @@ static int hfs_brec_update_parent(struct hfs_find_data *fd)
- 			/* restore search_key */
- 			hfs_bnode_read_key(node, fd->search_key, 14);
- 		}
-+		new_node = NULL;
+diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
+index 62087028a9ce1..d2ad45c101137 100644
+--- a/arch/um/drivers/line.c
++++ b/arch/um/drivers/line.c
+@@ -260,7 +260,7 @@ static irqreturn_t line_write_interrupt(int irq, void *data)
+ 	if (err == 0) {
+ 		spin_unlock(&line->lock);
+ 		return IRQ_NONE;
+-	} else if (err < 0) {
++	} else if ((err < 0) && (err != -EAGAIN)) {
+ 		line->head = line->buffer;
+ 		line->tail = line->buffer;
  	}
- 
- 	if (!rec && node->parent)
 -- 
 2.20.1
 
