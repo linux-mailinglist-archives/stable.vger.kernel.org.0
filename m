@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7201410BF83
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B02510BE11
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728563AbfK0UhW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:37:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40302 "EHLO mail.kernel.org"
+        id S1729544AbfK0UwF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:52:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727617AbfK0UhV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:37:21 -0500
+        id S1728360AbfK0UwF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:52:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4E8E20862;
-        Wed, 27 Nov 2019 20:37:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76B0F218AE;
+        Wed, 27 Nov 2019 20:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887041;
-        bh=3ezIcSOyWYw8I4efjEO+0CwCb+ZkrQdkz6h7FNO1ffM=;
+        s=default; t=1574887923;
+        bh=XRbu216x41VlCbMrwQejgg8e7awRwMdwlAm6BBlFN/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRQ2/Wld2f/P0Od+eBqsyWt19TNUtqpU5AHREeemBRXD1IAyuZ+ww6AXaFlpIXePS
-         YSBFnRg0eMat/GdRq6icm5Y05QqovgGRv/CQ/El41Em0Vcz3+yADpoxjEwACPeryV1
-         GPOXSXUzHunhHKbbuZtD6mnwKi5dMlTdvL5pEysE=
+        b=vdDcwJu/4pp2p9N4o1QK7rEvnWtcGuXEcOUZkbtoPOup4QR32GHxDN9u1fSIThp6v
+         Vl8DBQbzusB6Q2LmsRAyZ7HylI44fRkR7P2a7Lcx9eKY2nDqAeAMPHI5uoJwWdW/ml
+         fI8HYWcl96BTOJUGVOCICQtre8wqZeLeFWi2mcy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
         David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 090/132] dlm: fix invalid free
+Subject: [PATCH 4.14 148/211] dlm: dont leak kernel pointer to userspace
 Date:   Wed, 27 Nov 2019 21:31:21 +0100
-Message-Id: <20191127203018.602173035@linuxfoundation.org>
+Message-Id: <20191127203108.000787142@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +46,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tycho Andersen <tycho@tycho.ws>
 
-[ Upstream commit d968b4e240cfe39d39d80483bac8bca8716fd93c ]
+[ Upstream commit 9de30f3f7f4d31037cfbb7c787e1089c1944b3a7 ]
 
-dlm_config_nodes() does not allocate nodes on failure, so we should not
-free() nodes when it fails.
+In copy_result_to_user(), we first create a struct dlm_lock_result, which
+contains a struct dlm_lksb, the last member of which is a pointer to the
+lvb. Unfortunately, we copy the entire struct dlm_lksb to the result
+struct, which is then copied to userspace at the end of the function,
+leaking the contents of sb_lvbptr, which is a valid kernel pointer in some
+cases (indeed, later in the same function the data it points to is copied
+to userspace).
+
+It is an error to leak kernel pointers to userspace, as it undermines KASLR
+protections (see e.g. 65eea8edc31 ("floppy: Do not copy a kernel pointer to
+user memory in FDGETPRM ioctl") for another example of this).
 
 Signed-off-by: Tycho Andersen <tycho@tycho.ws>
 Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/member.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/dlm/user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dlm/member.c b/fs/dlm/member.c
-index 9c47f1c14a8ba..a47ae99f7bcbc 100644
---- a/fs/dlm/member.c
-+++ b/fs/dlm/member.c
-@@ -683,7 +683,7 @@ int dlm_ls_start(struct dlm_ls *ls)
+diff --git a/fs/dlm/user.c b/fs/dlm/user.c
+index d18e7a539f116..1f0c071d4a861 100644
+--- a/fs/dlm/user.c
++++ b/fs/dlm/user.c
+@@ -702,7 +702,7 @@ static int copy_result_to_user(struct dlm_user_args *ua, int compat,
+ 	result.version[0] = DLM_DEVICE_VERSION_MAJOR;
+ 	result.version[1] = DLM_DEVICE_VERSION_MINOR;
+ 	result.version[2] = DLM_DEVICE_VERSION_PATCH;
+-	memcpy(&result.lksb, &ua->lksb, sizeof(struct dlm_lksb));
++	memcpy(&result.lksb, &ua->lksb, offsetof(struct dlm_lksb, sb_lvbptr));
+ 	result.user_lksb = ua->user_lksb;
  
- 	error = dlm_config_nodes(ls->ls_name, &nodes, &count);
- 	if (error < 0)
--		goto fail;
-+		goto fail_rv;
- 
- 	spin_lock(&ls->ls_recover_lock);
- 
-@@ -715,8 +715,9 @@ int dlm_ls_start(struct dlm_ls *ls)
- 	return 0;
- 
-  fail:
--	kfree(rv);
- 	kfree(nodes);
-+ fail_rv:
-+	kfree(rv);
- 	return error;
- }
- 
+ 	/* FIXME: dlm1 provides for the user's bastparam/addr to not be updated
 -- 
 2.20.1
 
