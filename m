@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDBCA10BBA5
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:15:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 990E910BBEF
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733164AbfK0VOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:14:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
+        id S1732870AbfK0VMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:12:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387562AbfK0VOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:14:40 -0500
+        id S1730993AbfK0VMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:12:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B78A216F4;
-        Wed, 27 Nov 2019 21:14:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 357A121774;
+        Wed, 27 Nov 2019 21:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889279;
-        bh=eS1BJnBh8mOWUbVmRx/IREx1XEcFwiiQtlXaaqSffLE=;
+        s=default; t=1574889168;
+        bh=QAXlEx89V/eFxi+XF99MfbEdBLMZWohg5ORD/1mXyYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOMwPPjY8Biujutao03c1608Ittno/zB7YdeCR5R6RuJ61AN8N91h5d74Nojm0OyV
-         ewSmpLUUO54BiKqfDWClyTnTP1HI+zHW0BEsrF8twH0E7fdLQD5Goz9b5PutjAM0WD
-         snlEIRam6U2jlxXiep3CeoWRK6y9Y/09PhZtYJ6Q=
+        b=r9h9xqB4BitE15T2rwNAQ9dlID5OyTkVsa+vLSI345otkC22kU8KYgLS6h4gRxdeQ
+         q8a7bYzeS6QqtcP0nS2342JSbIEXDMdr/vkyR/0kMbhUJRubLL1YnBsXw+0mn57huN
+         6IOyL2JgWShKFsVLl6DPIS5RRGeg2FAeMMYMMy70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.4 06/66] Revert "Bluetooth: hci_ll: set operational frequency earlier"
-Date:   Wed, 27 Nov 2019 21:32:01 +0100
-Message-Id: <20191127202642.506103824@linuxfoundation.org>
+        stable@vger.kernel.org, Vito Caputo <vcaputo@pengaru.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 07/66] Revert "dm crypt: use WQ_HIGHPRI for the IO and crypt workqueues"
+Date:   Wed, 27 Nov 2019 21:32:02 +0100
+Message-Id: <20191127202643.853205365@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
 References: <20191127202632.536277063@linuxfoundation.org>
@@ -44,89 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit cef456cd354ef485f12d57000c455e83e416a2b6 upstream.
+commit f612b2132db529feac4f965f28a1b9258ea7c22b upstream.
 
-As nice as it would be to update firmware faster, that patch broke
-at least two different boards, an OMAP4+WL1285 based Motorola Droid
-4, as reported by Sebasian Reichel and the Logic PD i.MX6Q +
-WL1837MOD.
+This reverts commit a1b89132dc4f61071bdeaab92ea958e0953380a1.
 
-This reverts commit a2e02f38eff84f199c8e32359eb213f81f270047.
+Revert required hand-patching due to subsequent changes that were
+applied since commit a1b89132dc4f61071bdeaab92ea958e0953380a1.
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Requires: ed0302e83098d ("dm crypt: make workqueue names device-specific")
 Cc: stable@vger.kernel.org
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=199857
+Reported-by: Vito Caputo <vcaputo@pengaru.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/hci_ll.c |   39 ++++++++++++++++++---------------------
- 1 file changed, 18 insertions(+), 21 deletions(-)
+ drivers/md/dm-crypt.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/bluetooth/hci_ll.c
-+++ b/drivers/bluetooth/hci_ll.c
-@@ -621,13 +621,6 @@ static int ll_setup(struct hci_uart *hu)
- 
- 	serdev_device_set_flow_control(serdev, true);
- 
--	if (hu->oper_speed)
--		speed = hu->oper_speed;
--	else if (hu->proto->oper_speed)
--		speed = hu->proto->oper_speed;
--	else
--		speed = 0;
--
- 	do {
- 		/* Reset the Bluetooth device */
- 		gpiod_set_value_cansleep(lldev->enable_gpio, 0);
-@@ -639,20 +632,6 @@ static int ll_setup(struct hci_uart *hu)
- 			return err;
- 		}
- 
--		if (speed) {
--			__le32 speed_le = cpu_to_le32(speed);
--			struct sk_buff *skb;
--
--			skb = __hci_cmd_sync(hu->hdev,
--					     HCI_VS_UPDATE_UART_HCI_BAUDRATE,
--					     sizeof(speed_le), &speed_le,
--					     HCI_INIT_TIMEOUT);
--			if (!IS_ERR(skb)) {
--				kfree_skb(skb);
--				serdev_device_set_baudrate(serdev, speed);
--			}
--		}
--
- 		err = download_firmware(lldev);
- 		if (!err)
- 			break;
-@@ -677,7 +656,25 @@ static int ll_setup(struct hci_uart *hu)
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2700,21 +2700,18 @@ static int crypt_ctr(struct dm_target *t
  	}
  
- 	/* Operational speed if any */
-+	if (hu->oper_speed)
-+		speed = hu->oper_speed;
-+	else if (hu->proto->oper_speed)
-+		speed = hu->proto->oper_speed;
-+	else
-+		speed = 0;
+ 	ret = -ENOMEM;
+-	cc->io_queue = alloc_workqueue("kcryptd_io/%s",
+-				       WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
+-				       1, devname);
++	cc->io_queue = alloc_workqueue("kcryptd_io/%s", WQ_MEM_RECLAIM, 1, devname);
+ 	if (!cc->io_queue) {
+ 		ti->error = "Couldn't create kcryptd io queue";
+ 		goto bad;
+ 	}
  
-+	if (speed) {
-+		__le32 speed_le = cpu_to_le32(speed);
-+		struct sk_buff *skb;
-+
-+		skb = __hci_cmd_sync(hu->hdev, HCI_VS_UPDATE_UART_HCI_BAUDRATE,
-+				     sizeof(speed_le), &speed_le,
-+				     HCI_INIT_TIMEOUT);
-+		if (!IS_ERR(skb)) {
-+			kfree_skb(skb);
-+			serdev_device_set_baudrate(serdev, speed);
-+		}
-+	}
- 
- 	return 0;
- }
+ 	if (test_bit(DM_CRYPT_SAME_CPU, &cc->flags))
+-		cc->crypt_queue = alloc_workqueue("kcryptd/%s",
+-						  WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
++		cc->crypt_queue = alloc_workqueue("kcryptd/%s", WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM,
+ 						  1, devname);
+ 	else
+ 		cc->crypt_queue = alloc_workqueue("kcryptd/%s",
+-						  WQ_HIGHPRI | WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_UNBOUND,
++						  WQ_CPU_INTENSIVE | WQ_MEM_RECLAIM | WQ_UNBOUND,
+ 						  num_online_cpus(), devname);
+ 	if (!cc->crypt_queue) {
+ 		ti->error = "Couldn't create kcryptd queue";
 
 
