@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D0910B96D
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8010E10B886
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730668AbfK0UxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:53:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
+        id S1729091AbfK0UoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:44:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728368AbfK0UxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:53:01 -0500
+        id S1728761AbfK0UoR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:44:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1651221903;
-        Wed, 27 Nov 2019 20:52:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C86D021823;
+        Wed, 27 Nov 2019 20:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887980;
-        bh=vl4WYn3Y1mvDXZ3LcSvCXAm7WocIWQiBt4NUiXNqQYk=;
+        s=default; t=1574887456;
+        bh=rgx9Bd8iM1fnHKDpbjw1h/k2ckoOW3Pp1F64s3jJUdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvyU09aO335xOKFqssVftO0TCbvcPbUw2Adh8stuKEwxvWOiwiL0xZEFxVa2nqX+h
-         +Q/9Bw7R0NLAOb0rfKVj3gd+bZCykDEj7ckSLPDJfBuio0nmBFDySXqU1klaL7y9Ot
-         plEMBxpPHWLU0UD+9Z4latAFXxa3yH9PrbJcJBMs=
+        b=B9LJxgVuXSTYzk6q5jkLwilDQduhjBbxibzRIrPM3gcQIzIJrai/jIdiC7mv1l2wi
+         B5mFZFWKkIySwj1eCveXiygUai9HKOVQeLoZxrZD957BM7ruUITphLtHAOxoNs5hx+
+         PtdlHUVtuux7D7IXdwg8ICidd2453WoBGMEgxY0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Pittman <jpittman@redhat.com>,
-        David Jeffery <djeffery@redhat.com>,
-        Laurence Oberman <loberman@redhat.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.14 168/211] md/raid10: prevent access of uninitialized resync_pages offset
-Date:   Wed, 27 Nov 2019 21:31:41 +0100
-Message-Id: <20191127203109.745603101@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Alexander Kapshuk <alexander.kapshuk@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
+Subject: [PATCH 4.9 119/151] x86/insn: Fix awk regexp warnings
+Date:   Wed, 27 Nov 2019 21:31:42 +0100
+Message-Id: <20191127203044.640688209@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +51,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Pittman <jpittman@redhat.com>
+From: Alexander Kapshuk <alexander.kapshuk@gmail.com>
 
-commit 45422b704db392a6d79d07ee3e3670b11048bd53 upstream.
+commit 700c1018b86d0d4b3f1f2d459708c0cdf42b521d upstream.
 
-Due to unneeded multiplication in the out_free_pages portion of
-r10buf_pool_alloc(), when using a 3-copy raid10 layout, it is
-possible to access a resync_pages offset that has not been
-initialized.  This access translates into a crash of the system
-within resync_free_pages() while passing a bad pointer to
-put_page().  Remove the multiplication, preventing access to the
-uninitialized area.
+gawk 5.0.1 generates the following regexp warnings:
 
-Fixes: f0250618361db ("md: raid10: don't use bio's vec table to manage resync pages")
-Cc: stable@vger.kernel.org # 4.12+
-Signed-off-by: John Pittman <jpittman@redhat.com>
-Suggested-by: David Jeffery <djeffery@redhat.com>
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+  GEN      /home/sasha/torvalds/tools/objtool/arch/x86/lib/inat-tables.c
+  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:260: warning: regexp escape sequence `\:' is not a known regexp operator
+  awk: ../arch/x86/tools/gen-insn-attr-x86.awk:350: (FILENAME=../arch/x86/lib/x86-opcode-map.txt FNR=41) warning: regexp escape sequence `\&' is  not a known regexp operator
+
+Ealier versions of gawk are not known to generate these warnings. The
+gawk manual referenced below does not list characters ':' and '&' as
+needing escaping, so 'unescape' them. See
+
+  https://www.gnu.org/software/gawk/manual/html_node/Escape-Sequences.html
+
+for more info.
+
+Running diff on the output generated by the script before and after
+applying the patch reported no differences.
+
+ [ bp: Massage commit message. ]
+
+[ Caught the respective tools header discrepancy. ]
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Alexander Kapshuk <alexander.kapshuk@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190924044659.3785-1-alexander.kapshuk@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/raid10.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/tools/gen-insn-attr-x86.awk               |    4 ++--
+ tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -226,7 +226,7 @@ static void * r10buf_pool_alloc(gfp_t gf
+--- a/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -68,7 +68,7 @@ BEGIN {
  
- out_free_pages:
- 	while (--j >= 0)
--		resync_free_pages(&rps[j * 2]);
-+		resync_free_pages(&rps[j]);
+ 	lprefix1_expr = "\\((66|!F3)\\)"
+ 	lprefix2_expr = "\\(F3\\)"
+-	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
++	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
+ 	lprefix_expr = "\\((66|F2|F3)\\)"
+ 	max_lprefix = 4
  
- 	j = 0;
- out_free_bio:
+@@ -256,7 +256,7 @@ function convert_operands(count,opnd,
+ 	return add_flags(imm, mod)
+ }
+ 
+-/^[0-9a-f]+\:/ {
++/^[0-9a-f]+:/ {
+ 	if (NR == 1)
+ 		next
+ 	# get index
+--- a/tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/tools/objtool/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -68,7 +68,7 @@ BEGIN {
+ 
+ 	lprefix1_expr = "\\((66|!F3)\\)"
+ 	lprefix2_expr = "\\(F3\\)"
+-	lprefix3_expr = "\\((F2|!F3|66\\&F2)\\)"
++	lprefix3_expr = "\\((F2|!F3|66&F2)\\)"
+ 	lprefix_expr = "\\((66|F2|F3)\\)"
+ 	max_lprefix = 4
+ 
+@@ -256,7 +256,7 @@ function convert_operands(count,opnd,
+ 	return add_flags(imm, mod)
+ }
+ 
+-/^[0-9a-f]+\:/ {
++/^[0-9a-f]+:/ {
+ 	if (NR == 1)
+ 		next
+ 	# get index
 
 
