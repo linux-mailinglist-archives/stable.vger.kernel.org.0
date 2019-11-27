@@ -2,111 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A3310ADB6
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 11:29:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9673610AD91
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 11:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726968AbfK0K3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 05:29:50 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:58865 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726545AbfK0K3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 05:29:50 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 1F9D4A3E;
-        Wed, 27 Nov 2019 05:29:49 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 27 Nov 2019 05:29:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=Ut/Lfu6DkFYyf6ou7MXFfOD/TYq
-        Pv8KxNzLLn60lJVs=; b=h35y9lXn6q4b1bXxUmUJUn4G0YxywL6rbJaVFd9ccky
-        BrJdmyJR+N42/aR4C1FOrtmMIg4H286xIvkYzLV1LUzz7xtdSCDY6eg9D1peThpu
-        J8XIjoNYqG5umHGIJukYetbgaa4y8Aom9eKUmRES6np8Y40/9eCTcjMNdOnD+t7S
-        tA0oIwtrfAyIW52+r2bWFfAkt+sKeRogNNyO6qYJh4RXDJfWIRjBJTy5CvECdqap
-        1Tdkq6q+pAJdoUC32KpiEVcIEHWQ4cXtfYzfCHorh8wFrp1t1wHCQni6XWHDZvmX
-        0lBJZFmmgQFF47uC6kgzTYYDiyFuhrjOeuL920THqig==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Ut/Lfu
-        6DkFYyf6ou7MXFfOD/TYqPv8KxNzLLn60lJVs=; b=bFBL8Dp16Gyc7IJBH3Eas3
-        OHioWJY6VdTGSjslEhL3chaP1yqTjgCN94C+Qi9sNUKCtu1JQF8MYT3aFDg6TEyY
-        1W6YI/uHZqSKFOVGUbygDydLLXCd2Pr5v+PR3tp2nfwq2pjnl3SkHkTJq9XNrqBq
-        UKRL48UCcrYWzvpfxexNyIWmxrxETmWy//5I6Fo3MfkfpGd/QJq0Cdx3m3/N3UjB
-        wvI8JllOIi2Ze9Ad54Qy5ZjNjlpIJ+Ad7QxtzYfZqCJtwh4OFxxEn47tfn0GoAQv
-        AUQEqx3+4Ntbn3ZaePnNkFFvjI1g4ZMa6Y5TxXpl6OvbohwVS8cFNvBsKQBh2FMQ
-        ==
-X-ME-Sender: <xms:HFDeXbDbBb9RYaOvc1wIVYfCMYFFrQ0p7z3pGTEHWQJjfw94lX7FhQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeihedgudehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:HFDeXW4HMVrnZgGt7pWZHICwHkKoPg_PZrJuDCsAkME7gMTQHVKHjQ>
-    <xmx:HFDeXTAAGYQ_a5tt98cB2HNaGZ66CSvo9N0QrS3sdP_f54ZJYPQ6Rw>
-    <xmx:HFDeXS7GUKV2OV9fG8dqoHKHODkdA3sPg-woDCN7PsC4HwbKwpu8Og>
-    <xmx:HFDeXaxZAkAeNC1qh5lB0vQ21uSD7Gu6jfMQWTlQVuYBKxxh0FIk-Q>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D78B88005B;
-        Wed, 27 Nov 2019 05:29:47 -0500 (EST)
-Date:   Wed, 27 Nov 2019 11:28:26 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Nicolas Schier <n.schier@avm.de>
-Cc:     stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 1/1] l2tp: don't use l2tp_tunnel_find() in l2tp_ip and
- l2tp_ip6
-Message-ID: <20191127102826.GA1996965@kroah.com>
-References: <cover.1574846983.git.n.schier@avm.de>
- <bd3a519ba6770a838d09550f1a6602d5fb7e80cb.1574846983.git.n.schier@avm.de>
+        id S1726722AbfK0K3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 05:29:05 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:34056 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726267AbfK0K3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 05:29:05 -0500
+Received: by mail-io1-f67.google.com with SMTP id z193so24274214iof.1
+        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 02:29:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=IhwWzaeE8rT6bUYbJ5piV4c/tVs2bp0QZr1J1A+j8Kk=;
+        b=GYm1dgPq12UcgJFHn+x+8XFizoOkhnh7zyMO5HEowlysGJzDzaaG5e7PZ/7BNtja3F
+         zteXBShYpTr9q29Q7o2OgP6n5B5WD+/FJVcCc1JGjp2Dt9HoYSv3mo9pDC8aDTVwuQ7C
+         jJd8uIqty41XgwMQ1jzzwNMJLKBR3/gPZdMU0WfajU78PkxnQQCTyGh4NwrW4ZU/q9Pw
+         0gdaXydWSgGA+9ne0W7dkvMG5OUFiqVx4S22rXtb1Oe56G1KvKrpYCNdfXxUDCDzmMa4
+         mgCGHgRqH4bGPhWgR27jXxWKfLt1UaiC4YpNZMMraNsLZJfbZNwCuHO/BvJTceg9dTIM
+         458Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=IhwWzaeE8rT6bUYbJ5piV4c/tVs2bp0QZr1J1A+j8Kk=;
+        b=LzZQqu+1VM6/7ka7/hW0yrQEeiLzr7ugZ4Qkl3GktX3iqqeKfEdS/f1qyFi230miZX
+         aa36faIY3ATeTldqckESDlGj1ufph9pBxFImRJSWUsvzuqPN8aoCoj7jlyG3L7ZccYpV
+         N0KFGD/9Bz/RU/N9kGPrNlBlv1TiNL+pDqjMTfUguZXzZNl09riEXseMRRS0WcWK83p0
+         xuiBOgwX660HaXmQvD/sZRKzmsfT0zUYAhVhqWPeZmtJ8Vp8/Xw115+tqS/u3obCcNjo
+         nVJVA4BGz0Y3cx8anggVQiL+Mw3JF6sAKSZbpqJvfGkpV50lbfApus4qY0n0kZy76OXM
+         b7cg==
+X-Gm-Message-State: APjAAAU3GndM0Gu4k7opJicBMQ0Z1tWQXvdd2IF8+gvWkz7DOkZVE9Hj
+        +/Jy3Wscx2xBzixCFQe/hZST4Ku7w3i9RKMOGsA=
+X-Google-Smtp-Source: APXvYqwAfG4K2hjS5qnJxbQYmA8Kk2sydFuu9jQupW5/27I4I/cl2/sYyNV9UKpjuliWApY2pxtriQzLJNf2xA0qNlQ=
+X-Received: by 2002:a6b:6e05:: with SMTP id d5mr93281ioh.90.1574850544724;
+ Wed, 27 Nov 2019 02:29:04 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bd3a519ba6770a838d09550f1a6602d5fb7e80cb.1574846983.git.n.schier@avm.de>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Reply-To: mrsnicolemarois94@gmail.com
+Received: by 2002:a02:a0c6:0:0:0:0:0 with HTTP; Wed, 27 Nov 2019 02:29:04
+ -0800 (PST)
+From:   "Mrs. Nicole Marois " <fridayot00@gmail.com>
+Date:   Wed, 27 Nov 2019 09:29:04 -0100
+X-Google-Sender-Auth: Yv4-ALRCnN9yRwKXqTTuGWahkkI
+Message-ID: <CAKAv60dtJZrwm4MBqB9HYhKj_c3W1ppUSobbkfa7ix9vU0Z_FA@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 27, 2019 at 11:02:49AM +0100, Nicolas Schier wrote:
-> From: Guillaume Nault <g.nault@alphalink.fr>
-> 
-> commit 8f7dc9ae4a7aece9fbc3e6637bdfa38b36bcdf09 upstream.
-> 
-> Using l2tp_tunnel_find() in l2tp_ip_recv() is wrong for two reasons:
-> 
->   * It doesn't take a reference on the returned tunnel, which makes the
->     call racy wrt. concurrent tunnel deletion.
-> 
->   * The lookup is only based on the tunnel identifier, so it can return
->     a tunnel that doesn't match the packet's addresses or protocol.
-> 
-> For example, a packet sent to an L2TPv3 over IPv6 tunnel can be
-> delivered to an L2TPv2 over UDPv4 tunnel. This is worse than a simple
-> cross-talk: when delivering the packet to an L2TP over UDP tunnel, the
-> corresponding socket is UDP, where ->sk_backlog_rcv() is NULL. Calling
-> sk_receive_skb() will then crash the kernel by trying to execute this
-> callback.
-> 
-> And l2tp_tunnel_find() isn't even needed here. __l2tp_ip_bind_lookup()
-> properly checks the socket binding and connection settings. It was used
-> as a fallback mechanism for finding tunnels that didn't have their data
-> path registered yet. But it's not limited to this case and can be used
-> to replace l2tp_tunnel_find() in the general case.
-> 
-> Fix l2tp_ip6 in the same way.
-> 
-> Fixes: 0d76751fad77 ("l2tp: Add L2TPv3 IP encapsulation (no UDP) support")
-> Fixes: a32e0eec7042 ("l2tp: introduce L2TPv3 IP encapsulation support for IPv6")
-> Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Nicolas Schier <n.schier@avm.de>
-> ---
-> Please consider queuing this patch for v4.9.y.
+-- 
+Hello Dear,
 
-Now queued up, thanks.
+Please forgive me for stressing you with my predicaments as I know
+that this letter may come to you as big surprise. Actually, I came
+across your E-mail from my personal search afterward I decided to
+email you directly believing that you will be honest to fulfill my
+final wish before i die.
 
-greg k-h
+Meanwhile, I am Mrs.  Nicole Marois 62 years old, from France, and I
+am suffering from a long time cancer and from all indication my
+condition is really deteriorating as my doctors have confirmed and
+courageously advised me that I may not live beyond two months from now
+for the reason that my tumor has reached a critical stage which has
+defiled all forms of medical treatment. As a matter of fact,
+registered nurse by profession while my husband was dealing on Gold
+Dust and Gold Dory Bars in Burkina Faso till his sudden death the year
+2008 then I took over his business till date.
+
+In fact, at this moment I have a deposit sum of four million five
+hundred thousand US dollars [$4,500,000.00] with one of the leading
+bank in Burkina Faso but unfortunately I cannot visit the bank since
+I m critically sick and powerless to do anything myself but my bank
+account officer advised me to assign any of my trustworthy relative,
+friends or partner with authorization letter to stand as the recipient
+of my money but sorrowfully I don t have any reliable relative and no
+child.
+
+Therefore, I want you to receive the money and take 50% to take care
+of yourself and family while 50% should be use basically on
+humanitarian purposes mostly to orphanages home, Motherless babies
+home, less privileged and disable citizens and widows around the
+world. and as soon as I receive your I shall send you my pictures,
+banking records and with full contacts of my banking institution to
+communicate them on the matter. Please contact me with these email
+address.(mrsnicolemarois94@gmail.com)
+
+Hope to hear from you soon.
+Yours Faithfully,
+Mrs.  Nicole Marois
