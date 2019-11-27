@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B561E10BA17
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:00:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C91A10B8D6
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731495AbfK0U76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:59:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51604 "EHLO mail.kernel.org"
+        id S1729993AbfK0UrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:47:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731493AbfK0U75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:59:57 -0500
+        id S1729991AbfK0UrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:47:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D69920862;
-        Wed, 27 Nov 2019 20:59:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71FF921843;
+        Wed, 27 Nov 2019 20:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888396;
-        bh=9jTiWjD3dsUPaP+cMWDmZ87NWsOHV8AQalAaCPDJXAk=;
+        s=default; t=1574887639;
+        bh=tWAdVYLHMTE3vCjickhx0yIbPKCzlQ9aZb9fEW8zGJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rCT5LsrWqr4b4jp406paMYiGwztE7ob66cPfgUHJUSksXMF+L26cErtynG7kZWuf7
-         lsu30tib5t8Nv5vGxLzIjTX7XjHE0MYLFZym+ZdD7dmwobsrVmqpgPXemxFI1qliE3
-         +xr+jZUH3gHvDwzmhkBq3aPD/G4wDYze3xRd8G80=
+        b=Db+5jsQFDuy5flOkWZQXpy8I29rVZW27vFhHHrwZnqJFW2jAF3dtO7FJ95miSi6Ot
+         O9awg67uWupBpPzgWsP12rlKeV5CWqGjueQuCfdbWFXUXx5FUtYY7837isSwYiFRU1
+         2fOfUbwiGex2np/Zds50+45DquzxAHLH3/wEBlm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Julien Folly <julien.folly@gmail.com>,
+        Evgeniy Polyakov <zbr@ioremap.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 118/306] ceph: only allow punch hole mode in fallocate
-Date:   Wed, 27 Nov 2019 21:29:28 +0100
-Message-Id: <20191127203123.779382363@linuxfoundation.org>
+Subject: [PATCH 4.14 036/211] w1: IAD Register is yet readable trough iad sys file. Fix snprintf (%u for unsigned, count for max size).
+Date:   Wed, 27 Nov 2019 21:29:29 +0100
+Message-Id: <20191127203055.364271538@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <lhenriques@suse.com>
+From: Julien Folly <julien.folly@gmail.com>
 
-[ Upstream commit bddff633ab7bc60a18a86ac8b322695b6f8594d0 ]
+[ Upstream commit 6eaafbb6998e999467cf78a76e155ee00e372b14 ]
 
-Current implementation of cephfs fallocate isn't correct as it doesn't
-really reserve the space in the cluster, which means that a subsequent
-call to a write may actually fail due to lack of space.  In fact, it is
-currently possible to fallocate an amount space that is larger than the
-free space in the cluster.  It has behaved this way since the initial
-commit ad7a60de882a ("ceph: punch hole support").
+IAD Register is yet readable trough the "iad" sys file.
 
-Since there's no easy solution to fix this at the moment, this patch
-simply removes support for all fallocate operations but
-FALLOC_FL_PUNCH_HOLE (which implies FALLOC_FL_KEEP_SIZE).
+A write to the "iad" sys file enables or disables the current
+measurement, but it was not possible to get the measured value by
+reading it.
+Fix: %u in snprintf for unsigned values (vdd and vad)
+Fix: Avoid possibles overflows (Usage of the 'count' variables)
 
-Link: https://tracker.ceph.com/issues/36317
-Signed-off-by: Luis Henriques <lhenriques@suse.com>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Julien Folly <julien.folly@gmail.com>
+Acked-by: Evgeniy Polyakov <zbr@ioremap.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/file.c | 45 +++++++++------------------------------------
- 1 file changed, 9 insertions(+), 36 deletions(-)
+ drivers/w1/slaves/w1_ds2438.c | 66 +++++++++++++++++++++++++++--------
+ 1 file changed, 52 insertions(+), 14 deletions(-)
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 92ab204336829..91a7ad259bcf2 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -1735,7 +1735,6 @@ static long ceph_fallocate(struct file *file, int mode,
- 	struct ceph_file_info *fi = file->private_data;
- 	struct inode *inode = file_inode(file);
- 	struct ceph_inode_info *ci = ceph_inode(inode);
--	struct ceph_fs_client *fsc = ceph_inode_to_client(inode);
- 	struct ceph_cap_flush *prealloc_cf;
- 	int want, got = 0;
- 	int dirty;
-@@ -1743,10 +1742,7 @@ static long ceph_fallocate(struct file *file, int mode,
- 	loff_t endoff = 0;
- 	loff_t size;
+diff --git a/drivers/w1/slaves/w1_ds2438.c b/drivers/w1/slaves/w1_ds2438.c
+index bf641a191d077..7c4e33dbee4d5 100644
+--- a/drivers/w1/slaves/w1_ds2438.c
++++ b/drivers/w1/slaves/w1_ds2438.c
+@@ -186,8 +186,8 @@ static int w1_ds2438_change_config_bit(struct w1_slave *sl, u8 mask, u8 value)
+ 	return -1;
+ }
  
--	if ((offset + length) > max(i_size_read(inode), fsc->max_file_size))
--		return -EFBIG;
--
--	if (mode & ~(FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
-+	if (mode != (FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
- 		return -EOPNOTSUPP;
+-static uint16_t w1_ds2438_get_voltage(struct w1_slave *sl,
+-				      int adc_input, uint16_t *voltage)
++static int w1_ds2438_get_voltage(struct w1_slave *sl,
++				 int adc_input, uint16_t *voltage)
+ {
+ 	unsigned int retries = W1_DS2438_RETRIES;
+ 	u8 w1_buf[DS2438_PAGE_SIZE + 1 /*for CRC*/];
+@@ -235,6 +235,25 @@ static uint16_t w1_ds2438_get_voltage(struct w1_slave *sl,
+ 	return ret;
+ }
  
- 	if (!S_ISREG(inode->i_mode))
-@@ -1763,18 +1759,6 @@ static long ceph_fallocate(struct file *file, int mode,
- 		goto unlock;
- 	}
- 
--	if (!(mode & (FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE)) &&
--	    ceph_quota_is_max_bytes_exceeded(inode, offset + length)) {
--		ret = -EDQUOT;
--		goto unlock;
--	}
--
--	if (ceph_osdmap_flag(&fsc->client->osdc, CEPH_OSDMAP_FULL) &&
--	    !(mode & FALLOC_FL_PUNCH_HOLE)) {
--		ret = -ENOSPC;
--		goto unlock;
--	}
--
- 	if (ci->i_inline_version != CEPH_INLINE_NONE) {
- 		ret = ceph_uninline_data(file, NULL);
- 		if (ret < 0)
-@@ -1782,12 +1766,12 @@ static long ceph_fallocate(struct file *file, int mode,
- 	}
- 
- 	size = i_size_read(inode);
--	if (!(mode & FALLOC_FL_KEEP_SIZE)) {
--		endoff = offset + length;
--		ret = inode_newsize_ok(inode, endoff);
--		if (ret)
--			goto unlock;
--	}
++static int w1_ds2438_get_current(struct w1_slave *sl, int16_t *voltage)
++{
++	u8 w1_buf[DS2438_PAGE_SIZE + 1 /*for CRC*/];
++	int ret;
 +
-+	/* Are we punching a hole beyond EOF? */
-+	if (offset >= size)
-+		goto unlock;
-+	if ((offset + length) > size)
-+		length = size - offset;
++	mutex_lock(&sl->master->bus_mutex);
++
++	if (w1_ds2438_get_page(sl, 0, w1_buf) == 0) {
++		/* The voltage measured across current sense resistor RSENS. */
++		*voltage = (((int16_t) w1_buf[DS2438_CURRENT_MSB]) << 8) | ((int16_t) w1_buf[DS2438_CURRENT_LSB]);
++		ret = 0;
++	} else
++		ret = -1;
++
++	mutex_unlock(&sl->master->bus_mutex);
++
++	return ret;
++}
++
+ static ssize_t iad_write(struct file *filp, struct kobject *kobj,
+ 			 struct bin_attribute *bin_attr, char *buf,
+ 			 loff_t off, size_t count)
+@@ -257,6 +276,27 @@ static ssize_t iad_write(struct file *filp, struct kobject *kobj,
+ 	return ret;
+ }
  
- 	if (fi->fmode & CEPH_FILE_MODE_LAZY)
- 		want = CEPH_CAP_FILE_BUFFER | CEPH_CAP_FILE_LAZYIO;
-@@ -1798,16 +1782,8 @@ static long ceph_fallocate(struct file *file, int mode,
- 	if (ret < 0)
- 		goto unlock;
++static ssize_t iad_read(struct file *filp, struct kobject *kobj,
++			struct bin_attribute *bin_attr, char *buf,
++			loff_t off, size_t count)
++{
++	struct w1_slave *sl = kobj_to_w1_slave(kobj);
++	int ret;
++	int16_t voltage;
++
++	if (off != 0)
++		return 0;
++	if (!buf)
++		return -EINVAL;
++
++	if (w1_ds2438_get_current(sl, &voltage) == 0) {
++		ret = snprintf(buf, count, "%i\n", voltage);
++	} else
++		ret = -EIO;
++
++	return ret;
++}
++
+ static ssize_t page0_read(struct file *filp, struct kobject *kobj,
+ 			  struct bin_attribute *bin_attr, char *buf,
+ 			  loff_t off, size_t count)
+@@ -272,9 +312,13 @@ static ssize_t page0_read(struct file *filp, struct kobject *kobj,
  
--	if (mode & FALLOC_FL_PUNCH_HOLE) {
--		if (offset < size)
--			ceph_zero_pagecache_range(inode, offset, length);
--		ret = ceph_zero_objects(inode, offset, length);
--	} else if (endoff > size) {
--		truncate_pagecache_range(inode, size, -1);
--		if (ceph_inode_set_size(inode, endoff))
--			ceph_check_caps(ceph_inode(inode),
--				CHECK_CAPS_AUTHONLY, NULL);
--	}
-+	ceph_zero_pagecache_range(inode, offset, length);
-+	ret = ceph_zero_objects(inode, offset, length);
+ 	mutex_lock(&sl->master->bus_mutex);
  
- 	if (!ret) {
- 		spin_lock(&ci->i_ceph_lock);
-@@ -1817,9 +1793,6 @@ static long ceph_fallocate(struct file *file, int mode,
- 		spin_unlock(&ci->i_ceph_lock);
- 		if (dirty)
- 			__mark_inode_dirty(inode, dirty);
--		if ((endoff > size) &&
--		    ceph_quota_is_max_bytes_approaching(inode, endoff))
--			ceph_check_caps(ci, CHECK_CAPS_NODELAY, NULL);
- 	}
++	/* Read no more than page0 size */
++	if (count > DS2438_PAGE_SIZE)
++		count = DS2438_PAGE_SIZE;
++
+ 	if (w1_ds2438_get_page(sl, 0, w1_buf) == 0) {
+-		memcpy(buf, &w1_buf, DS2438_PAGE_SIZE);
+-		ret = DS2438_PAGE_SIZE;
++		memcpy(buf, &w1_buf, count);
++		ret = count;
+ 	} else
+ 		ret = -EIO;
  
- 	ceph_put_cap_refs(ci, got);
+@@ -289,7 +333,6 @@ static ssize_t temperature_read(struct file *filp, struct kobject *kobj,
+ {
+ 	struct w1_slave *sl = kobj_to_w1_slave(kobj);
+ 	int ret;
+-	ssize_t c = PAGE_SIZE;
+ 	int16_t temp;
+ 
+ 	if (off != 0)
+@@ -298,8 +341,7 @@ static ssize_t temperature_read(struct file *filp, struct kobject *kobj,
+ 		return -EINVAL;
+ 
+ 	if (w1_ds2438_get_temperature(sl, &temp) == 0) {
+-		c -= snprintf(buf + PAGE_SIZE - c, c, "%d\n", temp);
+-		ret = PAGE_SIZE - c;
++		ret = snprintf(buf, count, "%i\n", temp);
+ 	} else
+ 		ret = -EIO;
+ 
+@@ -312,7 +354,6 @@ static ssize_t vad_read(struct file *filp, struct kobject *kobj,
+ {
+ 	struct w1_slave *sl = kobj_to_w1_slave(kobj);
+ 	int ret;
+-	ssize_t c = PAGE_SIZE;
+ 	uint16_t voltage;
+ 
+ 	if (off != 0)
+@@ -321,8 +362,7 @@ static ssize_t vad_read(struct file *filp, struct kobject *kobj,
+ 		return -EINVAL;
+ 
+ 	if (w1_ds2438_get_voltage(sl, DS2438_ADC_INPUT_VAD, &voltage) == 0) {
+-		c -= snprintf(buf + PAGE_SIZE - c, c, "%d\n", voltage);
+-		ret = PAGE_SIZE - c;
++		ret = snprintf(buf, count, "%u\n", voltage);
+ 	} else
+ 		ret = -EIO;
+ 
+@@ -335,7 +375,6 @@ static ssize_t vdd_read(struct file *filp, struct kobject *kobj,
+ {
+ 	struct w1_slave *sl = kobj_to_w1_slave(kobj);
+ 	int ret;
+-	ssize_t c = PAGE_SIZE;
+ 	uint16_t voltage;
+ 
+ 	if (off != 0)
+@@ -344,15 +383,14 @@ static ssize_t vdd_read(struct file *filp, struct kobject *kobj,
+ 		return -EINVAL;
+ 
+ 	if (w1_ds2438_get_voltage(sl, DS2438_ADC_INPUT_VDD, &voltage) == 0) {
+-		c -= snprintf(buf + PAGE_SIZE - c, c, "%d\n", voltage);
+-		ret = PAGE_SIZE - c;
++		ret = snprintf(buf, count, "%u\n", voltage);
+ 	} else
+ 		ret = -EIO;
+ 
+ 	return ret;
+ }
+ 
+-static BIN_ATTR(iad, S_IRUGO | S_IWUSR | S_IWGRP, NULL, iad_write, 1);
++static BIN_ATTR(iad, S_IRUGO | S_IWUSR | S_IWGRP, iad_read, iad_write, 0);
+ static BIN_ATTR_RO(page0, DS2438_PAGE_SIZE);
+ static BIN_ATTR_RO(temperature, 0/* real length varies */);
+ static BIN_ATTR_RO(vad, 0/* real length varies */);
 -- 
 2.20.1
 
