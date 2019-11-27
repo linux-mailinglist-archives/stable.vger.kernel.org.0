@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C441610BB02
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0B010BC5E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731534AbfK0VIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:08:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35198 "EHLO mail.kernel.org"
+        id S1732790AbfK0VIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:08:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732780AbfK0VIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:08:41 -0500
+        id S1732372AbfK0VIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:08:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECDC7217BA;
-        Wed, 27 Nov 2019 21:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC5982086A;
+        Wed, 27 Nov 2019 21:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888920;
-        bh=Rq5DdZ8123CMC8hW6qHy+m29omraP1Rwc8iVyAMnxRQ=;
+        s=default; t=1574888923;
+        bh=Uqz+Pl5c/Di1mUQpPbEYuvi2Q8PKELQ8wd/LOIjO17k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkdAtN3BGGQXqM1FfYZl+Ql9n2tUF1xx1uHuaPW9Qy96xqJZlAGg4OFDmyWAnv/UE
-         bOZggQpToMhenqEc7/rkuRUNM5tGt0anlRe8cbOZdqeXFjSruNn+q+HXEc5xvB58i7
-         zJrtMdxXeoc38GwsjS0rjVf1lIbVr6LhRVwir3zM=
+        b=vNLj5rBK/4Rzo4R8A4HBWyudDZeA2JUSbeHR9TiQzlQoflAOH/FeDqRBK1g+CX59L
+         dxa8kfCUtvpksqI54Pfik74D8DIugmYkOygRsplqaBTbYmiG7YFrQ5DY9L/O2fPGPM
+         wTDcUL/Ajb/Dp05AHizuelFVdV8GhgMo/IdEFe2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Cohen <eli@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Aya Levin <ayal@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.3 15/95] net/mlx5e: Fix error flow cleanup in mlx5e_tc_tun_create_header_ipv4/6
-Date:   Wed, 27 Nov 2019 21:31:32 +0100
-Message-Id: <20191127202850.194784009@linuxfoundation.org>
+Subject: [PATCH 5.3 16/95] net/mlx5e: Do not use non-EXT link modes in EXT mode
+Date:   Wed, 27 Nov 2019 21:31:33 +0100
+Message-Id: <20191127202850.246292290@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
 References: <20191127202845.651587549@linuxfoundation.org>
@@ -44,61 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <eli@mellanox.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit a86db2269fca8019074b720baf2e0a35cddac4e9 ]
+[ Upstream commit 24960574505c49b102ca1dfa6bf109669bca2a66 ]
 
-Be sure to release the neighbour in case of failures after successful
-route lookup.
+On some old Firmwares, connector type value was not supported, and value
+read from FW was 0. For those, driver used link mode in order to set
+connector type in link_ksetting.
 
-Fixes: 101f4de9dd52 ("net/mlx5e: Move TC tunnel offloading code to separate source file")
-Signed-off-by: Eli Cohen <eli@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
+After FW exposed the connector type, driver translated the value to ethtool
+definitions. However, as 0 is a valid value, before returning PORT_OTHER,
+driver run the check of link mode in order to maintain backward
+compatibility.
+
+Cited patch added support to EXT mode.  With both features (connector type
+and EXT link modes) ,if connector_type read from FW is 0 and EXT mode is
+set, driver mistakenly compare EXT link modes to non-EXT link mode.
+Fixed that by skipping this comparison if we are in EXT mode, as connector
+type value is valid in this scenario.
+
+Fixes: 6a897372417e ("net/mlx5: ethtool, Add ethtool support for 50Gbps per lane link modes")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Reviewed-by: Aya Levin <ayal@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
-@@ -232,12 +232,15 @@ int mlx5e_tc_tun_create_header_ipv4(stru
- 	if (max_encap_size < ipv4_encap_size) {
- 		mlx5_core_warn(priv->mdev, "encap size %d too big, max supported is %d\n",
- 			       ipv4_encap_size, max_encap_size);
--		return -EOPNOTSUPP;
-+		err = -EOPNOTSUPP;
-+		goto out;
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -708,9 +708,9 @@ static int get_fec_supported_advertised(
  
- 	encap_header = kzalloc(ipv4_encap_size, GFP_KERNEL);
--	if (!encap_header)
--		return -ENOMEM;
-+	if (!encap_header) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
+ static void ptys2ethtool_supported_advertised_port(struct ethtool_link_ksettings *link_ksettings,
+ 						   u32 eth_proto_cap,
+-						   u8 connector_type)
++						   u8 connector_type, bool ext)
+ {
+-	if (!connector_type || connector_type >= MLX5E_CONNECTOR_TYPE_NUMBER) {
++	if ((!connector_type && !ext) || connector_type >= MLX5E_CONNECTOR_TYPE_NUMBER) {
+ 		if (eth_proto_cap & (MLX5E_PROT_MASK(MLX5E_10GBASE_CR)
+ 				   | MLX5E_PROT_MASK(MLX5E_10GBASE_SR)
+ 				   | MLX5E_PROT_MASK(MLX5E_40GBASE_CR4)
+@@ -842,9 +842,9 @@ static int ptys2connector_type[MLX5E_CON
+ 		[MLX5E_PORT_OTHER]              = PORT_OTHER,
+ 	};
  
- 	/* used by mlx5e_detach_encap to lookup a neigh hash table
- 	 * entry in the neigh hash table when a user deletes a rule
-@@ -348,12 +351,15 @@ int mlx5e_tc_tun_create_header_ipv6(stru
- 	if (max_encap_size < ipv6_encap_size) {
- 		mlx5_core_warn(priv->mdev, "encap size %d too big, max supported is %d\n",
- 			       ipv6_encap_size, max_encap_size);
--		return -EOPNOTSUPP;
-+		err = -EOPNOTSUPP;
-+		goto out;
- 	}
+-static u8 get_connector_port(u32 eth_proto, u8 connector_type)
++static u8 get_connector_port(u32 eth_proto, u8 connector_type, bool ext)
+ {
+-	if (connector_type && connector_type < MLX5E_CONNECTOR_TYPE_NUMBER)
++	if ((connector_type || ext) && connector_type < MLX5E_CONNECTOR_TYPE_NUMBER)
+ 		return ptys2connector_type[connector_type];
  
- 	encap_header = kzalloc(ipv6_encap_size, GFP_KERNEL);
--	if (!encap_header)
--		return -ENOMEM;
-+	if (!encap_header) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
+ 	if (eth_proto &
+@@ -945,9 +945,9 @@ int mlx5e_ethtool_get_link_ksettings(str
+ 	eth_proto_oper = eth_proto_oper ? eth_proto_oper : eth_proto_cap;
  
- 	/* used by mlx5e_detach_encap to lookup a neigh hash table
- 	 * entry in the neigh hash table when a user deletes a rule
+ 	link_ksettings->base.port = get_connector_port(eth_proto_oper,
+-						       connector_type);
++						       connector_type, ext);
+ 	ptys2ethtool_supported_advertised_port(link_ksettings, eth_proto_admin,
+-					       connector_type);
++					       connector_type, ext);
+ 	get_lp_advertising(mdev, eth_proto_lp, link_ksettings);
+ 
+ 	if (an_status == MLX5_AN_COMPLETE)
 
 
