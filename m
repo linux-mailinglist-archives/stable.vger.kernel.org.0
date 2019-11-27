@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6A710BEF7
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 521CB10BE07
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729182AbfK0Vjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:39:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52142 "EHLO mail.kernel.org"
+        id S1728584AbfK0VdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:33:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729488AbfK0Unq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:46 -0500
+        id S1730600AbfK0UwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:52:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 566A521845;
-        Wed, 27 Nov 2019 20:43:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 901D021871;
+        Wed, 27 Nov 2019 20:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887425;
-        bh=McwXrVVkytzj+hSaqm76kPsOnhihjhaT2aayiNsJ2Nc=;
+        s=default; t=1574887942;
+        bh=NTM8CJ9PHb5mufU8UMamaiDxsdIWtBjO8nryc/eljy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzJn3cXLEbPkFMmieMgS/j0toKLtkeJpQkqoInTZXaYfR/VlNigLItPOJuyKo4RFs
-         OW24Aq9d+jofAIuDx0nHbqpvbI39FZV39VbRZZ2VQRsLGApKLVSWaA11xDTYEuozDj
-         mc4PepKUvJd7Hpj9GdifoCTetlZyvnWfvLwBEt2Y=
+        b=p8b0uwHud0mal4Ugki8jBMPg7IaxWSVDSHh8GiEeVhEWulnB1c0DsszRwgY5TzkjF
+         YOWu6QLe71yitJm/wA05+oUQhb0+BGZvaBuBEl3SOKl6XF42Ah1A1Vgob4qsxa2K3y
+         Jr5TP+XxeRD7FxuTimWi8Y1LDyeCKT3tZRPyKLp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 104/151] pinctrl: qcom: spmi-gpio: fix gpio-hog related boot issues
-Date:   Wed, 27 Nov 2019 21:31:27 +0100
-Message-Id: <20191127203040.453660098@linuxfoundation.org>
+Subject: [PATCH 4.14 155/211] pinctrl: qcom: spmi-gpio: fix gpio-hog related boot issues
+Date:   Wed, 27 Nov 2019 21:31:28 +0100
+Message-Id: <20191127203108.647142057@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,10 +67,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-index 8093afd17aa4f..69641c9e7d179 100644
+index 22aaf4375fac0..0f0049dfaa3a1 100644
 --- a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
 +++ b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-@@ -790,10 +790,23 @@ static int pmic_gpio_probe(struct platform_device *pdev)
+@@ -1023,10 +1023,23 @@ static int pmic_gpio_probe(struct platform_device *pdev)
  		return ret;
  	}
  
