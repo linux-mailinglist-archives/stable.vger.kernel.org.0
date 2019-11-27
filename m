@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5584010B87E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F3810B7B3
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:36:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729518AbfK0Un7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:43:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52576 "EHLO mail.kernel.org"
+        id S1728099AbfK0UgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:36:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729035AbfK0Un7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:59 -0500
+        id S1728071AbfK0UgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:36:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D6A5216C8;
-        Wed, 27 Nov 2019 20:43:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13D0F20866;
+        Wed, 27 Nov 2019 20:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887438;
-        bh=Yvtuzvt96j/m3vUDcrPWoNYcOPxSaH8nSvE4tz47aU0=;
+        s=default; t=1574886978;
+        bh=tKSkU9Q9EDtakjbQboA1s42HWo++KDvBtoHEEhQka24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pp5gzDoVThY+SnXywd7Won498UY0HeIzzGhaYFbdoIWCJUmgfT9Ip9Fahd964PQ7M
-         EOZmXr3JuwjU+1yRdxXlLeuvzWxaryBkbZbl5qdvYfiAChyWHOyvLx6XJux55cyzsd
-         XobVFMdl2Wdt3x+qFBjRWQ39gTIx/QG+VH3JRoQc=
+        b=dPdzkaYIRHmkIjdOWkb1Ox9NEKI/PibONsd4cUn5XUTsctkiSbR//oTW3xC9O3saZ
+         fL4Assc21HS6utZtAenqyTuIkgadq/Hsmq1rhlrztDh6CnZWU0kQXugyrpqiw/NGxD
+         2Hq3woeiEXyPZjHvj8srwnY15e6mdv9jK9qOseAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,12 +34,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/151] linux/bitmap.h: handle constant zero-size bitmaps correctly
-Date:   Wed, 27 Nov 2019 21:30:52 +0100
-Message-Id: <20191127203034.333073586@linuxfoundation.org>
+Subject: [PATCH 4.4 064/132] linux/bitmap.h: handle constant zero-size bitmaps correctly
+Date:   Wed, 27 Nov 2019 21:30:55 +0100
+Message-Id: <20191127203001.719191960@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -83,10 +83,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-index 3b77588a93602..dc56304ac829f 100644
+index 9653fdb76a427..e9d5df4315d94 100644
 --- a/include/linux/bitmap.h
 +++ b/include/linux/bitmap.h
-@@ -185,8 +185,13 @@ extern int bitmap_print_to_pagebuf(bool list, char *buf,
+@@ -175,8 +175,13 @@ extern int bitmap_print_to_pagebuf(bool list, char *buf,
  #define BITMAP_FIRST_WORD_MASK(start) (~0UL << ((start) & (BITS_PER_LONG - 1)))
  #define BITMAP_LAST_WORD_MASK(nbits) (~0UL >> (-(nbits) & (BITS_PER_LONG - 1)))
  
