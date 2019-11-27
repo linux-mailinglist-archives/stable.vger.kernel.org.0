@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B135810BE62
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95AB810BF1B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728322AbfK0Usl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:48:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34006 "EHLO mail.kernel.org"
+        id S1729306AbfK0Vk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:40:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729685AbfK0Usk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:48:40 -0500
+        id S1728777AbfK0UmN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:42:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C66D421826;
-        Wed, 27 Nov 2019 20:48:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D67C21787;
+        Wed, 27 Nov 2019 20:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887720;
-        bh=GrS/sfvynxkd0Z9uBnjBDVMYI0Mc/xdQEjRQgmhPX4Q=;
+        s=default; t=1574887333;
+        bh=jPgVZdWq1uxqLuuFB4zn5NW/loTd09gJehXLV22OFX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19BLxofx2HEww3JMEvvaaNGAFv6Q/gbJfCKeaEbu1FokpTlZGh4Qk6DgtqcsRHTTl
-         XuR4aal1xKORvB2ZdMZqzDLPNjfRFrH5wG01IwDyS5OsEGjHldbPfMhTU+XuhbZOSn
-         MHbC458UCq+L4YrYOljEPQMTiUaOrm1WS2MVOopU=
+        b=pZTdpZN86waNrmhU83ixguHqTSUPT4lgzkbgu/9P4QELczjRy3xVusXLCn8fr3xYb
+         UnZGY61PfMga/aLrdA0GQUg3rMPUZAfM68zAqbCKsdw1ixF4hPontosGMisNRA78t4
+         iGQfivRMLe6XPU1SnLFN4NMJ/Bk1rOqmwdNX7mos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 068/211] SUNRPC: Fix a compile warning for cmpxchg64()
+Subject: [PATCH 4.9 018/151] powerpc/eeh: Fix use of EEH_PE_KEEP on wrong field
 Date:   Wed, 27 Nov 2019 21:30:01 +0100
-Message-Id: <20191127203100.317621189@linuxfoundation.org>
+Message-Id: <20191127203011.441618804@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,28 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-[ Upstream commit e732f4485a150492b286f3efc06f9b34dd6b9995 ]
+[ Upstream commit 473af09b56dc4be68e4af33220ceca6be67aa60d ]
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+eeh_add_to_parent_pe() sometimes removes the EEH_PE_KEEP flag, but it
+incorrectly removes it from pe->type, instead of pe->state.
+
+However, rather than clearing it from the correct field, remove it.
+Inspection of the code shows that it can't ever have had any effect
+(even if it had been cleared from the correct field), because the
+field is never tested after it is cleared by the statement in
+question.
+
+The clear statement was added by commit 807a827d4e74 ("powerpc/eeh:
+Keep PE during hotplug"), but it didn't explain why it was necessary.
+
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/gss_krb5_seal.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/eeh_pe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/auth_gss/gss_krb5_seal.c b/net/sunrpc/auth_gss/gss_krb5_seal.c
-index 1d74d653e6c05..ad0dcb69395d7 100644
---- a/net/sunrpc/auth_gss/gss_krb5_seal.c
-+++ b/net/sunrpc/auth_gss/gss_krb5_seal.c
-@@ -63,6 +63,7 @@
- #include <linux/sunrpc/gss_krb5.h>
- #include <linux/random.h>
- #include <linux/crypto.h>
-+#include <linux/atomic.h>
+diff --git a/arch/powerpc/kernel/eeh_pe.c b/arch/powerpc/kernel/eeh_pe.c
+index 1abd8dd77ec13..eee2131a97e61 100644
+--- a/arch/powerpc/kernel/eeh_pe.c
++++ b/arch/powerpc/kernel/eeh_pe.c
+@@ -370,7 +370,7 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
+ 		while (parent) {
+ 			if (!(parent->type & EEH_PE_INVALID))
+ 				break;
+-			parent->type &= ~(EEH_PE_INVALID | EEH_PE_KEEP);
++			parent->type &= ~EEH_PE_INVALID;
+ 			parent = parent->parent;
+ 		}
  
- #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
- # define RPCDBG_FACILITY        RPCDBG_AUTH
 -- 
 2.20.1
 
