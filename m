@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1084B10BECF
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:39:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6283A10BDEB
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:32:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728801AbfK0UoW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:44:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53600 "EHLO mail.kernel.org"
+        id S1727026AbfK0Vce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:32:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729574AbfK0UoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:44:22 -0500
+        id S1728366AbfK0UxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:53:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D71321843;
-        Wed, 27 Nov 2019 20:44:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33CEB21774;
+        Wed, 27 Nov 2019 20:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887461;
-        bh=4kLkPTDozBU9jBadLPT6uyejq690n6YJyBSH7qhOiAw=;
+        s=default; t=1574887990;
+        bh=tbtk4ZJrPTtjXR+uDo9oZZx5WFHNPAYVSs9Zpfb6ccY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzuXjwPjx/5RCMJgqRU9h0wLMOzbvf4nE82GF0DVw3oxbd4wg+7Hy04sLlTcK7mlA
-         UOM+dvVbXRwJ0f0dUzX+t4p8kvemnavRF2vyg8uBYjwiHA+K85pDZR7BNW7rBKnTk3
-         gLpPj81SCcu6L7fDa3gDIelTH+je1KyrVPc3qUSU=
+        b=TNDWqm5GXrrD8uxciaqmXcuTaM7uYzvG6WWDiWWPExgC8EnvOLLSHrwtuYQaBqkoi
+         OAmhuW919Uphjc5pAOfAawJYBrwx8Ywg/Nwhd2aHIBdVLufu3TeLDwWH0O1mk62Y98
+         lmuKhfcluobnjLiFcB0nlTKFUxjL+watGGnwXrgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Waiman Long <longman@redhat.com>, Borislav Petkov <bp@suse.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Tyler Hicks <tyhicks@canonical.com>, x86-ml <x86@kernel.org>
-Subject: [PATCH 4.9 121/151] x86/speculation: Fix redundant MDS mitigation message
-Date:   Wed, 27 Nov 2019 21:31:44 +0100
-Message-Id: <20191127203045.051203091@linuxfoundation.org>
+        stable@vger.kernel.org, Hari Vyas <hari.vyas@broadcom.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 172/211] arm64: fix for bad_mode() handler to always result in panic
+Date:   Wed, 27 Nov 2019 21:31:45 +0100
+Message-Id: <20191127203110.120376346@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,81 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Hari Vyas <hari.vyas@broadcom.com>
 
-commit cd5a2aa89e847bdda7b62029d94e95488d73f6b2 upstream.
+commit e4ba15debcfd27f60d43da940a58108783bff2a6 upstream.
 
-Since MDS and TAA mitigations are inter-related for processors that are
-affected by both vulnerabilities, the followiing confusing messages can
-be printed in the kernel log:
+The bad_mode() handler is called if we encounter an uunknown exception,
+with the expectation that the subsequent call to panic() will halt the
+system. Unfortunately, if the exception calling bad_mode() is taken from
+EL0, then the call to die() can end up killing the current user task and
+calling schedule() instead of falling through to panic().
 
-  MDS: Vulnerable
-  MDS: Mitigation: Clear CPU buffers
+Remove the die() call altogether, since we really want to bring down the
+machine in this "impossible" case.
 
-To avoid the first incorrect message, defer the printing of MDS
-mitigation after the TAA mitigation selection has been done. However,
-that has the side effect of printing TAA mitigation first before MDS
-mitigation.
-
- [ bp: Check box is affected/mitigations are disabled first before
-   printing and massage. ]
-
-Suggested-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Mark Gross <mgross@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Tyler Hicks <tyhicks@canonical.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191115161445.30809-3-longman@redhat.com
+Signed-off-by: Hari Vyas <hari.vyas@broadcom.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kernel/cpu/bugs.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/arm64/kernel/traps.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -38,6 +38,7 @@ static void __init spectre_v2_select_mit
- static void __init ssb_select_mitigation(void);
- static void __init l1tf_select_mitigation(void);
- static void __init mds_select_mitigation(void);
-+static void __init mds_print_mitigation(void);
- static void __init taa_select_mitigation(void);
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -648,7 +648,6 @@ asmlinkage void bad_mode(struct pt_regs
+ 		handler[reason], smp_processor_id(), esr,
+ 		esr_get_class_string(esr));
  
- /* The base value of the SPEC_CTRL MSR that always has to be preserved. */
-@@ -107,6 +108,12 @@ void __init check_bugs(void)
- 	mds_select_mitigation();
- 	taa_select_mitigation();
- 
-+	/*
-+	 * As MDS and TAA mitigations are inter-related, print MDS
-+	 * mitigation until after TAA mitigation selection is done.
-+	 */
-+	mds_print_mitigation();
-+
- 	arch_smt_update();
- 
- #ifdef CONFIG_X86_32
-@@ -244,6 +251,12 @@ static void __init mds_select_mitigation
- 		    (mds_nosmt || cpu_mitigations_auto_nosmt()))
- 			cpu_smt_disable(false);
- 	}
-+}
-+
-+static void __init mds_print_mitigation(void)
-+{
-+	if (!boot_cpu_has_bug(X86_BUG_MDS) || cpu_mitigations_off())
-+		return;
- 
- 	pr_info("%s\n", mds_strings[mds_mitigation]);
+-	die("Oops - bad mode", regs, 0);
+ 	local_irq_disable();
+ 	panic("bad mode");
  }
 
 
