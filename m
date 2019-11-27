@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9E1210BF71
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 981BF10BF0F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727946AbfK0Uil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:38:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42450 "EHLO mail.kernel.org"
+        id S1728663AbfK0Um5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:42:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728771AbfK0Uii (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:38:38 -0500
+        id S1727813AbfK0Umz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:42:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AD42216F4;
-        Wed, 27 Nov 2019 20:38:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 200E8215A5;
+        Wed, 27 Nov 2019 20:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887118;
-        bh=QuI3VVaRWCrB1tpl1EFxVmZ4OoG20UNiLVtP0YBWAT8=;
+        s=default; t=1574887374;
+        bh=RfNt5H0u5JixeIom6TwwaUehdoBhx0+rcH2DGPQH2iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+jsqCnz9P9W+IDymGe3BPNXRcU15TRDaGET7vkHNnq5XnB7GSKcbVVQUd38tF5ql
-         yBb+u1jL1eRbkFKtk9Wmp7XpbhIhuDvjSPVnTO5xJ2uROzb7pmERqWxq1dG5WYbNcf
-         6qrAijvLyVyByVMbb++cNFIQGjqjBUDO8oIVkBJk=
+        b=1JXdlBDNawh7aMvKN6LxBSPl03sd3WCL6kjrqxj2NEIKNod1ml6oktjt/LTYoGcOX
+         ZSPFZG02KV+PAWMKaPOMolDRupXwi00W2bZlEumTAhEV5AAG+5CJOiiFaUm9lRMi0D
+         CXbYPmUWilVDrcMdj36/ncCwdZL7uuPkPmVo5XBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Changwei Ge <ge.changwei@h3c.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 077/132] ocfs2: fix clusters leak in ocfs2_defrag_extent()
-Date:   Wed, 27 Nov 2019 21:31:08 +0100
-Message-Id: <20191127203009.495739409@linuxfoundation.org>
+Subject: [PATCH 4.9 086/151] ocfs2: fix clusters leak in ocfs2_defrag_extent()
+Date:   Wed, 27 Nov 2019 21:31:09 +0100
+Message-Id: <20191127203036.669191575@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,7 +78,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 17 insertions(+)
 
 diff --git a/fs/ocfs2/move_extents.c b/fs/ocfs2/move_extents.c
-index c1a83c58456ef..725a870fd14fc 100644
+index c179afd0051a0..afaa044f5f6bd 100644
 --- a/fs/ocfs2/move_extents.c
 +++ b/fs/ocfs2/move_extents.c
 @@ -25,6 +25,7 @@
