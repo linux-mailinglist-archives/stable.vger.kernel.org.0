@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE8710BF63
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA1410BDBC
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728816AbfK0Uix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:38:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42812 "EHLO mail.kernel.org"
+        id S1730575AbfK0Uyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:54:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728822AbfK0Uiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:38:52 -0500
+        id S1727955AbfK0Uyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:54:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3648A21555;
-        Wed, 27 Nov 2019 20:38:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F8AC2086A;
+        Wed, 27 Nov 2019 20:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887131;
-        bh=mG7tyWKBsFvSSI8JljWLG7ERevr6fOTFUrMhQgCm37o=;
+        s=default; t=1574888092;
+        bh=r7xPYCGuPsGo1R+yB7dlU0oOx4E2V9pZb45mLGsJmn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQ9RXHJGxEQliD4gqYrUHC+Y4mwSRtIbKp47xpOEO+PZVtUKkFqU4joP43X24fvcw
-         F4OrTf5m0p9JAjXFxM5MEFmWoKWEcGUMkbr6kA6I3qLbP9102beoN2tQThXbYiOBpC
-         6NfZNoRnaReAsLOgz+ujVWr+HEa1Ubo4/nefyva0=
+        b=wdK+qvsMY4Q5twrXrSFKCQw5VLnYsU8Aah6EZdzuaBrld8ikl3CNQciDjfmLxRMDt
+         jTgiC9brxV2v6/oeT22uMbe+/fL98p4bjK/hrV5KvYwYWucv/YbWdPGr2FWiDvVPkT
+         ZlsNy+fR8zbRPHHfMYu2DKM6Pp+IcYuaGxVvuNlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 126/132] USB: serial: mos7840: fix remote wakeup
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 4.14 184/211] selftests/x86/sigreturn/32: Invalidate DS and ES when abusing the kernel
 Date:   Wed, 27 Nov 2019 21:31:57 +0100
-Message-Id: <20191127203033.459084764@linuxfoundation.org>
+Message-Id: <20191127203111.138917306@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 92fe35fb9c70a00d8fbbf5bd6172c921dd9c7815 upstream.
+commit 4d2fa82d98d2d296043a04eb517d7dbade5b13b8 upstream.
 
-The driver was setting the device remote-wakeup feature during probe in
-violation of the USB specification (which says it should only be set
-just prior to suspending the device). This could potentially waste
-power during suspend as well as lead to spurious wakeups.
+If the kernel accidentally uses DS or ES while the user values are
+loaded, it will work fine for sane userspace.  In the interest of
+simulating maximally insane userspace, make sigreturn_32 zero out DS
+and ES for the nasty parts so that inadvertent use of these segments
+will crash.
 
-Note that USB core would clear the remote-wakeup feature at first
-resume.
-
-Fixes: 3f5429746d91 ("USB: Moschip 7840 USB-Serial Driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.19
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/mos7840.c |    5 -----
- 1 file changed, 5 deletions(-)
+ tools/testing/selftests/x86/sigreturn.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -2361,11 +2361,6 @@ out:
- 			goto error;
- 		} else
- 			dev_dbg(&port->dev, "ZLP_REG5 Writing success status%d\n", status);
--
--		/* setting configuration feature to one */
--		usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
--				0x03, 0x00, 0x01, 0x00, NULL, 0x00,
--				MOS_WDR_TIMEOUT);
- 	}
- 	return 0;
- error:
+--- a/tools/testing/selftests/x86/sigreturn.c
++++ b/tools/testing/selftests/x86/sigreturn.c
+@@ -459,6 +459,19 @@ static void sigusr1(int sig, siginfo_t *
+ 	ctx->uc_mcontext.gregs[REG_SP] = (unsigned long)0x8badf00d5aadc0deULL;
+ 	ctx->uc_mcontext.gregs[REG_CX] = 0;
+ 
++#ifdef __i386__
++	/*
++	 * Make sure the kernel doesn't inadvertently use DS or ES-relative
++	 * accesses in a region where user DS or ES is loaded.
++	 *
++	 * Skip this for 64-bit builds because long mode doesn't care about
++	 * DS and ES and skipping it increases test coverage a little bit,
++	 * since 64-bit kernels can still run the 32-bit build.
++	 */
++	ctx->uc_mcontext.gregs[REG_DS] = 0;
++	ctx->uc_mcontext.gregs[REG_ES] = 0;
++#endif
++
+ 	memcpy(&requested_regs, &ctx->uc_mcontext.gregs, sizeof(gregset_t));
+ 	requested_regs[REG_CX] = *ssptr(ctx);	/* The asm code does this. */
+ 
 
 
