@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC7010BF7C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9966210BF0D
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727561AbfK0Ugw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:36:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
+        id S1729373AbfK0Um6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:42:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727545AbfK0Ugu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:36:50 -0500
+        id S1728934AbfK0Um6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:42:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AC1521569;
-        Wed, 27 Nov 2019 20:36:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB40F21780;
+        Wed, 27 Nov 2019 20:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887009;
-        bh=s3CGvjS4iv6lqtw9qf0dsHz4Mb21EKg5poi6xwHyv1c=;
+        s=default; t=1574887377;
+        bh=55QJa0/qN3W+hhW2WiN2ehyXwX7TS3HfPxyJsp8ucvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CPgWoMnNxtDMxuZFl69z8oWVhD4iyvaZIBZKFe/s8ckoGilQWxMpYKNBJaY89Wj6
-         TSzgPx911IZOuYgDJNBB2KGE18JNQ0+kklF30HIa2Z/my+B3f/pvXXFoZKC7BZ9jU8
-         w9W67XVYwgqRkZCRpuVSR5ms5S9fXvWcooB2VEVA=
+        b=MrHCb6b03DXqkuUemZeG0BfbJjA+ysI+ftV/2fuQzywxRJXyk8gYQVEIQL9vbsgCJ
+         hMRzg3GWCyQq7eUMjVKhnBqEE/Se+9RYTFmpAtL0pZlT4gHN0FMwbFj8yIDmVr2JrT
+         8cwheNHSmPZhO7RnaArrGVxL/ESdwfMNNNPzsbo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Dietmar.Eggemann@arm.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, patrick.bellasi@arm.com,
-        vincent.guittot@linaro.org, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 079/132] sched/fair: Dont increase sd->balance_interval on newidle balance
+Subject: [PATCH 4.9 087/151] net: do not abort bulk send on BQL status
 Date:   Wed, 27 Nov 2019 21:31:10 +0100
-Message-Id: <20191127203010.440551269@linuxfoundation.org>
+Message-Id: <20191127203036.805304992@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,75 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 3f130a37c442d5c4d66531b240ebe9abfef426b5 ]
+[ Upstream commit fe60faa5063822f2d555f4f326c7dd72a60929bf ]
 
-When load_balance() fails to move some load because of task affinity,
-we end up increasing sd->balance_interval to delay the next periodic
-balance in the hopes that next time we look, that annoying pinned
-task(s) will be gone.
+Before calling dev_hard_start_xmit(), upper layers tried
+to cook optimal skb list based on BQL budget.
 
-However, idle_balance() pays no attention to sd->balance_interval, yet
-it will still lead to an increase in balance_interval in case of
-pinned tasks.
+Problem is that GSO packets can end up comsuming more than
+the BQL budget.
 
-If we're going through several newidle balances (e.g. we have a
-periodic task), this can lead to a huge increase of the
-balance_interval in a very small amount of time.
+Breaking the loop is not useful, since requeued packets
+are ahead of any packets still in the qdisc.
 
-To prevent that, don't increase the balance interval when going
-through a newidle balance.
+It is also more expensive, since next TX completion will
+push these packets later, while skbs are not in cpu caches.
 
-This is a similar approach to what is done in commit 58b26c4c0257
-("sched: Increment cache_nice_tries only on periodic lb"), where we
-disregard newidle balance and rely on periodic balance for more stable
-results.
+It is also a behavior difference with TSO packets, that can
+break the BQL limit by a large amount.
 
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Dietmar.Eggemann@arm.com
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: patrick.bellasi@arm.com
-Cc: vincent.guittot@linaro.org
-Link: http://lkml.kernel.org/r/1537974727-30788-2-git-send-email-valentin.schneider@arm.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Note that drivers should use __netdev_tx_sent_queue()
+in order to have optimal xmit_more support, and avoid
+useless atomic operations as shown in the following patch.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ net/core/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index cd2fb8384fbe3..d012681fb1abd 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -7334,13 +7334,22 @@ static int load_balance(int this_cpu, struct rq *this_rq,
- 	sd->nr_balance_failed = 0;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 547b4daae5cad..c6fb7e61cb405 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2997,7 +2997,7 @@ struct sk_buff *dev_hard_start_xmit(struct sk_buff *first, struct net_device *de
+ 		}
  
- out_one_pinned:
-+	ld_moved = 0;
-+
-+	/*
-+	 * idle_balance() disregards balance intervals, so we could repeatedly
-+	 * reach this code, which would lead to balance_interval skyrocketting
-+	 * in a short amount of time. Skip the balance_interval increase logic
-+	 * to avoid that.
-+	 */
-+	if (env.idle == CPU_NEWLY_IDLE)
-+		goto out;
-+
- 	/* tune up the balancing interval */
- 	if (((env.flags & LBF_ALL_PINNED) &&
- 			sd->balance_interval < MAX_PINNED_INTERVAL) ||
- 			(sd->balance_interval < sd->max_interval))
- 		sd->balance_interval *= 2;
--
--	ld_moved = 0;
- out:
- 	return ld_moved;
- }
+ 		skb = next;
+-		if (netif_xmit_stopped(txq) && skb) {
++		if (netif_tx_queue_stopped(txq) && skb) {
+ 			rc = NETDEV_TX_BUSY;
+ 			break;
+ 		}
 -- 
 2.20.1
 
