@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0E810BE6C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:37:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA19E10BE80
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729910AbfK0Uqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:46:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58754 "EHLO mail.kernel.org"
+        id S1729566AbfK0Uru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:47:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729909AbfK0Uqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:46:39 -0500
+        id S1730031AbfK0Urt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:47:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1D212166E;
-        Wed, 27 Nov 2019 20:46:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C27DE217C3;
+        Wed, 27 Nov 2019 20:47:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887599;
-        bh=aJtFH0CzECT2feA/hIGxX4skKXjsT+Xn0WFyS4eiy04=;
+        s=default; t=1574887668;
+        bh=UgCUPv+FXXkrqQZEGsb62ZUpxRa20bdJWsSt6ZQqkLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyWzdLYI7wXZFKgPoSNvHg4x15/zmHxttcQkcoEo3rwVAB45bRG4g2OUzoyIIyHyU
-         xuFxKgQBdT1vsXcynHIGK6HrcQc9/GFrvVZ9c52LOnp5u31zCcaREIkV/6X3dTMjmd
-         4DW6RH6jRkZPjaQnZ3q0Rlow2E3W2yZUMXc+pLfU=
+        b=B8A3/iCXMIC/p7sXtzwW/hysbvnwN5buueRELOjbaDQH6JKygXrvibixXFfsinj/J
+         Em24btStRUPBHdpRanOb+dLNlxzFMjs+ARwCkvKAk3NVy+P8DJO2IqcQr5HvhkOub3
+         LvUI28raW3wZs6sGmM0admS8DZ6vjRu3BZLn06hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
-        Vlad Buslov <vladbu@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.14 004/211] net/mlx5e: Fix set vf link state error flow
-Date:   Wed, 27 Nov 2019 21:28:57 +0100
-Message-Id: <20191127203049.881825779@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 007/211] vhost/vsock: split packets to send using multiple buffers
+Date:   Wed, 27 Nov 2019 21:29:00 +0100
+Message-Id: <20191127203050.278790438@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -44,32 +45,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@mellanox.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 751021218f7e66ee9bbaa2be23056e447cd75ec4 ]
+commit 6dbd3e66e7785a2f055bf84d98de9b8fd31ff3f5 upstream.
 
-Before this commit the ndo always returned success.
-Fix that.
+If the packets to sent to the guest are bigger than the buffer
+available, we can split them, using multiple buffers and fixing
+the length in the packet header.
+This is safe since virtio-vsock supports only stream sockets.
 
-Fixes: 1ab2068a4c66 ("net/mlx5: Implement vports admin state backup/restore")
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Vlad Buslov <vladbu@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -1783,7 +1783,7 @@ int mlx5_eswitch_set_vport_state(struct
+---
+ drivers/vhost/vsock.c                   |   66 +++++++++++++++++++++++---------
+ net/vmw_vsock/virtio_transport_common.c |   15 +++++--
+ 2 files changed, 60 insertions(+), 21 deletions(-)
+
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -103,7 +103,7 @@ vhost_transport_do_send_pkt(struct vhost
+ 		struct iov_iter iov_iter;
+ 		unsigned out, in;
+ 		size_t nbytes;
+-		size_t len;
++		size_t iov_len, payload_len;
+ 		int head;
  
- unlock:
- 	mutex_unlock(&esw->state_lock);
--	return 0;
-+	return err;
- }
+ 		spin_lock_bh(&vsock->send_pkt_list_lock);
+@@ -148,8 +148,24 @@ vhost_transport_do_send_pkt(struct vhost
+ 			break;
+ 		}
  
- int mlx5_eswitch_get_vport_config(struct mlx5_eswitch *esw,
+-		len = iov_length(&vq->iov[out], in);
+-		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
++		iov_len = iov_length(&vq->iov[out], in);
++		if (iov_len < sizeof(pkt->hdr)) {
++			virtio_transport_free_pkt(pkt);
++			vq_err(vq, "Buffer len [%zu] too small\n", iov_len);
++			break;
++		}
++
++		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, iov_len);
++		payload_len = pkt->len - pkt->off;
++
++		/* If the packet is greater than the space available in the
++		 * buffer, we split it using multiple buffers.
++		 */
++		if (payload_len > iov_len - sizeof(pkt->hdr))
++			payload_len = iov_len - sizeof(pkt->hdr);
++
++		/* Set the correct length in the header */
++		pkt->hdr.len = cpu_to_le32(payload_len);
+ 
+ 		nbytes = copy_to_iter(&pkt->hdr, sizeof(pkt->hdr), &iov_iter);
+ 		if (nbytes != sizeof(pkt->hdr)) {
+@@ -158,33 +174,47 @@ vhost_transport_do_send_pkt(struct vhost
+ 			break;
+ 		}
+ 
+-		nbytes = copy_to_iter(pkt->buf, pkt->len, &iov_iter);
+-		if (nbytes != pkt->len) {
++		nbytes = copy_to_iter(pkt->buf + pkt->off, payload_len,
++				      &iov_iter);
++		if (nbytes != payload_len) {
+ 			virtio_transport_free_pkt(pkt);
+ 			vq_err(vq, "Faulted on copying pkt buf\n");
+ 			break;
+ 		}
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + pkt->len);
++		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+ 		added = true;
+ 
+-		if (pkt->reply) {
+-			int val;
+-
+-			val = atomic_dec_return(&vsock->queued_replies);
+-
+-			/* Do we have resources to resume tx processing? */
+-			if (val + 1 == tx_vq->num)
+-				restart_tx = true;
+-		}
+-
+ 		/* Deliver to monitoring devices all correctly transmitted
+ 		 * packets.
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
+ 
+-		total_len += pkt->len;
+-		virtio_transport_free_pkt(pkt);
++		pkt->off += payload_len;
++		total_len += payload_len;
++
++		/* If we didn't send all the payload we can requeue the packet
++		 * to send it with the next available buffer.
++		 */
++		if (pkt->off < pkt->len) {
++			spin_lock_bh(&vsock->send_pkt_list_lock);
++			list_add(&pkt->list, &vsock->send_pkt_list);
++			spin_unlock_bh(&vsock->send_pkt_list_lock);
++		} else {
++			if (pkt->reply) {
++				int val;
++
++				val = atomic_dec_return(&vsock->queued_replies);
++
++				/* Do we have resources to resume tx
++				 * processing?
++				 */
++				if (val + 1 == tx_vq->num)
++					restart_tx = true;
++			}
++
++			virtio_transport_free_pkt(pkt);
++		}
+ 	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 	if (added)
+ 		vhost_signal(&vsock->dev, vq);
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -92,8 +92,17 @@ static struct sk_buff *virtio_transport_
+ 	struct virtio_vsock_pkt *pkt = opaque;
+ 	struct af_vsockmon_hdr *hdr;
+ 	struct sk_buff *skb;
++	size_t payload_len;
++	void *payload_buf;
+ 
+-	skb = alloc_skb(sizeof(*hdr) + sizeof(pkt->hdr) + pkt->len,
++	/* A packet could be split to fit the RX buffer, so we can retrieve
++	 * the payload length from the header and the buffer pointer taking
++	 * care of the offset in the original packet.
++	 */
++	payload_len = le32_to_cpu(pkt->hdr.len);
++	payload_buf = pkt->buf + pkt->off;
++
++	skb = alloc_skb(sizeof(*hdr) + sizeof(pkt->hdr) + payload_len,
+ 			GFP_ATOMIC);
+ 	if (!skb)
+ 		return NULL;
+@@ -133,8 +142,8 @@ static struct sk_buff *virtio_transport_
+ 
+ 	skb_put_data(skb, &pkt->hdr, sizeof(pkt->hdr));
+ 
+-	if (pkt->len) {
+-		skb_put_data(skb, pkt->buf, pkt->len);
++	if (payload_len) {
++		skb_put_data(skb, payload_buf, payload_len);
+ 	}
+ 
+ 	return skb;
 
 
