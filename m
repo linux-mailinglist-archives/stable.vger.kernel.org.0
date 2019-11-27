@@ -2,162 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F54D10BBC2
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:16:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DD810BD70
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731872AbfK0VPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:15:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49770 "EHLO mail.kernel.org"
+        id S1728024AbfK0V2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:28:41 -0500
+Received: from mga07.intel.com ([134.134.136.100]:52526 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387628AbfK0VPB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:15:01 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE8E921771;
-        Wed, 27 Nov 2019 21:14:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889300;
-        bh=Qug6qxWGhuCnicRV9ATP+BqsY36CKwoLh8gU2NsBJp8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7jyq2f9/pgN18C7RrvTGZfAuwizE7WeL1q4H7B43GM4x48OEjqOveW9Hy94M80uT
-         qvrP4OJqvUTB+z5u6ZEwL45OZMw1pNmcadcmaFnL0CoNU5peiHMTFMmESPUvTcciNg
-         1Z1Wpc/1TYQtlOQoNNPsxuNgmbOfcpodPSfw7N6M=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 66/66] KVM: PPC: Book3S HV: Flush link stack on guest exit to host kernel
-Date:   Wed, 27 Nov 2019 21:33:01 +0100
-Message-Id: <20191127202840.697822651@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1730054AbfK0U6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:58:06 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 27 Nov 2019 12:58:05 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,250,1571727600"; 
+   d="scan'208";a="211805140"
+Received: from gtau-mobl.ger.corp.intel.com (HELO localhost) ([10.251.83.243])
+  by orsmga003.jf.intel.com with ESMTP; 27 Nov 2019 12:58:02 -0800
+Date:   Wed, 27 Nov 2019 22:58:00 +0200
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-integrity@vger.kernel.org, James Morris <jmorris@namei.org>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [GIT PULL] tpmdd updates for Linux v5.4
+Message-ID: <20191127205800.GA14290@linux.intel.com>
+References: <20190902143121.pjnykevzlajlcrh6@linux.intel.com>
+ <CAA9_cmeLnHK4y+usQaWo72nUG3RNsripuZnS-koY4XTRC+mwJA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAA9_cmeLnHK4y+usQaWo72nUG3RNsripuZnS-koY4XTRC+mwJA@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+On Wed, Nov 20, 2019 at 08:48:25PM -0800, Dan Williams wrote:
+> On Mon, Sep 2, 2019 at 7:34 AM Jarkko Sakkinen
+> <jarkko.sakkinen@linux.intel.com> wrote:
+> >
+> > Hi
+> >
+> > A new driver for fTPM living inside ARM TEE was added this round. In
+> > addition to that, there is three bug fixes and one clean up.
+> >
+> > /Jarkko
+> >
+> > The following changes since commit 8fb8e9e46261e0117cb3cffb6dd8bb7e08f8649b:
+> >
+> >   Merge tag 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma (2019-08-30 09:23:45 -0700)
+> >
+> > are available in the Git repository at:
+> >
+> >   git://git.infradead.org/users/jjs/linux-tpmdd.git tags/tpmdd-next-20190902
+> >
+> > for you to fetch changes up to e8bd417aab0c72bfb54465596b16085702ba0405:
+> >
+> >   tpm/tpm_ftpm_tee: Document fTPM TEE driver (2019-09-02 17:08:35 +0300)
+> >
+> > ----------------------------------------------------------------
+> > tpmdd updates for Linux v5.4
+> >
+> > ----------------------------------------------------------------
+> > Jarkko Sakkinen (1):
+> >       tpm: Remove a deprecated comments about implicit sysfs locking
+> >
+> > Lukas Bulwahn (1):
+> >       MAINTAINERS: fix style in KEYS-TRUSTED entry
+> >
+> > Sasha Levin (2):
+> >       tpm/tpm_ftpm_tee: A driver for firmware TPM running inside TEE
+> >       tpm/tpm_ftpm_tee: Document fTPM TEE driver
+> >
+> > Stefan Berger (2):
+> >       tpm_tis_core: Turn on the TPM before probing IRQ's
+> >       tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
+> 
+> Hi Jarrko,
+> 
+> I'm replying here because I can't find the patches to reply to
+> directly from LKML.
+> 
+> Commit 7f064c378e2c "tpm_tis_core: Turn on the TPM before probing
+> IRQ's" in the v5.3-stable tree caused a regression on a pre-release
+> platform with a TPM2 device. The interrupt starts screaming when the
+> driver is loaded and does not stop until the device is force unbond
+> from the driver by:
+> 
+>      echo IFX0740:00 > /sys/bus/platform/drivers/tpm_tis/unbind
+> 
+> I checked v5.4-rc8 and it has the same problem. I tried reverting:
+> 
+> 1ea32c83c699 tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
+> 5b359c7c4372 tpm_tis_core: Turn on the TPM before probing IRQ's
+> 
+> Which silenced the screaming interrupt problem, but now the TPM is reporting:
+> 
+> [    3.725131] tpm_tis IFX0740:00: 2.0 TPM (device-id 0x1B, rev-id 16)
+> [    3.725358] tpm tpm0: tpm_try_transmit: send(): error -5
+> [    3.725359] tpm tpm0: [Firmware Bug]: TPM interrupt not working,
+> polling instead
+> 
+> ...at load, where it was not reporting this previously. Can you take a look?
 
-commit af2e8c68b9c5403f77096969c516f742f5bb29e0 upstream.
+It is already in WiP:
 
-On some systems that are vulnerable to Spectre v2, it is up to
-software to flush the link stack (return address stack), in order to
-protect against Spectre-RSB.
+https://patchwork.kernel.org/patch/11240111/
 
-When exiting from a guest we do some house keeping and then
-potentially exit to C code which is several stack frames deep in the
-host kernel. We will then execute a series of returns without
-preceeding calls, opening up the possiblity that the guest could have
-poisoned the link stack, and direct speculative execution of the host
-to a gadget of some sort.
+Stefan also sent patches that revert to changes that you described:
 
-To prevent this we add a flush of the link stack on exit from a guest.
+https://patchwork.kernel.org/cover/11262363/
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/include/asm/asm-prototypes.h |    2 ++
- arch/powerpc/kernel/security.c            |    9 +++++++++
- arch/powerpc/kvm/book3s_hv_rmhandlers.S   |   30 ++++++++++++++++++++++++++++++
- 3 files changed, 41 insertions(+)
+Probably better first to fix the issue on top of master before deciding
+actions.
 
---- a/arch/powerpc/include/asm/asm-prototypes.h
-+++ b/arch/powerpc/include/asm/asm-prototypes.h
-@@ -153,9 +153,11 @@ void _kvmppc_save_tm_pr(struct kvm_vcpu
- extern s32 patch__call_flush_count_cache;
- extern s32 patch__flush_count_cache_return;
- extern s32 patch__flush_link_stack_return;
-+extern s32 patch__call_kvm_flush_link_stack;
- extern s32 patch__memset_nocache, patch__memcpy_nocache;
- 
- extern long flush_count_cache;
-+extern long kvm_flush_link_stack;
- 
- #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
- void kvmppc_save_tm_hv(struct kvm_vcpu *vcpu, u64 msr, bool preserve_nv);
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -400,6 +400,9 @@ static void toggle_count_cache_flush(boo
- 
- 	if (!enable) {
- 		patch_instruction_site(&patch__call_flush_count_cache, PPC_INST_NOP);
-+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
-+		patch_instruction_site(&patch__call_kvm_flush_link_stack, PPC_INST_NOP);
-+#endif
- 		pr_info("link-stack-flush: software flush disabled.\n");
- 		link_stack_flush_enabled = false;
- 		no_count_cache_flush();
-@@ -410,6 +413,12 @@ static void toggle_count_cache_flush(boo
- 	patch_branch_site(&patch__call_flush_count_cache,
- 			  (u64)&flush_count_cache, BRANCH_SET_LINK);
- 
-+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
-+	// This enables the branch from guest_exit_cont to kvm_flush_link_stack
-+	patch_branch_site(&patch__call_kvm_flush_link_stack,
-+			  (u64)&kvm_flush_link_stack, BRANCH_SET_LINK);
-+#endif
-+
- 	pr_info("link-stack-flush: software flush enabled.\n");
- 	link_stack_flush_enabled = true;
- 
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -11,6 +11,7 @@
-  */
- 
- #include <asm/ppc_asm.h>
-+#include <asm/code-patching-asm.h>
- #include <asm/kvm_asm.h>
- #include <asm/reg.h>
- #include <asm/mmu.h>
-@@ -1487,6 +1488,13 @@ guest_exit_cont:		/* r9 = vcpu, r12 = tr
- 1:
- #endif /* CONFIG_KVM_XICS */
- 
-+	/*
-+	 * Possibly flush the link stack here, before we do a blr in
-+	 * guest_exit_short_path.
-+	 */
-+1:	nop
-+	patch_site 1b patch__call_kvm_flush_link_stack
-+
- 	/* If we came in through the P9 short path, go back out to C now */
- 	lwz	r0, STACK_SLOT_SHORT_PATH(r1)
- 	cmpwi	r0, 0
-@@ -1963,6 +1971,28 @@ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_300)
- 	mtlr	r0
- 	blr
- 
-+.balign 32
-+.global kvm_flush_link_stack
-+kvm_flush_link_stack:
-+	/* Save LR into r0 */
-+	mflr	r0
-+
-+	/* Flush the link stack. On Power8 it's up to 32 entries in size. */
-+	.rept 32
-+	bl	.+4
-+	.endr
-+
-+	/* And on Power9 it's up to 64. */
-+BEGIN_FTR_SECTION
-+	.rept 32
-+	bl	.+4
-+	.endr
-+END_FTR_SECTION_IFSET(CPU_FTR_ARCH_300)
-+
-+	/* Restore LR */
-+	mtlr	r0
-+	blr
-+
- kvmppc_guest_external:
- 	/* External interrupt, first check for host_ipi. If this is
- 	 * set, we know the host wants us out so let's do it now
-
-
+/Jarkko
