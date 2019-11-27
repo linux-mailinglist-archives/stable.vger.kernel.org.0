@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3837B10BAC9
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBCA10BBA5
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:15:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732444AbfK0VGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:06:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60780 "EHLO mail.kernel.org"
+        id S1733164AbfK0VOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:14:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732441AbfK0VGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:06:34 -0500
+        id S2387562AbfK0VOk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:14:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A79121843;
-        Wed, 27 Nov 2019 21:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B78A216F4;
+        Wed, 27 Nov 2019 21:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888794;
-        bh=zBhu2+KdYMb3Yub8SsyOlnjWpHgy8s+5nopaN6TD0kU=;
+        s=default; t=1574889279;
+        bh=eS1BJnBh8mOWUbVmRx/IREx1XEcFwiiQtlXaaqSffLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y73nsRcdho1bkvi4Hx6fHZhnDHTyDVYSa9HhLqZKlRpaRBIE9BiXwO9UaY3+TB/N5
-         d15NYYYL6jRm8+RpGo4YE1WhrH5bqDKM9kbZo5T/z/tXFgrN5ctjhEERUyF8dKSWHl
-         xQbx8mKWP7Dc4K2ilsIj4TeytaLmnvtm21UxdiJ8=
+        b=gOMwPPjY8Biujutao03c1608Ittno/zB7YdeCR5R6RuJ61AN8N91h5d74Nojm0OyV
+         ewSmpLUUO54BiKqfDWClyTnTP1HI+zHW0BEsrF8twH0E7fdLQD5Goz9b5PutjAM0WD
+         snlEIRam6U2jlxXiep3CeoWRK6y9Y/09PhZtYJ6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 4.19 271/306] x86/doublefault/32: Fix stack canaries in the double fault handler
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.4 06/66] Revert "Bluetooth: hci_ll: set operational frequency earlier"
 Date:   Wed, 27 Nov 2019 21:32:01 +0100
-Message-Id: <20191127203134.623566738@linuxfoundation.org>
+Message-Id: <20191127202642.506103824@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Adam Ford <aford173@gmail.com>
 
-commit 3580d0b29cab08483f84a16ce6a1151a1013695f upstream.
+commit cef456cd354ef485f12d57000c455e83e416a2b6 upstream.
 
-The double fault TSS was missing GS setup, which is needed for stack
-canaries to work.
+As nice as it would be to update firmware faster, that patch broke
+at least two different boards, an OMAP4+WL1285 based Motorola Droid
+4, as reported by Sebasian Reichel and the Logic PD i.MX6Q +
+WL1837MOD.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@kernel.org
+This reverts commit a2e02f38eff84f199c8e32359eb213f81f270047.
+
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/doublefault.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/bluetooth/hci_ll.c |   39 ++++++++++++++++++---------------------
+ 1 file changed, 18 insertions(+), 21 deletions(-)
 
---- a/arch/x86/kernel/doublefault.c
-+++ b/arch/x86/kernel/doublefault.c
-@@ -65,6 +65,9 @@ struct x86_hw_tss doublefault_tss __cach
- 	.ss		= __KERNEL_DS,
- 	.ds		= __USER_DS,
- 	.fs		= __KERNEL_PERCPU,
-+#ifndef CONFIG_X86_32_LAZY_GS
-+	.gs		= __KERNEL_STACK_CANARY,
-+#endif
+--- a/drivers/bluetooth/hci_ll.c
++++ b/drivers/bluetooth/hci_ll.c
+@@ -621,13 +621,6 @@ static int ll_setup(struct hci_uart *hu)
  
- 	.__cr3		= __pa_nodebug(swapper_pg_dir),
- };
+ 	serdev_device_set_flow_control(serdev, true);
+ 
+-	if (hu->oper_speed)
+-		speed = hu->oper_speed;
+-	else if (hu->proto->oper_speed)
+-		speed = hu->proto->oper_speed;
+-	else
+-		speed = 0;
+-
+ 	do {
+ 		/* Reset the Bluetooth device */
+ 		gpiod_set_value_cansleep(lldev->enable_gpio, 0);
+@@ -639,20 +632,6 @@ static int ll_setup(struct hci_uart *hu)
+ 			return err;
+ 		}
+ 
+-		if (speed) {
+-			__le32 speed_le = cpu_to_le32(speed);
+-			struct sk_buff *skb;
+-
+-			skb = __hci_cmd_sync(hu->hdev,
+-					     HCI_VS_UPDATE_UART_HCI_BAUDRATE,
+-					     sizeof(speed_le), &speed_le,
+-					     HCI_INIT_TIMEOUT);
+-			if (!IS_ERR(skb)) {
+-				kfree_skb(skb);
+-				serdev_device_set_baudrate(serdev, speed);
+-			}
+-		}
+-
+ 		err = download_firmware(lldev);
+ 		if (!err)
+ 			break;
+@@ -677,7 +656,25 @@ static int ll_setup(struct hci_uart *hu)
+ 	}
+ 
+ 	/* Operational speed if any */
++	if (hu->oper_speed)
++		speed = hu->oper_speed;
++	else if (hu->proto->oper_speed)
++		speed = hu->proto->oper_speed;
++	else
++		speed = 0;
+ 
++	if (speed) {
++		__le32 speed_le = cpu_to_le32(speed);
++		struct sk_buff *skb;
++
++		skb = __hci_cmd_sync(hu->hdev, HCI_VS_UPDATE_UART_HCI_BAUDRATE,
++				     sizeof(speed_le), &speed_le,
++				     HCI_INIT_TIMEOUT);
++		if (!IS_ERR(skb)) {
++			kfree_skb(skb);
++			serdev_device_set_baudrate(serdev, speed);
++		}
++	}
+ 
+ 	return 0;
+ }
 
 
