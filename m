@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF6210BDF2
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F1F10BF8D
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730633AbfK0Uwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:52:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40434 "EHLO mail.kernel.org"
+        id S1728666AbfK0UiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:38:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729982AbfK0Uwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:52:41 -0500
+        id S1728665AbfK0UiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB67521847;
-        Wed, 27 Nov 2019 20:52:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE4DF215E5;
+        Wed, 27 Nov 2019 20:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887960;
-        bh=2M4bqX0FVUlvTYzZ0S0NnLRYZpiCJU8Fr7rhThqDBW0=;
+        s=default; t=1574887080;
+        bh=HK2xquq36bYBWwcTDwpjNXQgQBGzBWVirfylhRvR+ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhmtre/RA4U4N/BDKV4eYki43NtqhfXhmwYZkPA9WHLsgdZHRldnM3LA7CcT4LTac
-         Qh74lNn7GTrxqkuI978ymaPBiwu2ENlwgtOF+cXOEcQtclqIf29HEBdvIh/hVj7y5A
-         +DJqKrtBtzwya7LwTu+lp+LBFSjLyCnXpQly9nBI=
+        b=Jw7nvZ0v9DyM0GSbX2taR5dFDmJ45mupHpfmhczo2rmyaUQlT3LwcT9Zfxy6RHU2/
+         PkQfhnDbqbCU5aXx5In+7dsDts44d7h4R4hwfFdSB7A11+dcNxkTwDiyl1Bn+CS8OR
+         qZzrEW3wcQp+I9q/BNLsI5OCBmwtqe2p+y6ERlhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang yingliang <yangyingliang@huawei.com>,
-        zhong jiang <zhongjiang@huawei.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 161/211] mm/memory_hotplug: Do not unlock when fails to take the device_hotplug_lock
-Date:   Wed, 27 Nov 2019 21:31:34 +0100
-Message-Id: <20191127203109.133669683@linuxfoundation.org>
+        stable@vger.kernel.org, Gang He <ghe@suse.com>,
+        Joseph Qi <jiangqi903@gmail.com>, Eric Ren <zren@suse.com>,
+        Changwei Ge <ge.changwei@h3c.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.4 104/132] ocfs2: remove ocfs2_is_o2cb_active()
+Date:   Wed, 27 Nov 2019 21:31:35 +0100
+Message-Id: <20191127203025.567094543@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +50,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Gang He <ghe@suse.com>
 
-[ Upstream commit d2ab99403ee00d8014e651728a4702ea1ae5e52c ]
+commit a634644751c46238df58bbfe992e30c1668388db upstream.
 
-When adding the memory by probing memory block in sysfs interface, there is an
-obvious issue that we will unlock the device_hotplug_lock when fails to takes it.
+Remove ocfs2_is_o2cb_active().  We have similar functions to identify
+which cluster stack is being used via osb->osb_cluster_stack.
 
-That issue was introduced in Commit 8df1d0e4a265
-("mm/memory_hotplug: make add_memory() take the device_hotplug_lock")
+Secondly, the current implementation of ocfs2_is_o2cb_active() is not
+totally safe.  Based on the design of stackglue, we need to get
+ocfs2_stack_lock before using ocfs2_stack related data structures, and
+that active_stack pointer can be NULL in the case of mount failure.
 
-We should drop out in time when fails to take the device_hotplug_lock.
-
-Fixes: 8df1d0e4a265 ("mm/memory_hotplug: make add_memory() take the device_hotplug_lock")
-Reported-by: Yang yingliang <yangyingliang@huawei.com>
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: stable <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/1495441079-11708-1-git-send-email-ghe@suse.com
+Signed-off-by: Gang He <ghe@suse.com>
+Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
+Reviewed-by: Eric Ren <zren@suse.com>
+Acked-by: Changwei Ge <ge.changwei@h3c.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/memory.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/dlmglue.c   |    2 +-
+ fs/ocfs2/stackglue.c |    6 ------
+ fs/ocfs2/stackglue.h |    3 ---
+ 3 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index 8e5818e735e2f..fe1557aa9b103 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -519,7 +519,7 @@ memory_probe_store(struct device *dev, struct device_attribute *attr,
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3426,7 +3426,7 @@ static int ocfs2_downconvert_lock(struct
+ 	 * we can recover correctly from node failure. Otherwise, we may get
+ 	 * invalid LVB in LKB, but without DLM_SBF_VALNOTVALID being set.
+ 	 */
+-	if (!ocfs2_is_o2cb_active() &&
++	if (ocfs2_userspace_stack(osb) &&
+ 	    lockres->l_ops->flags & LOCK_TYPE_USES_LVB)
+ 		lvb = 1;
  
- 	ret = lock_device_hotplug_sysfs();
- 	if (ret)
--		goto out;
-+		return ret;
+--- a/fs/ocfs2/stackglue.c
++++ b/fs/ocfs2/stackglue.c
+@@ -48,12 +48,6 @@ static char ocfs2_hb_ctl_path[OCFS2_MAX_
+  */
+ static struct ocfs2_stack_plugin *active_stack;
  
- 	nid = memory_add_physaddr_to_nid(phys_addr);
- 	ret = __add_memory(nid, phys_addr,
--- 
-2.20.1
-
+-inline int ocfs2_is_o2cb_active(void)
+-{
+-	return !strcmp(active_stack->sp_name, OCFS2_STACK_PLUGIN_O2CB);
+-}
+-EXPORT_SYMBOL_GPL(ocfs2_is_o2cb_active);
+-
+ static struct ocfs2_stack_plugin *ocfs2_stack_lookup(const char *name)
+ {
+ 	struct ocfs2_stack_plugin *p;
+--- a/fs/ocfs2/stackglue.h
++++ b/fs/ocfs2/stackglue.h
+@@ -298,7 +298,4 @@ void ocfs2_stack_glue_set_max_proto_vers
+ int ocfs2_stack_glue_register(struct ocfs2_stack_plugin *plugin);
+ void ocfs2_stack_glue_unregister(struct ocfs2_stack_plugin *plugin);
+ 
+-/* In ocfs2_downconvert_lock(), we need to know which stack we are using */
+-int ocfs2_is_o2cb_active(void);
+-
+ #endif  /* STACKGLUE_H */
 
 
