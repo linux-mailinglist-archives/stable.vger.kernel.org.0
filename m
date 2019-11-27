@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E3610BB72
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF7210BBF9
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730818AbfK0VMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:12:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43754 "EHLO mail.kernel.org"
+        id S1728319AbfK0VMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:12:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728319AbfK0VMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:12:41 -0500
+        id S1731430AbfK0VMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:12:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A98FA215F1;
-        Wed, 27 Nov 2019 21:12:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 321CB215F1;
+        Wed, 27 Nov 2019 21:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889161;
-        bh=L+jYQkLDbz7jdGIFvd7QPd5vlf8ZtyBtC/ptRMlOHZQ=;
+        s=default; t=1574889163;
+        bh=zCgDrU9ezIbzq7CMalImPFPEn0zCQPijFbbT/nGqanM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkrFJh2QiaWwzzbTUmYLMYrp0x96ww1HPScLs6nqJSIgMoTYIMW9GRDwKupnK4A0K
-         o20GVVDimUXZLzTJGwaA8+uaIpgq2mWBK/lBr5tL2r7iTgnDctrIKqd6Z90gWoHUYQ
-         ohIwWgig6VYVn1OSrGt3gs6PUo4uF0QjK5+6ziX0=
+        b=WkqSmkcGrwxNvmvwyM/No4Q0f4V8n9Ny57HvShTygMAfxOsNLAVKK3nW51yIJ34f2
+         BAI2okHkr5EoSsSuTOQnkgG4fTJEHaaFUPCWOe2ZeRaG9+8HjWtHqwosAZt6t4H9Nq
+         ZOYkkIBvrAy+aNUZlHTkZoSyR1hnXIf9VNxRXurE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Herring <robh@kernel.org>,
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 04/66] ath10k: Fix HOST capability QMI incompatibility
-Date:   Wed, 27 Nov 2019 21:31:59 +0100
-Message-Id: <20191127202640.922771514@linuxfoundation.org>
+Subject: [PATCH 5.4 05/66] ath10k: restore QCA9880-AR1A (v1) detection
+Date:   Wed, 27 Nov 2019 21:32:00 +0100
+Message-Id: <20191127202642.423138310@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
 References: <20191127202632.536277063@linuxfoundation.org>
@@ -45,168 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit 7165ef890a4c44cf16db66b82fd78448f4bde6ba upstream.
+commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream.
 
-The introduction of 768ec4c012ac ("ath10k: update HOST capability QMI
-message") served the purpose of supporting the new and extended HOST
-capability QMI message.
-
-But while the new message adds a slew of optional members it changes the
-data type of the "daemon_support" member, which means that older
-versions of the firmware will fail to decode the incoming request
-message.
-
-There is no way to detect this breakage from Linux and there's no way to
-recover from sending the wrong message (i.e. we can't just try one
-format and then fallback to the other), so a quirk is introduced in
-DeviceTree to indicate to the driver that the firmware requires the 8bit
-version of this message.
+This patch restores the old behavior that read
+the chip_id on the QCA988x before resetting the
+chip. This needs to be done in this order since
+the unsupported QCA988x AR1A chips fall off the
+bus when resetted. Otherwise the next MMIO Op
+after the reset causes a BUS ERROR and panic.
 
 Cc: stable@vger.kernel.org
-Fixes: 768ec4c012ac ("ath10k: update HOST capability qmi message")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Rob Herring <robh@kernel.org>
+Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/devicetree/bindings/net/wireless/qcom,ath10k.txt |    6 ++
- drivers/net/wireless/ath/ath10k/qmi.c                          |   13 ++++-
- drivers/net/wireless/ath/ath10k/qmi_wlfw_v01.c                 |   22 ++++++++++
- drivers/net/wireless/ath/ath10k/qmi_wlfw_v01.h                 |    1 
- drivers/net/wireless/ath/ath10k/snoc.c                         |   11 +++++
- drivers/net/wireless/ath/ath10k/snoc.h                         |    1 
- 6 files changed, 51 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath10k/pci.c |   36 +++++++++++++++++++++++-----------
+ 1 file changed, 25 insertions(+), 11 deletions(-)
 
---- a/Documentation/devicetree/bindings/net/wireless/qcom,ath10k.txt
-+++ b/Documentation/devicetree/bindings/net/wireless/qcom,ath10k.txt
-@@ -81,6 +81,12 @@ Optional properties:
- 	Definition: Name of external front end module used. Some valid FEM names
- 		    for example: "microsemi-lx5586", "sky85703-11"
- 		    and "sky85803" etc.
-+- qcom,snoc-host-cap-8bit-quirk:
-+	Usage: Optional
-+	Value type: <empty>
-+	Definition: Quirk specifying that the firmware expects the 8bit version
-+		    of the host capability QMI request
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3490,7 +3490,7 @@ static int ath10k_pci_probe(struct pci_d
+ 	struct ath10k_pci *ar_pci;
+ 	enum ath10k_hw_rev hw_rev;
+ 	struct ath10k_bus_params bus_params = {};
+-	bool pci_ps;
++	bool pci_ps, is_qca988x = false;
+ 	int (*pci_soft_reset)(struct ath10k *ar);
+ 	int (*pci_hard_reset)(struct ath10k *ar);
+ 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
+@@ -3500,6 +3500,7 @@ static int ath10k_pci_probe(struct pci_d
+ 	case QCA988X_2_0_DEVICE_ID:
+ 		hw_rev = ATH10K_HW_QCA988X;
+ 		pci_ps = false;
++		is_qca988x = true;
+ 		pci_soft_reset = ath10k_pci_warm_reset;
+ 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
+ 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
+@@ -3619,25 +3620,34 @@ static int ath10k_pci_probe(struct pci_d
+ 		goto err_deinit_irq;
+ 	}
+ 
++	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
++	bus_params.link_can_suspend = true;
++	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
++	 * fall off the bus during chip_reset. These chips have the same pci
++	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
++	 */
++	if (is_qca988x) {
++		bus_params.chip_id =
++			ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
++		if (bus_params.chip_id != 0xffffffff) {
++			if (!ath10k_pci_chip_is_supported(pdev->device,
++							  bus_params.chip_id))
++				goto err_unsupported;
++		}
++	}
 +
- 
- Example (to supply PCI based wifi block details):
- 
---- a/drivers/net/wireless/ath/ath10k/qmi.c
-+++ b/drivers/net/wireless/ath/ath10k/qmi.c
-@@ -581,22 +581,29 @@ static int ath10k_qmi_host_cap_send_sync
- {
- 	struct wlfw_host_cap_resp_msg_v01 resp = {};
- 	struct wlfw_host_cap_req_msg_v01 req = {};
-+	struct qmi_elem_info *req_ei;
- 	struct ath10k *ar = qmi->ar;
-+	struct ath10k_snoc *ar_snoc = ath10k_snoc_priv(ar);
- 	struct qmi_txn txn;
- 	int ret;
- 
- 	req.daemon_support_valid = 1;
- 	req.daemon_support = 0;
- 
--	ret = qmi_txn_init(&qmi->qmi_hdl, &txn,
--			   wlfw_host_cap_resp_msg_v01_ei, &resp);
-+	ret = qmi_txn_init(&qmi->qmi_hdl, &txn, wlfw_host_cap_resp_msg_v01_ei,
-+			   &resp);
- 	if (ret < 0)
- 		goto out;
- 
-+	if (test_bit(ATH10K_SNOC_FLAG_8BIT_HOST_CAP_QUIRK, &ar_snoc->flags))
-+		req_ei = wlfw_host_cap_8bit_req_msg_v01_ei;
-+	else
-+		req_ei = wlfw_host_cap_req_msg_v01_ei;
-+
- 	ret = qmi_send_request(&qmi->qmi_hdl, NULL, &txn,
- 			       QMI_WLFW_HOST_CAP_REQ_V01,
- 			       WLFW_HOST_CAP_REQ_MSG_V01_MAX_MSG_LEN,
--			       wlfw_host_cap_req_msg_v01_ei, &req);
-+			       req_ei, &req);
- 	if (ret < 0) {
- 		qmi_txn_cancel(&txn);
- 		ath10k_err(ar, "failed to send host capability request: %d\n", ret);
---- a/drivers/net/wireless/ath/ath10k/qmi_wlfw_v01.c
-+++ b/drivers/net/wireless/ath/ath10k/qmi_wlfw_v01.c
-@@ -1988,6 +1988,28 @@ struct qmi_elem_info wlfw_host_cap_req_m
- 	{}
- };
- 
-+struct qmi_elem_info wlfw_host_cap_8bit_req_msg_v01_ei[] = {
-+	{
-+		.data_type      = QMI_OPT_FLAG,
-+		.elem_len       = 1,
-+		.elem_size      = sizeof(u8),
-+		.array_type     = NO_ARRAY,
-+		.tlv_type       = 0x10,
-+		.offset         = offsetof(struct wlfw_host_cap_req_msg_v01,
-+					   daemon_support_valid),
-+	},
-+	{
-+		.data_type      = QMI_UNSIGNED_1_BYTE,
-+		.elem_len       = 1,
-+		.elem_size      = sizeof(u8),
-+		.array_type     = NO_ARRAY,
-+		.tlv_type       = 0x10,
-+		.offset         = offsetof(struct wlfw_host_cap_req_msg_v01,
-+					   daemon_support),
-+	},
-+	{}
-+};
-+
- struct qmi_elem_info wlfw_host_cap_resp_msg_v01_ei[] = {
- 	{
- 		.data_type      = QMI_STRUCT,
---- a/drivers/net/wireless/ath/ath10k/qmi_wlfw_v01.h
-+++ b/drivers/net/wireless/ath/ath10k/qmi_wlfw_v01.h
-@@ -575,6 +575,7 @@ struct wlfw_host_cap_req_msg_v01 {
- 
- #define WLFW_HOST_CAP_REQ_MSG_V01_MAX_MSG_LEN 189
- extern struct qmi_elem_info wlfw_host_cap_req_msg_v01_ei[];
-+extern struct qmi_elem_info wlfw_host_cap_8bit_req_msg_v01_ei[];
- 
- struct wlfw_host_cap_resp_msg_v01 {
- 	struct qmi_response_type_v01 resp;
---- a/drivers/net/wireless/ath/ath10k/snoc.c
-+++ b/drivers/net/wireless/ath/ath10k/snoc.c
-@@ -1261,6 +1261,15 @@ out:
- 	return ret;
- }
- 
-+static void ath10k_snoc_quirks_init(struct ath10k *ar)
-+{
-+	struct ath10k_snoc *ar_snoc = ath10k_snoc_priv(ar);
-+	struct device *dev = &ar_snoc->dev->dev;
-+
-+	if (of_property_read_bool(dev->of_node, "qcom,snoc-host-cap-8bit-quirk"))
-+		set_bit(ATH10K_SNOC_FLAG_8BIT_HOST_CAP_QUIRK, &ar_snoc->flags);
-+}
-+
- int ath10k_snoc_fw_indication(struct ath10k *ar, u64 type)
- {
- 	struct ath10k_snoc *ar_snoc = ath10k_snoc_priv(ar);
-@@ -1678,6 +1687,8 @@ static int ath10k_snoc_probe(struct plat
- 	ar->ce_priv = &ar_snoc->ce;
- 	msa_size = drv_data->msa_size;
- 
-+	ath10k_snoc_quirks_init(ar);
-+
- 	ret = ath10k_snoc_resource_init(ar);
+ 	ret = ath10k_pci_chip_reset(ar);
  	if (ret) {
- 		ath10k_warn(ar, "failed to initialize resource: %d\n", ret);
---- a/drivers/net/wireless/ath/ath10k/snoc.h
-+++ b/drivers/net/wireless/ath/ath10k/snoc.h
-@@ -63,6 +63,7 @@ enum ath10k_snoc_flags {
- 	ATH10K_SNOC_FLAG_REGISTERED,
- 	ATH10K_SNOC_FLAG_UNREGISTERING,
- 	ATH10K_SNOC_FLAG_RECOVERY,
-+	ATH10K_SNOC_FLAG_8BIT_HOST_CAP_QUIRK,
- };
+ 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
+ 		goto err_free_irq;
+ 	}
  
- struct ath10k_snoc {
+-	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
+-	bus_params.link_can_suspend = true;
+ 	bus_params.chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+-	if (bus_params.chip_id == 0xffffffff) {
+-		ath10k_err(ar, "failed to get chip id\n");
+-		goto err_free_irq;
+-	}
++	if (bus_params.chip_id == 0xffffffff)
++		goto err_unsupported;
+ 
+-	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id)) {
+-		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
+-			   pdev->device, bus_params.chip_id);
++	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
+ 		goto err_free_irq;
+-	}
+ 
+ 	ret = ath10k_core_register(ar, &bus_params);
+ 	if (ret) {
+@@ -3647,6 +3657,10 @@ static int ath10k_pci_probe(struct pci_d
+ 
+ 	return 0;
+ 
++err_unsupported:
++	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
++		   pdev->device, bus_params.chip_id);
++
+ err_free_irq:
+ 	ath10k_pci_free_irq(ar);
+ 	ath10k_pci_rx_retry_sync(ar);
 
 
