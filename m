@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 636CB10BEEF
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4499B10BF87
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729485AbfK0Unp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:43:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52044 "EHLO mail.kernel.org"
+        id S1728588AbfK0Uhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:37:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbfK0Uno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:44 -0500
+        id S1728601AbfK0Uhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:37:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFE46217AB;
-        Wed, 27 Nov 2019 20:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AAB1215B2;
+        Wed, 27 Nov 2019 20:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887423;
-        bh=6Kd/tfrrNhSL81XqFWKVL0xFPS9h+4dt6mIGsLvIxQY=;
+        s=default; t=1574887056;
+        bh=I0rchmJGs8cAxxh9kh0r3kMYrLFrSYXfgcupkO1Fj4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+myPxz2TRl4gXR/N31UKdAPcYoWLjKTxZ55VjuNjiTilCgu99y6NQcWkZgmtXr5N
-         rymWA3QSSVVOxB14m7q+ckxa0SIqjRIk5zmS0ZhTWGXFn0CjUTEwR+fE5lRO5xujfE
-         W9SOBI2xHg0C4ntIrmBFelrl457ujiH9XBo8y5To=
+        b=QFhbIc/IUyEcSanrfxrxkY6vrKel0Y20FVHCVPJ1R3rLOvZ2Cg8NQhqT/Gs5tKhtL
+         RXqpATMB34pUmjaENaDotyCjVlqIyyxOsmuablbR/FV/KC2ItDPCBDd5ZiAYB5lzar
+         VPAbcChA22Fx+4FZnZi1CzLA7KtL2ZS9gHy51UUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        David Barmann <david.barmann@stackpath.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 103/151] sock: Reset dst when changing sk_mark via setsockopt
-Date:   Wed, 27 Nov 2019 21:31:26 +0100
-Message-Id: <20191127203040.134894516@linuxfoundation.org>
+Subject: [PATCH 4.4 096/132] PCI: keystone: Use quirk to limit MRRS for K2G
+Date:   Wed, 27 Nov 2019 21:31:27 +0100
+Message-Id: <20191127203022.002864472@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Barmann <david.barmann@stackpath.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 50254256f382c56bde87d970f3d0d02fdb76ec70 ]
+[ Upstream commit 148e340c0696369fadbbddc8f4bef801ed247d71 ]
 
-When setting the SO_MARK socket option, if the mark changes, the dst
-needs to be reset so that a new route lookup is performed.
+PCI controller in K2G also has a limitation that memory read request
+size (MRRS) must not exceed 256 bytes. Use the quirk to limit MRRS
+(added for K2HK, K2L and K2E) for K2G as well.
 
-This fixes the case where an application wants to change routing by
-setting a new sk_mark.  If this is done after some packets have already
-been sent, the dst is cached and has no effect.
-
-Signed-off-by: David Barmann <david.barmann@stackpath.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/pci/host/pci-keystone.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index d224933514074..9178c16543758 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -945,10 +945,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 			clear_bit(SOCK_PASSSEC, &sock->flags);
- 		break;
- 	case SO_MARK:
--		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
-+		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
- 			ret = -EPERM;
--		else
-+		} else if (val != sk->sk_mark) {
- 			sk->sk_mark = val;
-+			sk_dst_reset(sk);
-+		}
- 		break;
+diff --git a/drivers/pci/host/pci-keystone.c b/drivers/pci/host/pci-keystone.c
+index fb682e8af74d5..bdb808ba90d2a 100644
+--- a/drivers/pci/host/pci-keystone.c
++++ b/drivers/pci/host/pci-keystone.c
+@@ -42,6 +42,7 @@
+ #define PCIE_RC_K2HK		0xb008
+ #define PCIE_RC_K2E		0xb009
+ #define PCIE_RC_K2L		0xb00a
++#define PCIE_RC_K2G		0xb00b
  
- 	case SO_RXQ_OVFL:
+ #define to_keystone_pcie(x)	container_of(x, struct keystone_pcie, pp)
+ 
+@@ -56,6 +57,8 @@ static void quirk_limit_mrrs(struct pci_dev *dev)
+ 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
+ 		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2L),
+ 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
++		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2G),
++		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
+ 		{ 0, },
+ 	};
+ 
 -- 
 2.20.1
 
