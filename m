@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7682810BCA2
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8134E10BCA0
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731874AbfK0VFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:05:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59432 "EHLO mail.kernel.org"
+        id S1732041AbfK0VFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:05:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732310AbfK0VFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:05:38 -0500
+        id S1732316AbfK0VFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:05:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 321BA21741;
-        Wed, 27 Nov 2019 21:05:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3C2C2166E;
+        Wed, 27 Nov 2019 21:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888737;
-        bh=vBFYOrfj1IE1io4Th6lrRDVblv4ioYm1LhZ/3QjbwXI=;
+        s=default; t=1574888740;
+        bh=L4QbWVzfIJSe4VDi2e6Gwm+s3G1sQIYBlYSwyB3DNpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAGe0ZKbvahieeA1+txguNiL76LQHlgOLlKEs08/2dUKsRYNdpwo7bSIazhRcPhQw
-         26oj+oWn8nB26lbHNPtLmeTcZSeVZ83hC5ZqfTjNZRqewQ5JV0TEd89g90HWgJXcyM
-         eXIIoDXOasfeocdpTFXiTh90/a/9BjhBW+MBJjxQ=
+        b=UPfSXNBHUa4hoTSDRvezj+M+469pUvnjz/dc6TyhL0tZtFuVbQEUqrIPNURJpAMpG
+         Q+ztgexF7P2tLy8H1ykbY6o96D6K+D4KYGtdMdp80P5es9oXr3C8fW6viHdSAFP500
+         2/vjvZd0CaxF0WQJzrVWt8yWvdaFCT/q9mci2gfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 251/306] i2c: uniphier-f: fix timeout error after reading 8 bytes
-Date:   Wed, 27 Nov 2019 21:31:41 +0100
-Message-Id: <20191127203133.235034415@linuxfoundation.org>
+        stable@vger.kernel.org, Yang yingliang <yangyingliang@huawei.com>,
+        zhong jiang <zhongjiang@huawei.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 252/306] mm/memory_hotplug: Do not unlock when fails to take the device_hotplug_lock
+Date:   Wed, 27 Nov 2019 21:31:42 +0100
+Message-Id: <20191127203133.302148471@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -45,94 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: zhong jiang <zhongjiang@huawei.com>
 
-[ Upstream commit c2a653deaa81f5a750c0dfcbaf9f8e5195cbe4a5 ]
+[ Upstream commit d2ab99403ee00d8014e651728a4702ea1ae5e52c ]
 
-I was totally screwed up in commit eaba68785c2d ("i2c: uniphier-f:
-fix race condition when IRQ is cleared"). Since that commit, if the
-number of read bytes is multiple of the FIFO size (8, 16, 24... bytes),
-the STOP condition could be issued twice, depending on the timing.
-If this happens, the controller will go wrong, resulting in the timeout
-error.
+When adding the memory by probing memory block in sysfs interface, there is an
+obvious issue that we will unlock the device_hotplug_lock when fails to takes it.
 
-It was more than 3 years ago when I wrote this driver, so my memory
-about this hardware was vague. Please let me correct the description
-in the commit log of eaba68785c2d.
+That issue was introduced in Commit 8df1d0e4a265
+("mm/memory_hotplug: make add_memory() take the device_hotplug_lock")
 
-Clearing the IRQ status on exiting the IRQ handler is absolutely
-fine. This controller makes a pause while any IRQ status is asserted.
-If the IRQ status is cleared first, the hardware may start the next
-transaction before the IRQ handler finishes what it supposed to do.
+We should drop out in time when fails to take the device_hotplug_lock.
 
-This partially reverts the bad commit with clear comments so that I
-will never repeat this mistake.
-
-I also investigated what is happening at the last moment of the read
-mode. The UNIPHIER_FI2C_INT_RF interrupt is asserted a bit earlier
-(by half a period of the clock cycle) than UNIPHIER_FI2C_INT_RB.
-
-I consulted a hardware engineer, and I got the following information:
-
-UNIPHIER_FI2C_INT_RF
-    asserted at the falling edge of SCL at the 8th bit.
-
-UNIPHIER_FI2C_INT_RB
-    asserted at the rising edge of SCL at the 9th (ACK) bit.
-
-In order to avoid calling uniphier_fi2c_stop() twice, check the latter
-interrupt. I also commented this because it is obscure hardware internal.
-
-Fixes: eaba68785c2d ("i2c: uniphier-f: fix race condition when IRQ is cleared")
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: 8df1d0e4a265 ("mm/memory_hotplug: make add_memory() take the device_hotplug_lock")
+Reported-by: Yang yingliang <yangyingliang@huawei.com>
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-uniphier-f.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/base/memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index 928ea9930d17e..dd0687e36a47b 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -173,8 +173,6 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
- 		priv->enabled_irqs, irq_status);
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 0f8e77f78cc80..ac1574a696100 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -510,7 +510,7 @@ memory_probe_store(struct device *dev, struct device_attribute *attr,
  
--	uniphier_fi2c_clear_irqs(priv, irq_status);
--
- 	if (irq_status & UNIPHIER_FI2C_INT_STOP)
- 		goto complete;
+ 	ret = lock_device_hotplug_sysfs();
+ 	if (ret)
+-		goto out;
++		return ret;
  
-@@ -214,7 +212,13 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 
- 	if (irq_status & (UNIPHIER_FI2C_INT_RF | UNIPHIER_FI2C_INT_RB)) {
- 		uniphier_fi2c_drain_rxfifo(priv);
--		if (!priv->len)
-+		/*
-+		 * If the number of bytes to read is multiple of the FIFO size
-+		 * (msg->len == 8, 16, 24, ...), the INT_RF bit is set a little
-+		 * earlier than INT_RB. We wait for INT_RB to confirm the
-+		 * completion of the current message.
-+		 */
-+		if (!priv->len && (irq_status & UNIPHIER_FI2C_INT_RB))
- 			goto data_done;
- 
- 		if (unlikely(priv->flags & UNIPHIER_FI2C_MANUAL_NACK)) {
-@@ -253,6 +257,13 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 	}
- 
- handled:
-+	/*
-+	 * This controller makes a pause while any bit of the IRQ status is
-+	 * asserted. Clear the asserted bit to kick the controller just before
-+	 * exiting the handler.
-+	 */
-+	uniphier_fi2c_clear_irqs(priv, irq_status);
-+
- 	spin_unlock(&priv->lock);
- 
- 	return IRQ_HANDLED;
+ 	nid = memory_add_physaddr_to_nid(phys_addr);
+ 	ret = __add_memory(nid, phys_addr,
 -- 
 2.20.1
 
