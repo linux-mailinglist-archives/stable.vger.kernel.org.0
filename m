@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4EE10B9BC
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF3E10B9BF
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:56:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730277AbfK0U4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:56:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47060 "EHLO mail.kernel.org"
+        id S1731047AbfK0U4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:56:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729650AbfK0U4P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:56:15 -0500
+        id S1731046AbfK0U4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:56:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DFDE2084D;
-        Wed, 27 Nov 2019 20:56:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 929F820862;
+        Wed, 27 Nov 2019 20:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888174;
-        bh=wtjYU+nHjHQOYZA/U7nBjkeTi8Gils3V5XygPliyQmI=;
+        s=default; t=1574888183;
+        bh=wyyl9s9xZv7JFxye6DTH7V7QfW8oBgfEhI9UUGwxt0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4Hzr4hVt7pmCSDIFWHlCmYO23nFWaWbWbQULrVdr4ldDH84y3Wsj+d40G7FtqNwG
-         D2hmVIifi+LFj+ZtVxPeSB5ZBLXvb6bM607J6K9qdvW7aYkvhM4qVFq3Bg/GFZG5vQ
-         3TjSM3ZuUDtoGbScbSmxkJtkGACBejr+QN1iEHQI=
+        b=ZzmSTblfv1VgGE+TFX90+iEt+xqfci6GuMl20NtRx3Fi4bOfRYPCUPT6avy4A3sQZ
+         JV5BMMtScuHfMSWgbBRUgTjn/nowtZg37WNUo/8RDPpbdiiY7vXujfje1Ri21gjVkj
+         C33D8vSgru/zVDPCsX8UYS7q68LCZ9vMNWlW7ktI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/306] powerpc/boot: Disable vector instructions
-Date:   Wed, 27 Nov 2019 21:28:03 +0100
-Message-Id: <20191127203117.194632825@linuxfoundation.org>
+Subject: [PATCH 4.19 035/306] powerpc/eeh: Fix use of EEH_PE_KEEP on wrong field
+Date:   Wed, 27 Nov 2019 21:28:05 +0100
+Message-Id: <20191127203117.379300257@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,42 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-[ Upstream commit e8e132e6885962582784b6fa16a80d07ea739c0f ]
+[ Upstream commit 473af09b56dc4be68e4af33220ceca6be67aa60d ]
 
-This will avoid auto-vectorisation when building with higher
-optimisation levels.
+eeh_add_to_parent_pe() sometimes removes the EEH_PE_KEEP flag, but it
+incorrectly removes it from pe->type, instead of pe->state.
 
-We don't know if the machine can support VSX and even if it's present
-it's probably not going to be enabled at this point in boot.
+However, rather than clearing it from the correct field, remove it.
+Inspection of the code shows that it can't ever have had any effect
+(even if it had been cleared from the correct field), because the
+field is never tested after it is cleared by the statement in
+question.
 
-These flag were both added prior to GCC 4.6 which is the minimum
-compiler version supported by upstream, thanks to Segher for the
-details.
+The clear statement was added by commit 807a827d4e74 ("powerpc/eeh:
+Keep PE during hotplug"), but it didn't explain why it was necessary.
 
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/eeh_pe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
-index 25e3184f11f78..7d5ddf53750ce 100644
---- a/arch/powerpc/boot/Makefile
-+++ b/arch/powerpc/boot/Makefile
-@@ -32,8 +32,8 @@ else
- endif
+diff --git a/arch/powerpc/kernel/eeh_pe.c b/arch/powerpc/kernel/eeh_pe.c
+index 1b238ecc553e2..210d239a93950 100644
+--- a/arch/powerpc/kernel/eeh_pe.c
++++ b/arch/powerpc/kernel/eeh_pe.c
+@@ -379,7 +379,7 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
+ 		while (parent) {
+ 			if (!(parent->type & EEH_PE_INVALID))
+ 				break;
+-			parent->type &= ~(EEH_PE_INVALID | EEH_PE_KEEP);
++			parent->type &= ~EEH_PE_INVALID;
+ 			parent = parent->parent;
+ 		}
  
- BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
--		 -fno-strict-aliasing -Os -msoft-float -pipe \
--		 -fomit-frame-pointer -fno-builtin -fPIC -nostdinc \
-+		 -fno-strict-aliasing -Os -msoft-float -mno-altivec -mno-vsx \
-+		 -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc \
- 		 -D$(compress-y)
- 
- ifdef CONFIG_PPC64_BOOT_WRAPPER
 -- 
 2.20.1
 
