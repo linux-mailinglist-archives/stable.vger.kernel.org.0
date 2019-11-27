@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FC3910BD7E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3F110BD6E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731173AbfK0U5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:57:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48356 "EHLO mail.kernel.org"
+        id S1729381AbfK0U6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:58:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731160AbfK0U5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:57:21 -0500
+        id S1731298AbfK0U6T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:58:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16206217AB;
-        Wed, 27 Nov 2019 20:57:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C421F2084D;
+        Wed, 27 Nov 2019 20:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888240;
-        bh=XP4W78k7tWdh+OxHKfg/hOgoXSYlnsAKcT0blXHT8RY=;
+        s=default; t=1574888298;
+        bh=gUbBaBqeNzDCPkiKzKsFnWC4UNaWjQUjPjfR/d+HDI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIy09gT0Kd/hpmtGq7LOBHwevkIa0O0itfClQur5v4GBj76BtaOkt0erWoU5tVyek
-         lCUpANb6P7Sz1iNIaESxLKb5Zf3ks+Hd10xsPUIiZ0+zO1zW9BLUe2WL6JC++15U+f
-         jEikFba+0nmWFbXljUmN+pVGZITyR/n/KhwfDhus=
+        b=Kf/1Gfn8sjALd5pwd3RRm/1NO0PoMqtm6o99U+in0W9NlazmfckPLqwQ/Tq72H/Om
+         HMrOhPM7aALk0gYqNsoa/ZnjjNn4M0AKqITvo80VAwscyUHbG7eN5M6IsiMxepN6mv
+         wMtHEQbqcwaeg/xk5792afULoJcAwQ4asuXF7zBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        stable@vger.kernel.org, Angelo Dureghello <angelo@sysam.it>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/306] misc: mic: fix a DMA pool free failure
-Date:   Wed, 27 Nov 2019 21:28:21 +0100
-Message-Id: <20191127203118.514644607@linuxfoundation.org>
+Subject: [PATCH 4.19 053/306] m68k: fix command-line parsing when passed from u-boot
+Date:   Wed, 27 Nov 2019 21:28:23 +0100
+Message-Id: <20191127203118.650749917@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,51 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wang6495@umn.edu>
+From: Angelo Dureghello <angelo@sysam.it>
 
-[ Upstream commit 6b995f4eec34745f6cb20d66d5277611f0b3c3fa ]
+[ Upstream commit 381fdd62c38344a771aed06adaf14aae65c47454 ]
 
-In _scif_prog_signal(), the boolean variable 'x100' is used to indicate
-whether the MIC Coprocessor is X100. If 'x100' is true, the status
-descriptor will be used to write the value to the destination. Otherwise, a
-DMA pool will be allocated for this purpose. Specifically, if the DMA pool
-is allocated successfully, two memory addresses will be returned. One is
-for the CPU and the other is for the device to access the DMA pool. The
-former is stored to the variable 'status' and the latter is stored to the
-variable 'src'. After the allocation, the address in 'src' is saved to
-'status->src_dma_addr', which is actually in the DMA pool, and 'src' is
-then modified.
+This patch fixes command_line array zero-terminated
+one byte over the end of the array, causing boot to hang.
 
-Later on, if an error occurs, the execution flow will transfer to the label
-'dma_fail', which will check 'x100' and free up the allocated DMA pool if
-'x100' is false. The point here is that 'status->src_dma_addr' is used for
-freeing up the DMA pool. As mentioned before, 'status->src_dma_addr' is in
-the DMA pool. And thus, the device is able to modify this data. This can
-potentially cause failures when freeing up the DMA pool because of the
-modified device address.
-
-This patch avoids the above issue by using the variable 'src' (with
-necessary calculation) to free up the DMA pool.
-
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Angelo Dureghello <angelo@sysam.it>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mic/scif/scif_fence.c | 2 +-
+ arch/m68k/kernel/uboot.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/mic/scif/scif_fence.c b/drivers/misc/mic/scif/scif_fence.c
-index cac3bcc308a7e..7bb929f05d852 100644
---- a/drivers/misc/mic/scif/scif_fence.c
-+++ b/drivers/misc/mic/scif/scif_fence.c
-@@ -272,7 +272,7 @@ static int _scif_prog_signal(scif_epd_t epd, dma_addr_t dst, u64 val)
- dma_fail:
- 	if (!x100)
- 		dma_pool_free(ep->remote_dev->signal_pool, status,
--			      status->src_dma_addr);
-+			      src - offsetof(struct scif_status, val));
- alloc_fail:
- 	return err;
+diff --git a/arch/m68k/kernel/uboot.c b/arch/m68k/kernel/uboot.c
+index b29c3b241e1bb..1070828770645 100644
+--- a/arch/m68k/kernel/uboot.c
++++ b/arch/m68k/kernel/uboot.c
+@@ -102,5 +102,5 @@ __init void process_uboot_commandline(char *commandp, int size)
+ 	}
+ 
+ 	parse_uboot_commandline(commandp, len);
+-	commandp[size - 1] = 0;
++	commandp[len - 1] = 0;
  }
 -- 
 2.20.1
