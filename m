@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7A910BB5C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:13:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A1110BBD3
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731019AbfK0VLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:11:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41080 "EHLO mail.kernel.org"
+        id S1733103AbfK0VOW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:14:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733221AbfK0VLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:11:49 -0500
+        id S1727469AbfK0VOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:14:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFF0A21555;
-        Wed, 27 Nov 2019 21:11:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5C692154A;
+        Wed, 27 Nov 2019 21:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889109;
-        bh=LfA1WHC3J8XPfL/CFiTC6sNIBPjDAA/6b3KwEk0Dals=;
+        s=default; t=1574889261;
+        bh=IZD60WKOoIIwQZ0XlG9VB+VgoMwu1UzQuNA7TjHizyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JrQoHrrpwcTJXNE0Z4067HF/veqUB6DN7nn/V/vhhadGUfywPnOLZkjJZfBaHBouB
-         Dto9b588Ht1Ys2gsTv2HNOq5/JnQvSVfCMuAZimv5n7RP0nFAOixOObGl1e5xErFgO
-         Liuc8xUJZTn3Yp4HcEJwFjUntsnb93WNrZz3uTiE=
+        b=TQserSO+kBTmbvaCGuV09yS9Da1lYKDYqhilJ3L+kLfjkIlgDmrecHXnae5E7Xh0p
+         cNry9Bvr9a4HmfAiv4cX0kVUhmzDPqpnzAgHXIQeZspIY6/+u9W9YKzdarW677wXLB
+         IQDFcMlUzC2TCebhjrcwhcduwo55nNPR/cpBaoRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.de>
-Subject: [PATCH 5.3 85/95] USB: chaoskey: fix error case of a timeout
-Date:   Wed, 27 Nov 2019 21:32:42 +0100
-Message-Id: <20191127202953.570882475@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d93dff37e6a89431c158@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 48/66] media: b2c2-flexcop-usb: add sanity checking
+Date:   Wed, 27 Nov 2019 21:32:43 +0100
+Message-Id: <20191127202727.964604266@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +47,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Oliver Neukum <oneukum@suse.com>
 
-commit 92aa5986f4f7b5a8bf282ca0f50967f4326559f5 upstream.
+commit 1b976fc6d684e3282914cdbe7a8d68fdce19095c upstream.
 
-In case of a timeout or if a signal aborts a read
-communication with the device needs to be ended
-lest we overwrite an active URB the next time we
-do IO to the device, as the URB may still be active.
+The driver needs an isochronous endpoint to be present. It will
+oops in its absence. Add checking for it.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.de>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191107142856.16774-1-oneukum@suse.com
+Reported-by: syzbot+d93dff37e6a89431c158@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/chaoskey.c |   24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ drivers/media/usb/b2c2/flexcop-usb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/misc/chaoskey.c
-+++ b/drivers/usb/misc/chaoskey.c
-@@ -384,13 +384,17 @@ static int _chaoskey_fill(struct chaoske
- 		!dev->reading,
- 		(started ? NAK_TIMEOUT : ALEA_FIRST_TIMEOUT) );
+--- a/drivers/media/usb/b2c2/flexcop-usb.c
++++ b/drivers/media/usb/b2c2/flexcop-usb.c
+@@ -538,6 +538,9 @@ static int flexcop_usb_probe(struct usb_
+ 	struct flexcop_device *fc = NULL;
+ 	int ret;
  
--	if (result < 0)
-+	if (result < 0) {
-+		usb_kill_urb(dev->urb);
- 		goto out;
-+	}
- 
--	if (result == 0)
-+	if (result == 0) {
- 		result = -ETIMEDOUT;
--	else
-+		usb_kill_urb(dev->urb);
-+	} else {
- 		result = dev->valid;
-+	}
- out:
- 	/* Let the device go back to sleep eventually */
- 	usb_autopm_put_interface(dev->interface);
-@@ -526,7 +530,21 @@ static int chaoskey_suspend(struct usb_i
- 
- static int chaoskey_resume(struct usb_interface *interface)
- {
-+	struct chaoskey *dev;
-+	struct usb_device *udev = interface_to_usbdev(interface);
++	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
++		return -ENODEV;
 +
- 	usb_dbg(interface, "resume");
-+	dev = usb_get_intfdata(interface);
-+
-+	/*
-+	 * We may have lost power.
-+	 * In that case the device that needs a long time
-+	 * for the first requests needs an extended timeout
-+	 * again
-+	 */
-+	if (le16_to_cpu(udev->descriptor.idVendor) == ALEA_VENDOR_ID)
-+		dev->reads_started = false;
-+
- 	return 0;
- }
- #else
+ 	if ((fc = flexcop_device_kmalloc(sizeof(struct flexcop_usb))) == NULL) {
+ 		err("out of memory\n");
+ 		return -ENOMEM;
 
 
