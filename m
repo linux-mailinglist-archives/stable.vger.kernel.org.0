@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36BC610B7DD
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:37:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D2D10B7E0
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728609AbfK0Uhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:37:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40772 "EHLO mail.kernel.org"
+        id S1728621AbfK0Uhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:37:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728607AbfK0Uhj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:37:39 -0500
+        id S1728625AbfK0Uhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:37:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0F5A21569;
-        Wed, 27 Nov 2019 20:37:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6504215A5;
+        Wed, 27 Nov 2019 20:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887059;
-        bh=awQvIKTfUYWNu69iro6jB5+ZflEGxlK8ruMsEgXoNEc=;
+        s=default; t=1574887067;
+        bh=iIrIemM+N0M5lPeZn0XH1Xik9bRC7HEGUjRHqXeNVLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NjqK3er893u6MNJHo0doqYwYlwJvMvuRLdocvG97AcaLKSjOxHEeFa1KAEofGBCJj
-         W5KIG4eh6SnEHiPgLHsDm20A0L9xDxEjFDi3AXXZvQ39zMeJdVcOxg9p2smRSZSMEr
-         ac6Yv2oRAu/QCcnkw7hy5ZaE5Ci7SH2PpFgUlGyc=
+        b=zF12eRsrZdepw1o1OSBfuyJWEDBqvY2si3ReajSlI3hjGGoD1aY19aiJXO730twDX
+         of3K4kOZKvOZZ4tGctmUZ/tFDDL3T6WymTyzrCGVvIi4WdTjfVD/SF2RxMrOHu7RrQ
+         Lm3iNftJZESsaUlqIOEtqM/9eTin/q7Nlyza74UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Lechner <david@lechnology.com>,
-        Vignesh R <vigneshr@ti.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 097/132] spi: omap2-mcspi: Fix DMA and FIFO event trigger size mismatch
-Date:   Wed, 27 Nov 2019 21:31:28 +0100
-Message-Id: <20191127203022.521896485@linuxfoundation.org>
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Alexander Potapenko <glider@google.com>
+Subject: [PATCH 4.4 099/132] Bluetooth: Fix invalid-free in bcsp_close()
+Date:   Wed, 27 Nov 2019 21:31:30 +0100
+Message-Id: <20191127203023.527104381@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
 References: <20191127202857.270233486@linuxfoundation.org>
@@ -44,49 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh R <vigneshr@ti.com>
+From: Tomas Bortoli <tomasbortoli@gmail.com>
 
-[ Upstream commit baf8b9f8d260c55a86405f70a384c29cda888476 ]
+commit cf94da6f502d8caecabd56b194541c873c8a7a3c upstream.
 
-Commit b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
-broke SPI transfers where bits_per_word != 8. This is because of
-mimsatch between McSPI FIFO level event trigger size (SPI word length) and
-DMA request size(word length * maxburst). This leads to data
-corruption, lockup and errors like:
+Syzbot reported an invalid-free that I introduced fixing a memleak.
 
-	spi1.0: EOW timed out
+bcsp_recv() also frees bcsp->rx_skb but never nullifies its value.
+Nullify bcsp->rx_skb every time it is freed.
 
-Fix this by setting DMA maxburst size to 1 so that
-McSPI FIFO level event trigger size matches DMA request size.
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Alexander Potapenko <glider@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
-Cc: stable@vger.kernel.org
-Reported-by: David Lechner <david@lechnology.com>
-Tested-by: David Lechner <david@lechnology.com>
-Signed-off-by: Vignesh R <vigneshr@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-omap2-mcspi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_bcsp.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
-index 2e35fc735ba6a..79fa237f76c42 100644
---- a/drivers/spi/spi-omap2-mcspi.c
-+++ b/drivers/spi/spi-omap2-mcspi.c
-@@ -593,8 +593,8 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
- 	cfg.dst_addr = cs->phys + OMAP2_MCSPI_TX0;
- 	cfg.src_addr_width = width;
- 	cfg.dst_addr_width = width;
--	cfg.src_maxburst = es;
--	cfg.dst_maxburst = es;
-+	cfg.src_maxburst = 1;
-+	cfg.dst_maxburst = 1;
+--- a/drivers/bluetooth/hci_bcsp.c
++++ b/drivers/bluetooth/hci_bcsp.c
+@@ -566,6 +566,7 @@ static int bcsp_recv(struct hci_uart *hu
+ 			if (*ptr == 0xc0) {
+ 				BT_ERR("Short BCSP packet");
+ 				kfree_skb(bcsp->rx_skb);
++				bcsp->rx_skb = NULL;
+ 				bcsp->rx_state = BCSP_W4_PKT_START;
+ 				bcsp->rx_count = 0;
+ 			} else
+@@ -581,6 +582,7 @@ static int bcsp_recv(struct hci_uart *hu
+ 					bcsp->rx_skb->data[2])) != bcsp->rx_skb->data[3]) {
+ 				BT_ERR("Error in BCSP hdr checksum");
+ 				kfree_skb(bcsp->rx_skb);
++				bcsp->rx_skb = NULL;
+ 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
+ 				bcsp->rx_count = 0;
+ 				continue;
+@@ -615,6 +617,7 @@ static int bcsp_recv(struct hci_uart *hu
+ 					bscp_get_crc(bcsp));
  
- 	rx = xfer->rx_buf;
- 	tx = xfer->tx_buf;
--- 
-2.20.1
-
+ 				kfree_skb(bcsp->rx_skb);
++				bcsp->rx_skb = NULL;
+ 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
+ 				bcsp->rx_count = 0;
+ 				continue;
 
 
