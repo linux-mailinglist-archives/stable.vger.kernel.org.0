@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02A8710B929
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:50:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E045E10B84C
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730354AbfK0Uu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:50:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
+        id S1728737AbfK0Ul7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:41:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbfK0Uu1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:50:27 -0500
+        id S1727895AbfK0Ul7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:41:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F9D42158A;
-        Wed, 27 Nov 2019 20:50:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D4B121775;
+        Wed, 27 Nov 2019 20:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887825;
-        bh=febHDCnmAbc7A9SiF0v4GbyjctYAv1LCzcdfJi+6TSE=;
+        s=default; t=1574887318;
+        bh=mDMQRLefT1wXgAOc2ntoJDLCRHpGLUSN9tXIFTlyFbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iE/tFR85UZkM512aBlAa/3Db6GFHKTyNN0NDAPElbAjbCynWBj3UaqsColgG+AvkB
-         +9pW8K7TLhZhw/wN9IfsAP+42eeH9cd0mRQUY206+jkWtbQodDAICQ3g6zbshGglLe
-         Peie0UIomu12QXaBLrWd474QS6H3LDn08rupZREE=
+        b=nTXA2o5n0TWjOGA2DmPOCkOfvwJCfL6dWxNx9wk6fxb2TK1gy70HTWlvNSCntehNW
+         zH/Q/2YL1Feq4ol+lNJgKCnZGVm/COZYxSUAoIibgk0fDAY67bOqsyw+yG5eGdKulk
+         IU9RKQwxmu1HGP0K701+bNytmaKTJqP4Ai+z4rsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "=?UTF-8?q?Ernesto=20A . =20Fern=C3=A1ndez?=" 
-        <ernesto.mnd.fernandez@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Felipe Rechia <felipe.rechia@datacom.com.br>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 110/211] hfs: fix BUG on bnode parent update
-Date:   Wed, 27 Nov 2019 21:30:43 +0100
-Message-Id: <20191127203104.491510210@linuxfoundation.org>
+Subject: [PATCH 4.9 062/151] powerpc/process: Fix flush_all_to_thread for SPE
+Date:   Wed, 27 Nov 2019 21:30:45 +0100
+Message-Id: <20191127203033.242846647@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+From: Felipe Rechia <felipe.rechia@datacom.com.br>
 
-[ Upstream commit ef75bcc5763d130451a99825f247d301088b790b ]
+[ Upstream commit e901378578c62202594cba0f6c076f3df365ec91 ]
 
-hfs_brec_update_parent() may hit BUG_ON() if the first record of both a
-leaf node and its parent are changed, and if this forces the parent to
-be split.  It is not possible for this to happen on a valid hfs
-filesystem because the index nodes have fixed length keys.
+Fix a bug introduced by the creation of flush_all_to_thread() for
+processors that have SPE (Signal Processing Engine) and use it to
+compute floating-point operations.
 
-For reasons I ignore, the hfs module does have support for a number of
-hfsplus features.  A corrupt btree header may report variable length
-keys and trigger this BUG, so it's better to fix it.
+>From userspace perspective, the problem was seen in attempts of
+computing floating-point operations which should generate exceptions.
+For example:
 
-Link: http://lkml.kernel.org/r/cf9b02d57f806217a2b1bf5db8c3e39730d8f603.1535682463.git.ernesto.mnd.fernandez@gmail.com
-Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  fork();
+  float x = 0.0 / 0.0;
+  isnan(x);           // forked process returns False (should be True)
+
+The operation above also should always cause the SPEFSCR FINV bit to
+be set. However, the SPE floating-point exceptions were turned off
+after a fork().
+
+Kernel versions prior to the bug used flush_spe_to_thread(), which
+first saves SPEFSCR register values in tsk->thread and then calls
+giveup_spe(tsk).
+
+After commit 579e633e764e, the save_all() function was called first
+to giveup_spe(), and then the SPEFSCR register values were saved in
+tsk->thread. This would save the SPEFSCR register values after
+disabling SPE for that thread, causing the bug described above.
+
+Fixes 579e633e764e ("powerpc: create flush_all_to_thread()")
+Signed-off-by: Felipe Rechia <felipe.rechia@datacom.com.br>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/brec.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/process.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/hfs/brec.c b/fs/hfs/brec.c
-index da25c49203cc5..896396554bcc1 100644
---- a/fs/hfs/brec.c
-+++ b/fs/hfs/brec.c
-@@ -445,6 +445,7 @@ static int hfs_brec_update_parent(struct hfs_find_data *fd)
- 			/* restore search_key */
- 			hfs_bnode_read_key(node, fd->search_key, 14);
- 		}
-+		new_node = NULL;
- 	}
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 47c6c0401b3a2..54c95e7c74cce 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -576,12 +576,11 @@ void flush_all_to_thread(struct task_struct *tsk)
+ 	if (tsk->thread.regs) {
+ 		preempt_disable();
+ 		BUG_ON(tsk != current);
+-		save_all(tsk);
+-
+ #ifdef CONFIG_SPE
+ 		if (tsk->thread.regs->msr & MSR_SPE)
+ 			tsk->thread.spefscr = mfspr(SPRN_SPEFSCR);
+ #endif
++		save_all(tsk);
  
- 	if (!rec && node->parent)
+ 		preempt_enable();
+ 	}
 -- 
 2.20.1
 
