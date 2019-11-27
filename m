@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C4810B80E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:39:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB12B10B810
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:39:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbfK0UjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:39:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43436 "EHLO mail.kernel.org"
+        id S1728111AbfK0Uj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:39:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbfK0UjU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:39:20 -0500
+        id S1728897AbfK0UjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:39:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2465121569;
-        Wed, 27 Nov 2019 20:39:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8745B21569;
+        Wed, 27 Nov 2019 20:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887159;
-        bh=8lr5WI3hKp8J6pf8q7kwThSAqJKzrjvFPMvna7Gwtuk=;
+        s=default; t=1574887165;
+        bh=djQpxoQsKHIgxbZ1V+yqDs5di/kEoqJziiDyBpyvB0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1AO7A2ukK77RQFiUdhAWgIrY2Uxx7rbIDVWfUHPSVHzIq3TgrC+aBFHD/9ofw6HO
-         EAibsQuIsr/t42IdCAgmtdAbZDXWEeSj+v6JeYgVP9bflr+UB6vnZh1QGoGMFuzs5w
-         LuBsW0+w5JFx33oR6R7yF9STOiED1vR9HxW+P2ZU=
+        b=b9yS9RaA6aFRT9t9HJsF6DF4ST+Nv2ZKWkjoGYXuDRDXqb1byW4nkF1RIpiB6ckp+
+         2lWr6untW7z0Y/1NlRTNvu9rgAKhl5u011rIUut2drVOLdF11ZSBJi339+BAqqlZLT
+         GNLG+qXKvKCPa7lkfjacq1rdD/K+azUGVBDvss50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 120/132] virtio_console: drop custom control queue cleanup
-Date:   Wed, 27 Nov 2019 21:31:51 +0100
-Message-Id: <20191127203032.645412707@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Joel Jennings <joel.jennings@makeitlabs.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 122/132] usb-serial: cp201x: support Mark-10 digital force gauge
+Date:   Wed, 27 Nov 2019 21:31:53 +0100
+Message-Id: <20191127203032.898353013@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
 References: <20191127202857.270233486@linuxfoundation.org>
@@ -43,64 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 61a8950c5c5708cf2068b29ffde94e454e528208 ]
+commit 347bc8cb26388791c5881a3775cb14a3f765a674 upstream.
 
-We now cleanup all VQs on device removal - no need
-to handle the control VQ specially.
+Add support for the Mark-10 digital force gauge device to the cp201x
+driver.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Based on a report and a larger patch from Joel Jennings
+
+Reported-by: Joel Jennings <joel.jennings@makeitlabs.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191118092119.GA153852@kroah.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/char/virtio_console.c | 17 -----------------
- 1 file changed, 17 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 1b002e1391f0a..bc4a804048205 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1987,21 +1987,6 @@ static void remove_vqs(struct ports_device *portdev)
- 	kfree(portdev->out_vqs);
- }
- 
--static void remove_controlq_data(struct ports_device *portdev)
--{
--	struct port_buffer *buf;
--	unsigned int len;
--
--	if (!use_multiport(portdev))
--		return;
--
--	while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
--		free_buf(buf, true);
--
--	while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
--		free_buf(buf, true);
--}
--
- /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.
-@@ -2162,7 +2147,6 @@ static void virtcons_remove(struct virtio_device *vdev)
- 	 * have to just stop using the port, as the vqs are going
- 	 * away.
- 	 */
--	remove_controlq_data(portdev);
- 	remove_vqs(portdev);
- 	kfree(portdev);
- }
-@@ -2207,7 +2191,6 @@ static int virtcons_freeze(struct virtio_device *vdev)
- 	 */
- 	if (use_multiport(portdev))
- 		virtqueue_disable_cb(portdev->c_ivq);
--	remove_controlq_data(portdev);
- 
- 	list_for_each_entry(port, &portdev->ports, list) {
- 		virtqueue_disable_cb(port->in_vq);
--- 
-2.20.1
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -121,6 +121,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x8341) }, /* Siemens MC35PU GPRS Modem */
+ 	{ USB_DEVICE(0x10C4, 0x8382) }, /* Cygnal Integrated Products, Inc. */
+ 	{ USB_DEVICE(0x10C4, 0x83A8) }, /* Amber Wireless AMB2560 */
++	{ USB_DEVICE(0x10C4, 0x83AA) }, /* Mark-10 Digital Force Gauge */
+ 	{ USB_DEVICE(0x10C4, 0x83D8) }, /* DekTec DTA Plus VHF/UHF Booster/Attenuator */
+ 	{ USB_DEVICE(0x10C4, 0x8411) }, /* Kyocera GPS Module */
+ 	{ USB_DEVICE(0x10C4, 0x8418) }, /* IRZ Automation Teleport SG-10 GSM/GPRS Modem */
 
 
