@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF78D10BD7F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B097610BD99
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729575AbfK0U5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:57:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48162 "EHLO mail.kernel.org"
+        id S1728364AbfK0VaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:30:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731160AbfK0U5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:57:15 -0500
+        id S1731017AbfK0U4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:56:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9DED21582;
-        Wed, 27 Nov 2019 20:57:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AA082084D;
+        Wed, 27 Nov 2019 20:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888233;
-        bh=zvYRrz4rzu32n8VzU68nDZUGzYohu/DbbQ7Rr99+HhM=;
+        s=default; t=1574888160;
+        bh=mdj7XPfQr7aTT3QJ1EjZS6B280N60fbSQCKhLUyoZvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qe6e4CjUUY/vGm2IZf4NCw1OYWqM+5S4VQZIeZn26fm0yjHLl/DYjMpciCmeF/R0j
-         SEqSfN3w3aACrJPg0s5RjfszJ6wjFLseQU07h+b0o44NcPX78QC0MD9C9PTN4pmNiQ
-         MhxLxQ/QNEzp3kTF+2WY9+JbjBMLUv7+pMsON0u4=
+        b=YmTwYmY14XQ97vVEy1LPhK/fjSK9o69Le4yFmU2v8WEZnAHed15feS1z8VxYUUw6a
+         lBwDKLoeDzsrKeH+ysU4KvVP4XFvc7+b/IG3/f9z19O3lHO59vdYmaA+EZiPVifp+D
+         bJFj2bmD/ITshCaJKfQvd/5QYp+P7ZvXY131mrAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4.19 013/306] tools: gpio: Correctly add make dependencies for gpio_utils
-Date:   Wed, 27 Nov 2019 21:27:43 +0100
-Message-Id: <20191127203115.684001568@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Douglas <adouglas@cadence.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 027/306] PCI: cadence: Write MSI data with 32bits
+Date:   Wed, 27 Nov 2019 21:27:57 +0100
+Message-Id: <20191127203116.673854739@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,74 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
+From: Alan Douglas <adouglas@cadence.com>
 
-commit 0161a94e2d1c713bd34d72bc0239d87c31747bf7 upstream.
+[ Upstream commit e81e36a96bb56f243b5ac1d114c37c086761595b ]
 
-gpio tools fail to build correctly with make parallelization:
+According to the PCIe specification, although the MSI data is only
+16bits, the upper 16bits should be written as 0. Use writel
+instead of writew when writing the MSI data to the host.
 
-$ make -s -j24
-ld: gpio-utils.o: file not recognized: file truncated
-make[1]: *** [/home/labbott/linux_upstream/tools/build/Makefile.build:145: lsgpio-in.o] Error 1
-make: *** [Makefile:43: lsgpio-in.o] Error 2
-make: *** Waiting for unfinished jobs....
-
-This is because gpio-utils.o is used across multiple targets.
-Fix this by making gpio-utios.o a proper dependency.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 37dddf14f1ae ("PCI: cadence: Add EndPoint Controller driver for Cadence PCIe controller")
+Signed-off-by: Alan Douglas <adouglas@cadence.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/gpio/Build    |    1 +
- tools/gpio/Makefile |   10 +++++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/pci/controller/pcie-cadence-ep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/gpio/Build
-+++ b/tools/gpio/Build
-@@ -1,3 +1,4 @@
-+gpio-utils-y += gpio-utils.o
- lsgpio-y += lsgpio.o gpio-utils.o
- gpio-hammer-y += gpio-hammer.o gpio-utils.o
- gpio-event-mon-y += gpio-event-mon.o gpio-utils.o
---- a/tools/gpio/Makefile
-+++ b/tools/gpio/Makefile
-@@ -35,11 +35,15 @@ $(OUTPUT)include/linux/gpio.h: ../../inc
+diff --git a/drivers/pci/controller/pcie-cadence-ep.c b/drivers/pci/controller/pcie-cadence-ep.c
+index 6692654798d44..c3a088910f48d 100644
+--- a/drivers/pci/controller/pcie-cadence-ep.c
++++ b/drivers/pci/controller/pcie-cadence-ep.c
+@@ -355,7 +355,7 @@ static int cdns_pcie_ep_send_msi_irq(struct cdns_pcie_ep *ep, u8 fn,
+ 		ep->irq_pci_addr = (pci_addr & ~pci_addr_mask);
+ 		ep->irq_pci_fn = fn;
+ 	}
+-	writew(data, ep->irq_cpu_addr + (pci_addr & pci_addr_mask));
++	writel(data, ep->irq_cpu_addr + (pci_addr & pci_addr_mask));
  
- prepare: $(OUTPUT)include/linux/gpio.h
- 
-+GPIO_UTILS_IN := $(output)gpio-utils-in.o
-+$(GPIO_UTILS_IN): prepare FORCE
-+	$(Q)$(MAKE) $(build)=gpio-utils
-+
- #
- # lsgpio
- #
- LSGPIO_IN := $(OUTPUT)lsgpio-in.o
--$(LSGPIO_IN): prepare FORCE
-+$(LSGPIO_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=lsgpio
- $(OUTPUT)lsgpio: $(LSGPIO_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-@@ -48,7 +52,7 @@ $(OUTPUT)lsgpio: $(LSGPIO_IN)
- # gpio-hammer
- #
- GPIO_HAMMER_IN := $(OUTPUT)gpio-hammer-in.o
--$(GPIO_HAMMER_IN): prepare FORCE
-+$(GPIO_HAMMER_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=gpio-hammer
- $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
-@@ -57,7 +61,7 @@ $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
- # gpio-event-mon
- #
- GPIO_EVENT_MON_IN := $(OUTPUT)gpio-event-mon-in.o
--$(GPIO_EVENT_MON_IN): prepare FORCE
-+$(GPIO_EVENT_MON_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
- 	$(Q)$(MAKE) $(build)=gpio-event-mon
- $(OUTPUT)gpio-event-mon: $(GPIO_EVENT_MON_IN)
- 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+ 	return 0;
+ }
+-- 
+2.20.1
+
 
 
