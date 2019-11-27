@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB9B10BE13
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA9610BF2C
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730526AbfK0Uvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:51:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38632 "EHLO mail.kernel.org"
+        id S1728479AbfK0UlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:41:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730519AbfK0Uvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:51:44 -0500
+        id S1729151AbfK0UlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:41:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2832B21850;
-        Wed, 27 Nov 2019 20:51:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C09520863;
+        Wed, 27 Nov 2019 20:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887903;
-        bh=NjWy5znEkoWXqsJzxRB5cmvhQBP3xr8ifrgF/0d3lR8=;
+        s=default; t=1574887279;
+        bh=2pRONMT9Wb0FmlOGGCaXMgsOEB5HUk+wXh22ByjWyUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJ9feTuZMp0dR3VBrbKEQOMG6SYWXAliVWa0ovxYus+yj96FH8T8N+NrAf77SxLC0
-         JKCjV6SEENcciUcIpJDRhvi0NbHzLRPmmRSV87P3VGnXqD8D4//swaOIVgNLyJ8c6G
-         kHzZz6PBbeQX43rZhpj7qFtxTuh7qepbqJzda6xk=
+        b=u2eW+24ytfQJHlrDe0UjEVgYkenYR0aHqKfYhkKf3U5VIB3tgHQJsxcc3QZclvsaU
+         G7hiRJ9QaxSeue8KQ3Kj4WLhVNISg080ZXwTr5q/PWMHmHzFPI/JOA5Vwan4t+OiAd
+         e2eJviMKt6N3vwlbRqxv70UBWAM/QKH+qKH1201M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 098/211] i2c: uniphier-f: make driver robust against concurrency
+Subject: [PATCH 4.9 048/151] s390/perf: Return error when debug_register fails
 Date:   Wed, 27 Nov 2019 21:30:31 +0100
-Message-Id: <20191127203102.959083592@linuxfoundation.org>
+Message-Id: <20191127203029.239833434@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit f1fdcbbdf45d9609f3d4063b67e9ea941ba3a58f ]
+[ Upstream commit ec0c0bb489727de0d4dca6a00be6970ab8a3b30a ]
 
-This is unlikely to happen, but it is possible for a CPU to enter
-the interrupt handler just after wait_for_completion_timeout() has
-expired. If this happens, the hardware is accessed from multiple
-contexts concurrently.
+Return an error when the function debug_register() fails allocating
+the debug handle.
+Also remove the registered debug handle when the initialization fails
+later on.
 
-Disable the IRQ after wait_for_completion_timeout(), and do nothing
-from the handler when the IRQ is disabled.
-
-Fixes: 6a62974b667f ("i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver")
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-uniphier-f.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ arch/s390/kernel/perf_cpum_sf.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index bc26ec822e268..b9a0690b4fd73 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -98,6 +98,7 @@ struct uniphier_fi2c_priv {
- 	unsigned int flags;
- 	unsigned int busy_cnt;
- 	unsigned int clk_cycle;
-+	spinlock_t lock;	/* IRQ synchronization */
- };
- 
- static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
-@@ -162,7 +163,10 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 	struct uniphier_fi2c_priv *priv = dev_id;
- 	u32 irq_status;
- 
-+	spin_lock(&priv->lock);
-+
- 	irq_status = readl(priv->membase + UNIPHIER_FI2C_INT);
-+	irq_status &= priv->enabled_irqs;
- 
- 	dev_dbg(&priv->adap.dev,
- 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
-@@ -230,6 +234,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 		goto handled;
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 96e4fcad57bf7..f46e5c0cb6d95 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1611,14 +1611,17 @@ static int __init init_cpum_sampling_pmu(void)
  	}
  
-+	spin_unlock(&priv->lock);
-+
- 	return IRQ_NONE;
+ 	sfdbg = debug_register(KMSG_COMPONENT, 2, 1, 80);
+-	if (!sfdbg)
++	if (!sfdbg) {
+ 		pr_err("Registering for s390dbf failed\n");
++		return -ENOMEM;
++	}
+ 	debug_register_view(sfdbg, &debug_sprintf_view);
  
- data_done:
-@@ -246,6 +252,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- handled:
- 	uniphier_fi2c_clear_irqs(priv);
+ 	err = register_external_irq(EXT_IRQ_MEASURE_ALERT,
+ 				    cpumf_measurement_alert);
+ 	if (err) {
+ 		pr_cpumsf_err(RS_INIT_FAILURE_ALRT);
++		debug_unregister(sfdbg);
+ 		goto out;
+ 	}
  
-+	spin_unlock(&priv->lock);
-+
- 	return IRQ_HANDLED;
- }
+@@ -1627,6 +1630,7 @@ static int __init init_cpum_sampling_pmu(void)
+ 		pr_cpumsf_err(RS_INIT_FAILURE_PERF);
+ 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
+ 					cpumf_measurement_alert);
++		debug_unregister(sfdbg);
+ 		goto out;
+ 	}
  
-@@ -311,7 +319,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- {
- 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
- 	bool is_read = msg->flags & I2C_M_RD;
--	unsigned long time_left;
-+	unsigned long time_left, flags;
- 
- 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
- 		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
-@@ -342,6 +350,12 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 	       priv->membase + UNIPHIER_FI2C_CR);
- 
- 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
-+
-+	spin_lock_irqsave(&priv->lock, flags);
-+	priv->enabled_irqs = 0;
-+	uniphier_fi2c_set_irqs(priv);
-+	spin_unlock_irqrestore(&priv->lock, flags);
-+
- 	if (!time_left) {
- 		dev_err(&adap->dev, "transaction timeout.\n");
- 		uniphier_fi2c_recover(priv);
-@@ -546,6 +560,7 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
- 
- 	priv->clk_cycle = clk_rate / bus_speed;
- 	init_completion(&priv->comp);
-+	spin_lock_init(&priv->lock);
- 	priv->adap.owner = THIS_MODULE;
- 	priv->adap.algo = &uniphier_fi2c_algo;
- 	priv->adap.dev.parent = dev;
 -- 
 2.20.1
 
