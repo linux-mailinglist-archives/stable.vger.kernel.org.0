@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6D310BE06
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 636CB10BEEF
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729275AbfK0UwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:52:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39620 "EHLO mail.kernel.org"
+        id S1729485AbfK0Unp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:43:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730588AbfK0UwP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:52:15 -0500
+        id S1728202AbfK0Uno (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:43:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 028BB218AF;
-        Wed, 27 Nov 2019 20:52:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFE46217AB;
+        Wed, 27 Nov 2019 20:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887934;
-        bh=5dEbdlruILwkWbOUiIwYdpi3k5zAZe2wyIRORJgY8cw=;
+        s=default; t=1574887423;
+        bh=6Kd/tfrrNhSL81XqFWKVL0xFPS9h+4dt6mIGsLvIxQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5Z/o2gpHN1l3ZhrDP9Rg1wm27h9627Pa+RaLA8UkyuHuD4rzlGQrduq3LQ5RwUlG
-         1edFvMycDevhAVigXP9XcCeYVDqI8ob2Fp3ac2r5lLyd5eIUQbQwstNk/CVQEeqQ2H
-         xl4oVoaISdiMD0iDfzNZjhqvgwlQ3ETUKkPZKx6M=
+        b=h+myPxz2TRl4gXR/N31UKdAPcYoWLjKTxZ55VjuNjiTilCgu99y6NQcWkZgmtXr5N
+         rymWA3QSSVVOxB14m7q+ckxa0SIqjRIk5zmS0ZhTWGXFn0CjUTEwR+fE5lRO5xujfE
+         W9SOBI2xHg0C4ntIrmBFelrl457ujiH9XBo8y5To=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 152/211] sock: Reset dst when changing sk_mark via setsockopt
-Date:   Wed, 27 Nov 2019 21:31:25 +0100
-Message-Id: <20191127203108.385631857@linuxfoundation.org>
+Subject: [PATCH 4.9 103/151] sock: Reset dst when changing sk_mark via setsockopt
+Date:   Wed, 27 Nov 2019 21:31:26 +0100
+Message-Id: <20191127203040.134894516@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/net/core/sock.c b/net/core/sock.c
-index 7ccbcd853cbce..78c9aa310ce6b 100644
+index d224933514074..9178c16543758 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
-@@ -985,10 +985,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+@@ -945,10 +945,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
  			clear_bit(SOCK_PASSSEC, &sock->flags);
  		break;
  	case SO_MARK:
