@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEBBA10BE5C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D3D10BF3A
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbfK0Vfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:35:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34570 "EHLO mail.kernel.org"
+        id S1729021AbfK0UkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:40:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729264AbfK0UtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:49:07 -0500
+        id S1729018AbfK0UkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:40:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4058021787;
-        Wed, 27 Nov 2019 20:49:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5FFE215A5;
+        Wed, 27 Nov 2019 20:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887745;
-        bh=Cyz/ltkVZ79YYSWUegWFEuN6IGPYYvpiwX20k9pvej8=;
+        s=default; t=1574887222;
+        bh=HOcaq0eTt3sWpujI16INbD4a6Vw/LVwz3TEbLWtPfQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZGbsIb734e2TRZw5+sL1oWFkWd3fVqHcWGzeVv9PrIIBWrO0+5wNfo5R4vOP4uxb
-         w0o4JF/uvDWF/0gPCLxeklFSiaZrOS32V7uzh+rFKnDCuWYGbFGJ6pmVIHllw1iPDs
-         nQz/QIUXQ5sHqDJwv1/kOxoUr+klFN5QemBwfGE8=
+        b=sahs92IXieQxljJ4dld2QNkj4wPWvvQU27ySH6A1l3ZMp9IXKUd7CLiUbPJn2ucLs
+         KIPLrwXnk25DgnUOS4yNcaqi1I+vIG0JL6aD5NWj+Hd4GCXCcPUUEQnBRaUW7Mb27F
+         I7LsydZCz8XsrpjdiV7TLQuAKcTsFVeHIkAR/uP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weichao Guo <guoweichao@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/211] f2fs: fix to spread clear_cold_data()
-Date:   Wed, 27 Nov 2019 21:30:10 +0100
-Message-Id: <20191127203101.096985706@linuxfoundation.org>
+Subject: [PATCH 4.9 028/151] scsi: ips: fix missing break in switch
+Date:   Wed, 27 Nov 2019 21:30:11 +0100
+Message-Id: <20191127203018.600601785@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit 2baf07818549c8bb8d7b3437e889b86eab56d38e ]
+[ Upstream commit 5d25ff7a544889bc4b749fda31778d6a18dddbcb ]
 
-We need to drop PG_checked flag on page as well when we clear PG_uptodate
-flag, in order to avoid treating the page as GCing one later.
+Add missing break statement in order to prevent the code from falling
+through to case TEST_UNIT_READY.
 
-Signed-off-by: Weichao Guo <guoweichao@huawei.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Addresses-Coverity-ID: 1357338 ("Missing break in switch")
+Suggested-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c    | 8 +++++++-
- fs/f2fs/dir.c     | 1 +
- fs/f2fs/segment.c | 4 +++-
- 3 files changed, 11 insertions(+), 2 deletions(-)
+ drivers/scsi/ips.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index cc57294451940..ac3fa4bbed2d9 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -1445,6 +1445,7 @@ int do_write_data_page(struct f2fs_io_info *fio)
- 	/* This page is already truncated */
- 	if (fio->old_blkaddr == NULL_ADDR) {
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
- 		goto out_writepage;
- 	}
- got_it:
-@@ -1597,8 +1598,10 @@ static int __write_data_page(struct page *page, bool *submitted,
+diff --git a/drivers/scsi/ips.c b/drivers/scsi/ips.c
+index 02cb76fd44208..6bbf2945a3e00 100644
+--- a/drivers/scsi/ips.c
++++ b/drivers/scsi/ips.c
+@@ -3500,6 +3500,7 @@ ips_send_cmd(ips_ha_t * ha, ips_scb_t * scb)
  
- out:
- 	inode_dec_dirty_pages(inode);
--	if (err)
-+	if (err) {
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
-+	}
+ 		case START_STOP:
+ 			scb->scsi_cmd->result = DID_OK << 16;
++			break;
  
- 	if (wbc->for_reclaim) {
- 		f2fs_submit_merged_write_cond(sbi, inode, 0, page->index, DATA);
-@@ -2158,6 +2161,8 @@ void f2fs_invalidate_page(struct page *page, unsigned int offset,
- 		}
- 	}
- 
-+	clear_cold_data(page);
-+
- 	/* This is atomic written page, keep Private */
- 	if (IS_ATOMIC_WRITTEN_PAGE(page))
- 		return drop_inmem_page(inode, page);
-@@ -2176,6 +2181,7 @@ int f2fs_release_page(struct page *page, gfp_t wait)
- 	if (IS_ATOMIC_WRITTEN_PAGE(page))
- 		return 0;
- 
-+	clear_cold_data(page);
- 	set_page_private(page, 0);
- 	ClearPagePrivate(page);
- 	return 1;
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index c0c933ad43c8d..4abefd841b6c7 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -745,6 +745,7 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
- 		clear_page_dirty_for_io(page);
- 		ClearPagePrivate(page);
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
- 		inode_dec_dirty_pages(dir);
- 		remove_dirty_inode(dir);
- 	}
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 9e5fca35e47d0..2cd0d126ef8fa 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -251,8 +251,10 @@ static int __revoke_inmem_pages(struct inode *inode,
- 		}
- next:
- 		/* we don't need to invalidate this in the sccessful status */
--		if (drop || recover)
-+		if (drop || recover) {
- 			ClearPageUptodate(page);
-+			clear_cold_data(page);
-+		}
- 		set_page_private(page, 0);
- 		ClearPagePrivate(page);
- 		f2fs_put_page(page, 1);
+ 		case TEST_UNIT_READY:
+ 		case INQUIRY:
 -- 
 2.20.1
 
