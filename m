@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B559C10BA01
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E42210B8BE
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730496AbfK0U7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:59:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50516 "EHLO mail.kernel.org"
+        id S1729851AbfK0UqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:46:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731376AbfK0U7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:59:03 -0500
+        id S1729051AbfK0UqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:46:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A2B820862;
-        Wed, 27 Nov 2019 20:59:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70B452182A;
+        Wed, 27 Nov 2019 20:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888342;
-        bh=omppKKnMzlwMUO/lGjPYMr5FWF7KOGGvHMhEJD4Ko/A=;
+        s=default; t=1574887575;
+        bh=4vSE2iF9fhoU/KldqzxMkgkbkCMZmhjX13/Zp+uKhiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIf0qjIOvHEelswmeytunDtWuOSL6ur/3J/ZvU6oE00um1Xt8HYyndlus41IhCV56
-         567dR3glo+AvkMPX1Xavq3WjOLGREGerN768CN4HhLX4XehGn0snTSl4K/eL9itpXW
-         S68JcOvi1SSjRwFB8di+mU17FWBHUWTp0/nefeOw=
+        b=k8kmvYYvC4PNGc2WW0qyuYBJB9q7aPKUSdzeUKjeq+JknVtWIhOSxQRsFUFKEJc11
+         BpfjPIu5qnJnCSMeOCO1ekG8vIskqWDBb05yC5v39ceQoVjbnmEFWf94vCN9KldRwj
+         Yg1/KUUG9t1k2EhzZlTxlMCiUVWpR1YnMMfLx+64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 095/306] PCI: vmd: Detach resources after stopping root bus
-Date:   Wed, 27 Nov 2019 21:29:05 +0100
-Message-Id: <20191127203121.842234236@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Hugh Dickins <hughd@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 013/211] mm/ksm.c: dont WARN if page is still mapped in remove_stable_node()
+Date:   Wed, 27 Nov 2019 21:29:06 +0100
+Message-Id: <20191127203051.558767274@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-[ Upstream commit dc8af3a827df6d4bb925d3b81b7ec94a7cce9482 ]
+commit 9a63236f1ad82d71a98aa80320b6cb618fb32f44 upstream.
 
-The VMD removal path calls pci_stop_root_busi(), which tears down the pcie
-tree, including detaching all of the attached drivers. During driver
-detachment, devices may use pci_release_region() to release resources.
-This path relies on the resource being accessible in resource tree.
+It's possible to hit the WARN_ON_ONCE(page_mapped(page)) in
+remove_stable_node() when it races with __mmput() and squeezes in
+between ksm_exit() and exit_mmap().
 
-By detaching the child domain from the parent resource domain prior to
-stopping the bus, we are preventing the list traversal from finding the
-resource to be freed. If we instead detach the resource after stopping
-the bus, we will have properly freed the resource and detaching is
-simply accounting at that point.
+  WARNING: CPU: 0 PID: 3295 at mm/ksm.c:888 remove_stable_node+0x10c/0x150
 
-Without this order, the resource is never freed and is orphaned on VMD
-removal, leading to a warning:
+  Call Trace:
+   remove_all_stable_nodes+0x12b/0x330
+   run_store+0x4ef/0x7b0
+   kernfs_fop_write+0x200/0x420
+   vfs_write+0x154/0x450
+   ksys_write+0xf9/0x1d0
+   do_syscall_64+0x99/0x510
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-[  181.940162] Trying to free nonexistent resource <e5a10000-e5a13fff>
+Remove the warning as there is nothing scary going on.
 
-Fixes: 2c2c5c5cd213 ("x86/PCI: VMD: Attach VMD resources to parent domain's resource tree")
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-[lorenzo.pieralisi@arm.com: updated commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20191119131850.5675-1-aryabinin@virtuozzo.com
+Fixes: cbf86cfe04a6 ("ksm: remove old stable nodes more thoroughly")
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/controller/vmd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/ksm.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
-index 65eaa6b618685..ab36e5ca1aca3 100644
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -818,12 +818,12 @@ static void vmd_remove(struct pci_dev *dev)
- {
- 	struct vmd_dev *vmd = pci_get_drvdata(dev);
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -849,13 +849,13 @@ static int remove_stable_node(struct sta
+ 		return 0;
+ 	}
  
--	vmd_detach_resources(vmd);
- 	sysfs_remove_link(&vmd->dev->dev.kobj, "domain");
- 	pci_stop_root_bus(vmd->bus);
- 	pci_remove_root_bus(vmd->bus);
- 	vmd_cleanup_srcu(vmd);
- 	vmd_teardown_dma_ops(vmd);
-+	vmd_detach_resources(vmd);
- 	irq_domain_remove(vmd->irq_domain);
- }
- 
--- 
-2.20.1
-
+-	if (WARN_ON_ONCE(page_mapped(page))) {
+-		/*
+-		 * This should not happen: but if it does, just refuse to let
+-		 * merge_across_nodes be switched - there is no need to panic.
+-		 */
+-		err = -EBUSY;
+-	} else {
++	/*
++	 * Page could be still mapped if this races with __mmput() running in
++	 * between ksm_exit() and exit_mmap(). Just refuse to let
++	 * merge_across_nodes/max_page_sharing be switched.
++	 */
++	err = -EBUSY;
++	if (!page_mapped(page)) {
+ 		/*
+ 		 * The stable node did not yet appear stale to get_ksm_page(),
+ 		 * since that allows for an unmapped ksm page to be recognized
 
 
