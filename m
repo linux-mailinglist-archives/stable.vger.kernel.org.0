@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1566110BDA4
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5FE10BDA5
 	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:30:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727213AbfK0Uzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:55:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
+        id S1727319AbfK0Vag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:30:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730654AbfK0Uzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:55:35 -0500
+        id S1730356AbfK0Uzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:55:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C68A720862;
-        Wed, 27 Nov 2019 20:55:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43A5520862;
+        Wed, 27 Nov 2019 20:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888134;
-        bh=ocDDI6UNN/IZnta24ouw3SRUvHXXUlZZoHZJyZBfJQg=;
+        s=default; t=1574888136;
+        bh=WdjUGu7X/CWFXaVOckev9LeqnWq4q9ChzD+8yMwavRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=skyNc9WX+1tmjgIwkw+er6UvUTKp2g54ypsDA7hU0iZR2ToVYNOpIoFHNDpljOHnv
-         9mGQNHhN8qqJw39ls/PPxSANRe3fM1wDO6zGZVXA5W0ZyPe/RlKBmi3G12SYdqBU+z
-         +oWfGkXprFCI74qlc67FESCfHKMUIwF+R+SniOy8=
+        b=oOlWx8t4NQ8BsjF/6BbaNZbzGR8ihnn90wGkAL8a9sQmb74RSzaLpXr2o8eoXVeQf
+         HuSqcrXz/YQIzLqLeAPBTtzyt9NlXVZefmGxNAXzPeq0TXaLLoPjPq0XWaxyqpjrFK
+         JxJODFywskCyuIRwX6YJo0zkBNZAAwqsQdQSRh4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 018/306] drm/amd/powerplay: issue no PPSMC_MSG_GetCurrPkgPwr on unsupported ASICs
-Date:   Wed, 27 Nov 2019 21:27:48 +0100
-Message-Id: <20191127203116.029122590@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 4.19 019/306] drm/i915/pmu: "Frequency" is reported as accumulated cycles
+Date:   Wed, 27 Nov 2019 21:27:49 +0100
+Message-Id: <20191127203116.103201032@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,60 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 355d991cb6ff6ae76b5e28b8edae144124c730e4 upstream.
+commit add3eeed3683e2636ef524db48e1a678757c8e96 upstream.
 
-Otherwise, the error message prompted will confuse user.
+We report "frequencies" (actual-frequency, requested-frequency) as the
+number of accumulated cycles so that the average frequency over that
+period may be determined by the user. This means the units we report to
+the user are Mcycles (or just M), not MHz.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Cc: stable@vger.kernel.org
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191109105356.5273-1-chris@chris-wilson.co.uk
+(cherry picked from commit e88866ef02851c88fe95a4bb97820b94b4d46f36)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+(cherry picked from commit a7d87b70d6da96c6772e50728c8b4e78e4cbfd55)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c |   23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/i915_pmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-@@ -3472,18 +3472,31 @@ static int smu7_get_pp_table_entry(struc
- 
- static int smu7_get_gpu_power(struct pp_hwmgr *hwmgr, u32 *query)
- {
-+	struct amdgpu_device *adev = hwmgr->adev;
- 	int i;
- 	u32 tmp = 0;
- 
- 	if (!query)
- 		return -EINVAL;
- 
--	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_GetCurrPkgPwr, 0);
--	tmp = cgs_read_register(hwmgr->device, mmSMC_MSG_ARG_0);
--	*query = tmp;
-+	/*
-+	 * PPSMC_MSG_GetCurrPkgPwr is not supported on:
-+	 *  - Hawaii
-+	 *  - Bonaire
-+	 *  - Fiji
-+	 *  - Tonga
-+	 */
-+	if ((adev->asic_type != CHIP_HAWAII) &&
-+	    (adev->asic_type != CHIP_BONAIRE) &&
-+	    (adev->asic_type != CHIP_FIJI) &&
-+	    (adev->asic_type != CHIP_TONGA)) {
-+		smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_GetCurrPkgPwr, 0);
-+		tmp = cgs_read_register(hwmgr->device, mmSMC_MSG_ARG_0);
-+		*query = tmp;
- 
--	if (tmp != 0)
--		return 0;
-+		if (tmp != 0)
-+			return 0;
-+	}
- 
- 	smum_send_msg_to_smc(hwmgr, PPSMC_MSG_PmStatusLogStart);
- 	cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC,
+--- a/drivers/gpu/drm/i915/i915_pmu.c
++++ b/drivers/gpu/drm/i915/i915_pmu.c
+@@ -827,8 +827,8 @@ create_event_attributes(struct drm_i915_
+ 		const char *name;
+ 		const char *unit;
+ 	} events[] = {
+-		__event(I915_PMU_ACTUAL_FREQUENCY, "actual-frequency", "MHz"),
+-		__event(I915_PMU_REQUESTED_FREQUENCY, "requested-frequency", "MHz"),
++		__event(I915_PMU_ACTUAL_FREQUENCY, "actual-frequency", "M"),
++		__event(I915_PMU_REQUESTED_FREQUENCY, "requested-frequency", "M"),
+ 		__event(I915_PMU_INTERRUPTS, "interrupts", NULL),
+ 		__event(I915_PMU_RC6_RESIDENCY, "rc6-residency", "ns"),
+ 	};
 
 
