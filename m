@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E111710BCDB
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:24:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6D510BCDC
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727197AbfK0VCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:02:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55864 "EHLO mail.kernel.org"
+        id S1727385AbfK0VC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:02:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731959AbfK0VCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:02:52 -0500
+        id S1731965AbfK0VCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:02:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54AF4215F1;
-        Wed, 27 Nov 2019 21:02:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30766215F1;
+        Wed, 27 Nov 2019 21:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888571;
-        bh=iPFtIhlFnF1IDIP9CFvA7qpSv6U66EhbaLGNIWWMfT8=;
+        s=default; t=1574888574;
+        bh=u4cMk57GJBtPgUj1fNsMhqxtKdBQxEFX5HaDeTIiLZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ade925yB9HuhNluVKLjwEVTMtaCc/NurzJFAr/8s/y9pBRuZx0wrW5uF4/30TKPv6
-         PwT8YEjfGwCsucm9SC9SQLFc8xFUvAyLdsFejvblF7J3AMapFrzdjCkfgDhjfo0sCw
-         lMwLn0K6gWgUT4PrX0luNKvOlsTCuYe2ocVvC0YI=
+        b=yogMqxOpMb9ikIaCe4VJwwzLao76teY/to9TGdCvbfJJBwvOgcsUrmZzPuUPU9f3T
+         7lOCDichO+gPLIqWpVvTdYr8cG6hO7MLQedKXl80fIXqE/mPfJq/s1zAQNMYZ5J416
+         Dhr8Z1kjHl5DQXh/+1PcI1xKWyJx46ZyEiegzbZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 184/306] fm10k: ensure completer aborts are marked as non-fatal after a resume
-Date:   Wed, 27 Nov 2019 21:30:34 +0100
-Message-Id: <20191127203128.734577348@linuxfoundation.org>
+Subject: [PATCH 4.19 185/306] net: hns3: bugfix for buffer not free problem during resetting
+Date:   Wed, 27 Nov 2019 21:30:35 +0100
+Message-Id: <20191127203128.798931840@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,131 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Huazhong Tan <tanhuazhong@huawei.com>
 
-[ Upstream commit e330af788998b0de4da4f5bd7ddd087507999800 ]
+[ Upstream commit 73b907a083b8a8c1c62cb494bc9fbe6ae086c460 ]
 
-VF drivers can trigger PCIe completer aborts any time they read a queue
-that they don't own. Even in nominal circumstances, it is not possible
-to prevent the VF driver from reading queues it doesn't own. VF drivers
-may attempt to read queues it previously owned, but which it no longer
-does due to a PF reset.
+When hns3_get_ring_config()/hns3_queue_to_ring()/
+hns3_get_vector_ring_chain() failed during resetting, the allocated
+memory has not been freed before these three functions return. So
+this patch adds error handler in these functions to fix it.
 
-Normally these completer aborts aren't an issue. However, on some
-platforms these trigger machine check errors. This is true even if we
-lower their severity from fatal to non-fatal. Indeed, we already have
-code for lowering the severity.
-
-We could attempt to mask these errors conditionally around resets, which
-is the most common time they would occur. However this would essentially
-be a race between the PF and VF drivers, and we may still occasionally
-see machine check exceptions on these strictly configured platforms.
-
-Instead, mask the errors entirely any time we resume VFs. By doing so,
-we prevent the completer aborts from being sent to the parent PCIe
-device, and thus these strict platforms will not upgrade them into
-machine check errors.
-
-Additionally, we don't lose any information by masking these errors,
-because we'll still report VFs which attempt to access queues via the
-FUM_BAD_VF_QACCESS errors.
-
-Without this change, on platforms where completer aborts cause machine
-check exceptions, the VF reading queues it doesn't own could crash the
-host system. Masking the completer abort prevents this, so we should
-mask it for good, and not just around a PCIe reset. Otherwise malicious
-or misconfigured VFs could cause the host system to crash.
-
-Because we are masking the error entirely, there is little reason to
-also keep setting the severity bit, so that code is also removed.
-
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/fm10k/fm10k_iov.c | 48 ++++++++++++--------
- 1 file changed, 28 insertions(+), 20 deletions(-)
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 24 ++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/fm10k/fm10k_iov.c b/drivers/net/ethernet/intel/fm10k/fm10k_iov.c
-index e707d717012fa..618032612f52d 100644
---- a/drivers/net/ethernet/intel/fm10k/fm10k_iov.c
-+++ b/drivers/net/ethernet/intel/fm10k/fm10k_iov.c
-@@ -302,6 +302,28 @@ void fm10k_iov_suspend(struct pci_dev *pdev)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index e11a7de20b8f4..3708f149d0a6a 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -2547,7 +2547,7 @@ static int hns3_get_vector_ring_chain(struct hns3_enet_tqp_vector *tqp_vector,
+ 			chain = devm_kzalloc(&pdev->dev, sizeof(*chain),
+ 					     GFP_KERNEL);
+ 			if (!chain)
+-				return -ENOMEM;
++				goto err_free_chain;
+ 
+ 			cur_chain->next = chain;
+ 			chain->tqp_index = tx_ring->tqp->tqp_index;
+@@ -2577,7 +2577,7 @@ static int hns3_get_vector_ring_chain(struct hns3_enet_tqp_vector *tqp_vector,
+ 	while (rx_ring) {
+ 		chain = devm_kzalloc(&pdev->dev, sizeof(*chain), GFP_KERNEL);
+ 		if (!chain)
+-			return -ENOMEM;
++			goto err_free_chain;
+ 
+ 		cur_chain->next = chain;
+ 		chain->tqp_index = rx_ring->tqp->tqp_index;
+@@ -2592,6 +2592,16 @@ static int hns3_get_vector_ring_chain(struct hns3_enet_tqp_vector *tqp_vector,
  	}
+ 
+ 	return 0;
++
++err_free_chain:
++	cur_chain = head->next;
++	while (cur_chain) {
++		chain = cur_chain->next;
++		devm_kfree(&pdev->dev, chain);
++		cur_chain = chain;
++	}
++
++	return -ENOMEM;
  }
  
-+static void fm10k_mask_aer_comp_abort(struct pci_dev *pdev)
-+{
-+	u32 err_mask;
-+	int pos;
-+
-+	pos = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ERR);
-+	if (!pos)
-+		return;
-+
-+	/* Mask the completion abort bit in the ERR_UNCOR_MASK register,
-+	 * preventing the device from reporting these errors to the upstream
-+	 * PCIe root device. This avoids bringing down platforms which upgrade
-+	 * non-fatal completer aborts into machine check exceptions. Completer
-+	 * aborts can occur whenever a VF reads a queue it doesn't own.
-+	 */
-+	pci_read_config_dword(pdev, pos + PCI_ERR_UNCOR_MASK, &err_mask);
-+	err_mask |= PCI_ERR_UNC_COMP_ABORT;
-+	pci_write_config_dword(pdev, pos + PCI_ERR_UNCOR_MASK, err_mask);
-+
-+	mmiowb();
-+}
-+
- int fm10k_iov_resume(struct pci_dev *pdev)
- {
- 	struct fm10k_intfc *interface = pci_get_drvdata(pdev);
-@@ -317,6 +339,12 @@ int fm10k_iov_resume(struct pci_dev *pdev)
- 	if (!iov_data)
- 		return -ENOMEM;
+ static void hns3_free_vector_ring_chain(struct hns3_enet_tqp_vector *tqp_vector,
+@@ -2836,8 +2846,10 @@ static int hns3_queue_to_ring(struct hnae3_queue *tqp,
+ 		return ret;
  
-+	/* Lower severity of completer abort error reporting as
-+	 * the VFs can trigger this any time they read a queue
-+	 * that they don't own.
-+	 */
-+	fm10k_mask_aer_comp_abort(pdev);
-+
- 	/* allocate hardware resources for the VFs */
- 	hw->iov.ops.assign_resources(hw, num_vfs, num_vfs);
+ 	ret = hns3_ring_get_cfg(tqp, priv, HNAE3_RING_TYPE_RX);
+-	if (ret)
++	if (ret) {
++		devm_kfree(priv->dev, priv->ring_data[tqp->tqp_index].ring);
+ 		return ret;
++	}
  
-@@ -460,20 +488,6 @@ void fm10k_iov_disable(struct pci_dev *pdev)
- 	fm10k_iov_free_data(pdev);
+ 	return 0;
  }
+@@ -2864,6 +2876,12 @@ static int hns3_get_ring_config(struct hns3_nic_priv *priv)
  
--static void fm10k_disable_aer_comp_abort(struct pci_dev *pdev)
--{
--	u32 err_sev;
--	int pos;
--
--	pos = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ERR);
--	if (!pos)
--		return;
--
--	pci_read_config_dword(pdev, pos + PCI_ERR_UNCOR_SEVER, &err_sev);
--	err_sev &= ~PCI_ERR_UNC_COMP_ABORT;
--	pci_write_config_dword(pdev, pos + PCI_ERR_UNCOR_SEVER, err_sev);
--}
--
- int fm10k_iov_configure(struct pci_dev *pdev, int num_vfs)
- {
- 	int current_vfs = pci_num_vf(pdev);
-@@ -495,12 +509,6 @@ int fm10k_iov_configure(struct pci_dev *pdev, int num_vfs)
- 
- 	/* allocate VFs if not already allocated */
- 	if (num_vfs && num_vfs != current_vfs) {
--		/* Disable completer abort error reporting as
--		 * the VFs can trigger this any time they read a queue
--		 * that they don't own.
--		 */
--		fm10k_disable_aer_comp_abort(pdev);
--
- 		err = pci_enable_sriov(pdev, num_vfs);
- 		if (err) {
- 			dev_err(&pdev->dev,
+ 	return 0;
+ err:
++	while (i--) {
++		devm_kfree(priv->dev, priv->ring_data[i].ring);
++		devm_kfree(priv->dev,
++			   priv->ring_data[i + h->kinfo.num_tqps].ring);
++	}
++
+ 	devm_kfree(&pdev->dev, priv->ring_data);
+ 	return ret;
+ }
 -- 
 2.20.1
 
