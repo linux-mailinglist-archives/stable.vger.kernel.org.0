@@ -2,120 +2,440 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A75910AFF8
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 14:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B63910B01E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 14:25:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726520AbfK0NNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 08:13:02 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39112 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726514AbfK0NNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 08:13:02 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 79398BB3E;
-        Wed, 27 Nov 2019 13:13:00 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 2B3F51E0B12; Wed, 27 Nov 2019 14:13:00 +0100 (CET)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        id S1726587AbfK0NY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 08:24:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39780 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726530AbfK0NY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 08:24:59 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7368A2068E;
+        Wed, 27 Nov 2019 13:24:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574861097;
+        bh=qV02KzP1hgnhVADrp/wBhUn+/GMALFy3ti4MYXM9GRA=;
+        h=Subject:To:From:Date:From;
+        b=Q1ZDj5rkhkSoj0X9iXUEZZ+exEAtRFac5VSggGuBdoYSNbAkVCv4NYTxiOGfAKv7e
+         /0IGtdYhZq1aWumxyyWHiLnKsILlyOty8SpmMy3rLlPi6OujUgni5ztEr2VN56b02l
+         JqL8+hnQcRGklv8R+SxpdeXX9bV7bj8GzuCqaZjA=
+Subject: patch "Revert "serial/8250: Add support for NI-Serial PXI/PXIe+485 devices"" added to tty-testing
+To:     je.yen.tam@ni.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: [PATCH] ext4: Fix ext4_empty_dir() for directories with holes
-Date:   Wed, 27 Nov 2019 14:12:58 +0100
-Message-Id: <20191127131258.1163-1-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 27 Nov 2019 14:24:55 +0100
+Message-ID: <157486109536251@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Function ext4_empty_dir() doesn't correctly handle directories with
-holes and crashes on bh->b_data dereference when bh is NULL. Reorganize
-the loop to use 'offset' variable all the times instead of comparing
-pointers to current direntry with bh->b_data pointer. Also add more
-strict checking of '.' and '..' directory entries to avoid entering loop
-in possibly invalid state on corrupted filesystems.
 
-References: CVE-2019-19037
-CC: stable@vger.kernel.org
-Fixes: 4e19d6b65fb4 ("ext4: allow directory holes")
-Signed-off-by: Jan Kara <jack@suse.cz>
+This is a note to let you know that I've just added the patch titled
+
+    Revert "serial/8250: Add support for NI-Serial PXI/PXIe+485 devices"
+
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the tty-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 27ed14d0ecb38516b6f3c6fdcd62c25c9454f979 Mon Sep 17 00:00:00 2001
+From: Je Yen Tam <je.yen.tam@ni.com>
+Date: Wed, 27 Nov 2019 15:53:01 +0800
+Subject: Revert "serial/8250: Add support for NI-Serial PXI/PXIe+485 devices"
+
+This reverts commit fdc2de87124f5183a98ea7eced1f76dbdba22951 ("serial/8250:
+Add support for NI-Serial PXI/PXIe+485 devices").
+
+The commit fdc2de87124f ("serial/8250: Add support for NI-Serial
+PXI/PXIe+485 devices") introduced a breakage on NI-Serial PXI(e)-RS485
+devices, RS-232 variants have no issue. The Linux system can enumerate the
+NI-Serial PXI(e)-RS485 devices, but it broke the R/W operation on the
+ports.
+
+However, the implementation is working on the NI internal Linux RT kernel
+but it does not work in the Linux main tree kernel. This is only affecting
+NI products, specifically the RS-485 variants. Reverting the upstream
+until a proper implementation that can apply to both NI internal Linux
+kernel and Linux mainline kernel is figured out.
+
+Signed-off-by: Je Yen Tam <je.yen.tam@ni.com>
+Fixes: fdc2de87124f ("serial/8250: Add support for NI-Serial PXI/PXIe+485 devices")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191127075301.9866-1-je.yen.tam@ni.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c | 292 +----------------------------
+ 1 file changed, 4 insertions(+), 288 deletions(-)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index a427d2031a8d..91083eb9c203 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2808,7 +2808,7 @@ bool ext4_empty_dir(struct inode *inode)
- {
- 	unsigned int offset;
- 	struct buffer_head *bh;
--	struct ext4_dir_entry_2 *de, *de1;
-+	struct ext4_dir_entry_2 *de;
- 	struct super_block *sb;
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 6adbadd6a56a..8a01d034f9d1 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -745,16 +745,8 @@ static int pci_ni8430_init(struct pci_dev *dev)
+ }
  
- 	if (ext4_has_inline_data(inode)) {
-@@ -2833,19 +2833,25 @@ bool ext4_empty_dir(struct inode *inode)
- 		return true;
+ /* UART Port Control Register */
+-#define NI16550_PCR_OFFSET	0x0f
+-#define NI16550_PCR_RS422	0x00
+-#define NI16550_PCR_ECHO_RS485	0x01
+-#define NI16550_PCR_DTR_RS485	0x02
+-#define NI16550_PCR_AUTO_RS485	0x03
+-#define NI16550_PCR_WIRE_MODE_MASK	0x03
+-#define NI16550_PCR_TXVR_ENABLE_BIT	BIT(3)
+-#define NI16550_PCR_RS485_TERMINATION_BIT	BIT(6)
+-#define NI16550_ACR_DTR_AUTO_DTR	(0x2 << 3)
+-#define NI16550_ACR_DTR_MANUAL_DTR	(0x0 << 3)
++#define NI8430_PORTCON	0x0f
++#define NI8430_PORTCON_TXVR_ENABLE	(1 << 3)
  
- 	de = (struct ext4_dir_entry_2 *) bh->b_data;
--	de1 = ext4_next_entry(de, sb->s_blocksize);
--	if (le32_to_cpu(de->inode) != inode->i_ino ||
--			le32_to_cpu(de1->inode) == 0 ||
--			strcmp(".", de->name) || strcmp("..", de1->name)) {
--		ext4_warning_inode(inode, "directory missing '.' and/or '..'");
-+	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
-+				 0) ||
-+	    le32_to_cpu(de->inode) != inode->i_ino || strcmp(".", de->name)) {
-+		ext4_warning_inode(inode, "directory missing '.'");
-+		brelse(bh);
-+		return true;
-+	}
-+	offset = ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
-+	de = ext4_next_entry(de, sb->s_blocksize);
-+	if (ext4_check_dir_entry(inode, NULL, de, bh, bh->b_data, bh->b_size,
-+				 offset) ||
-+	    le32_to_cpu(de->inode) == 0 || strcmp("..", de->name)) {
-+		ext4_warning_inode(inode, "directory missing '..'");
- 		brelse(bh);
- 		return true;
- 	}
--	offset = ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize) +
--		 ext4_rec_len_from_disk(de1->rec_len, sb->s_blocksize);
--	de = ext4_next_entry(de1, sb->s_blocksize);
-+	offset += ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
- 	while (offset < inode->i_size) {
--		if ((void *) de >= (void *) (bh->b_data+sb->s_blocksize)) {
-+		if (!(offset & (sb->s_blocksize - 1))) {
- 			unsigned int lblock;
- 			brelse(bh);
- 			lblock = offset >> EXT4_BLOCK_SIZE_BITS(sb);
-@@ -2856,12 +2862,11 @@ bool ext4_empty_dir(struct inode *inode)
- 			}
- 			if (IS_ERR(bh))
- 				return true;
--			de = (struct ext4_dir_entry_2 *) bh->b_data;
- 		}
-+		de = (struct ext4_dir_entry_2 *) bh->b_data +
-+					(offset & (sb->s_blocksize - 1));
- 		if (ext4_check_dir_entry(inode, NULL, de, bh,
- 					 bh->b_data, bh->b_size, offset)) {
--			de = (struct ext4_dir_entry_2 *)(bh->b_data +
--							 sb->s_blocksize);
- 			offset = (offset | (sb->s_blocksize - 1)) + 1;
- 			continue;
- 		}
-@@ -2870,7 +2875,6 @@ bool ext4_empty_dir(struct inode *inode)
- 			return false;
- 		}
- 		offset += ext4_rec_len_from_disk(de->rec_len, sb->s_blocksize);
--		de = ext4_next_entry(de, sb->s_blocksize);
- 	}
- 	brelse(bh);
- 	return true;
+ static int
+ pci_ni8430_setup(struct serial_private *priv,
+@@ -776,117 +768,14 @@ pci_ni8430_setup(struct serial_private *priv,
+ 		return -ENOMEM;
+ 
+ 	/* enable the transceiver */
+-	writeb(readb(p + offset + NI16550_PCR_OFFSET) | NI16550_PCR_TXVR_ENABLE_BIT,
+-	       p + offset + NI16550_PCR_OFFSET);
++	writeb(readb(p + offset + NI8430_PORTCON) | NI8430_PORTCON_TXVR_ENABLE,
++	       p + offset + NI8430_PORTCON);
+ 
+ 	iounmap(p);
+ 
+ 	return setup_port(priv, port, bar, offset, board->reg_shift);
+ }
+ 
+-static int pci_ni8431_config_rs485(struct uart_port *port,
+-	struct serial_rs485 *rs485)
+-{
+-	u8 pcr, acr;
+-	struct uart_8250_port *up;
+-
+-	up = container_of(port, struct uart_8250_port, port);
+-	acr = up->acr;
+-	pcr = port->serial_in(port, NI16550_PCR_OFFSET);
+-	pcr &= ~NI16550_PCR_WIRE_MODE_MASK;
+-
+-	if (rs485->flags & SER_RS485_ENABLED) {
+-		/* RS-485 */
+-		if ((rs485->flags & SER_RS485_RX_DURING_TX) &&
+-			(rs485->flags & SER_RS485_RTS_ON_SEND)) {
+-			dev_dbg(port->dev, "Invalid 2-wire mode\n");
+-			return -EINVAL;
+-		}
+-
+-		if (rs485->flags & SER_RS485_RX_DURING_TX) {
+-			/* Echo */
+-			dev_vdbg(port->dev, "2-wire DTR with echo\n");
+-			pcr |= NI16550_PCR_ECHO_RS485;
+-			acr |= NI16550_ACR_DTR_MANUAL_DTR;
+-		} else {
+-			/* Auto or DTR */
+-			if (rs485->flags & SER_RS485_RTS_ON_SEND) {
+-				/* Auto */
+-				dev_vdbg(port->dev, "2-wire Auto\n");
+-				pcr |= NI16550_PCR_AUTO_RS485;
+-				acr |= NI16550_ACR_DTR_AUTO_DTR;
+-			} else {
+-				/* DTR-controlled */
+-				/* No Echo */
+-				dev_vdbg(port->dev, "2-wire DTR no echo\n");
+-				pcr |= NI16550_PCR_DTR_RS485;
+-				acr |= NI16550_ACR_DTR_MANUAL_DTR;
+-			}
+-		}
+-	} else {
+-		/* RS-422 */
+-		dev_vdbg(port->dev, "4-wire\n");
+-		pcr |= NI16550_PCR_RS422;
+-		acr |= NI16550_ACR_DTR_MANUAL_DTR;
+-	}
+-
+-	dev_dbg(port->dev, "write pcr: 0x%08x\n", pcr);
+-	port->serial_out(port, NI16550_PCR_OFFSET, pcr);
+-
+-	up->acr = acr;
+-	port->serial_out(port, UART_SCR, UART_ACR);
+-	port->serial_out(port, UART_ICR, up->acr);
+-
+-	/* Update the cache. */
+-	port->rs485 = *rs485;
+-
+-	return 0;
+-}
+-
+-static int pci_ni8431_setup(struct serial_private *priv,
+-		 const struct pciserial_board *board,
+-		 struct uart_8250_port *uart, int idx)
+-{
+-	u8 pcr, acr;
+-	struct pci_dev *dev = priv->dev;
+-	void __iomem *addr;
+-	unsigned int bar, offset = board->first_offset;
+-
+-	if (idx >= board->num_ports)
+-		return 1;
+-
+-	bar = FL_GET_BASE(board->flags);
+-	offset += idx * board->uart_offset;
+-
+-	addr = pci_ioremap_bar(dev, bar);
+-	if (!addr)
+-		return -ENOMEM;
+-
+-	/* enable the transceiver */
+-	writeb(readb(addr + NI16550_PCR_OFFSET) | NI16550_PCR_TXVR_ENABLE_BIT,
+-		addr + NI16550_PCR_OFFSET);
+-
+-	pcr = readb(addr + NI16550_PCR_OFFSET);
+-	pcr &= ~NI16550_PCR_WIRE_MODE_MASK;
+-
+-	/* set wire mode to default RS-422 */
+-	pcr |= NI16550_PCR_RS422;
+-	acr = NI16550_ACR_DTR_MANUAL_DTR;
+-
+-	/* write port configuration to register */
+-	writeb(pcr, addr + NI16550_PCR_OFFSET);
+-
+-	/* access and write to UART acr register */
+-	writeb(UART_ACR, addr + UART_SCR);
+-	writeb(acr, addr + UART_ICR);
+-
+-	uart->port.rs485_config = &pci_ni8431_config_rs485;
+-
+-	iounmap(addr);
+-
+-	return setup_port(priv, uart, bar, offset, board->reg_shift);
+-}
+-
+ static int pci_netmos_9900_setup(struct serial_private *priv,
+ 				const struct pciserial_board *board,
+ 				struct uart_8250_port *port, int idx)
+@@ -2023,15 +1912,6 @@ pci_moxa_setup(struct serial_private *priv,
+ #define PCI_DEVICE_ID_ACCESIO_PCIE_COM_8SM	0x10E9
+ #define PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4SM	0x11D8
+ 
+-#define PCIE_DEVICE_ID_NI_PXIE8430_2328	0x74C2
+-#define PCIE_DEVICE_ID_NI_PXIE8430_23216	0x74C1
+-#define PCI_DEVICE_ID_NI_PXI8431_4852	0x7081
+-#define PCI_DEVICE_ID_NI_PXI8431_4854	0x70DE
+-#define PCI_DEVICE_ID_NI_PXI8431_4858	0x70E3
+-#define PCI_DEVICE_ID_NI_PXI8433_4852	0x70E9
+-#define PCI_DEVICE_ID_NI_PXI8433_4854	0x70ED
+-#define PCIE_DEVICE_ID_NI_PXIE8431_4858	0x74C4
+-#define PCIE_DEVICE_ID_NI_PXIE8431_48516	0x74C3
+ 
+ #define	PCI_DEVICE_ID_MOXA_CP102E	0x1024
+ #define	PCI_DEVICE_ID_MOXA_CP102EL	0x1025
+@@ -2269,87 +2149,6 @@ static struct pci_serial_quirk pci_serial_quirks[] __refdata = {
+ 		.setup		= pci_ni8430_setup,
+ 		.exit		= pci_ni8430_exit,
+ 	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCIE_DEVICE_ID_NI_PXIE8430_2328,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8430_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCIE_DEVICE_ID_NI_PXIE8430_23216,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8430_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCI_DEVICE_ID_NI_PXI8431_4852,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8431_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCI_DEVICE_ID_NI_PXI8431_4854,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8431_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCI_DEVICE_ID_NI_PXI8431_4858,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8431_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCI_DEVICE_ID_NI_PXI8433_4852,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8431_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCI_DEVICE_ID_NI_PXI8433_4854,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8431_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCIE_DEVICE_ID_NI_PXIE8431_4858,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8431_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+-	{
+-		.vendor		= PCI_VENDOR_ID_NI,
+-		.device		= PCIE_DEVICE_ID_NI_PXIE8431_48516,
+-		.subvendor	= PCI_ANY_ID,
+-		.subdevice	= PCI_ANY_ID,
+-		.init		= pci_ni8430_init,
+-		.setup		= pci_ni8431_setup,
+-		.exit		= pci_ni8430_exit,
+-	},
+ 	/* Quatech */
+ 	{
+ 		.vendor		= PCI_VENDOR_ID_QUATECH,
+@@ -3106,13 +2905,6 @@ enum pci_board_num_t {
+ 	pbn_ni8430_4,
+ 	pbn_ni8430_8,
+ 	pbn_ni8430_16,
+-	pbn_ni8430_pxie_8,
+-	pbn_ni8430_pxie_16,
+-	pbn_ni8431_2,
+-	pbn_ni8431_4,
+-	pbn_ni8431_8,
+-	pbn_ni8431_pxie_8,
+-	pbn_ni8431_pxie_16,
+ 	pbn_ADDIDATA_PCIe_1_3906250,
+ 	pbn_ADDIDATA_PCIe_2_3906250,
+ 	pbn_ADDIDATA_PCIe_4_3906250,
+@@ -3765,55 +3557,6 @@ static struct pciserial_board pci_boards[] = {
+ 		.uart_offset	= 0x10,
+ 		.first_offset	= 0x800,
+ 	},
+-	[pbn_ni8430_pxie_16] = {
+-		.flags		= FL_BASE0,
+-		.num_ports	= 16,
+-		.base_baud	= 3125000,
+-		.uart_offset	= 0x10,
+-		.first_offset	= 0x800,
+-	},
+-	[pbn_ni8430_pxie_8] = {
+-		.flags		= FL_BASE0,
+-		.num_ports	= 8,
+-		.base_baud	= 3125000,
+-		.uart_offset	= 0x10,
+-		.first_offset	= 0x800,
+-	},
+-	[pbn_ni8431_8] = {
+-		.flags		= FL_BASE0,
+-		.num_ports	= 8,
+-		.base_baud	= 3686400,
+-		.uart_offset	= 0x10,
+-		.first_offset	= 0x800,
+-	},
+-	[pbn_ni8431_4] = {
+-		.flags		= FL_BASE0,
+-		.num_ports	= 4,
+-		.base_baud	= 3686400,
+-		.uart_offset	= 0x10,
+-		.first_offset	= 0x800,
+-	},
+-	[pbn_ni8431_2] = {
+-		.flags		= FL_BASE0,
+-		.num_ports	= 2,
+-		.base_baud	= 3686400,
+-		.uart_offset	= 0x10,
+-		.first_offset	= 0x800,
+-	},
+-	[pbn_ni8431_pxie_16] = {
+-		.flags		= FL_BASE0,
+-		.num_ports	= 16,
+-		.base_baud	= 3125000,
+-		.uart_offset	= 0x10,
+-		.first_offset	= 0x800,
+-	},
+-	[pbn_ni8431_pxie_8] = {
+-		.flags		= FL_BASE0,
+-		.num_ports	= 8,
+-		.base_baud	= 3125000,
+-		.uart_offset	= 0x10,
+-		.first_offset	= 0x800,
+-	},
+ 	/*
+ 	 * ADDI-DATA GmbH PCI-Express communication cards <info@addi-data.com>
+ 	 */
+@@ -5567,33 +5310,6 @@ static const struct pci_device_id serial_pci_tbl[] = {
+ 	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PCI8432_2324,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_ni8430_4 },
+-	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8430_2328,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8430_pxie_8 },
+-	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8430_23216,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8430_pxie_16 },
+-	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8431_4852,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8431_2 },
+-	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8431_4854,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8431_4 },
+-	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8431_4858,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8431_8 },
+-	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8431_4858,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8431_pxie_8 },
+-	{	PCI_VENDOR_ID_NI, PCIE_DEVICE_ID_NI_PXIE8431_48516,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8431_pxie_16 },
+-	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8433_4852,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8431_2 },
+-	{	PCI_VENDOR_ID_NI, PCI_DEVICE_ID_NI_PXI8433_4854,
+-		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_ni8431_4 },
+ 
+ 	/*
+ 	 * MOXA
 -- 
-2.16.4
+2.24.0
+
 
