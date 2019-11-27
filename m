@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3CAC10BA96
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBA010BA98
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732167AbfK0VEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:04:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58108 "EHLO mail.kernel.org"
+        id S1732173AbfK0VEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:04:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731875AbfK0VEd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:04:33 -0500
+        id S1732161AbfK0VEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:04:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D60F20637;
-        Wed, 27 Nov 2019 21:04:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D32FA2086A;
+        Wed, 27 Nov 2019 21:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888672;
-        bh=PBdKjAcHh0/xYmzKeZZ8qeouI77njMrZJRvV4742/wA=;
+        s=default; t=1574888675;
+        bh=cfIdG14Q63GQOlkA/hZ9JJgBBsfr+CPkNd3cO7cwUs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/CHeaBPsBZ2Q8yDQ3g5caate3bKtyVgHy/jzEUvGlioOWPy0oa5mJJkzhM27aSsA
-         bHdnaMeoUL5T+Vzna2nwzEyYcmLL4buB6rPJ2iStA/FmB/9EdbI3bMN05BqyaC/lp3
-         3yjxolt0rer4S/Y4xMaAfOlg+UAupfNzvGH/ne6s=
+        b=BU73gKnt0lq14Tq11yr7+Dr6Njsr6dlrY9MwR2F+q/p14QexyehyAUL0qZx1gch+t
+         31JjMhokKDa/0w02w+Af04VTpN4NazRuPZ03rDQG9eF3+tMV6J/BiIC/2h3E/My0ls
+         XrSviNHmwOt6m3LPM4/8LOK1QErLnPSYsrkQJQ0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,9 +32,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 224/306] scsi: mpt3sas: Fix Sync cache command failure during driver unload
-Date:   Wed, 27 Nov 2019 21:31:14 +0100
-Message-Id: <20191127203131.415433937@linuxfoundation.org>
+Subject: [PATCH 4.19 225/306] scsi: mpt3sas: Dont modify EEDPTagMode field setting on SAS3.5 HBA devices
+Date:   Wed, 27 Nov 2019 21:31:15 +0100
+Message-Id: <20191127203131.484067241@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -49,19 +49,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit 9029a72500b95578a35877a43473b82cb0386c53 ]
+[ Upstream commit 6cd1bc7b9b5075d395ba0120923903873fc7ea0e ]
 
-This is to fix SYNC CACHE and START STOP command failures with
-DID_NO_CONNECT during driver unload.
-
-In driver's IO submission patch (i.e. in driver's .queuecommand()) driver
-won't allow any SCSI commands to the IOC when ioc->remove_host flag is set
-and hence SYNC CACHE commands which are issued to the target drives (where
-write cache is enabled) during driver unload time is failed with
-DID_NO_CONNECT status.
-
-Now modified the driver to allow SYNC CACHE and START STOP commands to IOC,
-even when remove_host flag is set.
+If EEDPTagMode field in manufacturing page11 is set then unset it. This is
+needed to fix a hardware bug only in SAS3/SAS2 cards. So, skipping
+EEDPTagMode changes in Manufacturing page11 for SAS 3.5 controllers.
 
 Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
@@ -69,63 +61,22 @@ Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 36 +++++++++++++++++++++++++++-
- 1 file changed, 35 insertions(+), 1 deletion(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index 73d661a0ecbb9..d3c944d997039 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -3791,6 +3791,40 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
- 	return _scsih_check_for_pending_tm(ioc, smid);
- }
- 
-+/** _scsih_allow_scmd_to_device - check whether scmd needs to
-+ *				 issue to IOC or not.
-+ * @ioc: per adapter object
-+ * @scmd: pointer to scsi command object
-+ *
-+ * Returns true if scmd can be issued to IOC otherwise returns false.
-+ */
-+inline bool _scsih_allow_scmd_to_device(struct MPT3SAS_ADAPTER *ioc,
-+	struct scsi_cmnd *scmd)
-+{
-+
-+	if (ioc->pci_error_recovery)
-+		return false;
-+
-+	if (ioc->hba_mpi_version_belonged == MPI2_VERSION) {
-+		if (ioc->remove_host)
-+			return false;
-+
-+		return true;
-+	}
-+
-+	if (ioc->remove_host) {
-+
-+		switch (scmd->cmnd[0]) {
-+		case SYNCHRONIZE_CACHE:
-+		case START_STOP:
-+			return true;
-+		default:
-+			return false;
-+		}
-+	}
-+
-+	return true;
-+}
- 
- /**
-  * _scsih_sas_control_complete - completion routine
-@@ -4623,7 +4657,7 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
- 		return 0;
- 	}
- 
--	if (ioc->pci_error_recovery || ioc->remove_host) {
-+	if (!(_scsih_allow_scmd_to_device(ioc, scmd))) {
- 		scmd->result = DID_NO_CONNECT << 16;
- 		scmd->scsi_done(scmd);
- 		return 0;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index d2ab52026014f..2c556c7fcf0dc 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -4117,7 +4117,7 @@ _base_static_config_pages(struct MPT3SAS_ADAPTER *ioc)
+ 	 * flag unset in NVDATA.
+ 	 */
+ 	mpt3sas_config_get_manufacturing_pg11(ioc, &mpi_reply, &ioc->manu_pg11);
+-	if (ioc->manu_pg11.EEDPTagMode == 0) {
++	if (!ioc->is_gen35_ioc && ioc->manu_pg11.EEDPTagMode == 0) {
+ 		pr_err("%s: overriding NVDATA EEDPTagMode setting\n",
+ 		    ioc->name);
+ 		ioc->manu_pg11.EEDPTagMode &= ~0x3;
 -- 
 2.20.1
 
