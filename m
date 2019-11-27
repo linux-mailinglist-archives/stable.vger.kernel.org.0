@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1C410BFB4
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D99E10BF24
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727958AbfK0Ufq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:35:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
+        id S1728306AbfK0VlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:41:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727955AbfK0Ufq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:35:46 -0500
+        id S1728266AbfK0Ul4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:41:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6367F21569;
-        Wed, 27 Nov 2019 20:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4288E20863;
+        Wed, 27 Nov 2019 20:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886945;
-        bh=sgFMomuJpgJia9iF3oPr/+Riich2tDYbIAx20glD344=;
+        s=default; t=1574887315;
+        bh=Dr/MgV0CT6e61/f8fbdA16ZEvfZhrv4OxigPBFLptW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/FViRwxe9HBepXBhd2hrgIWhYTySpMZx+a/NjW8xA0b9aLDtvRRGjiuK8MRsBPpi
-         4W17RXaKTMIk8mVVvt+3+3zCPCdNXLhBtc8qkiRED3AVYKzE13HnCPkAAP5VDn4mmn
-         A4N0xhiEpTyvxeMAwnyeXDKxI9UlTpKTS2g8gY2Y=
+        b=lU35ufVGFWCzWnJ8Sf5jMQWVy6YIDHxwLFXj8CeGm6xL1tJJiafK4jr2xg7JuJZGd
+         M5StydQ4x61iYOtfwzcgZFgMDIoaRim0VwCs6ZIFYP1/+Tsq/A60NAgcjSY7AtgsBP
+         vAqKUOiOgXiz5niyikwL/3XrDt6ik0A97Ru2xxOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Jeff Layton <jlayton@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Eduardo Valentin <edubezval@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 052/132] ceph: fix dentry leak in ceph_readdir_prepopulate
-Date:   Wed, 27 Nov 2019 21:30:43 +0100
-Message-Id: <20191127202950.126491988@linuxfoundation.org>
+Subject: [PATCH 4.9 061/151] thermal: rcar_thermal: Prevent hardware access during system suspend
+Date:   Wed, 27 Nov 2019 21:30:44 +0100
+Message-Id: <20191127203033.128457230@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,30 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan, Zheng <zyan@redhat.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit c58f450bd61511d897efc2ea472c69630635b557 ]
+[ Upstream commit 3a31386217628ffe2491695be2db933c25dde785 ]
 
-Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+On r8a7791/koelsch, sometimes the following message is printed during
+system suspend:
+
+    rcar_thermal e61f0000.thermal: thermal sensor was broken
+
+This happens if the workqueue runs while the device is already
+suspended.  Fix this by using the freezable system workqueue instead,
+cfr. commit 51e20d0e3a60cf46 ("thermal: Prevent polling from happening
+during system suspend").
+
+Fixes: e0a5172e9eec7f0d ("thermal: rcar: add interrupt support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/inode.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/thermal/rcar_thermal.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 2ad3f4ab4dcfa..0be931cf3c44c 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -1515,7 +1515,6 @@ int ceph_readdir_prepopulate(struct ceph_mds_request *req,
- 			if (IS_ERR(realdn)) {
- 				err = PTR_ERR(realdn);
- 				d_drop(dn);
--				dn = NULL;
- 				goto next_item;
- 			}
- 			dn = realdn;
+diff --git a/drivers/thermal/rcar_thermal.c b/drivers/thermal/rcar_thermal.c
+index 73e5fee6cf1d5..83126e2dce36d 100644
+--- a/drivers/thermal/rcar_thermal.c
++++ b/drivers/thermal/rcar_thermal.c
+@@ -401,8 +401,8 @@ static irqreturn_t rcar_thermal_irq(int irq, void *data)
+ 	rcar_thermal_for_each_priv(priv, common) {
+ 		if (rcar_thermal_had_changed(priv, status)) {
+ 			rcar_thermal_irq_disable(priv);
+-			schedule_delayed_work(&priv->work,
+-					      msecs_to_jiffies(300));
++			queue_delayed_work(system_freezable_wq, &priv->work,
++					   msecs_to_jiffies(300));
+ 		}
+ 	}
+ 
 -- 
 2.20.1
 
