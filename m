@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91CDD10BB83
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AEA310BC2D
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732948AbfK0VNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:13:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45294 "EHLO mail.kernel.org"
+        id S1732659AbfK0VKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:10:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732551AbfK0VNP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:13:15 -0500
+        id S1733081AbfK0VKt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:10:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FD9C2086A;
-        Wed, 27 Nov 2019 21:13:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2990B2176D;
+        Wed, 27 Nov 2019 21:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889194;
+        s=default; t=1574889047;
         bh=nZdoRaeE0FxWGCecbzOvB2AAJ+KHGsxC/QthJB7BhRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijSWf5nRhau7Yu6QHODRl6ffS5AFWBzyZZAGA1Y2/Mkj8IbDw+TcOodUNb3jAX4/b
-         FVWAQvwiN6CXLD51GoXjJYO4gazFTF3yLqwOySr2MwVt3AubOf61Cixq1ZRrrd7iPj
-         sY5+SWyEVbiyBTr4rHF6mfNraQOrDT7egM4oOZ50=
+        b=aJQfEhHJLOl18PWw60AYoWvh2Fk6JWlXYVYP1i8ZLBzQLTNM4RPrJiPEkXawNQYuk
+         q63LfPyHBVsa6DHj1nE5aoblx0sqZMCUHPXR6Qtgh3UvDPfSpRPU6pVk5v2MzZccTd
+         agL+tAgvL+F7CkyfBHqJf3bi3Bk0ESidph0kWq74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 5.4 25/66] selftests/x86/sigreturn/32: Invalidate DS and ES when abusing the kernel
+Subject: [PATCH 5.3 63/95] selftests/x86/sigreturn/32: Invalidate DS and ES when abusing the kernel
 Date:   Wed, 27 Nov 2019 21:32:20 +0100
-Message-Id: <20191127202658.177178907@linuxfoundation.org>
+Message-Id: <20191127202928.486043857@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
