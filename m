@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6D710BFA5
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E98EB10BE2E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:34:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727989AbfK0VpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:45:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38302 "EHLO mail.kernel.org"
+        id S1729583AbfK0VeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:34:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728073AbfK0UgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:36:16 -0500
+        id S1730412AbfK0Uu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:50:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94CC721582;
-        Wed, 27 Nov 2019 20:36:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1C9421871;
+        Wed, 27 Nov 2019 20:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886976;
-        bh=dvvlDb/+0VMhtBKkl1moFhh/et82E8jtpyGoaFbPt7I=;
+        s=default; t=1574887857;
+        bh=wu8iWbB/vI5j91N6tp1uS1uxExscGnc+y38dgtOkPU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KMYYhf1z0uFLZdjQ2uhXolBrWg2Z2mxzaqiaWBe0pQpJDARagG/rY3hnziOLq1pT6
-         7Nr+6wnYQ48WOH+6qCELUx6AqGyZBwg3F0RUzZc9Xc0wmedO2jiLz1Pj8pl7/NjHyw
-         iFzvNLIDa1GVytphdL73BsJorTragtG7vgbt//tA=
+        b=y/eLl+RZPL83SVWckG/gNA/xtLOMId5ATqtIQPY43PzIamoJbmOW2/eI0kahfAVbU
+         EA8Kbfj9Gi0iawtTZ5i9hK/pQhSgfArTx/GO+JCedtNlVxiD2Fwg6hO5Nne6PXHOaW
+         XveOo1LMfWS+OwqEl+7j1Cl4BZGKRIixMByADrdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
+        "Gerd W. Haeussler" <gerd.haeussler@cesys-it.com>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 063/132] um: Make line/tty semantics use true write IRQ
+Subject: [PATCH 4.14 121/211] ntb_netdev: fix sleep time mismatch
 Date:   Wed, 27 Nov 2019 21:30:54 +0100
-Message-Id: <20191127203000.660825178@linuxfoundation.org>
+Message-Id: <20191127203105.588112666@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+From: Jon Mason <jdmason@kudzu.us>
 
-[ Upstream commit 917e2fd2c53eb3c4162f5397555cbd394390d4bc ]
+[ Upstream commit a861594b1b7ffd630f335b351c4e9f938feadb8e ]
 
-This fixes a long standing bug where large amounts of output
-could freeze the tty (most commonly seen on stdio console).
-While the bug has always been there it became more pronounced
-after moving to the new interrupt controller.
+The tx_time should be in usecs (according to the comment above the
+variable), but the setting of the timer during the rearming is done in
+msecs.  Change it to match the expected units.
 
-The line semantics are now changed to have true IRQ write
-semantics which should further improve the tty/line subsystem
-stability and performance
-
-Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: e74bfeedad08 ("NTB: Add flow control to the ntb_netdev")
+Suggested-by: Gerd W. Haeussler <gerd.haeussler@cesys-it.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/line.c | 2 +-
+ drivers/net/ntb_netdev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
-index 62087028a9ce1..d2ad45c101137 100644
---- a/arch/um/drivers/line.c
-+++ b/arch/um/drivers/line.c
-@@ -260,7 +260,7 @@ static irqreturn_t line_write_interrupt(int irq, void *data)
- 	if (err == 0) {
- 		spin_unlock(&line->lock);
- 		return IRQ_NONE;
--	} else if (err < 0) {
-+	} else if ((err < 0) && (err != -EAGAIN)) {
- 		line->head = line->buffer;
- 		line->tail = line->buffer;
- 	}
+diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
+index 0250aa9ae2cbc..97bf49ad81a6d 100644
+--- a/drivers/net/ntb_netdev.c
++++ b/drivers/net/ntb_netdev.c
+@@ -236,7 +236,7 @@ static void ntb_netdev_tx_timer(unsigned long data)
+ 	struct ntb_netdev *dev = netdev_priv(ndev);
+ 
+ 	if (ntb_transport_tx_free_entry(dev->qp) < tx_stop) {
+-		mod_timer(&dev->tx_timer, jiffies + msecs_to_jiffies(tx_time));
++		mod_timer(&dev->tx_timer, jiffies + usecs_to_jiffies(tx_time));
+ 	} else {
+ 		/* Make sure anybody stopping the queue after this sees the new
+ 		 * value of ntb_transport_tx_free_entry()
 -- 
 2.20.1
 
