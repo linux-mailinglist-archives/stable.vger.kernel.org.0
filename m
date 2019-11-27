@@ -2,115 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE1D10BA71
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6910510BC3F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732006AbfK0VDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:03:14 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:39905 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732011AbfK0VDN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 16:03:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574888592;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type;
-        bh=jv24lZM6sctS34tmimJiD5vACaxxgM8JBckGttK9dAk=;
-        b=InOjSmdioPll9am8LKS54SuSTfXphIZu7/FBwJ4SyMV30CbuTbVNAl6JabIhditX6Nvs4Q
-        QHh7DRHVQ+fnon1tJY1G7ymjjFxN8JACXR5P1r312Is7JfGL3a0c+W1RCn6ews5ySD2sQE
-        yJ3H3J1cgS/zU/n+9OXjbydlnOto1cQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-24-niqkjWwGNBKiwpfKP_4MCA-1; Wed, 27 Nov 2019 16:01:06 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 32F0E1800D52
-        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 21:01:05 +0000 (UTC)
-Received: from [172.54.88.80] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B610BA7FF;
-        Wed, 27 Nov 2019 21:01:04 +0000 (UTC)
+        id S1727833AbfK0VKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:10:12 -0500
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:35140 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732979AbfK0VKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 16:10:12 -0500
+Received: by mail-oi1-f193.google.com with SMTP id k196so5021951oib.2
+        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 13:10:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=os7f56Y+gUDNCLgmVT2ck/KLWvp8xrI20ZbRrLXpqHY=;
+        b=VL14gzbv81eThmLt8Go5ka4kPU5lNvToFRq9e5gSt7T4AXz9BvYHOtxedgWl6LqjzF
+         dgi+Gy1NW/3BNO/oV4l46Ten1R7thT7WxtEX239hZ7A8xcx6sA0DH0pIhwlf+LbknR4v
+         mNZp94Wg5AxyrRqj3rSQlROtwkSyCTnj6ia53z4nH6sPPfc5G3Kr64dihykOFSy7vtj2
+         Pwbr0VPGYdOHUIOOzK+bG1RRTTnQkhWW4q5AuYj0poXZkWvSdz1NPw6G+26yUaMGkf3N
+         Ifv2chd5AOdU/UJpaG6M+ojAcTQ6Aica9MQEdQ1ptSbCGFwMMgadE4z87XUD5CMtt2VR
+         h0Yw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=os7f56Y+gUDNCLgmVT2ck/KLWvp8xrI20ZbRrLXpqHY=;
+        b=BX7D+RVNEJkH4opOngl7qfQAfAI9/9r0QfinOW3O566oGV0kXQ60wzH0RvRE3+o8xu
+         2/bd11t5YAZo9WR/TvXLTjPM59aXPzys4OmlROw5uyFMQf9CJu9a4O6wX4T5PzQrXnM9
+         UqpkwOg4bB1SVKYNAL13L2W5oHpSufri8ynjaf34RiMr+1sASldSPgWJ9rrbb1G9XBgq
+         Efg3yF8ZuBFYwRkibskwOmeKTTk5oTiYuTo9F90kekYJkx7EEO8+rVVGw00GmJR+gRUC
+         pI6oTUmiTkWTKdVogQP9H2uJZVY+RgBm+jCAJR3j6w9hDIg1qEA0kEikUryBZcvrXA06
+         4Hiw==
+X-Gm-Message-State: APjAAAXi1PnG84NzYRgwJm8veui8s+vpQKgzyw//nf1fTGJu842INfNK
+        ffg0QQnVFIEfYLZgVfNW1C/xZyWbthC/36Pki2Ilbg==
+X-Google-Smtp-Source: APXvYqzCl8qmibUmhhqiIABvAQWdFZDyI97CfolL6FkYpycIbLxXv03/1TCU7soUtfwt2Zr4QHuuYpeG4M7OB+wwa+k=
+X-Received: by 2002:a05:6808:1da:: with SMTP id x26mr5975092oic.149.1574889011169;
+ Wed, 27 Nov 2019 13:10:11 -0800 (PST)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.13-0a4cde6.cki
- (stable-queue)
-Date:   Wed, 27 Nov 2019 21:01:04 -0000
-Message-ID: <cki.FF9D569258.RKG14NB0SC@redhat.com>
-X-Gitlab-Pipeline-ID: 311814
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/311814
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: niqkjWwGNBKiwpfKP_4MCA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: multipart/mixed; boundary="===============4313803134789112060=="
+References: <20190902143121.pjnykevzlajlcrh6@linux.intel.com>
+ <CAA9_cmeLnHK4y+usQaWo72nUG3RNsripuZnS-koY4XTRC+mwJA@mail.gmail.com> <20191127205800.GA14290@linux.intel.com>
+In-Reply-To: <20191127205800.GA14290@linux.intel.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 27 Nov 2019 13:10:00 -0800
+Message-ID: <CAPcyv4jD8aod4=TSw+kfnS56rT_xqDSXYwXKoGzF=c3=1G3G-Q@mail.gmail.com>
+Subject: Re: [GIT PULL] tpmdd updates for Linux v5.4
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-integrity@vger.kernel.org, James Morris <jmorris@namei.org>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---===============4313803134789112060==
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+On Wed, Nov 27, 2019 at 12:58 PM Jarkko Sakkinen
+<jarkko.sakkinen@linux.intel.com> wrote:
+>
+> On Wed, Nov 20, 2019 at 08:48:25PM -0800, Dan Williams wrote:
+> > On Mon, Sep 2, 2019 at 7:34 AM Jarkko Sakkinen
+> > <jarkko.sakkinen@linux.intel.com> wrote:
+> > >
+> > > Hi
+> > >
+> > > A new driver for fTPM living inside ARM TEE was added this round. In
+> > > addition to that, there is three bug fixes and one clean up.
+> > >
+> > > /Jarkko
+> > >
+> > > The following changes since commit 8fb8e9e46261e0117cb3cffb6dd8bb7e08f8649b:
+> > >
+> > >   Merge tag 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/rdma/rdma (2019-08-30 09:23:45 -0700)
+> > >
+> > > are available in the Git repository at:
+> > >
+> > >   git://git.infradead.org/users/jjs/linux-tpmdd.git tags/tpmdd-next-20190902
+> > >
+> > > for you to fetch changes up to e8bd417aab0c72bfb54465596b16085702ba0405:
+> > >
+> > >   tpm/tpm_ftpm_tee: Document fTPM TEE driver (2019-09-02 17:08:35 +0300)
+> > >
+> > > ----------------------------------------------------------------
+> > > tpmdd updates for Linux v5.4
+> > >
+> > > ----------------------------------------------------------------
+> > > Jarkko Sakkinen (1):
+> > >       tpm: Remove a deprecated comments about implicit sysfs locking
+> > >
+> > > Lukas Bulwahn (1):
+> > >       MAINTAINERS: fix style in KEYS-TRUSTED entry
+> > >
+> > > Sasha Levin (2):
+> > >       tpm/tpm_ftpm_tee: A driver for firmware TPM running inside TEE
+> > >       tpm/tpm_ftpm_tee: Document fTPM TEE driver
+> > >
+> > > Stefan Berger (2):
+> > >       tpm_tis_core: Turn on the TPM before probing IRQ's
+> > >       tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
+> >
+> > Hi Jarrko,
+> >
+> > I'm replying here because I can't find the patches to reply to
+> > directly from LKML.
+> >
+> > Commit 7f064c378e2c "tpm_tis_core: Turn on the TPM before probing
+> > IRQ's" in the v5.3-stable tree caused a regression on a pre-release
+> > platform with a TPM2 device. The interrupt starts screaming when the
+> > driver is loaded and does not stop until the device is force unbond
+> > from the driver by:
+> >
+> >      echo IFX0740:00 > /sys/bus/platform/drivers/tpm_tis/unbind
+> >
+> > I checked v5.4-rc8 and it has the same problem. I tried reverting:
+> >
+> > 1ea32c83c699 tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
+> > 5b359c7c4372 tpm_tis_core: Turn on the TPM before probing IRQ's
+> >
+> > Which silenced the screaming interrupt problem, but now the TPM is reporting:
+> >
+> > [    3.725131] tpm_tis IFX0740:00: 2.0 TPM (device-id 0x1B, rev-id 16)
+> > [    3.725358] tpm tpm0: tpm_try_transmit: send(): error -5
+> > [    3.725359] tpm tpm0: [Firmware Bug]: TPM interrupt not working,
+> > polling instead
+> >
+> > ...at load, where it was not reporting this previously. Can you take a look?
+>
+> It is already in WiP:
+>
+> https://patchwork.kernel.org/patch/11240111/
 
+That fix did not work for me.
 
-Hello,
+>
+> Stefan also sent patches that revert to changes that you described:
+>
+> https://patchwork.kernel.org/cover/11262363/
+>
+> Probably better first to fix the issue on top of master before deciding
+> actions.
 
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-            Commit: 0a4cde60262d - KVM: PPC: Book3S HV: Flush link stack on guest exit to host kernel
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: FAILED
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/311814
-
-We attempted to compile the kernel for multiple architectures, but the compile
-failed on one or more architectures:
-
-            x86_64: FAILED (see build-x86_64.log.xz attachment)
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
---===============4313803134789112060==
-Content-Type: application/x-xz
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="build-x86_64.log.xz"
-MIME-Version: 1.0
-
-/Td6WFoAAATm1rRGAgAhARYAAAB0L+WjAQAIYnVpbGQubG9nAAAAAG7M3kpeYfe/AAEhCWwYxdUf
-tvN9AQAAAAAEWVo=
---===============4313803134789112060==--
-
+Revert and try again sounds good to me.
