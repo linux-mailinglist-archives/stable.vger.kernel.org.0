@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA0010BBB9
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:16:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6827010BBA6
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:15:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387671AbfK0VPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:15:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50686 "EHLO mail.kernel.org"
+        id S2387559AbfK0VOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:14:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387690AbfK0VPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:15:21 -0500
+        id S2387581AbfK0VOp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:14:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D26D2154A;
-        Wed, 27 Nov 2019 21:15:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31992216F4;
+        Wed, 27 Nov 2019 21:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889320;
-        bh=+jjDHJxZIeqTOnINzZNlGxXqKuwC1sqvGEFai89MMkY=;
+        s=default; t=1574889284;
+        bh=29b7VrHROTMlit8ERvOnu2DmGqWVGdm3/WYYa9MMMK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7NX2J/9qIFPtIHrBq5i+gWMeyC9Ge1kokwPN9OCXHaxKim0yRWTK3QElM41SaDrx
-         WFmo5vzaT6G5HcQhbvEJtbdFteVml09cUioW64MRPxgzU4hvyhxjZ6cfncjocrTUWA
-         +aL+yZbWPSrX2pHGK6j4+Bu87r/gavwWz93qn0KM=
+        b=t1ou/3QHvxfiBOHvbl0+mVkrOSDsInsyZDGKRHDxzhtP9pJuHttmeMltqPpkvdmjg
+         Qb2efEtK8ZZUA6iOgycx00HKh/wHjNWRJ8j4v54byOvmStJT7ok3Z8jVvPJFM+q6+W
+         3blbrxBHD58vrqu4t6JqUiZ20kVDdJ21DAtWUUNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pavel=20L=C3=B6bl?= <pavel@loebl.cz>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 59/66] USB: serial: mos7840: add USB ID to support Moxa UPort 2210
-Date:   Wed, 27 Nov 2019 21:32:54 +0100
-Message-Id: <20191127202739.902656298@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 60/66] USB: serial: mos7720: fix remote wakeup
+Date:   Wed, 27 Nov 2019 21:32:55 +0100
+Message-Id: <20191127202740.580529628@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
 References: <20191127202632.536277063@linuxfoundation.org>
@@ -44,69 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Löbl <pavel@loebl.cz>
+From: Johan Hovold <johan@kernel.org>
 
-commit e696d00e65e81d46e911f24b12e441037bf11b38 upstream.
+commit ea422312a462696093b5db59d294439796cba4ad upstream.
 
-Add USB ID for MOXA UPort 2210. This device contains mos7820 but
-it passes GPIO0 check implemented by driver and it's detected as
-mos7840. Hence product id check is added to force mos7820 mode.
+The driver was setting the device remote-wakeup feature during probe in
+violation of the USB specification (which says it should only be set
+just prior to suspending the device). This could potentially waste
+power during suspend as well as lead to spurious wakeups.
 
-Signed-off-by: Pavel Löbl <pavel@loebl.cz>
-Cc: stable <stable@vger.kernel.org>
-[ johan: rename id defines and add vendor-id check ]
+Note that USB core would clear the remote-wakeup feature at first
+resume.
+
+Fixes: 0f64478cbc7a ("USB: add USB serial mos7720 driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/mos7840.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/usb/serial/mos7720.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -119,11 +119,15 @@
- /* This driver also supports
-  * ATEN UC2324 device using Moschip MCS7840
-  * ATEN UC2322 device using Moschip MCS7820
-+ * MOXA UPort 2210 device using Moschip MCS7820
-  */
- #define USB_VENDOR_ID_ATENINTL		0x0557
- #define ATENINTL_DEVICE_ID_UC2324	0x2011
- #define ATENINTL_DEVICE_ID_UC2322	0x7820
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -1833,10 +1833,6 @@ static int mos7720_startup(struct usb_se
+ 	product = le16_to_cpu(serial->dev->descriptor.idProduct);
+ 	dev = serial->dev;
  
-+#define USB_VENDOR_ID_MOXA		0x110a
-+#define MOXA_DEVICE_ID_2210		0x2210
-+
- /* Interrupt Routine Defines    */
+-	/* setting configuration feature to one */
+-	usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
+-			(__u8)0x03, 0x00, 0x01, 0x00, NULL, 0x00, 5000);
+-
+ 	if (product == MOSCHIP_DEVICE_ID_7715) {
+ 		struct urb *urb = serial->port[0]->interrupt_in_urb;
  
- #define SERIAL_IIR_RLS      0x06
-@@ -195,6 +199,7 @@ static const struct usb_device_id id_tab
- 	{USB_DEVICE(USB_VENDOR_ID_BANDB, BANDB_DEVICE_ID_USOPTL2_4)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2324)},
- 	{USB_DEVICE(USB_VENDOR_ID_ATENINTL, ATENINTL_DEVICE_ID_UC2322)},
-+	{USB_DEVICE(USB_VENDOR_ID_MOXA, MOXA_DEVICE_ID_2210)},
- 	{}			/* terminating entry */
- };
- MODULE_DEVICE_TABLE(usb, id_table);
-@@ -2020,6 +2025,7 @@ static int mos7840_probe(struct usb_seri
- 				const struct usb_device_id *id)
- {
- 	u16 product = le16_to_cpu(serial->dev->descriptor.idProduct);
-+	u16 vid = le16_to_cpu(serial->dev->descriptor.idVendor);
- 	u8 *buf;
- 	int device_type;
- 
-@@ -2030,6 +2036,11 @@ static int mos7840_probe(struct usb_seri
- 		goto out;
- 	}
- 
-+	if (vid == USB_VENDOR_ID_MOXA && product == MOXA_DEVICE_ID_2210) {
-+		device_type = MOSCHIP_DEVICE_ID_7820;
-+		goto out;
-+	}
-+
- 	buf = kzalloc(VENDOR_READ_LENGTH, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
 
 
