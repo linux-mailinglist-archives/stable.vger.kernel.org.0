@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC24810BE8F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E07AB10BFCB
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729057AbfK0Usj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:48:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33922 "EHLO mail.kernel.org"
+        id S1727631AbfK0Uei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:34:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727739AbfK0Usf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:48:35 -0500
+        id S1727656AbfK0Uei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:34:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEA4C217C3;
-        Wed, 27 Nov 2019 20:48:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE72520866;
+        Wed, 27 Nov 2019 20:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887715;
-        bh=KzaYq/ZxefBgTK1mWLIBUbunCDUrWNx+9I10MwP1UNU=;
+        s=default; t=1574886877;
+        bh=8q9dcV3zJeT9TGOcpWEkgv4nJWdnjder7C9wf0hTbsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QoivxwalVsenqd1J+jWOhyPrb0ewTqZWgSkEwc5Ps+8ECcngdy5lxeF5Yc/kUfCO+
-         BevwHpK+dDQvOP7YSPQlY6ETYtVyv4mkx7Az9kSmKKwRXpIbbfhNe3MfZjMuEEMDvY
-         UZ1bNk20FjkJuKG0G1Ha+79YQ93yvKQmD9ayD6OE=
+        b=pIoi5D3x3L4V23w3v85/RqkZiSAwjfxQqRxY5x99aISaKlNbEUeqzb9FMfVvkxuld
+         MtwXIRW3bPm1rbGlzKj5wMuu5EbBJ2EL7Na+C8rReh6AVwGc7Onuz+cek3SaJAeNAB
+         QomNE4LXuwVdimEHa0llT8FqnBj3dJ0je5lWVmy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Carlo Caione <carlo@endlessm.com>,
+        Corentin Chary <corentin.chary@gmail.com>,
+        Darren Hart <dvhart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 066/211] usbip: tools: fix atoi() on non-null terminated string
+Subject: [PATCH 4.4 008/132] asus-wmi: Add quirk_no_rfkill_wapf4 for the Asus X456UF
 Date:   Wed, 27 Nov 2019 21:29:59 +0100
-Message-Id: <20191127203100.142713705@linuxfoundation.org>
+Message-Id: <20191127202906.126529081@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: João Paulo Rechi Vita <jprvita@gmail.com>
 
-[ Upstream commit e325808c0051b16729ffd472ff887c6cae5c6317 ]
+[ Upstream commit a961a285b479977fa21f12f71cd62f28adaba17c ]
 
-Currently the call to atoi is being passed a single char string
-that is not null terminated, so there is a potential read overrun
-along the stack when parsing for an integer value.  Fix this by
-instead using a 2 char string that is initialized to all zeros
-to ensure that a 1 char read into the string is always terminated
-with a \0.
+The Asus X456UF has an airplane-mode indicator LED and the WMI WLAN user
+bit set, so asus-wmi uses ASUS_WMI_DEVID_WLAN_LED (0x00010002) to store
+the wlan state, which has a side-effect of driving the airplane mode
+indicator LED in an inverted fashion.
 
-Detected by cppcheck:
-"Invalid atoi() argument nr 1. A nul-terminated string is required."
+quirk_no_rfkill prevents asus-wmi from registering RFKill switches at
+all for this laptop and allows asus-wireless to drive the LED through
+the ASHS ACPI device.  This laptop already has a quirk for setting
+WAPF=4, so this commit creates a new quirk, quirk_no_rfkill_wapf4, which
+both disables rfkill and sets WAPF=4.
 
-Fixes: 3391ba0e2792 ("usbip: tools: Extract generic code to be shared with vudc backend")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+Reported-by: Carlo Caione <carlo@endlessm.com>
+Reviewed-by: Corentin Chary <corentin.chary@gmail.com>
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/usbip/libsrc/usbip_host_common.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/tools/usb/usbip/libsrc/usbip_host_common.c b/tools/usb/usbip/libsrc/usbip_host_common.c
-index 6ff7b601f8545..f5ad219a324e8 100644
---- a/tools/usb/usbip/libsrc/usbip_host_common.c
-+++ b/tools/usb/usbip/libsrc/usbip_host_common.c
-@@ -43,7 +43,7 @@ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
- 	int size;
- 	int fd;
- 	int length;
--	char status;
-+	char status[2] = { 0 };
- 	int value = 0;
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 5390846fa1e64..904f210327a1c 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -82,6 +82,11 @@ static struct quirk_entry quirk_no_rfkill = {
+ 	.no_rfkill = true,
+ };
  
- 	size = snprintf(status_attr_path, sizeof(status_attr_path),
-@@ -61,14 +61,14 @@ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
- 		return -1;
- 	}
- 
--	length = read(fd, &status, 1);
-+	length = read(fd, status, 1);
- 	if (length < 0) {
- 		err("error reading attribute %s", status_attr_path);
- 		close(fd);
- 		return -1;
- 	}
- 
--	value = atoi(&status);
-+	value = atoi(status);
- 
- 	return value;
- }
++static struct quirk_entry quirk_no_rfkill_wapf4 = {
++	.wapf = 4,
++	.no_rfkill = true,
++};
++
+ static int dmi_matched(const struct dmi_system_id *dmi)
+ {
+ 	quirks = dmi->driver_data;
+@@ -164,7 +169,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "X456UF"),
+ 		},
+-		.driver_data = &quirk_asus_wapf4,
++		.driver_data = &quirk_no_rfkill_wapf4,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
 -- 
 2.20.1
 
