@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60E7210B844
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D301D10B7A2
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729233AbfK0Ulo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:41:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47190 "EHLO mail.kernel.org"
+        id S1727905AbfK0Uff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:35:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727696AbfK0Uln (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:41:43 -0500
+        id S1727884AbfK0Uff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:35:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EB5720863;
-        Wed, 27 Nov 2019 20:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12D1120866;
+        Wed, 27 Nov 2019 20:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887302;
-        bh=6MsO48qqDlueLw2rlZAnHoxYP3IEV8AjklsM9jZxRY0=;
+        s=default; t=1574886934;
+        bh=KBTbvLDdWuDQ8X00mqs8/tL1VrZWLuSyGoaJhrKpYdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4OJSEwvYfB/LDp83CxaMykFQC8QeCvNzXfAhvQrfpZiAF393AYPRlvC43Kpog0R7
-         dFZdIu29oBn+BiU62wCTCFfQAMVAIc7utd5mAIz8y7jOovgHaDLGN3H9idBsmtArh6
-         fwz+z/hoHmQhXo0OdYXH+r+ewpMwvUPK2sr5K8EA=
+        b=R1WYcpw9I2992YS6FVB2mZmJ37DCTKPqBHylD9Yvk90yn3w7oA26XlaSIHFwfRIPn
+         nwSLc1EfmrsESJW1u927+12qOfAJ/Fo5vyom1DRvCtpxzzySDBcZFIh5VUd31hvB7q
+         l7vh5uHOcmJIaT6Rlf/hX9FUFkKAViq5XORs3BOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sapthagiri Baratam <sapthagiri.baratam@cirrus.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 057/151] mfd: arizona: Correct calling of runtime_put_sync
+Subject: [PATCH 4.4 049/132] s390/perf: Return error when debug_register fails
 Date:   Wed, 27 Nov 2019 21:30:40 +0100
-Message-Id: <20191127203032.480021499@linuxfoundation.org>
+Message-Id: <20191127202946.781053509@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sapthagiri Baratam <sapthagiri.baratam@cirrus.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 6b269a41a4520f7eb639e61a45ebbb9c9267d5e0 ]
+[ Upstream commit ec0c0bb489727de0d4dca6a00be6970ab8a3b30a ]
 
-Don't call runtime_put_sync when clk32k_ref is ARIZONA_32KZ_MCLK2
-as there is no corresponding runtime_get_sync call.
+Return an error when the function debug_register() fails allocating
+the debug handle.
+Also remove the registered debug handle when the initialization fails
+later on.
 
-MCLK1 is not in the AoD power domain so if it is used as 32kHz clock
-source we need to hold a runtime PM reference to keep the device from
-going into low power mode.
-
-Fixes: cdd8da8cc66b ("mfd: arizona: Add gating of external MCLKn clocks")
-Signed-off-by: Sapthagiri Baratam <sapthagiri.baratam@cirrus.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/arizona-core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
-index 0556a9749dbe0..1f0c2b594654e 100644
---- a/drivers/mfd/arizona-core.c
-+++ b/drivers/mfd/arizona-core.c
-@@ -52,8 +52,10 @@ int arizona_clk32k_enable(struct arizona *arizona)
- 			if (ret != 0)
- 				goto err_ref;
- 			ret = clk_prepare_enable(arizona->mclk[ARIZONA_MCLK1]);
--			if (ret != 0)
--				goto err_pm;
-+			if (ret != 0) {
-+				pm_runtime_put_sync(arizona->dev);
-+				goto err_ref;
-+			}
- 			break;
- 		case ARIZONA_32KZ_MCLK2:
- 			ret = clk_prepare_enable(arizona->mclk[ARIZONA_MCLK2]);
-@@ -67,8 +69,6 @@ int arizona_clk32k_enable(struct arizona *arizona)
- 					 ARIZONA_CLK_32K_ENA);
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index b79d51459cf25..874762a51c546 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1616,14 +1616,17 @@ static int __init init_cpum_sampling_pmu(void)
  	}
  
--err_pm:
--	pm_runtime_put_sync(arizona->dev);
- err_ref:
- 	if (ret != 0)
- 		arizona->clk32k_ref--;
+ 	sfdbg = debug_register(KMSG_COMPONENT, 2, 1, 80);
+-	if (!sfdbg)
++	if (!sfdbg) {
+ 		pr_err("Registering for s390dbf failed\n");
++		return -ENOMEM;
++	}
+ 	debug_register_view(sfdbg, &debug_sprintf_view);
+ 
+ 	err = register_external_irq(EXT_IRQ_MEASURE_ALERT,
+ 				    cpumf_measurement_alert);
+ 	if (err) {
+ 		pr_cpumsf_err(RS_INIT_FAILURE_ALRT);
++		debug_unregister(sfdbg);
+ 		goto out;
+ 	}
+ 
+@@ -1632,6 +1635,7 @@ static int __init init_cpum_sampling_pmu(void)
+ 		pr_cpumsf_err(RS_INIT_FAILURE_PERF);
+ 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
+ 					cpumf_measurement_alert);
++		debug_unregister(sfdbg);
+ 		goto out;
+ 	}
+ 	perf_cpu_notifier(cpumf_pmu_notifier);
 -- 
 2.20.1
 
