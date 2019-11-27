@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD52310BEF0
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D9E10BFA1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729502AbfK0Uns (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:43:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52218 "EHLO mail.kernel.org"
+        id S1727543AbfK0VoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:44:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729498AbfK0Uns (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:48 -0500
+        id S1727681AbfK0Uhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:37:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3F052080F;
-        Wed, 27 Nov 2019 20:43:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DBF72158C;
+        Wed, 27 Nov 2019 20:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887428;
-        bh=FnI+fa6RYHCzzLqSE6NIcC3D6jU/xkVbeou+UhqK7sc=;
+        s=default; t=1574887064;
+        bh=+UUgulf3umEery2eT/3tjTxrLJpprV9yV0f2vEDgfkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvaxB0JUOsuzaS8s5A6tYZbOUPLEN0LtXgaakmGP9w0KQwTsxKVSa5DMvL5Fen12r
-         p7xRBbgc6FaPsPR6kuteMg70dQi7/zswLjkq/WCmwDYQXQRkNC0cnE4OTYnG5YKLdH
-         mUUKXAhBSTJ8dPilHpMaIodeiPXhWhrAxng0TN04=
+        b=KiaqL4TJWTiwq30s+m3y5oU4j9iavuBvXsNi+BVQCjqLpkceNuCNUifjIl1sD4/Ml
+         PzWNII/IEBbOJXnNnbHQAZ6vaLGVKYEyZhGC0Eecz7En7Tz4gyYhEbcF4wEwCK1aN4
+         ZbqRNtxPKIfH0eCMXj7JKlYXxAoDT2X2w6E4Qryc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        James Erwin <james.erwin@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 105/151] pinctrl: lpc18xx: Use define directive for PIN_CONFIG_GPIO_PIN_INT
-Date:   Wed, 27 Nov 2019 21:31:28 +0100
-Message-Id: <20191127203040.899342059@linuxfoundation.org>
+Subject: [PATCH 4.4 098/132] IB/hfi1: Ensure full Gen3 speed in a Gen4 system
+Date:   Wed, 27 Nov 2019 21:31:29 +0100
+Message-Id: <20191127203023.103702509@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: James Erwin <james.erwin@intel.com>
 
-[ Upstream commit f24bfb39975c241374cadebbd037c17960cf1412 ]
+If an hfi1 card is inserted in a Gen4 systems, the driver will avoid the
+gen3 speed bump and the card will operate at half speed.
 
-Clang warns when one enumerated type is implicitly converted to another:
+This is because the driver avoids the gen3 speed bump when the parent bus
+speed isn't identical to gen3, 8.0GT/s.  This is not compatible with gen4
+and newer speeds.
 
-drivers/pinctrl/pinctrl-lpc18xx.c:643:29: warning: implicit conversion
-from enumeration type 'enum lpc18xx_pin_config_param' to different
-enumeration type 'enum pin_config_param' [-Wenum-conversion]
-        {"nxp,gpio-pin-interrupt", PIN_CONFIG_GPIO_PIN_INT, 0},
-        ~                          ^~~~~~~~~~~~~~~~~~~~~~~
-drivers/pinctrl/pinctrl-lpc18xx.c:648:12: warning: implicit conversion
-from enumeration type 'enum lpc18xx_pin_config_param' to different
-enumeration type 'enum pin_config_param' [-Wenum-conversion]
-        PCONFDUMP(PIN_CONFIG_GPIO_PIN_INT, "gpio pin int", NULL, true),
-        ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
-macro 'PCONFDUMP'
-        .param = a, .display = b, .format = c, .has_arg = d     \
-                 ^
-2 warnings generated.
+Fix by relaxing the test to explicitly look for the lower capability
+speeds which inherently allows for gen4 and all future speeds.
 
-It is expected that pinctrl drivers can extend pin_config_param because
-of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
-isn't an issue. Most drivers that take advantage of this define the
-PIN_CONFIG variables as constants, rather than enumerated values. Do the
-same thing here so that Clang no longer warns.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/140
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20191101192059.106248.1699.stgit@awfm-01.aw.intel.com
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: James Erwin <james.erwin@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-lpc18xx.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/staging/rdma/hfi1/pcie.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-lpc18xx.c b/drivers/pinctrl/pinctrl-lpc18xx.c
-index e053f1fa55120..ab2a451f31562 100644
---- a/drivers/pinctrl/pinctrl-lpc18xx.c
-+++ b/drivers/pinctrl/pinctrl-lpc18xx.c
-@@ -630,14 +630,8 @@ static const struct pinctrl_pin_desc lpc18xx_pins[] = {
- 	LPC18XX_PIN(i2c0_sda, PIN_I2C0_SDA),
- };
- 
--/**
-- * enum lpc18xx_pin_config_param - possible pin configuration parameters
-- * @PIN_CONFIG_GPIO_PIN_INT: route gpio to the gpio pin interrupt
-- * 	controller.
-- */
--enum lpc18xx_pin_config_param {
--	PIN_CONFIG_GPIO_PIN_INT = PIN_CONFIG_END + 1,
--};
-+/* PIN_CONFIG_GPIO_PIN_INT: route gpio to the gpio pin interrupt controller */
-+#define PIN_CONFIG_GPIO_PIN_INT		(PIN_CONFIG_END + 1)
- 
- static const struct pinconf_generic_params lpc18xx_params[] = {
- 	{"nxp,gpio-pin-interrupt", PIN_CONFIG_GPIO_PIN_INT, 0},
+diff --git a/drivers/staging/rdma/hfi1/pcie.c b/drivers/staging/rdma/hfi1/pcie.c
+index a956044459a2b..ea4df848d8405 100644
+--- a/drivers/staging/rdma/hfi1/pcie.c
++++ b/drivers/staging/rdma/hfi1/pcie.c
+@@ -389,7 +389,8 @@ int pcie_speeds(struct hfi1_devdata *dd)
+ 	/*
+ 	 * bus->max_bus_speed is set from the bridge's linkcap Max Link Speed
+ 	 */
+-	if (dd->pcidev->bus->max_bus_speed != PCIE_SPEED_8_0GT) {
++	if (dd->pcidev->bus->max_bus_speed == PCIE_SPEED_2_5GT ||
++	     dd->pcidev->bus->max_bus_speed == PCIE_SPEED_5_0GT) {
+ 		dd_dev_info(dd, "Parent PCIe bridge does not support Gen3\n");
+ 		dd->link_gen3_capable = 0;
+ 	}
 -- 
 2.20.1
 
