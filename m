@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D2D10B7E0
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:37:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138A010B880
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728621AbfK0Uhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
+        id S1729512AbfK0Unz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:43:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728625AbfK0Uhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:37:47 -0500
+        id S1728980AbfK0Uny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:43:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6504215A5;
-        Wed, 27 Nov 2019 20:37:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6759720862;
+        Wed, 27 Nov 2019 20:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887067;
-        bh=iIrIemM+N0M5lPeZn0XH1Xik9bRC7HEGUjRHqXeNVLM=;
+        s=default; t=1574887433;
+        bh=ANpEzvaNrgTeJe+unM5bxWbDq76vUfMBryJX1h5/v5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zF12eRsrZdepw1o1OSBfuyJWEDBqvY2si3ReajSlI3hjGGoD1aY19aiJXO730twDX
-         of3K4kOZKvOZZ4tGctmUZ/tFDDL3T6WymTyzrCGVvIi4WdTjfVD/SF2RxMrOHu7RrQ
-         Lm3iNftJZESsaUlqIOEtqM/9eTin/q7Nlyza74UY=
+        b=f8/S6nalJ8vDCUIjWnGnSfgQFKcF1SyIBxNy5gKG8gfhWSaluzpKpi4aQT4sgYD1Z
+         Bd8KJ/bgDmQZ58vaW3xVKMXyU628GUwZqvbiAQcCqIcuuYoml3DoDtmrSGQOTtBr3B
+         J9PLE9Ad4s7iApQBUaVRWGODkPtzUjjShAOi9fww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
-        syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Alexander Potapenko <glider@google.com>
-Subject: [PATCH 4.4 099/132] Bluetooth: Fix invalid-free in bcsp_close()
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 107/151] PCI: keystone: Use quirk to limit MRRS for K2G
 Date:   Wed, 27 Nov 2019 21:31:30 +0100
-Message-Id: <20191127203023.527104381@linuxfoundation.org>
+Message-Id: <20191127203042.087223129@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Bortoli <tomasbortoli@gmail.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit cf94da6f502d8caecabd56b194541c873c8a7a3c upstream.
+[ Upstream commit 148e340c0696369fadbbddc8f4bef801ed247d71 ]
 
-Syzbot reported an invalid-free that I introduced fixing a memleak.
+PCI controller in K2G also has a limitation that memory read request
+size (MRRS) must not exceed 256 bytes. Use the quirk to limit MRRS
+(added for K2HK, K2L and K2E) for K2G as well.
 
-bcsp_recv() also frees bcsp->rx_skb but never nullifies its value.
-Nullify bcsp->rx_skb every time it is freed.
-
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-Reported-by: syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Alexander Potapenko <glider@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_bcsp.c |    3 +++
+ drivers/pci/host/pci-keystone.c | 3 +++
  1 file changed, 3 insertions(+)
 
---- a/drivers/bluetooth/hci_bcsp.c
-+++ b/drivers/bluetooth/hci_bcsp.c
-@@ -566,6 +566,7 @@ static int bcsp_recv(struct hci_uart *hu
- 			if (*ptr == 0xc0) {
- 				BT_ERR("Short BCSP packet");
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_START;
- 				bcsp->rx_count = 0;
- 			} else
-@@ -581,6 +582,7 @@ static int bcsp_recv(struct hci_uart *hu
- 					bcsp->rx_skb->data[2])) != bcsp->rx_skb->data[3]) {
- 				BT_ERR("Error in BCSP hdr checksum");
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
- 				bcsp->rx_count = 0;
- 				continue;
-@@ -615,6 +617,7 @@ static int bcsp_recv(struct hci_uart *hu
- 					bscp_get_crc(bcsp));
+diff --git a/drivers/pci/host/pci-keystone.c b/drivers/pci/host/pci-keystone.c
+index eac0a1238e9d0..c690299d5c4a8 100644
+--- a/drivers/pci/host/pci-keystone.c
++++ b/drivers/pci/host/pci-keystone.c
+@@ -43,6 +43,7 @@
+ #define PCIE_RC_K2HK		0xb008
+ #define PCIE_RC_K2E		0xb009
+ #define PCIE_RC_K2L		0xb00a
++#define PCIE_RC_K2G		0xb00b
  
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
- 				bcsp->rx_count = 0;
- 				continue;
+ #define to_keystone_pcie(x)	container_of(x, struct keystone_pcie, pp)
+ 
+@@ -57,6 +58,8 @@ static void quirk_limit_mrrs(struct pci_dev *dev)
+ 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
+ 		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2L),
+ 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
++		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2G),
++		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
+ 		{ 0, },
+ 	};
+ 
+-- 
+2.20.1
+
 
 
