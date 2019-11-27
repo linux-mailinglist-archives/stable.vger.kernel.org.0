@@ -2,54 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15AB910AB09
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E07510AB0B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:22:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726426AbfK0HWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 02:22:06 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:45865 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726373AbfK0HWG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:22:06 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z10so25275799wrs.12
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 23:22:04 -0800 (PST)
+        id S1726320AbfK0HWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 02:22:08 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:38003 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726373AbfK0HWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:22:08 -0500
+Received: by mail-wr1-f68.google.com with SMTP id i12so25434327wro.5
+        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 23:22:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=UWRbO2P7g4EPCMmLRyVjfEAuVW+/g1Ubr25lGtwVdcY=;
-        b=PkBawT7ckvErv66yavO79Cb2B9m+9s8C+5vgtgN7tImRaIt8Sk6Y6hKdUjFaM45u8o
-         PCLwrOlT4IzF/g2foIHl7ECmt0WEtQR12j2P+R4ac515t02D762zZ13ZX+QeI4QwIlVh
-         2AxlFEXW9qV2cQ3q9Xf3emNwP4oy5IqoIVhFjskKTpMeyPPbFEFDc/+ugb6cIDxI/pDo
-         uJ5pJHEtWVD+jVhZZX/YL9IHtTEWtvUTsRyxpGpvbtlgqZN4WxOmR/etCG89B+Sxde4t
-         DXAmKZJj0C5KsfvtaRvq+MvWhvcU0BsR8e1I3aql67CeGOTaJNJG8YCL5jXhOfklHF2y
-         MbhA==
+        bh=Ul0WaU2BK0FC/8xcRvsdqtFzsbZwWd8yC4dUM4MnqUo=;
+        b=Mcv0jv8BKLmOSKZyyRBh6DX1wscLdbqydAWtEU8rZlagKyMYSBZaZw6JdngDoIojma
+         iN6tyMxNZYbqEzuF5UwmnYXclzTashowjGZOBMzwF3vcS4P9pL/CC/jzNK3mMMzJj1hY
+         nqOorXf6bBBYZhnG0kenwKkM2PTOwcVhRNEiAUw2XkyTaxna0wTOPbxN944so0gQFICR
+         +X/GYjAlMYNDMDOamy6bIKiUGxZSeg96+6a8wsUKnVEPs2x13d8qKYdvgCGcZAkz72wv
+         yDUZ2WFYl6pB7CmpThyEGpqVVSdyQP8n8dV2WCfWfAU74DDzVhSjKuRJaDPdYKKJ8uko
+         3cUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UWRbO2P7g4EPCMmLRyVjfEAuVW+/g1Ubr25lGtwVdcY=;
-        b=n7YqxdnfbFpWsDp4pUcT0fj5+yxxL6Gw+EHX3vEXv2C4oseepUfqqP1NPDrbY0QgGw
-         seK5yRxPIdzAOrUtmUenBl5zvbNLeDVRQBws4w3gA8sEPG2iTiyY00508YqOtww6EdeR
-         YIgXX3NpXGECbiydFsJABEb7DfGjOgnSbi1zjUjIU5DO0zk3qGZkQW5MKvvIUlaJMf8t
-         5CUb2gHFtDIX4qT2IaMRbyUIziV+9MRTTy63PPEdvsXjrNHdGhG4TXxNNJ0Yg0sqxpe1
-         MklppyyG/b5DInD5ZnBCsbI1QdUhYNWCpnAf7qLkpYrVjYHHLeFLnnw8hAnCqT/9ERz+
-         RFvA==
-X-Gm-Message-State: APjAAAWuKO0f+ulSSduMJppOc5ryvqAcWG5BrldOL+39lTfT4vaEDQaO
-        dnO4nGwq0gcXTrBl2+M4Py/L5vqdKMk=
-X-Google-Smtp-Source: APXvYqxfeJZuhbfxHGbO+JINjR6Ck8B03LxdHWzq8cTquoUhaYaQJ8rYxa4LR6YTTAQeMqU2ZXJe/A==
-X-Received: by 2002:adf:eecc:: with SMTP id a12mr29427632wrp.363.1574839323938;
-        Tue, 26 Nov 2019 23:22:03 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Ul0WaU2BK0FC/8xcRvsdqtFzsbZwWd8yC4dUM4MnqUo=;
+        b=YQpRjqK/aKmlKhqCNqzOGKOnXamAlFzqQG6UAeDLBMCsTezNBUm4I+QMV/kq5yEuw1
+         siHXh8QL7vDTy8KNF8VsF/Z+Beko8AZm7X4k+xVeUc4I/MZb5NNP/WN//nnA2qYmG7/c
+         uk0BUpNVN9Bsq3IHWO/6KjbbPtSP1C99Q6osVeJOdvIV3Ox0kRLe+0tSdMrJqAdzz+XR
+         nK58tuLYVCQKRNIHSGzvKbxky+x3NpgT50bcPh5Jxhsm3/ZaSXvhBvWqCgZoHHlYDiNO
+         ZVWwO0xR67T1deNU7g+oqTUBiplzZ4oBNhQ8e96Rsloju/XlpVAMdAGfFP93ACmMwnJy
+         BmLA==
+X-Gm-Message-State: APjAAAWUiCmZpi16qNWL+Q3Tezwy9I2W471aFKhn0hnGHTolKNXHGCOb
+        n8eOKomqNlwwYjzm/rhQNRZKYhwgY+w=
+X-Google-Smtp-Source: APXvYqwdKttvoz1SoIYXyIkasZUw7DNTnKThApQsOOGl/vTWMGno0X2dZVT6UkbXZbJ5UPTwsPvOvQ==
+X-Received: by 2002:a5d:65c4:: with SMTP id e4mr43704430wrw.269.1574839324520;
+        Tue, 26 Nov 2019 23:22:04 -0800 (PST)
 Received: from localhost.localdomain ([95.149.164.101])
-        by smtp.gmail.com with ESMTPSA id e16sm17983130wrj.80.2019.11.26.23.22.03
+        by smtp.gmail.com with ESMTPSA id e16sm17983130wrj.80.2019.11.26.23.22.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2019 23:22:03 -0800 (PST)
+        Tue, 26 Nov 2019 23:22:04 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 1/6] ARM: 8904/1: skip nomap memblocks while finding the lowmem/highmem boundary
-Date:   Wed, 27 Nov 2019 07:21:39 +0000
-Message-Id: <20191127072144.30537-1-lee.jones@linaro.org>
+Subject: [PATCH 4.9 2/6] can: dev: can_dellink(): remove return at end of void function
+Date:   Wed, 27 Nov 2019 07:21:40 +0000
+Message-Id: <20191127072144.30537-2-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191127072144.30537-1-lee.jones@linaro.org>
+References: <20191127072144.30537-1-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -57,37 +59,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chester Lin <clin@suse.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 1d31999cf04c21709f72ceb17e65b54a401330da ]
+[ Upstream commit d36673f5918c8fd3533f7c0d4bac041baf39c7bb ]
 
-adjust_lowmem_bounds() checks every memblocks in order to find the boundary
-between lowmem and highmem. However some memblocks could be marked as NOMAP
-so they are not used by kernel, which should be skipped while calculating
-the boundary.
+This patch remove the return at the end of the void function
+can_dellink().
 
-Signed-off-by: Chester Lin <clin@suse.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/mm/mmu.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/can/dev.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index 241bf898adf5..7edc6c3f4bd9 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -1188,6 +1188,9 @@ void __init adjust_lowmem_bounds(void)
- 		phys_addr_t block_start = reg->base;
- 		phys_addr_t block_end = reg->base + reg->size;
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index ffc5467a1ec2..1b3d7ec3462c 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -1071,7 +1071,6 @@ static int can_newlink(struct net *src_net, struct net_device *dev,
  
-+		if (memblock_is_nomap(reg))
-+			continue;
-+
- 		if (reg->base < vmalloc_limit) {
- 			if (block_end > lowmem_limit)
- 				/*
+ static void can_dellink(struct net_device *dev, struct list_head *head)
+ {
+-	return;
+ }
+ 
+ static struct rtnl_link_ops can_link_ops __read_mostly = {
 -- 
 2.24.0
 
