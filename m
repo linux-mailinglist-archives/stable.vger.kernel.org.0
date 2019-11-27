@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7769C10BC0F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C24D10BBD0
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730815AbfK0VLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:11:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40290 "EHLO mail.kernel.org"
+        id S2387517AbfK0VOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:14:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728507AbfK0VLf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:11:35 -0500
+        id S2387515AbfK0VOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:14:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE1D6217AB;
-        Wed, 27 Nov 2019 21:11:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08E54215F1;
+        Wed, 27 Nov 2019 21:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889094;
-        bh=x0r3Mfd+VwYR6oqV1ER4Hs/zpIxUEsd0Q/jnlt4hZsI=;
+        s=default; t=1574889246;
+        bh=TdRAeChszzBvhXeRBotzVgRFX0uNr5VLWiMp6gpmdqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GiTXa24RqaHyfbJp/3hNHTzjD3Kzw2CIDlUGUY9vAxvDeNVbFMPA9x063ac9qcnK
-         AjiqPgZ4WLIKvz/gD9pkefAW/0Kmjb9yGC3IUsa/XXS4HhuIcn/TlRqEKMqSqydEoY
-         bGrgtlXxaVdntk0wylCwYKxqKYuto2cC8Qhfzh+M=
+        b=KV2mA9WDRkoGnvfwehhWAor4VlMUZwkHoXhnlQPITTeg+zEjS/Egs/8za9wDUDpbT
+         SoCQ0VGmbyIU7iddPvXorNGEQx+YnG+J1W/OMwGIShbnwA6rj9ZcRKDXjlG5WvQW8q
+         mFZ2suvbcwMBXjPM3evZCZIiWbRmM34d5a1LYyx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Potapenko <glider@google.com>,
-        Thibaut Sautereau <thibaut@sautereau.fr>,
-        Kees Cook <keescook@chromium.org>,
-        Christoph Lameter <cl@linux.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 80/95] mm/slub.c: init_on_free=1 should wipe freelist ptr for bulk allocations
-Date:   Wed, 27 Nov 2019 21:32:37 +0100
-Message-Id: <20191127202949.148851697@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 43/66] futex: Provide state handling for exec() as well
+Date:   Wed, 27 Nov 2019 21:32:38 +0100
+Message-Id: <20191127202726.277344441@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,88 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 0f181f9fbea8bc7ea2f7e13ae7f8c256b39e254c ]
+commit af8cbda2cfcaa5515d61ec500498d46e9a8247e2 upstream.
 
-slab_alloc_node() already zeroed out the freelist pointer if
-init_on_free was on.  Thibaut Sautereau noticed that the same needs to
-be done for kmem_cache_alloc_bulk(), which performs the allocations
-separately.
+exec() attempts to handle potentially held futexes gracefully by running
+the futex exit handling code like exit() does.
 
-kmem_cache_alloc_bulk() is currently used in two places in the kernel,
-so this change is unlikely to have a major performance impact.
+The current implementation has no protection against concurrent incoming
+waiters. The reason is that the futex state cannot be set to
+FUTEX_STATE_DEAD after the cleanup because the task struct is still active
+and just about to execute the new binary.
 
-SLAB doesn't require a similar change, as auto-initialization makes the
-allocator store the freelist pointers off-slab.
+While its arguably buggy when a task holds a futex over exec(), for
+consistency sake the state handling can at least cover the actual futex
+exit cleanup section. This provides state consistency protection accross
+the cleanup. As the futex state of the task becomes FUTEX_STATE_OK after the
+cleanup has been finished, this cannot prevent subsequent attempts to
+attach to the task in case that the cleanup was not successfull in mopping
+up all leftovers.
 
-Link: http://lkml.kernel.org/r/20191007091605.30530-1-glider@google.com
-Fixes: 6471384af2a6 ("mm: security: introduce init_on_alloc=1 and init_on_free=1 boot options")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reported-by: Thibaut Sautereau <thibaut@sautereau.fr>
-Reported-by: Kees Cook <keescook@chromium.org>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20191106224556.753355618@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/slub.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ kernel/futex.c |   38 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 34 insertions(+), 4 deletions(-)
 
-diff --git a/mm/slub.c b/mm/slub.c
-index d2445dd1c7eda..f24ea152cdbb3 100644
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -2648,6 +2648,17 @@ static void *__slab_alloc(struct kmem_cache *s, gfp_t gfpflags, int node,
- 	return p;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3661,7 +3661,7 @@ static void exit_robust_list(struct task
+ 	}
  }
  
-+/*
-+ * If the object has been wiped upon free, make sure it's fully initialized by
-+ * zeroing out freelist pointer.
-+ */
-+static __always_inline void maybe_wipe_obj_freeptr(struct kmem_cache *s,
-+						   void *obj)
+-void futex_exec_release(struct task_struct *tsk)
++static void futex_cleanup(struct task_struct *tsk)
+ {
+ 	if (unlikely(tsk->robust_list)) {
+ 		exit_robust_list(tsk);
+@@ -3701,7 +3701,7 @@ void futex_exit_recursive(struct task_st
+ 	tsk->futex_state = FUTEX_STATE_DEAD;
+ }
+ 
+-void futex_exit_release(struct task_struct *tsk)
++static void futex_cleanup_begin(struct task_struct *tsk)
+ {
+ 	/*
+ 	 * Switch the state to FUTEX_STATE_EXITING under tsk->pi_lock.
+@@ -3717,10 +3717,40 @@ void futex_exit_release(struct task_stru
+ 	raw_spin_lock_irq(&tsk->pi_lock);
+ 	tsk->futex_state = FUTEX_STATE_EXITING;
+ 	raw_spin_unlock_irq(&tsk->pi_lock);
++}
+ 
+-	futex_exec_release(tsk);
++static void futex_cleanup_end(struct task_struct *tsk, int state)
 +{
-+	if (unlikely(slab_want_init_on_free(s)) && obj)
-+		memset((void *)((char *)obj + s->offset), 0, sizeof(void *));
++	/*
++	 * Lockless store. The only side effect is that an observer might
++	 * take another loop until it becomes visible.
++	 */
++	tsk->futex_state = state;
++}
+ 
+-	tsk->futex_state = FUTEX_STATE_DEAD;
++void futex_exec_release(struct task_struct *tsk)
++{
++	/*
++	 * The state handling is done for consistency, but in the case of
++	 * exec() there is no way to prevent futher damage as the PID stays
++	 * the same. But for the unlikely and arguably buggy case that a
++	 * futex is held on exec(), this provides at least as much state
++	 * consistency protection which is possible.
++	 */
++	futex_cleanup_begin(tsk);
++	futex_cleanup(tsk);
++	/*
++	 * Reset the state to FUTEX_STATE_OK. The task is alive and about
++	 * exec a new binary.
++	 */
++	futex_cleanup_end(tsk, FUTEX_STATE_OK);
 +}
 +
- /*
-  * Inlined fastpath so that allocation functions (kmalloc, kmem_cache_alloc)
-  * have the fastpath folded into their functions. So no function call
-@@ -2736,12 +2747,8 @@ redo:
- 		prefetch_freepointer(s, next_object);
- 		stat(s, ALLOC_FASTPATH);
- 	}
--	/*
--	 * If the object has been wiped upon free, make sure it's fully
--	 * initialized by zeroing out freelist pointer.
--	 */
--	if (unlikely(slab_want_init_on_free(s)) && object)
--		memset(object + s->offset, 0, sizeof(void *));
-+
-+	maybe_wipe_obj_freeptr(s, object);
++void futex_exit_release(struct task_struct *tsk)
++{
++	futex_cleanup_begin(tsk);
++	futex_cleanup(tsk);
++	futex_cleanup_end(tsk, FUTEX_STATE_DEAD);
+ }
  
- 	if (unlikely(slab_want_init_on_alloc(gfpflags, s)) && object)
- 		memset(object, 0, s->object_size);
-@@ -3155,10 +3162,13 @@ int kmem_cache_alloc_bulk(struct kmem_cache *s, gfp_t flags, size_t size,
- 				goto error;
- 
- 			c = this_cpu_ptr(s->cpu_slab);
-+			maybe_wipe_obj_freeptr(s, p[i]);
-+
- 			continue; /* goto for-loop */
- 		}
- 		c->freelist = get_freepointer(s, object);
- 		p[i] = object;
-+		maybe_wipe_obj_freeptr(s, p[i]);
- 	}
- 	c->tid = next_tid(c->tid);
- 	local_irq_enable();
--- 
-2.20.1
-
+ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
 
 
