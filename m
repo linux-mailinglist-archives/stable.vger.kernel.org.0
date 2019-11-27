@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B921810BECE
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0401410BDC1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729205AbfK0UpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55566 "EHLO mail.kernel.org"
+        id S1727659AbfK0VbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:31:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729706AbfK0UpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:45:10 -0500
+        id S1730916AbfK0UzG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:55:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1718521780;
-        Wed, 27 Nov 2019 20:45:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BA422084D;
+        Wed, 27 Nov 2019 20:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887509;
-        bh=YnZvOSCW0bD6fm1Fzv00QuMQnTGHaT7OrBMOg3XzLII=;
+        s=default; t=1574888105;
+        bh=bg068m6eQEBEESa5p5w78Mq6U6ACRkCkcOhx0Dbo9xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pH8dzSAyqegLgGlBsR7ZJ6nlvlzYhn1ssk4wRaut6xQGrHkpJkn8q7uJd/EHBBdga
-         QWjJsQ+C+BOmVU/BYmV8xZxC264OcSC0mjHtaX9cSeGj5128joafnmQtA/a5g0Ch93
-         q3gKJh+sDrHAB0Q/Qo0cmZkQgskJAvH/mwVNWsI0=
+        b=01NAvmDoxEFQiZTn933OcFMmGMR4L3JwuH/TAcWILAUD3TUHByHphwvSSfX5/qT0j
+         Vesa012r/2wk6ThBtRYtZAgtj1ibTT40Sst1cNiMli07VzdrV6t05pZHOBaSIvnrsU
+         qkd4VJXOtEPBGxUakqfkf2qaExE9sp2ndPEIQScs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 138/151] virtio_console: move removal code
-Date:   Wed, 27 Nov 2019 21:32:01 +0100
-Message-Id: <20191127203046.926583668@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.14 189/211] media: vivid: Fix wrong locking that causes race conditions on streaming stop
+Date:   Wed, 27 Nov 2019 21:32:02 +0100
+Message-Id: <20191127203111.557215149@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,111 +45,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Alexander Popov <alex.popov@linux.com>
 
-[ Upstream commit aa44ec867030a72e8aa127977e37dec551d8df19 ]
+commit 6dcd5d7a7a29c1e4b8016a06aed78cd650cd8c27 upstream.
 
-Will make it reusable for error handling.
+There is the same incorrect approach to locking implemented in
+vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
+sdr_cap_stop_streaming().
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+These functions are called during streaming stopping with vivid_dev.mutex
+locked. And they all do the same mistake while stopping their kthreads,
+which need to lock this mutex as well. See the example from
+vivid_stop_generating_vid_cap():
+  /* shutdown control thread */
+  vivid_grab_controls(dev, false);
+  mutex_unlock(&dev->mutex);
+  kthread_stop(dev->kthread_vid_cap);
+  dev->kthread_vid_cap = NULL;
+  mutex_lock(&dev->mutex);
+
+But when this mutex is unlocked, another vb2_fop_read() can lock it
+instead of vivid_thread_vid_cap() and manipulate the buffer queue.
+That causes a use-after-free access later.
+
+To fix those issues let's:
+  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
+vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
+  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
+the loops of the vivid kthread handlers.
+
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v3.18 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/char/virtio_console.c | 72 +++++++++++++++++------------------
- 1 file changed, 36 insertions(+), 36 deletions(-)
+ drivers/media/platform/vivid/vivid-kthread-cap.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-kthread-out.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-sdr-cap.c     |    8 +++++---
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 8975ea08d6c01..34548d3b4d13c 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1993,6 +1993,42 @@ static void remove_vqs(struct ports_device *portdev)
- 	kfree(portdev->out_vqs);
+--- a/drivers/media/platform/vivid/vivid-kthread-cap.c
++++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
+@@ -777,7 +777,11 @@ static int vivid_thread_vid_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->cap_seq_resync) {
+ 			dev->jiffies_vid_cap = cur_jiffies;
+@@ -930,8 +934,6 @@ void vivid_stop_generating_vid_cap(struc
+ 
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_cap);
+ 	dev->kthread_vid_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-kthread-out.c
++++ b/drivers/media/platform/vivid/vivid-kthread-out.c
+@@ -147,7 +147,11 @@ static int vivid_thread_vid_out(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->out_seq_resync) {
+ 			dev->jiffies_vid_out = cur_jiffies;
+@@ -301,8 +305,6 @@ void vivid_stop_generating_vid_out(struc
+ 
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_out);
+ 	dev->kthread_vid_out = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-sdr-cap.c
++++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
+@@ -149,7 +149,11 @@ static int vivid_thread_sdr_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->sdr_cap_seq_resync) {
+ 			dev->jiffies_sdr_cap = cur_jiffies;
+@@ -309,10 +313,8 @@ static void sdr_cap_stop_streaming(struc
+ 	}
+ 
+ 	/* shutdown control thread */
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_sdr_cap);
+ 	dev->kthread_sdr_cap = NULL;
+-	mutex_lock(&dev->mutex);
  }
  
-+static void virtcons_remove(struct virtio_device *vdev)
-+{
-+	struct ports_device *portdev;
-+	struct port *port, *port2;
-+
-+	portdev = vdev->priv;
-+
-+	spin_lock_irq(&pdrvdata_lock);
-+	list_del(&portdev->list);
-+	spin_unlock_irq(&pdrvdata_lock);
-+
-+	/* Disable interrupts for vqs */
-+	vdev->config->reset(vdev);
-+	/* Finish up work that's lined up */
-+	if (use_multiport(portdev))
-+		cancel_work_sync(&portdev->control_work);
-+	else
-+		cancel_work_sync(&portdev->config_work);
-+
-+	list_for_each_entry_safe(port, port2, &portdev->ports, list)
-+		unplug_port(port);
-+
-+	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
-+
-+	/*
-+	 * When yanking out a device, we immediately lose the
-+	 * (device-side) queues.  So there's no point in keeping the
-+	 * guest side around till we drop our final reference.  This
-+	 * also means that any ports which are in an open state will
-+	 * have to just stop using the port, as the vqs are going
-+	 * away.
-+	 */
-+	remove_vqs(portdev);
-+	kfree(portdev);
-+}
-+
- /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.
-@@ -2121,42 +2157,6 @@ fail:
- 	return err;
- }
- 
--static void virtcons_remove(struct virtio_device *vdev)
--{
--	struct ports_device *portdev;
--	struct port *port, *port2;
--
--	portdev = vdev->priv;
--
--	spin_lock_irq(&pdrvdata_lock);
--	list_del(&portdev->list);
--	spin_unlock_irq(&pdrvdata_lock);
--
--	/* Disable interrupts for vqs */
--	vdev->config->reset(vdev);
--	/* Finish up work that's lined up */
--	if (use_multiport(portdev))
--		cancel_work_sync(&portdev->control_work);
--	else
--		cancel_work_sync(&portdev->config_work);
--
--	list_for_each_entry_safe(port, port2, &portdev->ports, list)
--		unplug_port(port);
--
--	unregister_chrdev(portdev->chr_major, "virtio-portsdev");
--
--	/*
--	 * When yanking out a device, we immediately lose the
--	 * (device-side) queues.  So there's no point in keeping the
--	 * guest side around till we drop our final reference.  This
--	 * also means that any ports which are in an open state will
--	 * have to just stop using the port, as the vqs are going
--	 * away.
--	 */
--	remove_vqs(portdev);
--	kfree(portdev);
--}
--
- static struct virtio_device_id id_table[] = {
- 	{ VIRTIO_ID_CONSOLE, VIRTIO_DEV_ANY_ID },
- 	{ 0 },
--- 
-2.20.1
-
+ const struct vb2_ops vivid_sdr_cap_qops = {
 
 
