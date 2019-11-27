@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE85310BE3D
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:35:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B49FD10BF33
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729917AbfK0UuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:50:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35984 "EHLO mail.kernel.org"
+        id S1729178AbfK0Ulg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:41:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729907AbfK0UuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:50:10 -0500
+        id S1728687AbfK0Ulg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:41:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A265721843;
-        Wed, 27 Nov 2019 20:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3600215A4;
+        Wed, 27 Nov 2019 20:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887810;
-        bh=+jRBefN1uwEbzARKvRxsl294CfyeOzMo4klRHllFCY8=;
+        s=default; t=1574887295;
+        bh=krZDS5Xres+b4gBKMkpeIRgF9Ij2mTybHD+luW0D7ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFH2UYN7fkXj1Jo8Zy0vWgFIRnF9knI1hMsY5raImIynlnC5Hg+IduICbHJLtb2LU
-         me9r3TdYrNo3F5z7rncunaqGIUAQ6YLXkoElJ/SYmuciJKzlytCYkBwMH6oBVDVhoT
-         zF9p7jlpBuRFunpU7cx5Yg1mZ0h7HLGl5Xkzji2M=
+        b=G/VcCNHfaisPhkAmCHWeip6+v9VHMMmGxTFjOC/fUAZ6dLRdOd+hZrv0ZedzWBYKo
+         Lc2ajocoPDfVo9fDniK0cFml9GUSuanzVBjwWvS4InI62oQg0D72B8VjxgD7fXShqK
+         HwTftGTzBVYn/oLIJOcqukYTWn3M+Q3y12fzh0Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 104/211] selftests/powerpc/signal: Fix out-of-tree build
+Subject: [PATCH 4.9 054/151] mISDN: Fix type of switch control variable in ctrl_teimanager
 Date:   Wed, 27 Nov 2019 21:30:37 +0100
-Message-Id: <20191127203103.526628802@linuxfoundation.org>
+Message-Id: <20191127203031.758140620@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 27825349d7b238533a47e3d98b8bb0efd886b752 ]
+[ Upstream commit aeb5e02aca91522733eb1db595ac607d30c87767 ]
 
-We should use TEST_GEN_PROGS, not TEST_PROGS. That tells the selftests
-makefile (lib.mk) that those tests are generated (built), and so it
-adds the $(OUTPUT) prefix for us, making the out-of-tree build work
-correctly.
+Clang warns (trimmed for brevity):
 
-It also means we don't need our own clean rule, lib.mk does it.
+drivers/isdn/mISDN/tei.c:1193:7: warning: overflow converting case value
+to switch condition type (2147764552 to 18446744071562348872) [-Wswitch]
+        case IMHOLD_L1:
+             ^
+drivers/isdn/mISDN/tei.c:1187:7: warning: overflow converting case value
+to switch condition type (2147764550 to 18446744071562348870) [-Wswitch]
+        case IMCLEAR_L2:
+             ^
+2 warnings generated.
 
-We also have to update the signal_tm rule to use $(OUTPUT).
+The root cause is that the _IOC macro can generate really large numbers,
+which don't find into type int. My research into how GCC and Clang are
+handling this at a low level didn't prove fruitful and surveying the
+kernel tree shows that aside from here and a few places in the scsi
+subsystem, everything that uses _IOC is at least of type 'unsigned int'.
+Make that change here because as nothing in this function cares about
+the signedness of the variable and it removes ambiguity, which is never
+good when dealing with compilers.
 
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+While we're here, remove the unnecessary local variable ret (just return
+-EINVAL and 0 directly).
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/67
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/signal/Makefile | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/isdn/mISDN/tei.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/powerpc/signal/Makefile b/tools/testing/selftests/powerpc/signal/Makefile
-index a7cbd5082e271..4213978f3ee2c 100644
---- a/tools/testing/selftests/powerpc/signal/Makefile
-+++ b/tools/testing/selftests/powerpc/signal/Makefile
-@@ -1,14 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0
--TEST_PROGS := signal signal_tm
--
--all: $(TEST_PROGS)
--
--$(TEST_PROGS): ../harness.c ../utils.c signal.S
-+TEST_GEN_PROGS := signal signal_tm
+diff --git a/drivers/isdn/mISDN/tei.c b/drivers/isdn/mISDN/tei.c
+index 592f597d89518..8261afbbafb05 100644
+--- a/drivers/isdn/mISDN/tei.c
++++ b/drivers/isdn/mISDN/tei.c
+@@ -1180,8 +1180,7 @@ static int
+ ctrl_teimanager(struct manager *mgr, void *arg)
+ {
+ 	/* currently we only have one option */
+-	int	*val = (int *)arg;
+-	int	ret = 0;
++	unsigned int *val = (unsigned int *)arg;
  
- CFLAGS += -maltivec
--signal_tm: CFLAGS += -mhtm
-+$(OUTPUT)/signal_tm: CFLAGS += -mhtm
+ 	switch (val[0]) {
+ 	case IMCLEAR_L2:
+@@ -1197,9 +1196,9 @@ ctrl_teimanager(struct manager *mgr, void *arg)
+ 			test_and_clear_bit(OPTION_L1_HOLD, &mgr->options);
+ 		break;
+ 	default:
+-		ret = -EINVAL;
++		return -EINVAL;
+ 	}
+-	return ret;
++	return 0;
+ }
  
- include ../../lib.mk
- 
--clean:
--	rm -f $(TEST_PROGS) *.o
-+$(TEST_GEN_PROGS): ../harness.c ../utils.c signal.S
+ /* This function does create a L2 for fixed TEI in NT Mode */
 -- 
 2.20.1
 
