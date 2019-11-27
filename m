@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDAC310B91A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:50:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B109110B91C
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730286AbfK0Utz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:49:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35624 "EHLO mail.kernel.org"
+        id S1730298AbfK0Ut6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:49:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729874AbfK0Utz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:49:55 -0500
+        id S1730293AbfK0Ut5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:49:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43F2D21843;
-        Wed, 27 Nov 2019 20:49:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B686221787;
+        Wed, 27 Nov 2019 20:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887794;
-        bh=zVi3l48Dj1pEq/lXVT7CWip3HEIXhUTRhaX6jVURMJE=;
+        s=default; t=1574887797;
+        bh=+MSac9lGQ3g4tukeHIJJKFOOP18cM1X5Kz249xwJKOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovLStZijde1wXRR/IibclDv5Yatwry+WK1/YucsnxugkJk0bDqHzj9qYKddVBZsPL
-         XCwY7KsdcNg0lXbwD3YVzuOeDfwNnXPVk+a8LQ34rhlIRTGFzX2RvbHe5LZ3+W7xt4
-         k/mhaMAqiGsW2L4i3dRVtbfg1bIZfFWKRGxJBnNc=
+        b=qK9AxabDDpCNh8FABottI0bul3evCScLUB0TvJSOoiZtXgVopxqxNmuU/2md46k7m
+         0ksl6yEI3WRCqTHEVcPdUG+1c2iMEqFECbT6AdYIdIuBn1V2JObpz71TdaJxFSYMw7
+         p1rtLM1CqsBH03JQzQ4RDPVhXJ26Hyg7hhEl4WMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 054/211] scsi: dc395x: fix dma API usage in srb_done
-Date:   Wed, 27 Nov 2019 21:29:47 +0100
-Message-Id: <20191127203059.231825161@linuxfoundation.org>
+Subject: [PATCH 4.14 055/211] scsi: dc395x: fix DMA API usage in sg_update_list
+Date:   Wed, 27 Nov 2019 21:29:48 +0100
+Message-Id: <20191127203059.335114220@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -46,51 +46,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 3a5bd7021184dec2946f2a4d7a8943f8a5713e52 ]
+[ Upstream commit 6c404a68bf83b4135a8a9aa1c388ebdf98e8ba7f ]
 
-We can't just transfer ownership to the CPU and then unmap, as this will
-break with swiotlb.
-
-Instead unmap the command and sense buffer a little earlier in the I/O
-completion handler and get rid of the pci_dma_sync_sg_for_cpu call
-entirely.
+We need to transfer device ownership to the CPU before we can manipulate
+the mapped data.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/dc395x.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/scsi/dc395x.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/scsi/dc395x.c b/drivers/scsi/dc395x.c
-index 5ee7f44cf869b..9da0ac360848f 100644
+index 9da0ac360848f..830b2d2dcf206 100644
 --- a/drivers/scsi/dc395x.c
 +++ b/drivers/scsi/dc395x.c
-@@ -3450,14 +3450,12 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
- 		}
- 	}
- 
--	if (dir != PCI_DMA_NONE && scsi_sg_count(cmd))
--		pci_dma_sync_sg_for_cpu(acb->dev, scsi_sglist(cmd),
--					scsi_sg_count(cmd), dir);
--
- 	ckc_only = 0;
- /* Check Error Conditions */
-       ckc_e:
- 
-+	pci_unmap_srb(acb, srb);
-+
- 	if (cmd->cmnd[0] == INQUIRY) {
- 		unsigned char *base = NULL;
- 		struct ScsiInqData *ptr;
-@@ -3511,7 +3509,6 @@ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
- 			cmd, cmd->result);
- 		srb_free_insert(acb, srb);
- 	}
--	pci_unmap_srb(acb, srb);
- 
- 	cmd->scsi_done(cmd);
- 	waiting_process_next(acb);
+@@ -1972,6 +1972,11 @@ static void sg_update_list(struct ScsiReqBlk *srb, u32 left)
+ 			xferred -= psge->length;
+ 		} else {
+ 			/* Partial SG entry done */
++			pci_dma_sync_single_for_cpu(srb->dcb->
++					    acb->dev,
++					    srb->sg_bus_addr,
++					    SEGMENTX_LEN,
++					    PCI_DMA_TODEVICE);
+ 			psge->length -= xferred;
+ 			psge->address += xferred;
+ 			srb->sg_index = idx;
 -- 
 2.20.1
 
