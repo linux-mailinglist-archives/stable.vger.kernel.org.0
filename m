@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD30110BC4F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD4510BB3B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732217AbfK0VTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:19:50 -0500
-Received: from sv2-smtprelay2.synopsys.com ([149.117.73.133]:39526 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727303AbfK0VTs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 16:19:48 -0500
-X-Greylist: delayed 545 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 Nov 2019 16:19:48 EST
-Received: from mailhost.synopsys.com (sv1-mailhost2.synopsys.com [10.205.2.132])
+        id S1733089AbfK0VKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:10:51 -0500
+Received: from us03-smtprelay2.synopsys.com ([149.117.87.133]:32818 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1733085AbfK0VKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 16:10:51 -0500
+Received: from mailhost.synopsys.com (sv2-mailhost1.synopsys.com [10.205.2.133])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 59E7E423C5;
-        Wed, 27 Nov 2019 21:10:43 +0000 (UTC)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id C0336C00A7;
+        Wed, 27 Nov 2019 21:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1574889043; bh=8GexeTKdrJVGUozw9tp34nM+7HL1tTaIP6RQMWGkyWM=;
-        h=Date:From:Subject:To:Cc:From;
-        b=g8mGxjIETzgoHoPpeATQD+H8V5GfnrxjLW+dpee3/bb3mAFrVshyLQhyLcgZejALX
-         rCftaVNTcpEuCu9LiUPIxuDArs/ALsGJNhzi+IyFsERRvASrw6aOuiP/3SQjEQabVY
-         s0Ky+FlXCjQcYEeczyhwAbcUfx9udDkluNaO5v2xQsPMBrmtENoWc72niQ/v5y87WS
-         qZv+g3vYCSQZMSBuldocwgMTKB+dollEmt2NiNmhDFq7Xt2844TjwDi71SWglCmKVS
-         7B18hayHZ7Bx2FxFakgeaoRSLN58alwTSTkG9nCotno+N1BPquY0FOF4k2pSiqEJ7L
-         xE/LyTgeHYQ8g==
+        t=1574889049; bh=0psXz4JKqYmr/UJM2TBc2EQhoyhnFwk0WYHPemkXBi0=;
+        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
+        b=CAR3WbKa52q1/aE8HKHPV/5e50Uunb4OjRAHfQc8iEf7O201DLtcu5Gw2dye5oLHB
+         M6Y48pEIkSH3hp4c1fuhqDLVqwOzNX1mR+OX56i9JCmveLIdQvgUcQ8h/jlgS318RO
+         6g4GD5VtpXyV1rtXAsGmbcJPnLTwbmm8BuAVrlt7MRdcR9Kx6KTzLiuwqV4exneFwT
+         xHKlo06bJ/ZA+SyXhyfVLs0cFlTu7lKUnvtWAIrATa/e8yhbZjsYY5tk137bTN2Gqw
+         YnQOLo4ZW4I6AMiWl4/d0yzXN7w+uGriPGUN44LVFNLn8YSW3IPmN+33sTLeiFtE8S
+         VXgiuOqzmMH5A==
 Received: from te-lab16 (nanobot.internal.synopsys.com [10.10.186.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id AEFBEA006D;
-        Wed, 27 Nov 2019 21:10:41 +0000 (UTC)
-Received: by te-lab16 (sSMTP sendmail emulation); Wed, 27 Nov 2019 13:10:41 -0800
-Date:   Wed, 27 Nov 2019 13:10:41 -0800
-Message-Id: <cover.1574888929.git.thinhn@synopsys.com>
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 1C2E7A007C;
+        Wed, 27 Nov 2019 21:10:48 +0000 (UTC)
+Received: by te-lab16 (sSMTP sendmail emulation); Wed, 27 Nov 2019 13:10:47 -0800
+Date:   Wed, 27 Nov 2019 13:10:47 -0800
+Message-Id: <a0f9399b9959d8e5ad9ae9be8572a03dd2314589.1574888929.git.thinhn@synopsys.com>
+In-Reply-To: <cover.1574888929.git.thinhn@synopsys.com>
+References: <cover.1574888929.git.thinhn@synopsys.com>
 From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 0/2] usb: dwc3: gadget: Fix END_TRANSFER handling
+Subject: [PATCH 1/2] usb: dwc3: gadget: Clear started flag for non-IOC
 To:     Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
@@ -46,19 +47,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch series adds a couple of fixes related to handling
-END_TRANSFER command.
+Normally the END_TRANSFER command completion handler will clear the
+DWC3_EP_TRANSFER_STARTED flag. However, if the command was sent without
+interrupt on completion, then the flag will not be cleared. Make sure to
+clear the flag in this case.
 
-
-
-Thinh Nguyen (2):
-  usb: dwc3: gadget: Clear started flag for non-IOC
-  usb: dwc3: ep0: Clear started flag on completion
-
- drivers/usb/dwc3/ep0.c    | 8 ++++++++
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+---
  drivers/usb/dwc3/gadget.c | 3 +++
- 2 files changed, 11 insertions(+)
+ 1 file changed, 3 insertions(+)
 
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 7f97856e6b20..95a0b2e7ecea 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2716,6 +2716,9 @@ static void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
+ 	WARN_ON_ONCE(ret);
+ 	dep->resource_index = 0;
+ 
++	if (!interrupt)
++		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
++
+ 	if (dwc3_is_usb31(dwc) || dwc->revision < DWC3_REVISION_310A)
+ 		udelay(100);
+ }
 -- 
 2.11.0
 
