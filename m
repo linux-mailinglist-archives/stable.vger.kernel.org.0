@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDABE10B915
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:49:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2C510B834
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:41:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729058AbfK0Utn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:49:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35382 "EHLO mail.kernel.org"
+        id S1727735AbfK0UlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:41:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729044AbfK0Utm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:49:42 -0500
+        id S1728591AbfK0Uk7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:40:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78CDD20678;
-        Wed, 27 Nov 2019 20:49:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9434F215A4;
+        Wed, 27 Nov 2019 20:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887781;
-        bh=MdXxU8oNnNxUNykFVPJPxOfa36YJHrJlrvzu5GMEQSU=;
+        s=default; t=1574887258;
+        bh=pz831w1FYuAKytC2tJGnO7bVucvEVuEDHUgUhpkzv/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQxc6t1xowKwkynLpQQfZQbfNT2EDLFKGmLd/2mvgSVyDK1+1sW+gekbco5LcdIov
-         svmuunugUN+rDCK8ybGTnN3I0/TpCNTt5BIW50xAXaD3JF4RvI6ZvIpSbdNmQh9UsP
-         AbOQ+bXDchdOLroBDHLjGVDNP7j8128AnP4KAWj4=
+        b=vsPN6eshCrI6Dx6LNoh+qpC/Z5jyU2QZydw3b910/dbzi/4zvu8bpWCzuV9a4XY8P
+         6Yc392cnCGMHNvMMJNCukk8Q/c37BCTGwDSZmkfjFyYhwrPJJ5rwXttHtWO7l0gj34
+         xKYNjdrlJ4JktRiWcZ6QxURlcM7WjNhI086m+5So=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Felipe Rechia <felipe.rechia@datacom.com.br>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 090/211] powerpc/process: Fix flush_all_to_thread for SPE
-Date:   Wed, 27 Nov 2019 21:30:23 +0100
-Message-Id: <20191127203102.251927666@linuxfoundation.org>
+        stable@vger.kernel.org, Philipp Klocke <philipp97kl@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 041/151] ALSA: i2c/cs8427: Fix int to char conversion
+Date:   Wed, 27 Nov 2019 21:30:24 +0100
+Message-Id: <20191127203025.950633106@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felipe Rechia <felipe.rechia@datacom.com.br>
+From: Philipp Klocke <philipp97kl@gmail.com>
 
-[ Upstream commit e901378578c62202594cba0f6c076f3df365ec91 ]
+[ Upstream commit eb7ebfa3c1989aa8e59d5e68ab3cddd7df1bfb27 ]
 
-Fix a bug introduced by the creation of flush_all_to_thread() for
-processors that have SPE (Signal Processing Engine) and use it to
-compute floating-point operations.
+Compiling with clang yields the following warning:
 
->From userspace perspective, the problem was seen in attempts of
-computing floating-point operations which should generate exceptions.
-For example:
+sound/i2c/cs8427.c:140:31: warning: implicit conversion from 'int'
+to 'char' changes value from 160 to -96 [-Wconstant-conversion]
+    data[0] = CS8427_REG_AUTOINC | CS8427_REG_CORU_DATABUF;
+            ~ ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
 
-  fork();
-  float x = 0.0 / 0.0;
-  isnan(x);           // forked process returns False (should be True)
+Because CS8427_REG_AUTOINC is defined as 128, it is too big for a
+char field.
+So change data from char to unsigned char, that it can hold the value.
 
-The operation above also should always cause the SPEFSCR FINV bit to
-be set. However, the SPE floating-point exceptions were turned off
-after a fork().
+This patch does not change the generated code.
 
-Kernel versions prior to the bug used flush_spe_to_thread(), which
-first saves SPEFSCR register values in tsk->thread and then calls
-giveup_spe(tsk).
-
-After commit 579e633e764e, the save_all() function was called first
-to giveup_spe(), and then the SPEFSCR register values were saved in
-tsk->thread. This would save the SPEFSCR register values after
-disabling SPE for that thread, causing the bug described above.
-
-Fixes 579e633e764e ("powerpc: create flush_all_to_thread()")
-Signed-off-by: Felipe Rechia <felipe.rechia@datacom.com.br>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Philipp Klocke <philipp97kl@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/process.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/i2c/cs8427.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index 5e5da2073fdff..ba0d4f9a99bac 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -567,12 +567,11 @@ void flush_all_to_thread(struct task_struct *tsk)
- 	if (tsk->thread.regs) {
- 		preempt_disable();
- 		BUG_ON(tsk != current);
--		save_all(tsk);
--
- #ifdef CONFIG_SPE
- 		if (tsk->thread.regs->msr & MSR_SPE)
- 			tsk->thread.spefscr = mfspr(SPRN_SPEFSCR);
- #endif
-+		save_all(tsk);
+diff --git a/sound/i2c/cs8427.c b/sound/i2c/cs8427.c
+index 7e21621e492a4..7fd1b40008838 100644
+--- a/sound/i2c/cs8427.c
++++ b/sound/i2c/cs8427.c
+@@ -118,7 +118,7 @@ static int snd_cs8427_send_corudata(struct snd_i2c_device *device,
+ 	struct cs8427 *chip = device->private_data;
+ 	char *hw_data = udata ?
+ 		chip->playback.hw_udata : chip->playback.hw_status;
+-	char data[32];
++	unsigned char data[32];
+ 	int err, idx;
  
- 		preempt_enable();
- 	}
+ 	if (!memcmp(hw_data, ndata, count))
 -- 
 2.20.1
 
