@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E0210BF00
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC4510BDD5
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728405AbfK0UnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:43:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50898 "EHLO mail.kernel.org"
+        id S1729999AbfK0Uxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:53:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728224AbfK0UnU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:20 -0500
+        id S1730140AbfK0Uxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:53:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8958E21780;
-        Wed, 27 Nov 2019 20:43:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0068521850;
+        Wed, 27 Nov 2019 20:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887400;
-        bh=ZUU5H9HjWn3RXfrImjsnjhkhrT3YNJwLQmoT5CgPNO8=;
+        s=default; t=1574888023;
+        bh=EHA+Fe7eIbG8tt1ANtpom1GPKu0YwoUmtCxEmscV9QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxns35y3/OCmTeE7CtnWeCSMHJXhwBem9jodgfBn2F27UV4nBiTljposf/nLgj4db
-         cSmAjuKsss8x94B56cogeU2PvGpnh6XVhjqViauYaHuxIupDJBBleKfHAmxu9m2mjr
-         Aw2Gyq75IHGMZ8EJOundPpg6ShBZfB+7BAMV6yZU=
+        b=pqnpVG3qpZ1VRziVJcsxfg4K71NWgvYYrMn7PKF4Fia50JQ4mQJ8Kl8mEthi7XIdb
+         E2ndpnxm2oAGfEodECBU3xbaW3LL190DbUi2lONsP6fTolSPb1NzKjCGVC1d4cAzWJ
+         bqnomKSPYfmjQbQuXLT9TMTzQQH5uJI4TokgEaKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        Hannes Reinecke <hare@suse.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 095/151] scsi: mpt3sas: Fix Sync cache command failure during driver unload
+Subject: [PATCH 4.14 145/211] scsi: lpfc: fcoe: Fix link down issue after 1000+ link bounces
 Date:   Wed, 27 Nov 2019 21:31:18 +0100
-Message-Id: <20191127203038.361260964@linuxfoundation.org>
+Message-Id: <20191127203107.713087907@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,85 +46,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 9029a72500b95578a35877a43473b82cb0386c53 ]
+[ Upstream commit 036cad1f1ac9ce03e2db94b8460f98eaf1e1ee4c ]
 
-This is to fix SYNC CACHE and START STOP command failures with
-DID_NO_CONNECT during driver unload.
+On FCoE adapters, when running link bounce test in a loop, initiator
+failed to login with switch switch and required driver reload to
+recover. Switch reached a point where all subsequent FLOGIs would be
+LS_RJT'd. Further testing showed the condition to be related to not
+performing FCF discovery between FLOGI's.
 
-In driver's IO submission patch (i.e. in driver's .queuecommand()) driver
-won't allow any SCSI commands to the IOC when ioc->remove_host flag is set
-and hence SYNC CACHE commands which are issued to the target drives (where
-write cache is enabled) during driver unload time is failed with
-DID_NO_CONNECT status.
+Fix by monitoring FLOGI failures and once a repeated error is seen
+repeat FCF discovery.
 
-Now modified the driver to allow SYNC CACHE and START STOP commands to IOC,
-even when remove_host flag is set.
-
-Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 36 +++++++++++++++++++++++++++-
- 1 file changed, 35 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_els.c     |  2 ++
+ drivers/scsi/lpfc/lpfc_hbadisc.c | 20 ++++++++++++++++++++
+ drivers/scsi/lpfc/lpfc_init.c    |  2 +-
+ drivers/scsi/lpfc/lpfc_sli.c     | 11 ++---------
+ drivers/scsi/lpfc/lpfc_sli4.h    |  1 +
+ 5 files changed, 26 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index ec48c010a3bab..aa2078d7e23e2 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -3297,6 +3297,40 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
- 	return _scsih_check_for_pending_tm(ioc, smid);
- }
- 
-+/** _scsih_allow_scmd_to_device - check whether scmd needs to
-+ *				 issue to IOC or not.
-+ * @ioc: per adapter object
-+ * @scmd: pointer to scsi command object
-+ *
-+ * Returns true if scmd can be issued to IOC otherwise returns false.
-+ */
-+inline bool _scsih_allow_scmd_to_device(struct MPT3SAS_ADAPTER *ioc,
-+	struct scsi_cmnd *scmd)
-+{
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index ddd29752d96dc..95449f97101d3 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1152,6 +1152,7 @@ lpfc_cmpl_els_flogi(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			phba->fcf.fcf_flag &= ~FCF_DISCOVERY;
+ 			phba->hba_flag &= ~(FCF_RR_INPROG | HBA_DEVLOSS_TMO);
+ 			spin_unlock_irq(&phba->hbalock);
++			phba->fcf.fcf_redisc_attempted = 0; /* reset */
+ 			goto out;
+ 		}
+ 		if (!rc) {
+@@ -1166,6 +1167,7 @@ lpfc_cmpl_els_flogi(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			phba->fcf.fcf_flag &= ~FCF_DISCOVERY;
+ 			phba->hba_flag &= ~(FCF_RR_INPROG | HBA_DEVLOSS_TMO);
+ 			spin_unlock_irq(&phba->hbalock);
++			phba->fcf.fcf_redisc_attempted = 0; /* reset */
+ 			goto out;
+ 		}
+ 	}
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index b970933a218d5..d850077c5e226 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -1999,6 +1999,26 @@ int lpfc_sli4_fcf_rr_next_proc(struct lpfc_vport *vport, uint16_t fcf_index)
+ 				"failover and change port state:x%x/x%x\n",
+ 				phba->pport->port_state, LPFC_VPORT_UNKNOWN);
+ 		phba->pport->port_state = LPFC_VPORT_UNKNOWN;
 +
-+	if (ioc->pci_error_recovery)
-+		return false;
++		if (!phba->fcf.fcf_redisc_attempted) {
++			lpfc_unregister_fcf(phba);
 +
-+	if (ioc->hba_mpi_version_belonged == MPI2_VERSION) {
-+		if (ioc->remove_host)
-+			return false;
-+
-+		return true;
-+	}
-+
-+	if (ioc->remove_host) {
-+
-+		switch (scmd->cmnd[0]) {
-+		case SYNCHRONIZE_CACHE:
-+		case START_STOP:
-+			return true;
-+		default:
-+			return false;
++			rc = lpfc_sli4_redisc_fcf_table(phba);
++			if (!rc) {
++				lpfc_printf_log(phba, KERN_INFO, LOG_FIP,
++						"3195 Rediscover FCF table\n");
++				phba->fcf.fcf_redisc_attempted = 1;
++				lpfc_sli4_clear_fcf_rr_bmask(phba);
++			} else {
++				lpfc_printf_log(phba, KERN_WARNING, LOG_FIP,
++						"3196 Rediscover FCF table "
++						"failed. Status:x%x\n", rc);
++			}
++		} else {
++			lpfc_printf_log(phba, KERN_WARNING, LOG_FIP,
++					"3197 Already rediscover FCF table "
++					"attempted. No more retry\n");
 +		}
-+	}
+ 		goto stop_flogi_current_fcf;
+ 	} else {
+ 		lpfc_printf_log(phba, KERN_INFO, LOG_FIP | LOG_ELS,
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 25612ccf6ff28..15bcd00dd7a23 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -4997,7 +4997,7 @@ lpfc_sli4_async_fip_evt(struct lpfc_hba *phba,
+ 			break;
+ 		}
+ 		/* If fast FCF failover rescan event is pending, do nothing */
+-		if (phba->fcf.fcf_flag & FCF_REDISC_EVT) {
++		if (phba->fcf.fcf_flag & (FCF_REDISC_EVT | FCF_REDISC_PEND)) {
+ 			spin_unlock_irq(&phba->hbalock);
+ 			break;
+ 		}
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 6c2b098b76095..ebf7d3cda3677 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -18056,15 +18056,8 @@ lpfc_sli4_fcf_rr_next_index_get(struct lpfc_hba *phba)
+ 			goto initial_priority;
+ 		lpfc_printf_log(phba, KERN_WARNING, LOG_FIP,
+ 				"2844 No roundrobin failover FCF available\n");
+-		if (next_fcf_index >= LPFC_SLI4_FCF_TBL_INDX_MAX)
+-			return LPFC_FCOE_FCF_NEXT_NONE;
+-		else {
+-			lpfc_printf_log(phba, KERN_WARNING, LOG_FIP,
+-				"3063 Only FCF available idx %d, flag %x\n",
+-				next_fcf_index,
+-			phba->fcf.fcf_pri[next_fcf_index].fcf_rec.flag);
+-			return next_fcf_index;
+-		}
 +
-+	return true;
-+}
- 
- /**
-  * _scsih_sas_control_complete - completion routine
-@@ -4059,7 +4093,7 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
- 		return 0;
++		return LPFC_FCOE_FCF_NEXT_NONE;
  	}
  
--	if (ioc->pci_error_recovery || ioc->remove_host) {
-+	if (!(_scsih_allow_scmd_to_device(ioc, scmd))) {
- 		scmd->result = DID_NO_CONNECT << 16;
- 		scmd->scsi_done(scmd);
- 		return 0;
+ 	if (next_fcf_index < LPFC_SLI4_FCF_TBL_INDX_MAX &&
+diff --git a/drivers/scsi/lpfc/lpfc_sli4.h b/drivers/scsi/lpfc/lpfc_sli4.h
+index 60200385fe009..a132a83ef233c 100644
+--- a/drivers/scsi/lpfc/lpfc_sli4.h
++++ b/drivers/scsi/lpfc/lpfc_sli4.h
+@@ -265,6 +265,7 @@ struct lpfc_fcf {
+ #define FCF_REDISC_EVT	0x100 /* FCF rediscovery event to worker thread */
+ #define FCF_REDISC_FOV	0x200 /* Post FCF rediscovery fast failover */
+ #define FCF_REDISC_PROG (FCF_REDISC_PEND | FCF_REDISC_EVT)
++	uint16_t fcf_redisc_attempted;
+ 	uint32_t addr_mode;
+ 	uint32_t eligible_fcf_cnt;
+ 	struct lpfc_fcf_rec current_rec;
 -- 
 2.20.1
 
