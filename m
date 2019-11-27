@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 668BE10BCCF
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6638D10BA80
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:06:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731599AbfK0VYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:24:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56976 "EHLO mail.kernel.org"
+        id S1732082AbfK0VDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:03:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732066AbfK0VDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:03:42 -0500
+        id S1731766AbfK0VDr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:03:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B12A21771;
-        Wed, 27 Nov 2019 21:03:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CE3B20637;
+        Wed, 27 Nov 2019 21:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888621;
-        bh=QiUo4hDo6X9EO6O8FE6TbEIZnyPD3uwyPo97cTDFrBg=;
+        s=default; t=1574888626;
+        bh=huh3IRdKqGi5hDvKHS1LXuAEpu3NxCzkYXsQqRKcB2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0J5jtBVVd8EMz4EvcZMxYuL83WaNn1iScTXloH3q+yt1nOeDNogBQxlXOtHcgAIy
-         +7gl83itFHBwNmk332PePYiAgCnJldgdLXHIvyteN8LpNrEpZiRi/0X0pAKKEQiyG0
-         1za9Me2iisDXT2Z7NrWjBKla6I9kz0Xu1oWXiFVU=
+        b=G5H/7Ybjhdg5m2+lfYODBXHgtXAqNlEj2/OyZ1jPOC0cty+b6104MVSgDQPno0pkx
+         NCbcUeOb2bOxC/DOXB0+JrddcEB+OG1kddrbDzJAuBlRf1R4fm+JFAHC4BIrdGNHaj
+         imcVymgC63XCUzy67J3CeKLya85DuIy+CbLT4yG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 206/306] soc: bcm: brcmstb: Fix re-entry point with a THUMB2_KERNEL
-Date:   Wed, 27 Nov 2019 21:30:56 +0100
-Message-Id: <20191127203130.187488359@linuxfoundation.org>
+Subject: [PATCH 4.19 207/306] audit: print empty EXECVE args
+Date:   Wed, 27 Nov 2019 21:30:57 +0100
+Message-Id: <20191127203130.256247291@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,36 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Richard Guy Briggs <rgb@redhat.com>
 
-[ Upstream commit fb14ada11d62fb849fc357a25ef8016ba438ba10 ]
+[ Upstream commit ea956d8be91edc702a98b7fe1f9463e7ca8c42ab ]
 
-When the kernel is built with CONFIG_THUMB2_KERNEL we would set the
-kernel's resume entry point to be a function that is already built as
-Thumb-2 code while the boot agent doing the resume is in ARM mode, so
-this does not work. There is a header label defined: cpu_resume_arm
-which we can use to do the switching for us.
+Empty executable arguments were being skipped when printing out the list
+of arguments in an EXECVE record, making it appear they were somehow
+lost.  Include empty arguments as an itemized empty string.
 
-Fixes: 0b741b8234c8 ("soc: bcm: brcmstb: Add support for S2/S3/S5 suspend states (ARM)")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reproducer:
+	autrace /bin/ls "" "/etc"
+	ausearch --start recent -m execve -i | grep EXECVE
+	type=EXECVE msg=audit(10/03/2018 13:04:03.208:1391) : argc=3 a0=/bin/ls a2=/etc
+
+With fix:
+	type=EXECVE msg=audit(10/03/2018 21:51:38.290:194) : argc=3 a0=/bin/ls a1= a2=/etc
+	type=EXECVE msg=audit(1538617898.290:194): argc=3 a0="/bin/ls" a1="" a2="/etc"
+
+Passes audit-testsuite.  GH issue tracker at
+https://github.com/linux-audit/audit-kernel/issues/99
+
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+[PM: cleaned up the commit metadata]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/bcm/brcmstb/pm/pm-arm.c | 2 +-
+ kernel/auditsc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/bcm/brcmstb/pm/pm-arm.c b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-index a5577dd5eb087..8ee06347447c0 100644
---- a/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-+++ b/drivers/soc/bcm/brcmstb/pm/pm-arm.c
-@@ -404,7 +404,7 @@ noinline int brcmstb_pm_s3_finish(void)
- {
- 	struct brcmstb_s3_params *params = ctrl.s3_params;
- 	dma_addr_t params_pa = ctrl.s3_params_pa;
--	phys_addr_t reentry = virt_to_phys(&cpu_resume);
-+	phys_addr_t reentry = virt_to_phys(&cpu_resume_arm);
- 	enum bsp_initiate_command cmd;
- 	u32 flags;
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index b2d1f043f17fb..1513873e23bd1 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1107,7 +1107,7 @@ static void audit_log_execve_info(struct audit_context *context,
+ 		}
  
+ 		/* write as much as we can to the audit log */
+-		if (len_buf > 0) {
++		if (len_buf >= 0) {
+ 			/* NOTE: some magic numbers here - basically if we
+ 			 *       can't fit a reasonable amount of data into the
+ 			 *       existing audit buffer, flush it and start with
 -- 
 2.20.1
 
