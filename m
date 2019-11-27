@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4A410BC32
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B3410BAB4
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732219AbfK0VJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:09:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35814 "EHLO mail.kernel.org"
+        id S1731743AbfK0VFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:05:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732198AbfK0VJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:09:13 -0500
+        id S1727440AbfK0VFt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:05:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ED792086A;
-        Wed, 27 Nov 2019 21:09:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C9EB21770;
+        Wed, 27 Nov 2019 21:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888952;
-        bh=FqJdKg0k9uBG6oJRzwGizfjzoPk3wcAiHCDz427tDiU=;
+        s=default; t=1574888748;
+        bh=5Pdak+JPJzVEhoD/8rcgc5m8LdWqf4v8nm3VoE3IvzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ulmy4lwyB/PRhW4bUVnve87cZvcx9nQOsrXyhKcVlmI/eAylZjR39MxypPuiR0Ry1
-         ZPsK5kgIpdbpCmek1j3RzcEVCq/QHRhkKTz0R/mG1UFh2bWKjgZa1VzRKKgn75t1Qv
-         BmQNiYDANYzYNmWlaym9uLJFGN0AzbVR5yGJIxIo=
+        b=LpxKWBvmRTf7cRgPIsOxhPWFkbLE8B30tIPwqbBUVUcuzAB/OWu6rfi1CiCDCFcSp
+         3xDY81mpG5B+hRAGcruzzT/hAXPzJ0w3jnDsCktSdxGAgagqqKwWjvDZrYRMnSZM4x
+         /SfPYU6C/D9BwdFA6OSUqkZmKjIDZqALJ4Vo9Q+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <wei.w.wang@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        David Hildenbrand <david@redhat.com>
-Subject: [PATCH 5.3 26/95] virtio_balloon: fix shrinker count
-Date:   Wed, 27 Nov 2019 21:31:43 +0100
-Message-Id: <20191127202853.159506349@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 254/306] cfg80211: call disconnect_wk when AP stops
+Date:   Wed, 27 Nov 2019 21:31:44 +0100
+Message-Id: <20191127203133.433190312@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <wei.w.wang@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit c9a6820fc0da2603be3054ee7590eb9f350508a7 upstream.
+[ Upstream commit e005bd7ddea06784c1eb91ac5bb6b171a94f3b05 ]
 
-Instead of multiplying by page order, virtio balloon divided by page
-order. The result is that it can return 0 if there are a bit less
-than MAX_ORDER - 1 pages in use, and then shrinker scan won't be called.
+Since we now prevent regulatory restore during STA disconnect
+if concurrent AP interfaces are active, we need to reschedule
+this check when the AP state changes. This fixes never doing
+a restore when an AP is the last interface to stop. Or to put
+it another way: we need to re-check after anything we check
+here changes.
 
 Cc: stable@vger.kernel.org
-Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 113f3aaa81bd ("cfg80211: Prevent regulatory restore during STA disconnect in concurrent interfaces")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_balloon.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/ap.c   | 2 ++
+ net/wireless/core.h | 2 ++
+ net/wireless/sme.c  | 2 +-
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -820,7 +820,7 @@ static unsigned long virtio_balloon_shri
- 	unsigned long count;
+diff --git a/net/wireless/ap.c b/net/wireless/ap.c
+index 882d97bdc6bfd..550ac9d827fe7 100644
+--- a/net/wireless/ap.c
++++ b/net/wireless/ap.c
+@@ -41,6 +41,8 @@ int __cfg80211_stop_ap(struct cfg80211_registered_device *rdev,
+ 		cfg80211_sched_dfs_chan_update(rdev);
+ 	}
  
- 	count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
--	count += vb->num_free_page_blocks >> VIRTIO_BALLOON_FREE_PAGE_ORDER;
-+	count += vb->num_free_page_blocks << VIRTIO_BALLOON_FREE_PAGE_ORDER;
- 
- 	return count;
++	schedule_work(&cfg80211_disconnect_work);
++
+ 	return err;
  }
+ 
+diff --git a/net/wireless/core.h b/net/wireless/core.h
+index 7f52ef5693203..f5d58652108dd 100644
+--- a/net/wireless/core.h
++++ b/net/wireless/core.h
+@@ -430,6 +430,8 @@ void cfg80211_process_wdev_events(struct wireless_dev *wdev);
+ bool cfg80211_does_bw_fit_range(const struct ieee80211_freq_range *freq_range,
+ 				u32 center_freq_khz, u32 bw_khz);
+ 
++extern struct work_struct cfg80211_disconnect_work;
++
+ /**
+  * cfg80211_chandef_dfs_usable - checks if chandef is DFS usable
+  * @wiphy: the wiphy to validate against
+diff --git a/net/wireless/sme.c b/net/wireless/sme.c
+index c7047c7b4e80f..07c2196e9d573 100644
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -667,7 +667,7 @@ static void disconnect_work(struct work_struct *work)
+ 	rtnl_unlock();
+ }
+ 
+-static DECLARE_WORK(cfg80211_disconnect_work, disconnect_work);
++DECLARE_WORK(cfg80211_disconnect_work, disconnect_work);
+ 
+ 
+ /*
+-- 
+2.20.1
+
 
 
