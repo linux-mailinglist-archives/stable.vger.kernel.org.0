@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFDE10BAB5
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3364310BC34
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732340AbfK0VFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:05:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
+        id S1732487AbfK0VJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:09:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732065AbfK0VFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:05:52 -0500
+        id S1732875AbfK0VJU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:09:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10C682176D;
-        Wed, 27 Nov 2019 21:05:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCCD1215E5;
+        Wed, 27 Nov 2019 21:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888751;
-        bh=GsNJSubEqy9092/kPFVh7cTNvDDqTlvKsL8ToKkBp3A=;
+        s=default; t=1574888960;
+        bh=j4+Z2IPEngF5+fke5jSBA0vOLXve52pBnioAKf+yoUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C648szzbFwBduCYjhuJFYmrNeuFZpwe28LCe12sTTzvBWCxjYhxuTpuSMJ0ssghoY
-         Um9YzGy+k3wxl+Di755f7uREcgjiyqMrY0bw3/k0a811HZz5amvSPK/NKg5hFMcBo5
-         BNiREDSZa+4gwp2veMdSMVhP8ZAclRPavXgYIMwc=
+        b=IaTJS9n8dageWOFTnh+ceQ1HJxnV2xmrWgUzW5J4r3LU/niF178bXrTXMwnTSlsCK
+         iRXR7ylDBk/VE1JAaJn5u/os3+pfnujbXK//LHxtkOcEff0SqEfkNanz3OlXbqOczg
+         bkta0+rWb3sJ/HLG49nkNQjhjaqk94uzWBm6rEhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinayak Menon <vinmenon@codeaurora.org>,
-        Minchan Kim <minchan@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
+        stable@vger.kernel.org, Andrey Ryabinin <aryabinin@virtuozzo.com>,
         Hugh Dickins <hughd@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 255/306] mm/page_io.c: do not free shared swap slots
-Date:   Wed, 27 Nov 2019 21:31:45 +0100
-Message-Id: <20191127203133.499090401@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 29/95] mm/ksm.c: dont WARN if page is still mapped in remove_stable_node()
+Date:   Wed, 27 Nov 2019 21:31:46 +0100
+Message-Id: <20191127202856.468507270@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,80 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinayak Menon <vinmenon@codeaurora.org>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-[ Upstream commit 5df373e95689b9519b8557da7c5bd0db0856d776 ]
+commit 9a63236f1ad82d71a98aa80320b6cb618fb32f44 upstream.
 
-The following race is observed due to which a processes faulting on a
-swap entry, finds the page neither in swapcache nor swap.  This causes
-zram to give a zero filled page that gets mapped to the process,
-resulting in a user space crash later.
+It's possible to hit the WARN_ON_ONCE(page_mapped(page)) in
+remove_stable_node() when it races with __mmput() and squeezes in
+between ksm_exit() and exit_mmap().
 
-Consider parent and child processes Pa and Pb sharing the same swap slot
-with swap_count 2.  Swap is on zram with SWP_SYNCHRONOUS_IO set.
-Virtual address 'VA' of Pa and Pb points to the shared swap entry.
+  WARNING: CPU: 0 PID: 3295 at mm/ksm.c:888 remove_stable_node+0x10c/0x150
 
-Pa                                       Pb
+  Call Trace:
+   remove_all_stable_nodes+0x12b/0x330
+   run_store+0x4ef/0x7b0
+   kernfs_fop_write+0x200/0x420
+   vfs_write+0x154/0x450
+   ksys_write+0xf9/0x1d0
+   do_syscall_64+0x99/0x510
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-fault on VA                              fault on VA
-do_swap_page                             do_swap_page
-lookup_swap_cache fails                  lookup_swap_cache fails
-                                         Pb scheduled out
-swapin_readahead (deletes zram entry)
-swap_free (makes swap_count 1)
-                                         Pb scheduled in
-                                         swap_readpage (swap_count == 1)
-                                         Takes SWP_SYNCHRONOUS_IO path
-                                         zram enrty absent
-                                         zram gives a zero filled page
+Remove the warning as there is nothing scary going on.
 
-Fix this by making sure that swap slot is freed only when swap count
-drops down to one.
-
-Link: http://lkml.kernel.org/r/1571743294-14285-1-git-send-email-vinmenon@codeaurora.org
-Fixes: aa8d22a11da9 ("mm: swap: SWP_SYNCHRONOUS_IO: skip swapcache only if swapped page has no other reference")
-Signed-off-by: Vinayak Menon <vinmenon@codeaurora.org>
-Suggested-by: Minchan Kim <minchan@google.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Hugh Dickins <hughd@google.com>
+Link: http://lkml.kernel.org/r/20191119131850.5675-1-aryabinin@virtuozzo.com
+Fixes: cbf86cfe04a6 ("ksm: remove old stable nodes more thoroughly")
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/page_io.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ mm/ksm.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/mm/page_io.c b/mm/page_io.c
-index aafd19ec1db46..08d2eae58fcee 100644
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -76,6 +76,7 @@ static void swap_slot_free_notify(struct page *page)
- {
- 	struct swap_info_struct *sis;
- 	struct gendisk *disk;
-+	swp_entry_t entry;
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -885,13 +885,13 @@ static int remove_stable_node(struct sta
+ 		return 0;
+ 	}
  
- 	/*
- 	 * There is no guarantee that the page is in swap cache - the software
-@@ -107,11 +108,11 @@ static void swap_slot_free_notify(struct page *page)
- 	 * we again wish to reclaim it.
- 	 */
- 	disk = sis->bdev->bd_disk;
--	if (disk->fops->swap_slot_free_notify) {
--		swp_entry_t entry;
-+	entry.val = page_private(page);
-+	if (disk->fops->swap_slot_free_notify &&
-+			__swap_count(sis, entry) == 1) {
- 		unsigned long offset;
- 
--		entry.val = page_private(page);
- 		offset = swp_offset(entry);
- 
- 		SetPageDirty(page);
--- 
-2.20.1
-
+-	if (WARN_ON_ONCE(page_mapped(page))) {
+-		/*
+-		 * This should not happen: but if it does, just refuse to let
+-		 * merge_across_nodes be switched - there is no need to panic.
+-		 */
+-		err = -EBUSY;
+-	} else {
++	/*
++	 * Page could be still mapped if this races with __mmput() running in
++	 * between ksm_exit() and exit_mmap(). Just refuse to let
++	 * merge_across_nodes/max_page_sharing be switched.
++	 */
++	err = -EBUSY;
++	if (!page_mapped(page)) {
+ 		/*
+ 		 * The stable node did not yet appear stale to get_ksm_page(),
+ 		 * since that allows for an unmapped ksm page to be recognized
 
 
