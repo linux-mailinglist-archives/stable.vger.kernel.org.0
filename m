@@ -2,123 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C45E10AB12
+	by mail.lfdr.de (Postfix) with ESMTP id EFCF410AB13
 	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:22:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726112AbfK0HWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 02:22:22 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:50737 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726510AbfK0HWW (ORCPT
+        id S1726135AbfK0HWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 02:22:23 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54179 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726470AbfK0HWW (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:22:22 -0500
-Received: by mail-wm1-f67.google.com with SMTP id l17so5907648wmh.0
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 23:22:20 -0800 (PST)
+Received: by mail-wm1-f68.google.com with SMTP id u18so5869339wmc.3
+        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 23:22:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=yrZu99BLvlhrth7qw3JOZy62Wr9zwC7/qBHtCS/hJhk=;
-        b=ZjmzfNUdXO+aIr1Wqss30fYLj3iyDh+W3fpfe2SMcvyCWhR6QS5EBcNx1wcM9V3dJy
-         mOIRI57IQ8MU6gBTGccDcVsEy4/CFbmDSvX+9PwuVOyAyoaIfDFvBwRWIsT7Z7lAxg1T
-         8vhfK2Ql5N5tGmqRlBFxb7lZFhQNtKSoU6wKmT21kmlpXp7y2GZP2YFttITIeeTd6a21
-         6O3YZQxL3v4EMoW+hnbWBHDJrAkU6hpDCxeoMdNYWa/bveavu4Jb/w1I4hqafmg3b6VG
-         JKNXsxeXN8lq/ez7SQgSZVTLVYzB8Kio00x/EZHeD56XKDe7fjCk7opp2tPZw+F1NqXZ
-         z5Ag==
+        bh=r5yCXFnVpf/+wFjhIjRathmPjXVlRdSy5MUPHiScEF8=;
+        b=uH37JdLCjAnhXqYT/mFI0z3Q/TLAtQ5Tr1RQ4QrhTtGQ73VNJRaCQ+OUiyrZAio9xh
+         jWu7SeBFGyIE+2kRA2AZuevUGobmyCepOzTSpELv2OzKGU4prqRJo51GjI/AWoG+EJK0
+         oUpbFgxOSBy8IvMdR941BQ5QeaZIILToJGbwoPjTGrE3ExrLnduSBFKxnvQ3nVnS6wiN
+         bJO2QPhBIGmYgxR15AlhmTGbtpw9c/dd1f2/EL+GSq3rXZV+ff87sodEUk2V01Yptt8W
+         SDA5feLV72W+Xagpe12/8JXP8a55JfgBKXwFfue8cHXfqWk9SiTlCtcZ42zymoPMgZnb
+         OcQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=yrZu99BLvlhrth7qw3JOZy62Wr9zwC7/qBHtCS/hJhk=;
-        b=Omy98L1W/rRkxT8tNGsA6SjYuM4y1D224YOIksz4AfEBylDd76XgefX5KBVeuQhx8B
-         q1VGh5m6h4UVwYw0UPMTn7PKbJQSVmoMJYKocBzpY97Y3qCFKgAgjyOePwIaWd1fnC/z
-         wO/3t0m3Q/94fHH5TlWeD85ivAr5Bt8KdLMynGqh1LeVxY26PUxhYyLNAqBHsExyuzfD
-         MTcxJs55/iLcw7G59rBQ+s7BIYCn9k2PDnGQNxlB25vIKrCw5l+kfALRFh/aj65EGk4q
-         fAes+p+FOvxxVu2saW2TXDEqsAT4Ny+WKMZTkoYbuwFD1LOr8ZFdwq15OI9X6QYwUGzi
-         UJlQ==
-X-Gm-Message-State: APjAAAWqsVn1Gn3QeCd0B8yVJMy3hiER+OVfFXzLH30XafPtqH92zGG6
-        jVo227qvQl+a03ledyv3FfjmWqVxkFU=
-X-Google-Smtp-Source: APXvYqwldIEV0Cw2tPko1xVBupeyoYkQTJmgUOLygmqV8E6kY2s62IYEd5a/CzOU3PkFSo6j9rQQ3A==
-X-Received: by 2002:a7b:c5d0:: with SMTP id n16mr2873459wmk.78.1574839339774;
-        Tue, 26 Nov 2019 23:22:19 -0800 (PST)
+        bh=r5yCXFnVpf/+wFjhIjRathmPjXVlRdSy5MUPHiScEF8=;
+        b=IHCHBYKzOoC+oLyKsfTcz8jKFH5qFnPKneQw32If1Py951h2Eqm7/u/Gxsg3fmVQvP
+         bbrfY+pJNuC4ufMRyIMkitD79Ca4VsU0RWXO8bqlmLhcdnTPcc9B556cKyekGbpmG9EN
+         dRZ1NUiBkdgf/P8lQQx8+tv0DwME7YdqIadsrDHaSe644cL53aWfeC+77C+TnMBd+/fC
+         i21VSXg9TUAG3zREWVZjk9ax8E10rNLJj8PhLaAK+By7VFa3oEPjijgFYJHMNp18yCMk
+         SLoOAdLSjuexPBXLivAZPrNYxguralYeGFcliBZVHVjscz/FEmREFNNPjyeZXuxATiw/
+         plxA==
+X-Gm-Message-State: APjAAAWeVcq1LQ5zl4wFiiLKRT7+K2aC7xMCYj5zKci4Otzqv13LC0FA
+        a8M9zQahL6e3FEJy2X0zoSlhXdGJGLs=
+X-Google-Smtp-Source: APXvYqxxJBEWknIFSUBDHSb87ZSVcq0NkNApYnqbAkv7Z4d38inISsHcliJC9XBk/mBkGrqiNoUA4Q==
+X-Received: by 2002:a05:600c:a:: with SMTP id g10mr2821003wmc.69.1574839340590;
+        Tue, 26 Nov 2019 23:22:20 -0800 (PST)
 Received: from localhost.localdomain ([95.149.164.101])
-        by smtp.gmail.com with ESMTPSA id d20sm19406915wra.4.2019.11.26.23.22.18
+        by smtp.gmail.com with ESMTPSA id d20sm19406915wra.4.2019.11.26.23.22.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 26 Nov 2019 23:22:19 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 4/5] cpufreq: Skip cpufreq resume if it's not suspended
-Date:   Wed, 27 Nov 2019 07:22:01 +0000
-Message-Id: <20191127072202.30625-4-lee.jones@linaro.org>
+Subject: [PATCH 4.14 5/5] ocfs2: remove ocfs2_is_o2cb_active()
+Date:   Wed, 27 Nov 2019 07:22:02 +0000
+Message-Id: <20191127072202.30625-5-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127072202.30625-1-lee.jones@linaro.org>
 References: <20191127072202.30625-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bo Yan <byan@nvidia.com>
+From: Gang He <ghe@suse.com>
 
-[ Upstream commit 703cbaa601ff3fb554d1246c336ba727cc083ea0 ]
+[ Upstream commit a634644751c46238df58bbfe992e30c1668388db ]
 
-cpufreq_resume can be called even without preceding cpufreq_suspend.
-This can happen in following scenario:
+Remove ocfs2_is_o2cb_active().  We have similar functions to identify
+which cluster stack is being used via osb->osb_cluster_stack.
 
-    suspend_devices_and_enter
-       --> dpm_suspend_start
-          --> dpm_prepare
-              --> device_prepare : this function errors out
-          --> dpm_suspend: this is skipped due to dpm_prepare failure
-                           this means cpufreq_suspend is skipped over
-       --> goto Recover_platform, due to previous error
-       --> goto Resume_devices
-       --> dpm_resume_end
-           --> dpm_resume
-               --> cpufreq_resume
+Secondly, the current implementation of ocfs2_is_o2cb_active() is not
+totally safe.  Based on the design of stackglue, we need to get
+ocfs2_stack_lock before using ocfs2_stack related data structures, and
+that active_stack pointer can be NULL in the case of mount failure.
 
-In case schedutil is used as frequency governor, cpufreq_resume will
-eventually call sugov_start, which does following:
-
-    memset(sg_cpu, 0, sizeof(*sg_cpu));
-    ....
-
-This effectively erases function pointer for frequency update, causing
-crash later on. The function pointer would have been set correctly if
-subsequent cpufreq_add_update_util_hook runs successfully, but that
-function returns earlier because cpufreq_suspend was not called:
-
-    if (WARN_ON(per_cpu(cpufreq_update_util_data, cpu)))
-		return;
-
-The fix is to check cpufreq_suspended first, if it's false, that means
-cpufreq_suspend was not called in the first place, so do not resume
-cpufreq.
-
-Signed-off-by: Bo Yan <byan@nvidia.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-[ rjw: Dropped printing a message ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: http://lkml.kernel.org/r/1495441079-11708-1-git-send-email-ghe@suse.com
+Signed-off-by: Gang He <ghe@suse.com>
+Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
+Reviewed-by: Eric Ren <zren@suse.com>
+Acked-by: Changwei Ge <ge.changwei@h3c.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/cpufreq/cpufreq.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ocfs2/dlmglue.c   | 2 +-
+ fs/ocfs2/stackglue.c | 6 ------
+ fs/ocfs2/stackglue.h | 3 ---
+ 3 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 4aa3c5331666..52fc08a92bb9 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1673,6 +1673,9 @@ void cpufreq_resume(void)
- 	if (!cpufreq_driver)
- 		return;
+diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
+index 5193218f5889..e961015fb484 100644
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3422,7 +3422,7 @@ static int ocfs2_downconvert_lock(struct ocfs2_super *osb,
+ 	 * we can recover correctly from node failure. Otherwise, we may get
+ 	 * invalid LVB in LKB, but without DLM_SBF_VALNOTVALID being set.
+ 	 */
+-	if (!ocfs2_is_o2cb_active() &&
++	if (ocfs2_userspace_stack(osb) &&
+ 	    lockres->l_ops->flags & LOCK_TYPE_USES_LVB)
+ 		lvb = 1;
  
-+	if (unlikely(!cpufreq_suspended))
-+		return;
-+
- 	cpufreq_suspended = false;
+diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
+index d6c350ba25b9..c4b029c43464 100644
+--- a/fs/ocfs2/stackglue.c
++++ b/fs/ocfs2/stackglue.c
+@@ -48,12 +48,6 @@ static char ocfs2_hb_ctl_path[OCFS2_MAX_HB_CTL_PATH] = "/sbin/ocfs2_hb_ctl";
+  */
+ static struct ocfs2_stack_plugin *active_stack;
  
- 	if (!has_target() && !cpufreq_driver->resume)
+-inline int ocfs2_is_o2cb_active(void)
+-{
+-	return !strcmp(active_stack->sp_name, OCFS2_STACK_PLUGIN_O2CB);
+-}
+-EXPORT_SYMBOL_GPL(ocfs2_is_o2cb_active);
+-
+ static struct ocfs2_stack_plugin *ocfs2_stack_lookup(const char *name)
+ {
+ 	struct ocfs2_stack_plugin *p;
+diff --git a/fs/ocfs2/stackglue.h b/fs/ocfs2/stackglue.h
+index e3036e1790e8..f2dce10fae54 100644
+--- a/fs/ocfs2/stackglue.h
++++ b/fs/ocfs2/stackglue.h
+@@ -298,9 +298,6 @@ void ocfs2_stack_glue_set_max_proto_version(struct ocfs2_protocol_version *max_p
+ int ocfs2_stack_glue_register(struct ocfs2_stack_plugin *plugin);
+ void ocfs2_stack_glue_unregister(struct ocfs2_stack_plugin *plugin);
+ 
+-/* In ocfs2_downconvert_lock(), we need to know which stack we are using */
+-int ocfs2_is_o2cb_active(void);
+-
+ extern struct kset *ocfs2_kset;
+ 
+ #endif  /* STACKGLUE_H */
 -- 
 2.24.0
 
