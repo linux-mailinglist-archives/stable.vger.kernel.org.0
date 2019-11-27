@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92D3610BA43
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E15910BA45
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731148AbfK0VBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:01:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53504 "EHLO mail.kernel.org"
+        id S1731712AbfK0VBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:01:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730869AbfK0VBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:01:22 -0500
+        id S1727330AbfK0VBZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:01:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2760C215A4;
-        Wed, 27 Nov 2019 21:01:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97DDA21556;
+        Wed, 27 Nov 2019 21:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888481;
-        bh=cgHiA7DDTWxGxz5X7SG64ZBTuO5N5bph52IcLJ9ZLyI=;
+        s=default; t=1574888484;
+        bh=mWW3zUmpWqa8PsbRflRCuBiivAf9/7lamvMNjRLzUvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ai551BFz9tH9JAnr03nxiOpCzMQDxPnOjEa2ruyh2Np9cSZyX0deXUyHCvCWTbDAC
-         W3HCIeuzPE1Oeo8K8MQEvLSr8B4S3ipoFw5hRW3sxVuQVaV+66ciuTo7cgukd6ocvk
-         agZt5gLGnO/dLynyR19xfc8ggEJ+7CIMJRlgzAOo=
+        b=tUKrMr+WcGyhWl5Ofx6Ett7MCZco9ny75q/wfHJ2WzlKjijLHl+sgMAhsLTcel5eR
+         or8ds8pIH65Cr78BfmJLaouU1Jpj22MD0bYIRpvNkcvi5YbrgPq0g87E/Ko01eZMKH
+         HjkHclqMrD2xhS9BdlLI4F9IpnAfwVMaGF8itI9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Radu Rendec <radu.rendec@gmail.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/306] macsec: let the administrator set UP state even if lowerdev is down
-Date:   Wed, 27 Nov 2019 21:30:02 +0100
-Message-Id: <20191127203126.795033991@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>,
+        Jianchao Wang <jianchao.w.wang@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 153/306] block: fix the DISCARD request merge
+Date:   Wed, 27 Nov 2019 21:30:03 +0100
+Message-Id: <20191127203126.845809286@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -45,41 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Jianchao Wang <jianchao.w.wang@oracle.com>
 
-[ Upstream commit 07bddef9839378bd6f95b393cf24c420529b4ef1 ]
+[ Upstream commit 69840466086d2248898020a08dda52732686c4e6 ]
 
-Currently, the kernel doesn't let the administrator set a macsec device
-up unless its lower device is currently up. This is inconsistent, as a
-macsec device that is up won't automatically go down when its lower
-device goes down.
+There are two cases when handle DISCARD merge.
+If max_discard_segments == 1, the bios/requests need to be contiguous
+to merge. If max_discard_segments > 1, it takes every bio as a range
+and different range needn't to be contiguous.
 
-Now that linkstate propagation works, there's really no reason for this
-limitation, so let's remove it.
+But now, attempt_merge screws this up. It always consider contiguity
+for DISCARD for the case max_discard_segments > 1 and cannot merge
+contiguous DISCARD for the case max_discard_segments == 1, because
+rq_attempt_discard_merge always returns false in this case.
+This patch fixes both of the two cases above.
 
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Reported-by: Radu Rendec <radu.rendec@gmail.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jianchao Wang <jianchao.w.wang@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 3 ---
- 1 file changed, 3 deletions(-)
+ block/blk-merge.c | 46 ++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 36 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 50acd8c9d7f53..10a8ef2d025a1 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2813,9 +2813,6 @@ static int macsec_dev_open(struct net_device *dev)
- 	struct net_device *real_dev = macsec->real_dev;
- 	int err;
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index 2e042190a4f1c..1dced51de1c6c 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -669,6 +669,31 @@ static void blk_account_io_merge(struct request *req)
+ 		part_stat_unlock();
+ 	}
+ }
++/*
++ * Two cases of handling DISCARD merge:
++ * If max_discard_segments > 1, the driver takes every bio
++ * as a range and send them to controller together. The ranges
++ * needn't to be contiguous.
++ * Otherwise, the bios/requests will be handled as same as
++ * others which should be contiguous.
++ */
++static inline bool blk_discard_mergable(struct request *req)
++{
++	if (req_op(req) == REQ_OP_DISCARD &&
++	    queue_max_discard_segments(req->q) > 1)
++		return true;
++	return false;
++}
++
++enum elv_merge blk_try_req_merge(struct request *req, struct request *next)
++{
++	if (blk_discard_mergable(req))
++		return ELEVATOR_DISCARD_MERGE;
++	else if (blk_rq_pos(req) + blk_rq_sectors(req) == blk_rq_pos(next))
++		return ELEVATOR_BACK_MERGE;
++
++	return ELEVATOR_NO_MERGE;
++}
  
--	if (!(real_dev->flags & IFF_UP))
--		return -ENETDOWN;
+ /*
+  * For non-mq, this has to be called with the request spinlock acquired.
+@@ -686,12 +711,6 @@ static struct request *attempt_merge(struct request_queue *q,
+ 	if (req_op(req) != req_op(next))
+ 		return NULL;
+ 
+-	/*
+-	 * not contiguous
+-	 */
+-	if (blk_rq_pos(req) + blk_rq_sectors(req) != blk_rq_pos(next))
+-		return NULL;
 -
- 	err = dev_uc_add(real_dev, dev->dev_addr);
- 	if (err < 0)
- 		return err;
+ 	if (rq_data_dir(req) != rq_data_dir(next)
+ 	    || req->rq_disk != next->rq_disk
+ 	    || req_no_special_merge(next))
+@@ -715,11 +734,19 @@ static struct request *attempt_merge(struct request_queue *q,
+ 	 * counts here. Handle DISCARDs separately, as they
+ 	 * have separate settings.
+ 	 */
+-	if (req_op(req) == REQ_OP_DISCARD) {
++
++	switch (blk_try_req_merge(req, next)) {
++	case ELEVATOR_DISCARD_MERGE:
+ 		if (!req_attempt_discard_merge(q, req, next))
+ 			return NULL;
+-	} else if (!ll_merge_requests_fn(q, req, next))
++		break;
++	case ELEVATOR_BACK_MERGE:
++		if (!ll_merge_requests_fn(q, req, next))
++			return NULL;
++		break;
++	default:
+ 		return NULL;
++	}
+ 
+ 	/*
+ 	 * If failfast settings disagree or any of the two is already
+@@ -843,8 +870,7 @@ bool blk_rq_merge_ok(struct request *rq, struct bio *bio)
+ 
+ enum elv_merge blk_try_merge(struct request *rq, struct bio *bio)
+ {
+-	if (req_op(rq) == REQ_OP_DISCARD &&
+-	    queue_max_discard_segments(rq->q) > 1)
++	if (blk_discard_mergable(rq))
+ 		return ELEVATOR_DISCARD_MERGE;
+ 	else if (blk_rq_pos(rq) + blk_rq_sectors(rq) == bio->bi_iter.bi_sector)
+ 		return ELEVATOR_BACK_MERGE;
 -- 
 2.20.1
 
