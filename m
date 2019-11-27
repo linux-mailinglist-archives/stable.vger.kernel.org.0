@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B45C10B8E6
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B559C10BA01
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:59:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730070AbfK0UsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:48:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32954 "EHLO mail.kernel.org"
+        id S1730496AbfK0U7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:59:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728261AbfK0Ur7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:47:59 -0500
+        id S1731376AbfK0U7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:59:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3803D21845;
-        Wed, 27 Nov 2019 20:47:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A2B820862;
+        Wed, 27 Nov 2019 20:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887678;
-        bh=1MWREmX53yQ9QQFDFRugDP7QzeX5bWAcw/ywG/g9DdI=;
+        s=default; t=1574888342;
+        bh=omppKKnMzlwMUO/lGjPYMr5FWF7KOGGvHMhEJD4Ko/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J9N5fiBG7mvwUy80sYXGDlXqOIchQBWVK6G1XN0mfzBOu3g7wRJS2BYjcfMXl0R/G
-         hv0cFcp+DKnBQL/ZpzDHvv8gpiqg2bLCWfmMczft3onfAyRSyGwzC14zmCRt9Q2jyo
-         KcUmI72Gij/XoRp5CsdzoKbuQThPKjT/s9i5SKyk=
+        b=yIf0qjIOvHEelswmeytunDtWuOSL6ur/3J/ZvU6oE00um1Xt8HYyndlus41IhCV56
+         567dR3glo+AvkMPX1Xavq3WjOLGREGerN768CN4HhLX4XehGn0snTSl4K/eL9itpXW
+         S68JcOvi1SSjRwFB8di+mU17FWBHUWTp0/nefeOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, mst@redhat.com,
-        Laurent Vivier <lvivier@redhat.com>
-Subject: [PATCH 4.14 011/211] virtio_console: allocate inbufs in add_port() only if it is needed
-Date:   Wed, 27 Nov 2019 21:29:04 +0100
-Message-Id: <20191127203050.999718897@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 095/306] PCI: vmd: Detach resources after stopping root bus
+Date:   Wed, 27 Nov 2019 21:29:05 +0100
+Message-Id: <20191127203121.842234236@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,130 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Jon Derrick <jonathan.derrick@intel.com>
 
-commit d791cfcbf98191122af70b053a21075cb450d119 upstream.
+[ Upstream commit dc8af3a827df6d4bb925d3b81b7ec94a7cce9482 ]
 
-When we hot unplug a virtserialport and then try to hot plug again,
-it fails:
+The VMD removal path calls pci_stop_root_busi(), which tears down the pcie
+tree, including detaching all of the attached drivers. During driver
+detachment, devices may use pci_release_region() to release resources.
+This path relies on the resource being accessible in resource tree.
 
-(qemu) chardev-add socket,id=serial0,path=/tmp/serial0,server,nowait
-(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
-                  chardev=serial0,id=serial0,name=serial0
-(qemu) device_del serial0
-(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
-                  chardev=serial0,id=serial0,name=serial0
-kernel error:
-  virtio-ports vport2p2: Error allocating inbufs
-qemu error:
-  virtio-serial-bus: Guest failure in adding port 2 for device \
-                     virtio-serial0.0
+By detaching the child domain from the parent resource domain prior to
+stopping the bus, we are preventing the list traversal from finding the
+resource to be freed. If we instead detach the resource after stopping
+the bus, we will have properly freed the resource and detaching is
+simply accounting at that point.
 
-This happens because buffers for the in_vq are allocated when the port is
-added but are not released when the port is unplugged.
+Without this order, the resource is never freed and is orphaned on VMD
+removal, leading to a warning:
 
-They are only released when virtconsole is removed (see a7a69ec0d8e4)
+[  181.940162] Trying to free nonexistent resource <e5a10000-e5a13fff>
 
-To avoid the problem and to be symmetric, we could allocate all the buffers
-in init_vqs() as they are released in remove_vqs(), but it sounds like
-a waste of memory.
-
-Rather than that, this patch changes add_port() logic to ignore ENOSPC
-error in fill_queue(), which means queue has already been filled.
-
-Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-Cc: mst@redhat.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 2c2c5c5cd213 ("x86/PCI: VMD: Attach VMD resources to parent domain's resource tree")
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+[lorenzo.pieralisi@arm.com: updated commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/virtio_console.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/pci/controller/vmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1366,24 +1366,24 @@ static void set_console_size(struct port
- 	port->cons.ws.ws_col = cols;
+diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+index 65eaa6b618685..ab36e5ca1aca3 100644
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -818,12 +818,12 @@ static void vmd_remove(struct pci_dev *dev)
+ {
+ 	struct vmd_dev *vmd = pci_get_drvdata(dev);
+ 
+-	vmd_detach_resources(vmd);
+ 	sysfs_remove_link(&vmd->dev->dev.kobj, "domain");
+ 	pci_stop_root_bus(vmd->bus);
+ 	pci_remove_root_bus(vmd->bus);
+ 	vmd_cleanup_srcu(vmd);
+ 	vmd_teardown_dma_ops(vmd);
++	vmd_detach_resources(vmd);
+ 	irq_domain_remove(vmd->irq_domain);
  }
  
--static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
-+static int fill_queue(struct virtqueue *vq, spinlock_t *lock)
- {
- 	struct port_buffer *buf;
--	unsigned int nr_added_bufs;
-+	int nr_added_bufs;
- 	int ret;
- 
- 	nr_added_bufs = 0;
- 	do {
- 		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
- 		if (!buf)
--			break;
-+			return -ENOMEM;
- 
- 		spin_lock_irq(lock);
- 		ret = add_inbuf(vq, buf);
- 		if (ret < 0) {
- 			spin_unlock_irq(lock);
- 			free_buf(buf, true);
--			break;
-+			return ret;
- 		}
- 		nr_added_bufs++;
- 		spin_unlock_irq(lock);
-@@ -1403,7 +1403,6 @@ static int add_port(struct ports_device
- 	char debugfs_name[16];
- 	struct port *port;
- 	dev_t devt;
--	unsigned int nr_added_bufs;
- 	int err;
- 
- 	port = kmalloc(sizeof(*port), GFP_KERNEL);
-@@ -1462,11 +1461,13 @@ static int add_port(struct ports_device
- 	spin_lock_init(&port->outvq_lock);
- 	init_waitqueue_head(&port->waitqueue);
- 
--	/* Fill the in_vq with buffers so the host can send us data. */
--	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
--	if (!nr_added_bufs) {
-+	/* We can safely ignore ENOSPC because it means
-+	 * the queue already has buffers. Buffers are removed
-+	 * only by virtcons_remove(), not by unplug_port()
-+	 */
-+	err = fill_queue(port->in_vq, &port->inbuf_lock);
-+	if (err < 0 && err != -ENOSPC) {
- 		dev_err(port->dev, "Error allocating inbufs\n");
--		err = -ENOMEM;
- 		goto free_device;
- 	}
- 
-@@ -2099,14 +2100,11 @@ static int virtcons_probe(struct virtio_
- 	INIT_WORK(&portdev->control_work, &control_work_handler);
- 
- 	if (multiport) {
--		unsigned int nr_added_bufs;
--
- 		spin_lock_init(&portdev->c_ivq_lock);
- 		spin_lock_init(&portdev->c_ovq_lock);
- 
--		nr_added_bufs = fill_queue(portdev->c_ivq,
--					   &portdev->c_ivq_lock);
--		if (!nr_added_bufs) {
-+		err = fill_queue(portdev->c_ivq, &portdev->c_ivq_lock);
-+		if (err < 0) {
- 			dev_err(&vdev->dev,
- 				"Error allocating buffers for control queue\n");
- 			/*
-@@ -2117,7 +2115,7 @@ static int virtcons_probe(struct virtio_
- 					   VIRTIO_CONSOLE_DEVICE_READY, 0);
- 			/* Device was functional: we need full cleanup. */
- 			virtcons_remove(vdev);
--			return -ENOMEM;
-+			return err;
- 		}
- 	} else {
- 		/*
+-- 
+2.20.1
+
 
 
