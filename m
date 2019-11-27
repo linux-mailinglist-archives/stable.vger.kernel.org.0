@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DABF10B81A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:40:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9EB10B771
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728413AbfK0Ujy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:39:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44158 "EHLO mail.kernel.org"
+        id S1727196AbfK0Udv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:33:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728964AbfK0Ujv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:39:51 -0500
+        id S1727010AbfK0Udv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:33:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F63521770;
-        Wed, 27 Nov 2019 20:39:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FADD20866;
+        Wed, 27 Nov 2019 20:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887190;
-        bh=lvUPYlQAvH+bCBfq0VsZu4K341FeZLgKmIZ+MJgBwlE=;
+        s=default; t=1574886830;
+        bh=j1as0qKzRucB6IDbVLDVONrGQprDEqzsCUQOpr7AmWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjaF+Z5kU8eKT5JGTddLZj2PRQOoog1CN1N5eYfSQY3Ksx0qu8Af551n+pXxx1pBW
-         rV0GPl8yoBDCn7gILnQ+edBFAXOFe7OX1vlu3Nq2i/R9l8t1wU+WfA4huUxHi5toSB
-         Hs7CJuWT7t+LJbdyqzOb5zcZaDNBCzDTfHymDhWo=
+        b=U/GkxTJKR0FOmWA0bxwyCTLNqlPBT4SCycBf5GhS1ePyioGjT6T/ifw6d1k5AycO+
+         KozwkBseLjjvOJ5NSDxml/u+LGQ538sw5eGSbj2D0aZd13oiqAgxyPFc3VJFVsQ1mI
+         raE9D0NcuC6AZj0mnl1ijjIPVaBzHWAWsbwVTmX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Mousou Yuu <guogaishiwo@gmail.com>,
+        Corentin Chary <corentin.chary@gmail.com>,
+        Darren Hart <dvhart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 016/151] synclink_gt(): fix compat_ioctl()
-Date:   Wed, 27 Nov 2019 21:29:59 +0100
-Message-Id: <20191127203010.276866630@linuxfoundation.org>
+Subject: [PATCH 4.4 010/132] asus-wmi: Add quirk_no_rfkill for the Asus U303LB
+Date:   Wed, 27 Nov 2019 21:30:01 +0100
+Message-Id: <20191127202908.342923892@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: João Paulo Rechi Vita <jprvita@gmail.com>
 
-[ Upstream commit 27230e51349fde075598c1b59d15e1ff802f3f6e ]
+[ Upstream commit 02db9ff7af18f7ace60f430cbbaa1d846b350916 ]
 
-compat_ptr() for pointer-taking ones...
+The Asus U303LB has an airplane-mode indicator LED and the WMI WLAN user
+bit set, so asus-wmi uses ASUS_WMI_DEVID_WLAN_LED (0x00010002) to store
+the wlan state, which has a side-effect of driving the airplane mode
+indicator LED in an inverted fashion. quirk_no_rfkill prevents asus-wmi
+from registering RFKill switches at all for this laptop and allows
+asus-wireless to drive the LED through the ASHS ACPI device.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+Reported-by: Mousou Yuu <guogaishiwo@gmail.com>
+Reviewed-by: Corentin Chary <corentin.chary@gmail.com>
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/synclink_gt.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
-index 7aca2d4670e4a..e645ee1cfd989 100644
---- a/drivers/tty/synclink_gt.c
-+++ b/drivers/tty/synclink_gt.c
-@@ -1187,14 +1187,13 @@ static long slgt_compat_ioctl(struct tty_struct *tty,
- 			 unsigned int cmd, unsigned long arg)
- {
- 	struct slgt_info *info = tty->driver_data;
--	int rc = -ENOIOCTLCMD;
-+	int rc;
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 0322b1cde825d..69e33c2772c11 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -342,6 +342,15 @@ static const struct dmi_system_id asus_quirks[] = {
+ 		},
+ 		.driver_data = &quirk_no_rfkill,
+ 	},
++	{
++		.callback = dmi_matched,
++		.ident = "ASUSTeK COMPUTER INC. U303LB",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "U303LB"),
++		},
++		.driver_data = &quirk_no_rfkill,
++	},
+ 	{},
+ };
  
- 	if (sanity_check(info, tty->name, "compat_ioctl"))
- 		return -ENODEV;
- 	DBGINFO(("%s compat_ioctl() cmd=%08X\n", info->device_name, cmd));
- 
- 	switch (cmd) {
--
- 	case MGSL_IOCSPARAMS32:
- 		rc = set_params32(info, compat_ptr(arg));
- 		break;
-@@ -1214,18 +1213,11 @@ static long slgt_compat_ioctl(struct tty_struct *tty,
- 	case MGSL_IOCWAITGPIO:
- 	case MGSL_IOCGXSYNC:
- 	case MGSL_IOCGXCTRL:
--	case MGSL_IOCSTXIDLE:
--	case MGSL_IOCTXENABLE:
--	case MGSL_IOCRXENABLE:
--	case MGSL_IOCTXABORT:
--	case TIOCMIWAIT:
--	case MGSL_IOCSIF:
--	case MGSL_IOCSXSYNC:
--	case MGSL_IOCSXCTRL:
--		rc = ioctl(tty, cmd, arg);
-+		rc = ioctl(tty, cmd, (unsigned long)compat_ptr(arg));
- 		break;
-+	default:
-+		rc = ioctl(tty, cmd, arg);
- 	}
--
- 	DBGINFO(("%s compat_ioctl() cmd=%08X rc=%d\n", info->device_name, cmd, rc));
- 	return rc;
- }
 -- 
 2.20.1
 
