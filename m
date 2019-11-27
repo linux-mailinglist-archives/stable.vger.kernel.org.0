@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B7810BBEE
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D7410BB38
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728979AbfK0VRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:17:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45086 "EHLO mail.kernel.org"
+        id S1733071AbfK0VKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:10:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387451AbfK0VNL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:13:11 -0500
+        id S1732659AbfK0VKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:10:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B92821789;
-        Wed, 27 Nov 2019 21:13:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF0822154A;
+        Wed, 27 Nov 2019 21:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889189;
+        s=default; t=1574889040;
         bh=w+m6KjUIoZY/8hFdgusd84msZw06EQ08t3XBUtOWqvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKp9xfYeblF+DWH24uKSB71EkLxNuo0qfOHR9z42tqU0oD2/oHpEFONZjcBu3rg8t
-         DLavyOUJcwUu1pY+N09zH/bGGTORXLWvCR5oiG0O+Ex9UjxhkSVW/Sqh4H2zdNRJx+
-         P79mKeGkU9x5O6oHvTkN/dLJpqfGwkQcAR/csnTQ=
+        b=yIxgaU4MJ8qY1rbO+61gNURVEpwZwOowGhjLfwoHvYVCjg2jdRTKiNup62DolLaCD
+         Y3ctweMRNAJ3Fh+7cMamnllaRW5cTCSvo/ZcOTg/qZ5ZxmgXaTotNcsfI7qHRuz6vN
+         8TuU2/81N2k+nNrPXsIVflZq33/iAAtqI5hznTqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Andy Lutomirski <luto@kernel.org>, stable@kernel.org
-Subject: [PATCH 5.4 23/66] x86/entry/32: Fix NMI vs ESPFIX
+Subject: [PATCH 5.3 61/95] x86/entry/32: Fix NMI vs ESPFIX
 Date:   Wed, 27 Nov 2019 21:32:18 +0100
-Message-Id: <20191127202656.944643107@linuxfoundation.org>
+Message-Id: <20191127202927.340839341@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
