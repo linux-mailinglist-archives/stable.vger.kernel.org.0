@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7823A10BEE1
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:39:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0DA10BF68
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729231AbfK0VjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:39:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
+        id S1728060AbfK0UjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:39:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729604AbfK0Uoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:44:32 -0500
+        id S1728877AbfK0UjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:39:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F339D2158A;
-        Wed, 27 Nov 2019 20:44:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BEE7215A5;
+        Wed, 27 Nov 2019 20:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887471;
-        bh=bg068m6eQEBEESa5p5w78Mq6U6ACRkCkcOhx0Dbo9xs=;
+        s=default; t=1574887152;
+        bh=WtrCndhZCOt4K7hFDVg2mYom8qkt0Vjzm/evnWBH+ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPhmzekZrSgaqW7eDPzMpR13pMYqV8y9JJT1SwMr7GP5NYh072tMRsUagvBspYJeT
-         2OH+ezwddNGSMzZ0qZxnvXW7dW9cMBQQ1MJI5Yj9jTsQtuoJfFftLSSVUHP8aFRk5C
-         ttMiL724pQ4a6zH8C9Zxy8jDCpgReN+VNUUS1mzw=
+        b=tZKvUJml/TMsKPRjC0D10uuhTSov4KUvSunVMw8aa9hhd/LyjDARcl0TQEo2VhTby
+         3rDwJfQogpITFDWfILUT0poGnk/7KCKhJ4tLMNLmHahpltBKaS8rL4tjOGnuSREF2r
+         r5EetMTwlh2qieh1SSNO+TyvzHi1stiXhOIlKKf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.9 125/151] media: vivid: Fix wrong locking that causes race conditions on streaming stop
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 117/132] virtio_console: dont tie bufs to a vq
 Date:   Wed, 27 Nov 2019 21:31:48 +0100
-Message-Id: <20191127203045.625770964@linuxfoundation.org>
+Message-Id: <20191127203032.170467614@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,122 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Popov <alex.popov@linux.com>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-commit 6dcd5d7a7a29c1e4b8016a06aed78cd650cd8c27 upstream.
+[ Upstream commit 2855b33514d290c51d52d94e25d3ef942cd4d578 ]
 
-There is the same incorrect approach to locking implemented in
-vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
-sdr_cap_stop_streaming().
+an allocated buffer doesn't need to be tied to a vq -
+only vq->vdev is ever used. Pass the function the
+just what it needs - the vdev.
 
-These functions are called during streaming stopping with vivid_dev.mutex
-locked. And they all do the same mistake while stopping their kthreads,
-which need to lock this mutex as well. See the example from
-vivid_stop_generating_vid_cap():
-  /* shutdown control thread */
-  vivid_grab_controls(dev, false);
-  mutex_unlock(&dev->mutex);
-  kthread_stop(dev->kthread_vid_cap);
-  dev->kthread_vid_cap = NULL;
-  mutex_lock(&dev->mutex);
-
-But when this mutex is unlocked, another vb2_fop_read() can lock it
-instead of vivid_thread_vid_cap() and manipulate the buffer queue.
-That causes a use-after-free access later.
-
-To fix those issues let's:
-  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
-vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
-  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
-the loops of the vivid kthread handlers.
-
-Signed-off-by: Alexander Popov <alex.popov@linux.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>      # for v3.18 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-kthread-cap.c |    8 +++++---
- drivers/media/platform/vivid/vivid-kthread-out.c |    8 +++++---
- drivers/media/platform/vivid/vivid-sdr-cap.c     |    8 +++++---
- 3 files changed, 15 insertions(+), 9 deletions(-)
+ drivers/char/virtio_console.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/media/platform/vivid/vivid-kthread-cap.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
-@@ -777,7 +777,11 @@ static int vivid_thread_vid_cap(void *da
- 		if (kthread_should_stop())
- 			break;
- 
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
-+
- 		cur_jiffies = jiffies;
- 		if (dev->cap_seq_resync) {
- 			dev->jiffies_vid_cap = cur_jiffies;
-@@ -930,8 +934,6 @@ void vivid_stop_generating_vid_cap(struc
- 
- 	/* shutdown control thread */
- 	vivid_grab_controls(dev, false);
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_vid_cap);
- 	dev->kthread_vid_cap = NULL;
--	mutex_lock(&dev->mutex);
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 78aab6e246e13..1a566e3b16e07 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -417,7 +417,7 @@ static void reclaim_dma_bufs(void)
+ 	}
  }
---- a/drivers/media/platform/vivid/vivid-kthread-out.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-out.c
-@@ -147,7 +147,11 @@ static int vivid_thread_vid_out(void *da
- 		if (kthread_should_stop())
- 			break;
  
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
-+
- 		cur_jiffies = jiffies;
- 		if (dev->out_seq_resync) {
- 			dev->jiffies_vid_out = cur_jiffies;
-@@ -301,8 +305,6 @@ void vivid_stop_generating_vid_out(struc
- 
- 	/* shutdown control thread */
- 	vivid_grab_controls(dev, false);
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_vid_out);
- 	dev->kthread_vid_out = NULL;
--	mutex_lock(&dev->mutex);
- }
---- a/drivers/media/platform/vivid/vivid-sdr-cap.c
-+++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
-@@ -149,7 +149,11 @@ static int vivid_thread_sdr_cap(void *da
- 		if (kthread_should_stop())
- 			break;
- 
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
-+
- 		cur_jiffies = jiffies;
- 		if (dev->sdr_cap_seq_resync) {
- 			dev->jiffies_sdr_cap = cur_jiffies;
-@@ -309,10 +313,8 @@ static void sdr_cap_stop_streaming(struc
+-static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
++static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size,
+ 				     int pages)
+ {
+ 	struct port_buffer *buf;
+@@ -440,7 +440,7 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
+ 		return buf;
  	}
  
- 	/* shutdown control thread */
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_sdr_cap);
- 	dev->kthread_sdr_cap = NULL;
--	mutex_lock(&dev->mutex);
- }
+-	if (is_rproc_serial(vq->vdev)) {
++	if (is_rproc_serial(vdev)) {
+ 		/*
+ 		 * Allocate DMA memory from ancestor. When a virtio
+ 		 * device is created by remoteproc, the DMA memory is
+@@ -450,9 +450,9 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
+ 		 * DMA_MEMORY_INCLUDES_CHILDREN had been supported
+ 		 * in dma-coherent.c
+ 		 */
+-		if (!vq->vdev->dev.parent || !vq->vdev->dev.parent->parent)
++		if (!vdev->dev.parent || !vdev->dev.parent->parent)
+ 			goto free_buf;
+-		buf->dev = vq->vdev->dev.parent->parent;
++		buf->dev = vdev->dev.parent->parent;
  
- const struct vb2_ops vivid_sdr_cap_qops = {
+ 		/* Increase device refcnt to avoid freeing it */
+ 		get_device(buf->dev);
+@@ -835,7 +835,7 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
+ 
+ 	count = min((size_t)(32 * 1024), count);
+ 
+-	buf = alloc_buf(port->out_vq, count, 0);
++	buf = alloc_buf(port->portdev->vdev, count, 0);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+@@ -954,7 +954,7 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+ 	if (ret < 0)
+ 		goto error_out;
+ 
+-	buf = alloc_buf(port->out_vq, 0, pipe->nrbufs);
++	buf = alloc_buf(port->portdev->vdev, 0, pipe->nrbufs);
+ 	if (!buf) {
+ 		ret = -ENOMEM;
+ 		goto error_out;
+@@ -1371,7 +1371,7 @@ static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+ 
+ 	nr_added_bufs = 0;
+ 	do {
+-		buf = alloc_buf(vq, PAGE_SIZE, 0);
++		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
+ 		if (!buf)
+ 			break;
+ 
+-- 
+2.20.1
+
 
 
