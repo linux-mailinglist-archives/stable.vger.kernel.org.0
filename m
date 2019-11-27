@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3F510BB97
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DDA10BAF3
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732197AbfK0VOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:14:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47056 "EHLO mail.kernel.org"
+        id S1732691AbfK0VID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:08:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387509AbfK0VOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:14:02 -0500
+        id S1732689AbfK0VID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:08:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1577C216F4;
-        Wed, 27 Nov 2019 21:14:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 632EA2176D;
+        Wed, 27 Nov 2019 21:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889241;
-        bh=QuiF6W6wOHRgLYGxVxM5nbxXNsOuNOmkzfuXM8y9EVs=;
+        s=default; t=1574888881;
+        bh=B9g0mzV11oR8dfWobeC/zjd9RLJyGInX0NdtnEKSC2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpQ4aN+vSYCfPoyrvwbLYJKLHVO8bEOqzp3BKzFyOiiLXTI954puivucCwLyPxjHd
-         H9Z+SUrO8anAtDP3JxhbkboY7vuG+NU4mJWXbF5b3Hfh3S2uyIHE4xjeEH8x9tfAnh
-         66I+UOPEc8aZ/iFzIZxw28//Kt5kdEYKCfvcN01o=
+        b=s71X72Tp7Br6fjPbb0Cg/DBsHtMxwOWwjmyzw5v/0Y+ooeiYnNkFTlDBQtIiv9qG7
+         2ZugZADRERyL8lT3Dn5mbPcPW/Y6hgAsg+5nOqUBeXCcLrTAWEih50OmsLXo67fbR4
+         Nkm75NK8TiXkjMnUySZ1nLhXNsOfK/+6U49yC8qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 41/66] futex: Mark the begin of futex exit explicitly
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Daniel Axtens <dja@axtens.net>
+Subject: [PATCH 4.19 306/306] KVM: PPC: Book3S HV: Flush link stack on guest exit to host kernel
 Date:   Wed, 27 Nov 2019 21:32:36 +0100
-Message-Id: <20191127202722.752355038@linuxfoundation.org>
+Message-Id: <20191127203137.064576082@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,160 +43,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 18f694385c4fd77a09851fd301236746ca83f3cb upstream.
+commit af2e8c68b9c5403f77096969c516f742f5bb29e0 upstream.
 
-Instead of relying on PF_EXITING use an explicit state for the futex exit
-and set it in the futex exit function. This moves the smp barrier and the
-lock/unlock serialization into the futex code.
+On some systems that are vulnerable to Spectre v2, it is up to
+software to flush the link stack (return address stack), in order to
+protect against Spectre-RSB.
 
-As with the DEAD state this is restricted to the exit path as exec
-continues to use the same task struct.
+When exiting from a guest we do some house keeping and then
+potentially exit to C code which is several stack frames deep in the
+host kernel. We will then execute a series of returns without
+preceeding calls, opening up the possiblity that the guest could have
+poisoned the link stack, and direct speculative execution of the host
+to a gadget of some sort.
 
-This allows to simplify that logic in a next step.
+To prevent this we add a flush of the link stack on exit from a guest.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.539409004@linutronix.de
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+[dja: straightforward backport to v4.19]
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/futex.h |   31 +++----------------------------
- kernel/exit.c         |   13 +------------
- kernel/futex.c        |   37 ++++++++++++++++++++++++++++++++++++-
- 3 files changed, 40 insertions(+), 41 deletions(-)
+ arch/powerpc/include/asm/asm-prototypes.h |    2 ++
+ arch/powerpc/kernel/security.c            |    9 +++++++++
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S   |   28 ++++++++++++++++++++++++++++
+ 3 files changed, 39 insertions(+)
 
---- a/include/linux/futex.h
-+++ b/include/linux/futex.h
-@@ -52,6 +52,7 @@ union futex_key {
- #ifdef CONFIG_FUTEX
- enum {
- 	FUTEX_STATE_OK,
-+	FUTEX_STATE_EXITING,
- 	FUTEX_STATE_DEAD,
- };
+--- a/arch/powerpc/include/asm/asm-prototypes.h
++++ b/arch/powerpc/include/asm/asm-prototypes.h
+@@ -147,8 +147,10 @@ void _kvmppc_save_tm_pr(struct kvm_vcpu
+ extern s32 patch__call_flush_count_cache;
+ extern s32 patch__flush_count_cache_return;
+ extern s32 patch__flush_link_stack_return;
++extern s32 patch__call_kvm_flush_link_stack;
+ extern s32 patch__memset_nocache, patch__memcpy_nocache;
  
-@@ -66,33 +67,7 @@ static inline void futex_init_task(struc
- 	tsk->futex_state = FUTEX_STATE_OK;
- }
+ extern long flush_count_cache;
++extern long kvm_flush_link_stack;
  
--/**
-- * futex_exit_done - Sets the tasks futex state to FUTEX_STATE_DEAD
-- * @tsk:	task to set the state on
-- *
-- * Set the futex exit state of the task lockless. The futex waiter code
-- * observes that state when a task is exiting and loops until the task has
-- * actually finished the futex cleanup. The worst case for this is that the
-- * waiter runs through the wait loop until the state becomes visible.
-- *
-- * This has two callers:
-- *
-- * - futex_mm_release() after the futex exit cleanup has been done
-- *
-- * - do_exit() from the recursive fault handling path.
-- *
-- * In case of a recursive fault this is best effort. Either the futex exit
-- * code has run already or not. If the OWNER_DIED bit has been set on the
-- * futex then the waiter can take it over. If not, the problem is pushed
-- * back to user space. If the futex exit code did not run yet, then an
-- * already queued waiter might block forever, but there is nothing which
-- * can be done about that.
-- */
--static inline void futex_exit_done(struct task_struct *tsk)
--{
--	tsk->futex_state = FUTEX_STATE_DEAD;
--}
--
-+void futex_exit_recursive(struct task_struct *tsk);
- void futex_exit_release(struct task_struct *tsk);
- void futex_exec_release(struct task_struct *tsk);
+ #endif /* _ASM_POWERPC_ASM_PROTOTYPES_H */
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -392,6 +392,9 @@ static void toggle_count_cache_flush(boo
  
-@@ -100,7 +75,7 @@ long do_futex(u32 __user *uaddr, int op,
- 	      u32 __user *uaddr2, u32 val2, u32 val3);
- #else
- static inline void futex_init_task(struct task_struct *tsk) { }
--static inline void futex_exit_done(struct task_struct *tsk) { }
-+static inline void futex_exit_recursive(struct task_struct *tsk) { }
- static inline void futex_exit_release(struct task_struct *tsk) { }
- static inline void futex_exec_release(struct task_struct *tsk) { }
- static inline long do_futex(u32 __user *uaddr, int op, u32 val,
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -746,23 +746,12 @@ void __noreturn do_exit(long code)
- 	 */
- 	if (unlikely(tsk->flags & PF_EXITING)) {
- 		pr_alert("Fixing recursive fault but reboot is needed!\n");
--		futex_exit_done(tsk);
-+		futex_exit_recursive(tsk);
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 		schedule();
- 	}
+ 	if (!enable) {
+ 		patch_instruction_site(&patch__call_flush_count_cache, PPC_INST_NOP);
++#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
++		patch_instruction_site(&patch__call_kvm_flush_link_stack, PPC_INST_NOP);
++#endif
+ 		pr_info("link-stack-flush: software flush disabled.\n");
+ 		link_stack_flush_enabled = false;
+ 		no_count_cache_flush();
+@@ -402,6 +405,12 @@ static void toggle_count_cache_flush(boo
+ 	patch_branch_site(&patch__call_flush_count_cache,
+ 			  (u64)&flush_count_cache, BRANCH_SET_LINK);
  
- 	exit_signals(tsk);  /* sets PF_EXITING */
--	/*
--	 * Ensure that all new tsk->pi_lock acquisitions must observe
--	 * PF_EXITING. Serializes against futex.c:attach_to_pi_owner().
--	 */
--	smp_mb();
--	/*
--	 * Ensure that we must observe the pi_state in exit_mm() ->
--	 * mm_release() -> exit_pi_state_list().
--	 */
--	raw_spin_lock_irq(&tsk->pi_lock);
--	raw_spin_unlock_irq(&tsk->pi_lock);
- 
- 	if (unlikely(in_atomic())) {
- 		pr_info("note: %s[%d] exited with preempt_count %d\n",
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3679,10 +3679,45 @@ void futex_exec_release(struct task_stru
- 		exit_pi_state_list(tsk);
- }
- 
-+/**
-+ * futex_exit_recursive - Set the tasks futex state to FUTEX_STATE_DEAD
-+ * @tsk:	task to set the state on
-+ *
-+ * Set the futex exit state of the task lockless. The futex waiter code
-+ * observes that state when a task is exiting and loops until the task has
-+ * actually finished the futex cleanup. The worst case for this is that the
-+ * waiter runs through the wait loop until the state becomes visible.
-+ *
-+ * This is called from the recursive fault handling path in do_exit().
-+ *
-+ * This is best effort. Either the futex exit code has run already or
-+ * not. If the OWNER_DIED bit has been set on the futex then the waiter can
-+ * take it over. If not, the problem is pushed back to user space. If the
-+ * futex exit code did not run yet, then an already queued waiter might
-+ * block forever, but there is nothing which can be done about that.
-+ */
-+void futex_exit_recursive(struct task_struct *tsk)
-+{
-+	tsk->futex_state = FUTEX_STATE_DEAD;
-+}
++#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
++	// This enables the branch from guest_exit_cont to kvm_flush_link_stack
++	patch_branch_site(&patch__call_kvm_flush_link_stack,
++			  (u64)&kvm_flush_link_stack, BRANCH_SET_LINK);
++#endif
 +
- void futex_exit_release(struct task_struct *tsk)
- {
-+	tsk->futex_state = FUTEX_STATE_EXITING;
-+	/*
-+	 * Ensure that all new tsk->pi_lock acquisitions must observe
-+	 * FUTEX_STATE_EXITING. Serializes against attach_to_pi_owner().
-+	 */
-+	smp_mb();
-+	/*
-+	 * Ensure that we must observe the pi_state in exit_pi_state_list().
-+	 */
-+	raw_spin_lock_irq(&tsk->pi_lock);
-+	raw_spin_unlock_irq(&tsk->pi_lock);
-+
- 	futex_exec_release(tsk);
--	futex_exit_done(tsk);
-+
-+	tsk->futex_state = FUTEX_STATE_DEAD;
- }
+ 	pr_info("link-stack-flush: software flush enabled.\n");
+ 	link_stack_flush_enabled = true;
  
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -18,6 +18,7 @@
+  */
+ 
+ #include <asm/ppc_asm.h>
++#include <asm/code-patching-asm.h>
+ #include <asm/kvm_asm.h>
+ #include <asm/reg.h>
+ #include <asm/mmu.h>
+@@ -1559,6 +1560,10 @@ mc_cont:
+ 1:
+ #endif /* CONFIG_KVM_XICS */
+ 
++	/* Possibly flush the link stack here. */
++1:	nop
++	patch_site 1b patch__call_kvm_flush_link_stack
++
+ 	/* For hash guest, read the guest SLB and save it away */
+ 	ld	r5, VCPU_KVM(r9)
+ 	lbz	r0, KVM_RADIX(r5)
+@@ -2107,6 +2112,29 @@ END_FTR_SECTION_IFSET(CPU_FTR_ARCH_300)
+ 	mtlr	r0
+ 	blr
+ 
++.balign 32
++.global kvm_flush_link_stack
++kvm_flush_link_stack:
++	/* Save LR into r0 */
++	mflr	r0
++
++	/* Flush the link stack. On Power8 it's up to 32 entries in size. */
++	.rept 32
++	bl	.+4
++	.endr
++
++	/* And on Power9 it's up to 64. */
++BEGIN_FTR_SECTION
++	.rept 32
++	bl	.+4
++	.endr
++END_FTR_SECTION_IFSET(CPU_FTR_ARCH_300)
++
++	/* Restore LR */
++	mtlr	r0
++	blr
++
++
+ #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+ /*
+  * Softpatch interrupt for transactional memory emulation cases
 
 
