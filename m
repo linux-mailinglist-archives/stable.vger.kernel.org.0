@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B3810BAAD
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E4410BC58
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731403AbfK0VFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:05:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
+        id S1728349AbfK0VU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:20:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732295AbfK0VFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:05:30 -0500
+        id S1732817AbfK0VI7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:08:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1EB521741;
-        Wed, 27 Nov 2019 21:05:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54B6F2086A;
+        Wed, 27 Nov 2019 21:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888730;
-        bh=9OXAevLG4BgzRbZksXQkB08q/O8Khxr4GuRBGW5lZdM=;
+        s=default; t=1574888938;
+        bh=zvYRrz4rzu32n8VzU68nDZUGzYohu/DbbQ7Rr99+HhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e1XgCzfasZOKGXBrSvi4Nubr1Wg3CfPSNT465GtSCC7y7I2DB53IjO5QOBlBWl3KB
-         6eHJ0jZf2LLW5cCWKfx3LZf5mUvNBOjbr7hhxGml8OWpHqqSrTuMYlRZhyNkwk+uuG
-         Nz8bOqtw/usHxMDx4/UyApi+bm28WRfIEE4asIo8=
+        b=eMuT0ZGWGko8P+uaJr4zVGFeSu7J8ODAqhXyWfVgKVSAP5fmky29Z0FOoSxG6RiTG
+         CGxCc43JzfHWROH+xzt+pYTAWVMurQYcIi+NyR6A77PMwDWwVUezXst5UFmPPHyW7K
+         jiu0VxvKhnShFEeufy5vmdLImO5fjhTc52eIKYkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 248/306] PCI: keystone: Use quirk to limit MRRS for K2G
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.3 21/95] tools: gpio: Correctly add make dependencies for gpio_utils
 Date:   Wed, 27 Nov 2019 21:31:38 +0100
-Message-Id: <20191127203133.038833312@linuxfoundation.org>
+Message-Id: <20191127202850.501283175@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Laura Abbott <labbott@redhat.com>
 
-[ Upstream commit 148e340c0696369fadbbddc8f4bef801ed247d71 ]
+commit 0161a94e2d1c713bd34d72bc0239d87c31747bf7 upstream.
 
-PCI controller in K2G also has a limitation that memory read request
-size (MRRS) must not exceed 256 bytes. Use the quirk to limit MRRS
-(added for K2HK, K2L and K2E) for K2G as well.
+gpio tools fail to build correctly with make parallelization:
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+$ make -s -j24
+ld: gpio-utils.o: file not recognized: file truncated
+make[1]: *** [/home/labbott/linux_upstream/tools/build/Makefile.build:145: lsgpio-in.o] Error 1
+make: *** [Makefile:43: lsgpio-in.o] Error 2
+make: *** Waiting for unfinished jobs....
+
+This is because gpio-utils.o is used across multiple targets.
+Fix this by making gpio-utios.o a proper dependency.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/controller/dwc/pci-keystone.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/gpio/Build    |    1 +
+ tools/gpio/Makefile |   10 +++++++---
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index 5e199e7d2d4fd..765357b87ff69 100644
---- a/drivers/pci/controller/dwc/pci-keystone.c
-+++ b/drivers/pci/controller/dwc/pci-keystone.c
-@@ -36,6 +36,7 @@
- #define PCIE_RC_K2HK		0xb008
- #define PCIE_RC_K2E		0xb009
- #define PCIE_RC_K2L		0xb00a
-+#define PCIE_RC_K2G		0xb00b
+--- a/tools/gpio/Build
++++ b/tools/gpio/Build
+@@ -1,3 +1,4 @@
++gpio-utils-y += gpio-utils.o
+ lsgpio-y += lsgpio.o gpio-utils.o
+ gpio-hammer-y += gpio-hammer.o gpio-utils.o
+ gpio-event-mon-y += gpio-event-mon.o gpio-utils.o
+--- a/tools/gpio/Makefile
++++ b/tools/gpio/Makefile
+@@ -35,11 +35,15 @@ $(OUTPUT)include/linux/gpio.h: ../../inc
  
- #define to_keystone_pcie(x)	dev_get_drvdata((x)->dev)
+ prepare: $(OUTPUT)include/linux/gpio.h
  
-@@ -50,6 +51,8 @@ static void quirk_limit_mrrs(struct pci_dev *dev)
- 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
- 		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2L),
- 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
-+		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2G),
-+		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
- 		{ 0, },
- 	};
- 
--- 
-2.20.1
-
++GPIO_UTILS_IN := $(output)gpio-utils-in.o
++$(GPIO_UTILS_IN): prepare FORCE
++	$(Q)$(MAKE) $(build)=gpio-utils
++
+ #
+ # lsgpio
+ #
+ LSGPIO_IN := $(OUTPUT)lsgpio-in.o
+-$(LSGPIO_IN): prepare FORCE
++$(LSGPIO_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
+ 	$(Q)$(MAKE) $(build)=lsgpio
+ $(OUTPUT)lsgpio: $(LSGPIO_IN)
+ 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+@@ -48,7 +52,7 @@ $(OUTPUT)lsgpio: $(LSGPIO_IN)
+ # gpio-hammer
+ #
+ GPIO_HAMMER_IN := $(OUTPUT)gpio-hammer-in.o
+-$(GPIO_HAMMER_IN): prepare FORCE
++$(GPIO_HAMMER_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
+ 	$(Q)$(MAKE) $(build)=gpio-hammer
+ $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
+ 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+@@ -57,7 +61,7 @@ $(OUTPUT)gpio-hammer: $(GPIO_HAMMER_IN)
+ # gpio-event-mon
+ #
+ GPIO_EVENT_MON_IN := $(OUTPUT)gpio-event-mon-in.o
+-$(GPIO_EVENT_MON_IN): prepare FORCE
++$(GPIO_EVENT_MON_IN): prepare FORCE $(OUTPUT)gpio-utils-in.o
+ 	$(Q)$(MAKE) $(build)=gpio-event-mon
+ $(OUTPUT)gpio-event-mon: $(GPIO_EVENT_MON_IN)
+ 	$(QUIET_LINK)$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
 
 
