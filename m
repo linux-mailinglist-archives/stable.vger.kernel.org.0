@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE22710BF13
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6100A10BE1E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:34:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727689AbfK0Vkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:40:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49230 "EHLO mail.kernel.org"
+        id S1728894AbfK0Uvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:51:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729345AbfK0Umk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:42:40 -0500
+        id S1730490AbfK0Uva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:51:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4C3E21787;
-        Wed, 27 Nov 2019 20:42:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 610682084D;
+        Wed, 27 Nov 2019 20:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887359;
-        bh=uOQtTCLHEwtW2ut6Q0nPb0g093HpDJgAfOS0CS1GpVI=;
+        s=default; t=1574887889;
+        bh=e0kwQxqjl/q5q36XpJycaaUijSZMetJRcSRLw0P4rkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xF7guyWLGVGrTPmCxHpslmFtoXAUeRdkc82UQOrOmF7o/nkDMIEn2qi7iVcQAvvaF
-         kCZ7u5Ihzd1c3g8VbjHp/2ByVtaaVJ0hyrjdXH67oOw1Qlpko72uwyzCvpucjuklFm
-         ENQVn3jsf1nFxQDM2LGUQ8W87n9TLmy9jYhO+icw=
+        b=zNGSA3f6nTzl6qLfsC/XwtWchdVBvyBusLhvqYLM6ZZ+Wb5+MUkrfYHuqe+PNEVnR
+         0Jw1lvaIixoQrgOAKW5hHpqKJR+pw46qCAgDnOP46jOFTwHsMX0fiU+fzaVoiMb0Vf
+         Er9j6S/5OH70e+pxOAapIIHOHwWcQIgGXBZLDhS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Changbin Du <changbin.du@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 081/151] igb: shorten maximum PHC timecounter update interval
-Date:   Wed, 27 Nov 2019 21:31:04 +0100
-Message-Id: <20191127203035.945658108@linuxfoundation.org>
+Subject: [PATCH 4.14 132/211] btrfs: avoid link error with CONFIG_NO_AUTO_INLINE
+Date:   Wed, 27 Nov 2019 21:31:05 +0100
+Message-Id: <20191127203106.519625908@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,54 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 094bf4d0e9657f6ea1ee3d7e07ce3970796949ce ]
+[ Upstream commit 7e17916b35797396f681a3270245fd29c1e4c250 ]
 
-The timecounter needs to be updated at least once per ~550 seconds in
-order to avoid a 40-bit SYSTIM timestamp to be misinterpreted as an old
-timestamp.
+Note: this patch fixes a problem in a feature outside of btrfs ("kernel
+hacking: add a config option to disable compiler auto-inlining") and is
+applied ahead of time due to cross-subsystem dependencies.
 
-Since commit 500462a9d ("timers: Switch to a non-cascading wheel"),
-scheduling of delayed work seems to be less accurate and a requested
-delay of 540 seconds may actually be longer than 550 seconds. Shorten
-the delay to 480 seconds to be sure the timecounter is updated in time.
+On 32-bit ARM with gcc-8, I see a link error with the addition of the
+CONFIG_NO_AUTO_INLINE option:
 
-This fixes an issue with HW timestamps on 82580/I350/I354 being off by
-~1100 seconds for few seconds every ~9 minutes.
+fs/btrfs/super.o: In function `btrfs_statfs':
+super.c:(.text+0x67b8): undefined reference to `__aeabi_uldivmod'
+super.c:(.text+0x67fc): undefined reference to `__aeabi_uldivmod'
+super.c:(.text+0x6858): undefined reference to `__aeabi_uldivmod'
+super.c:(.text+0x6920): undefined reference to `__aeabi_uldivmod'
+super.c:(.text+0x693c): undefined reference to `__aeabi_uldivmod'
+fs/btrfs/super.o:super.c:(.text+0x6958): more undefined references to `__aeabi_uldivmod' follow
 
-Cc: Jacob Keller <jacob.e.keller@intel.com>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+So far this is the only file that shows the behavior, so I'd propose
+to just work around it by marking the functions as 'static inline'
+that normally get inlined here.
+
+The reference to __aeabi_uldivmod comes from a div_u64() which has an
+optimization for a constant division that uses a straight '/' operator
+when the result should be known to the compiler. My interpretation is
+that as we turn off inlining, gcc still expects the result to be constant
+but fails to use that constant value.
+
+Link: https://lkml.kernel.org/r/20181103153941.1881966-1-arnd@arndb.de
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Changbin Du <changbin.du@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[ add the note ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_ptp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/btrfs/super.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_ptp.c b/drivers/net/ethernet/intel/igb/igb_ptp.c
-index 9eb9b68f8935e..ae1f963b60923 100644
---- a/drivers/net/ethernet/intel/igb/igb_ptp.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ptp.c
-@@ -65,9 +65,15 @@
-  *
-  * The 40 bit 82580 SYSTIM overflows every
-  *   2^40 * 10^-9 /  60  = 18.3 minutes.
-+ *
-+ * SYSTIM is converted to real time using a timecounter. As
-+ * timecounter_cyc2time() allows old timestamps, the timecounter
-+ * needs to be updated at least once per half of the SYSTIM interval.
-+ * Scheduling of delayed work is not very accurate, so we aim for 8
-+ * minutes to be sure the actual interval is shorter than 9.16 minutes.
-  */
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 49a02bf091aea..204d585e012a8 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1863,7 +1863,7 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
+ }
  
--#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 9)
-+#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 8)
- #define IGB_PTP_TX_TIMEOUT		(HZ * 15)
- #define INCPERIOD_82576			BIT(E1000_TIMINCA_16NS_SHIFT)
- #define INCVALUE_82576_MASK		GENMASK(E1000_TIMINCA_16NS_SHIFT - 1, 0)
+ /* Used to sort the devices by max_avail(descending sort) */
+-static int btrfs_cmp_device_free_bytes(const void *dev_info1,
++static inline int btrfs_cmp_device_free_bytes(const void *dev_info1,
+ 				       const void *dev_info2)
+ {
+ 	if (((struct btrfs_device_info *)dev_info1)->max_avail >
+@@ -1892,8 +1892,8 @@ static inline void btrfs_descending_sort_devices(
+  * The helper to calc the free space on the devices that can be used to store
+  * file data.
+  */
+-static int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
+-				       u64 *free_bytes)
++static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
++					      u64 *free_bytes)
+ {
+ 	struct btrfs_device_info *devices_info;
+ 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
 -- 
 2.20.1
 
