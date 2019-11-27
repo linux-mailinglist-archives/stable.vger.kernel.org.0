@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 417E110BE61
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 948FF10BF44
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:42:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728088AbfK0VgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:36:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34062 "EHLO mail.kernel.org"
+        id S1729075AbfK0Uku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:40:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730163AbfK0Usn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:48:43 -0500
+        id S1729090AbfK0Ukt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:40:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 471A2217C3;
-        Wed, 27 Nov 2019 20:48:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E321821772;
+        Wed, 27 Nov 2019 20:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887722;
-        bh=aJgCLU5INSKa8i+HSX657zceEvO95pCi04icG6OYlDc=;
+        s=default; t=1574887248;
+        bh=pIrHMhpaaasDi/axB0LADqktz+OiSBs0YHoiRDHDFOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcb+b1me9mZSx/0sYIY1bwpxTovIQ4jiM1EFQN1+T3XW/Ps58CFtCLslOMn0XSrjP
-         R8Mq/h/6ifb9cAKGRkpiX75YemjkFmJRxtQTzyqiwAcxpGghn1dK6fKvBdEs30xkm3
-         rSCZy6Jz+cPsXwbdlPeFWuLMKuhiWhtVD7Aun/WU=
+        b=pzLE+WW/Uz65/fe9xeBwacsVgP6pmw6QoKwhAjGuJnpFCjVHzMVUIdiv2KVF4knEl
+         AmbFuFXxT95UeQ9hWCzvXGCNkyxD+NeJrEJqPhb4Atrh5p2KiqGkqyF0HJUMZa9Rae
+         3CE8X1EPYi8LqyfGBToCslIXlzhL03KMpoO3mRoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
+        Brian Norris <briannorris@chomium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/211] sunrpc: safely reallow resvport min/max inversion
-Date:   Wed, 27 Nov 2019 21:30:02 +0100
-Message-Id: <20191127203100.406589905@linuxfoundation.org>
+Subject: [PATCH 4.9 020/151] ath10k: allocate small size dma memory in ath10k_pci_diag_write_mem
+Date:   Wed, 27 Nov 2019 21:30:03 +0100
+Message-Id: <20191127203012.724097908@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Carl Huang <cjhuang@codeaurora.org>
 
-[ Upstream commit 826799e66e8683e5698e140bb9ef69afc8c0014e ]
+[ Upstream commit 0738b4998c6d1caf9ca2447b946709a7278c70f1 ]
 
-Commits ffb6ca33b04b and e08ea3a96fc7 prevent setting xprt_min_resvport
-greater than xprt_max_resvport, but may also break simple code that sets
-one parameter then the other, if the new range does not overlap the old.
+ath10k_pci_diag_write_mem may allocate big size of the dma memory
+based on the parameter nbytes. Take firmware diag download as
+example, the biggest size is about 500K. In some systems, the
+allocation is likely to fail because it can't acquire such a large
+contiguous dma memory.
 
-Also it looks racy to me, unless there's some serialization I'm not
-seeing.  Granted it would probably require malicious privileged processes
-(unless there's a chance these might eventually be settable in unprivileged
-containers), but still it seems better not to let userspace panic the
-kernel.
+The fix is to allocate a small size dma memory. In the loop,
+driver copies the data to the allocated dma memory and writes to
+the destination until all the data is written.
 
-Simpler seems to be to allow setting the parameters to whatever you want
-but interpret xprt_min_resvport > xprt_max_resvport as the empty range.
+Tested with QCA6174 PCI with
+firmware-6.bin_WLAN.RM.4.4.1-00119-QCARMSWP-1, this also affects
+QCA9377 PCI.
 
-Fixes: ffb6ca33b04b "sunrpc: Prevent resvport min/max inversion..."
-Fixes: e08ea3a96fc7 "sunrpc: Prevent rexvport min/max inversion..."
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
+Reviewed-by: Brian Norris <briannorris@chomium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtsock.c | 34 ++++++++++++++++++----------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+ drivers/net/wireless/ath/ath10k/pci.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index a42871a59f3b9..f75b5b7c1fc2a 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -127,7 +127,7 @@ static struct ctl_table xs_tunables_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= &xprt_min_resvport_limit,
--		.extra2		= &xprt_max_resvport
-+		.extra2		= &xprt_max_resvport_limit
- 	},
- 	{
- 		.procname	= "max_resvport",
-@@ -135,7 +135,7 @@ static struct ctl_table xs_tunables_table[] = {
- 		.maxlen		= sizeof(unsigned int),
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec_minmax,
--		.extra1		= &xprt_min_resvport,
-+		.extra1		= &xprt_min_resvport_limit,
- 		.extra2		= &xprt_max_resvport_limit
- 	},
- 	{
-@@ -1754,11 +1754,17 @@ static void xs_udp_timer(struct rpc_xprt *xprt, struct rpc_task *task)
- 	spin_unlock_bh(&xprt->transport_lock);
- }
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index b7bac14d1487b..d84a362a084ac 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -1039,10 +1039,9 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
+ 	struct ath10k_pci *ar_pci = ath10k_pci_priv(ar);
+ 	int ret = 0;
+ 	u32 *buf;
+-	unsigned int completed_nbytes, orig_nbytes, remaining_bytes;
++	unsigned int completed_nbytes, alloc_nbytes, remaining_bytes;
+ 	struct ath10k_ce_pipe *ce_diag;
+ 	void *data_buf = NULL;
+-	u32 ce_data;	/* Host buffer address in CE space */
+ 	dma_addr_t ce_data_base = 0;
+ 	int i;
  
--static unsigned short xs_get_random_port(void)
-+static int xs_get_random_port(void)
- {
--	unsigned short range = xprt_max_resvport - xprt_min_resvport + 1;
--	unsigned short rand = (unsigned short) prandom_u32() % range;
--	return rand + xprt_min_resvport;
-+	unsigned short min = xprt_min_resvport, max = xprt_max_resvport;
-+	unsigned short range;
-+	unsigned short rand;
-+
-+	if (max < min)
-+		return -EADDRINUSE;
-+	range = max - min + 1;
-+	rand = (unsigned short) prandom_u32() % range;
-+	return rand + min;
- }
- 
- /**
-@@ -1815,9 +1821,9 @@ static void xs_set_srcport(struct sock_xprt *transport, struct socket *sock)
- 		transport->srcport = xs_sock_getport(sock);
- }
- 
--static unsigned short xs_get_srcport(struct sock_xprt *transport)
-+static int xs_get_srcport(struct sock_xprt *transport)
- {
--	unsigned short port = transport->srcport;
-+	int port = transport->srcport;
- 
- 	if (port == 0 && transport->xprt.resvport)
- 		port = xs_get_random_port();
-@@ -1838,7 +1844,7 @@ static int xs_bind(struct sock_xprt *transport, struct socket *sock)
- {
- 	struct sockaddr_storage myaddr;
- 	int err, nloop = 0;
--	unsigned short port = xs_get_srcport(transport);
-+	int port = xs_get_srcport(transport);
- 	unsigned short last;
- 
- 	/*
-@@ -1856,8 +1862,8 @@ static int xs_bind(struct sock_xprt *transport, struct socket *sock)
- 	 * transport->xprt.resvport == 1) xs_get_srcport above will
- 	 * ensure that port is non-zero and we will bind as needed.
+@@ -1056,9 +1055,10 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
+ 	 *   1) 4-byte alignment
+ 	 *   2) Buffer in DMA-able space
  	 */
--	if (port == 0)
--		return 0;
-+	if (port <= 0)
-+		return port;
+-	orig_nbytes = nbytes;
++	alloc_nbytes = min_t(unsigned int, nbytes, DIAG_TRANSFER_LIMIT);
++
+ 	data_buf = (unsigned char *)dma_alloc_coherent(ar->dev,
+-						       orig_nbytes,
++						       alloc_nbytes,
+ 						       &ce_data_base,
+ 						       GFP_ATOMIC);
+ 	if (!data_buf) {
+@@ -1066,9 +1066,6 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
+ 		goto done;
+ 	}
  
- 	memcpy(&myaddr, &transport->srcaddr, transport->xprt.addrlen);
- 	do {
-@@ -3286,12 +3292,8 @@ static int param_set_uint_minmax(const char *val,
+-	/* Copy caller's data to allocated DMA buf */
+-	memcpy(data_buf, data, orig_nbytes);
+-
+ 	/*
+ 	 * The address supplied by the caller is in the
+ 	 * Target CPU virtual address space.
+@@ -1081,12 +1078,14 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
+ 	 */
+ 	address = ath10k_pci_targ_cpu_to_ce_addr(ar, address);
  
- static int param_set_portnr(const char *val, const struct kernel_param *kp)
- {
--	if (kp->arg == &xprt_min_resvport)
--		return param_set_uint_minmax(val, kp,
--			RPC_MIN_RESVPORT,
--			xprt_max_resvport);
- 	return param_set_uint_minmax(val, kp,
--			xprt_min_resvport,
-+			RPC_MIN_RESVPORT,
- 			RPC_MAX_RESVPORT);
- }
+-	remaining_bytes = orig_nbytes;
+-	ce_data = ce_data_base;
++	remaining_bytes = nbytes;
+ 	while (remaining_bytes) {
+ 		/* FIXME: check cast */
+ 		nbytes = min_t(int, remaining_bytes, DIAG_TRANSFER_LIMIT);
+ 
++		/* Copy caller's data to allocated DMA buf */
++		memcpy(data_buf, data, nbytes);
++
+ 		/* Set up to receive directly into Target(!) address */
+ 		ret = __ath10k_ce_rx_post_buf(ce_diag, &address, address);
+ 		if (ret != 0)
+@@ -1096,7 +1095,7 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
+ 		 * Request CE to send caller-supplied data that
+ 		 * was copied to bounce buffer to Target(!) address.
+ 		 */
+-		ret = ath10k_ce_send_nolock(ce_diag, NULL, (u32)ce_data,
++		ret = ath10k_ce_send_nolock(ce_diag, NULL, ce_data_base,
+ 					    nbytes, 0, 0);
+ 		if (ret != 0)
+ 			goto done;
+@@ -1137,12 +1136,12 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
+ 
+ 		remaining_bytes -= nbytes;
+ 		address += nbytes;
+-		ce_data += nbytes;
++		data += nbytes;
+ 	}
+ 
+ done:
+ 	if (data_buf) {
+-		dma_free_coherent(ar->dev, orig_nbytes, data_buf,
++		dma_free_coherent(ar->dev, alloc_nbytes, data_buf,
+ 				  ce_data_base);
+ 	}
  
 -- 
 2.20.1
