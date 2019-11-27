@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED42410BBE6
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6FA10BB8B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732743AbfK0VQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:16:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+        id S2387484AbfK0VNg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:13:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733097AbfK0VNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:13:33 -0500
+        id S2387479AbfK0VNg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:13:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FEA52154A;
-        Wed, 27 Nov 2019 21:13:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C947B2086A;
+        Wed, 27 Nov 2019 21:13:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889212;
-        bh=QCpIL2Ww+mMyCTsJD1kUgjAx4MMrVpLoYYYZk619EqQ=;
+        s=default; t=1574889215;
+        bh=jgZhuF8duSwxHtm8Ldfjn86FE4kAix6Su0REliUcJSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O156pwXf1yjYbHAt0cnt/XT6+DSz/cjpnO0EIBSF1Zcd0t2xhpqXsjnwnZ5K70qVP
-         8zeEHO0uOYLbNGITwj/FtHVAhQcNXm24F1r7lf9OZMQNb0whZ1yFxzJNkchr6rj9y9
-         MafaQDg5/bO4pUzc95PkExfzpgqaOmzJno5o+VXo=
+        b=JAzkvdvPYEh7mHru6zyBDaeJ9KAsJaa363F3ss8dK+JT3HJorc1rYq/hYHUR0Ah/S
+         Uh9w7uk8aun5YPVyGYcuLnYgMcnOayW8MhaXw2vytrQugpQ3CtcxGi1suQUTWk2HOh
+         ugxJ/I/mZ0yvQI9i2ex2TYs7QwQPCLqgw1OyGXVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vandana BN <bnvandana@gmail.com>,
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.4 31/66] media: vivid: Set vid_cap_streaming and vid_out_streaming to true
-Date:   Wed, 27 Nov 2019 21:32:26 +0100
-Message-Id: <20191127202705.630013245@linuxfoundation.org>
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 32/66] media: vivid: Fix wrong locking that causes race conditions on streaming stop
+Date:   Wed, 27 Nov 2019 21:32:27 +0100
+Message-Id: <20191127202708.288070864@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
 References: <20191127202632.536277063@linuxfoundation.org>
@@ -44,52 +45,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vandana BN <bnvandana@gmail.com>
+From: Alexander Popov <alex.popov@linux.com>
 
-commit b4add02d2236fd5f568db141cfd8eb4290972eb3 upstream.
+commit 6dcd5d7a7a29c1e4b8016a06aed78cd650cd8c27 upstream.
 
-When vbi stream is started, followed by video streaming,
-the vid_cap_streaming and vid_out_streaming were not being set to true,
-which would cause the video stream to stop when vbi stream is stopped.
-This patch allows to set vid_cap_streaming and vid_out_streaming to true.
-According to Hans Verkuil it appears that these 'if (dev->kthread_vid_cap)'
-checks are a left-over from the original vivid development and should never
-have been there.
+There is the same incorrect approach to locking implemented in
+vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
+sdr_cap_stop_streaming().
 
-Signed-off-by: Vandana BN <bnvandana@gmail.com>
-Cc: <stable@vger.kernel.org>      # for v3.18 and up
+These functions are called during streaming stopping with vivid_dev.mutex
+locked. And they all do the same mistake while stopping their kthreads,
+which need to lock this mutex as well. See the example from
+vivid_stop_generating_vid_cap():
+  /* shutdown control thread */
+  vivid_grab_controls(dev, false);
+  mutex_unlock(&dev->mutex);
+  kthread_stop(dev->kthread_vid_cap);
+  dev->kthread_vid_cap = NULL;
+  mutex_lock(&dev->mutex);
+
+But when this mutex is unlocked, another vb2_fop_read() can lock it
+instead of vivid_thread_vid_cap() and manipulate the buffer queue.
+That causes a use-after-free access later.
+
+To fix those issues let's:
+  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
+vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
+  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
+the loops of the vivid kthread handlers.
+
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: <stable@vger.kernel.org>      # for v3.18 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/vivid/vivid-vid-cap.c |    3 ---
- drivers/media/platform/vivid/vivid-vid-out.c |    3 ---
- 2 files changed, 6 deletions(-)
+ drivers/media/platform/vivid/vivid-kthread-cap.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-kthread-out.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-sdr-cap.c     |    8 +++++---
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -223,9 +223,6 @@ static int vid_cap_start_streaming(struc
- 	if (vb2_is_streaming(&dev->vb_vid_out_q))
- 		dev->can_loop_video = vivid_vid_can_loop(dev);
+--- a/drivers/media/platform/vivid/vivid-kthread-cap.c
++++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
+@@ -796,7 +796,11 @@ static int vivid_thread_vid_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
  
--	if (dev->kthread_vid_cap)
--		return 0;
--
- 	dev->vid_cap_seq_count = 0;
- 	dprintk(dev, 1, "%s\n", __func__);
- 	for (i = 0; i < VIDEO_MAX_FRAME; i++)
---- a/drivers/media/platform/vivid/vivid-vid-out.c
-+++ b/drivers/media/platform/vivid/vivid-vid-out.c
-@@ -161,9 +161,6 @@ static int vid_out_start_streaming(struc
- 	if (vb2_is_streaming(&dev->vb_vid_cap_q))
- 		dev->can_loop_video = vivid_vid_can_loop(dev);
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->cap_seq_resync) {
+ 			dev->jiffies_vid_cap = cur_jiffies;
+@@ -956,8 +960,6 @@ void vivid_stop_generating_vid_cap(struc
  
--	if (dev->kthread_vid_out)
--		return 0;
--
- 	dev->vid_out_seq_count = 0;
- 	dprintk(dev, 1, "%s\n", __func__);
- 	if (dev->start_streaming_error) {
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_cap);
+ 	dev->kthread_vid_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-kthread-out.c
++++ b/drivers/media/platform/vivid/vivid-kthread-out.c
+@@ -143,7 +143,11 @@ static int vivid_thread_vid_out(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->out_seq_resync) {
+ 			dev->jiffies_vid_out = cur_jiffies;
+@@ -301,8 +305,6 @@ void vivid_stop_generating_vid_out(struc
+ 
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_out);
+ 	dev->kthread_vid_out = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-sdr-cap.c
++++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
+@@ -141,7 +141,11 @@ static int vivid_thread_sdr_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->sdr_cap_seq_resync) {
+ 			dev->jiffies_sdr_cap = cur_jiffies;
+@@ -303,10 +307,8 @@ static void sdr_cap_stop_streaming(struc
+ 	}
+ 
+ 	/* shutdown control thread */
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_sdr_cap);
+ 	dev->kthread_sdr_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+ 
+ static void sdr_cap_buf_request_complete(struct vb2_buffer *vb)
 
 
