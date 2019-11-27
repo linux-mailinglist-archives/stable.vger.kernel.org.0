@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A112E10BC9A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEFF10BAB8
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732349AbfK0VFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59772 "EHLO mail.kernel.org"
+        id S1731777AbfK0VF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:05:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727440AbfK0VFy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:05:54 -0500
+        id S1727440AbfK0VF5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:05:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D6CE217BA;
-        Wed, 27 Nov 2019 21:05:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9B152086A;
+        Wed, 27 Nov 2019 21:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888754;
-        bh=ivAr2KdU9K4Tx7Ky4Bm6mhRcS09rwRLNa5AkPF/3bcQ=;
+        s=default; t=1574888756;
+        bh=roSMi2E4aQEUsCzUFo/nqA8frS5jVbo6/6nvYCpg3eY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkRadY8Xs8moqMIT8+wAdV+FWdx24iu4BKXhxue+j0ORE/qAuvNP0YvD4XuaiHd7y
-         fMsRGPbsZHJU8yF1H7RJmbZ27hug4KLBjRcOjleN9KqyY6Tdtn6k8ifVOiZrlWSATP
-         dqdA/em8EqwoFwJGLEavIRGRTGvVdAkfmZsrAS2I=
+        b=yMBSD7RSbzwt9DPby0qs0uygMO1TdG1AaLGL63RIOK2d6qONiRWBfES06PCzFHb+g
+         wzIIvBx9GvjzMSvp2fz8ZDC4jbTOeOhcHMyqCOIqGKldeiSZin2S18sjTf1H53xDaR
+         asaCvQrO6zr9C5ds97k9aQrzbqG+wA8HAOVNGdy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
-        syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Alexander Potapenko <glider@google.com>
-Subject: [PATCH 4.19 256/306] Bluetooth: Fix invalid-free in bcsp_close()
-Date:   Wed, 27 Nov 2019 21:31:46 +0100
-Message-Id: <20191127203133.564483599@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Borowski <kilobyte@angband.pl>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH 4.19 257/306] KVM: MMU: Do not treat ZONE_DEVICE pages as being reserved
+Date:   Wed, 27 Nov 2019 21:31:47 +0100
+Message-Id: <20191127203133.629360119@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -45,50 +46,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Bortoli <tomasbortoli@gmail.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit cf94da6f502d8caecabd56b194541c873c8a7a3c upstream.
+commit a78986aae9b2988f8493f9f65a587ee433e83bc3 upstream.
 
-Syzbot reported an invalid-free that I introduced fixing a memleak.
+Explicitly exempt ZONE_DEVICE pages from kvm_is_reserved_pfn() and
+instead manually handle ZONE_DEVICE on a case-by-case basis.  For things
+like page refcounts, KVM needs to treat ZONE_DEVICE pages like normal
+pages, e.g. put pages grabbed via gup().  But for flows such as setting
+A/D bits or shifting refcounts for transparent huge pages, KVM needs to
+to avoid processing ZONE_DEVICE pages as the flows in question lack the
+underlying machinery for proper handling of ZONE_DEVICE pages.
 
-bcsp_recv() also frees bcsp->rx_skb but never nullifies its value.
-Nullify bcsp->rx_skb every time it is freed.
+This fixes a hang reported by Adam Borowski[*] in dev_pagemap_cleanup()
+when running a KVM guest backed with /dev/dax memory, as KVM straight up
+doesn't put any references to ZONE_DEVICE pages acquired by gup().
 
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-Reported-by: syzbot+a0d209a4676664613e76@syzkaller.appspotmail.com
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Alexander Potapenko <glider@google.com>
+Note, Dan Williams proposed an alternative solution of doing put_page()
+on ZONE_DEVICE pages immediately after gup() in order to simplify the
+auditing needed to ensure is_zone_device_page() is called if and only if
+the backing device is pinned (via gup()).  But that approach would break
+kvm_vcpu_{un}map() as KVM requires the page to be pinned from map() 'til
+unmap() when accessing guest memory, unlike KVM's secondary MMU, which
+coordinates with mmu_notifier invalidations to avoid creating stale
+page references, i.e. doesn't rely on pages being pinned.
+
+[*] http://lkml.kernel.org/r/20190919115547.GA17963@angband.pl
+
+Reported-by: Adam Borowski <kilobyte@angband.pl>
+Analyzed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 3565fce3a659 ("mm, x86: get_user_pages() for dax mappings")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[sean: backport to 4.x; resolve conflict in mmu.c]
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bluetooth/hci_bcsp.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/mmu.c       |    8 ++++----
+ include/linux/kvm_host.h |    1 +
+ virt/kvm/kvm_main.c      |   26 +++++++++++++++++++++++---
+ 3 files changed, 28 insertions(+), 7 deletions(-)
 
---- a/drivers/bluetooth/hci_bcsp.c
-+++ b/drivers/bluetooth/hci_bcsp.c
-@@ -606,6 +606,7 @@ static int bcsp_recv(struct hci_uart *hu
- 			if (*ptr == 0xc0) {
- 				BT_ERR("Short BCSP packet");
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_START;
- 				bcsp->rx_count = 0;
- 			} else
-@@ -621,6 +622,7 @@ static int bcsp_recv(struct hci_uart *hu
- 			    bcsp->rx_skb->data[2])) != bcsp->rx_skb->data[3]) {
- 				BT_ERR("Error in BCSP hdr checksum");
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
- 				bcsp->rx_count = 0;
- 				continue;
-@@ -645,6 +647,7 @@ static int bcsp_recv(struct hci_uart *hu
- 				       bscp_get_crc(bcsp));
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -3261,7 +3261,7 @@ static void transparent_hugepage_adjust(
+ 	 * here.
+ 	 */
+ 	if (!is_error_noslot_pfn(pfn) && !kvm_is_reserved_pfn(pfn) &&
+-	    level == PT_PAGE_TABLE_LEVEL &&
++	    !kvm_is_zone_device_pfn(pfn) && level == PT_PAGE_TABLE_LEVEL &&
+ 	    PageTransCompoundMap(pfn_to_page(pfn)) &&
+ 	    !mmu_gfn_lpage_is_disallowed(vcpu, gfn, PT_DIRECTORY_LEVEL)) {
+ 		unsigned long mask;
+@@ -5709,9 +5709,9 @@ restart:
+ 		 * the guest, and the guest page table is using 4K page size
+ 		 * mapping if the indirect sp has level = 1.
+ 		 */
+-		if (sp->role.direct &&
+-			!kvm_is_reserved_pfn(pfn) &&
+-			PageTransCompoundMap(pfn_to_page(pfn))) {
++		if (sp->role.direct && !kvm_is_reserved_pfn(pfn) &&
++		    !kvm_is_zone_device_pfn(pfn) &&
++		    PageTransCompoundMap(pfn_to_page(pfn))) {
+ 			drop_spte(kvm, sptep);
+ 			need_tlb_flush = 1;
+ 			goto restart;
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -911,6 +911,7 @@ int kvm_cpu_has_pending_timer(struct kvm
+ void kvm_vcpu_kick(struct kvm_vcpu *vcpu);
  
- 				kfree_skb(bcsp->rx_skb);
-+				bcsp->rx_skb = NULL;
- 				bcsp->rx_state = BCSP_W4_PKT_DELIMITER;
- 				bcsp->rx_count = 0;
- 				continue;
+ bool kvm_is_reserved_pfn(kvm_pfn_t pfn);
++bool kvm_is_zone_device_pfn(kvm_pfn_t pfn);
+ 
+ struct kvm_irq_ack_notifier {
+ 	struct hlist_node link;
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -147,10 +147,30 @@ __weak int kvm_arch_mmu_notifier_invalid
+ 	return 0;
+ }
+ 
++bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
++{
++	/*
++	 * The metadata used by is_zone_device_page() to determine whether or
++	 * not a page is ZONE_DEVICE is guaranteed to be valid if and only if
++	 * the device has been pinned, e.g. by get_user_pages().  WARN if the
++	 * page_count() is zero to help detect bad usage of this helper.
++	 */
++	if (!pfn_valid(pfn) || WARN_ON_ONCE(!page_count(pfn_to_page(pfn))))
++		return false;
++
++	return is_zone_device_page(pfn_to_page(pfn));
++}
++
+ bool kvm_is_reserved_pfn(kvm_pfn_t pfn)
+ {
++	/*
++	 * ZONE_DEVICE pages currently set PG_reserved, but from a refcounting
++	 * perspective they are "normal" pages, albeit with slightly different
++	 * usage rules.
++	 */
+ 	if (pfn_valid(pfn))
+-		return PageReserved(pfn_to_page(pfn));
++		return PageReserved(pfn_to_page(pfn)) &&
++		       !kvm_is_zone_device_pfn(pfn);
+ 
+ 	return true;
+ }
+@@ -1727,7 +1747,7 @@ EXPORT_SYMBOL_GPL(kvm_release_pfn_dirty)
+ 
+ void kvm_set_pfn_dirty(kvm_pfn_t pfn)
+ {
+-	if (!kvm_is_reserved_pfn(pfn)) {
++	if (!kvm_is_reserved_pfn(pfn) && !kvm_is_zone_device_pfn(pfn)) {
+ 		struct page *page = pfn_to_page(pfn);
+ 
+ 		if (!PageReserved(page))
+@@ -1738,7 +1758,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
+ 
+ void kvm_set_pfn_accessed(kvm_pfn_t pfn)
+ {
+-	if (!kvm_is_reserved_pfn(pfn))
++	if (!kvm_is_reserved_pfn(pfn) && !kvm_is_zone_device_pfn(pfn))
+ 		mark_page_accessed(pfn_to_page(pfn));
+ }
+ EXPORT_SYMBOL_GPL(kvm_set_pfn_accessed);
 
 
