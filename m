@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AFD510BC6F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:21:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BE310BB94
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732670AbfK0VHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:07:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34186 "EHLO mail.kernel.org"
+        id S1727453AbfK0VN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:13:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732664AbfK0VHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:07:54 -0500
+        id S2387500AbfK0VN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:13:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41AF4217AB;
-        Wed, 27 Nov 2019 21:07:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A70D21556;
+        Wed, 27 Nov 2019 21:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888873;
-        bh=LbTcu3fT1fR+3pBF+m5MvIQGLlUtoffzpz127ClyU+s=;
+        s=default; t=1574889236;
+        bh=edJx2cAHfixmC0zyvlsHBTeDbnwMU/Lbodnd4g+u4rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrhGNOy9mLZieI3GPUbJ5yDF06fHkIlPwQIkrX2PPkQmxl/E4G727PzehaU4ew46n
-         flEo3nGRXJNw2YO0sUWVaaVB8XGG2K7suCcLI+SAzTaX7EpY+neRO7exghATdFVesV
-         SvPdjDVNBnbz5habLflcr8H1yBsxP8GMZBLrD0N8=
+        b=Ys9c11P82Z8aJ5JkZF6AK93QSoUgzAJydb+aOSPjWz0GaNv38x2j8sQ0EWwPQW0Jk
+         oaAQwcxvDheOyVk8tJgpX6KTkLf9z/tX3ShmZifhl8guwuyAU4+RQ2RZcT8zXZ05Nx
+         45HIOtiRy6Rxu2wXsbYlgQpqXoHG1T9FoTqhX/kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernd Porr <mail@berndporr.me.uk>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.19 303/306] staging: comedi: usbduxfast: usbduxfast_ai_cmdtest rounding error
-Date:   Wed, 27 Nov 2019 21:32:33 +0100
-Message-Id: <20191127203136.861195377@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 39/66] futex: Split futex_mm_release() for exit/exec
+Date:   Wed, 27 Nov 2019 21:32:34 +0100
+Message-Id: <20191127202720.161543786@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernd Porr <mail@berndporr.me.uk>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 5618332e5b955b4bff06d0b88146b971c8dd7b32 upstream.
+commit 150d71584b12809144b8145b817e83b81158ae5f upstream.
 
-The userspace comedilib function 'get_cmd_generic_timed' fills
-the cmd structure with an informed guess and then calls the
-function 'usbduxfast_ai_cmdtest' in this driver repeatedly while
-'usbduxfast_ai_cmdtest' is modifying the cmd struct until it
-no longer changes. However, because of rounding errors this never
-converged because 'steps = (cmd->convert_arg * 30) / 1000' and then
-back to 'cmd->convert_arg = (steps * 1000) / 30' won't be the same
-because of rounding errors. 'Steps' should only be converted back to
-the 'convert_arg' if 'steps' has actually been modified. In addition
-the case of steps being 0 wasn't checked which is also now done.
+To allow separate handling of the futex exit state in the futex exit code
+for exit and exec, split futex_mm_release() into two functions and invoke
+them from the corresponding exit/exec_mm_release() callsites.
 
-Signed-off-by: Bernd Porr <mail@berndporr.me.uk>
-Cc: <stable@vger.kernel.org> # 4.4+
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20191118230759.1727-1-mail@berndporr.me.uk
+Preparatory only, no functional change.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20191106224556.332094221@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/usbduxfast.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ include/linux/futex.h |    6 ++++--
+ kernel/fork.c         |    5 ++---
+ kernel/futex.c        |    7 ++++++-
+ 3 files changed, 12 insertions(+), 6 deletions(-)
 
---- a/drivers/staging/comedi/drivers/usbduxfast.c
-+++ b/drivers/staging/comedi/drivers/usbduxfast.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0+
- /*
-- *  Copyright (C) 2004-2014 Bernd Porr, mail@berndporr.me.uk
-+ *  Copyright (C) 2004-2019 Bernd Porr, mail@berndporr.me.uk
-  */
+--- a/include/linux/futex.h
++++ b/include/linux/futex.h
+@@ -93,14 +93,16 @@ static inline void futex_exit_done(struc
+ 	tsk->futex_state = FUTEX_STATE_DEAD;
+ }
  
- /*
-@@ -8,7 +8,7 @@
-  * Description: University of Stirling USB DAQ & INCITE Technology Limited
-  * Devices: [ITL] USB-DUX-FAST (usbduxfast)
-  * Author: Bernd Porr <mail@berndporr.me.uk>
-- * Updated: 10 Oct 2014
-+ * Updated: 16 Nov 2019
-  * Status: stable
-  */
+-void futex_mm_release(struct task_struct *tsk);
++void futex_exit_release(struct task_struct *tsk);
++void futex_exec_release(struct task_struct *tsk);
  
-@@ -22,6 +22,7 @@
-  *
-  *
-  * Revision history:
-+ * 1.0: Fixed a rounding error in usbduxfast_ai_cmdtest
-  * 0.9: Dropping the first data packet which seems to be from the last transfer.
-  *      Buffer overflows in the FX2 are handed over to comedi.
-  * 0.92: Dropping now 4 packets. The quad buffer has to be emptied.
-@@ -350,6 +351,7 @@ static int usbduxfast_ai_cmdtest(struct
- 				 struct comedi_cmd *cmd)
+ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+ 	      u32 __user *uaddr2, u32 val2, u32 val3);
+ #else
+ static inline void futex_init_task(struct task_struct *tsk) { }
+-static inline void futex_mm_release(struct task_struct *tsk) { }
+ static inline void futex_exit_done(struct task_struct *tsk) { }
++static inline void futex_exit_release(struct task_struct *tsk) { }
++static inline void futex_exec_release(struct task_struct *tsk) { }
+ static inline long do_futex(u32 __user *uaddr, int op, u32 val,
+ 			    ktime_t *timeout, u32 __user *uaddr2,
+ 			    u32 val2, u32 val3)
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1285,9 +1285,6 @@ static int wait_for_vfork_done(struct ta
+  */
+ static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
  {
- 	int err = 0;
-+	int err2 = 0;
- 	unsigned int steps;
- 	unsigned int arg;
+-	/* Get rid of any futexes when releasing the mm */
+-	futex_mm_release(tsk);
+-
+ 	uprobe_free_utask(tsk);
  
-@@ -399,11 +401,16 @@ static int usbduxfast_ai_cmdtest(struct
- 	 */
- 	steps = (cmd->convert_arg * 30) / 1000;
- 	if (cmd->chanlist_len !=  1)
--		err |= comedi_check_trigger_arg_min(&steps,
--						    MIN_SAMPLING_PERIOD);
--	err |= comedi_check_trigger_arg_max(&steps, MAX_SAMPLING_PERIOD);
--	arg = (steps * 1000) / 30;
--	err |= comedi_check_trigger_arg_is(&cmd->convert_arg, arg);
-+		err2 |= comedi_check_trigger_arg_min(&steps,
-+						     MIN_SAMPLING_PERIOD);
-+	else
-+		err2 |= comedi_check_trigger_arg_min(&steps, 1);
-+	err2 |= comedi_check_trigger_arg_max(&steps, MAX_SAMPLING_PERIOD);
-+	if (err2) {
-+		err |= err2;
-+		arg = (steps * 1000) / 30;
-+		err |= comedi_check_trigger_arg_is(&cmd->convert_arg, arg);
-+	}
+ 	/* Get rid of any cached register state */
+@@ -1322,11 +1319,13 @@ static void mm_release(struct task_struc
  
- 	if (cmd->stop_src == TRIG_COUNT)
- 		err |= comedi_check_trigger_arg_min(&cmd->stop_arg, 1);
+ void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
+ {
++	futex_exit_release(tsk);
+ 	mm_release(tsk, mm);
+ }
+ 
+ void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
+ {
++	futex_exec_release(tsk);
+ 	mm_release(tsk, mm);
+ }
+ 
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3661,7 +3661,7 @@ static void exit_robust_list(struct task
+ 	}
+ }
+ 
+-void futex_mm_release(struct task_struct *tsk)
++void futex_exec_release(struct task_struct *tsk)
+ {
+ 	if (unlikely(tsk->robust_list)) {
+ 		exit_robust_list(tsk);
+@@ -3679,6 +3679,11 @@ void futex_mm_release(struct task_struct
+ 		exit_pi_state_list(tsk);
+ }
+ 
++void futex_exit_release(struct task_struct *tsk)
++{
++	futex_exec_release(tsk);
++}
++
+ long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
+ 		u32 __user *uaddr2, u32 val2, u32 val3)
+ {
 
 
