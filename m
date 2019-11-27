@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD07A10B85C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:42:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87AF210B7F7
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728868AbfK0Umm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:42:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49320 "EHLO mail.kernel.org"
+        id S1727908AbfK0Uie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:38:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728909AbfK0Umm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:42:42 -0500
+        id S1727073AbfK0Uid (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:38:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4895921781;
-        Wed, 27 Nov 2019 20:42:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD82D216F4;
+        Wed, 27 Nov 2019 20:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887361;
-        bh=QI1gw+r06sE5VELa9ZX/A+y3EYDXLyXaTUSzj6BhIYo=;
+        s=default; t=1574887113;
+        bh=38cFfSRhgYWumSAWefucCnUybSTkCpovcGLVhPczBAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twf156mL1cZR8pKqWED/xPRhuuw/mIR23DO6xr4OD4vtKPyrXJufzgdKXTOSsbLsE
-         z7yTmYa1LWL8rMtNLn9PbYcZAAlv5QoFhO2jhiHjvR/fOprXx/o+OPGNarinjXQn8/
-         7KVij7Qz5hgjl5Zi/7vjTzlqbH4Zu70T03hIzUVU=
+        b=S8wLL4DxlqHHWtqElMActsRoSd4bGSOQ0zGkA3kBLDkHRHkJ5FQmhjX3Wq01blflt
+         edsYk234tZzOoSx9VzJb7MJHrZPHfDS6aXdw8VsRREPFPQiciAo5VdLiXJeO3IVMPL
+         IA021qCDjeYoecxhhU62ue+EQJ/qOpElOcQtzxs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gerd W. Haeussler" <gerd.haeussler@cesys-it.com>,
-        Jon Mason <jdmason@kudzu.us>,
-        Dave Jiang <dave.jiang@intel.com>,
+        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
+        Lucas Van <lucas.van@intel.com>, Jon Mason <jdmason@kudzu.us>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 082/151] ntb_netdev: fix sleep time mismatch
-Date:   Wed, 27 Nov 2019 21:31:05 +0100
-Message-Id: <20191127203036.065261269@linuxfoundation.org>
+Subject: [PATCH 4.4 075/132] ntb: intel: fix return value for ndev_vec_mask()
+Date:   Wed, 27 Nov 2019 21:31:06 +0100
+Message-Id: <20191127203008.989261544@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Mason <jdmason@kudzu.us>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit a861594b1b7ffd630f335b351c4e9f938feadb8e ]
+[ Upstream commit 7756e2b5d68c36e170a111dceea22f7365f83256 ]
 
-The tx_time should be in usecs (according to the comment above the
-variable), but the setting of the timer during the rearming is done in
-msecs.  Change it to match the expected units.
+ndev_vec_mask() should be returning u64 mask value instead of int.
+Otherwise the mask value returned can be incorrect for larger
+vectors.
 
-Fixes: e74bfeedad08 ("NTB: Add flow control to the ntb_netdev")
-Suggested-by: Gerd W. Haeussler <gerd.haeussler@cesys-it.com>
+Fixes: e26a5843f7f5 ("NTB: Split ntb_hw_intel and ntb_transport drivers")
+
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Tested-by: Lucas Van <lucas.van@intel.com>
 Signed-off-by: Jon Mason <jdmason@kudzu.us>
-Acked-by: Dave Jiang <dave.jiang@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ntb_netdev.c | 2 +-
+ drivers/ntb/hw/intel/ntb_hw_intel.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
-index a9acf71568555..03009f1becddc 100644
---- a/drivers/net/ntb_netdev.c
-+++ b/drivers/net/ntb_netdev.c
-@@ -236,7 +236,7 @@ static void ntb_netdev_tx_timer(unsigned long data)
- 	struct ntb_netdev *dev = netdev_priv(ndev);
+diff --git a/drivers/ntb/hw/intel/ntb_hw_intel.c b/drivers/ntb/hw/intel/ntb_hw_intel.c
+index a198f82982582..2898b39c065e3 100644
+--- a/drivers/ntb/hw/intel/ntb_hw_intel.c
++++ b/drivers/ntb/hw/intel/ntb_hw_intel.c
+@@ -330,7 +330,7 @@ static inline int ndev_db_clear_mask(struct intel_ntb_dev *ndev, u64 db_bits,
+ 	return 0;
+ }
  
- 	if (ntb_transport_tx_free_entry(dev->qp) < tx_stop) {
--		mod_timer(&dev->tx_timer, jiffies + msecs_to_jiffies(tx_time));
-+		mod_timer(&dev->tx_timer, jiffies + usecs_to_jiffies(tx_time));
- 	} else {
- 		/* Make sure anybody stopping the queue after this sees the new
- 		 * value of ntb_transport_tx_free_entry()
+-static inline int ndev_vec_mask(struct intel_ntb_dev *ndev, int db_vector)
++static inline u64 ndev_vec_mask(struct intel_ntb_dev *ndev, int db_vector)
+ {
+ 	u64 shift, mask;
+ 
 -- 
 2.20.1
 
