@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A64AF10BBE1
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 312C710BC19
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:18:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732797AbfK0VQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:16:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46708 "EHLO mail.kernel.org"
+        id S1727050AbfK0VSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:18:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732784AbfK0VNx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:13:53 -0500
+        id S1728335AbfK0VLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:11:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A67321741;
-        Wed, 27 Nov 2019 21:13:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63D952086A;
+        Wed, 27 Nov 2019 21:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889233;
-        bh=YLyGdyG2GbF2+WCjoHDmiZSalR1OSon7kNEebSIaPzA=;
+        s=default; t=1574889083;
+        bh=IZD60WKOoIIwQZ0XlG9VB+VgoMwu1UzQuNA7TjHizyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmhuvF6XYW46HzCTHKf76Sj+6RSY6ETZWYgLCmZs/DSb9MfjrECgqyL6WuzLqaTym
-         Y1hrUOzuRTjFtCeBNLBKONiD5BMkbg7BboWXIgqx1AqgnyH7+K2Nly67io7ISXlHCT
-         n6S8jXj0sVc29goYNiSH5cSt2OImsOPSeNvtdYr0=
+        b=pvMIPncckvPJeTcBds/zi81bKDNKVqgWoFrdsDYN9T6bq0km4GgnPJTY7K1ItboaQ
+         xuriVPxZn3o4Vb77Pqo1uQ9ZF2z0T8LX7dotnj4zjvM0/P+YYFfo1Z3g1O5xQjExug
+         unLv46ZIYiDBFPO754/GVKy/icFLowhldzDVTUbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 38/66] exit/exec: Seperate mm_release()
+        stable@vger.kernel.org,
+        syzbot+d93dff37e6a89431c158@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.3 76/95] media: b2c2-flexcop-usb: add sanity checking
 Date:   Wed, 27 Nov 2019 21:32:33 +0100
-Message-Id: <20191127202718.958636413@linuxfoundation.org>
+Message-Id: <20191127202943.105318630@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 4610ba7ad877fafc0a25a30c6c82015304120426 upstream.
+commit 1b976fc6d684e3282914cdbe7a8d68fdce19095c upstream.
 
-mm_release() contains the futex exit handling. mm_release() is called from
-do_exit()->exit_mm() and from exec()->exec_mm().
+The driver needs an isochronous endpoint to be present. It will
+oops in its absence. Add checking for it.
 
-In the exit_mm() case PF_EXITING and the futex state is updated. In the
-exec_mm() case these states are not touched.
-
-As the futex exit code needs further protections against exit races, this
-needs to be split into two functions.
-
-Preparatory only, no functional change.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.240518241@linutronix.de
+Reported-by: syzbot+d93dff37e6a89431c158@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/exec.c                |    2 +-
- include/linux/sched/mm.h |    6 ++++--
- kernel/exit.c            |    2 +-
- kernel/fork.c            |   12 +++++++++++-
- 4 files changed, 17 insertions(+), 5 deletions(-)
+ drivers/media/usb/b2c2/flexcop-usb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1015,7 +1015,7 @@ static int exec_mmap(struct mm_struct *m
- 	/* Notify parent that we're no longer interested in the old VM */
- 	tsk = current;
- 	old_mm = current->mm;
--	mm_release(tsk, old_mm);
-+	exec_mm_release(tsk, old_mm);
+--- a/drivers/media/usb/b2c2/flexcop-usb.c
++++ b/drivers/media/usb/b2c2/flexcop-usb.c
+@@ -538,6 +538,9 @@ static int flexcop_usb_probe(struct usb_
+ 	struct flexcop_device *fc = NULL;
+ 	int ret;
  
- 	if (old_mm) {
- 		sync_mm_rss(old_mm);
---- a/include/linux/sched/mm.h
-+++ b/include/linux/sched/mm.h
-@@ -117,8 +117,10 @@ extern struct mm_struct *get_task_mm(str
-  * succeeds.
-  */
- extern struct mm_struct *mm_access(struct task_struct *task, unsigned int mode);
--/* Remove the current tasks stale references to the old mm_struct */
--extern void mm_release(struct task_struct *, struct mm_struct *);
-+/* Remove the current tasks stale references to the old mm_struct on exit() */
-+extern void exit_mm_release(struct task_struct *, struct mm_struct *);
-+/* Remove the current tasks stale references to the old mm_struct on exec() */
-+extern void exec_mm_release(struct task_struct *, struct mm_struct *);
- 
- #ifdef CONFIG_MEMCG
- extern void mm_update_next_owner(struct mm_struct *mm);
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -437,7 +437,7 @@ static void exit_mm(void)
- 	struct mm_struct *mm = current->mm;
- 	struct core_state *core_state;
- 
--	mm_release(current, mm);
-+	exit_mm_release(current, mm);
- 	if (!mm)
- 		return;
- 	sync_mm_rss(mm);
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1283,7 +1283,7 @@ static int wait_for_vfork_done(struct ta
-  * restoring the old one. . .
-  * Eric Biederman 10 January 1998
-  */
--void mm_release(struct task_struct *tsk, struct mm_struct *mm)
-+static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
- 	/* Get rid of any futexes when releasing the mm */
- 	futex_mm_release(tsk);
-@@ -1320,6 +1320,16 @@ void mm_release(struct task_struct *tsk,
- 		complete_vfork_done(tsk);
- }
- 
-+void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
-+{
-+	mm_release(tsk, mm);
-+}
++	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
++		return -ENODEV;
 +
-+void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
-+{
-+	mm_release(tsk, mm);
-+}
-+
- /**
-  * dup_mm() - duplicates an existing mm structure
-  * @tsk: the task_struct with which the new mm will be associated.
+ 	if ((fc = flexcop_device_kmalloc(sizeof(struct flexcop_usb))) == NULL) {
+ 		err("out of memory\n");
+ 		return -ENOMEM;
 
 
