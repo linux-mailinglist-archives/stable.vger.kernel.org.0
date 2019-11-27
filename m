@@ -2,137 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFCF410AB13
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:22:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4846910AB14
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:22:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726135AbfK0HWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 02:22:23 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:54179 "EHLO
+        id S1726515AbfK0HW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 02:22:29 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54386 "EHLO
         mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726470AbfK0HWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:22:22 -0500
-Received: by mail-wm1-f68.google.com with SMTP id u18so5869339wmc.3
-        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 23:22:21 -0800 (PST)
+        with ESMTP id S1726470AbfK0HW3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:22:29 -0500
+Received: by mail-wm1-f68.google.com with SMTP id b11so5858694wmj.4
+        for <stable@vger.kernel.org>; Tue, 26 Nov 2019 23:22:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=r5yCXFnVpf/+wFjhIjRathmPjXVlRdSy5MUPHiScEF8=;
-        b=uH37JdLCjAnhXqYT/mFI0z3Q/TLAtQ5Tr1RQ4QrhTtGQ73VNJRaCQ+OUiyrZAio9xh
-         jWu7SeBFGyIE+2kRA2AZuevUGobmyCepOzTSpELv2OzKGU4prqRJo51GjI/AWoG+EJK0
-         oUpbFgxOSBy8IvMdR941BQ5QeaZIILToJGbwoPjTGrE3ExrLnduSBFKxnvQ3nVnS6wiN
-         bJO2QPhBIGmYgxR15AlhmTGbtpw9c/dd1f2/EL+GSq3rXZV+ff87sodEUk2V01Yptt8W
-         SDA5feLV72W+Xagpe12/8JXP8a55JfgBKXwFfue8cHXfqWk9SiTlCtcZ42zymoPMgZnb
-         OcQw==
+        bh=HKmKV2QnHf6L1Be1GDSF8wA+iVwfLA2DutY1g50TZSQ=;
+        b=NBlVlsL97KGwwCAPQ7DAncBZNY0kxh+nt1m9SZ3ouwiA9cTnV4WQZvIEqNi4S6G12G
+         U3OoSyyO0eXoLoaNz5ZdeCxjRsA8TWTZS22tg455uHWbXVKvfYIvunULQLVbPdbXWElO
+         8XG20hKxle6bKhWPozxzo5PUgMy+QwJfYwL8QDWzm9J/1OaCh3xp8Z47cbYv0BfXrqOc
+         QlN0IbMg4cskZDgVzli54sU7eMexwYRrqowUkine3lZCl8ErPc/pDmFtoJ2G/BLYnbDQ
+         12rl+XRq1hukXfrJFtFdpPuAFsGRFNU1XepjK2/t/zNNlJ0dV3wXndkA6mE6r4sPp7fZ
+         fPYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=r5yCXFnVpf/+wFjhIjRathmPjXVlRdSy5MUPHiScEF8=;
-        b=IHCHBYKzOoC+oLyKsfTcz8jKFH5qFnPKneQw32If1Py951h2Eqm7/u/Gxsg3fmVQvP
-         bbrfY+pJNuC4ufMRyIMkitD79Ca4VsU0RWXO8bqlmLhcdnTPcc9B556cKyekGbpmG9EN
-         dRZ1NUiBkdgf/P8lQQx8+tv0DwME7YdqIadsrDHaSe644cL53aWfeC+77C+TnMBd+/fC
-         i21VSXg9TUAG3zREWVZjk9ax8E10rNLJj8PhLaAK+By7VFa3oEPjijgFYJHMNp18yCMk
-         SLoOAdLSjuexPBXLivAZPrNYxguralYeGFcliBZVHVjscz/FEmREFNNPjyeZXuxATiw/
-         plxA==
-X-Gm-Message-State: APjAAAWeVcq1LQ5zl4wFiiLKRT7+K2aC7xMCYj5zKci4Otzqv13LC0FA
-        a8M9zQahL6e3FEJy2X0zoSlhXdGJGLs=
-X-Google-Smtp-Source: APXvYqxxJBEWknIFSUBDHSb87ZSVcq0NkNApYnqbAkv7Z4d38inISsHcliJC9XBk/mBkGrqiNoUA4Q==
-X-Received: by 2002:a05:600c:a:: with SMTP id g10mr2821003wmc.69.1574839340590;
-        Tue, 26 Nov 2019 23:22:20 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HKmKV2QnHf6L1Be1GDSF8wA+iVwfLA2DutY1g50TZSQ=;
+        b=r6HbwbX84hzlbpFjYRwvu/toi9MJNELVXgH0wi0wwA2mxrVYLwfGk4DkT0z5O3k0B+
+         OsnRe9/SHkmOBpg+epmGwiUkme0nxO/hkL0/yJQ++2wfgcSRrkhtWkzclEMmOQG45ZH9
+         1XQXjjpAmFhV2hyq3itfWNbdiF0zSyvtDydD+rh5D01cSgg5h/fOoeQ+dYrr9S7asBOg
+         upA121JK8ZSARC1K6hUf2Ts3AZ59qciGE6N7zOMkMToDlvLK+awurxM90hUxh7q5WLOr
+         78rz3qOCnmX/6DGLwsCP64o+dpf92flFxQNG7QJ+tKuN9QJL99WkngW2BetgLrk3vEZA
+         tG7w==
+X-Gm-Message-State: APjAAAV/w7fufguzTbpe3SiAmTJZ4ilN4RBwhmuLNuCjYZONtv30AxED
+        UEXLYLFaPKFjaNz7743hOMW4dvbldlw=
+X-Google-Smtp-Source: APXvYqw9iq7JdTs1DemHX/azd2GmeRDLwvfLxT58cenigi8f0fCS5Svzy8k3+OIvYpqctGeDNbxlTg==
+X-Received: by 2002:a1c:7f94:: with SMTP id a142mr2644622wmd.33.1574839346273;
+        Tue, 26 Nov 2019 23:22:26 -0800 (PST)
 Received: from localhost.localdomain ([95.149.164.101])
-        by smtp.gmail.com with ESMTPSA id d20sm19406915wra.4.2019.11.26.23.22.19
+        by smtp.gmail.com with ESMTPSA id c193sm5986641wma.8.2019.11.26.23.22.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Nov 2019 23:22:19 -0800 (PST)
+        Tue, 26 Nov 2019 23:22:25 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 5/5] ocfs2: remove ocfs2_is_o2cb_active()
-Date:   Wed, 27 Nov 2019 07:22:02 +0000
-Message-Id: <20191127072202.30625-5-lee.jones@linaro.org>
+Subject: [PATCH 4.19 1/3] ARM: 8904/1: skip nomap memblocks while finding the lowmem/highmem boundary
+Date:   Wed, 27 Nov 2019 07:22:08 +0000
+Message-Id: <20191127072210.30715-1-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127072202.30625-1-lee.jones@linaro.org>
-References: <20191127072202.30625-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gang He <ghe@suse.com>
+From: Chester Lin <clin@suse.com>
 
-[ Upstream commit a634644751c46238df58bbfe992e30c1668388db ]
+[ Upstream commit 1d31999cf04c21709f72ceb17e65b54a401330da ]
 
-Remove ocfs2_is_o2cb_active().  We have similar functions to identify
-which cluster stack is being used via osb->osb_cluster_stack.
+adjust_lowmem_bounds() checks every memblocks in order to find the boundary
+between lowmem and highmem. However some memblocks could be marked as NOMAP
+so they are not used by kernel, which should be skipped while calculating
+the boundary.
 
-Secondly, the current implementation of ocfs2_is_o2cb_active() is not
-totally safe.  Based on the design of stackglue, we need to get
-ocfs2_stack_lock before using ocfs2_stack related data structures, and
-that active_stack pointer can be NULL in the case of mount failure.
-
-Link: http://lkml.kernel.org/r/1495441079-11708-1-git-send-email-ghe@suse.com
-Signed-off-by: Gang He <ghe@suse.com>
-Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
-Reviewed-by: Eric Ren <zren@suse.com>
-Acked-by: Changwei Ge <ge.changwei@h3c.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Chester Lin <clin@suse.com>
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- fs/ocfs2/dlmglue.c   | 2 +-
- fs/ocfs2/stackglue.c | 6 ------
- fs/ocfs2/stackglue.h | 3 ---
- 3 files changed, 1 insertion(+), 10 deletions(-)
+ arch/arm/mm/mmu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
-index 5193218f5889..e961015fb484 100644
---- a/fs/ocfs2/dlmglue.c
-+++ b/fs/ocfs2/dlmglue.c
-@@ -3422,7 +3422,7 @@ static int ocfs2_downconvert_lock(struct ocfs2_super *osb,
- 	 * we can recover correctly from node failure. Otherwise, we may get
- 	 * invalid LVB in LKB, but without DLM_SBF_VALNOTVALID being set.
- 	 */
--	if (!ocfs2_is_o2cb_active() &&
-+	if (ocfs2_userspace_stack(osb) &&
- 	    lockres->l_ops->flags & LOCK_TYPE_USES_LVB)
- 		lvb = 1;
+diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+index 70e560cf8ca0..d8cbe772f690 100644
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -1195,6 +1195,9 @@ void __init adjust_lowmem_bounds(void)
+ 		phys_addr_t block_start = reg->base;
+ 		phys_addr_t block_end = reg->base + reg->size;
  
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index d6c350ba25b9..c4b029c43464 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -48,12 +48,6 @@ static char ocfs2_hb_ctl_path[OCFS2_MAX_HB_CTL_PATH] = "/sbin/ocfs2_hb_ctl";
-  */
- static struct ocfs2_stack_plugin *active_stack;
- 
--inline int ocfs2_is_o2cb_active(void)
--{
--	return !strcmp(active_stack->sp_name, OCFS2_STACK_PLUGIN_O2CB);
--}
--EXPORT_SYMBOL_GPL(ocfs2_is_o2cb_active);
--
- static struct ocfs2_stack_plugin *ocfs2_stack_lookup(const char *name)
- {
- 	struct ocfs2_stack_plugin *p;
-diff --git a/fs/ocfs2/stackglue.h b/fs/ocfs2/stackglue.h
-index e3036e1790e8..f2dce10fae54 100644
---- a/fs/ocfs2/stackglue.h
-+++ b/fs/ocfs2/stackglue.h
-@@ -298,9 +298,6 @@ void ocfs2_stack_glue_set_max_proto_version(struct ocfs2_protocol_version *max_p
- int ocfs2_stack_glue_register(struct ocfs2_stack_plugin *plugin);
- void ocfs2_stack_glue_unregister(struct ocfs2_stack_plugin *plugin);
- 
--/* In ocfs2_downconvert_lock(), we need to know which stack we are using */
--int ocfs2_is_o2cb_active(void);
--
- extern struct kset *ocfs2_kset;
- 
- #endif  /* STACKGLUE_H */
++		if (memblock_is_nomap(reg))
++			continue;
++
+ 		if (reg->base < vmalloc_limit) {
+ 			if (block_end > lowmem_limit)
+ 				/*
 -- 
 2.24.0
 
