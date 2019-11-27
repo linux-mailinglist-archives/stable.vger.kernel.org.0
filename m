@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9377E10B9BD
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E494210B9D8
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730043AbfK0U4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:56:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47150 "EHLO mail.kernel.org"
+        id S1731168AbfK0U5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:57:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730622AbfK0U4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:56:21 -0500
+        id S1731165AbfK0U5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:57:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D297C2084D;
-        Wed, 27 Nov 2019 20:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 265102084D;
+        Wed, 27 Nov 2019 20:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888180;
-        bh=kKlqWjgPTrgbDPomLTOmv0jHODoLL4eChQ1eMqesnz8=;
+        s=default; t=1574888235;
+        bh=2tfT+JNrdVWZ+oMRcmgZUtHbBrEltXM0CPEOcEo0S8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IO4W23BGdeY+UBi41IJK7yptApcQykFqMCm9ouLqhl0QRCucMwjJ5oGzIQavNRCdv
-         90+HSmpqUkLpCveb8RcAjXP2HnPKjxLUsJD4oBOG8rfrdDy2EGIXUPecZPbyCc/S0h
-         i+WVOftVYCk+z1mMxh4mbExd0NhbQ/V/WT0s4XKc=
+        b=LJgBCY77HGP9bXTN45g+s93V4pMECjuF0jogJF371dcLcHlv2TUL0EuHSww6uB6lO
+         UG9VX4EASi7pkixuUKPtDCBmFFbKCqMPBdYETWVqVO1Q26IL2xQZ3JiUC7gtIRSvjI
+         6cpT4IUS+sq71WN+yXzmpQld120XIpJlwQy09W2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
-        Vlad Buslov <vladbu@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.19 008/306] net/mlx5e: Fix set vf link state error flow
-Date:   Wed, 27 Nov 2019 21:27:38 +0100
-Message-Id: <20191127203115.345737672@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Mike Christie <mchristi@redhat.com>,
+        Sun Ke <sunke32@huawei.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 014/306] nbd:fix memory leak in nbd_get_socket()
+Date:   Wed, 27 Nov 2019 21:27:44 +0100
+Message-Id: <20191127203115.750394671@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,32 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@mellanox.com>
+From: Sun Ke <sunke32@huawei.com>
 
-[ Upstream commit 751021218f7e66ee9bbaa2be23056e447cd75ec4 ]
+commit dff10bbea4be47bdb615b036c834a275b7c68133 upstream.
 
-Before this commit the ndo always returned success.
-Fix that.
+Before returning NULL, put the sock first.
 
-Fixes: 1ab2068a4c66 ("net/mlx5: Implement vports admin state backup/restore")
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Vlad Buslov <vladbu@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Cc: stable@vger.kernel.org
+Fixes: cf1b2326b734 ("nbd: verify socket is supported during setup")
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Sun Ke <sunke32@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -1861,7 +1861,7 @@ int mlx5_eswitch_set_vport_state(struct
+---
+ drivers/block/nbd.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -945,6 +945,7 @@ static struct socket *nbd_get_socket(str
+ 	if (sock->ops->shutdown == sock_no_shutdown) {
+ 		dev_err(disk_to_dev(nbd->disk), "Unsupported socket: shutdown callout must be supported.\n");
+ 		*err = -EINVAL;
++		sockfd_put(sock);
+ 		return NULL;
+ 	}
  
- unlock:
- 	mutex_unlock(&esw->state_lock);
--	return 0;
-+	return err;
- }
- 
- int mlx5_eswitch_get_vport_config(struct mlx5_eswitch *esw,
 
 
