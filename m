@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB3710BAA9
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E60A010BB07
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732275AbfK0VF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:05:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59132 "EHLO mail.kernel.org"
+        id S1727579AbfK0VIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:08:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731685AbfK0VFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:05:25 -0500
+        id S1732805AbfK0VIw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:08:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AA5120637;
-        Wed, 27 Nov 2019 21:05:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E70092154A;
+        Wed, 27 Nov 2019 21:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888724;
-        bh=joWvDbyWmwlaBdQTIKjS8/wZr1JeRCpZe/Ec4J4cdhA=;
+        s=default; t=1574888931;
+        bh=rf5bjiNK4RmwS7yA3hm0aVHNlwwrZDILECWu2L2WWfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nB2OjEMctbHRgmTCKLaFO/UfUEF2zwocfMAUEHdCvZPUnMLQ/GzqX+dpQYbly6S12
-         cNoskCFFqU2zYhUCLs5dyicFnlljFZ+md8xvRSVxP7iGBsIitUN+eu0e6V3EWAQHne
-         9uvKEH8+V1b9v0K1aqntFUz6X9nuRfU/46FOgCQk=
+        b=hvruRD8/YEGYpXRob+u8wQhigZ71uYmO0Asw+72/B2PRu5adtxN4PxsYNupTXXyb9
+         ujfyIKEz5EUxfht3Ygb7lsUPUBQqrn33GYNbZ69pS/jsYwqOWrMOvxprZmC/2wXMIP
+         GZd+cJ+Rru1KG7+BnMLlU3ICuOSBJXqjabG32Z9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 246/306] pinctrl: lpc18xx: Use define directive for PIN_CONFIG_GPIO_PIN_INT
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Thierry Reding <treding@nvidia.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.3 19/95] gpio: max77620: Fixup debounce delays
 Date:   Wed, 27 Nov 2019 21:31:36 +0100
-Message-Id: <20191127203132.906140110@linuxfoundation.org>
+Message-Id: <20191127202850.399983484@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit f24bfb39975c241374cadebbd037c17960cf1412 ]
+commit b0391479ae04dfcbd208b9571c375064caad9a57 upstream.
 
-Clang warns when one enumerated type is implicitly converted to another:
+When converting milliseconds to microseconds in commit fffa6af94894
+("gpio: max77620: Use correct unit for debounce times") some ~1 ms gaps
+were introduced between the various ranges supported by the controller.
+Fix this by changing the start of each range to the value immediately
+following the end of the previous range. This way a debounce time of,
+say 8250 us will translate into 16 ms instead of returning an -EINVAL
+error.
 
-drivers/pinctrl/pinctrl-lpc18xx.c:643:29: warning: implicit conversion
-from enumeration type 'enum lpc18xx_pin_config_param' to different
-enumeration type 'enum pin_config_param' [-Wenum-conversion]
-        {"nxp,gpio-pin-interrupt", PIN_CONFIG_GPIO_PIN_INT, 0},
-        ~                          ^~~~~~~~~~~~~~~~~~~~~~~
-drivers/pinctrl/pinctrl-lpc18xx.c:648:12: warning: implicit conversion
-from enumeration type 'enum lpc18xx_pin_config_param' to different
-enumeration type 'enum pin_config_param' [-Wenum-conversion]
-        PCONFDUMP(PIN_CONFIG_GPIO_PIN_INT, "gpio pin int", NULL, true),
-        ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
-macro 'PCONFDUMP'
-        .param = a, .display = b, .format = c, .has_arg = d     \
-                 ^
-2 warnings generated.
+Typically the debounce delay is only ever set through device tree and
+specified in milliseconds, so we can never really hit this issue because
+debounce times are always a multiple of 1000 us.
 
-It is expected that pinctrl drivers can extend pin_config_param because
-of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
-isn't an issue. Most drivers that take advantage of this define the
-PIN_CONFIG variables as constants, rather than enumerated values. Do the
-same thing here so that Clang no longer warns.
+The only notable exception for this is drivers/mmc/host/mmc-spi.c where
+the CD GPIO is requested, which passes a 1 us debounce time. According
+to a comment preceeding that code this should actually be 1 ms (i.e.
+1000 us).
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/140
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Acked-by: Pavel Machek <pavel@denx.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pinctrl/pinctrl-lpc18xx.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/gpio/gpio-max77620.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-lpc18xx.c b/drivers/pinctrl/pinctrl-lpc18xx.c
-index 190f17e4bbdaf..1d3b88e6ab862 100644
---- a/drivers/pinctrl/pinctrl-lpc18xx.c
-+++ b/drivers/pinctrl/pinctrl-lpc18xx.c
-@@ -630,14 +630,8 @@ static const struct pinctrl_pin_desc lpc18xx_pins[] = {
- 	LPC18XX_PIN(i2c0_sda, PIN_I2C0_SDA),
- };
- 
--/**
-- * enum lpc18xx_pin_config_param - possible pin configuration parameters
-- * @PIN_CONFIG_GPIO_PIN_INT: route gpio to the gpio pin interrupt
-- * 	controller.
-- */
--enum lpc18xx_pin_config_param {
--	PIN_CONFIG_GPIO_PIN_INT = PIN_CONFIG_END + 1,
--};
-+/* PIN_CONFIG_GPIO_PIN_INT: route gpio to the gpio pin interrupt controller */
-+#define PIN_CONFIG_GPIO_PIN_INT		(PIN_CONFIG_END + 1)
- 
- static const struct pinconf_generic_params lpc18xx_params[] = {
- 	{"nxp,gpio-pin-interrupt", PIN_CONFIG_GPIO_PIN_INT, 0},
--- 
-2.20.1
-
+--- a/drivers/gpio/gpio-max77620.c
++++ b/drivers/gpio/gpio-max77620.c
+@@ -192,13 +192,13 @@ static int max77620_gpio_set_debounce(st
+ 	case 0:
+ 		val = MAX77620_CNFG_GPIO_DBNC_None;
+ 		break;
+-	case 1000 ... 8000:
++	case 1 ... 8000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_8ms;
+ 		break;
+-	case 9000 ... 16000:
++	case 8001 ... 16000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_16ms;
+ 		break;
+-	case 17000 ... 32000:
++	case 16001 ... 32000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_32ms;
+ 		break;
+ 	default:
 
 
