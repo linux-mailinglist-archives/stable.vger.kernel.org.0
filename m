@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D3510BF0A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 550A210BDD2
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728321AbfK0VkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:40:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50214 "EHLO mail.kernel.org"
+        id S1730745AbfK0Uxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:53:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729393AbfK0UnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:04 -0500
+        id S1728292AbfK0Uxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:53:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFFAC21780;
-        Wed, 27 Nov 2019 20:43:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AC7221929;
+        Wed, 27 Nov 2019 20:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887384;
-        bh=eGI2FMmDfPDYoCg1ZCjAMD3yPyrwIpkZXMOAqPWr9GM=;
+        s=default; t=1574888013;
+        bh=zwqFsR5FTsY0QpvqPh8rX5XlnQ914OsYn3y5BaG5MiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpJ8WfDHFhCskkCmPgTe/JLhUch6kDtW3FJn7pNty+KvYjIn1eXy82OrsR2puk5v/
-         y3EkiPqL7OrrWeuPVWNLE7DzLuEWWGVxBqYQhIKW6ifADElhQnadd3hG4KRFGwM4qw
-         fuD8QgNy2BrgIrF4sAibrT+8LRUI7Z5UjK8wqqXI=
+        b=iOvli7FHbh73pfXH/LPV0eON1si7WAWTxd9eikkKq9KNLuiGsYIeVCoN6oOrrt0AP
+         MatKlgoE+oeV0NRTd21gh8ZT7O8yY6uScMec6FG9v3a5k7VLHNcZXj9ZclXuCYV7M4
+         r8Gqj2cEYJi+3HlUDuR3qgmSwUljmmaBtL1ywMvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 090/151] wlcore: Fix the return value in case of error in wlcore_vendor_cmd_smart_config_start()
-Date:   Wed, 27 Nov 2019 21:31:13 +0100
-Message-Id: <20191127203037.138316584@linuxfoundation.org>
+Subject: [PATCH 4.14 141/211] scsi: mpt3sas: Dont modify EEDPTagMode field setting on SAS3.5 HBA devices
+Date:   Wed, 27 Nov 2019 21:31:14 +0100
+Message-Id: <20191127203107.327671467@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit 3419348a97bcc256238101129d69b600ceb5cc70 ]
+[ Upstream commit 6cd1bc7b9b5075d395ba0120923903873fc7ea0e ]
 
-We return 0 unconditionally at the end of
-'wlcore_vendor_cmd_smart_config_start()'.
-However, 'ret' is set to some error codes in several error handling paths
-and we already return some error codes at the beginning of the function.
+If EEDPTagMode field in manufacturing page11 is set then unset it. This is
+needed to fix a hardware bug only in SAS3/SAS2 cards. So, skipping
+EEDPTagMode changes in Manufacturing page11 for SAS 3.5 controllers.
 
-Return 'ret' instead to propagate the error code.
-
-Fixes: 80ff8063e87c ("wlcore: handle smart config vendor commands")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ti/wlcore/vendor_cmd.c | 2 +-
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ti/wlcore/vendor_cmd.c b/drivers/net/wireless/ti/wlcore/vendor_cmd.c
-index fd4e9ba176c9b..332a3a5c1c900 100644
---- a/drivers/net/wireless/ti/wlcore/vendor_cmd.c
-+++ b/drivers/net/wireless/ti/wlcore/vendor_cmd.c
-@@ -66,7 +66,7 @@ wlcore_vendor_cmd_smart_config_start(struct wiphy *wiphy,
- out:
- 	mutex_unlock(&wl->mutex);
- 
--	return 0;
-+	return ret;
- }
- 
- static int
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 7bfe53f48d1d4..817a7963a038b 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -3140,7 +3140,7 @@ _base_static_config_pages(struct MPT3SAS_ADAPTER *ioc)
+ 	 * flag unset in NVDATA.
+ 	 */
+ 	mpt3sas_config_get_manufacturing_pg11(ioc, &mpi_reply, &ioc->manu_pg11);
+-	if (ioc->manu_pg11.EEDPTagMode == 0) {
++	if (!ioc->is_gen35_ioc && ioc->manu_pg11.EEDPTagMode == 0) {
+ 		pr_err("%s: overriding NVDATA EEDPTagMode setting\n",
+ 		    ioc->name);
+ 		ioc->manu_pg11.EEDPTagMode &= ~0x3;
 -- 
 2.20.1
 
