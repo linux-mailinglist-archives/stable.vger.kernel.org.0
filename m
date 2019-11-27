@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F9D10BE51
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 468E110BF7A
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729096AbfK0VfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:35:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35314 "EHLO mail.kernel.org"
+        id S1728352AbfK0Ugk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:36:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729838AbfK0Utk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:49:40 -0500
+        id S1728287AbfK0Ugk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:36:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1114E21787;
-        Wed, 27 Nov 2019 20:49:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D64A6215A4;
+        Wed, 27 Nov 2019 20:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887779;
-        bh=7Zb84RMymvrQrGc5whayYZnaI5yyN4gn14MocjTCebU=;
+        s=default; t=1574886999;
+        bh=kFJth200sPmtszgT2RYC2hQ65ZwtwIBT34N2U7ZQ2VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWfg16+q33RcafAkYES7GBP9yBHEZEtFwTZ2fzc0EVU6M0m1QfLwKtKg7jupwJFX6
-         7ALXenzCOv/zgizIjv4aZIC7M9pdXF4VsHcqac3hw9mbFqtU1c/eXgWssF7jnqAbrg
-         Esel4yHUAXpX0KNYWzfu++niHZl8sbws/eyOLT/E=
+        b=HK+quojNmzJ8mmfJ03VQEiGld1bUAns1ZmV1602nGytcMLnqzS7XCIIy+lMFyZ5dz
+         SCYTJJT6JPz8bMGwUeAP6tcSOR5ZOYW1NhUSYEmtbhDpCdd+pYo1cNnVLc8rnj4Nt7
+         Ur2TBWd+Hrwvp4Xrk4j1EgiSET3SVgHD134jQSjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Song Liu <songliubraving@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Duncan Laurie <dlaurie@chromium.org>,
+        Vadim Bendebury <vbendeb@chromium.org>,
+        Stefan Reinauer <reinauer@chromium.org>,
+        Furquan Shaikh <furquan@google.com>,
+        Furquan Shaikh <furquan@chromium.org>,
+        Aaron Durbin <adurbin@chromium.org>,
+        Justin TerAvest <teravest@chromium.org>,
+        Ross Zwisler <zwisler@google.com>,
+        Guenter Roeck <groeck@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 089/211] bpf: devmap: fix wrong interface selection in notifier_call
+Subject: [PATCH 4.4 031/132] gsmi: Fix bug in append_to_eventlog sysfs handler
 Date:   Wed, 27 Nov 2019 21:30:22 +0100
-Message-Id: <20191127203102.160819159@linuxfoundation.org>
+Message-Id: <20191127202928.087227879@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +51,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Duncan Laurie <dlaurie@chromium.org>
 
-[ Upstream commit f592f804831f1cf9d1f9966f58c80f150e6829b5 ]
+[ Upstream commit 655603de68469adaff16842ac17a5aec9c9ce89b ]
 
-The dev_map_notification() removes interface in devmap if
-unregistering interface's ifindex is same.
-But only checking ifindex is not enough because other netns can have
-same ifindex. so that wrong interface selection could occurred.
-Hence netdev pointer comparison code is added.
+The sysfs handler should return the number of bytes consumed, which in the
+case of a successful write is the entire buffer.  Also fix a bug where
+param.data_len was being set to (count - (2 * sizeof(u32))) instead of just
+(count - sizeof(u32)).  The latter is correct because we skip over the
+leading u32 which is our param.type, but we were also incorrectly
+subtracting sizeof(u32) on the line where we were actually setting
+param.data_len:
 
-v2: compare netdev pointer instead of using net_eq() (Daniel Borkmann)
-v1: Initial patch
+	param.data_len = count - sizeof(u32);
 
-Fixes: 2ddf71e23cc2 ("net: add notifier hooks for devmap bpf map")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+This meant that for our example event.kernel_software_watchdog with total
+length 10 bytes, param.data_len was just 2 prior to this change.
+
+To test, successfully append an event to the log with gsmi sysfs.
+This sample event is for a "Kernel Software Watchdog"
+
+> xxd -g 1 event.kernel_software_watchdog
+0000000: 01 00 00 00 ad de 06 00 00 00
+
+> cat event.kernel_software_watchdog > /sys/firmware/gsmi/append_to_eventlog
+
+> mosys eventlog list | tail -1
+14 | 2012-06-25 10:14:14 | Kernl Event | Software Watchdog
+
+Signed-off-by: Duncan Laurie <dlaurie@chromium.org>
+Reviewed-by: Vadim Bendebury <vbendeb@chromium.org>
+Reviewed-by: Stefan Reinauer <reinauer@chromium.org>
+Signed-off-by: Furquan Shaikh <furquan@google.com>
+Tested-by: Furquan Shaikh <furquan@chromium.org>
+Reviewed-by: Aaron Durbin <adurbin@chromium.org>
+Reviewed-by: Justin TerAvest <teravest@chromium.org>
+[zwisler: updated changelog for 2nd bug fix and upstream]
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/devmap.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/firmware/google/gsmi.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
-index 482bf42e21a41..1060eee6c8d5f 100644
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -388,8 +388,7 @@ static int dev_map_notification(struct notifier_block *notifier,
- 				struct bpf_dtab_netdev *dev, *odev;
+diff --git a/drivers/firmware/google/gsmi.c b/drivers/firmware/google/gsmi.c
+index f1ab05ea56bbc..3c117559f102f 100644
+--- a/drivers/firmware/google/gsmi.c
++++ b/drivers/firmware/google/gsmi.c
+@@ -480,11 +480,10 @@ static ssize_t eventlog_write(struct file *filp, struct kobject *kobj,
+ 	if (count < sizeof(u32))
+ 		return -EINVAL;
+ 	param.type = *(u32 *)buf;
+-	count -= sizeof(u32);
+ 	buf += sizeof(u32);
  
- 				dev = READ_ONCE(dtab->netdev_map[i]);
--				if (!dev ||
--				    dev->dev->ifindex != netdev->ifindex)
-+				if (!dev || netdev != dev->dev)
- 					continue;
- 				odev = cmpxchg(&dtab->netdev_map[i], dev, NULL);
- 				if (dev == odev)
+ 	/* The remaining buffer is the data payload */
+-	if (count > gsmi_dev.data_buf->length)
++	if ((count - sizeof(u32)) > gsmi_dev.data_buf->length)
+ 		return -EINVAL;
+ 	param.data_len = count - sizeof(u32);
+ 
+@@ -504,7 +503,7 @@ static ssize_t eventlog_write(struct file *filp, struct kobject *kobj,
+ 
+ 	spin_unlock_irqrestore(&gsmi_dev.lock, flags);
+ 
+-	return rc;
++	return (rc == 0) ? count : rc;
+ 
+ }
+ 
 -- 
 2.20.1
 
