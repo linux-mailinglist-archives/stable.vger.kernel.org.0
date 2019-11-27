@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 879FA10BB5D
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:13:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CCBC10BBD6
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733232AbfK0VLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:11:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41234 "EHLO mail.kernel.org"
+        id S2387515AbfK0VOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:14:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732782AbfK0VLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:11:52 -0500
+        id S1731677AbfK0VOZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:14:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B15EE21555;
-        Wed, 27 Nov 2019 21:11:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 749BA215F2;
+        Wed, 27 Nov 2019 21:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889112;
-        bh=6V7r6TB9qW/1X5KnQjTT2gyh0o0FqU2iM3qP87EZEXI=;
+        s=default; t=1574889263;
+        bh=u7X6V8xu82lUI0n9uSrrbqQu+0Kjswxz5wRaGNrOwmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCzapFZJp0rPqJHzKM93O1+CL8FVDdSKlS+20jr0ooIEkr4FnbP3TGdLIMlqdjyMd
-         84a1XRV9wYXQYPWj0Gxrm3zZrf+p7pS95v5oNFrOJb+7kuAU7cByQHLbor+AfMmEOp
-         EOC+D+2SHUtEEKrH3sVZrX52TyP8anNZB62W3fe4=
+        b=QHbrrayaUD7j4/tbzFwlywdP73S8Ux0Q1SSp0URNL2kz+RCRQLFLAIDdhQCCpE8eh
+         da1DLLmXmK1Q+21mKbstB3sAlmsB0JfK87a5lqvAMwOkkTjyP3wrBQDTkUVk5vv21T
+         uFyOeqRWV6/q3LUr5p6Or1HhMLPORU8VpoBQm9Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+495dab1f175edc9c2f13@syzkaller.appspotmail.com
-Subject: [PATCH 5.3 86/95] appledisplay: fix error handling in the scheduled work
-Date:   Wed, 27 Nov 2019 21:32:43 +0100
-Message-Id: <20191127202955.638390156@linuxfoundation.org>
+        stable@vger.kernel.org, Vito Caputo <vcaputo@pengaru.com>,
+        syzbot <syzkaller@googlegroups.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.4 49/66] media: cxusb: detect cxusb_ctrl_msg error in query
+Date:   Wed, 27 Nov 2019 21:32:44 +0100
+Message-Id: <20191127202729.893377297@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Vito Caputo <vcaputo@pengaru.com>
 
-commit 91feb01596e5efc0cc922cc73f5583114dccf4d2 upstream.
+commit ca8f245f284eeffa56f3b7a5eb6fc503159ee028 upstream.
 
-The work item can operate on
+Don't use uninitialized ircode[] in cxusb_rc_query() when
+cxusb_ctrl_msg() fails to populate its contents.
 
-1. stale memory left over from the last transfer
-the actual length of the data transfered needs to be checked
-2. memory already freed
-the error handling in appledisplay_probe() needs
-to cancel the work in that case
+syzbot reported:
 
-Reported-and-tested-by: syzbot+495dab1f175edc9c2f13@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191106124902.7765-1-oneukum@suse.com
+dvb-usb: bulk message failed: -22 (1/-30591)
+=====================================================
+BUG: KMSAN: uninit-value in ir_lookup_by_scancode drivers/media/rc/rc-main.c:494 [inline]
+BUG: KMSAN: uninit-value in rc_g_keycode_from_table drivers/media/rc/rc-main.c:582 [inline]
+BUG: KMSAN: uninit-value in rc_keydown+0x1a6/0x6f0 drivers/media/rc/rc-main.c:816
+CPU: 1 PID: 11436 Comm: kworker/1:2 Not tainted 5.3.0-rc7+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events dvb_usb_read_remote_control
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x191/0x1f0 lib/dump_stack.c:113
+ kmsan_report+0x13a/0x2b0 mm/kmsan/kmsan_report.c:108
+ __msan_warning+0x73/0xe0 mm/kmsan/kmsan_instr.c:250
+ bsearch+0x1dd/0x250 lib/bsearch.c:41
+ ir_lookup_by_scancode drivers/media/rc/rc-main.c:494 [inline]
+ rc_g_keycode_from_table drivers/media/rc/rc-main.c:582 [inline]
+ rc_keydown+0x1a6/0x6f0 drivers/media/rc/rc-main.c:816
+ cxusb_rc_query+0x2e1/0x360 drivers/media/usb/dvb-usb/cxusb.c:548
+ dvb_usb_read_remote_control+0xf9/0x290 drivers/media/usb/dvb-usb/dvb-usb-remote.c:261
+ process_one_work+0x1572/0x1ef0 kernel/workqueue.c:2269
+ worker_thread+0x111b/0x2460 kernel/workqueue.c:2415
+ kthread+0x4b5/0x4f0 kernel/kthread.c:256
+ ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:355
+
+Uninit was stored to memory at:
+ kmsan_save_stack_with_flags mm/kmsan/kmsan.c:150 [inline]
+ kmsan_internal_chain_origin+0xd2/0x170 mm/kmsan/kmsan.c:314
+ __msan_chain_origin+0x6b/0xe0 mm/kmsan/kmsan_instr.c:184
+ rc_g_keycode_from_table drivers/media/rc/rc-main.c:583 [inline]
+ rc_keydown+0x2c4/0x6f0 drivers/media/rc/rc-main.c:816
+ cxusb_rc_query+0x2e1/0x360 drivers/media/usb/dvb-usb/cxusb.c:548
+ dvb_usb_read_remote_control+0xf9/0x290 drivers/media/usb/dvb-usb/dvb-usb-remote.c:261
+ process_one_work+0x1572/0x1ef0 kernel/workqueue.c:2269
+ worker_thread+0x111b/0x2460 kernel/workqueue.c:2415
+ kthread+0x4b5/0x4f0 kernel/kthread.c:256
+ ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:355
+
+Local variable description: ----ircode@cxusb_rc_query
+Variable was created at:
+ cxusb_rc_query+0x4d/0x360 drivers/media/usb/dvb-usb/cxusb.c:543
+ dvb_usb_read_remote_control+0xf9/0x290 drivers/media/usb/dvb-usb/dvb-usb-remote.c:261
+
+Signed-off-by: Vito Caputo <vcaputo@pengaru.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/appledisplay.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/cxusb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/appledisplay.c
-+++ b/drivers/usb/misc/appledisplay.c
-@@ -164,7 +164,12 @@ static int appledisplay_bl_get_brightnes
- 		0,
- 		pdata->msgdata, 2,
- 		ACD_USB_TIMEOUT);
--	brightness = pdata->msgdata[1];
-+	if (retval < 2) {
-+		if (retval >= 0)
-+			retval = -EMSGSIZE;
-+	} else {
-+		brightness = pdata->msgdata[1];
-+	}
- 	mutex_unlock(&pdata->sysfslock);
+--- a/drivers/media/usb/dvb-usb/cxusb.c
++++ b/drivers/media/usb/dvb-usb/cxusb.c
+@@ -521,7 +521,8 @@ static int cxusb_rc_query(struct dvb_usb
+ {
+ 	u8 ircode[4];
  
- 	if (retval < 0)
-@@ -299,6 +304,7 @@ error:
- 	if (pdata) {
- 		if (pdata->urb) {
- 			usb_kill_urb(pdata->urb);
-+			cancel_delayed_work_sync(&pdata->work);
- 			if (pdata->urbdata)
- 				usb_free_coherent(pdata->udev, ACD_URB_BUFFER_LEN,
- 					pdata->urbdata, pdata->urb->transfer_dma);
+-	cxusb_ctrl_msg(d, CMD_GET_IR_CODE, NULL, 0, ircode, 4);
++	if (cxusb_ctrl_msg(d, CMD_GET_IR_CODE, NULL, 0, ircode, 4) < 0)
++		return 0;
+ 
+ 	if (ircode[2] || ircode[3])
+ 		rc_keydown(d->rc_dev, RC_PROTO_NEC,
 
 
