@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F045710BC89
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E677C10BC8B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732039AbfK0VGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:06:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60826 "EHLO mail.kernel.org"
+        id S1732478AbfK0VGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:06:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732454AbfK0VGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:06:37 -0500
+        id S1732473AbfK0VGm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:06:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74909215F2;
-        Wed, 27 Nov 2019 21:06:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 647B62080F;
+        Wed, 27 Nov 2019 21:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888796;
-        bh=vRmXBO5Gu0mvfOSr13Grf3KH9xKlAfzS1tCHm0VwrJI=;
+        s=default; t=1574888801;
+        bh=/owAWAfWpzYBTAYkM82lVwXJD9Kz4nA/JxzbBtagY9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxMY0843iS+Dk4cnIhyt1IE9o8aZJ+foiCkGfCx/RlsrXhZDtIuqhLmRtdfqZ5S2V
-         7Gb9TEwcocNpTWhap7ClE71e1JA8Muj8axaFpSCr+YffZcNs386LZG7AtBMAUMIPic
-         s2TNfcRzhAfQ5HPxU9IFUHqdZuWcRr5Zb3Q8fX0w=
+        b=n5DZ015a4XIhWIyj6ynOx2JauxTOOu6/13S7R16G28MW3loOnSI+ue3NcIeebmGuT
+         gnwc2YfVOh/6lphokBZ7qUprcmwjebBhw3JnoxXyGGEk5ujERuDJcavfOOsVzLeoWp
+         QuCYMCAUMlUh5+XYSKDSfj47msjN/Uiyybp2cfww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Joerg Roedel <jroedel@suse.de>, stable@kernel.org
-Subject: [PATCH 4.19 272/306] x86/pti/32: Size initial_page_table correctly
-Date:   Wed, 27 Nov 2019 21:32:02 +0100
-Message-Id: <20191127203134.692336961@linuxfoundation.org>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 4.19 273/306] x86/cpu_entry_area: Add guard page for entry stack on 32bit
+Date:   Wed, 27 Nov 2019 21:32:03 +0100
+Message-Id: <20191127203134.762505647@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -46,60 +45,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit f490e07c53d66045d9d739e134145ec9b38653d3 upstream.
+commit 880a98c339961eaa074393e3a2117cbe9125b8bb upstream.
 
-Commit 945fd17ab6ba ("x86/cpu_entry_area: Sync cpu_entry_area to
-initial_page_table") introduced the sync for the initial page table for
-32bit.
+The entry stack in the cpu entry area is protected against overflow by the
+readonly GDT on 64-bit, but on 32-bit the GDT needs to be writeable and
+therefore does not trigger a fault on stack overflow.
 
-sync_initial_page_table() uses clone_pgd_range() which does the update for
-the kernel page table. If PTI is enabled it also updates the user space
-page table counterpart, which is assumed to be in the next page after the
-target PGD.
+Add a guard page.
 
-At this point in time 32-bit did not have PTI support, so the user space
-page table update was not taking place.
-
-The support for PTI on 32-bit which was introduced later on, did not take
-that into account and missed to add the user space counter part for the
-initial page table.
-
-As a consequence sync_initial_page_table() overwrites any data which is
-located in the page behing initial_page_table causing random failures,
-e.g. by corrupting doublefault_tss and wreckaging the doublefault handler
-on 32bit.
-
-Fix it by adding a "user" page table right after initial_page_table.
-
-Fixes: 7757d607c6b3 ("x86/pti: Allow CONFIG_PAGE_TABLE_ISOLATION for x86_32")
+Fixes: c482feefe1ae ("x86/entry/64: Make cpu_entry_area.tss read-only")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/head_32.S |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/x86/include/asm/cpu_entry_area.h |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/head_32.S
-+++ b/arch/x86/kernel/head_32.S
-@@ -571,6 +571,16 @@ ENTRY(initial_page_table)
- #  error "Kernel PMDs should be 1, 2 or 3"
- # endif
- 	.align PAGE_SIZE		/* needs to be page-sized too */
-+
-+#ifdef CONFIG_PAGE_TABLE_ISOLATION
-+	/*
-+	 * PTI needs another page so sync_initial_pagetable() works correctly
-+	 * and does not scribble over the data which is placed behind the
-+	 * actual initial_page_table. See clone_pgd_range().
-+	 */
-+	.fill 1024, 4, 0
-+#endif
-+
- #endif
+--- a/arch/x86/include/asm/cpu_entry_area.h
++++ b/arch/x86/include/asm/cpu_entry_area.h
+@@ -20,8 +20,12 @@ struct cpu_entry_area {
  
- .data
+ 	/*
+ 	 * The GDT is just below entry_stack and thus serves (on x86_64) as
+-	 * a a read-only guard page.
++	 * a read-only guard page. On 32-bit the GDT must be writeable, so
++	 * it needs an extra guard page.
+ 	 */
++#ifdef CONFIG_X86_32
++	char guard_entry_stack[PAGE_SIZE];
++#endif
+ 	struct entry_stack_page entry_stack_page;
+ 
+ 	/*
 
 
