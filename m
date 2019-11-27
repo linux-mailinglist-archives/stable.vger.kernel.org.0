@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DAFC10BE86
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4654A10BF59
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730086AbfK0UsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:48:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
+        id S1728490AbfK0Vmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:42:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728987AbfK0UsH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:48:07 -0500
+        id S1727269AbfK0UkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:40:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6F58217C3;
-        Wed, 27 Nov 2019 20:48:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C75C21774;
+        Wed, 27 Nov 2019 20:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887686;
-        bh=iXfACO8Pm8LpVXh1BTAos9wmSTAnSHOJJbxnjyM1o1k=;
+        s=default; t=1574887206;
+        bh=PQFfqQZTJt8OhFGzdF6KtpgMwrzOwM6x4oU3BMvFibs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anTAsQy9JbBTDwy99ekre2/I5PDYbnUV4+kMy6ZiQwO12ArsMYsdSE5PfsEhiZylV
-         hRpfnGIfH91yEMZypE7/uDgHF29hEs5FooQDGYhaaC52q9fAuHZNdt8oIqu0Gf8M5s
-         EEOLwLQpXUQ6+u+/R/cEtfVXsWziiwxnfb7XAlxQ=
+        b=fsn3t79rZn7CqgFN6W5OZR6mVGwsdqht0c1ieERIhvxIlkmhcew59omYV0S3Bhp/Y
+         sx+U1Ev7SObpyrpm7umGdXk+neZymeZ9WA+OyAHmMYi1dBtGmoEpCvQbZ1nfmn3MTn
+         UmZdpbkcE+Z2aNHbZPiMlAv5/aS7BNE0lPVFtzzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 056/211] net: dsa: mv88e6xxx: Fix 88E6141/6341 2500mbps SERDES speed
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Thierry Reding <treding@nvidia.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.9 006/151] gpio: max77620: Fixup debounce delays
 Date:   Wed, 27 Nov 2019 21:29:49 +0100
-Message-Id: <20191127203059.426620349@linuxfoundation.org>
+Message-Id: <20191127203004.790459008@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <marek.behun@nic.cz>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 26422340da467538cd65eaa9c65538039ee99c8c ]
+commit b0391479ae04dfcbd208b9571c375064caad9a57 upstream.
 
-This is a fix for the port_set_speed method for the Topaz family.
-Currently the same method is used as for the Peridot family, but
-this is wrong for the SERDES port.
+When converting milliseconds to microseconds in commit fffa6af94894
+("gpio: max77620: Use correct unit for debounce times") some ~1 ms gaps
+were introduced between the various ranges supported by the controller.
+Fix this by changing the start of each range to the value immediately
+following the end of the previous range. This way a debounce time of,
+say 8250 us will translate into 16 ms instead of returning an -EINVAL
+error.
 
-On Topaz, the SERDES port is port 5, not 9 and 10 as in Peridot.
-Moreover setting alt_bit on Topaz only makes sense for port 0 (for
-(differentiating 100mbps vs 200mbps). The SERDES port does not
-support more than 2500mbps, so alt_bit does not make any difference.
+Typically the debounce delay is only ever set through device tree and
+specified in milliseconds, so we can never really hit this issue because
+debounce times are always a multiple of 1000 us.
 
-Signed-off-by: Marek Behún <marek.behun@nic.cz>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The only notable exception for this is drivers/mmc/host/mmc-spi.c where
+the CD GPIO is requested, which passes a 1 us debounce time. According
+to a comment preceeding that code this should actually be 1 ms (i.e.
+1000 us).
+
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Acked-by: Pavel Machek <pavel@denx.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/dsa/mv88e6xxx/chip.c |  4 ++--
- drivers/net/dsa/mv88e6xxx/port.c | 25 +++++++++++++++++++++++--
- drivers/net/dsa/mv88e6xxx/port.h |  1 +
- 3 files changed, 26 insertions(+), 4 deletions(-)
+ drivers/gpio/gpio-max77620.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 0fff1502267a4..be17194487c68 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2527,7 +2527,7 @@ static const struct mv88e6xxx_ops mv88e6141_ops = {
- 	.port_set_link = mv88e6xxx_port_set_link,
- 	.port_set_duplex = mv88e6xxx_port_set_duplex,
- 	.port_set_rgmii_delay = mv88e6390_port_set_rgmii_delay,
--	.port_set_speed = mv88e6390_port_set_speed,
-+	.port_set_speed = mv88e6341_port_set_speed,
- 	.port_tag_remap = mv88e6095_port_tag_remap,
- 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
- 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
-@@ -3029,7 +3029,7 @@ static const struct mv88e6xxx_ops mv88e6341_ops = {
- 	.port_set_link = mv88e6xxx_port_set_link,
- 	.port_set_duplex = mv88e6xxx_port_set_duplex,
- 	.port_set_rgmii_delay = mv88e6390_port_set_rgmii_delay,
--	.port_set_speed = mv88e6390_port_set_speed,
-+	.port_set_speed = mv88e6341_port_set_speed,
- 	.port_tag_remap = mv88e6095_port_tag_remap,
- 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
- 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
-diff --git a/drivers/net/dsa/mv88e6xxx/port.c b/drivers/net/dsa/mv88e6xxx/port.c
-index 2cffecfe86e3b..fd0a88c56031a 100644
---- a/drivers/net/dsa/mv88e6xxx/port.c
-+++ b/drivers/net/dsa/mv88e6xxx/port.c
-@@ -203,8 +203,11 @@ static int mv88e6xxx_port_set_speed(struct mv88e6xxx_chip *chip, int port,
- 		ctrl = MV88E6XXX_PORT_MAC_CTL_SPEED_1000;
+--- a/drivers/gpio/gpio-max77620.c
++++ b/drivers/gpio/gpio-max77620.c
+@@ -167,13 +167,13 @@ static int max77620_gpio_set_debounce(st
+ 	case 0:
+ 		val = MAX77620_CNFG_GPIO_DBNC_None;
  		break;
- 	case 2500:
--		ctrl = MV88E6390_PORT_MAC_CTL_SPEED_10000 |
--			MV88E6390_PORT_MAC_CTL_ALTSPEED;
-+		if (alt_bit)
-+			ctrl = MV88E6390_PORT_MAC_CTL_SPEED_10000 |
-+				MV88E6390_PORT_MAC_CTL_ALTSPEED;
-+		else
-+			ctrl = MV88E6390_PORT_MAC_CTL_SPEED_10000;
+-	case 1000 ... 8000:
++	case 1 ... 8000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_8ms;
  		break;
- 	case 10000:
- 		/* all bits set, fall through... */
-@@ -266,6 +269,24 @@ int mv88e6185_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed)
- 	return mv88e6xxx_port_set_speed(chip, port, speed, false, false);
- }
- 
-+/* Support 10, 100, 200, 1000, 2500 Mbps (e.g. 88E6341) */
-+int mv88e6341_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed)
-+{
-+	if (speed == SPEED_MAX)
-+		speed = port < 5 ? 1000 : 2500;
-+
-+	if (speed > 2500)
-+		return -EOPNOTSUPP;
-+
-+	if (speed == 200 && port != 0)
-+		return -EOPNOTSUPP;
-+
-+	if (speed == 2500 && port < 5)
-+		return -EOPNOTSUPP;
-+
-+	return mv88e6xxx_port_set_speed(chip, port, speed, !port, true);
-+}
-+
- /* Support 10, 100, 200, 1000 Mbps (e.g. 88E6352 family) */
- int mv88e6352_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed)
- {
-diff --git a/drivers/net/dsa/mv88e6xxx/port.h b/drivers/net/dsa/mv88e6xxx/port.h
-index ccdc67fe90799..8a645683cf6b1 100644
---- a/drivers/net/dsa/mv88e6xxx/port.h
-+++ b/drivers/net/dsa/mv88e6xxx/port.h
-@@ -262,6 +262,7 @@ int mv88e6xxx_port_set_duplex(struct mv88e6xxx_chip *chip, int port, int dup);
- 
- int mv88e6065_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed);
- int mv88e6185_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed);
-+int mv88e6341_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed);
- int mv88e6352_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed);
- int mv88e6390_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed);
- int mv88e6390x_port_set_speed(struct mv88e6xxx_chip *chip, int port, int speed);
--- 
-2.20.1
-
+-	case 9000 ... 16000:
++	case 8001 ... 16000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_16ms;
+ 		break;
+-	case 17000 ... 32000:
++	case 16001 ... 32000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_32ms;
+ 		break;
+ 	default:
 
 
