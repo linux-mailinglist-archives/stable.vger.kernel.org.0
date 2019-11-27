@@ -2,105 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ACD810B282
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 16:36:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A6410B29C
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 16:44:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726822AbfK0Pgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 10:36:51 -0500
-Received: from mx2.suse.de ([195.135.220.15]:42580 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726603AbfK0Pgv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 10:36:51 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 21A57AD1A;
-        Wed, 27 Nov 2019 15:36:50 +0000 (UTC)
-From:   Takashi Iwai <tiwai@suse.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 5.4.y v2] ALSA: hda - Disable audio component for legacy Nvidia HDMI codecs
-Date:   Wed, 27 Nov 2019 16:36:47 +0100
-Message-Id: <20191127153647.24752-1-tiwai@suse.de>
-X-Mailer: git-send-email 2.16.4
+        id S1726696AbfK0PoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 10:44:25 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:24054 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726558AbfK0PoZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 10:44:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574869462;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=JN2RXVOATHFHCsJ7TnNFbZHFHxQ8vW1uD4f5GCi4z3Q=;
+        b=K1TYVCEfUaTqqYbbOm6NLqRrCRp9CW0Ggn+gkgCwHHH1N49zHmlMWtWgURTNbEiQoX3Zhl
+        u5OjoB27HGAt6cxhoN8nSHlcF0pjkUryf009pveSjASKqrlzfFm2ErmpWtIIqu2aXc2f8I
+        MeMHDNOhnRUFn2vfXEp6qhqJb7CmxEU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-134-01qMrgacNyqYrk35MuGvyQ-1; Wed, 27 Nov 2019 10:44:21 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 86020107BAAA
+        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 15:44:20 +0000 (UTC)
+Received: from [172.54.116.159] (cpt-1047.paas.prod.upshift.rdu2.redhat.com [10.0.19.63])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1F97A608BF;
+        Wed, 27 Nov 2019 15:44:16 +0000 (UTC)
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.13-4d4be24.cki
+ (stable-queue)
+Date:   Wed, 27 Nov 2019 15:44:15 -0000
+CC:     Rachel Sibley <rasibley@redhat.com>
+Message-ID: <cki.3DED2640A5.LJT3U2ZX0P@redhat.com>
+X-Gitlab-Pipeline-ID: 310858
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/310858
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: 01qMrgacNyqYrk35MuGvyQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 5a858e79c911330678b5a9be91a24830e94a0dc9 upstream.
 
-The old Nvidia chips have multiple HD-audio codecs on the same
-HD-audio controller, and this doesn't work as expected with the current
-audio component binding that is implemented under the one-codec-per-
-controller assumption; at the probe time, the driver leads to several
-kernel WARNING messages.
+Hello,
 
-For the proper support, we may change the pin2port and port2pin to
-traverse the codec list per the given pin number, but this needs more
-development and testing.
+We ran automated tests on a recent commit from this kernel tree:
 
-As a quick workaround, instead, this patch drops the binding in the
-audio side for these legacy chips since the audio component support in
-nouveau graphics driver is still not merged (hence it's basically
-unused).
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
+able-queue.git
+            Commit: 4d4be24ef9f9 - ARM: 8904/1: skip nomap memblocks while =
+finding the lowmem/highmem boundary
 
-[ Unlike the original commit, this patch actually disables the audio
-  component binding for all Nvidia chips, not only for legacy chips.
-  It doesn't matter much, though: nouveau gfx driver still doesn't
-  provide the audio component binding on 5.4.y, so it's only a
-  placeholder for now.  Also, another difference from the original
-  commit is that this removes the nvhdmi_audio_ops and other
-  definitions completely in order to avoid a compile warning due to
-  unused stuff.  -- tiwai ]
+The results of these automated tests are provided below.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205625
-Fixes: ade49db337a9 ("ALSA: hda/hdmi - Allow audio component for AMD/ATI and Nvidia HDMI")
-Link: https://lore.kernel.org/r/20191122132000.4460-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
----
- sound/pci/hda/patch_hdmi.c | 22 ----------------------
- 1 file changed, 22 deletions(-)
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 78bd2e3722c7..d14f6684737d 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -3454,26 +3454,6 @@ static int nvhdmi_chmap_validate(struct hdac_chmap *chmap,
- 	return 0;
- }
- 
--/* map from pin NID to port; port is 0-based */
--/* for Nvidia: assume widget NID starting from 4, with step 1 (4, 5, 6, ...) */
--static int nvhdmi_pin2port(void *audio_ptr, int pin_nid)
--{
--	return pin_nid - 4;
--}
--
--/* reverse-map from port to pin NID: see above */
--static int nvhdmi_port2pin(struct hda_codec *codec, int port)
--{
--	return port + 4;
--}
--
--static const struct drm_audio_component_audio_ops nvhdmi_audio_ops = {
--	.pin2port = nvhdmi_pin2port,
--	.pin_eld_notify = generic_acomp_pin_eld_notify,
--	.master_bind = generic_acomp_master_bind,
--	.master_unbind = generic_acomp_master_unbind,
--};
--
- static int patch_nvhdmi(struct hda_codec *codec)
- {
- 	struct hdmi_spec *spec;
-@@ -3492,8 +3472,6 @@ static int patch_nvhdmi(struct hda_codec *codec)
- 
- 	codec->link_down_at_suspend = 1;
- 
--	generic_acomp_init(codec, &nvhdmi_audio_ops, nvhdmi_port2pin);
--
- 	return 0;
- }
- 
--- 
-2.16.4
+All kernel binaries, config files, and logs are available for download here=
+:
+
+  https://artifacts.cki-project.org/pipelines/310858
+
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9D=8C IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  x86_64:
+
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
+arked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
