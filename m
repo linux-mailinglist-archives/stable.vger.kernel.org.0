@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E3110BFCA
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC24810BE8F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727606AbfK0Ueh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:34:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35086 "EHLO mail.kernel.org"
+        id S1729057AbfK0Usj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:48:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727645AbfK0Ueg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:34:36 -0500
+        id S1727739AbfK0Usf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:48:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7336E20866;
-        Wed, 27 Nov 2019 20:34:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEA4C217C3;
+        Wed, 27 Nov 2019 20:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886875;
-        bh=+jTHa6RfLG3FB+eqyQHja/Mz7Yn6YwCwk6IA2kcztlI=;
+        s=default; t=1574887715;
+        bh=KzaYq/ZxefBgTK1mWLIBUbunCDUrWNx+9I10MwP1UNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJK/27QSC2JmwcI6iUA2Ea9dCOi4AkXj2Bf30r/NFb2czrkdILmjlOvHkIhdrtNcs
-         DlZpBGDJMsXeNrrHpSDg5jzZQo3q+e4Be7c5o6ZGoHm4x+VkWtyh0vWbafjgR9Uh9+
-         DR/K4uUgOCpRaAt64BLAxKfds0fJGFaRf8EJcCOc=
+        b=QoivxwalVsenqd1J+jWOhyPrb0ewTqZWgSkEwc5Ps+8ECcngdy5lxeF5Yc/kUfCO+
+         BevwHpK+dDQvOP7YSPQlY6ETYtVyv4mkx7Az9kSmKKwRXpIbbfhNe3MfZjMuEEMDvY
+         UZ1bNk20FjkJuKG0G1Ha+79YQ93yvKQmD9ayD6OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
-        Corentin Chary <corentin.chary@gmail.com>,
-        Darren Hart <dvhart@linux.intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 007/132] asus-wmi: Create quirk for airplane_mode LED
-Date:   Wed, 27 Nov 2019 21:29:58 +0100
-Message-Id: <20191127202904.567920052@linuxfoundation.org>
+Subject: [PATCH 4.14 066/211] usbip: tools: fix atoi() on non-null terminated string
+Date:   Wed, 27 Nov 2019 21:29:59 +0100
+Message-Id: <20191127203100.142713705@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: João Paulo Rechi Vita <jprvita@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit a977e59c0c67c9d492bb16677ce66d67cae0ebd8 ]
+[ Upstream commit e325808c0051b16729ffd472ff887c6cae5c6317 ]
 
-Some Asus laptops that have an airplane-mode indicator LED, also have
-the WMI WLAN user bit set, and the following bits in their DSDT:
+Currently the call to atoi is being passed a single char string
+that is not null terminated, so there is a potential read overrun
+along the stack when parsing for an integer value.  Fix this by
+instead using a 2 char string that is initialized to all zeros
+to ensure that a 1 char read into the string is always terminated
+with a \0.
 
-Scope (_SB)
-{
-  (...)
-  Device (ATKD)
-  {
-    (...)
-    Method (WMNB, 3, Serialized)
-    {
-      (...)
-      If (LEqual (IIA0, 0x00010002))
-      {
-        OWGD (IIA1)
-        Return (One)
-      }
-    }
-  }
-}
+Detected by cppcheck:
+"Invalid atoi() argument nr 1. A nul-terminated string is required."
 
-So when asus-wmi uses ASUS_WMI_DEVID_WLAN_LED (0x00010002) to store the
-wlan state, it drives the airplane-mode indicator LED (through the call
-to OWGD) in an inverted fashion: the LED is ON when airplane mode is OFF
-(since wlan is ON), and vice-versa.
-
-This commit creates a quirk to not register a RFKill switch at all for
-these laptops, to allow the asus-wireless driver to drive the airplane
-mode LED correctly through the ASHS ACPI device. It also adds a match to
-that quirk for the Asus X555UB, which is affected by this problem.
-
-Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
-Reviewed-by: Corentin Chary <corentin.chary@gmail.com>
-Signed-off-by: Darren Hart <dvhart@linux.intel.com>
+Fixes: 3391ba0e2792 ("usbip: tools: Extract generic code to be shared with vudc backend")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 13 +++++++++++++
- drivers/platform/x86/asus-wmi.c    |  8 +++++---
- drivers/platform/x86/asus-wmi.h    |  1 +
- 3 files changed, 19 insertions(+), 3 deletions(-)
+ tools/usb/usbip/libsrc/usbip_host_common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index a284a2b42bcd5..5390846fa1e64 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -78,6 +78,10 @@ static struct quirk_entry quirk_asus_x200ca = {
- 	.wapf = 2,
- };
+diff --git a/tools/usb/usbip/libsrc/usbip_host_common.c b/tools/usb/usbip/libsrc/usbip_host_common.c
+index 6ff7b601f8545..f5ad219a324e8 100644
+--- a/tools/usb/usbip/libsrc/usbip_host_common.c
++++ b/tools/usb/usbip/libsrc/usbip_host_common.c
+@@ -43,7 +43,7 @@ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
+ 	int size;
+ 	int fd;
+ 	int length;
+-	char status;
++	char status[2] = { 0 };
+ 	int value = 0;
  
-+static struct quirk_entry quirk_no_rfkill = {
-+	.no_rfkill = true,
-+};
-+
- static int dmi_matched(const struct dmi_system_id *dmi)
- {
- 	quirks = dmi->driver_data;
-@@ -315,6 +319,15 @@ static const struct dmi_system_id asus_quirks[] = {
- 		},
- 		.driver_data = &quirk_asus_x200ca,
- 	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "ASUSTeK COMPUTER INC. X555UB",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "X555UB"),
-+		},
-+		.driver_data = &quirk_no_rfkill,
-+	},
- 	{},
- };
+ 	size = snprintf(status_attr_path, sizeof(status_attr_path),
+@@ -61,14 +61,14 @@ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
+ 		return -1;
+ 	}
  
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 7c1defaef3f58..823f85b1b4dc6 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -2067,9 +2067,11 @@ static int asus_wmi_add(struct platform_device *pdev)
- 	if (err)
- 		goto fail_leds;
+-	length = read(fd, &status, 1);
++	length = read(fd, status, 1);
+ 	if (length < 0) {
+ 		err("error reading attribute %s", status_attr_path);
+ 		close(fd);
+ 		return -1;
+ 	}
  
--	err = asus_wmi_rfkill_init(asus);
--	if (err)
--		goto fail_rfkill;
-+	if (!asus->driver->quirks->no_rfkill) {
-+		err = asus_wmi_rfkill_init(asus);
-+		if (err)
-+			goto fail_rfkill;
-+	}
+-	value = atoi(&status);
++	value = atoi(status);
  
- 	/* Some Asus desktop boards export an acpi-video backlight interface,
- 	   stop this from showing up */
-diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-index 4da4c8bafe70e..5de1df510ebd8 100644
---- a/drivers/platform/x86/asus-wmi.h
-+++ b/drivers/platform/x86/asus-wmi.h
-@@ -38,6 +38,7 @@ struct key_entry;
- struct asus_wmi;
- 
- struct quirk_entry {
-+	bool no_rfkill;
- 	bool hotplug_wireless;
- 	bool scalar_panel_brightness;
- 	bool store_backlight_power;
+ 	return value;
+ }
 -- 
 2.20.1
 
