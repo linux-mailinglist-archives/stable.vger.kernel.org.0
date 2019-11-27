@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 440FE10BA95
+	by mail.lfdr.de (Postfix) with ESMTP id B3CAC10BA96
 	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727451AbfK0VEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:04:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58048 "EHLO mail.kernel.org"
+        id S1732167AbfK0VEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:04:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731865AbfK0VEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:04:31 -0500
+        id S1731875AbfK0VEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:04:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC4AB21770;
-        Wed, 27 Nov 2019 21:04:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D60F20637;
+        Wed, 27 Nov 2019 21:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888670;
-        bh=9uyfzauE58ZzV9qho2Uq/YQRYCXqOI53XmSwiLS9fDE=;
+        s=default; t=1574888672;
+        bh=PBdKjAcHh0/xYmzKeZZ8qeouI77njMrZJRvV4742/wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHAO70fIoz3Wk/pTX/tip4H6nMnjS2jYflqgNeqMkdqHJbec0G6lXgJNfbHh5KOgY
-         3+oSV/7JHFLKvC4UfR2GhOUQgSh43DOK9xyiag5nrbdeVtgH00bbDH66cRBwAzt1PU
-         5w92dnTCe9hpg5Y6VvPfNus1ZYwHmzRm3YvdeQ+k=
+        b=t/CHeaBPsBZ2Q8yDQ3g5caate3bKtyVgHy/jzEUvGlioOWPy0oa5mJJkzhM27aSsA
+         bHdnaMeoUL5T+Vzna2nwzEyYcmLL4buB6rPJ2iStA/FmB/9EdbI3bMN05BqyaC/lp3
+         3yjxolt0rer4S/Y4xMaAfOlg+UAupfNzvGH/ne6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 223/306] net: dsa: bcm_sf2: Turn on PHY to allow successful registration
-Date:   Wed, 27 Nov 2019 21:31:13 +0100
-Message-Id: <20191127203131.347612884@linuxfoundation.org>
+Subject: [PATCH 4.19 224/306] scsi: mpt3sas: Fix Sync cache command failure during driver unload
+Date:   Wed, 27 Nov 2019 21:31:14 +0100
+Message-Id: <20191127203131.415433937@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,44 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit c04a17d2a9ccf1eaba1c5a56f83e997540a70556 ]
+[ Upstream commit 9029a72500b95578a35877a43473b82cb0386c53 ]
 
-We are binding to the PHY using the SF2 slave MDIO bus that we create,
-binding involves reading the PHY's MII_PHYSID1/2 which won't be possible
-if the PHY is turned off. Temporarily turn it on/off for the bus probing
-to succeeed. This fixes unbind/bind problems where the port connecting
-to that PHY would be in error since it could not connect to it.
+This is to fix SYNC CACHE and START STOP command failures with
+DID_NO_CONNECT during driver unload.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In driver's IO submission patch (i.e. in driver's .queuecommand()) driver
+won't allow any SCSI commands to the IOC when ioc->remove_host flag is set
+and hence SYNC CACHE commands which are issued to the target drives (where
+write cache is enabled) during driver unload time is failed with
+DID_NO_CONNECT status.
+
+Now modified the driver to allow SYNC CACHE and START STOP commands to IOC,
+even when remove_host flag is set.
+
+Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/bcm_sf2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 36 +++++++++++++++++++++++++++-
+ 1 file changed, 35 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index ca3655d28e00f..17cec68e56b4f 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -1099,12 +1099,16 @@ static int bcm_sf2_sw_probe(struct platform_device *pdev)
- 		return ret;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index 73d661a0ecbb9..d3c944d997039 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -3791,6 +3791,40 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
+ 	return _scsih_check_for_pending_tm(ioc, smid);
+ }
+ 
++/** _scsih_allow_scmd_to_device - check whether scmd needs to
++ *				 issue to IOC or not.
++ * @ioc: per adapter object
++ * @scmd: pointer to scsi command object
++ *
++ * Returns true if scmd can be issued to IOC otherwise returns false.
++ */
++inline bool _scsih_allow_scmd_to_device(struct MPT3SAS_ADAPTER *ioc,
++	struct scsi_cmnd *scmd)
++{
++
++	if (ioc->pci_error_recovery)
++		return false;
++
++	if (ioc->hba_mpi_version_belonged == MPI2_VERSION) {
++		if (ioc->remove_host)
++			return false;
++
++		return true;
++	}
++
++	if (ioc->remove_host) {
++
++		switch (scmd->cmnd[0]) {
++		case SYNCHRONIZE_CACHE:
++		case START_STOP:
++			return true;
++		default:
++			return false;
++		}
++	}
++
++	return true;
++}
+ 
+ /**
+  * _scsih_sas_control_complete - completion routine
+@@ -4623,7 +4657,7 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
+ 		return 0;
  	}
  
-+	bcm_sf2_gphy_enable_set(priv->dev->ds, true);
-+
- 	ret = bcm_sf2_mdio_register(ds);
- 	if (ret) {
- 		pr_err("failed to register MDIO bus\n");
- 		return ret;
- 	}
- 
-+	bcm_sf2_gphy_enable_set(priv->dev->ds, false);
-+
- 	ret = bcm_sf2_cfp_rst(priv);
- 	if (ret) {
- 		pr_err("failed to reset CFP\n");
+-	if (ioc->pci_error_recovery || ioc->remove_host) {
++	if (!(_scsih_allow_scmd_to_device(ioc, scmd))) {
+ 		scmd->result = DID_NO_CONNECT << 16;
+ 		scmd->scsi_done(scmd);
+ 		return 0;
 -- 
 2.20.1
 
