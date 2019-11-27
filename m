@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE51710BBC3
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:16:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42DEE10BBAC
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:15:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732543AbfK0VO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:14:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49480 "EHLO mail.kernel.org"
+        id S2387623AbfK0VO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:14:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729835AbfK0VO4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:14:56 -0500
+        id S2387621AbfK0VO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:14:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A50C7215F1;
-        Wed, 27 Nov 2019 21:14:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 217AA216F4;
+        Wed, 27 Nov 2019 21:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889295;
-        bh=LbTcu3fT1fR+3pBF+m5MvIQGLlUtoffzpz127ClyU+s=;
+        s=default; t=1574889297;
+        bh=dixGdiPdvWdbGXUH7CvBkvX0+lM/xd+EAadHXQXxkK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLrFf6bE46+08ELdSOBzfXFBTSCuKDdq2aRANBlvPo9dJu1NX8s3xe26ojw4F3bvs
-         c32Fn+uFCcH9ChVhHgJVKCJkk2hsatx5ulVZdBnGrJ9buJwWQBHjYjyzGCo74+qS4G
-         UckWzL+EJmLq+PyXuLvkvweW39fbLMbNgmp9HcPI=
+        b=E0U23v56erthRoE7qNZKAyOLonvKUOR5hPLIcg7DOgWdff66k1yY/V6QIDY7+Vyw0
+         JYLuniVUZqo/EvejjPBQ2kfjHNXC8jav93RgbyOXBspCBP2O83Mz23w4oTeZ5NwVSj
+         LH06WyLanoIRd2F6qikeZ+pKZXS52zHROeCoc2UM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernd Porr <mail@berndporr.me.uk>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.4 64/66] staging: comedi: usbduxfast: usbduxfast_ai_cmdtest rounding error
-Date:   Wed, 27 Nov 2019 21:32:59 +0100
-Message-Id: <20191127202745.727353455@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 65/66] powerpc/book3s64: Fix link stack flush on context switch
+Date:   Wed, 27 Nov 2019 21:33:00 +0100
+Message-Id: <20191127202748.514905200@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
 References: <20191127202632.536277063@linuxfoundation.org>
@@ -43,87 +44,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernd Porr <mail@berndporr.me.uk>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 5618332e5b955b4bff06d0b88146b971c8dd7b32 upstream.
+commit 39e72bf96f5847ba87cc5bd7a3ce0fed813dc9ad upstream.
 
-The userspace comedilib function 'get_cmd_generic_timed' fills
-the cmd structure with an informed guess and then calls the
-function 'usbduxfast_ai_cmdtest' in this driver repeatedly while
-'usbduxfast_ai_cmdtest' is modifying the cmd struct until it
-no longer changes. However, because of rounding errors this never
-converged because 'steps = (cmd->convert_arg * 30) / 1000' and then
-back to 'cmd->convert_arg = (steps * 1000) / 30' won't be the same
-because of rounding errors. 'Steps' should only be converted back to
-the 'convert_arg' if 'steps' has actually been modified. In addition
-the case of steps being 0 wasn't checked which is also now done.
+In commit ee13cb249fab ("powerpc/64s: Add support for software count
+cache flush"), I added support for software to flush the count
+cache (indirect branch cache) on context switch if firmware told us
+that was the required mitigation for Spectre v2.
 
-Signed-off-by: Bernd Porr <mail@berndporr.me.uk>
-Cc: <stable@vger.kernel.org> # 4.4+
-Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20191118230759.1727-1-mail@berndporr.me.uk
+As part of that code we also added a software flush of the link
+stack (return address stack), which protects against Spectre-RSB
+between user processes.
+
+That is all correct for CPUs that activate that mitigation, which is
+currently Power9 Nimbus DD2.3.
+
+What I got wrong is that on older CPUs, where firmware has disabled
+the count cache, we also need to flush the link stack on context
+switch.
+
+To fix it we create a new feature bit which is not set by firmware,
+which tells us we need to flush the link stack. We set that when
+firmware tells us that either of the existing Spectre v2 mitigations
+are enabled.
+
+Then we adjust the patching code so that if we see that feature bit we
+enable the link stack flush. If we're also told to flush the count
+cache in software then we fall through and do that also.
+
+On the older CPUs we don't need to do do the software count cache
+flush, firmware has disabled it, so in that case we patch in an early
+return after the link stack flush.
+
+The naming of some of the functions is awkward after this patch,
+because they're called "count cache" but they also do link stack. But
+we'll fix that up in a later commit to ease backporting.
+
+This is the fix for CVE-2019-18660.
+
+Reported-by: Anthony Steinhauser <asteinhauser@google.com>
+Fixes: ee13cb249fab ("powerpc/64s: Add support for software count cache flush")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/comedi/drivers/usbduxfast.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ arch/powerpc/include/asm/asm-prototypes.h    |    1 
+ arch/powerpc/include/asm/security_features.h |    3 +
+ arch/powerpc/kernel/entry_64.S               |    6 +++
+ arch/powerpc/kernel/security.c               |   48 ++++++++++++++++++++++++---
+ 4 files changed, 54 insertions(+), 4 deletions(-)
 
---- a/drivers/staging/comedi/drivers/usbduxfast.c
-+++ b/drivers/staging/comedi/drivers/usbduxfast.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0+
- /*
-- *  Copyright (C) 2004-2014 Bernd Porr, mail@berndporr.me.uk
-+ *  Copyright (C) 2004-2019 Bernd Porr, mail@berndporr.me.uk
-  */
+--- a/arch/powerpc/include/asm/asm-prototypes.h
++++ b/arch/powerpc/include/asm/asm-prototypes.h
+@@ -152,6 +152,7 @@ void _kvmppc_save_tm_pr(struct kvm_vcpu
+ /* Patch sites */
+ extern s32 patch__call_flush_count_cache;
+ extern s32 patch__flush_count_cache_return;
++extern s32 patch__flush_link_stack_return;
+ extern s32 patch__memset_nocache, patch__memcpy_nocache;
  
- /*
-@@ -8,7 +8,7 @@
-  * Description: University of Stirling USB DAQ & INCITE Technology Limited
-  * Devices: [ITL] USB-DUX-FAST (usbduxfast)
-  * Author: Bernd Porr <mail@berndporr.me.uk>
-- * Updated: 10 Oct 2014
-+ * Updated: 16 Nov 2019
-  * Status: stable
-  */
+ extern long flush_count_cache;
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -81,6 +81,9 @@ static inline bool security_ftr_enabled(
+ // Software required to flush count cache on context switch
+ #define SEC_FTR_FLUSH_COUNT_CACHE	0x0000000000000400ull
  
-@@ -22,6 +22,7 @@
-  *
-  *
-  * Revision history:
-+ * 1.0: Fixed a rounding error in usbduxfast_ai_cmdtest
-  * 0.9: Dropping the first data packet which seems to be from the last transfer.
-  *      Buffer overflows in the FX2 are handed over to comedi.
-  * 0.92: Dropping now 4 packets. The quad buffer has to be emptied.
-@@ -350,6 +351,7 @@ static int usbduxfast_ai_cmdtest(struct
- 				 struct comedi_cmd *cmd)
++// Software required to flush link stack on context switch
++#define SEC_FTR_FLUSH_LINK_STACK	0x0000000000001000ull
++
+ 
+ // Features enabled by default
+ #define SEC_FTR_DEFAULT \
+--- a/arch/powerpc/kernel/entry_64.S
++++ b/arch/powerpc/kernel/entry_64.S
+@@ -537,6 +537,7 @@ flush_count_cache:
+ 	/* Save LR into r9 */
+ 	mflr	r9
+ 
++	// Flush the link stack
+ 	.rept 64
+ 	bl	.+4
+ 	.endr
+@@ -546,6 +547,11 @@ flush_count_cache:
+ 	.balign 32
+ 	/* Restore LR */
+ 1:	mtlr	r9
++
++	// If we're just flushing the link stack, return here
++3:	nop
++	patch_site 3b patch__flush_link_stack_return
++
+ 	li	r9,0x7fff
+ 	mtctr	r9
+ 
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -24,6 +24,7 @@ enum count_cache_flush_type {
+ 	COUNT_CACHE_FLUSH_HW	= 0x4,
+ };
+ static enum count_cache_flush_type count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++static bool link_stack_flush_enabled;
+ 
+ bool barrier_nospec_enabled;
+ static bool no_nospec;
+@@ -212,11 +213,19 @@ ssize_t cpu_show_spectre_v2(struct devic
+ 
+ 		if (ccd)
+ 			seq_buf_printf(&s, "Indirect branch cache disabled");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (count_cache_flush_type != COUNT_CACHE_FLUSH_NONE) {
+ 		seq_buf_printf(&s, "Mitigation: Software count cache flush");
+ 
+ 		if (count_cache_flush_type == COUNT_CACHE_FLUSH_HW)
+ 			seq_buf_printf(&s, " (hardware accelerated)");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (btb_flush_enabled) {
+ 		seq_buf_printf(&s, "Mitigation: Branch predictor state flush");
+ 	} else {
+@@ -377,18 +386,40 @@ static __init int stf_barrier_debugfs_in
+ device_initcall(stf_barrier_debugfs_init);
+ #endif /* CONFIG_DEBUG_FS */
+ 
++static void no_count_cache_flush(void)
++{
++	count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++	pr_info("count-cache-flush: software flush disabled.\n");
++}
++
+ static void toggle_count_cache_flush(bool enable)
  {
- 	int err = 0;
-+	int err2 = 0;
- 	unsigned int steps;
- 	unsigned int arg;
+-	if (!enable || !security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE) &&
++	    !security_ftr_enabled(SEC_FTR_FLUSH_LINK_STACK))
++		enable = false;
++
++	if (!enable) {
+ 		patch_instruction_site(&patch__call_flush_count_cache, PPC_INST_NOP);
+-		count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
+-		pr_info("count-cache-flush: software flush disabled.\n");
++		pr_info("link-stack-flush: software flush disabled.\n");
++		link_stack_flush_enabled = false;
++		no_count_cache_flush();
+ 		return;
+ 	}
  
-@@ -399,11 +401,16 @@ static int usbduxfast_ai_cmdtest(struct
- 	 */
- 	steps = (cmd->convert_arg * 30) / 1000;
- 	if (cmd->chanlist_len !=  1)
--		err |= comedi_check_trigger_arg_min(&steps,
--						    MIN_SAMPLING_PERIOD);
--	err |= comedi_check_trigger_arg_max(&steps, MAX_SAMPLING_PERIOD);
--	arg = (steps * 1000) / 30;
--	err |= comedi_check_trigger_arg_is(&cmd->convert_arg, arg);
-+		err2 |= comedi_check_trigger_arg_min(&steps,
-+						     MIN_SAMPLING_PERIOD);
-+	else
-+		err2 |= comedi_check_trigger_arg_min(&steps, 1);
-+	err2 |= comedi_check_trigger_arg_max(&steps, MAX_SAMPLING_PERIOD);
-+	if (err2) {
-+		err |= err2;
-+		arg = (steps * 1000) / 30;
-+		err |= comedi_check_trigger_arg_is(&cmd->convert_arg, arg);
++	// This enables the branch from _switch to flush_count_cache
+ 	patch_branch_site(&patch__call_flush_count_cache,
+ 			  (u64)&flush_count_cache, BRANCH_SET_LINK);
+ 
++	pr_info("link-stack-flush: software flush enabled.\n");
++	link_stack_flush_enabled = true;
++
++	// If we just need to flush the link stack, patch an early return
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++		patch_instruction_site(&patch__flush_link_stack_return, PPC_INST_BLR);
++		no_count_cache_flush();
++		return;
 +	}
++
+ 	if (!security_ftr_enabled(SEC_FTR_BCCTR_FLUSH_ASSIST)) {
+ 		count_cache_flush_type = COUNT_CACHE_FLUSH_SW;
+ 		pr_info("count-cache-flush: full software flush sequence enabled.\n");
+@@ -407,11 +438,20 @@ void setup_count_cache_flush(void)
+ 	if (no_spectrev2 || cpu_mitigations_off()) {
+ 		if (security_ftr_enabled(SEC_FTR_BCCTRL_SERIALISED) ||
+ 		    security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED))
+-			pr_warn("Spectre v2 mitigations not under software control, can't disable\n");
++			pr_warn("Spectre v2 mitigations not fully under software control, can't disable\n");
  
- 	if (cmd->stop_src == TRIG_COUNT)
- 		err |= comedi_check_trigger_arg_min(&cmd->stop_arg, 1);
+ 		enable = false;
+ 	}
+ 
++	/*
++	 * There's no firmware feature flag/hypervisor bit to tell us we need to
++	 * flush the link stack on context switch. So we set it here if we see
++	 * either of the Spectre v2 mitigations that aim to protect userspace.
++	 */
++	if (security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED) ||
++	    security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE))
++		security_ftr_set(SEC_FTR_FLUSH_LINK_STACK);
++
+ 	toggle_count_cache_flush(enable);
+ }
+ 
 
 
