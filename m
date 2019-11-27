@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 548CB10BB31
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02BA310BB79
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731004AbfK0VK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:10:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37624 "EHLO mail.kernel.org"
+        id S1733307AbfK0VM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:12:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733042AbfK0VK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:10:27 -0500
+        id S2387401AbfK0VM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:12:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A6F82176D;
-        Wed, 27 Nov 2019 21:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F7E52154A;
+        Wed, 27 Nov 2019 21:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889026;
+        s=default; t=1574889176;
         bh=ugjkPN+O/GVFH6HkmMsSELLNjRIZkhF+p0FMpUghDl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3DLB26jxWL8S/gB3KdfUIdAOCtFpaNCUTen16G78Nms/UFn8ZpcOHXtIOaG87vPv
-         B1wEIw9kZ23icZoT0d5pIIttcPUnfpr7+uT8eFiGUzd1fJ/XCDF6GNi1Goo63LLo58
-         PtKflKl8X9LrXDsuzQx5u1pld8giu6xMsHgOD7L4=
+        b=Qc7wRIEFuJK6IQGX1z4Q3wy2iDEDNQPMLGIkOKtNvH6+azeshO2R4zBvHS/Az6ucO
+         bZBv4hL/32aFJtPvNl5gXLbBPqeGsHCXku9tLSYd0wDDHAPcXECMKCSJlJRbIvL/pN
+         VZXDb1agcmR4xCv510Bbblg8L2l8kmAcvYKst0jY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 5.3 56/95] x86/cpu_entry_area: Add guard page for entry stack on 32bit
+Subject: [PATCH 5.4 18/66] x86/cpu_entry_area: Add guard page for entry stack on 32bit
 Date:   Wed, 27 Nov 2019 21:32:13 +0100
-Message-Id: <20191127202923.382153935@linuxfoundation.org>
+Message-Id: <20191127202654.185297110@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
