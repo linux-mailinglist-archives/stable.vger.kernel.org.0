@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F57F10B8AC
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:45:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE1E10B98B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:54:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbfK0Upm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:45:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56804 "EHLO mail.kernel.org"
+        id S1730805AbfK0UyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:54:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729308AbfK0Upl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:45:41 -0500
+        id S1729004AbfK0UyU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:54:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A3B2217BC;
-        Wed, 27 Nov 2019 20:45:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BC1A2154A;
+        Wed, 27 Nov 2019 20:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887540;
-        bh=s6XzFskxKEy/0UPny9gW5Yu4Xr5VQWwj/YGBAcYZ4jk=;
+        s=default; t=1574888059;
+        bh=FzCglVxcSpKyCaxsRhGAWDD0lVXiYxk8tTZGIPr44Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKOfP3QNUh2wA8S7jZ/6wC7oqp+bfT0R2mwzbhwEoFssx/X14uSMBtutidszjD/0I
-         kMkW75ncE4PBz8V1pbOM8xUaGHSMbU81cDzyf8rs6LJA7QP5z5WpRq6XmXLvgnAD5m
-         6vyrqxx5J+/Om9F5jcbCqqZjxHIQ4JZTkMpOrubc=
+        b=mAcefy4u9WatpyUXp7Xh8umeHUSD6+irkp5NRIRBANjqCz3p4n2PNg2Sj+Xj0lE0Q
+         C8OKY9zcY1nUG6vwWNCEHisSx+6wczgM2M4VFTqNsYVmzMBujcord5NtvTxVz0rSuU
+         ccsuvKFcLChJbw5Q54Iit48MVR8ka1wXZSEyQmJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        "Christopher M. Riedl" <cmr@informatik.wtf>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>
-Subject: [PATCH 4.9 149/151] powerpc/64s: support nospectre_v2 cmdline option
-Date:   Wed, 27 Nov 2019 21:32:12 +0100
-Message-Id: <20191127203047.641403632@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH 4.14 200/211] USB: chaoskey: fix error case of a timeout
+Date:   Wed, 27 Nov 2019 21:32:13 +0100
+Message-Id: <20191127203112.492188901@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Christopher M. Riedl" <cmr@informatik.wtf>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit d8f0e0b073e1ec52a05f0c2a56318b47387d2f10 upstream.
+commit 92aa5986f4f7b5a8bf282ca0f50967f4326559f5 upstream.
 
-Add support for disabling the kernel implemented spectre v2 mitigation
-(count cache flush on context switch) via the nospectre_v2 and
-mitigations=off cmdline options.
+In case of a timeout or if a signal aborts a read
+communication with the device needs to be ended
+lest we overwrite an active URB the next time we
+do IO to the device, as the URB may still be active.
 
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Christopher M. Riedl <cmr@informatik.wtf>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190524024647.381-1-cmr@informatik.wtf
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191107142856.16774-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/kernel/security.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -29,7 +29,7 @@ static enum count_cache_flush_type count
- bool barrier_nospec_enabled;
- static bool no_nospec;
- static bool btb_flush_enabled;
--#ifdef CONFIG_PPC_FSL_BOOK3E
-+#if defined(CONFIG_PPC_FSL_BOOK3E) || defined(CONFIG_PPC_BOOK3S_64)
- static bool no_spectrev2;
- #endif
+---
+ drivers/usb/misc/chaoskey.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
+
+--- a/drivers/usb/misc/chaoskey.c
++++ b/drivers/usb/misc/chaoskey.c
+@@ -396,13 +396,17 @@ static int _chaoskey_fill(struct chaoske
+ 		!dev->reading,
+ 		(started ? NAK_TIMEOUT : ALEA_FIRST_TIMEOUT) );
  
-@@ -107,7 +107,7 @@ static __init int barrier_nospec_debugfs
- device_initcall(barrier_nospec_debugfs_init);
- #endif /* CONFIG_DEBUG_FS */
+-	if (result < 0)
++	if (result < 0) {
++		usb_kill_urb(dev->urb);
+ 		goto out;
++	}
  
--#ifdef CONFIG_PPC_FSL_BOOK3E
-+#if defined(CONFIG_PPC_FSL_BOOK3E) || defined(CONFIG_PPC_BOOK3S_64)
- static int __init handle_nospectre_v2(char *p)
+-	if (result == 0)
++	if (result == 0) {
+ 		result = -ETIMEDOUT;
+-	else
++		usb_kill_urb(dev->urb);
++	} else {
+ 		result = dev->valid;
++	}
+ out:
+ 	/* Let the device go back to sleep eventually */
+ 	usb_autopm_put_interface(dev->interface);
+@@ -538,7 +542,21 @@ static int chaoskey_suspend(struct usb_i
+ 
+ static int chaoskey_resume(struct usb_interface *interface)
  {
- 	no_spectrev2 = true;
-@@ -115,6 +115,9 @@ static int __init handle_nospectre_v2(ch
++	struct chaoskey *dev;
++	struct usb_device *udev = interface_to_usbdev(interface);
++
+ 	usb_dbg(interface, "resume");
++	dev = usb_get_intfdata(interface);
++
++	/*
++	 * We may have lost power.
++	 * In that case the device that needs a long time
++	 * for the first requests needs an extended timeout
++	 * again
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == ALEA_VENDOR_ID)
++		dev->reads_started = false;
++
  	return 0;
  }
- early_param("nospectre_v2", handle_nospectre_v2);
-+#endif /* CONFIG_PPC_FSL_BOOK3E || CONFIG_PPC_BOOK3S_64 */
-+
-+#ifdef CONFIG_PPC_FSL_BOOK3E
- void setup_spectre_v2(void)
- {
- 	if (no_spectrev2)
-@@ -392,7 +395,17 @@ static void toggle_count_cache_flush(boo
- 
- void setup_count_cache_flush(void)
- {
--	toggle_count_cache_flush(true);
-+	bool enable = true;
-+
-+	if (no_spectrev2 || cpu_mitigations_off()) {
-+		if (security_ftr_enabled(SEC_FTR_BCCTRL_SERIALISED) ||
-+		    security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED))
-+			pr_warn("Spectre v2 mitigations not under software control, can't disable\n");
-+
-+		enable = false;
-+	}
-+
-+	toggle_count_cache_flush(enable);
- }
- 
- #ifdef CONFIG_DEBUG_FS
+ #else
 
 
