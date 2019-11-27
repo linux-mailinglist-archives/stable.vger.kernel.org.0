@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0401410BDC1
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:31:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7417410BF6B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:43:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727659AbfK0VbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:31:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
+        id S1728270AbfK0VnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:43:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730916AbfK0UzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:55:06 -0500
+        id S1728848AbfK0UjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:39:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BA422084D;
-        Wed, 27 Nov 2019 20:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 887E221787;
+        Wed, 27 Nov 2019 20:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888105;
-        bh=bg068m6eQEBEESa5p5w78Mq6U6ACRkCkcOhx0Dbo9xs=;
+        s=default; t=1574887144;
+        bh=ia0ho4PGsHnSd2njASKBPIyvoGOIxw1AKkIE3vLSz4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01NAvmDoxEFQiZTn933OcFMmGMR4L3JwuH/TAcWILAUD3TUHByHphwvSSfX5/qT0j
-         Vesa012r/2wk6ThBtRYtZAgtj1ibTT40Sst1cNiMli07VzdrV6t05pZHOBaSIvnrsU
-         qkd4VJXOtEPBGxUakqfkf2qaExE9sp2ndPEIQScs=
+        b=OWLtQmQg2KIyQDRJOLdZx4Rhxe+UoLpjHWs5TDuV43SkfbDq3O0qMVc7HMVq3jx/5
+         1+xJpKvNXNZROHueG/OVwAqHfJeTim5wC86adSw+23+jUfOCEMWjyXc0fpQHdPFUQM
+         RXVlfmqin6W/3I8WNk1XQnMwVVyJuL05WKFDeWcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.14 189/211] media: vivid: Fix wrong locking that causes race conditions on streaming stop
+        stable@vger.kernel.org,
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Daniel Axtens <dja@axtens.net>
+Subject: [PATCH 4.4 131/132] powerpc/book3s64: Fix link stack flush on context switch
 Date:   Wed, 27 Nov 2019 21:32:02 +0100
-Message-Id: <20191127203111.557215149@linuxfoundation.org>
+Message-Id: <20191127203034.332799694@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,122 +45,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Popov <alex.popov@linux.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 6dcd5d7a7a29c1e4b8016a06aed78cd650cd8c27 upstream.
+commit 39e72bf96f5847ba87cc5bd7a3ce0fed813dc9ad upstream.
 
-There is the same incorrect approach to locking implemented in
-vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
-sdr_cap_stop_streaming().
+In commit ee13cb249fab ("powerpc/64s: Add support for software count
+cache flush"), I added support for software to flush the count
+cache (indirect branch cache) on context switch if firmware told us
+that was the required mitigation for Spectre v2.
 
-These functions are called during streaming stopping with vivid_dev.mutex
-locked. And they all do the same mistake while stopping their kthreads,
-which need to lock this mutex as well. See the example from
-vivid_stop_generating_vid_cap():
-  /* shutdown control thread */
-  vivid_grab_controls(dev, false);
-  mutex_unlock(&dev->mutex);
-  kthread_stop(dev->kthread_vid_cap);
-  dev->kthread_vid_cap = NULL;
-  mutex_lock(&dev->mutex);
+As part of that code we also added a software flush of the link
+stack (return address stack), which protects against Spectre-RSB
+between user processes.
 
-But when this mutex is unlocked, another vb2_fop_read() can lock it
-instead of vivid_thread_vid_cap() and manipulate the buffer queue.
-That causes a use-after-free access later.
+That is all correct for CPUs that activate that mitigation, which is
+currently Power9 Nimbus DD2.3.
 
-To fix those issues let's:
-  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
-vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
-  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
-the loops of the vivid kthread handlers.
+What I got wrong is that on older CPUs, where firmware has disabled
+the count cache, we also need to flush the link stack on context
+switch.
 
-Signed-off-by: Alexander Popov <alex.popov@linux.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>      # for v3.18 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+To fix it we create a new feature bit which is not set by firmware,
+which tells us we need to flush the link stack. We set that when
+firmware tells us that either of the existing Spectre v2 mitigations
+are enabled.
+
+Then we adjust the patching code so that if we see that feature bit we
+enable the link stack flush. If we're also told to flush the count
+cache in software then we fall through and do that also.
+
+On the older CPUs we don't need to do do the software count cache
+flush, firmware has disabled it, so in that case we patch in an early
+return after the link stack flush.
+
+The naming of some of the functions is awkward after this patch,
+because they're called "count cache" but they also do link stack. But
+we'll fix that up in a later commit to ease backporting.
+
+This is the fix for CVE-2019-18660.
+
+Reported-by: Anthony Steinhauser <asteinhauser@google.com>
+Fixes: ee13cb249fab ("powerpc/64s: Add support for software count cache flush")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+[dja: straightforward backport to v4.14]
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/media/platform/vivid/vivid-kthread-cap.c |    8 +++++---
- drivers/media/platform/vivid/vivid-kthread-out.c |    8 +++++---
- drivers/media/platform/vivid/vivid-sdr-cap.c     |    8 +++++---
- 3 files changed, 15 insertions(+), 9 deletions(-)
+ arch/powerpc/include/asm/asm-prototypes.h    |    1 
+ arch/powerpc/include/asm/security_features.h |    3 +
+ arch/powerpc/kernel/entry_64.S               |    6 +++
+ arch/powerpc/kernel/security.c               |   48 ++++++++++++++++++++++++---
+ 4 files changed, 54 insertions(+), 4 deletions(-)
 
---- a/drivers/media/platform/vivid/vivid-kthread-cap.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
-@@ -777,7 +777,11 @@ static int vivid_thread_vid_cap(void *da
- 		if (kthread_should_stop())
- 			break;
+--- a/arch/powerpc/include/asm/asm-prototypes.h
++++ b/arch/powerpc/include/asm/asm-prototypes.h
+@@ -15,6 +15,7 @@
+ /* Patch sites */
+ extern s32 patch__call_flush_count_cache;
+ extern s32 patch__flush_count_cache_return;
++extern s32 patch__flush_link_stack_return;
  
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
+ extern long flush_count_cache;
+ 
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -81,6 +81,9 @@ static inline bool security_ftr_enabled(
+ // Software required to flush count cache on context switch
+ #define SEC_FTR_FLUSH_COUNT_CACHE	0x0000000000000400ull
+ 
++// Software required to flush link stack on context switch
++#define SEC_FTR_FLUSH_LINK_STACK	0x0000000000001000ull
 +
- 		cur_jiffies = jiffies;
- 		if (dev->cap_seq_resync) {
- 			dev->jiffies_vid_cap = cur_jiffies;
-@@ -930,8 +934,6 @@ void vivid_stop_generating_vid_cap(struc
  
- 	/* shutdown control thread */
- 	vivid_grab_controls(dev, false);
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_vid_cap);
- 	dev->kthread_vid_cap = NULL;
--	mutex_lock(&dev->mutex);
- }
---- a/drivers/media/platform/vivid/vivid-kthread-out.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-out.c
-@@ -147,7 +147,11 @@ static int vivid_thread_vid_out(void *da
- 		if (kthread_should_stop())
- 			break;
+ // Features enabled by default
+ #define SEC_FTR_DEFAULT \
+--- a/arch/powerpc/kernel/entry_64.S
++++ b/arch/powerpc/kernel/entry_64.S
+@@ -477,6 +477,7 @@ flush_count_cache:
+ 	/* Save LR into r9 */
+ 	mflr	r9
  
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
++	// Flush the link stack
+ 	.rept 64
+ 	bl	.+4
+ 	.endr
+@@ -486,6 +487,11 @@ flush_count_cache:
+ 	.balign 32
+ 	/* Restore LR */
+ 1:	mtlr	r9
 +
- 		cur_jiffies = jiffies;
- 		if (dev->out_seq_resync) {
- 			dev->jiffies_vid_out = cur_jiffies;
-@@ -301,8 +305,6 @@ void vivid_stop_generating_vid_out(struc
- 
- 	/* shutdown control thread */
- 	vivid_grab_controls(dev, false);
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_vid_out);
- 	dev->kthread_vid_out = NULL;
--	mutex_lock(&dev->mutex);
- }
---- a/drivers/media/platform/vivid/vivid-sdr-cap.c
-+++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
-@@ -149,7 +149,11 @@ static int vivid_thread_sdr_cap(void *da
- 		if (kthread_should_stop())
- 			break;
- 
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
++	// If we're just flushing the link stack, return here
++3:	nop
++	patch_site 3b patch__flush_link_stack_return
 +
- 		cur_jiffies = jiffies;
- 		if (dev->sdr_cap_seq_resync) {
- 			dev->jiffies_sdr_cap = cur_jiffies;
-@@ -309,10 +313,8 @@ static void sdr_cap_stop_streaming(struc
+ 	li	r9,0x7fff
+ 	mtctr	r9
+ 
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -25,6 +25,7 @@ enum count_cache_flush_type {
+ 	COUNT_CACHE_FLUSH_HW	= 0x4,
+ };
+ static enum count_cache_flush_type count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++static bool link_stack_flush_enabled;
+ 
+ bool barrier_nospec_enabled;
+ static bool no_nospec;
+@@ -205,11 +206,19 @@ ssize_t cpu_show_spectre_v2(struct devic
+ 
+ 		if (ccd)
+ 			seq_buf_printf(&s, "Indirect branch cache disabled");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (count_cache_flush_type != COUNT_CACHE_FLUSH_NONE) {
+ 		seq_buf_printf(&s, "Mitigation: Software count cache flush");
+ 
+ 		if (count_cache_flush_type == COUNT_CACHE_FLUSH_HW)
+ 			seq_buf_printf(&s, " (hardware accelerated)");
++
++		if (link_stack_flush_enabled)
++			seq_buf_printf(&s, ", Software link stack flush");
++
+ 	} else if (btb_flush_enabled) {
+ 		seq_buf_printf(&s, "Mitigation: Branch predictor state flush");
+ 	} else {
+@@ -368,18 +377,40 @@ static __init int stf_barrier_debugfs_in
+ device_initcall(stf_barrier_debugfs_init);
+ #endif /* CONFIG_DEBUG_FS */
+ 
++static void no_count_cache_flush(void)
++{
++	count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
++	pr_info("count-cache-flush: software flush disabled.\n");
++}
++
+ static void toggle_count_cache_flush(bool enable)
+ {
+-	if (!enable || !security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE) &&
++	    !security_ftr_enabled(SEC_FTR_FLUSH_LINK_STACK))
++		enable = false;
++
++	if (!enable) {
+ 		patch_instruction_site(&patch__call_flush_count_cache, PPC_INST_NOP);
+-		count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
+-		pr_info("count-cache-flush: software flush disabled.\n");
++		pr_info("link-stack-flush: software flush disabled.\n");
++		link_stack_flush_enabled = false;
++		no_count_cache_flush();
+ 		return;
  	}
  
- 	/* shutdown control thread */
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_sdr_cap);
- 	dev->kthread_sdr_cap = NULL;
--	mutex_lock(&dev->mutex);
++	// This enables the branch from _switch to flush_count_cache
+ 	patch_branch_site(&patch__call_flush_count_cache,
+ 			  (u64)&flush_count_cache, BRANCH_SET_LINK);
+ 
++	pr_info("link-stack-flush: software flush enabled.\n");
++	link_stack_flush_enabled = true;
++
++	// If we just need to flush the link stack, patch an early return
++	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
++		patch_instruction_site(&patch__flush_link_stack_return, PPC_INST_BLR);
++		no_count_cache_flush();
++		return;
++	}
++
+ 	if (!security_ftr_enabled(SEC_FTR_BCCTR_FLUSH_ASSIST)) {
+ 		count_cache_flush_type = COUNT_CACHE_FLUSH_SW;
+ 		pr_info("count-cache-flush: full software flush sequence enabled.\n");
+@@ -398,11 +429,20 @@ void setup_count_cache_flush(void)
+ 	if (no_spectrev2 || cpu_mitigations_off()) {
+ 		if (security_ftr_enabled(SEC_FTR_BCCTRL_SERIALISED) ||
+ 		    security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED))
+-			pr_warn("Spectre v2 mitigations not under software control, can't disable\n");
++			pr_warn("Spectre v2 mitigations not fully under software control, can't disable\n");
+ 
+ 		enable = false;
+ 	}
+ 
++	/*
++	 * There's no firmware feature flag/hypervisor bit to tell us we need to
++	 * flush the link stack on context switch. So we set it here if we see
++	 * either of the Spectre v2 mitigations that aim to protect userspace.
++	 */
++	if (security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED) ||
++	    security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE))
++		security_ftr_set(SEC_FTR_FLUSH_LINK_STACK);
++
+ 	toggle_count_cache_flush(enable);
  }
  
- const struct vb2_ops vivid_sdr_cap_qops = {
 
 
