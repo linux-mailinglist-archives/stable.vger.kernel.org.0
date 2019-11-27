@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B02210B7DB
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20EF310B95C
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:52:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728599AbfK0Uhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:37:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40654 "EHLO mail.kernel.org"
+        id S1728264AbfK0UwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:52:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727685AbfK0Uhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:37:35 -0500
+        id S1730206AbfK0UwU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:52:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A46CB215A5;
-        Wed, 27 Nov 2019 20:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2146521882;
+        Wed, 27 Nov 2019 20:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887054;
-        bh=8zZBd4JllggUa0QqNjPyfYaunOJs2rrXmcTVYbNuM+s=;
+        s=default; t=1574887939;
+        bh=d9y+8teIU6Z3Uw7Gq33J3Sg7jR+MWOtnLwmYSK1PHvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vzr7xFJYIFjCK5ErBFMPhgS58MC+ltVkvvqsCKmCjmnzgo2+ZJrkejig03K7YLTOs
-         agaRe3NJ3CTNHU4UlGpx8RZPvpflNm08dn89MHXSvKX03RyrYu6kDAj1/Z0hqvE/w+
-         iqTxWvzGvXmyA1xygHs/GC9KBpN0yAg6upi8F2Nc=
+        b=OPPpaUR2uEfstStg7oasVS9o+o9LHZoKqKcBP5nCRNTrUZS59qp+gXPWQcrFkxcdz
+         dBBe9Xy9TeoDd+7CGLbLPonqIT3SF9WCBLxfulbZXzWylRkupXzqsXYr8AMQHRZTCd
+         SsegwdzNRSQQG71BfcZy2Vd7isr8ld5tyjFnugfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Sriram R <srirrama@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 095/132] pinctrl: zynq: Use define directive for PIN_CONFIG_IO_STANDARD
-Date:   Wed, 27 Nov 2019 21:31:26 +0100
-Message-Id: <20191127203021.759504966@linuxfoundation.org>
+Subject: [PATCH 4.14 154/211] cfg80211: Prevent regulatory restore during STA disconnect in concurrent interfaces
+Date:   Wed, 27 Nov 2019 21:31:27 +0100
+Message-Id: <20191127203108.555113165@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Sriram R <srirrama@codeaurora.org>
 
-[ Upstream commit cd8a145a066a1a3beb0ae615c7cb2ee4217418d7 ]
+[ Upstream commit 113f3aaa81bd56aba02659786ed65cbd9cb9a6fc ]
 
-Clang warns when one enumerated type is implicitly converted to another:
+Currently when an AP and STA interfaces are active in the same or different
+radios, regulatory settings are restored whenever the STA disconnects. This
+restores all channel information including dfs states in all radios.
+For example, if an AP interface is active in one radio and STA in another,
+when radar is detected on the AP interface, the dfs state of the channel
+will be changed to UNAVAILABLE. But when the STA interface disconnects,
+this issues a regulatory disconnect hint which restores all regulatory
+settings in all the radios attached and thereby losing the stored dfs
+state on the other radio where the channel was marked as unavailable
+earlier. Hence prevent such regulatory restore whenever another active
+beaconing interface is present in the same or other radios.
 
-drivers/pinctrl/pinctrl-zynq.c:985:18: warning: implicit conversion from
-enumeration type 'enum zynq_pin_config_param' to different enumeration
-type 'enum pin_config_param' [-Wenum-conversion]
-        {"io-standard", PIN_CONFIG_IOSTANDARD, zynq_iostd_lvcmos18},
-        ~               ^~~~~~~~~~~~~~~~~~~~~
-drivers/pinctrl/pinctrl-zynq.c:990:16: warning: implicit conversion from
-enumeration type 'enum zynq_pin_config_param' to different enumeration
-type 'enum pin_config_param' [-Wenum-conversion]
-        = { PCONFDUMP(PIN_CONFIG_IOSTANDARD, "IO-standard", NULL, true),
-            ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
-macro 'PCONFDUMP'
-        .param = a, .display = b, .format = c, .has_arg = d     \
-                 ^
-2 warnings generated.
-
-It is expected that pinctrl drivers can extend pin_config_param because
-of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
-isn't an issue. Most drivers that take advantage of this define the
-PIN_CONFIG variables as constants, rather than enumerated values. Do the
-same thing here so that Clang no longer warns.
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sriram R <srirrama@codeaurora.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-zynq.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ net/wireless/sme.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-zynq.c b/drivers/pinctrl/pinctrl-zynq.c
-index d57b5eca7b983..ad12205dd7962 100644
---- a/drivers/pinctrl/pinctrl-zynq.c
-+++ b/drivers/pinctrl/pinctrl-zynq.c
-@@ -967,15 +967,12 @@ enum zynq_io_standards {
- 	zynq_iostd_max
- };
- 
--/**
-- * enum zynq_pin_config_param - possible pin configuration parameters
-- * @PIN_CONFIG_IOSTANDARD: if the pin can select an IO standard, the argument to
-+/*
-+ * PIN_CONFIG_IOSTANDARD: if the pin can select an IO standard, the argument to
-  *	this parameter (on a custom format) tells the driver which alternative
-  *	IO standard to use.
-  */
--enum zynq_pin_config_param {
--	PIN_CONFIG_IOSTANDARD = PIN_CONFIG_END + 1,
--};
-+#define PIN_CONFIG_IOSTANDARD		(PIN_CONFIG_END + 1)
- 
- static const struct pinconf_generic_params zynq_dt_params[] = {
- 	{"io-standard", PIN_CONFIG_IOSTANDARD, zynq_iostd_lvcmos18},
+diff --git a/net/wireless/sme.c b/net/wireless/sme.c
+index d014aea07160c..66cccd16c24af 100644
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -642,11 +642,15 @@ static bool cfg80211_is_all_idle(void)
+ 	 * All devices must be idle as otherwise if you are actively
+ 	 * scanning some new beacon hints could be learned and would
+ 	 * count as new regulatory hints.
++	 * Also if there is any other active beaconing interface we
++	 * need not issue a disconnect hint and reset any info such
++	 * as chan dfs state, etc.
+ 	 */
+ 	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
+ 		list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
+ 			wdev_lock(wdev);
+-			if (wdev->conn || wdev->current_bss)
++			if (wdev->conn || wdev->current_bss ||
++			    cfg80211_beaconing_iface_active(wdev))
+ 				is_all_idle = false;
+ 			wdev_unlock(wdev);
+ 		}
 -- 
 2.20.1
 
