@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B68C510BD83
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B06B10BD80
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730759AbfK0U5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:57:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
+        id S1730868AbfK0U5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:57:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728691AbfK0U5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:57:05 -0500
+        id S1730608AbfK0U5I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:57:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2FCB21741;
-        Wed, 27 Nov 2019 20:57:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18201217AB;
+        Wed, 27 Nov 2019 20:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888225;
-        bh=ymKgi5qHOMzmBfl3cxb8n0AXalZfJo1V7k2iQENLuMs=;
+        s=default; t=1574888227;
+        bh=UgCUPv+FXXkrqQZEGsb62ZUpxRa20bdJWsSt6ZQqkLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgDwBr1m6jLxUNWYF2W5rA4s2W1PBz3GZ12o7ROw4OFU/ntdYScNvjECaCsyRiTVK
-         WRT9Qen0Jb9kvrS/QMTUGI0Y2POVYv+NAGw+vFI+OHHK/5pO1dtC167mELVDx+SwuP
-         pW2s54DK79WdkEWqs4WFPDvrPRxBjvIpULOimGkU=
+        b=StZ53zpG2TlVtnlWMUVu93IZBg3AB+UGoJe34FyNepg7qTN+1G5n6QtSSRIwtkmbf
+         eFYFG9ZAcgkgrNxzh25oGBfE6Q3K2zECb3+CiiTcsz4melSwZXMfNnkYqA6YLh96zV
+         b2CT328+kOAb4cZLEgcXAhg6GqTb3qS7f3gUGHQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.19 010/306] net/mlx5: Fix auto group size calculation
-Date:   Wed, 27 Nov 2019 21:27:40 +0100
-Message-Id: <20191127203115.482321963@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 011/306] vhost/vsock: split packets to send using multiple buffers
+Date:   Wed, 27 Nov 2019 21:27:41 +0100
+Message-Id: <20191127203115.549140598@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,74 +45,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@mellanox.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 97fd8da281f80e7e69e0114bc906575734d4dfaf ]
+commit 6dbd3e66e7785a2f055bf84d98de9b8fd31ff3f5 upstream.
 
-Once all the large flow groups (defined by the user when the flow table
-is created - max_num_groups) were created, then all the following new
-flow groups will have only one flow table entry, even though the flow table
-has place to larger groups.
-Fix the condition to prefer large flow group.
+If the packets to sent to the guest are bigger than the buffer
+available, we can split them, using multiple buffers and fixing
+the length in the packet header.
+This is safe since virtio-vsock supports only stream sockets.
 
-Fixes: f0d22d187473 ("net/mlx5_core: Introduce flow steering autogrouped flow table")
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |   10 ++++++----
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.h |    1 +
- 2 files changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -520,7 +520,7 @@ static void del_sw_flow_group(struct fs_
+---
+ drivers/vhost/vsock.c                   |   66 +++++++++++++++++++++++---------
+ net/vmw_vsock/virtio_transport_common.c |   15 +++++--
+ 2 files changed, 60 insertions(+), 21 deletions(-)
+
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -103,7 +103,7 @@ vhost_transport_do_send_pkt(struct vhost
+ 		struct iov_iter iov_iter;
+ 		unsigned out, in;
+ 		size_t nbytes;
+-		size_t len;
++		size_t iov_len, payload_len;
+ 		int head;
  
- 	rhashtable_destroy(&fg->ftes_hash);
- 	ida_destroy(&fg->fte_allocator);
--	if (ft->autogroup.active)
-+	if (ft->autogroup.active && fg->max_ftes == ft->autogroup.group_size)
- 		ft->autogroup.num_groups--;
- 	err = rhltable_remove(&ft->fgs_hash,
- 			      &fg->hash,
-@@ -1065,6 +1065,8 @@ mlx5_create_auto_grouped_flow_table(stru
+ 		spin_lock_bh(&vsock->send_pkt_list_lock);
+@@ -148,8 +148,24 @@ vhost_transport_do_send_pkt(struct vhost
+ 			break;
+ 		}
  
- 	ft->autogroup.active = true;
- 	ft->autogroup.required_groups = max_num_groups;
-+	/* We save place for flow groups in addition to max types */
-+	ft->autogroup.group_size = ft->max_fte / (max_num_groups + 1);
+-		len = iov_length(&vq->iov[out], in);
+-		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
++		iov_len = iov_length(&vq->iov[out], in);
++		if (iov_len < sizeof(pkt->hdr)) {
++			virtio_transport_free_pkt(pkt);
++			vq_err(vq, "Buffer len [%zu] too small\n", iov_len);
++			break;
++		}
++
++		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, iov_len);
++		payload_len = pkt->len - pkt->off;
++
++		/* If the packet is greater than the space available in the
++		 * buffer, we split it using multiple buffers.
++		 */
++		if (payload_len > iov_len - sizeof(pkt->hdr))
++			payload_len = iov_len - sizeof(pkt->hdr);
++
++		/* Set the correct length in the header */
++		pkt->hdr.len = cpu_to_le32(payload_len);
  
- 	return ft;
- }
-@@ -1270,8 +1272,7 @@ static struct mlx5_flow_group *alloc_aut
- 		return ERR_PTR(-ENOENT);
+ 		nbytes = copy_to_iter(&pkt->hdr, sizeof(pkt->hdr), &iov_iter);
+ 		if (nbytes != sizeof(pkt->hdr)) {
+@@ -158,33 +174,47 @@ vhost_transport_do_send_pkt(struct vhost
+ 			break;
+ 		}
  
- 	if (ft->autogroup.num_groups < ft->autogroup.required_groups)
--		/* We save place for flow groups in addition to max types */
--		group_size = ft->max_fte / (ft->autogroup.required_groups + 1);
-+		group_size = ft->autogroup.group_size;
+-		nbytes = copy_to_iter(pkt->buf, pkt->len, &iov_iter);
+-		if (nbytes != pkt->len) {
++		nbytes = copy_to_iter(pkt->buf + pkt->off, payload_len,
++				      &iov_iter);
++		if (nbytes != payload_len) {
+ 			virtio_transport_free_pkt(pkt);
+ 			vq_err(vq, "Faulted on copying pkt buf\n");
+ 			break;
+ 		}
  
- 	/*  ft->max_fte == ft->autogroup.max_types */
- 	if (group_size == 0)
-@@ -1298,7 +1299,8 @@ static struct mlx5_flow_group *alloc_aut
- 	if (IS_ERR(fg))
- 		goto out;
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + pkt->len);
++		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+ 		added = true;
  
--	ft->autogroup.num_groups++;
-+	if (group_size == ft->autogroup.group_size)
-+		ft->autogroup.num_groups++;
+-		if (pkt->reply) {
+-			int val;
+-
+-			val = atomic_dec_return(&vsock->queued_replies);
+-
+-			/* Do we have resources to resume tx processing? */
+-			if (val + 1 == tx_vq->num)
+-				restart_tx = true;
+-		}
+-
+ 		/* Deliver to monitoring devices all correctly transmitted
+ 		 * packets.
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
  
- out:
- 	return fg;
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h
-@@ -121,6 +121,7 @@ struct mlx5_flow_table {
- 	struct {
- 		bool			active;
- 		unsigned int		required_groups;
-+		unsigned int		group_size;
- 		unsigned int		num_groups;
- 	} autogroup;
- 	/* Protect fwd_rules */
+-		total_len += pkt->len;
+-		virtio_transport_free_pkt(pkt);
++		pkt->off += payload_len;
++		total_len += payload_len;
++
++		/* If we didn't send all the payload we can requeue the packet
++		 * to send it with the next available buffer.
++		 */
++		if (pkt->off < pkt->len) {
++			spin_lock_bh(&vsock->send_pkt_list_lock);
++			list_add(&pkt->list, &vsock->send_pkt_list);
++			spin_unlock_bh(&vsock->send_pkt_list_lock);
++		} else {
++			if (pkt->reply) {
++				int val;
++
++				val = atomic_dec_return(&vsock->queued_replies);
++
++				/* Do we have resources to resume tx
++				 * processing?
++				 */
++				if (val + 1 == tx_vq->num)
++					restart_tx = true;
++			}
++
++			virtio_transport_free_pkt(pkt);
++		}
+ 	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 	if (added)
+ 		vhost_signal(&vsock->dev, vq);
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -92,8 +92,17 @@ static struct sk_buff *virtio_transport_
+ 	struct virtio_vsock_pkt *pkt = opaque;
+ 	struct af_vsockmon_hdr *hdr;
+ 	struct sk_buff *skb;
++	size_t payload_len;
++	void *payload_buf;
+ 
+-	skb = alloc_skb(sizeof(*hdr) + sizeof(pkt->hdr) + pkt->len,
++	/* A packet could be split to fit the RX buffer, so we can retrieve
++	 * the payload length from the header and the buffer pointer taking
++	 * care of the offset in the original packet.
++	 */
++	payload_len = le32_to_cpu(pkt->hdr.len);
++	payload_buf = pkt->buf + pkt->off;
++
++	skb = alloc_skb(sizeof(*hdr) + sizeof(pkt->hdr) + payload_len,
+ 			GFP_ATOMIC);
+ 	if (!skb)
+ 		return NULL;
+@@ -133,8 +142,8 @@ static struct sk_buff *virtio_transport_
+ 
+ 	skb_put_data(skb, &pkt->hdr, sizeof(pkt->hdr));
+ 
+-	if (pkt->len) {
+-		skb_put_data(skb, pkt->buf, pkt->len);
++	if (payload_len) {
++		skb_put_data(skb, payload_buf, payload_len);
+ 	}
+ 
+ 	return skb;
 
 
