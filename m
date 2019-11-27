@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0422510BAF1
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:10:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B0310BB4E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:11:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732674AbfK0VIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:08:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
+        id S1732371AbfK0VL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:11:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732684AbfK0VH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:07:59 -0500
+        id S1733186AbfK0VL3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:11:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3583121774;
-        Wed, 27 Nov 2019 21:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42C5D217AB;
+        Wed, 27 Nov 2019 21:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888878;
-        bh=8bfZahvHy7/rq2D7BKa9hoWITidWgRWH6dOH0FcTapg=;
+        s=default; t=1574889088;
+        bh=AlwgF7E2mI6erGYqN5kKF/eu6Vfv7Kl9Yb2gkgrbzkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEDeyPM19aXSwFMMN7hilXPmy7I2kHqIE7/DBE8PgYl1ukVssKDT1VyAmk6crb4zl
-         iecwsoRf2eywte2z/YtfwObkOoBzSx1jlthLamHvXOHBj4Bwed65PKDQHkuUF9cGIP
-         3VrUQjTfJ/xAJbpIIlNPgFn17Lv4na7ld+ydZVwI=
+        b=IGq3IYcHG95IBcoOh0JmES9zwhK2lX83w1UrXTdI2spHCsAHG1kld87kVLHRO2yP5
+         L6JcZXBqowKj/tiqIbLzohbrWlGWVXMgbSDIJWqoHN9VPfIDyO8APnehGmll9uNjf3
+         2v92/dHeFQr1AbuaYDFfMV4quTo+nyo2CPkvIQkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anthony Steinhauser <asteinhauser@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 305/306] powerpc/book3s64: Fix link stack flush on context switch
+        syzbot+f49d12d34f2321cf4df2@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.3 78/95] media: imon: invalid dereference in imon_touch_event
 Date:   Wed, 27 Nov 2019 21:32:35 +0100
-Message-Id: <20191127203136.996614545@linuxfoundation.org>
+Message-Id: <20191127202946.744284917@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
-References: <20191127203114.766709977@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,196 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Sean Young <sean@mess.org>
 
-commit 39e72bf96f5847ba87cc5bd7a3ce0fed813dc9ad upstream.
+commit f3f5ba42c58d56d50f539854d8cc188944e96087 upstream.
 
-In commit ee13cb249fab ("powerpc/64s: Add support for software count
-cache flush"), I added support for software to flush the count
-cache (indirect branch cache) on context switch if firmware told us
-that was the required mitigation for Spectre v2.
+The touch timer is set up in intf1. If the second interface does not exist,
+the timer and touch input device are not setup and we get the following
+error, when touch events are reported via intf0.
 
-As part of that code we also added a software flush of the link
-stack (return address stack), which protects against Spectre-RSB
-between user processes.
+kernel BUG at kernel/time/timer.c:956!
+invalid opcode: 0000 [#1] SMP KASAN
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-rc1+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__mod_timer kernel/time/timer.c:956 [inline]
+RIP: 0010:__mod_timer kernel/time/timer.c:949 [inline]
+RIP: 0010:mod_timer+0x5a2/0xb50 kernel/time/timer.c:1100
+Code: 45 10 c7 44 24 14 ff ff ff ff 48 89 44 24 08 48 8d 45 20 48 c7 44 24 18 00 00 00 00 48 89 04 24 e9 5a fc ff ff e8 ae ce 0e 00 <0f> 0b e8 a7 ce 0e 00 4c 89 74 24 20 e9 37 fe ff ff e8 98 ce 0e 00
+RSP: 0018:ffff8881db209930 EFLAGS: 00010006
+RAX: ffffffff86c2b200 RBX: 00000000ffffa688 RCX: ffffffff83efc583
+RDX: 0000000000000100 RSI: ffffffff812f4d82 RDI: ffff8881d2356200
+RBP: ffff8881d23561e8 R08: ffffffff86c2b200 R09: ffffed103a46abeb
+R10: ffffed103a46abea R11: ffff8881d2355f53 R12: dffffc0000000000
+R13: 1ffff1103b64132d R14: ffff8881d2355f50 R15: 0000000000000006
+FS:  0000000000000000(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f75e2799000 CR3: 00000001d3b07000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ imon_touch_event drivers/media/rc/imon.c:1348 [inline]
+ imon_incoming_packet.isra.0+0x2546/0x2f10 drivers/media/rc/imon.c:1603
+ usb_rx_callback_intf0+0x151/0x1e0 drivers/media/rc/imon.c:1734
+ __usb_hcd_giveback_urb+0x1f2/0x470 drivers/usb/core/hcd.c:1654
+ usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1719
+ dummy_timer+0x120f/0x2fa2 drivers/usb/gadget/udc/dummy_hcd.c:1965
+ call_timer_fn+0x179/0x650 kernel/time/timer.c:1404
+ expire_timers kernel/time/timer.c:1449 [inline]
+ __run_timers kernel/time/timer.c:1773 [inline]
+ __run_timers kernel/time/timer.c:1740 [inline]
+ run_timer_softirq+0x5e3/0x1490 kernel/time/timer.c:1786
+ __do_softirq+0x221/0x912 kernel/softirq.c:292
+ invoke_softirq kernel/softirq.c:373 [inline]
+ irq_exit+0x178/0x1a0 kernel/softirq.c:413
+ exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+ smp_apic_timer_interrupt+0x12f/0x500 arch/x86/kernel/apic/apic.c:1137
+ apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:830
+ </IRQ>
+RIP: 0010:default_idle+0x28/0x2e0 arch/x86/kernel/process.c:581
+Code: 90 90 41 56 41 55 65 44 8b 2d 44 3a 8f 7a 41 54 55 53 0f 1f 44 00 00 e8 36 ee d0 fb e9 07 00 00 00 0f 00 2d fa dd 4f 00 fb f4 <65> 44 8b 2d 20 3a 8f 7a 0f 1f 44 00 00 5b 5d 41 5c 41 5d 41 5e c3
+RSP: 0018:ffffffff86c07da8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+RAX: 0000000000000007 RBX: ffffffff86c2b200 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffffffff86c2ba4c
+RBP: fffffbfff0d85640 R08: ffffffff86c2b200 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ cpuidle_idle_call kernel/sched/idle.c:154 [inline]
+ do_idle+0x3b6/0x500 kernel/sched/idle.c:263
+ cpu_startup_entry+0x14/0x20 kernel/sched/idle.c:355
+ start_kernel+0x82a/0x864 init/main.c:784
+ secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:241
+Modules linked in:
 
-That is all correct for CPUs that activate that mitigation, which is
-currently Power9 Nimbus DD2.3.
-
-What I got wrong is that on older CPUs, where firmware has disabled
-the count cache, we also need to flush the link stack on context
-switch.
-
-To fix it we create a new feature bit which is not set by firmware,
-which tells us we need to flush the link stack. We set that when
-firmware tells us that either of the existing Spectre v2 mitigations
-are enabled.
-
-Then we adjust the patching code so that if we see that feature bit we
-enable the link stack flush. If we're also told to flush the count
-cache in software then we fall through and do that also.
-
-On the older CPUs we don't need to do do the software count cache
-flush, firmware has disabled it, so in that case we patch in an early
-return after the link stack flush.
-
-The naming of some of the functions is awkward after this patch,
-because they're called "count cache" but they also do link stack. But
-we'll fix that up in a later commit to ease backporting.
-
-This is the fix for CVE-2019-18660.
-
-Reported-by: Anthony Steinhauser <asteinhauser@google.com>
-Fixes: ee13cb249fab ("powerpc/64s: Add support for software count cache flush")
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reported-by: syzbot+f49d12d34f2321cf4df2@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/include/asm/asm-prototypes.h    |    1 
- arch/powerpc/include/asm/security_features.h |    3 +
- arch/powerpc/kernel/entry_64.S               |    6 +++
- arch/powerpc/kernel/security.c               |   48 ++++++++++++++++++++++++---
- 4 files changed, 54 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/include/asm/asm-prototypes.h
-+++ b/arch/powerpc/include/asm/asm-prototypes.h
-@@ -146,6 +146,7 @@ void _kvmppc_save_tm_pr(struct kvm_vcpu
- /* Patch sites */
- extern s32 patch__call_flush_count_cache;
- extern s32 patch__flush_count_cache_return;
-+extern s32 patch__flush_link_stack_return;
- extern s32 patch__memset_nocache, patch__memcpy_nocache;
+---
+ drivers/media/rc/imon.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/drivers/media/rc/imon.c
++++ b/drivers/media/rc/imon.c
+@@ -1598,8 +1598,7 @@ static void imon_incoming_packet(struct
+ 	spin_unlock_irqrestore(&ictx->kc_lock, flags);
  
- extern long flush_count_cache;
---- a/arch/powerpc/include/asm/security_features.h
-+++ b/arch/powerpc/include/asm/security_features.h
-@@ -81,6 +81,9 @@ static inline bool security_ftr_enabled(
- // Software required to flush count cache on context switch
- #define SEC_FTR_FLUSH_COUNT_CACHE	0x0000000000000400ull
- 
-+// Software required to flush link stack on context switch
-+#define SEC_FTR_FLUSH_LINK_STACK	0x0000000000001000ull
-+
- 
- // Features enabled by default
- #define SEC_FTR_DEFAULT \
---- a/arch/powerpc/kernel/entry_64.S
-+++ b/arch/powerpc/kernel/entry_64.S
-@@ -533,6 +533,7 @@ flush_count_cache:
- 	/* Save LR into r9 */
- 	mflr	r9
- 
-+	// Flush the link stack
- 	.rept 64
- 	bl	.+4
- 	.endr
-@@ -542,6 +543,11 @@ flush_count_cache:
- 	.balign 32
- 	/* Restore LR */
- 1:	mtlr	r9
-+
-+	// If we're just flushing the link stack, return here
-+3:	nop
-+	patch_site 3b patch__flush_link_stack_return
-+
- 	li	r9,0x7fff
- 	mtctr	r9
- 
---- a/arch/powerpc/kernel/security.c
-+++ b/arch/powerpc/kernel/security.c
-@@ -24,6 +24,7 @@ enum count_cache_flush_type {
- 	COUNT_CACHE_FLUSH_HW	= 0x4,
- };
- static enum count_cache_flush_type count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
-+static bool link_stack_flush_enabled;
- 
- bool barrier_nospec_enabled;
- static bool no_nospec;
-@@ -204,11 +205,19 @@ ssize_t cpu_show_spectre_v2(struct devic
- 
- 		if (ccd)
- 			seq_buf_printf(&s, "Indirect branch cache disabled");
-+
-+		if (link_stack_flush_enabled)
-+			seq_buf_printf(&s, ", Software link stack flush");
-+
- 	} else if (count_cache_flush_type != COUNT_CACHE_FLUSH_NONE) {
- 		seq_buf_printf(&s, "Mitigation: Software count cache flush");
- 
- 		if (count_cache_flush_type == COUNT_CACHE_FLUSH_HW)
- 			seq_buf_printf(&s, " (hardware accelerated)");
-+
-+		if (link_stack_flush_enabled)
-+			seq_buf_printf(&s, ", Software link stack flush");
-+
- 	} else if (btb_flush_enabled) {
- 		seq_buf_printf(&s, "Mitigation: Branch predictor state flush");
- 	} else {
-@@ -369,18 +378,40 @@ static __init int stf_barrier_debugfs_in
- device_initcall(stf_barrier_debugfs_init);
- #endif /* CONFIG_DEBUG_FS */
- 
-+static void no_count_cache_flush(void)
-+{
-+	count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
-+	pr_info("count-cache-flush: software flush disabled.\n");
-+}
-+
- static void toggle_count_cache_flush(bool enable)
- {
--	if (!enable || !security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
-+	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE) &&
-+	    !security_ftr_enabled(SEC_FTR_FLUSH_LINK_STACK))
-+		enable = false;
-+
-+	if (!enable) {
- 		patch_instruction_site(&patch__call_flush_count_cache, PPC_INST_NOP);
--		count_cache_flush_type = COUNT_CACHE_FLUSH_NONE;
--		pr_info("count-cache-flush: software flush disabled.\n");
-+		pr_info("link-stack-flush: software flush disabled.\n");
-+		link_stack_flush_enabled = false;
-+		no_count_cache_flush();
+ 	/* send touchscreen events through input subsystem if touchpad data */
+-	if (ictx->display_type == IMON_DISPLAY_TYPE_VGA && len == 8 &&
+-	    buf[7] == 0x86) {
++	if (ictx->touch && len == 8 && buf[7] == 0x86) {
+ 		imon_touch_event(ictx, buf);
  		return;
- 	}
- 
-+	// This enables the branch from _switch to flush_count_cache
- 	patch_branch_site(&patch__call_flush_count_cache,
- 			  (u64)&flush_count_cache, BRANCH_SET_LINK);
- 
-+	pr_info("link-stack-flush: software flush enabled.\n");
-+	link_stack_flush_enabled = true;
-+
-+	// If we just need to flush the link stack, patch an early return
-+	if (!security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE)) {
-+		patch_instruction_site(&patch__flush_link_stack_return, PPC_INST_BLR);
-+		no_count_cache_flush();
-+		return;
-+	}
-+
- 	if (!security_ftr_enabled(SEC_FTR_BCCTR_FLUSH_ASSIST)) {
- 		count_cache_flush_type = COUNT_CACHE_FLUSH_SW;
- 		pr_info("count-cache-flush: full software flush sequence enabled.\n");
-@@ -399,11 +430,20 @@ void setup_count_cache_flush(void)
- 	if (no_spectrev2 || cpu_mitigations_off()) {
- 		if (security_ftr_enabled(SEC_FTR_BCCTRL_SERIALISED) ||
- 		    security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED))
--			pr_warn("Spectre v2 mitigations not under software control, can't disable\n");
-+			pr_warn("Spectre v2 mitigations not fully under software control, can't disable\n");
- 
- 		enable = false;
- 	}
- 
-+	/*
-+	 * There's no firmware feature flag/hypervisor bit to tell us we need to
-+	 * flush the link stack on context switch. So we set it here if we see
-+	 * either of the Spectre v2 mitigations that aim to protect userspace.
-+	 */
-+	if (security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED) ||
-+	    security_ftr_enabled(SEC_FTR_FLUSH_COUNT_CACHE))
-+		security_ftr_set(SEC_FTR_FLUSH_LINK_STACK);
-+
- 	toggle_count_cache_flush(enable);
- }
  
 
 
