@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 948FF10BF44
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFC0210BFBE
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729075AbfK0Uku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:40:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
+        id S1727321AbfK0Ud5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:33:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729090AbfK0Ukt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:40:49 -0500
+        id S1727010AbfK0Ud5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:33:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E321821772;
-        Wed, 27 Nov 2019 20:40:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99EF1207DD;
+        Wed, 27 Nov 2019 20:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887248;
-        bh=pIrHMhpaaasDi/axB0LADqktz+OiSBs0YHoiRDHDFOM=;
+        s=default; t=1574886836;
+        bh=/ZRotHjey/YKP0r1aSt4Hx6GoatAfbEulyBQrcaXrGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzLE+WW/Uz65/fe9xeBwacsVgP6pmw6QoKwhAjGuJnpFCjVHzMVUIdiv2KVF4knEl
-         AmbFuFXxT95UeQ9hWCzvXGCNkyxD+NeJrEJqPhb4Atrh5p2KiqGkqyF0HJUMZa9Rae
-         3CE8X1EPYi8LqyfGBToCslIXlzhL03KMpoO3mRoA=
+        b=iY9vmViSrHMFB9hsAxDbBQc0ESgAN+zcFbuePfXxbRgPHzrh6KiirlUrtzpFnSXql
+         6x+tICiizB2UH90ZKubu8zLg5oVxUfZkYvQSANzsGGtKiLdFlUU5or79PHUpcskQut
+         wN9pvLQHTFaETrjq+/7zsZNnNUG0nQQ3+27a17t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
-        Brian Norris <briannorris@chomium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>,
+        Alex Henrie <alexhenrie24@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Corentin Chary <corentin.chary@gmail.com>,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org,
+        Darren Hart <dvhart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 020/151] ath10k: allocate small size dma memory in ath10k_pci_diag_write_mem
+Subject: [PATCH 4.4 012/132] platform/x86: asus-wmi: Filter buggy scan codes on ASUS Q500A
 Date:   Wed, 27 Nov 2019 21:30:03 +0100
-Message-Id: <20191127203012.724097908@linuxfoundation.org>
+Message-Id: <20191127202909.678527786@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,112 +49,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carl Huang <cjhuang@codeaurora.org>
+From: Oleksij Rempel <linux@rempel-privat.de>
 
-[ Upstream commit 0738b4998c6d1caf9ca2447b946709a7278c70f1 ]
+[ Upstream commit b5643539b82559b858b8efe3fc8343f66cf9a0b5 ]
 
-ath10k_pci_diag_write_mem may allocate big size of the dma memory
-based on the parameter nbytes. Take firmware diag download as
-example, the biggest size is about 500K. In some systems, the
-allocation is likely to fail because it can't acquire such a large
-contiguous dma memory.
+Some revisions of the ASUS Q500A series have a keyboard related
+issue which is reproducible only after Windows with installed ASUS
+tools is started.
 
-The fix is to allocate a small size dma memory. In the loop,
-driver copies the data to the allocated dma memory and writes to
-the destination until all the data is written.
+In this case the Linux side will have a blocked keyboard or
+report incorrect or incomplete hotkey events.
 
-Tested with QCA6174 PCI with
-firmware-6.bin_WLAN.RM.4.4.1-00119-QCARMSWP-1, this also affects
-QCA9377 PCI.
+To make Linux work properly again, a complete power down
+(unplug power supply and remove battery) is needed.
 
-Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
-Reviewed-by: Brian Norris <briannorris@chomium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Linux/atkbd after a clean start will get the following code on VOLUME_UP
+key: {0xe0, 0x30, 0xe0, 0xb0}. After Windows, the same key will generate
+this codes: {0xe1, 0x23, 0xe0, 0x30, 0xe0, 0xb0}. As result atkdb will
+be confused by buggy codes.
+
+This patch is filtering this buggy code out.
+
+https://bugzilla.kernel.org/show_bug.cgi?id=119391
+
+Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+Cc: Alex Henrie <alexhenrie24@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Corentin Chary <corentin.chary@gmail.com>
+Cc: acpi4asus-user@lists.sourceforge.net
+Cc: platform-driver-x86@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+[dvhart: Add return after pr_warn to avoid false confirmation of filter]
+
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/pci.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 45 ++++++++++++++++++++++++++++++
+ drivers/platform/x86/asus-wmi.h    |  4 +++
+ 2 files changed, 49 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
-index b7bac14d1487b..d84a362a084ac 100644
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -1039,10 +1039,9 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 	struct ath10k_pci *ar_pci = ath10k_pci_priv(ar);
- 	int ret = 0;
- 	u32 *buf;
--	unsigned int completed_nbytes, orig_nbytes, remaining_bytes;
-+	unsigned int completed_nbytes, alloc_nbytes, remaining_bytes;
- 	struct ath10k_ce_pipe *ce_diag;
- 	void *data_buf = NULL;
--	u32 ce_data;	/* Host buffer address in CE space */
- 	dma_addr_t ce_data_base = 0;
- 	int i;
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 734f95c09508f..904e28d4db528 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -27,6 +27,7 @@
+ #include <linux/input/sparse-keymap.h>
+ #include <linux/fb.h>
+ #include <linux/dmi.h>
++#include <linux/i8042.h>
  
-@@ -1056,9 +1055,10 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 	 *   1) 4-byte alignment
- 	 *   2) Buffer in DMA-able space
- 	 */
--	orig_nbytes = nbytes;
-+	alloc_nbytes = min_t(unsigned int, nbytes, DIAG_TRANSFER_LIMIT);
+ #include "asus-wmi.h"
+ 
+@@ -55,10 +56,34 @@ MODULE_PARM_DESC(wapf, "WAPF value");
+ 
+ static struct quirk_entry *quirks;
+ 
++static bool asus_q500a_i8042_filter(unsigned char data, unsigned char str,
++			      struct serio *port)
++{
++	static bool extended;
++	bool ret = false;
 +
- 	data_buf = (unsigned char *)dma_alloc_coherent(ar->dev,
--						       orig_nbytes,
-+						       alloc_nbytes,
- 						       &ce_data_base,
- 						       GFP_ATOMIC);
- 	if (!data_buf) {
-@@ -1066,9 +1066,6 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 		goto done;
- 	}
- 
--	/* Copy caller's data to allocated DMA buf */
--	memcpy(data_buf, data, orig_nbytes);
--
- 	/*
- 	 * The address supplied by the caller is in the
- 	 * Target CPU virtual address space.
-@@ -1081,12 +1078,14 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 	 */
- 	address = ath10k_pci_targ_cpu_to_ce_addr(ar, address);
- 
--	remaining_bytes = orig_nbytes;
--	ce_data = ce_data_base;
-+	remaining_bytes = nbytes;
- 	while (remaining_bytes) {
- 		/* FIXME: check cast */
- 		nbytes = min_t(int, remaining_bytes, DIAG_TRANSFER_LIMIT);
- 
-+		/* Copy caller's data to allocated DMA buf */
-+		memcpy(data_buf, data, nbytes);
++	if (str & I8042_STR_AUXDATA)
++		return false;
 +
- 		/* Set up to receive directly into Target(!) address */
- 		ret = __ath10k_ce_rx_post_buf(ce_diag, &address, address);
- 		if (ret != 0)
-@@ -1096,7 +1095,7 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 		 * Request CE to send caller-supplied data that
- 		 * was copied to bounce buffer to Target(!) address.
- 		 */
--		ret = ath10k_ce_send_nolock(ce_diag, NULL, (u32)ce_data,
-+		ret = ath10k_ce_send_nolock(ce_diag, NULL, ce_data_base,
- 					    nbytes, 0, 0);
- 		if (ret != 0)
- 			goto done;
-@@ -1137,12 +1136,12 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
++	if (unlikely(data == 0xe1)) {
++		extended = true;
++		ret = true;
++	} else if (unlikely(extended)) {
++		extended = false;
++		ret = true;
++	}
++
++	return ret;
++}
++
+ static struct quirk_entry quirk_asus_unknown = {
+ 	.wapf = 0,
+ };
  
- 		remaining_bytes -= nbytes;
- 		address += nbytes;
--		ce_data += nbytes;
-+		data += nbytes;
- 	}
++static struct quirk_entry quirk_asus_q500a = {
++	.i8042_filter = asus_q500a_i8042_filter,
++};
++
+ /*
+  * For those machines that need software to control bt/wifi status
+  * and can't adjust brightness through ACPI interface
+@@ -94,6 +119,15 @@ static int dmi_matched(const struct dmi_system_id *dmi)
+ }
  
- done:
- 	if (data_buf) {
--		dma_free_coherent(ar->dev, orig_nbytes, data_buf,
-+		dma_free_coherent(ar->dev, alloc_nbytes, data_buf,
- 				  ce_data_base);
- 	}
+ static const struct dmi_system_id asus_quirks[] = {
++	{
++		.callback = dmi_matched,
++		.ident = "ASUSTeK COMPUTER INC. Q500A",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Q500A"),
++		},
++		.driver_data = &quirk_asus_q500a,
++	},
+ 	{
+ 		.callback = dmi_matched,
+ 		.ident = "ASUSTeK COMPUTER INC. U32U",
+@@ -365,6 +399,8 @@ static const struct dmi_system_id asus_quirks[] = {
  
+ static void asus_nb_wmi_quirks(struct asus_wmi_driver *driver)
+ {
++	int ret;
++
+ 	quirks = &quirk_asus_unknown;
+ 	dmi_check_system(asus_quirks);
+ 
+@@ -376,6 +412,15 @@ static void asus_nb_wmi_quirks(struct asus_wmi_driver *driver)
+ 		quirks->wapf = wapf;
+ 	else
+ 		wapf = quirks->wapf;
++
++	if (quirks->i8042_filter) {
++		ret = i8042_install_filter(quirks->i8042_filter);
++		if (ret) {
++			pr_warn("Unable to install key filter\n");
++			return;
++		}
++		pr_info("Using i8042 filter function for receiving events\n");
++	}
+ }
+ 
+ static const struct key_entry asus_nb_wmi_keymap[] = {
+diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
+index 5de1df510ebd8..dd2e6cc0f3d48 100644
+--- a/drivers/platform/x86/asus-wmi.h
++++ b/drivers/platform/x86/asus-wmi.h
+@@ -28,6 +28,7 @@
+ #define _ASUS_WMI_H_
+ 
+ #include <linux/platform_device.h>
++#include <linux/i8042.h>
+ 
+ #define ASUS_WMI_KEY_IGNORE (-1)
+ #define ASUS_WMI_BRN_DOWN	0x20
+@@ -51,6 +52,9 @@ struct quirk_entry {
+ 	 * and let the ACPI interrupt to send out the key event.
+ 	 */
+ 	int no_display_toggle;
++
++	bool (*i8042_filter)(unsigned char data, unsigned char str,
++			     struct serio *serio);
+ };
+ 
+ struct asus_wmi_driver {
 -- 
 2.20.1
 
