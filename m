@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA35610BE5E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CB2910BFBF
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730183AbfK0Ust (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:48:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34164 "EHLO mail.kernel.org"
+        id S1727387AbfK0UeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:34:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730178AbfK0Uss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:48:48 -0500
+        id S1727386AbfK0Ud7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:33:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E20221774;
-        Wed, 27 Nov 2019 20:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1013A20866;
+        Wed, 27 Nov 2019 20:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887727;
-        bh=4JUphUXaKzuXi8JFfFbcAAFZaGvFQBHCrxl018O+3uk=;
+        s=default; t=1574886838;
+        bh=0BvNAF82J2aX7JVS6HiVRCDpFBp7S8bgVdgtKRtVTvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nRa4gZyzmchbYLpOdpZ7x4pBlw11is09JSrtlGpsSmrosmqfGHyTcbgYgBal6fVa/
-         jlcSwn20+9ytpZiFKzEXSQ7Bgbw6UHwKAfK0EqHTUlpNb5cUFaXbiplxwvRy7zJn49
-         GXfPl6TlsA8I6RL9JLJGr2pK8YqkgjmKJCHpXHKE=
+        b=qP+ZSRWmO8J4KAgu6qZwalk9xSFrdx83GZbg+34ZLdB0gjDjMtY9aqgHYWbFtNNot
+         5436TuvEaaeoWXzpjdnLSVcKg1RcZfXwjOpvtl6b1XIg2GXu+gZqpHrAIYzGqeIEXv
+         B94GHkvw1iz93ts27AQE+arnoNkpoUdy3BcN8M7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        stable@vger.kernel.org, zino lin <linzino7@gmail.com>,
+        Corentin Chary <corentin.chary@gmail.com>,
+        Darren Hart <dvhart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 071/211] s390/perf: Return error when debug_register fails
+Subject: [PATCH 4.4 013/132] platform/x86: asus-wmi: fix asus ux303ub brightness issue
 Date:   Wed, 27 Nov 2019 21:30:04 +0100
-Message-Id: <20191127203100.566948109@linuxfoundation.org>
+Message-Id: <20191127202911.094115133@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: zino lin <linzino7@gmail.com>
 
-[ Upstream commit ec0c0bb489727de0d4dca6a00be6970ab8a3b30a ]
+[ Upstream commit 999d4376c62828b260fbb59d5ab6bc28918ca448 ]
 
-Return an error when the function debug_register() fails allocating
-the debug handle.
-Also remove the registered debug handle when the initialization fails
-later on.
+acpi_video0 doesn't work, asus-wmi brightness interface doesn't work, too.
+So, we use native brightness interface to handle the brightness adjustion,
+and add quirk_asus_ux303ub.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: zino lin <linzino7@gmail.com>
+Acked-by: Corentin Chary <corentin.chary@gmail.com>
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/platform/x86/asus-nb-wmi.c | 13 +++++++++++++
+ drivers/platform/x86/asus-wmi.c    |  3 +++
+ drivers/platform/x86/asus-wmi.h    |  1 +
+ 3 files changed, 17 insertions(+)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index d99155793c26e..2e2fd9535f865 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1610,14 +1610,17 @@ static int __init init_cpum_sampling_pmu(void)
- 	}
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 904e28d4db528..a619cbe4e852f 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -112,6 +112,10 @@ static struct quirk_entry quirk_no_rfkill_wapf4 = {
+ 	.no_rfkill = true,
+ };
  
- 	sfdbg = debug_register(KMSG_COMPONENT, 2, 1, 80);
--	if (!sfdbg)
-+	if (!sfdbg) {
- 		pr_err("Registering for s390dbf failed\n");
-+		return -ENOMEM;
-+	}
- 	debug_register_view(sfdbg, &debug_sprintf_view);
++static struct quirk_entry quirk_asus_ux303ub = {
++	.wmi_backlight_native = true,
++};
++
+ static int dmi_matched(const struct dmi_system_id *dmi)
+ {
+ 	quirks = dmi->driver_data;
+@@ -394,6 +398,15 @@ static const struct dmi_system_id asus_quirks[] = {
+ 		},
+ 		.driver_data = &quirk_no_rfkill,
+ 	},
++	{
++		.callback = dmi_matched,
++		.ident = "ASUSTeK COMPUTER INC. UX303UB",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "UX303UB"),
++		},
++		.driver_data = &quirk_asus_ux303ub,
++	},
+ 	{},
+ };
  
- 	err = register_external_irq(EXT_IRQ_MEASURE_ALERT,
- 				    cpumf_measurement_alert);
- 	if (err) {
- 		pr_cpumsf_err(RS_INIT_FAILURE_ALRT);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
+diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
+index 823f85b1b4dc6..de131cf4d2e4d 100644
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -2082,6 +2082,9 @@ static int asus_wmi_add(struct platform_device *pdev)
+ 	if (asus->driver->quirks->wmi_backlight_power)
+ 		acpi_video_set_dmi_backlight_type(acpi_backlight_vendor);
  
-@@ -1626,6 +1629,7 @@ static int __init init_cpum_sampling_pmu(void)
- 		pr_cpumsf_err(RS_INIT_FAILURE_PERF);
- 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
- 					cpumf_measurement_alert);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
- 
++	if (asus->driver->quirks->wmi_backlight_native)
++		acpi_video_set_dmi_backlight_type(acpi_backlight_native);
++
+ 	if (acpi_video_get_backlight_type() == acpi_backlight_vendor) {
+ 		err = asus_wmi_backlight_init(asus);
+ 		if (err && err != -ENODEV)
+diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
+index dd2e6cc0f3d48..0e19014e9f542 100644
+--- a/drivers/platform/x86/asus-wmi.h
++++ b/drivers/platform/x86/asus-wmi.h
+@@ -44,6 +44,7 @@ struct quirk_entry {
+ 	bool scalar_panel_brightness;
+ 	bool store_backlight_power;
+ 	bool wmi_backlight_power;
++	bool wmi_backlight_native;
+ 	int wapf;
+ 	/*
+ 	 * For machines with AMD graphic chips, it will send out WMI event
 -- 
 2.20.1
 
