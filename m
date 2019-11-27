@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95AB110BDB2
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:31:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD6010BDA9
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729893AbfK0UzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:55:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45672 "EHLO mail.kernel.org"
+        id S1729273AbfK0UzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:55:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730933AbfK0UzO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:55:14 -0500
+        id S1730146AbfK0UzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:55:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E387C2084D;
-        Wed, 27 Nov 2019 20:55:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F29A2070B;
+        Wed, 27 Nov 2019 20:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888113;
-        bh=++ufQvgnwa0RLQFr/tm5QXSA/TA2OxsMUekOA1cGmQk=;
+        s=default; t=1574888124;
+        bh=lDXkVWJ9S5dgNw9Hr18od3skLLTtbWiy3U51b8sjXh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAMNbwEvH2J4dqH6RE4K/zeVaMqqv9xhTyRYrKd3TzVmNM+e448/7QE50dp4tUT3L
-         61zIVujwIYWP+DuUZ+hNJyZin+mJnr1y5mZJZzJg4vgv0BtSXEXNh/w1iYI8pWYsQt
-         QtqHGxyF8NTj8NQ0cHDL6vIjtY7XHJZp632FYS9Q=
+        b=YlVFcHnb/9tTsRJ0Ouk+/yuOxdHOvaSqFDqvv6FsQMpHyFVdfxF1SWpGhy8kLvO4w
+         3Ekg0CeYM1gpMXOEzeOP+qnW0litkyuYxc2jg+4U0J/zthMwrxYmQo/n4WQSMSaDqh
+         gZaOeKIGAysi0ghTOmUe39BznecX9TTKLFJyyjr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luigi Rizzo <lrizzo@google.com>,
-        Tariq Toukan <tariqt@mellanox.com>
-Subject: [PATCH 4.19 002/306] net/mlx4_en: fix mlx4 ethtool -N insertion
-Date:   Wed, 27 Nov 2019 21:27:32 +0100
-Message-Id: <20191127203114.942272445@linuxfoundation.org>
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 006/306] net: sched: ensure opts_len <= IP_TUNNEL_OPTS_MAX in act_tunnel_key
+Date:   Wed, 27 Nov 2019 21:27:36 +0100
+Message-Id: <20191127203115.209535927@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -43,35 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luigi Rizzo <lrizzo@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 34e59836565e36fade1464e054a3551c1a0364be ]
+[ Upstream commit 4f0e97d070984d487df027f163e52bb72d1713d8 ]
 
-ethtool expects ETHTOOL_GRXCLSRLALL to set ethtool_rxnfc->data with the
-total number of entries in the rx classifier table.  Surprisingly, mlx4
-is missing this part (in principle ethtool could still move forward and
-try the insert).
+info->options_len is 'u8' type, and when opts_len with a value >
+IP_TUNNEL_OPTS_MAX, 'info->options_len = opts_len' will cast int
+to u8 and set a wrong value to info->options_len.
 
-Tested: compiled and run command:
-	phh13:~# ethtool -N eth1 flow-type udp4  queue 4
-	Added rule with ID 255
+Kernel crashed in my test when doing:
 
-Signed-off-by: Luigi Rizzo <lrizzo@google.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+  # opts="0102:80:00800022"
+  # for i in {1..99}; do opts="$opts,0102:80:00800022"; done
+  # ip link add name geneve0 type geneve dstport 0 external
+  # tc qdisc add dev eth0 ingress
+  # tc filter add dev eth0 protocol ip parent ffff: \
+       flower indev eth0 ip_proto udp action tunnel_key \
+       set src_ip 10.0.99.192 dst_ip 10.0.99.193 \
+       dst_port 6081 id 11 geneve_opts $opts \
+       action mirred egress redirect dev geneve0
+
+So we should do the similar check as cls_flower does, return error
+when opts_len > IP_TUNNEL_OPTS_MAX in tunnel_key_copy_opts().
+
+Fixes: 0ed5269f9e41 ("net/sched: add tunnel option support to act_tunnel_key")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sched/act_tunnel_key.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -1745,6 +1745,7 @@ static int mlx4_en_get_rxnfc(struct net_
- 		err = mlx4_en_get_flow(dev, cmd, cmd->fs.location);
- 		break;
- 	case ETHTOOL_GRXCLSRLALL:
-+		cmd->data = MAX_NUM_OF_FS_RULES;
- 		while ((!err || err == -ENOENT) && priority < cmd->rule_cnt) {
- 			err = mlx4_en_get_flow(dev, cmd, i);
- 			if (!err)
+--- a/net/sched/act_tunnel_key.c
++++ b/net/sched/act_tunnel_key.c
+@@ -137,6 +137,10 @@ static int tunnel_key_copy_opts(const st
+ 			if (opt_len < 0)
+ 				return opt_len;
+ 			opts_len += opt_len;
++			if (opts_len > IP_TUNNEL_OPTS_MAX) {
++				NL_SET_ERR_MSG(extack, "Tunnel options exceeds max size");
++				return -EINVAL;
++			}
+ 			if (dst) {
+ 				dst_len -= opt_len;
+ 				dst += opt_len;
 
 
