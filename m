@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5803410BEF1
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 838B210BEAD
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:38:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727244AbfK0Unw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:43:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52286 "EHLO mail.kernel.org"
+        id S1729825AbfK0UqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:46:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729498AbfK0Unw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:52 -0500
+        id S1729820AbfK0UqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:46:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2B082080F;
-        Wed, 27 Nov 2019 20:43:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F3A3217C3;
+        Wed, 27 Nov 2019 20:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887431;
-        bh=X6ttkquxGdzmq27hYfoMMXPCacDoaTT04oI9WcFh5Pc=;
+        s=default; t=1574887561;
+        bh=1obXavLzHsCeZUAaQ/cIka7JXtrr6Qjcv2jjQ2VJJkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjxqogca/VsWPMcOFXr36pg2fpdJ2z3B2dMV9HLbqSWQg7j1q5/5eZcY7WMoaFbmw
-         +r6+hLNdFGJHyR2CQ2/aGpmvgi3fM+G8vNn0O0PxyvNxhWP4CMLZhZ183mSGPoDqoY
-         0ZrhK+GrF6qQ19GgBVyKCE6Dj6kuy9fV4nLPSe3c=
+        b=oxcY/FItAbnWNOnOvV3+a8p820pfLxlBqE12lOC2s49klhOZ0fg3xX88+uvaCn7Hw
+         ChNOuBgQgBMQQP7k9Q3RhbtHQKEvDo1cAUHt7+mPg8oYJI77wDqJ39Qm/HoDw8/Xy4
+         KOkTCadZYTqyMp7mDn1RqRTvSOKC7VTiJA+9PfrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, David Lechner <david@lechnology.com>,
+        Vignesh R <vigneshr@ti.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 106/151] pinctrl: zynq: Use define directive for PIN_CONFIG_IO_STANDARD
-Date:   Wed, 27 Nov 2019 21:31:29 +0100
-Message-Id: <20191127203041.219369016@linuxfoundation.org>
+Subject: [PATCH 4.9 108/151] spi: omap2-mcspi: Fix DMA and FIFO event trigger size mismatch
+Date:   Wed, 27 Nov 2019 21:31:31 +0100
+Message-Id: <20191127203042.253609157@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
 References: <20191127203000.773542911@linuxfoundation.org>
@@ -46,65 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit cd8a145a066a1a3beb0ae615c7cb2ee4217418d7 ]
+[ Upstream commit baf8b9f8d260c55a86405f70a384c29cda888476 ]
 
-Clang warns when one enumerated type is implicitly converted to another:
+Commit b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
+broke SPI transfers where bits_per_word != 8. This is because of
+mimsatch between McSPI FIFO level event trigger size (SPI word length) and
+DMA request size(word length * maxburst). This leads to data
+corruption, lockup and errors like:
 
-drivers/pinctrl/pinctrl-zynq.c:985:18: warning: implicit conversion from
-enumeration type 'enum zynq_pin_config_param' to different enumeration
-type 'enum pin_config_param' [-Wenum-conversion]
-        {"io-standard", PIN_CONFIG_IOSTANDARD, zynq_iostd_lvcmos18},
-        ~               ^~~~~~~~~~~~~~~~~~~~~
-drivers/pinctrl/pinctrl-zynq.c:990:16: warning: implicit conversion from
-enumeration type 'enum zynq_pin_config_param' to different enumeration
-type 'enum pin_config_param' [-Wenum-conversion]
-        = { PCONFDUMP(PIN_CONFIG_IOSTANDARD, "IO-standard", NULL, true),
-            ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
-macro 'PCONFDUMP'
-        .param = a, .display = b, .format = c, .has_arg = d     \
-                 ^
-2 warnings generated.
+	spi1.0: EOW timed out
 
-It is expected that pinctrl drivers can extend pin_config_param because
-of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
-isn't an issue. Most drivers that take advantage of this define the
-PIN_CONFIG variables as constants, rather than enumerated values. Do the
-same thing here so that Clang no longer warns.
+Fix this by setting DMA maxburst size to 1 so that
+McSPI FIFO level event trigger size matches DMA request size.
 
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
+Cc: stable@vger.kernel.org
+Reported-by: David Lechner <david@lechnology.com>
+Tested-by: David Lechner <david@lechnology.com>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-zynq.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/spi/spi-omap2-mcspi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-zynq.c b/drivers/pinctrl/pinctrl-zynq.c
-index e0ecffcbe11f6..f8b54cfc90c7d 100644
---- a/drivers/pinctrl/pinctrl-zynq.c
-+++ b/drivers/pinctrl/pinctrl-zynq.c
-@@ -967,15 +967,12 @@ enum zynq_io_standards {
- 	zynq_iostd_max
- };
+diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
+index bc136fe3a2829..ccb6f98550da4 100644
+--- a/drivers/spi/spi-omap2-mcspi.c
++++ b/drivers/spi/spi-omap2-mcspi.c
+@@ -625,8 +625,8 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
+ 	cfg.dst_addr = cs->phys + OMAP2_MCSPI_TX0;
+ 	cfg.src_addr_width = width;
+ 	cfg.dst_addr_width = width;
+-	cfg.src_maxburst = es;
+-	cfg.dst_maxburst = es;
++	cfg.src_maxburst = 1;
++	cfg.dst_maxburst = 1;
  
--/**
-- * enum zynq_pin_config_param - possible pin configuration parameters
-- * @PIN_CONFIG_IOSTANDARD: if the pin can select an IO standard, the argument to
-+/*
-+ * PIN_CONFIG_IOSTANDARD: if the pin can select an IO standard, the argument to
-  *	this parameter (on a custom format) tells the driver which alternative
-  *	IO standard to use.
-  */
--enum zynq_pin_config_param {
--	PIN_CONFIG_IOSTANDARD = PIN_CONFIG_END + 1,
--};
-+#define PIN_CONFIG_IOSTANDARD		(PIN_CONFIG_END + 1)
- 
- static const struct pinconf_generic_params zynq_dt_params[] = {
- 	{"io-standard", PIN_CONFIG_IOSTANDARD, zynq_iostd_lvcmos18},
+ 	rx = xfer->rx_buf;
+ 	tx = xfer->tx_buf;
 -- 
 2.20.1
 
