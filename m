@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4867510BF78
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE66310BE53
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728138AbfK0Ugf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:36:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38878 "EHLO mail.kernel.org"
+        id S1729838AbfK0VfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:35:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728151AbfK0Uge (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:36:34 -0500
+        id S1729031AbfK0Utf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:49:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 747F52158A;
-        Wed, 27 Nov 2019 20:36:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DE2421787;
+        Wed, 27 Nov 2019 20:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886993;
-        bh=cPliugyUoPKqEYajZaa+5EhjP4iV/yZw1O40DFpuI2A=;
+        s=default; t=1574887774;
+        bh=ArEb2f18QmJygKaaZnogCTVHbEhcpUrues3qVydbb7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xe5aLNYYNo+7YBgWO3S0Q2Nd/Q687N3EIGqZOkFm+uvfrKcOMCBGMjnm5yML5K1vf
-         XkW+TF/Ahi5QZdhsLBjLVo9SIwsMHqByS+f9oj+Lr/re3kxx0ddtTzAovKOTynapLp
-         YtIpsLQZ9RC2HTQdJbHhChh6/xJjfidFWxo2glxw=
+        b=j9Ry6CGWMB18q8ChyGazloMHKT/mo4Baa/sEPsMuyp+NVco7g5cu4+5ocuYM0G2zY
+         8n3NX/aga1gOYplPXOtEgglfomayGTcp67lwftPXrRwf17C5atoOL/O7nQHTRzyJ+l
+         HLLiXrKD+3hE2PipJgfBUagEP+01H2t0XVJjbvSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Jerry Hoemann <jerry.hoemann@hpe.com>,
+        "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 029/132] mmc: mediatek: fix cannot receive new request when msdc_cmd_is_ready fail
+Subject: [PATCH 4.14 087/211] selftests: watchdog: Fix error message.
 Date:   Wed, 27 Nov 2019 21:30:20 +0100
-Message-Id: <20191127202927.244155202@linuxfoundation.org>
+Message-Id: <20191127203101.981889610@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
 
-[ Upstream commit f38a9774ddde9d79b3487dd888edd8b8623552af ]
+[ Upstream commit 04d5e4bd37516ad60854eb74592c7dbddd75d277 ]
 
-when msdc_cmd_is_ready return fail, the req_timeout work has not been
-inited and cancel_delayed_work() will return false, then, the request
-return directly and never call mmc_request_done().
+Printf's say errno but print the string version of error.
+Make consistent.
 
-so need call mod_delayed_work() before msdc_cmd_is_ready()
-
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Shuah Khan (Samsung OSG) <shuah@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mtk-sd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/watchdog/watchdog-test.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 0bf0d0e9dbdba..5ef25463494f4 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -846,6 +846,7 @@ static void msdc_start_command(struct msdc_host *host,
- 	WARN_ON(host->cmd);
- 	host->cmd = cmd;
- 
-+	mod_delayed_work(system_wq, &host->req_timeout, DAT_TIMEOUT);
- 	if (!msdc_cmd_is_ready(host, mrq, cmd))
- 		return;
- 
-@@ -857,7 +858,6 @@ static void msdc_start_command(struct msdc_host *host,
- 
- 	cmd->error = 0;
- 	rawcmd = msdc_cmd_prepare_raw_cmd(host, mrq, cmd);
--	mod_delayed_work(system_wq, &host->req_timeout, DAT_TIMEOUT);
- 
- 	sdr_set_bits(host->base + MSDC_INTEN, cmd_ints_mask);
- 	writel(cmd->arg, host->base + SDC_ARG);
+diff --git a/tools/testing/selftests/watchdog/watchdog-test.c b/tools/testing/selftests/watchdog/watchdog-test.c
+index e029e2017280f..f1c6e025cbe54 100644
+--- a/tools/testing/selftests/watchdog/watchdog-test.c
++++ b/tools/testing/selftests/watchdog/watchdog-test.c
+@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
+ 				printf("Last boot is caused by: %s.\n", (flags != 0) ?
+ 					"Watchdog" : "Power-On-Reset");
+ 			else
+-				printf("WDIOC_GETBOOTSTATUS errno '%s'\n", strerror(errno));
++				printf("WDIOC_GETBOOTSTATUS error '%s'\n", strerror(errno));
+ 			break;
+ 		case 'd':
+ 			flags = WDIOS_DISABLECARD;
+@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
+ 			if (!ret)
+ 				printf("Watchdog card disabled.\n");
+ 			else
+-				printf("WDIOS_DISABLECARD errno '%s'\n", strerror(errno));
++				printf("WDIOS_DISABLECARD error '%s'\n", strerror(errno));
+ 			break;
+ 		case 'e':
+ 			flags = WDIOS_ENABLECARD;
+@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
+ 			if (!ret)
+ 				printf("Watchdog card enabled.\n");
+ 			else
+-				printf("WDIOS_ENABLECARD errno '%s'\n", strerror(errno));
++				printf("WDIOS_ENABLECARD error '%s'\n", strerror(errno));
+ 			break;
+ 		case 'p':
+ 			ping_rate = strtoul(optarg, NULL, 0);
+@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
+ 			if (!ret)
+ 				printf("Watchdog timeout set to %u seconds.\n", flags);
+ 			else
+-				printf("WDIOC_SETTIMEOUT errno '%s'\n", strerror(errno));
++				printf("WDIOC_SETTIMEOUT error '%s'\n", strerror(errno));
+ 			break;
+ 		default:
+ 			usage(argv[0]);
 -- 
 2.20.1
 
