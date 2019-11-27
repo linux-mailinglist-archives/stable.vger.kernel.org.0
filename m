@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED85010BCCC
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6627010BA84
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728882AbfK0VYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:24:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57114 "EHLO mail.kernel.org"
+        id S1732093AbfK0VD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:03:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727361AbfK0VDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:03:49 -0500
+        id S1731772AbfK0VDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:03:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A34832080F;
-        Wed, 27 Nov 2019 21:03:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 133FC215F1;
+        Wed, 27 Nov 2019 21:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888629;
-        bh=RFeDsKAaoKwlp4/tSmQK0sxDKUceFFliSMPVIObqmk0=;
+        s=default; t=1574888631;
+        bh=2Wlb3YZLDLsri+AOZgu2/8+1BzXQy5enQQEq+o4T+ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVv2aAJ9Wyn/af6EzBzegKmbQ29gBNVop47WqPc6CkZBvrlSD6uYrQ2r7a3QJBT21
-         lDCf43Uqgak4lX6A2ePFAB4kQTjuZQRF01/BFIFESCsJZAt9KK0oENJiCrl4jcyrPF
-         +ToqgeA9fj8KDZLJPQ9Kse39KePaOEaeQPwYLJRo=
+        b=xd8uVWP3Q3UFtlBoaSA9YXpWCacpDjQ7B4shVD6+JXbVN1uA7AKksD3JcacnZutju
+         +c3Gch0qDln1YMZbyM5XXzCbnq7tLWfA92UVoVLyfXCpc9KuZo8HitM4wIpICjiElC
+         oReoZ8vGRwl+qj1dmQkTfPpVij1O4+rpfR30x2gA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyrill Gorcunov <gorcunov@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 208/306] sock_diag: fix autoloading of the raw_diag module
-Date:   Wed, 27 Nov 2019 21:30:58 +0100
-Message-Id: <20191127203130.323653726@linuxfoundation.org>
+Subject: [PATCH 4.19 209/306] net: bpfilter: fix iptables failure if bpfilter_umh is disabled
+Date:   Wed, 27 Nov 2019 21:30:59 +0100
+Message-Id: <20191127203130.406914065@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -46,36 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit c34c1287778b080ed692c0a46a8e345206cc29e6 ]
+[ Upstream commit 97adaddaa6db7a8af81b9b11e30cbe3628cd6700 ]
 
-IPPROTO_RAW isn't registred as an inet protocol, so
-inet_protos[protocol] is always NULL for it.
+When iptables command is executed, ip_{set/get}sockopt() try to upload
+bpfilter.ko if bpfilter is enabled. if it couldn't find bpfilter.ko,
+command is failed.
+bpfilter.ko is generated if CONFIG_BPFILTER_UMH is enabled.
+ip_{set/get}sockopt() only checks CONFIG_BPFILTER.
+So that if CONFIG_BPFILTER is enabled and CONFIG_BPFILTER_UMH is disabled,
+iptables command is always failed.
 
-Cc: Cyrill Gorcunov <gorcunov@gmail.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Fixes: bf2ae2e4bf93 ("sock_diag: request _diag module only when the family or proto has been registered")
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Reviewed-by: Cyrill Gorcunov <gorcunov@gmail.com>
+test config:
+   CONFIG_BPFILTER=y
+   # CONFIG_BPFILTER_UMH is not set
+
+test command:
+   %iptables -L
+   iptables: No chain/target/match by that name.
+
+Fixes: d2ba09c17a06 ("net: add skeleton of bpfilter kernel module")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/ip_sockglue.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 6c11078217769..ba4f843cdd1d1 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3347,6 +3347,7 @@ int sock_load_diag_module(int family, int protocol)
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index b7a26120d5521..82f341e84faec 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -1244,7 +1244,7 @@ int ip_setsockopt(struct sock *sk, int level,
+ 		return -ENOPROTOOPT;
  
- #ifdef CONFIG_INET
- 	if (family == AF_INET &&
-+	    protocol != IPPROTO_RAW &&
- 	    !rcu_access_pointer(inet_protos[protocol]))
- 		return -ENOENT;
- #endif
+ 	err = do_ip_setsockopt(sk, level, optname, optval, optlen);
+-#ifdef CONFIG_BPFILTER
++#if IS_ENABLED(CONFIG_BPFILTER_UMH)
+ 	if (optname >= BPFILTER_IPT_SO_SET_REPLACE &&
+ 	    optname < BPFILTER_IPT_SET_MAX)
+ 		err = bpfilter_ip_set_sockopt(sk, optname, optval, optlen);
+@@ -1557,7 +1557,7 @@ int ip_getsockopt(struct sock *sk, int level,
+ 	int err;
+ 
+ 	err = do_ip_getsockopt(sk, level, optname, optval, optlen, 0);
+-#ifdef CONFIG_BPFILTER
++#if IS_ENABLED(CONFIG_BPFILTER_UMH)
+ 	if (optname >= BPFILTER_IPT_SO_GET_INFO &&
+ 	    optname < BPFILTER_IPT_GET_MAX)
+ 		err = bpfilter_ip_get_sockopt(sk, optname, optval, optlen);
+@@ -1594,7 +1594,7 @@ int compat_ip_getsockopt(struct sock *sk, int level, int optname,
+ 	err = do_ip_getsockopt(sk, level, optname, optval, optlen,
+ 		MSG_CMSG_COMPAT);
+ 
+-#ifdef CONFIG_BPFILTER
++#if IS_ENABLED(CONFIG_BPFILTER_UMH)
+ 	if (optname >= BPFILTER_IPT_SO_GET_INFO &&
+ 	    optname < BPFILTER_IPT_GET_MAX)
+ 		err = bpfilter_ip_get_sockopt(sk, optname, optval, optlen);
 -- 
 2.20.1
 
