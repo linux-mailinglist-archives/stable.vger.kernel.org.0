@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C7E10BA1E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0A210BA21
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728964AbfK0VAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:00:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51870 "EHLO mail.kernel.org"
+        id S1731022AbfK0VAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:00:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731525AbfK0VAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:00:09 -0500
+        id S1731269AbfK0VAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:00:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4DB820678;
-        Wed, 27 Nov 2019 21:00:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65CE02084B;
+        Wed, 27 Nov 2019 21:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888407;
-        bh=LlG2uit9KDyM3hzOHqNGksF+oDB68gKaKas/WQtvjRM=;
+        s=default; t=1574888409;
+        bh=b6JKrXfZ3sW46mtc8cUPJf+7pJXsH6mrbwPNqmM5xCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGTu2/58GEvrMYYUINhbIgs6XCZFI9vwkYeYuIhZpJGj14hA/zvuThREO0/GOCgrn
-         6/7LepP83fzoMscAwbiCaqxwpjJruOhp7RtOCyqFhXThdOOkt2KUMcFyeFwGjOo+qF
-         7eEyjhpSCNnrEEpjb+LY98W8UNtos08qsb09Btaw=
+        b=LGKuMGAAU/MJblrJ5TrBN2n4th4QSRqbYt+yNhxuVP5/wIUUxmqzjrlATLptNHPQR
+         xLbn525GaN2+sOvGREe/k6IoxN8/zBXFqbNGt11fLQLh/kNkWu33ywg9IGIt7anOQm
+         91cVLuUTy82u/BuSWZvQpwTygds5juZ39aheqsSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weichao Guo <guoweichao@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 122/306] f2fs: fix to spread clear_cold_data()
-Date:   Wed, 27 Nov 2019 21:29:32 +0100
-Message-Id: <20191127203124.048149314@linuxfoundation.org>
+Subject: [PATCH 4.19 123/306] f2fs: spread f2fs_set_inode_flags()
+Date:   Wed, 27 Nov 2019 21:29:33 +0100
+Message-Id: <20191127203124.116784284@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -46,90 +46,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 2baf07818549c8bb8d7b3437e889b86eab56d38e ]
+[ Upstream commit 9149a5eb606152df158eb7d7da5a34e84b574189 ]
 
-We need to drop PG_checked flag on page as well when we clear PG_uptodate
-flag, in order to avoid treating the page as GCing one later.
+This patch changes codes as below:
+- use f2fs_set_inode_flags() to update i_flags atomically to avoid
+potential race.
+- synchronize F2FS_I(inode)->i_flags to inode->i_flags in
+f2fs_new_inode().
+- use f2fs_set_inode_flags() to simply codes in f2fs_quota_{on,off}.
 
-Signed-off-by: Weichao Guo <guoweichao@huawei.com>
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c    | 8 +++++++-
- fs/f2fs/dir.c     | 1 +
- fs/f2fs/segment.c | 4 +++-
- 3 files changed, 11 insertions(+), 2 deletions(-)
+ fs/f2fs/f2fs.h  | 2 +-
+ fs/f2fs/namei.c | 2 ++
+ fs/f2fs/super.c | 5 ++---
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 3a2fd66769660..a7436ad194585 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -1782,6 +1782,7 @@ int f2fs_do_write_data_page(struct f2fs_io_info *fio)
- 	/* This page is already truncated */
- 	if (fio->old_blkaddr == NULL_ADDR) {
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
- 		goto out_writepage;
- 	}
- got_it:
-@@ -1957,8 +1958,10 @@ static int __write_data_page(struct page *page, bool *submitted,
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 2dc49a5419070..34e48bcf50874 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3388,7 +3388,7 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
+ {
+ #ifdef CONFIG_F2FS_FS_ENCRYPTION
+ 	file_set_encrypt(inode);
+-	inode->i_flags |= S_ENCRYPTED;
++	f2fs_set_inode_flags(inode);
+ #endif
+ }
  
- out:
- 	inode_dec_dirty_pages(inode);
--	if (err)
-+	if (err) {
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
-+	}
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index 1f67e389169f5..6b23dcbf52f45 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -124,6 +124,8 @@ static struct inode *f2fs_new_inode(struct inode *dir, umode_t mode)
+ 	if (F2FS_I(inode)->i_flags & F2FS_PROJINHERIT_FL)
+ 		set_inode_flag(inode, FI_PROJ_INHERIT);
  
- 	if (wbc->for_reclaim) {
- 		f2fs_submit_merged_write_cond(sbi, inode, 0, page->index, DATA);
-@@ -2573,6 +2576,8 @@ void f2fs_invalidate_page(struct page *page, unsigned int offset,
- 		}
- 	}
- 
-+	clear_cold_data(page);
++	f2fs_set_inode_flags(inode);
 +
- 	/* This is atomic written page, keep Private */
- 	if (IS_ATOMIC_WRITTEN_PAGE(page))
- 		return f2fs_drop_inmem_page(inode, page);
-@@ -2591,6 +2596,7 @@ int f2fs_release_page(struct page *page, gfp_t wait)
- 	if (IS_ATOMIC_WRITTEN_PAGE(page))
- 		return 0;
+ 	trace_f2fs_new_inode(inode, 0);
+ 	return inode;
  
-+	clear_cold_data(page);
- 	set_page_private(page, 0);
- 	ClearPagePrivate(page);
- 	return 1;
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index ecc3a4e2be96d..cd611a57d04d7 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -733,6 +733,7 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
- 		clear_page_dirty_for_io(page);
- 		ClearPagePrivate(page);
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
- 		inode_dec_dirty_pages(dir);
- 		f2fs_remove_dirty_inode(dir);
- 	}
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index d78009694f3fd..43a07514c3574 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -277,8 +277,10 @@ static int __revoke_inmem_pages(struct inode *inode,
- 		}
- next:
- 		/* we don't need to invalidate this in the sccessful status */
--		if (drop || recover)
-+		if (drop || recover) {
- 			ClearPageUptodate(page);
-+			clear_cold_data(page);
-+		}
- 		set_page_private(page, 0);
- 		ClearPagePrivate(page);
- 		f2fs_put_page(page, 1);
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 15779123d0895..7a9cc64f5ca37 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1837,8 +1837,7 @@ static int f2fs_quota_on(struct super_block *sb, int type, int format_id,
+ 
+ 	inode_lock(inode);
+ 	F2FS_I(inode)->i_flags |= F2FS_NOATIME_FL | F2FS_IMMUTABLE_FL;
+-	inode_set_flags(inode, S_NOATIME | S_IMMUTABLE,
+-					S_NOATIME | S_IMMUTABLE);
++	f2fs_set_inode_flags(inode);
+ 	inode_unlock(inode);
+ 	f2fs_mark_inode_dirty_sync(inode, false);
+ 
+@@ -1863,7 +1862,7 @@ static int f2fs_quota_off(struct super_block *sb, int type)
+ 
+ 	inode_lock(inode);
+ 	F2FS_I(inode)->i_flags &= ~(F2FS_NOATIME_FL | F2FS_IMMUTABLE_FL);
+-	inode_set_flags(inode, 0, S_NOATIME | S_IMMUTABLE);
++	f2fs_set_inode_flags(inode);
+ 	inode_unlock(inode);
+ 	f2fs_mark_inode_dirty_sync(inode, false);
+ out_put:
 -- 
 2.20.1
 
