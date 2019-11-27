@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 945EA10BE15
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:33:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3D610BF32
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730541AbfK0Uvw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:51:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38936 "EHLO mail.kernel.org"
+        id S1729191AbfK0Ula (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:41:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730539AbfK0Uvv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:51:51 -0500
+        id S1729187AbfK0Ul1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:41:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A505321774;
-        Wed, 27 Nov 2019 20:51:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D29A720863;
+        Wed, 27 Nov 2019 20:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887911;
-        bh=PZrL9vWqCTiFw2xV4xCtIutuGc0aIhE7zE1PDg4v3/M=;
+        s=default; t=1574887287;
+        bh=VELRZtSvY3YuVIIJoHg3cIBVp/wCiKzd5UlQOaQz6LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D14F89c3dRxUY2VhtqoLKBeAkspsTXjUpK4sqGnSe1z0O5EtXu5hMiJ6AtTxxYZjF
-         68bjPvMafcnneXaGUjQkLghB5YOqA+IBYtn0euG0u33mfxbMOmY0q1kX2zKhQaeghv
-         zllRKnDsVhK+bP26+Q6tq2eHbVbi21jw4VvdRr/4=
+        b=SAMso0V6Qa/oIymqmC5XS2oGlTy8MBARZAXZYxzE2R824GH4vSpwSIguu+jmVMQdp
+         a21830BLsEc/DM3VxIiJPG0e35Zg9DD9SsaDnGwF80o2j58HCmnVkRM7G6/fZ2SJFh
+         0YaBrjfg4vbUfsu1oqWP93ZOkm4djYEP0ASP4Qz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/211] um: Make line/tty semantics use true write IRQ
+Subject: [PATCH 4.9 051/151] ceph: fix dentry leak in ceph_readdir_prepopulate
 Date:   Wed, 27 Nov 2019 21:30:34 +0100
-Message-Id: <20191127203103.224107150@linuxfoundation.org>
+Message-Id: <20191127203030.638117798@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+From: Yan, Zheng <zyan@redhat.com>
 
-[ Upstream commit 917e2fd2c53eb3c4162f5397555cbd394390d4bc ]
+[ Upstream commit c58f450bd61511d897efc2ea472c69630635b557 ]
 
-This fixes a long standing bug where large amounts of output
-could freeze the tty (most commonly seen on stdio console).
-While the bug has always been there it became more pronounced
-after moving to the new interrupt controller.
-
-The line semantics are now changed to have true IRQ write
-semantics which should further improve the tty/line subsystem
-stability and performance
-
-Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/line.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/inode.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
-index 366e57f5e8d63..7e524efed5848 100644
---- a/arch/um/drivers/line.c
-+++ b/arch/um/drivers/line.c
-@@ -261,7 +261,7 @@ static irqreturn_t line_write_interrupt(int irq, void *data)
- 	if (err == 0) {
- 		spin_unlock(&line->lock);
- 		return IRQ_NONE;
--	} else if (err < 0) {
-+	} else if ((err < 0) && (err != -EAGAIN)) {
- 		line->head = line->buffer;
- 		line->tail = line->buffer;
- 	}
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 7fcddaaca8a5d..049cff197d2a1 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -1630,7 +1630,6 @@ int ceph_readdir_prepopulate(struct ceph_mds_request *req,
+ 			if (IS_ERR(realdn)) {
+ 				err = PTR_ERR(realdn);
+ 				d_drop(dn);
+-				dn = NULL;
+ 				goto next_item;
+ 			}
+ 			dn = realdn;
 -- 
 2.20.1
 
