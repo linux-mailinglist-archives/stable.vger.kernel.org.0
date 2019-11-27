@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CDA510B82A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:40:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFC410B90C
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:49:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727934AbfK0Ukg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:40:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45192 "EHLO mail.kernel.org"
+        id S1730230AbfK0UtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:49:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728526AbfK0Ukd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:40:33 -0500
+        id S1730226AbfK0UtU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:49:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59D6521772;
-        Wed, 27 Nov 2019 20:40:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B875220678;
+        Wed, 27 Nov 2019 20:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887232;
-        bh=X0X+XnxcakSoGSTsODunSWW+0yo6QkYP+ksjJxsWRis=;
+        s=default; t=1574887759;
+        bh=vm84ASlpradK3YRp36649IF0WvfGXEHeTtm8gY3B1AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x0ITnogGl0vAiy9DMlbL0hmD9znnN465HdUxGWJjcOi/WtoDspNhnH3FJJqj6rEEx
-         cS2PJPx8uLjd6f/1f8po4xEaBX6qtoW5Ej02vNyUbHVHVXnpvEmohXB6lhbuFBFV+G
-         rI7dK0b8neupyHFf/8eIP1L02kqNTEoJNEXqRFm8=
+        b=eaRVgaB4NqfpZOUEwBYRqMZhT+6R0xXFmfJeFF4WtBoXcZf7sjfjWNeXtoh7xFLQ1
+         Birfn+i2JIAOvP1qpcVls8uNLYQa1L2UDpMZZ8hvAcjk6VPiTkRtk/kv0jl+b5/T0U
+         RjT4xPdPM5/8vOBpbSWV/2v64Eq0Pn+AhfLJk+CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>,
+        Chris Healy <cphealy@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 032/151] scsi: iscsi_tcp: Explicitly cast param in iscsi_sw_tcp_host_get_param
+Subject: [PATCH 4.14 082/211] mfd: mc13xxx-core: Fix PMIC shutdown when reading ADC values
 Date:   Wed, 27 Nov 2019 21:30:15 +0100
-Message-Id: <20191127203020.180839630@linuxfoundation.org>
+Message-Id: <20191127203101.531647847@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-[ Upstream commit 20054597f169090109fc3f0dfa1a48583f4178a4 ]
+[ Upstream commit 55143439b7b501882bea9d95a54adfe00ffc79a3 ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+When trying to read any MC13892 ADC channel on a imx51-babbage board:
 
-drivers/scsi/iscsi_tcp.c:803:15: warning: implicit conversion from
-enumeration type 'enum iscsi_host_param' to different enumeration type
-'enum iscsi_param' [-Wenum-conversion]
-                                                 &addr, param, buf);
-                                                        ^~~~~
-1 warning generated.
+The MC13892 PMIC shutdowns completely.
 
-iscsi_conn_get_addr_param handles ISCSI_HOST_PARAM_IPADDRESS just fine
-so add an explicit cast to iscsi_param to make it clear to Clang that
-this is expected behavior.
+After debugging this issue and comparing the MC13892 and MC13783
+initializations done in the vendor kernel, it was noticed that the
+CHRGRAWDIV bit of the ADC0 register was not being set.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/153
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This bit is set by default after power on, but the driver was
+clearing it.
+
+After setting this bit it is possible to read the ADC values correctly.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+Tested-by: Chris Healy <cphealy@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/iscsi_tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/mc13xxx-core.c  | 3 ++-
+ include/linux/mfd/mc13xxx.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index ace4f1f41b8e0..d60564397be54 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -798,7 +798,8 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
- 			return rc;
+diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+index 6c16f170529f5..75d52034f89da 100644
+--- a/drivers/mfd/mc13xxx-core.c
++++ b/drivers/mfd/mc13xxx-core.c
+@@ -278,7 +278,8 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
+ 	if (ret)
+ 		goto out;
  
- 		return iscsi_conn_get_addr_param((struct sockaddr_storage *)
--						 &addr, param, buf);
-+						 &addr,
-+						 (enum iscsi_param)param, buf);
- 	default:
- 		return iscsi_host_get_param(shost, param, buf);
- 	}
+-	adc0 = MC13XXX_ADC0_ADINC1 | MC13XXX_ADC0_ADINC2;
++	adc0 = MC13XXX_ADC0_ADINC1 | MC13XXX_ADC0_ADINC2 |
++	       MC13XXX_ADC0_CHRGRAWDIV;
+ 	adc1 = MC13XXX_ADC1_ADEN | MC13XXX_ADC1_ADTRIGIGN | MC13XXX_ADC1_ASC;
+ 
+ 	if (channel > 7)
+diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
+index 638222e43e489..93011c61aafd2 100644
+--- a/include/linux/mfd/mc13xxx.h
++++ b/include/linux/mfd/mc13xxx.h
+@@ -247,6 +247,7 @@ struct mc13xxx_platform_data {
+ #define MC13XXX_ADC0_TSMOD0		(1 << 12)
+ #define MC13XXX_ADC0_TSMOD1		(1 << 13)
+ #define MC13XXX_ADC0_TSMOD2		(1 << 14)
++#define MC13XXX_ADC0_CHRGRAWDIV		(1 << 15)
+ #define MC13XXX_ADC0_ADINC1		(1 << 16)
+ #define MC13XXX_ADC0_ADINC2		(1 << 17)
+ 
 -- 
 2.20.1
 
