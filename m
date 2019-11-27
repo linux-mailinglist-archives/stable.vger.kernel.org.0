@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6F610B8CE
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E1E10BA0F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:59:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbfK0UrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:47:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59382 "EHLO mail.kernel.org"
+        id S1729948AbfK0U7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:59:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729945AbfK0Uq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:46:58 -0500
+        id S1729560AbfK0U7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:59:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C01082182A;
-        Wed, 27 Nov 2019 20:46:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B7B820678;
+        Wed, 27 Nov 2019 20:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887617;
-        bh=QcODrW0g2h0eVNaS81B9LTAQCEmFSlUp4VTfBNQ8rU8=;
+        s=default; t=1574888378;
+        bh=JBQjh57E1Ndhk4dCtXRsycP+umjDUfzghAGmYQhFalo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3N69S6+wL02fwYnvhaP9W2vJgE/R9c4FCm1gABNXY7krMCV2/uXOY9xhF1gFJAyd
-         UTCH2UU/RnFnM3JCV6CC/pYlVUzhqawDOB5LbuSR3YZttlRHhZWI4LWx4xJwJmTqi+
-         p6BbqJjPOx3LG6i/rC7kz3yPn22lQBv/t528L5fQ=
+        b=nTY0RZUBmfOxmdbt1aBasIvKFk42gskcKCN27Gpc4cXLso8RXc94hE4KUmwMmDbdZ
+         U2+e/gjgNFF29NW3zRHTQQP6AQSB0/yWbPEJdIcZq4yrvr/LarqAY0++JWEmhFNN4/
+         kMRJBjd+u12Q+aA4Xny2oagL/0qirqMxTVdjLixU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
-        Brian Norris <briannorris@chomium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 028/211] ath10k: allocate small size dma memory in ath10k_pci_diag_write_mem
-Date:   Wed, 27 Nov 2019 21:29:21 +0100
-Message-Id: <20191127203053.892519794@linuxfoundation.org>
+Subject: [PATCH 4.19 112/306] powerpc/mm/radix: Fix overuse of small pages in splitting logic
+Date:   Wed, 27 Nov 2019 21:29:22 +0100
+Message-Id: <20191127203123.406072189@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,112 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carl Huang <cjhuang@codeaurora.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 0738b4998c6d1caf9ca2447b946709a7278c70f1 ]
+[ Upstream commit 3b5657ed5b4e27ccf593a41ff3c5aa27dae8df18 ]
 
-ath10k_pci_diag_write_mem may allocate big size of the dma memory
-based on the parameter nbytes. Take firmware diag download as
-example, the biggest size is about 500K. In some systems, the
-allocation is likely to fail because it can't acquire such a large
-contiguous dma memory.
+When we have CONFIG_STRICT_KERNEL_RWX enabled, we want to split the
+linear mapping at the text/data boundary so we can map the kernel text
+read only.
 
-The fix is to allocate a small size dma memory. In the loop,
-driver copies the data to the allocated dma memory and writes to
-the destination until all the data is written.
+But the current logic uses small pages for the entire text section,
+regardless of whether a larger page size would fit. eg. with the
+boundary at 16M we could use 2M pages, but instead we use 64K pages up
+to the 16M boundary:
 
-Tested with QCA6174 PCI with
-firmware-6.bin_WLAN.RM.4.4.1-00119-QCARMSWP-1, this also affects
-QCA9377 PCI.
+  Mapped 0x0000000000000000-0x0000000001000000 with 64.0 KiB pages
+  Mapped 0x0000000001000000-0x0000000040000000 with 2.00 MiB pages
+  Mapped 0x0000000040000000-0x0000000100000000 with 1.00 GiB pages
 
-Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
-Reviewed-by: Brian Norris <briannorris@chomium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+This is because the test is checking if addr is < __init_begin
+and addr + mapping_size is >= _stext. But that is true for all pages
+between _stext and __init_begin.
+
+Instead what we want to check is if we are crossing the text/data
+boundary, which is at __init_begin. With that fixed we see:
+
+  Mapped 0x0000000000000000-0x0000000000e00000 with 2.00 MiB pages
+  Mapped 0x0000000000e00000-0x0000000001000000 with 64.0 KiB pages
+  Mapped 0x0000000001000000-0x0000000040000000 with 2.00 MiB pages
+  Mapped 0x0000000040000000-0x0000000100000000 with 1.00 GiB pages
+
+ie. we're correctly using 2MB pages below __init_begin, but we still
+drop down to 64K pages unnecessarily at the boundary.
+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/pci.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ arch/powerpc/mm/pgtable-radix.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
-index 27ab3eb47534f..0298ddc1ff060 100644
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -1039,10 +1039,9 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 	struct ath10k_ce *ce = ath10k_ce_priv(ar);
- 	int ret = 0;
- 	u32 *buf;
--	unsigned int completed_nbytes, orig_nbytes, remaining_bytes;
-+	unsigned int completed_nbytes, alloc_nbytes, remaining_bytes;
- 	struct ath10k_ce_pipe *ce_diag;
- 	void *data_buf = NULL;
--	u32 ce_data;	/* Host buffer address in CE space */
- 	dma_addr_t ce_data_base = 0;
- 	int i;
+diff --git a/arch/powerpc/mm/pgtable-radix.c b/arch/powerpc/mm/pgtable-radix.c
+index 24a2eadc8c21a..b387c7b917b7e 100644
+--- a/arch/powerpc/mm/pgtable-radix.c
++++ b/arch/powerpc/mm/pgtable-radix.c
+@@ -295,14 +295,14 @@ static int __meminit create_physical_mapping(unsigned long start,
  
-@@ -1056,9 +1055,10 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 	 *   1) 4-byte alignment
- 	 *   2) Buffer in DMA-able space
- 	 */
--	orig_nbytes = nbytes;
-+	alloc_nbytes = min_t(unsigned int, nbytes, DIAG_TRANSFER_LIMIT);
-+
- 	data_buf = (unsigned char *)dma_alloc_coherent(ar->dev,
--						       orig_nbytes,
-+						       alloc_nbytes,
- 						       &ce_data_base,
- 						       GFP_ATOMIC);
- 	if (!data_buf) {
-@@ -1066,9 +1066,6 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 		goto done;
- 	}
+ 		if (split_text_mapping && (mapping_size == PUD_SIZE) &&
+ 			(addr < __pa_symbol(__init_begin)) &&
+-			(addr + mapping_size) >= __pa_symbol(_stext)) {
++			(addr + mapping_size) >= __pa_symbol(__init_begin)) {
+ 			max_mapping_size = PMD_SIZE;
+ 			goto retry;
+ 		}
  
--	/* Copy caller's data to allocated DMA buf */
--	memcpy(data_buf, data, orig_nbytes);
--
- 	/*
- 	 * The address supplied by the caller is in the
- 	 * Target CPU virtual address space.
-@@ -1081,12 +1078,14 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 	 */
- 	address = ath10k_pci_targ_cpu_to_ce_addr(ar, address);
- 
--	remaining_bytes = orig_nbytes;
--	ce_data = ce_data_base;
-+	remaining_bytes = nbytes;
- 	while (remaining_bytes) {
- 		/* FIXME: check cast */
- 		nbytes = min_t(int, remaining_bytes, DIAG_TRANSFER_LIMIT);
- 
-+		/* Copy caller's data to allocated DMA buf */
-+		memcpy(data_buf, data, nbytes);
-+
- 		/* Set up to receive directly into Target(!) address */
- 		ret = __ath10k_ce_rx_post_buf(ce_diag, &address, address);
- 		if (ret != 0)
-@@ -1096,7 +1095,7 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 		 * Request CE to send caller-supplied data that
- 		 * was copied to bounce buffer to Target(!) address.
- 		 */
--		ret = ath10k_ce_send_nolock(ce_diag, NULL, (u32)ce_data,
-+		ret = ath10k_ce_send_nolock(ce_diag, NULL, ce_data_base,
- 					    nbytes, 0, 0);
- 		if (ret != 0)
- 			goto done;
-@@ -1137,12 +1136,12 @@ int ath10k_pci_diag_write_mem(struct ath10k *ar, u32 address,
- 
- 		remaining_bytes -= nbytes;
- 		address += nbytes;
--		ce_data += nbytes;
-+		data += nbytes;
- 	}
- 
- done:
- 	if (data_buf) {
--		dma_free_coherent(ar->dev, orig_nbytes, data_buf,
-+		dma_free_coherent(ar->dev, alloc_nbytes, data_buf,
- 				  ce_data_base);
- 	}
- 
+ 		if (split_text_mapping && (mapping_size == PMD_SIZE) &&
+ 		    (addr < __pa_symbol(__init_begin)) &&
+-		    (addr + mapping_size) >= __pa_symbol(_stext)) {
++		    (addr + mapping_size) >= __pa_symbol(__init_begin)) {
+ 			mapping_size = PAGE_SIZE;
+ 			psize = mmu_virtual_psize;
+ 		}
 -- 
 2.20.1
 
