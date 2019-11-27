@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9509210BC4A
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2D9E10BB7B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733072AbfK0VT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:19:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
+        id S2387412AbfK0VND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:13:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732373AbfK0VKc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:10:32 -0500
+        id S2387406AbfK0VNC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:13:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A7BF2086A;
-        Wed, 27 Nov 2019 21:10:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFE73217F9;
+        Wed, 27 Nov 2019 21:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889032;
+        s=default; t=1574889182;
         bh=Xm1l4jck4nbnQDoioOAsUALDtTZS1OsKdbYJlQLPRdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZHFC26ZGUngLnz1+WzYiXSGNwLAjY8iPy5bBa2RbIJV77+0iNz26hmzVwLNvbRnB
-         mJHMri1vhuXzxnwQZz6QDRJTpmAg8TZN8br/rUHNLCmjs3eunpKCEixy7wHu6ZFS7t
-         29iw6OyfXpYwAsdWZmhrSLZrUrGZANQnsCQ+338Q=
+        b=K1dHAwH+ONp1QzF3PHF5Wmt4sF6KGglBQ9t7Cpf1o7ASIlOaAtz7Z0dl8oEfjrPGU
+         9jUJyZbkpsRKProigj+rSUQRNFIAAsZFkViqT1ZrLdJUl9zSzN2w/XQPy/omomwoT2
+         Eu2L0EeyS2gEA7sDEH+aZ4On0N3j9PKxcmGEt2H4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 5.3 58/95] x86/entry/32: Use %ss segment where required
+Subject: [PATCH 5.4 20/66] x86/entry/32: Use %ss segment where required
 Date:   Wed, 27 Nov 2019 21:32:15 +0100
-Message-Id: <20191127202924.538538946@linuxfoundation.org>
+Message-Id: <20191127202655.050736858@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
+References: <20191127202632.536277063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
