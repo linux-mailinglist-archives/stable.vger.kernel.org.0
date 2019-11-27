@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0059010BEEA
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:40:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7201410BF83
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:45:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729450AbfK0Un0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:43:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51162 "EHLO mail.kernel.org"
+        id S1728563AbfK0UhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:37:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728986AbfK0UnZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:43:25 -0500
+        id S1727617AbfK0UhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:37:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7900A21780;
-        Wed, 27 Nov 2019 20:43:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4E8E20862;
+        Wed, 27 Nov 2019 20:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887404;
-        bh=S6U2qzUqNJVgEYYa4WE0Mi8QIFME/YpoalQe60XZ0+I=;
+        s=default; t=1574887041;
+        bh=3ezIcSOyWYw8I4efjEO+0CwCb+ZkrQdkz6h7FNO1ffM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xqb0w48U1OGLRKMxR6Bp8cAlb7xtE6tPnMd1/6jcRopxDRLE+a9D0WomDammvW39b
-         YbK/wSvLaCcPqk5myLVFdWETJjrkcHAXHNbof035lT7cQ85aDaNZWdaiZGQWJHl0+S
-         yHZBRmBkSFv17zXdIXUgyZgP6HTLfXXxfrsBXgDY=
+        b=bRQ2/Wld2f/P0Od+eBqsyWt19TNUtqpU5AHREeemBRXD1IAyuZ+ww6AXaFlpIXePS
+         YSBFnRg0eMat/GdRq6icm5Y05QqovgGRv/CQ/El41Em0Vcz3+yADpoxjEwACPeryV1
+         GPOXSXUzHunhHKbbuZtD6mnwKi5dMlTdvL5pEysE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 097/151] scsi: megaraid_sas: Fix msleep granularity
-Date:   Wed, 27 Nov 2019 21:31:20 +0100
-Message-Id: <20191127203038.849589825@linuxfoundation.org>
+Subject: [PATCH 4.4 090/132] dlm: fix invalid free
+Date:   Wed, 27 Nov 2019 21:31:21 +0100
+Message-Id: <20191127203018.602173035@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+From: Tycho Andersen <tycho@tycho.ws>
 
-[ Upstream commit 9155cf30a3c4ef97e225d6daddf9bd4b173267e8 ]
+[ Upstream commit d968b4e240cfe39d39d80483bac8bca8716fd93c ]
 
-In megasas_transition_to_ready() driver waits 180seconds for controller to
-change FW state. Here we are calling msleep(1) in a loop for this.  As
-explained in timers-howto.txt, msleep(1) will actually sleep longer than
-1ms. If a faulty controller is connected, we will end up waiting for much
-more than 180 seconds causing unnecessary delays during load.
+dlm_config_nodes() does not allocate nodes on failure, so we should not
+free() nodes when it fails.
 
-Change the granularity of msleep() call from 1ms to 1000ms.
-
-Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Tycho Andersen <tycho@tycho.ws>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/dlm/member.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index d90693b2767fd..c5cc002dfdd5c 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -3694,12 +3694,12 @@ megasas_transition_to_ready(struct megasas_instance *instance, int ocr)
- 		/*
- 		 * The cur_state should not last for more than max_wait secs
- 		 */
--		for (i = 0; i < (max_wait * 1000); i++) {
-+		for (i = 0; i < max_wait; i++) {
- 			curr_abs_state = instance->instancet->
- 				read_fw_status_reg(instance->reg_set);
+diff --git a/fs/dlm/member.c b/fs/dlm/member.c
+index 9c47f1c14a8ba..a47ae99f7bcbc 100644
+--- a/fs/dlm/member.c
++++ b/fs/dlm/member.c
+@@ -683,7 +683,7 @@ int dlm_ls_start(struct dlm_ls *ls)
  
- 			if (abs_state == curr_abs_state) {
--				msleep(1);
-+				msleep(1000);
- 			} else
- 				break;
- 		}
+ 	error = dlm_config_nodes(ls->ls_name, &nodes, &count);
+ 	if (error < 0)
+-		goto fail;
++		goto fail_rv;
+ 
+ 	spin_lock(&ls->ls_recover_lock);
+ 
+@@ -715,8 +715,9 @@ int dlm_ls_start(struct dlm_ls *ls)
+ 	return 0;
+ 
+  fail:
+-	kfree(rv);
+ 	kfree(nodes);
++ fail_rv:
++	kfree(rv);
+ 	return error;
+ }
+ 
 -- 
 2.20.1
 
