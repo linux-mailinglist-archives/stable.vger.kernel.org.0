@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E9F10BBF2
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF9110BC45
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732252AbfK0VRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:17:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
+        id S1733032AbfK0VKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:10:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387394AbfK0VMy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:12:54 -0500
+        id S1733029AbfK0VKY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:10:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AD1B21775;
-        Wed, 27 Nov 2019 21:12:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B61F42178F;
+        Wed, 27 Nov 2019 21:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889173;
+        s=default; t=1574889024;
         bh=vRmXBO5Gu0mvfOSr13Grf3KH9xKlAfzS1tCHm0VwrJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWME1bu7A/WYo1sbqYLK4rDWL+VaCG1bnzP8Nr/hiCXwJAVsTMWF6mGoq/b8NaQva
-         Sdr8aK6w9+xmu9BXCT29dvxRS9HoMF4UZeEyB2ix8RPbcJ7ZvBnC2eB/pePjTcQG9c
-         UJ01x+Rgg7M47ZmEGm3HTDk8TW7CN5uHubHr5gZ8=
+        b=AftuRPYCOhqpgCNZtX6cUt1nyS/JxMkwgXPZIREiHxpTvJ1jIbrE+JLW8cOWMBbe+
+         o4DRGlVD+kmrMEovS42ZU0+AIWEmFjcDC5KJ0uq+UcETSn/8+8Oj30m4fyzqOZs2eZ
+         6hg/NzsSWvVFvxKdUKqCAildzMyk6Twx/uZR7PtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Joerg Roedel <jroedel@suse.de>, stable@kernel.org
-Subject: [PATCH 5.4 17/66] x86/pti/32: Size initial_page_table correctly
+Subject: [PATCH 5.3 55/95] x86/pti/32: Size initial_page_table correctly
 Date:   Wed, 27 Nov 2019 21:32:12 +0100
-Message-Id: <20191127202653.405770958@linuxfoundation.org>
+Message-Id: <20191127202920.769722416@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
+References: <20191127202845.651587549@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
