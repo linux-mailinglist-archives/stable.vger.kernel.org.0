@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A4210BA83
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4393110BCCB
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:23:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731471AbfK0VD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:03:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57216 "EHLO mail.kernel.org"
+        id S1727445AbfK0VXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:23:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731766AbfK0VDy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:03:54 -0500
+        id S1732097AbfK0VD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:03:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DF3B2086A;
-        Wed, 27 Nov 2019 21:03:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB5602086A;
+        Wed, 27 Nov 2019 21:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888634;
-        bh=xdFKgEX7Pl/f6BxecuW2mYaqqpQDVVagDCzXcf2Qhhw=;
+        s=default; t=1574888636;
+        bh=+x+XccsgLC72FddcFcYE+icmwrl+wXBNOtor5imuc/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZuMosX03f82FCfzURRLVVZcIyg80LJ/40bGcyb4rr8wBoJP65Tqs52/SVu0UF3y1
-         CzA9HLkPvtekQVZeiWAximJmIi8DI+ozsofus6Ak9fFI0OiNaFYAkP3s5n6Rkvj6pj
-         k9JelaDizUbUtrQhsg30RlYwK8nL4CIvBE2qGaTU=
+        b=ecsfsJghBuvtV2TD1FklRfqcD952aqs5rXZ2vmlKiBpzG303RgFeeLWrBEFOLdg+2
+         VIYd8nMuZFooz6uUIDRgWz4lS0zuiae4dGEGGfQiYZK5fR2SmUjtDjsVZPUXLNov/K
+         FzDlXc1I/eCtKB0jPnoyDZx/hlrFhzOU/C3Dreyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nickhu <nickhu@andestech.com>,
-        Greentime Hu <greentime@andestech.com>,
+        stable@vger.kernel.org,
+        Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 210/306] nds32: Fix bug in bitfield.h
-Date:   Wed, 27 Nov 2019 21:31:00 +0100
-Message-Id: <20191127203130.474147252@linuxfoundation.org>
+Subject: [PATCH 4.19 211/306] media: ov13858: Check for possible null pointer
+Date:   Wed, 27 Nov 2019 21:31:01 +0100
+Message-Id: <20191127203130.540872040@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,41 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nickhu <nickhu@andestech.com>
+From: Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>
 
-[ Upstream commit 9aaafac8cffa1c1edb66e19a63841b7c86be07ca ]
+[ Upstream commit 35629182eb8f931b0de6ed38c0efac58e922c801 ]
 
-There two bitfield bug for perfomance counter
-in bitfield.h:
+Check for possible null pointer to avoid crash.
 
-	PFM_CTL_offSEL1		21 --> 16
-	PFM_CTL_offSEL2		27 --> 22
-
-This commit fix it.
-
-Signed-off-by: Nickhu <nickhu@andestech.com>
-Acked-by: Greentime Hu <greentime@andestech.com>
-Signed-off-by: Greentime Hu <greentime@andestech.com>
+Signed-off-by: Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nds32/include/asm/bitfield.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ov13858.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/nds32/include/asm/bitfield.h b/arch/nds32/include/asm/bitfield.h
-index 8e84fc385b946..19b2841219adf 100644
---- a/arch/nds32/include/asm/bitfield.h
-+++ b/arch/nds32/include/asm/bitfield.h
-@@ -692,8 +692,8 @@
- #define PFM_CTL_offKU1		13	/* Enable user mode event counting for PFMC1 */
- #define PFM_CTL_offKU2		14	/* Enable user mode event counting for PFMC2 */
- #define PFM_CTL_offSEL0		15	/* The event selection for PFMC0 */
--#define PFM_CTL_offSEL1		21	/* The event selection for PFMC1 */
--#define PFM_CTL_offSEL2		27	/* The event selection for PFMC2 */
-+#define PFM_CTL_offSEL1		16	/* The event selection for PFMC1 */
-+#define PFM_CTL_offSEL2		22	/* The event selection for PFMC2 */
- /* bit 28:31 reserved */
+diff --git a/drivers/media/i2c/ov13858.c b/drivers/media/i2c/ov13858.c
+index 0e7a85c4996c7..afd66d243403b 100644
+--- a/drivers/media/i2c/ov13858.c
++++ b/drivers/media/i2c/ov13858.c
+@@ -1612,7 +1612,8 @@ static int ov13858_init_controls(struct ov13858 *ov13858)
+ 				OV13858_NUM_OF_LINK_FREQS - 1,
+ 				0,
+ 				link_freq_menu_items);
+-	ov13858->link_freq->flags |= V4L2_CTRL_FLAG_READ_ONLY;
++	if (ov13858->link_freq)
++		ov13858->link_freq->flags |= V4L2_CTRL_FLAG_READ_ONLY;
  
- #define PFM_CTL_mskEN0		( 0x01  << PFM_CTL_offEN0 )
+ 	pixel_rate_max = link_freq_to_pixel_rate(link_freq_menu_items[0]);
+ 	pixel_rate_min = link_freq_to_pixel_rate(link_freq_menu_items[1]);
+@@ -1635,7 +1636,8 @@ static int ov13858_init_controls(struct ov13858 *ov13858)
+ 	ov13858->hblank = v4l2_ctrl_new_std(
+ 				ctrl_hdlr, &ov13858_ctrl_ops, V4L2_CID_HBLANK,
+ 				hblank, hblank, 1, hblank);
+-	ov13858->hblank->flags |= V4L2_CTRL_FLAG_READ_ONLY;
++	if (ov13858->hblank)
++		ov13858->hblank->flags |= V4L2_CTRL_FLAG_READ_ONLY;
+ 
+ 	exposure_max = mode->vts_def - 8;
+ 	ov13858->exposure = v4l2_ctrl_new_std(
 -- 
 2.20.1
 
