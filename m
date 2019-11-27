@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEFFA10B89C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B7B10B998
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729691AbfK0UpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:45:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55422 "EHLO mail.kernel.org"
+        id S1730263AbfK0UzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729688AbfK0UpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:45:05 -0500
+        id S1727955AbfK0UzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:55:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34CC5217BC;
-        Wed, 27 Nov 2019 20:45:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C55C221556;
+        Wed, 27 Nov 2019 20:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887504;
-        bh=KIESMiKpbaniYyzcqsRpnmAFJ4O+JMw36QeHJIea514=;
+        s=default; t=1574888100;
+        bh=5sVxnb408V3TlrbZLrj+UKz2T8LnaptQoJmh3OJCdHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOgLKH9MrK2FmD3wtO5Jmi054iIArXOFnAEvGEnBv9OWvBoxmpS9vwG5BLfZdQpte
-         i+Ae1jAkTSMpXrGLbTgEFf1bMUcOkuSkXmzevtopcmKFDehBu6YktKAGs6EDq4FDQ3
-         f/w4p/YhsCWaL9U2SmobhMzRggg4c1O3N5fGKUsM=
+        b=JPh5eyQBu9RZVSe7S+0vQvzO+kJ8sKQ7hjvVSCnX2dylroNZvPJbx09a6sIOBhhgs
+         0o7I1aC2HALKLqWFRYJbd2R9Hg8D7FdlKwsUiVB7XlCvrbAVBqsuttCo6k2n45Qcmq
+         A8l/WUdkYcNb5aQpmc9IFPKYP8WUfbzKVmpeEJyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 137/151] virtio_console: drop custom control queue cleanup
+        stable@vger.kernel.org, David Miller <davem@davemloft.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 4.14 187/211] net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
 Date:   Wed, 27 Nov 2019 21:32:00 +0100
-Message-Id: <20191127203046.869139354@linuxfoundation.org>
+Message-Id: <20191127203111.387710023@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-[ Upstream commit 61a8950c5c5708cf2068b29ffde94e454e528208 ]
+commit b8eb718348b8fb30b5a7d0a8fce26fb3f4ac741b upstream.
 
-We now cleanup all VQs on device removal - no need
-to handle the control VQ specially.
+kobject_init_and_add takes reference even when it fails. This has
+to be given up by the caller in error handling. Otherwise memory
+allocated by kobject_init_and_add is never freed. Originally found
+by Syzkaller:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BUG: memory leak
+unreferenced object 0xffff8880679f8b08 (size 8):
+  comm "netdev_register", pid 269, jiffies 4294693094 (age 12.132s)
+  hex dump (first 8 bytes):
+    72 78 2d 30 00 36 20 d4                          rx-0.6 .
+  backtrace:
+    [<000000008c93818e>] __kmalloc_track_caller+0x16e/0x290
+    [<000000001f2e4e49>] kvasprintf+0xb1/0x140
+    [<000000007f313394>] kvasprintf_const+0x56/0x160
+    [<00000000aeca11c8>] kobject_set_name_vargs+0x5b/0x140
+    [<0000000073a0367c>] kobject_init_and_add+0xd8/0x170
+    [<0000000088838e4b>] net_rx_queue_update_kobjects+0x152/0x560
+    [<000000006be5f104>] netdev_register_kobject+0x210/0x380
+    [<00000000e31dab9d>] register_netdevice+0xa1b/0xf00
+    [<00000000f68b2465>] __tun_chr_ioctl+0x20d5/0x3dd0
+    [<000000004c50599f>] tun_chr_ioctl+0x2f/0x40
+    [<00000000bbd4c317>] do_vfs_ioctl+0x1c7/0x1510
+    [<00000000d4c59e8f>] ksys_ioctl+0x99/0xb0
+    [<00000000946aea81>] __x64_sys_ioctl+0x78/0xb0
+    [<0000000038d946e5>] do_syscall_64+0x16f/0x580
+    [<00000000e0aa5d8f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    [<00000000285b3d1a>] 0xffffffffffffffff
+
+Cc: David Miller <davem@davemloft.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/char/virtio_console.c | 17 -----------------
- 1 file changed, 17 deletions(-)
+ net/core/net-sysfs.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 7de24040f39c1..8975ea08d6c01 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1993,21 +1993,6 @@ static void remove_vqs(struct ports_device *portdev)
- 	kfree(portdev->out_vqs);
- }
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -915,21 +915,23 @@ static int rx_queue_add_kobject(struct n
+ 	error = kobject_init_and_add(kobj, &rx_queue_ktype, NULL,
+ 				     "rx-%u", index);
+ 	if (error)
+-		return error;
++		goto err;
  
--static void remove_controlq_data(struct ports_device *portdev)
--{
--	struct port_buffer *buf;
--	unsigned int len;
--
--	if (!use_multiport(portdev))
--		return;
--
--	while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
--		free_buf(buf, true);
--
--	while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
--		free_buf(buf, true);
--}
--
- /*
-  * Once we're further in boot, we get probed like any other virtio
-  * device.
-@@ -2168,7 +2153,6 @@ static void virtcons_remove(struct virtio_device *vdev)
- 	 * have to just stop using the port, as the vqs are going
- 	 * away.
- 	 */
--	remove_controlq_data(portdev);
- 	remove_vqs(portdev);
- 	kfree(portdev);
- }
-@@ -2213,7 +2197,6 @@ static int virtcons_freeze(struct virtio_device *vdev)
- 	 */
- 	if (use_multiport(portdev))
- 		virtqueue_disable_cb(portdev->c_ivq);
--	remove_controlq_data(portdev);
+ 	dev_hold(queue->dev);
  
- 	list_for_each_entry(port, &portdev->ports, list) {
- 		virtqueue_disable_cb(port->in_vq);
--- 
-2.20.1
-
+ 	if (dev->sysfs_rx_queue_group) {
+ 		error = sysfs_create_group(kobj, dev->sysfs_rx_queue_group);
+-		if (error) {
+-			kobject_put(kobj);
+-			return error;
+-		}
++		if (error)
++			goto err;
+ 	}
+ 
+ 	kobject_uevent(kobj, KOBJ_ADD);
+ 
+ 	return error;
++
++err:
++	kobject_put(kobj);
++	return error;
+ }
+ #endif /* CONFIG_SYSFS */
+ 
+@@ -1326,21 +1328,21 @@ static int netdev_queue_add_kobject(stru
+ 	error = kobject_init_and_add(kobj, &netdev_queue_ktype, NULL,
+ 				     "tx-%u", index);
+ 	if (error)
+-		return error;
++		goto err;
+ 
+ 	dev_hold(queue->dev);
+ 
+ #ifdef CONFIG_BQL
+ 	error = sysfs_create_group(kobj, &dql_group);
+-	if (error) {
+-		kobject_put(kobj);
+-		return error;
+-	}
++	if (error)
++		goto err;
+ #endif
+ 
+ 	kobject_uevent(kobj, KOBJ_ADD);
+ 
+-	return 0;
++err:
++	kobject_put(kobj);
++	return error;
+ }
+ #endif /* CONFIG_SYSFS */
+ 
 
 
