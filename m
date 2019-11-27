@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8747C10B910
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E222110B913
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:49:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729806AbfK0Uta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:49:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35082 "EHLO mail.kernel.org"
+        id S1729830AbfK0Uti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:49:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729506AbfK0Ut1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:49:27 -0500
+        id S1730263AbfK0Uth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:49:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1637621774;
-        Wed, 27 Nov 2019 20:49:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97D3D21780;
+        Wed, 27 Nov 2019 20:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887766;
-        bh=G+bUnZIIGo0TF/ZYi61/DRntB0hbkjdnF5/2+ThSJ3w=;
+        s=default; t=1574887777;
+        bh=Dr/MgV0CT6e61/f8fbdA16ZEvfZhrv4OxigPBFLptW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7vV3K507cEhNkuzHiZMQYrxnTsFwMmfRzGntHFiOrXo/DpwKKXgSNliLUUh54DDZ
-         5bAfWSl/Mgk/Nm1SfqDesGIMBmyzjFdDcRU8MkoWaFBzZQiEeZCWhKnswoEsfCZmaY
-         tZjwkWVQiR6WPSr5MtjZ7+obS3C12UFfN3Rj1aF8=
+        b=ryXuPiUnZwswpihqcPw9/BCPqeeGesJiO5gjW6cJaA+UgRNzrBiGpwdBqXuotNYtX
+         LFeSKJ5fR+S8e8zPw0O+rP2RJFJXRIwH51Gi5rSewSRxWY/5A7t5Q3RppFkpf2mBYS
+         p/jrhRszSgt0ztfUJj+ddSZZre1RLfdjrSI4guZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Eduardo Valentin <edubezval@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 085/211] selftests/ftrace: Fix to test kprobe $comm arg only if available
-Date:   Wed, 27 Nov 2019 21:30:18 +0100
-Message-Id: <20191127203101.796912920@linuxfoundation.org>
+Subject: [PATCH 4.14 088/211] thermal: rcar_thermal: Prevent hardware access during system suspend
+Date:   Wed, 27 Nov 2019 21:30:21 +0100
+Message-Id: <20191127203102.063666237@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -44,38 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 2452c96e617a0ff6fb2692e55217a3fa57a7322c ]
+[ Upstream commit 3a31386217628ffe2491695be2db933c25dde785 ]
 
-Test $comm in kprobe-event argument syntax testcase
-only if it is supported on the kernel because
-$comm has been introduced 4.8 kernel.
-So on older stable kernel, it should be skipped.
+On r8a7791/koelsch, sometimes the following message is printed during
+system suspend:
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Shuah Khan (Samsung OSG) <shuah@kernel.org>
+    rcar_thermal e61f0000.thermal: thermal sensor was broken
+
+This happens if the workqueue runs while the device is already
+suspended.  Fix this by using the freezable system workqueue instead,
+cfr. commit 51e20d0e3a60cf46 ("thermal: Prevent polling from happening
+during system suspend").
+
+Fixes: e0a5172e9eec7f0d ("thermal: rcar: add interrupt support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc       | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/thermal/rcar_thermal.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc
-index 231bcd2c4eb59..1e7ac6f3362ff 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_syntax.tc
-@@ -71,8 +71,11 @@ test_badarg "\$stackp" "\$stack0+10" "\$stack1-10"
- echo "r ${PROBEFUNC} \$retval" > kprobe_events
- ! echo "p ${PROBEFUNC} \$retval" > kprobe_events
+diff --git a/drivers/thermal/rcar_thermal.c b/drivers/thermal/rcar_thermal.c
+index 73e5fee6cf1d5..83126e2dce36d 100644
+--- a/drivers/thermal/rcar_thermal.c
++++ b/drivers/thermal/rcar_thermal.c
+@@ -401,8 +401,8 @@ static irqreturn_t rcar_thermal_irq(int irq, void *data)
+ 	rcar_thermal_for_each_priv(priv, common) {
+ 		if (rcar_thermal_had_changed(priv, status)) {
+ 			rcar_thermal_irq_disable(priv);
+-			schedule_delayed_work(&priv->work,
+-					      msecs_to_jiffies(300));
++			queue_delayed_work(system_freezable_wq, &priv->work,
++					   msecs_to_jiffies(300));
+ 		}
+ 	}
  
-+# $comm was introduced in 4.8, older kernels reject it.
-+if grep -A1 "fetcharg:" README | grep -q '\$comm' ; then
- : "Comm access"
- test_goodarg "\$comm"
-+fi
- 
- : "Indirect memory access"
- test_goodarg "+0(${GOODREG})" "-0(${GOODREG})" "+10(\$stack)" \
 -- 
 2.20.1
 
