@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5BE310BB94
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18AE210BAEF
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:10:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727453AbfK0VN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:13:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
+        id S1732664AbfK0VH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:07:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387500AbfK0VN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:13:56 -0500
+        id S1732674AbfK0VH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:07:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A70D21556;
-        Wed, 27 Nov 2019 21:13:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2CA920637;
+        Wed, 27 Nov 2019 21:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889236;
-        bh=edJx2cAHfixmC0zyvlsHBTeDbnwMU/Lbodnd4g+u4rk=;
+        s=default; t=1574888876;
+        bh=TjK6ymxqY67uPx9haMeBRwGjjLaIwExRBNJ32pxvHWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ys9c11P82Z8aJ5JkZF6AK93QSoUgzAJydb+aOSPjWz0GaNv38x2j8sQ0EWwPQW0Jk
-         oaAQwcxvDheOyVk8tJgpX6KTkLf9z/tX3ShmZifhl8guwuyAU4+RQ2RZcT8zXZ05Nx
-         45HIOtiRy6Rxu2wXsbYlgQpqXoHG1T9FoTqhX/kw=
+        b=g1J+7Eqh/YTbvYSErPSvDgIQdtcNrc1sKhecfBt6cy66N41CZtMIUdrnAA3gZyPPy
+         gjVOCPJ2PyAklSP0gdzAP7QhZm9HmodqjqrdJG/ROTchgQaGdrJX2DhT9nPVkrUFxN
+         fkwkuEpsF0E8TKg0EeyFBA1pMeleg5PB7Cm1Xp/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 39/66] futex: Split futex_mm_release() for exit/exec
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        "Christopher M. Riedl" <cmr@informatik.wtf>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>
+Subject: [PATCH 4.19 304/306] powerpc/64s: support nospectre_v2 cmdline option
 Date:   Wed, 27 Nov 2019 21:32:34 +0100
-Message-Id: <20191127202720.161543786@linuxfoundation.org>
+Message-Id: <20191127203136.927449924@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: "Christopher M. Riedl" <cmr@informatik.wtf>
 
-commit 150d71584b12809144b8145b817e83b81158ae5f upstream.
+commit d8f0e0b073e1ec52a05f0c2a56318b47387d2f10 upstream.
 
-To allow separate handling of the futex exit state in the futex exit code
-for exit and exec, split futex_mm_release() into two functions and invoke
-them from the corresponding exit/exec_mm_release() callsites.
+Add support for disabling the kernel implemented spectre v2 mitigation
+(count cache flush on context switch) via the nospectre_v2 and
+mitigations=off cmdline options.
 
-Preparatory only, no functional change.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.332094221@linutronix.de
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Christopher M. Riedl <cmr@informatik.wtf>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190524024647.381-1-cmr@informatik.wtf
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/futex.h |    6 ++++--
- kernel/fork.c         |    5 ++---
- kernel/futex.c        |    7 ++++++-
- 3 files changed, 12 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/security.c |   19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
---- a/include/linux/futex.h
-+++ b/include/linux/futex.h
-@@ -93,14 +93,16 @@ static inline void futex_exit_done(struc
- 	tsk->futex_state = FUTEX_STATE_DEAD;
- }
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -28,7 +28,7 @@ static enum count_cache_flush_type count
+ bool barrier_nospec_enabled;
+ static bool no_nospec;
+ static bool btb_flush_enabled;
+-#ifdef CONFIG_PPC_FSL_BOOK3E
++#if defined(CONFIG_PPC_FSL_BOOK3E) || defined(CONFIG_PPC_BOOK3S_64)
+ static bool no_spectrev2;
+ #endif
  
--void futex_mm_release(struct task_struct *tsk);
-+void futex_exit_release(struct task_struct *tsk);
-+void futex_exec_release(struct task_struct *tsk);
+@@ -106,7 +106,7 @@ static __init int barrier_nospec_debugfs
+ device_initcall(barrier_nospec_debugfs_init);
+ #endif /* CONFIG_DEBUG_FS */
  
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
- 	      u32 __user *uaddr2, u32 val2, u32 val3);
- #else
- static inline void futex_init_task(struct task_struct *tsk) { }
--static inline void futex_mm_release(struct task_struct *tsk) { }
- static inline void futex_exit_done(struct task_struct *tsk) { }
-+static inline void futex_exit_release(struct task_struct *tsk) { }
-+static inline void futex_exec_release(struct task_struct *tsk) { }
- static inline long do_futex(u32 __user *uaddr, int op, u32 val,
- 			    ktime_t *timeout, u32 __user *uaddr2,
- 			    u32 val2, u32 val3)
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1285,9 +1285,6 @@ static int wait_for_vfork_done(struct ta
-  */
- static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
+-#ifdef CONFIG_PPC_FSL_BOOK3E
++#if defined(CONFIG_PPC_FSL_BOOK3E) || defined(CONFIG_PPC_BOOK3S_64)
+ static int __init handle_nospectre_v2(char *p)
  {
--	/* Get rid of any futexes when releasing the mm */
--	futex_mm_release(tsk);
--
- 	uprobe_free_utask(tsk);
- 
- 	/* Get rid of any cached register state */
-@@ -1322,11 +1319,13 @@ static void mm_release(struct task_struc
- 
- void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
-+	futex_exit_release(tsk);
- 	mm_release(tsk, mm);
+ 	no_spectrev2 = true;
+@@ -114,6 +114,9 @@ static int __init handle_nospectre_v2(ch
+ 	return 0;
  }
- 
- void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
-+	futex_exec_release(tsk);
- 	mm_release(tsk, mm);
- }
- 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3661,7 +3661,7 @@ static void exit_robust_list(struct task
- 	}
- }
- 
--void futex_mm_release(struct task_struct *tsk)
-+void futex_exec_release(struct task_struct *tsk)
- {
- 	if (unlikely(tsk->robust_list)) {
- 		exit_robust_list(tsk);
-@@ -3679,6 +3679,11 @@ void futex_mm_release(struct task_struct
- 		exit_pi_state_list(tsk);
- }
- 
-+void futex_exit_release(struct task_struct *tsk)
-+{
-+	futex_exec_release(tsk);
-+}
+ early_param("nospectre_v2", handle_nospectre_v2);
++#endif /* CONFIG_PPC_FSL_BOOK3E || CONFIG_PPC_BOOK3S_64 */
 +
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
- 		u32 __user *uaddr2, u32 val2, u32 val3)
++#ifdef CONFIG_PPC_FSL_BOOK3E
+ void setup_spectre_v2(void)
  {
+ 	if (no_spectrev2 || cpu_mitigations_off())
+@@ -391,7 +394,17 @@ static void toggle_count_cache_flush(boo
+ 
+ void setup_count_cache_flush(void)
+ {
+-	toggle_count_cache_flush(true);
++	bool enable = true;
++
++	if (no_spectrev2 || cpu_mitigations_off()) {
++		if (security_ftr_enabled(SEC_FTR_BCCTRL_SERIALISED) ||
++		    security_ftr_enabled(SEC_FTR_COUNT_CACHE_DISABLED))
++			pr_warn("Spectre v2 mitigations not under software control, can't disable\n");
++
++		enable = false;
++	}
++
++	toggle_count_cache_flush(enable);
+ }
+ 
+ #ifdef CONFIG_DEBUG_FS
 
 
