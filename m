@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB72D10C058
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 23:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CAEB10C063
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 23:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727097AbfK0WrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 17:47:04 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:36285 "EHLO
+        id S1727007AbfK0Wx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 17:53:29 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54686 "EHLO
         mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726947AbfK0WrD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 17:47:03 -0500
-Received: by mail-wm1-f68.google.com with SMTP id p17so3709910wma.1
-        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 14:46:57 -0800 (PST)
+        with ESMTP id S1726984AbfK0Wx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 17:53:28 -0500
+Received: by mail-wm1-f68.google.com with SMTP id b11so8908245wmj.4
+        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 14:53:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=t17KzJqxV3DNvN8YTHZjBpE4GisOY4z9N9qc3sNwJAA=;
-        b=e3ii7VwxzdvNQSdLNBacvOkBIt3bv/xtil9pO/gavGZ9slgHKWPU6nZ8n+BwNVNsNy
-         dWEEuw6UMQHRrlh4SOIghe8MKg1sPkqYCfS2h3GEGlyalwgCDCWPXhUKKRmT15dg+8Py
-         QGcTqhPNQUq0MQqaFB7RezgFfbDC2CVVU5Sn3w5fBdJ0JMTergAifqfnXiuDi5+xS2sW
-         d22yim5rWvdmkHi/JGP4egsjEy7ZkAVERR6gdlrLuC0zvodQwMD6dOD89EMvGc7d4cgV
-         kaS0A1EbYSeHbu0mS+AywXe/JjDWkGHO5ZgIu0YbmBDpV/4jChfwPobg58/e/5Wmzt6N
-         mD/Q==
+        bh=uqkyT6eHn7Fv6Zwf6Ipe9iQzKiS2YRlrGtG514PadsM=;
+        b=xJPSjKFhqCE0dAaKVqHZdu8P8gsi6FrPFGqBusjh3ZSicLtWaVDuFAdmMwEEpmnf3b
+         SdwBr4KjhbnpxyxGN+dqAn2YhiTBo7eNe5xnsZWESReNY0VfY95lYJhjZ6sKbbiz8QWp
+         gL8r8rWuCLvivtFk9ahJHsq06XgHycir4erRxwo72LXH4eDrhdWoWnmVwvyvCm81L3Wy
+         LZcFkP9q6DIAZhjA4kfa0G/uSXhKQ7XslKH7R6eJ1uK8vj4O9vjYfsgBsd76Ywopd7cc
+         CD4kOhyBRNlsCO8k+PHp25ydSNTXkos/4deKy2eYiOs8fK1bEbnrAdWSDm4347RvEE16
+         q+KA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=t17KzJqxV3DNvN8YTHZjBpE4GisOY4z9N9qc3sNwJAA=;
-        b=C+jDsfARS3EA9N94yrBkwIKUVL/GZ35Ld/AO9rNwpgiBuPCA5big/WxJpGl1v6TkOc
-         wKaMlYmX9WjxFjvgAAB+klIkzyhWsy8e4Ahyghb4+fPbHITkcY/495nxje83CATj52qm
-         bzkGHnQHvC6ePZgHGL2b+NmKQms1XSDJA9H/p6YnC0nVrGZJdebJFQpl6s+EjyZiDu+u
-         IAsdVazdY8r5QLU+3NgsYJfScgcR+svjeG0zBGH19DtZvHtS3AYMWG2vRr3wP5Iku1VP
-         V/+AbpM6YEhsdwuRsqWzPaWrKR+i6x7uoVogGuva2b3y9YrxH6G/SY3OQX7KxHDKRPWK
-         gZew==
-X-Gm-Message-State: APjAAAXSSBnyH70qqhXtB4vm9/opuEKZNfnLgbZzSoZftXgL8tLgeQe2
-        tOop31S4bHtHb4evznJ8dfIQmZowckMlRA==
-X-Google-Smtp-Source: APXvYqztZXdHQ4N/0/3W4kwmLDeMjVOvE8iOKohDIY7vBIkNGB5B6LXdwODVSe6nwy/bPr4uJ7PA7w==
-X-Received: by 2002:a1c:2e0f:: with SMTP id u15mr6578866wmu.47.1574894814481;
-        Wed, 27 Nov 2019 14:46:54 -0800 (PST)
+        bh=uqkyT6eHn7Fv6Zwf6Ipe9iQzKiS2YRlrGtG514PadsM=;
+        b=BrfBCHrrRsd/LZyKxarDXIxf2n5iLubkaJgc9WfZyKcTzAS1kV7X1UMQrXCUBGPr9x
+         4nE12RTGIGNNpC4eM0ohWC5LaAH9qfMwHoFlHSM8/3NfqAmcRietUk9mIAWpsAYjakbm
+         vjKdqweMBUgdc7COwMcz+uoGQUdipxoaLds0BzC04tNwMgsVPLW7WuwMXbqpoq4Fpt48
+         eUhUwKv3u9GSiDGL4qEO9mAhMVhsbZ60v3wx7OzaI8D73deTnXWB+TEE2FyYVtoh2Mud
+         jlVCOS5Jt4CRgYJan3v4cCQ1Ni4dVUvyxmYg8nCVSRlOYBT6G5iLzmMDtt4ErksLs/wB
+         VIuQ==
+X-Gm-Message-State: APjAAAU35RtFDZ2T36tZcrT6wjgZtOvd0knPPaj4CFhZ3G1P8Be8RgvK
+        No0ya0jbYLHJlObKGTt2IZpipkfaM2/Tig==
+X-Google-Smtp-Source: APXvYqzSlfPihxXofxAWW6p64/0SlOCRxkpL0tliV4LEmFj6cJYeKQHUURdcst6B65dZhwMeRdcGvQ==
+X-Received: by 2002:a05:600c:2389:: with SMTP id m9mr6693495wma.65.1574895201708;
+        Wed, 27 Nov 2019 14:53:21 -0800 (PST)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id b3sm8182682wmj.44.2019.11.27.14.46.53
+        by smtp.gmail.com with ESMTPSA id n188sm3094072wme.14.2019.11.27.14.53.20
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Nov 2019 14:46:53 -0800 (PST)
-Message-ID: <5ddefcdd.1c69fb81.38e59.a1e7@mx.google.com>
-Date:   Wed, 27 Nov 2019 14:46:53 -0800 (PST)
+        Wed, 27 Nov 2019 14:53:21 -0800 (PST)
+Message-ID: <5ddefe61.1c69fb81.e2805.16e6@mx.google.com>
+Date:   Wed, 27 Nov 2019 14:53:21 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Branch: linux-4.19.y
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.3.13-96-g7173a2d18fa6
+X-Kernelci-Kernel: v4.19.86-307-g57c5d287ed48
 X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-5.3.y build: 208 builds: 0 failed, 208 passed,
- 261 warnings (v5.3.13-96-g7173a2d18fa6)
+Subject: stable-rc/linux-4.19.y build: 206 builds: 3 failed, 203 passed,
+ 3 errors, 6 warnings (v4.19.86-307-g57c5d287ed48)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,209 +63,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.3.y build: 208 builds: 0 failed, 208 passed, 261 warnings=
- (v5.3.13-96-g7173a2d18fa6)
+stable-rc/linux-4.19.y build: 206 builds: 3 failed, 203 passed, 3 errors, 6=
+ warnings (v4.19.86-307-g57c5d287ed48)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
-/kernel/v5.3.13-96-g7173a2d18fa6/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.86-307-g57c5d287ed48/
 
 Tree: stable-rc
-Branch: linux-5.3.y
-Git Describe: v5.3.13-96-g7173a2d18fa6
-Git Commit: 7173a2d18fa66e782465f57b99d2ce8feea5a13b
+Branch: linux-4.19.y
+Git Describe: v4.19.86-307-g57c5d287ed48
+Git Commit: 57c5d287ed483d6100bdca528c57562b894487b5
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
 
-Warnings Detected:
-
-arc:
-    allnoconfig (gcc-8): 1 warning
-    axs103_defconfig (gcc-8): 2 warnings
-    axs103_smp_defconfig (gcc-8): 2 warnings
-    haps_hs_defconfig (gcc-8): 2 warnings
-    haps_hs_smp_defconfig (gcc-8): 2 warnings
-    hsdk_defconfig (gcc-8): 2 warnings
-    nsim_hs_defconfig (gcc-8): 2 warnings
-    nsim_hs_smp_defconfig (gcc-8): 2 warnings
-    nsimosci_hs_defconfig (gcc-8): 2 warnings
-    nsimosci_hs_smp_defconfig (gcc-8): 2 warnings
-    tinyconfig (gcc-8): 1 warning
-    vdk_hs38_defconfig (gcc-8): 1 warning
-    vdk_hs38_smp_defconfig (gcc-8): 1 warning
-
-arm64:
-    defconfig (gcc-8): 3 warnings
-
-arm:
-    at91_dt_defconfig (gcc-8): 4 warnings
-    exynos_defconfig (gcc-8): 1 warning
-    imx_v4_v5_defconfig (gcc-8): 1 warning
-    mini2440_defconfig (gcc-8): 2 warnings
-    multi_v5_defconfig (gcc-8): 4 warnings
-    multi_v7_defconfig (gcc-8): 19 warnings
-    omap2plus_defconfig (gcc-8): 4 warnings
-    pxa_defconfig (gcc-8): 3 warnings
-    qcom_defconfig (gcc-8): 2 warnings
-    s3c6400_defconfig (gcc-8): 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
-    sama5_defconfig (gcc-8): 4 warnings
-    shmobile_defconfig (gcc-8): 2 warnings
-    tct_hammer_defconfig (gcc-8): 2 warnings
-    u8500_defconfig (gcc-8): 6 warnings
+Build Failures Detected:
 
 i386:
+    allnoconfig: (gcc-8) FAIL
+    i386_defconfig: (gcc-8) FAIL
+    tinyconfig: (gcc-8) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+
+i386:
+    allnoconfig (gcc-8): 1 error
+    i386_defconfig (gcc-8): 1 error
+    tinyconfig (gcc-8): 1 error
 
 mips:
-    32r2el_defconfig (gcc-8): 3 warnings
-    allnoconfig (gcc-8): 1 warning
-    ar7_defconfig (gcc-8): 2 warnings
-    ath25_defconfig (gcc-8): 2 warnings
-    ath79_defconfig (gcc-8): 2 warnings
-    bcm47xx_defconfig (gcc-8): 2 warnings
-    bcm63xx_defconfig (gcc-8): 1 warning
-    bigsur_defconfig (gcc-8): 6 warnings
-    bmips_be_defconfig (gcc-8): 1 warning
-    bmips_stb_defconfig (gcc-8): 1 warning
-    capcella_defconfig (gcc-8): 2 warnings
-    cavium_octeon_defconfig (gcc-8): 6 warnings
-    ci20_defconfig (gcc-8): 2 warnings
-    cobalt_defconfig (gcc-8): 2 warnings
-    db1xxx_defconfig (gcc-8): 1 warning
-    decstation_64_defconfig (gcc-8): 6 warnings
-    decstation_defconfig (gcc-8): 2 warnings
-    decstation_r4k_defconfig (gcc-8): 2 warnings
-    e55_defconfig (gcc-8): 2 warnings
-    fuloong2e_defconfig (gcc-8): 6 warnings
-    gcw0_defconfig (gcc-8): 1 warning
-    gpr_defconfig (gcc-8): 2 warnings
-    ip22_defconfig (gcc-8): 3 warnings
-    ip27_defconfig (gcc-8): 6 warnings
-    ip28_defconfig (gcc-8): 7 warnings
-    ip32_defconfig (gcc-8): 6 warnings
-    jazz_defconfig (gcc-8): 2 warnings
-    jmr3927_defconfig (gcc-8): 1 warning
-    lasat_defconfig (gcc-8): 1 warning
-    lemote2f_defconfig (gcc-8): 6 warnings
-    loongson1b_defconfig (gcc-8): 2 warnings
-    loongson1c_defconfig (gcc-8): 2 warnings
-    loongson3_defconfig (gcc-8): 6 warnings
-    malta_defconfig (gcc-8): 2 warnings
-    malta_kvm_defconfig (gcc-8): 2 warnings
-    malta_kvm_guest_defconfig (gcc-8): 2 warnings
-    malta_qemu_32r6_defconfig (gcc-8): 3 warnings
-    maltaaprp_defconfig (gcc-8): 2 warnings
-    maltasmvp_defconfig (gcc-8): 2 warnings
-    maltasmvp_eva_defconfig (gcc-8): 2 warnings
-    maltaup_defconfig (gcc-8): 2 warnings
-    maltaup_xpa_defconfig (gcc-8): 2 warnings
-    markeins_defconfig (gcc-8): 2 warnings
-    mips_paravirt_defconfig (gcc-8): 6 warnings
-    mpc30x_defconfig (gcc-8): 2 warnings
-    msp71xx_defconfig (gcc-8): 2 warnings
-    mtx1_defconfig (gcc-8): 2 warnings
-    nlm_xlp_defconfig (gcc-8): 6 warnings
-    nlm_xlr_defconfig (gcc-8): 2 warnings
-    omega2p_defconfig (gcc-8): 1 warning
-    pic32mzda_defconfig (gcc-8): 2 warnings
-    pistachio_defconfig (gcc-8): 2 warnings
-    pnx8335_stb225_defconfig (gcc-8): 2 warnings
-    qi_lb60_defconfig (gcc-8): 4 warnings
-    rb532_defconfig (gcc-8): 2 warnings
-    rbtx49xx_defconfig (gcc-8): 2 warnings
-    rm200_defconfig (gcc-8): 2 warnings
-    rt305x_defconfig (gcc-8): 2 warnings
-    sb1250_swarm_defconfig (gcc-8): 4 warnings
-    tb0219_defconfig (gcc-8): 2 warnings
-    tb0226_defconfig (gcc-8): 2 warnings
-    tb0287_defconfig (gcc-8): 2 warnings
-    tinyconfig (gcc-8): 1 warning
-    vocore2_defconfig (gcc-8): 1 warning
-    workpad_defconfig (gcc-8): 2 warnings
-    xway_defconfig (gcc-8): 2 warnings
+    lemote2f_defconfig (gcc-8): 1 warning
+    loongson3_defconfig (gcc-8): 2 warnings
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 warning
 
 riscv:
-    rv32_defconfig (gcc-8): 6 warnings
 
 x86_64:
     tinyconfig (gcc-8): 1 warning
 
+Errors summary:
+
+    3    include/linux/compiler.h:348:38: error: call to '__compiletime_ass=
+ert_192' declared with attribute error: BUILD_BUG_ON failed: (CPU_ENTRY_ARE=
+A_PAGES+1)*PAGE_SIZE !=3D CPU_ENTRY_AREA_MAP_SIZE
 
 Warnings summary:
 
-    191  <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
--Wcpp]
-    4    drivers/mmc/host/sdhci-s3c.c:613:19: warning: this statement may f=
-all through [-Wimplicit-fallthrough=3D]
-    4    drivers/mmc/host/atmel-mci.c:2426:40: warning: this statement may =
-fall through [-Wimplicit-fallthrough=3D]
-    4    drivers/mmc/host/atmel-mci.c:2422:28: warning: this statement may =
-fall through [-Wimplicit-fallthrough=3D]
-    4    drivers/mmc/host/atmel-mci.c:2415:30: warning: this statement may =
-fall through [-Wimplicit-fallthrough=3D]
-    3    drivers/usb/gadget/udc/atmel_usba_udc.c:329:13: warning: this stat=
-ement may fall through [-Wimplicit-fallthrough=3D]
-    3    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:820:20: warning: this sta=
-tement may fall through [-Wimplicit-fallthrough=3D]
-    3    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:815:20: warning: this sta=
-tement may fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/watchdog/jz4740_wdt.c:165:6: warning: unused variable 'ret=
-' [-Wunused-variable]
-    2    drivers/video/fbdev/sh_mobile_lcdcfb.c:2086:22: warning: this stat=
-ement may fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/video/fbdev/sh_mobile_lcdcfb.c:1596:22: warning: this stat=
-ement may fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/phy/phy-ab8500-usb.c:459:9: warning: this statement ma=
-y fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/phy/phy-ab8500-usb.c:440:9: warning: this statement ma=
-y fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/phy/phy-ab8500-usb.c:424:9: warning: this statement ma=
-y fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/phy/phy-ab8500-usb.c:370:9: warning: this statement ma=
-y fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/phy/phy-ab8500-usb.c:352:9: warning: this statement ma=
-y fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/phy/phy-ab8500-usb.c:332:9: warning: this statement ma=
-y fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/gadget/udc/s3c2410_udc.c:418:7: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/usb/gadget/udc/s3c2410_udc.c:314:7: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/scsi/wd33c93.c:1856:11: warning: this statement may fall t=
-hrough [-Wimplicit-fallthrough=3D]
-    2    drivers/pinctrl/pinctrl-rockchip.c:2783:3: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
-    2    drivers/dma/imx-dma.c:542:6: warning: this statement may fall thro=
-ugh [-Wimplicit-fallthrough=3D]
-    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
+    3    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
     1    {standard input}:131: Warning: macro instruction expanded into mul=
 tiple instructions
-    1    sound/soc/ti/rx51.c:57:6: warning: this statement may fall through=
- [-Wimplicit-fallthrough=3D]
-    1    include/linux/device.h:1499:2: warning: this statement may fall th=
-rough [-Wimplicit-fallthrough=3D]
-    1    drivers/video/fbdev/jz4740_fb.c:300:8: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
-    1    drivers/usb/host/ohci-tmio.c:103:7: warning: this statement may fa=
-ll through [-Wimplicit-fallthrough=3D]
-    1    drivers/usb/host/ohci-tmio.c:101:7: warning: this statement may fa=
-ll through [-Wimplicit-fallthrough=3D]
-    1    drivers/hsi/clients/ssi_protocol.c:466:7: warning: this statement =
-may fall through [-Wimplicit-fallthrough=3D]
-    1    drivers/hsi/clients/ssi_protocol.c:291:6: warning: this statement =
-may fall through [-Wimplicit-fallthrough=3D]
-    1    drivers/gpu/drm/sti/sti_hdmi.c:855:13: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
-    1    drivers/gpu/drm/sti/sti_hdmi.c:853:13: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
-    1    drivers/gpu/drm/sti/sti_hdmi.c:851:13: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
-    1    drivers/cpufreq/ti-cpufreq.c:79:20: warning: this statement may fa=
-ll through [-Wimplicit-fallthrough=3D]
-    1    .config:1169:warning: override: UNWINDER_GUESS changes choice state
+    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
+ invalid for HOTPLUG_PCI_SHPC
+    1    .config:1009:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -276,13 +133,8 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -296,11 +148,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -319,16 +168,18 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mi=
+smatches
+
+Errors:
+    include/linux/compiler.h:348:38: error: call to '__compiletime_assert_1=
+92' declared with attribute error: BUILD_BUG_ON failed: (CPU_ENTRY_AREA_PAG=
+ES+1)*PAGE_SIZE !=3D CPU_ENTRY_AREA_MAP_SIZE
 
 ---------------------------------------------------------------------------=
 -----
@@ -342,12 +193,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -366,36 +213,18 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sect=
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
-Warnings:
-    drivers/mmc/host/atmel-mci.c:2415:30: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2422:28: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2426:40: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/usb/gadget/udc/atmel_usba_udc.c:329:13: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -404,21 +233,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -432,71 +253,38 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings,=
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -505,13 +293,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    drivers/watchdog/jz4740_wdt.c:165:6: warning: unused variable 'ret' [-W=
-unused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -535,12 +318,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -569,42 +348,18 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings,=
- 0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings=
-, 0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -613,30 +368,13 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
-smatches
-
-Warnings:
-    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:815:20: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:820:20: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-    drivers/pinctrl/pinctrl-rockchip.c:2783:3: warning: this statement may =
-fall through [-Wimplicit-fallthrough=3D]
-
----------------------------------------------------------------------------=
------
 dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
 -----
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -665,12 +403,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/mmc/host/sdhci-s3c.c:613:19: warning: this statement may fall t=
-hrough [-Wimplicit-fallthrough=3D]
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -684,24 +418,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 s=
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -710,12 +433,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -734,21 +453,13 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -757,17 +468,18 @@ hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+i386_defconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    include/linux/compiler.h:348:38: error: call to '__compiletime_assert_1=
+92' declared with attribute error: BUILD_BUG_ON failed: (CPU_ENTRY_AREA_PAG=
+ES+1)*PAGE_SIZE !=3D CPU_ENTRY_AREA_MAP_SIZE
 
 ---------------------------------------------------------------------------=
 -----
@@ -776,12 +488,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/dma/imx-dma.c:542:6: warning: this statement may fall through [=
--Wimplicit-fallthrough=3D]
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -810,55 +518,23 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    drivers/scsi/wd33c93.c:1856:11: warning: this statement may fall throug=
-h [-Wimplicit-fallthrough=3D]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sectio=
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings, 0 sectio=
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    drivers/scsi/wd33c93.c:1856:11: warning: this statement may fall throug=
-h [-Wimplicit-fallthrough=3D]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sectio=
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -867,20 +543,13 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -904,55 +573,38 @@ lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 se=
-ction mismatches
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 s=
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
+lid for HOTPLUG_PCI_SHPC
+    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -986,124 +638,67 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
-s, 0 section mismatches
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 3 warning=
-s, 0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     {standard input}:131: Warning: macro instruction expanded into multiple=
  instructions
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings,=
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0=
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    drivers/usb/gadget/udc/s3c2410_udc.c:314:7: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
-    drivers/usb/gadget/udc/s3c2410_udc.c:418:7: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
-
 ---------------------------------------------------------------------------=
 -----
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings,=
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1117,12 +712,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1131,21 +722,13 @@ mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1154,63 +737,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sec=
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Warnings:
-    drivers/mmc/host/atmel-mci.c:2415:30: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2422:28: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2426:40: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/usb/gadget/udc/atmel_usba_udc.c:329:13: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
 
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 19 warnings, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/dma/imx-dma.c:542:6: warning: this statement may fall through [=
--Wimplicit-fallthrough=3D]
-    drivers/mmc/host/sdhci-s3c.c:613:19: warning: this statement may fall t=
-hrough [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2415:30: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2422:28: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2426:40: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:815:20: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:820:20: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-    drivers/pinctrl/pinctrl-rockchip.c:2783:3: warning: this statement may =
-fall through [-Wimplicit-fallthrough=3D]
-    drivers/video/fbdev/sh_mobile_lcdcfb.c:2086:22: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
-    drivers/video/fbdev/sh_mobile_lcdcfb.c:1596:22: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:424:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:440:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:459:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:332:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:352:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:370:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/gpu/drm/sti/sti_hdmi.c:851:13: warning: this statement may fall=
- through [-Wimplicit-fallthrough=3D]
-    drivers/gpu/drm/sti/sti_hdmi.c:853:13: warning: this statement may fall=
- through [-Wimplicit-fallthrough=3D]
-    drivers/gpu/drm/sti/sti_hdmi.c:855:13: warning: this statement may fall=
- through [-Wimplicit-fallthrough=3D]
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1244,66 +777,47 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
 nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sec=
-tion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
-tion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings=
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1327,26 +841,13 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 se=
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
-Warnings:
-    drivers/cpufreq/ti-cpufreq.c:79:20: warning: this statement may fall th=
-rough [-Wimplicit-fallthrough=3D]
-    sound/soc/ti/rx51.c:57:6: warning: this statement may fall through [-Wi=
-mplicit-fallthrough=3D]
-    drivers/hsi/clients/ssi_protocol.c:291:6: warning: this statement may f=
-all through [-Wimplicit-fallthrough=3D]
-    drivers/hsi/clients/ssi_protocol.c:466:7: warning: this statement may f=
-all through [-Wimplicit-fallthrough=3D]
 
 ---------------------------------------------------------------------------=
 -----
-omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1370,21 +871,13 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1393,12 +886,8 @@ pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings=
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1427,58 +916,33 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
 
-Warnings:
-    include/linux/device.h:1499:2: warning: this statement may fall through=
- [-Wimplicit-fallthrough=3D]
-    drivers/usb/host/ohci-tmio.c:101:7: warning: this statement may fall th=
-rough [-Wimplicit-fallthrough=3D]
-    drivers/usb/host/ohci-tmio.c:103:7: warning: this statement may fall th=
-rough [-Wimplicit-fallthrough=3D]
-
 ---------------------------------------------------------------------------=
 -----
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
-Warnings:
-    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:815:20: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-    drivers/pinctrl/qcom/pinctrl-spmi-gpio.c:820:20: warning: this statemen=
-t may fall through [-Wimplicit-fallthrough=3D]
-
 ---------------------------------------------------------------------------=
 -----
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sec=
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    drivers/watchdog/jz4740_wdt.c:165:6: warning: unused variable 'ret' [-W=
-unused-variable]
-    drivers/video/fbdev/jz4740_fb.c:300:8: warning: this statement may fall=
- through [-Wimplicit-fallthrough=3D]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
 ---------------------------------------------------------------------------=
 -----
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1487,12 +951,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1501,27 +961,8 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1530,47 +971,23 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/mmc/host/sdhci-s3c.c:613:19: warning: this statement may fall t=
-hrough [-Wimplicit-fallthrough=3D]
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/mmc/host/sdhci-s3c.c:613:19: warning: this statement may fall t=
-hrough [-Wimplicit-fallthrough=3D]
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
-Warnings:
-    drivers/mmc/host/atmel-mci.c:2415:30: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2422:28: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/mmc/host/atmel-mci.c:2426:40: warning: this statement may fall =
-through [-Wimplicit-fallthrough=3D]
-    drivers/usb/gadget/udc/atmel_usba_udc.c:329:13: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
-
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, =
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
 0 section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1579,14 +996,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Warnings:
-    drivers/video/fbdev/sh_mobile_lcdcfb.c:2086:22: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
-    drivers/video/fbdev/sh_mobile_lcdcfb.c:1596:22: warning: this statement=
- may fall through [-Wimplicit-fallthrough=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1635,41 +1046,23 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    drivers/usb/gadget/udc/s3c2410_udc.c:314:7: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
-    drivers/usb/gadget/udc/s3c2410_udc.c:418:7: warning: this statement may=
- fall through [-Wimplicit-fallthrough=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1678,8 +1071,13 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section mis=
+matches
+
+Errors:
+    include/linux/compiler.h:348:38: error: call to '__compiletime_assert_1=
+92' declared with attribute error: BUILD_BUG_ON failed: (CPU_ENTRY_AREA_PAG=
+ES+1)*PAGE_SIZE !=3D CPU_ENTRY_AREA_MAP_SIZE
 
 ---------------------------------------------------------------------------=
 -----
@@ -1692,7 +1090,7 @@ tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
 ismatches
 
 Warnings:
-    .config:1169:warning: override: UNWINDER_GUESS changes choice state
+    .config:1009:warning: override: UNWINDER_GUESS changes choice state
 
 ---------------------------------------------------------------------------=
 -----
@@ -1706,19 +1104,13 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1732,38 +1124,18 @@ u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sectio=
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
-Warnings:
-    drivers/usb/phy/phy-ab8500-usb.c:424:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:440:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:459:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:332:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:352:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
-    drivers/usb/phy/phy-ab8500-usb.c:370:9: warning: this statement may fal=
-l through [-Wimplicit-fallthrough=3D]
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1787,11 +1159,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1800,12 +1169,8 @@ vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1819,12 +1184,8 @@ xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
 
 ---------------------------------------------------------------------------=
 -----
