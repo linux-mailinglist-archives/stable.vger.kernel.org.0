@@ -2,407 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB2710AF24
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 12:58:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21CC410AF93
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 13:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbfK0L6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 06:58:39 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:40713 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726496AbfK0L6i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 06:58:38 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 36207BDF;
-        Wed, 27 Nov 2019 06:58:37 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 27 Nov 2019 06:58:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zAFLzv
-        b/Gh0CEGj767dmDk83BKdXbGGxEYbLhRsBgp0=; b=Z0VqOn23DNyAAb2eSB880z
-        Xm5L+f8GSV2LcJx7FfELAvE0dBXkbGldQ4oijtUyJxL91nONmJ/I9l17lLNYW9g3
-        JGLU8Fx9vI3Pd24wulTTUUPRMHBU84DkEPqXg2LRDLIBJgjg+gCfWOp2hjfBOuu2
-        u3k0C1MPb2O+LOk04ep0KtqMzU8RXTB7wRiGH2wh7D2nQ7tCNYlTUmYt2ZHZn6vC
-        Kw7tpHttdZpDgE6w7Ac6p7IiR0p0Ba46VNyALNhsyxdZ6+1la4lttDtGabHn1KIB
-        8JkYGuraYIXj4F0OIwDKr2hNkGVag6DRu2Imvtu5kC/RqHT7FAWc9SrH0SBimECA
-        ==
-X-ME-Sender: <xms:7GTeXVZL9ePmCOCZ19RVb7HMl4e2pk4Pw-0t4IseEaHMP994lbbhOA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeihedgfeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:7GTeXYLB6pL2g48zeGJKEbsp4UDRgxOVvCXKj7YuDY-qu8MASJyC7g>
-    <xmx:7GTeXQiw1ZdO0_my-LfZ-PPeKvO2F0hWPKfyJjyrEihcNP5sUpNrYQ>
-    <xmx:7GTeXUxZEdaBRhnDYSGy6XhMa4dypb0jbRC2iKPT08kRxU77w_Ri_Q>
-    <xmx:7GTeXRDRivMMBJ2IC-QvJulsHdFs3p94XLTlJD9i5ZmvlC4tVrluvg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 98D0D8005C;
-        Wed, 27 Nov 2019 06:58:35 -0500 (EST)
-Subject: FAILED: patch "[PATCH] futex: Prevent exit livelock" failed to apply to 4.14-stable tree
-To:     tglx@linutronix.de, mingo@kernel.org, oleg@redhat.com,
-        peterz@infradead.org, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 Nov 2019 12:58:34 +0100
-Message-ID: <1574855914209115@kroah.com>
+        id S1726383AbfK0Mcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 07:32:31 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:46129 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726540AbfK0Mcb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 07:32:31 -0500
+Received: by mail-wr1-f65.google.com with SMTP id z7so23038198wrl.13;
+        Wed, 27 Nov 2019 04:32:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=APAHGrPXLQYqK4XEoTpL2DzSySkqv8Fb1fkOTesm7KY=;
+        b=LwZR714aKNW53eU2PrzF8ld6L7vBnmV7u/N8kuk7ie4toOHHh+jtUVVd1J8W9xBpFP
+         +V+j+nJKAZcYvUylzzmynyzIK/N/OquiTEJDSAOvJLw/qREeLYe2aA+6EZJHrPN1dzGV
+         C/xmCHAekdf6oKxpN1+hS/AbZqbrd07SrbAmOXFo2OBQufmjQwWismEM9oYEMhG9vqCz
+         WVgcndjZ4FbHMHmVFRz/LELqaqzKwoDaSfVgnOKej8bZapxtSg13asl1xQ0l/xMBSRXi
+         CtqMhCqTJ3rI2rXAJonHhuNbFe6Qd8XY2T5pbPODcPiYJjwe6KoMgHY41OA9+NvjcwQD
+         ADAg==
+X-Gm-Message-State: APjAAAUM+QD/GcWc0Lmz++MrM6GisBItrbSL5mf/mNs7reJjHrfhcpHE
+        n2a9yBg/XbniVJQGiKNRyJ0=
+X-Google-Smtp-Source: APXvYqxfKgQ5PfmLC6R8aUvg0wAMhGCvN28Tabbxnu2utp0rEv/IP2wvtLrgZvqhCyzrvsU3FB+Yjw==
+X-Received: by 2002:adf:f3d0:: with SMTP id g16mr22568717wrp.2.1574857947424;
+        Wed, 27 Nov 2019 04:32:27 -0800 (PST)
+Received: from localhost (prg-ext-pat.suse.com. [213.151.95.130])
+        by smtp.gmail.com with ESMTPSA id b14sm6614061wmj.18.2019.11.27.04.32.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Nov 2019 04:32:26 -0800 (PST)
+Date:   Wed, 27 Nov 2019 13:32:25 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Roman Gushchin <guro@fb.com>
+Cc:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] mm: memcg/slab: wait for !root kmem_cache refcnt killing
+ on root kmem_cache destruction
+Message-ID: <20191127123225.GR20912@dhcp22.suse.cz>
+References: <20191125185453.278468-1-guro@fb.com>
+ <20191126092918.GB20912@dhcp22.suse.cz>
+ <20191126184135.GA66034@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191126184135.GA66034@localhost.localdomain>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue 26-11-19 18:41:41, Roman Gushchin wrote:
+> On Tue, Nov 26, 2019 at 10:29:18AM +0100, Michal Hocko wrote:
+> > On Mon 25-11-19 10:54:53, Roman Gushchin wrote:
+[...]
+> > > So in a rare case when not all children kmem_caches are destroyed
+> > > at the moment when the root kmem_cache is about to be gone, we need
+> > > to wait another rcu grace period before destroying the root
+> > > kmem_cache.
+> > 
+> > Could you explain how rare this really is please?
+> 
+> It seems that we don't destroy root kmem_caches with enabled memcg
+> accounting that often, but maybe I'm biased here.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 3ef240eaff36b8119ac9e2ea17cbf41179c930ba Mon Sep 17 00:00:00 2001
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Wed, 6 Nov 2019 22:55:46 +0100
-Subject: [PATCH] futex: Prevent exit livelock
-
-Oleg provided the following test case:
-
-int main(void)
-{
-	struct sched_param sp = {};
-
-	sp.sched_priority = 2;
-	assert(sched_setscheduler(0, SCHED_FIFO, &sp) == 0);
-
-	int lock = vfork();
-	if (!lock) {
-		sp.sched_priority = 1;
-		assert(sched_setscheduler(0, SCHED_FIFO, &sp) == 0);
-		_exit(0);
-	}
-
-	syscall(__NR_futex, &lock, FUTEX_LOCK_PI, 0,0,0);
-	return 0;
-}
-
-This creates an unkillable RT process spinning in futex_lock_pi() on a UP
-machine or if the process is affine to a single CPU. The reason is:
-
- parent	    	    			child
-
-  set FIFO prio 2
-
-  vfork()			->	set FIFO prio 1
-   implies wait_for_child()	 	sched_setscheduler(...)
- 			   		exit()
-					do_exit()
- 					....
-					mm_release()
-					  tsk->futex_state = FUTEX_STATE_EXITING;
-					  exit_futex(); (NOOP in this case)
-					  complete() --> wakes parent
-  sys_futex()
-    loop infinite because
-    tsk->futex_state == FUTEX_STATE_EXITING
-
-The same problem can happen just by regular preemption as well:
-
-  task holds futex
-  ...
-  do_exit()
-    tsk->futex_state = FUTEX_STATE_EXITING;
-
-  --> preemption (unrelated wakeup of some other higher prio task, e.g. timer)
-
-  switch_to(other_task)
-
-  return to user
-  sys_futex()
-	loop infinite as above
-
-Just for the fun of it the futex exit cleanup could trigger the wakeup
-itself before the task sets its futex state to DEAD.
-
-To cure this, the handling of the exiting owner is changed so:
-
-   - A refcount is held on the task
-
-   - The task pointer is stored in a caller visible location
-
-   - The caller drops all locks (hash bucket, mmap_sem) and blocks
-     on task::futex_exit_mutex. When the mutex is acquired then
-     the exiting task has completed the cleanup and the state
-     is consistent and can be reevaluated.
-
-This is not a pretty solution, but there is no choice other than returning
-an error code to user space, which would break the state consistency
-guarantee and open another can of problems including regressions.
-
-For stable backports the preparatory commits ac31c7ff8624 .. ba31c1a48538
-are required as well, but for anything older than 5.3.y the backports are
-going to be provided when this hits mainline as the other dependencies for
-those kernels are definitely not stable material.
-
-Fixes: 778e9a9c3e71 ("pi-futex: fix exit races and locking problems")
-Reported-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Stable Team <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20191106224557.041676471@linutronix.de
-
-diff --git a/kernel/futex.c b/kernel/futex.c
-index 4f9d7a4b6dbf..03c518e9747e 100644
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -1176,6 +1176,36 @@ static int attach_to_pi_state(u32 __user *uaddr, u32 uval,
- 	return ret;
- }
- 
-+/**
-+ * wait_for_owner_exiting - Block until the owner has exited
-+ * @exiting:	Pointer to the exiting task
-+ *
-+ * Caller must hold a refcount on @exiting.
-+ */
-+static void wait_for_owner_exiting(int ret, struct task_struct *exiting)
-+{
-+	if (ret != -EBUSY) {
-+		WARN_ON_ONCE(exiting);
-+		return;
-+	}
-+
-+	if (WARN_ON_ONCE(ret == -EBUSY && !exiting))
-+		return;
-+
-+	mutex_lock(&exiting->futex_exit_mutex);
-+	/*
-+	 * No point in doing state checking here. If the waiter got here
-+	 * while the task was in exec()->exec_futex_release() then it can
-+	 * have any FUTEX_STATE_* value when the waiter has acquired the
-+	 * mutex. OK, if running, EXITING or DEAD if it reached exit()
-+	 * already. Highly unlikely and not a problem. Just one more round
-+	 * through the futex maze.
-+	 */
-+	mutex_unlock(&exiting->futex_exit_mutex);
-+
-+	put_task_struct(exiting);
-+}
-+
- static int handle_exit_race(u32 __user *uaddr, u32 uval,
- 			    struct task_struct *tsk)
- {
-@@ -1237,7 +1267,8 @@ static int handle_exit_race(u32 __user *uaddr, u32 uval,
-  * it after doing proper sanity checks.
-  */
- static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
--			      struct futex_pi_state **ps)
-+			      struct futex_pi_state **ps,
-+			      struct task_struct **exiting)
- {
- 	pid_t pid = uval & FUTEX_TID_MASK;
- 	struct futex_pi_state *pi_state;
-@@ -1276,7 +1307,19 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
- 		int ret = handle_exit_race(uaddr, uval, p);
- 
- 		raw_spin_unlock_irq(&p->pi_lock);
--		put_task_struct(p);
-+		/*
-+		 * If the owner task is between FUTEX_STATE_EXITING and
-+		 * FUTEX_STATE_DEAD then store the task pointer and keep
-+		 * the reference on the task struct. The calling code will
-+		 * drop all locks, wait for the task to reach
-+		 * FUTEX_STATE_DEAD and then drop the refcount. This is
-+		 * required to prevent a live lock when the current task
-+		 * preempted the exiting task between the two states.
-+		 */
-+		if (ret == -EBUSY)
-+			*exiting = p;
-+		else
-+			put_task_struct(p);
- 		return ret;
- 	}
- 
-@@ -1315,7 +1358,8 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
- 
- static int lookup_pi_state(u32 __user *uaddr, u32 uval,
- 			   struct futex_hash_bucket *hb,
--			   union futex_key *key, struct futex_pi_state **ps)
-+			   union futex_key *key, struct futex_pi_state **ps,
-+			   struct task_struct **exiting)
- {
- 	struct futex_q *top_waiter = futex_top_waiter(hb, key);
- 
-@@ -1330,7 +1374,7 @@ static int lookup_pi_state(u32 __user *uaddr, u32 uval,
- 	 * We are the first waiter - try to look up the owner based on
- 	 * @uval and attach to it.
- 	 */
--	return attach_to_pi_owner(uaddr, uval, key, ps);
-+	return attach_to_pi_owner(uaddr, uval, key, ps, exiting);
- }
- 
- static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
-@@ -1358,6 +1402,8 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
-  *			lookup
-  * @task:		the task to perform the atomic lock work for.  This will
-  *			be "current" except in the case of requeue pi.
-+ * @exiting:		Pointer to store the task pointer of the owner task
-+ *			which is in the middle of exiting
-  * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
-  *
-  * Return:
-@@ -1366,11 +1412,17 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
-  *  - <0 - error
-  *
-  * The hb->lock and futex_key refs shall be held by the caller.
-+ *
-+ * @exiting is only set when the return value is -EBUSY. If so, this holds
-+ * a refcount on the exiting task on return and the caller needs to drop it
-+ * after waiting for the exit to complete.
-  */
- static int futex_lock_pi_atomic(u32 __user *uaddr, struct futex_hash_bucket *hb,
- 				union futex_key *key,
- 				struct futex_pi_state **ps,
--				struct task_struct *task, int set_waiters)
-+				struct task_struct *task,
-+				struct task_struct **exiting,
-+				int set_waiters)
- {
- 	u32 uval, newval, vpid = task_pid_vnr(task);
- 	struct futex_q *top_waiter;
-@@ -1440,7 +1492,7 @@ static int futex_lock_pi_atomic(u32 __user *uaddr, struct futex_hash_bucket *hb,
- 	 * attach to the owner. If that fails, no harm done, we only
- 	 * set the FUTEX_WAITERS bit in the user space variable.
- 	 */
--	return attach_to_pi_owner(uaddr, newval, key, ps);
-+	return attach_to_pi_owner(uaddr, newval, key, ps, exiting);
- }
- 
- /**
-@@ -1858,6 +1910,8 @@ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
-  * @key1:		the from futex key
-  * @key2:		the to futex key
-  * @ps:			address to store the pi_state pointer
-+ * @exiting:		Pointer to store the task pointer of the owner task
-+ *			which is in the middle of exiting
-  * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
-  *
-  * Try and get the lock on behalf of the top waiter if we can do it atomically.
-@@ -1865,16 +1919,20 @@ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
-  * then direct futex_lock_pi_atomic() to force setting the FUTEX_WAITERS bit.
-  * hb1 and hb2 must be held by the caller.
-  *
-+ * @exiting is only set when the return value is -EBUSY. If so, this holds
-+ * a refcount on the exiting task on return and the caller needs to drop it
-+ * after waiting for the exit to complete.
-+ *
-  * Return:
-  *  -  0 - failed to acquire the lock atomically;
-  *  - >0 - acquired the lock, return value is vpid of the top_waiter
-  *  - <0 - error
-  */
--static int futex_proxy_trylock_atomic(u32 __user *pifutex,
--				 struct futex_hash_bucket *hb1,
--				 struct futex_hash_bucket *hb2,
--				 union futex_key *key1, union futex_key *key2,
--				 struct futex_pi_state **ps, int set_waiters)
-+static int
-+futex_proxy_trylock_atomic(u32 __user *pifutex, struct futex_hash_bucket *hb1,
-+			   struct futex_hash_bucket *hb2, union futex_key *key1,
-+			   union futex_key *key2, struct futex_pi_state **ps,
-+			   struct task_struct **exiting, int set_waiters)
- {
- 	struct futex_q *top_waiter = NULL;
- 	u32 curval;
-@@ -1911,7 +1969,7 @@ static int futex_proxy_trylock_atomic(u32 __user *pifutex,
- 	 */
- 	vpid = task_pid_vnr(top_waiter->task);
- 	ret = futex_lock_pi_atomic(pifutex, hb2, key2, ps, top_waiter->task,
--				   set_waiters);
-+				   exiting, set_waiters);
- 	if (ret == 1) {
- 		requeue_pi_wake_futex(top_waiter, key2, hb2);
- 		return vpid;
-@@ -2040,6 +2098,8 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
- 	}
- 
- 	if (requeue_pi && (task_count - nr_wake < nr_requeue)) {
-+		struct task_struct *exiting = NULL;
-+
- 		/*
- 		 * Attempt to acquire uaddr2 and wake the top waiter. If we
- 		 * intend to requeue waiters, force setting the FUTEX_WAITERS
-@@ -2047,7 +2107,8 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
- 		 * faults rather in the requeue loop below.
- 		 */
- 		ret = futex_proxy_trylock_atomic(uaddr2, hb1, hb2, &key1,
--						 &key2, &pi_state, nr_requeue);
-+						 &key2, &pi_state,
-+						 &exiting, nr_requeue);
- 
- 		/*
- 		 * At this point the top_waiter has either taken uaddr2 or is
-@@ -2074,7 +2135,8 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
- 			 * If that call succeeds then we have pi_state and an
- 			 * initial refcount on it.
- 			 */
--			ret = lookup_pi_state(uaddr2, ret, hb2, &key2, &pi_state);
-+			ret = lookup_pi_state(uaddr2, ret, hb2, &key2,
-+					      &pi_state, &exiting);
- 		}
- 
- 		switch (ret) {
-@@ -2104,6 +2166,12 @@ static int futex_requeue(u32 __user *uaddr1, unsigned int flags,
- 			hb_waiters_dec(hb2);
- 			put_futex_key(&key2);
- 			put_futex_key(&key1);
-+			/*
-+			 * Handle the case where the owner is in the middle of
-+			 * exiting. Wait for the exit to complete otherwise
-+			 * this task might loop forever, aka. live lock.
-+			 */
-+			wait_for_owner_exiting(ret, exiting);
- 			cond_resched();
- 			goto retry;
- 		default:
-@@ -2810,6 +2878,7 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
- {
- 	struct hrtimer_sleeper timeout, *to;
- 	struct futex_pi_state *pi_state = NULL;
-+	struct task_struct *exiting = NULL;
- 	struct rt_mutex_waiter rt_waiter;
- 	struct futex_hash_bucket *hb;
- 	struct futex_q q = futex_q_init;
-@@ -2831,7 +2900,8 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
- retry_private:
- 	hb = queue_lock(&q);
- 
--	ret = futex_lock_pi_atomic(uaddr, hb, &q.key, &q.pi_state, current, 0);
-+	ret = futex_lock_pi_atomic(uaddr, hb, &q.key, &q.pi_state, current,
-+				   &exiting, 0);
- 	if (unlikely(ret)) {
- 		/*
- 		 * Atomic work succeeded and we got the lock,
-@@ -2854,6 +2924,12 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
- 			 */
- 			queue_unlock(hb);
- 			put_futex_key(&q.key);
-+			/*
-+			 * Handle the case where the owner is in the middle of
-+			 * exiting. Wait for the exit to complete otherwise
-+			 * this task might loop forever, aka. live lock.
-+			 */
-+			wait_for_owner_exiting(ret, exiting);
- 			cond_resched();
- 			goto retry;
- 		default:
-
+So this happens each time a root kmem_cache is destroyed? Which would
+imply that only dynamically created ones?
+-- 
+Michal Hocko
+SUSE Labs
