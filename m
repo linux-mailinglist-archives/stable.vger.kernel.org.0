@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C2C510B834
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 314E010B78B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727735AbfK0UlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:41:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45858 "EHLO mail.kernel.org"
+        id S1727743AbfK0Uey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:34:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728591AbfK0Uk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:40:59 -0500
+        id S1727738AbfK0Uex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:34:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9434F215A4;
-        Wed, 27 Nov 2019 20:40:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CC7420866;
+        Wed, 27 Nov 2019 20:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887258;
-        bh=pz831w1FYuAKytC2tJGnO7bVucvEVuEDHUgUhpkzv/Y=;
+        s=default; t=1574886892;
+        bh=HOcaq0eTt3sWpujI16INbD4a6Vw/LVwz3TEbLWtPfQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsPN6eshCrI6Dx6LNoh+qpC/Z5jyU2QZydw3b910/dbzi/4zvu8bpWCzuV9a4XY8P
-         6Yc392cnCGMHNvMMJNCukk8Q/c37BCTGwDSZmkfjFyYhwrPJJ5rwXttHtWO7l0gj34
-         xKYNjdrlJ4JktRiWcZ6QxURlcM7WjNhI086m+5So=
+        b=fpqp3ihttFVGSDXodGl8xiR8y3GvCo6prUNlJxu3OIYEYfYqcAO2UnvijLjE/1PHE
+         682NFHIB7WKjSbzin0THahxOj+Ao7eIqcKQiQlvS2L6LcqSZYc2ImDZGoImglLpUYv
+         TiZ7SiK6SKuU2PzI7Ua2VxFqblwLIy8Uh7I0IcCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Klocke <philipp97kl@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 041/151] ALSA: i2c/cs8427: Fix int to char conversion
-Date:   Wed, 27 Nov 2019 21:30:24 +0100
-Message-Id: <20191127203025.950633106@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 034/132] scsi: ips: fix missing break in switch
+Date:   Wed, 27 Nov 2019 21:30:25 +0100
+Message-Id: <20191127202929.463223722@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Klocke <philipp97kl@gmail.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit eb7ebfa3c1989aa8e59d5e68ab3cddd7df1bfb27 ]
+[ Upstream commit 5d25ff7a544889bc4b749fda31778d6a18dddbcb ]
 
-Compiling with clang yields the following warning:
+Add missing break statement in order to prevent the code from falling
+through to case TEST_UNIT_READY.
 
-sound/i2c/cs8427.c:140:31: warning: implicit conversion from 'int'
-to 'char' changes value from 160 to -96 [-Wconstant-conversion]
-    data[0] = CS8427_REG_AUTOINC | CS8427_REG_CORU_DATABUF;
-            ~ ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
-
-Because CS8427_REG_AUTOINC is defined as 128, it is too big for a
-char field.
-So change data from char to unsigned char, that it can hold the value.
-
-This patch does not change the generated code.
-
-Signed-off-by: Philipp Klocke <philipp97kl@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Addresses-Coverity-ID: 1357338 ("Missing break in switch")
+Suggested-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/i2c/cs8427.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ips.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/i2c/cs8427.c b/sound/i2c/cs8427.c
-index 7e21621e492a4..7fd1b40008838 100644
---- a/sound/i2c/cs8427.c
-+++ b/sound/i2c/cs8427.c
-@@ -118,7 +118,7 @@ static int snd_cs8427_send_corudata(struct snd_i2c_device *device,
- 	struct cs8427 *chip = device->private_data;
- 	char *hw_data = udata ?
- 		chip->playback.hw_udata : chip->playback.hw_status;
--	char data[32];
-+	unsigned char data[32];
- 	int err, idx;
+diff --git a/drivers/scsi/ips.c b/drivers/scsi/ips.c
+index 02cb76fd44208..6bbf2945a3e00 100644
+--- a/drivers/scsi/ips.c
++++ b/drivers/scsi/ips.c
+@@ -3500,6 +3500,7 @@ ips_send_cmd(ips_ha_t * ha, ips_scb_t * scb)
  
- 	if (!memcmp(hw_data, ndata, count))
+ 		case START_STOP:
+ 			scb->scsi_cmd->result = DID_OK << 16;
++			break;
+ 
+ 		case TEST_UNIT_READY:
+ 		case INQUIRY:
 -- 
 2.20.1
 
