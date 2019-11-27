@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF54010BA2C
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:03:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 579C210BD09
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:27:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731571AbfK0VA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:00:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52366 "EHLO mail.kernel.org"
+        id S1731573AbfK0VAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:00:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731570AbfK0VA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:00:29 -0500
+        id S1729481AbfK0VAb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:00:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD9192154A;
-        Wed, 27 Nov 2019 21:00:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50AF82084B;
+        Wed, 27 Nov 2019 21:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888428;
-        bh=rh03igqzqmJ/spz57UkA4AWPIpnxHGzKIwHeAdn90AY=;
+        s=default; t=1574888430;
+        bh=Wux2/6xePSbFE+QWcjf/7uQCjFGCFXhh9IaB2o/078A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7iQBIf/X5ohwUDGAZNguVNuJKu2j5iJJsKAe5KQKQLc0oA1N8xK3+ntj/Xa23qKC
-         zIBLkI7DlKvv+zSFiB+7NDaJvqY0DjKz9e65j+qQOEA7wRopj0D6KofCWRtVq/5X6F
-         r42jEIGhznhxItA10gtePj8LLvSWe3cg0vDokSSM=
+        b=xlfTblkXM8+sUZwRAhUtlW4LMTk39yeALtC7zwmDL7GGw0G7LQdC4Zw733oWDeH5I
+         vBTSCWVk7ATkMbvsYQIJarAfWVWMSsbFU7vyQdbVyHCUzqNkPAVi6wlPsvbIZZoaAJ
+         +J+Lde6aVK9nttZs26xY8Sx/L2l61EmR/im42FhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 129/306] mfd: intel_soc_pmic_bxtwc: Chain power button IRQs as well
-Date:   Wed, 27 Nov 2019 21:29:39 +0100
-Message-Id: <20191127203124.522373982@linuxfoundation.org>
+Subject: [PATCH 4.19 130/306] mfd: max8997: Enale irq-wakeup unconditionally
+Date:   Wed, 27 Nov 2019 21:29:40 +0100
+Message-Id: <20191127203124.588678023@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -46,144 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 9f8ddee1dab836ca758ca8fc555ab5a3aaa5d3fd ]
+[ Upstream commit efddff27c886e729a7f84a7205bd84d7d4af7336 ]
 
-Power button IRQ actually has a second level of interrupts to
-distinguish between UI and POWER buttons. Moreover, current
-implementation looks awkward in approach to handle second level IRQs by
-first level related IRQ chip.
+IRQ wake up support for MAX8997 driver was initially configured by
+respective property in pdata. However, after the driver conversion to
+device-tree, setting it was left as 'todo'. Nowadays most of other PMIC MFD
+drivers initialized from device-tree assume that they can be an irq wakeup
+source, so enable it also for MAX8997. This fixes support for wakeup from
+MAX8997 RTC alarm.
 
-To address above issues, split power button IRQ to be chained as well.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel_soc_pmic_bxtwc.c | 41 ++++++++++++++++++++++--------
- include/linux/mfd/intel_soc_pmic.h |  1 +
- 2 files changed, 32 insertions(+), 10 deletions(-)
+ drivers/mfd/max8997.c       | 8 +-------
+ include/linux/mfd/max8997.h | 1 -
+ 2 files changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/mfd/intel_soc_pmic_bxtwc.c b/drivers/mfd/intel_soc_pmic_bxtwc.c
-index 15bc052704a6d..9ca1f8c015de9 100644
---- a/drivers/mfd/intel_soc_pmic_bxtwc.c
-+++ b/drivers/mfd/intel_soc_pmic_bxtwc.c
-@@ -31,8 +31,8 @@
+diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
+index 3f554c4475218..d1495d76bf2c3 100644
+--- a/drivers/mfd/max8997.c
++++ b/drivers/mfd/max8997.c
+@@ -153,12 +153,6 @@ static struct max8997_platform_data *max8997_i2c_parse_dt_pdata(
  
- /* Interrupt Status Registers */
- #define BXTWC_IRQLVL1		0x4E02
--#define BXTWC_PWRBTNIRQ		0x4E03
+ 	pd->ono = irq_of_parse_and_map(dev->of_node, 1);
  
-+#define BXTWC_PWRBTNIRQ		0x4E03
- #define BXTWC_THRM0IRQ		0x4E04
- #define BXTWC_THRM1IRQ		0x4E05
- #define BXTWC_THRM2IRQ		0x4E06
-@@ -47,10 +47,9 @@
- 
- /* Interrupt MASK Registers */
- #define BXTWC_MIRQLVL1		0x4E0E
--#define BXTWC_MPWRTNIRQ		0x4E0F
+-	/*
+-	 * ToDo: the 'wakeup' member in the platform data is more of a linux
+-	 * specfic information. Hence, there is no binding for that yet and
+-	 * not parsed here.
+-	 */
 -
- #define BXTWC_MIRQLVL1_MCHGR	BIT(5)
+ 	return pd;
+ }
  
-+#define BXTWC_MPWRBTNIRQ	0x4E0F
- #define BXTWC_MTHRM0IRQ		0x4E12
- #define BXTWC_MTHRM1IRQ		0x4E13
- #define BXTWC_MTHRM2IRQ		0x4E14
-@@ -66,9 +65,7 @@
- /* Whiskey Cove PMIC share same ACPI ID between different platforms */
- #define BROXTON_PMIC_WC_HRV	4
+@@ -246,7 +240,7 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
+ 	 */
  
--/* Manage in two IRQ chips since mask registers are not consecutive */
- enum bxtwc_irqs {
--	/* Level 1 */
- 	BXTWC_PWRBTN_LVL1_IRQ = 0,
- 	BXTWC_TMU_LVL1_IRQ,
- 	BXTWC_THRM_LVL1_IRQ,
-@@ -77,9 +74,11 @@ enum bxtwc_irqs {
- 	BXTWC_CHGR_LVL1_IRQ,
- 	BXTWC_GPIO_LVL1_IRQ,
- 	BXTWC_CRIT_LVL1_IRQ,
-+};
+ 	/* MAX8997 has a power button input. */
+-	device_init_wakeup(max8997->dev, pdata->wakeup);
++	device_init_wakeup(max8997->dev, true);
  
--	/* Level 2 */
--	BXTWC_PWRBTN_IRQ,
-+enum bxtwc_irqs_pwrbtn {
-+	BXTWC_PWRBTN_IRQ = 0,
-+	BXTWC_UIBTN_IRQ,
- };
+ 	return ret;
  
- enum bxtwc_irqs_bcu {
-@@ -113,7 +112,10 @@ static const struct regmap_irq bxtwc_regmap_irqs[] = {
- 	REGMAP_IRQ_REG(BXTWC_CHGR_LVL1_IRQ, 0, BIT(5)),
- 	REGMAP_IRQ_REG(BXTWC_GPIO_LVL1_IRQ, 0, BIT(6)),
- 	REGMAP_IRQ_REG(BXTWC_CRIT_LVL1_IRQ, 0, BIT(7)),
--	REGMAP_IRQ_REG(BXTWC_PWRBTN_IRQ, 1, 0x03),
-+};
-+
-+static const struct regmap_irq bxtwc_regmap_irqs_pwrbtn[] = {
-+	REGMAP_IRQ_REG(BXTWC_PWRBTN_IRQ, 0, 0x01),
- };
+diff --git a/include/linux/mfd/max8997.h b/include/linux/mfd/max8997.h
+index cf815577bd686..3ae1fe743bc34 100644
+--- a/include/linux/mfd/max8997.h
++++ b/include/linux/mfd/max8997.h
+@@ -178,7 +178,6 @@ struct max8997_led_platform_data {
+ struct max8997_platform_data {
+ 	/* IRQ */
+ 	int ono;
+-	int wakeup;
  
- static const struct regmap_irq bxtwc_regmap_irqs_bcu[] = {
-@@ -125,7 +127,7 @@ static const struct regmap_irq bxtwc_regmap_irqs_adc[] = {
- };
- 
- static const struct regmap_irq bxtwc_regmap_irqs_chgr[] = {
--	REGMAP_IRQ_REG(BXTWC_USBC_IRQ, 0, BIT(5)),
-+	REGMAP_IRQ_REG(BXTWC_USBC_IRQ, 0, 0x20),
- 	REGMAP_IRQ_REG(BXTWC_CHGR0_IRQ, 0, 0x1f),
- 	REGMAP_IRQ_REG(BXTWC_CHGR1_IRQ, 1, 0x1f),
- };
-@@ -144,7 +146,16 @@ static struct regmap_irq_chip bxtwc_regmap_irq_chip = {
- 	.mask_base = BXTWC_MIRQLVL1,
- 	.irqs = bxtwc_regmap_irqs,
- 	.num_irqs = ARRAY_SIZE(bxtwc_regmap_irqs),
--	.num_regs = 2,
-+	.num_regs = 1,
-+};
-+
-+static struct regmap_irq_chip bxtwc_regmap_irq_chip_pwrbtn = {
-+	.name = "bxtwc_irq_chip_pwrbtn",
-+	.status_base = BXTWC_PWRBTNIRQ,
-+	.mask_base = BXTWC_MPWRBTNIRQ,
-+	.irqs = bxtwc_regmap_irqs_pwrbtn,
-+	.num_irqs = ARRAY_SIZE(bxtwc_regmap_irqs_pwrbtn),
-+	.num_regs = 1,
- };
- 
- static struct regmap_irq_chip bxtwc_regmap_irq_chip_tmu = {
-@@ -472,6 +483,16 @@ static int bxtwc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	ret = bxtwc_add_chained_irq_chip(pmic, pmic->irq_chip_data,
-+					 BXTWC_PWRBTN_LVL1_IRQ,
-+					 IRQF_ONESHOT,
-+					 &bxtwc_regmap_irq_chip_pwrbtn,
-+					 &pmic->irq_chip_data_pwrbtn);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to add PWRBTN IRQ chip\n");
-+		return ret;
-+	}
-+
- 	ret = bxtwc_add_chained_irq_chip(pmic, pmic->irq_chip_data,
- 					 BXTWC_TMU_LVL1_IRQ,
- 					 IRQF_ONESHOT,
-diff --git a/include/linux/mfd/intel_soc_pmic.h b/include/linux/mfd/intel_soc_pmic.h
-index 5aacdb017a9f6..806a4f095312b 100644
---- a/include/linux/mfd/intel_soc_pmic.h
-+++ b/include/linux/mfd/intel_soc_pmic.h
-@@ -25,6 +25,7 @@ struct intel_soc_pmic {
- 	int irq;
- 	struct regmap *regmap;
- 	struct regmap_irq_chip_data *irq_chip_data;
-+	struct regmap_irq_chip_data *irq_chip_data_pwrbtn;
- 	struct regmap_irq_chip_data *irq_chip_data_tmu;
- 	struct regmap_irq_chip_data *irq_chip_data_bcu;
- 	struct regmap_irq_chip_data *irq_chip_data_adc;
+ 	/* ---- PMIC ---- */
+ 	struct max8997_regulator_data *regulators;
 -- 
 2.20.1
 
