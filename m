@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97E7310BF22
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF96C10BFD6
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728770AbfK0UmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48146 "EHLO mail.kernel.org"
+        id S1727718AbfK0VqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:46:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728764AbfK0UmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:42:08 -0500
+        id S1727538AbfK0UeO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:34:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DD1721789;
-        Wed, 27 Nov 2019 20:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73D7D207DD;
+        Wed, 27 Nov 2019 20:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887328;
-        bh=uf/SQX7gvex7V0ZjiMgcVzRM39CtftIlMt1fKTjPSYY=;
+        s=default; t=1574886853;
+        bh=7ELU8Vu6+GPSxNfHPinOpipkeIGoboas9zgz5lzP99o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=veSs15Q1/cY0flUQBYer7ebuNg7ekXpeGx3OR64z48YJ9z9ZgL2aui60s254OwFl+
-         o2EKMCl9OySX+BczIOa6Gbkjw//so/PwfTYbAGMyNfQFzKlPhEOzeRTv1eX+yPSa/j
-         jqZY09HVdf5Nzs2/cOBFTKp+i8cBHl12Uu3IP2W0=
+        b=ge5uplF8zj8dD4hO+K+xABl7+6vdj5DPF1WFPWEdHNISm1CzE3EEgPYvz+mhjWgPF
+         EP7YxnNieHAenISYM3rqVWXhOEj1p65tagYz8JRoKjHcnJrCbW47jY0dsxcfPN3eZX
+         3KMqNvtEtikx9COz/1bhgMg7KhUvD695HwC6YwpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Angelo Dureghello <angelo@sysam.it>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Darren Hart <dvhart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/151] m68k: fix command-line parsing when passed from u-boot
-Date:   Wed, 27 Nov 2019 21:30:09 +0100
-Message-Id: <20191127203016.991243313@linuxfoundation.org>
+Subject: [PATCH 4.4 019/132] platform/x86: asus-wmi: add SERIO_I8042 dependency
+Date:   Wed, 27 Nov 2019 21:30:10 +0100
+Message-Id: <20191127202916.307387184@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Dureghello <angelo@sysam.it>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 381fdd62c38344a771aed06adaf14aae65c47454 ]
+[ Upstream commit ea893695ec1131a5fed0523ff8094bc6e8723bbe ]
 
-This patch fixes command_line array zero-terminated
-one byte over the end of the array, causing boot to hang.
+A recent bugfix added a call to i8042_install_filter but did
+not add the dependency, leading to possible link errors:
 
-Signed-off-by: Angelo Dureghello <angelo@sysam.it>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+drivers/platform/built-in.o: In function `asus_nb_wmi_quirks':
+asus-nb-wmi.c:(.text+0x23af): undefined reference to `i8042_install_filter'
+
+This adds a dependency on SERIO_I8042||SERIO_I8042=n to indicate
+that we can build the driver when the i8042 driver is disabled,
+but it cannot be built-in when that is a loadable module.
+
+Fixes: b5643539b825 ("platform/x86: asus-wmi: Filter buggy scan codes on ASUS Q500A")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/uboot.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/m68k/kernel/uboot.c b/arch/m68k/kernel/uboot.c
-index b3536a82a2620..e002084af1012 100644
---- a/arch/m68k/kernel/uboot.c
-+++ b/arch/m68k/kernel/uboot.c
-@@ -103,5 +103,5 @@ __init void process_uboot_commandline(char *commandp, int size)
- 	}
- 
- 	parse_uboot_commandline(commandp, len);
--	commandp[size - 1] = 0;
-+	commandp[len - 1] = 0;
- }
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 953974b5a9a95..6487453c68b59 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -566,6 +566,7 @@ config ASUS_WMI
+ config ASUS_NB_WMI
+ 	tristate "Asus Notebook WMI Driver"
+ 	depends on ASUS_WMI
++	depends on SERIO_I8042 || SERIO_I8042 = n
+ 	---help---
+ 	  This is a driver for newer Asus notebooks. It adds extra features
+ 	  like wireless radio and bluetooth control, leds, hotkeys, backlight...
 -- 
 2.20.1
 
