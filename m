@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A80C10BE5D
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD2A310BF1E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729433AbfK0Usv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:48:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34216 "EHLO mail.kernel.org"
+        id S1729278AbfK0UmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:42:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730189AbfK0Usv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:48:51 -0500
+        id S1729275AbfK0UmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:42:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2A1821774;
-        Wed, 27 Nov 2019 20:48:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C091521741;
+        Wed, 27 Nov 2019 20:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887730;
-        bh=Adeqws/vbvbbgwO/qw2tFv0F8t6Gf2n3CMXRD7k9Ijg=;
+        s=default; t=1574887321;
+        bh=rQC+cGTzMCq1vXMp7OOlM5NKkFtnVplMXAgO3cNKb4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8bWyN0pERf5Fm4enKydq1W6Fr715ZyNqYKuEqlAUOHT23cBivep8fLzzwzr0UR2Z
-         6qptHqLZ8s3fnUXtQLVbcz5CZNMls0APrkJpBOKm6ayiCdkuJ4ggaMmClbpcEMfGSm
-         hVo2lSYnYrhBBldlaWiTjIrbb2/N4zj/lRnqmu1g=
+        b=TwSFxHDaT91EapIk1uxL3E7zvy6xen+rwpB6xn8yrX1DopsPk5Ns3rhnps6gapwwA
+         ZdvjCqA/ucyCHASFRWITCp8uOv+3HT9PJZxGj3yo7DE/aFoi4RednEp5QroLwloBP+
+         svMSxt91PMzOs04+gaHzz/ZijXCXHF56B6WP66DA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh R <vigneshr@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Lu Fengqi <lufq.fnst@cn.fujitsu.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/211] spi: omap2-mcspi: Set FIFO DMA trigger level to word length
-Date:   Wed, 27 Nov 2019 21:30:05 +0100
-Message-Id: <20191127203100.663190518@linuxfoundation.org>
+Subject: [PATCH 4.9 023/151] btrfs: handle error of get_old_root
+Date:   Wed, 27 Nov 2019 21:30:06 +0100
+Message-Id: <20191127203014.886551356@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh R <vigneshr@ti.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-[ Upstream commit b682cffa3ac6d9d9e16e9b413c45caee3b391fab ]
+[ Upstream commit 315bed43fea532650933e7bba316a7601d439edf ]
 
-McSPI has 32 byte FIFO in Transmit-Receive mode. Current code tries to
-configuration FIFO watermark level for DMA trigger to be GCD of transfer
-length and max FIFO size which would mean trigger level may be set to 32
-for transmit-receive mode if length is aligned. This does not work in
-case of SPI slave mode where FIFO always needs to have data ready
-whenever master starts the clock. With DMA trigger size of 32 there will
-be a small window during slave TX where DMA is still putting data into
-FIFO but master would have started clock for next byte, resulting in
-shifting out of stale data. Similarly, on Slave RX side there may be RX
-FIFO overflow
-Fix this by setting FIFO watermark for DMA trigger to word
-length. This means DMA is triggered as soon as FIFO has space for word
-length bytes and DMA would make sure FIFO is almost always full
-therefore improving FIFO occupancy in both master and slave mode.
+In btrfs_search_old_slot get_old_root is always used with the assumption
+it cannot fail. However, this is not true in rare circumstance it can
+fail and return null. This will lead to null point dereference when the
+header is read. Fix this by checking the return value and properly
+handling NULL by setting ret to -EIO and returning gracefully.
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Coverity-id: 1087503
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Lu Fengqi <lufq.fnst@cn.fujitsu.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-omap2-mcspi.c | 26 +++++++-------------------
- 1 file changed, 7 insertions(+), 19 deletions(-)
+ fs/btrfs/ctree.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
-index 9bf64e6eca9ba..517d0ade586bd 100644
---- a/drivers/spi/spi-omap2-mcspi.c
-+++ b/drivers/spi/spi-omap2-mcspi.c
-@@ -298,7 +298,7 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
- 	struct omap2_mcspi_cs *cs = spi->controller_state;
- 	struct omap2_mcspi *mcspi;
- 	unsigned int wcnt;
--	int max_fifo_depth, fifo_depth, bytes_per_word;
-+	int max_fifo_depth, bytes_per_word;
- 	u32 chconf, xferlevel;
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index 3df434eb14743..3faccbf35e9f4 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -2973,6 +2973,10 @@ int btrfs_search_old_slot(struct btrfs_root *root, struct btrfs_key *key,
  
- 	mcspi = spi_master_get_devdata(master);
-@@ -314,10 +314,6 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
- 		else
- 			max_fifo_depth = OMAP2_MCSPI_MAX_FIFODEPTH;
+ again:
+ 	b = get_old_root(root, time_seq);
++	if (!b) {
++		ret = -EIO;
++		goto done;
++	}
+ 	level = btrfs_header_level(b);
+ 	p->locks[level] = BTRFS_READ_LOCK;
  
--		fifo_depth = gcd(t->len, max_fifo_depth);
--		if (fifo_depth < 2 || fifo_depth % bytes_per_word != 0)
--			goto disable_fifo;
--
- 		wcnt = t->len / bytes_per_word;
- 		if (wcnt > OMAP2_MCSPI_MAX_FIFOWCNT)
- 			goto disable_fifo;
-@@ -325,16 +321,17 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
- 		xferlevel = wcnt << 16;
- 		if (t->rx_buf != NULL) {
- 			chconf |= OMAP2_MCSPI_CHCONF_FFER;
--			xferlevel |= (fifo_depth - 1) << 8;
-+			xferlevel |= (bytes_per_word - 1) << 8;
- 		}
-+
- 		if (t->tx_buf != NULL) {
- 			chconf |= OMAP2_MCSPI_CHCONF_FFET;
--			xferlevel |= fifo_depth - 1;
-+			xferlevel |= bytes_per_word - 1;
- 		}
- 
- 		mcspi_write_reg(master, OMAP2_MCSPI_XFERLEVEL, xferlevel);
- 		mcspi_write_chconf0(spi, chconf);
--		mcspi->fifo_depth = fifo_depth;
-+		mcspi->fifo_depth = max_fifo_depth;
- 
- 		return;
- 	}
-@@ -601,7 +598,6 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
- 	struct dma_slave_config	cfg;
- 	enum dma_slave_buswidth width;
- 	unsigned es;
--	u32			burst;
- 	void __iomem		*chstat_reg;
- 	void __iomem            *irqstat_reg;
- 	int			wait_res;
-@@ -623,22 +619,14 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
- 	}
- 
- 	count = xfer->len;
--	burst = 1;
--
--	if (mcspi->fifo_depth > 0) {
--		if (count > mcspi->fifo_depth)
--			burst = mcspi->fifo_depth / es;
--		else
--			burst = count / es;
--	}
- 
- 	memset(&cfg, 0, sizeof(cfg));
- 	cfg.src_addr = cs->phys + OMAP2_MCSPI_RX0;
- 	cfg.dst_addr = cs->phys + OMAP2_MCSPI_TX0;
- 	cfg.src_addr_width = width;
- 	cfg.dst_addr_width = width;
--	cfg.src_maxburst = burst;
--	cfg.dst_maxburst = burst;
-+	cfg.src_maxburst = es;
-+	cfg.dst_maxburst = es;
- 
- 	rx = xfer->rx_buf;
- 	tx = xfer->tx_buf;
 -- 
 2.20.1
 
