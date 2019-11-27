@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ACD910BC3B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:20:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E4110BC94
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732287AbfK0VJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:09:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
+        id S1727351AbfK0VGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:06:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732932AbfK0VJt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:09:49 -0500
+        id S1732410AbfK0VGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:06:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F44D2154A;
-        Wed, 27 Nov 2019 21:09:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 029882080F;
+        Wed, 27 Nov 2019 21:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888988;
-        bh=u1csPlVEfQUnMjHvNXx4OmNGhAz9+OVPfxVfdGG03Hw=;
+        s=default; t=1574888782;
+        bh=W3hwjXMYKbNOB98aUJ5wPNlUM3SaFCCFZQLG1S7wBjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CujEas5bHANZktUexxTr307KvXe5PNeAL272XrUKOEQAEioNry1DPWBTJf5/p241u
-         gioZ/1mrZu/e1kdzzyKbhqP7y4JY3yIOhD0Yqrv37ONJsKzLXA1Ejo1aH7soo7Jx+8
-         1/MHjKP3cEypTi6nqC6ZMONrUJoVw8FoqulSiQ1Q=
+        b=Lme+Ct4YpZ5wxD5UGXj6bMi/+CrKXQCGbBJ0bzpqx5S1shL8VoIQFMMwYR15HjyQv
+         YPK5PwqWFWrYopAjgmbTH0aJHvhHWdZberNagsyTw+dJ01JicT8rpkjg5Cuf+xaqv+
+         CI+IHBk1uR0kZdzBSkNbf+cg9ilQJ9RF7M3dym84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.3 39/95] ath10k: Fix a NULL-ptr-deref bug in ath10k_usb_alloc_urb_from_pipe
+        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.19 266/306] ARC: perf: Accommodate big-endian CPU
 Date:   Wed, 27 Nov 2019 21:31:56 +0100
-Message-Id: <20191127202904.566910219@linuxfoundation.org>
+Message-Id: <20191127203134.266441817@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202845.651587549@linuxfoundation.org>
-References: <20191127202845.651587549@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
 
-commit bfd6e6e6c5d2ee43a3d9902b36e01fc7527ebb27 upstream.
+commit 5effc09c4907901f0e71e68e5f2e14211d9a203f upstream.
 
-The `ar_usb` field of `ath10k_usb_pipe_usb_pipe` objects
-are initialized to point to the containing `ath10k_usb` object
-according to endpoint descriptors read from the device side, as shown
-below in `ath10k_usb_setup_pipe_resources`:
+8-letter strings representing ARC perf events are stores in two
+32-bit registers as ASCII characters like that: "IJMP", "IALL", "IJMPTAK" etc.
 
-for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
-        endpoint = &iface_desc->endpoint[i].desc;
+And the same order of bytes in the word is used regardless CPU endianness.
 
-        // get the address from endpoint descriptor
-        pipe_num = ath10k_usb_get_logical_pipe_num(ar_usb,
-                                                endpoint->bEndpointAddress,
-                                                &urbcount);
-        ......
-        // select the pipe object
-        pipe = &ar_usb->pipes[pipe_num];
+Which means in case of big-endian CPU core we need to swap bytes to get
+the same order as if it was on little-endian CPU.
 
-        // initialize the ar_usb field
-        pipe->ar_usb = ar_usb;
-}
+Otherwise we're seeing the following error message on boot:
+------------------------->8----------------------
+ARC perf        : 8 counters (32 bits), 40 conditions, [overflow IRQ support]
+sysfs: cannot create duplicate filename '/devices/arc_pct/events/pmji'
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
+Stack Trace:
+  arc_unwind_core+0xd4/0xfc
+  dump_stack+0x64/0x80
+  sysfs_warn_dup+0x46/0x58
+  sysfs_add_file_mode_ns+0xb2/0x168
+  create_files+0x70/0x2a0
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1 at kernel/events/core.c:12144 perf_event_sysfs_init+0x70/0xa0
+Failed to register pmu: arc_pct, reason -17
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
+Stack Trace:
+  arc_unwind_core+0xd4/0xfc
+  dump_stack+0x64/0x80
+  __warn+0x9c/0xd4
+  warn_slowpath_fmt+0x22/0x2c
+  perf_event_sysfs_init+0x70/0xa0
+---[ end trace a75fb9a9837bd1ec ]---
+------------------------->8----------------------
 
-The driver assumes that the addresses reported in endpoint
-descriptors from device side  to be complete. If a device is
-malicious and does not report complete addresses, it may trigger
-NULL-ptr-deref `ath10k_usb_alloc_urb_from_pipe` and
-`ath10k_usb_free_urb_to_pipe`.
+What happens here we're trying to register more than one raw perf event
+with the same name "PMJI". Why? Because ARC perf events are 4 to 8 letters
+and encoded into two 32-bit words. In this particular case we deal with 2
+events:
+ * "IJMP____" which counts all jump & branch instructions
+ * "IJMPC___" which counts only conditional jumps & branches
 
-This patch fixes the bug by preventing potential NULL-ptr-deref.
+Those strings are split in two 32-bit words this way "IJMP" + "____" &
+"IJMP" + "C___" correspondingly. Now if we read them swapped due to CPU core
+being big-endian then we read "PMJI" + "____" & "PMJI" + "___C".
 
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[groeck: Add driver tag to subject, fix build warning]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+And since we interpret read array of ASCII letters as a null-terminated string
+on big-endian CPU we end up with 2 events of the same name "PMJI".
+
+Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/net/wireless/ath/ath10k/usb.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
 
---- a/drivers/net/wireless/ath/ath10k/usb.c
-+++ b/drivers/net/wireless/ath/ath10k/usb.c
-@@ -38,6 +38,10 @@ ath10k_usb_alloc_urb_from_pipe(struct at
- 	struct ath10k_urb_context *urb_context = NULL;
- 	unsigned long flags;
+
+---
+ arch/arc/kernel/perf_event.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/arc/kernel/perf_event.c
++++ b/arch/arc/kernel/perf_event.c
+@@ -490,8 +490,8 @@ static int arc_pmu_device_probe(struct p
+ 	/* loop thru all available h/w condition indexes */
+ 	for (j = 0; j < cc_bcr.c; j++) {
+ 		write_aux_reg(ARC_REG_CC_INDEX, j);
+-		cc_name.indiv.word0 = read_aux_reg(ARC_REG_CC_NAME0);
+-		cc_name.indiv.word1 = read_aux_reg(ARC_REG_CC_NAME1);
++		cc_name.indiv.word0 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME0));
++		cc_name.indiv.word1 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME1));
  
-+	/* bail if this pipe is not initialized */
-+	if (!pipe->ar_usb)
-+		return NULL;
-+
- 	spin_lock_irqsave(&pipe->ar_usb->cs_lock, flags);
- 	if (!list_empty(&pipe->urb_list_head)) {
- 		urb_context = list_first_entry(&pipe->urb_list_head,
-@@ -55,6 +59,10 @@ static void ath10k_usb_free_urb_to_pipe(
- {
- 	unsigned long flags;
- 
-+	/* bail if this pipe is not initialized */
-+	if (!pipe->ar_usb)
-+		return;
-+
- 	spin_lock_irqsave(&pipe->ar_usb->cs_lock, flags);
- 
- 	pipe->urb_cnt++;
+ 		/* See if it has been mapped to a perf event_id */
+ 		for (i = 0; i < ARRAY_SIZE(arc_pmu_ev_hw_map); i++) {
 
 
