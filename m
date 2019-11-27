@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B3010B8DE
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4967D10B8E1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:48:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729300AbfK0Urj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:47:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60616 "EHLO mail.kernel.org"
+        id S1729307AbfK0Urq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:47:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728115AbfK0Uri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:47:38 -0500
+        id S1728828AbfK0Urp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:47:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EECE21843;
-        Wed, 27 Nov 2019 20:47:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEDDA217C3;
+        Wed, 27 Nov 2019 20:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887657;
-        bh=I7BJNofsoP6hl8a//GDoTm7cBtYa5RqLyPJ2jwXpwQc=;
+        s=default; t=1574887665;
+        bh=kRaaeLyVrJkQ2s1HL5fTS7pl1D9tLcbEPABB7AWikDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FiJa4tIwAx/t7dpJFRRk2xS3Acqpb6OqMkxej9N+3CY86vRDFC8hahaj51W/4O61t
-         NcQHn+D0GyuI4179jEnZqcPPWOJw1cygQuYvB82LW1iLyEt47LwkW0BG2s1AAfze9l
-         48ZqlQXHs4tqMufliggM01+acVbXHeNzFYc75p+A=
+        b=MduOnWqL60nP+gwrpn23M9QxoECWzFwXPIZoV+ezHbW4JHL+ZKkbMC/oPOyj7oukJ
+         A3mC5wu1hjq+7t8x4pPsqj30Vk4r/uUOQhibjsERO7dL9AxR+u+IeHVWavM/Sfl+HT
+         O2++UdanwUhHTPo0ahyWunLwxhD68nXyAgyoZBNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rahul Verma <rahul.verma@cavium.com>,
-        Ariel Elior <ariel.elior@cavium.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Uros Bizjak <ubizjak@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 042/211] qed: Align local and global PTT to propagate through the APIs.
-Date:   Wed, 27 Nov 2019 21:29:35 +0100
-Message-Id: <20191127203058.099147480@linuxfoundation.org>
+Subject: [PATCH 4.14 045/211] KVM/x86: Fix invvpid and invept register operand size in 64-bit mode
+Date:   Wed, 27 Nov 2019 21:29:38 +0100
+Message-Id: <20191127203058.390469148@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
 References: <20191127203049.431810767@linuxfoundation.org>
@@ -45,199 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Verma <Rahul.Verma@cavium.com>
+From: Uros Bizjak <ubizjak@gmail.com>
 
-[ Upstream commit 706d08913d1f68610c32b4a001026aa989878dd9 ]
+[ Upstream commit 5ebb272b2ea7e02911a03a893f8d922d49f9bb4a ]
 
-    Align the use of local PTT to propagate through the qed_mcp* API's.
-    Global ptt should not be used.
+Register operand size of invvpid and invept instruction in 64-bit mode
+has always 64 bits. Adjust inline function argument type to reflect
+correct size.
 
-    Register access should be done through layers. Register address is
-    mapped into a PTT, PF translation table. Several interface functions
-    require a PTT to direct read/write into register. There is a pool of
-    PTT maintained, and several PTT are used simultaneously to access
-    device registers in different flows. Same PTT should not be used in
-    flows that can run concurrently.
-    To avoid running out of PTT resources, too many PTT should not be
-    acquired without releasing them. Every PF has a global PTT, which is
-    used throughout the life of PF, in most important flows for register
-    access. Generic functions acquire the PTT locally and release after
-    the use. This patch aligns the use of Global PTT and Local PTT
-    accordingly.
-
-Signed-off-by: Rahul Verma <rahul.verma@cavium.com>
-Signed-off-by: Ariel Elior <ariel.elior@cavium.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed.h      |  2 +-
- drivers/net/ethernet/qlogic/qed/qed_main.c | 22 ++++++++++++++----
- drivers/net/ethernet/qlogic/qed/qed_mcp.c  | 27 ++++++++++------------
- drivers/net/ethernet/qlogic/qed/qed_mcp.h  |  5 ++--
- drivers/net/ethernet/qlogic/qed/qed_vf.c   |  2 +-
- 5 files changed, 35 insertions(+), 23 deletions(-)
+ arch/x86/kvm/vmx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed.h b/drivers/net/ethernet/qlogic/qed/qed.h
-index 91003bc6f00bd..6c4714a8b54ce 100644
---- a/drivers/net/ethernet/qlogic/qed/qed.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed.h
-@@ -829,7 +829,7 @@ u16 qed_get_cm_pq_idx_vf(struct qed_hwfn *p_hwfn, u16 vf);
- /* Prototypes */
- int qed_fill_dev_info(struct qed_dev *cdev,
- 		      struct qed_dev_info *dev_info);
--void qed_link_update(struct qed_hwfn *hwfn);
-+void qed_link_update(struct qed_hwfn *hwfn, struct qed_ptt *ptt);
- u32 qed_unzip_data(struct qed_hwfn *p_hwfn,
- 		   u32 input_len, u8 *input_buf,
- 		   u32 max_size, u8 *unzip_buf);
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
-index 557332f1f886c..52e747fd9c839 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -1389,6 +1389,7 @@ static int qed_get_link_data(struct qed_hwfn *hwfn,
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 1c4e5eb8be835..f67fc0f359ff3 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -1602,7 +1602,7 @@ static int __find_msr_index(struct vcpu_vmx *vmx, u32 msr)
+ 	return -1;
  }
  
- static void qed_fill_link(struct qed_hwfn *hwfn,
-+			  struct qed_ptt *ptt,
- 			  struct qed_link_output *if_link)
+-static inline void __invvpid(int ext, u16 vpid, gva_t gva)
++static inline void __invvpid(unsigned long ext, u16 vpid, gva_t gva)
  {
- 	struct qed_mcp_link_params params;
-@@ -1469,7 +1470,7 @@ static void qed_fill_link(struct qed_hwfn *hwfn,
+     struct {
+ 	u64 vpid : 16;
+@@ -1616,7 +1616,7 @@ static inline void __invvpid(int ext, u16 vpid, gva_t gva)
+ 		  : : "a"(&operand), "c"(ext) : "cc", "memory");
+ }
  
- 	/* TODO - fill duplex properly */
- 	if_link->duplex = DUPLEX_FULL;
--	qed_mcp_get_media_type(hwfn->cdev, &media_type);
-+	qed_mcp_get_media_type(hwfn, ptt, &media_type);
- 	if_link->port = qed_get_port_type(media_type);
- 
- 	if_link->autoneg = params.speed.autoneg;
-@@ -1525,21 +1526,34 @@ static void qed_fill_link(struct qed_hwfn *hwfn,
- static void qed_get_current_link(struct qed_dev *cdev,
- 				 struct qed_link_output *if_link)
+-static inline void __invept(int ext, u64 eptp, gpa_t gpa)
++static inline void __invept(unsigned long ext, u64 eptp, gpa_t gpa)
  {
-+	struct qed_hwfn *hwfn;
-+	struct qed_ptt *ptt;
- 	int i;
- 
--	qed_fill_link(&cdev->hwfns[0], if_link);
-+	hwfn = &cdev->hwfns[0];
-+	if (IS_PF(cdev)) {
-+		ptt = qed_ptt_acquire(hwfn);
-+		if (ptt) {
-+			qed_fill_link(hwfn, ptt, if_link);
-+			qed_ptt_release(hwfn, ptt);
-+		} else {
-+			DP_NOTICE(hwfn, "Failed to fill link; No PTT\n");
-+		}
-+	} else {
-+		qed_fill_link(hwfn, NULL, if_link);
-+	}
- 
- 	for_each_hwfn(cdev, i)
- 		qed_inform_vf_link_state(&cdev->hwfns[i]);
- }
- 
--void qed_link_update(struct qed_hwfn *hwfn)
-+void qed_link_update(struct qed_hwfn *hwfn, struct qed_ptt *ptt)
- {
- 	void *cookie = hwfn->cdev->ops_cookie;
- 	struct qed_common_cb_ops *op = hwfn->cdev->protocol_ops.common;
- 	struct qed_link_output if_link;
- 
--	qed_fill_link(hwfn, &if_link);
-+	qed_fill_link(hwfn, ptt, &if_link);
- 	qed_inform_vf_link_state(hwfn);
- 
- 	if (IS_LEAD_HWFN(hwfn) && cookie)
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.c b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-index 7938abe9a3010..ef17ca09d3038 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.c
-@@ -1352,7 +1352,7 @@ static void qed_mcp_handle_link_change(struct qed_hwfn *p_hwfn,
- 	if (p_hwfn->mcp_info->capabilities & FW_MB_PARAM_FEATURE_SUPPORT_EEE)
- 		qed_mcp_read_eee_config(p_hwfn, p_ptt, p_link);
- 
--	qed_link_update(p_hwfn);
-+	qed_link_update(p_hwfn, p_ptt);
- out:
- 	spin_unlock_bh(&p_hwfn->mcp_info->link_lock);
- }
-@@ -1722,12 +1722,10 @@ int qed_mcp_get_mbi_ver(struct qed_hwfn *p_hwfn,
- 	return 0;
- }
- 
--int qed_mcp_get_media_type(struct qed_dev *cdev, u32 *p_media_type)
-+int qed_mcp_get_media_type(struct qed_hwfn *p_hwfn,
-+			   struct qed_ptt *p_ptt, u32 *p_media_type)
- {
--	struct qed_hwfn *p_hwfn = &cdev->hwfns[0];
--	struct qed_ptt  *p_ptt;
--
--	if (IS_VF(cdev))
-+	if (IS_VF(p_hwfn->cdev))
- 		return -EINVAL;
- 
- 	if (!qed_mcp_is_init(p_hwfn)) {
-@@ -1735,16 +1733,15 @@ int qed_mcp_get_media_type(struct qed_dev *cdev, u32 *p_media_type)
- 		return -EBUSY;
- 	}
- 
--	*p_media_type = MEDIA_UNSPECIFIED;
--
--	p_ptt = qed_ptt_acquire(p_hwfn);
--	if (!p_ptt)
--		return -EBUSY;
--
--	*p_media_type = qed_rd(p_hwfn, p_ptt, p_hwfn->mcp_info->port_addr +
--			       offsetof(struct public_port, media_type));
-+	if (!p_ptt) {
-+		*p_media_type = MEDIA_UNSPECIFIED;
-+		return -EINVAL;
-+	}
- 
--	qed_ptt_release(p_hwfn, p_ptt);
-+	*p_media_type = qed_rd(p_hwfn, p_ptt,
-+			       p_hwfn->mcp_info->port_addr +
-+			       offsetof(struct public_port,
-+					media_type));
- 
- 	return 0;
- }
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_mcp.h b/drivers/net/ethernet/qlogic/qed/qed_mcp.h
-index f1fe5e3427ea5..8fcdb2c3e5dba 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_mcp.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed_mcp.h
-@@ -284,14 +284,15 @@ int qed_mcp_get_mbi_ver(struct qed_hwfn *p_hwfn,
-  * @brief Get media type value of the port.
-  *
-  * @param cdev      - qed dev pointer
-+ * @param p_ptt
-  * @param mfw_ver    - media type value
-  *
-  * @return int -
-  *      0 - Operation was successul.
-  *      -EBUSY - Operation failed
-  */
--int qed_mcp_get_media_type(struct qed_dev      *cdev,
--			   u32                  *media_type);
-+int qed_mcp_get_media_type(struct qed_hwfn *p_hwfn,
-+			   struct qed_ptt *p_ptt, u32 *media_type);
- 
- /**
-  * @brief General function for sending commands to the MCP
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_vf.c b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-index 3220086f99dea..a2a9921b467b1 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_vf.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-@@ -1669,7 +1669,7 @@ static void qed_handle_bulletin_change(struct qed_hwfn *hwfn)
- 	ops->ports_update(cookie, vxlan_port, geneve_port);
- 
- 	/* Always update link configuration according to bulletin */
--	qed_link_update(hwfn);
-+	qed_link_update(hwfn, NULL);
- }
- 
- void qed_iov_vf_task(struct work_struct *work)
+ 	struct {
+ 		u64 eptp, gpa;
 -- 
 2.20.1
 
