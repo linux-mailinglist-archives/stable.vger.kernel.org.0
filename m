@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF7210BBF9
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A86110BC91
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728319AbfK0VMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:12:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43860 "EHLO mail.kernel.org"
+        id S1732436AbfK0VGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:06:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731430AbfK0VMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:12:44 -0500
+        id S1732433AbfK0VGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:06:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 321CB215F1;
-        Wed, 27 Nov 2019 21:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DD7121843;
+        Wed, 27 Nov 2019 21:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889163;
-        bh=zCgDrU9ezIbzq7CMalImPFPEn0zCQPijFbbT/nGqanM=;
+        s=default; t=1574888792;
+        bh=egGgjq34mNQHDV+YUm8b+aSrL1YXPGQXAQkh4o3C5Mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WkqSmkcGrwxNvmvwyM/No4Q0f4V8n9Ny57HvShTygMAfxOsNLAVKK3nW51yIJ34f2
-         BAI2okHkr5EoSsSuTOQnkgG4fTJEHaaFUPCWOe2ZeRaG9+8HjWtHqwosAZt6t4H9Nq
-         ZOYkkIBvrAy+aNUZlHTkZoSyR1hnXIf9VNxRXurE=
+        b=WMKneCkFvb8D7WKo7OANhpgSATtMleFiDi5hL1HxW77pasBxhDOUZ3vx+DkxEWKGi
+         Kx8RZ3rIWGwqQSqkfMeX1kkEzhgebsihGNB8bYW0MhhhSPl7V0383IdZsJVnOMsWt9
+         2iRU/kyb6dXwJ1zvJOdLwye9V2m6/0dKP4tZ5uBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 05/66] ath10k: restore QCA9880-AR1A (v1) detection
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 270/306] nbd: prevent memory leak
 Date:   Wed, 27 Nov 2019 21:32:00 +0100
-Message-Id: <20191127202642.423138310@linuxfoundation.org>
+Message-Id: <20191127203134.553583842@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
-References: <20191127202632.536277063@linuxfoundation.org>
+In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
+References: <20191127203114.766709977@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,101 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream.
+commit 03bf73c315edca28f47451913177e14cd040a216 upstream.
 
-This patch restores the old behavior that read
-the chip_id on the QCA988x before resetting the
-chip. This needs to be done in this order since
-the unsupported QCA988x AR1A chips fall off the
-bus when resetted. Otherwise the next MMIO Op
-after the reset causes a BUS ERROR and panic.
+In nbd_add_socket when krealloc succeeds, if nsock's allocation fail the
+reallocted memory is leak. The correct behaviour should be assigning the
+reallocted memory to config->socks right after success.
 
-Cc: stable@vger.kernel.org
-Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath10k/pci.c |   36 +++++++++++++++++++++++-----------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+ drivers/block/nbd.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -3490,7 +3490,7 @@ static int ath10k_pci_probe(struct pci_d
- 	struct ath10k_pci *ar_pci;
- 	enum ath10k_hw_rev hw_rev;
- 	struct ath10k_bus_params bus_params = {};
--	bool pci_ps;
-+	bool pci_ps, is_qca988x = false;
- 	int (*pci_soft_reset)(struct ath10k *ar);
- 	int (*pci_hard_reset)(struct ath10k *ar);
- 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
-@@ -3500,6 +3500,7 @@ static int ath10k_pci_probe(struct pci_d
- 	case QCA988X_2_0_DEVICE_ID:
- 		hw_rev = ATH10K_HW_QCA988X;
- 		pci_ps = false;
-+		is_qca988x = true;
- 		pci_soft_reset = ath10k_pci_warm_reset;
- 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
- 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
-@@ -3619,25 +3620,34 @@ static int ath10k_pci_probe(struct pci_d
- 		goto err_deinit_irq;
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -984,14 +984,15 @@ static int nbd_add_socket(struct nbd_dev
+ 		sockfd_put(sock);
+ 		return -ENOMEM;
+ 	}
++
++	config->socks = socks;
++
+ 	nsock = kzalloc(sizeof(struct nbd_sock), GFP_KERNEL);
+ 	if (!nsock) {
+ 		sockfd_put(sock);
+ 		return -ENOMEM;
  	}
  
-+	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
-+	bus_params.link_can_suspend = true;
-+	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
-+	 * fall off the bus during chip_reset. These chips have the same pci
-+	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
-+	 */
-+	if (is_qca988x) {
-+		bus_params.chip_id =
-+			ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
-+		if (bus_params.chip_id != 0xffffffff) {
-+			if (!ath10k_pci_chip_is_supported(pdev->device,
-+							  bus_params.chip_id))
-+				goto err_unsupported;
-+		}
-+	}
-+
- 	ret = ath10k_pci_chip_reset(ar);
- 	if (ret) {
- 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
- 		goto err_free_irq;
- 	}
- 
--	bus_params.dev_type = ATH10K_DEV_TYPE_LL;
--	bus_params.link_can_suspend = true;
- 	bus_params.chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
--	if (bus_params.chip_id == 0xffffffff) {
--		ath10k_err(ar, "failed to get chip id\n");
--		goto err_free_irq;
--	}
-+	if (bus_params.chip_id == 0xffffffff)
-+		goto err_unsupported;
- 
--	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id)) {
--		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
--			   pdev->device, bus_params.chip_id);
-+	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
- 		goto err_free_irq;
--	}
- 
- 	ret = ath10k_core_register(ar, &bus_params);
- 	if (ret) {
-@@ -3647,6 +3657,10 @@ static int ath10k_pci_probe(struct pci_d
- 
- 	return 0;
- 
-+err_unsupported:
-+	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
-+		   pdev->device, bus_params.chip_id);
-+
- err_free_irq:
- 	ath10k_pci_free_irq(ar);
- 	ath10k_pci_rx_retry_sync(ar);
+-	config->socks = socks;
+-
+ 	nsock->fallback_index = -1;
+ 	nsock->dead = false;
+ 	mutex_init(&nsock->tx_lock);
 
 
