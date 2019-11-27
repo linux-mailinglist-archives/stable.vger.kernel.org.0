@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9E610B932
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:51:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5584010B87E
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730409AbfK0Uuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:50:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37150 "EHLO mail.kernel.org"
+        id S1729518AbfK0Un7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:43:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730001AbfK0Uuw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:50:52 -0500
+        id S1729035AbfK0Un7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:43:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 174E421850;
-        Wed, 27 Nov 2019 20:50:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D6A5216C8;
+        Wed, 27 Nov 2019 20:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887851;
-        bh=J0/R4Z5BY+02R0pbRuvu0OdHWnNZFRHfN+3UcXMO7bk=;
+        s=default; t=1574887438;
+        bh=Yvtuzvt96j/m3vUDcrPWoNYcOPxSaH8nSvE4tz47aU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJMALwx4igSOpNGTH3SaY/BgRAW7LHRxx73JP+Ju+jO7oamDgCCSlSrIqkgJu2Met
-         5HXfUjnKD+8hdHjgEWfl3Ymdk6Im2GTO+lPk+8oScC3JMTeICxKEBUutSJM9bCRluj
-         omdFhC2euryX1AlFdggZaoH0mx1tVoyktFV/CJRM=
+        b=Pp5gzDoVThY+SnXywd7Won498UY0HeIzzGhaYFbdoIWCJUmgfT9Ip9Fahd964PQ7M
+         EOZmXr3JuwjU+1yRdxXlLeuvzWxaryBkbZbl5qdvYfiAChyWHOyvLx6XJux55cyzsd
+         XobVFMdl2Wdt3x+qFBjRWQ39gTIx/QG+VH3JRoQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Yury Norov <ynorov@caviumnetworks.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 119/211] igb: shorten maximum PHC timecounter update interval
+Subject: [PATCH 4.9 069/151] linux/bitmap.h: handle constant zero-size bitmaps correctly
 Date:   Wed, 27 Nov 2019 21:30:52 +0100
-Message-Id: <20191127203105.303707787@linuxfoundation.org>
+Message-Id: <20191127203034.333073586@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,54 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit 094bf4d0e9657f6ea1ee3d7e07ce3970796949ce ]
+[ Upstream commit 7275b097851a5e2e0dd4da039c7e96b59ac5314e ]
 
-The timecounter needs to be updated at least once per ~550 seconds in
-order to avoid a 40-bit SYSTIM timestamp to be misinterpreted as an old
-timestamp.
+The static inlines in bitmap.h do not handle a compile-time constant
+nbits==0 correctly (they dereference the passed src or dst pointers,
+despite only 0 words being valid to access).  I had the 0-day buildbot
+chew on a patch [1] that would cause build failures for such cases without
+complaining, suggesting that we don't have any such users currently, at
+least for the 70 .config/arch combinations that was built.  Should any
+turn up, make sure they use the out-of-line versions, which do handle
+nbits==0 correctly.
 
-Since commit 500462a9d ("timers: Switch to a non-cascading wheel"),
-scheduling of delayed work seems to be less accurate and a requested
-delay of 540 seconds may actually be longer than 550 seconds. Shorten
-the delay to 480 seconds to be sure the timecounter is updated in time.
+This is of course not the most efficient, but it's much less churn than
+teaching all the static inlines an "if (zero_const_nbits())", and since we
+don't have any current instances, this doesn't affect existing code at
+all.
 
-This fixes an issue with HW timestamps on 82580/I350/I354 being off by
-~1100 seconds for few seconds every ~9 minutes.
+[1] lkml.kernel.org/r/20180815085539.27485-1-linux@rasmusvillemoes.dk
 
-Cc: Jacob Keller <jacob.e.keller@intel.com>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Link: http://lkml.kernel.org/r/20180818131623.8755-3-linux@rasmusvillemoes.dk
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Yury Norov <ynorov@caviumnetworks.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_ptp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ include/linux/bitmap.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_ptp.c b/drivers/net/ethernet/intel/igb/igb_ptp.c
-index 0746b19ec6d37..295d27f331042 100644
---- a/drivers/net/ethernet/intel/igb/igb_ptp.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ptp.c
-@@ -65,9 +65,15 @@
-  *
-  * The 40 bit 82580 SYSTIM overflows every
-  *   2^40 * 10^-9 /  60  = 18.3 minutes.
-+ *
-+ * SYSTIM is converted to real time using a timecounter. As
-+ * timecounter_cyc2time() allows old timestamps, the timecounter
-+ * needs to be updated at least once per half of the SYSTIM interval.
-+ * Scheduling of delayed work is not very accurate, so we aim for 8
-+ * minutes to be sure the actual interval is shorter than 9.16 minutes.
-  */
+diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+index 3b77588a93602..dc56304ac829f 100644
+--- a/include/linux/bitmap.h
++++ b/include/linux/bitmap.h
+@@ -185,8 +185,13 @@ extern int bitmap_print_to_pagebuf(bool list, char *buf,
+ #define BITMAP_FIRST_WORD_MASK(start) (~0UL << ((start) & (BITS_PER_LONG - 1)))
+ #define BITMAP_LAST_WORD_MASK(nbits) (~0UL >> (-(nbits) & (BITS_PER_LONG - 1)))
  
--#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 9)
-+#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 8)
- #define IGB_PTP_TX_TIMEOUT		(HZ * 15)
- #define INCPERIOD_82576			BIT(E1000_TIMINCA_16NS_SHIFT)
- #define INCVALUE_82576_MASK		GENMASK(E1000_TIMINCA_16NS_SHIFT - 1, 0)
++/*
++ * The static inlines below do not handle constant nbits==0 correctly,
++ * so make such users (should any ever turn up) call the out-of-line
++ * versions.
++ */
+ #define small_const_nbits(nbits) \
+-	(__builtin_constant_p(nbits) && (nbits) <= BITS_PER_LONG)
++	(__builtin_constant_p(nbits) && (nbits) <= BITS_PER_LONG && (nbits) > 0)
+ 
+ static inline void bitmap_zero(unsigned long *dst, unsigned int nbits)
+ {
 -- 
 2.20.1
 
