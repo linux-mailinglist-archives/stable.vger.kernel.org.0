@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AEF010AB4F
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A5510AB50
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:51:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbfK0HuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 02:50:25 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:50323 "EHLO
+        id S1726111AbfK0HvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 02:51:18 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60249 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726092AbfK0HuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:50:25 -0500
+        by vger.kernel.org with ESMTP id S1726092AbfK0HvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:51:18 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 3918A993;
-        Wed, 27 Nov 2019 02:50:24 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id AFB4B2CC;
+        Wed, 27 Nov 2019 02:51:17 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 27 Nov 2019 02:50:24 -0500
+  by compute6.internal (MEProxy); Wed, 27 Nov 2019 02:51:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=2SfCE91CPr2KLJgfyZexBHtnhDA
-        APcWjiFSbvLAb1ts=; b=RhWdS1Zqyex17ifPVrh1DWW1A3f3iF0BkkYvL3U8CVV
-        JdsoBaJi40ABIIawEKLJQwSBK4dj9eqoxGnPQkeyqROiwxIqT/AbNVi+TeGGVE+3
-        52EPZQWttPquUZiIhLPDMnxoNkdzVqJjTSWhavZfjVO984DedcKksX+n7xTH9+nz
-        QnvF/Tl2jWbwWlVFhuwyGVHYeDf9Ap3uBXOPvYumrCGc8gFdfwyYyPnXKAhB6b1a
-        4EvX09ebj42eXvSrjA6xlVgoE6ocwL2/R8RHFxVS7vAEPWi4qAViLmtw8ifoCsnJ
-        g4heMDDT2q2E6Ed4Gs6nUG43CM0CTUT25EeX1+9xpdQ==
+        :content-type:in-reply-to; s=fm2; bh=ESkPvoJrr1BrIHhtt/A9BEL+ip1
+        4+yWEv92uomwfkyg=; b=pCHlU7MO4ME625BLGKXIx0xIYonao2j7rydOdAiFrXh
+        dsJLkBtZmKYgKnoSlazjE2TV4j4Kged43qr++WDdwRE5o6TOWaxwSNBR8Dm49+MQ
+        cAlsZDDoFgS5hsP5c4ddrf6cd7iN6pHx3sQJyPGLmFYvkxBeIYkoO6mMy5IfS/eO
+        IqfPvrxNZF6nPIu9oFKjTvmTFwwDGtxXgcM8FzMjK/Z+dEqEl7LfSBO0HLi+a3+5
+        aLjppPAFXJ6Qq8mwrUEdqTPuKjggxgGR6sClPZG+itbWvVO7I6aVDjblbfToP9wi
+        qk2wWLZZFLjOBl/2TIZh6PwhHdTtXZ2iHKwqbTjEC1Q==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2SfCE9
-        1CPr2KLJgfyZexBHtnhDAAPcWjiFSbvLAb1ts=; b=j28eobMq6AnaMpzNbLM5xA
-        9wwUO1Aag0uFQrAgXUZxEB8PgDKL/uWPxqCC4sZyIE+e/BDpYjg1yMaFtmX4yc7/
-        KwH/oZ/z09bo25CYw0ywBXRSJkJCZIXG6VSTyA3KOz/I9VQnGdR04WQ7Jy85Yc5W
-        GT9ZJp1WKZdLb7JfHm7sU1mmusRRT8fsSz/vCWLkUQVB9ohTSb4n6CIbG3okJQBC
-        VEYKpW0Rrwr8MYvM6YtumlYF1gJ133XdA9XmhvAenDBFVgXG/VVMdnglR5ZSWxLa
-        DIABYFgTeV4bKzELcziUhtanzxVtN1glGpZbt3hsq9DqVSqsvkzcKmmhMqWyqLpQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ESkPvo
+        Jrr1BrIHhtt/A9BEL+ip14+yWEv92uomwfkyg=; b=jHDAhDhtwy/ah8OQtLpWH9
+        ildgRONA+zi0D8D3R3e7HGQG1Jmmlh46xCBTNCGg+jOTqU0TfygMs9mFcyKBF8xN
+        vxoZa+T4k/ZXFsCB2YpCsMB/UVRDqF1PCMb6/EF6kUid9xO+jGbUlEku/8En4/ST
+        NbnYRnVp7aDGIz+Evj9SCNnW84BkgLVcCVTbm6+XMu0fzBqkgfZTjvSLUcu/K6Ri
+        uQTZbDBksLGeVd2XqfeXCPoegJb67M8r26tKyZkA3uX/6mgArCLML8QNtL52zDvX
+        AZEVu3gLG20kV7Gv2QQLjbyTZRtUkSZMfmJNVPl742g/PY1pwNSBrDFQdG2Wxe0g
         ==
-X-ME-Sender: <xms:vyreXd7MdW2ZFKR6Mg-zIle9yFBdgbZlHsunRzTcWTwhq1DetfHjEQ>
+X-ME-Sender: <xms:9SreXcp7dlFT8-FgB2g2JlJ9PGuneU0UK2ZqPAnIjf_vxbe7Jr2VcQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeigedguddufecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
     enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
     ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:vyreXXWTTQROFgS4974A66677S26L2W7v_ouTSAY6iwZOF1G1kDPeA>
-    <xmx:vyreXTWsv9DS_91G_IBXjbCbogh81vkvmugUItsK5fGjPxwGUHVx_g>
-    <xmx:vyreXcT8d7L0WGU3_AoKo5evtKikKLMlW5VujiGTMt9Y1x0Vit6xHw>
-    <xmx:vyreXWKbDLTpTisDd7ODzYGAbNe5ImHPS1jSiOcOIAKYUmNUoQPKnQ>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:9SreXQLhsZypYR6bnhNnhTdeE4cQRjqgPRsvzCEVc70yfzQzUnpTUA>
+    <xmx:9SreXdSvMbybz31-IWhzg3Jn75OshllGopDla1-eQekRA049qJgE3w>
+    <xmx:9SreXRI9AVP_W8fSqZTnEwU9JUg3Clh8HQOc2yBR3KTWss1O-rFaeA>
+    <xmx:9SreXRWTW_2HYGxU8oNPxMX07Usq5lddlvIOp-uCG8CFFGMSj7OlEA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 53D7180062;
-        Wed, 27 Nov 2019 02:50:23 -0500 (EST)
-Date:   Wed, 27 Nov 2019 08:50:21 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id BD09D8005B;
+        Wed, 27 Nov 2019 02:51:16 -0500 (EST)
+Date:   Wed, 27 Nov 2019 08:51:15 +0100
 From:   Greg KH <greg@kroah.com>
 To:     Lee Jones <lee.jones@linaro.org>
 Cc:     stable@vger.kernel.org
 Subject: Re: [PATCH 4.4 1/6] can: dev: can_dellink(): remove return at end of
  void function
-Message-ID: <20191127075021.GA1821634@kroah.com>
+Message-ID: <20191127075115.GB1821634@kroah.com>
 References: <20191127072124.30445-1-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -99,6 +99,10 @@ On Wed, Nov 27, 2019 at 07:21:19AM +0000, Lee Jones wrote:
 > 2.24.0
 > 
 
-How does this patch meet the stable kernel rules?
+Also, this showed up in 5.4, so why did you not include it in all of
+your patch series that you sent?  I can't take patches for older kernels
+and skip newer ones for no good reason.
+
+thanks,
 
 greg k-h
