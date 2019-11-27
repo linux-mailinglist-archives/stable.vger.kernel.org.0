@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B85410BB76
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E9F10BBF2
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:17:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733311AbfK0VMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:12:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
+        id S1732252AbfK0VRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:17:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733307AbfK0VMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:12:51 -0500
+        id S2387394AbfK0VMy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:12:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B37222178F;
-        Wed, 27 Nov 2019 21:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AD1B21775;
+        Wed, 27 Nov 2019 21:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574889171;
-        bh=zBhu2+KdYMb3Yub8SsyOlnjWpHgy8s+5nopaN6TD0kU=;
+        s=default; t=1574889173;
+        bh=vRmXBO5Gu0mvfOSr13Grf3KH9xKlAfzS1tCHm0VwrJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvXKbpZ9CAsA646dmObeOb7ZSei05LXFU29v/Xuv1soHAJyll2Ant59EIacQHO0s9
-         qnRntJcYrU1VPXTJfwudUA7RlWvtVpc3LsJcRwWZ+0qlQNPr8PisNGBfBeNKQYhbv8
-         TpQRjNtsPKAASPk83wKNZFtWmHi4bDum3lLcLDbw=
+        b=vWME1bu7A/WYo1sbqYLK4rDWL+VaCG1bnzP8Nr/hiCXwJAVsTMWF6mGoq/b8NaQva
+         Sdr8aK6w9+xmu9BXCT29dvxRS9HoMF4UZeEyB2ix8RPbcJ7ZvBnC2eB/pePjTcQG9c
+         UJ01x+Rgg7M47ZmEGm3HTDk8TW7CN5uHubHr5gZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 5.4 16/66] x86/doublefault/32: Fix stack canaries in the double fault handler
-Date:   Wed, 27 Nov 2019 21:32:11 +0100
-Message-Id: <20191127202651.983020622@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Joerg Roedel <jroedel@suse.de>, stable@kernel.org
+Subject: [PATCH 5.4 17/66] x86/pti/32: Size initial_page_table correctly
+Date:   Wed, 27 Nov 2019 21:32:12 +0100
+Message-Id: <20191127202653.405770958@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127202632.536277063@linuxfoundation.org>
 References: <20191127202632.536277063@linuxfoundation.org>
@@ -43,33 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 3580d0b29cab08483f84a16ce6a1151a1013695f upstream.
+commit f490e07c53d66045d9d739e134145ec9b38653d3 upstream.
 
-The double fault TSS was missing GS setup, which is needed for stack
-canaries to work.
+Commit 945fd17ab6ba ("x86/cpu_entry_area: Sync cpu_entry_area to
+initial_page_table") introduced the sync for the initial page table for
+32bit.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
+sync_initial_page_table() uses clone_pgd_range() which does the update for
+the kernel page table. If PTI is enabled it also updates the user space
+page table counterpart, which is assumed to be in the next page after the
+target PGD.
+
+At this point in time 32-bit did not have PTI support, so the user space
+page table update was not taking place.
+
+The support for PTI on 32-bit which was introduced later on, did not take
+that into account and missed to add the user space counter part for the
+initial page table.
+
+As a consequence sync_initial_page_table() overwrites any data which is
+located in the page behing initial_page_table causing random failures,
+e.g. by corrupting doublefault_tss and wreckaging the doublefault handler
+on 32bit.
+
+Fix it by adding a "user" page table right after initial_page_table.
+
+Fixes: 7757d607c6b3 ("x86/pti: Allow CONFIG_PAGE_TABLE_ISOLATION for x86_32")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/doublefault.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/head_32.S |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/x86/kernel/doublefault.c
-+++ b/arch/x86/kernel/doublefault.c
-@@ -65,6 +65,9 @@ struct x86_hw_tss doublefault_tss __cach
- 	.ss		= __KERNEL_DS,
- 	.ds		= __USER_DS,
- 	.fs		= __KERNEL_PERCPU,
-+#ifndef CONFIG_X86_32_LAZY_GS
-+	.gs		= __KERNEL_STACK_CANARY,
+--- a/arch/x86/kernel/head_32.S
++++ b/arch/x86/kernel/head_32.S
+@@ -571,6 +571,16 @@ ENTRY(initial_page_table)
+ #  error "Kernel PMDs should be 1, 2 or 3"
+ # endif
+ 	.align PAGE_SIZE		/* needs to be page-sized too */
++
++#ifdef CONFIG_PAGE_TABLE_ISOLATION
++	/*
++	 * PTI needs another page so sync_initial_pagetable() works correctly
++	 * and does not scribble over the data which is placed behind the
++	 * actual initial_page_table. See clone_pgd_range().
++	 */
++	.fill 1024, 4, 0
 +#endif
++
+ #endif
  
- 	.__cr3		= __pa_nodebug(swapper_pg_dir),
- };
+ .data
 
 
