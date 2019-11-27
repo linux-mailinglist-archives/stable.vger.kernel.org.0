@@ -2,66 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A556710AB55
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E790F10AB57
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 08:58:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726112AbfK0Hzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 02:55:33 -0500
-Received: from sonic307-1.consmr.mail.bf2.yahoo.com ([74.6.134.40]:35056 "EHLO
-        sonic307-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726111AbfK0Hzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:55:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1574841332; bh=vdONypa+pmkSCxMpJ481zxWsfmYXdIIKq3bhYsM38cE=; h=Date:From:Reply-To:Subject:From:Subject; b=FiAQq47RO/7oAbyzHnNPknrZlp5ggZHxd3j2TghBufZkx1wI/6pKN3p83YQJ4/CFYY77hp0W6ClIQNuhSxEIqvM3YH6HRyUu6QQR9bdf9hgKyxlzSdrFJh3fscSfhijevVg02FecIiEJ5c52QD4dLLd7O4ORW4rTdizI6eapDrT9RHdmvVnLUmrB7s4m0ZX3+oaIwpwVX2boSJnSRaVsWuPJdd2ZcrqUjtuLn5otngHTc3zUu0JJIjGb96TeFRJj41kn5Mlyr6JZwJlN5IqNeGiry/CB1gO847sYiEnsRJaupKQT6K6bajv92qYZ4y5P75OHqEF108GBNReFHmv3Pw==
-X-YMail-OSG: 7SYPjIMVM1mqHYAt_SlRv1m4n7wo5jYp3EJ5SNhEa_JmSOgeVjXdAbCNxaiku62
- 12THJxrxB0Oxj.Y3HxJH.rfhNslo8XWnznEHrA_BZbF4w31O2Dgl.mlmGs_6lCabml9boIqSOrWm
- 34NV4YGn3zmyZ7BNrGf8W5PiPJ_G6_IO6MKq28OklMTO7.9Fcd7p800yE_j0EAdZabtL7aXqRpG0
- 11Avway3qCpsODJnYjL.qekCrSSIKYX4CwffWlke0hev9r8VqEOvikXGvx2rWBKoFfcwr_yiPqW5
- qoQUs_94juciA598M.b8SLZMLFBidZKMJhG0BNZpD8LPIMGzJRVSolZBoSf.Cr.UBKV6zdIpltjm
- erob3scEOsBGS2ls4gEs7A1LHoUiSbZNZmbcqspzGTrR2Tuo8RnYU8EVHIg_euTqWkA9oMLLclsb
- ocA8DUJN8Pg26goffsqwyENcP_TBDbWvr1dai4TOzOv35tjcpDI3d5jAA8hI2gV3LdbtET7S4Tdf
- 6fEag5PBzK0ZDJuK9ZOD.G3QZCBnv6o4OMn267qmALkdoj9jaJERUkYKnomyo4XSKTLswmhOSnwJ
- X3umYWB8kvSNf0Y7Lm6vnxKbpVOp5Tt53oeluTuXPwUNxlnihn0rNbZ9zc6.yOSV6V4o11TMn4sR
- HOFcqtAuSc4PXI4_govEzelyXI.HuQ3the1UFzl752Rht3egRa1iu3dN9i_aXWDRDFsKP631n9xe
- ZzwrkJr2I_jEkmN7uAMHHV0U_nc7vywMI6O7Jw0F1e54x.iNAP8lKXTi_OeCVMat2vtgTjQamhTj
- Rp0mIicxakA52ngOFWDfroA_YTPROwWHV9ITdmJLNLuMYRK.9UG.S9VVbBxeHY466fdAT66JSC2c
- r9h00SRCP.BkrdCvYyD9yo_ue0WCfa3s_hImoynupIKhfgkhCDs_I5_zu6hEMQ9UJOSxEOosWYoq
- w9l3F0LFrBB0Qrg8SCpJ4VKG0vn1G2HVnEvfbbkHUjCA3ZihHoWg.lJR0_8sLCTrQjVreDYsrFAU
- _sTvw3Kk5eRr.8xsW1dLx7UJuutafcbGgV3ToJ9ql4Bn5.Hx9VDYaaxhQ_jd61YcDi05ep2.Ot9u
- JT7YuncCDtuPLZE6krZi6h8qhmaVI5safbqe6mU0Xme.7lIq8PUI5wLdav7gwB3vZ3AupOxwf6np
- ITdVse5gEx6oaPE8Hp26.QeBLSoeeJ2WKAq4E8U1bkHoPv0VoldcZu3XtHWnOn3xYKh4wxi8obGa
- bxYwLn6CjJ0FVgElecW09X9qbeLiQA4pi5hmZGAwD7Ay2CP_7JKYLC9pUiMhRE_RPJY4TZl2wCgG
- 8JzuQ
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.bf2.yahoo.com with HTTP; Wed, 27 Nov 2019 07:55:32 +0000
-Date:   Wed, 27 Nov 2019 07:55:29 +0000 (UTC)
-From:   Mrs Elodie Antoine <elodieantoine423@gmail.com>
-Reply-To: elodiem97@yahoo.com
-Message-ID: <790109907.3893614.1574841329106@mail.yahoo.com>
-Subject: Greetings From Mrs Elodie,
+        id S1726227AbfK0H6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 02:58:06 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:40795 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726111AbfK0H6F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 02:58:05 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id D233199B;
+        Wed, 27 Nov 2019 02:58:04 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 27 Nov 2019 02:58:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=EVuFkfM4drVnSoDf+l5B9PIcNFB
+        23a6yWkCKyQ5AdYs=; b=RXqos6jDxE49h8zdEMP1BYd5y1hoWDGGwQhLeRjxKzj
+        AghAEF4H/czv+wpr4Efe4robAEnBMpfj6ocjSrJ+CMvTSd6Q3YOsJ6HwkkqsZcOu
+        OA8mBwg3hsWzA93npYtNXfb8D7jhwKZ4yMfrPZzIxkhFxQeF37WdQQE4T/RY3zZE
+        ++gI67cXMiJoW6tnnqrGZL7Z7UBf7CuUB+RoIGO+Iyq5kIoWEn5zyS1RzAOlCuE2
+        OI+aW3W3sAeeftelnfyIdbWQLxznZCYPc1nYGmUM21A8SK6qRMYC3fhYIOQaas5k
+        ZWi58UlNLCWPqatObEQLDOIihMlwAt1wEsxYzK2a5Lw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=EVuFkf
+        M4drVnSoDf+l5B9PIcNFB23a6yWkCKyQ5AdYs=; b=W71CHSxnU0vpi6am4XEO/1
+        L9Q25Fno5GceQoII1Cs7nTl0Us+SNiZY/PWYT35+1KGV19HuCdJN77yiCSs3NA59
+        CKax3V6h9zOSgWfc6HSeAmU+Gy4/ICu4DkjiHWpd7uLQ/17p05aYYKynsj6k1qE0
+        77mCzC0rBC2KGdawElCUk/gpCkHovGLMzPUd18by/lUaFcGo258ufKzEKHcEs+I+
+        ZaQhIqFReHR8ve1tjxOG3rE1s4QdRM9ZSWuu5VHTgjCh4RSb6EZ9urOPvAV8SBk3
+        EOS8uJYUt5pXxXEnqCKUxAzn/nsOvX4Nk+2Yvr9VegNTpak8/xFjRSzhcK5k7lrg
+        ==
+X-ME-Sender: <xms:jCzeXSxPK6i04jzNrxCUC3V-fcnePoScRSk8wlRRftnDVLTyYoogyg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeigedguddugecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:jCzeXbP7rjt_rQ9mljXnk79KLU3DKzOyKiQlK4xs1eUmb2jOeQRUcw>
+    <xmx:jCzeXf8akVfHBBc7CzZr8bm4Kk8hvPbzDoRoxxj81SCrc89NuJq2iA>
+    <xmx:jCzeXQ4nXNR85U-vNmaotHoiVwxXfQ60Yer-Ek4kCBqXRZQAX_XAZQ>
+    <xmx:jCzeXdCcB4EYhSbBmFECS1Jla4kLOYbLg6MBduIyVclcJR15XT2JgQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 16F99306005C;
+        Wed, 27 Nov 2019 02:58:03 -0500 (EST)
+Date:   Wed, 27 Nov 2019 08:58:02 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 2/3] media: siano: Use kmemdup instead of
+ duplicating its function
+Message-ID: <20191127075802.GA1822469@kroah.com>
+References: <20191127072210.30715-1-lee.jones@linaro.org>
+ <20191127072210.30715-2-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191127072210.30715-2-lee.jones@linaro.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Nov 27, 2019 at 07:22:09AM +0000, Lee Jones wrote:
+> From: Wen Yang <wen.yang99@zte.com.cn>
+> 
+> [ Upstream commit 0f4bb10857e22a657e6c8cca5d1d54b641e94628 ]
+> 
+> kmemdup has implemented the function that kmalloc() + memcpy().
+> We prefer to kmemdup rather than code opened implementation.
+> 
+> This issue was detected with the help of coccinelle.
+> 
+> Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+> CC: Tomoki Sekiyama <tomoki.sekiyama@gmail.com>
+> CC: linux-kernel@vger.kernel.org
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/media/usb/siano/smsusb.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/media/usb/siano/smsusb.c b/drivers/media/usb/siano/smsusb.c
+> index 3071d9bc77f4..38ea773eac97 100644
+> --- a/drivers/media/usb/siano/smsusb.c
+> +++ b/drivers/media/usb/siano/smsusb.c
+> @@ -225,10 +225,9 @@ static int smsusb_sendrequest(void *context, void *buffer, size_t size)
+>  		return -ENOENT;
+>  	}
+>  
+> -	phdr = kmalloc(size, GFP_KERNEL);
+> +	phdr = kmemdup(buffer, size, GFP_KERNEL);
+>  	if (!phdr)
+>  		return -ENOMEM;
+> -	memcpy(phdr, buffer, size);
+>  
+>  	pr_debug("sending %s(%d) size: %d\n",
+>  		  smscore_translate_msg(phdr->msg_type), phdr->msg_type,
+> -- 
+> 2.24.0
+> 
+
+Why does this patch qualify for stable inclusion?
 
 
-Greetings From Mrs Elodie,
-
-Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS CHRIST the giver of every good thing. Good day,i know this letter will definitely come to you as a huge surprise, but I implore you to take the time to go through it carefully as the decision you make will go off a long way to determine my future and continued existence. I am Mrs Elodie Antoine
-aging widow of 59 years old suffering from long time illness. I have some funds I inherited from my late husband,
-
-The sum of (US$4.5 Million Dollars) and I needed a very honest and God fearing who can withdraw this money then use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found your email address from the internet after honest prayers to the LORD to bring me a helper and i decided to contact you if you may be willing and interested to handle these trust funds in good faith before anything happens to me.
-I accept this decision because I do not have any child who will inherit this money after I die. I want your urgent reply to me so that I will give you the deposit receipt which the COMPANY issued to me as next of kin for immediate transfer of the money to your account in your country, to start the good work of God, I want you to use the 15/percent of the total amount to help yourself in doing the project.
-
-
-I am desperately in keen need of assistance and I have summoned up courage to contact you for this task, you must not fail me and the millions of the poor people in our todays WORLD. This is no stolen money and there are no dangers involved,100% RISK FREE with full legal proof. Please if you would be able to use the funds for the Charity works kindly let me know immediately.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish. I want you to take 15 percent of the total money for your personal use while 85% of the money will go to charity.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish.
-
-
-kindly respond for further details.
-
-Thanks and God bless you,
-
-Mrs Elodie Antoine
