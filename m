@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6ECC10BDEA
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7823A10BEE1
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:39:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728250AbfK0UxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:53:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41644 "EHLO mail.kernel.org"
+        id S1729231AbfK0VjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:39:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729593AbfK0UxO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:53:14 -0500
+        id S1729604AbfK0Uoc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:44:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D8BF218A3;
-        Wed, 27 Nov 2019 20:53:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F339D2158A;
+        Wed, 27 Nov 2019 20:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887993;
-        bh=gwRA3QBinyJ+pfEuPlUuA24oReQRRvxYsXG9q+xeN3Q=;
+        s=default; t=1574887471;
+        bh=bg068m6eQEBEESa5p5w78Mq6U6ACRkCkcOhx0Dbo9xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KkYutljHPcVsOHFFV7dipWMGsjeNaJh911v+kBZy8KbgGfA36DV+P3fh1c77ghiNy
-         XGlgekemkUtlU+yckFz/srmufQsnvvQ+sZbpx6WyDjnSM4E4dD9jeo/oDViHL5k8wi
-         wRFi3VLXsQA3aVefW0hJK11x//PkSLTE1gCPtsrA=
+        b=FPhmzekZrSgaqW7eDPzMpR13pMYqV8y9JJT1SwMr7GP5NYh072tMRsUagvBspYJeT
+         2OH+ezwddNGSMzZ0qZxnvXW7dW9cMBQQ1MJI5Yj9jTsQtuoJfFftLSSVUHP8aFRk5C
+         ttMiL724pQ4a6zH8C9Zxy8jDCpgReN+VNUUS1mzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bo Yan <byan@nvidia.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 173/211] cpufreq: Skip cpufreq resume if its not suspended
-Date:   Wed, 27 Nov 2019 21:31:46 +0100
-Message-Id: <20191127203110.209602527@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.9 125/151] media: vivid: Fix wrong locking that causes race conditions on streaming stop
+Date:   Wed, 27 Nov 2019 21:31:48 +0100
+Message-Id: <20191127203045.625770964@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
-References: <20191127203049.431810767@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bo Yan <byan@nvidia.com>
+From: Alexander Popov <alex.popov@linux.com>
 
-commit 703cbaa601ff3fb554d1246c336ba727cc083ea0 upstream.
+commit 6dcd5d7a7a29c1e4b8016a06aed78cd650cd8c27 upstream.
 
-cpufreq_resume can be called even without preceding cpufreq_suspend.
-This can happen in following scenario:
+There is the same incorrect approach to locking implemented in
+vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
+sdr_cap_stop_streaming().
 
-    suspend_devices_and_enter
-       --> dpm_suspend_start
-          --> dpm_prepare
-              --> device_prepare : this function errors out
-          --> dpm_suspend: this is skipped due to dpm_prepare failure
-                           this means cpufreq_suspend is skipped over
-       --> goto Recover_platform, due to previous error
-       --> goto Resume_devices
-       --> dpm_resume_end
-           --> dpm_resume
-               --> cpufreq_resume
+These functions are called during streaming stopping with vivid_dev.mutex
+locked. And they all do the same mistake while stopping their kthreads,
+which need to lock this mutex as well. See the example from
+vivid_stop_generating_vid_cap():
+  /* shutdown control thread */
+  vivid_grab_controls(dev, false);
+  mutex_unlock(&dev->mutex);
+  kthread_stop(dev->kthread_vid_cap);
+  dev->kthread_vid_cap = NULL;
+  mutex_lock(&dev->mutex);
 
-In case schedutil is used as frequency governor, cpufreq_resume will
-eventually call sugov_start, which does following:
+But when this mutex is unlocked, another vb2_fop_read() can lock it
+instead of vivid_thread_vid_cap() and manipulate the buffer queue.
+That causes a use-after-free access later.
 
-    memset(sg_cpu, 0, sizeof(*sg_cpu));
-    ....
+To fix those issues let's:
+  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
+vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
+  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
+the loops of the vivid kthread handlers.
 
-This effectively erases function pointer for frequency update, causing
-crash later on. The function pointer would have been set correctly if
-subsequent cpufreq_add_update_util_hook runs successfully, but that
-function returns earlier because cpufreq_suspend was not called:
-
-    if (WARN_ON(per_cpu(cpufreq_update_util_data, cpu)))
-		return;
-
-The fix is to check cpufreq_suspended first, if it's false, that means
-cpufreq_suspend was not called in the first place, so do not resume
-cpufreq.
-
-Signed-off-by: Bo Yan <byan@nvidia.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-[ rjw: Dropped printing a message ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v3.18 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/cpufreq.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/vivid/vivid-kthread-cap.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-kthread-out.c |    8 +++++---
+ drivers/media/platform/vivid/vivid-sdr-cap.c     |    8 +++++---
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1673,6 +1673,9 @@ void cpufreq_resume(void)
- 	if (!cpufreq_driver)
- 		return;
+--- a/drivers/media/platform/vivid/vivid-kthread-cap.c
++++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
+@@ -777,7 +777,11 @@ static int vivid_thread_vid_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
  
-+	if (unlikely(!cpufreq_suspended))
-+		return;
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
 +
- 	cpufreq_suspended = false;
+ 		cur_jiffies = jiffies;
+ 		if (dev->cap_seq_resync) {
+ 			dev->jiffies_vid_cap = cur_jiffies;
+@@ -930,8 +934,6 @@ void vivid_stop_generating_vid_cap(struc
  
- 	if (!has_target() && !cpufreq_driver->resume)
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_cap);
+ 	dev->kthread_vid_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-kthread-out.c
++++ b/drivers/media/platform/vivid/vivid-kthread-out.c
+@@ -147,7 +147,11 @@ static int vivid_thread_vid_out(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->out_seq_resync) {
+ 			dev->jiffies_vid_out = cur_jiffies;
+@@ -301,8 +305,6 @@ void vivid_stop_generating_vid_out(struc
+ 
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_out);
+ 	dev->kthread_vid_out = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+--- a/drivers/media/platform/vivid/vivid-sdr-cap.c
++++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
+@@ -149,7 +149,11 @@ static int vivid_thread_sdr_cap(void *da
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->sdr_cap_seq_resync) {
+ 			dev->jiffies_sdr_cap = cur_jiffies;
+@@ -309,10 +313,8 @@ static void sdr_cap_stop_streaming(struc
+ 	}
+ 
+ 	/* shutdown control thread */
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_sdr_cap);
+ 	dev->kthread_sdr_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+ 
+ const struct vb2_ops vivid_sdr_cap_qops = {
 
 
