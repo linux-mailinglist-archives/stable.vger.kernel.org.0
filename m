@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95AB810BF1B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0012B10BFBC
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729306AbfK0Vk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:40:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48326 "EHLO mail.kernel.org"
+        id S1727254AbfK0Udy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:33:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728777AbfK0UmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:42:13 -0500
+        id S1727010AbfK0Udy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:33:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D67C21787;
-        Wed, 27 Nov 2019 20:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 544FC207DD;
+        Wed, 27 Nov 2019 20:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574887333;
-        bh=jPgVZdWq1uxqLuuFB4zn5NW/loTd09gJehXLV22OFX8=;
+        s=default; t=1574886833;
+        bh=w+5QWYDBaAm3wYh2uf2y43zBFPV8/lZUMPSK0ly/lYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZTdpZN86waNrmhU83ixguHqTSUPT4lgzkbgu/9P4QELczjRy3xVusXLCn8fr3xYb
-         UnZGY61PfMga/aLrdA0GQUg3rMPUZAfM68zAqbCKsdw1ixF4hPontosGMisNRA78t4
-         iGQfivRMLe6XPU1SnLFN4NMJ/Bk1rOqmwdNX7mos=
+        b=M8JIoBAnmOLBwZZHNudizjqeLY/A0uXL0rGUSr3p4h6MMrPHDu2YRxxiQQZH1VJLb
+         KZ0/TNfzfcPFob+elQ9CZKqKEgvC9sZtlj6N8C5Ftm51YtOaYgQqyNk8//GgQ88plx
+         ChVsawCbGkvWf47MyYqGgTbzKd6KyLg1cQ1iloiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Ming Shuo Chiu <chiu@endlessm.com>,
+        Corentin Chary <corentin.chary@gmail.com>,
+        Darren Hart <dvhart@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 018/151] powerpc/eeh: Fix use of EEH_PE_KEEP on wrong field
-Date:   Wed, 27 Nov 2019 21:30:01 +0100
-Message-Id: <20191127203011.441618804@linuxfoundation.org>
+Subject: [PATCH 4.4 011/132] asus-wmi: Add quirk_no_rfkill for the Asus Z550MA
+Date:   Wed, 27 Nov 2019 21:30:02 +0100
+Message-Id: <20191127202908.775370697@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
-References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
+References: <20191127202857.270233486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Bobroff <sbobroff@linux.ibm.com>
+From: João Paulo Rechi Vita <jprvita@gmail.com>
 
-[ Upstream commit 473af09b56dc4be68e4af33220ceca6be67aa60d ]
+[ Upstream commit 6b7ff2af5286a8c6bec7ff5f4df62e3506c1674e ]
 
-eeh_add_to_parent_pe() sometimes removes the EEH_PE_KEEP flag, but it
-incorrectly removes it from pe->type, instead of pe->state.
+The Asus Z550MA has an airplane-mode indicator LED and the WMI WLAN user
+bit set, so asus-wmi uses ASUS_WMI_DEVID_WLAN_LED (0x00010002) to store
+the wlan state, which has a side-effect of driving the airplane mode
+indicator LED in an inverted fashion. quirk_no_rfkill prevents asus-wmi
+from registering RFKill switches at all for this laptop and allows
+asus-wireless to drive the LED through the ASHS ACPI device.
 
-However, rather than clearing it from the correct field, remove it.
-Inspection of the code shows that it can't ever have had any effect
-(even if it had been cleared from the correct field), because the
-field is never tested after it is cleared by the statement in
-question.
-
-The clear statement was added by commit 807a827d4e74 ("powerpc/eeh:
-Keep PE during hotplug"), but it didn't explain why it was necessary.
-
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+Reported-by: Ming Shuo Chiu <chiu@endlessm.com>
+Reviewed-by: Corentin Chary <corentin.chary@gmail.com>
+Signed-off-by: Darren Hart <dvhart@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/eeh_pe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/asus-nb-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/powerpc/kernel/eeh_pe.c b/arch/powerpc/kernel/eeh_pe.c
-index 1abd8dd77ec13..eee2131a97e61 100644
---- a/arch/powerpc/kernel/eeh_pe.c
-+++ b/arch/powerpc/kernel/eeh_pe.c
-@@ -370,7 +370,7 @@ int eeh_add_to_parent_pe(struct eeh_dev *edev)
- 		while (parent) {
- 			if (!(parent->type & EEH_PE_INVALID))
- 				break;
--			parent->type &= ~(EEH_PE_INVALID | EEH_PE_KEEP);
-+			parent->type &= ~EEH_PE_INVALID;
- 			parent = parent->parent;
- 		}
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 69e33c2772c11..734f95c09508f 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -351,6 +351,15 @@ static const struct dmi_system_id asus_quirks[] = {
+ 		},
+ 		.driver_data = &quirk_no_rfkill,
+ 	},
++	{
++		.callback = dmi_matched,
++		.ident = "ASUSTeK COMPUTER INC. Z550MA",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Z550MA"),
++		},
++		.driver_data = &quirk_no_rfkill,
++	},
+ 	{},
+ };
  
 -- 
 2.20.1
