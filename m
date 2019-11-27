@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FDAF10BFC5
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:47:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9284C10BE59
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:36:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727521AbfK0UeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:34:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34330 "EHLO mail.kernel.org"
+        id S1729013AbfK0Vfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:35:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727501AbfK0UeJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:34:09 -0500
+        id S1728003AbfK0Us6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:48:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0920C207DD;
-        Wed, 27 Nov 2019 20:34:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD0B9217C3;
+        Wed, 27 Nov 2019 20:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886848;
-        bh=ISw/D12soK1PH4BKs72Gf3BrgKXz0bgrQqro4pbVxT8=;
+        s=default; t=1574887738;
+        bh=VE3R3aiHUNjnBCnPqcjznNJBj+dctkdav0mNL+LP5Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qH5cFl0O1jH2X3Gg0CcnBAaR4ihlK3qzRZwlujYDEPHVHGRie9eoV3+kNh3aWcJbH
-         1dkfBTTeY+NtToF9FMsGKuUVNvMgywgg6v0OXsaoiqPR+CW/AKyfHK8ISiJ8wS56Kj
-         dsdRLI3J0slEYODL5cDsBI5QVJZK3sgai7sy/sd8=
+        b=hwcm+NZMUCgWTk0Y/Ad6AJ/QnuJP1DJXayBewyL8lCeGCvLJmMSXJXC2pQE7CdIpD
+         dtmFTcAwmoMR3KRXhLNWgkeLs7L6FmVXB7YgEqwFjP/XIPBOIzBVmeCBtTv+UDFfJj
+         0dY2w7SlcoHlHQK/gRTGc8WnopmSvRj1nbm/bOa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiernan Hager <kah.listaddress@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 017/132] platform/x86: asus-nb-wmi: Support ALS on the Zenbook UX430UQ
+Subject: [PATCH 4.14 075/211] ceph: fix dentry leak in ceph_readdir_prepopulate
 Date:   Wed, 27 Nov 2019 21:30:08 +0100
-Message-Id: <20191127202913.900919182@linuxfoundation.org>
+Message-Id: <20191127203100.909688424@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+References: <20191127203049.431810767@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiernan Hager <kah.listaddress@gmail.com>
+From: Yan, Zheng <zyan@redhat.com>
 
-[ Upstream commit db2582afa7444a0ce6bb1ebf1431715969a10b06 ]
+[ Upstream commit c58f450bd61511d897efc2ea472c69630635b557 ]
 
-This patch adds support for ALS on the Zenbook UX430UQ to the asus_nb_wmi
-driver. It also renames "quirk_asus_ux330uak" to "quirk_asus_forceals"
-because it is now used for more than one model of computer, and should
-thus have a more general name.
-
-Signed-off-by: Kiernan Hager <kah.listaddress@gmail.com>
-[andy: massaged commit message, fixed indentation and commas in the code]
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ fs/ceph/inode.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index bf9e48010b98b..274ccf920af50 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -120,7 +120,7 @@ static struct quirk_entry quirk_asus_x550lb = {
- 	.xusb2pr = 0x01D9,
- };
- 
--static struct quirk_entry quirk_asus_ux330uak = {
-+static struct quirk_entry quirk_asus_forceals = {
- 	.wmi_force_als_set = true,
- };
- 
-@@ -422,7 +422,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "UX330UAK"),
- 		},
--		.driver_data = &quirk_asus_ux330uak,
-+		.driver_data = &quirk_asus_forceals,
- 	},
- 	{
- 		.callback = dmi_matched,
-@@ -433,6 +433,15 @@ static const struct dmi_system_id asus_quirks[] = {
- 		},
- 		.driver_data = &quirk_asus_x550lb,
- 	},
-+	{
-+		.callback = dmi_matched,
-+		.ident = "ASUSTeK COMPUTER INC. UX430UQ",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "UX430UQ"),
-+		},
-+		.driver_data = &quirk_asus_forceals,
-+	},
- 	{},
- };
- 
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 3818027c12f5a..5999d806de788 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -1631,7 +1631,6 @@ int ceph_readdir_prepopulate(struct ceph_mds_request *req,
+ 			if (IS_ERR(realdn)) {
+ 				err = PTR_ERR(realdn);
+ 				d_drop(dn);
+-				dn = NULL;
+ 				goto next_item;
+ 			}
+ 			dn = realdn;
 -- 
 2.20.1
 
