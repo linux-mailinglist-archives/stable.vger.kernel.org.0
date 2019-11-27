@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF97C10BD17
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD37310BD22
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730987AbfK0VBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:01:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53446 "EHLO mail.kernel.org"
+        id S1731219AbfK0VBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:01:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730867AbfK0VBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:01:20 -0500
+        id S1731206AbfK0VBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:01:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8E772086A;
-        Wed, 27 Nov 2019 21:01:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1649217AB;
+        Wed, 27 Nov 2019 21:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888479;
-        bh=OmucJeCPDCGQ4KJQdNoOups+FjrbZGAMWJBEPJPyrxA=;
+        s=default; t=1574888507;
+        bh=zWF5U4xg7nt3/h5P3T6bRnH5eZb0im/xahs52GP8njM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLFITURcF+zl30gPss7Pfi8b6U4x8qE/oofFWJah62a8HGYcy6AV3xYGQd983yRUp
-         xTEXSB7hhZtEFL8ixDHG8GzA1iZxEs5Wma2To/EFUli50b5xW2SOTjLw7yGR8ZLMkw
-         hpKF+6J2CXkMskUT18HMNMV86geW9eIbFeroPyAk=
+        b=aTBrLGKxRP+20BisoB0ufDZsCugsq8/rUYK3d4EoRfADyYMm/Gco2mTWssx47vAL9
+         kcX1L+byUDVUDwEs40x0oN7B1S7JALmIwMuOcLthInWBBEdeWM4nEs1ML3L5NjDPMd
+         axexLQjjUNl/IIOxeKYPfGNRht43K80y8XIm5cVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, Wenwen Wang <wang6495@umn.edu>
-Subject: [PATCH 4.19 143/306] bpf, btf: fix a missing check bug in btf_parse
-Date:   Wed, 27 Nov 2019 21:29:53 +0100
-Message-Id: <20191127203125.821842416@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Felipe Rechia <felipe.rechia@datacom.com.br>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 144/306] powerpc/process: Fix flush_all_to_thread for SPE
+Date:   Wed, 27 Nov 2019 21:29:54 +0100
+Message-Id: <20191127203125.902612534@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -45,145 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Lau <kafai@fb.com>
+From: Felipe Rechia <felipe.rechia@datacom.com.br>
 
-[ Upstream commit 4a6998aff82a20a1aece86a186d8e5263f8b2315 ]
+[ Upstream commit e901378578c62202594cba0f6c076f3df365ec91 ]
 
-Wenwen Wang reported:
+Fix a bug introduced by the creation of flush_all_to_thread() for
+processors that have SPE (Signal Processing Engine) and use it to
+compute floating-point operations.
 
-  In btf_parse(), the header of the user-space btf data 'btf_data'
-  is firstly parsed and verified through btf_parse_hdr().
-  In btf_parse_hdr(), the header is copied from user-space 'btf_data'
-  to kernel-space 'btf->hdr' and then verified. If no error happens
-  during the verification process, the whole data of 'btf_data',
-  including the header, is then copied to 'data' in btf_parse(). It
-  is obvious that the header is copied twice here. More importantly,
-  no check is enforced after the second copy to make sure the headers
-  obtained in these two copies are same. Given that 'btf_data' resides
-  in the user space, a malicious user can race to modify the header
-  between these two copies. By doing so, the user can inject
-  inconsistent data, which can cause undefined behavior of the
-  kernel and introduce potential security risk.
+>From userspace perspective, the problem was seen in attempts of
+computing floating-point operations which should generate exceptions.
+For example:
 
-This issue is similar to the one fixed in commit 8af03d1ae2e1 ("bpf:
-btf: Fix a missing check bug"). To fix it, this patch copies the user
-'btf_data' *before* parsing / verifying the BTF header.
+  fork();
+  float x = 0.0 / 0.0;
+  isnan(x);           // forked process returns False (should be True)
 
-Fixes: 69b693f0aefa ("bpf: btf: Introduce BPF Type Format (BTF)")
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Co-developed-by: Wenwen Wang <wang6495@umn.edu>
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+The operation above also should always cause the SPEFSCR FINV bit to
+be set. However, the SPE floating-point exceptions were turned off
+after a fork().
+
+Kernel versions prior to the bug used flush_spe_to_thread(), which
+first saves SPEFSCR register values in tsk->thread and then calls
+giveup_spe(tsk).
+
+After commit 579e633e764e, the save_all() function was called first
+to giveup_spe(), and then the SPEFSCR register values were saved in
+tsk->thread. This would save the SPEFSCR register values after
+disabling SPE for that thread, causing the bug described above.
+
+Fixes 579e633e764e ("powerpc: create flush_all_to_thread()")
+Signed-off-by: Felipe Rechia <felipe.rechia@datacom.com.br>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 55 ++++++++++++++++++++++--------------------------
- 1 file changed, 25 insertions(+), 30 deletions(-)
+ arch/powerpc/kernel/process.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 378cef70341c4..cfa27b7d1168c 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -2067,50 +2067,44 @@ static int btf_check_sec_info(struct btf_verifier_env *env,
- 	return 0;
- }
- 
--static int btf_parse_hdr(struct btf_verifier_env *env, void __user *btf_data,
--			 u32 btf_data_size)
-+static int btf_parse_hdr(struct btf_verifier_env *env)
- {
-+	u32 hdr_len, hdr_copy, btf_data_size;
- 	const struct btf_header *hdr;
--	u32 hdr_len, hdr_copy;
--	/*
--	 * Minimal part of the "struct btf_header" that
--	 * contains the hdr_len.
--	 */
--	struct btf_min_header {
--		u16	magic;
--		u8	version;
--		u8	flags;
--		u32	hdr_len;
--	} __user *min_hdr;
- 	struct btf *btf;
- 	int err;
- 
- 	btf = env->btf;
--	min_hdr = btf_data;
-+	btf_data_size = btf->data_size;
- 
--	if (btf_data_size < sizeof(*min_hdr)) {
-+	if (btf_data_size <
-+	    offsetof(struct btf_header, hdr_len) + sizeof(hdr->hdr_len)) {
- 		btf_verifier_log(env, "hdr_len not found");
- 		return -EINVAL;
- 	}
- 
--	if (get_user(hdr_len, &min_hdr->hdr_len))
--		return -EFAULT;
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 909c9407e392a..02b69a68139cc 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -575,12 +575,11 @@ void flush_all_to_thread(struct task_struct *tsk)
+ 	if (tsk->thread.regs) {
+ 		preempt_disable();
+ 		BUG_ON(tsk != current);
+-		save_all(tsk);
 -
-+	hdr = btf->data;
-+	hdr_len = hdr->hdr_len;
- 	if (btf_data_size < hdr_len) {
- 		btf_verifier_log(env, "btf_header not found");
- 		return -EINVAL;
+ #ifdef CONFIG_SPE
+ 		if (tsk->thread.regs->msr & MSR_SPE)
+ 			tsk->thread.spefscr = mfspr(SPRN_SPEFSCR);
+ #endif
++		save_all(tsk);
+ 
+ 		preempt_enable();
  	}
- 
--	err = bpf_check_uarg_tail_zero(btf_data, sizeof(btf->hdr), hdr_len);
--	if (err) {
--		if (err == -E2BIG)
--			btf_verifier_log(env, "Unsupported btf_header");
--		return err;
-+	/* Ensure the unsupported header fields are zero */
-+	if (hdr_len > sizeof(btf->hdr)) {
-+		u8 *expected_zero = btf->data + sizeof(btf->hdr);
-+		u8 *end = btf->data + hdr_len;
-+
-+		for (; expected_zero < end; expected_zero++) {
-+			if (*expected_zero) {
-+				btf_verifier_log(env, "Unsupported btf_header");
-+				return -E2BIG;
-+			}
-+		}
- 	}
- 
- 	hdr_copy = min_t(u32, hdr_len, sizeof(btf->hdr));
--	if (copy_from_user(&btf->hdr, btf_data, hdr_copy))
--		return -EFAULT;
-+	memcpy(&btf->hdr, btf->data, hdr_copy);
- 
- 	hdr = &btf->hdr;
- 
-@@ -2186,10 +2180,6 @@ static struct btf *btf_parse(void __user *btf_data, u32 btf_data_size,
- 	}
- 	env->btf = btf;
- 
--	err = btf_parse_hdr(env, btf_data, btf_data_size);
--	if (err)
--		goto errout;
--
- 	data = kvmalloc(btf_data_size, GFP_KERNEL | __GFP_NOWARN);
- 	if (!data) {
- 		err = -ENOMEM;
-@@ -2198,13 +2188,18 @@ static struct btf *btf_parse(void __user *btf_data, u32 btf_data_size,
- 
- 	btf->data = data;
- 	btf->data_size = btf_data_size;
--	btf->nohdr_data = btf->data + btf->hdr.hdr_len;
- 
- 	if (copy_from_user(data, btf_data, btf_data_size)) {
- 		err = -EFAULT;
- 		goto errout;
- 	}
- 
-+	err = btf_parse_hdr(env);
-+	if (err)
-+		goto errout;
-+
-+	btf->nohdr_data = btf->data + btf->hdr.hdr_len;
-+
- 	err = btf_parse_str_sec(env);
- 	if (err)
- 		goto errout;
 -- 
 2.20.1
 
