@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB0610BD0E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:27:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A62010BD0F
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731612AbfK0VAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:00:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
+        id S1731608AbfK0VAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:00:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731608AbfK0VAt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 16:00:49 -0500
+        id S1731622AbfK0VAv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 16:00:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CE4A21556;
-        Wed, 27 Nov 2019 21:00:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 997EE2158A;
+        Wed, 27 Nov 2019 21:00:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888448;
-        bh=ArEb2f18QmJygKaaZnogCTVHbEhcpUrues3qVydbb7o=;
+        s=default; t=1574888451;
+        bh=T1fjXJ8Jm32Cke60Jcid/VJwyP6KUMtt2vqjFjO8xeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yeuFFZmuaVdChBWWDW5wPM3gai0fZp9kvzwZLn9M4Bh/j+LdCbIdpNEk7l1iyI4ao
-         VdkGxu8pkXlY/zD9NcIg/fTPLDFEI8/9lpALJUXeiq2S5elS+LOs50jp5HOTiRUJXm
-         d3sNKus0QlD/6jQ/4h5Bgc4MSA++SD8XCpC7+AG4=
+        b=kYzdq9W+4kugIwpGKVmHP+GobrQqJeoLCXES//zHyTxts+UWcCzL/os415C10q83U
+         ebbFwWkLFlIvddy8vjeik7QS7DAUnl2ElaMvib87gmaRR+0jkEaqYdt8/dQRLVZwDR
+         ZffLybMIkahlxJNFGa+1bv5NVNxe5fBqG2SC+fMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Hoemann <jerry.hoemann@hpe.com>,
+        stable@vger.kernel.org,
+        Andrea Parri <andrea.parri@amarulasolutions.com>,
         "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 136/306] selftests: watchdog: Fix error message.
-Date:   Wed, 27 Nov 2019 21:29:46 +0100
-Message-Id: <20191127203124.986247152@linuxfoundation.org>
+Subject: [PATCH 4.19 137/306] selftests: kvm: Fix -Wformat warnings
+Date:   Wed, 27 Nov 2019 21:29:47 +0100
+Message-Id: <20191127203125.051857389@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,60 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Hoemann <jerry.hoemann@hpe.com>
+From: Andrea Parri <andrea.parri@amarulasolutions.com>
 
-[ Upstream commit 04d5e4bd37516ad60854eb74592c7dbddd75d277 ]
+[ Upstream commit fb363e2d20351e1d16629df19e7bce1a31b3227a ]
 
-Printf's say errno but print the string version of error.
-Make consistent.
+Fixes the following warnings:
 
-Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+dirty_log_test.c: In function ‘help’:
+dirty_log_test.c:216:9: warning: format ‘%lu’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘int’ [-Wformat=]
+  printf(" -i: specify iteration counts (default: %"PRIu64")\n",
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from include/test_util.h:18:0,
+                 from dirty_log_test.c:16:
+/usr/include/inttypes.h:105:34: note: format string is defined here
+ # define PRIu64  __PRI64_PREFIX "u"
+dirty_log_test.c:218:9: warning: format ‘%lu’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘int’ [-Wformat=]
+  printf(" -I: specify interval in ms (default: %"PRIu64" ms)\n",
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from include/test_util.h:18:0,
+                 from dirty_log_test.c:16:
+/usr/include/inttypes.h:105:34: note: format string is defined here
+ # define PRIu64  __PRI64_PREFIX "u"
+
+Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
 Signed-off-by: Shuah Khan (Samsung OSG) <shuah@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/watchdog/watchdog-test.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/kvm/dirty_log_test.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/watchdog/watchdog-test.c b/tools/testing/selftests/watchdog/watchdog-test.c
-index e029e2017280f..f1c6e025cbe54 100644
---- a/tools/testing/selftests/watchdog/watchdog-test.c
-+++ b/tools/testing/selftests/watchdog/watchdog-test.c
-@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
- 				printf("Last boot is caused by: %s.\n", (flags != 0) ?
- 					"Watchdog" : "Power-On-Reset");
- 			else
--				printf("WDIOC_GETBOOTSTATUS errno '%s'\n", strerror(errno));
-+				printf("WDIOC_GETBOOTSTATUS error '%s'\n", strerror(errno));
- 			break;
- 		case 'd':
- 			flags = WDIOS_DISABLECARD;
-@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
- 			if (!ret)
- 				printf("Watchdog card disabled.\n");
- 			else
--				printf("WDIOS_DISABLECARD errno '%s'\n", strerror(errno));
-+				printf("WDIOS_DISABLECARD error '%s'\n", strerror(errno));
- 			break;
- 		case 'e':
- 			flags = WDIOS_ENABLECARD;
-@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
- 			if (!ret)
- 				printf("Watchdog card enabled.\n");
- 			else
--				printf("WDIOS_ENABLECARD errno '%s'\n", strerror(errno));
-+				printf("WDIOS_ENABLECARD error '%s'\n", strerror(errno));
- 			break;
- 		case 'p':
- 			ping_rate = strtoul(optarg, NULL, 0);
-@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
- 			if (!ret)
- 				printf("Watchdog timeout set to %u seconds.\n", flags);
- 			else
--				printf("WDIOC_SETTIMEOUT errno '%s'\n", strerror(errno));
-+				printf("WDIOC_SETTIMEOUT error '%s'\n", strerror(errno));
- 			break;
- 		default:
- 			usage(argv[0]);
+diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
+index 0c2cdc105f968..a9c4b5e21d7e7 100644
+--- a/tools/testing/selftests/kvm/dirty_log_test.c
++++ b/tools/testing/selftests/kvm/dirty_log_test.c
+@@ -31,9 +31,9 @@
+ /* How many pages to dirty for each guest loop */
+ #define  TEST_PAGES_PER_LOOP            1024
+ /* How many host loops to run (one KVM_GET_DIRTY_LOG for each loop) */
+-#define  TEST_HOST_LOOP_N               32
++#define  TEST_HOST_LOOP_N               32UL
+ /* Interval for each host loop (ms) */
+-#define  TEST_HOST_LOOP_INTERVAL        10
++#define  TEST_HOST_LOOP_INTERVAL        10UL
+ 
+ /*
+  * Guest variables.  We use these variables to share data between host
 -- 
 2.20.1
 
