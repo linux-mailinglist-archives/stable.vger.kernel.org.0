@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3F110BD6E
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:29:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE1B10BD4B
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729381AbfK0U6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:58:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49578 "EHLO mail.kernel.org"
+        id S1727486AbfK0V1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 16:27:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731298AbfK0U6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:58:19 -0500
+        id S1730248AbfK0U7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:59:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C421F2084D;
-        Wed, 27 Nov 2019 20:58:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C531020678;
+        Wed, 27 Nov 2019 20:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888298;
-        bh=gUbBaBqeNzDCPkiKzKsFnWC4UNaWjQUjPjfR/d+HDI8=;
+        s=default; t=1574888345;
+        bh=a+0kLyKi13XHKQWKFP5sMWjOl+MRNzFHvGBwZi2Kk5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kf/1Gfn8sjALd5pwd3RRm/1NO0PoMqtm6o99U+in0W9NlazmfckPLqwQ/Tq72H/Om
-         HMrOhPM7aALk0gYqNsoa/ZnjjNn4M0AKqITvo80VAwscyUHbG7eN5M6IsiMxepN6mv
-         wMtHEQbqcwaeg/xk5792afULoJcAwQ4asuXF7zBE=
+        b=kVT1bXDpxqEcE4BVSDYvJSlZm9qc06JkAYtx4CRUygt1rD0g6jOhwwowdIwPDgueG
+         lkVinZzz6gxLt3NKflfExpZoCADY059pidGGJLqQ8uTeShIhs0Mc9ivic/p4Y0oqap
+         x/v1sLIrINTLJ4dgdaSo3hr+s/MjtEyl2gBMsJe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Angelo Dureghello <angelo@sysam.it>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/306] m68k: fix command-line parsing when passed from u-boot
-Date:   Wed, 27 Nov 2019 21:28:23 +0100
-Message-Id: <20191127203118.650749917@linuxfoundation.org>
+Subject: [PATCH 4.19 055/306] scsi: hisi_sas: Fix the race between IO completion and timeout for SMP/internal IO
+Date:   Wed, 27 Nov 2019 21:28:25 +0100
+Message-Id: <20191127203118.804894226@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -44,31 +45,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Dureghello <angelo@sysam.it>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit 381fdd62c38344a771aed06adaf14aae65c47454 ]
+[ Upstream commit 584f53fe5f529d877968c711a095923c1ed12307 ]
 
-This patch fixes command_line array zero-terminated
-one byte over the end of the array, causing boot to hang.
+If SMP/internal IO times out, we will possibly free the task immediately.
 
-Signed-off-by: Angelo Dureghello <angelo@sysam.it>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+However if the IO actually completes at the same time, the IO completion
+may refer to task which has been freed.
+
+So to solve the issue, flush the tasklet to finish IO completion before
+free'ing slot/task.
+
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/kernel/uboot.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 55 ++++++++++++++++++++++-----
+ 1 file changed, 46 insertions(+), 9 deletions(-)
 
-diff --git a/arch/m68k/kernel/uboot.c b/arch/m68k/kernel/uboot.c
-index b29c3b241e1bb..1070828770645 100644
---- a/arch/m68k/kernel/uboot.c
-+++ b/arch/m68k/kernel/uboot.c
-@@ -102,5 +102,5 @@ __init void process_uboot_commandline(char *commandp, int size)
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index e9747379384b2..d4a2625a44232 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -955,8 +955,7 @@ static int hisi_sas_control_phy(struct asd_sas_phy *sas_phy, enum phy_func func,
+ 
+ static void hisi_sas_task_done(struct sas_task *task)
+ {
+-	if (!del_timer(&task->slow_task->timer))
+-		return;
++	del_timer(&task->slow_task->timer);
+ 	complete(&task->slow_task->completion);
+ }
+ 
+@@ -965,13 +964,17 @@ static void hisi_sas_tmf_timedout(struct timer_list *t)
+ 	struct sas_task_slow *slow = from_timer(slow, t, timer);
+ 	struct sas_task *task = slow->task;
+ 	unsigned long flags;
++	bool is_completed = true;
+ 
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+-	if (!(task->task_state_flags & SAS_TASK_STATE_DONE))
++	if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+ 		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
++		is_completed = false;
++	}
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 
+-	complete(&task->slow_task->completion);
++	if (!is_completed)
++		complete(&task->slow_task->completion);
+ }
+ 
+ #define TASK_TIMEOUT 20
+@@ -1022,10 +1025,18 @@ static int hisi_sas_exec_internal_tmf_task(struct domain_device *device,
+ 		if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
+ 			if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+ 				struct hisi_sas_slot *slot = task->lldd_task;
++				struct hisi_sas_cq *cq =
++					&hisi_hba->cq[slot->dlvry_queue];
+ 
+ 				dev_err(dev, "abort tmf: TMF task timeout and not done\n");
+-				if (slot)
++				if (slot) {
++					/*
++					 * flush tasklet to avoid free'ing task
++					 * before using task in IO completion
++					 */
++					tasklet_kill(&cq->tasklet);
+ 					slot->task = NULL;
++				}
+ 
+ 				goto ex_err;
+ 			} else
+@@ -1401,6 +1412,17 @@ static int hisi_sas_abort_task(struct sas_task *task)
+ 
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+ 	if (task->task_state_flags & SAS_TASK_STATE_DONE) {
++		struct hisi_sas_slot *slot = task->lldd_task;
++		struct hisi_sas_cq *cq;
++
++		if (slot) {
++			/*
++			 * flush tasklet to avoid free'ing task
++			 * before using task in IO completion
++			 */
++			cq = &hisi_hba->cq[slot->dlvry_queue];
++			tasklet_kill(&cq->tasklet);
++		}
+ 		spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 		rc = TMF_RESP_FUNC_COMPLETE;
+ 		goto out;
+@@ -1456,12 +1478,19 @@ static int hisi_sas_abort_task(struct sas_task *task)
+ 		/* SMP */
+ 		struct hisi_sas_slot *slot = task->lldd_task;
+ 		u32 tag = slot->idx;
++		struct hisi_sas_cq *cq = &hisi_hba->cq[slot->dlvry_queue];
+ 
+ 		rc = hisi_sas_internal_task_abort(hisi_hba, device,
+ 			     HISI_SAS_INT_ABT_CMD, tag);
+ 		if (((rc < 0) || (rc == TMF_RESP_FUNC_FAILED)) &&
+-					task->lldd_task)
+-			hisi_sas_do_release_task(hisi_hba, task, slot);
++					task->lldd_task) {
++			/*
++			 * flush tasklet to avoid free'ing task
++			 * before using task in IO completion
++			 */
++			tasklet_kill(&cq->tasklet);
++			slot->task = NULL;
++		}
  	}
  
- 	parse_uboot_commandline(commandp, len);
--	commandp[size - 1] = 0;
-+	commandp[len - 1] = 0;
- }
+ out:
+@@ -1827,9 +1856,17 @@ hisi_sas_internal_task_abort(struct hisi_hba *hisi_hba,
+ 	if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
+ 		if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
+ 			struct hisi_sas_slot *slot = task->lldd_task;
+-
+-			if (slot)
++			struct hisi_sas_cq *cq =
++				&hisi_hba->cq[slot->dlvry_queue];
++
++			if (slot) {
++				/*
++				 * flush tasklet to avoid free'ing task
++				 * before using task in IO completion
++				 */
++				tasklet_kill(&cq->tasklet);
+ 				slot->task = NULL;
++			}
+ 			dev_err(dev, "internal task abort: timeout and not done.\n");
+ 			res = -EIO;
+ 			goto exit;
 -- 
 2.20.1
 
