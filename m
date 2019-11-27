@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE1B10BD4B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 531B310BD49
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 22:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727486AbfK0V1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 16:27:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        id S1731387AbfK0U7L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:59:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730248AbfK0U7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:59:06 -0500
+        id S1731384AbfK0U7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:59:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C531020678;
-        Wed, 27 Nov 2019 20:59:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0C1520678;
+        Wed, 27 Nov 2019 20:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574888345;
-        bh=a+0kLyKi13XHKQWKFP5sMWjOl+MRNzFHvGBwZi2Kk5I=;
+        s=default; t=1574888350;
+        bh=5Rj1jG5AzJgIvv4KhlSc3ZZrRvnb6Sthh2t/XsVj9iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVT1bXDpxqEcE4BVSDYvJSlZm9qc06JkAYtx4CRUygt1rD0g6jOhwwowdIwPDgueG
-         lkVinZzz6gxLt3NKflfExpZoCADY059pidGGJLqQ8uTeShIhs0Mc9ivic/p4Y0oqap
-         x/v1sLIrINTLJ4dgdaSo3hr+s/MjtEyl2gBMsJe4=
+        b=Czjg0EqRet18GzZ0KzmixOp+nySKUrCq9+i8RwnxZ+lde2cxMpaFNML27EmKaxwQL
+         Qf80OLCZVI1N88+q27SvcE+yHTlUkb4B9LCOMtEVTtqU2wDBeaD/tblt2zV62p9I2n
+         wsgXgJqAzWvTNHo2PNvN/Gccs6Au2uOdRWDmCxck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 055/306] scsi: hisi_sas: Fix the race between IO completion and timeout for SMP/internal IO
-Date:   Wed, 27 Nov 2019 21:28:25 +0100
-Message-Id: <20191127203118.804894226@linuxfoundation.org>
+Subject: [PATCH 4.19 057/306] RDMA/bnxt_re: Avoid NULL check after accessing the pointer
+Date:   Wed, 27 Nov 2019 21:28:27 +0100
+Message-Id: <20191127203118.939326854@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191127203114.766709977@linuxfoundation.org>
 References: <20191127203114.766709977@linuxfoundation.org>
@@ -45,140 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Selvin Xavier <selvin.xavier@broadcom.com>
 
-[ Upstream commit 584f53fe5f529d877968c711a095923c1ed12307 ]
+[ Upstream commit eae4ad1b0c9a77ef0cbac212d58d46976eaacfc1 ]
 
-If SMP/internal IO times out, we will possibly free the task immediately.
+This is reported by smatch check.  rcfw->creq_bar_reg_iomem is accessed in
+bnxt_qplib_rcfw_stop_irq and this variable check afterwards doesn't make
+sense.  Also, rcfw->creq_bar_reg_iomem will never be NULL.  So Removing
+this check.
 
-However if the IO actually completes at the same time, the IO completion
-may refer to task which has been freed.
-
-So to solve the issue, flush the tasklet to finish IO completion before
-free'ing slot/task.
-
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 6e04b1035689 ("RDMA/bnxt_re: Fix broken RoCE driver due to recent L2 driver changes")
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c | 55 ++++++++++++++++++++++-----
- 1 file changed, 46 insertions(+), 9 deletions(-)
+ drivers/infiniband/hw/bnxt_re/qplib_rcfw.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index e9747379384b2..d4a2625a44232 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -955,8 +955,7 @@ static int hisi_sas_control_phy(struct asd_sas_phy *sas_phy, enum phy_func func,
+diff --git a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
+index 6637df77d2365..8b3b5fdc19bbb 100644
+--- a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
++++ b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
+@@ -614,13 +614,8 @@ void bnxt_qplib_disable_rcfw_channel(struct bnxt_qplib_rcfw *rcfw)
  
- static void hisi_sas_task_done(struct sas_task *task)
- {
--	if (!del_timer(&task->slow_task->timer))
--		return;
-+	del_timer(&task->slow_task->timer);
- 	complete(&task->slow_task->completion);
- }
+ 	bnxt_qplib_rcfw_stop_irq(rcfw, true);
  
-@@ -965,13 +964,17 @@ static void hisi_sas_tmf_timedout(struct timer_list *t)
- 	struct sas_task_slow *slow = from_timer(slow, t, timer);
- 	struct sas_task *task = slow->task;
- 	unsigned long flags;
-+	bool is_completed = true;
- 
- 	spin_lock_irqsave(&task->task_state_lock, flags);
--	if (!(task->task_state_flags & SAS_TASK_STATE_DONE))
-+	if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
- 		task->task_state_flags |= SAS_TASK_STATE_ABORTED;
-+		is_completed = false;
-+	}
- 	spin_unlock_irqrestore(&task->task_state_lock, flags);
- 
--	complete(&task->slow_task->completion);
-+	if (!is_completed)
-+		complete(&task->slow_task->completion);
- }
- 
- #define TASK_TIMEOUT 20
-@@ -1022,10 +1025,18 @@ static int hisi_sas_exec_internal_tmf_task(struct domain_device *device,
- 		if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
- 			if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
- 				struct hisi_sas_slot *slot = task->lldd_task;
-+				struct hisi_sas_cq *cq =
-+					&hisi_hba->cq[slot->dlvry_queue];
- 
- 				dev_err(dev, "abort tmf: TMF task timeout and not done\n");
--				if (slot)
-+				if (slot) {
-+					/*
-+					 * flush tasklet to avoid free'ing task
-+					 * before using task in IO completion
-+					 */
-+					tasklet_kill(&cq->tasklet);
- 					slot->task = NULL;
-+				}
- 
- 				goto ex_err;
- 			} else
-@@ -1401,6 +1412,17 @@ static int hisi_sas_abort_task(struct sas_task *task)
- 
- 	spin_lock_irqsave(&task->task_state_lock, flags);
- 	if (task->task_state_flags & SAS_TASK_STATE_DONE) {
-+		struct hisi_sas_slot *slot = task->lldd_task;
-+		struct hisi_sas_cq *cq;
-+
-+		if (slot) {
-+			/*
-+			 * flush tasklet to avoid free'ing task
-+			 * before using task in IO completion
-+			 */
-+			cq = &hisi_hba->cq[slot->dlvry_queue];
-+			tasklet_kill(&cq->tasklet);
-+		}
- 		spin_unlock_irqrestore(&task->task_state_lock, flags);
- 		rc = TMF_RESP_FUNC_COMPLETE;
- 		goto out;
-@@ -1456,12 +1478,19 @@ static int hisi_sas_abort_task(struct sas_task *task)
- 		/* SMP */
- 		struct hisi_sas_slot *slot = task->lldd_task;
- 		u32 tag = slot->idx;
-+		struct hisi_sas_cq *cq = &hisi_hba->cq[slot->dlvry_queue];
- 
- 		rc = hisi_sas_internal_task_abort(hisi_hba, device,
- 			     HISI_SAS_INT_ABT_CMD, tag);
- 		if (((rc < 0) || (rc == TMF_RESP_FUNC_FAILED)) &&
--					task->lldd_task)
--			hisi_sas_do_release_task(hisi_hba, task, slot);
-+					task->lldd_task) {
-+			/*
-+			 * flush tasklet to avoid free'ing task
-+			 * before using task in IO completion
-+			 */
-+			tasklet_kill(&cq->tasklet);
-+			slot->task = NULL;
-+		}
- 	}
- 
- out:
-@@ -1827,9 +1856,17 @@ hisi_sas_internal_task_abort(struct hisi_hba *hisi_hba,
- 	if ((task->task_state_flags & SAS_TASK_STATE_ABORTED)) {
- 		if (!(task->task_state_flags & SAS_TASK_STATE_DONE)) {
- 			struct hisi_sas_slot *slot = task->lldd_task;
+-	if (rcfw->cmdq_bar_reg_iomem)
+-		iounmap(rcfw->cmdq_bar_reg_iomem);
+-	rcfw->cmdq_bar_reg_iomem = NULL;
 -
--			if (slot)
-+			struct hisi_sas_cq *cq =
-+				&hisi_hba->cq[slot->dlvry_queue];
-+
-+			if (slot) {
-+				/*
-+				 * flush tasklet to avoid free'ing task
-+				 * before using task in IO completion
-+				 */
-+				tasklet_kill(&cq->tasklet);
- 				slot->task = NULL;
-+			}
- 			dev_err(dev, "internal task abort: timeout and not done.\n");
- 			res = -EIO;
- 			goto exit;
+-	if (rcfw->creq_bar_reg_iomem)
+-		iounmap(rcfw->creq_bar_reg_iomem);
+-	rcfw->creq_bar_reg_iomem = NULL;
++	iounmap(rcfw->cmdq_bar_reg_iomem);
++	iounmap(rcfw->creq_bar_reg_iomem);
+ 
+ 	indx = find_first_bit(rcfw->cmdq_bitmap, rcfw->bmap_size);
+ 	if (indx != rcfw->bmap_size)
+@@ -629,6 +624,8 @@ void bnxt_qplib_disable_rcfw_channel(struct bnxt_qplib_rcfw *rcfw)
+ 	kfree(rcfw->cmdq_bitmap);
+ 	rcfw->bmap_size = 0;
+ 
++	rcfw->cmdq_bar_reg_iomem = NULL;
++	rcfw->creq_bar_reg_iomem = NULL;
+ 	rcfw->aeq_handler = NULL;
+ 	rcfw->vector = 0;
+ }
+@@ -714,6 +711,8 @@ int bnxt_qplib_enable_rcfw_channel(struct pci_dev *pdev,
+ 		dev_err(&rcfw->pdev->dev,
+ 			"QPLIB: CREQ BAR region %d mapping failed",
+ 			rcfw->creq_bar_reg);
++		iounmap(rcfw->cmdq_bar_reg_iomem);
++		rcfw->cmdq_bar_reg_iomem = NULL;
+ 		return -ENOMEM;
+ 	}
+ 	rcfw->creq_qp_event_processed = 0;
 -- 
 2.20.1
 
