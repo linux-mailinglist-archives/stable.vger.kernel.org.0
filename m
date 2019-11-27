@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 314E010B78B
-	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:35:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA4810B836
+	for <lists+stable@lfdr.de>; Wed, 27 Nov 2019 21:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727743AbfK0Uey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 15:34:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35516 "EHLO mail.kernel.org"
+        id S1728215AbfK0UlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 15:41:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727738AbfK0Uex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 Nov 2019 15:34:53 -0500
+        id S1729123AbfK0UlE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 Nov 2019 15:41:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CC7420866;
-        Wed, 27 Nov 2019 20:34:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61D8621787;
+        Wed, 27 Nov 2019 20:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574886892;
-        bh=HOcaq0eTt3sWpujI16INbD4a6Vw/LVwz3TEbLWtPfQk=;
+        s=default; t=1574887263;
+        bh=qpOfe/n+XafqdA3bd277vvX9ZgxGKO9nKXTsAQ4Xcxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpqp3ihttFVGSDXodGl8xiR8y3GvCo6prUNlJxu3OIYEYfYqcAO2UnvijLjE/1PHE
-         682NFHIB7WKjSbzin0THahxOj+Ao7eIqcKQiQlvS2L6LcqSZYc2ImDZGoImglLpUYv
-         TiZ7SiK6SKuU2PzI7Ua2VxFqblwLIy8Uh7I0IcCs=
+        b=FIvQiTdiw0n+8J+79ByihWggdYBKtTRRaJdBqdBXXslMlSyRW+rNKc0cXjDkyID1x
+         D7W5gXQnBap+8QZi0mhQ1K7lb6C3dl/aaCOQf5mc02XitCVqTb032Rw3p3fxKCwtE/
+         sUmv4Xj6y4riUmrD6sxjcKZ0CriJXh+froKNl3gQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        stable@vger.kernel.org, Mattias Jacobsson <2pi@mok.nu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 034/132] scsi: ips: fix missing break in switch
-Date:   Wed, 27 Nov 2019 21:30:25 +0100
-Message-Id: <20191127202929.463223722@linuxfoundation.org>
+Subject: [PATCH 4.9 043/151] USB: misc: appledisplay: fix backlight update_status return code
+Date:   Wed, 27 Nov 2019 21:30:26 +0100
+Message-Id: <20191127203027.261800350@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191127202857.270233486@linuxfoundation.org>
-References: <20191127202857.270233486@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+References: <20191127203000.773542911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Mattias Jacobsson <2pi@mok.nu>
 
-[ Upstream commit 5d25ff7a544889bc4b749fda31778d6a18dddbcb ]
+[ Upstream commit 090158555ff8d194a98616034100b16697dd80d0 ]
 
-Add missing break statement in order to prevent the code from falling
-through to case TEST_UNIT_READY.
+Upon success the update_status handler returns a positive number
+corresponding to the number of bytes transferred by usb_control_msg.
+However the return code of the update_status handler should indicate if
+an error occurred(negative) or how many bytes of the user's input to sysfs
+that was consumed. Return code zero indicates all bytes were consumed.
 
-Addresses-Coverity-ID: 1357338 ("Missing break in switch")
-Suggested-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The bug can for example result in the update_status handler being called
+twice, the second time with only the "unconsumed" part of the user's input
+to sysfs. Effectively setting an incorrect brightness.
+
+Change the update_status handler to return zero for all successful
+transactions and forward usb_control_msg's error code upon failure.
+
+Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ips.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/misc/appledisplay.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ips.c b/drivers/scsi/ips.c
-index 02cb76fd44208..6bbf2945a3e00 100644
---- a/drivers/scsi/ips.c
-+++ b/drivers/scsi/ips.c
-@@ -3500,6 +3500,7 @@ ips_send_cmd(ips_ha_t * ha, ips_scb_t * scb)
+diff --git a/drivers/usb/misc/appledisplay.c b/drivers/usb/misc/appledisplay.c
+index b8092bcf89a29..140af7754c1e6 100644
+--- a/drivers/usb/misc/appledisplay.c
++++ b/drivers/usb/misc/appledisplay.c
+@@ -160,8 +160,11 @@ static int appledisplay_bl_update_status(struct backlight_device *bd)
+ 		pdata->msgdata, 2,
+ 		ACD_USB_TIMEOUT);
+ 	mutex_unlock(&pdata->sysfslock);
+-	
+-	return retval;
++
++	if (retval < 0)
++		return retval;
++	else
++		return 0;
+ }
  
- 		case START_STOP:
- 			scb->scsi_cmd->result = DID_OK << 16;
-+			break;
- 
- 		case TEST_UNIT_READY:
- 		case INQUIRY:
+ static int appledisplay_bl_get_brightness(struct backlight_device *bd)
 -- 
 2.20.1
 
