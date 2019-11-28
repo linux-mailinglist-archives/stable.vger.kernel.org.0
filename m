@@ -2,125 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B88E10C7E8
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 12:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F54210C854
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 13:04:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726320AbfK1L3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 06:29:49 -0500
-Received: from sv2-smtprelay2.synopsys.com ([149.117.73.133]:35844 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726054AbfK1L3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 06:29:49 -0500
-X-Greylist: delayed 488 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 Nov 2019 06:29:48 EST
-Received: from mailhost.synopsys.com (mdc-mailhost1.synopsys.com [10.225.0.209])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 9D0C642664;
-        Thu, 28 Nov 2019 11:21:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1574940099; bh=DiNFPgbhkdfJ9+5F7sa8NqwGXAeQzSC4yo0sxGxXPLc=;
-        h=Date:From:Subject:To:Cc:From;
-        b=SCDVkvINguppUKLsumg4p/i/ZF0xLU41kDvZoOPbscPZmNYLkKvSao8DgwNTw0xwD
-         tzLZl4xo1ufrOYs4echUCMxXX0I6uwJVs6RqFX7avTKG2IkYmFy/OcpPrfFvcnwYVG
-         +Ad0GoDTMLzc2a8NIFlHXi5w8OhYpQEViB09jcL5nb/aDSadg+ZztwnyDchU59lhy9
-         UaVQKz1Bs/uUFYUutHoyFKU5gOP+bxo+8Lxa75m4iYhFl//8LAoKaAbr3eTTo2ThqW
-         n7wbomtEagE+oU1tLPeCrAs//NrcTTpS4tlLK9twwGguczXzDn+oF9tg6yapbheM+Q
-         vcu/+/2lbe46A==
-Received: from hminas-z420 (hminas-z420.internal.synopsys.com [10.116.126.211])
-        (using TLSv1 with cipher AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 6370AA0066;
-        Thu, 28 Nov 2019 11:21:36 +0000 (UTC)
-Received: by hminas-z420 (sSMTP sendmail emulation); Thu, 28 Nov 2019 15:21:34 +0400
-Date:   Thu, 28 Nov 2019 15:21:34 +0400
-Message-Id: <f8af9e4b892a8d005f0ae3d42401fee532f44a27.1574938826.git.hminas@synopsys.com>
-From:   Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Subject: [PATCH] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
+        id S1726520AbfK1MDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 07:03:52 -0500
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:17965 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726227AbfK1MDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 07:03:52 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5ddfb7a90000>; Thu, 28 Nov 2019 04:03:53 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 28 Nov 2019 04:03:51 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 28 Nov 2019 04:03:51 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 28 Nov
+ 2019 12:03:48 +0000
+Subject: Re: [PATCH 5.3 00/95] 5.3.14-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191127202845.651587549@linuxfoundation.org>
+ <0c65f759-f22c-1b15-1f71-929def8ac43e@nvidia.com>
+ <20191128103604.GB3399855@kroah.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <5158d35e-51e5-386b-cea9-41d1c69f8423@nvidia.com>
+Date:   Thu, 28 Nov 2019 12:03:47 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
+MIME-Version: 1.0
+In-Reply-To: <20191128103604.GB3399855@kroah.com>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1574942633; bh=iP2fdRMQXwPeDI7CyHVR2iasv9XxYe6L6ttZ/5Hcavo=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=IDBthgBB338PfBnES+w7JWtpslswqrVO+9Cii/Vo1neGc+JVuq19X5c78iBuKqy/G
+         Eenm9nYDnFNhEbD/Xies9KU/C7J6NdyWAJcFsZaTdSunfuMaMYvOC4h+rbFjx08ymA
+         Da4tcl5gHGYktSHPuUI+A54OJDrWd5deL/qFpbiywidcHetZYWLx+6wsaE2zI0HqyK
+         gNwja67ADXWSzKcUw8ZHILm9ua3vaR9kd0MmbmGaUfjVZG30F6SB0OrpH+tfoUWcij
+         qrav+LSZiaedkVGnPr8qyKeKCAxRSzOE1bB59EYAcRWWGaDZJadUu/4+wzzpDqoRnA
+         cwH5tfkkXYYPQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SET/CLEAR_FEATURE for Remote Wakeup allowance not handled correctly.
-GET_STATUS handling provided not correct data on DATA Stage.
-Issue seen when gadget's dr_mode set to "otg" mode and connected
-to MacOS.
-Both are fixed and tested using USBCV Ch.9 tests.
 
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
----
- drivers/usb/dwc2/gadget.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+On 28/11/2019 10:36, Greg Kroah-Hartman wrote:
+> On Thu, Nov 28, 2019 at 09:15:45AM +0000, Jon Hunter wrote:
+>>
+>> On 27/11/2019 20:31, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.3.14 release.
+>>> There are 95 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.14-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>> ...
+>>
+>>> Jouni Hogander <jouni.hogander@unikie.com>
+>>>     net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
+>>
+>> The above commit is causing a boot regression (NULL pointer deference
+>> crash) on Tegra210 for v5.3. Reverting this on top of 5.3.14-rc1 fixes
+>> the problem. Complete results for Tegra are here ...
+>>
+>> Test results for stable-v5.3:
+>>     13 builds:	13 pass, 0 fail
+>>     24 boots:	18 pass, 6 fail
+>>     34 tests:	34 pass, 0 fail
+>>
+>> Linux version:	5.3.14-rc1-g7173a2d18fa6
+>> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>>                 tegra194-p2972-0000, tegra20-ventana,
+>>                 tegra210-p2371-2180, tegra30-cardhu-a04
+> 
+> I've pushed out a -rc2 that should resolve this now.  If not, please let
+> me know.
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 6be10e496e10..3a6176c22371 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -1632,6 +1632,7 @@ static int dwc2_hsotg_process_req_status(struct dwc2_hsotg *hsotg,
- 	struct dwc2_hsotg_ep *ep0 = hsotg->eps_out[0];
- 	struct dwc2_hsotg_ep *ep;
- 	__le16 reply;
-+	u16 status;
- 	int ret;
- 
- 	dev_dbg(hsotg->dev, "%s: USB_REQ_GET_STATUS\n", __func__);
-@@ -1643,11 +1644,10 @@ static int dwc2_hsotg_process_req_status(struct dwc2_hsotg *hsotg,
- 
- 	switch (ctrl->bRequestType & USB_RECIP_MASK) {
- 	case USB_RECIP_DEVICE:
--		/*
--		 * bit 0 => self powered
--		 * bit 1 => remote wakeup
--		 */
--		reply = cpu_to_le16(0);
-+		status = 1 << USB_DEVICE_SELF_POWERED;
-+		status |= hsotg->remote_wakeup_allowed <<
-+			  USB_DEVICE_REMOTE_WAKEUP;
-+		reply = cpu_to_le16(status);
- 		break;
- 
- 	case USB_RECIP_INTERFACE:
-@@ -1758,7 +1758,10 @@ static int dwc2_hsotg_process_req_feature(struct dwc2_hsotg *hsotg,
- 	case USB_RECIP_DEVICE:
- 		switch (wValue) {
- 		case USB_DEVICE_REMOTE_WAKEUP:
--			hsotg->remote_wakeup_allowed = 1;
-+			if (set)
-+				hsotg->remote_wakeup_allowed = 1;
-+			else
-+				hsotg->remote_wakeup_allowed = 0;
- 			break;
- 
- 		case USB_DEVICE_TEST_MODE:
-@@ -1768,16 +1771,17 @@ static int dwc2_hsotg_process_req_feature(struct dwc2_hsotg *hsotg,
- 				return -EINVAL;
- 
- 			hsotg->test_mode = wIndex >> 8;
--			ret = dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
--			if (ret) {
--				dev_err(hsotg->dev,
--					"%s: failed to send reply\n", __func__);
--				return ret;
--			}
- 			break;
- 		default:
- 			return -ENOENT;
- 		}
-+
-+		ret = dwc2_hsotg_send_reply(hsotg, ep0, NULL, 0);
-+		if (ret) {
-+			dev_err(hsotg->dev,
-+				"%s: failed to send reply\n", __func__);
-+			return ret;
-+		}
- 		break;
- 
- 	case USB_RECIP_ENDPOINT:
+Yes all passing now thanks!
+
+Test results for stable-v5.3:
+    13 builds:	13 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    38 tests:	38 pass, 0 fail
+
+Linux version:	5.3.14-rc2-g27442d398302
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
 -- 
-2.11.0
-
+nvpublic
