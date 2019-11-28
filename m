@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E3410CD38
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 17:51:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5901310CD12
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 17:50:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726655AbfK1QvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 11:51:15 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:43394 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726700AbfK1QuG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 11:50:06 -0500
-Received: by mail-pg1-f193.google.com with SMTP id b1so13124457pgq.10
-        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 08:50:05 -0800 (PST)
+        id S1726446AbfK1QuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 11:50:07 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:41733 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726726AbfK1QuH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 11:50:07 -0500
+Received: by mail-pg1-f195.google.com with SMTP id l26so2991841pgb.8
+        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 08:50:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=h4A+UA0S3l+ls0zS2Gq9BFaj9JODH97JG2yHCpwCb+s=;
-        b=Wx+K86GxA+4smpBpiOHAUU4+1Q2OkAURYY7uZaNtD0cSSiGuNbCLz8fajRC7wmZ7DU
-         rsdklNwN1J1GqRb/PAmQ/dqp42ravrSDKYRfy8b145fzDNOFjMFzq1kFiZnjo7xqN9fn
-         Jz0KRWdykjc1YY6lrHhFY9J9VvKxdIcUIKihIImElhcWco9EODzGGIeieUieUmhPXkgX
-         rdLSL1uLi8lCNEbNnElgBaV/BmBJKlg8iMYAJTKXFiGXg5DC1jLwD36gHhHy4GodjD9a
-         9dRXiDvOg86GKf5nPK2NEnYEYM+z72ORSvlPE0v4bFbBuJqnGEBykAMJLiolwfZBJ0hg
-         gyHQ==
+        bh=jEs6QE+VfGFRlxMX16dTWWCBFFIHacBUeuklTX9eehk=;
+        b=KXOTFhYW31M6DowFuVSnZZCtoVs9n/0m0NvfFFZd/SJgu5toTz3abL8mMkd78Ce33g
+         jS4H5Xas4NpISrNogQilOVf2XtLcQFgi241JW6pdGzS9mAe1TpFBHF4dIwqlW2YBDkHi
+         LcwZVULYkgOFnRsBSM5zGwnGB+uoPXjd8zsDy9LydhztAqwlpMUZBUjtnbLpM9/eZcPm
+         B55+nvIbQgZJi8R9mKUwalRDzBnjtNK9Mow4lfWl94dyekaSG6aLvasftGqFRfTwvjev
+         4w2+wCx0fHYT80fgo1kSm6hUHDAFw5HJI/3UXjlz4QSPSaylm0almF6B7yg9RP1vvNF5
+         FDwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=h4A+UA0S3l+ls0zS2Gq9BFaj9JODH97JG2yHCpwCb+s=;
-        b=ZOP64MNivhUsAmY3pUsymlvsOj0E3DyPkBK6iF0bGpFZOI/4+1pahYD3jAt4ZpHr/l
-         mZl8sqkFohhwzFT6I4rpHz/o4HXXGWQ20g+NMgOuho/rBLZCpDQ8ZiFpck/iNYdvaesu
-         e0E9BwC1B2x+BjNDYyZNIetEXG8/bvy7ipgDsw1GN6zaaFdkSVMgdlk5OndcDwVMIQjg
-         sCSbDHZs/A/Xrs4Nl+gm/JY6XxAbG/tjZa+wqdjVDUC128it/CPY7TiFYF2x0Lx8VnXF
-         4MsuGpuQ6Y0ARnQl26fgZfpR0Nx8mf3AHjabVtOiz/a7JCl5+sIuWpCgx32HD1JdEvG6
-         C1ng==
-X-Gm-Message-State: APjAAAV99GnSjhLoPoZtj76wtpofYXXhOY2dKY45IA7VxrxZCdBmI6Wk
-        KwPh+or2hWHwxfU89OETK8reWY9AODc=
-X-Google-Smtp-Source: APXvYqySksv89mq7ZXiuB7jRWQXMsodrA1Fn5AXVdxQeQ0hmfOmPumNTFWUfdW/n9qVFY/Xf8muSig==
-X-Received: by 2002:a63:fc13:: with SMTP id j19mr11884281pgi.327.1574959805234;
-        Thu, 28 Nov 2019 08:50:05 -0800 (PST)
+        bh=jEs6QE+VfGFRlxMX16dTWWCBFFIHacBUeuklTX9eehk=;
+        b=ZYOu3iT/MmssupDzJ4iVjRxFWsEU9OK3xMPBYFxwYiqMCEJEYYaiGw+J1gWFH0Hxkv
+         BbIYByDM5l22HW+TDMrooVcLaX6kUUZeqtdBAvSxglT/a8JwHZ9NU4oop6lCTfQfI34L
+         CE8/homtXtouTVsBb60AXK2H9rzVTp0Qu1/fr0ndQgYHkE+j0BP8vbV53wBkw8rykxEg
+         NhUA4YO/cmH5GZh89w8mi0YDEK+t4nMpqWzA8O/fVAbkiXfQrN6IwdxGFi2Y6E+BIn06
+         vIYQR959esDejYiCSljKeL+D9a8lyJDUSXzgnHAQ8e3kpZKTdgEsEL0HfNjd/8HAaF7W
+         apAA==
+X-Gm-Message-State: APjAAAU+uaPjz3iUrr4H9JF5eKaOt7qPN7aPQsmI2eMWp22RLLGyokgo
+        e04s5+IKrT4XCTa5bkWyPhVqzTqXkRU=
+X-Google-Smtp-Source: APXvYqx8Qk2Of+BXuSVm+sEuntEca3roAUMLg6UeXFFjMVrolEG4T3O608o00roYtbf9Fj0Zeo7MNA==
+X-Received: by 2002:a63:e03:: with SMTP id d3mr6794337pgl.395.1574959806302;
+        Thu, 28 Nov 2019 08:50:06 -0800 (PST)
 Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
-        by smtp.gmail.com with ESMTPSA id a15sm2450343pfh.169.2019.11.28.08.50.04
+        by smtp.gmail.com with ESMTPSA id a15sm2450343pfh.169.2019.11.28.08.50.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Nov 2019 08:50:04 -0800 (PST)
+        Thu, 28 Nov 2019 08:50:05 -0800 (PST)
 From:   Mathieu Poirier <mathieu.poirier@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [stable 4.19][PATCH 01/17] mailbox: stm32_ipcc: add spinlock to fix channels concurrent access
-Date:   Thu, 28 Nov 2019 09:49:46 -0700
-Message-Id: <20191128165002.6234-2-mathieu.poirier@linaro.org>
+Subject: [stable 4.19][PATCH 02/17] crypto: stm31/hash - Fix hmac issue more than 256 bytes
+Date:   Thu, 28 Nov 2019 09:49:47 -0700
+Message-Id: <20191128165002.6234-3-mathieu.poirier@linaro.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191128165002.6234-1-mathieu.poirier@linaro.org>
 References: <20191128165002.6234-1-mathieu.poirier@linaro.org>
@@ -57,137 +57,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaud Pouliquen <arnaud.pouliquen@st.com>
+From: Lionel Debieve <lionel.debieve@st.com>
 
-commit dba9a3dfe912dc47c9dbc9ba1f5f65adbf9aea0f upstream
+commit 0acabecebc912b3ba06289e4ef40476acc499a37 upstream
 
-Add spinlock protection on IPCC register update to avoid race condition.
-Without this fix, stm32_ipcc_set_bits and stm32_ipcc_clr_bits can be
-called in parallel for different channels. This results in register
-corruptions.
+Correct condition for the second hmac loop. Key must be only
+set in the first loop. Initial condition was wrong,
+HMAC_KEY flag was not properly checked.
 
-Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
-Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Signed-off-by: Lionel Debieve <lionel.debieve@st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: stable <stable@vger.kernel.org> # 4.19
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/mailbox/stm32-ipcc.c | 37 ++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/crypto/stm32/stm32-hash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mailbox/stm32-ipcc.c b/drivers/mailbox/stm32-ipcc.c
-index ca1f993c0de3..e31322225e93 100644
---- a/drivers/mailbox/stm32-ipcc.c
-+++ b/drivers/mailbox/stm32-ipcc.c
-@@ -50,6 +50,7 @@ struct stm32_ipcc {
- 	void __iomem *reg_base;
- 	void __iomem *reg_proc;
- 	struct clk *clk;
-+	spinlock_t lock; /* protect access to IPCC registers */
- 	int irqs[IPCC_IRQ_NUM];
- 	int wkp;
- 	u32 proc_id;
-@@ -58,14 +59,24 @@ struct stm32_ipcc {
- 	u32 xmr;
- };
+diff --git a/drivers/crypto/stm32/stm32-hash.c b/drivers/crypto/stm32/stm32-hash.c
+index 590d7352837e..641b11077f47 100644
+--- a/drivers/crypto/stm32/stm32-hash.c
++++ b/drivers/crypto/stm32/stm32-hash.c
+@@ -365,7 +365,7 @@ static int stm32_hash_xmit_cpu(struct stm32_hash_dev *hdev,
+ 		return -ETIMEDOUT;
  
--static inline void stm32_ipcc_set_bits(void __iomem *reg, u32 mask)
-+static inline void stm32_ipcc_set_bits(spinlock_t *lock, void __iomem *reg,
-+				       u32 mask)
- {
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(lock, flags);
- 	writel_relaxed(readl_relaxed(reg) | mask, reg);
-+	spin_unlock_irqrestore(lock, flags);
- }
- 
--static inline void stm32_ipcc_clr_bits(void __iomem *reg, u32 mask)
-+static inline void stm32_ipcc_clr_bits(spinlock_t *lock, void __iomem *reg,
-+				       u32 mask)
- {
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(lock, flags);
- 	writel_relaxed(readl_relaxed(reg) & ~mask, reg);
-+	spin_unlock_irqrestore(lock, flags);
- }
- 
- static irqreturn_t stm32_ipcc_rx_irq(int irq, void *data)
-@@ -92,7 +103,7 @@ static irqreturn_t stm32_ipcc_rx_irq(int irq, void *data)
- 
- 		mbox_chan_received_data(&ipcc->controller.chans[chan], NULL);
- 
--		stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XSCR,
-+		stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XSCR,
- 				    RX_BIT_CHAN(chan));
- 
- 		ret = IRQ_HANDLED;
-@@ -121,7 +132,7 @@ static irqreturn_t stm32_ipcc_tx_irq(int irq, void *data)
- 		dev_dbg(dev, "%s: chan:%d tx\n", __func__, chan);
- 
- 		/* mask 'tx channel free' interrupt */
--		stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XMR,
-+		stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
- 				    TX_BIT_CHAN(chan));
- 
- 		mbox_chan_txdone(&ipcc->controller.chans[chan], 0);
-@@ -141,10 +152,12 @@ static int stm32_ipcc_send_data(struct mbox_chan *link, void *data)
- 	dev_dbg(ipcc->controller.dev, "%s: chan:%d\n", __func__, chan);
- 
- 	/* set channel n occupied */
--	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XSCR, TX_BIT_CHAN(chan));
-+	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XSCR,
-+			    TX_BIT_CHAN(chan));
- 
- 	/* unmask 'tx channel free' interrupt */
--	stm32_ipcc_clr_bits(ipcc->reg_proc + IPCC_XMR, TX_BIT_CHAN(chan));
-+	stm32_ipcc_clr_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
-+			    TX_BIT_CHAN(chan));
- 
- 	return 0;
- }
-@@ -163,7 +176,8 @@ static int stm32_ipcc_startup(struct mbox_chan *link)
- 	}
- 
- 	/* unmask 'rx channel occupied' interrupt */
--	stm32_ipcc_clr_bits(ipcc->reg_proc + IPCC_XMR, RX_BIT_CHAN(chan));
-+	stm32_ipcc_clr_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
-+			    RX_BIT_CHAN(chan));
- 
- 	return 0;
- }
-@@ -175,7 +189,7 @@ static void stm32_ipcc_shutdown(struct mbox_chan *link)
- 					       controller);
- 
- 	/* mask rx/tx interrupt */
--	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XMR,
-+	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
- 			    RX_BIT_CHAN(chan) | TX_BIT_CHAN(chan));
- 
- 	clk_disable_unprepare(ipcc->clk);
-@@ -208,6 +222,8 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
- 	if (!ipcc)
- 		return -ENOMEM;
- 
-+	spin_lock_init(&ipcc->lock);
-+
- 	/* proc_id */
- 	if (of_property_read_u32(np, "st,proc-id", &ipcc->proc_id)) {
- 		dev_err(dev, "Missing st,proc-id\n");
-@@ -259,9 +275,10 @@ static int stm32_ipcc_probe(struct platform_device *pdev)
- 	}
- 
- 	/* mask and enable rx/tx irq */
--	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XMR,
-+	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
- 			    RX_BIT_MASK | TX_BIT_MASK);
--	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XCR, XCR_RXOIE | XCR_TXOIE);
-+	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XCR,
-+			    XCR_RXOIE | XCR_TXOIE);
- 
- 	/* wakeup */
- 	if (of_property_read_bool(np, "wakeup-source")) {
+ 	if ((hdev->flags & HASH_FLAGS_HMAC) &&
+-	    (hdev->flags & ~HASH_FLAGS_HMAC_KEY)) {
++	    (!(hdev->flags & HASH_FLAGS_HMAC_KEY))) {
+ 		hdev->flags |= HASH_FLAGS_HMAC_KEY;
+ 		stm32_hash_write_key(hdev);
+ 		if (stm32_hash_wait_busy(hdev))
 -- 
 2.17.1
 
