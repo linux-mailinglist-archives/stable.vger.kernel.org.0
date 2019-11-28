@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B2FA10CD26
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 17:50:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9190C10CD24
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 17:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbfK1Qun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 11:50:43 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:46813 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727079AbfK1QuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 11:50:17 -0500
-Received: by mail-pg1-f195.google.com with SMTP id k1so4771167pga.13
-        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 08:50:15 -0800 (PST)
+        id S1727217AbfK1Qui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 11:50:38 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:41199 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727097AbfK1QuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 11:50:18 -0500
+Received: by mail-pf1-f195.google.com with SMTP id s18so4810079pfd.8
+        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 08:50:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=nEtPBscm61+nPEVWvbJjdtfKlHF1+Tw29QLFNNlqSXc=;
-        b=Jq5l6POXhKBLihg38Usaui6t0nqV5sQvbWbI6rSgNIYk6n8WGDMMVkP1LG1/2x4qCG
-         UCyeQoB/AbodwEeK9haGNGeVGO8BzgnQuR/VI/1+k7mg0XhxfCHBQ2Jew9pOj0wEvAwy
-         2WnWtwe73c5FU0NnojZiurA8804vygmxVRyse2+b5ZsZ7WpuLU2PEcTZyZGnx12XnU6r
-         Cmmwe5RWxdl12kf8dT8BkmTrdBhlYSRqHUThpLcxcOwXlRELSCzdl/hd9EzIozpCZQzy
-         eRYJ+rCcOw9gzunEYkOpG2M7cv3cPrz3S8v7jfLhGslUmsAe6+SS9DEnP4dTHmNwFXTb
-         sW7Q==
+        bh=wD+KHeFwNIT1Ivtv7WYTanJVrN7dwD/1vKpe+xiraBg=;
+        b=XxJzsLiKI5MPczc6OehjYgyBmdMq1rBlV4V+Ha6DjUUuQDc58zxRJ15aB+Flz2aYMS
+         /2fsKbeii5vSFGyYLFyJL0ieaEG1MHCsh/SccclxbtTiOnqYmeL3m7skNy5lBQvJOuOT
+         m+rX2LH9zpUQ7UCKhfMObYPSO4Z60lL4f3A9/vOxeL99JNhzPvuuT+Z8eWysovrGetzS
+         8K5SG/rBLI4MDRNqWPudwHilN9b2NSGyWWr9rMZOFPKx1eX691hk+wXM1nql2Rvzn7NL
+         DqT5nYp8ugOe+SrQ/msGWXnfK/LlZqTDFIAy0jA5CwthjBn12uB0UtN/h0ka68rAPhJq
+         JFVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=nEtPBscm61+nPEVWvbJjdtfKlHF1+Tw29QLFNNlqSXc=;
-        b=B6rCxL3ng+mCqGXvz66depga2RiKIKN5mdWSEVMHZg6xWOtT0smVMMq6pDyCEpmmwr
-         loHTvKCFe8Ik4vy2ddbIWzo3la9eVjeFF5ECoO5DPbqMGLMz1c3HTM2wCt6QUA8Xcp1Z
-         L5T5MMQZ1JbSKPR+eMRmwLGb7WocaVwiN9AqJZxvTgRTke6z6Wt/0PGuLjfQCRih0QSu
-         PQe/rIY+8EjhAuxoAlsM8v9lxFqI4xSYz30JotpIhSA4FtD9SOAx8kH0xuAKZydMl8Up
-         p7ZUidRLyUrzb7uniAhbTTjEMP2wlkovXFietxyMnpKv4R6+wqz4TXu7Ksz9saLxU+LN
-         rEFA==
-X-Gm-Message-State: APjAAAX0pXcaJfg5lLQADBiZhwSWsuSodeZA1WIuXCX1CvQngerH/1BQ
-        TqLK6JnsIxb+EnNCdmXlA78/tdE6Tgs=
-X-Google-Smtp-Source: APXvYqwNdeqTwkb0h/ndd1EIs2BFrMN77BDNUueQ03UK/DdSGN5qX3NDPdyxhT5N5ic6H78Oc/vxeQ==
-X-Received: by 2002:a63:5017:: with SMTP id e23mr12224287pgb.32.1574959815274;
-        Thu, 28 Nov 2019 08:50:15 -0800 (PST)
+        bh=wD+KHeFwNIT1Ivtv7WYTanJVrN7dwD/1vKpe+xiraBg=;
+        b=lh0WI7DXlazfdjv+EY74wJ7qbT/sMtAVDWOZNU467jzRKK4MA3yB0F4dYZEdbN0J2Q
+         5DaNHEKq2jnN8Yv8otZbPa7+LgGSckdOYlvqhnXfaVXziQ0GqhusH0iXrEElKUx740Py
+         BWk5B25ML05qh8IqFUudRdID0X79nvskKy3JI2HTzqFqNKXe2AN6f/LlnTHzjhYO4MCi
+         iAdbMA6jOO+MhiatdGDQxGa/ybeQhRUT0jqX15BEtrqrh2JYHkEmNL/fgVScqZ/lL0NY
+         F8jQFTmXQWyWyRMYykzspBsFdzzf934YgWByD8IghohmRbkTRge1XlaBvuvJiN5mOw/M
+         RywQ==
+X-Gm-Message-State: APjAAAXKWY7ukBn+WbFnnfne1mMATGK5jAX3qVEfGdIyfT+PgY9C7Guj
+        O0nqZQp0SVGShe+Kha7rBthlki4ePIU=
+X-Google-Smtp-Source: APXvYqxS0HAt+GN5cRfQFCDZXmck4pldUrQ2zjv5oJleqUtgJvq5m2IQPbX/dTwWRbfK5ghbhPf7iw==
+X-Received: by 2002:aa7:828c:: with SMTP id s12mr52785777pfm.166.1574959816244;
+        Thu, 28 Nov 2019 08:50:16 -0800 (PST)
 Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
-        by smtp.gmail.com with ESMTPSA id a15sm2450343pfh.169.2019.11.28.08.50.14
+        by smtp.gmail.com with ESMTPSA id a15sm2450343pfh.169.2019.11.28.08.50.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Nov 2019 08:50:14 -0800 (PST)
+        Thu, 28 Nov 2019 08:50:15 -0800 (PST)
 From:   Mathieu Poirier <mathieu.poirier@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [stable 4.19][PATCH 12/17] pinctrl: stm32: fix memory leak issue
-Date:   Thu, 28 Nov 2019 09:49:57 -0700
-Message-Id: <20191128165002.6234-13-mathieu.poirier@linaro.org>
+Subject: [stable 4.19][PATCH 13/17] ASoC: stm32: i2s: fix dma configuration
+Date:   Thu, 28 Nov 2019 09:49:58 -0700
+Message-Id: <20191128165002.6234-14-mathieu.poirier@linaro.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191128165002.6234-1-mathieu.poirier@linaro.org>
 References: <20191128165002.6234-1-mathieu.poirier@linaro.org>
@@ -57,104 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Torgue <alexandre.torgue@st.com>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-commit cd8c9b5a49576bf28990237715bc2cb2210ac80a upstream
+commit 1ac2bd16448997d9ec01922423486e1e85535eda upstream
 
-configs is allocated by pinconf_generic_parse_dt_config(),
-pinctrl_utils_add_map_configs() duplicates configs so it can and has to
-be freed to prevent memory leaks.
+DMA configuration is not balanced on start/stop.
+Move DMA configuration to trigger callback.
 
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable <stable@vger.kernel.org> # 4.19
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/pinctrl/stm32/pinctrl-stm32.c | 26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ sound/soc/stm/stm32_i2s.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
-index a9bec6e6fdd1..14dfbbd6c1c3 100644
---- a/drivers/pinctrl/stm32/pinctrl-stm32.c
-+++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
-@@ -410,7 +410,7 @@ static int stm32_pctrl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
- 	unsigned int num_configs;
- 	bool has_config = 0;
- 	unsigned reserve = 0;
--	int num_pins, num_funcs, maps_per_pin, i, err;
-+	int num_pins, num_funcs, maps_per_pin, i, err = 0;
+diff --git a/sound/soc/stm/stm32_i2s.c b/sound/soc/stm/stm32_i2s.c
+index 6d0bf78d114d..449bb7049a28 100644
+--- a/sound/soc/stm/stm32_i2s.c
++++ b/sound/soc/stm/stm32_i2s.c
+@@ -488,7 +488,7 @@ static int stm32_i2s_configure(struct snd_soc_dai *cpu_dai,
+ {
+ 	struct stm32_i2s_data *i2s = snd_soc_dai_get_drvdata(cpu_dai);
+ 	int format = params_width(params);
+-	u32 cfgr, cfgr_mask, cfg1, cfg1_mask;
++	u32 cfgr, cfgr_mask, cfg1;
+ 	unsigned int fthlv;
+ 	int ret;
  
- 	pctl = pinctrl_dev_get_drvdata(pctldev);
+@@ -529,15 +529,11 @@ static int stm32_i2s_configure(struct snd_soc_dai *cpu_dai,
+ 	if (ret < 0)
+ 		return ret;
  
-@@ -437,41 +437,45 @@ static int stm32_pctrl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
- 	if (has_config && num_pins >= 1)
- 		maps_per_pin++;
+-	cfg1 = I2S_CFG1_RXDMAEN | I2S_CFG1_TXDMAEN;
+-	cfg1_mask = cfg1;
+-
+ 	fthlv = STM32_I2S_FIFO_SIZE * I2S_FIFO_TH_ONE_QUARTER / 4;
+-	cfg1 |= I2S_CFG1_FTHVL_SET(fthlv - 1);
+-	cfg1_mask |= I2S_CFG1_FTHVL_MASK;
++	cfg1 = I2S_CFG1_FTHVL_SET(fthlv - 1);
  
--	if (!num_pins || !maps_per_pin)
--		return -EINVAL;
-+	if (!num_pins || !maps_per_pin) {
-+		err = -EINVAL;
-+		goto exit;
-+	}
- 
- 	reserve = num_pins * maps_per_pin;
- 
- 	err = pinctrl_utils_reserve_map(pctldev, map,
- 			reserved_maps, num_maps, reserve);
- 	if (err)
--		return err;
-+		goto exit;
- 
- 	for (i = 0; i < num_pins; i++) {
- 		err = of_property_read_u32_index(node, "pinmux",
- 				i, &pinfunc);
- 		if (err)
--			return err;
-+			goto exit;
- 
- 		pin = STM32_GET_PIN_NO(pinfunc);
- 		func = STM32_GET_PIN_FUNC(pinfunc);
- 
- 		if (!stm32_pctrl_is_function_valid(pctl, pin, func)) {
- 			dev_err(pctl->dev, "invalid function.\n");
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto exit;
- 		}
- 
- 		grp = stm32_pctrl_find_group_by_pin(pctl, pin);
- 		if (!grp) {
- 			dev_err(pctl->dev, "unable to match pin %d to group\n",
- 					pin);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto exit;
- 		}
- 
- 		err = stm32_pctrl_dt_node_to_map_func(pctl, pin, func, grp, map,
- 				reserved_maps, num_maps);
- 		if (err)
--			return err;
-+			goto exit;
- 
- 		if (has_config) {
- 			err = pinctrl_utils_add_map_configs(pctldev, map,
-@@ -479,11 +483,13 @@ static int stm32_pctrl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
- 					configs, num_configs,
- 					PIN_MAP_TYPE_CONFIGS_GROUP);
- 			if (err)
--				return err;
-+				goto exit;
- 		}
- 	}
- 
--	return 0;
-+exit:
-+	kfree(configs);
-+	return err;
+ 	return regmap_update_bits(i2s->regmap, STM32_I2S_CFG1_REG,
+-				  cfg1_mask, cfg1);
++				  I2S_CFG1_FTHVL_MASK, cfg1);
  }
  
- static int stm32_pctrl_dt_node_to_map(struct pinctrl_dev *pctldev,
+ static int stm32_i2s_startup(struct snd_pcm_substream *substream,
+@@ -589,6 +585,10 @@ static int stm32_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
+ 		/* Enable i2s */
+ 		dev_dbg(cpu_dai->dev, "start I2S\n");
+ 
++		cfg1_mask = I2S_CFG1_RXDMAEN | I2S_CFG1_TXDMAEN;
++		regmap_update_bits(i2s->regmap, STM32_I2S_CFG1_REG,
++				   cfg1_mask, cfg1_mask);
++
+ 		ret = regmap_update_bits(i2s->regmap, STM32_I2S_CR1_REG,
+ 					 I2S_CR1_SPE, I2S_CR1_SPE);
+ 		if (ret < 0) {
 -- 
 2.17.1
 
