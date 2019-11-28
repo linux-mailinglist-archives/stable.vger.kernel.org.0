@@ -2,124 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F54210C854
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 13:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6939510C8A0
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 13:23:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726520AbfK1MDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 07:03:52 -0500
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:17965 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726227AbfK1MDw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 07:03:52 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ddfb7a90000>; Thu, 28 Nov 2019 04:03:53 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 28 Nov 2019 04:03:51 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 28 Nov 2019 04:03:51 -0800
-Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 28 Nov
- 2019 12:03:48 +0000
-Subject: Re: [PATCH 5.3 00/95] 5.3.14-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191127202845.651587549@linuxfoundation.org>
- <0c65f759-f22c-1b15-1f71-929def8ac43e@nvidia.com>
- <20191128103604.GB3399855@kroah.com>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <5158d35e-51e5-386b-cea9-41d1c69f8423@nvidia.com>
-Date:   Thu, 28 Nov 2019 12:03:47 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
-MIME-Version: 1.0
-In-Reply-To: <20191128103604.GB3399855@kroah.com>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
+        id S1726252AbfK1MXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 07:23:11 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:36275 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726227AbfK1MXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 07:23:11 -0500
+Received: by mail-wr1-f65.google.com with SMTP id z3so30829594wru.3
+        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 04:23:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=PIeBA+xSBJR/evilPCi6a5Z+JjzVeKnwJm5krYtZyP8=;
+        b=u4KxQhAJtVPmq2el4DKL3t5LaxVen4yewKaNgW0LBfaMTiq4w0uhNnDAf7CEj8bYRt
+         Nl/vFTaewLd4fTGWtn0MxL9njAzRTeP1rAqtAuCp3g5mAkZVRK6rCJhZOSjXChMX92xv
+         7MDW+/Ses95BsxM4GvQn0OXmfyLY1dI31z94tQ+NMFBiOdxjiOkF9VKM4VoaWrlOQ0ss
+         fxkvap/nrHTdulanWUy1wSU05l5KJs1gIg4ADTTMSgLXv4Q9cJuU6SiUvlmZZe6e983c
+         nVV1LHAHg++0YjfJejSQsAe16OrWJFXksa2NBbxDYhAAPU9nBQRo/wPl36HxHIXBt9JN
+         yN+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=PIeBA+xSBJR/evilPCi6a5Z+JjzVeKnwJm5krYtZyP8=;
+        b=Gao0zpRaP/blxf1H7EirI1+Txf05SyfwPwJcKUHkpRyWh3Nw+Cncmed91UqTB4qU81
+         4uxLEqK3zwNufwTwImPsPGU3ZTj3t2OnAQfTZfDzeKKg1VpEKoXrNbtDryP+18qDgra/
+         lIsYTNBa1EnmdIEjVKK+nGKFuW++Vjea99nQT4JLTLfBArCcVVTklu0fBR1zUJ/Do7EV
+         AUxT4CwIukyAFlBUdopk0GA4K2eaeBcnHowS2fEy5vmFOPffZl9pKraEqbqTA7bsi9mZ
+         +ufUcKbZm5DocmP6EPjCs0apWeoa1jJhs20gEhtjMF/Zy2EuJl+bBBrbSzs5bc7rw+uF
+         6yZw==
+X-Gm-Message-State: APjAAAW9ZFMsTIr0qAZFPOG6lpgdi+e69AqZb+Gt3C1+Igc61QdrfNnm
+        wgUf+nu0Yi53GVnqJReBRfLViS6dhQ93YQ==
+X-Google-Smtp-Source: APXvYqz156o8+ka8PHs0edgiO6KJg3IUsDsXgTzpbomF2eLIsUSaY0Ydodn+uivohyDcOhhblLaTVQ==
+X-Received: by 2002:a5d:480b:: with SMTP id l11mr5437493wrq.129.1574943789046;
+        Thu, 28 Nov 2019 04:23:09 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w19sm10074943wmk.36.2019.11.28.04.23.07
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Nov 2019 04:23:08 -0800 (PST)
+Message-ID: <5ddfbc2c.1c69fb81.9da69.32c7@mx.google.com>
+Date:   Thu, 28 Nov 2019 04:23:08 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1574942633; bh=iP2fdRMQXwPeDI7CyHVR2iasv9XxYe6L6ttZ/5Hcavo=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=IDBthgBB338PfBnES+w7JWtpslswqrVO+9Cii/Vo1neGc+JVuq19X5c78iBuKqy/G
-         Eenm9nYDnFNhEbD/Xies9KU/C7J6NdyWAJcFsZaTdSunfuMaMYvOC4h+rbFjx08ymA
-         Da4tcl5gHGYktSHPuUI+A54OJDrWd5deL/qFpbiywidcHetZYWLx+6wsaE2zI0HqyK
-         gNwja67ADXWSzKcUw8ZHILm9ua3vaR9kd0MmbmGaUfjVZG30F6SB0OrpH+tfoUWcij
-         qrav+LSZiaedkVGnPr8qyKeKCAxRSzOE1bB59EYAcRWWGaDZJadUu/4+wzzpDqoRnA
-         cwH5tfkkXYYPQ==
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.3.13-97-g27442d398302
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.3.y boot: 146 boots: 2 failed,
+ 138 passed with 6 offline (v5.3.13-97-g27442d398302)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.3.y boot: 146 boots: 2 failed, 138 passed with 6 offline =
+(v5.3.13-97-g27442d398302)
 
-On 28/11/2019 10:36, Greg Kroah-Hartman wrote:
-> On Thu, Nov 28, 2019 at 09:15:45AM +0000, Jon Hunter wrote:
->>
->> On 27/11/2019 20:31, Greg Kroah-Hartman wrote:
->>> This is the start of the stable review cycle for the 5.3.14 release.
->>> There are 95 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.14-rc1.gz
->>> or in the git tree and branch at:
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->>
->> ...
->>
->>> Jouni Hogander <jouni.hogander@unikie.com>
->>>     net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
->>
->> The above commit is causing a boot regression (NULL pointer deference
->> crash) on Tegra210 for v5.3. Reverting this on top of 5.3.14-rc1 fixes
->> the problem. Complete results for Tegra are here ...
->>
->> Test results for stable-v5.3:
->>     13 builds:	13 pass, 0 fail
->>     24 boots:	18 pass, 6 fail
->>     34 tests:	34 pass, 0 fail
->>
->> Linux version:	5.3.14-rc1-g7173a2d18fa6
->> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->>                 tegra194-p2972-0000, tegra20-ventana,
->>                 tegra210-p2371-2180, tegra30-cardhu-a04
-> 
-> I've pushed out a -rc2 that should resolve this now.  If not, please let
-> me know.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.13-97-g27442d398302/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.13-97-g27442d398302/
 
-Yes all passing now thanks!
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.13-97-g27442d398302
+Git Commit: 27442d39830209266d439effe7503146b8f4d0a6
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 86 unique boards, 25 SoC families, 17 builds out of 208
 
-Test results for stable-v5.3:
-    13 builds:	13 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+Boot Failures Detected:
 
-Linux version:	5.3.14-rc2-g27442d398302
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
 
-Cheers
-Jon
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-khadas-vim2: 1 failed lab
 
--- 
-nvpublic
+Offline Platforms:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
