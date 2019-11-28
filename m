@@ -2,120 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C87E910C2DA
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 04:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7454110C2DE
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 04:33:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727158AbfK1Dai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 22:30:38 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:34143 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727113AbfK1Dai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 22:30:38 -0500
-Received: by mail-wm1-f65.google.com with SMTP id j18so6327986wmk.1
-        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 19:30:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=sRWpx+2KhywnjcfYDmsszgQd/Y4Wp8s/3XqlYY5bzD0=;
-        b=U5AkVg8vpWPu6fRETIzvpT1MgMpxKG9SExSL62+YMtCitW+ETmh24KYAKLVTZ+Chw2
-         glFzA/3OmC9hm+dQt4c0V3eQLa2R7VILF2Mv/CyTVrseapqZm9r3kHcGd0yovKbRlipB
-         21IOcJxnHl5TuUs3Uk6++NMpSH/I72EV0kzB6Af8R8FKCDlol+9HsFxySapqCAnw2rqC
-         SEcH2R1Ffl68xGXCWAlEngMfiqS0KQXnFDRTuMgild/JE1giYLVpMqNIxk6KY91fW1iN
-         n8jLpTsodSt/Y9bU0kwlaxymkm//yVgD5vT5NfbWYeGrBDC3zOHRO2XEo93RwBlAZdtw
-         rvFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=sRWpx+2KhywnjcfYDmsszgQd/Y4Wp8s/3XqlYY5bzD0=;
-        b=aP9OQTHMgX7vk1e4d7kAIJFyeOxjZzAEq5rr4OlVhVe1kgnkdZjFNZofwIPUGORYRW
-         IRokwujiUeP/rXuO7Lf8ZYsJyrCg3EcxiBmbe0lOQNiacFa0fAuD7eHCtDRwEiZaUyKq
-         GSrWi0nfmf90XzKUhlyIS2HMfoq/wrfKkUmp9Y73Kh/OmXkYCRVfRrlKhu2i63ykDV9W
-         VgVsWyH/Lhk/II1zKW7V5MhzmbDweCMOril1vx9CJIjjJd1g3MFkuECFFhH987Qh6+3N
-         nTv7fJYAa5GnSUKMZ0YZ2uKFg6niq+7rTloWxrhtdW3giLFNjOpN0SuJrCocxwKWemi3
-         9O+Q==
-X-Gm-Message-State: APjAAAXP+IM/e07Lhkb0Znu6uo7Yjda4Qe9mWjlRu5C05a9s0NcU4L5W
-        mII9D3iANrh2AVXqkFxCNBf84l8HpQuI9w==
-X-Google-Smtp-Source: APXvYqw7AlcQfWHpLDJ34SsnBGKzPspmuR1fSN7hPfQBwQRXgEitu6k/RmPjwSZpK16WUW1T4qGKEg==
-X-Received: by 2002:a1c:28d4:: with SMTP id o203mr7360803wmo.147.1574911835840;
-        Wed, 27 Nov 2019 19:30:35 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id k16sm9013533wru.0.2019.11.27.19.30.34
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Nov 2019 19:30:35 -0800 (PST)
-Message-ID: <5ddf3f5b.1c69fb81.b6eb6.e2ae@mx.google.com>
-Date:   Wed, 27 Nov 2019 19:30:35 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727235AbfK1DdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 22:33:17 -0500
+Received: from mo-csw1515.securemx.jp ([210.130.202.154]:36624 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727228AbfK1DdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 22:33:16 -0500
+Received: by mo-csw.securemx.jp (mx-mo-csw1515) id xAS3X6ob005472; Thu, 28 Nov 2019 12:33:06 +0900
+X-Iguazu-Qid: 34trMIO5KQudw3XypG
+X-Iguazu-QSIG: v=2; s=0; t=1574911986; q=34trMIO5KQudw3XypG; m=TQwososeHkYd8YPQcmO3nAFvyvjdHxKubdsnV5Ex9r8=
+Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
+        by relay.securemx.jp (mx-mr1510) id xAS3X4IG034859;
+        Thu, 28 Nov 2019 12:33:05 +0900
+Received: from enc02.toshiba.co.jp ([61.202.160.51])
+        by imx12.toshiba.co.jp  with ESMTP id xAS3X4FH013494;
+        Thu, 28 Nov 2019 12:33:04 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id xAS3X4Sr028371;
+        Thu, 28 Nov 2019 12:33:04 +0900
+Date:   Thu, 28 Nov 2019 12:33:02 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        David Miller <davem@davemloft.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: Re: [PATCH 4.19 282/306] net-sysfs: Fix reference count leak in
+ rx|netdev_queue_add_kobject
+X-TSB-HOP: ON
+Message-ID: <20191128033302.riq5c55kt7mre3vw@toshiba.co.jp>
+References: <20191127203114.766709977@linuxfoundation.org>
+ <20191127203135.382666831@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.156-212-g3ecb26dddb12
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.14.y boot: 120 boots: 3 failed,
- 110 passed with 6 offline, 1 untried/unknown (v4.14.156-212-g3ecb26dddb12)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191127203135.382666831@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 120 boots: 3 failed, 110 passed with 6 offline=
-, 1 untried/unknown (v4.14.156-212-g3ecb26dddb12)
+Hi,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.156-212-g3ecb26dddb12/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.156-212-g3ecb26dddb12/
+On Wed, Nov 27, 2019 at 09:32:12PM +0100, Greg Kroah-Hartman wrote:
+> From: Jouni Hogander <jouni.hogander@unikie.com>
+> 
+> commit b8eb718348b8fb30b5a7d0a8fce26fb3f4ac741b upstream.
+> 
+> kobject_init_and_add takes reference even when it fails. This has
+> to be given up by the caller in error handling. Otherwise memory
+> allocated by kobject_init_and_add is never freed. Originally found
+> by Syzkaller:
+> 
+> BUG: memory leak
+> unreferenced object 0xffff8880679f8b08 (size 8):
+>   comm "netdev_register", pid 269, jiffies 4294693094 (age 12.132s)
+>   hex dump (first 8 bytes):
+>     72 78 2d 30 00 36 20 d4                          rx-0.6 .
+>   backtrace:
+>     [<000000008c93818e>] __kmalloc_track_caller+0x16e/0x290
+>     [<000000001f2e4e49>] kvasprintf+0xb1/0x140
+>     [<000000007f313394>] kvasprintf_const+0x56/0x160
+>     [<00000000aeca11c8>] kobject_set_name_vargs+0x5b/0x140
+>     [<0000000073a0367c>] kobject_init_and_add+0xd8/0x170
+>     [<0000000088838e4b>] net_rx_queue_update_kobjects+0x152/0x560
+>     [<000000006be5f104>] netdev_register_kobject+0x210/0x380
+>     [<00000000e31dab9d>] register_netdevice+0xa1b/0xf00
+>     [<00000000f68b2465>] __tun_chr_ioctl+0x20d5/0x3dd0
+>     [<000000004c50599f>] tun_chr_ioctl+0x2f/0x40
+>     [<00000000bbd4c317>] do_vfs_ioctl+0x1c7/0x1510
+>     [<00000000d4c59e8f>] ksys_ioctl+0x99/0xb0
+>     [<00000000946aea81>] __x64_sys_ioctl+0x78/0xb0
+>     [<0000000038d946e5>] do_syscall_64+0x16f/0x580
+>     [<00000000e0aa5d8f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>     [<00000000285b3d1a>] 0xffffffffffffffff
+> 
+> Cc: David Miller <davem@davemloft.net>
+> Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+> Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.156-212-g3ecb26dddb12
-Git Commit: 3ecb26dddb12a0368baea19c0778c267e215edff
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 67 unique boards, 21 SoC families, 12 builds out of 201
+We also need the following commits to fix this issue:
 
-Boot Failures Detected:
+commit 48a322b6f9965b2f1e4ce81af972f0e287b07ed0
+Author: Eric Dumazet <edumazet@google.com>
+Date:   Wed Nov 20 19:19:07 2019 -0800
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            am335x-boneblack: 1 failed lab
+    net-sysfs: fix netdev_queue_add_kobject() breakage
 
-    omap2plus_defconfig:
-        gcc-8:
-            am335x-boneblack: 1 failed lab
+    kobject_put() should only be called in error path.
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
+    Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject")
+    Signed-off-by: Eric Dumazet <edumazet@google.com>
+    Cc: Jouni Hogander <jouni.hogander@unikie.com>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
 
-Offline Platforms:
+And this should also apply to 4.14.y and 5.3.y.
+Please apply this commnit to 4.14.y, 4.19.y and 5.3.y
 
-arm:
+Best regards,
+  Nobuhiro
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            mt7623n-bananapi-bpi-r2: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+> ---
+>  net/core/net-sysfs.c |   24 +++++++++++++-----------
+>  1 file changed, 13 insertions(+), 11 deletions(-)
+> 
+> --- a/net/core/net-sysfs.c
+> +++ b/net/core/net-sysfs.c
+> @@ -932,21 +932,23 @@ static int rx_queue_add_kobject(struct n
+>  	error = kobject_init_and_add(kobj, &rx_queue_ktype, NULL,
+>  				     "rx-%u", index);
+>  	if (error)
+> -		return error;
+> +		goto err;
+>  
+>  	dev_hold(queue->dev);
+>  
+>  	if (dev->sysfs_rx_queue_group) {
+>  		error = sysfs_create_group(kobj, dev->sysfs_rx_queue_group);
+> -		if (error) {
+> -			kobject_put(kobj);
+> -			return error;
+> -		}
+> +		if (error)
+> +			goto err;
+>  	}
+>  
+>  	kobject_uevent(kobj, KOBJ_ADD);
+>  
+>  	return error;
+> +
+> +err:
+> +	kobject_put(kobj);
+> +	return error;
+>  }
+>  #endif /* CONFIG_SYSFS */
+>  
+> @@ -1471,21 +1473,21 @@ static int netdev_queue_add_kobject(stru
+>  	error = kobject_init_and_add(kobj, &netdev_queue_ktype, NULL,
+>  				     "tx-%u", index);
+>  	if (error)
+> -		return error;
+> +		goto err;
+>  
+>  	dev_hold(queue->dev);
+>  
+>  #ifdef CONFIG_BQL
+>  	error = sysfs_create_group(kobj, &dql_group);
+> -	if (error) {
+> -		kobject_put(kobj);
+> -		return error;
+> -	}
+> +	if (error)
+> +		goto err;
+>  #endif
+>  
+>  	kobject_uevent(kobj, KOBJ_ADD);
+>  
+> -	return 0;
+> +err:
+> +	kobject_put(kobj);
+> +	return error;
+>  }
+>  #endif /* CONFIG_SYSFS */
+>  
+> 
+> 
+> 
