@@ -2,111 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9931110C4AC
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 09:05:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 981D910C55E
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 09:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726670AbfK1IFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 03:05:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726301AbfK1IFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 Nov 2019 03:05:06 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E7B121741;
-        Thu, 28 Nov 2019 08:05:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574928304;
-        bh=2UM8mIcEpLNwa1RV2YM+IG8ba13V6SC31zZzyOpUkQs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AmIn6lljIPfm9G52AKSPytk2oeX9xxsLOY+xe9X2Tfi0Vc1Stf0Ky68DMNcx+MG3w
-         Z53+XsDGosYIfQ0v1xKv1EPytvWWjEIBMllA3XGo2bdIfTsA5WzqjP60uvki+7mbqh
-         Hk3kqjzoTLVicrvg37/SmL8ptkN3CmYCSuiDJCf0=
-Date:   Thu, 28 Nov 2019 09:05:01 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+        id S1726694AbfK1IoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 03:44:14 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:34457 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726301AbfK1IoN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 03:44:13 -0500
+Received: by mail-lf1-f66.google.com with SMTP id l18so1373914lfc.1
+        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 00:44:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=1QZ3A4o6jUAyB3PxC5zRpui47YcoCkxIVIayUdZmVu0=;
+        b=zZCG9UtvOwZAK1grCKaRzCYHS4KLRdtvuBphwaRPOLSx9Dn8TV16FEngYEvljnTFfm
+         mm38rlBvMPSM3w6jVxSbi+aF8Y6hS+NXSKhXUhc1IHvExzVz1XKTTUtKbSaBjxXYAytB
+         vxDohzZDHYT4HGbEV996fWwesJY4fAlTEd8wL8JeTRYQRFicH/G6GEod9BWiDeuxe6j5
+         HA5UlY5T/PA49/5c1xwqUXoZw9KJr/XAhZ+THXrupALH6Cw88QDN27Fy8btqfpwGPGfK
+         QtaSsgtsHK3T+ZxEBOCsVCZzVnycyCjM4Xxb0RrBT3bDHHlxBb3ktbVoXgLv5wvYe2Dv
+         TT3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1QZ3A4o6jUAyB3PxC5zRpui47YcoCkxIVIayUdZmVu0=;
+        b=BWcMV4mQxKkbx9ouzo/HtzlvFzL94tTs5wuCQicvgI/ISP6m2/gATGqK6tF1+glPnW
+         HdL0SDPXMUi2fFef5rtf0Z24sxEI9TAEMza4PF/FIPtB3E2Xu8ZKNNQkS510ETKqp6LC
+         rPvD4a92YLeQ52vCdh4U9QWTlfmnaFgp+AjUvgEIQ+REWxDSE8rwgXdmLg9Wwh6gv17I
+         gjRBIhhHw7Fx3SyAr8B+JEPaH3uIWM9G73Zp4H9ffrb6mrLISmnylzq0S53I7bl2J8wJ
+         JOrjJLt4ojtAb1X3x8DwQ5mO9f4WHUDdgxqBkvC+sDtol011UQ/ONmGdsWbOmm2vKOiG
+         OCpg==
+X-Gm-Message-State: APjAAAVzbgGDcmTL0GVGyV8b4+W2SYDhOgElXSkFwK4Fd8JANMrDSyjp
+        hL/r4Dt2I/E7hygQFwJmTXEM8Pg96VVyMrojcoox1m0z41k=
+X-Google-Smtp-Source: APXvYqzXiIowksFeLWLRy3juK5p/6F+2j1PS5lSup6jUcBPDKGziJUD1f+cQUdIxMsaDb/PXZMAfEpj9Si2teDsNiXo=
+X-Received: by 2002:ac2:48b6:: with SMTP id u22mr8308593lfg.164.1574930651615;
+ Thu, 28 Nov 2019 00:44:11 -0800 (PST)
+MIME-Version: 1.0
+References: <20191127203000.773542911@linuxfoundation.org>
+In-Reply-To: <20191127203000.773542911@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 28 Nov 2019 14:14:00 +0530
+Message-ID: <CA+G9fYv6LQXD4ZCKgtt_X1R6vXzSOwhrsH7nHoJNhvGY9_YnBA@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/151] 4.9.204-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        torvalds@linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
         Ben Hutchings <ben.hutchings@codethink.co.uk>,
         lkft-triage@lists.linaro.org,
         linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.19 000/306] 4.19.87-stable review
-Message-ID: <20191128080501.GA3384654@kroah.com>
-References: <20191127203114.766709977@linuxfoundation.org>
- <CAEUSe7_KTY_06epzsXW0LFLVASOiLaFb0ZgRg+4bE2kjQXnEZA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEUSe7_KTY_06epzsXW0LFLVASOiLaFb0ZgRg+4bE2kjQXnEZA@mail.gmail.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 27, 2019 at 06:27:55PM -0600, Daniel Díaz wrote:
-> Hello!
-> 
-> 
-> On Wed, 27 Nov 2019 at 14:55, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> > This is the start of the stable review cycle for the 4.19.87 release.
-> > There are 306 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.87-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> We're seeing this build failure on 4.19 (and 4.14) on x86 32-bits:
-> > In file included from /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/export.h:45:0,
-> >                  from /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/linkage.h:7,
-> >                  from /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/preempt.h:10,
-> >                  from /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/spinlock.h:51,
-> >                  from /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/arch/x86/mm/cpu_entry_area.c:3:
-> > In function 'setup_cpu_entry_area_ptes',
-> >     inlined from 'setup_cpu_entry_areas' at /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/arch/x86/mm/cpu_entry_area.c:209:2:
-> > /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/compiler.h:348:38: error: call to '__compiletime_assert_192' declared with attribute error: BUILD_BUG_ON failed: (CPU_ENTRY_AREA_PAGES+1)*PAGE_SIZE != CPU_ENTRY_AREA_MAP_SIZE
-> >   _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
-> >                                       ^
-> > /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/compiler.h:329:4: note: in definition of macro '__compiletime_assert'
-> >     prefix ## suffix();    \
-> >     ^~~~~~
-> > /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/compiler.h:348:2: note: in expansion of macro '_compiletime_assert'
-> >   _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
-> >   ^~~~~~~~~~~~~~~~~~~
-> > /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/build_bug.h:45:37: note: in expansion of macro 'compiletime_assert'
-> >  #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
-> >                                      ^~~~~~~~~~~~~~~~~~
-> > /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/include/linux/build_bug.h:69:2: note: in expansion of macro 'BUILD_BUG_ON_MSG'
-> >   BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
-> >   ^~~~~~~~~~~~~~~~
-> > /srv/oe/build/tmp-lkft-glibc/work-shared/intel-core2-32/kernel-source/arch/x86/mm/cpu_entry_area.c:192:2: note: in expansion of macro 'BUILD_BUG_ON'
-> >   BUILD_BUG_ON((CPU_ENTRY_AREA_PAGES+1)*PAGE_SIZE != CPU_ENTRY_AREA_MAP_SIZE);
-> >   ^~~~~~~~~~~~
-> 
-> Bisection points to "x86/cpu_entry_area: Add guard page for entry
-> stack on 32bit" (e50622b4a1, also present in 4.14.y as 880a98c339).
+On Thu, 28 Nov 2019 at 02:10, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.204 release.
+> There are 151 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.204-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Ugh, I was hoping that 32bit stuff "just worked".  I'll take a look at
-the whole series later today and try to work to backport some of the
-known-missing parts of that series.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-thanks,
+Summary
+------------------------------------------------------------------------
 
-greg k-h
+kernel: 4.9.204-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 3bbfc6b1c25b08b1e400515f8a2c333a6bdc7f26
+git describe: v4.9.203-152-g3bbfc6b1c25b
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.203-152-g3bbfc6b1c25b
+
+
+No regressions (compared to build v4.9.203)
+
+No fixes (compared to build v4.9.203)
+
+
+Ran 23796 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* network-basic-tests
+* ltp-fs-tests
+* ltp-open-posix-tests
+* prep-tmp-disk
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
