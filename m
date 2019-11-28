@@ -2,327 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA1010CD7E
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 18:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 126CB10CDD1
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 18:25:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726634AbfK1RK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 12:10:26 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:20954 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726446AbfK1RK0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 12:10:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574961024;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=jK+KkQ6zKZE83c8bp0yWyp84XYVhvNlWXK8NdykR6cs=;
-        b=Nm+4BoBkYLz0ysotC4LHCLj4cOSo05newSG87fhVdHyQK/ebRO0XKRjlgMkKyMeN98cnff
-        g6u37uAoDg+bv2EhG5lGOvFMWq89xVkzNsAOdIMZFHBHv93ALSeCdCShURB+fUKgToc06N
-        8g3EzI85Fa3M3fi2Zo41kVP6hvHUA4c=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-273-Nav9qT_KOgeDQT4LHO4Zrw-1; Thu, 28 Nov 2019 12:10:23 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 32F45107ACC5
-        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 17:10:22 +0000 (UTC)
-Received: from [172.54.108.34] (cpt-1042.paas.prod.upshift.rdu2.redhat.com [10.0.19.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E25265D6D0;
-        Thu, 28 Nov 2019 17:10:16 +0000 (UTC)
+        id S1726655AbfK1RYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 12:24:45 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:42688 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726446AbfK1RYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 12:24:44 -0500
+Received: by mail-lf1-f68.google.com with SMTP id y19so20572152lfl.9;
+        Thu, 28 Nov 2019 09:24:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=trn2oJruIhuwCs6xMuGwp0kYiOcQXsbNZbrdFQNLYJE=;
+        b=QteH4IQ22KTDPseojpdNhFGKl9L1O/chT62Cik94gJLML6M5X7nVARktSDXUmZZ8FL
+         i07qSUjq7mGwrPVXO5ZUPGCQX+DXqenJR4dGvJN4Tq8OQ4WHLP96rBcVtw//+ypwXP+P
+         CYTYtOHRVAL2BJnLMGGL6WkXamiEwomXIZrpr1buPUYnBY5sZ7bUsJagi3qNfZtZhQCp
+         sJp+NivfJCZz8UwZt6mM5A0MT8KFkWidpMR8gIVCb22lgqosMvtxTzCcfrhMW9sTQceg
+         EJOoMC2DVQTgZvCRMeLb3xS0VRq2YaIW4JOSwD4UHCO76LZKhsuc2zVFeof+kMJM8AAX
+         apyg==
+X-Gm-Message-State: APjAAAWUEz9E8kLGd9smY7h2Kz44Loc3ODsNTd4F/9ClQnq511AXYXdM
+        NN93MqYIWloPDAZu8CRt8cc=
+X-Google-Smtp-Source: APXvYqxtH+XIdpH4HnL/JWO08m2iRo/IyYF6xtb7plDsp4uwvtDcMSNpC+r46yKkqLPgibeG4e5ejg==
+X-Received: by 2002:a19:da1a:: with SMTP id r26mr34062739lfg.60.1574961881917;
+        Thu, 28 Nov 2019 09:24:41 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id 145sm4249850ljj.69.2019.11.28.09.24.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Nov 2019 09:24:41 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@xi.terra>)
+        id 1iaNWz-0006wR-HU; Thu, 28 Nov 2019 18:24:41 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Amitkumar Karwar <amitkarwar@gmail.com>,
+        Siva Rebbagondla <siva8118@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+b563b7f8dbe8223a51e8@syzkaller.appspotmail.com,
+        stable <stable@vger.kernel.org>,
+        Siva Rebbagondla <siva.rebbagondla@redpinesignals.com>,
+        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
+        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
+        Fariya Fatima <fariyaf@gmail.com>
+Subject: [PATCH 1/5] rsi: fix use-after-free on failed probe and unbind
+Date:   Thu, 28 Nov 2019 18:22:00 +0100
+Message-Id: <20191128172204.26600-2-johan@kernel.org>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191128172204.26600-1-johan@kernel.org>
+References: <20191128172204.26600-1-johan@kernel.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.14-rc1-7173a2d.cki
- (stable)
-Date:   Thu, 28 Nov 2019 17:10:16 -0000
-CC:     Major Hayden <major@redhat.com>
-Message-ID: <cki.D52F4DCF14.HSV1TWNO62@redhat.com>
-X-Gitlab-Pipeline-ID: 311813
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/311813
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-MC-Unique: Nav9qT_KOgeDQT4LHO4Zrw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Make sure to stop both URBs before returning after failed probe as well
+as on disconnect to avoid use-after-free in the completion handler.
 
-Hello,
+Reported-by: syzbot+b563b7f8dbe8223a51e8@syzkaller.appspotmail.com
+Fixes: a4302bff28e2 ("rsi: add bluetooth rx endpoint")
+Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
+Cc: stable <stable@vger.kernel.org>     # 3.15
+Cc: Siva Rebbagondla <siva.rebbagondla@redpinesignals.com>
+Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
+Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
+Cc: Fariya Fatima <fariyaf@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/net/wireless/rsi/rsi_91x_usb.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 7173a2d18fa6 - Linux 5.3.14-rc1
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/311813
-
-One or more kernel tests failed:
-
-    ppc64le:
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-
-    aarch64:
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-
-    x86_64:
-     =E2=9D=8C Boot test
-     =E2=9D=8C Podman system integration test (as root)
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
-est
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/bas=
-ic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-    Host 2:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-tests=
-uite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
-est
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/bas=
-ic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-    Host 2:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-tests=
-uite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  Storage SAN device stress - mpt3sas driver
-
-    Host 2:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-tests=
-uite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/=
-sanity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 3:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  Storage SAN device stress - megaraid_sas
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9D=8C Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
-est
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/bas=
-ic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
+diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
+index 53f41fc2cadf..30bed719486e 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_usb.c
++++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
+@@ -292,6 +292,15 @@ static void rsi_rx_done_handler(struct urb *urb)
+ 		dev_kfree_skb(rx_cb->rx_skb);
+ }
+ 
++static void rsi_rx_urb_kill(struct rsi_hw *adapter, u8 ep_num)
++{
++	struct rsi_91x_usbdev *dev = (struct rsi_91x_usbdev *)adapter->rsi_dev;
++	struct rx_usb_ctrl_block *rx_cb = &dev->rx_cb[ep_num - 1];
++	struct urb *urb = rx_cb->rx_urb;
++
++	usb_kill_urb(urb);
++}
++
+ /**
+  * rsi_rx_urb_submit() - This function submits the given URB to the USB stack.
+  * @adapter: Pointer to the adapter structure.
+@@ -823,10 +832,13 @@ static int rsi_probe(struct usb_interface *pfunction,
+ 	if (adapter->priv->coex_mode > 1) {
+ 		status = rsi_rx_urb_submit(adapter, BT_EP);
+ 		if (status)
+-			goto err1;
++			goto err_kill_wlan_urb;
+ 	}
+ 
+ 	return 0;
++
++err_kill_wlan_urb:
++	rsi_rx_urb_kill(adapter, WLAN_EP);
+ err1:
+ 	rsi_deinit_usb_interface(adapter);
+ err:
+@@ -857,6 +869,10 @@ static void rsi_disconnect(struct usb_interface *pfunction)
+ 		adapter->priv->bt_adapter = NULL;
+ 	}
+ 
++	if (adapter->priv->coex_mode > 1)
++		rsi_rx_urb_kill(adapter, BT_EP);
++	rsi_rx_urb_kill(adapter, WLAN_EP);
++
+ 	rsi_reset_card(adapter);
+ 	rsi_deinit_usb_interface(adapter);
+ 	rsi_91x_deinit(adapter);
+-- 
+2.24.0
 
