@@ -2,113 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF5710CC3A
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 16:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D7910CC4E
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 16:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbfK1P45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 10:56:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59876 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726401AbfK1P44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 Nov 2019 10:56:56 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E38521771;
-        Thu, 28 Nov 2019 15:56:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574956616;
-        bh=rBibg5WalAFS/AKiipE1dlSgnnW0Z4eJR/jCiLtUWSo=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=snSLbFH1wsQvY/CMJHtqPIIKMNA83xXr1nCz9l4dITeIhWScURRWJCVb/CRV/Sz+U
-         fzioPgRz1K35irPDnWHDPfs+xF3UFBn/J/30LwhIP+3/LURswcfjiKZYyv9yiL0EAK
-         WkmyAoS2+yC+t3aTzvRLbl1u86MqOSo4qcplpYfo=
-Subject: Re: [PATCH 4.19 000/306] 4.19.87-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        jouni.hogander@unikie.com, "David S. Miller" <davem@davemloft.net>,
-        lukas.bulwahn@gmail.com, shuah <shuah@kernel.org>
-References: <20191127203114.766709977@linuxfoundation.org>
- <CA+G9fYuAY+14aPiRVUcXLbsr5zJ-GLjULX=s9jcGWcw_vb5Kzw@mail.gmail.com>
- <20191128073623.GE3317872@kroah.com>
-From:   shuah <shuah@kernel.org>
-Message-ID: <b4e6e9df-7334-763a-170a-6758916f420a@kernel.org>
-Date:   Thu, 28 Nov 2019 08:56:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1726633AbfK1P7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 10:59:50 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:53259 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726634AbfK1P7t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 10:59:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574956788;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=p9Wylpk2ZhwaY6AHfisQs9UzMFrxtqG9nnsoA/OlXV8=;
+        b=gp4fkfbH1dN8P1neLt2EM9feSvPOop2vspRP791DtjtI9Nx0IdbwgkjIVtilqY7WEkVVN9
+        pKn2OcdUJnFwB/xH5O9Nv7zDZELIogTZYXx5B4M3uIziac2DBRzIGVXq6V3JlIDbUUQzRh
+        miRkGOTHrpsRWkRK4ZsxhrOzfZRXMO4=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-321-GiwVQwaQP_an_JIDtt5Wdw-1; Thu, 28 Nov 2019 10:59:45 -0500
+Received: by mail-wr1-f71.google.com with SMTP id u12so3945284wrt.15
+        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 07:59:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=rUMGD7+UDhmSgUYjf0umsMgw2+YkPVZwq146yGXQ1AQ=;
+        b=IYEb5yKK5rEqPnD0h8tf5LJ/45t6akyn8b6myTMivkoxweoWd8iNtR1NQE2kUcoj9w
+         DaF5DLfmz5RGCz2v77mj7PBAhxvL5AIjB5Hoe8Sk6dXCSftz6d6ukaTMEdWwzxaEt2SN
+         3CLt9zWqggtYQOFBSxNZuzHKr5a5wUsBwil6VVvOmB49kZTOLUT+CkX8nisZF9yjjBfk
+         38WSpSRdgIQZyWZR9t2D6adhpWqdj0UVFAqjy9rk7U9wkYZl9MYmNh3k5TDNxfgWMUFH
+         0lmOO1OEqQZ1BAC1++Ll589+gno+GbP0revLFeWSvU8k7BY0IHVb33YvHwqcqG+6ZM35
+         1bWg==
+X-Gm-Message-State: APjAAAXu92/w6im2wPtgHhBdkTPIXflDZaLprRlD1BNn/hPfI8SC1qqn
+        MMv+yStbyNBWcgJ+ydRzpMkmwpxyOKYtaB9EGG8QBJ771319DXG32x3TfWHDNCpPimEDa76nhcm
+        /2odKwIRAqXCVX4l8
+X-Received: by 2002:a05:6000:103:: with SMTP id o3mr17474176wrx.80.1574956784380;
+        Thu, 28 Nov 2019 07:59:44 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyJu7/0r2fDEvCZ7kcUxvde1QwqRokBI6zhEggF6ATPtanqmxQ9P7SyO0YaGm0IIgxMIXlqBg==
+X-Received: by 2002:a05:6000:103:: with SMTP id o3mr17474151wrx.80.1574956784154;
+        Thu, 28 Nov 2019 07:59:44 -0800 (PST)
+Received: from miu.piliscsaba.redhat.com (catv-212-96-48-140.catv.broadband.hu. [212.96.48.140])
+        by smtp.gmail.com with ESMTPSA id 2sm23689474wrq.31.2019.11.28.07.59.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Nov 2019 07:59:43 -0800 (PST)
+From:   Miklos Szeredi <mszeredi@redhat.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     linux-fsdevel@vger.kernel.org, Avi Kivity <avi@scylladb.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH 01/12] aio: fix async fsync creds
+Date:   Thu, 28 Nov 2019 16:59:29 +0100
+Message-Id: <20191128155940.17530-2-mszeredi@redhat.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20191128155940.17530-1-mszeredi@redhat.com>
+References: <20191128155940.17530-1-mszeredi@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20191128073623.GE3317872@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MC-Unique: GiwVQwaQP_an_JIDtt5Wdw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/28/19 12:36 AM, Greg Kroah-Hartman wrote:
-> On Thu, Nov 28, 2019 at 12:23:41PM +0530, Naresh Kamboju wrote:
->> On Thu, 28 Nov 2019 at 02:25, Greg Kroah-Hartman
->> <gregkh@linuxfoundation.org> wrote:
->>>
->>> This is the start of the stable review cycle for the 4.19.87 release.
->>> There are 306 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>>          https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.87-rc1.gz
->>> or in the git tree and branch at:
->>>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->>
->> Kernel BUG noticed on x86_64 device while booting 4.19.87-rc1 kernel.
->>
->> The problematic patch is,
->>
->>> Jouni Hogander <jouni.hogander@unikie.com>
->>>      net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
->>
->> And this kernel panic is been fixed by below patch,
->>
->> commit 48a322b6f9965b2f1e4ce81af972f0e287b07ed0
->> Author: Eric Dumazet <edumazet@google.com>
->> Date:   Wed Nov 20 19:19:07 2019 -0800
->>
->>      net-sysfs: fix netdev_queue_add_kobject() breakage
->>
->>      kobject_put() should only be called in error path.
->>
->>      Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in
->> rx|netdev_queue_add_kobject")
->>      Signed-off-by: Eric Dumazet <edumazet@google.com>
->>      Cc: Jouni Hogander <jouni.hogander@unikie.com>
->>      Signed-off-by: David S. Miller <davem@davemloft.net>
-> 
-> Now queued up, I'll push out -rc2 versions with this fix.
-> 
-> greg k-h
-> 
+Avi Kivity reports that on fuse filesystems running in a user namespace
+asyncronous fsync fails with EOVERFLOW.
 
-Ran into this on my test system. I will try rc2.
+The reason is that f_ops->fsync() is called with the creds of the kthread
+performing aio work instead of the creds of the process originally
+submitting IOCB_CMD_FSYNC.
 
-thanks,
--- Shuah
+Fuse sends the creds of the caller in the request header and it needs to
+translate the uid and gid into the server's user namespace.  Since the
+kthread is running in init_user_ns, the translation will fail and the
+operation returns an error.
+
+It can be argued that fsync doesn't actually need any creds, but just
+zeroing out those fields in the header (as with requests that currently
+don't take creds) is a backward compatibility risk.
+
+Instead of working around this issue in fuse, solve the core of the problem
+by calling the filesystem with the proper creds.
+
+Reported-by: Avi Kivity <avi@scylladb.com>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Fixes: c9582eb0ff7d ("fuse: Fail all requests with invalid uids or gids")
+Cc: stable@vger.kernel.org  # 4.18+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+---
+ fs/aio.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/fs/aio.c b/fs/aio.c
+index 0d9a559d488c..37828773e2fe 100644
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -176,6 +176,7 @@ struct fsync_iocb {
+ =09struct file=09=09*file;
+ =09struct work_struct=09work;
+ =09bool=09=09=09datasync;
++=09struct cred=09=09*creds;
+ };
+=20
+ struct poll_iocb {
+@@ -1589,8 +1590,11 @@ static int aio_write(struct kiocb *req, const struct=
+ iocb *iocb,
+ static void aio_fsync_work(struct work_struct *work)
+ {
+ =09struct aio_kiocb *iocb =3D container_of(work, struct aio_kiocb, fsync.w=
+ork);
++=09const struct cred *old_cred =3D override_creds(iocb->fsync.creds);
+=20
+ =09iocb->ki_res.res =3D vfs_fsync(iocb->fsync.file, iocb->fsync.datasync);
++=09revert_creds(old_cred);
++=09put_cred(iocb->fsync.creds);
+ =09iocb_put(iocb);
+ }
+=20
+@@ -1604,6 +1608,10 @@ static int aio_fsync(struct fsync_iocb *req, const s=
+truct iocb *iocb,
+ =09if (unlikely(!req->file->f_op->fsync))
+ =09=09return -EINVAL;
+=20
++=09req->creds =3D prepare_creds();
++=09if (!req->creds)
++=09=09return -ENOMEM;
++
+ =09req->datasync =3D datasync;
+ =09INIT_WORK(&req->work, aio_fsync_work);
+ =09schedule_work(&req->work);
+--=20
+2.21.0
 
