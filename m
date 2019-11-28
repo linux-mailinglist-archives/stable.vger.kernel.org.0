@@ -2,113 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB65B10CFE6
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 00:02:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0F7610D000
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 00:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726616AbfK1XCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 18:02:38 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:39514 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726609AbfK1XCi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Nov 2019 18:02:38 -0500
-Received: by mail-wm1-f65.google.com with SMTP id s14so6326971wmh.4
-        for <stable@vger.kernel.org>; Thu, 28 Nov 2019 15:02:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=UIvWUbQ1kRdlAhreHWRCACQmNqj8P32J/P7DdXS0/Po=;
-        b=0QZiba3wnmGg3pBWBUg8O6yO/q28VaqWSYEWU7wberF3NlRXC86OlLoU1bTIfMNudT
-         77d0xA22tJ32xbWdWdDeL3e+JQCHPrXEVAxAg3SCcLmR4VkpDS5GnWH1SOkN8s7wu5Qb
-         DSNZ5UaU//jz6ztsNJ7AzmPluF8RyxrOKPWtVsTjtZ4R66aSs8HE+rb3OwfKaupUKhJZ
-         LRWYBG1EjwJzMjp8OysxycRVLFJUJQovD3yhb05SPjSpmZam1MFiovusV8R4yvSYxgU+
-         K5a99j94z+DVwEFi3oYA0pJWiN2btdEJlNYIlov4MIv/25+phSIXmFvRNH/tVNu1wwQq
-         BcMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=UIvWUbQ1kRdlAhreHWRCACQmNqj8P32J/P7DdXS0/Po=;
-        b=P78sUMBVVTjCMH4lFdCkBGEteFq0LdwQ0hpuCOnuZHD0tul4SyNyNn8UviAhgJ7pI8
-         qCQf20Bu3RJY9lr22Ry5myIoW8983ztcfXo+vtB2SzzeUaKhZ3IVVM70mVnkK+Lmn++z
-         YpKojBDS79X4g7503rghAJHgt0eeu8z5XWw/m5tqV13f/u7FJ7Wm1x1O9GSvKIDheTAy
-         D9c7maJra57eM2GzJI2GDbeNYFCqcXLmwIHEpFTNLQHkUBYes43sHpwo6uQaJszNpJ0/
-         BOKNax3MwFJ2Uuv7X7yhCe74ThBsssw3t3v9+7LjAwY7cVo0NdxJGROp0kn2Y8LqiASZ
-         gMvQ==
-X-Gm-Message-State: APjAAAV6fZlrfTTcLzPbyJW8UrY3NFmxl5gGwVPuTS2VPcMf1gespG48
-        XIW4Uyqg2KL4pg6orB3zjSy9KITttC67Ag==
-X-Google-Smtp-Source: APXvYqxgzlvmA6yv5k38g9DvxXpTHf/mvTB/wif5uB2MgzHUii67U3S8ghrT3ATy+kmN3TnfA0kj4g==
-X-Received: by 2002:a1c:2b82:: with SMTP id r124mr11832486wmr.112.1574982156448;
-        Thu, 28 Nov 2019 15:02:36 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id m13sm11963459wmc.41.2019.11.28.15.02.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Nov 2019 15:02:35 -0800 (PST)
-Message-ID: <5de0520b.1c69fb81.1ffb7.dfcc@mx.google.com>
-Date:   Thu, 28 Nov 2019 15:02:35 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726656AbfK1X4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 18:56:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49828 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726609AbfK1X4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 Nov 2019 18:56:23 -0500
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2E6C2081B;
+        Thu, 28 Nov 2019 23:56:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574985383;
+        bh=rgcfQAdzjwHBiGBaRdEMv/OMDzZ94O1llbONkRnEmj8=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=LPqbTU0/MuTwhCuGuJ34SuAkiz0r75l7ZRUequD7f+616v+/RAwNpoFsRKxIEqOxO
+         rBfZuPoFfC4YEgsR6mo2iW8NUOOSSMI5qzMRbhZfZVszoeOQtEM3EgR97LOKnEkQoZ
+         rQ+Y6Pgu1lu26TfNmMbBJldMa+rHjtXhNadzHY/c=
+Subject: Re: [PATCH 5.3 00/95] 5.3.14-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        shuah <shuah@kernel.org>
+References: <20191127202845.651587549@linuxfoundation.org>
+ <573a667c-2f94-568e-b032-5c7860adaed4@kernel.org>
+ <20191128155948.GA3418086@kroah.com>
+From:   shuah <shuah@kernel.org>
+Message-ID: <068ca9d4-cd6c-318f-0215-c2308e89d0d2@kernel.org>
+Date:   Thu, 28 Nov 2019 16:56:22 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.4.204
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.4.y boot: 49 boots: 1 failed,
- 46 passed with 2 conflicts (v4.4.204)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20191128155948.GA3418086@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y boot: 49 boots: 1 failed, 46 passed with 2 conflicts (v4=
-.4.204)
+On 11/28/19 8:59 AM, Greg Kroah-Hartman wrote:
+> On Thu, Nov 28, 2019 at 08:47:51AM -0700, shuah wrote:
+>> On 11/27/19 1:31 PM, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.3.14 release.
+>>> There are 95 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.14-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>>
+>>
+>> It didn't boot. Panics in netns_cleanup_net()?
+>>
+>> I am attaching a screenshot for the panic. I will try rc2 and see
+>> if it improves things.
+> 
+> -rc2 should fix this, if not, please let me know.
+> 
+> I also did -rc2 for 4.19 and 4.14 with this fix.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-4.y/kernel/v4.4.204/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
-rnel/v4.4.204/
+rc2 worked for me.
 
-Tree: stable
-Branch: linux-4.4.y
-Git Describe: v4.4.204
-Git Commit: 01bc6b5c550378f943720a628f1b0809ecc0969a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 25 unique boards, 10 SoC families, 8 builds out of 190
+thanks,
+-- Shuah
 
-Boot Regressions Detected:
-
-arm:
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v4.4.203)
-
-Boot Failure Detected:
-
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-collabora: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-collabora: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
