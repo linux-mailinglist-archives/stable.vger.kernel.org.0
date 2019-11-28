@@ -2,102 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA9110C2E7
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 04:40:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 513DE10C31D
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 05:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727139AbfK1Dkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Nov 2019 22:40:41 -0500
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:33634 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727133AbfK1Dkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 22:40:41 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id xAS3eOPY017112; Thu, 28 Nov 2019 12:40:24 +0900
-X-Iguazu-Qid: 34trMIO5KQvAymG4rS
-X-Iguazu-QSIG: v=2; s=0; t=1574912423; q=34trMIO5KQvAymG4rS; m=2JADXTo0a0DwfWBCaayqVuS6YitGzMqN7fwhpDEKbUg=
-Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
-        by relay.securemx.jp (mx-mr1511) id xAS3eMrq024465;
-        Thu, 28 Nov 2019 12:40:23 +0900
-Received: from enc02.toshiba.co.jp ([61.202.160.51])
-        by imx12.toshiba.co.jp  with ESMTP id xAS3eMMo015989;
-        Thu, 28 Nov 2019 12:40:22 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id xAS3eLkL032028;
-        Thu, 28 Nov 2019 12:40:22 +0900
-Date:   Thu, 28 Nov 2019 12:40:20 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 216/220] PM / devfreq: Fix static checker warning in
- try_then_request_governor
-X-TSB-HOP: ON
-Message-ID: <20191128034020.necma5gpnf2wgsm4@toshiba.co.jp>
-References: <20191122100912.732983531@linuxfoundation.org>
- <20191122100929.173069944@linuxfoundation.org>
+        id S1727128AbfK1EAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Nov 2019 23:00:23 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:54979 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727113AbfK1EAW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Nov 2019 23:00:22 -0500
+Received: by mail-wm1-f67.google.com with SMTP id b11so9408106wmj.4
+        for <stable@vger.kernel.org>; Wed, 27 Nov 2019 20:00:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ClalF4FAvjJe0QwayM/FMZe4aDJbVzSZBuygEitJjZI=;
+        b=nnOBy8yoGIlPX9PgNBY5u0cuXoh/z5RrdlAJtwEhe6IKRMO8S/oqybleoYoYMRwSEG
+         Ni3lzKX6QIF7O4zoC6tcqq4sRgGWCmqRrdjVGn/ZwXL5YTQiY9Dx24NewHwL2iAly8rd
+         ChrjIKHH+Q1c1IO3RVqxvNSXzG+1IdW7ZOy5nAp6oOGipTI1o1IIrVmKBjrEhey1OhBB
+         hLaPQxpviPItRLS+V7rYnnEOy7enGjelEhJnXjtm2uN5BdjnskCDy5iSK5wp33uYrxzF
+         jSo0GYr33lG8ZBkeELtTcEOxk/dpCGAYqzu9v6n1Jn6a0y/f4kGI6aGRgKEYDgotZLNO
+         JyNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ClalF4FAvjJe0QwayM/FMZe4aDJbVzSZBuygEitJjZI=;
+        b=fl14/SJdgpDYkwEhPLE09Ffw8tfMAqlX/jIsSsgeqDblhN2l1WX+UgmD67tO0EPFx5
+         OmUc5Xu8kFf+kHmphGj2xae25K4DXt+hLG8yUOOueszzU6MOOgUr6kOWOzAeGxGh+uY8
+         tBRzCA3swOYEqwADN82Ylsxx2PnbBnQ5K4JhTAp2o2hxbTnT2mf/Ja+yX/oGda2asEIZ
+         P127YYg/YmO/tQz4tyjWhTKgek9lJg6D2GmTwlCWPky4wjeIOymAF2gwmkFF6ESMkbNa
+         /CChlFEw44q7DkmmpkGQFTFB6BTQZhq76LLmLhZR1wEIaKceg9ooLjcXERS6pRbwLqw6
+         VjMw==
+X-Gm-Message-State: APjAAAWsRWTGJnIhgA9hxaRfGJAojOSF/kzaPTXjWMGzwG4jLwtGMnVK
+        zQsNfnC48koRyaGXgY07r9DNadWo8r9FJQ==
+X-Google-Smtp-Source: APXvYqzmgURelg8K62MmvnLEUxYASnxQKyvj4DK7RqOQfLyyGPvgRXtkzJxxpYm87WzCEHHEen4WJg==
+X-Received: by 2002:a7b:cd82:: with SMTP id y2mr6089526wmj.58.1574913619022;
+        Wed, 27 Nov 2019 20:00:19 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e16sm21730684wrj.80.2019.11.27.20.00.18
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Nov 2019 20:00:18 -0800 (PST)
+Message-ID: <5ddf4652.1c69fb81.b8e13.e9a9@mx.google.com>
+Date:   Wed, 27 Nov 2019 20:00:18 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191122100929.173069944@linuxfoundation.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.203-152-g3bbfc6b1c25b
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 104 boots: 1 failed,
+ 98 passed with 5 offline (v4.9.203-152-g3bbfc6b1c25b)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-4.9.y boot: 104 boots: 1 failed, 98 passed with 5 offline (=
+v4.9.203-152-g3bbfc6b1c25b)
 
-On Fri, Nov 22, 2019 at 11:29:41AM +0100, Greg Kroah-Hartman wrote:
-> From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> 
-> [ Upstream commit b53b0128052ffd687797d5f4deeb76327e7b5711 ]
-> 
-> The patch 23c7b54ca1cd: "PM / devfreq: Fix devfreq_add_device() when
-> drivers are built as modules." leads to the following static checker
-> warning:
-> 
->     drivers/devfreq/devfreq.c:1043 governor_store()
->     warn: 'governor' can also be NULL
-> 
-> The reason is that the try_then_request_governor() function returns both
-> error pointers and NULL. It should just return error pointers, so fix
-> this by returning a ERR_PTR to the error intead of returning NULL.
-> 
-> Fixes: 23c7b54ca1cd ("PM / devfreq: Fix devfreq_add_device() when drivers are built as modules.")
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-> Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.203-152-g3bbfc6b1c25b/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.203-152-g3bbfc6b1c25b/
 
-The following commits are provided for this fix:
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.203-152-g3bbfc6b1c25b
+Git Commit: 3bbfc6b1c25b08b1e400515f8a2c333a6bdc7f26
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 54 unique boards, 20 SoC families, 14 builds out of 197
 
-commit 7544fd7f384591038646d3cd9efb311ab4509e24
-Author: Ezequiel Garcia <ezequiel@collabora.com>
-Date:   Fri Jun 21 18:39:49 2019 -0300
+Boot Failure Detected:
 
-    PM / devfreq: Fix kernel oops on governor module load
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
 
-    A bit unexpectedly (but still documented), request_module may
-    return a positive value, in case of a modprobe error.
-    This is currently causing issues in the devfreq framework.
+Offline Platforms:
 
-    When a request_module exits with a positive value, we currently
-    return that via ERR_PTR. However, because the value is positive,
-    it's not a ERR_VALUE proper, and is therefore treated as a
-    valid struct devfreq_governor pointer, leading to a kernel oops.
+arm:
 
-    Fix this by returning -EINVAL if request_module returns a positive
-    value.
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-    Fixes: b53b0128052ff ("PM / devfreq: Fix static checker warning in try_then_request_governor")
-    Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-    Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-    Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-Please apply.
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
-Best regards,
-  Nobuhiro
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
