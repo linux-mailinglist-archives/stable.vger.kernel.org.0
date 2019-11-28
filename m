@@ -2,102 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A24610C45F
-	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 08:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D78210C48F
+	for <lists+stable@lfdr.de>; Thu, 28 Nov 2019 08:53:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727282AbfK1HiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Nov 2019 02:38:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
+        id S1726492AbfK1HxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Nov 2019 02:53:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727142AbfK1HiA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 Nov 2019 02:38:00 -0500
+        id S1726448AbfK1HxQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 Nov 2019 02:53:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EA9F21736;
-        Thu, 28 Nov 2019 07:37:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB0DB215E5;
+        Thu, 28 Nov 2019 07:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574926678;
-        bh=cOkm7TWMCJ+gUlFjEYNdlFcXOzFTCWmQpq+5HclC0/Y=;
+        s=default; t=1574927595;
+        bh=Mn2fLKoZ7GJZlk08IbBurAvzrC0C1uKp4r18FrhSTbE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bMbaOFimZ3QPj3fps1kS64u0fJxrxH1n/Ny7wM6A02u8689pkuD9JcLpWvACL7xdn
-         dW8eZO12e28H8VwReMK58nmoZyD6r+wEzxToFCGBzj0JFBWUbzEQcFUqgg3ROoACX5
-         TO+nkCucGNAY5WxyyEDjXGMvji+Jb3k3BdtGtJqo=
-Date:   Thu, 28 Nov 2019 08:36:23 +0100
+        b=NCh9h1lTVMMn+vQzN4RdQ+8hIGi0SEr4sAXzkz/c9AqERfRwFzj1Z4+wJ8QhQZp7Z
+         3AfUstxQCTm/rSNBtcUXSlwhhifBKaSFbpst1hD677xCbfnQIDWJoq7DNYjAtruIDV
+         eu3PDQIYBOzk71v7c6j3WWo3zLEJ4yzPLTMYCRQU=
+Date:   Thu, 28 Nov 2019 08:53:12 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        jouni.hogander@unikie.com, "David S. Miller" <davem@davemloft.net>,
-        lukas.bulwahn@gmail.com
-Subject: Re: [PATCH 4.19 000/306] 4.19.87-stable review
-Message-ID: <20191128073623.GE3317872@kroah.com>
-References: <20191127203114.766709977@linuxfoundation.org>
- <CA+G9fYuAY+14aPiRVUcXLbsr5zJ-GLjULX=s9jcGWcw_vb5Kzw@mail.gmail.com>
+To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 216/220] PM / devfreq: Fix static checker warning in
+ try_then_request_governor
+Message-ID: <20191128075312.GA3362744@kroah.com>
+References: <20191122100912.732983531@linuxfoundation.org>
+ <20191122100929.173069944@linuxfoundation.org>
+ <20191128034020.necma5gpnf2wgsm4@toshiba.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYuAY+14aPiRVUcXLbsr5zJ-GLjULX=s9jcGWcw_vb5Kzw@mail.gmail.com>
+In-Reply-To: <20191128034020.necma5gpnf2wgsm4@toshiba.co.jp>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 28, 2019 at 12:23:41PM +0530, Naresh Kamboju wrote:
-> On Thu, 28 Nov 2019 at 02:25, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 4.19.87 release.
-> > There are 306 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.87-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Thu, Nov 28, 2019 at 12:40:20PM +0900, Nobuhiro Iwamatsu wrote:
+> Hi,
 > 
-> Kernel BUG noticed on x86_64 device while booting 4.19.87-rc1 kernel.
+> On Fri, Nov 22, 2019 at 11:29:41AM +0100, Greg Kroah-Hartman wrote:
+> > From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> > 
+> > [ Upstream commit b53b0128052ffd687797d5f4deeb76327e7b5711 ]
+> > 
+> > The patch 23c7b54ca1cd: "PM / devfreq: Fix devfreq_add_device() when
+> > drivers are built as modules." leads to the following static checker
+> > warning:
+> > 
+> >     drivers/devfreq/devfreq.c:1043 governor_store()
+> >     warn: 'governor' can also be NULL
+> > 
+> > The reason is that the try_then_request_governor() function returns both
+> > error pointers and NULL. It should just return error pointers, so fix
+> > this by returning a ERR_PTR to the error intead of returning NULL.
+> > 
+> > Fixes: 23c7b54ca1cd ("PM / devfreq: Fix devfreq_add_device() when drivers are built as modules.")
+> > Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> > Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+> > Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> The problematic patch is,
+> The following commits are provided for this fix:
 > 
-> > Jouni Hogander <jouni.hogander@unikie.com>
-> >     net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject
+> commit 7544fd7f384591038646d3cd9efb311ab4509e24
+> Author: Ezequiel Garcia <ezequiel@collabora.com>
+> Date:   Fri Jun 21 18:39:49 2019 -0300
 > 
-> And this kernel panic is been fixed by below patch,
+>     PM / devfreq: Fix kernel oops on governor module load
 > 
-> commit 48a322b6f9965b2f1e4ce81af972f0e287b07ed0
-> Author: Eric Dumazet <edumazet@google.com>
-> Date:   Wed Nov 20 19:19:07 2019 -0800
+>     A bit unexpectedly (but still documented), request_module may
+>     return a positive value, in case of a modprobe error.
+>     This is currently causing issues in the devfreq framework.
 > 
->     net-sysfs: fix netdev_queue_add_kobject() breakage
+>     When a request_module exits with a positive value, we currently
+>     return that via ERR_PTR. However, because the value is positive,
+>     it's not a ERR_VALUE proper, and is therefore treated as a
+>     valid struct devfreq_governor pointer, leading to a kernel oops.
 > 
->     kobject_put() should only be called in error path.
+>     Fix this by returning -EINVAL if request_module returns a positive
+>     value.
 > 
->     Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in
-> rx|netdev_queue_add_kobject")
->     Signed-off-by: Eric Dumazet <edumazet@google.com>
->     Cc: Jouni Hogander <jouni.hogander@unikie.com>
->     Signed-off-by: David S. Miller <davem@davemloft.net>
+>     Fixes: b53b0128052ff ("PM / devfreq: Fix static checker warning in try_then_request_governor")
+>     Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+>     Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+>     Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+> 
+> Please apply.
 
-Now queued up, I'll push out -rc2 versions with this fix.
+Good catch, now queued up.
 
 greg k-h
