@@ -2,150 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DE5410D6C2
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 15:15:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A13F10D6D2
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 15:19:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726856AbfK2OPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 09:15:03 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:35584 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726824AbfK2OPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 09:15:03 -0500
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 31B9E290E9C;
-        Fri, 29 Nov 2019 14:15:01 +0000 (GMT)
-Date:   Fri, 29 Nov 2019 15:14:58 +0100
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Rob Herring <robh+dt@kernel.org>,
+        id S1726763AbfK2OTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 09:19:54 -0500
+Received: from foss.arm.com ([217.140.110.172]:48356 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726608AbfK2OTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Nov 2019 09:19:54 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C23EE1FB;
+        Fri, 29 Nov 2019 06:19:51 -0800 (PST)
+Received: from [10.1.194.43] (e112269-lin.cambridge.arm.com [10.1.194.43])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 027963F52E;
+        Fri, 29 Nov 2019 06:19:50 -0800 (PST)
+Subject: Re: [PATCH 1/8] drm/panfrost: Make panfrost_job_run() return an
+ ERR_PTR() instead of NULL
+To:     Boris Brezillon <boris.brezillon@collabora.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>
-Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 6/8] drm/panfrost: Make sure imported/exported BOs are
- never purged
-Message-ID: <20191129151458.098349a6@collabora.com>
-In-Reply-To: <20191129135908.2439529-7-boris.brezillon@collabora.com>
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Cc:     stable@vger.kernel.org, dri-devel@lists.freedesktop.org
 References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
-        <20191129135908.2439529-7-boris.brezillon@collabora.com>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ <20191129135908.2439529-2-boris.brezillon@collabora.com>
+From:   Steven Price <steven.price@arm.com>
+Message-ID: <7444054c-52b4-32d1-70c2-52bf9c5f2871@arm.com>
+Date:   Fri, 29 Nov 2019 14:19:50 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20191129135908.2439529-2-boris.brezillon@collabora.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 29 Nov 2019 14:59:06 +0100
-Boris Brezillon <boris.brezillon@collabora.com> wrote:
-
-> We don't want imported/exported BOs to be purges, as those are shared
-> with other processes that might still use them. We should also refuse
-> to export a BO if it's been marked purgeable or has already been purged.
+On 29/11/2019 13:59, Boris Brezillon wrote:
+> If we don't do that, dma_fence_set_error() complains (called from
+> drm_sched_main()).
 > 
-> Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
+> Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
 > Cc: <stable@vger.kernel.org>
 > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+
+This might be worth doing, but actually it's not Panfrost that is broken
+it's the callers, see [1] and [2]. So I don't think we want the
+Fixes/stable tag.
+
+[1] https://patchwork.kernel.org/patch/11218399/
+[2] https://patchwork.kernel.org/patch/11267073/
+
 > ---
->  drivers/gpu/drm/panfrost/panfrost_drv.c | 19 ++++++++++++++++-
->  drivers/gpu/drm/panfrost/panfrost_gem.c | 27 +++++++++++++++++++++++++
->  2 files changed, 45 insertions(+), 1 deletion(-)
+>  drivers/gpu/drm/panfrost/panfrost_job.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> index 1c67ac434e10..751df975534f 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> @@ -343,6 +343,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
->  	struct drm_panfrost_madvise *args = data;
->  	struct panfrost_device *pfdev = dev->dev_private;
->  	struct drm_gem_object *gem_obj;
-> +	int ret;
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
+> index 21f34d44aac2..cdd9448fbbdd 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_job.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
+> @@ -328,13 +328,13 @@ static struct dma_fence *panfrost_job_run(struct drm_sched_job *sched_job)
+>  	struct dma_fence *fence = NULL;
 >  
->  	gem_obj = drm_gem_object_lookup(file_priv, args->handle);
->  	if (!gem_obj) {
-> @@ -350,6 +351,19 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
->  		return -ENOENT;
->  	}
+>  	if (unlikely(job->base.s_fence->finished.error))
+> -		return NULL;
+> +		return ERR_PTR(job->base.s_fence->finished.error);
 >  
-> +	/*
-> +	 * We don't want to mark exported/imported BOs as purgeable: we're not
-> +	 * the only owner in that case.
-> +	 */
-> +	mutex_lock(&dev->object_name_lock);
-> +	if (gem_obj->dma_buf)
-> +		ret = -EINVAL;
-> +	else
-> +		ret = 0;
-> +
-> +	if (ret)
-> +		goto out_unlock_object_name;
-> +
->  	mutex_lock(&pfdev->shrinker_lock);
->  	args->retained = drm_gem_shmem_madvise(gem_obj, args->madv);
+>  	pfdev->jobs[slot] = job;
 >  
-> @@ -364,8 +378,11 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
->  	}
->  	mutex_unlock(&pfdev->shrinker_lock);
->  
-> +out_unlock_object_name:
-> +	mutex_unlock(&dev->object_name_lock);
-> +
->  	drm_gem_object_put_unlocked(gem_obj);
-> -	return 0;
-> +	return ret;
->  }
->  
->  int panfrost_unstable_ioctl_check(void)
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> index 92a95210a899..31d6417dd21c 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> @@ -99,6 +99,32 @@ void panfrost_gem_close(struct drm_gem_object *obj, struct drm_file *file_priv)
->  	spin_unlock(&priv->mm_lock);
->  }
->  
-> +static struct dma_buf *
-> +panfrost_gem_export(struct drm_gem_object *obj, int flags)
-> +{
-> +	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
-> +	int ret;
-> +
-> +	/*
-> +	 * We must make sure the BO has not been marked purgeable/purged before
-> +	 * adding the mapping.
+>  	fence = panfrost_fence_create(pfdev, slot);
+>  	if (IS_ERR(fence))
+> -		return NULL;
+> +		return ERR_PTR(-ENOMEM);
 
-	   ^s/adding the mapping/exporting it/
+Why override the error from panfrost_fence_create? In this case we can just:
 
-> +	 * Note that we don't need to protect this test with a lock because
-> +	 * &drm_gem_object_funcs.export() is called with
-> +	 * &drm_device.object_lock held, and panfrost_ioctl_madvise() takes
-> +	 * this lock before calling drm_gem_shmem_madvise() (the function that
-> +	 * modifies bo->base.madv).
-> +	 */
-> +	if (bo->base.madv == PANFROST_MADV_WILLNEED)
-> +		ret = -EINVAL;
-> +	else
-> +		ret = 0;
-> +
-> +	if (ret)
-> +		return ERR_PTR(ret);
-> +
-> +	return drm_gem_prime_export(obj, flags);
-> +}
-> +
->  static int panfrost_gem_pin(struct drm_gem_object *obj)
->  {
->  	if (to_panfrost_bo(obj)->is_heap)
-> @@ -112,6 +138,7 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
->  	.open = panfrost_gem_open,
->  	.close = panfrost_gem_close,
->  	.print_info = drm_gem_shmem_print_info,
-> +	.export = panfrost_gem_export,
->  	.pin = panfrost_gem_pin,
->  	.unpin = drm_gem_shmem_unpin,
->  	.get_sg_table = drm_gem_shmem_get_sg_table,
+	return fence;
+
+Steve
+
+>  
+>  	if (job->done_fence)
+>  		dma_fence_put(job->done_fence);
+> 
 
