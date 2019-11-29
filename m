@@ -2,193 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D9AC10DA79
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 21:12:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138B410DA7F
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 21:14:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727030AbfK2UMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 15:12:20 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:38806 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726926AbfK2UMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 15:12:20 -0500
-Received: by mail-wr1-f66.google.com with SMTP id i12so36645349wro.5
-        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 12:12:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=3YI+d2NvmVkEloaZilnvp4D1sppM2GPkI8u4Su78MwI=;
-        b=Q+yEJbTyD2DOywKyV/g4X6WA2kgZRfVCZGRrnfhlWF0THUjvvkC8uMHOJINEck592H
-         wQ/VbaMPFlTuW4hSrXcRzdXfsGgJd1KUBkxA2nYMgm0g16cYKdP7nJVFcsMGPzuiwAWo
-         L1gJheOZXJV9js+ormZoQDfJjOcxij0CytfqU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=3YI+d2NvmVkEloaZilnvp4D1sppM2GPkI8u4Su78MwI=;
-        b=BFKV/qzp7xHr7Mma66ZRlrAN5PWp1iVwDoO80EN12ZWlVF/L98hlTz16tfzFIdlVmz
-         ZLG1u+Lv6vL7mcD+E3zRllGrsVsDqnzMw5OWZzB/Q/I4xZuZqveTfbvEVE+Rot3VrWXg
-         IWvGwP4eE9Su0q3pyh3GXvrYvpe3qx9IOZgRw5H4fSN4rUffsuv66AlThifPF3DNQECj
-         VoKpCpoKwZLTkRgRwzblqvrDk80O0Yk6JdQvsE/3HdeD3zLYrihWMyj169pJUkO/+1oz
-         sG+rME+yEQQYVz/L+lNlH/mhH+kzV29D4xuyyu6g8gXnH03DgJAoes8Ktp7co9G1Szcb
-         QaMA==
-X-Gm-Message-State: APjAAAVsiFquGYWS3iwKGmThHNidStl5JNKyHyaNrcVkaFWPZNwjX43A
-        ykvRDUWoK9fo5lxP+d9ys3DeBg==
-X-Google-Smtp-Source: APXvYqwtG45fdmkUsPnDsNlglM4M8netn7p3FnAXaWvyij1hujYYOR9XinVc43pwVOGYPw5BsC9qwg==
-X-Received: by 2002:a5d:6408:: with SMTP id z8mr10832347wru.122.1575058336266;
-        Fri, 29 Nov 2019 12:12:16 -0800 (PST)
-Received: from phenom.ffwll.local (212-51-149-96.fiber7.init7.net. [212.51.149.96])
-        by smtp.gmail.com with ESMTPSA id r6sm15353546wrq.92.2019.11.29.12.12.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Nov 2019 12:12:15 -0800 (PST)
-Date:   Fri, 29 Nov 2019 21:12:13 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Boris Brezillon <boris.brezillon@collabora.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 6/8] drm/panfrost: Make sure imported/exported BOs are
- never purged
-Message-ID: <20191129201213.GR624164@phenom.ffwll.local>
-References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
- <20191129135908.2439529-7-boris.brezillon@collabora.com>
+        id S1727076AbfK2UOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 15:14:37 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:48344 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726926AbfK2UOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 15:14:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575058475;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type;
+        bh=AvS1zvdYkbVS7LVHXQC+f/kysf6559OKTY3cBKQ/ui8=;
+        b=TdRqxrQAMotEr2hR3q7GQPlHxUlshiSkanXxLau7thBdUaQGJxAYoH8h9+yG76hBqRj+9O
+        u0GqrA6f/gdKKz3WWw5qMVz4OSJwzG66PHIFOfvlOuQ8oF3LMb2AzskELjNyGJtC9m7qGc
+        vKImMN7ZqJTlB4IpiDbUG0wkfzquBxI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-301-LBRzP4Y5M1yzmOfvbBoMaw-1; Fri, 29 Nov 2019 15:14:31 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6DABE18543A0
+        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 20:14:30 +0000 (UTC)
+Received: from [172.54.108.34] (cpt-1042.paas.prod.upshift.rdu2.redhat.com [10.0.19.67])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A4BDA6090C;
+        Fri, 29 Nov 2019 20:14:28 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191129135908.2439529-7-boris.brezillon@collabora.com>
-X-Operating-System: Linux phenom 5.3.0-2-amd64 
-User-Agent: Mutt/1.12.2 (2019-09-21)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel  (stable-queue)
+Date:   Fri, 29 Nov 2019 20:14:28 -0000
+Message-ID: <cki.9578F1D62E.HA5UQQZXEC@redhat.com>
+X-Gitlab-Pipeline-ID: 315133
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/315133
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: LBRzP4Y5M1yzmOfvbBoMaw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: multipart/mixed; boundary="===============3731388268853891401=="
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 29, 2019 at 02:59:06PM +0100, Boris Brezillon wrote:
-> We don't want imported/exported BOs to be purges, as those are shared
-> with other processes that might still use them. We should also refuse
-> to export a BO if it's been marked purgeable or has already been purged.
-> 
-> Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> ---
->  drivers/gpu/drm/panfrost/panfrost_drv.c | 19 ++++++++++++++++-
->  drivers/gpu/drm/panfrost/panfrost_gem.c | 27 +++++++++++++++++++++++++
->  2 files changed, 45 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> index 1c67ac434e10..751df975534f 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> @@ -343,6 +343,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
->  	struct drm_panfrost_madvise *args = data;
->  	struct panfrost_device *pfdev = dev->dev_private;
->  	struct drm_gem_object *gem_obj;
-> +	int ret;
->  
->  	gem_obj = drm_gem_object_lookup(file_priv, args->handle);
->  	if (!gem_obj) {
-> @@ -350,6 +351,19 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
->  		return -ENOENT;
->  	}
->  
-> +	/*
-> +	 * We don't want to mark exported/imported BOs as purgeable: we're not
-> +	 * the only owner in that case.
-> +	 */
-> +	mutex_lock(&dev->object_name_lock);
+--===============3731388268853891401==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
-Kinda not awesome that you have to take this core lock here and encumber
-core drm locking with random driver stuff.
 
-Can't this be solved with your own locking only and some reasonable
-ordering of checks? big locks because it's easy is endless long-term pain.
+Hello,
 
-Also exporting purgeable objects is kinda a userspace bug, all you have to
-do is not oops in dma_buf_attachment_map. No need to prevent the damage
-here imo.
--Daniel
+We ran automated tests on a recent commit from this kernel tree:
 
-> +	if (gem_obj->dma_buf)
-> +		ret = -EINVAL;
-> +	else
-> +		ret = 0;
-> +
-> +	if (ret)
-> +		goto out_unlock_object_name;
-> +
->  	mutex_lock(&pfdev->shrinker_lock);
->  	args->retained = drm_gem_shmem_madvise(gem_obj, args->madv);
->  
-> @@ -364,8 +378,11 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
->  	}
->  	mutex_unlock(&pfdev->shrinker_lock);
->  
-> +out_unlock_object_name:
-> +	mutex_unlock(&dev->object_name_lock);
-> +
->  	drm_gem_object_put_unlocked(gem_obj);
-> -	return 0;
-> +	return ret;
->  }
->  
->  int panfrost_unstable_ioctl_check(void)
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> index 92a95210a899..31d6417dd21c 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> @@ -99,6 +99,32 @@ void panfrost_gem_close(struct drm_gem_object *obj, struct drm_file *file_priv)
->  	spin_unlock(&priv->mm_lock);
->  }
->  
-> +static struct dma_buf *
-> +panfrost_gem_export(struct drm_gem_object *obj, int flags)
-> +{
-> +	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
-> +	int ret;
-> +
-> +	/*
-> +	 * We must make sure the BO has not been marked purgeable/purged before
-> +	 * adding the mapping.
-> +	 * Note that we don't need to protect this test with a lock because
-> +	 * &drm_gem_object_funcs.export() is called with
-> +	 * &drm_device.object_lock held, and panfrost_ioctl_madvise() takes
-> +	 * this lock before calling drm_gem_shmem_madvise() (the function that
-> +	 * modifies bo->base.madv).
-> +	 */
-> +	if (bo->base.madv == PANFROST_MADV_WILLNEED)
-> +		ret = -EINVAL;
-> +	else
-> +		ret = 0;
-> +
-> +	if (ret)
-> +		return ERR_PTR(ret);
-> +
-> +	return drm_gem_prime_export(obj, flags);
-> +}
-> +
->  static int panfrost_gem_pin(struct drm_gem_object *obj)
->  {
->  	if (to_panfrost_bo(obj)->is_heap)
-> @@ -112,6 +138,7 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
->  	.open = panfrost_gem_open,
->  	.close = panfrost_gem_close,
->  	.print_info = drm_gem_shmem_print_info,
-> +	.export = panfrost_gem_export,
->  	.pin = panfrost_gem_pin,
->  	.unpin = drm_gem_shmem_unpin,
->  	.get_sg_table = drm_gem_shmem_get_sg_table,
-> -- 
-> 2.23.0
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+            Commit: 04eb6cf525b2 - Linux 5.3.14
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: FAILED
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/315133
+
+We attempted to compile the kernel for multiple architectures, but the compile
+failed on one or more architectures:
+
+           aarch64: FAILED (see build-aarch64.log.xz attachment)
+           ppc64le: FAILED (see build-ppc64le.log.xz attachment)
+            x86_64: FAILED (see build-x86_64.log.xz attachment)
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+
+    ppc64le:
+
+    x86_64:
+
+
+--===============3731388268853891401==
+Content-Type: application/x-xz
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="build-ppc64le.log.xz"
+MIME-Version: 1.0
+
+/Td6WFoAAATm1rRGAgAhARYAAAB0L+WjAQAIYnVpbGQubG9nAAAAAG7M3kpeYfe/AAEhCWwYxdUf
+tvN9AQAAAAAEWVo=
+--===============3731388268853891401==
+Content-Type: application/x-xz
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="build-aarch64.log.xz"
+MIME-Version: 1.0
+
+/Td6WFoAAATm1rRGAgAhARYAAAB0L+WjAQAIYnVpbGQubG9nAAAAAG7M3kpeYfe/AAEhCWwYxdUf
+tvN9AQAAAAAEWVo=
+--===============3731388268853891401==
+Content-Type: application/x-xz
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="build-x86_64.log.xz"
+MIME-Version: 1.0
+
+/Td6WFoAAATm1rRGAgAhARYAAAB0L+WjAQAIYnVpbGQubG9nAAAAAG7M3kpeYfe/AAEhCWwYxdUf
+tvN9AQAAAAAEWVo=
+--===============3731388268853891401==--
+
