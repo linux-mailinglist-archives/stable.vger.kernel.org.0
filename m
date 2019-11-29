@@ -2,91 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8B810D823
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 16:56:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBCA10D82F
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 17:04:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfK2P4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 10:56:47 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:56927 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727004AbfK2P4r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 10:56:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575043005;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=djhg4BuIO+PiyYCw/WWgSBGEwGxGvzdmktY+j79qkjw=;
-        b=ZOscrZGNBOrI2BXqFY7g6NKGaA1bGiowkaKLhRmA+cuvWypo5YpspQiQA9TNOshEDvWhds
-        aO/EMV7VAfIwEQBPje0FUF3TKZqjKiq1O8fBqVyGByR7zilCBKyFQhopx0ktExeCmgcMC9
-        RWF+jmigbVjnJSykiaBcH5D2ETguy3Y=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-248-ZXkoMX_jNue7Mwnb9Tq-fw-1; Fri, 29 Nov 2019 10:56:43 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 784DC107ACC4;
-        Fri, 29 Nov 2019 15:56:42 +0000 (UTC)
-Received: from [10.33.36.147] (unknown [10.33.36.147])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 29E1E600C8;
-        Fri, 29 Nov 2019 15:56:40 +0000 (UTC)
-Subject: Re: [PATCH 02/12] fs_parse: fix fs_param_v_optional handling
-To:     Miklos Szeredi <mszeredi@redhat.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        David Howells <dhowells@redhat.com>,
-        stable <stable@vger.kernel.org>
-References: <20191128155940.17530-1-mszeredi@redhat.com>
- <20191128155940.17530-3-mszeredi@redhat.com>
- <8694f75f-e947-d369-6be3-b08287c381e9@redhat.com>
- <CAOssrKccHtfwg4SYbQRwoaz_WcWJWNM3JXk7BHv=SPpsKOdkuQ@mail.gmail.com>
-From:   Andrew Price <anprice@redhat.com>
-Message-ID: <74a0ccaa-4235-6c68-0f6f-a8954a827e06@redhat.com>
-Date:   Fri, 29 Nov 2019 15:56:39 +0000
+        id S1726950AbfK2QEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 11:04:11 -0500
+Received: from mail-pl1-f176.google.com ([209.85.214.176]:32971 "EHLO
+        mail-pl1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726915AbfK2QEL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 11:04:11 -0500
+Received: by mail-pl1-f176.google.com with SMTP id ay6so13064269plb.0
+        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 08:04:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=55yYEkm6RHJrPbGEbz5YaTrG6Snd2G6eoPVI+U2I9sw=;
+        b=ixA6CFkEosFzfEFCuAMfiMcqA4yRfzWdPkgAQy+nlXnxzy72RoRXy12bxu7vVQRGW4
+         q2Urr/WgXBsoiltbaiFdJaW+2Ic6va6kdHryTK502qDrAKETHoB0ztHiluS9AhqYclxX
+         ftLioSXEjsN+i39I0lBJtS40Xs7f7kdq2eGx4xJL4uq3bMnocnEaf0kNUylJUjVZ68wo
+         2gt9Bp68qEiH2AuFun6lNbK3qj9MugJ+4QALqXdBC9vvd9wljCgh85MKJK0cGK+PmaKZ
+         4+wUSu9VMHM2G8xjmQL/g6EqfZX3IavR0EP16J317lBJzIRC88cftXSovW1ooylDjU1+
+         DPVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=55yYEkm6RHJrPbGEbz5YaTrG6Snd2G6eoPVI+U2I9sw=;
+        b=rWeKPuRKm85G1Tl1Dv+0WqM4Pk5hQNHbL/pUYgCXgz99XuOcRfXea2rCjPus74SBNu
+         kywrEzKo7eRl0uRs3rXEXalqlckL5iljw0Zy6RC8WfhirBkYSfO7aECzlocspEKnnIOS
+         DSP3JUe9+5CIgAt89dz5Rj+IPxVC+kJWSggfw2DlZwV2Gdw2u/i3Xa4+7jmZ61sa4l2a
+         ChSWiCTI23SK6bvHnIKvQDTv8AMPrDL/6yxXbP5UJE9VETd7ykwVXyhI02wXnkJW2/4I
+         tZkae9uGX4XzJl9yQraFMbXK+cWlFADWHSoCvlbtH1yfmZ9ZpwMZNxSXoL8O0GAp8lPp
+         19TQ==
+X-Gm-Message-State: APjAAAVoqo/24lIzpY4WMi9f4nu2NBPzEqKdQJdSe8Hxoaaz1GQdswPc
+        5AFnZtSYIVTL1+T/xdJh5Vm3hw==
+X-Google-Smtp-Source: APXvYqzLZT3KWZYjNqWSQy2mj7zlWghNfW8U+ubCCK8iIBbW4a8KCTN325YznK1PmfsXvxdONXDJng==
+X-Received: by 2002:a17:902:b90a:: with SMTP id bf10mr15393104plb.45.1575043450234;
+        Fri, 29 Nov 2019 08:04:10 -0800 (PST)
+Received: from ?IPv6:2605:e000:100e:8c61:99f0:a6fb:215a:45a7? ([2605:e000:100e:8c61:99f0:a6fb:215a:45a7])
+        by smtp.gmail.com with ESMTPSA id ay16sm13351352pjb.2.2019.11.29.08.04.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 29 Nov 2019 08:04:08 -0800 (PST)
+Subject: Re: Build failure on latest powerpc/merge (311ae9e159d8 io_uring: fix
+ dead-hung for non-iter fixed rw)
+To:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Cc:     stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+References: <71cf82d5-5986-43b7-cf1c-acba429a89d6@c-s.fr>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <3a95d445-1f5c-7750-f0de-ddc427800b3b@kernel.dk>
+Date:   Fri, 29 Nov 2019 08:04:06 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-In-Reply-To: <CAOssrKccHtfwg4SYbQRwoaz_WcWJWNM3JXk7BHv=SPpsKOdkuQ@mail.gmail.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-MC-Unique: ZXkoMX_jNue7Mwnb9Tq-fw-1
-X-Mimecast-Spam-Score: 0
+In-Reply-To: <71cf82d5-5986-43b7-cf1c-acba429a89d6@c-s.fr>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/11/2019 14:43, Miklos Szeredi wrote:
-> On Fri, Nov 29, 2019 at 12:31 PM Andrew Price <anprice@redhat.com> wrote:
->>
->> On 28/11/2019 15:59, Miklos Szeredi wrote:
->>> String options always have parameters, hence the check for optional
->>> parameter will never trigger.
->>>
->>> Check for param type being a flag first (flag is the only type that does
->>> not have a parameter) and report "Missing value" if the parameter is
->>> mandatory.
->>>
->>> Tested with gfs2's "quota" option, which is currently the only user of
->>> fs_param_v_optional.
->>
->> It's not clear to me what the bug is here. My tests with the quota
->> option are giving expected results. Perhaps I missed a case?
+On 11/29/19 6:53 AM, Christophe Leroy wrote:
+>     CC      fs/io_uring.o
+> fs/io_uring.c: In function ‘loop_rw_iter’:
+> fs/io_uring.c:1628:21: error: implicit declaration of function ‘kmap’
+> [-Werror=implicit-function-declaration]
+>       iovec.iov_base = kmap(iter->bvec->bv_page)
+>                        ^
+> fs/io_uring.c:1628:19: warning: assignment makes pointer from integer
+> without a cast [-Wint-conversion]
+>       iovec.iov_base = kmap(iter->bvec->bv_page)
+>                      ^
+> fs/io_uring.c:1643:4: error: implicit declaration of function ‘kunmap’
+> [-Werror=implicit-function-declaration]
+>       kunmap(iter->bvec->bv_page);
+>       ^
 > 
-> fsopen-test-2: fsconfig(3, FSCONFIG_SET_FLAG, "quota", NULL, 0):
-> Invalid argument
-> fsopen-test-2: context log: <e gfs2: Bad value for 'quota'>
 > 
-> kernel: 5.4.0-08836-g81b6b96475ac
+> Reverting commit 311ae9e159d8 ("io_uring: fix dead-hung for non-iter
+> fixed rw") clears the failure.
+> 
+> Most likely an #include is missing.
 
-Ah right, gotcha. My tests were relying on the same codepaths being used 
-from the legacy/monolithic parsing code.
+Huh weird how the build bots didn't catch that. Does the below work?
 
-Reviewed-by: Andrew Price <anprice@redhat.com>
 
-Andy
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 2c2e8c25da01..745eb005fefe 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -69,6 +69,7 @@
+  #include <linux/nospec.h>
+  #include <linux/sizes.h>
+  #include <linux/hugetlb.h>
++#include <linux/highmem.h>
+  
+  #define CREATE_TRACE_POINTS
+  #include <trace/events/io_uring.h>
+
+-- 
+Jens Axboe
 
