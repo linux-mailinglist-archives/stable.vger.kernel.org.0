@@ -2,95 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F0F10D84E
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 17:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7BA110D864
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 17:26:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726925AbfK2QOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 11:14:21 -0500
-Received: from pegase1.c-s.fr ([93.17.236.30]:57527 "EHLO pegase1.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726909AbfK2QOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 Nov 2019 11:14:20 -0500
-Received: from localhost (mailhub1-ext [192.168.12.233])
-        by localhost (Postfix) with ESMTP id 47Pfhn6hbbz9vBLm;
-        Fri, 29 Nov 2019 17:14:17 +0100 (CET)
-Authentication-Results: localhost; dkim=pass
-        reason="1024-bit key; insecure key"
-        header.d=c-s.fr header.i=@c-s.fr header.b=MIp0XX8k; dkim-adsp=pass;
-        dkim-atps=neutral
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id czFo_DUix5Vc; Fri, 29 Nov 2019 17:14:17 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 47Pfhn4lwGz9vBLl;
-        Fri, 29 Nov 2019 17:14:17 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
-        t=1575044057; bh=FovemUvA6qctABDabS0NtDnUTnpAPHjSV1V8/RSSR9g=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=MIp0XX8k/I4wsfEgOYSzCsDkEXhTrmYqxehmxuBCm6XkDFcJq3T0hGxEYQ1Kz6NIG
-         M7TpVa13ygd3AwlIJXHrwq1iQnMaePGf8TUnA+J1BqgPr3u+6+v9CF3rnVnRUCz+98
-         lseISBglyZJmBfRPyJbcLqVhWJ//g3rACrqlq9/Y=
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 42FDF8B8DE;
-        Fri, 29 Nov 2019 17:14:19 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id 0j_ez_gOcD8Z; Fri, 29 Nov 2019 17:14:19 +0100 (CET)
-Received: from [172.25.230.103] (po15451.idsi0.si.c-s.fr [172.25.230.103])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 215048B8DC;
-        Fri, 29 Nov 2019 17:14:19 +0100 (CET)
-Subject: Re: Build failure on latest powerpc/merge (311ae9e159d8 io_uring: fix
- dead-hung for non-iter fixed rw)
-To:     Jens Axboe <axboe@kernel.dk>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Cc:     stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-References: <71cf82d5-5986-43b7-cf1c-acba429a89d6@c-s.fr>
- <3a95d445-1f5c-7750-f0de-ddc427800b3b@kernel.dk>
-From:   Christophe Leroy <christophe.leroy@c-s.fr>
-Message-ID: <4ef71e74-848f-59d4-6b0b-d3a3c52095a0@c-s.fr>
-Date:   Fri, 29 Nov 2019 17:14:18 +0100
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+        id S1726928AbfK2Q0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 11:26:06 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:34265 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726909AbfK2Q0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 11:26:06 -0500
+Received: by mail-wr1-f66.google.com with SMTP id t2so35845833wrr.1
+        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 08:26:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ieUMHSd1zPYYfaUKkn6DqkAclLmylt6F76ziEIKkeYU=;
+        b=knEP4OfNyJYD0H96zd6gvw9a6yjaNhlo/6iBI4uS6NvrNgl8LT2HmBdIXgzevVnRlZ
+         FE2Kvr0SOrC4ubvsrMjg/PKheCH4lcmxoT5SFovNuP8+8HyCk4zZ0k0syi5IfxA2DMWI
+         Frk2al9nSeGBgNOe2Pme+E0h7OfyRRx/Mj2xFODt5fy4n/WPcgbpZJ0Ln6m/N9slyOxq
+         A5saQ0t/H2NV9Y+hK9pn8GNZbqIfyj5+9McYr79ZY2yA6Kavwzvb6UoDB/fpCJnXdSyP
+         8ogb88FlvuJdbO3QVn0HM1Fm8YzDmVjzQCO8KcKnMWc13rEtSl6/IB8m3zR6xpebZla8
+         uShQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ieUMHSd1zPYYfaUKkn6DqkAclLmylt6F76ziEIKkeYU=;
+        b=ANqnLouMmFTXC9FS2HEj84THkvj93bAPhxHRBGNOevL1Eju7LaO0TRa/KQjuTzSa9i
+         63bsEeBk30emCjISv1LNPgAP1OH2XKZ6x3oMXGBRYpyKJzsv1we70qoeMFn8rL/KsCai
+         qR9nTAkVwvi10d7964VeWFBZHhm3KPo5V7VjCGE8ezuF4D+/KTCnA6wNtPaediSQL945
+         /sxsIP5ps0OMX3r4yb8TbFuJqp/cixisJqEYHT+fUs8QYb0qHNHUq9d9Cj5ThRlJ7nsb
+         bZRjgKaldXbvQNzEje6EhIUZEwiP1xMs9ow5n3aLmX8XHHK+Y5XxKEbNT5ZGuRTs3w9m
+         Z4Iw==
+X-Gm-Message-State: APjAAAWxM8VRDHhPI/OYWBHtJmyql8H+7IJtckAybxZNw2jSHkNJwSkI
+        +P36DBCvcoq6tz7OVaYppINdc06SDjxtvQ==
+X-Google-Smtp-Source: APXvYqzXQkZp6dZ3xBeFJZ3k+VyXGQ9snckrnG2NCcBds2jNx04spfwHBcPTkVgEv7GFFtbujqanNg==
+X-Received: by 2002:a5d:4204:: with SMTP id n4mr48018557wrq.123.1575044764336;
+        Fri, 29 Nov 2019 08:26:04 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r2sm28033676wrp.64.2019.11.29.08.26.03
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Nov 2019 08:26:03 -0800 (PST)
+Message-ID: <5de1469b.1c69fb81.546a9.1231@mx.google.com>
+Date:   Fri, 29 Nov 2019 08:26:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <3a95d445-1f5c-7750-f0de-ddc427800b3b@kernel.dk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v5.3.14
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-5.3.y boot: 91 boots: 1 failed,
+ 88 passed with 2 untried/unknown (v5.3.14)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.3.y boot: 91 boots: 1 failed, 88 passed with 2 untried/unkno=
+wn (v5.3.14)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+3.y/kernel/v5.3.14/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.3.y/ke=
+rnel/v5.3.14/
 
-Le 29/11/2019 à 17:04, Jens Axboe a écrit :
-> On 11/29/19 6:53 AM, Christophe Leroy wrote:
->>     CC      fs/io_uring.o
->> fs/io_uring.c: In function ‘loop_rw_iter’:
->> fs/io_uring.c:1628:21: error: implicit declaration of function ‘kmap’
->> [-Werror=implicit-function-declaration]
->>       iovec.iov_base = kmap(iter->bvec->bv_page)
->>                        ^
->> fs/io_uring.c:1628:19: warning: assignment makes pointer from integer
->> without a cast [-Wint-conversion]
->>       iovec.iov_base = kmap(iter->bvec->bv_page)
->>                      ^
->> fs/io_uring.c:1643:4: error: implicit declaration of function ‘kunmap’
->> [-Werror=implicit-function-declaration]
->>       kunmap(iter->bvec->bv_page);
->>       ^
->>
->>
->> Reverting commit 311ae9e159d8 ("io_uring: fix dead-hung for non-iter
->> fixed rw") clears the failure.
->>
->> Most likely an #include is missing.
-> 
-> Huh weird how the build bots didn't catch that. Does the below work?
+Tree: stable
+Branch: linux-5.3.y
+Git Describe: v5.3.14
+Git Commit: b8e167066e85c9e1e9c5d27b82a858d96e6ba22c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 58 unique boards, 18 SoC families, 13 builds out of 208
 
-Yes it works, thanks.
+Boot Regressions Detected:
 
-Christophe
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v5.3.13)
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v5.3.13)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxm-q200:
+              lab-baylibre: new failure (last pass: v5.3.13)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
