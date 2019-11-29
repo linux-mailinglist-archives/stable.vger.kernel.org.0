@@ -2,93 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A726510D6FB
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 15:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2FD10D703
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 15:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726834AbfK2O2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 09:28:36 -0500
-Received: from foss.arm.com ([217.140.110.172]:48486 "EHLO foss.arm.com"
+        id S1726824AbfK2ObM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 09:31:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726808AbfK2O2g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 Nov 2019 09:28:36 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BFDB71FB;
-        Fri, 29 Nov 2019 06:28:35 -0800 (PST)
-Received: from [10.1.194.43] (e112269-lin.cambridge.arm.com [10.1.194.43])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E03153F52E;
-        Fri, 29 Nov 2019 06:28:34 -0800 (PST)
-Subject: Re: [PATCH 4/8] drm/panfrost: Fix a race in
- panfrost_gem_free_object()
-To:     Boris Brezillon <boris.brezillon@collabora.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Cc:     stable@vger.kernel.org, dri-devel@lists.freedesktop.org
-References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
- <20191129135908.2439529-5-boris.brezillon@collabora.com>
-From:   Steven Price <steven.price@arm.com>
-Message-ID: <a30a18c7-e9de-a90d-97b5-f8f386b7f35d@arm.com>
-Date:   Fri, 29 Nov 2019 14:28:33 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1726808AbfK2ObM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Nov 2019 09:31:12 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F104B21736;
+        Fri, 29 Nov 2019 14:31:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575037870;
+        bh=ysU6Uvk9pdWPHQ/cwCM/Ngg0+69Q8qgputUIYrAH7Wo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i2IJsT1ihvKIL3Kqavfsq8w03kPgzni7rgCWNxHl3r9fXueYHh2IivV7uUdF7o/vO
+         JQDuZo1GgwA0JwMII2VOUUvMmH+u758MLGh02T9fpTQiL9jO91Qpf5YxUbIJJL4o1z
+         TbucC0ZtByJ3k4Fx9CAdC8dag4wOc+hMfDL4aAbE=
+Date:   Fri, 29 Nov 2019 15:31:08 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 185/306] net: hns3: bugfix for buffer not free
+ problem during resetting
+Message-ID: <20191129143108.GA3708972@kroah.com>
+References: <20191127203114.766709977@linuxfoundation.org>
+ <20191127203128.798931840@linuxfoundation.org>
+ <20191129110010.GA4313@amd>
 MIME-Version: 1.0
-In-Reply-To: <20191129135908.2439529-5-boris.brezillon@collabora.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191129110010.GA4313@amd>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/11/2019 13:59, Boris Brezillon wrote:
-> panfrost_gem_shrinker_scan() might purge a BO (release the sgt and
-> kill the GPU mapping) that's being freed by panfrost_gem_free_object()
-> if we don't remove the BO from the shrinker list at the beginning of
-> panfrost_gem_free_object().
+On Fri, Nov 29, 2019 at 12:00:10PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-
-Reviewed-by: Steven Price <steven.price@arm.com>
-
-> ---
->  drivers/gpu/drm/panfrost/panfrost_gem.c | 15 ++++++++++-----
->  1 file changed, 10 insertions(+), 5 deletions(-)
+> > From: Huazhong Tan <tanhuazhong@huawei.com>
+> > 
+> > [ Upstream commit 73b907a083b8a8c1c62cb494bc9fbe6ae086c460 ]
+> > 
+> > When hns3_get_ring_config()/hns3_queue_to_ring()/
+> > hns3_get_vector_ring_chain() failed during resetting, the allocated
+> > memory has not been freed before these three functions return. So
+> > this patch adds error handler in these functions to fix it.
 > 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> index acb07fe06580..daf4c55a2863 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> @@ -19,6 +19,16 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
->  	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
->  	struct panfrost_device *pfdev = obj->dev->dev_private;
->  
-> +	/*
-> +	 * Make sure the BO is no longer inserted in the shrinker list before
-> +	 * taking care of the destruction itself. If we don't do that we have a
-> +	 * race condition between this function and what's done in
-> +	 * panfrost_gem_shrinker_scan().
-> +	 */
-> +	mutex_lock(&pfdev->shrinker_lock);
-> +	list_del_init(&bo->base.madv_list);
-> +	mutex_unlock(&pfdev->shrinker_lock);
-> +
->  	if (bo->sgts) {
->  		int i;
->  		int n_sgt = bo->base.base.size / SZ_2M;
-> @@ -33,11 +43,6 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
->  		kfree(bo->sgts);
->  	}
->  
-> -	mutex_lock(&pfdev->shrinker_lock);
-> -	if (!list_empty(&bo->base.madv_list))
-> -		list_del(&bo->base.madv_list);
-> -	mutex_unlock(&pfdev->shrinker_lock);
-> -
->  	drm_gem_shmem_free_object(obj);
->  }
->  
+> Correct me if I'm wrong, but... this introduces use-after-free:
 > 
+> > @@ -2592,6 +2592,16 @@ static int hns3_get_vector_ring_chain(struct hns3_enet_tqp_vector *tqp_vector,
+> >  	}
+> >  
+> >  	return 0;
+> > +
+> > +err_free_chain:
+> > +	cur_chain = head->next;
+> > +	while (cur_chain) {
+> > +		chain = cur_chain->next;
+> > +		devm_kfree(&pdev->dev, chain);
+> > +		cur_chain = chain;
+> > +	}
+> 
+> Lets take two iterations:
+> 
+> > +		chain = cur_chain->next;
+> > +		devm_kfree(&pdev->dev, chain);
+> chain freed here.
+> > +		cur_chain = chain;
+> 
+> > +		chain = cur_chain->next;
+> chain->next accessed here, after free.
+> > +		devm_kfree(&pdev->dev, chain);
+> > +		cur_chain = chain;
+> 
+> Should it do devm_kfree(&pdev->dev, cur_chain); ?
 
+I think Sasha tried to backport a fix for this patch, but that fix broke
+the build :(
+
+If you want to provide a working backport, I'll be glad to take it.
+
+thanks,
+
+greg k-h
