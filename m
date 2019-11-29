@@ -2,84 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E78E310D3F0
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 11:28:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0C110D443
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 11:36:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726215AbfK2K2v convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 29 Nov 2019 05:28:51 -0500
-Received: from lithops.sigma-star.at ([195.201.40.130]:39218 "EHLO
-        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725892AbfK2K2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 05:28:51 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 8BE0E605AD4C;
-        Fri, 29 Nov 2019 11:28:48 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id MzjCSbs_Kowu; Fri, 29 Nov 2019 11:28:46 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id A1ADE62EBCA9;
-        Fri, 29 Nov 2019 11:28:46 +0100 (CET)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id PpKVc_9Wkzol; Fri, 29 Nov 2019 11:28:46 +0100 (CET)
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 77A026083139;
-        Fri, 29 Nov 2019 11:28:46 +0100 (CET)
-Date:   Fri, 29 Nov 2019 11:28:46 +0100 (CET)
-From:   Richard Weinberger <richard@nod.at>
-To:     Joel Stanley <joel@jms.id.au>
-Cc:     David Woodhouse <dwmw2@infradead.org>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        OpenBMC Maillist <openbmc@lists.ozlabs.org>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Hou Tao <houtao1@huawei.com>
-Message-ID: <1768300347.101090.1575023326346.JavaMail.zimbra@nod.at>
-In-Reply-To: <20191129001930.651128-1-joel@jms.id.au>
-References: <20191129001930.651128-1-joel@jms.id.au>
-Subject: Re: [PATCH] Revert "jffs2: Fix possible null-pointer dereferences
- in jffs2_add_frag_to_fragtree()"
+        id S1726791AbfK2Kgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 05:36:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726215AbfK2Kgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Nov 2019 05:36:41 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 076B7217AB;
+        Fri, 29 Nov 2019 10:36:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575023800;
+        bh=wKFiPKYLyGNGPcYAElj1KHbSv2fZfqw/jJw3rwwHb7o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vSoMF0Ie/Mn5LqUWya8MPd+aexvCPMri1wYl+fSyXJpIP5ihQxzy2bTujNsar+btP
+         897M8n0waBTVF/ibemp0uVQe+BEwmwXnbKXwD41bL4lwLeNswRfEH3C+B0wdfDJSOR
+         DGor4a2gs3DOaXN+cN4aP9CsNnoYiA4rGTB42bwM=
+Date:   Fri, 29 Nov 2019 11:36:37 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 000/211] 4.14.157-stable review
+Message-ID: <20191129103637.GA3692623@kroah.com>
+References: <20191127203049.431810767@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [195.201.40.130]
-X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF68 (Linux)/8.8.12_GA_3809)
-Thread-Topic: Revert "jffs2: Fix possible null-pointer dereferences in jffs2_add_frag_to_fragtree()"
-Thread-Index: YU57vPD+ANar5XiWuA9wwI2ZV1KT3A==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191127203049.431810767@linuxfoundation.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ Ursprüngliche Mail -----
-> Von: "Joel Stanley" <joel@jms.id.au>
-> An: "David Woodhouse" <dwmw2@infradead.org>, "richard" <richard@nod.at>, "Jia-Ju Bai" <baijiaju1990@gmail.com>, "Al
-> Viro" <viro@zeniv.linux.org.uk>, "OpenBMC Maillist" <openbmc@lists.ozlabs.org>, "linux-mtd"
-> <linux-mtd@lists.infradead.org>, "linux-kernel" <linux-kernel@vger.kernel.org>
-> CC: "stable" <stable@vger.kernel.org>, "Hou Tao" <houtao1@huawei.com>
-> Gesendet: Freitag, 29. November 2019 01:19:30
-> Betreff: [PATCH] Revert "jffs2: Fix possible null-pointer dereferences in jffs2_add_frag_to_fragtree()"
-
-> This reverts commit f2538f999345405f7d2e1194c0c8efa4e11f7b3a. The patch
-> stopped JFFS2 from being able to mount an existing filesystem with the
-> following errors:
+On Wed, Nov 27, 2019 at 09:28:53PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.157 release.
+> There are 211 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> jffs2: error: (77) jffs2_build_inode_fragtree: Add node to tree failed -22
-> jffs2: error: (77) jffs2_do_read_inode_internal: Failed to build final fragtree
-> for inode #5377: error -22
+> Responses should be made by Fri, 29 Nov 2019 20:18:09 +0000.
+> Anything received after that time might be too late.
 > 
-> Fixes: f2538f999345 ("jffs2: Fix possible null-pointer dereferences...")
-> Cc: stable@vger.kernel.org
-> Suggested-by: Hou Tao <houtao1@huawei.com>
-> Signed-off-by: Joel Stanley <joel@jms.id.au>
-> ---
-> 5.4 cannot mount (some?) jffs2 filesystems without this fix. Hou pointed
-> this out[1] a while back but the fix didn't make it in. It's still
-> broken in -next.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.157-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
 
-queued into -next.
+I have released a -rc3 version now:
+ 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.157-rc1.gz
 
-Thanks,
-//richard
+that should have the i386 issues fixed, as well as all other reported
+issues.
+
+thanks,
+
+greg k-h
