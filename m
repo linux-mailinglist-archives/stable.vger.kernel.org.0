@@ -2,126 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F5C10D91B
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 18:33:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0CB10D930
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 18:56:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbfK2Rdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 12:33:44 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:38519 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726909AbfK2Rdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 12:33:44 -0500
-Received: by mail-wr1-f68.google.com with SMTP id i12so36208791wro.5
-        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 09:33:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JbhC3Y5JNyfZJkmDWH9aPioiA1vFOc+GWL2XXmuR5l0=;
-        b=f5vzNVf55GcZawhhsN1p6MINI9aOC0IkxBs+ehSecsI9dVyV2F5qOoZ1xjceYvrttN
-         CjImVBmbpdn/MCNj+/xpO+FeFtdoZz+bveqRREzF0nliUOxJrlc/KbWFRPEiZy5ADj+D
-         Px+XYLMeVjCtCpOf8YRh8wXsjU4Tm/PI4D6kYqBTCPVF2zaBe1mJZ65vOzhPldeX7Nye
-         HLsqf0tFgUrMfgEhgouRgGmeJZqw2dosU6ikiTu/khjvSUPYrlco/X4QNC2wMkbVCxwh
-         v+XKmXZPHtjjEK78/387kurIV7OpGcfldHZRzuZrtvCYxhQwV8fqTy56yXj2JLpIGgaD
-         1oqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JbhC3Y5JNyfZJkmDWH9aPioiA1vFOc+GWL2XXmuR5l0=;
-        b=fFXvN1mBgIYedxk1NIPfW9dRYUUuPu039fTSlBvOyrpZvsjHqPGoZ9LrYPwXvCzMDD
-         YqvGi+Kg1hi4AsZ4HcpbytI0qm0TQmCgGmwmjeXGzzEEOzAka4CFqTzJTAdcNkiMI7ma
-         aIdKGAVT9U6BbiZRbTE5uumBVXhEYBzmrWcDz/OkUSCJFrdtO+Waa9uaj8FUteYs+5Ii
-         hewNIcggTHzEb9110uoiNR6tqJnsYQyJWgLgVSR4uaqdXJ6j0rMmuM0I8W0DRp9sg3Ui
-         hM/Ur9lj/HwqTbrlSO/oVQWILTaFeyRHsQxoWmUV4mQ/pbMBfDMBnkamDzRjwV1/v0+r
-         245g==
-X-Gm-Message-State: APjAAAU/A1K8zU6XOVe/qvaSJv0vWupaXqMm1cHbC8ZSBA+af+RU6x/H
-        9yQlsxPPz2mJDKeNZDJ/0QtYRZe0A0ZnpQ==
-X-Google-Smtp-Source: APXvYqw63KlF1obYl+v/dIY4OhYJMAQqynVdmoxtpWTv2mF6bwxSILjwSXJZ4fIfvlPdDiItVqr8YQ==
-X-Received: by 2002:adf:e550:: with SMTP id z16mr32362049wrm.315.1575048821759;
-        Fri, 29 Nov 2019 09:33:41 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s8sm13443374wmc.39.2019.11.29.09.33.39
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Nov 2019 09:33:40 -0800 (PST)
-Message-ID: <5de15674.1c69fb81.73684.5a8c@mx.google.com>
-Date:   Fri, 29 Nov 2019 09:33:40 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726971AbfK2R4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 12:56:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48032 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726970AbfK2R4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 Nov 2019 12:56:12 -0500
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B69242158A;
+        Fri, 29 Nov 2019 17:56:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575050170;
+        bh=NB5Gf1Q3vSZTblBj+r+anX1Gd6+985MhbvLhEw+wH68=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SRXGlV5RVcc+XmFeQm3pDrl7JXNeolayQezj9ZbtKE0XVQBPKE7YLSYtvNXvLEWqI
+         zJuURxnHYvQT7mewsRGOYFJu2UHO2Lrzg4E9KZmEeEuYRNwfRgJLyGITiHQCLyt3h0
+         jF4+weFrW/rmQdpVPFVBBqUMajzeyfaKARGv6Pio=
+Date:   Fri, 29 Nov 2019 17:56:05 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        linux-kernel@vger.kernel.org, bsingharora@gmail.com,
+        dvyukov@google.com, elver@google.com, parri.andrea@gmail.com,
+        stable@vger.kernel.org,
+        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
+        syzkaller-bugs@googlegroups.com
+Subject: Re: [PATCH v6] taskstats: fix data-race
+Message-ID: <20191129175604.GA29789@willie-the-truck>
+References: <20191009114809.8643-1-christian.brauner@ubuntu.com>
+ <20191021113327.22365-1-christian.brauner@ubuntu.com>
+ <efaecf5d-b528-24ba-1955-e1b190ece98c@rasmusvillemoes.dk>
+ <20191021130417.5yi7pxpigsydz5po@wittgenstein>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.3.14
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.3.y boot: 151 boots: 1 failed,
- 142 passed with 7 offline, 1 conflict (v5.3.14)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191021130417.5yi7pxpigsydz5po@wittgenstein>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.3.y boot: 151 boots: 1 failed, 142 passed with 7 offline,=
- 1 conflict (v5.3.14)
+On Mon, Oct 21, 2019 at 03:04:18PM +0200, Christian Brauner wrote:
+> On Mon, Oct 21, 2019 at 02:19:01PM +0200, Rasmus Villemoes wrote:
+> > On 21/10/2019 13.33, Christian Brauner wrote:
+> > > The first approach used smp_load_acquire() and smp_store_release().
+> > > However, after having discussed this it seems that the data dependency
+> > > for kmem_cache_alloc() would be fixed by WRITE_ONCE().
+> > > Furthermore, the smp_load_acquire() would only manage to order the stats
+> > > check before the thread_group_empty() check. So it seems just using
+> > > READ_ONCE() and WRITE_ONCE() will do the job and I wanted to bring this
+> > > up for discussion at least.
+> > > 
+> > > /* v6 */
+> > > - Christian Brauner <christian.brauner@ubuntu.com>:
+> > >   - bring up READ_ONCE()/WRITE_ONCE() approach for discussion
+> > > ---
+> > >  kernel/taskstats.c | 26 +++++++++++++++-----------
+> > >  1 file changed, 15 insertions(+), 11 deletions(-)
+> > > 
+> > > diff --git a/kernel/taskstats.c b/kernel/taskstats.c
+> > > index 13a0f2e6ebc2..111bb4139aa2 100644
+> > > --- a/kernel/taskstats.c
+> > > +++ b/kernel/taskstats.c
+> > > @@ -554,25 +554,29 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
+> > >  static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
+> > >  {
+> > >  	struct signal_struct *sig = tsk->signal;
+> > > -	struct taskstats *stats;
+> > > +	struct taskstats *stats_new, *stats;
+> > >  
+> > > -	if (sig->stats || thread_group_empty(tsk))
+> > > -		goto ret;
+> > > +	/* Pairs with WRITE_ONCE() below. */
+> > > +	stats = READ_ONCE(sig->stats);
+> > > +	if (stats || thread_group_empty(tsk))
+> > > +		return stats;
+> > >  
+> > >  	/* No problem if kmem_cache_zalloc() fails */
+> > > -	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+> > > +	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+> > >  
+> > >  	spin_lock_irq(&tsk->sighand->siglock);
+> > > -	if (!sig->stats) {
+> > > -		sig->stats = stats;
+> > > -		stats = NULL;
+> > > +	if (!stats) {
+> > > +		stats = stats_new;
+> > > +		/* Pairs with READ_ONCE() above. */
+> > > +		WRITE_ONCE(sig->stats, stats_new);
+> > > +		stats_new = NULL;
+> > 
+> > No idea about the memory ordering issues, but don't you need to
+> > load/check sig->stats again? Otherwise it seems that two threads might
+> > both see !sig->stats, both allocate a stats_new, and both
+> > unconditionally in turn assign their stats_new to sig->stats. Then the
+> > first assignment ends up becoming a memory leak (and any writes through
+> > that pointer done by the caller end up in /dev/null...)
+> 
+> Trigger hand too fast. I guess you're thinking sm like:
+> 
+> diff --git a/kernel/taskstats.c b/kernel/taskstats.c
+> index 13a0f2e6ebc2..c4e1ed11e785 100644
+> --- a/kernel/taskstats.c
+> +++ b/kernel/taskstats.c
+> @@ -554,25 +554,27 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
+>  static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
+>  {
+>  	struct signal_struct *sig = tsk->signal;
+> -	struct taskstats *stats;
+> +	struct taskstats *stats_new, *stats;
+>  
+> -	if (sig->stats || thread_group_empty(tsk))
+> -		goto ret;
+> +	stats = READ_ONCE(sig->stats);
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.3.y/kernel/v5.3.14/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
-/kernel/v5.3.14/
+This probably wants to be an acquire, since both the memcpy() later on
+in taskstats_exit() and the accesses in {b,x}acct_add_tsk() appear to
+read from the taskstats structure without the sighand->siglock held and
+therefore may miss zeroed allocation from the zalloc() below, I think.
 
-Tree: stable-rc
-Branch: linux-5.3.y
-Git Describe: v5.3.14
-Git Commit: b8e167066e85c9e1e9c5d27b82a858d96e6ba22c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 89 unique boards, 26 SoC families, 17 builds out of 208
+> +	if (stats || thread_group_empty(tsk))
+> +		return stats;
+>  
+> -	/* No problem if kmem_cache_zalloc() fails */
+> -	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+> +	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+>  
+>  	spin_lock_irq(&tsk->sighand->siglock);
+> -	if (!sig->stats) {
+> -		sig->stats = stats;
+> -		stats = NULL;
+> +	stats = READ_ONCE(sig->stats);
 
-Boot Failure Detected:
+You hold the spinlock here, so I don't think you need the READ_ONCE().
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
+> +	if (!stats) {
+> +		stats = stats_new;
+> +		WRITE_ONCE(sig->stats, stats_new);
 
-Offline Platforms:
+You probably want a release here to publish the zeroes from the zalloc()
+(back to my first comment). With those changes:
 
-arm:
+Reviewed-by: Will Deacon <will@kernel.org>
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
+However, this caused me to look at do_group_exit() and we appear to have
+racy accesses on sig->flags there thanks to signal_group_exit(). I worry
+that might run quite deep, and can probably be looked at separately.
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            mt7623n-bananapi-bpi-r2: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-riscv:
-
-    defconfig:
-        gcc-8
-            sifive_fu540: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-collabora: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+Will
