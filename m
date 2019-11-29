@@ -2,112 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 382E710DAA4
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 21:46:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A985210DAA8
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 21:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbfK2UqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 15:46:13 -0500
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:39024 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727051AbfK2UqN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 15:46:13 -0500
-Received: by mail-pg1-f194.google.com with SMTP id b137so12644613pga.6
-        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 12:46:12 -0800 (PST)
+        id S1727086AbfK2UwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 15:52:19 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:36897 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726970AbfK2UwT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 15:52:19 -0500
+Received: by mail-wr1-f66.google.com with SMTP id w15so5699244wru.4
+        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 12:52:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=lcQEbDrOdeTGsdDriWIDWyDz/Ndj7C2XNFozJomrzCs=;
-        b=eGt3BOZy2ywOlxup/+14ZX3SCtJ06ssyFLTdrGksd1rb6pYpCYH8VEzjeYFtqr481K
-         NF3jItbqR8pKggcozrQWARd5BZdeUwbO5jTUU35JjjmaNnY8U5GK/+r2rxwkChAf1c7l
-         GGT3nJ5pIQEBsbXPr3Ktu7EPvOhIORKF5fSWXv+S2vunur9s+5e+v4cQ2tHYd+Yj/LtH
-         BwvHBVa3b77A2IdmP8XafedrjqYRuYqYq+ITWbMdidWkWCNfNBy397O2OBMqvrNiay6Y
-         xnIcv6KjTtllXx+RgStTRQI4ESlUHjYoUiWwJjB8yqX/Q1iATjEc38ZPxByTvGwzh3ua
-         hCvw==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ZnbFhiHX2AATT56JpA0lebgcGOUiDTKjsS7embABJ80=;
+        b=gCYAfGsE1/lwA8d0JCWs6XVU7tQlqXy1EXTCyEkFUr+yvjaYFgOAlV4P5B4LucoO57
+         VYa0bnRT/mJYMp9SQk9yuEkxKrdafJqB6z4R785FDUsYFmJSKuJ5KBfgacn+QlPEh+wY
+         dqTX7GRqDAdoiNLw0xwW2FFziR+b5t24t32jqApf/ZSk/Hc9eAYOPwiC8HYpSCpGtOJ4
+         7+s3PGL/hN7fvGZN2Q7uoUNYmirzIVgnjp+tQ55R99etVWZa3HuzwQYVGeltXx7TkFfV
+         +6+S/dAIhaLPe3dkABMavXn45Y1JOmweHdPKII/fKXKYsok+MnDQqqJODdougTUBPmK7
+         BOGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=lcQEbDrOdeTGsdDriWIDWyDz/Ndj7C2XNFozJomrzCs=;
-        b=OzmGz2TycFSS4ue7oW2Uwfb8HBonHs/ajrN8GFtHjPuHklkchLdTmeEJ5MO/sUjZRc
-         j9uUUmXMrpol7cJAeikTTMMHwaHjXsGY6VL5LMVhpnYsVF5Z0i8Ol4z8Geg77PAivobo
-         zmuuce6QJglb8Bxc/0t4lXLSPAJXEOY9c/FZxQBTj5CsQOlV8UTAgv/BT2HYdGd9HMXk
-         R6kTBoo3jRozEnlifF8G8NQgkrMr9Eq3RBZ2JPmrP6YcsozSczdaB2etUJh1nRtFZLje
-         zRKPUuqo7XncZYbcoQQAsKEGFvdWQp0GQdbJb9mgwIW4Qfd/x5ODns6S9GWRNJLvcpk6
-         W7jA==
-X-Gm-Message-State: APjAAAVM7Lq7cwwTK7BUFO8VPzAlVDql/j1YY1063FE5OaRLEVZI/xge
-        Y/wcDPjZR6/8O7fT6CJacL75sGMEXR7nJA==
-X-Google-Smtp-Source: APXvYqxvQJVQqpyLVsl+VNb2UuE3zcS3ZWnoWbDXs6k3fnHjPmknMhkDyy9MfVAdjEepES9UHmb0yg==
-X-Received: by 2002:a62:7883:: with SMTP id t125mr6776217pfc.141.1575060372583;
-        Fri, 29 Nov 2019 12:46:12 -0800 (PST)
-Received: from ?IPv6:2605:e000:100e:8c61:6938:40fc:d284:b43? ([2605:e000:100e:8c61:6938:40fc:d284:b43])
-        by smtp.gmail.com with ESMTPSA id p18sm25995758pff.9.2019.11.29.12.46.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 29 Nov 2019 12:46:11 -0800 (PST)
-Subject: Re: io_uring stable additions
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <a552f6b6-bdb8-afb8-b178-1d30d4d9ece6@kernel.dk>
- <20191129195245.GR5861@sasha-vm>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <5ec21b1e-4a0d-1cc4-cd7d-7602624fa3fd@kernel.dk>
-Date:   Fri, 29 Nov 2019 12:46:10 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        bh=ZnbFhiHX2AATT56JpA0lebgcGOUiDTKjsS7embABJ80=;
+        b=PjWb9bUPwBYOuR3xZUV0vRACEP1wipYoCm8M7AORwCnsB4GubZHuCobtorMBzpr9Iy
+         pm3Bz7VRVEHUR+I4UyPARh1NuU6ImcfTES2wxO7LumMWvUjOzsBYqbc0DoCQUKY6ZUxV
+         7ZFpP6qlS7izn4IG+fXHaxCnVvvChokXb7MRV61kda5aFmaKUTUZx054Ej4EX71v/6P7
+         /dmYEGnboy7t9IW7DrUt8rgTUpifqKXSpORjZSzODAHXNh/mn0S1gySJiApg8JSDAUyt
+         SO8o86+RmbrAyuqxyryck2SKA5c1vk12aG9mrsLLGp59IGLchttvKszkngRqEHT2VkQD
+         B3fg==
+X-Gm-Message-State: APjAAAVNuW5O9Ma3+uNF5jWm28XqFZz0XSlYaV9jECHJ4FfGh+dH5ZAm
+        fFBNfSXuBnOLZb0VZrsXoyq7rJCY
+X-Google-Smtp-Source: APXvYqxEyBzuv+8eDXT5e0FiXs9eap/u5Dklm/GjKtF0sOH+iqEf7MQNETqC6Jyw9Hm2i+eIq4YL/Q==
+X-Received: by 2002:adf:e387:: with SMTP id e7mr41126967wrm.180.1575060736637;
+        Fri, 29 Nov 2019 12:52:16 -0800 (PST)
+Received: from debian64.daheim (p5B0D764B.dip0.t-ipconnect.de. [91.13.118.75])
+        by smtp.gmail.com with ESMTPSA id a184sm5729319wmf.29.2019.11.29.12.52.15
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Nov 2019 12:52:15 -0800 (PST)
+Received: from localhost.daheim ([127.0.0.1] helo=debian64.localnet)
+        by debian64.daheim with esmtp (Exim 4.93-RC5)
+        (envelope-from <chunkeey@gmail.com>)
+        id 1ianFO-000Bpc-Ig
+        for stable@vger.kernel.org; Fri, 29 Nov 2019 21:52:14 +0100
+From:   Christian Lamparter <chunkeey@gmail.com>
+To:     stable@vger.kernel.org
+Subject: [PATCH for-4.19-stable] ath10k: restore QCA9880-AR1A (v1) detection
+Date:   Fri, 29 Nov 2019 21:52:14 +0100
+Message-ID: <5688116.JcRxOpqE2I@debian64>
 MIME-Version: 1.0
-In-Reply-To: <20191129195245.GR5861@sasha-vm>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/29/19 11:52 AM, Sasha Levin wrote:
-> On Thu, Nov 28, 2019 at 04:40:38PM -0800, Jens Axboe wrote:
->> Hi,
->>
->> I have a few commits that went into 5.5-rc that should go into stable. The
->> first one is:
->>
->> commit 181e448d8709e517c9c7b523fcd209f24eb38ca7
->> Author: Jens Axboe <axboe@kernel.dk>
->> Date:   Mon Nov 25 08:52:30 2019 -0700
->>
->>     io_uring: async workers should inherit the user creds
->>
->> and I'm attaching a 5.4 port of this patch, since the one in 5.5 is built
->> on top of new code. The 5.4 port will apply all the way back to 5.1 when
->> io_uring was introduced.
->>
->> Secondly, these two (in order):
->>
->> commit 4257c8ca13b084550574b8c9a667d9c90ff746eb
->> Author: Jens Axboe <axboe@kernel.dk>
->> Date:   Mon Nov 25 14:27:34 2019 -0700
->>
->>     net: separate out the msghdr copy from ___sys_{send,recv}msg()
->>
->> and
->>
->> commit d69e07793f891524c6bbf1e75b9ae69db4450953
->> Author: Jens Axboe <axboe@kernel.dk>
->> Date:   Mon Nov 25 17:04:13 2019 -0700
->>
->>     net: disallow ancillary data for __sys_{send,recv}msg_file()
->>
->> should be applied to 5.3/5.4 stable as well. They might look like pure
->> networking commits, but only io_uring uses the interface.
->>
->> These three fix important issues, which is why we need them in stable.
-> 
-> I've queued these three fixes to 5.4 and 5.3, thanks!
+commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream
+---
+From f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 Mon Sep 17 00:00:00 2001
+From: Christian Lamparter <chunkeey@gmail.com>
+Date: Mon, 25 Mar 2019 13:50:19 +0100
+Subject: [PATCH for-4.19-stable] ath10k: restore QCA9880-AR1A (v1) detection
+To: linux-wireless@vger.kernel.org,
+    ath10k@lists.infradead.org
+Cc: Kalle Valo <kvalo@codeaurora.org>
 
-Thanks Sasha!
+This patch restores the old behavior that read
+the chip_id on the QCA988x before resetting the
+chip. This needs to be done in this order since
+the unsupported QCA988x AR1A chips fall off the
+bus when resetted. Otherwise the next MMIO Op
+after the reset causes a BUS ERROR and panic.
 
--- 
-Jens Axboe
+Cc: stable@vger.kernel.org # 4.19
+Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+---
+ drivers/net/wireless/ath/ath10k/pci.c | 36 +++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+--- a/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:07:21.374565470 +0200
++++ b/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:17:15.365912133 +0200
+@@ -3483,7 +3483,7 @@ static int ath10k_pci_probe(struct pci_d
+ 	struct ath10k_pci *ar_pci;
+ 	enum ath10k_hw_rev hw_rev;
+ 	u32 chip_id;
+-	bool pci_ps;
++	bool pci_ps, is_qca988x = false;
+ 	int (*pci_soft_reset)(struct ath10k *ar);
+ 	int (*pci_hard_reset)(struct ath10k *ar);
+ 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
+@@ -3493,6 +3493,7 @@ static int ath10k_pci_probe(struct pci_d
+ 	case QCA988X_2_0_DEVICE_ID:
+ 		hw_rev = ATH10K_HW_QCA988X;
+ 		pci_ps = false;
++		is_qca988x = true;
+ 		pci_soft_reset = ath10k_pci_warm_reset;
+ 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
+ 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
+@@ -3612,6 +3613,19 @@ static int ath10k_pci_probe(struct pci_d
+ 		goto err_deinit_irq;
+ 	}
+ 
++	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
++	 * fall off the bus during chip_reset. These chips have the same pci
++	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
++	 */
++	if (is_qca988x) {
++		chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
++		if (chip_id != 0xffffffff) {
++			if (!ath10k_pci_chip_is_supported(pdev->device,
++							  chip_id))
++				goto err_unsupported;
++		}
++	}
++
+ 	ret = ath10k_pci_chip_reset(ar);
+ 	if (ret) {
+ 		ath10k_err(ar, "failed to reset chip: %d\n", ret);
+@@ -3624,11 +3638,8 @@ static int ath10k_pci_probe(struct pci_d
+ 		goto err_free_irq;
+ 	}
+ 
+-	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id)) {
+-		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
+-			   pdev->device, chip_id);
+-		goto err_free_irq;
+-	}
++	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id))
++		goto err_unsupported;
+ 
+ 	ret = ath10k_core_register(ar, chip_id);
+ 	if (ret) {
+@@ -3638,6 +3649,10 @@ static int ath10k_pci_probe(struct pci_d
+ 
+ 	return 0;
+ 
++err_unsupported:
++	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
++		   pdev->device, bus_params.chip_id);
++
+ err_free_irq:
+ 	ath10k_pci_free_irq(ar);
+ 	ath10k_pci_rx_retry_sync(ar);
+
+
 
