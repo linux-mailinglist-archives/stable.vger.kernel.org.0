@@ -2,102 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 071F810DAC6
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 22:09:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F421910DAF8
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 22:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727110AbfK2VJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 16:09:32 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:41618 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727090AbfK2VJc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 16:09:32 -0500
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:b93f:9fae:b276:a89a])
+        id S1727232AbfK2Vd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 16:33:27 -0500
+Received: from pb-smtp20.pobox.com ([173.228.157.52]:57750 "EHLO
+        pb-smtp20.pobox.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727227AbfK2Vd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 16:33:27 -0500
+Received: from pb-smtp20.pobox.com (unknown [127.0.0.1])
+        by pb-smtp20.pobox.com (Postfix) with ESMTP id E7AA594B11;
+        Fri, 29 Nov 2019 16:33:21 -0500 (EST)
+        (envelope-from nico@fluxnic.net)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=pobox.com; h=date:from:to
+        :cc:subject:in-reply-to:message-id:references:mime-version
+        :content-type; s=sasl; bh=qsjoBcgCxyaID9uJZoXhE7gN8Qg=; b=fJLISc
+        TjHDSD+xsDF7WgIN09KBQuxcjL2q2WDxtjlsKM8Fy0bSe/QuB8fih8zzQyw+xh3R
+        DgnVQWJQ5mpSq5tXB6PwrBOGDjrXc4+2LBWoBN12nmFkGYninZDaFnR2wXqSQG1y
+        Yed3wiffysE99y78dqQzOGhcpQY6yMvLFKeEo=
+Received: from pb-smtp20.sea.icgroup.com (unknown [127.0.0.1])
+        by pb-smtp20.pobox.com (Postfix) with ESMTP id CD3B694B10;
+        Fri, 29 Nov 2019 16:33:21 -0500 (EST)
+        (envelope-from nico@fluxnic.net)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; d=fluxnic.net;
+ h=date:from:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type; s=2016-12.pbsmtp; bh=7emamvWS9iC1jKWQznUYgA1WdYW41jXGMGz2oY925AQ=; b=pZw+3rec2kggzCeUe1aDsbNeZvMmmxD/Z3NNp2tZRa5P2lFgQ/RkKwSliuLBNHB19ndlPDnwVSLUqNHeOIG41azWE8DzmPkCRV8u6GxNO8kEQfum3e2s1aqZI6a75mct+kBuSGcsEANCBNlAeQx/W0tkUPAL/hKEjA//lfAC1vc=
+Received: from yoda.home (unknown [24.203.50.76])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 18C6029299B;
-        Fri, 29 Nov 2019 21:09:28 +0000 (GMT)
-Date:   Fri, 29 Nov 2019 22:09:24 +0100
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Daniel Vetter <daniel@ffwll.ch>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 6/8] drm/panfrost: Make sure imported/exported BOs are
- never purged
-Message-ID: <20191129220924.7982a350@collabora.com>
-In-Reply-To: <20191129201213.GR624164@phenom.ffwll.local>
-References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
-        <20191129135908.2439529-7-boris.brezillon@collabora.com>
-        <20191129201213.GR624164@phenom.ffwll.local>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        by pb-smtp20.pobox.com (Postfix) with ESMTPSA id C152294B0F;
+        Fri, 29 Nov 2019 16:33:18 -0500 (EST)
+        (envelope-from nico@fluxnic.net)
+Received: from xanadu.home (xanadu.home [192.168.2.2])
+        by yoda.home (Postfix) with ESMTPSA id E396D2DA01D7;
+        Fri, 29 Nov 2019 16:33:16 -0500 (EST)
+Date:   Fri, 29 Nov 2019 16:33:16 -0500 (EST)
+From:   Nicolas Pitre <nico@fluxnic.net>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+cc:     Russell King - ARM Linux <linux@armlinux.org.uk>,
+        clang-built-linux@googlegroups.com, manojgupta@google.com,
+        natechancellor@gmail.com, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arm: explicitly place .fixup in .text
+In-Reply-To: <20191122185522.20582-1-ndesaulniers@google.com>
+Message-ID: <nycvar.YSQ.7.76.1911291614480.8537@knanqh.ubzr>
+References: <20191122185522.20582-1-ndesaulniers@google.com>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Pobox-Relay-ID: DC23B8F4-12EF-11EA-9534-B0405B776F7B-78420484!pb-smtp20.pobox.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 29 Nov 2019 21:12:13 +0100
-Daniel Vetter <daniel@ffwll.ch> wrote:
+On Fri, 22 Nov 2019, Nick Desaulniers wrote:
 
-> On Fri, Nov 29, 2019 at 02:59:06PM +0100, Boris Brezillon wrote:
-> > We don't want imported/exported BOs to be purges, as those are shared
-> > with other processes that might still use them. We should also refuse
-> > to export a BO if it's been marked purgeable or has already been purged.
-> > 
-> > Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > ---
-> >  drivers/gpu/drm/panfrost/panfrost_drv.c | 19 ++++++++++++++++-
-> >  drivers/gpu/drm/panfrost/panfrost_gem.c | 27 +++++++++++++++++++++++++
-> >  2 files changed, 45 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> > index 1c67ac434e10..751df975534f 100644
-> > --- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-> > +++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-> > @@ -343,6 +343,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
-> >  	struct drm_panfrost_madvise *args = data;
-> >  	struct panfrost_device *pfdev = dev->dev_private;
-> >  	struct drm_gem_object *gem_obj;
-> > +	int ret;
-> >  
-> >  	gem_obj = drm_gem_object_lookup(file_priv, args->handle);
-> >  	if (!gem_obj) {
-> > @@ -350,6 +351,19 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
-> >  		return -ENOENT;
-> >  	}
-> >  
-> > +	/*
-> > +	 * We don't want to mark exported/imported BOs as purgeable: we're not
-> > +	 * the only owner in that case.
-> > +	 */
-> > +	mutex_lock(&dev->object_name_lock);  
+> From: Kees Cook <keescook@chromium.org>
 > 
-> Kinda not awesome that you have to take this core lock here and encumber
-> core drm locking with random driver stuff.
-
-Looks like drm_gem_shmem_is_purgeable() already does the !imported &&
-!exported check. For the imported case, I think we're good, since
-userspace can't change the madv value before ->import_attach has been
-set. For the exporter case, we need to make sure there's no race
-between the export and madvise operations, which I can probably do from
-the gem->export() hook by taking the shrinker or bo->mappings lock.
-
+> There's an implicit dependency on the section ordering of the orphaned
+> section .fixup that can break arm_copy_from_user if the linker places
+> the .fixup section before the .text section. Since .fixup is not
+> explicitly placed in the existing ARM linker scripts, the linker is free
+> to order it anywhere with respect to the rest of the sections.
 > 
-> Can't this be solved with your own locking only and some reasonable
-> ordering of checks? big locks because it's easy is endless long-term pain.
+> Multiple users from different distros (Raspbian, CrOS) reported kernel
+> panics executing seccomp() syscall with Linux kernels linked with LLD.
 > 
-> Also exporting purgeable objects is kinda a userspace bug, all you have to
-> do is not oops in dma_buf_attachment_map. No need to prevent the damage
-> here imo.
+> Documentation/x86/exception-tables.rst alludes to the ordering
+> dependency. The relevant quote:
+> 
+> ```
+> NOTE:
+> Due to the way that the exception table is built and needs to be ordered,
+> only use exceptions for code in the .text section.  Any other section
+> will cause the exception table to not be sorted correctly, and the
+> exceptions will fail.
+> 
+> Things changed when 64-bit support was added to x86 Linux. Rather than
+> double the size of the exception table by expanding the two entries
+> from 32-bits to 64 bits, a clever trick was used to store addresses
+> as relative offsets from the table itself. The assembly code changed
+> from::
+> 
+>     .long 1b,3b
+>   to:
+>           .long (from) - .
+>           .long (to) - .
+> 
+> and the C-code that uses these values converts back to absolute addresses
+> like this::
+> 
+>         ex_insn_addr(const struct exception_table_entry *x)
+>         {
+>                 return (unsigned long)&x->insn + x->insn;
+>         }
+> ```
+> 
+> Since the addresses stored in the __ex_table are RELATIVE offsets and
+> not ABSOLUTE addresses, ordering the fixup anywhere that's not
+> immediately preceding .text causes the relative offset of the faulting
+> instruction to be wrong, causing the wrong (or no) address of the fixup
+> handler to looked up in __ex_table.
 
-I feel like making sure an exported BO can't be purged or a purged BO
-can't be exported would be much simpler than making sure all importers
-are ready to have the sgt freed.
+This explanation makes no sense.
+
+The above is valid only when ARCH_HAS_RELATIVE_EXTABLE is defined. On 
+ARM32 it is not, nor would it make sense to be.
+
+
+Nicolas
