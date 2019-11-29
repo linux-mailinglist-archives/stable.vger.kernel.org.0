@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C94F10DAAA
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 21:52:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3566510DAAD
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 21:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726970AbfK2UwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 15:52:25 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:53184 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727090AbfK2UwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 15:52:24 -0500
-Received: by mail-wm1-f67.google.com with SMTP id p9so351895wmc.2
-        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 12:52:23 -0800 (PST)
+        id S1727096AbfK2Uxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 15:53:54 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:37124 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726980AbfK2Uxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 15:53:54 -0500
+Received: by mail-wr1-f68.google.com with SMTP id w15so5702716wru.4
+        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 12:53:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=UCSLA0Lp9PuuVCJfQNZxd7gfK/2l9DWr56ay/T24uXI=;
-        b=F6+cdiwnxSOrDKvTzVYF+I3i8XnqULVWwl4z86LXhopKW1EnVJhbp0NFiviMFazre2
-         ocQDhzEEw1kXTwZkm5P7dQudN13i5JHg8g6YEOPKKRnAZywuEfA8sS4GlFpnbvoA6S32
-         QnvXGu1RAUwxm30jRvKSQgUm5kYvhyozTzf7b8AfrftlvgtxBwsYfik1Z8Hqr4khgx6M
-         bx7FPQ6ydB4XYR7PFARDsqU4you4N/BfFMqaIKIKKP900VFlAdaSnZdVPu8om1rAzzRU
-         TvQmcKXArlzzAJH4TN2CSzVyFx3tWtVSc11ynWCsFMU7wugTRdFUoIz1gpkKqlbz01AI
-         U76A==
+        bh=6uCZJnOoBvG87xYv2Nu8va74ssaFmNjcSC5DmT7LeGo=;
+        b=PJ1FseyfHHoND5vm5LQXO8vgxMAMy4qLWtmWhOGK2zZzNjdYHoUVNtOxwPjfl3qi00
+         rJ3PBfJEJc2J5o8aj9Wr27wYgrw855GCsNsC2mTVlcSHdBY2lcdKCCqltKVmOyoRtSCZ
+         Lblfjl46i9aKpX33KzPGljRVz1vxj3d1fsYCkmffJv0SQ46ZGfpHJHQ2lS8swLSPh8m0
+         5vgW3I56TGgVieMOU3UkxDJsSUMn17fre0dyTt3YMyusoOX8CbzvszLV/gI8nxOhijoj
+         3X/DWR+0rktdzfVkuF7uvRekb3wL98vGRD/YL7VsniPbXAlBJzwAAEozDg4twIFoElvc
+         VreA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=UCSLA0Lp9PuuVCJfQNZxd7gfK/2l9DWr56ay/T24uXI=;
-        b=ZLmFKeaXMvXasY5BB/AE30wcQNOPf3L/5Vx+an1C0eP7P5ck468d1jC2mLA+64cph4
-         XCtQIz8qWcPd6dYDUUSiHjdUqXf5LeKhj/H4dzykKWC1SN5dKILCx1UxPn072n63XFyV
-         47yTNnF4f9LhPdNyK7nPyNs6ScJhm6Vyi2munA2C1BlVU4NqtwhTRg0+rFrmwFYwxhbP
-         vpjsWshzLfupDW5gc587SZCywzRhepVNGemj5y0Ph2IuaueTN+kM+1vlr1idvjAPExuW
-         sspJuDfCHUxAIdQzXFBlXXzArs1hPDSKyrW/xM9lZPs27lq2mMseDo/aCtbZChXQ5GqO
-         EMRA==
-X-Gm-Message-State: APjAAAWYc9SUhTk9irFQ8jlsuqPqDGmKrYetRo6/UtsN+oEkLXtKsBku
-        yxyxvK/2yEnUVlCy5/fHfcm0tOr5
-X-Google-Smtp-Source: APXvYqzLMX69y9gCJKd2pKpLuqzAtFhlRu/gCmGSgeLG/hdxNYvyFzCoCt8qhUJEtML92fvAhJtILQ==
-X-Received: by 2002:a1c:740a:: with SMTP id p10mr15747541wmc.49.1575060742288;
-        Fri, 29 Nov 2019 12:52:22 -0800 (PST)
+        bh=6uCZJnOoBvG87xYv2Nu8va74ssaFmNjcSC5DmT7LeGo=;
+        b=Gd9yGxxNQyPXdQG+sCbHZH3jRSFs5J1z4AIGVUHv8oNjqopGDDw4pIo2Zwb5FDlfSU
+         FwbUdKGkHFQiRSTQadfEpCuPkOn1vgNTBaB0105a96hZkw93ktjUowYVHhJEuPPxtJYA
+         RXXH7zAqWOnQK7dWtXMB4hPdEBSlckGbt+xrt68oA4gErwUNFxF2B684BvD92dPuz84j
+         RsA6BKC/hA0hy27COY7/yyCP0f3gbEN9KOneCfYKjtjJpOT4rKFh0Z4ymHaYQaq/pphK
+         G6ye7emCCBpXcmBMFAmOgNGNCdiOPvITRFwwL9oJXmUAlIhnprE1hpVv1TTnIo3uVtSn
+         wOgg==
+X-Gm-Message-State: APjAAAUBAB6FA55M4A0I4sDPcasl1Cxu18xdVAi3x4ZJ0tp8VsFwT099
+        4yYdibbm5ZL76AkbfngdX6E48K02
+X-Google-Smtp-Source: APXvYqxZEEZFaSMbKT3sG2BlrxpJ4SMcAYUOdGW863rOxjY4l1bsotluHCYMJnhjTTrkI75IvD69pw==
+X-Received: by 2002:a5d:6144:: with SMTP id y4mr42262777wrt.15.1575060831694;
+        Fri, 29 Nov 2019 12:53:51 -0800 (PST)
 Received: from debian64.daheim (p5B0D764B.dip0.t-ipconnect.de. [91.13.118.75])
-        by smtp.gmail.com with ESMTPSA id g184sm15931141wma.8.2019.11.29.12.52.21
+        by smtp.gmail.com with ESMTPSA id x13sm14208034wmc.19.2019.11.29.12.53.51
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Nov 2019 12:52:21 -0800 (PST)
+        Fri, 29 Nov 2019 12:53:51 -0800 (PST)
 Received: from localhost.daheim ([127.0.0.1] helo=debian64.localnet)
         by debian64.daheim with esmtp (Exim 4.93-RC5)
         (envelope-from <chunkeey@gmail.com>)
-        id 1ianFV-000Bq7-9d
-        for stable@vger.kernel.org; Fri, 29 Nov 2019 21:52:21 +0100
+        id 1ianGw-000Brr-NT
+        for stable@vger.kernel.org; Fri, 29 Nov 2019 21:53:50 +0100
 From:   Christian Lamparter <chunkeey@gmail.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH for-4.9-stable] ath10k: restore QCA9880-AR1A (v1) detection
-Date:   Fri, 29 Nov 2019 21:52:21 +0100
-Message-ID: <1716553.tKVfJXaoeT@debian64>
+Subject: [PATCH for-4.4-stable] ath10k: restore QCA9880-AR1A (v1) detection
+Date:   Fri, 29 Nov 2019 21:53:50 +0100
+Message-ID: <2379623.yQyDp7EeDN@debian64>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
@@ -68,7 +68,7 @@ commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream
 From f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 Mon Sep 17 00:00:00 2001
 From: Christian Lamparter <chunkeey@gmail.com>
 Date: Mon, 25 Mar 2019 13:50:19 +0100
-Subject: [PATCH 4.9] ath10k: restore QCA9880-AR1A (v1) detection
+Subject: [PATCH 4.4] ath10k: restore QCA9880-AR1A (v1) detection
 To: linux-wireless@vger.kernel.org,
     ath10k@lists.infradead.org
 Cc: Kalle Valo <kvalo@codeaurora.org>
@@ -80,7 +80,7 @@ the unsupported QCA988x AR1A chips fall off the
 bus when resetted. Otherwise the next MMIO Op
 after the reset causes a BUS ERROR and panic.
 
-Cc: stable@vger.kernel.org # 4.9
+Cc: stable@vger.kernel.org # 4.4
 Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
 Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
 ---
@@ -90,24 +90,22 @@ Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
 diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
 --- a/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:07:21.374565470 +0200
 +++ b/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:17:15.365912133 +0200
-@@ -3172,7 +3172,7 @@ static int ath10k_pci_probe(struct pci_d
+@@ -2988,12 +2988,13 @@ static int ath10k_pci_probe(struct pci_d
  	struct ath10k_pci *ar_pci;
  	enum ath10k_hw_rev hw_rev;
  	u32 chip_id;
 -	bool pci_ps;
 +	bool pci_ps, is_qca988x = false;
- 	int (*pci_soft_reset)(struct ath10k *ar);
- 	int (*pci_hard_reset)(struct ath10k *ar);
- 	u32 (*targ_cpu_to_ce_addr)(struct ath10k *ar, u32 addr);
-@@ -3181,6 +3181,7 @@ static int ath10k_pci_probe(struct pci_d
+ 
+ 	switch (pci_dev->device) {
  	case QCA988X_2_0_DEVICE_ID:
  		hw_rev = ATH10K_HW_QCA988X;
  		pci_ps = false;
 +		is_qca988x = true;
- 		pci_soft_reset = ath10k_pci_warm_reset;
- 		pci_hard_reset = ath10k_pci_qca988x_chip_reset;
- 		targ_cpu_to_ce_addr = ath10k_pci_qca988x_targ_cpu_to_ce_addr;
-@@ -3300,6 +3301,19 @@ static int ath10k_pci_probe(struct pci_d
+ 		break;
+ 	case QCA6164_2_1_DEVICE_ID:
+ 	case QCA6174_2_1_DEVICE_ID:
+@@ -3087,6 +3088,19 @@ static int ath10k_pci_probe(struct pci_d
  		goto err_deinit_irq;
  	}
  
@@ -127,7 +125,7 @@ diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/at
  	ret = ath10k_pci_chip_reset(ar);
  	if (ret) {
  		ath10k_err(ar, "failed to reset chip: %d\n", ret);
-@@ -3312,11 +3326,8 @@ static int ath10k_pci_probe(struct pci_d
+@@ -3099,11 +3113,8 @@ static int ath10k_pci_probe(struct pci_d
  		goto err_free_irq;
  	}
  
@@ -141,7 +139,7 @@ diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/at
  
  	ret = ath10k_core_register(ar, chip_id);
  	if (ret) {
-@@ -3326,6 +3337,10 @@ static int ath10k_pci_probe(struct pci_d
+@@ -3113,6 +3124,10 @@ static int ath10k_pci_probe(struct pci_d
  
  	return 0;
  
@@ -151,7 +149,7 @@ diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/at
 +
  err_free_irq:
  	ath10k_pci_free_irq(ar);
- 	ath10k_pci_rx_retry_sync(ar);
+ 	ath10k_pci_kill_tasklet(ar);
 
 
 
