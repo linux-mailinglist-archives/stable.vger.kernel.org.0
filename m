@@ -2,305 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E6610D6A3
-	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 15:08:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DE5410D6C2
+	for <lists+stable@lfdr.de>; Fri, 29 Nov 2019 15:15:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726845AbfK2OI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 09:08:27 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:20933 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726834AbfK2OI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 09:08:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575036505;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=rmNKc2mf4xNFqGN9W2DibmvpdYn7Am2PlHzfuGX5wSE=;
-        b=ItdVg7qEW98HyPuJNvAT7HsCEgR2n+U7E6PmbjFK9Ybkku3vHUTR1PuMg9qaAx1pqpRm1N
-        W86Vd/Fn5WqKne1p0S/HIr7Pq1ivdjkwM1A+V+2bSQ+AsRjX+2VLIC9dD6lj0CPr53/AaF
-        YQ1CebtISkNY8PaPMkzi049XNmjP+Sk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-305-T6117mymM1a6ZMHLpzIWVQ-1; Fri, 29 Nov 2019 09:08:23 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726856AbfK2OPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Nov 2019 09:15:03 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:35584 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726824AbfK2OPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 09:15:03 -0500
+Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F0FF763CC0
-        for <stable@vger.kernel.org>; Fri, 29 Nov 2019 14:08:21 +0000 (UTC)
-Received: from [172.54.108.34] (cpt-1042.paas.prod.upshift.rdu2.redhat.com [10.0.19.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id ABFE15D9C9;
-        Fri, 29 Nov 2019 14:08:16 +0000 (UTC)
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 31B9E290E9C;
+        Fri, 29 Nov 2019 14:15:01 +0000 (GMT)
+Date:   Fri, 29 Nov 2019 15:14:58 +0100
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Steven Price <steven.price@arm.com>
+Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH 6/8] drm/panfrost: Make sure imported/exported BOs are
+ never purged
+Message-ID: <20191129151458.098349a6@collabora.com>
+In-Reply-To: <20191129135908.2439529-7-boris.brezillon@collabora.com>
+References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
+        <20191129135908.2439529-7-boris.brezillon@collabora.com>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.13-bc02cbc.cki
- (stable-queue)
-Date:   Fri, 29 Nov 2019 14:08:16 -0000
-CC:     Xiong Zhou <xzhou@redhat.com>, Yi Zhang <yi.zhang@redhat.com>
-Message-ID: <cki.1B2BF7C134.XJDIHY01KA@redhat.com>
-X-Gitlab-Pipeline-ID: 313348
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/313348
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-MC-Unique: T6117mymM1a6ZMHLpzIWVQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 29 Nov 2019 14:59:06 +0100
+Boris Brezillon <boris.brezillon@collabora.com> wrote:
 
-Hello,
+> We don't want imported/exported BOs to be purges, as those are shared
+> with other processes that might still use them. We should also refuse
+> to export a BO if it's been marked purgeable or has already been purged.
+> 
+> Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> ---
+>  drivers/gpu/drm/panfrost/panfrost_drv.c | 19 ++++++++++++++++-
+>  drivers/gpu/drm/panfrost/panfrost_gem.c | 27 +++++++++++++++++++++++++
+>  2 files changed, 45 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+> index 1c67ac434e10..751df975534f 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_drv.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+> @@ -343,6 +343,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
+>  	struct drm_panfrost_madvise *args = data;
+>  	struct panfrost_device *pfdev = dev->dev_private;
+>  	struct drm_gem_object *gem_obj;
+> +	int ret;
+>  
+>  	gem_obj = drm_gem_object_lookup(file_priv, args->handle);
+>  	if (!gem_obj) {
+> @@ -350,6 +351,19 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
+>  		return -ENOENT;
+>  	}
+>  
+> +	/*
+> +	 * We don't want to mark exported/imported BOs as purgeable: we're not
+> +	 * the only owner in that case.
+> +	 */
+> +	mutex_lock(&dev->object_name_lock);
+> +	if (gem_obj->dma_buf)
+> +		ret = -EINVAL;
+> +	else
+> +		ret = 0;
+> +
+> +	if (ret)
+> +		goto out_unlock_object_name;
+> +
+>  	mutex_lock(&pfdev->shrinker_lock);
+>  	args->retained = drm_gem_shmem_madvise(gem_obj, args->madv);
+>  
+> @@ -364,8 +378,11 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
+>  	}
+>  	mutex_unlock(&pfdev->shrinker_lock);
+>  
+> +out_unlock_object_name:
+> +	mutex_unlock(&dev->object_name_lock);
+> +
+>  	drm_gem_object_put_unlocked(gem_obj);
+> -	return 0;
+> +	return ret;
+>  }
+>  
+>  int panfrost_unstable_ioctl_check(void)
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> index 92a95210a899..31d6417dd21c 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> @@ -99,6 +99,32 @@ void panfrost_gem_close(struct drm_gem_object *obj, struct drm_file *file_priv)
+>  	spin_unlock(&priv->mm_lock);
+>  }
+>  
+> +static struct dma_buf *
+> +panfrost_gem_export(struct drm_gem_object *obj, int flags)
+> +{
+> +	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
+> +	int ret;
+> +
+> +	/*
+> +	 * We must make sure the BO has not been marked purgeable/purged before
+> +	 * adding the mapping.
 
-We ran automated tests on a recent commit from this kernel tree:
+	   ^s/adding the mapping/exporting it/
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
-able-queue.git
-            Commit: bc02cbc74599 - net-sysfs: fix netdev_queue_add_kobject(=
-) breakage
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/313348
-
-One or more kernel tests failed:
-
-    ppc64le:
-     =E2=9D=8C xfstests: xfs
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9D=8C xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  Storage SAN device stress - megaraid_sas
-
-    Host 2:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  Storage SAN device stress - mpt3sas driver
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
+> +	 * Note that we don't need to protect this test with a lock because
+> +	 * &drm_gem_object_funcs.export() is called with
+> +	 * &drm_device.object_lock held, and panfrost_ioctl_madvise() takes
+> +	 * this lock before calling drm_gem_shmem_madvise() (the function that
+> +	 * modifies bo->base.madv).
+> +	 */
+> +	if (bo->base.madv == PANFROST_MADV_WILLNEED)
+> +		ret = -EINVAL;
+> +	else
+> +		ret = 0;
+> +
+> +	if (ret)
+> +		return ERR_PTR(ret);
+> +
+> +	return drm_gem_prime_export(obj, flags);
+> +}
+> +
+>  static int panfrost_gem_pin(struct drm_gem_object *obj)
+>  {
+>  	if (to_panfrost_bo(obj)->is_heap)
+> @@ -112,6 +138,7 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
+>  	.open = panfrost_gem_open,
+>  	.close = panfrost_gem_close,
+>  	.print_info = drm_gem_shmem_print_info,
+> +	.export = panfrost_gem_export,
+>  	.pin = panfrost_gem_pin,
+>  	.unpin = drm_gem_shmem_unpin,
+>  	.get_sg_table = drm_gem_shmem_get_sg_table,
 
