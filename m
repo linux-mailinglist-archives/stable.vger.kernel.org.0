@@ -2,216 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35FC310DF74
-	for <lists+stable@lfdr.de>; Sat, 30 Nov 2019 22:56:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF95710DF8B
+	for <lists+stable@lfdr.de>; Sat, 30 Nov 2019 23:15:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727219AbfK3V4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Nov 2019 16:56:51 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:26789 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726981AbfK3V4v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Nov 2019 16:56:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575151009;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QcH/lJ3fRgpZPQbN5bHrq0qgyiP2WbJdkAfGc4iDCaE=;
-        b=VAcHlKk6cAy4LkUgijhBbrX/ajBqcEc4suWmtsk7Q6enflabmFbmLrZdReYxv/q4iPiHEC
-        nMD+EebW3cdLGF0Sv4ZMabXIpKz5/OnLoCLeZc3N6zROU/69aUxaydW4n8UlLCsIYVM++4
-        HYK2FlJ+wtqjMgBvM9BbtZCem7nSbXE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-188-B12LsOtRNpmI0L9dTXHchQ-1; Sat, 30 Nov 2019 16:56:45 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727201AbfK3WPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Nov 2019 17:15:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43078 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727025AbfK3WPO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Nov 2019 17:15:14 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 55C871800D55;
-        Sat, 30 Nov 2019 21:56:44 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4BA1B10002D0;
-        Sat, 30 Nov 2019 21:56:44 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 9A4274E572;
-        Sat, 30 Nov 2019 21:56:43 +0000 (UTC)
-Date:   Sat, 30 Nov 2019 16:56:43 -0500 (EST)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>
-Message-ID: <1738119916.14437244.1575151003345.JavaMail.zimbra@redhat.com>
-In-Reply-To: <cki.6C6A189643.3T2ZUWEMOI@redhat.com>
-References: <cki.6C6A189643.3T2ZUWEMOI@redhat.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kernel?=
- =?utf-8?Q?_5.3.13-3b5f971.cki_(stable-queue)?=
+        by mail.kernel.org (Postfix) with ESMTPSA id EF7C62073C;
+        Sat, 30 Nov 2019 22:15:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575152113;
+        bh=5Ka18yauAcbSAQg1qvz06BXzKs8rc0mu7ruAu1ikjik=;
+        h=Date:From:To:Subject:From;
+        b=jr8w+WwrXeNSqug3+/dDOCOE2hi3PMUNKNgb9nLRuaPcgDPdVpLe/XcdN7B12Ttnd
+         HVvoI14/tT61srBKHa9ZFCCFYpkbwYjn22lJ9LhOJt6BwwzfHQOga/eMZI6cJLoqqS
+         JsLJdC5QHpqZAAkFltSKLCn1p46hyr1lOdFzbFVo=
+Date:   Sat, 30 Nov 2019 14:15:12 -0800
+From:   akpm@linux-foundation.org
+To:     borntraeger@de.ibm.com, guro@fb.com, hannes@cmpxchg.org,
+        mhocko@suse.com, mm-commits@vger.kernel.org, shakeelb@google.com,
+        stable@vger.kernel.org
+Subject:  +
+ =?US-ASCII?Q?mm-memcg-slab-wait-for-root-kmem=5Fcache-refcnt-killing-on-r?=
+ =?US-ASCII?Q?oot-kmem=5Fcache-destruction.patch?= added to -mm tree
+Message-ID: <20191130221512.CUub_cj1c%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-X-Originating-IP: [10.43.17.163, 10.4.195.10]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.3.13-3b5f971.cki (stable-queue)
-Thread-Index: 8Ofpy4LCtsBgdjcJ+gOLLKeKbbAOdg==
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: B12LsOtRNpmI0L9dTXHchQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
------ Original Message -----
->=20
-> Hello,
->=20
-> We ran automated tests on a recent commit from this kernel tree:
->=20
->        Kernel repo:
->        git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.=
-git
->             Commit: 3b5f97139acc - KVM: PPC: Book3S HV: Flush link stack =
-on
->             guest exit to host kernel
->=20
-> The results of these automated tests are provided below.
->=20
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: OK
->              Tests: FAILED
->=20
-> All kernel binaries, config files, and logs are available for download he=
-re:
->=20
->   https://artifacts.cki-project.org/pipelines/314344
->=20
-> One or more kernel tests failed:
->=20
->     ppc64le:
->      =E2=9D=8C LTP
+The patch titled
+     Subject: mm: memcg/slab: wait for !root kmem_cache refcnt killing on root kmem_cache destruction
+has been added to the -mm tree.  Its filename is
+     mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction.patch
 
-I suspect kernel bug.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction.patch
 
-There were couple of 'math' runtest related failures in recent couple days.
-In all cases, some data file used by test was missing. Presumably because
-binary that generates it crashed.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-I managed to reproduce one failure with this CKI build, which I believe
-is the same problem.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-We crash early during load, before any LTP code runs:
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-(gdb) r
-Starting program: /mnt/testarea/ltp/testcases/bin/genasin
+------------------------------------------------------
+From: Roman Gushchin <guro@fb.com>
+Subject: mm: memcg/slab: wait for !root kmem_cache refcnt killing on root kmem_cache destruction
 
-Program received signal SIGBUS, Bus error.
-dl_main (phdr=3D0x10000040, phnum=3D<optimized out>, user_entry=3D0x7ffffff=
-fe760, auxv=3D<optimized out>) at rtld.c:1362
-1362        switch (ph->p_type)
-(gdb) bt
-#0  dl_main (phdr=3D0x10000040, phnum=3D<optimized out>, user_entry=3D0x7ff=
-fffffe760, auxv=3D<optimized out>) at rtld.c:1362
-#1  0x00007ffff7fcf3c8 in _dl_sysdep_start (start_argptr=3D<optimized out>,=
- dl_main=3D0x7ffff7fb37b0 <dl_main>) at ../elf/dl-sysdep.c:253
-#2  0x00007ffff7fb1d1c in _dl_start_final (arg=3Darg@entry=3D0x7fffffffee20=
-, info=3Dinfo@entry=3D0x7fffffffe870) at rtld.c:445
-#3  0x00007ffff7fb2f5c in _dl_start (arg=3D0x7fffffffee20) at rtld.c:537
-#4  0x00007ffff7fb14d8 in _start () from /lib64/ld64.so.2
-(gdb) f 0
-#0  dl_main (phdr=3D0x10000040, phnum=3D<optimized out>, user_entry=3D0x7ff=
-fffffe760, auxv=3D<optimized out>) at rtld.c:1362
-1362        switch (ph->p_type)
-(gdb) l
-1357      /* And it was opened directly.  */
-1358      ++main_map->l_direct_opencount;
-1359
-1360      /* Scan the program header table for the dynamic section.  */
-1361      for (ph =3D phdr; ph < &phdr[phnum]; ++ph)
-1362        switch (ph->p_type)
-1363          {
-1364          case PT_PHDR:
-1365            /* Find out the load address.  */
-1366            main_map->l_addr =3D (ElfW(Addr)) phdr - ph->p_vaddr;
+Christian reported a warning like the following obtained during running
+some KVM-related tests on s390:
 
-(gdb) p ph
-$1 =3D (const Elf64_Phdr *) 0x10000040
+WARNING: CPU: 8 PID: 208 at lib/percpu-refcount.c:108 percpu_ref_exit+0x50/0x58
+Modules linked in: kvm(-) xt_CHECKSUM xt_MASQUERADE bonding xt_tcpudp ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_na>
+CPU: 8 PID: 208 Comm: kworker/8:1 Not tainted 5.2.0+ #66
+Hardware name: IBM 2964 NC9 712 (LPAR)
+Workqueue: events sysfs_slab_remove_workfn
+Krnl PSW : 0704e00180000000 0000001529746850 (percpu_ref_exit+0x50/0x58)
+           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+Krnl GPRS: 00000000ffff8808 0000001529746740 000003f4e30e8e18 0036008100000000
+           0000001f00000000 0035008100000000 0000001fb3573ab8 0000000000000000
+           0000001fbdb6de00 0000000000000000 0000001529f01328 0000001fb3573b00
+           0000001fbb27e000 0000001fbdb69300 000003e009263d00 000003e009263cd0
+Krnl Code: 0000001529746842: f0a0000407fe        srp        4(11,%r0),2046,0
+           0000001529746848: 47000700            bc         0,1792
+          #000000152974684c: a7f40001            brc        15,152974684e
+          >0000001529746850: a7f4fff2            brc        15,1529746834
+           0000001529746854: 0707                bcr        0,%r7
+           0000001529746856: 0707                bcr        0,%r7
+           0000001529746858: eb8ff0580024        stmg       %r8,%r15,88(%r15)
+           000000152974685e: a738ffff            lhi        %r3,-1
+Call Trace:
+([<000003e009263d00>] 0x3e009263d00)
+ [<00000015293252ea>] slab_kmem_cache_release+0x3a/0x70
+ [<0000001529b04882>] kobject_put+0xaa/0xe8
+ [<000000152918cf28>] process_one_work+0x1e8/0x428
+ [<000000152918d1b0>] worker_thread+0x48/0x460
+ [<00000015291942c6>] kthread+0x126/0x160
+ [<0000001529b22344>] ret_from_fork+0x28/0x30
+ [<0000001529b2234c>] kernel_thread_starter+0x0/0x10
+Last Breaking-Event-Address:
+ [<000000152974684c>] percpu_ref_exit+0x4c/0x58
+---[ end trace b035e7da5788eb09 ]---
 
-(gdb) p *ph
-Cannot access memory at address 0x10000040
+The problem occurs because kmem_cache_destroy() is called immediately
+after deleting of a memcg, so it races with the memcg kmem_cache
+deactivation.
 
-(gdb) info proc map
-process 1110670
-Mapped address spaces:
+flush_memcg_workqueue() at the beginning of kmem_cache_destroy() is
+supposed to guarantee that all deactivation processes are finished, but
+failed to do so.  It waits for an rcu grace period, after which all
+children kmem_caches should be deactivated.  During the deactivation
+percpu_ref_kill() is called for non root kmem_cache refcounters, but it
+requires yet another rcu grace period to finish the transition to the
+atomic (dead) state.
 
-          Start Addr           End Addr       Size     Offset objfile
-          0x10000000         0x10010000    0x10000        0x0 /mnt/testarea=
-/ltp/testcases/bin/genasin
-          0x10010000         0x10030000    0x20000        0x0 /mnt/testarea=
-/ltp/testcases/bin/genasin
-      0x7ffff7f90000     0x7ffff7fb0000    0x20000        0x0 [vdso]
-      0x7ffff7fb0000     0x7ffff7fe0000    0x30000        0x0 /usr/lib64/ld=
--2.30.so
-      0x7ffff7fe0000     0x7ffff8000000    0x20000    0x20000 /usr/lib64/ld=
--2.30.so
-      0x7ffffffd0000     0x800000000000    0x30000        0x0 [stack]
+So in a rare case when not all children kmem_caches are destroyed at the
+moment when the root kmem_cache is about to be gone, we need to wait
+another rcu grace period before destroying the root kmem_cache.
 
-(gdb) x/1x 0x10000040
-0x10000040:     Cannot access memory at address 0x10000040
+This issue can be triggered only with dynamically created kmem_caches
+which are used with memcg accounting.  In this case per-memcg child
+kmem_caches are created.  They are deactivated from the cgroup removing
+path.  If the destruction of the root kmem_cache is racing with the
+removal of the cgroup (both are quite complicated multi-stage processes),
+the described issue can occur.  The only known way to trigger it in the
+real life, is to unload some kernel module which creates a dedicated
+kmem_cache, used from different memory cgroups with GFP_ACCOUNT flag.  If
+the unloading happens immediately after calling rmdir on the corresponding
+cgroup, there is some chance to trigger the issue.
 
-# /mnt/testarea/ltp/testcases/bin/genasin
-Bus error (core dumped)
+Link: http://lkml.kernel.org/r/20191129025011.3076017-1-guro@fb.com
+Fixes: f0a3a24b532d ("mm: memcg/slab: rework non-root kmem_cache lifecycle management")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-However, as soon as I copy that binary somewhere else, it works fine:
+ mm/slab_common.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-# cp /mnt/testarea/ltp/testcases/bin/genasin /tmp
-# /tmp/genasin
-# echo $?
-0
+--- a/mm/slab_common.c~mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction
++++ a/mm/slab_common.c
+@@ -904,6 +904,18 @@ static void flush_memcg_workqueue(struct
+ 	 * previous workitems on workqueue are processed.
+ 	 */
+ 	flush_workqueue(memcg_kmem_cache_wq);
++
++	/*
++	 * If we're racing with children kmem_cache deactivation, it might
++	 * take another rcu grace period to complete their destruction.
++	 * At this moment the corresponding percpu_ref_kill() call should be
++	 * done, but it might take another rcu grace period to complete
++	 * switching to the atomic mode.
++	 * Please, note that we check without grabbing the slab_mutex. It's safe
++	 * because at this moment the children list can't grow.
++	 */
++	if (!list_empty(&s->memcg_params.children))
++		rcu_barrier();
+ }
+ #else
+ static inline int shutdown_memcg_caches(struct kmem_cache *s)
+_
 
-# cp /mnt/testarea/ltp/testcases/bin/genasin /mnt/testarea/ltp/testcases/bi=
-n/genasin2
-# /mnt/testarea/ltp/testcases/bin/genasin2
-# echo $?
-0
+Patches currently in -mm which might be from guro@fb.com are
 
-# /mnt/testarea/ltp/testcases/bin/genasin
-Bus error (core dumped)
-
-# diff /mnt/testarea/ltp/testcases/bin/genasin /mnt/testarea/ltp/testcases/=
-bin/genasin2; echo $?
-0
-
-# lscpu
-Architecture:                    ppc64le
-Byte Order:                      Little Endian
-CPU(s):                          160
-On-line CPU(s) list:             0-159
-Thread(s) per core:              4
-Core(s) per socket:              20
-Socket(s):                       2
-NUMA node(s):                    2
-Model:                           2.2 (pvr 004e 1202)
-Model name:                      POWER9, altivec supported
-Frequency boost:                 enabled
-CPU max MHz:                     3800.0000
-CPU min MHz:                     2166.0000
-L1d cache:                       1.3 MiB
-L1i cache:                       1.3 MiB
-L2 cache:                        10 MiB
-L3 cache:                        200 MiB
-NUMA node0 CPU(s):               0-79
-NUMA node8 CPU(s):               80-159
-Vulnerability Itlb multihit:     Not affected
-Vulnerability L1tf:              Not affected
-Vulnerability Mds:               Not affected
-Vulnerability Meltdown:          Mitigation; RFI Flush, L1D private per thr=
-ead
-Vulnerability Spec store bypass: Mitigation; Kernel entry/exit barrier (eie=
-io)
-Vulnerability Spectre v1:        Mitigation; __user pointer sanitization, o=
-ri31 speculation barrier enabled
-Vulnerability Spectre v2:        Mitigation; Indirect branch cache disabled=
-, Software link stack flush
-Vulnerability Tsx async abort:   Not affected
+mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction.patch
 
