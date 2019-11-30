@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B66110DC53
-	for <lists+stable@lfdr.de>; Sat, 30 Nov 2019 05:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E43B410DC63
+	for <lists+stable@lfdr.de>; Sat, 30 Nov 2019 06:10:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727177AbfK3Em3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Nov 2019 23:42:29 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:37068 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727142AbfK3Em3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Nov 2019 23:42:29 -0500
+        id S1725781AbfK3FKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Nov 2019 00:10:41 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:31493 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725298AbfK3FKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Nov 2019 00:10:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575088947;
+        s=mimecast20190719; t=1575090639;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=pDpPtgrT+71ddojIMSVDc1xtF061+FS6jJse0g2KU4M=;
-        b=OPNqHzBXQ3e5/tVoVRalxMAb6Rc65U82XMfDoKnphYl4NC3fIm2dn1rBXKb2y9eiHfjXYF
-        qpj6tGyskccLLDe8nF6i1atss/xttz/1U2BRQAtiJVs7hKi1cnzZPkwI98j/Jyov2GGaQf
-        pR1UZrqjnzm4YLdJt6AthphKkHsOwqs=
+        bh=k7mdi573uhd8nVaUL/p/qrjm/1NW93VqGQxQvPpQHxU=;
+        b=Brr2QLbW3ROTWJxndvI2qiUdFLqOzWy7/1Nptw5xvtLblShZ/Bg73x2z392MjtFa09DRnj
+        SCo1GQM77UuBZj0TqUnp48cOkqzvwyr/PODusnLUdahW6Tlg/vbpc0tmcdw86FURlAT59H
+        Mn6pSBeibJcPS6RXgOV4fwEKjatIc7s=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-370-nhSSW6EQNPaY7IWccsUiyA-1; Fri, 29 Nov 2019 23:42:13 -0500
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+ us-mta-367-g8ZfVSfNNVuO9SzTNZ067A-1; Sat, 30 Nov 2019 00:10:31 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6C290107ACC5
-        for <stable@vger.kernel.org>; Sat, 30 Nov 2019 04:42:12 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E5EE7800D4E
+        for <stable@vger.kernel.org>; Sat, 30 Nov 2019 05:10:30 +0000 (UTC)
 Received: from [172.54.108.34] (cpt-1042.paas.prod.upshift.rdu2.redhat.com [10.0.19.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 986816090B;
-        Sat, 30 Nov 2019 04:42:09 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 95D0319C58;
+        Sat, 30 Nov 2019 05:10:22 +0000 (UTC)
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.13-71944cf.cki
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.13-1fa816c.cki
  (stable-queue)
-Date:   Sat, 30 Nov 2019 04:42:09 -0000
-Message-ID: <cki.2A1EFF56D4.FZ2WGM92K5@redhat.com>
-X-Gitlab-Pipeline-ID: 314294
+Date:   Sat, 30 Nov 2019 05:10:22 -0000
+CC:     Yi Zhang <yi.zhang@redhat.com>,
+        Memory Management <mm-qe@redhat.com>
+Message-ID: <cki.BF8E764912.15G3RBAD0Z@redhat.com>
+X-Gitlab-Pipeline-ID: 314327
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/314294
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: nhSSW6EQNPaY7IWccsUiyA-1
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/314327
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-MC-Unique: g8ZfVSfNNVuO9SzTNZ067A-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
@@ -58,20 +60,29 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
 able-queue.git
-            Commit: 71944cfeb47e - net-sysfs: fix netdev_queue_add_kobject(=
+            Commit: 1fa816c05741 - net-sysfs: fix netdev_queue_add_kobject(=
 ) breakage
 
 The results of these automated tests are provided below.
 
-    Overall result: PASSED
+    Overall result: FAILED (see details below)
              Merge: OK
            Compile: OK
-             Tests: OK
+             Tests: FAILED
 
 All kernel binaries, config files, and logs are available for download here=
 :
 
-  https://artifacts.cki-project.org/pipelines/314294
+  https://artifacts.cki-project.org/pipelines/314327
+
+One or more kernel tests failed:
+
+    x86_64:
+     =E2=9D=8C Memory function: kaslr
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
 
 Please reply to this email if you have any questions about the tests that w=
 e
@@ -206,7 +217,7 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
 
   x86_64:
     Host 1:
@@ -216,7 +227,7 @@ We booted each kernel and ran the following tests:
        =E2=9C=85 LTP
        =E2=9C=85 Loopdev Sanity
        =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
+       =E2=9D=8C Memory function: kaslr
        =E2=9C=85 AMTU (Abstract Machine Test Utility)
        =E2=9C=85 Networking bridge: sanity
        =E2=9C=85 Ethernet drivers sanity
@@ -255,13 +266,9 @@ We booted each kernel and ran the following tests:
 
     Host 2:
        =E2=8F=B1  Boot test
-       =E2=8F=B1  Storage SAN device stress - megaraid_sas
-
-    Host 3:
-       =E2=8F=B1  Boot test
        =E2=8F=B1  Storage SAN device stress - mpt3sas driver
 
-    Host 4:
+    Host 3:
        =E2=9C=85 Boot test
        =E2=9C=85 xfstests: ext4
        =E2=9C=85 xfstests: xfs
@@ -272,6 +279,10 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 4:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Storage SAN device stress - megaraid_sas
 
   Test sources: https://github.com/CKI-project/tests-beaker
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
