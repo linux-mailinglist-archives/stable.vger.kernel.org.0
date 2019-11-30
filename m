@@ -2,112 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2C110DD60
-	for <lists+stable@lfdr.de>; Sat, 30 Nov 2019 11:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F54210DD98
+	for <lists+stable@lfdr.de>; Sat, 30 Nov 2019 13:09:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725853AbfK3K2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Nov 2019 05:28:07 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:39984 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725792AbfK3K2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Nov 2019 05:28:06 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id B2AFF1C2566; Sat, 30 Nov 2019 11:28:04 +0100 (CET)
-Date:   Sat, 30 Nov 2019 11:28:04 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 030/306] synclink_gt(): fix compat_ioctl()
-Message-ID: <20191130102804.GA27380@duo.ucw.cz>
-References: <20191127203114.766709977@linuxfoundation.org>
- <20191127203116.924730296@linuxfoundation.org>
+        id S1725944AbfK3MJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Nov 2019 07:09:49 -0500
+Received: from mail-vk1-f196.google.com ([209.85.221.196]:33503 "EHLO
+        mail-vk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725811AbfK3MJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 30 Nov 2019 07:09:49 -0500
+Received: by mail-vk1-f196.google.com with SMTP id b64so7931102vkg.0
+        for <stable@vger.kernel.org>; Sat, 30 Nov 2019 04:09:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=KPbcLzmN3JirQxcIsMNAPGvvWsFgMpVPgXZTiKQLiRk=;
+        b=dJbiPeYJfKVEt0TSCO44BPQ8u4Wg4rN6Bonzu5WJ98ARo8LhLKa9H+7hF/0jjGd2kI
+         t8PRg4/TDd5sonVS/DLasWS188tLTsL7Es7wfTiGFvEvbjz+dYI3ToyyXydiSeiECFZe
+         wcau6RACG1AQwF+KDnLXhnoNKFt+GIiP3cFgpE18/+zRJO9xXfiiL977c70lL7GqskVX
+         KwXLzZE2pWoU6NdRiPtgqy05IDpcbCNGb7BQcanhndtgQxlrB1yj2H3vLatHdjN4osFk
+         PvhvzuBwt3r5k6eePMCSbEWcEWF1UF9pwQdBmCArIY/wyPIrMWKJK2NJTu1eB+sDkIy8
+         kWhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=KPbcLzmN3JirQxcIsMNAPGvvWsFgMpVPgXZTiKQLiRk=;
+        b=rU7Yccg5DnBzHg5/y/Y8lVPvX3kJ+EPi5Saak05jbdwacLwDBJldIi9gy9VQNqzEPi
+         fcx4N2GJOw5O/7V8uqCi2J4BvC69P9ZtJHcOS+ZIO6LTXGwQBY6fl8JcEKi1nBgs0nPx
+         xAMafqm7p+ah9BZPpTgXA+uWwA/T2FYzs7spoCX5AFd3q2UMZZuaJGx8aj2yP4TpIlEw
+         kZ13I26jUBTqAfMMO3kp4UGUSOygqdUe9t5c2idsitysJCSbEFPHA5YLi4aN8fh3nV0l
+         pGnQy4pi/UQAcTxShvHxxeKmHYTiR0NJSF40Xle5yJ9wGhessAHP8rrddr5tTrPUuVU5
+         6qyA==
+X-Gm-Message-State: APjAAAVx8tBkfWZD1ECof39mjJceZMVArD21xCLHrKbBEvPkRCTUzgLi
+        30Uy9/vPdEl5HTHsOr3db7SBZcsFVpyWaUNBDuA=
+X-Google-Smtp-Source: APXvYqzuZVUcIVQIRbc5NdR+ShSsmGnLb8Qp8u5nbwxEROjRQRSWXbUK4utfzzwi3TmQtZLqSTSDcybPZKcksDKIPG4=
+X-Received: by 2002:a1f:cf43:: with SMTP id f64mr12929638vkg.18.1575115788282;
+ Sat, 30 Nov 2019 04:09:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
-Content-Disposition: inline
-In-Reply-To: <20191127203116.924730296@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:ab0:1304:0:0:0:0:0 with HTTP; Sat, 30 Nov 2019 04:09:47
+ -0800 (PST)
+Reply-To: m.lirnalaboso@yandex.com
+From:   "Mr.Tapioka Lirnalaboso" <mralqaedaateeqi570@gmail.com>
+Date:   Sat, 30 Nov 2019 13:09:47 +0100
+Message-ID: <CAETpnUHVPfDGF9LbhQQzVMnoJGAPfSQ6U9fNezSkKTTMhztz0Q@mail.gmail.com>
+Subject: very very urgent
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Iam Mr Taptoka Lornalaboso.
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have a Geniue business transaction of 18.5 Million Us Dollars to do
+with You Hence You Co-operate with me I am assured you that within (7)
+seven banking working days, this said amount will enter your given
+Bank account with immediate alacrity. If you agree to my business
+proposal, further details of the transfer will be forwarded to you as
+soon as I receive your wiliness to join hand with me. Am awaiting your
+urgent response with this informations Name:...................
+Sex:...............
+Age:...................
+Occupation:........
+Address:...............
+Tel/ Fax:...............
+State:.............
+Country Of origin:..........
 
-Hi!
+You have to contact me through my private e-mail at
+(m.lirnalaboso@yandex.com)
 
-> From: Al Viro <viro@zeniv.linux.org.uk>
->=20
-> [ Upstream commit 27230e51349fde075598c1b59d15e1ff802f3f6e ]
->=20
-> compat_ptr() for pointer-taking ones...
->=20
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-
-> +++ b/drivers/tty/synclink_gt.c
-> @@ -1186,14 +1186,13 @@ static long slgt_compat_ioctl(struct tty_struct *=
-tty,
->  			 unsigned int cmd, unsigned long arg)
->  {
->  	struct slgt_info *info =3D tty->driver_data;
-> -	int rc =3D -ENOIOCTLCMD;
-> +	int rc;
-> =20
->  	if (sanity_check(info, tty->name, "compat_ioctl"))
->  		return -ENODEV;
->  	DBGINFO(("%s compat_ioctl() cmd=3D%08X\n", info->device_name, cmd));
-> =20
->  	switch (cmd) {
-> -
->  	case MGSL_IOCSPARAMS32:
->  		rc =3D set_params32(info, compat_ptr(arg));
->  		break;
-> @@ -1213,18 +1212,11 @@ static long slgt_compat_ioctl(struct tty_struct *=
-tty,
->  	case MGSL_IOCWAITGPIO:
->  	case MGSL_IOCGXSYNC:
->  	case MGSL_IOCGXCTRL:
-> -	case MGSL_IOCSTXIDLE:
-> -	case MGSL_IOCTXENABLE:
-> -	case MGSL_IOCRXENABLE:
-> -	case MGSL_IOCTXABORT:
-> -	case TIOCMIWAIT:
-> -	case MGSL_IOCSIF:
-> -	case MGSL_IOCSXSYNC:
-> -	case MGSL_IOCSXCTRL:
-> -		rc =3D ioctl(tty, cmd, arg);
-> +		rc =3D ioctl(tty, cmd, (unsigned long)compat_ptr(arg));
->  		break;
-> +	default:
-> +		rc =3D ioctl(tty, cmd, arg);
->  	}
-
-Ok, so this used to only pass select calls to ioctl() and now it
-passes everything thanks to default: marking. I guess that's suitable
-for mainline, but is it also suitable for -stable?
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---HlL+5n6rz5pIUxbD
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXeJENAAKCRAw5/Bqldv6
-8lAmAKC3P9bd/9OUYHd8vx2WoqPxYOetnACdGo+Jm0+fwwF1UP5zdcy8M2a54+k=
-=Vs55
------END PGP SIGNATURE-----
-
---HlL+5n6rz5pIUxbD--
+Have a nice day!!
