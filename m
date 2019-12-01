@@ -2,214 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B4F10E1C5
-	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 12:50:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D6710E1E5
+	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 13:30:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726195AbfLALuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Dec 2019 06:50:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45100 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726138AbfLALuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 1 Dec 2019 06:50:12 -0500
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B975B20705;
-        Sun,  1 Dec 2019 11:50:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575201011;
-        bh=CACwWWsQae5Kq5mmdUkxrGZUADTKSm/usDVq4yPdedQ=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=SAnoW2qCpHbVqWp/xKzc3OlWmnsD85waoVW6H66CHUycWYrYTrrxaNruXPBWFS3dR
-         9a9rYYt9SihJNtl0/pLO8BlnQJ+DV4pURR/0Nrg3hwH4ICbDZ3k6u1EFwkUwYUCigB
-         dPLMjzYzKOCdkDoE3FJ1WSQYqQEYby6mqhkWoXPU=
-Date:   Sun, 1 Dec 2019 11:50:02 +0000
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-Cc:     linux-iio@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] iio: imu: inv_mpu6050: fix temperature reporting
- using bad unit
-Message-ID: <20191201115002.2ad15d1b@archlinux>
-In-Reply-To: <20191126161912.24683-1-jmaneyrol@invensense.com>
-References: <20191126161912.24683-1-jmaneyrol@invensense.com>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726186AbfLAMap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Dec 2019 07:30:45 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:43737 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725993AbfLAMap (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Dec 2019 07:30:45 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id CB12D921;
+        Sun,  1 Dec 2019 07:30:43 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 01 Dec 2019 07:30:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=imap.cc; h=to:cc
+        :references:from:subject:message-id:date:mime-version
+        :in-reply-to:content-type:content-transfer-encoding; s=fm1; bh=k
+        n2pHQXCE0STE2AL8UyaAOLoHfqasuB2x2MErPCU8PQ=; b=FbPyDaMljvOAcD5Ja
+        QK7D3joBNSAfLL4wceRb4XK2f9yPC8gm/AnX9OpaBLS8ZHBU0AsQB7YC8OooNNou
+        dlSAXBhyOnm3/oP6OtQtcu8PSzsUeK36jAHcA/TeJtSrSYSj90N+UBAiYzCqAh0Q
+        fW0vWloLHG/LNP/lQHUFphAylwrZeo51FrZhTF7cVh8EqTDcORSH5PSPSm26puFM
+        U1Lamm+nNzcja5khB4WaKOSogauIBTjN+j+WvanMpUKgV8A+8IIWiU9p4ZPFNtqH
+        rvhegkisTmx7hcXOwRl9xL8ZlU2cV7l/qIB1bsVaI3DeHjog1kHmxa38hRb0sXa6
+        o7avw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=kn2pHQXCE0STE2AL8UyaAOLoHfqasuB2x2MErPCU8
+        PQ=; b=hxkieanKGkq1bTJsyWSZm5UTr0Ln0UKZ0EyMkwWU6WhKW3nQVO4DAGZ4h
+        hsp3OaMgPqMBuqYstqDPJz8oB5q0VPr5+YDTf/8VXlszENsEIPtoaqSoIXsclwW2
+        6CHiw9nNJGUCThi1dlSh0c7j+ewQPQ7nUgtm+tf3m6coA66coXt2sshd10W2j+kH
+        Of1pVI8+bxScJfdChE2ClBb3kIRpxPWduCbsaJoM15UokAj/LtZ8i/wAzB0JHLZe
+        8FXgW14MM5RbNnRvQ2CSaxLpgigYpzQ8XdFm4xH+jhYBWW2iBehOFA0dDjYMlKg1
+        PC3aQb9N9yNGzi1bW/qMRXdn8mpHw==
+X-ME-Sender: <xms:crLjXa_LuT8eCm9Td1ThKd4EAsFpklfx6c0JCrZDJ67-w1itonrwcQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudejfedggedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    gfrhhlucfvnfffucdlfedtmdenucfjughrpefvfhfhuffkffgfgggjtgfgsehtkeertddt
+    feejnecuhfhrohhmpefvihhlmhgrnhcuufgthhhmihguthcuoehtihhlmhgrnhesihhmrg
+    hprdgttgeqnecukfhppeejledrvdegledrudegiedrudejkeenucfrrghrrghmpehmrghi
+    lhhfrhhomhepthhilhhmrghnsehimhgrphdrtggtnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:crLjXeqyJTIygFDhMFmDrY423LfpFdKf2If4vC8wR2rQ29QNMSHbtw>
+    <xmx:crLjXUkgehht-4ShQ8EFliXm6Wb8KT40DI1gZE7dxR1YPfqzqghyOg>
+    <xmx:crLjXaZe80v1UQvytcInYpgyn080jr8Ay5IgNZC1-Kd426pd9wJYBw>
+    <xmx:c7LjXYo8Ra3YeZCYVMx7vhaXtAChngVAGJdZiqyqkYbOBSBPIL1W1g>
+Received: from [192.168.59.117] (p4ff992b2.dip0.t-ipconnect.de [79.249.146.178])
+        by mail.messagingengine.com (Postfix) with ESMTPA id DC796306014B;
+        Sun,  1 Dec 2019 07:30:41 -0500 (EST)
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+        Hansjoerg Lipp <hjlipp@web.de>, stable@vger.kernel.org
+References: <20191129101753.9721-2-johan@kernel.org>
+ <20191201001505.964E72075A@mail.kernel.org>
+From:   Tilman Schmidt <tilman@imap.cc>
+Autocrypt: addr=tilman@imap.cc;
+ keydata= mQENBFOnH60BCADAjDkW8QHkuYEGOCimq/2xhB7Fe0ljGHAoy36bqZJ3mKo6vUVibl7e4QH/
+ VxBxYyfM9N2EdxSf8e3g0736oamQTjpvUMcApELTq7RufCxIpjXbV/3ZAzFEf3SbBozfKYA/
+ h+sFM+Yy0BF/6NWwC7UgCm2AvV6w6gwHHIQvLED1BeRkD/EH1HmgfgiqJIGlwSqkSTNsUtL6
+ WZoBOTNeInj5rl431dz0gJdYs//ZDJ2z35XaljDP8x0Vx4L4Tm1AhZCTt5Qxj9I68WwJv66u
+ fz+weZ3MzG7QNVn3YVMzAAD6P8z74NM1EZF6Kg2w319d3lPL9Ba02CcU8o/Jo5/MUEcDABEB
+ AAG0H1RpbG1hbiBTY2htaWR0IDx0aWxtYW5AaW1hcC5jYz6JATsEEwECACUCGyMGCwkIBwMC
+ BhUIAgkKCwQWAgMBAh4BAheABQJTpyKiAhkBAAoJEFPuqx0v+F+qj8sH/14MtCKDIpUSZ+jz
+ 2iTbF+szyF+RxgPKch7l4+MaLvthp3y7RvPM1fRsBYkuOvnSf2x2R8bfVAbGo8Agev6RAGce
+ KVcmD0VAFDrYbyeM5YveL1TfbIEPYMG4qF0mQok9mhaesDCTk4LfVmmIXqAVOpKUd3Rcw6fc
+ xG4nsgclTcj8csg5BJKiLBFyk1qYsEG+2l351qrITDSjzq1Ooq7VugCtYrR4b7kH4UuPUkse
+ v4aZOvddsrH57jNBiNZnN71Y7/L3N6DNg8YQir+hRpMS0cc+jhX0GOy3idUCt63t7HZTJadY
+ qQy6nh3dIq94kiKFDYpMDVcFmivgLzR3kzHwDFC5AQ0EU6cfrQEIAJ67b2JDD0Y8CwEYOzta
+ 3NRyL67lj6dzawteFh7/an9fHsdiuEUV0/EHvCQAiD6Gbpc+qNCAkX5l9Q4uNqyvwUouO+Tw
+ lqC3lGq3dZxc0ukf1mVbmuoxL8dU76KvjaTexbBphWRY4LJHQGjdf2jZRWPqO9FejSWaD6A5
+ Icx5xexf+b66Wj8EibfF+Gw5kzPs9mjZrBpseAVJ+EbNkgx2/yx9oDw25LMycr+MMb61bSfr
+ 8id8gr+lDXhowgxik30bxLQtpj9UPZgRC4Y2CcyzQqotbOWciY5tpmT5tTv+ddgfQVhinsZP
+ KAEK3AIYou27RkkjZ+kFTbnJ4tPKGOW8otMAEQEAAYkBHwQYAQIACQUCU6cfrQIbDAAKCRBT
+ 7qsdL/hfqlinB/9PBwJIS5+ZGiYblEog2HJFAn7YutnvHxoEoLZRZ/8tfIoCsGI18+OXpull
+ YbCaLvXgYCeJjKsB6cY7Ih+xmclmNQmD6hsNvWIxNLEOtWxPCxXwbhvnFKzYiQHADnyyz12k
+ uJlb6pT2sdTynl6gVwJz7s9cdipTB/aRaHpiMAUYgxxh8gEpoKmqKFoSwMA0lGozvfr8X9OI
+ E8sCWFTs1Gr0Iz4SOJ26vwHSDZO880G+YW9O4l08mTNPBdBoV1auNqfKNF6wW4JQ6Spm6PZm
+ 26esWpBITo1IxICllLdjNI6DJf2vq8ShqAbb9S7yKClXPDSq+QLpUAKcKizg1UiBP6wS
+Subject: Re: [PATCH 1/4] staging: gigaset: fix general protection fault on
+ probe
+Message-ID: <7cfa2ada-d1ea-aafe-6ac1-f407e3bd558d@imap.cc>
+Date:   Sun, 1 Dec 2019 13:30:42 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20191201001505.964E72075A@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 26 Nov 2019 17:19:12 +0100
-Jean-Baptiste Maneyrol <jmaneyrol@invensense.com> wrote:
+Hi Johan,
 
-> Temperature should be reported in milli-degrees, not degrees. Fix
-> scale and offset values to use the correct unit.
+this is probably caused by the move of the driver to staging in
+kernel release 5.3 half a year ago. If you want your patches to
+apply to pre-5.3 stable releases you'll have to submit a version
+with the paths changed from drivers/staging/isdn/gigaset to
+drivers/isdn/gigaset.
+
+HTH
+Tilman
+
+Am 01.12.2019 um 01:15 schrieb Sasha Levin:
+> Hi,
 > 
-> Fixes: 1615fe41a195 ("iio: imu: mpu6050: Fix FIFO layout for ICM20602")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-Applied to the fixes-togreg branch of iio.git with a note added that the
-fixes tag marks the point to which this patch can be applied. Additional
-backports may be needed to fix the issue before that point.
-
-Jonathan
-
-> ---
->  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 23 +++++++++++-----------
->  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  | 16 +++++++++++----
->  2 files changed, 24 insertions(+), 15 deletions(-)
+> [This is an automated email]
 > 
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> index 23c0557891a0..268240644adf 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> @@ -117,6 +117,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6050,
->  		.config = &chip_config_6050,
->  		.fifo_size = 1024,
-> +		.temp = {INV_MPU6050_TEMP_OFFSET, INV_MPU6050_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_MPU6500_WHOAMI_VALUE,
-> @@ -124,6 +125,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6500,
->  		.config = &chip_config_6050,
->  		.fifo_size = 512,
-> +		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_MPU6515_WHOAMI_VALUE,
-> @@ -131,6 +133,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6500,
->  		.config = &chip_config_6050,
->  		.fifo_size = 512,
-> +		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_MPU6000_WHOAMI_VALUE,
-> @@ -138,6 +141,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6050,
->  		.config = &chip_config_6050,
->  		.fifo_size = 1024,
-> +		.temp = {INV_MPU6050_TEMP_OFFSET, INV_MPU6050_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_MPU9150_WHOAMI_VALUE,
-> @@ -145,6 +149,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6050,
->  		.config = &chip_config_6050,
->  		.fifo_size = 1024,
-> +		.temp = {INV_MPU6050_TEMP_OFFSET, INV_MPU6050_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_MPU9250_WHOAMI_VALUE,
-> @@ -152,6 +157,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6500,
->  		.config = &chip_config_6050,
->  		.fifo_size = 512,
-> +		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_MPU9255_WHOAMI_VALUE,
-> @@ -159,6 +165,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6500,
->  		.config = &chip_config_6050,
->  		.fifo_size = 512,
-> +		.temp = {INV_MPU6500_TEMP_OFFSET, INV_MPU6500_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_ICM20608_WHOAMI_VALUE,
-> @@ -166,6 +173,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_6500,
->  		.config = &chip_config_6050,
->  		.fifo_size = 512,
-> +		.temp = {INV_ICM20608_TEMP_OFFSET, INV_ICM20608_TEMP_SCALE},
->  	},
->  	{
->  		.whoami = INV_ICM20602_WHOAMI_VALUE,
-> @@ -173,6 +181,7 @@ static const struct inv_mpu6050_hw hw_info[] = {
->  		.reg = &reg_set_icm20602,
->  		.config = &chip_config_6050,
->  		.fifo_size = 1008,
-> +		.temp = {INV_ICM20608_TEMP_OFFSET, INV_ICM20608_TEMP_SCALE},
->  	},
->  };
->  
-> @@ -481,12 +490,8 @@ inv_mpu6050_read_raw(struct iio_dev *indio_dev,
->  
->  			return IIO_VAL_INT_PLUS_MICRO;
->  		case IIO_TEMP:
-> -			*val = 0;
-> -			if (st->chip_type == INV_ICM20602)
-> -				*val2 = INV_ICM20602_TEMP_SCALE;
-> -			else
-> -				*val2 = INV_MPU6050_TEMP_SCALE;
-> -
-> +			*val = st->hw->temp.scale / 1000000;
-> +			*val2 = st->hw->temp.scale % 1000000;
->  			return IIO_VAL_INT_PLUS_MICRO;
->  		case IIO_MAGN:
->  			return inv_mpu_magn_get_scale(st, chan, val, val2);
-> @@ -496,11 +501,7 @@ inv_mpu6050_read_raw(struct iio_dev *indio_dev,
->  	case IIO_CHAN_INFO_OFFSET:
->  		switch (chan->type) {
->  		case IIO_TEMP:
-> -			if (st->chip_type == INV_ICM20602)
-> -				*val = INV_ICM20602_TEMP_OFFSET;
-> -			else
-> -				*val = INV_MPU6050_TEMP_OFFSET;
-> -
-> +			*val = st->hw->temp.offset;
->  			return IIO_VAL_INT;
->  		default:
->  			return -EINVAL;
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> index f1fb7b6bdab1..b096e010d4ee 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> @@ -107,6 +107,7 @@ struct inv_mpu6050_chip_config {
->   *  @reg:   register map of the chip.
->   *  @config:    configuration of the chip.
->   *  @fifo_size:	size of the FIFO in bytes.
-> + *  @temp:	offset and scale to apply to raw temperature.
->   */
->  struct inv_mpu6050_hw {
->  	u8 whoami;
-> @@ -114,6 +115,10 @@ struct inv_mpu6050_hw {
->  	const struct inv_mpu6050_reg_map *reg;
->  	const struct inv_mpu6050_chip_config *config;
->  	size_t fifo_size;
-> +	struct {
-> +		int offset;
-> +		int scale;
-> +	} temp;
->  };
->  
->  /*
-> @@ -279,16 +284,19 @@ struct inv_mpu6050_state {
->  #define INV_MPU6050_REG_UP_TIME_MIN          5000
->  #define INV_MPU6050_REG_UP_TIME_MAX          10000
->  
-> -#define INV_MPU6050_TEMP_OFFSET	             12421
-> -#define INV_MPU6050_TEMP_SCALE               2941
-> +#define INV_MPU6050_TEMP_OFFSET	             12420
-> +#define INV_MPU6050_TEMP_SCALE               2941176
->  #define INV_MPU6050_MAX_GYRO_FS_PARAM        3
->  #define INV_MPU6050_MAX_ACCL_FS_PARAM        3
->  #define INV_MPU6050_THREE_AXIS               3
->  #define INV_MPU6050_GYRO_CONFIG_FSR_SHIFT    3
->  #define INV_MPU6050_ACCL_CONFIG_FSR_SHIFT    3
->  
-> -#define INV_ICM20602_TEMP_OFFSET	     8170
-> -#define INV_ICM20602_TEMP_SCALE		     3060
-> +#define INV_MPU6500_TEMP_OFFSET              7011
-> +#define INV_MPU6500_TEMP_SCALE               2995178
-> +
-> +#define INV_ICM20608_TEMP_OFFSET	     8170
-> +#define INV_ICM20608_TEMP_SCALE		     3059976
->  
->  /* 6 + 6 + 7 (for MPU9x50) = 19 round up to 24 and plus 8 */
->  #define INV_MPU6050_OUTPUT_DATA_SIZE         32
-
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 07dc1f9f2f80 ("[PATCH] isdn4linux: Siemens Gigaset drivers - M105 USB DECT adapter").
+> 
+> The bot has tested the following trees: v5.4.1, v5.3.14, v4.19.86, v4.14.156, v4.9.205, v4.4.205.
+> 
+> v5.4.1: Build OK!
+> v5.3.14: Build OK!
+> v4.19.86: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> v4.14.156: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> v4.9.205: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> v4.4.205: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
