@@ -2,79 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 186AE10E1FB
-	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 14:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 433FB10E20F
+	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 14:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726138AbfLANEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Dec 2019 08:04:37 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:41440 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725996AbfLANEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Dec 2019 08:04:37 -0500
-Received: by mail-lj1-f193.google.com with SMTP id h23so341473ljc.8;
-        Sun, 01 Dec 2019 05:04:35 -0800 (PST)
+        id S1726363AbfLANif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Dec 2019 08:38:35 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:40669 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726340AbfLANif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Dec 2019 08:38:35 -0500
+Received: by mail-wr1-f66.google.com with SMTP id c14so16173834wrn.7
+        for <stable@vger.kernel.org>; Sun, 01 Dec 2019 05:38:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=N0C7SK612kKGxXi7nHNsxRiRgQuPGebkIbmyy1uazag=;
+        b=sz52Q9ch9ahBrTB5VWiR/SfwDb0GpD3LWElWJrImYRLTVh2GxiNkR3PnQyIsXPlaza
+         yflS4uVk5JjQ7wcDIdfdeLDnAzmvD+ajeIcWjitoais6CpUS/UBO/MnNNj5+0CTWTZYw
+         TKDVHbiWpVD9kLLE4Gz+hsacNVCzTL6iM+lQFfNIyZGqYqZ4mha/XOk9F56Z0R+2seOf
+         bjvvu4WB7nb7/+NEgHbi465tWWwgwFq065oQ43svbd9QAmtmKkX2GLzlu7nqWOWH+IyC
+         rhczZ761T9t2Rad6iIuQLCEabuT99ibvPuZfJBqsYHRzrq5uK0Wemj6H5e58+3fPGFET
+         dEEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=6oQ9pFt2y/HOgvjM6zb3KOxNIUI97tDsrOEUXJyqzuE=;
-        b=CMuosajImF3ezinV9PCuKcQn6SrWQOG0xOc09ihAWLWLEh24CWrqa8XfmrAox++jMr
-         ja57p1VN58T88nGgCMaNuHF2PqvSa9a6/ArMZwE6/CXTDARwHokA+2GbbEqI4ZTr7ylE
-         IfcYdsyTY0p93hFGBasu8Z9aVMOlCOaEx5BBv0dGd69GEQ5CL9Y3Sq7JiBi2X5Dy+IR1
-         8nikUEHLF7MKDRzf6/avyCp+sQOyGWPJAJd/70NU4vGBuEuJwrioDS4QAjWJQ2V1wOOb
-         M8EHp9fXNHCScKT3ZUW3W6Cfu4lndy0g6/yVSYmGmvzazbsbFDpLnTJF6FhYR2h2tfCo
-         5bjQ==
-X-Gm-Message-State: APjAAAWoyT4y7g577I2YMGMMBQ7NjKAXi1xH8Bu8r8Yb3OHxRkmLj/Sr
-        To3QSeV6J558yL9l7OmrkI0=
-X-Google-Smtp-Source: APXvYqx64w8NIjl4a4DfQBwm2fcHd47pW5Yqi0KA2o7sRCfSt6UeE4zBCgl7nEZxvAaO8yeXH9nhSQ==
-X-Received: by 2002:a2e:b4f6:: with SMTP id s22mr30841886ljm.218.1575205474691;
-        Sun, 01 Dec 2019 05:04:34 -0800 (PST)
-Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id n19sm12926938lfl.85.2019.12.01.05.04.33
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=N0C7SK612kKGxXi7nHNsxRiRgQuPGebkIbmyy1uazag=;
+        b=mBVebvN6Bj4prJ6QyvSMLkEhBuzeSHAfg5ZvG0sl34PmAxiOcSrMDt3yO/KVOmQQA9
+         TSZpW+6QURgxtytoi3xy9M16jxTs7GBB0LNTSeWhouP+6qa+EUmYoTF7z+E/WqSyGAe/
+         iTjAiD0prw5UfqwvHPstfHwj8K+GUVRCC+9nKkGv6jIoeCrucR6azYw60SjJ/cRxSNzt
+         zf4BrC/2VAT4N+H95APKKduTEvp5LPOdzNdRfXUe7cEuFVrk2vh9SFORxo7MFAJOedgc
+         xlQCSp5XyUl4645HgRZ1YKwyMSpPRtLcClSzr2i64TovnRbhpOn91jGH9LndPEMgXB/H
+         nkHQ==
+X-Gm-Message-State: APjAAAVe5I87TIKBcLKRUz1IWnMq7hcm746H1g5MsVgb+tLukOHm/sBI
+        HBSmxsIPWQfQ7fpdKd8jZCvjUsZvVYI=
+X-Google-Smtp-Source: APXvYqwQ/KleQ2v5UztFmr5JGeNoxxMnW7R2CqHSZVi65J/9BxfUpzk5+WukI0hkffMR/F3Ki6SdQw==
+X-Received: by 2002:adf:9c81:: with SMTP id d1mr63142304wre.144.1575207511437;
+        Sun, 01 Dec 2019 05:38:31 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y20sm11908603wmi.25.2019.12.01.05.38.30
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Dec 2019 05:04:33 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1ibOtx-0001z4-Vl; Sun, 01 Dec 2019 14:04:38 +0100
-Date:   Sun, 1 Dec 2019 14:04:37 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Tilman Schmidt <tilman@imap.cc>, Johan Hovold <johan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org,
-        linux-kernel@vger.kernel.org, Hansjoerg Lipp <hjlipp@web.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/4] staging: gigaset: fix general protection fault on
- probe
-Message-ID: <20191201130437.GB23996@localhost>
-References: <20191129101753.9721-2-johan@kernel.org>
- <20191201001505.964E72075A@mail.kernel.org>
- <7cfa2ada-d1ea-aafe-6ac1-f407e3bd558d@imap.cc>
- <20191201124156.GA3836284@kroah.com>
+        Sun, 01 Dec 2019 05:38:30 -0800 (PST)
+Message-ID: <5de3c256.1c69fb81.b754.ce95@mx.google.com>
+Date:   Sun, 01 Dec 2019 05:38:30 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191201124156.GA3836284@kroah.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.14.157
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.14.y boot: 67 boots: 1 failed, 66 passed (v4.14.157)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 01, 2019 at 01:41:56PM +0100, Greg Kroah-Hartman wrote:
-> On Sun, Dec 01, 2019 at 01:30:42PM +0100, Tilman Schmidt wrote:
-> > Hi Johan,
-> > 
-> > this is probably caused by the move of the driver to staging in
-> > kernel release 5.3 half a year ago. If you want your patches to
-> > apply to pre-5.3 stable releases you'll have to submit a version
-> > with the paths changed from drivers/staging/isdn/gigaset to
-> > drivers/isdn/gigaset.
-> 
-> That's trivial for me to do when they get added to the stable tree(s),
-> no need to worry about it.
+stable/linux-4.14.y boot: 67 boots: 1 failed, 66 passed (v4.14.157)
 
-I'll be sending a v2 of this series shortly. Somehow I managed to
-overlook usb_endpoint_is_bulk_in() and friends so patch 4/4 should no
-longer be needed either.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.157/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.157/
 
-Johan
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.157
+Git Commit: fbc5fe7a54d02e11972e3b2a5ddb6ffc88162c8f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 39 unique boards, 15 SoC families, 10 builds out of 201
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
