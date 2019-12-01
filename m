@@ -2,80 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C08B10E213
-	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 14:47:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4A2910E234
+	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 15:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726418AbfLANro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Dec 2019 08:47:44 -0500
-Received: from mail-wr1-f49.google.com ([209.85.221.49]:38411 "EHLO
-        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726340AbfLANro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Dec 2019 08:47:44 -0500
-Received: by mail-wr1-f49.google.com with SMTP id y17so2160271wrh.5
-        for <stable@vger.kernel.org>; Sun, 01 Dec 2019 05:47:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=aRukWeyh33CQRV/WAuIfsJAv3cFRGRyyWstI0jlerHg=;
-        b=qJyL7vV1R5HO5tsa6v0xEX2wmD5aVwoMmFVzEA4c2y9WL63yd7AWtIBPOxc+bwB6UF
-         8oQjgl2gHx8CCB1ML4enUeBrEDRXC2MxenEVA/KV899L3r3LDnY/uPhcCnmDdi7UyU3g
-         zjNQMPts4mNSJ7SMtBFlr2iCG0KDicqVabohR+aVuubd1oc3Ubz42gtM250SPa1WGpwC
-         EqLUt6fbmJcXgXbVsdwqfllSrfRbuDRG+v1FZSFyNTB3qpxLbvFAnJQLtawPAK4Y6mh0
-         pTEGq7hfLN2HRpH4JInEEIGUUfcmTw/WCf9HlBJny3fjCTLe6/jf/2OGpjqHyQilBRj1
-         pPpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=aRukWeyh33CQRV/WAuIfsJAv3cFRGRyyWstI0jlerHg=;
-        b=nWvF8FEtVFEXhIdfscmvpi0vsyijnWbj1OX6Psv5rN7wI6g8sUoOHKzaEHvMz8Vwu3
-         mOadqB3HW+14uA6Ar33lDtUKwMsjqW99C3AfQ3wz4pjw9TlraCpcT0OK4lgOt/v0hYtk
-         gRs1i/zKuhaQ1GrKByidGM/j7dA6Ha68IjOwN8/1QHbuFdYPLUbZKy+vtfGKqbFSH215
-         jygnGjGwsKb5gJ9LG4SKLnllS6lbv2Su3b0ccAQTpjFs8YKnJax+yC8/F2Ij+HPxgw6D
-         49TJo6Fyl2h9MyM6x/cQDEw0LBfFQ6k5u0NdKkl74j57c2qax4INGCUkcOjrIByd/1WH
-         C2Mw==
-X-Gm-Message-State: APjAAAWd1bC3lr8C+M8l3m1SQZBTcR3r/yzrLt9anH8+lkQ8wfLhcOgt
-        PwIMURVysdaLgrdk77mR4j3vI1pQwuw=
-X-Google-Smtp-Source: APXvYqwGYguKzPVYgYx9EVmPOol/IwvuG7/2s8g3a0ZvioAOE3QLl3myQD67mqZZVX6G1uPCG1NkOA==
-X-Received: by 2002:a5d:488c:: with SMTP id g12mr424897wrq.67.1575208062264;
-        Sun, 01 Dec 2019 05:47:42 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c15sm36075391wrx.78.2019.12.01.05.47.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Dec 2019 05:47:41 -0800 (PST)
-Message-ID: <5de3c47d.1c69fb81.963e6.af3f@mx.google.com>
-Date:   Sun, 01 Dec 2019 05:47:41 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726811AbfLAOek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Dec 2019 09:34:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49114 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726498AbfLAOej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 1 Dec 2019 09:34:39 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 098B120725;
+        Sun,  1 Dec 2019 14:34:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575210878;
+        bh=K8rs8jjTNo+YjtPHch9ujxhFdvlkbw04xZ/DlEjvXmA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=X8LvnoV+ZPy/EFvVU0aJRwEOLjieEn833fKjD4mA1VvGWFWPgDzkbvmwPpedC01uS
+         4v5RBKw7xncGiVV7KGxzU4J231F8BfqeXGG69xfzgH/8kE1chbYSSl6hE7tPMqVnJT
+         Ke3CEUQp3PVqEw+u6cztQz1F1v+MEx6/EQdhXnhw=
+Date:   Sun, 1 Dec 2019 09:34:36 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Ilya Dryomov <idryomov@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Ceph Development <ceph-devel@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.19 140/219] libceph: drop last_piece logic from
+ write_partial_message_data()
+Message-ID: <20191201143436.GS5861@sasha-vm>
+References: <20191122054911.1750-1-sashal@kernel.org>
+ <20191122054911.1750-133-sashal@kernel.org>
+ <CAOi1vP9MCrPf44V2GMyODH185A0HJcuPsYfVkOAVGkcMRb+=iw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.19.87
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.19.y boot: 81 boots: 0 failed, 81 passed (v4.19.87)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAOi1vP9MCrPf44V2GMyODH185A0HJcuPsYfVkOAVGkcMRb+=iw@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 81 boots: 0 failed, 81 passed (v4.19.87)
+On Fri, Nov 22, 2019 at 03:00:43PM +0100, Ilya Dryomov wrote:
+>On Fri, Nov 22, 2019 at 6:51 AM Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> From: Ilya Dryomov <idryomov@gmail.com>
+>>
+>> [ Upstream commit 1f6b821aef78e3d79e8d598ae59fc7e23fb6c563 ]
+>>
+>> last_piece is for the last piece in the current data item, not in the
+>> entire data payload of the message.  This is harmful for messages with
+>> multiple data items.  On top of that, we don't need to signal the end
+>> of a data payload either because it is always followed by a footer.
+>>
+>> We used to signal "more" unconditionally, until commit fe38a2b67bc6
+>> ("libceph: start defining message data cursor").  Part of a large
+>> series, it introduced cursor->last_piece and also mistakenly inverted
+>> the hint by passing last_piece for "more".  This was corrected with
+>> commit c2cfa1940097 ("libceph: Fix ceph_tcp_sendpage()'s more boolean
+>> usage").
+>>
+>> As it is, last_piece is not helping at all: because Nagle algorithm is
+>> disabled, for a simple message with two 512-byte data items we end up
+>> emitting three packets: front + first data item, second data item and
+>> footer.  Go back to the original pre-fe38a2b67bc6 behavior -- a single
+>> packet in most cases.
+>>
+>> Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  net/ceph/messenger.c | 8 +++-----
+>>  1 file changed, 3 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/net/ceph/messenger.c b/net/ceph/messenger.c
+>> index f7d7f32ac673c..6514816947fbe 100644
+>> --- a/net/ceph/messenger.c
+>> +++ b/net/ceph/messenger.c
+>> @@ -1612,7 +1612,6 @@ static int write_partial_message_data(struct ceph_connection *con)
+>>                 struct page *page;
+>>                 size_t page_offset;
+>>                 size_t length;
+>> -               bool last_piece;
+>>                 int ret;
+>>
+>>                 if (!cursor->resid) {
+>> @@ -1620,10 +1619,9 @@ static int write_partial_message_data(struct ceph_connection *con)
+>>                         continue;
+>>                 }
+>>
+>> -               page = ceph_msg_data_next(cursor, &page_offset, &length,
+>> -                                         &last_piece);
+>> -               ret = ceph_tcp_sendpage(con->sock, page, page_offset,
+>> -                                       length, !last_piece);
+>> +               page = ceph_msg_data_next(cursor, &page_offset, &length, NULL);
+>> +               ret = ceph_tcp_sendpage(con->sock, page, page_offset, length,
+>> +                                       true);
+>>                 if (ret <= 0) {
+>>                         if (do_datacrc)
+>>                                 msg->footer.data_crc = cpu_to_le32(crc);
+>
+>Hi Sasha,
+>
+>This commit was part of a larger series and shouldn't be backported on
+>its own.  Please drop it.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.87/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.87/
+Now dropped, thanks!
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.87
-Git Commit: 174651bdf802a2139065e8e31ce950e2f3fc4a94
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 49 unique boards, 17 SoC families, 13 builds out of 206
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+Sasha
