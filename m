@@ -2,96 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11CBE10E3F5
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 00:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C795910E3FD
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 00:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726689AbfLAXtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 Dec 2019 18:49:15 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:56622 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727266AbfLAXtO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 Dec 2019 18:49:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=LQDdCTsWHRA4ZretgJXx0msy4MDgZvvkhcgKOBqu1qQ=; b=sKsz595kkpRJbxYVC7pvr4NZf
-        eG9oWOCiKP3GFwAgjCYrOQ1tts9LnfboO4de8O1lAaK6k+ei2A1Ya1kWT0DIBltJ4XbmByOuvoDVc
-        fMTLFXuhfAgYvTp0CBwkZocAMnkQ75JoQ6lmwI3N1NGDMC5dwOKabgZE1GnHwHnaHQwDc=;
-Received: from fw-tnat.cambridge.arm.com ([217.140.96.140] helo=fitzroy.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1ibYxk-0000Ed-GX; Sun, 01 Dec 2019 23:49:12 +0000
-Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
-        id 36395D02F8B; Sun,  1 Dec 2019 23:49:11 +0000 (GMT)
-Date:   Sun, 1 Dec 2019 23:49:11 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Torsten Duwe <duwe@lst.de>
-Cc:     Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] regulator: Defer init completion for a while after
- late_initcall
-Message-ID: <20191201234911.GC1998@sirena.org.uk>
-References: <20190904124250.25844-1-broonie@kernel.org>
- <20191116125233.GA5570@lst.de>
- <20191118124654.GD9761@sirena.org.uk>
- <20191118164101.GA7894@lst.de>
- <20191118165651.GK9761@sirena.org.uk>
- <20191118194012.GB7894@lst.de>
- <20191118202949.GD43585@sirena.org.uk>
- <20191130152700.GA14121@lst.de>
+        id S1727282AbfLAXyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Dec 2019 18:54:55 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15056 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727266AbfLAXyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Dec 2019 18:54:55 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB1NqUqU104695;
+        Sun, 1 Dec 2019 18:54:53 -0500
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wm6sm59du-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 01 Dec 2019 18:54:53 -0500
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id xB1No2sl023106;
+        Sun, 1 Dec 2019 23:54:52 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma04wdc.us.ibm.com with ESMTP id 2wkg265vsc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 01 Dec 2019 23:54:52 +0000
+Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id xB1Nspo047251850
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 1 Dec 2019 23:54:51 GMT
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 25DCC7805F;
+        Sun,  1 Dec 2019 23:54:51 +0000 (GMT)
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9A1217805C;
+        Sun,  1 Dec 2019 23:54:50 +0000 (GMT)
+Received: from sbct-3.pok.ibm.com (unknown [9.47.158.153])
+        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Sun,  1 Dec 2019 23:54:50 +0000 (GMT)
+Subject: Re: [PATCH 0/2] Revert patches fixing probing of interrupts
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>
+Cc:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-security-module@vger.kernel.org
+References: <20191126131753.3424363-1-stefanb@linux.vnet.ibm.com>
+ <20191129223418.GA15726@linux.intel.com>
+From:   Stefan Berger <stefanb@linux.ibm.com>
+Message-ID: <6f6f60a2-3b55-e76d-c11a-4677fcb72c16@linux.ibm.com>
+Date:   Sun, 1 Dec 2019 18:54:45 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Pk6IbRAofICFmK5e"
-Content-Disposition: inline
-In-Reply-To: <20191130152700.GA14121@lst.de>
-X-Cookie: Cleanliness is next to impossible.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191129223418.GA15726@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
+ definitions=2019-12-01_04:2019-11-29,2019-12-01 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ suspectscore=0 clxscore=1011 malwarescore=0 adultscore=0 impostorscore=0
+ phishscore=0 mlxlogscore=845 spamscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1910280000 definitions=main-1912010215
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 11/29/19 5:37 PM, Jarkko Sakkinen wrote:
+> On Tue, Nov 26, 2019 at 08:17:51AM -0500, Stefan Berger wrote:
+>> From: Stefan Berger <stefanb@linux.ibm.com>
+>>
+>> Revert the patches that were fixing the probing of interrupts due
+>> to reports of interrupt stroms on some systems
+> Can you explain how reverting is going to fix the issue?
 
---Pk6IbRAofICFmK5e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Sat, Nov 30, 2019 at 04:27:00PM +0100, Torsten Duwe wrote:
+The reverts fix 'the interrupt storm issue' that they are causing on 
+some systems but don't fix the issue with the interrupt mode not being 
+used. I was hoping Jerry would get access to a system faster but this 
+didn't seem to be the case. So sending these patches seemed the better 
+solution than leaving 5.4.x with the problem but going back to when it 
+worked 'better.'
 
-> Well, actually the 4 lines above give a good hint :) of_get_regulator()
-> will look for "dvdd25-supply-supply". I'm fairly relieved that even you
-> didn't spot this right away. The fix just went to dri-devel, you're Cc'ed.
-> Unfortunately the documentation for this is buried in the git commit log.
 
-Glad you got to the bottom of this!  Like I said in reply to your
-fix (which I saw first) this is covered in the DT binding
-documentation for the regultaor API.
+>
+> This is wrong way to move forward. The root cause must be identified
+> first and then decide actions like always in any situation.
+>
+> /Jarkko
 
-> For the record: I'm still convinced that the original change can uncover
-> bugs unexpectedly, and is not suited for -stable.
 
-Yeah, it's definitely at the upper limit of what I consider safe
-for stable but it seems to fit the risk profile of what stable
-wants to include these days and there was demand for it from
-people working on DT based laptops and desktops.
-
---Pk6IbRAofICFmK5e
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl3kUXYACgkQJNaLcl1U
-h9A7Cwf+Ka4ElFEbzAcM1kQ2TqPeE4GdhgoP6Ky0e++Md4T0Eqfukz4PDkb3FnlR
-+6qyEXTeYDUdWTR0SS8dGzIeplhy13DNBBvKMVKZTt8FMKpdpeqYsNKISxw7kIfN
-HEy/CSA1B4b5E7cLJlxu+lxno4O/cT5NXwwbXWVjOnIQ68HByQJ7U3rtdbX1yIE3
-0pbXlVo0VoffJbjdwuCswgoqwc8JzwN+1tZWaj8CmFGQxF3IJBGZyNqMvJuXqL5e
-D1joW+R1yEakuVJ7xyY4tXSMoHfaDdxlx3cF63c4i40uHmxboQMtbp4wVZkgsFOZ
-h16BNH+wpM6CNYcAgmz7ECnJ2dp0Vg==
-=lMGi
------END PGP SIGNATURE-----
-
---Pk6IbRAofICFmK5e--
