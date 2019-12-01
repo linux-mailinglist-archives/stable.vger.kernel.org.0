@@ -2,122 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E55A10E01C
-	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 02:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0F510E111
+	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 09:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727026AbfLABxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Nov 2019 20:53:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55696 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726878AbfLABxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Nov 2019 20:53:30 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 311D6215A5;
-        Sun,  1 Dec 2019 01:53:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575165209;
-        bh=FPXma5KIlv3ycKGzXzXGQlKa9YuYJaaq8lBfD5AmEG4=;
-        h=Date:From:To:Subject:From;
-        b=GEIv0janIduchxVrBP9GSBJvrPzosKs7JhBH9KnSd38/ReYVR0SpJ9nreaRXVwqhK
-         f6scz8KwTHCvAM3dDxJ/JAWAuvLlnDA1xSD9yNcO7+StJ5ePCIPllyiKQnJShmG4ci
-         n9vPn3cIJAWN++Caj6PYP9aV4bfmjejqYpiY0RgE=
-Date:   Sat, 30 Nov 2019 17:53:28 -0800
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, hughd@google.com,
-        joel@joelfernandes.org, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, ngeoffray@google.com, shuah@kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 069/158] mm, memfd: fix COW issue on MAP_PRIVATE
- and F_SEAL_FUTURE_WRITE mappings
-Message-ID: <20191201015328.wunf9qxIi%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726086AbfLAIlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 Dec 2019 03:41:02 -0500
+Received: from sonic302-20.consmr.mail.gq1.yahoo.com ([98.137.68.146]:33528
+        "EHLO sonic302-20.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725993AbfLAIlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 Dec 2019 03:41:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1575189661; bh=20PCjo9JU3Dbavb/3Bs50RDjpnVfQ55gM0PpKbtAZKw=; h=From:To:Cc:Subject:Date:References:From:Subject; b=hv/UedqKxnnbIWUmNyPa/jK9iZ2WTEskWopWv+sj8QgG9u+MeK1FsWO2mq5vSlXnOiu2SACHkxmgZdWJOtutSqDxt/2nh1qcgh9w17QDReba6SE/RoAJkkCv/99tb6pfjw1n3kGXGSzQOTiiLtj5HMrifKr+SQ/TWICNeHnqChziTVr5LyewrsI6J3OcP1fRBHpf5U1I5aRNFUYJ03XqVgK4YtvnJgYO+X+SMX+CPCVjsS2IoDhgntfcyAhwKA36+cLqpiANnqwqRwKZTALG8u2hN7YEyMUm7gj0fBDD7jON2xWuu55RsBOez/L0VZ3xM+FxEMOaP3JMy+LYBHwk0w==
+X-YMail-OSG: Qrj31G4VM1npeJnzm6hxNS.pUPN9c6Ic5eFuTgZvtIPMWnP.9I_m1zNKb8U9B3M
+ Kfx1wP2YM4Wx1iswr6O0kUC2nKp1noVsK8tGxSN4uaBwW8ewaKg_PoYocEDIfhSBGasOZ6HPAQbW
+ 0hKtdWxxw5QHgWY.lV2V_Apreypb_LtfsHU83ZXN.b5boe8CJ8jOWGZbaPwjeqVluRjoQlXes5uV
+ dcy.sE0gfuuYIN_DXz.DEyX2S8tKVJHEoUxaMBDwpFXypu6Wk7WdpPMRmTbVxO7jRd1tSGQKHvQc
+ Fbm2QORDlLnjw7SuMsZ7qVjC5TZue98ZiMP9bq1ZKm9IM2Q9.kVWYrkpRMMZPbMOqLklDAheTCH.
+ F0wAqYOym56nKIcV9j7Gav8tHqHRlWCLGQcX9p6o5lIY6c.poClt9MPJv92H6Zwf98oJTzi0ifuj
+ hsO8P302KT4aYi9UnJM.tWaXcRTjwGRj3sD.caDUrzdhhfyaXijrvTVpfdZ6QX6RoCYRIt8kAau_
+ QO2nL45k3Su8aMNDqOcgdtPLS7hvQr.E1OYAd2YLQyhRE_vtv1b1HeNEm1ZeZwc4BKasscMdOGjl
+ K1oGKUXKQQRt6KvnndJPNo_nsgc9II1Cl8fmGOSOJD8jwA4ZZOycne8pdrUs.jMrTBny1E8bgB1J
+ Evcr9ZUDeVXNjV8ByPzIf6YzYJ6w41S0Kwb0_.7TgXwJzzEk0B3tCiP_GQpyzhKKYsksvYR_Sdhc
+ DwZCVUrKDuv9q8ctK3Q4jmvTL.xREN7hb.KgiITwQl9r_xaIZoE663fkdOXouPRpjY8MQc_3U33_
+ YrEkXMK69JZVkWfafztc7dRvfXx3erkvwI.nPxyUh.2JJqneMrS5AiXNgzmWlgo1pWIse81mFpyi
+ xYJp3ajmgA0IVhhEXAf7aqNpN.axpHc6hwDoU3AqCiLM.QfVwtd8zu3D.scUbM6t3CAHKs624haF
+ cMAsGoS7Ov540C7hVQ3bVJisOzvJeTqzfwL3pOKXTHTfeXQ52ULP9p0jZQS_YYjO43P5b3BNM6Vo
+ Lc.O8GBE7XrnEHnMQtDwaWGsN8uh2KdZNtwQCQs1ILJIivk_hyF0ZHNTEWwbYtCbbcLff4C.Naf.
+ D6as6drlAcY1ooFRMfs9nURjLHduFj93HP0Trff.jvNNecoFqE8uG6gYssgzHlOsNnS8b7Q5hHQh
+ e29R69Lp0nIvqQWNHDKlU2xOy2dJ1VcK.C9dbSRLgE9iny8_FzlQ1VEYe3OcuVaaR1Z_zqJm.oxl
+ qamABURZ2wER8h_0dJwZrpBxSWy58q8S8geXbHUSqdGBeNvRMo0RHf7Mi6SLj4Ca5hTRYqkCEDIP
+ VXXcaivjZx8gmxBdRIac675gSuISCx1Rl5qGr5oW96UvQhJHEtC_xocKwkR_0FBcabZ2MdEamXVX
+ 2VXaZVdA-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.gq1.yahoo.com with HTTP; Sun, 1 Dec 2019 08:41:01 +0000
+Received: by smtp419.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d0565019c54eecb6cc19d6eb884efcb1;
+          Sun, 01 Dec 2019 08:40:57 +0000 (UTC)
+From:   Gao Xiang <hsiangkao@aol.com>
+To:     Chao Yu <yuchao0@huawei.com>, linux-erofs@lists.ozlabs.org
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        David Michael <fedora.dm0@gmail.com>,
+        Miao Xie <miaoxie@huawei.com>, Fang Wei <fangwei1@huawei.com>,
+        Wang Li <wangli74@huawei.com>,
+        Gao Xiang <gaoxiang25@huawei.com>, stable@vger.kernel.org
+Subject: [PATCH] erofs: zero out when listxattr is called with no xattr
+Date:   Sun,  1 Dec 2019 16:40:40 +0800
+Message-Id: <20191201084040.29275-1-hsiangkao@aol.com>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+References: <20191201084040.29275-1-hsiangkao.ref@aol.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Geoffray <ngeoffray@google.com>
-Subject: mm, memfd: fix COW issue on MAP_PRIVATE and F_SEAL_FUTURE_WRITE mappings
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-F_SEAL_FUTURE_WRITE has unexpected behavior when used with MAP_PRIVATE: A
-private mapping created after the memfd file that gets sealed with
-F_SEAL_FUTURE_WRITE loses the copy-on-write at fork behavior, meaning
-children and parent share the same memory, even though the mapping is
-private.
+As David reported [1], ENODATA returns when attempting
+to modify files by using EROFS as a overlayfs lower layer.
 
-The reason for this is due to the code below:
+The root cause is that listxattr could return unexpected
+-ENODATA by mistake for inodes without xattr. That breaks
+listxattr return value convention and it can cause copy
+up failure when used with overlayfs.
 
-static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
-{
-        struct shmem_inode_info *info = SHMEM_I(file_inode(file));
+Resolve by zeroing out if no xattr is found for listxattr.
 
-        if (info->seals & F_SEAL_FUTURE_WRITE) {
-                /*
-                 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
-                 * "future write" seal active.
-                 */
-                if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
-                        return -EPERM;
-
-                /*
-                 * Since the F_SEAL_FUTURE_WRITE seals allow for a MAP_SHARED
-                 * read-only mapping, take care to not allow mprotect to revert
-                 * protections.
-                 */
-                vma->vm_flags &= ~(VM_MAYWRITE);
-        }
-        ...
-}
-
-And for the mm to know if a mapping is copy-on-write:
-
-static inline bool is_cow_mapping(vm_flags_t flags)
-{
-        return (flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE;
-}
-
-The patch fixes the issue by making the mprotect revert protection happen
-only for shared mappings.  For private mappings, using mprotect will have
-no effect on the seal behavior.
-
-The F_SEAL_FUTURE_WRITE feature was introduced in v5.1 so v5.3.x stable
-kernels would need a backport.
-
-[akpm@linux-foundation.org: reflow comment, per Christoph]
-Link: http://lkml.kernel.org/r/20191107195355.80608-1-joel@joelfernandes.org
-Fixes: ab3948f58ff84 ("mm/memfd: add an F_SEAL_FUTURE_WRITE seal to memfd")
-Signed-off-by: Nicolas Geoffray <ngeoffray@google.com>
-Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[1] https://lore.kernel.org/r/CAEvUa7nxnby+rxK-KRMA46=exeOMApkDMAV08AjMkkPnTPV4CQ@mail.gmail.com
+Fixes: cadf1ccf1b00 ("staging: erofs: add error handling for xattr submodule")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
+ fs/erofs/xattr.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
- mm/shmem.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index a13a78725c57..b766c3ee5fa8 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -649,6 +649,8 @@ ssize_t erofs_listxattr(struct dentry *dentry,
+ 	struct listxattr_iter it;
+ 
+ 	ret = init_inode_xattrs(d_inode(dentry));
++	if (ret == -ENOATTR)
++		return 0;
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.20.1
 
---- a/mm/shmem.c~memfd-fix-cow-issue-on-map_private-and-f_seal_future_write-mappings
-+++ a/mm/shmem.c
-@@ -2214,11 +2214,14 @@ static int shmem_mmap(struct file *file,
- 			return -EPERM;
- 
- 		/*
--		 * Since the F_SEAL_FUTURE_WRITE seals allow for a MAP_SHARED
--		 * read-only mapping, take care to not allow mprotect to revert
--		 * protections.
-+		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
-+		 * MAP_SHARED and read-only, take care to not allow mprotect to
-+		 * revert protections on such mappings. Do this only for shared
-+		 * mappings. For private mappings, don't need to mask
-+		 * VM_MAYWRITE as we still want them to be COW-writable.
- 		 */
--		vma->vm_flags &= ~(VM_MAYWRITE);
-+		if (vma->vm_flags & VM_SHARED)
-+			vma->vm_flags &= ~(VM_MAYWRITE);
- 	}
- 
- 	file_accessed(file);
-_
