@@ -2,135 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC83510E01B
-	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 02:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E55A10E01C
+	for <lists+stable@lfdr.de>; Sun,  1 Dec 2019 02:53:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbfLABve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Nov 2019 20:51:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52576 "EHLO mail.kernel.org"
+        id S1727026AbfLABxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 Nov 2019 20:53:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726878AbfLABve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 Nov 2019 20:51:34 -0500
+        id S1726878AbfLABxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 Nov 2019 20:53:30 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0102215A5;
-        Sun,  1 Dec 2019 01:51:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311D6215A5;
+        Sun,  1 Dec 2019 01:53:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575165093;
-        bh=5YG5SJgJYRkpy/Jj3Zis4wmBxE1XZBfNejKoHe/VckI=;
+        s=default; t=1575165209;
+        bh=FPXma5KIlv3ycKGzXzXGQlKa9YuYJaaq8lBfD5AmEG4=;
         h=Date:From:To:Subject:From;
-        b=THT/rLMxIS3YchSgfxZz5Oh8h0BG/75EblcSjLXA2wQcK/Us5+xX8aJngbmv6uxAp
-         YKZx7+OCYsQnOacpLv7wud6vZjmFBNfaaBjUAp9gIr0uacqeIwuwadh61cyOXtjfvq
-         VBIS+WypFFnQ8FHZVtOODQXuCHgWMZKSfClKfChw=
-Date:   Sat, 30 Nov 2019 17:51:32 -0800
+        b=GEIv0janIduchxVrBP9GSBJvrPzosKs7JhBH9KnSd38/ReYVR0SpJ9nreaRXVwqhK
+         f6scz8KwTHCvAM3dDxJ/JAWAuvLlnDA1xSD9yNcO7+StJ5ePCIPllyiKQnJShmG4ci
+         n9vPn3cIJAWN++Caj6PYP9aV4bfmjejqYpiY0RgE=
+Date:   Sat, 30 Nov 2019 17:53:28 -0800
 From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, arnd@arndb.de,
-        kirill.shutemov@linux.intel.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        thellstrom@vmware.com, torvalds@linux-foundation.org,
-        willy@infradead.org
-Subject:  [patch 045/158] mm/memory.c: fix a huge pud insertion
- race during faulting
-Message-ID: <20191201015132.LxbEPLRfg%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, hughd@google.com,
+        joel@joelfernandes.org, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, ngeoffray@google.com, shuah@kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 069/158] mm, memfd: fix COW issue on MAP_PRIVATE
+ and F_SEAL_FUTURE_WRITE mappings
+Message-ID: <20191201015328.wunf9qxIi%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
-Subject: mm/memory.c: fix a huge pud insertion race during faulting
+From: Nicolas Geoffray <ngeoffray@google.com>
+Subject: mm, memfd: fix COW issue on MAP_PRIVATE and F_SEAL_FUTURE_WRITE mappings
 
-A huge pud page can theoretically be faulted in racing with pmd_alloc() in
-__handle_mm_fault().  That will lead to pmd_alloc() returning an invalid
-pmd pointer.  Fix this by adding a pud_trans_unstable() function similar
-to pmd_trans_unstable() and check whether the pud is really stable before
-using the pmd pointer.
+F_SEAL_FUTURE_WRITE has unexpected behavior when used with MAP_PRIVATE: A
+private mapping created after the memfd file that gets sealed with
+F_SEAL_FUTURE_WRITE loses the copy-on-write at fork behavior, meaning
+children and parent share the same memory, even though the mapping is
+private.
 
-Race:
-Thread 1:             Thread 2:                 Comment
-create_huge_pud()                               Fallback - not taken.
-		      create_huge_pud()         Taken.
-pmd_alloc()                                     Returns an invalid pointer.
+The reason for this is due to the code below:
 
-This will result in user-visible huge page data corruption.
+static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
+{
+        struct shmem_inode_info *info = SHMEM_I(file_inode(file));
 
-Note that this was caught during a code audit rather than a real
-experienced problem.  It looks to me like the only implementation that
-currently creates huge pud pagetable entries is dev_dax_huge_fault()
-which doesn't appear to care much about private (COW) mappings or
-write-tracking which is, I believe, a prerequisite for
-create_huge_pud() falling back on thread 1, but not in thread 2.
+        if (info->seals & F_SEAL_FUTURE_WRITE) {
+                /*
+                 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
+                 * "future write" seal active.
+                 */
+                if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
+                        return -EPERM;
 
-Link: http://lkml.kernel.org/r/20191115115808.21181-2-thomas_os@shipmail.org
-Fixes: a00cc7d9dd93 ("mm, x86: add support for PUD-sized transparent hugepages")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Matthew Wilcox <willy@infradead.org>
+                /*
+                 * Since the F_SEAL_FUTURE_WRITE seals allow for a MAP_SHARED
+                 * read-only mapping, take care to not allow mprotect to revert
+                 * protections.
+                 */
+                vma->vm_flags &= ~(VM_MAYWRITE);
+        }
+        ...
+}
+
+And for the mm to know if a mapping is copy-on-write:
+
+static inline bool is_cow_mapping(vm_flags_t flags)
+{
+        return (flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE;
+}
+
+The patch fixes the issue by making the mprotect revert protection happen
+only for shared mappings.  For private mappings, using mprotect will have
+no effect on the seal behavior.
+
+The F_SEAL_FUTURE_WRITE feature was introduced in v5.1 so v5.3.x stable
+kernels would need a backport.
+
+[akpm@linux-foundation.org: reflow comment, per Christoph]
+Link: http://lkml.kernel.org/r/20191107195355.80608-1-joel@joelfernandes.org
+Fixes: ab3948f58ff84 ("mm/memfd: add an F_SEAL_FUTURE_WRITE seal to memfd")
+Signed-off-by: Nicolas Geoffray <ngeoffray@google.com>
+Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/asm-generic/pgtable.h |   25 +++++++++++++++++++++++++
- mm/memory.c                   |    6 ++++++
- 2 files changed, 31 insertions(+)
+ mm/shmem.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/include/asm-generic/pgtable.h~mm-fix-a-huge-pud-insertion-race-during-faulting
-+++ a/include/asm-generic/pgtable.h
-@@ -938,6 +938,31 @@ static inline int pud_trans_huge(pud_t p
- }
- #endif
+--- a/mm/shmem.c~memfd-fix-cow-issue-on-map_private-and-f_seal_future_write-mappings
++++ a/mm/shmem.c
+@@ -2214,11 +2214,14 @@ static int shmem_mmap(struct file *file,
+ 			return -EPERM;
  
-+/* See pmd_none_or_trans_huge_or_clear_bad for discussion. */
-+static inline int pud_none_or_trans_huge_or_dev_or_clear_bad(pud_t *pud)
-+{
-+	pud_t pudval = READ_ONCE(*pud);
-+
-+	if (pud_none(pudval) || pud_trans_huge(pudval) || pud_devmap(pudval))
-+		return 1;
-+	if (unlikely(pud_bad(pudval))) {
-+		pud_clear_bad(pud);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+/* See pmd_trans_unstable for discussion. */
-+static inline int pud_trans_unstable(pud_t *pud)
-+{
-+#if defined(CONFIG_TRANSPARENT_HUGEPAGE) &&			\
-+	defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)
-+	return pud_none_or_trans_huge_or_dev_or_clear_bad(pud);
-+#else
-+	return 0;
-+#endif
-+}
-+
- #ifndef pmd_read_atomic
- static inline pmd_t pmd_read_atomic(pmd_t *pmdp)
- {
---- a/mm/memory.c~mm-fix-a-huge-pud-insertion-race-during-faulting
-+++ a/mm/memory.c
-@@ -4010,6 +4010,7 @@ static vm_fault_t __handle_mm_fault(stru
- 	vmf.pud = pud_alloc(mm, p4d, address);
- 	if (!vmf.pud)
- 		return VM_FAULT_OOM;
-+retry_pud:
- 	if (pud_none(*vmf.pud) && __transparent_hugepage_enabled(vma)) {
- 		ret = create_huge_pud(&vmf);
- 		if (!(ret & VM_FAULT_FALLBACK))
-@@ -4036,6 +4037,11 @@ static vm_fault_t __handle_mm_fault(stru
- 	vmf.pmd = pmd_alloc(mm, vmf.pud, address);
- 	if (!vmf.pmd)
- 		return VM_FAULT_OOM;
-+
-+	/* Huge pud page fault raced with pmd_alloc? */
-+	if (pud_trans_unstable(vmf.pud))
-+		goto retry_pud;
-+
- 	if (pmd_none(*vmf.pmd) && __transparent_hugepage_enabled(vma)) {
- 		ret = create_huge_pmd(&vmf);
- 		if (!(ret & VM_FAULT_FALLBACK))
+ 		/*
+-		 * Since the F_SEAL_FUTURE_WRITE seals allow for a MAP_SHARED
+-		 * read-only mapping, take care to not allow mprotect to revert
+-		 * protections.
++		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
++		 * MAP_SHARED and read-only, take care to not allow mprotect to
++		 * revert protections on such mappings. Do this only for shared
++		 * mappings. For private mappings, don't need to mask
++		 * VM_MAYWRITE as we still want them to be COW-writable.
+ 		 */
+-		vma->vm_flags &= ~(VM_MAYWRITE);
++		if (vma->vm_flags & VM_SHARED)
++			vma->vm_flags &= ~(VM_MAYWRITE);
+ 	}
+ 
+ 	file_accessed(file);
 _
