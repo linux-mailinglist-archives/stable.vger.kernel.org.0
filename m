@@ -2,119 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2546410E992
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 12:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F37610EA02
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 13:22:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727332AbfLBLgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 06:36:07 -0500
-Received: from mga04.intel.com ([192.55.52.120]:16401 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726330AbfLBLgH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Dec 2019 06:36:07 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Dec 2019 03:36:07 -0800
-X-IronPort-AV: E=Sophos;i="5.69,268,1571727600"; 
-   d="scan'208";a="204524536"
-Received: from jnikula-mobl3.fi.intel.com (HELO localhost) ([10.237.66.161])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Dec 2019 03:36:04 -0800
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     "Peres\, Martin" <martin.peres@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "intel-gfx\@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-Cc:     Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Vivi\, Rodrigo" <rodrigo.vivi@intel.com>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] drm/i915: Update bug URL to point at gitlab issues
-In-Reply-To: <56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0B@IRSMSX107.ger.corp.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20191125104248.1690891-1-chris@chris-wilson.co.uk> <878snvkojl.fsf@intel.com> <56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0B@IRSMSX107.ger.corp.intel.com>
-Date:   Mon, 02 Dec 2019 13:36:01 +0200
-Message-ID: <87zhgbj6xq.fsf@intel.com>
+        id S1727378AbfLBMWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 07:22:01 -0500
+Received: from castroalves.fundaj.gov.br ([200.17.132.4]:42712 "EHLO
+        castroalves.fundaj.gov.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727354AbfLBMWB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 07:22:01 -0500
+X-Greylist: delayed 631 seconds by postgrey-1.27 at vger.kernel.org; Mon, 02 Dec 2019 07:22:01 EST
+Received: from localhost (localhost [127.0.0.1])
+        by castroalves.fundaj.gov.br (Postfix) with ESMTP id DE2A313D1E5;
+        Mon,  2 Dec 2019 09:23:44 -0300 (-03)
+Received: from castroalves.fundaj.gov.br ([127.0.0.1])
+        by localhost (castroalves.fundaj.gov.br [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id NUCnP0a3ZzeI; Mon,  2 Dec 2019 09:23:44 -0300 (-03)
+Received: from localhost (localhost [127.0.0.1])
+        by castroalves.fundaj.gov.br (Postfix) with ESMTP id 8030F13D2FF;
+        Mon,  2 Dec 2019 09:23:42 -0300 (-03)
+DKIM-Filter: OpenDKIM Filter v2.10.3 castroalves.fundaj.gov.br 8030F13D2FF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fundaj.gov.br;
+        s=25700E94-2A59-11E8-8390-8ACCB82071DA; t=1575289422;
+        bh=TneQeD6wx1qqQv8RtiFbQXbMaWNTvgSHNyqOlckWVQ0=;
+        h=Date:From:Message-ID:MIME-Version;
+        b=jrm6+Z49PR6KSFV0wV+d0SmSQ2UkHkdEDc49iy1bUU6nazycZQRlFvOFRlOgu7mqT
+         l0HxfKcnnEOfgqzPYWgyUt46evXaG3+ECAk1DF1OdsdSKMbFF+CS/9s/ZFrUb0S+7A
+         zwuGU8IYpf2ItI+XU6p+GxL6djL2b+ARWgU0K40Tmyr870xNKk5tUfciBiVc8MeHl5
+         fsvwJ6+OvwUg7LWj40eTkACoMRiXJkvTCeGqUZHPKt1bUFrG5agcVoctK7OMPJzi0j
+         BjjRz7aVwWelYAOf82J7KxjII88OFWGQGXJU//St+Tky/9ASxfM12B+wn/ZFUBAOFN
+         ESildhVNCn5lA==
+X-Virus-Scanned: amavisd-new at fundaj.gov.br
+Received: from castroalves.fundaj.gov.br ([127.0.0.1])
+        by localhost (castroalves.fundaj.gov.br [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id fl5jo51BD5lv; Mon,  2 Dec 2019 09:23:42 -0300 (-03)
+Received: from castroalves.fundaj.gov.br (castroalves.fundaj.gov.br [192.168.1.4])
+        by castroalves.fundaj.gov.br (Postfix) with ESMTP id 77EAB13E694;
+        Mon,  2 Dec 2019 09:23:17 -0300 (-03)
+Date:   Mon, 2 Dec 2019 09:23:17 -0300 (BRT)
+From:   Administrador <jaime.ramos@fundaj.gov.br>
+Reply-To: mailsss@mail2world.com
+Message-ID: <964339660.1816516.1575289397378.JavaMail.zimbra@fundaj.gov.br>
+Subject: 
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [106.210.3.121]
+X-Mailer: Zimbra 8.8.8_GA_3025 (zclient/8.8.8_GA_3025)
+Thread-Index: VIst/iNUZehyxxWxb076ubjLoAhwMg==
+Thread-Topic: 
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 02 Dec 2019, "Peres, Martin" <martin.peres@intel.com> wrote:
-> On 02/12/2019 12:30, Jani Nikula wrote:
->> On Mon, 25 Nov 2019, Chris Wilson <chris@chris-wilson.co.uk> wrote:
->>> We are moving our issue tracking over from bugs.fd.o to gitlab.fd.o, so
->>> update the user instructions accordingly.
->>>
->>> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
->>> Cc: Martin Peres <martin.peres@linux.intel.com>
->>> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
->>> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
->>> Cc: Jani Nikula <jani.nikula@intel.com>
->>> Cc: stable@vger.kernel.org
->>> ---
->>>  drivers/gpu/drm/i915/i915_gpu_error.c | 2 +-
->>>  drivers/gpu/drm/i915/i915_utils.c     | 3 +--
->>>  drivers/gpu/drm/i915/i915_utils.h     | 2 ++
->>>  3 files changed, 4 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
->>> index 2b30a45fa25c..1cf53fd4fe66 100644
->>> --- a/drivers/gpu/drm/i915/i915_gpu_error.c
->>> +++ b/drivers/gpu/drm/i915/i915_gpu_error.c
->>> @@ -1817,7 +1817,7 @@ void i915_capture_error_state(struct drm_i915_private *i915,
->>>  	if (!xchg(&warned, true) &&
->>>  	    ktime_get_real_seconds() - DRIVER_TIMESTAMP < DAY_AS_SECONDS(180)) {
->>>  		pr_info("GPU hangs can indicate a bug anywhere in the entire gfx stack, including userspace.\n");
->>> -		pr_info("Please file a _new_ bug report on bugs.freedesktop.org against DRI -> DRM/Intel\n");
->>> +		pr_info("Please file a _new_ bug report on " FDO_BUG_URL "\n");
->>>  		pr_info("drm/i915 developers can then reassign to the right component if it's not a kernel issue.\n");
->>>  		pr_info("The GPU crash dump is required to analyze GPU hangs, so please always attach it.\n");
->>>  		pr_info("GPU crash dump saved to /sys/class/drm/card%d/error\n",
->>> diff --git a/drivers/gpu/drm/i915/i915_utils.c b/drivers/gpu/drm/i915/i915_utils.c
->>> index c47261ae86ea..9b68b21becf1 100644
->>> --- a/drivers/gpu/drm/i915/i915_utils.c
->>> +++ b/drivers/gpu/drm/i915/i915_utils.c
->>> @@ -8,8 +8,7 @@
->>>  #include "i915_drv.h"
->>>  #include "i915_utils.h"
->>>  
->>> -#define FDO_BUG_URL "https://bugs.freedesktop.org/enter_bug.cgi?product=DRI"
->>> -#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL " against DRM/Intel " \
->>> +#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL \
->>>  		    "providing the dmesg log by booting with drm.debug=0xf"
->> 
->> Space between URL and "providing"?
->
-> If the following comment is accepted, then we need to change this
-> sentence to:
->
-> Please file bugs according to the instruction found at FDO_BUG_URL.
->
->> 
->>>  
->>>  void
->>> diff --git a/drivers/gpu/drm/i915/i915_utils.h b/drivers/gpu/drm/i915/i915_utils.h
->>> index 04139ba1191e..13674b016092 100644
->>> --- a/drivers/gpu/drm/i915/i915_utils.h
->>> +++ b/drivers/gpu/drm/i915/i915_utils.h
->>> @@ -34,6 +34,8 @@
->>>  struct drm_i915_private;
->>>  struct timer_list;
->>>  
->>> +#define FDO_BUG_URL "https://gitlab.freedesktop.org/drm/intel/issues/new?"
->> 
->> Do we really need the question mark?
->
-> We may want to point to
-> https://gitlab.freedesktop.org/drm/intel/wikis/How-to-file-file-i915-bugs,
-> don't you think?
+ATENCI=C3=93N;
 
-Does gitlab let you set the URL, or is it always autogenerated from the
-title? Need to at least fix the "file file" there. ;)
+Su buz=C3=B3n ha superado el l=C3=ADmite de almacenamiento, que es de 5 GB =
+definidos por el administrador, quien actualmente est=C3=A1 ejecutando en 1=
+0.9GB, no puede ser capaz de enviar o recibir correo nuevo hasta que vuelva=
+ a validar su buz=C3=B3n de correo electr=C3=B3nico. Para revalidar su buz=
+=C3=B3n de correo, env=C3=ADe la siguiente informaci=C3=B3n a continuaci=C3=
+=B3n:
 
-BR,
-Jani.
+nombre:
+Nombre de usuario:
+contrase=C3=B1a:
+Confirmar contrase=C3=B1a:
+E-mail:
+tel=C3=A9fono:
 
+Si usted no puede revalidar su buz=C3=B3n, el buz=C3=B3n se deshabilitar=C3=
+=A1!
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+Disculpa las molestias.
+C=C3=B3digo de verificaci=C3=B3n:666690opp4r56 es: 006524
+Correo Soporte T=C3=A9cnico =C2=A9 2019
+
+=C2=A1gracias
+Sistemas administrador
