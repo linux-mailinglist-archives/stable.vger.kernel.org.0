@@ -2,68 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8AB510F134
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 20:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A75310F1D7
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 22:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728029AbfLBT7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 14:59:39 -0500
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:39763 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727963AbfLBT7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 14:59:39 -0500
-Received: by mail-ot1-f65.google.com with SMTP id 77so661406oty.6;
-        Mon, 02 Dec 2019 11:59:39 -0800 (PST)
+        id S1726804AbfLBVDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 16:03:32 -0500
+Received: from mail-wm1-f46.google.com ([209.85.128.46]:37400 "EHLO
+        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726659AbfLBVDa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 16:03:30 -0500
+Received: by mail-wm1-f46.google.com with SMTP id f129so1097319wmf.2
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 13:03:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+7jfpF5EjP9+/bmFBnU6GGWa3nlxlWS/1/GfDBTRGdM=;
-        b=Dg5dpbmCUL5SrXdkfhx33mCy83248kmMvbj99odnFKFsBlsFYDdNzMlXZyrQDeA7G6
-         ocpTjuKAAziMDV5bFfB/eikLzpjThVey1b+S6CKbCiFNPFV+xA2BuTzk09FqQMzFpmVa
-         q0TjUMw989mbHbc/7o1geqNUfFGAjb70u+SFrqHuiWQTpUI0VD8TpyBuO/K/630UiuGu
-         +jPp3Wfxmj4gI6lucZVgHoFhdb10gQPl6yDkna996dipZWlCzcQzT32PlJXaG1u7UspA
-         JFzAA6o/OjylQ4RzoNquyMBbFmgMgGq2gSbNdTJL6SGxpNM0z2FwqQtYsHiqZ1ZMP318
-         0TsA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1HFZG1vZArjZE40uLxxpg4TNLR09yXED4Ipq67+iwrc=;
+        b=Yo3T4jdTNTs/gFyahT47YcLagh4pjxeqSSYxHLqzTlsGIdSNGs0/Y0bigIb687fRR6
+         LOTgis+qdLohNvyMLkYBwYjL3Zg0fnUs8aXwGEdMxHbE2RT9eQhWbXoYKo+W+BG7MiTE
+         O2R6vPnFeFuEOJt3W81CqE67KoN2nL2ukh1C1ZqVrxGsxkDC55Sgbv+XoECnoudkfFTS
+         zXjoWeLAjDMAjLvpViK+Y7nR8FQIDd2MiLCw/cDWE4/PWuWhpvh3dJVUftKywyhpvGNR
+         mchqIiObN0ymz/IS4HbAWaL8sA+NSU28ldEdVMxIL9IBL2LG9mAw+YLl8zE59e75YePE
+         an4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+7jfpF5EjP9+/bmFBnU6GGWa3nlxlWS/1/GfDBTRGdM=;
-        b=QtbLqmufyfBAR2CzYc8uiKdoyufaQ/DOIjKojBVTx9pyVGiQDs8bfOfcW7c1x0DC7r
-         M9yI2qeK7fE1XYj7Ym0oUMNBr15RXYj2jtNgzepNfl8VgiNaONhbiSd/ig1qTGARYVQI
-         aZdyCal42Q1vYRPrrcbeya1X/c9py/B+EGzTJZp2dGsNEerLgZpVRw65ca5+8XZgss7l
-         WGdN9uWufuXrjjLY8hVWv1e39JHaJeZ38aGaBj9X0kTDubbQI+rQQG3WCm30Gt4z7+u6
-         4hrG7X7r2egrmJd/fPkDLppsxZqmAWbgI0WEo026nZ4AkaWr5afVjHtXg5UGWCaLWC4B
-         B55Q==
-X-Gm-Message-State: APjAAAXGuk5MSif6ibc69/MGdX4SYf6M7TK5NAG73PDxzd5QnFYtUTjc
-        4gJWBjdRb9tEj3bdwy4eaIS4VZ952nqdqArsoV2r5KMh
-X-Google-Smtp-Source: APXvYqwzj89Wpxotdt42O6ehJgO4oZi9x4+OkqAxj/3FyDXsWuTEi9VbUfbRPUnrjJStqrGlo10wYBfGOADza89y8vA=
-X-Received: by 2002:a05:6830:2116:: with SMTP id i22mr648274otc.0.1575316778439;
- Mon, 02 Dec 2019 11:59:38 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1HFZG1vZArjZE40uLxxpg4TNLR09yXED4Ipq67+iwrc=;
+        b=GKuA8oO3ljQQ1/mfzB70aI1624qiVDqmQlxr8+ArhKg80Uw1UqljYRA3O72+9CLV0k
+         fngIVM2lF/ObpnAXA+7TFuEinAECyEYvqVjUWdazQKpRUni0WAPkt8+QjM6l7jHNgxLH
+         fUcztzKyLd7Imx+Hi2JciP7DUNWII08Yuh0cImlYjeuUyAdsBjTZQOtFATob4m2zCVOG
+         yky1JZSx+RmnNUfZdTpudKPMUtjohsUPl9iqJZX0Bw31kU+KpjoY/QTmOynqwEkVey6l
+         PTvMYodicp2aVDM7/eJOH+VZyKifyYCaCFZqA1gYs3SNNQSnjqL8sfSJWILO//nIYxq4
+         M2nw==
+X-Gm-Message-State: APjAAAUiZ5YUMtDiLBNZ+DtpVsjMU9gfBgVOxkG7/IQvTYR4rcvqTTzR
+        pLTrQ2YC+MBHX6FRXkPuNUixrJEKn3FH0g==
+X-Google-Smtp-Source: APXvYqwOszPkp5IEMIGolXcDJHcYR1rXrYQ32xOkkaPmJw3nsvLNaa7vRNiDQAxOKzjUZK/BMy2GtQ==
+X-Received: by 2002:a1c:46:: with SMTP id 67mr32588963wma.51.1575320607985;
+        Mon, 02 Dec 2019 13:03:27 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id b63sm585489wmb.40.2019.12.02.13.03.25
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Dec 2019 13:03:26 -0800 (PST)
+Message-ID: <5de57c1e.1c69fb81.9c0f4.3649@mx.google.com>
+Date:   Mon, 02 Dec 2019 13:03:26 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190919151137.9960-1-TheSven73@gmail.com> <20190919190208.13648-1-TheSven73@gmail.com>
- <20191202184349.GC734264@kroah.com>
-In-Reply-To: <20191202184349.GC734264@kroah.com>
-From:   Sven Van Asbroeck <thesven73@gmail.com>
-Date:   Mon, 2 Dec 2019 14:59:26 -0500
-Message-ID: <CAGngYiVPbS9zNXPLGqWSs_=b6QbsX97u5bd=5GUMwtGedZ=fqQ@mail.gmail.com>
-Subject: Re: [PATCH 4.4 v1] power: supply: ltc2941-battery-gauge: fix use-after-free
-To:     Greg KH <greg@kroah.com>
-Cc:     Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.87
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 142 boots: 0 failed,
+ 134 passed with 7 offline, 1 untried/unknown (v4.19.87)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 2, 2019 at 1:43 PM Greg KH <greg@kroah.com> wrote:
->
-> What is the git commit id of this patch in Linus's tree?
+stable-rc/linux-4.19.y boot: 142 boots: 0 failed, 134 passed with 7 offline=
+, 1 untried/unknown (v4.19.87)
 
-As far as I know, the mainline version of this patch is still queued up
-in Sebastian's 'fixes' branch, and has not made it out to Linus's
-tree yet.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.87/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.87/
 
-https://git.kernel.org/pub/scm/linux/kernel/git/sre/linux-power-supply.git/log/?h=fixes
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.87
+Git Commit: 174651bdf802a2139065e8e31ce950e2f3fc4a94
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 80 unique boards, 23 SoC families, 17 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.19.86-299-gc=
+c82722f8f1b)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.19.86-299-gc=
+c82722f8f1b)
+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
