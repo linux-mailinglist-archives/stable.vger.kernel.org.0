@@ -2,108 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 803DF10E8D7
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:30:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DF4F10E8DF
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727573AbfLBKa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 05:30:29 -0500
-Received: from mga01.intel.com ([192.55.52.88]:10411 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727567AbfLBKa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Dec 2019 05:30:28 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Dec 2019 02:30:28 -0800
-X-IronPort-AV: E=Sophos;i="5.69,268,1571727600"; 
-   d="scan'208";a="204505581"
-Received: from jnikula-mobl3.fi.intel.com (HELO localhost) ([10.237.66.161])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Dec 2019 02:30:25 -0800
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Martin Peres <martin.peres@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915: Update bug URL to point at gitlab issues
-In-Reply-To: <20191125104248.1690891-1-chris@chris-wilson.co.uk>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20191125104248.1690891-1-chris@chris-wilson.co.uk>
-Date:   Mon, 02 Dec 2019 12:30:22 +0200
-Message-ID: <878snvkojl.fsf@intel.com>
+        id S1727298AbfLBKbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 05:31:05 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:51830 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726678AbfLBKbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:31:04 -0500
+Received: by mail-wm1-f67.google.com with SMTP id g206so21195963wme.1
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:31:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hCYfmL1/wCJrAvT+ACq87WMwGG7+rMaHvrzSdRlqSHM=;
+        b=mD1bHEp/B8H6GN9AeiZIX5POlpTSpygz9avrY37hOfgPDxtmJcCUNT+CxdsiehAsu7
+         Bb9ltFeUR2qIG3sDitfpJ24oxFMolgOlQhen7R+m/9mOpvkdZRskty5Be+KHmUh3HuFd
+         EQkzye6DGgLZPpstHBeT4vOkyiKPRRX8v6lAYOGqGsxm7O4gnW9YmndI49Jr0GRAiX4d
+         YavfxdSBbuQG7C8U6Wn6tsHsN2tFKqCuy7kL7ktugJmio/7up83D4TqtVBhZrK/eufug
+         o/mAc0nWtedg9NbGabK/8SU+bfEclnxshsE/WyJGX1+iRWxgestj65JHzaka6Mdv/j6U
+         jDwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hCYfmL1/wCJrAvT+ACq87WMwGG7+rMaHvrzSdRlqSHM=;
+        b=FVOCujS0SvKvVUVH88kGN6Zx8S6WUppWhhZNmnFT1SbGxSNulQ4BdDf9RJjMoZ0lU7
+         R1o6HEpGkhXJRlma4zIp/TQalLvEF1FaWxHAk65+Voiw03wqDYDBqT1tYvvQ4Xenmizc
+         MnFkAY/7GE20Qp478Se0x0kiaDA6oWDryBitNjR+g1lO+W698B1JmwxF00mWpGe3Rqv7
+         hgFetNoWSz9l07qJgp+KogjtrU3dqeXIRtCJK6q49b/IlRt6ts19hS0pZpG75Sdy9rAn
+         QHE2gCv5t5s/X/195oQ8YvEMyNMr+QifBI5NSq7rcI607D991DG2TYE9BuJy3+XXHaP/
+         GLhA==
+X-Gm-Message-State: APjAAAVJMErVMgScRjq08/iosOmjjfs4ncSIEuo3V5VXFM3U3ma+GJ4j
+        Db59v11Lst6KpDuU7koQYrOkicTBtg0=
+X-Google-Smtp-Source: APXvYqzn72/EM6kP1aH7UidcSBapSk/uR4tDDTCWxGMsRPUmtl7QIBZyZtAG8zMigryz6AtTXG9hqA==
+X-Received: by 2002:a1c:e90b:: with SMTP id q11mr27102637wmc.125.1575282661938;
+        Mon, 02 Dec 2019 02:31:01 -0800 (PST)
+Received: from localhost.localdomain ([2.27.35.155])
+        by smtp.gmail.com with ESMTPSA id r6sm26402860wrq.92.2019.12.02.02.31.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Dec 2019 02:31:01 -0800 (PST)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     stable@vger.kernel.org
+Subject: [PATCH 4.19 01/15] clk: at91: fix update bit maps on CFG_MOR write
+Date:   Mon,  2 Dec 2019 10:30:36 +0000
+Message-Id: <20191202103050.2668-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 25 Nov 2019, Chris Wilson <chris@chris-wilson.co.uk> wrote:
-> We are moving our issue tracking over from bugs.fd.o to gitlab.fd.o, so
-> update the user instructions accordingly.
->
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Martin Peres <martin.peres@linux.intel.com>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> Cc: Jani Nikula <jani.nikula@intel.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/gpu/drm/i915/i915_gpu_error.c | 2 +-
->  drivers/gpu/drm/i915/i915_utils.c     | 3 +--
->  drivers/gpu/drm/i915/i915_utils.h     | 2 ++
->  3 files changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
-> index 2b30a45fa25c..1cf53fd4fe66 100644
-> --- a/drivers/gpu/drm/i915/i915_gpu_error.c
-> +++ b/drivers/gpu/drm/i915/i915_gpu_error.c
-> @@ -1817,7 +1817,7 @@ void i915_capture_error_state(struct drm_i915_private *i915,
->  	if (!xchg(&warned, true) &&
->  	    ktime_get_real_seconds() - DRIVER_TIMESTAMP < DAY_AS_SECONDS(180)) {
->  		pr_info("GPU hangs can indicate a bug anywhere in the entire gfx stack, including userspace.\n");
-> -		pr_info("Please file a _new_ bug report on bugs.freedesktop.org against DRI -> DRM/Intel\n");
-> +		pr_info("Please file a _new_ bug report on " FDO_BUG_URL "\n");
->  		pr_info("drm/i915 developers can then reassign to the right component if it's not a kernel issue.\n");
->  		pr_info("The GPU crash dump is required to analyze GPU hangs, so please always attach it.\n");
->  		pr_info("GPU crash dump saved to /sys/class/drm/card%d/error\n",
-> diff --git a/drivers/gpu/drm/i915/i915_utils.c b/drivers/gpu/drm/i915/i915_utils.c
-> index c47261ae86ea..9b68b21becf1 100644
-> --- a/drivers/gpu/drm/i915/i915_utils.c
-> +++ b/drivers/gpu/drm/i915/i915_utils.c
-> @@ -8,8 +8,7 @@
->  #include "i915_drv.h"
->  #include "i915_utils.h"
->  
-> -#define FDO_BUG_URL "https://bugs.freedesktop.org/enter_bug.cgi?product=DRI"
-> -#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL " against DRM/Intel " \
-> +#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL \
->  		    "providing the dmesg log by booting with drm.debug=0xf"
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Space between URL and "providing"?
+[ Upstream commit 263eaf8f172d9f44e15d6aca85fe40ec18d2c477 ]
 
->  
->  void
-> diff --git a/drivers/gpu/drm/i915/i915_utils.h b/drivers/gpu/drm/i915/i915_utils.h
-> index 04139ba1191e..13674b016092 100644
-> --- a/drivers/gpu/drm/i915/i915_utils.h
-> +++ b/drivers/gpu/drm/i915/i915_utils.h
-> @@ -34,6 +34,8 @@
->  struct drm_i915_private;
->  struct timer_list;
->  
-> +#define FDO_BUG_URL "https://gitlab.freedesktop.org/drm/intel/issues/new?"
+The regmap update bits call was not selecting the proper mask, considering
+the bits which was updating.
+Update the mask from call to also include OSCBYPASS.
+Removed MOSCEN which was not updated.
 
-Do we really need the question mark?
+Fixes: 1bdf02326b71 ("clk: at91: make use of syscon/regmap internally")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Link: https://lkml.kernel.org/r/1568042692-11784-1-git-send-email-eugen.hristev@microchip.com
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/clk/at91/clk-main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-BR,
-Jani.
-
-> +
->  #undef WARN_ON
->  /* Many gcc seem to no see through this and fall over :( */
->  #if 0
-
+diff --git a/drivers/clk/at91/clk-main.c b/drivers/clk/at91/clk-main.c
+index 2f97a843d6d6..b29bc7ec2ef9 100644
+--- a/drivers/clk/at91/clk-main.c
++++ b/drivers/clk/at91/clk-main.c
+@@ -162,7 +162,7 @@ at91_clk_register_main_osc(struct regmap *regmap,
+ 	if (bypass)
+ 		regmap_update_bits(regmap,
+ 				   AT91_CKGR_MOR, MOR_KEY_MASK |
+-				   AT91_PMC_MOSCEN,
++				   AT91_PMC_OSCBYPASS,
+ 				   AT91_PMC_OSCBYPASS | AT91_PMC_KEY);
+ 
+ 	hw = &osc->hw;
 -- 
-Jani Nikula, Intel Open Source Graphics Center
+2.24.0
+
