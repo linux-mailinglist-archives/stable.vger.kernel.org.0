@@ -2,111 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7617A10E7F1
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA24E10E7F2
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:50:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726534AbfLBJuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 04:50:39 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:41094 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726399AbfLBJui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:50:38 -0500
-Received: by mail-wr1-f66.google.com with SMTP id b18so43349132wrj.8
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 01:50:37 -0800 (PST)
+        id S1726482AbfLBJuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 04:50:40 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:37125 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726516AbfLBJuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:50:40 -0500
+Received: by mail-wr1-f65.google.com with SMTP id w15so12391054wru.4
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 01:50:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=sTCSXd78U2S/J9+STbmGQvoMaUMY3h0oPjBdZMZTRIE=;
-        b=R0Ig0HYRN+qNhimffv4Awp+ud4+0Ohj2iBqYbDnJqOmtT2ljqzKm/B9LsnQ98vA9u6
-         rVmg+bqhBAJkKw+ahqOP5kYQ9KwD3qQwu71XdMpgTY5x22URu2VR2d3Y3iaXJxlseFzL
-         ILxW/lPu1pvJuNVRRSLdIzREHXW4kLvcdfJozxoYftMEHfg1vU8L4nuKhIHqy1bBrkIn
-         HvncZSIxxan+mJGwoaevZhr4WlxpkfynzM5bC11/6j0o562acFGR2Y/7P49aTv05oXwu
-         1oGlRbNGNH6AXBmFPJcpTN77Kh+1WUkUtAhJiR2THK4DNZT+gXWnJqLXwOeZBfmnee2Z
-         y1Bg==
+        bh=wN8Wz+OqrhKIKYPYJBtEtZFwg/h6OwVz+bEt3kPQDmY=;
+        b=ZBoXUFkbnH8Nk0M78+uLkLXG2r75Jp55gnODei+w5Wzf8ES8AnNWwGP2DhStJrAiSw
+         gAR7Pv4lO6AqALrbvke8JAPTsYYHnG11Fz2/1N1SBwTMTIC3Q5QCsmxgRn3D5f+dBl1a
+         pm1arcPhf8wrapz+1b7sSCklviJUQTollywnruF+H3Gnpv46MIvMN4zm5FqmvmXFJEBT
+         M3YQhtK5Ir/IrNoMOWlHDt42MhlitnP/OGCPvDfsbkl4NckIvaHpGfKQlLiSGZFENebi
+         DAgzts4rJYtS5dWQQOfDkkZYo7MdZ6PYZXGJxL4npbE3v53vywwuFy5mNN/mGnjUNY1N
+         aIUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=sTCSXd78U2S/J9+STbmGQvoMaUMY3h0oPjBdZMZTRIE=;
-        b=LuCKNrpkij3MzXXlZyE9yg3VWQ4MopgOxaKF4ljTp7IdsoxqAdgRbgjjU2qVDMql4D
-         JgDzBHS1hdjWZAe29kEmoHFV2f4pnxTuwwsz8WsRd/Nyhx/+ViKr5kGuGFfOcOPiRGE8
-         DPCB4vcT49UTCVd6w3FzroG6rqlhnVROxRPkyHl6+eYuAIbDoqg2eIsrw5u5Obo4ocHf
-         mwGxNfJ9KPE2ZI7g16GiGJ3fsC0Nzzm8n1A51Ag166ZtQ+IAvi5BAm32nrKxmnELXvkT
-         RMttgiAHVW01LQYSQ10mHvRxqcYt+HBiDJxLHC+AzNpc2vnsP6opeaU/JkL+sWMCatF/
-         81hw==
-X-Gm-Message-State: APjAAAVkLD/79TZnq1Lr+QPFuCxLyxgTX404PHo8IvUDuYmRuBIY1y1y
-        03jBn6jpMV1zjCi2J0gyO3K+z4s5xvs=
-X-Google-Smtp-Source: APXvYqwezWBq31hjIMSLZAguDvoyMCrf0AaJb2fxDieQgBu+Fjveigsg7GlYJJ9duAD8BlQvrwtjZQ==
-X-Received: by 2002:a5d:49c7:: with SMTP id t7mr12719589wrs.369.1575280236523;
-        Mon, 02 Dec 2019 01:50:36 -0800 (PST)
+        bh=wN8Wz+OqrhKIKYPYJBtEtZFwg/h6OwVz+bEt3kPQDmY=;
+        b=jzBw9J9oi3lIWin1U9AaRsCeNYaqpXYckwL6SYANtGoMMOE4Ooyrzyzok/ip2VYoaX
+         /ahTcRKtnwv8LRleGgJirIhXfp2M3TqDQxGOXlAO3xklPXhicItgIK2QrwcAhgmrFjf7
+         OtmxOSCr+lK4As9zssCwotr9gDX+QyPRruimYqV/vCtd2s8Pf7MUf1DkQ39wCTe8KEwU
+         kqWZRZ3ag5pwm3XDU+UCcAWDjYCrOzH8C+/kTx9EqRtNhq9yBUeZ5RUQEiJy84WVbVla
+         poGsFzgOiUnt2/obp27at0UBaWbOUiR2ukZNDhUD/QikP36xpvaWbsjioEua/ZGnCrmG
+         zI6w==
+X-Gm-Message-State: APjAAAUrifFZ7HpidXvKl3sMVnl6DqHA3MiHDlasJ9Tt1NOdLfouQIUj
+        E9Rg87g/wboQjU43c1uUD11toe2uQlk=
+X-Google-Smtp-Source: APXvYqzxxbxMf+2aCniXWeXc0AJIm9uqfELy2siMGGtitMVUo69kJaZ+fhXt+bk8wupdyn720HYIwQ==
+X-Received: by 2002:adf:f64b:: with SMTP id x11mr49606523wrp.355.1575280237891;
+        Mon, 02 Dec 2019 01:50:37 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id l3sm4629698wrt.29.2019.12.02.01.50.36
+        by smtp.gmail.com with ESMTPSA id l3sm4629698wrt.29.2019.12.02.01.50.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 01:50:36 -0800 (PST)
+        Mon, 02 Dec 2019 01:50:37 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 5/6] media: atmel: atmel-isc: fix asd memory allocation
-Date:   Mon,  2 Dec 2019 09:50:11 +0000
-Message-Id: <20191202095012.559-5-lee.jones@linaro.org>
+Subject: [PATCH 4.9 6/6] pwm: Clear chip_data in pwm_put()
+Date:   Mon,  2 Dec 2019 09:50:12 +0000
+Message-Id: <20191202095012.559-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191202095012.559-1-lee.jones@linaro.org>
 References: <20191202095012.559-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 1e4e25c4959c10728fbfcc6a286f9503d32dfe02 ]
+[ Upstream commit e926b12c611c2095c7976e2ed31753ad6eb5ff1a ]
 
-The subsystem will free the asd memory on notifier cleanup, if the asd is
-added to the notifier.
-However the memory is freed using kfree.
-Thus, we cannot allocate the asd using devm_*
-This can lead to crashes and problems.
-To test this issue, just return an error at probe, but cleanup the
-notifier beforehand.
+After a PWM is disposed by its user the per chip data becomes invalid.
+Clear the data in common code instead of the device drivers to get
+consistent behaviour. Before this patch only three of nine drivers
+cleaned up here.
 
-Fixes: 106267444f ("[media] atmel-isc: add the Image Sensor Controller code")
-
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/media/platform/atmel/atmel-isc.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/pwm/core.c        | 1 +
+ drivers/pwm/pwm-berlin.c  | 1 -
+ drivers/pwm/pwm-samsung.c | 1 -
+ 3 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/atmel/atmel-isc.c b/drivers/media/platform/atmel/atmel-isc.c
-index ccfe13b7d3f8..ecf9fb08f36b 100644
---- a/drivers/media/platform/atmel/atmel-isc.c
-+++ b/drivers/media/platform/atmel/atmel-isc.c
-@@ -1297,8 +1297,11 @@ static int isc_parse_dt(struct device *dev, struct isc_device *isc)
- 			break;
- 		}
+diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
+index a19246455c13..cc12032ee60d 100644
+--- a/drivers/pwm/core.c
++++ b/drivers/pwm/core.c
+@@ -858,6 +858,7 @@ void pwm_put(struct pwm_device *pwm)
+ 	if (pwm->chip->ops->free)
+ 		pwm->chip->ops->free(pwm->chip, pwm);
  
--		subdev_entity->asd = devm_kzalloc(dev,
--				     sizeof(*subdev_entity->asd), GFP_KERNEL);
-+		/* asd will be freed by the subsystem once it's added to the
-+		 * notifier list
-+		 */
-+		subdev_entity->asd = kzalloc(sizeof(*subdev_entity->asd),
-+					     GFP_KERNEL);
- 		if (subdev_entity->asd == NULL) {
- 			of_node_put(rem);
- 			ret = -ENOMEM;
-@@ -1432,6 +1435,7 @@ static int atmel_isc_probe(struct platform_device *pdev)
- 						   &subdev_entity->notifier);
- 		if (ret) {
- 			dev_err(dev, "fail to register async notifier\n");
-+			kfree(subdev_entity->asd);
- 			goto cleanup_subdev;
- 		}
++	pwm_set_chip_data(pwm, NULL);
+ 	pwm->label = NULL;
  
+ 	module_put(pwm->chip->ops->owner);
+diff --git a/drivers/pwm/pwm-berlin.c b/drivers/pwm/pwm-berlin.c
+index 01339c152ab0..64d9bb1ac272 100644
+--- a/drivers/pwm/pwm-berlin.c
++++ b/drivers/pwm/pwm-berlin.c
+@@ -78,7 +78,6 @@ static void berlin_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	struct berlin_pwm_channel *channel = pwm_get_chip_data(pwm);
+ 
+-	pwm_set_chip_data(pwm, NULL);
+ 	kfree(channel);
+ }
+ 
+diff --git a/drivers/pwm/pwm-samsung.c b/drivers/pwm/pwm-samsung.c
+index f113cda47032..219757087995 100644
+--- a/drivers/pwm/pwm-samsung.c
++++ b/drivers/pwm/pwm-samsung.c
+@@ -235,7 +235,6 @@ static int pwm_samsung_request(struct pwm_chip *chip, struct pwm_device *pwm)
+ static void pwm_samsung_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	devm_kfree(chip->dev, pwm_get_chip_data(pwm));
+-	pwm_set_chip_data(pwm, NULL);
+ }
+ 
+ static int pwm_samsung_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 -- 
 2.24.0
 
