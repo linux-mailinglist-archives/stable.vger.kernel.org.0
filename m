@@ -2,113 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80CF710EF73
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 19:44:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8B7010EF97
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 19:55:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727857AbfLBSny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 13:43:54 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49879 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727783AbfLBSny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 13:43:54 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C9E4722331;
-        Mon,  2 Dec 2019 13:43:52 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 02 Dec 2019 13:43:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=KF+LOK7Oz3IVzefSc8lu98RYXJR
-        KzI5ErcAOrK2J5A0=; b=XrAoYtFk4dG1UaDZH5jbx+GA56OEGL2NHVPSlRXZgnD
-        HId39wMAic68P1ivRJjuHAOOey8v/L4jWlfj9I6Ers/8O7AwkqtbrCC5Q6p2Ouq3
-        S+5oT8HNtJBVT6RkuJgz1lQZ26Gl55D4TEflCFDPjjW0eAL6+q4nLpXVubHZjSwe
-        zZw5Q6v3ZSJnW0hyB391D6Gk52F7bbm93xu+/Yukvlgdx/4ybqqwWQ5PSHF19L/x
-        KAwtoT7KBv74E/PZOeEyIkNIPwix08JdijA9097ejO0WwpJquMk/rnWmiLaJmFrG
-        PFi+/Y14aUtkmYSu/myyRHMFpQSHjOzs+pKqa20r+1Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=KF+LOK
-        7Oz3IVzefSc8lu98RYXJRKzI5ErcAOrK2J5A0=; b=gPhBsGiCQuJIGYHEqB348u
-        ClkZMj4FFUhFB7Zz+fA3ZgUL5hi8x01D02A9fIyYQwOpGDH6JUK9USpiDXiq7/+k
-        8qK31k9cc7SqKM8tAQaLYYJjso5MdkvDpXAGkPDEEdlFeIA8XfT3i9WAXgVdi2kE
-        5GoJ40Kb1+9GejtvA5EIP4SO5uvNz1ajvRhCbesz+6YeftW6IFAdfr0mFZ7mpLGa
-        QlK3/JNuBfdRbYdcxfXmjh/ID6IMkNJkY5LmVIQmYsVV/MmaQuy5cR05A8seB+c0
-        opoBxSoXM84m28HEzf536umzhywY+xb8D/qBpAK1kvJKXWJdYlzjHXm633WoTXCQ
-        ==
-X-ME-Sender: <xms:aFvlXelWZxd61iy3KT_1RkcceG7Yl9QLHtsVr5bcwpyoHNy4eQmYdA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudejhedguddukecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:aFvlXWp7_e7d_6iPiMoCOcJGmMdNjbhX8q3onbgoGwA0OKfunxVL4w>
-    <xmx:aFvlXbMIz9aDQurGmZGRZPqKv3OYOcPwiOimqbINK8vZwJ9sCVmyPg>
-    <xmx:aFvlXYayhCh3RGmiI7LI_jZkDywtnzqfy1VDHOM-3AegPkCA67ee-A>
-    <xmx:aFvlXQyflayerK7ZZ62SchT0sltSq8ObvTINqsgCSAgROLrnvX4RtA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5B60730600BD;
-        Mon,  2 Dec 2019 13:43:52 -0500 (EST)
-Date:   Mon, 2 Dec 2019 19:43:49 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Sven Van Asbroeck <thesven73@gmail.com>
-Cc:     Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.4 v1] power: supply: ltc2941-battery-gauge: fix
- use-after-free
-Message-ID: <20191202184349.GC734264@kroah.com>
-References: <20190919151137.9960-1-TheSven73@gmail.com>
- <20190919190208.13648-1-TheSven73@gmail.com>
+        id S1727870AbfLBSz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 13:55:27 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:37082 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727555AbfLBSz1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 13:55:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575312926;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BasR9fJysMtCMWPHS/Ez/vs7HdvrZKVU0mKfLNeG6GU=;
+        b=CX6pJYGwyd5KyH05UMR5BeHCATfsxaUsOgP9iL4y5d22BpNdb4VyZn0e5z+Sn5BI5l1Sh5
+        TwGpFOtOTzluivNc+zpDuOCxtTGVlKGNpEqVH7t/yYEOd2kr8ojjaV0koNnyl7z3JrGuam
+        Py6GRuUnaBzc9P8tX1ZoosyWlwYk94c=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-7-dNHMr10mOtmdQ430q56ynw-1; Mon, 02 Dec 2019 13:55:23 -0500
+Received: by mail-pf1-f199.google.com with SMTP id h22so400664pfo.18
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 10:55:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to;
+        bh=3tYGvKckyNK6guzJmLUsGmhSZAtdLju3TCYhP65wmYk=;
+        b=fq6YNdEKPzq+cUfdGLWCO58NWfFPTOvqQ2lkiUoCWTjhHnyHWkwatDuMnk64hJUmEl
+         dTLIWrKBeAFdOyJjlB1juDH6nnay1eKXTQLZOaPXgDHn+yF7dnvBA2oGUSAVCkMdeWF2
+         6e1nulLLD1d3MaADcZlENnrFRNozlOBWPK0zT1WWl9DIuCb6oqetfc2JdAs89JATcpJO
+         isOHtyY9Sb5kr+DOzSro6R9SnA5A1JPPPsTYy1rjlVntSlsw2XCWtmAXMWkRnCHL6TLL
+         /062vEWc183g9YoufG0vb2a0ED8GsFOVIp8O6az5aODy9XoyX3+RUvEkgeM99nRqWWdy
+         x2Tw==
+X-Gm-Message-State: APjAAAWhwx0bEgeoSM/i0MBPUfGa8AewP1w46rWHBvg/YvNi2rTr4PvH
+        KbFQ6/o5vwxBxX1NjY7Y3EYLYXyKmHY0XViyDAZqUl+fSphgK88Bny2EqaWQ/6o68jQTuBns2qZ
+        A0dM0loksTYSAWRnD
+X-Received: by 2002:a17:902:9a49:: with SMTP id x9mr631794plv.331.1575312922277;
+        Mon, 02 Dec 2019 10:55:22 -0800 (PST)
+X-Google-Smtp-Source: APXvYqx10URV1PHP5Yt2PPgF5JNaFQDDTv65xxiVu8l3E0jlcc9g5YQ3pGK9NLzlsY1cV2dHkq7eDg==
+X-Received: by 2002:a17:902:9a49:: with SMTP id x9mr631768plv.331.1575312921957;
+        Mon, 02 Dec 2019 10:55:21 -0800 (PST)
+Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
+        by smtp.gmail.com with ESMTPSA id d85sm203111pfd.146.2019.12.02.10.55.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Dec 2019 10:55:21 -0800 (PST)
+Date:   Mon, 2 Dec 2019 11:55:20 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     Stefan Berger <stefanb@linux.ibm.com>
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 0/2] Revert patches fixing probing of interrupts
+Message-ID: <20191202185520.57w2h3dgs5q7lhob@cantor>
+Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
+Mail-Followup-To: Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-security-module@vger.kernel.org
+References: <20191126131753.3424363-1-stefanb@linux.vnet.ibm.com>
+ <20191129223418.GA15726@linux.intel.com>
+ <6f6f60a2-3b55-e76d-c11a-4677fcb72c16@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <6f6f60a2-3b55-e76d-c11a-4677fcb72c16@linux.ibm.com>
+X-MC-Unique: dNHMr10mOtmdQ430q56ynw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
-In-Reply-To: <20190919190208.13648-1-TheSven73@gmail.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 19, 2019 at 03:02:08PM -0400, Sven Van Asbroeck wrote:
-> This driver's remove path calls cancel_delayed_work().
-> However, that function does not wait until the work function
-> finishes. This could mean that the work function is still
-> running after the driver's remove function has finished,
-> which would result in a use-after-free.
-> 
-> Fix by calling cancel_delayed_work_sync(), which ensures that
-> that the work is properly cancelled, no longer running, and
-> unable to re-schedule itself.
-> 
-> This issue was detected with the help of Coccinelle.
-> 
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-> ---
->  drivers/power/ltc2941-battery-gauge.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/power/ltc2941-battery-gauge.c b/drivers/power/ltc2941-battery-gauge.c
-> index da49436176cd..30a9014b2f95 100644
-> --- a/drivers/power/ltc2941-battery-gauge.c
-> +++ b/drivers/power/ltc2941-battery-gauge.c
-> @@ -449,7 +449,7 @@ static int ltc294x_i2c_remove(struct i2c_client *client)
->  {
->  	struct ltc294x_info *info = i2c_get_clientdata(client);
->  
-> -	cancel_delayed_work(&info->work);
-> +	cancel_delayed_work_sync(&info->work);
->  	power_supply_unregister(info->supply);
->  	return 0;
->  }
-> -- 
-> 2.17.1
-> 
+On Sun Dec 01 19, Stefan Berger wrote:
+>On 11/29/19 5:37 PM, Jarkko Sakkinen wrote:
+>>On Tue, Nov 26, 2019 at 08:17:51AM -0500, Stefan Berger wrote:
+>>>From: Stefan Berger <stefanb@linux.ibm.com>
+>>>
+>>>Revert the patches that were fixing the probing of interrupts due
+>>>to reports of interrupt stroms on some systems
+>>Can you explain how reverting is going to fix the issue?
+>
+>
+>The reverts fix 'the interrupt storm issue' that they are causing on=20
+>some systems but don't fix the issue with the interrupt mode not being=20
+>used. I was hoping Jerry would get access to a system faster but this=20
+>didn't seem to be the case. So sending these patches seemed the better=20
+>solution than leaving 5.4.x with the problem but going back to when it=20
+>worked 'better.'
+>
 
-What is the git commit id of this patch in Linus's tree?
+I finally heard back from IT support, and unfortunately they don't
+have any T490s systems to give out on temp loan. So I can only send
+patched kernels to the end user that had the problem.
 
-thanks,
+>
+>>
+>>This is wrong way to move forward. The root cause must be identified
+>>first and then decide actions like always in any situation.
+>>
+>>/Jarkko
+>
+>
 
-greg k-h
