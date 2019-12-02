@@ -2,113 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B7010EF97
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 19:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 239B410EFB1
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 20:01:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727870AbfLBSz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 13:55:27 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:37082 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727555AbfLBSz1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 13:55:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575312926;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BasR9fJysMtCMWPHS/Ez/vs7HdvrZKVU0mKfLNeG6GU=;
-        b=CX6pJYGwyd5KyH05UMR5BeHCATfsxaUsOgP9iL4y5d22BpNdb4VyZn0e5z+Sn5BI5l1Sh5
-        TwGpFOtOTzluivNc+zpDuOCxtTGVlKGNpEqVH7t/yYEOd2kr8ojjaV0koNnyl7z3JrGuam
-        Py6GRuUnaBzc9P8tX1ZoosyWlwYk94c=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-7-dNHMr10mOtmdQ430q56ynw-1; Mon, 02 Dec 2019 13:55:23 -0500
-Received: by mail-pf1-f199.google.com with SMTP id h22so400664pfo.18
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 10:55:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=3tYGvKckyNK6guzJmLUsGmhSZAtdLju3TCYhP65wmYk=;
-        b=fq6YNdEKPzq+cUfdGLWCO58NWfFPTOvqQ2lkiUoCWTjhHnyHWkwatDuMnk64hJUmEl
-         dTLIWrKBeAFdOyJjlB1juDH6nnay1eKXTQLZOaPXgDHn+yF7dnvBA2oGUSAVCkMdeWF2
-         6e1nulLLD1d3MaADcZlENnrFRNozlOBWPK0zT1WWl9DIuCb6oqetfc2JdAs89JATcpJO
-         isOHtyY9Sb5kr+DOzSro6R9SnA5A1JPPPsTYy1rjlVntSlsw2XCWtmAXMWkRnCHL6TLL
-         /062vEWc183g9YoufG0vb2a0ED8GsFOVIp8O6az5aODy9XoyX3+RUvEkgeM99nRqWWdy
-         x2Tw==
-X-Gm-Message-State: APjAAAWhwx0bEgeoSM/i0MBPUfGa8AewP1w46rWHBvg/YvNi2rTr4PvH
-        KbFQ6/o5vwxBxX1NjY7Y3EYLYXyKmHY0XViyDAZqUl+fSphgK88Bny2EqaWQ/6o68jQTuBns2qZ
-        A0dM0loksTYSAWRnD
-X-Received: by 2002:a17:902:9a49:: with SMTP id x9mr631794plv.331.1575312922277;
-        Mon, 02 Dec 2019 10:55:22 -0800 (PST)
-X-Google-Smtp-Source: APXvYqx10URV1PHP5Yt2PPgF5JNaFQDDTv65xxiVu8l3E0jlcc9g5YQ3pGK9NLzlsY1cV2dHkq7eDg==
-X-Received: by 2002:a17:902:9a49:: with SMTP id x9mr631768plv.331.1575312921957;
-        Mon, 02 Dec 2019 10:55:21 -0800 (PST)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id d85sm203111pfd.146.2019.12.02.10.55.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 10:55:21 -0800 (PST)
-Date:   Mon, 2 Dec 2019 11:55:20 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Stefan Berger <stefanb@linux.ibm.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 0/2] Revert patches fixing probing of interrupts
-Message-ID: <20191202185520.57w2h3dgs5q7lhob@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-security-module@vger.kernel.org
-References: <20191126131753.3424363-1-stefanb@linux.vnet.ibm.com>
- <20191129223418.GA15726@linux.intel.com>
- <6f6f60a2-3b55-e76d-c11a-4677fcb72c16@linux.ibm.com>
-MIME-Version: 1.0
-In-Reply-To: <6f6f60a2-3b55-e76d-c11a-4677fcb72c16@linux.ibm.com>
-X-MC-Unique: dNHMr10mOtmdQ430q56ynw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+        id S1727960AbfLBTBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 14:01:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42684 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728075AbfLBTBe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Dec 2019 14:01:34 -0500
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E43C2073C;
+        Mon,  2 Dec 2019 19:01:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575313292;
+        bh=/Xd9pZdhOF90b4Uhi4ebv0OOz7RF0qwSyEHZsHdiySU=;
+        h=Date:From:To:Subject:From;
+        b=NFu8PnpLiqA2bMxRZzIyzg2ZYu17JtSxm4xjoJXiF3fW/MO4iYaRZR3L8W+NV2BNa
+         SutioILzjfowujYtaaKPh1PB0ktMsru3j9gYrlbrr+WCcaUq8Hc4Xjc0yEHrp3++kH
+         g4YlJwEM2/79eBkRKmiOivC/rHH1XPFhfkho/+hQ=
+Date:   Mon, 02 Dec 2019 11:01:32 -0800
+From:   akpm@linux-foundation.org
+To:     arnd@arndb.de, kirill.shutemov@linux.intel.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        thellstrom@vmware.com, willy@infradead.org
+Subject:  [merged]
+ mm-fix-a-huge-pud-insertion-race-during-faulting.patch removed from -mm
+ tree
+Message-ID: <20191202190132.qe7xzt9fg%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun Dec 01 19, Stefan Berger wrote:
->On 11/29/19 5:37 PM, Jarkko Sakkinen wrote:
->>On Tue, Nov 26, 2019 at 08:17:51AM -0500, Stefan Berger wrote:
->>>From: Stefan Berger <stefanb@linux.ibm.com>
->>>
->>>Revert the patches that were fixing the probing of interrupts due
->>>to reports of interrupt stroms on some systems
->>Can you explain how reverting is going to fix the issue?
->
->
->The reverts fix 'the interrupt storm issue' that they are causing on=20
->some systems but don't fix the issue with the interrupt mode not being=20
->used. I was hoping Jerry would get access to a system faster but this=20
->didn't seem to be the case. So sending these patches seemed the better=20
->solution than leaving 5.4.x with the problem but going back to when it=20
->worked 'better.'
->
 
-I finally heard back from IT support, and unfortunately they don't
-have any T490s systems to give out on temp loan. So I can only send
-patched kernels to the end user that had the problem.
+The patch titled
+     Subject: mm/memory.c: fix a huge pud insertion race during faulting
+has been removed from the -mm tree.  Its filename was
+     mm-fix-a-huge-pud-insertion-race-during-faulting.patch
 
->
->>
->>This is wrong way to move forward. The root cause must be identified
->>first and then decide actions like always in any situation.
->>
->>/Jarkko
->
->
+This patch was dropped because it was merged into mainline or a subsystem tree
+
+------------------------------------------------------
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Subject: mm/memory.c: fix a huge pud insertion race during faulting
+
+A huge pud page can theoretically be faulted in racing with pmd_alloc() in
+__handle_mm_fault().  That will lead to pmd_alloc() returning an invalid
+pmd pointer.  Fix this by adding a pud_trans_unstable() function similar
+to pmd_trans_unstable() and check whether the pud is really stable before
+using the pmd pointer.
+
+Race:
+Thread 1:             Thread 2:                 Comment
+create_huge_pud()                               Fallback - not taken.
+		      create_huge_pud()         Taken.
+pmd_alloc()                                     Returns an invalid pointer.
+
+This will result in user-visible huge page data corruption.
+
+Note that this was caught during a code audit rather than a real
+experienced problem.  It looks to me like the only implementation that
+currently creates huge pud pagetable entries is dev_dax_huge_fault()
+which doesn't appear to care much about private (COW) mappings or
+write-tracking which is, I believe, a prerequisite for
+create_huge_pud() falling back on thread 1, but not in thread 2.
+
+Link: http://lkml.kernel.org/r/20191115115808.21181-2-thomas_os@shipmail.org
+Fixes: a00cc7d9dd93 ("mm, x86: add support for PUD-sized transparent hugepages")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/asm-generic/pgtable.h |   25 +++++++++++++++++++++++++
+ mm/memory.c                   |    6 ++++++
+ 2 files changed, 31 insertions(+)
+
+--- a/include/asm-generic/pgtable.h~mm-fix-a-huge-pud-insertion-race-during-faulting
++++ a/include/asm-generic/pgtable.h
+@@ -938,6 +938,31 @@ static inline int pud_trans_huge(pud_t p
+ }
+ #endif
+ 
++/* See pmd_none_or_trans_huge_or_clear_bad for discussion. */
++static inline int pud_none_or_trans_huge_or_dev_or_clear_bad(pud_t *pud)
++{
++	pud_t pudval = READ_ONCE(*pud);
++
++	if (pud_none(pudval) || pud_trans_huge(pudval) || pud_devmap(pudval))
++		return 1;
++	if (unlikely(pud_bad(pudval))) {
++		pud_clear_bad(pud);
++		return 1;
++	}
++	return 0;
++}
++
++/* See pmd_trans_unstable for discussion. */
++static inline int pud_trans_unstable(pud_t *pud)
++{
++#if defined(CONFIG_TRANSPARENT_HUGEPAGE) &&			\
++	defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)
++	return pud_none_or_trans_huge_or_dev_or_clear_bad(pud);
++#else
++	return 0;
++#endif
++}
++
+ #ifndef pmd_read_atomic
+ static inline pmd_t pmd_read_atomic(pmd_t *pmdp)
+ {
+--- a/mm/memory.c~mm-fix-a-huge-pud-insertion-race-during-faulting
++++ a/mm/memory.c
+@@ -4010,6 +4010,7 @@ static vm_fault_t __handle_mm_fault(stru
+ 	vmf.pud = pud_alloc(mm, p4d, address);
+ 	if (!vmf.pud)
+ 		return VM_FAULT_OOM;
++retry_pud:
+ 	if (pud_none(*vmf.pud) && __transparent_hugepage_enabled(vma)) {
+ 		ret = create_huge_pud(&vmf);
+ 		if (!(ret & VM_FAULT_FALLBACK))
+@@ -4036,6 +4037,11 @@ static vm_fault_t __handle_mm_fault(stru
+ 	vmf.pmd = pmd_alloc(mm, vmf.pud, address);
+ 	if (!vmf.pmd)
+ 		return VM_FAULT_OOM;
++
++	/* Huge pud page fault raced with pmd_alloc? */
++	if (pud_trans_unstable(vmf.pud))
++		goto retry_pud;
++
+ 	if (pmd_none(*vmf.pmd) && __transparent_hugepage_enabled(vma)) {
+ 		ret = create_huge_pmd(&vmf);
+ 		if (!(ret & VM_FAULT_FALLBACK))
+_
+
+Patches currently in -mm which might be from thellstrom@vmware.com are
+
 
