@@ -2,113 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A49D10E78C
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8B7210E7D2
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726491AbfLBJTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 04:19:04 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:60109 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726350AbfLBJTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:19:04 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 2EEFA9B5;
-        Mon,  2 Dec 2019 04:19:03 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 02 Dec 2019 04:19:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=RYdMASyGG0xpg3ujwEtFJ3EWhXB
-        JbplLWbwMxsnoW7Q=; b=nAaWVTnILSRPaBgaPqKaznO7HapRI40DD+6XxwLQsVW
-        FrIXoWbqwbeH1GblruQnP6DMYF8zTksSJkl5qWMjSKYlOXDtnWp+TV0knSHJGCKM
-        S+4sRpZNBzNHcw/jhpVPG9SCF3T8t+Jvs8WmR3oFKKri9SWFZC/qUyEIc3mhrp7H
-        hZzJeUeY4oCpf702j2VwOnvfACZiRxqLLm3piURqYuwZuD5lwgDAEpdsjj4scmmO
-        ij/pVXXlOdi2Ac9AVWdDlYH+PAlz+O66p8ZoDLHO2/YuZ2Qnar0y7GTomw6YAFHz
-        F2riGPOCXkXaacKnVSWMuLcpHIuhAzSX1imof8KuSuA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=RYdMAS
-        yGG0xpg3ujwEtFJ3EWhXBJbplLWbwMxsnoW7Q=; b=NMhwYLS7jMQcvrGV45OMRM
-        Wfgsq+9n7WWTHvu7jmvM+2G+B6lK6r1wjSoizJ8pJF74mWqCQNYWHeo19Pr7BkGe
-        CZ48K1U/8okyBNMPnCjxB7bR+VRjtV+5hvulAVgzITYvxxXZqwfVkwwqacJ30I8t
-        t8RBw1cXZZwtvJuZUhIVRdSEE4EGszqRqSSv9L0ybcY3/2Ljufxd5Vo211ppjlRs
-        cBokH96b/Ce7NxUyA74OInh+U2n3TVK22RkbzpRPpesu2p8kXplOJBuf/Tes7NkW
-        /cnh177nulSz225IMvFW9TvqhV9+5WvK0SovfvaZ8rRVTgDSrElG1bh7L4q6BeYQ
-        ==
-X-ME-Sender: <xms:BtfkXft_85JDFPjW5ms_htWk4cHr0YsenH1Rph7o2dpQuvVo4njm4Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudejhedgtdegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:BtfkXX5N4zjp7MOr7TxL4B6az40A7T86un5iaPD8ExWvHr9fvjebrg>
-    <xmx:BtfkXQSHkrEEc79i2803SKqsWQ1uVyqP1hwbrMfoniOabRhYbR1q-g>
-    <xmx:BtfkXZsnaGH5AJfcGOs7DdVPJ1FLglYVZAqONCjAT7ae4GZ1lFyeTQ>
-    <xmx:BtfkXQHUaMMHKY8X2rbVJpMKZYlNemKXa_aop5_3-rn-vvXNGdPC5Q>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4B0D68005C;
-        Mon,  2 Dec 2019 04:19:02 -0500 (EST)
-Date:   Mon, 2 Dec 2019 10:18:57 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Christian Lamparter <chunkeey@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH for-4.19-stable] ath10k: restore QCA9880-AR1A (v1)
- detection
-Message-ID: <20191202091857.GA3964750@kroah.com>
-References: <5688116.JcRxOpqE2I@debian64>
- <20191201170245.GU5861@sasha-vm>
- <20191202091431.GA3945609@kroah.com>
- <20191202091529.GB3945609@kroah.com>
- <20191202091700.GC3945609@kroah.com>
+        id S1726339AbfLBJmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 04:42:12 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:36596 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726318AbfLBJmL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:42:11 -0500
+Received: by mail-wm1-f68.google.com with SMTP id p17so16487207wma.1
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 01:42:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jREQE+bGMWZ83hzSZ5R/u/Tew5kuKbz+yZnyyRL8Mxk=;
+        b=IGN84s0uxjaWmLDhTnJYDej5ZRNPztH/bYRmY9K+D/B2sD+b/YNAg/Np9rC1IEOHnf
+         zbvjYKGJDSbtW4N4c7K3ur1j8sXPE6d4CG1vwLi2wxypabCEzgmwu9xuZx7b9zUGDmnf
+         sdVAluFnyXtkZvQZ5FgIKxGN+LXW4QRjLlAAI5vvImeUwQC1SR2HUhMx+6HoZz3L0/oi
+         DSZf6QfJluXU9/khwmh7m0VxWdbEzB3hUARzXnHHUWgZBo7aIwTrw9CebHeRsJtgckGl
+         47/ySt0N2vjMSl8rjxaT87B83gszvzzHDvQFhcp9gzxvj6oDfsugPsYdiZjUnqWL6v+u
+         LpqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jREQE+bGMWZ83hzSZ5R/u/Tew5kuKbz+yZnyyRL8Mxk=;
+        b=ftJ1jxe4uYjEgzatY/HqsYXfUaAG1aZ+Xp1eZyQnRAn8SnEvssZdxaVYtOTob43DSu
+         Q/nXf7/VKVaKTnooGV0fqy1Lrsf0GjyKjYl/pMK4/CMuLHuQWwzc9+AzcqBkHu6zYmDb
+         A/hTy6WwKyIRdPsbTiban7mcOSLHLQr+WVZdFT7tgHrx1QGqRUfEyiuCrxqt1pjYB2Hf
+         82VVGy+N/cwfWSNbvRKF757Z1aLn86mhZxmqnvqdXOHmXF+dx4rmIg+5cJns0rlr24Kx
+         lDlIGf+nc/R3oz7f5x0nK+AHaOLEMGLhhA6IOZLKiKL+QUhAJVOgIh56I/Fr79zzOhIm
+         6KKQ==
+X-Gm-Message-State: APjAAAWEaPUbcqk9lRJDbBiA5fV6ejpL+7ixZ5rwZP//ND6aDEKCuOW1
+        AQtHhg8wg0AHwslxxnnzyQMwks/ey8g=
+X-Google-Smtp-Source: APXvYqwI739JBhH5I9Xnpf2bVxeK3Zn5SCCAkH9KiLh7h/hF/rdDL0gxEQuBHvGuNKx0jdRx6SB4jw==
+X-Received: by 2002:a05:600c:218f:: with SMTP id e15mr8437939wme.124.1575279729352;
+        Mon, 02 Dec 2019 01:42:09 -0800 (PST)
+Received: from localhost.localdomain ([2.27.35.155])
+        by smtp.gmail.com with ESMTPSA id w8sm990381wmm.0.2019.12.02.01.42.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Dec 2019 01:42:08 -0800 (PST)
+From:   Lee Jones <lee.jones@linaro.org>
+To:     stable@vger.kernel.org
+Subject: [PATCH 4.4 1/4] arm: add missing include platform-data/atmel.h
+Date:   Mon,  2 Dec 2019 09:41:47 +0000
+Message-Id: <20191202094150.32485-1-lee.jones@linaro.org>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191202091700.GC3945609@kroah.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 02, 2019 at 10:17:00AM +0100, Greg KH wrote:
-> On Mon, Dec 02, 2019 at 10:15:29AM +0100, Greg KH wrote:
-> > On Mon, Dec 02, 2019 at 10:14:31AM +0100, Greg KH wrote:
-> > > On Sun, Dec 01, 2019 at 12:02:45PM -0500, Sasha Levin wrote:
-> > > > On Fri, Nov 29, 2019 at 09:52:14PM +0100, Christian Lamparter wrote:
-> > > > > commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream
-> > > > > ---
-> > > > > > From f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 Mon Sep 17 00:00:00 2001
-> > > > > From: Christian Lamparter <chunkeey@gmail.com>
-> > > > > Date: Mon, 25 Mar 2019 13:50:19 +0100
-> > > > > Subject: [PATCH for-4.19-stable] ath10k: restore QCA9880-AR1A (v1) detection
-> > > > > To: linux-wireless@vger.kernel.org,
-> > > > >    ath10k@lists.infradead.org
-> > > > > Cc: Kalle Valo <kvalo@codeaurora.org>
-> > > > > 
-> > > > > This patch restores the old behavior that read
-> > > > > the chip_id on the QCA988x before resetting the
-> > > > > chip. This needs to be done in this order since
-> > > > > the unsupported QCA988x AR1A chips fall off the
-> > > > > bus when resetted. Otherwise the next MMIO Op
-> > > > > after the reset causes a BUS ERROR and panic.
-> > > > > 
-> > > > > Cc: stable@vger.kernel.org # 4.19
-> > > > > Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
-> > > > > Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-> > > > 
-> > > > Queued up for all branches, thanks!
-> > > 
-> > > This broke the 4.4 build :(
-> > 
-> > And it broke the 4.9 build :(
-> 
-> And 4.14.y :(
+From: Philippe Mazenauer <philippe.mazenauer@outlook.de>
 
-And it broke the 4.19.y build!  Ugh, Christian, did you test build this?
+[ Upstream commit 95701b1c3c8fe36368361394e3950094eece4723 ]
 
-confused,
+Include corresponding headerfile <linux/platform-data/atmel.h> for
+function at91_suspend_entering_slow_clock().
 
-greg k-h
+../arch/arm/mach-at91/pm.c:279:5: warning: no previous prototype for ‘at91_suspend_entering_slow_clock’ [-Wmissing-prototypes]
+ int at91_suspend_entering_slow_clock(void)
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Signed-off-by: Philippe Mazenauer <philippe.mazenauer@outlook.de>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ arch/arm/mach-at91/pm.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 84eefbc2b4f9..983a313bdbaf 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -24,6 +24,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ #include <linux/clk/at91_pmc.h>
++#include <linux/platform_data/atmel.h>
+ 
+ #include <asm/irq.h>
+ #include <linux/atomic.h>
+-- 
+2.24.0
+
