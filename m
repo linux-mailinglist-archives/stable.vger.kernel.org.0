@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7176210E7F0
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:50:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7617A10E7F1
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:50:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726474AbfLBJuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 04:50:35 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:43621 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726399AbfLBJuf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:50:35 -0500
-Received: by mail-wr1-f68.google.com with SMTP id n1so43370918wra.10
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 01:50:33 -0800 (PST)
+        id S1726534AbfLBJuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 04:50:39 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:41094 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726399AbfLBJui (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:50:38 -0500
+Received: by mail-wr1-f66.google.com with SMTP id b18so43349132wrj.8
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 01:50:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=cwSTsKyp+VB/yrtk55Z3QdqURnT8SdzS6bse74wQ6jk=;
-        b=L8rGxBrvBN4zhJoD7z3/4BPgF4sx4kYC1FH/wRUev01IT9jPUyxx6WL+MgsE4qOjkR
-         F2SxNeRQtZd9oIoIgr5WfRRjLiLlVVgGN1iNO59Y+/VfDJrnZVft1Mv8m0lofkJMIdLn
-         679rRZoCSJtIw2fZVWt3HShMKX+PW9xieNwvuapCY/9OyR4b9RDaJ6w6uxXBP7KJyYe8
-         efI//8FgZrqLE5X3Bdk5Mkf28i/Q1M3GVIi0xAGxgqvF1PbeW960cIm/LtKRmHGtC7vB
-         ZMbqv+A4/LzyahZSYQJ9lmzuIYCd52j1ppa7XFU7fmktnnEY4rGjeqDMyuV/qqf+beFD
-         9HSg==
+        bh=sTCSXd78U2S/J9+STbmGQvoMaUMY3h0oPjBdZMZTRIE=;
+        b=R0Ig0HYRN+qNhimffv4Awp+ud4+0Ohj2iBqYbDnJqOmtT2ljqzKm/B9LsnQ98vA9u6
+         rVmg+bqhBAJkKw+ahqOP5kYQ9KwD3qQwu71XdMpgTY5x22URu2VR2d3Y3iaXJxlseFzL
+         ILxW/lPu1pvJuNVRRSLdIzREHXW4kLvcdfJozxoYftMEHfg1vU8L4nuKhIHqy1bBrkIn
+         HvncZSIxxan+mJGwoaevZhr4WlxpkfynzM5bC11/6j0o562acFGR2Y/7P49aTv05oXwu
+         1oGlRbNGNH6AXBmFPJcpTN77Kh+1WUkUtAhJiR2THK4DNZT+gXWnJqLXwOeZBfmnee2Z
+         y1Bg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=cwSTsKyp+VB/yrtk55Z3QdqURnT8SdzS6bse74wQ6jk=;
-        b=dwP73ILMhTJvD+FyoufHd1INQwAF9CakKQY6bAZEXpnFiPIpjCB1CGtTfBQoimYpqS
-         XqnUiPpn92kyUSWE9wXaKK4Qa8KFPq2lrtY8IcYnKB+zIaNumfqxKsBUjHQiUyDSB7oL
-         +LJv1v1jhfC6mI/SB9lbFFMS9ZAFRg/aFCvLO8uN9pBBj8um323wun02Vgcj9gGr9iwU
-         Nljq5yNplXpBxjnqU2nKwY4Xom0UTbzjpzjXsebrurXzl2GiLDOZG1Mt+N9T7YeKNxGg
-         hxTP6kTIuKBtWfSYY21gYFRd+RirKDx8xOAng9FcaBbqHDFtXf55UY4joxVH77qsF2OQ
-         pehA==
-X-Gm-Message-State: APjAAAUoAAOQXS7fHjxP5ZQVRfiqS7dSNfM4ncenFo3TKT8yimLMpzZj
-        5LRfQvSBjAkUueErkKjcycRjQY5jIwY=
-X-Google-Smtp-Source: APXvYqzC7EAZDdHpzDedvgekdoUveP0VRedY0ArltIFz0CUqMM6kyBJDzZ8oSzMqGr6JOB/CrDolZA==
-X-Received: by 2002:adf:ea4e:: with SMTP id j14mr19775324wrn.101.1575280232603;
-        Mon, 02 Dec 2019 01:50:32 -0800 (PST)
+        bh=sTCSXd78U2S/J9+STbmGQvoMaUMY3h0oPjBdZMZTRIE=;
+        b=LuCKNrpkij3MzXXlZyE9yg3VWQ4MopgOxaKF4ljTp7IdsoxqAdgRbgjjU2qVDMql4D
+         JgDzBHS1hdjWZAe29kEmoHFV2f4pnxTuwwsz8WsRd/Nyhx/+ViKr5kGuGFfOcOPiRGE8
+         DPCB4vcT49UTCVd6w3FzroG6rqlhnVROxRPkyHl6+eYuAIbDoqg2eIsrw5u5Obo4ocHf
+         mwGxNfJ9KPE2ZI7g16GiGJ3fsC0Nzzm8n1A51Ag166ZtQ+IAvi5BAm32nrKxmnELXvkT
+         RMttgiAHVW01LQYSQ10mHvRxqcYt+HBiDJxLHC+AzNpc2vnsP6opeaU/JkL+sWMCatF/
+         81hw==
+X-Gm-Message-State: APjAAAVkLD/79TZnq1Lr+QPFuCxLyxgTX404PHo8IvUDuYmRuBIY1y1y
+        03jBn6jpMV1zjCi2J0gyO3K+z4s5xvs=
+X-Google-Smtp-Source: APXvYqwezWBq31hjIMSLZAguDvoyMCrf0AaJb2fxDieQgBu+Fjveigsg7GlYJJ9duAD8BlQvrwtjZQ==
+X-Received: by 2002:a5d:49c7:: with SMTP id t7mr12719589wrs.369.1575280236523;
+        Mon, 02 Dec 2019 01:50:36 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id l3sm4629698wrt.29.2019.12.02.01.50.32
+        by smtp.gmail.com with ESMTPSA id l3sm4629698wrt.29.2019.12.02.01.50.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 01:50:32 -0800 (PST)
+        Mon, 02 Dec 2019 01:50:36 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 4/6] net: macb: fix error format in dev_err()
-Date:   Mon,  2 Dec 2019 09:50:10 +0000
-Message-Id: <20191202095012.559-4-lee.jones@linaro.org>
+Subject: [PATCH 4.9 5/6] media: atmel: atmel-isc: fix asd memory allocation
+Date:   Mon,  2 Dec 2019 09:50:11 +0000
+Message-Id: <20191202095012.559-5-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191202095012.559-1-lee.jones@linaro.org>
 References: <20191202095012.559-1-lee.jones@linaro.org>
@@ -59,87 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit f413cbb332a0b5251a790f396d0eb4ebcade5dec ]
+[ Upstream commit 1e4e25c4959c10728fbfcc6a286f9503d32dfe02 ]
 
-Errors are negative numbers. Using %u shows them as very large positive
-numbers such as 4294967277 that don't make sense. Use the %d format
-instead, and get a much nicer -19.
+The subsystem will free the asd memory on notifier cleanup, if the asd is
+added to the notifier.
+However the memory is freed using kfree.
+Thus, we cannot allocate the asd using devm_*
+This can lead to crashes and problems.
+To test this issue, just return an error at probe, but cleanup the
+notifier beforehand.
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Fixes: b48e0bab142f ("net: macb: Migrate to devm clock interface")
-Fixes: 93b31f48b3ba ("net/macb: unify clock management")
-Fixes: 421d9df0628b ("net/macb: merge at91_ether driver into macb driver")
-Fixes: aead88bd0e99 ("net: ethernet: macb: Add support for rx_clk")
-Fixes: f5473d1d44e4 ("net: macb: Support clock management for tsu_clk")
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 106267444f ("[media] atmel-isc: add the Image Sensor Controller code")
+
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/ethernet/cadence/macb.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/media/platform/atmel/atmel-isc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb.c b/drivers/net/ethernet/cadence/macb.c
-index a0d640243df2..30e93041bf83 100644
---- a/drivers/net/ethernet/cadence/macb.c
-+++ b/drivers/net/ethernet/cadence/macb.c
-@@ -2364,14 +2364,14 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
- 	*pclk = devm_clk_get(&pdev->dev, "pclk");
- 	if (IS_ERR(*pclk)) {
- 		err = PTR_ERR(*pclk);
--		dev_err(&pdev->dev, "failed to get macb_clk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to get macb_clk (%d)\n", err);
- 		return err;
- 	}
+diff --git a/drivers/media/platform/atmel/atmel-isc.c b/drivers/media/platform/atmel/atmel-isc.c
+index ccfe13b7d3f8..ecf9fb08f36b 100644
+--- a/drivers/media/platform/atmel/atmel-isc.c
++++ b/drivers/media/platform/atmel/atmel-isc.c
+@@ -1297,8 +1297,11 @@ static int isc_parse_dt(struct device *dev, struct isc_device *isc)
+ 			break;
+ 		}
  
- 	*hclk = devm_clk_get(&pdev->dev, "hclk");
- 	if (IS_ERR(*hclk)) {
- 		err = PTR_ERR(*hclk);
--		dev_err(&pdev->dev, "failed to get hclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to get hclk (%d)\n", err);
- 		return err;
- 	}
- 
-@@ -2385,25 +2385,25 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
- 
- 	err = clk_prepare_enable(*pclk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
- 		return err;
- 	}
- 
- 	err = clk_prepare_enable(*hclk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable hclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable hclk (%d)\n", err);
- 		goto err_disable_pclk;
- 	}
- 
- 	err = clk_prepare_enable(*tx_clk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable tx_clk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable tx_clk (%d)\n", err);
- 		goto err_disable_hclk;
- 	}
- 
- 	err = clk_prepare_enable(*rx_clk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable rx_clk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable rx_clk (%d)\n", err);
- 		goto err_disable_txclk;
- 	}
- 
-@@ -2823,7 +2823,7 @@ static int at91ether_clk_init(struct platform_device *pdev, struct clk **pclk,
- 
- 	err = clk_prepare_enable(*pclk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
- 		return err;
- 	}
+-		subdev_entity->asd = devm_kzalloc(dev,
+-				     sizeof(*subdev_entity->asd), GFP_KERNEL);
++		/* asd will be freed by the subsystem once it's added to the
++		 * notifier list
++		 */
++		subdev_entity->asd = kzalloc(sizeof(*subdev_entity->asd),
++					     GFP_KERNEL);
+ 		if (subdev_entity->asd == NULL) {
+ 			of_node_put(rem);
+ 			ret = -ENOMEM;
+@@ -1432,6 +1435,7 @@ static int atmel_isc_probe(struct platform_device *pdev)
+ 						   &subdev_entity->notifier);
+ 		if (ret) {
+ 			dev_err(dev, "fail to register async notifier\n");
++			kfree(subdev_entity->asd);
+ 			goto cleanup_subdev;
+ 		}
  
 -- 
 2.24.0
