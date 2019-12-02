@@ -2,99 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C5110EB7C
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 15:23:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCAE110EB7F
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 15:25:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727426AbfLBOXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 09:23:30 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46641 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727362AbfLBOXa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 09:23:30 -0500
-Received: by mail-wr1-f65.google.com with SMTP id z7so41045117wrl.13
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 06:23:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=7QBBODz38af9BAAmLqiAF2JyTB9aVxEgaGJzaKdt6kc=;
-        b=jK970Haq5+eP6U8jVgCizD6e94pTSRW5a6cNhsMhL/CAFbMIpQeVyUh3wiD53o6/rj
-         PTA44gZLrZQHJtFgcMlLw82fYziEgKUdP6YfACBGsDefhVGHY3xJaE7h7zPVsQjM3Y+B
-         3QIkBqerL8ysFQ224NneXBBjinpHRk+6JLJX4ZdSqQbukiovLlqSqEL9onPNkKkiLaHs
-         sow1MzNAP63hofaPW9KFghTTh119/5q6fCPVVxlkDiRG3XjwZu5G0hOSUr6ychClfThI
-         XkPT8flmahx0ZBeCFGC+v5URmAKF+cLdPql1gcsPcUpAUkdfHmIXJn7MAqQg8g98RxfM
-         ghKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=7QBBODz38af9BAAmLqiAF2JyTB9aVxEgaGJzaKdt6kc=;
-        b=WyChBtBg8NyhYZqzCQjs10VpCRBxsmkPdfk1ifVSShtKNcxkP2NQLiryDtMy0oM2hx
-         c0OswxR0BFf+hkO1i3YFGSeaPrL2hhQ8UEDSW2FaHDN0tv/CBwc/zDGPcHJy6lOK+5zB
-         PmzjWnB1TMrzQ+DFQe0kg8Ue934rsGcz/iEZtB4Su6FlZzTCu2wK6JNRS3GEti63fVYs
-         cIcQHrK8E2CLQRDpb/y4aH4N7yoVqpTIEqZRMt8ueGpOpLYEJLKE+WAbAxTNc8l0VNLi
-         /yTFBEXxIjtUL3gGHps7vpz0FQJU+kxhzzLxb5Vpmm0q0K4nBWuqoVUNI9S5xab1RsG2
-         KVVg==
-X-Gm-Message-State: APjAAAV0h+j+BAnmBciEEkNFgny8161vO/4hYHtJzHBpv+7YY9KQESKJ
-        ZDIoLTEsrLilb8bjwGUkdylBbhDI
-X-Google-Smtp-Source: APXvYqxP1UfBbJ4WMuesZ2VVZ47Si7thCLBf3RcAQ5048QdgFOvf2h58ds0jn5sky8XdGHUgpB/Xzg==
-X-Received: by 2002:adf:fd87:: with SMTP id d7mr533010wrr.226.1575296608500;
-        Mon, 02 Dec 2019 06:23:28 -0800 (PST)
-Received: from localhost.localdomain.com ([188.204.2.113])
-        by smtp.gmail.com with ESMTPSA id s19sm19691571wmc.4.2019.12.02.06.23.27
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 02 Dec 2019 06:23:27 -0800 (PST)
-From:   Pascal van Leeuwen <pascalvanl@gmail.com>
-X-Google-Original-From: Pascal van Leeuwen <pvanleeuwen@verimatrix.com>
-To:     stable@vger.kernel.org
-Cc:     antoine.tenart@bootlin.com, herbert@gondor.apana.org.au,
-        davem@davemloft.net,
-        Pascal van Leeuwen <pvanleeuwen@verimatrix.com>
-Subject: [PATCH] crypto: inside-secure: Fix stability issue with Macchiatobin
-Date:   Mon,  2 Dec 2019 15:20:15 +0100
-Message-Id: <1575296415-29255-1-git-send-email-pvanleeuwen@verimatrix.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1727483AbfLBOZX convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 2 Dec 2019 09:25:23 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:60900 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727431AbfLBOZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 09:25:22 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 19428829-1500050 
+        for multiple; Mon, 02 Dec 2019 14:25:18 +0000
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+To:     "Peres, Martin" <martin.peres@intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        Jani Nikula <jani.nikula@intel.com>
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+In-Reply-To: <87zhgbj6xq.fsf@intel.com>
+Cc:     Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20191125104248.1690891-1-chris@chris-wilson.co.uk>
+ <878snvkojl.fsf@intel.com>
+ <56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0B@IRSMSX107.ger.corp.intel.com>
+ <87zhgbj6xq.fsf@intel.com>
+Message-ID: <157529671757.27263.3691775758610826131@skylake-alporthouse-com>
+User-Agent: alot/0.6
+Subject: Re: [PATCH] drm/i915: Update bug URL to point at gitlab issues
+Date:   Mon, 02 Dec 2019 14:25:17 +0000
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b8c5d882c833 upstream
+Quoting Jani Nikula (2019-12-02 11:36:01)
+> On Mon, 02 Dec 2019, "Peres, Martin" <martin.peres@intel.com> wrote:
+> > On 02/12/2019 12:30, Jani Nikula wrote:
+> >> On Mon, 25 Nov 2019, Chris Wilson <chris@chris-wilson.co.uk> wrote:
+> >>> We are moving our issue tracking over from bugs.fd.o to gitlab.fd.o, so
+> >>> update the user instructions accordingly.
+> >>>
+> >>> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> >>> Cc: Martin Peres <martin.peres@linux.intel.com>
+> >>> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> >>> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> >>> Cc: Jani Nikula <jani.nikula@intel.com>
+> >>> Cc: stable@vger.kernel.org
+> >>> ---
+> >>>  drivers/gpu/drm/i915/i915_gpu_error.c | 2 +-
+> >>>  drivers/gpu/drm/i915/i915_utils.c     | 3 +--
+> >>>  drivers/gpu/drm/i915/i915_utils.h     | 2 ++
+> >>>  3 files changed, 4 insertions(+), 3 deletions(-)
+> >>>
+> >>> diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
+> >>> index 2b30a45fa25c..1cf53fd4fe66 100644
+> >>> --- a/drivers/gpu/drm/i915/i915_gpu_error.c
+> >>> +++ b/drivers/gpu/drm/i915/i915_gpu_error.c
+> >>> @@ -1817,7 +1817,7 @@ void i915_capture_error_state(struct drm_i915_private *i915,
+> >>>     if (!xchg(&warned, true) &&
+> >>>         ktime_get_real_seconds() - DRIVER_TIMESTAMP < DAY_AS_SECONDS(180)) {
+> >>>             pr_info("GPU hangs can indicate a bug anywhere in the entire gfx stack, including userspace.\n");
+> >>> -           pr_info("Please file a _new_ bug report on bugs.freedesktop.org against DRI -> DRM/Intel\n");
+> >>> +           pr_info("Please file a _new_ bug report on " FDO_BUG_URL "\n");
+> >>>             pr_info("drm/i915 developers can then reassign to the right component if it's not a kernel issue.\n");
+> >>>             pr_info("The GPU crash dump is required to analyze GPU hangs, so please always attach it.\n");
+> >>>             pr_info("GPU crash dump saved to /sys/class/drm/card%d/error\n",
+> >>> diff --git a/drivers/gpu/drm/i915/i915_utils.c b/drivers/gpu/drm/i915/i915_utils.c
+> >>> index c47261ae86ea..9b68b21becf1 100644
+> >>> --- a/drivers/gpu/drm/i915/i915_utils.c
+> >>> +++ b/drivers/gpu/drm/i915/i915_utils.c
+> >>> @@ -8,8 +8,7 @@
+> >>>  #include "i915_drv.h"
+> >>>  #include "i915_utils.h"
+> >>>  
+> >>> -#define FDO_BUG_URL "https://bugs.freedesktop.org/enter_bug.cgi?product=DRI"
+> >>> -#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL " against DRM/Intel " \
+> >>> +#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL \
+> >>>                 "providing the dmesg log by booting with drm.debug=0xf"
+> >> 
+> >> Space between URL and "providing"?
+> >
+> > If the following comment is accepted, then we need to change this
+> > sentence to:
+> >
+> > Please file bugs according to the instruction found at FDO_BUG_URL.
+> >
+> >> 
+> >>>  
+> >>>  void
+> >>> diff --git a/drivers/gpu/drm/i915/i915_utils.h b/drivers/gpu/drm/i915/i915_utils.h
+> >>> index 04139ba1191e..13674b016092 100644
+> >>> --- a/drivers/gpu/drm/i915/i915_utils.h
+> >>> +++ b/drivers/gpu/drm/i915/i915_utils.h
+> >>> @@ -34,6 +34,8 @@
+> >>>  struct drm_i915_private;
+> >>>  struct timer_list;
+> >>>  
+> >>> +#define FDO_BUG_URL "https://gitlab.freedesktop.org/drm/intel/issues/new?"
+> >> 
+> >> Do we really need the question mark?
+> >
+> > We may want to point to
+> > https://gitlab.freedesktop.org/drm/intel/wikis/How-to-file-file-i915-bugs,
+> > don't you think?
+> 
+> Does gitlab let you set the URL, or is it always autogenerated from the
+> title? Need to at least fix the "file file" there. ;)
 
-This patch should have made it into kernel version 5.4 as it fixes some
-major stability issue running on Marvell A7K/A8K, for which it was 
-originally developed, which was introduced by an earlier patch.
-It is identical to the upstream patch, save for some whitespace fixes
-that were removed to not violate the "no trivial fixes" rule.
-Below follows the original patch text as submitted for kernel 5.5.
-
-This patch corrects an error in the Transform Record Cache initialization
-code that was causing intermittent stability problems on the Macchiatobin
-board.
-
-Unfortunately, due to HW platform specifics, the problem could not happen
-on the main development platform, being the VCU118 Xilinx development
-board. And since it was a problem with hash table access, it was very
-dependent on the actual physical context record DMA buffers being used,
-i.e. with some (bad) luck it could seemingly work quit stable for a while.
-
-Fixes: 465527bcaebc ("crypto: inside-secure - Probe transform record cache RAM sizes")
-Signed-off-by: Pascal van Leeuwen <pvanleeuwen@verimatrix.com>
----
- drivers/crypto/inside-secure/safexcel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/crypto/inside-secure/safexcel.c b/drivers/crypto/inside-secure/safexcel.c
-index 4ab1bde..40adf8c 100644
---- a/drivers/crypto/inside-secure/safexcel.c
-+++ b/drivers/crypto/inside-secure/safexcel.c
-@@ -223,7 +223,7 @@ static void eip197_trc_cache_init(struct safexcel_crypto_priv *priv)
- 	/* Step #4: determine current size of hash table in dwords */
- 	cs_ht_wc = 16<<cs_ht_sz; /* dwords, not admin words */
- 	/* Step #5: add back excess words and see if we can fit more records */
--	cs_rc_max = min_t(uint, cs_rc_abs_max, asize - (cs_ht_wc >> 4));
-+	cs_rc_max = min_t(uint, cs_rc_abs_max, asize - (cs_ht_wc >> 2));
- 
- 	/* Clear the cache RAMs */
- 	eip197_trc_cache_clear(priv, cs_rc_max, cs_ht_wc);
--- 
-1.8.3.1
-
+Martin feel free to update the patch with the final wording and links :)
+-Chris
