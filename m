@@ -2,118 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA24E10E7F2
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:50:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE16810E7F5
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726482AbfLBJuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 04:50:40 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:37125 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726516AbfLBJuk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:50:40 -0500
-Received: by mail-wr1-f65.google.com with SMTP id w15so12391054wru.4
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 01:50:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=wN8Wz+OqrhKIKYPYJBtEtZFwg/h6OwVz+bEt3kPQDmY=;
-        b=ZBoXUFkbnH8Nk0M78+uLkLXG2r75Jp55gnODei+w5Wzf8ES8AnNWwGP2DhStJrAiSw
-         gAR7Pv4lO6AqALrbvke8JAPTsYYHnG11Fz2/1N1SBwTMTIC3Q5QCsmxgRn3D5f+dBl1a
-         pm1arcPhf8wrapz+1b7sSCklviJUQTollywnruF+H3Gnpv46MIvMN4zm5FqmvmXFJEBT
-         M3YQhtK5Ir/IrNoMOWlHDt42MhlitnP/OGCPvDfsbkl4NckIvaHpGfKQlLiSGZFENebi
-         DAgzts4rJYtS5dWQQOfDkkZYo7MdZ6PYZXGJxL4npbE3v53vywwuFy5mNN/mGnjUNY1N
-         aIUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=wN8Wz+OqrhKIKYPYJBtEtZFwg/h6OwVz+bEt3kPQDmY=;
-        b=jzBw9J9oi3lIWin1U9AaRsCeNYaqpXYckwL6SYANtGoMMOE4Ooyrzyzok/ip2VYoaX
-         /ahTcRKtnwv8LRleGgJirIhXfp2M3TqDQxGOXlAO3xklPXhicItgIK2QrwcAhgmrFjf7
-         OtmxOSCr+lK4As9zssCwotr9gDX+QyPRruimYqV/vCtd2s8Pf7MUf1DkQ39wCTe8KEwU
-         kqWZRZ3ag5pwm3XDU+UCcAWDjYCrOzH8C+/kTx9EqRtNhq9yBUeZ5RUQEiJy84WVbVla
-         poGsFzgOiUnt2/obp27at0UBaWbOUiR2ukZNDhUD/QikP36xpvaWbsjioEua/ZGnCrmG
-         zI6w==
-X-Gm-Message-State: APjAAAUrifFZ7HpidXvKl3sMVnl6DqHA3MiHDlasJ9Tt1NOdLfouQIUj
-        E9Rg87g/wboQjU43c1uUD11toe2uQlk=
-X-Google-Smtp-Source: APXvYqzxxbxMf+2aCniXWeXc0AJIm9uqfELy2siMGGtitMVUo69kJaZ+fhXt+bk8wupdyn720HYIwQ==
-X-Received: by 2002:adf:f64b:: with SMTP id x11mr49606523wrp.355.1575280237891;
-        Mon, 02 Dec 2019 01:50:37 -0800 (PST)
-Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id l3sm4629698wrt.29.2019.12.02.01.50.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 01:50:37 -0800 (PST)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 6/6] pwm: Clear chip_data in pwm_put()
-Date:   Mon,  2 Dec 2019 09:50:12 +0000
-Message-Id: <20191202095012.559-6-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191202095012.559-1-lee.jones@linaro.org>
-References: <20191202095012.559-1-lee.jones@linaro.org>
+        id S1727318AbfLBJut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 04:50:49 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:59312 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726399AbfLBJut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:50:49 -0500
+Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id DE55E28DE03;
+        Mon,  2 Dec 2019 09:50:46 +0000 (GMT)
+Date:   Mon, 2 Dec 2019 10:50:44 +0100
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH 6/8] drm/panfrost: Make sure imported/exported BOs are
+ never purged
+Message-ID: <20191202105044.108549fa@collabora.com>
+In-Reply-To: <20191202085243.GX624164@phenom.ffwll.local>
+References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
+        <20191129135908.2439529-7-boris.brezillon@collabora.com>
+        <20191129201213.GR624164@phenom.ffwll.local>
+        <20191129220924.7982a350@collabora.com>
+        <20191202085243.GX624164@phenom.ffwll.local>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+On Mon, 2 Dec 2019 09:52:43 +0100
+Daniel Vetter <daniel@ffwll.ch> wrote:
 
-[ Upstream commit e926b12c611c2095c7976e2ed31753ad6eb5ff1a ]
+> On Fri, Nov 29, 2019 at 10:09:24PM +0100, Boris Brezillon wrote:
+> > On Fri, 29 Nov 2019 21:12:13 +0100
+> > Daniel Vetter <daniel@ffwll.ch> wrote:
+> >   
+> > > On Fri, Nov 29, 2019 at 02:59:06PM +0100, Boris Brezillon wrote:  
+> > > > We don't want imported/exported BOs to be purges, as those are shared
+> > > > with other processes that might still use them. We should also refuse
+> > > > to export a BO if it's been marked purgeable or has already been purged.
+> > > > 
+> > > > Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
+> > > > Cc: <stable@vger.kernel.org>
+> > > > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > > > ---
+> > > >  drivers/gpu/drm/panfrost/panfrost_drv.c | 19 ++++++++++++++++-
+> > > >  drivers/gpu/drm/panfrost/panfrost_gem.c | 27 +++++++++++++++++++++++++
+> > > >  2 files changed, 45 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+> > > > index 1c67ac434e10..751df975534f 100644
+> > > > --- a/drivers/gpu/drm/panfrost/panfrost_drv.c
+> > > > +++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+> > > > @@ -343,6 +343,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
+> > > >  	struct drm_panfrost_madvise *args = data;
+> > > >  	struct panfrost_device *pfdev = dev->dev_private;
+> > > >  	struct drm_gem_object *gem_obj;
+> > > > +	int ret;
+> > > >  
+> > > >  	gem_obj = drm_gem_object_lookup(file_priv, args->handle);
+> > > >  	if (!gem_obj) {
+> > > > @@ -350,6 +351,19 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
+> > > >  		return -ENOENT;
+> > > >  	}
+> > > >  
+> > > > +	/*
+> > > > +	 * We don't want to mark exported/imported BOs as purgeable: we're not
+> > > > +	 * the only owner in that case.
+> > > > +	 */
+> > > > +	mutex_lock(&dev->object_name_lock);    
+> > > 
+> > > Kinda not awesome that you have to take this core lock here and encumber
+> > > core drm locking with random driver stuff.  
+> > 
+> > Looks like drm_gem_shmem_is_purgeable() already does the !imported &&
+> > !exported check. For the imported case, I think we're good, since
+> > userspace can't change the madv value before ->import_attach has been
+> > set. For the exporter case, we need to make sure there's no race
+> > between the export and madvise operations, which I can probably do from
+> > the gem->export() hook by taking the shrinker or bo->mappings lock.
 
-After a PWM is disposed by its user the per chip data becomes invalid.
-Clear the data in common code instead of the device drivers to get
-consistent behaviour. Before this patch only three of nine drivers
-cleaned up here.
+Okay, I tried that, and I actually need an extra
+panfrost_gem_object->exported field that's set to true from the
+->export() hook with the mappings lock held, otherwise the code is
+still racy (->dma_buf is assigned after ->export() returns).
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/pwm/core.c        | 1 +
- drivers/pwm/pwm-berlin.c  | 1 -
- drivers/pwm/pwm-samsung.c | 1 -
- 3 files changed, 1 insertion(+), 2 deletions(-)
+> >   
+> > > 
+> > > Can't this be solved with your own locking only and some reasonable
+> > > ordering of checks? big locks because it's easy is endless long-term pain.
+> > > 
+> > > Also exporting purgeable objects is kinda a userspace bug, all you have to
+> > > do is not oops in dma_buf_attachment_map. No need to prevent the damage
+> > > here imo.  
+> > 
+> > I feel like making sure an exported BO can't be purged or a purged BO
+> > can't be exported would be much simpler than making sure all importers
+> > are ready to have the sgt freed.  
+> 
+> If you free the sgt while someone is using it, that's kinda a different
+> bug I think. You already have a pages refcount, that should be enough to
+> prevent this?
 
-diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
-index a19246455c13..cc12032ee60d 100644
---- a/drivers/pwm/core.c
-+++ b/drivers/pwm/core.c
-@@ -858,6 +858,7 @@ void pwm_put(struct pwm_device *pwm)
- 	if (pwm->chip->ops->free)
- 		pwm->chip->ops->free(pwm->chip, pwm);
- 
-+	pwm_set_chip_data(pwm, NULL);
- 	pwm->label = NULL;
- 
- 	module_put(pwm->chip->ops->owner);
-diff --git a/drivers/pwm/pwm-berlin.c b/drivers/pwm/pwm-berlin.c
-index 01339c152ab0..64d9bb1ac272 100644
---- a/drivers/pwm/pwm-berlin.c
-+++ b/drivers/pwm/pwm-berlin.c
-@@ -78,7 +78,6 @@ static void berlin_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	struct berlin_pwm_channel *channel = pwm_get_chip_data(pwm);
- 
--	pwm_set_chip_data(pwm, NULL);
- 	kfree(channel);
- }
- 
-diff --git a/drivers/pwm/pwm-samsung.c b/drivers/pwm/pwm-samsung.c
-index f113cda47032..219757087995 100644
---- a/drivers/pwm/pwm-samsung.c
-+++ b/drivers/pwm/pwm-samsung.c
-@@ -235,7 +235,6 @@ static int pwm_samsung_request(struct pwm_chip *chip, struct pwm_device *pwm)
- static void pwm_samsung_free(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	devm_kfree(chip->dev, pwm_get_chip_data(pwm));
--	pwm_set_chip_data(pwm, NULL);
- }
- 
- static int pwm_samsung_enable(struct pwm_chip *chip, struct pwm_device *pwm)
--- 
-2.24.0
-
+My bad, I thought drm_gem_shmem_get_pages_sgt() was used as the
+->get_sg_table() implem, but we actually use
+drm_gem_shmem_get_sg_table() which allocates a new sgt. I still need to
+make sure we're safe against sgt destruction in panfrost.
