@@ -2,107 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0676810E696
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 08:58:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA19110E6DA
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 09:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbfLBH6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 02:58:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57724 "EHLO mail.kernel.org"
+        id S1726024AbfLBIWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 03:22:46 -0500
+Received: from mga01.intel.com ([192.55.52.88]:1451 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726106AbfLBH6y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Dec 2019 02:58:54 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24E5E2146E;
-        Mon,  2 Dec 2019 07:58:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575273533;
-        bh=0pfZAAucCN2NuKtA+cNAYy1pn45HA6m2U6O+WrruCsE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=s9W4Sq+PH93iWeXdrh76b6uqZgKW9eon0vqS2w6LBgFZfb97GbzvmwBDQQOVsSeig
-         z8OHKtLkdXeNMg5xYZxcU4i2gVVb3fCYqeVxug7dp9rDfj66rQSc7uQCjjeNF+xxfn
-         5B+wdCMFDZ7BF0eiZ8vUDpbOp3LPp1kqcjO5OfQo=
-Date:   Mon, 2 Dec 2019 08:58:48 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 5.4.1
-Message-ID: <20191202075848.GA3892895@kroah.com>
-References: <20191201094246.GA3799322@kroah.com>
- <20191201193649.GA9163@debian>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191201193649.GA9163@debian>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+        id S1725977AbfLBIWq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Dec 2019 03:22:46 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Dec 2019 00:22:45 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,268,1571727600"; 
+   d="scan'208";a="241851150"
+Received: from ahunter-desktop.fi.intel.com ([10.237.72.95])
+  by fmsmga002.fm.intel.com with ESMTP; 02 Dec 2019 00:22:44 -0800
+From:   Adrian Hunter <adrian.hunter@intel.com>
+To:     stable@vger.kernel.org
+Subject: [PATCH] perf scripts python: exported-sql-viewer.py: Fix use of TRUE with SQLite
+Date:   Mon,  2 Dec 2019 10:21:50 +0200
+Message-Id: <20191202082150.22290-1-adrian.hunter@intel.com>
+X-Mailer: git-send-email 2.17.1
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki, Business Identity Code: 0357606 - 4, Domiciled in Helsinki
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 02, 2019 at 01:06:49AM +0530, Jeffrin Jose wrote:
-> On Sun, Dec 01, 2019 at 10:42:46AM +0100, Greg KH wrote:
-> > I'm announcing the release of the 5.4.1 kernel.
-> > 
-> > All users of the 5.4 kernel series must upgrade.
-> > 
-> > The updated 5.4.y git tree can be found at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-> > and can be browsed at the normal kernel.org git web browser:
-> > 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> hello,
-> 
-> the following readings are from testing performance of 5.4.1 with  5.4.0
-> the readings are from 5.4.0 to 5.4.1 in 1 is to 1 mapping.
-> the test results may not be accurate.
-> 
-> 
-> 5.4 0
-> -----
-> 
-> real	149m25.803s
-> user	57m32.082s
-> sys	5m54.858s
-> 
-> real	141m55.929s
-> user	52m0.091s
-> sys	5m15.312s
-> 
-> real	144m18.779s
-> user	53m1.508s
-> sys	5m24.352s
-> 
-> 
-> 
-> 5.4.1
-> -----
-> 
-> real	124m44.923s
-> user	56m26.547s
-> sys	5m35.978s
-> 
-> real	104m16.500s
-> user	51m11.444s
-> sys	5m1.046s
-> 
-> real	106m1.086s
-> user	51m45.339s
-> sys	5m4.815s
+commit af833988c088d3fed3e7188e7c3dd9ca17178dc3 upstream
 
+Prior to version 3.23 SQLite does not support TRUE or FALSE, so always
+use 1 and 0 for SQLite.
 
-You tested the performance of what?
+Fixes: 26c11206f433 ("perf scripts python: exported-sql-viewer.py: Use new 'has_calls' column")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v5.3+
+Link: http://lore.kernel.org/lkml/20191113120206.26957-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[Adrian: backported to v5.3, v5.4]
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+---
+ tools/perf/scripts/python/exported-sql-viewer.py | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-And 5.4.1 is faster?
+diff --git a/tools/perf/scripts/python/exported-sql-viewer.py b/tools/perf/scripts/python/exported-sql-viewer.py
+index 61b3911d91e6..4b28c9d08d5a 100755
+--- a/tools/perf/scripts/python/exported-sql-viewer.py
++++ b/tools/perf/scripts/python/exported-sql-viewer.py
+@@ -625,7 +625,7 @@ class CallGraphRootItem(CallGraphLevelItemBase):
+ 		self.query_done = True
+ 		if_has_calls = ""
+ 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
+-			if_has_calls = " WHERE has_calls = TRUE"
++			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
+ 		query = QSqlQuery(glb.db)
+ 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
+ 		while query.next():
+@@ -905,7 +905,7 @@ class CallTreeRootItem(CallGraphLevelItemBase):
+ 		self.query_done = True
+ 		if_has_calls = ""
+ 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
+-			if_has_calls = " WHERE has_calls = TRUE"
++			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
+ 		query = QSqlQuery(glb.db)
+ 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
+ 		while query.next():
+@@ -3509,6 +3509,12 @@ class DBRef():
+ 	def __init__(self, is_sqlite3, dbname):
+ 		self.is_sqlite3 = is_sqlite3
+ 		self.dbname = dbname
++		self.TRUE = "TRUE"
++		self.FALSE = "FALSE"
++		# SQLite prior to version 3.23 does not support TRUE and FALSE
++		if self.is_sqlite3:
++			self.TRUE = "1"
++			self.FALSE = "0"
+ 
+ 	def Open(self, connection_name):
+ 		dbname = self.dbname
+-- 
+2.17.1
 
-thanks,
-
-greg k-h
