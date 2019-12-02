@@ -2,94 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4974410E820
+	by mail.lfdr.de (Postfix) with ESMTP id B94A610E821
 	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:03:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfLBKDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 05:03:51 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:34984 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726516AbfLBKDv (ORCPT
+        id S1726516AbfLBKDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 05:03:52 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:56206 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726533AbfLBKDv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:03:51 -0500
-Received: by mail-wr1-f66.google.com with SMTP id g17so11355564wro.2
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:03:49 -0800 (PST)
+Received: by mail-wm1-f68.google.com with SMTP id a131so16735808wme.5
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:03:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=AJBi3Wx4dc8N0SQvfeVCMhWPD/cyEKNjvF5LH/jG1lQ=;
-        b=Hzi3syw7fGa86cv/mmyMTIeCiZ6euZMw5IG/N9olmez/KI+7/ApDBxxVl9ns3KZTc/
-         xPBnZ9Uw4/0IFlgabTj1SqFDnW1kZSo658qHkrtlSjTpCjtnfRS/nSHmE0P91uqjvPEp
-         27DntP2zFBUziHe7kQiNYoKKL84N50QiMKwfVPZ6df5BAi7C/WawAh5zebSeR93FfD92
-         Tw68WwZifgBPxq/xcg8VxWP+pN68YjpikZ4LYUzUF0MMU6UQmAlNQ4y3tQYMCyIBRir+
-         PfPy1Av/8E9u37cqnL9gNQFYXKTxYjKr/c7CcRGAt9MVDlOZguPQmQs29KT4m5Xk0gmE
-         taDw==
+        bh=sVbw3UdezQ0sD9BTneNk/tIPQpwqVy7LB+WYRpuD1iU=;
+        b=Qk5HwfTf32NYPQMIGTFwZEY52SK16t9YODfdA3aRJFKTBbQZI7gOpiJE26OI6gmIXT
+         PMiOo958L01JPifVa9ORmz46iqKzao1LfUlHUBuxc/VFbbr1r/ti6ccwtV8BcRtAKKDL
+         38z5hGBRu+G4G3mmhucw1UTfvD8Cl3pktUvXRQzkGUWGeSoo+QR6wjvFP4kG6huyNJW9
+         XIMX2pKYa2r/59Vu/X03YD519VvRFZuzFyy5a5b2P+p5Smt+pA/wHXJf4Bil14qdWOHP
+         yrc+neFKi2O8Oey3js/Omv8/gFOgsc0hr3vKmCBdCzoDR2g0kDp/rEn9oNPTGI2qSVHt
+         sqWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=AJBi3Wx4dc8N0SQvfeVCMhWPD/cyEKNjvF5LH/jG1lQ=;
-        b=JBK0IVa1yEdQCVv+vojyBKLIBxzX1BX9Pg0NHI+1EOnX44mwmVfW8OErgCVDV8eM0o
-         SzcWeKPYx2PMJF5Me/Sx16z2ksUsZeCda7Cceh0RXhaTLBfc4lPFXRRQGgZEoI2nVHSa
-         y9mJ5Pxq4bNbvkXM5M02IePdfmSfiG8bsl8sxCrC4e1X41hxndwzn6u8m9/bcyRHgkvV
-         /1HC3yPJFFTyjpJIMeP2O03rjeG1snZPtx4nZQT2L7VZWCid0+6d7KO7ee6L7Xb6fLeb
-         CEhO9j7XAvNbVgQLlKN38SxhUgtZhn0g9LkvwsazmRePYGWWiNA64RwMSc5EtGWiw/HB
-         uMiA==
-X-Gm-Message-State: APjAAAVVRihmI1KTK2pdRUILm1EVgc7DS1nb8v0TwGPF3mo4FaxJJh0v
-        nDC9HRTiIcL4WZOeIlLQntqLXb2Erv8=
-X-Google-Smtp-Source: APXvYqwmkH3CrM8YEY/c/oC5uT06GHrwzlAPSj13a3+65GZKf2Hwen8QyHl/etBJwSLIyH678VJkfA==
-X-Received: by 2002:adf:e303:: with SMTP id b3mr52723850wrj.335.1575281028827;
-        Mon, 02 Dec 2019 02:03:48 -0800 (PST)
+        bh=sVbw3UdezQ0sD9BTneNk/tIPQpwqVy7LB+WYRpuD1iU=;
+        b=P8hiWDvSEwWo4mDrwEBo1oq8WeS4pf3K7v6Z5ox9iA1JvhP1I5K4bWwqiBFh0cMnom
+         ZpQlDyF1segSe+FxNlzt+PRJ1jE+NFj3D5ImlSXS27FOlH75zs4NSBPO0Kb41k1wybkq
+         Ac2zyIUS6iZ5n9g+eeNJmtwfHjqFtV/d15zwpnWnm2VG8ZJ6vK4NglushuIQDXivzsma
+         AxeaZ+41ZF6lFDOQnDiLyJ6fyyZpmK1GaFUro2/+GnRsT/FT9QqN3kcTv2tClm2TXpyu
+         P9iwI66qgPJJcn+auUCpEE5cJQJPq8xlPMW7m7ibH5J4n+jQh03Bw8i4mos9vXhDUlUC
+         bldQ==
+X-Gm-Message-State: APjAAAW6jwP/4sdyp6MW7HmPtesdMUveq7hwvrP+/xFN8gNJF1wwz0J5
+        zDWuGvkiCZt/e6te6zyx/K5sJ5BBt3Y=
+X-Google-Smtp-Source: APXvYqxHG2RuNK8ZvFku/8aVjYEz/HCuHoYoV7NYImThRu2bDc5AUlvzeFhGe4+S1oPGnJC3QYh1aQ==
+X-Received: by 2002:a05:600c:1108:: with SMTP id b8mr11371586wma.17.1575281029709;
+        Mon, 02 Dec 2019 02:03:49 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.03.48
+        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.03.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 02:03:48 -0800 (PST)
+        Mon, 02 Dec 2019 02:03:49 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 02/14] arm: add missing include platform-data/atmel.h
-Date:   Mon,  2 Dec 2019 10:03:00 +0000
-Message-Id: <20191202100312.1397-2-lee.jones@linaro.org>
+Subject: [PATCH 4.14 03/14] watchdog: sama5d4: fix WDD value to be always set to max
+Date:   Mon,  2 Dec 2019 10:03:01 +0000
+Message-Id: <20191202100312.1397-3-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191202100312.1397-1-lee.jones@linaro.org>
 References: <20191202100312.1397-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philippe Mazenauer <philippe.mazenauer@outlook.de>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 95701b1c3c8fe36368361394e3950094eece4723 ]
+[ Upstream commit 8632944841d41a36d77dd1fa88d4201b5291100f ]
 
-Include corresponding headerfile <linux/platform-data/atmel.h> for
-function at91_suspend_entering_slow_clock().
+WDD value must be always set to max (0xFFF) otherwise the hardware
+block will reset the board on the first ping of the watchdog.
 
-../arch/arm/mach-at91/pm.c:279:5: warning: no previous prototype for ‘at91_suspend_entering_slow_clock’ [-Wmissing-prototypes]
- int at91_suspend_entering_slow_clock(void)
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Signed-off-by: Philippe Mazenauer <philippe.mazenauer@outlook.de>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm/mach-at91/pm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/sama5d4_wdt.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
-index 849014c01cf4..796182e33361 100644
---- a/arch/arm/mach-at91/pm.c
-+++ b/arch/arm/mach-at91/pm.c
-@@ -19,6 +19,7 @@
- #include <linux/suspend.h>
+diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
+index 0ae947c3d7bc..d8cf2039c6a4 100644
+--- a/drivers/watchdog/sama5d4_wdt.c
++++ b/drivers/watchdog/sama5d4_wdt.c
+@@ -111,9 +111,7 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
+ 	u32 value = WDT_SEC2TICKS(timeout);
  
- #include <linux/clk/at91_pmc.h>
-+#include <linux/platform_data/atmel.h>
+ 	wdt->mr &= ~AT91_WDT_WDV;
+-	wdt->mr &= ~AT91_WDT_WDD;
+ 	wdt->mr |= AT91_WDT_SET_WDV(value);
+-	wdt->mr |= AT91_WDT_SET_WDD(value);
  
- #include <asm/cacheflush.h>
- #include <asm/fncpy.h>
+ 	/*
+ 	 * WDDIS has to be 0 when updating WDD/WDV. The datasheet states: When
+@@ -255,7 +253,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ 
+ 	timeout = WDT_SEC2TICKS(wdd->timeout);
+ 
+-	wdt->mr |= AT91_WDT_SET_WDD(timeout);
++	wdt->mr |= AT91_WDT_SET_WDD(WDT_SEC2TICKS(MAX_WDT_TIMEOUT));
+ 	wdt->mr |= AT91_WDT_SET_WDV(timeout);
+ 
+ 	ret = sama5d4_wdt_init(wdt);
 -- 
 2.24.0
 
