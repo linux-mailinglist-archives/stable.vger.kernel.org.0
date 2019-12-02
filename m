@@ -2,136 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D5B10E71D
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 09:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 436D110E728
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 09:56:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726374AbfLBIzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 03:55:37 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:34989 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbfLBIzh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 03:55:37 -0500
-Received: by mail-wm1-f65.google.com with SMTP id u8so6642769wmu.0
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 00:55:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=c8TtAQLPKuN1WcQJrqPrwS1JTgSMHdpZhxAvN9ThAMU=;
-        b=I9UNuYxrlcBjCIkvdieElnyRrwi05HIV3hy43x8E8cIPtA2yT6HG1AIYQ21EEnKHTx
-         GZRI1HgkGeaQQ68MluzkqfSRGBGsXTrnwJi4BnK+0IjGG7cHViRO1Np+qydWJRv14QnV
-         bDV9wxUnHkaB8XIPjQCHaIoxEK6lanq3tkROo=
+        id S1727327AbfLBI42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 03:56:28 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:38141 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726350AbfLBI42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 03:56:28 -0500
+Received: by mail-lf1-f68.google.com with SMTP id r14so11019859lfm.5;
+        Mon, 02 Dec 2019 00:56:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=c8TtAQLPKuN1WcQJrqPrwS1JTgSMHdpZhxAvN9ThAMU=;
-        b=Hvm6KXAxHUbTCH/GJEQvemh159GaNQUnl9JuHuypmjqhfwrFDBLt4cs7PthVMeWgtp
-         PMX8eljwV16Rg+v6/nsYSQXJQ8ZpoAA73lJG510vcH6L2/4h9FP8dPhNk+hLjrSQdsXs
-         ZnJWWwazdl2tzocWcu6b6EJRvhDJ63Mlwm+VnAJWu46RSPY+lzB+msLVURzJ6NsAnR/d
-         F0DEWK32KmbOLI2+DttPXTjLeSI7ZzynYCjkN2zl+dHQ2iJdnD/4EPTJ/t59PHSxvEH3
-         LilnIkQis1ro/GizNDRXPFpm9YcgI2sfkCuiNrULKkA/G/P2rg3bRXr2da7a5Tx5Fxgq
-         dc2Q==
-X-Gm-Message-State: APjAAAXe/ultB6sf1yvISvKfTmoop2Lxg7NMaErtohuC5ssYBVxqU4uE
-        TcaUTnq9Dt3czBsqvB21J4AByg==
-X-Google-Smtp-Source: APXvYqxmtdTk6LMaQnkuKbMTq39fhimr3bvLAUgIcn0/zSZMPoPCAxRyLnZB0ESW7ei0+XMZBXb1Og==
-X-Received: by 2002:a1c:98d8:: with SMTP id a207mr25895748wme.73.1575276934927;
-        Mon, 02 Dec 2019 00:55:34 -0800 (PST)
-Received: from phenom.ffwll.local (212-51-149-96.fiber7.init7.net. [212.51.149.96])
-        by smtp.gmail.com with ESMTPSA id r15sm40418208wrc.5.2019.12.02.00.55.33
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ZWtVf6zhlqG1yD0jYizMqYkj60ZxzCRmOI8BvxjssGc=;
+        b=Knz1xZSe1iJVHq2TCSXu1yQ3poBER6h7f0gDJfdOYBz6HiofdWdcYCDCmOG9BDEOIx
+         JCWAfzvjDGORqvL6k07wF8vNbW9btIvTe58vfMcR/myFOReGOysGdWkprWUTvkIGrzva
+         R5PibozIcRAgDzgvcBdMwNUuilNJhiAyJAeofxEYnee3w4kC2jwOYO7hkUvrAiLnMgEL
+         tKEvy6soJH52Thjn9lSgXyne0RNU/YB71h/hdNrbCcRjhQtsRqOp78SDHzE8UcXcx7xT
+         Qf41pVzVwc5Y2SrUcIyAm9jDb80MOIIUDU3C6Z8U+X12A9LrmHIQD2Q6zmiVpPcv8ZvV
+         MmeQ==
+X-Gm-Message-State: APjAAAUUtydqan1rLFEmAyZj2XzNb6t5+wd3ZqbSdglARI5dWNswI1Kx
+        +z506u4904Z9ISevWXyFcdE3K67S
+X-Google-Smtp-Source: APXvYqzREhhsAsgIzm5+gICb1rmMGnTb0RIdOXajU5DczHtNjJXi1ShKoCA4u5fHEgNMs5CaTblt0w==
+X-Received: by 2002:a19:7611:: with SMTP id c17mr733011lff.86.1575276985398;
+        Mon, 02 Dec 2019 00:56:25 -0800 (PST)
+Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
+        by smtp.gmail.com with ESMTPSA id c27sm4403154lfh.62.2019.12.02.00.56.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 00:55:34 -0800 (PST)
-Date:   Mon, 2 Dec 2019 09:55:32 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Boris Brezillon <boris.brezillon@collabora.com>
-Cc:     Daniel Vetter <daniel@ffwll.ch>, Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 7/8] drm/panfrost: Add the panfrost_gem_mapping concept
-Message-ID: <20191202085532.GY624164@phenom.ffwll.local>
-References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
- <20191129135908.2439529-8-boris.brezillon@collabora.com>
- <20191129201459.GS624164@phenom.ffwll.local>
- <20191129223629.3aaab761@collabora.com>
+        Mon, 02 Dec 2019 00:56:24 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@xi.terra>)
+        id 1ibhVL-0003K0-VP; Mon, 02 Dec 2019 09:56:27 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com,
+        stable <stable@vger.kernel.org>, Hansjoerg Lipp <hjlipp@web.de>,
+        Tilman Schmidt <tilman@imap.cc>
+Subject: [PATCH v2 1/3] staging: gigaset: fix general protection fault on probe
+Date:   Mon,  2 Dec 2019 09:56:08 +0100
+Message-Id: <20191202085610.12719-2-johan@kernel.org>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191202085610.12719-1-johan@kernel.org>
+References: <20191202085610.12719-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191129223629.3aaab761@collabora.com>
-X-Operating-System: Linux phenom 5.3.0-2-amd64 
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 29, 2019 at 10:36:29PM +0100, Boris Brezillon wrote:
-> On Fri, 29 Nov 2019 21:14:59 +0100
-> Daniel Vetter <daniel@ffwll.ch> wrote:
-> 
-> > On Fri, Nov 29, 2019 at 02:59:07PM +0100, Boris Brezillon wrote:
-> > > With the introduction of per-FD address space, the same BO can be mapped
-> > > in different address space if the BO is globally visible (GEM_FLINK)  
-> > 
-> > Also dma-buf self-imports for wayland/dri3 ...
-> 
-> Indeed, I'll extend the commit message to mention that case.
-> 
-> > 
-> > > and opened in different context. The current implementation does not
-> > > take case into account, and attaches the mapping directly to the
-> > > panfrost_gem_object.
-> > > 
-> > > Let's create a panfrost_gem_mapping struct and allow multiple mappings
-> > > per BO.
-> > > 
-> > > The mappings are refcounted, which helps solve another problem where
-> > > mappings were teared down (GEM handle closed by userspace) while GPU
-> > > jobs accessing those BOs were still in-flight. Jobs now keep a
-> > > reference on the mappings they use.  
-> > 
-> > uh what.
-> > 
-> > tbh this sounds bad enough (as in how did a desktop on panfrost ever work)
-> 
-> Well, we didn't discover this problem until recently because:
-> 
-> 1/ We have a BO cache in mesa, and until recently, this cache could
-> only grow (no entry eviction and no MADVISE support), meaning that BOs
-> were staying around forever until the app was killed.
+Fix a general protection fault when accessing the endpoint descriptors
+which could be triggered by a malicious device due to missing sanity
+checks on the number of endpoints.
 
-Uh, so where was the userspace when we merged this?
+Reported-by: syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com
+Fixes: 07dc1f9f2f80 ("[PATCH] isdn4linux: Siemens Gigaset drivers - M105 USB DECT adapter")
+Cc: stable <stable@vger.kernel.org>     # 2.6.17
+Cc: Hansjoerg Lipp <hjlipp@web.de>
+Cc: Tilman Schmidt <tilman@imap.cc>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/staging/isdn/gigaset/usb-gigaset.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-> 2/ Mappings were teared down at BO destruction time before commit
-> a5efb4c9a562 ("drm/panfrost: Restructure the GEM object creation"), and
-> jobs are retaining references to all the BO they access.
-> 
-> 3/ The mesa driver was serializing GPU jobs, and only releasing the BO
-> reference when the job was done (wait on the completion fence). This
-> has recently been changed, and now BOs are returned to the cache as
-> soon as the job has been submitted to the kernel. When that
-> happens,those BOs are marked purgeable which means the kernel can
-> reclaim them when it's under memory pressure.
-> 
-> So yes, kernel 5.4 with a recent mesa version is currently subject to
-> GPU page-fault storms when the system starts reclaiming memory.
-> 
-> > that I think you really want a few igts to test this stuff.
-> 
-> I'll see what I can come up with (not sure how to easily detect
-> pagefaults from userspace).
-
-The dumb approach we do is just thrash memory and check nothing has blown
-up (which the runner does by looking at the dmesg and a few proc files).
-If you run that on a kernel with all debugging enabled, it's pretty good
-at catching issues.
-
-For added nastiness lots of interrupts to check error paths/syscall
-restarting, and at the end of the testcase, some sanity check that all the
-bo still contain what you think they should contain.
--Daniel
+diff --git a/drivers/staging/isdn/gigaset/usb-gigaset.c b/drivers/staging/isdn/gigaset/usb-gigaset.c
+index 1b9b43659bdf..5e393e7dde45 100644
+--- a/drivers/staging/isdn/gigaset/usb-gigaset.c
++++ b/drivers/staging/isdn/gigaset/usb-gigaset.c
+@@ -685,6 +685,11 @@ static int gigaset_probe(struct usb_interface *interface,
+ 		return -ENODEV;
+ 	}
+ 
++	if (hostif->desc.bNumEndpoints < 2) {
++		dev_err(&interface->dev, "missing endpoints\n");
++		return -ENODEV;
++	}
++
+ 	dev_info(&udev->dev, "%s: Device matched ... !\n", __func__);
+ 
+ 	/* allocate memory for our device state and initialize it */
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.24.0
+
