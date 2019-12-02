@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD4A10E8E3
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D7F010E8E4
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726469AbfLBKbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 05:31:11 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:33238 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727366AbfLBKbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:31:11 -0500
-Received: by mail-wm1-f68.google.com with SMTP id y23so10390822wma.0
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:31:09 -0800 (PST)
+        id S1727416AbfLBKbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 05:31:14 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:40070 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727366AbfLBKbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:31:13 -0500
+Received: by mail-wm1-f66.google.com with SMTP id t14so5034423wmi.5
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:31:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=g1aRXdZIL7DyaMdVPCxZFmg5TXh5yLg89o9u2qBK/18=;
-        b=M/LUdfYXDFOh+XWQ9Rid95XqG8HePYh04/nxkU3XAUPvAuFwwGmgoLU5b53xU6nLr0
-         DhunGG5IXWEzdT3cvCyC0/RcaycOyy6ZsMyAJCmem6ZQkXLMMcYsSuzezVR9jePR2LOO
-         T+BiIIb9JfisxP0zSXTIBZeEVUBMrDEyWiVtYM2RBqL8tZpFQ4GhIQpdFGGijRMHCyNL
-         nciSJ1vOxoUdR4XC1Js7PQLgQvjz89edO+QsPYRqrSXeZBf7PqQfh4HKO1cs0zytCEZF
-         DtjT41hnHzuRnkan42rRHCHJFhAed5P/hKUCZxDDxF1JUTaof+Vp5i8Olylj3W9h7So6
-         dtsw==
+        bh=mwGk83ys5wzg6iRWDi8s7AoiHaTu4B4X10LSHfqyk8w=;
+        b=Xbzty9L/X10yLpFPquKRyqRToOCooiNpWeoN2NgszE+xNlP5yTprOUlElPuc4oDgV/
+         OC7KYkBj8VuhrLYeBVSe93WnDA1EYPC0/dA+bHdACYnLrlEnzaPTb8bVQQQKpwZXIB6R
+         NlmoG52MvfePxweymljb7ACZ/iqjNynRBp+vEfHigWhYLWn3Ak6RFeOcXNpr7BFCSzXS
+         Gf7JdhMsL/WByFDgqHNUBzk+Qmdj6tTHTxfp1N52v0oHad6K3ebxvscpOYi6CH0ng61r
+         JJ1T0S5y8WJzVkGDs8iWH9sQCnVooc0djduRd+jW+sjYAi6pRmM+kE+HpzqXKU8Q8ioI
+         SkFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=g1aRXdZIL7DyaMdVPCxZFmg5TXh5yLg89o9u2qBK/18=;
-        b=iit6GvCHvCOapXNXE7IPfmjVOvR6llasOmlaE9rlwMpButuqHHdMjzYF3R51khTvV2
-         sWF0Tt6urPvEcYUM9rD5Mq3S5Z7PDCGay7thKPCaIRvyZdJ1WokHlLFcY8L2PsQaUzPu
-         VL5C8TvDzAuj79kSDYbWFBG9FhQqMGJg6Kpw9XqDMYWODetc6mQ3Iy7rlaF0Ha2m7NrW
-         jGOB9KUqBv/BA9sKugBttWpa5NRfrmm47MiSSg9XGrHx4PIUA02T91+r7Kb7jQeH62XS
-         gczMTXCtoaQFySdPbTCWauBc1tTbRvqYOeKeXAL4MXeIh50xJZ/ZZncda0IVg7aQs0Lg
-         5v2A==
-X-Gm-Message-State: APjAAAUxFrDZyWEFxhROnV/+Az7UgKSqVpfnIO85qw+aZLWya4Xk/jcb
-        cjWr02VJG62RM09osaDJjWGtpdOqMgI=
-X-Google-Smtp-Source: APXvYqxbY7iK+AW3Ny4Ea7fo8vNB26LBVz5cN3KvdyMjGw6rnDQUCpidYb/eTnEddyHDjXRIBbBYUA==
-X-Received: by 2002:a1c:7d92:: with SMTP id y140mr26772766wmc.145.1575282668811;
-        Mon, 02 Dec 2019 02:31:08 -0800 (PST)
+        bh=mwGk83ys5wzg6iRWDi8s7AoiHaTu4B4X10LSHfqyk8w=;
+        b=hk7N5wBnX3UYqFK1R4EkZE3H8FfbeYCg430EqNKY0XCD7sJyelY/1ob5tK7T27iUVC
+         XlRvPNpNePHyOHsvYLLI7Fgq2LDgQuf67NJQ6ADWRUuQAlZAvDseHGfjRKiIKvg5j5zo
+         z7s4T8UcJ3tqCoqJL+YqAiCV3hHjV5J5waSJ45sCRHhUxcvXO9YEgiRtu7HXLo4Xx0jl
+         iQgU9HRPD8m7wzewWRQKppluq5ciBSif3/bKcA0VyQpKbn7c3oIodZOutD5aMtOT4v0v
+         QJlDGoB5VW8bYTVT/EBDi48nA+etxd6tV0Bb8I8GdHW7ArofD3uRHSvmruoaPBAk69xU
+         WLlQ==
+X-Gm-Message-State: APjAAAUvLaMKXj1kSsvynkI0VFFABdlpjWQYGsJGcdh4xw8Xk+341jkZ
+        +4P05adnX6vzCcRAZyo6pLEMjpi71NA=
+X-Google-Smtp-Source: APXvYqygsah6YkOxjOV87Q2c77dbYhW/H27lwmM7d744R4X9Cy2YEMjOcUaHRnCEa/ca36s8wqrkDg==
+X-Received: by 2002:a7b:c947:: with SMTP id i7mr8328577wml.71.1575282671726;
+        Mon, 02 Dec 2019 02:31:11 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id r6sm26402860wrq.92.2019.12.02.02.31.08
+        by smtp.gmail.com with ESMTPSA id r6sm26402860wrq.92.2019.12.02.02.31.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 02:31:08 -0800 (PST)
+        Mon, 02 Dec 2019 02:31:11 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.19 05/15] net: macb: Fix SUBNS increment and increase resolution
-Date:   Mon,  2 Dec 2019 10:30:40 +0000
-Message-Id: <20191202103050.2668-5-lee.jones@linaro.org>
+Subject: [PATCH 4.19 06/15] media: v4l2-ctrl: fix flags for DO_WHITE_BALANCE
+Date:   Mon,  2 Dec 2019 10:30:41 +0000
+Message-Id: <20191202103050.2668-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191202103050.2668-1-lee.jones@linaro.org>
 References: <20191202103050.2668-1-lee.jones@linaro.org>
@@ -59,58 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 7ad342bc58cc5197cd2f12a3c30b3949528c6d83 ]
+[ Upstream commit a0816e5088baab82aa738d61a55513114a673c8e ]
 
-The subns increment register has 24 bits as follows:
-RegBit[15:0] = Subns[23:8]; RegBit[31:24] = Subns[7:0]
+Control DO_WHITE_BALANCE is a button, with read only and execute-on-write flags.
+Adding this control in the proper list in the fill function.
 
-Fix the same in the driver and increase sub ns resolution to the
-best capable, 24 bits. This should be the case on all GEM versions
-that this PTP driver supports.
+After adding it here, we can see output of v4l2-ctl -L
+do_white_balance 0x0098090d (button) : flags=write-only, execute-on-write
 
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/ethernet/cadence/macb.h     | 6 +++++-
- drivers/net/ethernet/cadence/macb_ptp.c | 5 ++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/media/v4l2-core/v4l2-ctrls.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/cadence/macb.h b/drivers/net/ethernet/cadence/macb.h
-index 9bbaad9f3d63..efb44d5ab021 100644
---- a/drivers/net/ethernet/cadence/macb.h
-+++ b/drivers/net/ethernet/cadence/macb.h
-@@ -499,7 +499,11 @@
- 
- /* Bitfields in TISUBN */
- #define GEM_SUBNSINCR_OFFSET			0
--#define GEM_SUBNSINCR_SIZE			16
-+#define GEM_SUBNSINCRL_OFFSET			24
-+#define GEM_SUBNSINCRL_SIZE			8
-+#define GEM_SUBNSINCRH_OFFSET			0
-+#define GEM_SUBNSINCRH_SIZE			16
-+#define GEM_SUBNSINCR_SIZE			24
- 
- /* Bitfields in TI */
- #define GEM_NSINCR_OFFSET			0
-diff --git a/drivers/net/ethernet/cadence/macb_ptp.c b/drivers/net/ethernet/cadence/macb_ptp.c
-index a6dc47edc4cf..8f912de44def 100644
---- a/drivers/net/ethernet/cadence/macb_ptp.c
-+++ b/drivers/net/ethernet/cadence/macb_ptp.c
-@@ -115,7 +115,10 @@ static int gem_tsu_incr_set(struct macb *bp, struct tsu_incr *incr_spec)
- 	 * to take effect.
- 	 */
- 	spin_lock_irqsave(&bp->tsu_clk_lock, flags);
--	gem_writel(bp, TISUBN, GEM_BF(SUBNSINCR, incr_spec->sub_ns));
-+	/* RegBit[15:0] = Subns[23:8]; RegBit[31:24] = Subns[7:0] */
-+	gem_writel(bp, TISUBN, GEM_BF(SUBNSINCRL, incr_spec->sub_ns) |
-+		   GEM_BF(SUBNSINCRH, (incr_spec->sub_ns >>
-+			  GEM_SUBNSINCRL_SIZE)));
- 	gem_writel(bp, TI, GEM_BF(NSINCR, incr_spec->ns));
- 	spin_unlock_irqrestore(&bp->tsu_clk_lock, flags);
- 
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
+index 0986572bbe88..f4ebff347d7a 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -1145,6 +1145,7 @@ void v4l2_ctrl_fill(u32 id, const char **name, enum v4l2_ctrl_type *type,
+ 	case V4L2_CID_FLASH_STROBE_STOP:
+ 	case V4L2_CID_AUTO_FOCUS_START:
+ 	case V4L2_CID_AUTO_FOCUS_STOP:
++	case V4L2_CID_DO_WHITE_BALANCE:
+ 		*type = V4L2_CTRL_TYPE_BUTTON;
+ 		*flags |= V4L2_CTRL_FLAG_WRITE_ONLY |
+ 			  V4L2_CTRL_FLAG_EXECUTE_ON_WRITE;
 -- 
 2.24.0
 
