@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B29C010E82B
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:04:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D59410E82C
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727358AbfLBKEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 05:04:05 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:40991 "EHLO
+        id S1727312AbfLBKEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 05:04:06 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:37058 "EHLO
         mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727312AbfLBKEF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:04:05 -0500
-Received: by mail-wr1-f68.google.com with SMTP id b18so43406601wrj.8
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:04:04 -0800 (PST)
+        with ESMTP id S1727326AbfLBKEG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:04:06 -0500
+Received: by mail-wr1-f68.google.com with SMTP id w15so12448742wru.4
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:04:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=uGmSZAgZbIPTFW/8TzESt4bSkErTu3s+CBvxeawC76U=;
-        b=qZQhHd96YfEe19rtRg6iNa++tihwY8CHECx4KbrjLJlEmqMJhBSn4SpuI9n8+WoaQx
-         gDANsHELWRcQqS8tPF25suuZ6Ez+ih9SxwuGo+J21SGyfG01L01wm9fzdkYUyVjteXgU
-         ANO5am48bCZMyy33fU+ye6z/DmcApTUzgqFmd2TrodfW3N5Xy8XnEZDOJro4Ox3vTADz
-         2QMhGvCdaqiWXI8VZNWqmhhW5LPzjvF2usv13rPmmnPgj74uuXnAOQfDxVb0MIWk7Eep
-         ZFSd/fed2Tud029RnxK8KSb/6lKY6pkwjS0FceK/4d3eN5tSos/hvNV74KAUVDxiJ+Cc
-         xhCA==
+        bh=PQ3vTayhg9dI4DRY5KzmFS+ZI1OUJq8YM60IUamu6Zk=;
+        b=CkSMeFFbfFnffmFzGIlUI+GKcfJPkVXNI2+6h6m9loRymOdPG6H6G2SO7iq7yV9o33
+         Wio9M8K3VLKAJBEMeKj1VUyjzwq3iosLDBcGO42JOVu0K+xrPyXcFhPOGOmh+/CBQEhB
+         FPISibRfHjAI8dK5d7L5c9rYLY4gvqc/l1BF4fq927Nk+Y/GiokyGco8Zp4qa5NnwJvY
+         OrwSXYrqIADN3QbL79z9U9aesYSnLGN2Um7xS/0Tavy6fom4vtth03rZvTWv71AxaQHx
+         sFukBRwMmJoRcQvNWfeBclM1TU/05QLNXR6jTm74HTDb1uwVVP+qX7OgWV51LecBUNuO
+         Jwow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=uGmSZAgZbIPTFW/8TzESt4bSkErTu3s+CBvxeawC76U=;
-        b=F45wc7VNPrGBHe/SJO6hCiAuNzuWbY6p1bqS5EdqjVAxMC+XY0jG1xe/q6c0cDDfmO
-         sPxUb5VldMmNpX4bcDnjzr4Abj8IfxUviXdcHh050uI2/xCdmUVBsYKim2kBYTxJUXA2
-         TEpcMLPx2vURNyYYFJ0Prt6WQFApCsGSqiRAf4Dt27BVE9ZaAzhSxkfB/pRbwP8GXGOb
-         gWe9lEGhXhxs6ZsGwsWj0ahn8DRhaNo9KG7rPc+YzYXApxKUUCpOHqwYK9qeBTB0Hcqw
-         Ttbi1UBGaX3fK6Wv4W030QGT+MOXEjaegHu2k9XskO10kz6LHgwGVvJte9nKVXTousll
-         +VEQ==
-X-Gm-Message-State: APjAAAVVAu1lSDRSZI4ZGYIHzmqeNRMTRGqFPC5b2mv8KtVsKiPEWM6S
-        iQCxspJan5dJ2IdHglH1+9CcCBwOodI=
-X-Google-Smtp-Source: APXvYqyyAq0dLZUfQmld1ZEYbb9BxVWUeZu67Zoy9qMbzoEz6YTBJ22KbeDZkBYFDgNPQnTfY2Xn1A==
-X-Received: by 2002:adf:fd07:: with SMTP id e7mr16765754wrr.21.1575281042914;
-        Mon, 02 Dec 2019 02:04:02 -0800 (PST)
+        bh=PQ3vTayhg9dI4DRY5KzmFS+ZI1OUJq8YM60IUamu6Zk=;
+        b=HvYb95B+hRV61sd1biRaN/v7iwt4TnBBLl1fHB1eayzRsDnAO91D3f2Rq0BhsS3DL6
+         soBS9dgyFQrhhVI/R5P6EFwFAG0MTNatInFGwjdYh7X0q14WqqoA2Hi7k3wyu51z65hv
+         25ZpDBVP/2d1eFmXhAdNS5AjLMMPXb7a9iqNYl6UlYDLcLvjEdgElGA11e1IMxGIc6hn
+         9eKGW3/X+k0091ZWEtq65FbkHT5T1Opdv3sC4EN7D/7fZqU6HWPNAzNhUpEBPsa/8SfN
+         65b2iirDqgf+iHw1DtxvHaNzbvLRnMPFoDXN7JQUQTgZIVD/xQ/dpZKzbUKK+xjuXv4O
+         DbDw==
+X-Gm-Message-State: APjAAAXJtnDSLfL4F+EjXXrkkNTb/DYWSp97dvtGcJldHlxi8EA8mcjC
+        B3bv9lBiMOH+/jlrgUkWJvLFq0mzSZ0=
+X-Google-Smtp-Source: APXvYqx1YgMKQmsCocmngQVCn0lzt/DothEZlcMsxtwyxjpfKMuQT/aGj8o92cnH8wqkY5gdhk0dAw==
+X-Received: by 2002:adf:9c81:: with SMTP id d1mr66931386wre.144.1575281044118;
+        Mon, 02 Dec 2019 02:04:04 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.04.01
+        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.04.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 02:04:01 -0800 (PST)
+        Mon, 02 Dec 2019 02:04:03 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 12/14] mtd: rawnand: atmel: fix possible object reference leak
-Date:   Mon,  2 Dec 2019 10:03:10 +0000
-Message-Id: <20191202100312.1397-12-lee.jones@linaro.org>
+Subject: [PATCH 4.14 13/14] mtd: spi-nor: cast to u64 to avoid uint overflows
+Date:   Mon,  2 Dec 2019 10:03:11 +0000
+Message-Id: <20191202100312.1397-13-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191202100312.1397-1-lee.jones@linaro.org>
 References: <20191202100312.1397-1-lee.jones@linaro.org>
@@ -59,84 +59,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <yellowriver2010@hotmail.com>
+From: "huijin.park" <huijin.park@samsung.com>
 
-[ Upstream commit a12085d13997ed15f745f33a0e01002541160179 ]
+[ Upstream commit 84a1c2109d23df3543d96231c4fee1757299bb1a ]
 
-of_find_device_by_node() takes a reference to the struct device
-when it finds a match via get_device, there is no need to call
-get_device() twice.
-We also should make sure to drop the reference to the device
-taken by of_find_device_by_node() on driver unbind.
+The "params->size" is defined as "u64".
+And "info->sector_size" and "info->n_sectors" are defined as
+unsigned int and u16.
+Thus, u64 data might have strange data(loss data) if the result
+overflows an unsigned int.
+This patch casts "info->sector_size" to an u64.
 
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Signed-off-by: Wen Yang <yellowriver2010@hotmail.com>
-Suggested-by: Boris Brezillon <bbrezillon@kernel.org>
-Reviewed-by: Boris Brezillon <bbrezillon@kernel.org>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: Boris Brezillon <bbrezillon@kernel.org>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Brian Norris <computersforpeace@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: huijin.park <huijin.park@samsung.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/mtd/nand/atmel/pmecc.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/mtd/spi-nor/spi-nor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/atmel/pmecc.c b/drivers/mtd/nand/atmel/pmecc.c
-index 4124bf91bee6..8cd153974e8d 100644
---- a/drivers/mtd/nand/atmel/pmecc.c
-+++ b/drivers/mtd/nand/atmel/pmecc.c
-@@ -875,23 +875,32 @@ static struct atmel_pmecc *atmel_pmecc_get_by_node(struct device *userdev,
- {
- 	struct platform_device *pdev;
- 	struct atmel_pmecc *pmecc, **ptr;
-+	int ret;
+diff --git a/drivers/mtd/spi-nor/spi-nor.c b/drivers/mtd/spi-nor/spi-nor.c
+index 6c013341ef09..d550148177a0 100644
+--- a/drivers/mtd/spi-nor/spi-nor.c
++++ b/drivers/mtd/spi-nor/spi-nor.c
+@@ -2382,7 +2382,7 @@ static int spi_nor_init_params(struct spi_nor *nor,
+ 	memset(params, 0, sizeof(*params));
  
- 	pdev = of_find_device_by_node(np);
--	if (!pdev || !platform_get_drvdata(pdev))
-+	if (!pdev)
- 		return ERR_PTR(-EPROBE_DEFER);
-+	pmecc = platform_get_drvdata(pdev);
-+	if (!pmecc) {
-+		ret = -EPROBE_DEFER;
-+		goto err_put_device;
-+	}
+ 	/* Set SPI NOR sizes. */
+-	params->size = info->sector_size * info->n_sectors;
++	params->size = (u64)info->sector_size * info->n_sectors;
+ 	params->page_size = info->page_size;
  
- 	ptr = devres_alloc(devm_atmel_pmecc_put, sizeof(*ptr), GFP_KERNEL);
--	if (!ptr)
--		return ERR_PTR(-ENOMEM);
--
--	get_device(&pdev->dev);
--	pmecc = platform_get_drvdata(pdev);
-+	if (!ptr) {
-+		ret = -ENOMEM;
-+		goto err_put_device;
-+	}
- 
- 	*ptr = pmecc;
- 
- 	devres_add(userdev, ptr);
- 
- 	return pmecc;
-+
-+err_put_device:
-+	put_device(&pdev->dev);
-+	return ERR_PTR(ret);
- }
- 
- static const int atmel_pmecc_strengths[] = { 2, 4, 8, 12, 24, 32 };
+ 	/* (Fast) Read settings. */
 -- 
 2.24.0
 
