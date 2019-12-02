@@ -2,78 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F8E10EAC8
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 14:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9BF510EAD1
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 14:32:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727381AbfLBNY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 08:24:57 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:35266 "EHLO
+        id S1727398AbfLBNc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 08:32:29 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:35446 "EHLO
         bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727506AbfLBNY5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 08:24:57 -0500
-Received: from hades.home (unknown [IPv6:2a00:23c5:582:9d00:2d93:25f:7679:a491])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        with ESMTP id S1727362AbfLBNc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 08:32:28 -0500
+Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: martyn)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id B2F3B28FD57;
-        Mon,  2 Dec 2019 13:24:55 +0000 (GMT)
-From:   Martyn Welch <martyn.welch@collabora.com>
-To:     stable@vger.kernel.org
-Cc:     kernel@collabora.com, Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>, Yi Zhang <yi.zhang@redhat.com>,
-        syzbot+b9d0d56867048c7bcfde@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>,
-        Martyn Welch <martyn.welch@collabora.com>
-Subject: [PATCH 3/3] blk-mq: remove WARN_ON(!q->elevator) from blk_mq_sched_free_requests
-Date:   Mon,  2 Dec 2019 13:24:46 +0000
-Message-Id: <20191202132446.3623809-4-martyn.welch@collabora.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191202132446.3623809-1-martyn.welch@collabora.com>
-References: <20191202132446.3623809-1-martyn.welch@collabora.com>
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id B11C128F684;
+        Mon,  2 Dec 2019 13:32:27 +0000 (GMT)
+Date:   Mon, 2 Dec 2019 14:32:24 +0100
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH 8/8] drm/panfrost: Make sure the shrinker does not
+ reclaim referenced BOs
+Message-ID: <20191202143224.445ad75d@collabora.com>
+In-Reply-To: <7258aca4-115d-d511-4c0a-fb3ba142f382@arm.com>
+References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
+        <20191129135908.2439529-9-boris.brezillon@collabora.com>
+        <7258aca4-115d-d511-4c0a-fb3ba142f382@arm.com>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+On Mon, 2 Dec 2019 12:50:20 +0000
+Robin Murphy <robin.murphy@arm.com> wrote:
 
-commit c326f846ebc2a30eca386b85dffba96e23803d81 upstream.
+> On 29/11/2019 1:59 pm, Boris Brezillon wrote:
+> > Userspace might tag a BO purgeable while it's still referenced by GPU
+> > jobs. We need to make sure the shrinker does not purge such BOs until
+> > all jobs referencing it are finished.  
+> 
+> Nit: for extra robustness, perhaps it's worth using the refcount_t API 
+> rather than bare atomic_t?
 
-blk_mq_sched_free_requests() may be called in failure path in which
-q->elevator may not be setup yet, so remove WARN_ON(!q->elevator) from
-blk_mq_sched_free_requests for avoiding the false positive.
+I considered doing that. The problem is, we start counting from 0, not
+1, and the refcount API assumes counters start at 0, and should never
+see a 0 -> 1 transition. I guess we could do
 
-This function is actually safe to call in case of !q->elevator because
-hctx->sched_tags is checked.
+	if (refcount_inc_not_zero()) {
+		...
+	} else {
+		refcount_set(1);
+		...
+	}
 
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Yi Zhang <yi.zhang@redhat.com>
-Fixes: c3e2219216c9 ("block: free sched's request pool in blk_cleanup_queue")
-Reported-by: syzbot+b9d0d56867048c7bcfde@syzkaller.appspotmail.com
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-(cherry picked from commit c326f846ebc2a30eca386b85dffba96e23803d81)
-Signed-off-by: Martyn Welch <martyn.welch@collabora.com>
----
- block/blk-mq-sched.c | 1 -
- 1 file changed, 1 deletion(-)
+so we at least get the integer overflow/underflow protection.
 
-diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
-index 105f8c124604..156e6444dc8f 100644
---- a/block/blk-mq-sched.c
-+++ b/block/blk-mq-sched.c
-@@ -533,7 +533,6 @@ void blk_mq_sched_free_requests(struct request_queue *q)
- 	int i;
- 
- 	lockdep_assert_held(&q->sysfs_lock);
--	WARN_ON(!q->elevator);
- 
- 	queue_for_each_hw_ctx(q, hctx, i) {
- 		if (hctx->sched_tags)
--- 
-2.24.0
+Anyway, I'm reworking the gem_shmem code so we can refcount the sgt
+users (I actually re-use the page_use_count counter and turn into a
+refcount_t so we don't need to take the lock if it's > 0). With this
+change I think I won't need the gpu_usecount.
 
