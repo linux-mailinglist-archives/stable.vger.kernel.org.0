@@ -2,98 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE21510EEF0
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 19:10:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 218C110EF6B
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 19:42:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727800AbfLBSKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 13:10:51 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:42043 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727670AbfLBSKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 13:10:51 -0500
-Received: by mail-pf1-f194.google.com with SMTP id l22so31082pff.9
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 10:10:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=IiS0hrDFK/c7wtXhXJeLnNmpvEmWHGEj6jDtdt+gE6g=;
-        b=r3Daf3YyB9O/Cu8KJOhSWnU0t/f6Msn68Q2tAoTwZIaOwFTvoAtMZmILbPFAQWjsGC
-         jPWAi+WWYSYl8Yuuk5KkStUdpI+K026HUpdiYti8IwfOle7GMHT+/I4zRIKUrFlxHThL
-         RK0Y0MKSPKIxFjNlOk86Nm4b6S5AXlj8Fh34HEbN70kgrS84DUiX3tNIn0VDLrh2M7qB
-         V58zk4rn8jJZO2Or2hSMRH5oryg47j2WCJXcQjLRDcFzjXA0MuLqQdkxrBCUG3uCaQsM
-         tbtxonb8/0ATb0ia18IaUngO93lovyoHS6fILzINmCI7plDEnb731WEBbWOvAEydp2Lc
-         DwDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IiS0hrDFK/c7wtXhXJeLnNmpvEmWHGEj6jDtdt+gE6g=;
-        b=iTyrPPNLgtfB1QWgxCKF5shdOyjV9aOJGm4H2DN3CX6WOul3z+vFVUz1rNWJovW83U
-         fYtrRrWLAbz9uFW3IzemEaIYqqtnMeVu1dEbtZhMmk3OwcQgX5GVlBY7ZopEW3TFSrsZ
-         lfxlxwLcqzzlVgkedqyJ7nH1o4wHxf9AL8mwITolQwg3F6f+LY10AaF5d7mEboRNLjow
-         uIrQPJjixhmwZqdoaX/St1n2SnqJx/+mHQJmk2xrqsn9a9ef3hkKA1LDrOwkXQK2+GRk
-         VbQ6sb67o9AyuQQ7xXt3qBeA4vUINWS2PlFJZoQnqZbXCouO5BSpMWhJhAeWIiaVth/G
-         cw4g==
-X-Gm-Message-State: APjAAAWIxmOJs9Ua+XMySnyYi2OUL1MY/7agCbGBZOZnpCXozQgUwygQ
-        Umvwr58PcYZjQzOKUVuSgJUr5FUKunRBkE6WxBZm//Ar70Qw4Q==
-X-Google-Smtp-Source: APXvYqzG8dZiWgCWIUALW7gIzJV7e/muFf+E2p3Dl1KN7+czq69cuZQcyn8S2C8BEbRtpekuJwxXGjrnjGq+t8dA+ro=
-X-Received: by 2002:a65:590f:: with SMTP id f15mr292264pgu.381.1575310250051;
- Mon, 02 Dec 2019 10:10:50 -0800 (PST)
+        id S1727568AbfLBSmw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 13:42:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34350 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727418AbfLBSmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Dec 2019 13:42:52 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F18A20717;
+        Mon,  2 Dec 2019 18:42:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575312170;
+        bh=YUN/xUaJ3qxFfe1PVlRGaX8QhFT6l7PzfjeNZTeJ434=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GBTWdKuBu6Gc9Akym+f0TI0KuPFtiCvugcQsBUQ5XdKm47UO8PIl5qDu9wNZ189Oo
+         oHEa4rmPhpZeEQWnjebuCvlpBpLSVgIjcx4XBLjI0ibTCmsOmUrugiPO1//4P0VJHW
+         To07Q0QRDdyqompvgyarzmuwZD+PiMW/mZDBsLFI=
+Date:   Mon, 2 Dec 2019 19:42:48 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christian Lamparter <chunkeey@gmail.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH for-4.4-stable] ath10k: restore QCA9880-AR1A (v1)
+ detection
+Message-ID: <20191202184248.GB734264@kroah.com>
+References: <2379623.yQyDp7EeDN@debian64>
 MIME-Version: 1.0
-References: <CAKwvOd=eubuZH-tVY_KX2pjp4rnTzLBkk9iPfaHkRDqg2zaBKA@mail.gmail.com>
- <20191127065339.GE1711684@kroah.com>
-In-Reply-To: <20191127065339.GE1711684@kroah.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 2 Dec 2019 10:10:39 -0800
-Message-ID: <CAKwvOdkiWq06vCARkqp6EOsDSR2avXzQ7L+-d9jGN0--xnbCBQ@mail.gmail.com>
-Subject: Re: please apply mbox files for CONFIG_UNWINDER_FRAME_POINTER clang support
-To:     Greg KH <greg@kroah.com>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Nathan Huckleberry <nhuck15@gmail.com>,
-        =?UTF-8?B?TWlsZXMgQ2hlbiAo6Zmz5rCR5qi6KQ==?= 
-        <miles.chen@mediatek.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Tri Vo <trong@google.com>, Arnd Bergmann <arnd@arndb.de>,
-        Stefan Agner <stefan@agner.ch>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2379623.yQyDp7EeDN@debian64>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 26, 2019 at 10:53 PM Greg KH <greg@kroah.com> wrote:
->
-> On Tue, Nov 26, 2019 at 03:12:43PM -0800, Nick Desaulniers wrote:
-> > Greg, Sasha,
-> >
-> > Please apply the following mbox files to 5.3, 4.19, and 4.14
-> > respectively.  They enable CONFIG_UNWINDER_FRAME_POINTER support for
-> > 32b ARM kernels when compiled with Clang.
-> >
-> > This is upstream commit 6dc5fd93b2f1ef75d5e50fced8cb193811f25f22.
-> >
-> > It's a clean cherry-pick to 5.3.
-> > A slight nudge was needed for 4.19 and 4.14 since the config name was
-> > changed in upstream commit f9b58e8c7d03.
-> > A further nudge was needed for 4.14 since a4353898980c and
-> > 469cb7376c06 don't exist there.
-> >
-> > We're looking to use these in Android. Trusting the better judgement
-> > of the stable maintainers, we're happy to carry these in the Android
-> > common kernel trees, alternatively, but I think these are pretty low
-> > risk to take.
->
-> It's a new feature, so no, I can't take this for the stable trees,
-> sorry.  Feel free to carry them in the android trees.
+On Fri, Nov 29, 2019 at 09:53:50PM +0100, Christian Lamparter wrote:
+> commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream
+> ---
+> >From f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 Mon Sep 17 00:00:00 2001
+> From: Christian Lamparter <chunkeey@gmail.com>
+> Date: Mon, 25 Mar 2019 13:50:19 +0100
+> Subject: [PATCH 4.4] ath10k: restore QCA9880-AR1A (v1) detection
+> To: linux-wireless@vger.kernel.org,
+>     ath10k@lists.infradead.org
+> Cc: Kalle Valo <kvalo@codeaurora.org>
+> 
+> This patch restores the old behavior that read
+> the chip_id on the QCA988x before resetting the
+> chip. This needs to be done in this order since
+> the unsupported QCA988x AR1A chips fall off the
+> bus when resetted. Otherwise the next MMIO Op
+> after the reset causes a BUS ERROR and panic.
+> 
+> Cc: stable@vger.kernel.org # 4.4
+> Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
+> Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+> ---
+>  drivers/net/wireless/ath/ath10k/pci.c | 36 +++++++++++++++++++--------
+>  1 file changed, 25 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+> --- a/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:07:21.374565470 +0200
+> +++ b/drivers/net/wireless/ath/ath10k/pci.c	2019-09-08 00:17:15.365912133 +0200
+> @@ -2988,12 +2988,13 @@ static int ath10k_pci_probe(struct pci_d
+>  	struct ath10k_pci *ar_pci;
+>  	enum ath10k_hw_rev hw_rev;
+>  	u32 chip_id;
+> -	bool pci_ps;
+> +	bool pci_ps, is_qca988x = false;
+>  
+>  	switch (pci_dev->device) {
+>  	case QCA988X_2_0_DEVICE_ID:
+>  		hw_rev = ATH10K_HW_QCA988X;
+>  		pci_ps = false;
+> +		is_qca988x = true;
+>  		break;
+>  	case QCA6164_2_1_DEVICE_ID:
+>  	case QCA6174_2_1_DEVICE_ID:
+> @@ -3087,6 +3088,19 @@ static int ath10k_pci_probe(struct pci_d
+>  		goto err_deinit_irq;
+>  	}
+>  
+> +	/* Read CHIP_ID before reset to catch QCA9880-AR1A v1 devices that
+> +	 * fall off the bus during chip_reset. These chips have the same pci
+> +	 * device id as the QCA9880 BR4A or 2R4E. So that's why the check.
+> +	 */
+> +	if (is_qca988x) {
+> +		chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+> +		if (chip_id != 0xffffffff) {
+> +			if (!ath10k_pci_chip_is_supported(pdev->device,
+> +							  chip_id))
+> +				goto err_unsupported;
+> +		}
+> +	}
+> +
+>  	ret = ath10k_pci_chip_reset(ar);
+>  	if (ret) {
+>  		ath10k_err(ar, "failed to reset chip: %d\n", ret);
+> @@ -3099,11 +3113,8 @@ static int ath10k_pci_probe(struct pci_d
+>  		goto err_free_irq;
+>  	}
+>  
+> -	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id)) {
+> -		ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
+> -			   pdev->device, chip_id);
+> -		goto err_free_irq;
+> -	}
+> +	if (!ath10k_pci_chip_is_supported(pdev->device, chip_id))
+> +		goto err_unsupported;
+>  
+>  	ret = ath10k_core_register(ar, chip_id);
+>  	if (ret) {
+> @@ -3113,6 +3124,10 @@ static int ath10k_pci_probe(struct pci_d
+>  
+>  	return 0;
+>  
+> +err_unsupported:
+> +	ath10k_err(ar, "device %04x with chip_id %08x isn't supported\n",
+> +		   pdev->device, bus_params.chip_id);
 
-Done
-4.14: https://android-review.googlesource.com/c/kernel/common/+/1179084
-4.19: https://android-review.googlesource.com/c/kernel/common/+/1179202
+Backports are great, but as I mentioned before, this breaks the build,
+so we can't take it:
 
--- 
-Thanks,
-~Nick Desaulniers
+drivers/net/wireless/ath/ath10k/pci.c: In function ‘ath10k_pci_probe’:
+drivers/net/wireless/ath/ath10k/pci.c:3129:20: error: ‘bus_params’ undeclared (first use in this function); did you mean ‘key_params’?
+ 3129 |      pdev->device, bus_params.chip_id);
+      |                    ^~~~~~~~~~
+      |                    key_params
+
+
+Please fix this up and resend backports again.
+
+thanks,
+
+greg k-h
