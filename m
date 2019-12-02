@@ -2,194 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C08010E983
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 12:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECCB310E998
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 12:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727308AbfLBL0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 06:26:36 -0500
-Received: from mga07.intel.com ([134.134.136.100]:30121 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726330AbfLBL0g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 2 Dec 2019 06:26:36 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Dec 2019 03:26:35 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,268,1571727600"; 
-   d="asc'?scan'208";a="293376337"
-Received: from irsmsx101.ger.corp.intel.com ([163.33.3.153])
-  by orsmga001.jf.intel.com with ESMTP; 02 Dec 2019 03:26:34 -0800
-Received: from irsmsx107.ger.corp.intel.com ([169.254.10.18]) by
- IRSMSX101.ger.corp.intel.com ([169.254.1.76]) with mapi id 14.03.0439.000;
- Mon, 2 Dec 2019 11:26:33 +0000
-From:   "Peres, Martin" <martin.peres@intel.com>
-To:     "Nikula, Jani" <jani.nikula@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] drm/i915: Update bug URL to point at gitlab issues
-Thread-Topic: [PATCH] drm/i915: Update bug URL to point at gitlab issues
-Thread-Index: AdWpA1lJX1ZEWB8VSsK/ITiIUehx6g==
-Date:   Mon, 2 Dec 2019 11:26:33 +0000
-Message-ID: <56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0B@IRSMSX107.ger.corp.intel.com>
-References: <20191125104248.1690891-1-chris@chris-wilson.co.uk>
- <878snvkojl.fsf@intel.com>
+        id S1726330AbfLBLju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 06:39:50 -0500
+Received: from sv2-smtprelay2.synopsys.com ([149.117.73.133]:43658 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726149AbfLBLju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 06:39:50 -0500
+X-Greylist: delayed 576 seconds by postgrey-1.27 at vger.kernel.org; Mon, 02 Dec 2019 06:39:49 EST
+Received: from mailhost.synopsys.com (badc-mailhost1.synopsys.com [10.192.0.17])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 87A1640492;
+        Mon,  2 Dec 2019 11:30:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1575286212; bh=krwSBqHJAqZ1evEHNomR0kyHL9+utzVU9vjgQb8Apc4=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+        b=kv0WZIwNpSwmHa0Db88pA0m+bKrF7QLWV4xe7YLaFF04W11SsraF2EoI7hpR1u924
+         EGpTCQabgCIbJZnsu+Pfp84daqQkMaEGK9U8J7aLtpuIl/jUo/58e364v5Fwx4vbbX
+         RabsTVFdS3V0tByNOBQlBYD+N28OrV7UEyKgaKcjncyjR4RTI8i6MzH3tWnX7mzIXg
+         pM6yv/0xdJzFv4LNl/dkXVDa08UC/yjAqUeISh39/9kasz2bqHW/VwjbE0mGy7ChbQ
+         vxpGsMom7K19/JfXmfYlwI7GehlgBXfhd7gcmZsFhEVkzQbmXZqGBeKJzK/Ago3pDJ
+         KB18n6LaPTe6Q==
+Received: from US01WEHTC3.internal.synopsys.com (us01wehtc3.internal.synopsys.com [10.15.84.232])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPS id F26CEA0B1E;
+        Mon,  2 Dec 2019 11:30:11 +0000 (UTC)
+Received: from US01HYBRID2.internal.synopsys.com (10.15.246.24) by
+ US01WEHTC3.internal.synopsys.com (10.15.84.232) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Mon, 2 Dec 2019 03:30:11 -0800
+Received: from NAM05-CO1-obe.outbound.protection.outlook.com (10.202.3.67) by
+ mrs.synopsys.com (10.15.246.24) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Mon, 2 Dec 2019 03:30:11 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=M7D5dhOJ+73eaY+tZ1qF5ddVfQlxYE2erUd7RSv9Inm9FUMVy3saEL30jGdoT3zSMa2cK1vOpPQQWFf7sEhPLpAU88/BiT3spS5u2svuk24YA651h1l2vxM0miuqXolXtpJ+MOFzg+J/10tNK4AScVSY9UKJZFoEd068x63P5zHgZDDh/hiBisXRAM439M4E3c5/PlwkiHogIroMrpLI6KCYWoFI+zfXkEqS9SE3kKhZEPKPFD67+s8cTDp5hAtQjyJQPlCXi5vqMfzypNRSZPwglMJfi4n59kyXfR8YRHrZQz2hDY9AyLGQsvGl7YdGrQ01JCZx0lT6gDJMPLTDSg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=krwSBqHJAqZ1evEHNomR0kyHL9+utzVU9vjgQb8Apc4=;
+ b=J7iopRc/m7iU/rvadv69J6mEN1j2bsOSZKsw7yLdJsohOievAyOD1OUjA3uh+u0n5b4CINb15pKQw/YVgmoN5EsLa1fEjjKzB5Pq14U4y82M0DYcfR2OhrDCNJYpLyj/kSsHxg9vGNoM9ZkzpHP0JZ8Tw7gveBB3MZAVOlWZMp5wvZDBaJg2Y5QX6G6aYVvlDj9P4SPXa1kE4IVN3rqwljgwQWKrFFtgpSTTHwWEybIpHgSIkwQIHCtt6pIfIej0Dx9EPWnjiwWRMh6bjPQq4x2NfTbkPifFQXCr5rqN6EmkyEmjT9eluZdRr3/24PbnGaug1eL6LtwCkfr1BXhnUg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
+ dkim=pass header.d=synopsys.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=synopsys.onmicrosoft.com; s=selector2-synopsys-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=krwSBqHJAqZ1evEHNomR0kyHL9+utzVU9vjgQb8Apc4=;
+ b=HC89+jGz+/4tSJ5yYWFwElv3yVAtXlAwYFHYzVQ2RxHkHzAxDj2BOV+cqmPAxoVHywP7T1x7oRpAq0yFSjUbLLg0hSjovPZDFaKTYhl0ghcqJDLIFFAGbZaiauFtZh1spfuEoCxOWasGK3GoQp5umgNPpQEnr5KoUtv0gZMfgPs=
+Received: from BN7PR12MB2802.namprd12.prod.outlook.com (20.176.27.97) by
+ BN7PR12MB2804.namprd12.prod.outlook.com (20.176.177.222) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2495.22; Mon, 2 Dec 2019 11:30:10 +0000
+Received: from BN7PR12MB2802.namprd12.prod.outlook.com
+ ([fe80::9859:2c51:52b9:dd1d]) by BN7PR12MB2802.namprd12.prod.outlook.com
+ ([fe80::9859:2c51:52b9:dd1d%7]) with mapi id 15.20.2495.014; Mon, 2 Dec 2019
+ 11:30:10 +0000
+From:   Tejas Joglekar <Tejas.Joglekar@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+CC:     Tejas Joglekar <Tejas.Joglekar@synopsys.com>,
+        John Youn <John.Youn@synopsys.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "greg@kroah.com" <greg@kroah.com>
+Subject: Re: [PATCH] usb: dwc3: gadget: Fix logical condition
+Thread-Topic: [PATCH] usb: dwc3: gadget: Fix logical condition
+Thread-Index: AQHVmel/GHfEKCMYIkmSDWBktmuPEaeWntgAgBA1CYA=
+Date:   Mon, 2 Dec 2019 11:30:10 +0000
+Message-ID: <3c556728-2934-a6f1-0093-4eec56fef86f@synopsys.com>
+References: <cedf287bd185a5cbe31095d74e75b392f6c5263d.1573624581.git.joglekar@synopsys.com>
+ <9dcb74d7-17ed-c81e-c723-3f4848532b8b@synopsys.com>
+In-Reply-To: <9dcb74d7-17ed-c81e-c723-3f4848532b8b@synopsys.com>
 Accept-Language: en-US
 Content-Language: en-US
-X-MS-Has-Attach: yes
+X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-x-originating-ip: [10.249.150.50]
-Content-Type: multipart/mixed;
-        boundary="_002_56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0BIRSMSX107gercor_"
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=joglekar@synopsys.com; 
+x-originating-ip: [198.182.52.26]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 1afcd290-1775-4f79-2c2b-08d7771afd8c
+x-ms-traffictypediagnostic: BN7PR12MB2804:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BN7PR12MB2804FB9240FBD9BD75A350CBA4430@BN7PR12MB2804.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:5797;
+x-forefront-prvs: 0239D46DB6
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(366004)(39860400002)(396003)(346002)(136003)(376002)(199004)(189003)(99286004)(76116006)(26005)(36756003)(66476007)(66556008)(256004)(64756008)(66446008)(305945005)(11346002)(14444005)(14454004)(91956017)(6512007)(66946007)(478600001)(71200400001)(71190400001)(66066001)(31696002)(86362001)(25786009)(316002)(229853002)(54906003)(4326008)(76176011)(31686004)(6486002)(110136005)(446003)(5660300002)(2616005)(186003)(2906002)(6436002)(53546011)(8676002)(6246003)(81166006)(8936002)(81156014)(3846002)(6116002)(7736002)(6506007)(102836004)(2501003);DIR:OUT;SFP:1102;SCL:1;SRVR:BN7PR12MB2804;H:BN7PR12MB2802.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: synopsys.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: MtoFg9hksAImj+0blGnrYx8IoO7RkFZkA2vreKWST1fm5bekntSsC7ppl9YZutatjpyr/0MpTSYVv8E8UUXosrOYYtMzQIpw0z6HgbwAqG8jtS+Z8XWXtoNPQIi3/6u2Ur9Gh533I4AxTOPsXqWaHvJBWwdhksSLpVk+K4Cd/UyFE6yvxEoFjrtU++StWF2oJl5rAQkzNP0X1pnZhHPmhr6w3zwB+cbngaLwH5ugyMckHnoijsc/oFeyPLbtcfOFbgAcpGtYR83pC+lv/nUdMTOUaFEjmqPY5K8xx5s29N2Eun3TlnS36liFcO7CEpjotmYBzMmwGBtjwQkK2OIZ0tMkT3NSnmdzQJKQ9TBOOw+HNSnE+ICrqX+YleFCCTbhFfuwYku5nc1a++DiJhsE7yb7y5irFEnTtHkl1lznQmsi0gqM7lqpmLXM1Gv0Q1Hw
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <EA03D552CFA46442B9740DCC2C1A803D@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1afcd290-1775-4f79-2c2b-08d7771afd8c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Dec 2019 11:30:10.1832
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: GFGoAI2gigOSciFrRtFA1mHGJnMCsTZNgjcU7qwkxYPNVyhPzWJBq1KFchFMaGMnMiddiRjpOPynuCwXpvFKng==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR12MB2804
+X-OriginatorOrg: synopsys.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---_002_56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0BIRSMSX107gercor_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-On 02/12/2019 12:30, Jani Nikula wrote:=0A=
-> On Mon, 25 Nov 2019, Chris Wilson <chris@chris-wilson.co.uk> wrote:=0A=
->> We are moving our issue tracking over from bugs.fd.o to gitlab.fd.o, so=
-=0A=
->> update the user instructions accordingly.=0A=
->>=0A=
->> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>=0A=
->> Cc: Martin Peres <martin.peres@linux.intel.com>=0A=
->> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>=0A=
->> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>=0A=
->> Cc: Jani Nikula <jani.nikula@intel.com>=0A=
->> Cc: stable@vger.kernel.org=0A=
->> ---=0A=
->>  drivers/gpu/drm/i915/i915_gpu_error.c | 2 +-=0A=
->>  drivers/gpu/drm/i915/i915_utils.c     | 3 +--=0A=
->>  drivers/gpu/drm/i915/i915_utils.h     | 2 ++=0A=
->>  3 files changed, 4 insertions(+), 3 deletions(-)=0A=
->>=0A=
->> diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i91=
-5/i915_gpu_error.c=0A=
->> index 2b30a45fa25c..1cf53fd4fe66 100644=0A=
->> --- a/drivers/gpu/drm/i915/i915_gpu_error.c=0A=
->> +++ b/drivers/gpu/drm/i915/i915_gpu_error.c=0A=
->> @@ -1817,7 +1817,7 @@ void i915_capture_error_state(struct drm_i915_priv=
-ate *i915,=0A=
->>  	if (!xchg(&warned, true) &&=0A=
->>  	    ktime_get_real_seconds() - DRIVER_TIMESTAMP < DAY_AS_SECONDS(180))=
- {=0A=
->>  		pr_info("GPU hangs can indicate a bug anywhere in the entire gfx stac=
-k, including userspace.\n");=0A=
->> -		pr_info("Please file a _new_ bug report on bugs.freedesktop.org again=
-st DRI -> DRM/Intel\n");=0A=
->> +		pr_info("Please file a _new_ bug report on " FDO_BUG_URL "\n");=0A=
->>  		pr_info("drm/i915 developers can then reassign to the right component=
- if it's not a kernel issue.\n");=0A=
->>  		pr_info("The GPU crash dump is required to analyze GPU hangs, so plea=
-se always attach it.\n");=0A=
->>  		pr_info("GPU crash dump saved to /sys/class/drm/card%d/error\n",=0A=
->> diff --git a/drivers/gpu/drm/i915/i915_utils.c b/drivers/gpu/drm/i915/i9=
-15_utils.c=0A=
->> index c47261ae86ea..9b68b21becf1 100644=0A=
->> --- a/drivers/gpu/drm/i915/i915_utils.c=0A=
->> +++ b/drivers/gpu/drm/i915/i915_utils.c=0A=
->> @@ -8,8 +8,7 @@=0A=
->>  #include "i915_drv.h"=0A=
->>  #include "i915_utils.h"=0A=
->>  =0A=
->> -#define FDO_BUG_URL "https://bugs.freedesktop.org/enter_bug.cgi?product=
-=3DDRI"=0A=
->> -#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL " against DRM/I=
-ntel " \=0A=
->> +#define FDO_BUG_MSG "Please file a bug at " FDO_BUG_URL \=0A=
->>  		    "providing the dmesg log by booting with drm.debug=3D0xf"=0A=
-> =0A=
-> Space between URL and "providing"?=0A=
-=0A=
-If the following comment is accepted, then we need to change this=0A=
-sentence to:=0A=
-=0A=
-Please file bugs according to the instruction found at FDO_BUG_URL.=0A=
-=0A=
-> =0A=
->>  =0A=
->>  void=0A=
->> diff --git a/drivers/gpu/drm/i915/i915_utils.h b/drivers/gpu/drm/i915/i9=
-15_utils.h=0A=
->> index 04139ba1191e..13674b016092 100644=0A=
->> --- a/drivers/gpu/drm/i915/i915_utils.h=0A=
->> +++ b/drivers/gpu/drm/i915/i915_utils.h=0A=
->> @@ -34,6 +34,8 @@=0A=
->>  struct drm_i915_private;=0A=
->>  struct timer_list;=0A=
->>  =0A=
->> +#define FDO_BUG_URL "https://gitlab.freedesktop.org/drm/intel/issues/ne=
-w?"=0A=
-> =0A=
-> Do we really need the question mark?=0A=
-=0A=
-We may want to point to=0A=
-https://gitlab.freedesktop.org/drm/intel/wikis/How-to-file-file-i915-bugs,=
-=0A=
-don't you think?=0A=
-=0A=
-Martin=0A=
-=0A=
-> =0A=
-> BR,=0A=
-> Jani.=0A=
-> =0A=
->> +=0A=
->>  #undef WARN_ON=0A=
->>  /* Many gcc seem to no see through this and fall over :( */=0A=
->>  #if 0=0A=
-> =0A=
-=0A=
-
---_002_56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0BIRSMSX107gercor_
-Content-Type: application/pgp-keys; name="pEpkey.asc"
-Content-Description: pEpkey.asc
-Content-Disposition: attachment; filename="pEpkey.asc"; size=1774;
-	creation-date="Mon, 02 Dec 2019 11:26:32 GMT";
-	modification-date="Mon, 02 Dec 2019 11:26:32 GMT"
-Content-Transfer-Encoding: base64
-
-LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgptUUVOQkYzazA1Z0JDQUN5WmhP
-WGExNGJUY3lUUWtjMVV5R2ZjNGx4ckhQREw1YXVPbkM3cUVIWkw1b3ZWd3NDCmF1ZlFaOVFKVWwx
-NHh1OCt4dUl6UGoyWXhEbjFBeVJFN0RzSXNxNjVIaDlRa2YxQytFNmtHeHBDS2VXeFpEalIKS0xE
-a2pQWmdRTTdOeHNFWkRkemNaTlFLUEt3OXBXUUovRCtrSUlyNDJYaERhbktyQ1pHV3Vxc3VwVGI4
-YmM2agp3ZnBxVzV2eUp2WnVMSHcrTURhRVhoZ1Z0SlVWYVdSWENXbXFZQU1YWFlMMGh5NHVjRDZz
-UWl3U2psK3JUU2NIClhqSHdhWURWWTI5bVFlR3lWMDMyeXBFWFQzWG1DVTJVT0hhNENNaktLR3ZK
-MjRBU2Q5SFkyWHo4cmNyR1pTbGsKRkhMTGRwNUNET2wrRFU2Vjc5SWs5a3pPMFVxK0hXWDRtc2Z4
-QUJFQkFBRzBLMDFoY25ScGJpQlFaWEpsY3lBOApiV0Z5ZEdsdUxuQmxjbVZ6UUd4cGJuVjRMbWx1
-ZEdWc0xtTnZiVDZKQVZRRUV3RUlBRDRXSVFSTjlzUS9iN0dPClhRdkh5WUVDditaL002VXplUVVD
-WGVUVG1RSWJBd1VKQWVFemdBVUxDUWdIQWdZVkNna0lDd0lFRmdJREFRSWUKQVFJWGdBQUtDUkFD
-ditaL002VXplUmJ3Qi85ZHhZaG01WU14eGlSa2tZRVBrOE9DUGZjOGJwazF6RFc5Nkc0MgpLYVoz
-RlRPRGNSMktjelg1ZVRMRFYwdklNRndqMmw0UXAvRFpzbVlsNzlKNDNhbHg1RHRIQUZJMlJHSis2
-dXJhClFZMkovVXUvUWt5eEdrMTRpQUFzYytaalJSdWllQ1h0Wkc2THRMYmdsTUZCWUd4dzlWVEow
-L0xhNHJjUVk3UksKOW1KM1QwWUxKMkJNNlVha3lUWEdzbnN0aWtOa2wzU0JKVDBJc1B1bVdGL240
-a25penZQcG5BTGNQWGwwS3VtUwpuZDZ1b2dPT3VrQ0t4Z0RUWm1qRG9meDVvN1pveDI5blNkdjR3
-aVJMOHVBeDRrY0pPOUxPOFhBN0lITzd6SXRTCmpXbWRXRmN4QTVicFRkRWR0TThIQWlCQkFaNU44
-WXVraENuejltT0FFOXZLOXZydHVRRU5CRjNrMDVrQkNBREwKR3JGN1NBblB5NVo2R2ZlelZDclFm
-dUlHSmhPemxuY0c2aFdHYU05YzlDVEtxSGZDNHROV1VFeHJmam5YNjBtRgpJbUx2aHhlRlZDOWJv
-QS9jNGFVTmhEYy9NOUtqc08ycWRyd2d4QXl3bnIraVJqbzNORUJWQkF3T2NldWRRM0xPClZmZW5k
-b296d3lqd3ZZRFV2QzNUcWtjajBsNmE2R3JqZTZWMVVTQ3RIL0ZlR2NONG9EMnZPOW1yWFlQb2hr
-V2cKU3B2QUpPSEs5bk5nMUtaTjcvcDlXNUZMMlZZN2pIbHErd1gxZDBTRytRNlhjVHNEQUEyOStO
-YmM1Qk0vcTJJTAphV1Fva0I0bzBaRjNsakZiN2RYZDNRZEpNWDdvNXRURzFMUi9TalZmbkZGckMw
-K1IrZGhlRUVldGxVckRMRmF0CnhnRTdvREVPLzA4c2g5eHJPdzdMQUJFQkFBR0pBVHdFR0FFSUFD
-WVdJUVJOOXNRL2I3R09YUXZIeVlFQ3YrWi8KTTZVemVRVUNYZVRUbVFJYkRBVUpBZUV6Z0FBS0NS
-QUN2K1ovTTZVemVTMVRCLzlNbTFYTUhpbWtFbW15ZXNiMQpxdHFUY2htV2Q1NWhiRkIxMDRSbUx5
-c0VrSU43Q3IweVNEZjBZRWxxd2QvSDlGWWVLUTVEWWJWWS9CclhjeGYzCmNKVDJBZ01Zdk54bHZ5
-NHluR1F4Yy9YbXRzMGZVSno5cmRVVmZxZlFKbDlHZkR1U3dpQnhmb3BlN21aR2NIZWcKNzBaQTg3
-Q0xJQ0FVbi9uRFpSekZuUHNhdUxJSU9sMGhxVWtJUml3WVp0WW9WZnNoVGhTNzNEcXNGS2U0Y25r
-eApZcGVCRXNsYUduZnRMUC9uWDl6dkZ4SXJYUXBPdHJ2eWdkWklhMVMrZXhYM2NXMHNPYm02Zjk0
-T3Q1Mjl3V3pTCnhJRjBvRnZPY3NlZ2ErL3FPK1hSNHNjbUJ1K3NUVU5FQnA1NWYyc0ptOWllVlU5
-SXUwM2JYVnBMZGV3dTNtMEIKTTVtaAo9YzJPTwotLS0tLUVORCBQR1AgUFVCTElDIEtFWSBCTE9D
-Sy0tLS0tCg==
-
---_002_56A4AB1F0E1B5D4C83D27F43C50F662E5908DD0BIRSMSX107gercor_--
+SGVsbG8sDQpHZW50bGUgcmVtaW5kZXIuLi4NCg0KT24gMTEvMjIvMjAxOSA5OjMwIEFNLCBUZWph
+cyBKb2dsZWthciB3cm90ZToNCj4gSGVsbG8gQmFsYmksDQo+IMKgwqDCoMKgwqDCoCBUaGlzIGlz
+IGEgY3JpdGljYWwgcGF0Y2ggZml4IGZvciBkd2MzLCBjYW4geW91IHBsZWFzZSByZXZpZXcgPw0K
+PiDCoMKgwqDCoA0KPiBPbiAxMS8xMy8yMDE5IDExOjQ1IEFNLCBUZWphcyBKb2dsZWthciB3cm90
+ZToNCj4+IFRoaXMgcGF0Y2ggY29ycmVjdHMgdGhlIGNvbmRpdGlvbiB0byBraWNrIHRoZSB0cmFu
+c2ZlciB3aXRob3V0DQo+PiBnaXZpbmcgYmFjayB0aGUgcmVxdWVzdHMgd2hlbiBlaXRoZXIgcmVx
+dWVzdCBoYXMgcmVtYWluaW5nIGRhdGENCj4+IG9yIHdoZW4gdGhlcmUgYXJlIHBlbmRpbmcgU0dz
+LiBUaGUgJiYgY2hlY2sgd2FzIGludHJvZHVjZWQgZHVyaW5nDQo+PiBzcGxpdGluZyB1cCB0aGUg
+ZHdjM19nYWRnZXRfZXBfY2xlYW51cF9jb21wbGV0ZWRfcmVxdWVzdHMoKSBmdW5jdGlvbi4NCj4+
+DQo+PiBGaXhlczogZjM4ZTM1ZGQ4NGUyICgidXNiOiBkd2MzOiBnYWRnZXQ6IHNwbGl0IGR3YzNf
+Z2FkZ2V0X2VwX2NsZWFudXBfY29tcGxldGVkX3JlcXVlc3RzKCkiKQ0KPj4NCj4+IENjOiBzdGFi
+bGVAdmdlci5rZXJuZWwub3JnDQo+PiBTaWduZWQtb2ZmLWJ5OiBUZWphcyBKb2dsZWthciA8am9n
+bGVrYXJAc3lub3BzeXMuY29tPg0KPj4gLS0tDQo+PiAgZHJpdmVycy91c2IvZHdjMy9nYWRnZXQu
+YyB8IDIgKy0NCj4+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24o
+LSkNCj4+DQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy91c2IvZHdjMy9nYWRnZXQuYyBiL2RyaXZl
+cnMvdXNiL2R3YzMvZ2FkZ2V0LmMNCj4+IGluZGV4IDg2ZGMxZGI3ODhhOS4uZTA3MTU5ZTA2Zjlh
+IDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy91c2IvZHdjMy9nYWRnZXQuYw0KPj4gKysrIGIvZHJp
+dmVycy91c2IvZHdjMy9nYWRnZXQuYw0KPj4gQEAgLTI0ODUsNyArMjQ4NSw3IEBAIHN0YXRpYyBp
+bnQgZHdjM19nYWRnZXRfZXBfY2xlYW51cF9jb21wbGV0ZWRfcmVxdWVzdChzdHJ1Y3QgZHdjM19l
+cCAqZGVwLA0KPj4gIA0KPj4gIAlyZXEtPnJlcXVlc3QuYWN0dWFsID0gcmVxLT5yZXF1ZXN0Lmxl
+bmd0aCAtIHJlcS0+cmVtYWluaW5nOw0KPj4gIA0KPj4gLQlpZiAoIWR3YzNfZ2FkZ2V0X2VwX3Jl
+cXVlc3RfY29tcGxldGVkKHJlcSkgJiYNCj4+ICsJaWYgKCFkd2MzX2dhZGdldF9lcF9yZXF1ZXN0
+X2NvbXBsZXRlZChyZXEpIHx8DQo+PiAgCQkJcmVxLT5udW1fcGVuZGluZ19zZ3MpIHsNCj4+ICAJ
+CV9fZHdjM19nYWRnZXRfa2lja190cmFuc2ZlcihkZXApOw0KPj4gIAkJZ290byBvdXQ7DQo+IFRo
+YW5rcyAmIFJlZ2FyZHMsDQo+DQo+IFRlamFzIEpvZ2xla2FyDQo+DQpUaGFua3MsDQoNClRlamFz
+IEpvZ2xla2FyDQoNCg==
