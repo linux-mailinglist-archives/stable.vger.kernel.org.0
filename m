@@ -2,118 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A75310F1D7
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 22:03:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA7510F214
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 22:21:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726804AbfLBVDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 16:03:32 -0500
-Received: from mail-wm1-f46.google.com ([209.85.128.46]:37400 "EHLO
-        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726659AbfLBVDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 16:03:30 -0500
-Received: by mail-wm1-f46.google.com with SMTP id f129so1097319wmf.2
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 13:03:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1HFZG1vZArjZE40uLxxpg4TNLR09yXED4Ipq67+iwrc=;
-        b=Yo3T4jdTNTs/gFyahT47YcLagh4pjxeqSSYxHLqzTlsGIdSNGs0/Y0bigIb687fRR6
-         LOTgis+qdLohNvyMLkYBwYjL3Zg0fnUs8aXwGEdMxHbE2RT9eQhWbXoYKo+W+BG7MiTE
-         O2R6vPnFeFuEOJt3W81CqE67KoN2nL2ukh1C1ZqVrxGsxkDC55Sgbv+XoECnoudkfFTS
-         zXjoWeLAjDMAjLvpViK+Y7nR8FQIDd2MiLCw/cDWE4/PWuWhpvh3dJVUftKywyhpvGNR
-         mchqIiObN0ymz/IS4HbAWaL8sA+NSU28ldEdVMxIL9IBL2LG9mAw+YLl8zE59e75YePE
-         an4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1HFZG1vZArjZE40uLxxpg4TNLR09yXED4Ipq67+iwrc=;
-        b=GKuA8oO3ljQQ1/mfzB70aI1624qiVDqmQlxr8+ArhKg80Uw1UqljYRA3O72+9CLV0k
-         fngIVM2lF/ObpnAXA+7TFuEinAECyEYvqVjUWdazQKpRUni0WAPkt8+QjM6l7jHNgxLH
-         fUcztzKyLd7Imx+Hi2JciP7DUNWII08Yuh0cImlYjeuUyAdsBjTZQOtFATob4m2zCVOG
-         yky1JZSx+RmnNUfZdTpudKPMUtjohsUPl9iqJZX0Bw31kU+KpjoY/QTmOynqwEkVey6l
-         PTvMYodicp2aVDM7/eJOH+VZyKifyYCaCFZqA1gYs3SNNQSnjqL8sfSJWILO//nIYxq4
-         M2nw==
-X-Gm-Message-State: APjAAAUiZ5YUMtDiLBNZ+DtpVsjMU9gfBgVOxkG7/IQvTYR4rcvqTTzR
-        pLTrQ2YC+MBHX6FRXkPuNUixrJEKn3FH0g==
-X-Google-Smtp-Source: APXvYqwOszPkp5IEMIGolXcDJHcYR1rXrYQ32xOkkaPmJw3nsvLNaa7vRNiDQAxOKzjUZK/BMy2GtQ==
-X-Received: by 2002:a1c:46:: with SMTP id 67mr32588963wma.51.1575320607985;
-        Mon, 02 Dec 2019 13:03:27 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id b63sm585489wmb.40.2019.12.02.13.03.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 13:03:26 -0800 (PST)
-Message-ID: <5de57c1e.1c69fb81.9c0f4.3649@mx.google.com>
-Date:   Mon, 02 Dec 2019 13:03:26 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1725874AbfLBVVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 16:21:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725834AbfLBVVq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Dec 2019 16:21:46 -0500
+Received: from redsun51.ssa.fujisawa.hgst.com (unknown [199.255.47.7])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A34E206ED;
+        Mon,  2 Dec 2019 21:21:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575321706;
+        bh=KWOzQgN2GjtJ55UhrH4KqmGcy50+XJNobEXbyl1W4Tg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aeBSF0oUHHlTIDzqO/WWMhkIvNTF3wuN5mLriVvhk9pLdHIV8kB+8xjINMaiJz0Ew
+         Y15zuGAuS2H0JHjv2XOggRdbfT5pjnpBQ4LmPwB8r7vFWIP5FLlj2W8td634cEn/Sz
+         zKexGN4+d/Pw/+pbDpq/qf4l6huYVxm06qMFkzCE=
+Date:   Tue, 3 Dec 2019 06:21:40 +0900
+From:   Keith Busch <kbusch@kernel.org>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     "Nadolski, Edmund" <edmund.nadolski@intel.com>,
+        stable@vger.kernel.org, Ingo Brunberg <ingo_brunberg@web.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        linux-nvme@lists.infradead.org
+Subject: Re: [PATCH] nvme: Namepace identification descriptor list is optional
+Message-ID: <20191202212140.GA25428@redsun51.ssa.fujisawa.hgst.com>
+References: <20191202155611.21549-1-kbusch@kernel.org>
+ <20191202161545.GA7434@lst.de>
+ <20191202162256.GA21631@redsun51.ssa.fujisawa.hgst.com>
+ <10e6520d-bc8c-94ff-00c4-32a727131b89@intel.com>
+ <20191202162905.GA7683@lst.de>
+ <20191202164903.GA21650@redsun51.ssa.fujisawa.hgst.com>
+ <20191202173414.GA8950@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.87
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 142 boots: 0 failed,
- 134 passed with 7 offline, 1 untried/unknown (v4.19.87)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191202173414.GA8950@lst.de>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 142 boots: 0 failed, 134 passed with 7 offline=
-, 1 untried/unknown (v4.19.87)
+On Mon, Dec 02, 2019 at 06:34:14PM +0100, Christoph Hellwig wrote:
+> Yes. I guess your patch is the best thing for now:
+> 
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.87/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.87/
+Thanks, applied for-5.5
+ 
+> But I think we might need a new kernel tain flag or something like
+> it for devices that are so obviously broken in their identifiers.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.87
-Git Commit: 174651bdf802a2139065e8e31ce950e2f3fc4a94
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 80 unique boards, 23 SoC families, 17 builds out of 206
-
-Boot Regressions Detected:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: new failure (last pass: v4.19.86-299-gc=
-c82722f8f1b)
-          dm365evm,legacy:
-              lab-baylibre-seattle: new failure (last pass: v4.19.86-299-gc=
-c82722f8f1b)
-
-Offline Platforms:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            mt7623n-bananapi-bpi-r2: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+That's fine with me. We currently just log a warning when an error
+is returned here, we can add_taint() too. Which flag do you think?
+TAINT_FIRMWARE_WORKAROUND, TAINT_CRAP, or something else?
