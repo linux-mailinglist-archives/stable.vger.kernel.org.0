@@ -2,150 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FF4310EB9F
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 15:40:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE7E10EBAE
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 15:43:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727386AbfLBOkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 09:40:18 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:38677 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727406AbfLBOkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 09:40:18 -0500
-Received: by mail-lf1-f67.google.com with SMTP id r14so11935153lfm.5;
-        Mon, 02 Dec 2019 06:40:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=MuKkyCaYPZK6q+vtj0Oj3LLvTH7hr0pT2uHjN7RG//Y=;
-        b=H083x/sMnck6FZU2DLKjYSIWNiVmUd1JQbRBPIWCRU+sSdQLK/cIScO2+lKTmtuxIa
-         GzNuLSQMNdmU2qqCzfsSTmEXeZRBOSjEhOFNOwqvcnRdIn1N5uwIW3AZRZKkhYPmIFro
-         0aLU/dv/s/Rc2ohcSTNiLTtAPwvbHymRdvYIbvLulpbKsXITq9/Gt9auYmB90im0hofs
-         0V00WPOYxEcD3sX8M9ywoW0WacDrDOtK3+qrtoN3cJ0TtnAUZgXkDcwfNoDowwfEt1TI
-         2hWX5kfbxiPdE6c6HbUYOMETpoa177F8uGgU2npYVF+/A2oruoXJs+mbo9Qi5rX6Pfkw
-         ankw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=MuKkyCaYPZK6q+vtj0Oj3LLvTH7hr0pT2uHjN7RG//Y=;
-        b=PcjZpaKFWru7/Ae3OSKNrFsmZLpNmRpQ78YMlREAZ1BnPYxQabSsk65b3mPSoWMQoJ
-         MAbdtHY1c2OQVb51gltLMqJnnQfml5+gO4l8ZDBWBQdi1lzJXs0JEu0/cxlE1EVD3dlx
-         TMAxdVxYxsOsC7dAyS1UrKrkEgQu1PXyks6xPh4T78A5NskbMMRSVgtU5+EPsOW885er
-         cTwBv62QwMNs1fmc3NaPyMhrgWp8DkZzUmKxDAIf5kAylhpgNSvuRz+7VDibCGDvJXYz
-         R/RKZOV2MAh0kqX5hyZ6FklZaaZL/hmhHJj8FK8/VBPsEa+OGLdZtKyGDELLuzv9fZX/
-         XbFA==
-X-Gm-Message-State: APjAAAUJt0J0/0DjIlRcigPOWYUlvwTBILtZeViJ7THZluuMzJymjv5F
-        7vWyKE24c/iG+/fgfDqFFcMCEXCevdmMHpJm0mbEKTC2
-X-Google-Smtp-Source: APXvYqyPFmLDrOIuV+Cs4RE1iW7MA9zfT7/FK8ojlRRNRjp4uDoxlwnO4ic/+mZIcN3tyacs9SFIZyPl298QIFKmvG8=
-X-Received: by 2002:ac2:428d:: with SMTP id m13mr37630848lfh.64.1575297616009;
- Mon, 02 Dec 2019 06:40:16 -0800 (PST)
+        id S1727406AbfLBOny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 09:43:54 -0500
+Received: from a27-185.smtp-out.us-west-2.amazonses.com ([54.240.27.185]:41624
+        "EHLO a27-185.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727362AbfLBOny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 09:43:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1575297833;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:Message-ID:MIME-Version:Content-Type;
+        bh=k8Wup7nSmRIURO4EvCuG/wmi68K7xElFpr1WstQPgW0=;
+        b=QWy9JQfKumvvDnOAWxwt8y6QZQY43HCVaGm/U6/5WEh6zJB9jcA6e26/RjnoG2c/
+        IhIphWCjH5rOnKy7HtQigdfXdGZVjcMTyXe9vZfLMgrB3Xg9LRslN4pqeUgwwBRgytM
+        1O3wUFYuWZqngLlW3MJwn9XvAmNPbjcQ2hdd1ijg=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1575297833;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:Message-ID:MIME-Version:Content-Type:Feedback-ID;
+        bh=k8Wup7nSmRIURO4EvCuG/wmi68K7xElFpr1WstQPgW0=;
+        b=AUw2IPj2isXAXEQsGXEZSnctrWak4HYEBNJGFuQzxG6PwhPljHVx/U/DGiQsMsv4
+        v5UmA8IQtd44Wc0Wq6IedHtCWAzXOTTOiRbtyQTT54a73R6Ygh/nIGgdQlV9+oDdgji
+        25n6OQs4dGRtRG/BZuPFmP2rb3+liAdnlFkJLKl8=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org E5585C433CB
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif to Rx queues
+References: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
+        <20191121184530.5393-1-emmanuel.grumbach@intel.com>
+Date:   Mon, 2 Dec 2019 14:43:53 +0000
+In-Reply-To: <20191121184530.5393-1-emmanuel.grumbach@intel.com> (Emmanuel
+        Grumbach's message of "Thu, 21 Nov 2019 20:45:30 +0200")
+Message-ID: <0101016ec711594b-f0e8e2cc-29f2-45ad-aa61-abd47dfc511c-000000@us-west-2.amazonses.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-References: <20191127203114.766709977@linuxfoundation.org> <20191127203119.676489279@linuxfoundation.org>
-In-Reply-To: <20191127203119.676489279@linuxfoundation.org>
-From:   Jack Wang <jack.wang.usish@gmail.com>
-Date:   Mon, 2 Dec 2019 15:40:04 +0100
-Message-ID: <CA+res+QKCAn8PsSgbkqXNAF0Ov5pOkj=732=M5seWj+-JFQOwQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19 067/306] KVM: nVMX: move check_vmentry_postreqs()
- call to nested_vmx_enter_non_root_mode()
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-SES-Outgoing: 2019.12.02-54.240.27.185
+Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> =E4=BA=8E2019=E5=B9=B411=E6=
-=9C=8827=E6=97=A5=E5=91=A8=E4=B8=89 =E4=B8=8B=E5=8D=8810:30=E5=86=99=E9=81=
-=93=EF=BC=9A
+Emmanuel Grumbach <emmanuel.grumbach@intel.com> writes:
+
+> The purpose of this was to keep all the queues updated with
+> the Rx sequence numbers because unlikely yet possible
+> situations where queues can't understand if a specific
+> packet needs to be dropped or not.
 >
-> From: Sean Christopherson <sean.j.christopherson@intel.com>
+> Unfortunately, it was reported that this caused issues in
+> our DMA engine. We don't fully understand how this is related,
+> but this is being currently debugged. For now, just don't send
+> this notification to the Rx queues. This de-facto reverts my
+> commit 3c514bf831ac12356b695ff054bef641b9e99593:
 >
-> [ Upstream commit 7671ce21b13b9596163a29f4712cb2451a9b97dc ]
+> iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
 >
-> In preparation of supporting checkpoint/restore for nested state,
-> commit ca0bde28f2ed ("kvm: nVMX: Split VMCS checks from nested_vmx_run()"=
-)
-> modified check_vmentry_postreqs() to only perform the guest EFER
-> consistency checks when nested_run_pending is true.  But, in the
-> normal nested VMEntry flow, nested_run_pending is only set after
-> check_vmentry_postreqs(), i.e. the consistency check is being skipped.
+> This issue was reported here:
+> https://bugzilla.kernel.org/show_bug.cgi?id=204873
+> https://bugzilla.kernel.org/show_bug.cgi?id=205001
+> and others maybe.
 >
-> Alternatively, nested_run_pending could be set prior to calling
-> check_vmentry_postreqs() in nested_vmx_run(), but placing the
-> consistency checks in nested_vmx_enter_non_root_mode() allows us
-> to split prepare_vmcs02() and interleave the preparation with
-> the consistency checks without having to change the call sites
-> of nested_vmx_enter_non_root_mode().  In other words, the rest
-> of the consistency check code in nested_vmx_run() will be joining
-> the postreqs checks in future patches.
->
-> Fixes: ca0bde28f2ed ("kvm: nVMX: Split VMCS checks from nested_vmx_run()"=
-)
-> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-> Cc: Jim Mattson <jmattson@google.com>
-> Reviewed-by: Jim Mattson <jmattson@google.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
+> CC: <stable@vger.kernel.org> # 5.3+
+> Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 > ---
->  arch/x86/kvm/vmx.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
+> v2: avoid the unused variable warning
+> ---
+>  drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 22 ++++++++++++-------
+>  1 file changed, 14 insertions(+), 8 deletions(-)
 >
-> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-> index fe7fdd666f091..bdf019f322117 100644
-> --- a/arch/x86/kvm/vmx.c
-> +++ b/arch/x86/kvm/vmx.c
-> @@ -12694,6 +12694,9 @@ static int enter_vmx_non_root_mode(struct kvm_vcp=
-u *vcpu, u32 *exit_qual)
->         if (likely(!evaluate_pending_interrupts) && kvm_vcpu_apicv_active=
-(vcpu))
->                 evaluate_pending_interrupts |=3D vmx_has_apicv_interrupt(=
-vcpu);
->
-> +       if (from_vmentry && check_vmentry_postreqs(vcpu, vmcs12, exit_qua=
-l))
-> +               return EXIT_REASON_INVALID_STATE;
-> +
->         enter_guest_mode(vcpu);
->
->         if (!(vmcs12->vm_entry_controls & VM_ENTRY_LOAD_DEBUG_CONTROLS))
-> @@ -12836,13 +12839,6 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu,=
- bool launch)
->          */
->         skip_emulated_instruction(vcpu);
->
-> -       ret =3D check_vmentry_postreqs(vcpu, vmcs12, &exit_qual);
-> -       if (ret) {
-> -               nested_vmx_entry_failure(vcpu, vmcs12,
-> -                                        EXIT_REASON_INVALID_STATE, exit_=
-qual);
-> -               return 1;
-> -       }
+> diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+> index 75a7af5ad7b2..392bfa4b496c 100644
+> --- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+> +++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+> @@ -514,14 +514,20 @@ static bool iwl_mvm_is_sn_less(u16 sn1, u16 sn2, u16 buffer_size)
+>  
+>  static void iwl_mvm_sync_nssn(struct iwl_mvm *mvm, u8 baid, u16 nssn)
+>  {
+> -	struct iwl_mvm_rss_sync_notif notif = {
+> -		.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
+> -		.metadata.sync = 0,
+> -		.nssn_sync.baid = baid,
+> -		.nssn_sync.nssn = nssn,
+> -	};
 > -
->         /*
->          * We're finally done with prerequisite checking, and can start w=
-ith
->          * the nested entry.
-> --
-> 2.20.1
->
->
->
-Hi all,
+> -	iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
+> +	/*
+> +	 * This allow to synchronize the queues, but it has been reported
+> +	 * to cause FH issues. Don't send the notification for now.
+> +	 *
+> +	 * struct iwl_mvm_rss_sync_notif notif = {
+> +	 *	.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
+> +	 *	.metadata.sync = 0,
+> +	 *	.nssn_sync.baid = baid,
+> +	 *	.nssn_sync.nssn = nssn,
+> +	 * };
+> +	 *
+> +	 *
+> +	 * iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
+> +	 */
 
-This commit caused many kvm-unit-tests regression, cherry-pick
-following commits from 4.20 fix the regression:
-d63907dc7dd1 ("KVM: nVMX: rename enter_vmx_non_root_mode to
-nested_vmx_enter_non_root_mode")
-a633e41e7362 ("KVM: nVMX: assimilate nested_vmx_entry_failure() into
-nested_vmx_enter_non_root_mode()")
+Please don't comment out code, instead remove entirely. You can find the
+old code from the git history anyway.
 
-Regards,
-Jack Wang
-1 & 1 IONOS SE
+-- 
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
