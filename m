@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B94A610E821
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7617310E822
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726516AbfLBKDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 05:03:52 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:56206 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726533AbfLBKDv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:03:51 -0500
-Received: by mail-wm1-f68.google.com with SMTP id a131so16735808wme.5
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:03:50 -0800 (PST)
+        id S1726653AbfLBKDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 05:03:54 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:40110 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726533AbfLBKDx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:03:53 -0500
+Received: by mail-wm1-f67.google.com with SMTP id t14so4918076wmi.5
+        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:03:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=sVbw3UdezQ0sD9BTneNk/tIPQpwqVy7LB+WYRpuD1iU=;
-        b=Qk5HwfTf32NYPQMIGTFwZEY52SK16t9YODfdA3aRJFKTBbQZI7gOpiJE26OI6gmIXT
-         PMiOo958L01JPifVa9ORmz46iqKzao1LfUlHUBuxc/VFbbr1r/ti6ccwtV8BcRtAKKDL
-         38z5hGBRu+G4G3mmhucw1UTfvD8Cl3pktUvXRQzkGUWGeSoo+QR6wjvFP4kG6huyNJW9
-         XIMX2pKYa2r/59Vu/X03YD519VvRFZuzFyy5a5b2P+p5Smt+pA/wHXJf4Bil14qdWOHP
-         yrc+neFKi2O8Oey3js/Omv8/gFOgsc0hr3vKmCBdCzoDR2g0kDp/rEn9oNPTGI2qSVHt
-         sqWg==
+        bh=t0RhdKt1OBlvUr3g8wwSzhDFoSAxtdel5n69P40ulHY=;
+        b=Na/B3jcsJKsm/az0jfmMPnonDVOSKgZhjQo16Gamu6TFoGHNesAIJWbw/p0AyHEQbH
+         zdvI1NL1m9y0q8LUhDV8g5qjz8NUOTYYPJOT98vSDKZ5lCYuIPXB+tO28JRPkd+s/tIh
+         2cIowCRXfXjIta1TzaUJ8GcsFBK8cYxmMTtXkdSuz4D7sJwMMYUNFBY8EO8JOBTWcrWt
+         QhNt1UcsSkBk/hMVs2Axi+COX8c4RtqH4xp7wCjvV9Ab4JehxfUPUx7Kz1TMfua5EiV2
+         1RDv7DRHsZXSTPZB2teUzI9PX10m2GdfBO7Kvq3BL032OGDm67PtenzuYplL4BGf7Hr1
+         BDHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=sVbw3UdezQ0sD9BTneNk/tIPQpwqVy7LB+WYRpuD1iU=;
-        b=P8hiWDvSEwWo4mDrwEBo1oq8WeS4pf3K7v6Z5ox9iA1JvhP1I5K4bWwqiBFh0cMnom
-         ZpQlDyF1segSe+FxNlzt+PRJ1jE+NFj3D5ImlSXS27FOlH75zs4NSBPO0Kb41k1wybkq
-         Ac2zyIUS6iZ5n9g+eeNJmtwfHjqFtV/d15zwpnWnm2VG8ZJ6vK4NglushuIQDXivzsma
-         AxeaZ+41ZF6lFDOQnDiLyJ6fyyZpmK1GaFUro2/+GnRsT/FT9QqN3kcTv2tClm2TXpyu
-         P9iwI66qgPJJcn+auUCpEE5cJQJPq8xlPMW7m7ibH5J4n+jQh03Bw8i4mos9vXhDUlUC
-         bldQ==
-X-Gm-Message-State: APjAAAW6jwP/4sdyp6MW7HmPtesdMUveq7hwvrP+/xFN8gNJF1wwz0J5
-        zDWuGvkiCZt/e6te6zyx/K5sJ5BBt3Y=
-X-Google-Smtp-Source: APXvYqxHG2RuNK8ZvFku/8aVjYEz/HCuHoYoV7NYImThRu2bDc5AUlvzeFhGe4+S1oPGnJC3QYh1aQ==
-X-Received: by 2002:a05:600c:1108:: with SMTP id b8mr11371586wma.17.1575281029709;
-        Mon, 02 Dec 2019 02:03:49 -0800 (PST)
+        bh=t0RhdKt1OBlvUr3g8wwSzhDFoSAxtdel5n69P40ulHY=;
+        b=PJ9dCTlhbSgzYfyJ97+jWmpL/pezjKL5IgeSZT8S42j0iCL4wjo6Dx9C0t9shou8KH
+         To1MWGrioHwDcf69EjSFv3kHN9KP6E2ovcTcbzEbyc6y12fuAuCdDiKUMwXOlL739AXN
+         Z+e6gaXpvR9nW/87S4AWlWKhPnJHaxWWwWU/hHK96HGRijR6VLsvFZNSBXyMEw1JFM0a
+         O+cP6y2XfwARYy1Cu/MjuWcqSFFJPshwYzXUbbqCsfZ2lE9JmkD7eCeP9fGa3oRUGWQp
+         VjMEV/nQK4zGKWPNgKF4HlVBvN7q44X/dRN7StWDqCzbf9Ld7pL0v1VwjWmf3a6iXd6d
+         JvUQ==
+X-Gm-Message-State: APjAAAVmaTHDg0hbIcTBri3XgQHbp8iNBnXALQ6dEysqKgfUXZG7iO8+
+        bJYKIS5Z8oEASLIjnl4sD6x/qHGyKxM=
+X-Google-Smtp-Source: APXvYqzB6ddC6lgukGlpLOirt2owSYZ1LRaAyT5YdMkXVfRwPNcN7PGNIvhBx1ON7ObjF/RrOedRlQ==
+X-Received: by 2002:a7b:c449:: with SMTP id l9mr15362557wmi.150.1575281031363;
+        Mon, 02 Dec 2019 02:03:51 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.03.49
+        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.03.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 02:03:49 -0800 (PST)
+        Mon, 02 Dec 2019 02:03:50 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 03/14] watchdog: sama5d4: fix WDD value to be always set to max
-Date:   Mon,  2 Dec 2019 10:03:01 +0000
-Message-Id: <20191202100312.1397-3-lee.jones@linaro.org>
+Subject: [PATCH 4.14 04/14] net: macb: Fix SUBNS increment and increase resolution
+Date:   Mon,  2 Dec 2019 10:03:02 +0000
+Message-Id: <20191202100312.1397-4-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191202100312.1397-1-lee.jones@linaro.org>
 References: <20191202100312.1397-1-lee.jones@linaro.org>
@@ -59,45 +59,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Harini Katakam <harini.katakam@xilinx.com>
 
-[ Upstream commit 8632944841d41a36d77dd1fa88d4201b5291100f ]
+[ Upstream commit 7ad342bc58cc5197cd2f12a3c30b3949528c6d83 ]
 
-WDD value must be always set to max (0xFFF) otherwise the hardware
-block will reset the board on the first ping of the watchdog.
+The subns increment register has 24 bits as follows:
+RegBit[15:0] = Subns[23:8]; RegBit[31:24] = Subns[7:0]
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fix the same in the driver and increase sub ns resolution to the
+best capable, 24 bits. This should be the case on all GEM versions
+that this PTP driver supports.
+
+Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/watchdog/sama5d4_wdt.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/cadence/macb.h     | 6 +++++-
+ drivers/net/ethernet/cadence/macb_ptp.c | 5 ++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/sama5d4_wdt.c b/drivers/watchdog/sama5d4_wdt.c
-index 0ae947c3d7bc..d8cf2039c6a4 100644
---- a/drivers/watchdog/sama5d4_wdt.c
-+++ b/drivers/watchdog/sama5d4_wdt.c
-@@ -111,9 +111,7 @@ static int sama5d4_wdt_set_timeout(struct watchdog_device *wdd,
- 	u32 value = WDT_SEC2TICKS(timeout);
+diff --git a/drivers/net/ethernet/cadence/macb.h b/drivers/net/ethernet/cadence/macb.h
+index c93f3a2dc6c1..4c0bcfd1d250 100644
+--- a/drivers/net/ethernet/cadence/macb.h
++++ b/drivers/net/ethernet/cadence/macb.h
+@@ -457,7 +457,11 @@
  
- 	wdt->mr &= ~AT91_WDT_WDV;
--	wdt->mr &= ~AT91_WDT_WDD;
- 	wdt->mr |= AT91_WDT_SET_WDV(value);
--	wdt->mr |= AT91_WDT_SET_WDD(value);
+ /* Bitfields in TISUBN */
+ #define GEM_SUBNSINCR_OFFSET			0
+-#define GEM_SUBNSINCR_SIZE			16
++#define GEM_SUBNSINCRL_OFFSET			24
++#define GEM_SUBNSINCRL_SIZE			8
++#define GEM_SUBNSINCRH_OFFSET			0
++#define GEM_SUBNSINCRH_SIZE			16
++#define GEM_SUBNSINCR_SIZE			24
  
- 	/*
- 	 * WDDIS has to be 0 when updating WDD/WDV. The datasheet states: When
-@@ -255,7 +253,7 @@ static int sama5d4_wdt_probe(struct platform_device *pdev)
+ /* Bitfields in TI */
+ #define GEM_NSINCR_OFFSET			0
+diff --git a/drivers/net/ethernet/cadence/macb_ptp.c b/drivers/net/ethernet/cadence/macb_ptp.c
+index 678835136bf8..f1f07e9d53f8 100755
+--- a/drivers/net/ethernet/cadence/macb_ptp.c
++++ b/drivers/net/ethernet/cadence/macb_ptp.c
+@@ -115,7 +115,10 @@ static int gem_tsu_incr_set(struct macb *bp, struct tsu_incr *incr_spec)
+ 	 * to take effect.
+ 	 */
+ 	spin_lock_irqsave(&bp->tsu_clk_lock, flags);
+-	gem_writel(bp, TISUBN, GEM_BF(SUBNSINCR, incr_spec->sub_ns));
++	/* RegBit[15:0] = Subns[23:8]; RegBit[31:24] = Subns[7:0] */
++	gem_writel(bp, TISUBN, GEM_BF(SUBNSINCRL, incr_spec->sub_ns) |
++		   GEM_BF(SUBNSINCRH, (incr_spec->sub_ns >>
++			  GEM_SUBNSINCRL_SIZE)));
+ 	gem_writel(bp, TI, GEM_BF(NSINCR, incr_spec->ns));
+ 	spin_unlock_irqrestore(&bp->tsu_clk_lock, flags);
  
- 	timeout = WDT_SEC2TICKS(wdd->timeout);
- 
--	wdt->mr |= AT91_WDT_SET_WDD(timeout);
-+	wdt->mr |= AT91_WDT_SET_WDD(WDT_SEC2TICKS(MAX_WDT_TIMEOUT));
- 	wdt->mr |= AT91_WDT_SET_WDV(timeout);
- 
- 	ret = sama5d4_wdt_init(wdt);
 -- 
 2.24.0
 
