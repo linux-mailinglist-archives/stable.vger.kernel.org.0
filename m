@@ -2,125 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9FB10E777
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:13:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F9610E77A
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 10:14:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726060AbfLBJN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 04:13:26 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:58340 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726057AbfLBJN0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:13:26 -0500
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 76EC8283CA2;
-        Mon,  2 Dec 2019 09:13:24 +0000 (GMT)
-Date:   Mon, 2 Dec 2019 10:13:21 +0100
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Daniel Vetter <daniel@ffwll.ch>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Steven Price <steven.price@arm.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 7/8] drm/panfrost: Add the panfrost_gem_mapping concept
-Message-ID: <20191202101321.5a053f32@collabora.com>
-In-Reply-To: <20191202085532.GY624164@phenom.ffwll.local>
-References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
-        <20191129135908.2439529-8-boris.brezillon@collabora.com>
-        <20191129201459.GS624164@phenom.ffwll.local>
-        <20191129223629.3aaab761@collabora.com>
-        <20191202085532.GY624164@phenom.ffwll.local>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1726057AbfLBJOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 04:14:37 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:37029 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725977AbfLBJOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 04:14:37 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 004AFAF3;
+        Mon,  2 Dec 2019 04:14:35 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 02 Dec 2019 04:14:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=o44SThFfissTvc02fWt23tDIbhw
+        JsyuZeItjJ8xemQU=; b=mnCgT85ZS7bPI+pLgMIEEfzZtYeXu85IDkgWgGOKlPa
+        xmLz47Yc9DWGa7IyESg6YqnyFlHvOqySW3jLNmn3vFs0sw3KWvRuvl3u91wOYHB+
+        N/oXwdEhOJ5hmBR0jd/xxOHf/N1xRwly+Dpczlab53gKo1tnRB3ajii9DVI5qXMH
+        u5tTeyZb0iaDJrKj0eAWFBbnTkUvntIlmhHzmRaIRs8+4kSBNNW55lpJwAy2F8Rb
+        /Gh5Z6k9HnQCEddlrJrBSEpt7a98Cy4A7HWLtXgoEWO+RpitUKJAvG7K4thf6JK3
+        k5b34hGct36Qlk4t1ByShFXhJAvpV+kMY9ekjBd0I7g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=o44STh
+        FfissTvc02fWt23tDIbhwJsyuZeItjJ8xemQU=; b=kTwnFSdzQub6YqyTbvoJp8
+        TKOlwT4UsXDFTLsyYV2s4YyjYwGpYjCYEpE2ovd5CaAtGqMYihpLLyfeXtgSev/Y
+        soKs64w89SMJ9w8uy4jqJEV5456T82mAWg7ModOjP2KFTrD/ahsqzQiesXYRyOkE
+        SAmZZRs+E0YBaJlMtzfwPNG5A/ghVJaHcHct080pUz7Hic2BXeWe+CUThyGWTI+G
+        d45q4TNwDDMLpA+dxbDWregT3bjVDXdwY3QURrzX1E50VeYL4PfLkzC4AqUhakQ9
+        zG+oTtT96UhH1N9HajgS19QcKg6DcxW3Y84LcGS5qCcYDZhn4hwCZ28AOY6WZ8lg
+        ==
+X-ME-Sender: <xms:-9XkXeBx2_uHGTYgz2_KIPwpwIbfg9omAIKVZPV5U7tT5Pjdc1xVbw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudejhedgtdefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:-9XkXUBHBuLkUXtwoDmUKLrOTWakceTRtrAnkcj34XsoxPd0gYqUqA>
+    <xmx:-9XkXWol0nLNwA3bJGEeQkl7fNxi4CO3LGwftG5e5iUH-Tzgfc73CQ>
+    <xmx:-9XkXbv2YJxr8cRPuq05FOwIWWyvj2WmfGMQmGiyg2tArgTYoDILAw>
+    <xmx:-9XkXbIP5Cfu7pz8Nzq6X_ItxVZlsPpg5x-WPdQgPt0OrXx08021bQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0FF3180060;
+        Mon,  2 Dec 2019 04:14:34 -0500 (EST)
+Date:   Mon, 2 Dec 2019 10:14:31 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Christian Lamparter <chunkeey@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH for-4.19-stable] ath10k: restore QCA9880-AR1A (v1)
+ detection
+Message-ID: <20191202091431.GA3945609@kroah.com>
+References: <5688116.JcRxOpqE2I@debian64>
+ <20191201170245.GU5861@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191201170245.GU5861@sasha-vm>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2 Dec 2019 09:55:32 +0100
-Daniel Vetter <daniel@ffwll.ch> wrote:
-
-> On Fri, Nov 29, 2019 at 10:36:29PM +0100, Boris Brezillon wrote:
-> > On Fri, 29 Nov 2019 21:14:59 +0100
-> > Daniel Vetter <daniel@ffwll.ch> wrote:
-> >   
-> > > On Fri, Nov 29, 2019 at 02:59:07PM +0100, Boris Brezillon wrote:  
-> > > > With the introduction of per-FD address space, the same BO can be mapped
-> > > > in different address space if the BO is globally visible (GEM_FLINK)    
-> > > 
-> > > Also dma-buf self-imports for wayland/dri3 ...  
+On Sun, Dec 01, 2019 at 12:02:45PM -0500, Sasha Levin wrote:
+> On Fri, Nov 29, 2019 at 09:52:14PM +0100, Christian Lamparter wrote:
+> > commit f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 upstream
+> > ---
+> > > From f8914a14623a79b73f72b2b1ee4cd9b2cb91b735 Mon Sep 17 00:00:00 2001
+> > From: Christian Lamparter <chunkeey@gmail.com>
+> > Date: Mon, 25 Mar 2019 13:50:19 +0100
+> > Subject: [PATCH for-4.19-stable] ath10k: restore QCA9880-AR1A (v1) detection
+> > To: linux-wireless@vger.kernel.org,
+> >    ath10k@lists.infradead.org
+> > Cc: Kalle Valo <kvalo@codeaurora.org>
 > > 
-> > Indeed, I'll extend the commit message to mention that case.
-> >   
-> > >   
-> > > > and opened in different context. The current implementation does not
-> > > > take case into account, and attaches the mapping directly to the
-> > > > panfrost_gem_object.
-> > > > 
-> > > > Let's create a panfrost_gem_mapping struct and allow multiple mappings
-> > > > per BO.
-> > > > 
-> > > > The mappings are refcounted, which helps solve another problem where
-> > > > mappings were teared down (GEM handle closed by userspace) while GPU
-> > > > jobs accessing those BOs were still in-flight. Jobs now keep a
-> > > > reference on the mappings they use.    
-> > > 
-> > > uh what.
-> > > 
-> > > tbh this sounds bad enough (as in how did a desktop on panfrost ever work)  
+> > This patch restores the old behavior that read
+> > the chip_id on the QCA988x before resetting the
+> > chip. This needs to be done in this order since
+> > the unsupported QCA988x AR1A chips fall off the
+> > bus when resetted. Otherwise the next MMIO Op
+> > after the reset causes a BUS ERROR and panic.
 > > 
-> > Well, we didn't discover this problem until recently because:
-> > 
-> > 1/ We have a BO cache in mesa, and until recently, this cache could
-> > only grow (no entry eviction and no MADVISE support), meaning that BOs
-> > were staying around forever until the app was killed.  
+> > Cc: stable@vger.kernel.org # 4.19
+> > Fixes: 1a7fecb766c8 ("ath10k: reset chip before reading chip_id in probe")
+> > Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
 > 
-> Uh, so where was the userspace when we merged this?
+> Queued up for all branches, thanks!
 
-Well, userspace was there, it's just that we probably didn't stress
-the implementation as it should have been when doing the changes
-described in #1, #2 and 3. 
+This broke the 4.4 build :(
 
-> 
-> > 2/ Mappings were teared down at BO destruction time before commit
-> > a5efb4c9a562 ("drm/panfrost: Restructure the GEM object creation"), and
-> > jobs are retaining references to all the BO they access.
-> > 
-> > 3/ The mesa driver was serializing GPU jobs, and only releasing the BO
-> > reference when the job was done (wait on the completion fence). This
-> > has recently been changed, and now BOs are returned to the cache as
-> > soon as the job has been submitted to the kernel. When that
-> > happens,those BOs are marked purgeable which means the kernel can
-> > reclaim them when it's under memory pressure.
-> > 
-> > So yes, kernel 5.4 with a recent mesa version is currently subject to
-> > GPU page-fault storms when the system starts reclaiming memory.
-> >   
-> > > that I think you really want a few igts to test this stuff.  
-> > 
-> > I'll see what I can come up with (not sure how to easily detect
-> > pagefaults from userspace).  
-> 
-> The dumb approach we do is just thrash memory and check nothing has blown
-> up (which the runner does by looking at the dmesg and a few proc files).
-> If you run that on a kernel with all debugging enabled, it's pretty good
-> at catching issues.
+I'll drop it from there.
 
-We could also check the fence state (assuming it's signaled with an
-error, which I'm not sure is the case right now).
+thanks,
 
-> 
-> For added nastiness lots of interrupts to check error paths/syscall
-> restarting, and at the end of the testcase, some sanity check that all the
-> bo still contain what you think they should contain.
-
-Okay, but that requires a GPU job (vertex or fragment shader) touching
-a BO. Apparently we haven't done that for panfrost IGT tests yet, and
-I'm not sure how to approach that. Should we manually forge a cmdstream
-and submit it?
+greg k-h
