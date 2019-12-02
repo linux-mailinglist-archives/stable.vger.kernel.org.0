@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC7310E823
-	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:03:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0521310E824
+	for <lists+stable@lfdr.de>; Mon,  2 Dec 2019 11:03:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726674AbfLBKDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 05:03:55 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:39501 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726533AbfLBKDz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:03:55 -0500
-Received: by mail-wm1-f66.google.com with SMTP id s14so15699996wmh.4
+        id S1727221AbfLBKD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 05:03:57 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:36511 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726533AbfLBKD5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 05:03:57 -0500
+Received: by mail-wm1-f65.google.com with SMTP id p17so16574727wma.1
         for <stable@vger.kernel.org>; Mon, 02 Dec 2019 02:03:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=46LLwlvzE2FHY1ej4eoNV1VVJcCrkeV1UdzSpNWggRw=;
-        b=c4unkz5VBCfwH3WEOXDUBx1twRep9gpMQ2tLReLevGs9lf/4zsr7hC+JMkAQtZ3kES
-         CzUi1nWcZ0e+/ggi5EQN4v2YveLubZx6JdvrqDlO8JCISA518uhueItn+1OHWfvLp/p/
-         tczY3pSRLr3xA6PtWXGfrBwR1fvXAQuWUWzOgzUumme4GhxeJbi7hK3yr2OWzJWsNzJt
-         B+BK604CAp8gdprapc9QOnMVurKhSY1Nkh5Vs+idrsyUr4QROczMZHc14s7tSYtp+XTT
-         1tFScWCeeH6Enz4hY3CSu+msa0owVjZJW/cYtZ9KIDGcVzuVAdwi+qAkmhHvBMDbYCj/
-         J1qg==
+        bh=RnwQaiFvjaJUW7N8MIQ/aT+fPISiZ2Sp2ScaNBJ2Tqo=;
+        b=bL8aPSA+M/AVA12BBW2lbM8XWy1X5A95g2a7PtFm/e4BsqRYjl87jqaCfsJXBz28U7
+         V7Bq7dpfwzKLTJoz/3RLo2SPsq3W952BssHgm00JbSwfPPhjLIrKSUeokmUo6ieqXz6F
+         gOXyvtujdbr4QUAdXD1BPE3oXLIBQl2t7UyQSC8mFscGrUcz+evOIN6o0BWdBy1SkJbW
+         p78/3z1bwEfwtxQriA487GpppDpo2i82va73vAP61ubCLe1TXwrwYvGKUnTk4K6tHgSO
+         5nqB6dcp+voAX276wv4mzBIVBSAgw+2nftBApHxq/63qKMN35NPN6ri3yvq93X1bhcwl
+         Jy7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=46LLwlvzE2FHY1ej4eoNV1VVJcCrkeV1UdzSpNWggRw=;
-        b=TUaVtGC4GvF2Cj0L8E96x6XxhxpH5QGkWnALwsvi5WRTStkSAtaNNlu7DTdWp3VNjY
-         LUrh0baXkCqOHD/IJ5Q10btaufV0HKpRGXC3j2e1/INbmKT7wdhJdzhXY5KUrThonR6O
-         ankzgZdqqllEFd7YkxE/u1zjkbxA2qYiFKHpC8fZXnHECol5T7WmiX6n1/Q2DGJ0olqI
-         3aDVrvzU63vuddizKweM4MUPZy4Sn1xbQnQXWXAMVwBfUKm1G/MIY/45M+YUQljv2s4J
-         4z9VKoufwehsuPlAqx87ibAClCqln64EcD1NsKhmOCyiQH/2xcXE28TYDA9g+UOQeQCl
-         wOlw==
-X-Gm-Message-State: APjAAAVWOtQQbkrOcXbV+cPo3DSX6OzPpQL60f0GkR3bJivql2dR3oIa
-        6vsnj/6GlGuxWQBHJ7FzG2jIJYyPWM0=
-X-Google-Smtp-Source: APXvYqzb3Xf2izSdl0IibhARbc3c3OIw6g+Y7DMMPnsQ8r4yIUq2A574oeyJN1pgchGXCjGX4jiVqg==
-X-Received: by 2002:a1c:9d8d:: with SMTP id g135mr24025789wme.114.1575281032564;
-        Mon, 02 Dec 2019 02:03:52 -0800 (PST)
+        bh=RnwQaiFvjaJUW7N8MIQ/aT+fPISiZ2Sp2ScaNBJ2Tqo=;
+        b=MALA84wcpcUgdH2JxsM7bwEfJjTB54SINS5cXClOOsuU55lGHBfAhQgPoQTGE4VMH5
+         tShJ9ZlETvgKNm5vd4vm9g1HqKqX5ucJtNtrblT7hAb0xxzjW9Pbg3DAwmrITrEBZZf7
+         qO0xzZmfEmf/r4DYI5F/Pml3HC2l3dBE5kD2hxGkq1729Xy0tMK31JqhE6IY7btpLMO1
+         pkjLKg7EPQCzPsyRC32t+5T/QRFbqhWx0BNwGJO48awYGvhLFpVwhjm/YMClwiTJtRjy
+         3RpsCTeIQgbET07S1looEY2tVUVL43sGEhQ/rOQiJK/LukML9GPcuw4ZHWhtJQPVjeEm
+         6dlg==
+X-Gm-Message-State: APjAAAVRsouyNk2VVILn25uQPDU0MtSZoLfse/xdajzHm0nWPY+sk/hB
+        eyk1rTIlaxqhgtUyOYapotWX1fsGwzs=
+X-Google-Smtp-Source: APXvYqwHfsNCHVzWAHT2s8PC0050ZPUrqeLpIoeW26E3t8bkEKywYJN/gdXxoQc1OUhqjPwoNX7uVQ==
+X-Received: by 2002:a1c:61d7:: with SMTP id v206mr27475897wmb.13.1575281033837;
+        Mon, 02 Dec 2019 02:03:53 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.155])
-        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.03.51
+        by smtp.gmail.com with ESMTPSA id h8sm22975665wrx.63.2019.12.02.02.03.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2019 02:03:51 -0800 (PST)
+        Mon, 02 Dec 2019 02:03:53 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 05/14] media: v4l2-ctrl: fix flags for DO_WHITE_BALANCE
-Date:   Mon,  2 Dec 2019 10:03:03 +0000
-Message-Id: <20191202100312.1397-5-lee.jones@linaro.org>
+Subject: [PATCH 4.14 06/14] net: macb: fix error format in dev_err()
+Date:   Mon,  2 Dec 2019 10:03:04 +0000
+Message-Id: <20191202100312.1397-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191202100312.1397-1-lee.jones@linaro.org>
 References: <20191202100312.1397-1-lee.jones@linaro.org>
@@ -59,36 +59,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
 
-[ Upstream commit a0816e5088baab82aa738d61a55513114a673c8e ]
+[ Upstream commit f413cbb332a0b5251a790f396d0eb4ebcade5dec ]
 
-Control DO_WHITE_BALANCE is a button, with read only and execute-on-write flags.
-Adding this control in the proper list in the fill function.
+Errors are negative numbers. Using %u shows them as very large positive
+numbers such as 4294967277 that don't make sense. Use the %d format
+instead, and get a much nicer -19.
 
-After adding it here, we can see output of v4l2-ctl -L
-do_white_balance 0x0098090d (button) : flags=write-only, execute-on-write
-
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+Fixes: b48e0bab142f ("net: macb: Migrate to devm clock interface")
+Fixes: 93b31f48b3ba ("net/macb: unify clock management")
+Fixes: 421d9df0628b ("net/macb: merge at91_ether driver into macb driver")
+Fixes: aead88bd0e99 ("net: ethernet: macb: Add support for rx_clk")
+Fixes: f5473d1d44e4 ("net: macb: Support clock management for tsu_clk")
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/cadence/macb_main.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index 1ee072e939e4..34d6ae43fc45 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -1014,6 +1014,7 @@ void v4l2_ctrl_fill(u32 id, const char **name, enum v4l2_ctrl_type *type,
- 	case V4L2_CID_FLASH_STROBE_STOP:
- 	case V4L2_CID_AUTO_FOCUS_START:
- 	case V4L2_CID_AUTO_FOCUS_STOP:
-+	case V4L2_CID_DO_WHITE_BALANCE:
- 		*type = V4L2_CTRL_TYPE_BUTTON;
- 		*flags |= V4L2_CTRL_FLAG_WRITE_ONLY |
- 			  V4L2_CTRL_FLAG_EXECUTE_ON_WRITE;
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 2287749de087..bc9ab227d055 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -2822,7 +2822,7 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 		if (!err)
+ 			err = -ENODEV;
+ 
+-		dev_err(&pdev->dev, "failed to get macb_clk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to get macb_clk (%d)\n", err);
+ 		return err;
+ 	}
+ 
+@@ -2831,7 +2831,7 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 		if (!err)
+ 			err = -ENODEV;
+ 
+-		dev_err(&pdev->dev, "failed to get hclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to get hclk (%d)\n", err);
+ 		return err;
+ 	}
+ 
+@@ -2845,25 +2845,25 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 
+ 	err = clk_prepare_enable(*pclk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
+ 		return err;
+ 	}
+ 
+ 	err = clk_prepare_enable(*hclk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable hclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable hclk (%d)\n", err);
+ 		goto err_disable_pclk;
+ 	}
+ 
+ 	err = clk_prepare_enable(*tx_clk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable tx_clk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable tx_clk (%d)\n", err);
+ 		goto err_disable_hclk;
+ 	}
+ 
+ 	err = clk_prepare_enable(*rx_clk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable rx_clk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable rx_clk (%d)\n", err);
+ 		goto err_disable_txclk;
+ 	}
+ 
+@@ -3298,7 +3298,7 @@ static int at91ether_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 
+ 	err = clk_prepare_enable(*pclk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
+ 		return err;
+ 	}
+ 
 -- 
 2.24.0
 
