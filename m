@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD825111DA5
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:55:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1DC3111C41
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:42:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730367AbfLCWzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:55:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50136 "EHLO mail.kernel.org"
+        id S1728637AbfLCWmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:42:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730366AbfLCWzj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:55:39 -0500
+        id S1728626AbfLCWmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:42:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DB692053B;
-        Tue,  3 Dec 2019 22:55:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CAF820684;
+        Tue,  3 Dec 2019 22:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413738;
-        bh=E0sg7lpUyL7wlDReSjiLpi7Lh69WU5Wh/tgGnAYTUWY=;
+        s=default; t=1575412931;
+        bh=JAHI3NhxTrneZVGM2WBwMWJomQCyBz+MkegGDC4fjP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcvGsBeVWZAxtGbPd9NO+XarI8y0MWOw/UFbZAdY6ghP4leiDEJhwpA7F9CcBGWEi
-         LbM3XH0stFbZ2Ko1y4VYCqrCKoaudqqSdt5fOwX0YdEXXbvOrGwzX33o9B521IbpTR
-         9X+p+C5KlpM9rPcOgGZb6F8ByLmYrpDE+mePB0+U=
+        b=v7QizX5qacviFTeRbX7G8TFxj8+/y+cmpvqPBjI/IVFVyHJhlILLsnOue3LLVRknh
+         jLeIyyaPISf+TM4vRHCl8ueU3J10qtGVtmNrddzlDl22xkkjSAkl8rvqObnli3I4zg
+         THa/aVxyhYZeViaFatHKNC/F4zWnX66NuZAC37bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+7857962b4d45e602b8ad@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 242/321] kvm: properly check debugfs dentry before using it
-Date:   Tue,  3 Dec 2019 23:35:08 +0100
-Message-Id: <20191203223439.731003476@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Xiuli <xiuli.pan@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 070/135] ALSA: hda: hdmi - add Tigerlake support
+Date:   Tue,  3 Dec 2019 23:35:10 +0100
+Message-Id: <20191203213026.312309440@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 8ed0579c12b2fe56a1fac2f712f58fc26c1dc49b ]
+[ Upstream commit 9a11ba7388f165762549903492fc34d29bbb3c04 ]
 
-debugfs can now report an error code if something went wrong instead of
-just NULL.  So if the return value is to be used as a "real" dentry, it
-needs to be checked if it is an error before dereferencing it.
+Add Tigerlake HDMI codec support.
 
-This is now happening because of ff9fb72bc077 ("debugfs: return error
-values, not NULL").  syzbot has found a way to trigger multiple debugfs
-files attempting to be created, which fails, and then the error code
-gets passed to dentry_path_raw() which obviously does not like it.
-
-Reported-by: Eric Biggers <ebiggers@kernel.org>
-Reported-and-tested-by: syzbot+7857962b4d45e602b8ad@syzkaller.appspotmail.com
-Cc: "Radim Krčmář" <rkrcmar@redhat.com>
-Cc: kvm@vger.kernel.org
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205379
+BugLink: https://bugs.freedesktop.org/show_bug.cgi?id=112171
+Cc: Pan Xiuli <xiuli.pan@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20191105161053.22958-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index df3fc0f214ece..9502b1a44232c 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3990,7 +3990,7 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
- 	}
- 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 00796c7727ea2..ff99f5feaace9 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2703,6 +2703,18 @@ static int patch_i915_icl_hdmi(struct hda_codec *codec)
+ 	return intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map));
+ }
  
--	if (kvm->debugfs_dentry) {
-+	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
- 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL);
- 
- 		if (p) {
++static int patch_i915_tgl_hdmi(struct hda_codec *codec)
++{
++	/*
++	 * pin to port mapping table where the value indicate the pin number and
++	 * the index indicate the port number with 1 base.
++	 */
++	static const int map[] = {0x4, 0x6, 0x8, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
++
++	return intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map));
++}
++
++
+ /* Intel Baytrail and Braswell; with eld notifier */
+ static int patch_i915_byt_hdmi(struct hda_codec *codec)
+ {
+@@ -3960,6 +3972,7 @@ HDA_CODEC_ENTRY(0x8086280b, "Kabylake HDMI",	patch_i915_hsw_hdmi),
+ HDA_CODEC_ENTRY(0x8086280c, "Cannonlake HDMI",	patch_i915_glk_hdmi),
+ HDA_CODEC_ENTRY(0x8086280d, "Geminilake HDMI",	patch_i915_glk_hdmi),
+ HDA_CODEC_ENTRY(0x8086280f, "Icelake HDMI",	patch_i915_icl_hdmi),
++HDA_CODEC_ENTRY(0x80862812, "Tigerlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
+ HDA_CODEC_ENTRY(0x80862882, "Valleyview2 HDMI",	patch_i915_byt_hdmi),
+ HDA_CODEC_ENTRY(0x80862883, "Braswell HDMI",	patch_i915_byt_hdmi),
 -- 
 2.20.1
 
