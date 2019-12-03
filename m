@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D6F10FDF6
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9B8110FE0E
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:50:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726017AbfLCMrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 07:47:03 -0500
-Received: from mx2.suse.de ([195.135.220.15]:56350 "EHLO mx1.suse.de"
+        id S1726017AbfLCMu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 07:50:29 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57402 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725957AbfLCMrD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 07:47:03 -0500
+        id S1725957AbfLCMu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 07:50:29 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 655E7ABEA;
-        Tue,  3 Dec 2019 12:47:00 +0000 (UTC)
-Subject: Re: [PATCH STABLE 4.9 1/1] mm, gup: add missing refcount overflow
- checks on x86 and s390
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        stable@vger.kernel.org
-Cc:     Matthew Wilcox <willy@infradead.org>,
+        by mx1.suse.de (Postfix) with ESMTP id 52152ABB1;
+        Tue,  3 Dec 2019 12:50:26 +0000 (UTC)
+Subject: Re: [PATCH STABLE ONLY] add missing page refcount overflow checks
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Matthew Wilcox <willy@infradead.org>,
         Ajay Kaher <akaher@vmware.com>, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org
 References: <20191129090351.3507-1-vbabka@suse.cz>
- <20191129090351.3507-2-vbabka@suse.cz>
- <645311d0c03b3ae4604ac297e15af6471a6b0fb4.camel@codethink.co.uk>
+ <20191201165510.GT5861@sasha-vm>
 From:   Vlastimil Babka <vbabka@suse.cz>
 Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
  mQINBFZdmxYBEADsw/SiUSjB0dM+vSh95UkgcHjzEVBlby/Fg+g42O7LAEkCYXi/vvq31JTB
@@ -86,12 +85,12 @@ Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
  5ZFJyfGsOiNUcMoO/17FO4EBxSDP3FDLllpuzlFD7SXkfJaMWYmXIlO0jLzdfwfcnDzBbPwO
  hBM8hvtsyq8lq8vJOxv6XD6xcTtj5Az8t2JjdUX6SF9hxJpwhBU0wrCoGDkWp4Bbv6jnF7zP
  Nzftr4l8RuJoywDIiJpdaNpSlXKpj/K6KrnyAI/joYc7
-Message-ID: <e274291b-054f-2fad-28e8-59fabf312e61@suse.cz>
-Date:   Tue, 3 Dec 2019 13:46:59 +0100
+Message-ID: <c53e1e47-f30a-3458-42d6-4c09ba937a7d@suse.cz>
+Date:   Tue, 3 Dec 2019 13:50:26 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.1
 MIME-Version: 1.0
-In-Reply-To: <645311d0c03b3ae4604ac297e15af6471a6b0fb4.camel@codethink.co.uk>
+In-Reply-To: <20191201165510.GT5861@sasha-vm>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -100,66 +99,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/3/19 1:22 PM, Ben Hutchings wrote:
->> +		    || !page_cache_get_speculative(head)))
->>  			return 0;
->>  		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
->>  			put_page(head);
-> [...]
->> --- a/arch/x86/mm/gup.c
->> +++ b/arch/x86/mm/gup.c
->> @@ -202,10 +202,12 @@ static int __gup_device_huge_pmd(pmd_t pmd, unsigned long addr,
->>  			undo_dev_pagemap(nr, nr_start, pages);
->>  			return 0;
->>  		}
->> +		if (unlikely(!try_get_page(page))) {
->> +			put_dev_pagemap(pgmap);
->> +			return 0;
->> +		}
->>  		SetPageReferenced(page);
->>  		pages[*nr] = page;
->> -		get_page(page);
->> -		put_dev_pagemap(pgmap);
+On 12/1/19 5:55 PM, Sasha Levin wrote:
+> On Fri, Nov 29, 2019 at 10:03:48AM +0100, Vlastimil Babka wrote:
+>> This collection of patches add the missing overflow checks in arch-specific
+>> gup.c variants for x86 and s390. Those were missed in backport of 8fde12ca79af
+>> ("mm: prevent get_user_pages() from overflowing page refcount") as mainline
+>> had a single gup.c implementation at that point. See individual patches for
+>> details.
 > 
-> This leaks a pgmap reference on success!
+> Queued up, thanks!
 
-Good catch, deleted one line too many!
+Please replace the 4.9 version with the following fixed one, thanks to Ben:
 
->>  		(*nr)++;
->>  		pfn++;
->>  	} while (addr += PAGE_SIZE, addr != end);
->> @@ -230,6 +232,8 @@ static noinline int gup_huge_pmd(pmd_t pmd, unsigned long addr,
->>  
->>  	refs = 0;
->>  	head = pmd_page(pmd);
->> +	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
-> 
-> Why <= 0, given we use < 0 elsewhere?
+----8<----
+From fe7f18bd152094f8516d79e847fcb5453a6f8368 Mon Sep 17 00:00:00 2001
+From: Vlastimil Babka <vbabka@suse.cz>
+Date: Wed, 6 Nov 2019 16:32:57 +0100
+Subject: [PATCH] mm, gup: add missing refcount overflow checks on x86 and s390
 
-The code uses get_head_page_multiple() which boils down to atomic_add
-and not add_unless_zero(), so it assumes a pre-existing pin that must
-not go away or it's a bug (one that I've been hunting recently in this
-area). The check makes it explicit.
+The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
+overflowing page refcount") was backported to 4.9.y stable as commit
+2ed768cfd895. The backport however missed that in 4.9, there are several
+arch-specific gup.c versions with fast gup implementations, so these do not
+prevent refcount overflow.
 
-> 
->> +		return 0;
->>  	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
->>  	do {
->>  		VM_BUG_ON_PAGE(compound_head(page) != head, page);
->> @@ -289,6 +293,8 @@ static noinline int gup_huge_pud(pud_t pud, unsigned long addr,
->>  
->>  	refs = 0;
->>  	head = pud_page(pud);
->> +	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
-> 
-> Same question here.
+This is partially fixed for x86 in stable-only commit d73af79742e7 ("x86, mm,
+gup: prevent get_page() race with munmap in paravirt guest"). This stable-only
+commit adds missing parts to x86 version, as well as s390 version, both taken
+from the SUSE SLES/openSUSE 4.12-based kernels.
 
-Same as above.
+The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
+the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
+problem for those architectures, and I don't feel confident enough to patch
+them.
 
-> Ben.
-> 
->> +		return 0;
->>  	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
->>  	do {
->>  		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+---
+ arch/s390/mm/gup.c | 9 ++++++---
+ arch/x86/mm/gup.c  | 9 ++++++++-
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
+index 97fc449a7470..cf045f56581e 100644
+--- a/arch/s390/mm/gup.c
++++ b/arch/s390/mm/gup.c
+@@ -38,7 +38,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+ 		head = compound_head(page);
+-		if (!page_cache_get_speculative(head))
++		if (WARN_ON_ONCE(page_ref_count(head) < 0)
++		    || !page_cache_get_speculative(head))
+ 			return 0;
+ 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+ 			put_page(head);
+@@ -76,7 +77,8 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs)) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -150,7 +152,8 @@ static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs)) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
+index d7db45bdfb3b..82f727fbbbd2 100644
+--- a/arch/x86/mm/gup.c
++++ b/arch/x86/mm/gup.c
+@@ -202,9 +202,12 @@ static int __gup_device_huge_pmd(pmd_t pmd, unsigned long addr,
+ 			undo_dev_pagemap(nr, nr_start, pages);
+ 			return 0;
+ 		}
++		if (unlikely(!try_get_page(page))) {
++			put_dev_pagemap(pgmap);
++			return 0;
++		}
+ 		SetPageReferenced(page);
+ 		pages[*nr] = page;
+-		get_page(page);
+ 		put_dev_pagemap(pgmap);
+ 		(*nr)++;
+ 		pfn++;
+@@ -230,6 +233,8 @@ static noinline int gup_huge_pmd(pmd_t pmd, unsigned long addr,
+ 
+ 	refs = 0;
+ 	head = pmd_page(pmd);
++	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
++		return 0;
+ 	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+ 	do {
+ 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+@@ -289,6 +294,8 @@ static noinline int gup_huge_pud(pud_t pud, unsigned long addr,
+ 
+ 	refs = 0;
+ 	head = pud_page(pud);
++	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
++		return 0;
+ 	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+ 	do {
+ 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+-- 
+2.24.0
+
+
 
