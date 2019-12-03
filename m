@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B332A111DE0
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:59:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C91111DE4
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:59:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730135AbfLCW5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:57:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53832 "EHLO mail.kernel.org"
+        id S1730190AbfLCW6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:58:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730594AbfLCW5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:57:51 -0500
+        id S1729656AbfLCW6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:58:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 382FB20656;
-        Tue,  3 Dec 2019 22:57:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCC3420656;
+        Tue,  3 Dec 2019 22:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413870;
-        bh=f22FDCR3WqLNWGLPTUVymr8HLIizD922/Aj4S0NdCNo=;
+        s=default; t=1575413881;
+        bh=BBuT6WcOlJ5I5KToApIymCv4XRE2claoTNM1LLNUSx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9+X/18vC6pfTMuvk1BHtSuk3JVfYXNnX8FCjj2w/fMElDhvDWCEygCvw6ZpCclJR
-         M9jvmZr5yIhkqSzN3dgTAO8zU42ONRec72DTnT5Ie/UC5MKtN6CaF7V2wSTDe6fA4y
-         Jyte2kgSN/Ntd+WE3t/f+ccjOL/eJjpvk4MWDVqU=
+        b=HbeDX6tGz1Gz50j9NWG97zSkySFeW/x9fUbrFB8sk4+nFYTLijpqLLXNYcFvFIRy6
+         shE/38o0xS3OpPBxrxerJMntaGLbGI0HIlwwXz4RK2rBkajQAMW5DtPApi84fCG7Bs
+         MPVeYXmHVwVQpUQFWe+oOc9tpnqsVb2pGRjgbuTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yixian Liu <liuyixian@huawei.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 257/321] RDMA/hns: Fix the state of rereg mr
-Date:   Tue,  3 Dec 2019 23:35:23 +0100
-Message-Id: <20191203223440.504039837@linuxfoundation.org>
+Subject: [PATCH 4.19 258/321] RDMA/hns: Use GFP_ATOMIC in hns_roce_v2_modify_qp
+Date:   Tue,  3 Dec 2019 23:35:24 +0100
+Message-Id: <20191203223440.555593418@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -44,34 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yixian Liu <liuyixian@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ab22bf05216a6bb4812448f3a8609489047cf311 ]
+[ Upstream commit 4e69cf1fe2c52d189acdd06c1fd99cc258aba61f ]
 
-The state of mr after reregister operation should be set to valid
-state. Otherwise, it will keep the same as the state before reregistered.
+The the below commit, hns_roce_v2_modify_qp is called inside spinlock
+while using GFP_KERNEL. Change it to GFP_ATOMIC.
 
-Signed-off-by: Yixian Liu <liuyixian@huawei.com>
+Fixes: 0425e3e6e0c7 ("RDMA/hns: Support flush cqe for hip08 in kernel space")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 1eda8a22a4252..a5ec900a14ae9 100644
+index a5ec900a14ae9..7021444f18b46 100644
 --- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
 +++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -1776,6 +1776,9 @@ static int hns_roce_v2_rereg_write_mtpt(struct hns_roce_dev *hr_dev,
- 	struct hns_roce_v2_mpt_entry *mpt_entry = mb_buf;
- 	int ret = 0;
+@@ -3446,7 +3446,7 @@ static int hns_roce_v2_modify_qp(struct ib_qp *ibqp,
+ 	struct device *dev = hr_dev->dev;
+ 	int ret = -EINVAL;
  
-+	roce_set_field(mpt_entry->byte_4_pd_hop_st, V2_MPT_BYTE_4_MPT_ST_M,
-+		       V2_MPT_BYTE_4_MPT_ST_S, V2_MPT_ST_VALID);
-+
- 	if (flags & IB_MR_REREG_PD) {
- 		roce_set_field(mpt_entry->byte_4_pd_hop_st, V2_MPT_BYTE_4_PD_M,
- 			       V2_MPT_BYTE_4_PD_S, pdn);
+-	context = kcalloc(2, sizeof(*context), GFP_KERNEL);
++	context = kcalloc(2, sizeof(*context), GFP_ATOMIC);
+ 	if (!context)
+ 		return -ENOMEM;
+ 
 -- 
 2.20.1
 
