@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B731B111D89
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F07C5111D60
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729721AbfLCWye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:54:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48474 "EHLO mail.kernel.org"
+        id S1729660AbfLCWwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:52:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728397AbfLCWyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:54:33 -0500
+        id S1730052AbfLCWws (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:52:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9983F21582;
-        Tue,  3 Dec 2019 22:54:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B1312084F;
+        Tue,  3 Dec 2019 22:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413673;
-        bh=1lcF54AcbRONjDESSOA+6p0jhMgKCR+p52kcc7fQZc0=;
+        s=default; t=1575413567;
+        bh=NxGRVXtjD/aXIsPUuHL37B5BbTj3nmk8XEn0YOKo7Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWKczIaIWPXe43FkoUik1sFQuOMTa4BbTcCKh8YfcMjbUgDiumiH9mD2dpJ8YB4fN
-         yajI6GL1AJpiLsqonhuJOWYvFu5y4+9FeCa1HFBztUidKzeZKSEXZsGkrrlSC7LCVg
-         DveCAl9ckQvKKh14z15pXtG60vT7G7qVn3FjVMcw=
+        b=l3VOa6QLshv1UmoHbSxhpMjCM1HodXuGUL0DwTnFqJjRLDjAWliuMY9HIdGy8HOO0
+         U+4Wk8dkiVG2G6FPiy+/Xnr5+KwLAWoVDSDVIl1w5p7in84znVOTIVpfr6AUM/YtGb
+         UOpVO3bj1HV8LMD48HHDDjNfKHSbxx8ZL2aRQa6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        Sam Bobroff <sbobroff@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/321] vfio/spapr_tce: Get rid of possible infinite loop
-Date:   Tue,  3 Dec 2019 23:33:55 +0100
-Message-Id: <20191203223435.927454925@linuxfoundation.org>
+Subject: [PATCH 4.19 170/321] powerpc/powernv/eeh/npu: Fix uninitialized variables in opal_pci_eeh_freeze_status
+Date:   Tue,  3 Dec 2019 23:33:56 +0100
+Message-Id: <20191203223435.978451990@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -48,52 +47,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit 517ad4ae8aa93dccdb9a88c27257ecb421c9e848 ]
+[ Upstream commit c20577014f85f36d4e137d3d52a1f61225b4a3d2 ]
 
-As a part of cleanup, the SPAPR TCE IOMMU subdriver releases preregistered
-memory. If there is a bug in memory release, the loop in
-tce_iommu_release() becomes infinite; this actually happened to me.
+The current implementation of the OPAL_PCI_EEH_FREEZE_STATUS call in
+skiboot's NPU driver does not touch the pci_error_type parameter so
+it might have garbage but the powernv code analyzes it nevertheless.
 
-This makes the loop finite and prints a warning on every failure to make
-the code more bug prone.
+This initializes pcierr and fstate to zero in all call sites.
 
 Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
-Acked-by: Alex Williamson <alex.williamson@redhat.com>
+Reviewed-by: Sam Bobroff <sbobroff@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio_iommu_spapr_tce.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ arch/powerpc/platforms/powernv/eeh-powernv.c | 8 ++++----
+ arch/powerpc/platforms/powernv/pci-ioda.c    | 4 ++--
+ arch/powerpc/platforms/powernv/pci.c         | 4 ++--
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/vfio/vfio_iommu_spapr_tce.c b/drivers/vfio/vfio_iommu_spapr_tce.c
-index 96721b154454f..ec53310f16136 100644
---- a/drivers/vfio/vfio_iommu_spapr_tce.c
-+++ b/drivers/vfio/vfio_iommu_spapr_tce.c
-@@ -371,6 +371,7 @@ static void tce_iommu_release(void *iommu_data)
+diff --git a/arch/powerpc/platforms/powernv/eeh-powernv.c b/arch/powerpc/platforms/powernv/eeh-powernv.c
+index 3c1beae29f2d8..9dd5b8909178b 100644
+--- a/arch/powerpc/platforms/powernv/eeh-powernv.c
++++ b/arch/powerpc/platforms/powernv/eeh-powernv.c
+@@ -578,8 +578,8 @@ static void pnv_eeh_get_phb_diag(struct eeh_pe *pe)
+ static int pnv_eeh_get_phb_state(struct eeh_pe *pe)
  {
- 	struct tce_container *container = iommu_data;
- 	struct tce_iommu_group *tcegrp;
-+	struct tce_iommu_prereg *tcemem, *tmtmp;
- 	long i;
+ 	struct pnv_phb *phb = pe->phb->private_data;
+-	u8 fstate;
+-	__be16 pcierr;
++	u8 fstate = 0;
++	__be16 pcierr = 0;
+ 	s64 rc;
+ 	int result = 0;
  
- 	while (tce_groups_attached(container)) {
-@@ -393,13 +394,8 @@ static void tce_iommu_release(void *iommu_data)
- 		tce_iommu_free_table(container, tbl);
- 	}
+@@ -617,8 +617,8 @@ static int pnv_eeh_get_phb_state(struct eeh_pe *pe)
+ static int pnv_eeh_get_pe_state(struct eeh_pe *pe)
+ {
+ 	struct pnv_phb *phb = pe->phb->private_data;
+-	u8 fstate;
+-	__be16 pcierr;
++	u8 fstate = 0;
++	__be16 pcierr = 0;
+ 	s64 rc;
+ 	int result;
  
--	while (!list_empty(&container->prereg_list)) {
--		struct tce_iommu_prereg *tcemem;
--
--		tcemem = list_first_entry(&container->prereg_list,
--				struct tce_iommu_prereg, next);
--		WARN_ON_ONCE(tce_iommu_prereg_free(container, tcemem));
--	}
-+	list_for_each_entry_safe(tcemem, tmtmp, &container->prereg_list, next)
-+		WARN_ON(tce_iommu_prereg_free(container, tcemem));
+diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+index 326ca6288bb12..ee63749a2d47e 100644
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -605,8 +605,8 @@ static int pnv_ioda_unfreeze_pe(struct pnv_phb *phb, int pe_no, int opt)
+ static int pnv_ioda_get_pe_state(struct pnv_phb *phb, int pe_no)
+ {
+ 	struct pnv_ioda_pe *slave, *pe;
+-	u8 fstate, state;
+-	__be16 pcierr;
++	u8 fstate = 0, state;
++	__be16 pcierr = 0;
+ 	s64 rc;
  
- 	tce_iommu_disable(container);
- 	if (container->mm)
+ 	/* Sanity check on PE number */
+diff --git a/arch/powerpc/platforms/powernv/pci.c b/arch/powerpc/platforms/powernv/pci.c
+index 13aef2323bbca..db230a35609bf 100644
+--- a/arch/powerpc/platforms/powernv/pci.c
++++ b/arch/powerpc/platforms/powernv/pci.c
+@@ -602,8 +602,8 @@ static void pnv_pci_handle_eeh_config(struct pnv_phb *phb, u32 pe_no)
+ static void pnv_pci_config_check_eeh(struct pci_dn *pdn)
+ {
+ 	struct pnv_phb *phb = pdn->phb->private_data;
+-	u8	fstate;
+-	__be16	pcierr;
++	u8	fstate = 0;
++	__be16	pcierr = 0;
+ 	unsigned int pe_no;
+ 	s64	rc;
+ 
 -- 
 2.20.1
 
