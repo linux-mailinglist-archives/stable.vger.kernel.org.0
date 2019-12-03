@@ -2,349 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B687511013A
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 16:27:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D32A110173
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 16:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726971AbfLCP1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 10:27:35 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59104 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726975AbfLCP1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 10:27:35 -0500
+        id S1726105AbfLCPnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 10:43:04 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:44675 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726189AbfLCPnD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 10:43:03 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575386854;
+        s=mimecast20190719; t=1575387782;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=4bN4xxXE8ZIsmsQZhf0fFN4HlKtMNZ8ZL84yUMi+zCA=;
-        b=MTWz7bpv7YjFoYviIKXhP2iHA59k7M0fYVB9Ip41BbFfjVBteLUpF8OQjay1ZmoEpDqDfo
-        5Gl46tRSXfQ9Q35ofUJ2wBLddfI2iCSZCvTfjJWtwsFJ1LEkdqZ6Ggc4LgaUUj9JkNJXcs
-        3bFdq75kL0g/B0V4HOdsWW/ynaYDsgk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-378-rIhbwuDmOneCYRewL7Tl9g-1; Tue, 03 Dec 2019 10:27:16 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0A8EE85EE74
-        for <stable@vger.kernel.org>; Tue,  3 Dec 2019 15:27:16 +0000 (UTC)
-Received: from [172.54.108.34] (cpt-1042.paas.prod.upshift.rdu2.redhat.com [10.0.19.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3C28D600CD;
-        Tue,  3 Dec 2019 15:27:11 +0000 (UTC)
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mwIie4f/cRbrQG5a7iYXir2IBzgVvgbaZEb5jJx1d6Y=;
+        b=CAhokgvPHvb2YxNkU7r5eDZxXgAcmDvYr4TjzOOg1cuGXBRTEWk+8VOSKTrr/mS+77Uh/n
+        +6V1cTMUf4cstGx5nZRpbc2qC/rU7uV6TVq5qDUBDzgrdI73YmxsoHrJjkZwUnzGSWlVJJ
+        tWXv09K1zvplLcRPbJquzyvibvlXNbk=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-195-NMmrTK2XO3SJ4mhXSh8omA-1; Tue, 03 Dec 2019 10:42:59 -0500
+Received: by mail-qk1-f199.google.com with SMTP id x127so2483245qkb.0
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 07:42:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=U0dQFMzS2rXCEeOJP1XOszx/oJ4UEFVvA3Pxp6Rvtd0=;
+        b=tGNQ7MVbGfEN/+fY8QDgl1rqwpaCJBzOnOIqwFDx4suDFnc6HlMmf3I6KlLXiy4Ejf
+         v5RC++bwuytSBOTprbKpG/1lFloz4O9jelA2GIQ25nY6VPwXiq+/u4wTYKTp4ecE43m5
+         EyVwrZScH7mf/9rm0aS1FPqFCTpQIuTf+lRfJXGIKfOxdLQdiQCzUkrOYcNG3gpTyPnF
+         MVLSF4y6wJ9R930GpQltyN4kEbjDK1uOhyqfuXSZrxr06XTT0m2MIi+tWeb2fnz4oImu
+         bpku/JajdRCQWCEqncQPs6RwOp1iCFyjN1IBVYvFzN4VQK7R8ehdn79WI8OTkAPW2D6V
+         D9RA==
+X-Gm-Message-State: APjAAAUrTatQB7iw6rCGk2wZVxp604Y+qlE34I0fd8hQKeADBvhaJh1I
+        /vKf0d1SOBkexAo6QnlSf0En4iG+9Vzgd87hDL8n6eQlSgA5tzls41SGy9+JKTeOThHWJK2CJ1N
+        R6aH5spceDZa/gYJY
+X-Received: by 2002:ac8:4645:: with SMTP id f5mr5640957qto.38.1575387779010;
+        Tue, 03 Dec 2019 07:42:59 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxp9lC/Jp/2dE/7mPrFm8Zdh/X3yaI1ji1wcvv4uxOgmr6DGkywI8tk4Ps6zBeos0vlMFEIrQ==
+X-Received: by 2002:ac8:4645:: with SMTP id f5mr5640925qto.38.1575387778733;
+        Tue, 03 Dec 2019 07:42:58 -0800 (PST)
+Received: from redhat.com (bzq-79-181-48-215.red.bezeqint.net. [79.181.48.215])
+        by smtp.gmail.com with ESMTPSA id m29sm2013564qtf.1.2019.12.03.07.42.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Dec 2019 07:42:57 -0800 (PST)
+Date:   Tue, 3 Dec 2019 10:42:52 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Amit Shah <amit@infradead.org>
+Cc:     Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
+        Amit Shah <amit@kernel.org>
+Subject: Re: [PATCH v3] virtio_console: allocate inbufs in add_port() only if
+ it is needed
+Message-ID: <20191203103840-mutt-send-email-mst@kernel.org>
+References: <20191114122548.24364-1-lvivier@redhat.com>
+ <ae3451423c18f2e408245d745d1f28e311a2845c.camel@infradead.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.14-175a681.cki
- (stable-queue)
-Date:   Tue, 03 Dec 2019 15:27:10 -0000
-CC:     Yi Zhang <yi.zhang@redhat.com>
-Message-ID: <cki.4D13A5D763.IT3AQ71PYD@redhat.com>
-X-Gitlab-Pipeline-ID: 320138
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/320138
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-MC-Unique: rIhbwuDmOneCYRewL7Tl9g-1
+In-Reply-To: <ae3451423c18f2e408245d745d1f28e311a2845c.camel@infradead.org>
+X-MC-Unique: NMmrTK2XO3SJ4mhXSh8omA-1
 X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-Hello,
-
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
-able-queue.git
-            Commit: 175a6811a9e0 - xfrm: Fix memleak on xfrm state destroy
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/320138
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+On Tue, Dec 03, 2019 at 03:46:50PM +0100, Amit Shah wrote:
+> On Thu, 2019-11-14 at 13:25 +0100, Laurent Vivier wrote:
+> > When we hot unplug a virtserialport and then try to hot plug again,
+> > it fails:
+> >=20
+> > (qemu) chardev-add socket,id=3Dserial0,path=3D/tmp/serial0,server,nowai=
+t
+> > (qemu) device_add virtserialport,bus=3Dvirtio-serial0.0,nr=3D2,\
+> >                   chardev=3Dserial0,id=3Dserial0,name=3Dserial0
+> > (qemu) device_del serial0
+> > (qemu) device_add virtserialport,bus=3Dvirtio-serial0.0,nr=3D2,\
+> >                   chardev=3Dserial0,id=3Dserial0,name=3Dserial0
+> > kernel error:
+> >   virtio-ports vport2p2: Error allocating inbufs
+> > qemu error:
+> >   virtio-serial-bus: Guest failure in adding port 2 for device \
+> >                      virtio-serial0.0
+> >=20
+> > This happens because buffers for the in_vq are allocated when the
+> > port is
+> > added but are not released when the port is unplugged.
+> >=20
+> > They are only released when virtconsole is removed (see a7a69ec0d8e4)
+> >=20
+> > To avoid the problem and to be symmetric, we could allocate all the
+> > buffers
+> > in init_vqs() as they are released in remove_vqs(), but it sounds
+> > like
+> > a waste of memory.
+> >=20
+> > Rather than that, this patch changes add_port() logic to ignore
+> > ENOSPC
+> > error in fill_queue(), which means queue has already been filled.
+> >=20
+> > Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+> > Cc: mst@redhat.com
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+>=20
+> Reviewed-by: Amit Shah <amit@kernel.org>
+>=20
+> Thanks!
 
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+Thanks, however this has already been merged by Linus.
+I can't add the tag retroactively, sorry about that.
 
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+For bugfix patches like that, I think we can reasonably
+target a turn around of a couple of days, these
+shouldn't really need to wait weeks for review.
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=8F=B1  Networking route: pmtu
-       =E2=8F=B1  Networking route_func: local
-       =E2=8F=B1  Networking route_func: forward
-       =E2=8F=B1  Networking TCP: keepalive test
-       =E2=8F=B1  Networking UDP: socket
-       =E2=8F=B1  Networking tunnel: geneve basic test
-       =E2=8F=B1  Networking tunnel: gre basic
-       =E2=8F=B1  L2TP basic test
-       =E2=8F=B1  Networking tunnel: vxlan basic
-       =E2=8F=B1  Networking ipsec: basic netns tunnel
-       =E2=8F=B1  audit: audit testsuite test
-       =E2=8F=B1  httpd: mod_ssl smoke sanity
-       =E2=8F=B1  tuned: tune-processes-through-perf
-       =E2=8F=B1  ALSA PCM loopback test
-       =E2=8F=B1  ALSA Control (mixer) Userspace Element test
-       =E2=8F=B1  trace: ftrace/tracer
-       =E2=8F=B1  CIFS Connectathon
-       =E2=8F=B1  POSIX pjd-fstest suites
-       =E2=8F=B1  jvm test suite
-       =E2=8F=B1  LTP: openposix test suite
-       =E2=8F=B1  Networking vnic: ipvlan/basic
-       =E2=8F=B1  iotop: sanity
-       =E2=8F=B1  Usex - version 1.9-29
-       =E2=8F=B1  storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
+> > ---
+> >=20
+> > Notes:
+> >     v3: add a comment about ENOSPC error
+> >     v2: making fill_queue return int and testing return code for
+> > -ENOSPC
+> >=20
+> >  drivers/char/virtio_console.c | 28 +++++++++++++---------------
+> >  1 file changed, 13 insertions(+), 15 deletions(-)
+> >=20
+> > diff --git a/drivers/char/virtio_console.c
+> > b/drivers/char/virtio_console.c
+> > index 7270e7b69262..3259426f01dc 100644
+> > --- a/drivers/char/virtio_console.c
+> > +++ b/drivers/char/virtio_console.c
+> > @@ -1325,24 +1325,24 @@ static void set_console_size(struct port
+> > *port, u16 rows, u16 cols)
+> >  =09port->cons.ws.ws_col =3D cols;
+> >  }
+> > =20
+> > -static unsigned int fill_queue(struct virtqueue *vq, spinlock_t
+> > *lock)
+> > +static int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+> >  {
+> >  =09struct port_buffer *buf;
+> > -=09unsigned int nr_added_bufs;
+> > +=09int nr_added_bufs;
+> >  =09int ret;
+> > =20
+> >  =09nr_added_bufs =3D 0;
+> >  =09do {
+> >  =09=09buf =3D alloc_buf(vq->vdev, PAGE_SIZE, 0);
+> >  =09=09if (!buf)
+> > -=09=09=09break;
+> > +=09=09=09return -ENOMEM;
+> > =20
+> >  =09=09spin_lock_irq(lock);
+> >  =09=09ret =3D add_inbuf(vq, buf);
+> >  =09=09if (ret < 0) {
+> >  =09=09=09spin_unlock_irq(lock);
+> >  =09=09=09free_buf(buf, true);
+> > -=09=09=09break;
+> > +=09=09=09return ret;
+> >  =09=09}
+> >  =09=09nr_added_bufs++;
+> >  =09=09spin_unlock_irq(lock);
+> > @@ -1362,7 +1362,6 @@ static int add_port(struct ports_device
+> > *portdev, u32 id)
+> >  =09char debugfs_name[16];
+> >  =09struct port *port;
+> >  =09dev_t devt;
+> > -=09unsigned int nr_added_bufs;
+> >  =09int err;
+> > =20
+> >  =09port =3D kmalloc(sizeof(*port), GFP_KERNEL);
+> > @@ -1421,11 +1420,13 @@ static int add_port(struct ports_device
+> > *portdev, u32 id)
+> >  =09spin_lock_init(&port->outvq_lock);
+> >  =09init_waitqueue_head(&port->waitqueue);
+> > =20
+> > -=09/* Fill the in_vq with buffers so the host can send us data. */
+> > -=09nr_added_bufs =3D fill_queue(port->in_vq, &port->inbuf_lock);
+> > -=09if (!nr_added_bufs) {
+> > +=09/* We can safely ignore ENOSPC because it means
+> > +=09 * the queue already has buffers. Buffers are removed
+> > +=09 * only by virtcons_remove(), not by unplug_port()
+> > +=09 */
+> > +=09err =3D fill_queue(port->in_vq, &port->inbuf_lock);
+> > +=09if (err < 0 && err !=3D -ENOSPC) {
+> >  =09=09dev_err(port->dev, "Error allocating inbufs\n");
+> > -=09=09err =3D -ENOMEM;
+> >  =09=09goto free_device;
+> >  =09}
+> > =20
+> > @@ -2059,14 +2060,11 @@ static int virtcons_probe(struct
+> > virtio_device *vdev)
+> >  =09INIT_WORK(&portdev->control_work, &control_work_handler);
+> > =20
+> >  =09if (multiport) {
+> > -=09=09unsigned int nr_added_bufs;
+> > -
+> >  =09=09spin_lock_init(&portdev->c_ivq_lock);
+> >  =09=09spin_lock_init(&portdev->c_ovq_lock);
+> > =20
+> > -=09=09nr_added_bufs =3D fill_queue(portdev->c_ivq,
+> > -=09=09=09=09=09   &portdev->c_ivq_lock);
+> > -=09=09if (!nr_added_bufs) {
+> > +=09=09err =3D fill_queue(portdev->c_ivq, &portdev->c_ivq_lock);
+> > +=09=09if (err < 0) {
+> >  =09=09=09dev_err(&vdev->dev,
+> >  =09=09=09=09"Error allocating buffers for control
+> > queue\n");
+> >  =09=09=09/*
+> > @@ -2077,7 +2075,7 @@ static int virtcons_probe(struct virtio_device
+> > *vdev)
+> >  =09=09=09=09=09   VIRTIO_CONSOLE_DEVICE_READY,
+> > 0);
+> >  =09=09=09/* Device was functional: we need full cleanup.
+> > */
+> >  =09=09=09virtcons_remove(vdev);
+> > -=09=09=09return -ENOMEM;
+> > +=09=09=09return err;
+> >  =09=09}
+> >  =09} else {
+> >  =09=09/*
 
