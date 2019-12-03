@@ -2,73 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 520EE10F35B
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 00:24:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1449910F4A2
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 02:47:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726086AbfLBXYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 Dec 2019 18:24:52 -0500
-Received: from mail-pj1-f54.google.com ([209.85.216.54]:38414 "EHLO
-        mail-pj1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725957AbfLBXYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 Dec 2019 18:24:52 -0500
-Received: by mail-pj1-f54.google.com with SMTP id l4so553241pjt.5
-        for <stable@vger.kernel.org>; Mon, 02 Dec 2019 15:24:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=from:subject:to:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=YLvsWzioAA9l5IHqvEV2BPAetrXvTSbn49dnm+84m+8=;
-        b=hZ3eU9pFbn1mClWI0DBarz26DI+/BKgtrUNf3SK0aHFevcFuajYrlu/43Or0ydCOtr
-         KgynehYDq8vERMMvJc7d9hkjHxM7oTWJWxKHBP0JnKazRdCEcRD2jg4eW1xav8bW3Uzw
-         fuhjBVi3o5Tqsghr7e7ip7FSSC6GYQP3s2z+cxL5EI4QyhJj+Lr8pKDdUZjm0omVholN
-         qz9enMrL+y72KJt++OEYtdTTrMZeiu13TKbMeRjmpSRi+W1mdWu+GfBrq5mv68j+V3VG
-         OIuGA28QYcA0AfHyVXTFtZmxXKPcSS5OTnmfR1gvxmAFlHRftLU5YA0T0Efj/NK1sk0f
-         W0ow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=YLvsWzioAA9l5IHqvEV2BPAetrXvTSbn49dnm+84m+8=;
-        b=VY9XvN/5Fi84yNObrJBBR+Bi550Q2dOVNxYYZB8y49iOKUhEceb4cTd3wC7MAozCGz
-         49scFNssmZHPtLcxi22BOV3g9kzuvTxizMIY5FKtCAQi0W9xVBrelNyqfSU9HtsKsgOo
-         QLpD44CrRoK2Ia80r3WXZfEGiFnjsmTi516kfZceiQR671tExbDk9B5e8m5ucgzOjt1e
-         /JDnkPXEuaar3cnpDHYAxuA7dAmKi8pUWGKIgq1EPDF1eAzzxprFMiSMjm3tOP6coafz
-         c+yWNi3eM4MP5J1KQoZVM/2G+uW4udOo/3hlD9oFbd+70AOWT1/P/mhuy6vRdIPbwx5T
-         EIcw==
-X-Gm-Message-State: APjAAAVIDlo6r+XN3p6whSLNnd0nvNixLBNnxiZecAaoNjzDXUV7jzv9
-        AY8Az+GSVN6Alc7ZVtoyGmCaifaq5UU=
-X-Google-Smtp-Source: APXvYqzMvYXQhbmfDP0dOzeItYRCyXomDFSzOE4wdgGCUEDuJNSO9v7EnSRrELzcFklxd56zPfCozw==
-X-Received: by 2002:a17:902:988a:: with SMTP id s10mr1712582plp.315.1575329091012;
-        Mon, 02 Dec 2019 15:24:51 -0800 (PST)
-Received: from gnomeregan.cam.corp.google.com ([2620:15c:6:14:ad22:1cbb:d8fa:7d55])
-        by smtp.googlemail.com with ESMTPSA id b24sm575101pfi.148.2019.12.02.15.24.50
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 02 Dec 2019 15:24:50 -0800 (PST)
-From:   Barret Rhoden <brho@google.com>
-Subject: x86/fpu: Don't cache access to fpu_fpregs_owner_ctx
-To:     stable@vger.kernel.org
-Message-ID: <edb74a15-c20d-2a8e-0560-97c038541ab6@google.com>
-Date:   Mon, 2 Dec 2019 18:24:49 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1725919AbfLCBrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 Dec 2019 20:47:25 -0500
+Received: from szxga03-in.huawei.com ([45.249.212.189]:2100 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725899AbfLCBrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 2 Dec 2019 20:47:25 -0500
+Received: from DGGEMM403-HUB.china.huawei.com (unknown [172.30.72.55])
+        by Forcepoint Email with ESMTP id 9EB5E4E9EF8FF711A278;
+        Tue,  3 Dec 2019 09:47:22 +0800 (CST)
+Received: from dggeme762-chm.china.huawei.com (10.3.19.108) by
+ DGGEMM403-HUB.china.huawei.com (10.3.20.211) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Tue, 3 Dec 2019 09:47:21 +0800
+Received: from architecture4 (10.160.196.180) by
+ dggeme762-chm.china.huawei.com (10.3.19.108) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1713.5; Tue, 3 Dec 2019 09:47:21 +0800
+Date:   Tue, 3 Dec 2019 09:52:41 +0800
+From:   Gao Xiang <gaoxiang25@huawei.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     Gao Xiang <hsiangkao@aol.com>, Chao Yu <yuchao0@huawei.com>,
+        <linux-erofs@lists.ozlabs.org>,
+        LKML <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        Miao Xie <miaoxie@huawei.com>
+Subject: Re: [PATCH] erofs: zero out when listxattr is called with no xattr
+Message-ID: <20191203015238.GA210859@architecture4>
+References: <20191201084040.29275-1-hsiangkao@aol.com>
+ <20191202221312.8F590206F0@mail.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20191202221312.8F590206F0@mail.kernel.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Originating-IP: [10.160.196.180]
+X-ClientProxiedBy: dggeme703-chm.china.huawei.com (10.1.199.99) To
+ dggeme762-chm.china.huawei.com (10.3.19.108)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 59c4bd853abcea95eccc167a7d7fd5f1a5f47b98 upstream
+Hi Sasha,
 
-Hi -
+On Mon, Dec 02, 2019 at 10:13:11PM +0000, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: cadf1ccf1b00 ("staging: erofs: add error handling for xattr submodule").
+> 
+> The bot has tested the following trees: v5.4.1, v5.3.14, v4.19.87.
+> 
+> v5.4.1: Build OK!
+> v5.3.14: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> v4.19.87: Failed to apply! Possible dependencies:
+>     Unable to calculate
 
-Please apply to 5.4.  This commit fixes floating point register 
-corruption that became triggerable starting with v5.2.
+Because of file movement, I'll backport manually then.
 
 Thanks,
+Gao Xiang
 
-Barret
-
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
+> -- 
+> Thanks,
+> Sasha
