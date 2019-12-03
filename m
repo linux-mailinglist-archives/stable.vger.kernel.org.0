@@ -2,95 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8615810FA21
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 09:48:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90E410FA5E
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 10:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725845AbfLCIsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 03:48:25 -0500
-Received: from mail-bgr052100132067.outbound.protection.outlook.com ([52.100.132.67]:25027
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725773AbfLCIsY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 03:48:24 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=f1w5atDEx5mSKqrKUwe8JwM+iRaZ5dZnUQFszqq25Ju44uU0e5BmgbrVPrDPRsgxaIW+qnHj3ksw9IpwJZd/iOw+4oN0cJzr8ZOZF9Ss0+0MkBUMcEW1QyrSXCiECtuoweVVxgX+h6IvnCMcR1f/o08IKqsPMAW6iFKt6ESNFqBbFqKIHuEfGabrKXEYZ0nHmCoaZIlJtz/dl9Kdozppkzh2DSJNXVAMiK5RRXg/jN9oawkz9joKTcDkQcoeBVpVvfFLASn6eMGuL6qfl3sGHxcmE9SmPfjd3If6YuPc6PEXVzIkeDsSn7uxpsCPc8qOq/nA2bih2UsMgvhvjrtY8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=62syisZc9qtveK+sLxpnmFs1kxIGIrUlvHy8s6657Vs=;
- b=Mp3aKm3vH6Pvbd4envUwIlDB1HXb5SUZjxnDJFSmhwV4+1BAmsKcDKtH3X+x8xGOttQHrZd3dNsWf2nzu8M4aZlwqgjKevzkCeKjtESET+xYqtJMcGjqWJlNhniKawcNC+SMUZcmAL9EOnZpM99LDjJ0c3cN0t/MVrCglEo74jylKD63tzfYbdyNNWEjVnGzMBUl0AHzwHa3LkxbknmALcz6dME/Pyc6Px77H2rIOLILAJu149a5w+W8ErN5SLg83grkl0axmUk+QVUEuCE/wBAq2jmOuSMY83bCzLFh69Fy3xjWjBNC0vCowu97YFad3J3Ah0Fxzby9UOaHqB4NdA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wayne.edu; dmarc=pass action=none header.from=wayne.edu;
- dkim=pass header.d=wayne.edu; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wayne.edu;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=62syisZc9qtveK+sLxpnmFs1kxIGIrUlvHy8s6657Vs=;
- b=dClFEuqdyY20XhyFtaEohMrGugSKRbnUgmEnIMVuwdN9UmLBBbuTcBEHuV09iri4swHzDWq/J6ER9+O6sZEmBVuA0ydnhtF+Ca6EiPjHMehutkmgwXq1ZL2ynx2FR0pF5rJV+ugef/b2ayQM3khAtLuWonCAD018aZZwX4h/8JM=
-Received: from DM6PR11MB3739.namprd11.prod.outlook.com (20.178.230.202) by
- DM6PR11MB3386.namprd11.prod.outlook.com (20.176.121.14) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2495.17; Tue, 3 Dec 2019 08:48:20 +0000
-Received: from DM6PR11MB3739.namprd11.prod.outlook.com
- ([fe80::f4d2:da09:6569:60d9]) by DM6PR11MB3739.namprd11.prod.outlook.com
- ([fe80::f4d2:da09:6569:60d9%5]) with mapi id 15.20.2495.014; Tue, 3 Dec 2019
- 08:48:20 +0000
-From:   "Mrs. Jane Cheng" <af5532@wayne.edu>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Product List
-Thread-Topic: Product List
-Thread-Index: AQHVqbZaOKn1U3vmb0aa3h5lbbeBdg==
-Date:   Tue, 3 Dec 2019 08:47:54 +0000
-Message-ID: <DM6PR11MB3739BD9AA489585E1F0705B0C2420@DM6PR11MB3739.namprd11.prod.outlook.com>
-Reply-To: "janecheng1495@outlook.com" <janecheng1495@outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: LO2P265CA0215.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:9e::35) To DM6PR11MB3739.namprd11.prod.outlook.com
- (2603:10b6:5:13b::10)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=lavinia@wayne.edu; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [105.112.121.107]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ed92f82d-3d60-49df-0615-08d777cd7d15
-x-ms-traffictypediagnostic: DM6PR11MB3386:
-x-microsoft-antispam-prvs: <DM6PR11MB3386F6B8E657DFEEE704B157B0420@DM6PR11MB3386.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2803;
-x-forefront-prvs: 02408926C4
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(136003)(346002)(376002)(39860400002)(396003)(366004)(199004)(189003)(33656002)(6506007)(186003)(43066004)(7696005)(6916009)(9686003)(55016002)(71190400001)(81156014)(62860400002)(75432002)(3846002)(2860700004)(2906002)(14454004)(88552002)(6116002)(221733001)(2501003)(256004)(8936002)(8676002)(1730700003)(81166006)(6666004)(7116003)(8796002)(3480700005)(386003)(55236004)(102836004)(5640700003)(52116002)(26005)(305945005)(7736002)(6436002)(71200400001)(478600001)(74316002)(2351001)(99286004)(52536014)(5003540100004)(5660300002)(66806009)(316002)(786003)(64756008)(66476007)(66946007)(66556008)(25786009)(66446008)(558084003)(560234002)(19580200005);DIR:OUT;SFP:1501;SCL:1;SRVR:DM6PR11MB3386;H:DM6PR11MB3739.namprd11.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: wayne.edu does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: kjC5mXwnQQWGPIvAyRe3xCaM1wlNID8pg6Wl9g4DLoj0G7IMZOVOYSQAYSvjCfbwOtSZbNRbjSmFQt92XS1z2OjUXuVAtYH5Shw10d6LBEVdKfI5Nh+d/M2sQpoQzWynFzSNn2yXcljOEZu4OuNqt+xym0yG75kGkWwZ3CeiSKwlpGuLjZb9VQPOR9rHSqKY1Qzgm/BaVjKld8Ep7FFYqqPwqjdVEJf0DYWULWlzRWmrscCPas4H+qJMvn1x1S9YOblG4FLGsmL4Iq0o6em771aD+0Xx0IRuJZMaKfy55MDlIWJFtWfXw5Ih+RTN6lP4sJS7ttmAU50ZefewjwklGUJyQqAPW2BYvWPMga9f5NYtFoxKH8+fuoVpGFHwPk1SwTIakUagyzwzo0bpSwhDCdA0KCf2IP3ivhKJJ0543ihL1+uXpu2++u1SLhQEUUV7
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="iso-8859-1"
-Content-ID: <FCE03998264FC049A9C042642B46D2B1@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1725954AbfLCJDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 04:03:50 -0500
+Received: from a27-11.smtp-out.us-west-2.amazonses.com ([54.240.27.11]:37510
+        "EHLO a27-11.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725773AbfLCJDt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 04:03:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1575363828;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:Message-ID:MIME-Version:Content-Type;
+        bh=Xr92H1SFzLYwwHnu4N4ph7LN617EsfgrqywWwIwvq5g=;
+        b=KZKyXJWu99cPHLmI9d2v8w7La6tHIU2D7xxYsSl1sovlTHqtaRYyEBmFRAmYi8V0
+        WoG/xwLiAQ2xwUs0XiYdwChC6gsj6mz699wwOqY35sN2JiJhtTe2HGqHLoX9oDCCwhb
+        dCdL9DCBmtG7LMdE94cr41h+tlJuAUWFi6g6KM9Y=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1575363828;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:Message-ID:MIME-Version:Content-Type:Feedback-ID;
+        bh=Xr92H1SFzLYwwHnu4N4ph7LN617EsfgrqywWwIwvq5g=;
+        b=N/Ff18KAligSRfrXuDM+tXN8ncbGeDcDnBF7FN2KGwpYSF+k48YZfdGBl1aLrB4n
+        206I6vpcMM4cZoZojkrMJ4C0kfswx1o8ZEmo97gPFAkRDUMoCEiMOhzXS+Wk/415vib
+        XfIbU9Qad0Fbu9ig+NXkyBwyNWJCVuJPXuuw06yQ=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.0
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 0F355C433A2
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v4] iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif to Rx queues
+References: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
+        <20191203080849.12013-1-emmanuel.grumbach@intel.com>
+Date:   Tue, 3 Dec 2019 09:03:48 +0000
+In-Reply-To: <20191203080849.12013-1-emmanuel.grumbach@intel.com> (Emmanuel
+        Grumbach's message of "Tue, 3 Dec 2019 10:08:49 +0200")
+Message-ID: <0101016ecb005b15-cd83cdda-61c0-46bd-86e5-ae4449c195ef-000000@us-west-2.amazonses.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-X-OriginatorOrg: wayne.edu
-X-MS-Exchange-CrossTenant-Network-Message-Id: ed92f82d-3d60-49df-0615-08d777cd7d15
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Dec 2019 08:47:54.8004
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: e51cdec9-811d-471d-bbe6-dd3d8d54c28b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: lxNfh8Ehgp7LYxpY+YdQO2BdNzaCXHppzFsUj5KMmh9C0131Kq4RWjwqLb2R8H23DTYNJSnQokvDM4L+vAKjig==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB3386
+Content-Type: text/plain
+X-SES-Outgoing: 2019.12.03-54.240.27.11
+Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Sir/Madam,
-=20
-Writing to let you know we are interested in your products.
-=20
-Please send your catalog so we can make a quick purchase.
-=20
-Best regards,
-Mrs. Jane Cheng | Sales manager
-SAH INDUSTRY&TRADE CO.,LTD
+Emmanuel Grumbach <emmanuel.grumbach@intel.com> writes:
+
+> The purpose of this was to keep all the queues updated with
+> the Rx sequence numbers because unlikely yet possible
+> situations where queues can't understand if a specific
+> packet needs to be dropped or not.
+>
+> Unfortunately, it was reported that this caused issues in
+> our DMA engine. We don't fully understand how this is related,
+> but this is being currently debugged. For now, just don't send
+> this notification to the Rx queues. This de-facto reverts my
+> commit 3c514bf831ac12356b695ff054bef641b9e99593:
+>
+> iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
+>
+> This issue was reported here:
+> https://bugzilla.kernel.org/show_bug.cgi?id=204873
+> https://bugzilla.kernel.org/show_bug.cgi?id=205001
+> and others maybe.
+>
+> Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
+> CC: <stable@vger.kernel.org> # 5.3+
+> Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+> ---
+> v2: fix an unused variable warning
+> v3: don't comment out the code
+> v4: fix checkpatch issues
+> ---
+>  .../wireless/intel/iwlwifi/mvm/constants.h    |  1 +
+>  drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 19 +++++++++++--------
+>  2 files changed, 12 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/constants.h b/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
+> index 60aff2ecec12..58df25e2fb32 100644
+> --- a/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
+> +++ b/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
+> @@ -154,5 +154,6 @@
+>  #define IWL_MVM_D3_DEBUG			false
+>  #define IWL_MVM_USE_TWT				false
+>  #define IWL_MVM_AMPDU_CONSEC_DROPS_DELBA	10
+> +#define IWL_MVM_USE_NSSN_SYNC			0
+>  
+
+[...]
+
+>  static void iwl_mvm_sync_nssn(struct iwl_mvm *mvm, u8 baid, u16 nssn)
+>  {
+> -	struct iwl_mvm_rss_sync_notif notif = {
+> -		.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
+> -		.metadata.sync = 0,
+> -		.nssn_sync.baid = baid,
+> -		.nssn_sync.nssn = nssn,
+> -	};
+> -
+> -	iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
+> +	if (IWL_MVM_USE_NSSN_SYNC) {
+> +		struct iwl_mvm_rss_sync_notif notif = {
+> +			.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
+> +			.metadata.sync = 0,
+> +			.nssn_sync.baid = baid,
+> +			.nssn_sync.nssn = nssn,
+> +		};
+> +
+> +		iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif,
+> +						sizeof(notif));
+> +	}
+
+This is dead code, which is frowned upon and we most likely get cleanup
+patches removing it in no time. Please just remove the code, and maybe
+even the function. You can easily add it back with git-revert when you
+want to fix it. Let's not leave dead code lying around.
+
+-- 
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
