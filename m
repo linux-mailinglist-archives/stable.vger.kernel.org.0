@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CADA111CA8
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7723111CAE
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:47:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728918AbfLCWqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:46:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35556 "EHLO mail.kernel.org"
+        id S1728334AbfLCWqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:46:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728530AbfLCWqN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:46:13 -0500
+        id S1729197AbfLCWq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:46:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38A5E206DF;
-        Tue,  3 Dec 2019 22:46:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9295F20656;
+        Tue,  3 Dec 2019 22:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413172;
-        bh=J4IGNW/9vAhjBmCzGthwBreJTfmm0otLMjSIxpqY4gg=;
+        s=default; t=1575413188;
+        bh=7QYR8y6K6uZLmyOpyZwuVHPrreRRG21ggFJfE/RRb+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDlMGgdB8KAh3PZN0ObWO4UUCf17bHxVyRfcjaatOr5J6liM++7enymWPVcGHjqny
-         7a+KuTDLfIL/cK2rc5WVXIwxwkbEfMRtry+sBZuzNyV62eUvMSXYdq5Tw9L3p1M25m
-         eyEK7ksOVHidpul4rZ7S3WnaSgrAcH6GyrpYBKUA=
+        b=KBMuZzUp4beG3vC6Xj8Ew3wyOxmchOnsyz0m1mvbTTbZ3mNxgHLS0c6UHoUGKmjew
+         /Ttfsqe9Suc5WL4UMkEP+p0gweTLPHD6zZ4Yt26u47XWK9ptXP6VwzPU2ygxsUWzfJ
+         6UbrlxydpggD8SvhM2adwcI60P5aKJZkZ4ZLdBBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeroen Hofstee <jhofstee@victronenergy.com>,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 026/321] can: peak_usb: report bus recovery as well
-Date:   Tue,  3 Dec 2019 23:31:32 +0100
-Message-Id: <20191203223428.480056924@linuxfoundation.org>
+Subject: [PATCH 4.19 031/321] can: rx-offload: can_rx_offload_offload_one(): use ERR_PTR() to propagate error value in case of errors
+Date:   Tue,  3 Dec 2019 23:31:37 +0100
+Message-Id: <20191203223428.734698187@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -46,65 +43,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeroen Hofstee <jhofstee@victronenergy.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 128a1b87d3ceb2ba449d5aadb222fe22395adeb0 ]
+[ Upstream commit d763ab3044f0bf50bd0e6179f6b2cf1c125d1d94 ]
 
-While the state changes are reported when the error counters increase
-and decrease, there is no event when the bus recovers and the error
-counters decrease again. So add those as well.
+Before this patch can_rx_offload_offload_one() returns a pointer to a
+skb containing the read CAN frame or a NULL pointer.
 
-Change the state going downward to be ERROR_PASSIVE -> ERROR_WARNING ->
-ERROR_ACTIVE instead of directly to ERROR_ACTIVE again.
+However the meaning of the NULL pointer is ambiguous, it can either mean
+the requested mailbox is empty or there was an error.
 
-Signed-off-by: Jeroen Hofstee <jhofstee@victronenergy.com>
-Cc: Stephane Grosjean <s.grosjean@peak-system.com>
+This patch fixes this situation by returning:
+- pointer to skb on success
+- NULL pointer if mailbox is empty
+- ERR_PTR() in case of an error
+
+All users of can_rx_offload_offload_one() have been adopted, no
+functional change intended.
+
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/can/rx-offload.c | 86 ++++++++++++++++++++++++++++++------
+ 1 file changed, 73 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb.c b/drivers/net/can/usb/peak_usb/pcan_usb.c
-index 61f33c2fb1cd7..215cd74800df4 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb.c
-@@ -444,8 +444,8 @@ static int pcan_usb_decode_error(struct pcan_usb_msg_context *mc, u8 n,
- 		}
- 		if ((n & PCAN_USB_ERROR_BUS_LIGHT) == 0) {
- 			/* no error (back to active state) */
--			mc->pdev->dev.can.state = CAN_STATE_ERROR_ACTIVE;
--			return 0;
-+			new_state = CAN_STATE_ERROR_ACTIVE;
-+			break;
- 		}
- 		break;
+diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
+index 16af09c71cfed..1b3ce70c55bc7 100644
+--- a/drivers/net/can/rx-offload.c
++++ b/drivers/net/can/rx-offload.c
+@@ -116,39 +116,95 @@ static int can_rx_offload_compare(struct sk_buff *a, struct sk_buff *b)
+ 	return cb_b->timestamp - cb_a->timestamp;
+ }
  
-@@ -468,9 +468,9 @@ static int pcan_usb_decode_error(struct pcan_usb_msg_context *mc, u8 n,
- 		}
+-static struct sk_buff *can_rx_offload_offload_one(struct can_rx_offload *offload, unsigned int n)
++/**
++ * can_rx_offload_offload_one() - Read one CAN frame from HW
++ * @offload: pointer to rx_offload context
++ * @n: number of mailbox to read
++ *
++ * The task of this function is to read a CAN frame from mailbox @n
++ * from the device and return the mailbox's content as a struct
++ * sk_buff.
++ *
++ * If the struct can_rx_offload::skb_queue exceeds the maximal queue
++ * length (struct can_rx_offload::skb_queue_len_max) or no skb can be
++ * allocated, the mailbox contents is discarded by reading it into an
++ * overflow buffer. This way the mailbox is marked as free by the
++ * driver.
++ *
++ * Return: A pointer to skb containing the CAN frame on success.
++ *
++ *         NULL if the mailbox @n is empty.
++ *
++ *         ERR_PTR() in case of an error
++ */
++static struct sk_buff *
++can_rx_offload_offload_one(struct can_rx_offload *offload, unsigned int n)
+ {
+-	struct sk_buff *skb = NULL;
++	struct sk_buff *skb = NULL, *skb_error = NULL;
+ 	struct can_rx_offload_cb *cb;
+ 	struct can_frame *cf;
+ 	int ret;
  
- 		if ((n & PCAN_USB_ERROR_BUS_HEAVY) == 0) {
--			/* no error (back to active state) */
--			mc->pdev->dev.can.state = CAN_STATE_ERROR_ACTIVE;
--			return 0;
-+			/* no error (back to warning state) */
-+			new_state = CAN_STATE_ERROR_WARNING;
-+			break;
- 		}
- 		break;
+-	/* If queue is full or skb not available, read to discard mailbox */
+ 	if (likely(skb_queue_len(&offload->skb_queue) <
+-		   offload->skb_queue_len_max))
++		   offload->skb_queue_len_max)) {
+ 		skb = alloc_can_skb(offload->dev, &cf);
++		if (unlikely(!skb))
++			skb_error = ERR_PTR(-ENOMEM);	/* skb alloc failed */
++	} else {
++		skb_error = ERR_PTR(-ENOBUFS);		/* skb_queue is full */
++	}
  
-@@ -509,6 +509,11 @@ static int pcan_usb_decode_error(struct pcan_usb_msg_context *mc, u8 n,
- 		mc->pdev->dev.can.can_stats.error_warning++;
- 		break;
+-	if (!skb) {
++	/* If queue is full or skb not available, drop by reading into
++	 * overflow buffer.
++	 */
++	if (unlikely(skb_error)) {
+ 		struct can_frame cf_overflow;
+ 		u32 timestamp;
  
-+	case CAN_STATE_ERROR_ACTIVE:
-+		cf->can_id |= CAN_ERR_CRTL;
-+		cf->data[1] = CAN_ERR_CRTL_ACTIVE;
-+		break;
+ 		ret = offload->mailbox_read(offload, &cf_overflow,
+ 					    &timestamp, n);
+-		if (ret) {
+-			offload->dev->stats.rx_dropped++;
+-			offload->dev->stats.rx_fifo_errors++;
+-		}
+ 
+-		return NULL;
++		/* Mailbox was empty. */
++		if (unlikely(!ret))
++			return NULL;
 +
- 	default:
- 		/* CAN_STATE_MAX (trick to handle other errors) */
- 		cf->can_id |= CAN_ERR_CRTL;
++		/* Mailbox has been read and we're dropping it or
++		 * there was a problem reading the mailbox.
++		 *
++		 * Increment error counters in any case.
++		 */
++		offload->dev->stats.rx_dropped++;
++		offload->dev->stats.rx_fifo_errors++;
++
++		/* There was a problem reading the mailbox, propagate
++		 * error value.
++		 */
++		if (unlikely(ret < 0))
++			return ERR_PTR(ret);
++
++		return skb_error;
+ 	}
+ 
+ 	cb = can_rx_offload_get_cb(skb);
+ 	ret = offload->mailbox_read(offload, cf, &cb->timestamp, n);
+-	if (!ret) {
++
++	/* Mailbox was empty. */
++	if (unlikely(!ret)) {
+ 		kfree_skb(skb);
+ 		return NULL;
+ 	}
+ 
++	/* There was a problem reading the mailbox, propagate error value. */
++	if (unlikely(ret < 0)) {
++		kfree_skb(skb);
++
++		offload->dev->stats.rx_dropped++;
++		offload->dev->stats.rx_fifo_errors++;
++
++		return ERR_PTR(ret);
++	}
++
++	/* Mailbox was read. */
+ 	return skb;
+ }
+ 
+@@ -168,7 +224,7 @@ int can_rx_offload_irq_offload_timestamp(struct can_rx_offload *offload, u64 pen
+ 			continue;
+ 
+ 		skb = can_rx_offload_offload_one(offload, i);
+-		if (!skb)
++		if (IS_ERR_OR_NULL(skb))
+ 			break;
+ 
+ 		__skb_queue_add_sort(&skb_queue, skb, can_rx_offload_compare);
+@@ -199,7 +255,11 @@ int can_rx_offload_irq_offload_fifo(struct can_rx_offload *offload)
+ 	struct sk_buff *skb;
+ 	int received = 0;
+ 
+-	while ((skb = can_rx_offload_offload_one(offload, 0))) {
++	while (1) {
++		skb = can_rx_offload_offload_one(offload, 0);
++		if (IS_ERR_OR_NULL(skb))
++			break;
++
+ 		skb_queue_tail(&offload->skb_queue, skb);
+ 		received++;
+ 	}
 -- 
 2.20.1
 
