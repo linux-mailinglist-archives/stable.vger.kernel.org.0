@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4159111F82
+	by mail.lfdr.de (Postfix) with ESMTP id 637DF111F81
 	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbfLCWnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:43:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
+        id S1728787AbfLCWnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:43:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727923AbfLCWnP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:43:15 -0500
+        id S1728782AbfLCWnR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:43:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1458F207DD;
-        Tue,  3 Dec 2019 22:43:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87FA920803;
+        Tue,  3 Dec 2019 22:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412994;
-        bh=qY0P0E0BvbecrqZR3RJQkrXgiBEdtUhhcKjdkgFs8uk=;
+        s=default; t=1575412997;
+        bh=+Hz+Ao4dDcXjXczZVteRoqEv8s0WbV8i9BoU8i5d+K0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGdYd/ne/+435wbFd9CGgSyHLHlr1pJAJrOSry9OYQ7mAKXlIJNWuC0VwwfuYM/pE
-         y9TD0pLp/xyhppS2IxVqATSMlcdYoxHK49ag++h5NA/6nHuV8tavJUlzh/sxq5DiCq
-         UcZyEKWf3xw9jMNL+N5MFZosL+B2sl1RTP2Bze7c=
+        b=Kkj8+zZ1566QykRn13DFei735H91C4EboQ/Jk4n5CznkUEaWyRpYcRZl/CaRls4l+
+         q7P60YTshAGsnj1qKw0jvFmIJzAKiv9P3ie8GIi3Mx51OS8M9g/fcuifBdcaokb0BW
+         IyqxmDDPcBx+acJ+8VwwxWbwJV4t+YA3QkwFwjUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 096/135] i40e: Fix for ethtool -m issue on X722 NIC
-Date:   Tue,  3 Dec 2019 23:35:36 +0100
-Message-Id: <20191203213037.811098163@linuxfoundation.org>
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.3 097/135] clk: at91: fix update bit maps on CFG_MOR write
+Date:   Tue,  3 Dec 2019 23:35:37 +0100
+Message-Id: <20191203213038.215230846@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -46,45 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 4c9da6f2b8a029052c75bd4a61ae229135831177 ]
+commit 263eaf8f172d9f44e15d6aca85fe40ec18d2c477 upstream.
 
-This patch contains fix for a problem with command:
-'ethtool -m <dev>'
-which breaks functionality of:
-'ethtool <dev>'
-when called on X722 NIC
+The regmap update bits call was not selecting the proper mask, considering
+the bits which was updating.
+Update the mask from call to also include OSCBYPASS.
+Removed MOSCEN which was not updated.
 
-Disallowed update of link phy_types on X722 NIC
-Currently correct value cannot be obtained from FW
-Previously wrong value returned by FW was used and was
-a root cause for incorrect output of 'ethtool <dev>' command
+Fixes: 1bdf02326b71 ("clk: at91: make use of syscon/regmap internally")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Link: https://lkml.kernel.org/r/1568042692-11784-1-git-send-email-eugen.hristev@microchip.com
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/at91/clk-main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_common.c b/drivers/net/ethernet/intel/i40e/i40e_common.c
-index 906cf68d3453a..4a53bfc017b13 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_common.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_common.c
-@@ -1861,7 +1861,8 @@ i40e_status i40e_aq_get_link_info(struct i40e_hw *hw,
- 	     hw->aq.fw_min_ver < 40)) && hw_link_info->phy_type == 0xE)
- 		hw_link_info->phy_type = I40E_PHY_TYPE_10GBASE_SFPP_CU;
+--- a/drivers/clk/at91/clk-main.c
++++ b/drivers/clk/at91/clk-main.c
+@@ -156,7 +156,7 @@ at91_clk_register_main_osc(struct regmap
+ 	if (bypass)
+ 		regmap_update_bits(regmap,
+ 				   AT91_CKGR_MOR, MOR_KEY_MASK |
+-				   AT91_PMC_MOSCEN,
++				   AT91_PMC_OSCBYPASS,
+ 				   AT91_PMC_OSCBYPASS | AT91_PMC_KEY);
  
--	if (hw->flags & I40E_HW_FLAG_AQ_PHY_ACCESS_CAPABLE) {
-+	if (hw->flags & I40E_HW_FLAG_AQ_PHY_ACCESS_CAPABLE &&
-+	    hw->mac.type != I40E_MAC_X722) {
- 		__le32 tmp;
- 
- 		memcpy(&tmp, resp->link_type, sizeof(tmp));
--- 
-2.20.1
-
+ 	hw = &osc->hw;
 
 
