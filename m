@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B769111EB6
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:04:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7176D111EBC
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:04:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730010AbfLCWwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:52:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44988 "EHLO mail.kernel.org"
+        id S1729095AbfLCXDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:03:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729863AbfLCWwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:52:17 -0500
+        id S1729863AbfLCWwZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:52:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5902B207DD;
-        Tue,  3 Dec 2019 22:52:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA1482084B;
+        Tue,  3 Dec 2019 22:52:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413536;
-        bh=WjAP0E2QeXsNCmQgotZYDKD38OPPBWuEEuGfayCCZWE=;
+        s=default; t=1575413544;
+        bh=TvnrklSzh6sXwmGAPCZ0w0s7Anb3NdKGb5fXdATgkoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlvtBb0RLR62k8+7m/6LEXhdG3GFwjLefSf0LKihls5CdgCcBU/rJmjNdadBVZkp2
-         TjT8ruufiQSDLVNem2QAkMd9fIAeOgkhFPPaCCpCbFR2JrSlwohufqojnOXMAt+5fb
-         wIFoK+F5wwnJvZ1MCwMcM+NlPM3Z2tt64KZG6HS0=
+        b=XPBD3I85oHq/VIaOeoHN959p7yXJ0xuwH2CRxMw2Q6fi+FYk+Nqjul7OBzIwj/1mH
+         JRGYbkAqXE+A+YVO9qMJamUDKqygIi/FALHTLs6aE+131/0/bl1AkLuxcdjQ4P+qzY
+         SP3PJ1uo3sAQDPHd4Z78AOupJq22cAemgR0Uj05c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 164/321] powerpc/perf: Fix unit_sel/cache_sel checks
-Date:   Tue,  3 Dec 2019 23:33:50 +0100
-Message-Id: <20191203223435.670902126@linuxfoundation.org>
+Subject: [PATCH 4.19 166/321] powerpc/prom: fix early DEBUG messages
+Date:   Tue,  3 Dec 2019 23:33:52 +0100
+Message-Id: <20191203223435.773630998@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,96 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 2d46d4877b1afd14059393a48bdb8ce27955174c ]
+[ Upstream commit b18f0ae92b0a1db565c3e505fa87b6971ad3b641 ]
 
-Raw event code has couple of fields "unit" and "cache" in it, to capture
-the "unit" to monitor for a given pmcxsel and cache reload qualifier to
-program in MMCR1.
+This patch fixes early DEBUG messages in prom.c:
+- Use %px instead of %p to see the addresses
+- Cast memblock_phys_mem_size() with (unsigned long long) to
+avoid build failure when phys_addr_t is not 64 bits.
 
-isa207_get_constraint() refers "unit" field to update the MMCRC (L2/L3)
-Event bus control fields with "cache" bits of the raw event code.
-These are power8 specific and not supported by PowerISA v3.0 pmu. So wrap
-the checks to be power8 specific. Also, "cache" bit field is referred to
-update MMCR1[16:17] and this check can be power8 specific.
-
-Fixes: 7ffd948fae4cd ('powerpc/perf: factor out power8 pmu functions')
-Signed-off-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 25 ++++++++++++++++++-------
- arch/powerpc/perf/isa207-common.h |  4 ++--
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ arch/powerpc/kernel/prom.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index 6a2f65d3d088c..053b8e9aa9e75 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -148,6 +148,14 @@ static bool is_thresh_cmp_valid(u64 event)
- 	return true;
- }
- 
-+static unsigned int dc_ic_rld_quad_l1_sel(u64 event)
-+{
-+	unsigned int cache;
-+
-+	cache = (event >> EVENT_CACHE_SEL_SHIFT) & MMCR1_DC_IC_QUAL_MASK;
-+	return cache;
-+}
-+
- static inline u64 isa207_find_source(u64 idx, u32 sub_idx)
- {
- 	u64 ret = PERF_MEM_NA;
-@@ -288,10 +296,10 @@ int isa207_get_constraint(u64 event, unsigned long *maskp, unsigned long *valp)
- 		 * have a cache selector of zero. The bank selector (bit 3) is
- 		 * irrelevant, as long as the rest of the value is 0.
- 		 */
--		if (cache & 0x7)
-+		if (!cpu_has_feature(CPU_FTR_ARCH_300) && (cache & 0x7))
- 			return -1;
- 
--	} else if (event & EVENT_IS_L1) {
-+	} else if (cpu_has_feature(CPU_FTR_ARCH_300) || (event & EVENT_IS_L1)) {
- 		mask  |= CNST_L1_QUAL_MASK;
- 		value |= CNST_L1_QUAL_VAL(cache);
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index c4d7078e5295f..8e88f78e57dba 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -129,7 +129,7 @@ static void __init move_device_tree(void)
+ 		p = __va(memblock_alloc(size, PAGE_SIZE));
+ 		memcpy(p, initial_boot_params, size);
+ 		initial_boot_params = p;
+-		DBG("Moved device tree to 0x%p\n", p);
++		DBG("Moved device tree to 0x%px\n", p);
  	}
-@@ -394,11 +402,14 @@ int isa207_compute_mmcr(u64 event[], int n_ev,
- 		/* In continuous sampling mode, update SDAR on TLB miss */
- 		mmcra_sdar_mode(event[i], &mmcra);
  
--		if (event[i] & EVENT_IS_L1) {
--			cache = event[i] >> EVENT_CACHE_SEL_SHIFT;
--			mmcr1 |= (cache & 1) << MMCR1_IC_QUAL_SHIFT;
--			cache >>= 1;
--			mmcr1 |= (cache & 1) << MMCR1_DC_QUAL_SHIFT;
-+		if (cpu_has_feature(CPU_FTR_ARCH_300)) {
-+			cache = dc_ic_rld_quad_l1_sel(event[i]);
-+			mmcr1 |= (cache) << MMCR1_DC_IC_QUAL_SHIFT;
-+		} else {
-+			if (event[i] & EVENT_IS_L1) {
-+				cache = dc_ic_rld_quad_l1_sel(event[i]);
-+				mmcr1 |= (cache) << MMCR1_DC_IC_QUAL_SHIFT;
-+			}
- 		}
+ 	DBG("<- move_device_tree\n");
+@@ -689,7 +689,7 @@ void __init early_init_devtree(void *params)
+ {
+ 	phys_addr_t limit;
  
- 		if (is_event_marked(event[i])) {
-diff --git a/arch/powerpc/perf/isa207-common.h b/arch/powerpc/perf/isa207-common.h
-index 0028f4b9490db..e5a621699a6d8 100644
---- a/arch/powerpc/perf/isa207-common.h
-+++ b/arch/powerpc/perf/isa207-common.h
-@@ -163,8 +163,8 @@
- #define MMCR1_COMBINE_SHIFT(pmc)	(35 - ((pmc) - 1))
- #define MMCR1_PMCSEL_SHIFT(pmc)		(24 - (((pmc) - 1)) * 8)
- #define MMCR1_FAB_SHIFT			36
--#define MMCR1_DC_QUAL_SHIFT		47
--#define MMCR1_IC_QUAL_SHIFT		46
-+#define MMCR1_DC_IC_QUAL_MASK		0x3
-+#define MMCR1_DC_IC_QUAL_SHIFT		46
+-	DBG(" -> early_init_devtree(%p)\n", params);
++	DBG(" -> early_init_devtree(%px)\n", params);
  
- /* MMCR1 Combine bits macro for power9 */
- #define p9_MMCR1_COMBINE_SHIFT(pmc)	(38 - ((pmc - 1) * 2))
+ 	/* Too early to BUG_ON(), do it by hand */
+ 	if (!early_init_dt_verify(params))
+@@ -749,7 +749,7 @@ void __init early_init_devtree(void *params)
+ 	memblock_allow_resize();
+ 	memblock_dump_all();
+ 
+-	DBG("Phys. mem: %llx\n", memblock_phys_mem_size());
++	DBG("Phys. mem: %llx\n", (unsigned long long)memblock_phys_mem_size());
+ 
+ 	/* We may need to relocate the flat tree, do it now.
+ 	 * FIXME .. and the initrd too? */
 -- 
 2.20.1
 
