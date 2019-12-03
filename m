@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C37E112004
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60470111E92
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728086AbfLCWlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:41:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
+        id S1727973AbfLCXCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:02:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727652AbfLCWlV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:41:21 -0500
+        id S1730101AbfLCWzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:55:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE7662080F;
-        Tue,  3 Dec 2019 22:41:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E82520803;
+        Tue,  3 Dec 2019 22:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412880;
-        bh=a2EBv3oNWRXuqE2lst0TZQnbTKts5U5zoDGBoKkR5mc=;
+        s=default; t=1575413701;
+        bh=CQuBCBvKAAsOoZocCAsqj8Qd5e+iFxFP6/c3gZsHpI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVUDDgGqzE5+PZ/2478jtkJ2gJ5ZsEYa95VBINh0MvS3sx4M1/h9PxdSHsXr6YHby
-         NGlwVjg1OtWZX98lDgCiZpjyjv+hxrCpM+b/PBIi4FuVMHiKsZSSKNFBWkGtDYN7PT
-         SL3HwPoHgMoxtL+GkCg71hRb1n9V4GIY7I0QanA4=
+        b=kJcNxhej0VcBTpBcJdUIMFfFhB5ov3OEWketlX5ODP+4N0HcW15N3S1sn5ut8+UGw
+         0mNRmI9pMz51IbVdeGb6iFiT2nF2wO4z4ZO+1MsxZ3ObNj4Wvgv/YJB+5JPuPq+sB7
+         Oj5r/Db3115KDNKEsbPa+lWNnO5YdJ47NZZWsWpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 053/135] can: rx-offload: can_rx_offload_queue_tail(): fix error handling, avoid skb mem leak
-Date:   Tue,  3 Dec 2019 23:34:53 +0100
-Message-Id: <20191203213020.059748017@linuxfoundation.org>
+Subject: [PATCH 4.19 230/321] net/smc: fix byte_order for rx_curs_confirmed
+Date:   Tue,  3 Dec 2019 23:34:56 +0100
+Message-Id: <20191203223439.079727632@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-[ Upstream commit 6caf8a6d6586d44fd72f4aa1021d14aa82affafb ]
+[ Upstream commit ccc8ca9b90acb45a3309f922b2591b07b4e070ec ]
 
-If the rx-offload skb_queue is full can_rx_offload_queue_tail() will not
-queue the skb and return with an error.
+The recent change in the rx_curs_confirmed assignment disregards
+byte order, which causes problems on little endian architectures.
+This patch fixes it.
 
-This patch frees the skb in case of a full queue, which brings
-can_rx_offload_queue_tail() in line with the
-can_rx_offload_queue_sorted() function, which has been adjusted in the
-previous patch.
-
-The return value is adjusted to -ENOBUFS to better reflect the actual
-problem.
-
-The device stats handling is left to the caller.
-
-Fixes: d254586c3453 ("can: rx-offload: Add support for HW fifo based irq offloading")
-Reported-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: b8649efad879 ("net/smc: fix sender_free computation") (net-tree)
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rx-offload.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/smc/smc_cdc.c |  4 +---
+ net/smc/smc_cdc.h | 19 ++++++++++---------
+ 2 files changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
-index 663697439d1c7..d1c8634099450 100644
---- a/drivers/net/can/rx-offload.c
-+++ b/drivers/net/can/rx-offload.c
-@@ -252,8 +252,10 @@ int can_rx_offload_queue_tail(struct can_rx_offload *offload,
- 			      struct sk_buff *skb)
- {
- 	if (skb_queue_len(&offload->skb_queue) >
--	    offload->skb_queue_len_max)
--		return -ENOMEM;
-+	    offload->skb_queue_len_max) {
-+		kfree_skb(skb);
-+		return -ENOBUFS;
-+	}
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 8f691b5a44ddf..333e4353498f8 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -106,9 +106,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
  
- 	skb_queue_tail(&offload->skb_queue, skb);
- 	can_rx_offload_schedule(offload);
+ 	conn->tx_cdc_seq++;
+ 	conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
+-	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf,
+-			    &conn->local_tx_ctrl, conn);
+-	smc_curs_copy(&cfed, &((struct smc_host_cdc_msg *)wr_buf)->cons, conn);
++	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf, conn, &cfed);
+ 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
+ 	if (!rc)
+ 		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 2377a51772d51..34d2e1450320a 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -186,26 +186,27 @@ static inline int smc_curs_diff_large(unsigned int size,
+ 
+ static inline void smc_host_cursor_to_cdc(union smc_cdc_cursor *peer,
+ 					  union smc_host_cursor *local,
++					  union smc_host_cursor *save,
+ 					  struct smc_connection *conn)
+ {
+-	union smc_host_cursor temp;
+-
+-	smc_curs_copy(&temp, local, conn);
+-	peer->count = htonl(temp.count);
+-	peer->wrap = htons(temp.wrap);
++	smc_curs_copy(save, local, conn);
++	peer->count = htonl(save->count);
++	peer->wrap = htons(save->wrap);
+ 	/* peer->reserved = htons(0); must be ensured by caller */
+ }
+ 
+ static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
+-				       struct smc_host_cdc_msg *local,
+-				       struct smc_connection *conn)
++				       struct smc_connection *conn,
++				       union smc_host_cursor *save)
+ {
++	struct smc_host_cdc_msg *local = &conn->local_tx_ctrl;
++
+ 	peer->common.type = local->common.type;
+ 	peer->len = local->len;
+ 	peer->seqno = htons(local->seqno);
+ 	peer->token = htonl(local->token);
+-	smc_host_cursor_to_cdc(&peer->prod, &local->prod, conn);
+-	smc_host_cursor_to_cdc(&peer->cons, &local->cons, conn);
++	smc_host_cursor_to_cdc(&peer->prod, &local->prod, save, conn);
++	smc_host_cursor_to_cdc(&peer->cons, &local->cons, save, conn);
+ 	peer->prod_flags = local->prod_flags;
+ 	peer->conn_state_flags = local->conn_state_flags;
+ }
 -- 
 2.20.1
 
