@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B858C111CFC
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:50:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4139C111CFF
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728539AbfLCWtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:49:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40262 "EHLO mail.kernel.org"
+        id S1727790AbfLCWtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:49:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727790AbfLCWtS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:49:18 -0500
+        id S1729588AbfLCWtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:49:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2B6320684;
-        Tue,  3 Dec 2019 22:49:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1BF520848;
+        Tue,  3 Dec 2019 22:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413358;
-        bh=/vmX04MLemZY4vMaELPHl3ztTQcIKNH/er6LGe97v1Y=;
+        s=default; t=1575413363;
+        bh=NIBG/DzQYeupRi6YDd/Ko+G1upVp5K5Gk4rxGAwR4UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/wfRhC+oXPl8xyLYhL7H8qvjhBfXerYyeS1DoHj6ynlsEMe2jtXDPiii41TDZ5r1
-         E3l/4BJL5d71tyk8RLoKpmwjrOnwt9vaPPyIx6/ao3I1fizWWxZ8yTDaq8YlM1fi2Z
-         vIXyg71gh3akS0Df+vn0VK+5cckK3H5cUDxVkcE8=
+        b=NncSq99oJFNkgl5Ju4HK5UXSiiwF1/b4NlGGtQc2wKprmlphWuEq3btn3Qstnnf+i
+         3pfLlIT1j1VnpRf+NOOJ6MomTyJdEFjzsDwMD8pANtti5Olf13wnZyILotHVPTRIRM
+         As05q7ID1wGuO/pLOuaZN51UTcuEbrBFwX/E/Rfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 098/321] nvme: fix kernel paging oops
-Date:   Tue,  3 Dec 2019 23:32:44 +0100
-Message-Id: <20191203223432.256097169@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Boris Brezillon <boris.brezillon@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 100/321] ubi: Put MTD device after it is not used
+Date:   Tue,  3 Dec 2019 23:32:46 +0100
+Message-Id: <20191203223432.358005360@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -43,33 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 092ff0520070fad8407b196f3bb6156ce77a6f98 ]
+[ Upstream commit b95f83ab762dd6211351b9140f99f43644076ca8 ]
 
-free the controller discard_page correctly.
+The MTD device reference is dropped via put_mtd_device, however its
+field ->index is read and passed to ubi_msg. To fix this, the patch
+moves the reference dropping after calling ubi_msg.
 
-Fixes: cb5b7262b011 ("nvme: provide fallback for discard alloc failure")
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 2 +-
+ drivers/mtd/ubi/build.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 250ccf3108e98..c4ff4f079448e 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3569,7 +3569,7 @@ static void nvme_free_ctrl(struct device *dev)
- 	ida_simple_remove(&nvme_instance_ida, ctrl->instance);
- 	kfree(ctrl->effects);
- 	nvme_mpath_uninit(ctrl);
--	kfree(ctrl->discard_page);
-+	__free_page(ctrl->discard_page);
- 
- 	if (subsys) {
- 		mutex_lock(&subsys->lock);
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index d2a726654ff11..c120c8761fcd2 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -1101,10 +1101,10 @@ int ubi_detach_mtd_dev(int ubi_num, int anyway)
+ 	ubi_wl_close(ubi);
+ 	ubi_free_internal_volumes(ubi);
+ 	vfree(ubi->vtbl);
+-	put_mtd_device(ubi->mtd);
+ 	vfree(ubi->peb_buf);
+ 	vfree(ubi->fm_buf);
+ 	ubi_msg(ubi, "mtd%d is detached", ubi->mtd->index);
++	put_mtd_device(ubi->mtd);
+ 	put_device(&ubi->dev);
+ 	return 0;
+ }
 -- 
 2.20.1
 
