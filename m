@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30338111FA1
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F5B111E2D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728440AbfLCXKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:10:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56908 "EHLO mail.kernel.org"
+        id S1730234AbfLCW4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:56:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728183AbfLCWmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:42:06 -0500
+        id S1730217AbfLCW4N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:56:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AB3920866;
-        Tue,  3 Dec 2019 22:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 152E120656;
+        Tue,  3 Dec 2019 22:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412925;
-        bh=eJH0z9YV52yUow8v5Zbm7E8SDnsfdte/C1UBeSg0ZCw=;
+        s=default; t=1575413772;
+        bh=wmuwLo9bIBTT0JivJn4LAhmhc3tLHqU1eGFflp9iTqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCNJyaOu8LR2TiI/20JUNFRHyFfhOiCNMNJfB16Pb/04MgSlwiQ97/yFbP2ChiZi7
-         MI5WKp40DcrMegSFxfdDnWNLQaXQp3JH9BBkER3lDjYwtJF4YMiGFRSgorT8E8XM+D
-         oDi107jvpgk3jln1YtaXr7BRbDbaLHMtf46mgAaI=
+        b=nOW5Ga3GMWjFCoKlnc/IY2zVvb+iOib7bijATZ72Y8CwG5meN0JljvwafyajvKJgl
+         2mTmMEA2060cnqQhHhiVRdD3X8BEIAomH0IlGb9KqBylo4Gs5MBpYZE1epZxW2oNKU
+         vxVQHFLTFfWuX/XkmpfG72ABR2G0clN9Kkg+N+IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 042/135] ASoC: hdac_hda: fix race in device removal
-Date:   Tue,  3 Dec 2019 23:34:42 +0100
-Message-Id: <20191203213015.066241334@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>, Jens Axboe <axboe@fb.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 217/321] PCI/MSI: Return -ENOSPC from pci_alloc_irq_vectors_affinity()
+Date:   Tue,  3 Dec 2019 23:34:43 +0100
+Message-Id: <20191203223438.408663775@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 5dc7d5bc9627eb26d33c7c7eefc467cf217f9326 ]
+[ Upstream commit 77f88abd4a6f73a1a68dbdc0e3f21575fd508fc3 ]
 
-When ASoC card instance is removed containing a HDA codec,
-hdac_hda_codec_remove() may run in parallel with codec resume.
-This will cause problems if the HDA link is freed with
-snd_hdac_ext_bus_link_put() while the codec is still in
-middle of its resume process.
+The API of pci_alloc_irq_vectors_affinity() says it returns -ENOSPC if
+fewer than @min_vecs interrupt vectors are available for @dev.
 
-To fix this, change the order such that pm_runtime_disable()
-is called before the link is freed. This will ensure any
-pending runtime PM action is completed before proceeding
-to free the link.
+However, if a device supports MSI-X but not MSI and a caller requests
+@min_vecs that can't be satisfied by MSI-X, we previously returned -EINVAL
+(from the failed attempt to enable MSI), not -ENOSPC.
 
-This issue can be easily hit with e.g. SOF driver by loading and
-unloading the drivers.
+When -ENOSPC is returned, callers may reduce the number IRQs they request
+and try again.  Most callers can use the @min_vecs and @max_vecs
+parameters to avoid this retry loop, but that doesn't work when using IRQ
+affinity "nr_sets" because rebalancing the sets is driver-specific.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191101170635.26389-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This return value bug has been present since pci_alloc_irq_vectors() was
+added in v4.10 by aff171641d18 ("PCI: Provide sensible IRQ vector
+alloc/free routines"), but it wasn't an issue because @min_vecs/@max_vecs
+removed the need for callers to iteratively reduce the number of IRQs
+requested and retry the allocation, so they didn't need to distinguish
+-ENOSPC from -EINVAL.
+
+In v5.0, 6da4b3ab9a6e ("genirq/affinity: Add support for allocating
+interrupt sets") added IRQ sets to the interface, which reintroduced the
+need to check for -ENOSPC and possibly reduce the number of IRQs requested
+and retry the allocation.
+
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+[bhelgaas: changelog]
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Jens Axboe <axboe@fb.com>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hda.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/msi.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/sound/soc/codecs/hdac_hda.c b/sound/soc/codecs/hdac_hda.c
-index 91242b6f8ea7a..4570f662fb48b 100644
---- a/sound/soc/codecs/hdac_hda.c
-+++ b/sound/soc/codecs/hdac_hda.c
-@@ -410,8 +410,8 @@ static void hdac_hda_codec_remove(struct snd_soc_component *component)
- 		return;
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index af24ed50a2452..971dddf62374f 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -1155,7 +1155,8 @@ int pci_alloc_irq_vectors_affinity(struct pci_dev *dev, unsigned int min_vecs,
+ 				   const struct irq_affinity *affd)
+ {
+ 	static const struct irq_affinity msi_default_affd;
+-	int vecs = -ENOSPC;
++	int msix_vecs = -ENOSPC;
++	int msi_vecs = -ENOSPC;
+ 
+ 	if (flags & PCI_IRQ_AFFINITY) {
+ 		if (!affd)
+@@ -1166,16 +1167,17 @@ int pci_alloc_irq_vectors_affinity(struct pci_dev *dev, unsigned int min_vecs,
  	}
  
--	snd_hdac_ext_bus_link_put(hdev->bus, hlink);
- 	pm_runtime_disable(&hdev->dev);
-+	snd_hdac_ext_bus_link_put(hdev->bus, hlink);
- }
+ 	if (flags & PCI_IRQ_MSIX) {
+-		vecs = __pci_enable_msix_range(dev, NULL, min_vecs, max_vecs,
+-				affd);
+-		if (vecs > 0)
+-			return vecs;
++		msix_vecs = __pci_enable_msix_range(dev, NULL, min_vecs,
++						    max_vecs, affd);
++		if (msix_vecs > 0)
++			return msix_vecs;
+ 	}
  
- static const struct snd_soc_dapm_route hdac_hda_dapm_routes[] = {
+ 	if (flags & PCI_IRQ_MSI) {
+-		vecs = __pci_enable_msi_range(dev, min_vecs, max_vecs, affd);
+-		if (vecs > 0)
+-			return vecs;
++		msi_vecs = __pci_enable_msi_range(dev, min_vecs, max_vecs,
++						  affd);
++		if (msi_vecs > 0)
++			return msi_vecs;
+ 	}
+ 
+ 	/* use legacy irq if allowed */
+@@ -1186,7 +1188,9 @@ int pci_alloc_irq_vectors_affinity(struct pci_dev *dev, unsigned int min_vecs,
+ 		}
+ 	}
+ 
+-	return vecs;
++	if (msix_vecs == -ENOSPC)
++		return -ENOSPC;
++	return msi_vecs;
+ }
+ EXPORT_SYMBOL(pci_alloc_irq_vectors_affinity);
+ 
 -- 
 2.20.1
 
