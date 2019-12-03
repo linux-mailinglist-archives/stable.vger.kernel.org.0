@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E87111BFC
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:39:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 399C9111BFE
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727798AbfLCWjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:39:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48982 "EHLO mail.kernel.org"
+        id S1727949AbfLCWjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:39:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728150AbfLCWjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:39:11 -0500
+        id S1727836AbfLCWjQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:39:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2643E2084F;
-        Tue,  3 Dec 2019 22:39:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6122E2073C;
+        Tue,  3 Dec 2019 22:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412750;
-        bh=Gvbq7mVM0/PgnucgqGPLHNcebP9gPhf52e++PEBwkx4=;
+        s=default; t=1575412755;
+        bh=3YuYJgHzPeqfnu9iRUvtg9XL7Q+BuK2tpsB3QoGyXMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxzCXdfK9KkA3fCyUgwp7+aNk+BDX71KHnzzHTxPEydQKmIrsMn1Yj3TBIiUkNRiD
-         9bjeUBnmcIcFr4P+HJcYA4snHmLum+73bgN4I6Zxv0+Snks5mzzAmriCOYZF+VKl60
-         IgjqZAPtN8Mlz1rohsS5pzDq2Bi+UwYHBTzvXKtk=
+        b=wZqETis+E9fdXXzsH8ZXCtUa7ed1qhaVwXeyOMohVmLZs+VjzgKiVOlIP7L2sAHcD
+         loZ3PAK/xBQ50vrVCBHPKO/apv1FG/x7P4lNoFssGNVfhM7hxiOyV/AP0elWRBEZdU
+         xRKpiiMK1awVzu/rwvjzTjOAyIwh0+RpY71d3IZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.4 13/46] mei: me: add comet point V device id
-Date:   Tue,  3 Dec 2019 23:35:33 +0100
-Message-Id: <20191203212729.172658977@linuxfoundation.org>
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, Rik van Riel <riel@surriel.com>,
+        Aubrey Li <aubrey.li@intel.com>,
+        Austin Clements <austin@google.com>,
+        Barret Rhoden <brho@google.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        David Chase <drchase@golang.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, ian@airs.com,
+        Ingo Molnar <mingo@redhat.com>,
+        Josh Bleecher Snyder <josharian@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
+Subject: [PATCH 5.4 15/46] x86/fpu: Dont cache access to fpu_fpregs_owner_ctx
+Date:   Tue,  3 Dec 2019 23:35:35 +0100
+Message-Id: <20191203212732.978208719@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
 References: <20191203212705.175425505@linuxfoundation.org>
@@ -44,42 +53,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 82b29b9f72afdccb40ea5f3c13c6a3cb65a597bc upstream.
+commit 59c4bd853abcea95eccc167a7d7fd5f1a5f47b98 upstream.
 
-Comet Point (Comet Lake) V device id.
+The state/owner of the FPU is saved to fpu_fpregs_owner_ctx by pointing
+to the context that is currently loaded. It never changed during the
+lifetime of a task - it remained stable/constant.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191105150514.14010-2-tomas.winkler@intel.com
+After deferred FPU registers loading until return to userland was
+implemented, the content of fpu_fpregs_owner_ctx may change during
+preemption and must not be cached.
+
+This went unnoticed for some time and was now noticed, in particular
+since gcc 9 is caching that load in copy_fpstate_to_sigframe() and
+reusing it in the retry loop:
+
+  copy_fpstate_to_sigframe()
+    load fpu_fpregs_owner_ctx and save on stack
+    fpregs_lock()
+    copy_fpregs_to_sigframe() /* failed */
+    fpregs_unlock()
+         *** PREEMPTION, another uses FPU, changes fpu_fpregs_owner_ctx ***
+
+    fault_in_pages_writeable() /* succeed, retry */
+
+    fpregs_lock()
+	__fpregs_load_activate()
+	  fpregs_state_valid() /* uses fpu_fpregs_owner_ctx from stack */
+    copy_fpregs_to_sigframe() /* succeeds, random FPU content */
+
+This is a comparison of the assembly produced by gcc 9, without vs with this
+patch:
+
+| # arch/x86/kernel/fpu/signal.c:173:      if (!access_ok(buf, size))
+|        cmpq    %rdx, %rax      # tmp183, _4
+|        jb      .L190   #,
+|-# arch/x86/include/asm/fpu/internal.h:512:       return fpu == this_cpu_read_stable(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
+|-#APP
+|-# 512 "arch/x86/include/asm/fpu/internal.h" 1
+|-       movq %gs:fpu_fpregs_owner_ctx,%rax      #, pfo_ret__
+|-# 0 "" 2
+|-#NO_APP
+|-       movq    %rax, -88(%rbp) # pfo_ret__, %sfp
+…
+|-# arch/x86/include/asm/fpu/internal.h:512:       return fpu == this_cpu_read_stable(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
+|-       movq    -88(%rbp), %rcx # %sfp, pfo_ret__
+|-       cmpq    %rcx, -64(%rbp) # pfo_ret__, %sfp
+|+# arch/x86/include/asm/fpu/internal.h:512:       return fpu == this_cpu_read(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
+|+#APP
+|+# 512 "arch/x86/include/asm/fpu/internal.h" 1
+|+       movq %gs:fpu_fpregs_owner_ctx(%rip),%rax        # fpu_fpregs_owner_ctx, pfo_ret__
+|+# 0 "" 2
+|+# arch/x86/include/asm/fpu/internal.h:512:       return fpu == this_cpu_read(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
+|+#NO_APP
+|+       cmpq    %rax, -64(%rbp) # pfo_ret__, %sfp
+
+Use this_cpu_read() instead this_cpu_read_stable() to avoid caching of
+fpu_fpregs_owner_ctx during preemption points.
+
+The Fixes: tag points to the commit where deferred FPU loading was
+added. Since this commit, the compiler is no longer allowed to move the
+load of fpu_fpregs_owner_ctx somewhere else / outside of the locked
+section. A task preemption will change its value and stale content will
+be observed.
+
+ [ bp: Massage. ]
+
+Debugged-by: Austin Clements <austin@google.com>
+Debugged-by: David Chase <drchase@golang.org>
+Debugged-by: Ian Lance Taylor <ian@airs.com>
+Fixes: 5f409e20b7945 ("x86/fpu: Defer FPU state load until return to userspace")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Tested-by: Borislav Petkov <bp@suse.de>
+Cc: Aubrey Li <aubrey.li@intel.com>
+Cc: Austin Clements <austin@google.com>
+Cc: Barret Rhoden <brho@google.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: David Chase <drchase@golang.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: ian@airs.com
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Josh Bleecher Snyder <josharian@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20191128085306.hxfa2o3knqtu4wfn@linutronix.de
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=205663
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/hw-me-regs.h |    1 +
- drivers/misc/mei/pci-me.c     |    1 +
- 2 files changed, 2 insertions(+)
+ arch/x86/include/asm/fpu/internal.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -81,6 +81,7 @@
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -509,7 +509,7 @@ static inline void __fpu_invalidate_fpre
  
- #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
- #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
-+#define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
+ static inline int fpregs_state_valid(struct fpu *fpu, unsigned int cpu)
+ {
+-	return fpu == this_cpu_read_stable(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
++	return fpu == this_cpu_read(fpu_fpregs_owner_ctx) && cpu == fpu->last_cpu;
+ }
  
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -98,6 +98,7 @@ static const struct pci_device_id mei_me
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
- 
+ /*
 
 
