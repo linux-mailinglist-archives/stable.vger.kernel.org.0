@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D6D111F5D
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF2E111F0E
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:06:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729354AbfLCWsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:48:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38542 "EHLO mail.kernel.org"
+        id S1729409AbfLCWsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:48:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729383AbfLCWsE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:48:04 -0500
+        id S1729403AbfLCWsJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:48:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45EF920656;
-        Tue,  3 Dec 2019 22:48:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A39C20862;
+        Tue,  3 Dec 2019 22:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413283;
-        bh=7xewnJeJ8wvHZnKDS85LFPSw2Dl2V6Zdfz+YH65mXK4=;
+        s=default; t=1575413288;
+        bh=S/UYcjtquDy0CcPqAHpXYiJOsV3eqyYvXDEKlXM21iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZRQCPBAiF4onGT7hB79Y3TSIGk+Y5t0j42y09xEHdeofgMGYEgLQ7WMsyBkbzE+d
-         SAThXDPqQElWlW2mTbD2dq97dam8N4tQhl39ADUkgkhPthVFCrZNEKIZDjBpZNTisO
-         AKAYty3TdqNyHqJAu+KVXYJx7NgsarT7s9tU4Nas=
+        b=tSy415VkfuohadFC920jKaPnYtWxyWld3RePokfg/YlkX/GegUFLr/G4lmW54bJvN
+         DQTUnD0ODyidTW+HVhKVqmsGR5PZU67WDcUjOEJz8gqJVhgsF5hKo6zXh20gVPhcz8
+         TzA9CVLy3xX54boJEkKpg7V1iSQlx5W0ZOPhpVwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 069/321] parisc: Fix HP SDC hpa address output
-Date:   Tue,  3 Dec 2019 23:32:15 +0100
-Message-Id: <20191203223430.756152094@linuxfoundation.org>
+Subject: [PATCH 4.19 070/321] ARM: dts: Fix hsi gdd range for omap4
+Date:   Tue,  3 Dec 2019 23:32:16 +0100
+Message-Id: <20191203223430.807658504@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -43,34 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit c4bff35ca1bfba886da6223c9fed76a2b1382b8e ]
+[ Upstream commit e9e685480b74aef3f3d0967dadb52eea3ff625d2 ]
 
-Show the hpa address of the HP SDC instead of a hashed value, e.g.:
-HP SDC: HP SDC at 0xf0201000, IRQ 23 (NMI IRQ 24)
+While reviewing the missing mcasp ranges I noticed omap4 hsi range
+for gdd is wrong so let's fix it.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+I'm not aware of any omap4 devices in mainline kernel though that use
+hsi though.
+
+Fixes: 84badc5ec5fc ("ARM: dts: omap4: Move l4 child devices to probe
+them with ti-sysc")
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/hp_sdc.c | 4 ++--
+ arch/arm/boot/dts/omap4-l4.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 0b8a25c58d02e..654252361653d 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -884,8 +884,8 @@ static int __init hp_sdc_init(void)
- 			"HP SDC NMI", &hp_sdc))
- 		goto err2;
+diff --git a/arch/arm/boot/dts/omap4-l4.dtsi b/arch/arm/boot/dts/omap4-l4.dtsi
+index 6eb26b837446c..5059ecac44787 100644
+--- a/arch/arm/boot/dts/omap4-l4.dtsi
++++ b/arch/arm/boot/dts/omap4-l4.dtsi
+@@ -196,12 +196,12 @@
+ 			clock-names = "fck";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+-			ranges = <0x0 0x58000 0x4000>;
++			ranges = <0x0 0x58000 0x5000>;
  
--	printk(KERN_INFO PREFIX "HP SDC at 0x%p, IRQ %d (NMI IRQ %d)\n",
--	       (void *)hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
-+	pr_info(PREFIX "HP SDC at 0x%08lx, IRQ %d (NMI IRQ %d)\n",
-+	       hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
+ 			hsi: hsi@0 {
+ 				compatible = "ti,omap4-hsi";
+ 				reg = <0x0 0x4000>,
+-				      <0x4a05c000 0x1000>;
++				      <0x5000 0x1000>;
+ 				reg-names = "sys", "gdd";
  
- 	hp_sdc_status_in8();
- 	hp_sdc_data_in8();
+ 				clocks = <&l3_init_clkctrl OMAP4_HSI_CLKCTRL 0>;
 -- 
 2.20.1
 
