@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AA0B111C6F
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A390111C71
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728077AbfLCWoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:44:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59838 "EHLO mail.kernel.org"
+        id S1728089AbfLCWoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:44:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbfLCWoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:44:06 -0500
+        id S1728916AbfLCWoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:44:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D0F920803;
-        Tue,  3 Dec 2019 22:44:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ADC0206EC;
+        Tue,  3 Dec 2019 22:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413045;
-        bh=7MvPI7DYjNIA6rCIusYeQYGLvxmcdB79bxNyOSfjzEs=;
+        s=default; t=1575413048;
+        bh=2AC5dinst3Ntp9oN+hLsaPSDW5/oiPHCqmHwbgE47Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vj4IEAsn13tpE/T8lRuQPu44asD13H2NTG40gVdyQmAgegTvbIVLUIvct/vEsuHrD
-         mjASgCybhD/bndeMpiS1cV72qlpwhrg2n9Pwie06KDSuOAHdwdWRiYi68HPVpxO0Ym
-         6kugmbkpLNo3QDxgLwl3D3AqXbJi8GoUhvn1jH7w=
+        b=iWAncrs/YUm/C/odp0ZrR3mL5kKkiAdaiAIPVJI0kYEx3aCgYfmKMWVzvDCc89PiC
+         doegAZdkdlGFZAWFTlWIpYdZO/8oy15N/xxYH7MuVyLLTLMFOj2+mYYmzn46zLJVx3
+         lWlKCzu8Ta/sT28ytvOfZsk0gsOsxKHT7r3z0FvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yotam Gigi <yotamg@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 114/135] net: psample: fix skb_over_panic
-Date:   Tue,  3 Dec 2019 23:35:54 +0100
-Message-Id: <20191203213042.806588618@linuxfoundation.org>
+Subject: [PATCH 5.3 115/135] net: sched: fix `tc -s class show` no bstats on class with nolock subqueues
+Date:   Tue,  3 Dec 2019 23:35:55 +0100
+Message-Id: <20191203213043.050109353@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -48,95 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-[ Upstream commit 7eb9d7675c08937cd11d32b0b40442d4d731c5ee ]
+[ Upstream commit 14e54ab9143fa60794d13ea0a66c792a2046a8f3 ]
 
-We need to calculate the skb size correctly otherwise we risk triggering
-skb_over_panic[1]. The issue is that data_len is added to the skb in a
-nl attribute, but we don't account for its header size (nlattr 4 bytes)
-and alignment. We account for it when calculating the total size in
-the > PSAMPLE_MAX_PACKET_SIZE comparison correctly, but not when
-allocating after that. The fix is simple - use nla_total_size() for
-data_len when allocating.
+When a classful qdisc's child qdisc has set the flag
+TCQ_F_CPUSTATS (pfifo_fast for example), the child qdisc's
+cpu_bstats should be passed to gnet_stats_copy_basic(),
+but many classful qdisc didn't do that. As a result,
+`tc -s class show dev DEV` always return 0 for bytes and
+packets in this case.
 
-To reproduce:
- $ tc qdisc add dev eth1 clsact
- $ tc filter add dev eth1 egress matchall action sample rate 1 group 1 trunc 129
- $ mausezahn eth1 -b bcast -a rand -c 1 -p 129
- < skb_over_panic BUG(), tail is 4 bytes past skb->end >
+Pass the child qdisc's cpu_bstats to gnet_stats_copy_basic()
+to fix this issue.
 
-[1] Trace:
- [   50.459526][ T3480] skbuff: skb_over_panic: text:(____ptrval____) len:196 put:136 head:(____ptrval____) data:(____ptrval____) tail:0xc4 end:0xc0 dev:<NULL>
- [   50.474339][ T3480] ------------[ cut here ]------------
- [   50.481132][ T3480] kernel BUG at net/core/skbuff.c:108!
- [   50.486059][ T3480] invalid opcode: 0000 [#1] PREEMPT SMP
- [   50.489463][ T3480] CPU: 3 PID: 3480 Comm: mausezahn Not tainted 5.4.0-rc7 #108
- [   50.492844][ T3480] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
- [   50.496551][ T3480] RIP: 0010:skb_panic+0x79/0x7b
- [   50.498261][ T3480] Code: bc 00 00 00 41 57 4c 89 e6 48 c7 c7 90 29 9a 83 4c 8b 8b c0 00 00 00 50 8b 83 b8 00 00 00 50 ff b3 c8 00 00 00 e8 ae ef c0 fe <0f> 0b e8 2f df c8 fe 48 8b 55 08 44 89 f6 4c 89 e7 48 c7 c1 a0 22
- [   50.504111][ T3480] RSP: 0018:ffffc90000447a10 EFLAGS: 00010282
- [   50.505835][ T3480] RAX: 0000000000000087 RBX: ffff888039317d00 RCX: 0000000000000000
- [   50.507900][ T3480] RDX: 0000000000000000 RSI: ffffffff812716e1 RDI: 00000000ffffffff
- [   50.509820][ T3480] RBP: ffffc90000447a60 R08: 0000000000000001 R09: 0000000000000000
- [   50.511735][ T3480] R10: ffffffff81d4f940 R11: 0000000000000000 R12: ffffffff834a22b0
- [   50.513494][ T3480] R13: ffffffff82c10433 R14: 0000000000000088 R15: ffffffff838a8084
- [   50.515222][ T3480] FS:  00007f3536462700(0000) GS:ffff88803eac0000(0000) knlGS:0000000000000000
- [   50.517135][ T3480] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [   50.518583][ T3480] CR2: 0000000000442008 CR3: 000000003b222000 CR4: 00000000000006e0
- [   50.520723][ T3480] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [   50.522709][ T3480] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [   50.524450][ T3480] Call Trace:
- [   50.525214][ T3480]  skb_put.cold+0x1b/0x1b
- [   50.526171][ T3480]  psample_sample_packet+0x1d3/0x340
- [   50.527307][ T3480]  tcf_sample_act+0x178/0x250
- [   50.528339][ T3480]  tcf_action_exec+0xb1/0x190
- [   50.529354][ T3480]  mall_classify+0x67/0x90
- [   50.530332][ T3480]  tcf_classify+0x72/0x160
- [   50.531286][ T3480]  __dev_queue_xmit+0x3db/0xd50
- [   50.532327][ T3480]  dev_queue_xmit+0x18/0x20
- [   50.533299][ T3480]  packet_sendmsg+0xee7/0x2090
- [   50.534331][ T3480]  sock_sendmsg+0x54/0x70
- [   50.535271][ T3480]  __sys_sendto+0x148/0x1f0
- [   50.536252][ T3480]  ? tomoyo_file_ioctl+0x23/0x30
- [   50.537334][ T3480]  ? ksys_ioctl+0x5e/0xb0
- [   50.540068][ T3480]  __x64_sys_sendto+0x2a/0x30
- [   50.542810][ T3480]  do_syscall_64+0x73/0x1f0
- [   50.545383][ T3480]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- [   50.548477][ T3480] RIP: 0033:0x7f35357d6fb3
- [   50.551020][ T3480] Code: 48 8b 0d 18 90 20 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d f9 d3 20 00 00 75 13 49 89 ca b8 2c 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 34 c3 48 83 ec 08 e8 eb f6 ff ff 48 89 04 24
- [   50.558547][ T3480] RSP: 002b:00007ffe0c7212c8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
- [   50.561870][ T3480] RAX: ffffffffffffffda RBX: 0000000001dac010 RCX: 00007f35357d6fb3
- [   50.565142][ T3480] RDX: 0000000000000082 RSI: 0000000001dac2a2 RDI: 0000000000000003
- [   50.568469][ T3480] RBP: 00007ffe0c7212f0 R08: 00007ffe0c7212d0 R09: 0000000000000014
- [   50.571731][ T3480] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000082
- [   50.574961][ T3480] R13: 0000000001dac2a2 R14: 0000000000000001 R15: 0000000000000003
- [   50.578170][ T3480] Modules linked in: sch_ingress virtio_net
- [   50.580976][ T3480] ---[ end trace 61a515626a595af6 ]---
+The qstats also has this problem, but it has been fixed
+in 5dd431b6b9 ("net: sched: introduce and use qstats read...")
+and bstats still remains buggy.
 
-CC: Yotam Gigi <yotamg@mellanox.com>
-CC: Jiri Pirko <jiri@mellanox.com>
-CC: Jamal Hadi Salim <jhs@mojatatu.com>
-CC: Simon Horman <simon.horman@netronome.com>
-CC: Roopa Prabhu <roopa@cumulusnetworks.com>
-Fixes: 6ae0a6286171 ("net: Introduce psample, a new genetlink channel for packet sampling")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Fixes: 22e0f8b9322c ("net: sched: make bstats per cpu and estimator RCU safe")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/psample/psample.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_mq.c     |    3 ++-
+ net/sched/sch_mqprio.c |    4 ++--
+ net/sched/sch_multiq.c |    2 +-
+ net/sched/sch_prio.c   |    2 +-
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/psample/psample.c
-+++ b/net/psample/psample.c
-@@ -221,7 +221,7 @@ void psample_sample_packet(struct psampl
- 		data_len = PSAMPLE_MAX_PACKET_SIZE - meta_len - NLA_HDRLEN
- 			    - NLA_ALIGNTO;
+--- a/net/sched/sch_mq.c
++++ b/net/sched/sch_mq.c
+@@ -245,7 +245,8 @@ static int mq_dump_class_stats(struct Qd
+ 	struct netdev_queue *dev_queue = mq_queue_get(sch, cl);
  
--	nl_skb = genlmsg_new(meta_len + data_len, GFP_ATOMIC);
-+	nl_skb = genlmsg_new(meta_len + nla_total_size(data_len), GFP_ATOMIC);
- 	if (unlikely(!nl_skb))
- 		return;
+ 	sch = dev_queue->qdisc_sleeping;
+-	if (gnet_stats_copy_basic(&sch->running, d, NULL, &sch->bstats) < 0 ||
++	if (gnet_stats_copy_basic(&sch->running, d, sch->cpu_bstats,
++				  &sch->bstats) < 0 ||
+ 	    qdisc_qstats_copy(d, sch) < 0)
+ 		return -1;
+ 	return 0;
+--- a/net/sched/sch_mqprio.c
++++ b/net/sched/sch_mqprio.c
+@@ -557,8 +557,8 @@ static int mqprio_dump_class_stats(struc
+ 		struct netdev_queue *dev_queue = mqprio_queue_get(sch, cl);
+ 
+ 		sch = dev_queue->qdisc_sleeping;
+-		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-					  d, NULL, &sch->bstats) < 0 ||
++		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch), d,
++					  sch->cpu_bstats, &sch->bstats) < 0 ||
+ 		    qdisc_qstats_copy(d, sch) < 0)
+ 			return -1;
+ 	}
+--- a/net/sched/sch_multiq.c
++++ b/net/sched/sch_multiq.c
+@@ -330,7 +330,7 @@ static int multiq_dump_class_stats(struc
+ 
+ 	cl_q = q->queues[cl - 1];
+ 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-				  d, NULL, &cl_q->bstats) < 0 ||
++				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
+ 	    qdisc_qstats_copy(d, cl_q) < 0)
+ 		return -1;
+ 
+--- a/net/sched/sch_prio.c
++++ b/net/sched/sch_prio.c
+@@ -356,7 +356,7 @@ static int prio_dump_class_stats(struct
+ 
+ 	cl_q = q->queues[cl - 1];
+ 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-				  d, NULL, &cl_q->bstats) < 0 ||
++				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
+ 	    qdisc_qstats_copy(d, cl_q) < 0)
+ 		return -1;
  
 
 
