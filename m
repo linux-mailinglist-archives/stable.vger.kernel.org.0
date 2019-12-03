@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60470111E92
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CAF4112005
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbfLCXCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:02:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
+        id S1728326AbfLCWl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:41:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730101AbfLCWzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:55:02 -0500
+        id S1727988AbfLCWl2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:41:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E82520803;
-        Tue,  3 Dec 2019 22:55:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 657E020684;
+        Tue,  3 Dec 2019 22:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413701;
-        bh=CQuBCBvKAAsOoZocCAsqj8Qd5e+iFxFP6/c3gZsHpI8=;
+        s=default; t=1575412887;
+        bh=z9Lv6c8+GmFz9VuW7PWrb5r+yWIK4n3hGIo4aYP7fRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJcNxhej0VcBTpBcJdUIMFfFhB5ov3OEWketlX5ODP+4N0HcW15N3S1sn5ut8+UGw
-         0mNRmI9pMz51IbVdeGb6iFiT2nF2wO4z4ZO+1MsxZ3ObNj4Wvgv/YJB+5JPuPq+sB7
-         Oj5r/Db3115KDNKEsbPa+lWNnO5YdJ47NZZWsWpI=
+        b=eWEQPSRYQQL2HQqszhIg6PmSoBPlrSAuuCufnhi+tbp3GbX6OjcG+beSI/d36HST6
+         NhHaR4kSt+dDVl7tt1upHXVtL2pbT2e6e/549uBLm9n76D+KWW1EXM+0CROaC9vpZz
+         tUFMkng2DJRpXx5PTJ1+CB5f7J3TZeEmha3OnCsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 230/321] net/smc: fix byte_order for rx_curs_confirmed
+Subject: [PATCH 5.3 056/135] can: rx-offload: can_rx_offload_offload_one(): use ERR_PTR() to propagate error value in case of errors
 Date:   Tue,  3 Dec 2019 23:34:56 +0100
-Message-Id: <20191203223439.079727632@linuxfoundation.org>
+Message-Id: <20191203213020.521176489@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +43,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit ccc8ca9b90acb45a3309f922b2591b07b4e070ec ]
+[ Upstream commit d763ab3044f0bf50bd0e6179f6b2cf1c125d1d94 ]
 
-The recent change in the rx_curs_confirmed assignment disregards
-byte order, which causes problems on little endian architectures.
-This patch fixes it.
+Before this patch can_rx_offload_offload_one() returns a pointer to a
+skb containing the read CAN frame or a NULL pointer.
 
-Fixes: b8649efad879 ("net/smc: fix sender_free computation") (net-tree)
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+However the meaning of the NULL pointer is ambiguous, it can either mean
+the requested mailbox is empty or there was an error.
+
+This patch fixes this situation by returning:
+- pointer to skb on success
+- NULL pointer if mailbox is empty
+- ERR_PTR() in case of an error
+
+All users of can_rx_offload_offload_one() have been adopted, no
+functional change intended.
+
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_cdc.c |  4 +---
- net/smc/smc_cdc.h | 19 ++++++++++---------
- 2 files changed, 11 insertions(+), 12 deletions(-)
+ drivers/net/can/rx-offload.c | 86 ++++++++++++++++++++++++++++++------
+ 1 file changed, 73 insertions(+), 13 deletions(-)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 8f691b5a44ddf..333e4353498f8 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -106,9 +106,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
- 
- 	conn->tx_cdc_seq++;
- 	conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
--	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf,
--			    &conn->local_tx_ctrl, conn);
--	smc_curs_copy(&cfed, &((struct smc_host_cdc_msg *)wr_buf)->cons, conn);
-+	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf, conn, &cfed);
- 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
- 	if (!rc)
- 		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index 2377a51772d51..34d2e1450320a 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -186,26 +186,27 @@ static inline int smc_curs_diff_large(unsigned int size,
- 
- static inline void smc_host_cursor_to_cdc(union smc_cdc_cursor *peer,
- 					  union smc_host_cursor *local,
-+					  union smc_host_cursor *save,
- 					  struct smc_connection *conn)
- {
--	union smc_host_cursor temp;
--
--	smc_curs_copy(&temp, local, conn);
--	peer->count = htonl(temp.count);
--	peer->wrap = htons(temp.wrap);
-+	smc_curs_copy(save, local, conn);
-+	peer->count = htonl(save->count);
-+	peer->wrap = htons(save->wrap);
- 	/* peer->reserved = htons(0); must be ensured by caller */
+diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
+index e224530a06300..3f5e040f0c712 100644
+--- a/drivers/net/can/rx-offload.c
++++ b/drivers/net/can/rx-offload.c
+@@ -107,39 +107,95 @@ static int can_rx_offload_compare(struct sk_buff *a, struct sk_buff *b)
+ 	return cb_b->timestamp - cb_a->timestamp;
  }
  
- static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
--				       struct smc_host_cdc_msg *local,
--				       struct smc_connection *conn)
-+				       struct smc_connection *conn,
-+				       union smc_host_cursor *save)
+-static struct sk_buff *can_rx_offload_offload_one(struct can_rx_offload *offload, unsigned int n)
++/**
++ * can_rx_offload_offload_one() - Read one CAN frame from HW
++ * @offload: pointer to rx_offload context
++ * @n: number of mailbox to read
++ *
++ * The task of this function is to read a CAN frame from mailbox @n
++ * from the device and return the mailbox's content as a struct
++ * sk_buff.
++ *
++ * If the struct can_rx_offload::skb_queue exceeds the maximal queue
++ * length (struct can_rx_offload::skb_queue_len_max) or no skb can be
++ * allocated, the mailbox contents is discarded by reading it into an
++ * overflow buffer. This way the mailbox is marked as free by the
++ * driver.
++ *
++ * Return: A pointer to skb containing the CAN frame on success.
++ *
++ *         NULL if the mailbox @n is empty.
++ *
++ *         ERR_PTR() in case of an error
++ */
++static struct sk_buff *
++can_rx_offload_offload_one(struct can_rx_offload *offload, unsigned int n)
  {
-+	struct smc_host_cdc_msg *local = &conn->local_tx_ctrl;
+-	struct sk_buff *skb = NULL;
++	struct sk_buff *skb = NULL, *skb_error = NULL;
+ 	struct can_rx_offload_cb *cb;
+ 	struct can_frame *cf;
+ 	int ret;
+ 
+-	/* If queue is full or skb not available, read to discard mailbox */
+ 	if (likely(skb_queue_len(&offload->skb_queue) <
+-		   offload->skb_queue_len_max))
++		   offload->skb_queue_len_max)) {
+ 		skb = alloc_can_skb(offload->dev, &cf);
++		if (unlikely(!skb))
++			skb_error = ERR_PTR(-ENOMEM);	/* skb alloc failed */
++	} else {
++		skb_error = ERR_PTR(-ENOBUFS);		/* skb_queue is full */
++	}
+ 
+-	if (!skb) {
++	/* If queue is full or skb not available, drop by reading into
++	 * overflow buffer.
++	 */
++	if (unlikely(skb_error)) {
+ 		struct can_frame cf_overflow;
+ 		u32 timestamp;
+ 
+ 		ret = offload->mailbox_read(offload, &cf_overflow,
+ 					    &timestamp, n);
+-		if (ret) {
+-			offload->dev->stats.rx_dropped++;
+-			offload->dev->stats.rx_fifo_errors++;
+-		}
+ 
+-		return NULL;
++		/* Mailbox was empty. */
++		if (unlikely(!ret))
++			return NULL;
 +
- 	peer->common.type = local->common.type;
- 	peer->len = local->len;
- 	peer->seqno = htons(local->seqno);
- 	peer->token = htonl(local->token);
--	smc_host_cursor_to_cdc(&peer->prod, &local->prod, conn);
--	smc_host_cursor_to_cdc(&peer->cons, &local->cons, conn);
-+	smc_host_cursor_to_cdc(&peer->prod, &local->prod, save, conn);
-+	smc_host_cursor_to_cdc(&peer->cons, &local->cons, save, conn);
- 	peer->prod_flags = local->prod_flags;
- 	peer->conn_state_flags = local->conn_state_flags;
++		/* Mailbox has been read and we're dropping it or
++		 * there was a problem reading the mailbox.
++		 *
++		 * Increment error counters in any case.
++		 */
++		offload->dev->stats.rx_dropped++;
++		offload->dev->stats.rx_fifo_errors++;
++
++		/* There was a problem reading the mailbox, propagate
++		 * error value.
++		 */
++		if (unlikely(ret < 0))
++			return ERR_PTR(ret);
++
++		return skb_error;
+ 	}
+ 
+ 	cb = can_rx_offload_get_cb(skb);
+ 	ret = offload->mailbox_read(offload, cf, &cb->timestamp, n);
+-	if (!ret) {
++
++	/* Mailbox was empty. */
++	if (unlikely(!ret)) {
+ 		kfree_skb(skb);
+ 		return NULL;
+ 	}
+ 
++	/* There was a problem reading the mailbox, propagate error value. */
++	if (unlikely(ret < 0)) {
++		kfree_skb(skb);
++
++		offload->dev->stats.rx_dropped++;
++		offload->dev->stats.rx_fifo_errors++;
++
++		return ERR_PTR(ret);
++	}
++
++	/* Mailbox was read. */
+ 	return skb;
  }
+ 
+@@ -159,7 +215,7 @@ int can_rx_offload_irq_offload_timestamp(struct can_rx_offload *offload, u64 pen
+ 			continue;
+ 
+ 		skb = can_rx_offload_offload_one(offload, i);
+-		if (!skb)
++		if (IS_ERR_OR_NULL(skb))
+ 			break;
+ 
+ 		__skb_queue_add_sort(&skb_queue, skb, can_rx_offload_compare);
+@@ -190,7 +246,11 @@ int can_rx_offload_irq_offload_fifo(struct can_rx_offload *offload)
+ 	struct sk_buff *skb;
+ 	int received = 0;
+ 
+-	while ((skb = can_rx_offload_offload_one(offload, 0))) {
++	while (1) {
++		skb = can_rx_offload_offload_one(offload, 0);
++		if (IS_ERR_OR_NULL(skb))
++			break;
++
+ 		skb_queue_tail(&offload->skb_queue, skb);
+ 		received++;
+ 	}
 -- 
 2.20.1
 
