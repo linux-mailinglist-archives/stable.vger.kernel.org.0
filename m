@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AF4111EDE
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:05:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93103111EE2
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729711AbfLCWuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:50:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41662 "EHLO mail.kernel.org"
+        id S1728746AbfLCXF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:05:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729709AbfLCWuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:50:11 -0500
+        id S1729722AbfLCWuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:50:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F04BC20656;
-        Tue,  3 Dec 2019 22:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE7A52084F;
+        Tue,  3 Dec 2019 22:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413410;
-        bh=ifwruHAoHqHKLv+HjbF5JGJp7pgttRgm2PgncmfAWrs=;
+        s=default; t=1575413415;
+        bh=ak0oafLdw9C8TV8kEB7ReTBdXAP8KMKwZSruFOSqZQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5ATwxt3U9nExAcPozaFCfeUjqBfr1MlMKqF2Opy+j/yozm+8FGDwYm1aZtSCifEu
-         5G349eM9TcEZXwwUEs/zh8oxM009Bvyof+aWl5WWPifQJ3I0JSzeujOH1ucCOZ3oGY
-         Cbkwbo0DVrFFSpI/fI///NoVWOoxvE5OtCC474Eo=
+        b=fwfZdm6BemskkcR1IMIXGjDEJr+tRpqHkjLPWYUMB9YskHf4eXYoZzvqCBNTUoZWf
+         h5C9bGXJxfqyUi+NDCi44dYi0tVO5truMbjbajRAPB+QcvkDtGQGVrvLvur6wcce1n
+         HTrzUEPLB3Y/v+JYGhkKqu7eHC1xTwsBviFGWyug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Ladislav Michl <ladis@linux-mips.org>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Roger Quadros <rogerq@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Hans van Kranenburg <hans.van.kranenburg@mendix.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 116/321] usb: ehci-omap: Fix deferred probe for phy handling
-Date:   Tue,  3 Dec 2019 23:33:02 +0100
-Message-Id: <20191203223433.182056324@linuxfoundation.org>
+Subject: [PATCH 4.19 118/321] btrfs: fix ncopies raid_attr for RAID56
+Date:   Tue,  3 Dec 2019 23:33:04 +0100
+Message-Id: <20191203223433.297773312@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -48,54 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Hans van Kranenburg <hans.van.kranenburg@mendix.com>
 
-[ Upstream commit 8dc7623bf608495b6e6743e805807c7840673573 ]
+[ Upstream commit da612e31aee51bd13231c78a47c714b543bd3ad8 ]
 
-PHY model is being used on omap5 platforms even if port mode
-is not OMAP_EHCI_PORT_MODE_PHY. So don't guess if PHY is required
-or not based on PHY mode.
+RAID5 and RAID6 profile store one copy of the data, not 2 or 3. These
+values are not yet used anywhere so there's no change.
 
-If PHY is provided in device tree, it must be required. So, if
-devm_usb_get_phy_by_phandle() gives us an error code other
-than -ENODEV (no PHY) then error out.
-
-This fixes USB Ethernet on omap5-uevm if PHY happens to
-probe after EHCI thus causing a -EPROBE_DEFER.
-
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Ladislav Michl <ladis@linux-mips.org>
-Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Hans van Kranenburg <hans.van.kranenburg@mendix.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-omap.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/btrfs/volumes.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/ehci-omap.c b/drivers/usb/host/ehci-omap.c
-index 7e4c13346a1ee..7d20296cbe9f9 100644
---- a/drivers/usb/host/ehci-omap.c
-+++ b/drivers/usb/host/ehci-omap.c
-@@ -159,11 +159,12 @@ static int ehci_hcd_omap_probe(struct platform_device *pdev)
- 		/* get the PHY device */
- 		phy = devm_usb_get_phy_by_phandle(dev, "phys", i);
- 		if (IS_ERR(phy)) {
--			/* Don't bail out if PHY is not absolutely necessary */
--			if (pdata->port_mode[i] != OMAP_EHCI_PORT_MODE_PHY)
-+			ret = PTR_ERR(phy);
-+			if (ret == -ENODEV) { /* no PHY */
-+				phy = NULL;
- 				continue;
-+			}
- 
--			ret = PTR_ERR(phy);
- 			if (ret != -EPROBE_DEFER)
- 				dev_err(dev, "Can't get PHY for port %d: %d\n",
- 					i, ret);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index f84c18e86c816..5bbcdcff68a9e 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -96,7 +96,7 @@ const struct btrfs_raid_attr btrfs_raid_array[BTRFS_NR_RAID_TYPES] = {
+ 		.devs_min	= 2,
+ 		.tolerated_failures = 1,
+ 		.devs_increment	= 1,
+-		.ncopies	= 2,
++		.ncopies	= 1,
+ 		.raid_name	= "raid5",
+ 		.bg_flag	= BTRFS_BLOCK_GROUP_RAID5,
+ 		.mindev_error	= BTRFS_ERROR_DEV_RAID5_MIN_NOT_MET,
+@@ -108,7 +108,7 @@ const struct btrfs_raid_attr btrfs_raid_array[BTRFS_NR_RAID_TYPES] = {
+ 		.devs_min	= 3,
+ 		.tolerated_failures = 2,
+ 		.devs_increment	= 1,
+-		.ncopies	= 3,
++		.ncopies	= 1,
+ 		.raid_name	= "raid6",
+ 		.bg_flag	= BTRFS_BLOCK_GROUP_RAID6,
+ 		.mindev_error	= BTRFS_ERROR_DEV_RAID6_MIN_NOT_MET,
 -- 
 2.20.1
 
