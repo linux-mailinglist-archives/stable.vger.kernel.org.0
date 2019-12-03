@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FAAB111E16
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89484111C86
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:45:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730487AbfLCW7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:59:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55608 "EHLO mail.kernel.org"
+        id S1728705AbfLCWo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:44:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730728AbfLCW7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:59:04 -0500
+        id S1728673AbfLCWoz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:44:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7A7C20803;
-        Tue,  3 Dec 2019 22:59:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE6CE2073C;
+        Tue,  3 Dec 2019 22:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413943;
-        bh=xse6kgt5T0zLm987FtTsfxKSnjkyBAkCk5p8frhNgPk=;
+        s=default; t=1575413094;
+        bh=OctZyAQ5oT6et3iOr6pcJzgVHWL+2dgefaniPGCIhEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNsVxxg7d6RWxHbd7kPIZSKh44YDZuYotn+fTLSZ7sRFEcBdWJJxVUfUClMxnSgf5
-         7VFD5keOghIau6mncYXeoW4wfl108IXYgjt68aIiyJQjGmPPg0CacDkmV/GH91FrNj
-         fjaOdtKDntK9KXfKEHmBt2A5KZlnWii6GTdDkq4A=
+        b=c1YyjMv5J3tDcm1c9V31e6aRkOFkqjaGtq7NHCdd2XzAFqlcuYUDtJRiqtr7/87jS
+         1a4jDeWS0b4PKKFs4dY8+DM9mtpm7l4MTu/Wx7THJarG7xDO7gnP+FZrCXxBAzcKaq
+         b60M5tGdrGSlDMQgH06UqUVNtiK0uKvzJZaOIV6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <yellowriver2010@hotmail.com>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Richard Weinberger <richard@nod.at>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-mtd@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 299/321] mtd: rawnand: atmel: fix possible object reference leak
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 125/135] selftests/tls: add a test for fragmented messages
 Date:   Tue,  3 Dec 2019 23:36:05 +0100
-Message-Id: <20191203223442.705005398@linuxfoundation.org>
+Message-Id: <20191203213044.842266412@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <yellowriver2010@hotmail.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-commit a12085d13997ed15f745f33a0e01002541160179 upstream.
+[ Upstream commit 65190f77424d7b82c4aad7326c9cce6bd91a2fcc ]
 
-of_find_device_by_node() takes a reference to the struct device
-when it finds a match via get_device, there is no need to call
-get_device() twice.
-We also should make sure to drop the reference to the device
-taken by of_find_device_by_node() on driver unbind.
+Add a sendmsg test with very fragmented messages. This should
+fill up sk_msg and test the boundary conditions.
 
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Signed-off-by: Wen Yang <yellowriver2010@hotmail.com>
-Suggested-by: Boris Brezillon <bbrezillon@kernel.org>
-Reviewed-by: Boris Brezillon <bbrezillon@kernel.org>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: Boris Brezillon <bbrezillon@kernel.org>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Brian Norris <computersforpeace@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mtd/nand/raw/atmel/pmecc.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ tools/testing/selftests/net/tls.c |   60 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
 
---- a/drivers/mtd/nand/raw/atmel/pmecc.c
-+++ b/drivers/mtd/nand/raw/atmel/pmecc.c
-@@ -876,23 +876,32 @@ static struct atmel_pmecc *atmel_pmecc_g
- {
- 	struct platform_device *pdev;
- 	struct atmel_pmecc *pmecc, **ptr;
-+	int ret;
- 
- 	pdev = of_find_device_by_node(np);
--	if (!pdev || !platform_get_drvdata(pdev))
-+	if (!pdev)
- 		return ERR_PTR(-EPROBE_DEFER);
-+	pmecc = platform_get_drvdata(pdev);
-+	if (!pmecc) {
-+		ret = -EPROBE_DEFER;
-+		goto err_put_device;
-+	}
- 
- 	ptr = devres_alloc(devm_atmel_pmecc_put, sizeof(*ptr), GFP_KERNEL);
--	if (!ptr)
--		return ERR_PTR(-ENOMEM);
--
--	get_device(&pdev->dev);
--	pmecc = platform_get_drvdata(pdev);
-+	if (!ptr) {
-+		ret = -ENOMEM;
-+		goto err_put_device;
-+	}
- 
- 	*ptr = pmecc;
- 
- 	devres_add(userdev, ptr);
- 
- 	return pmecc;
-+
-+err_put_device:
-+	put_device(&pdev->dev);
-+	return ERR_PTR(ret);
+--- a/tools/testing/selftests/net/tls.c
++++ b/tools/testing/selftests/net/tls.c
+@@ -268,6 +268,38 @@ TEST_F(tls, sendmsg_single)
+ 	EXPECT_EQ(memcmp(buf, test_str, send_len), 0);
  }
  
- static const int atmel_pmecc_strengths[] = { 2, 4, 8, 12, 24, 32 };
++#define MAX_FRAGS	64
++#define SEND_LEN	13
++TEST_F(tls, sendmsg_fragmented)
++{
++	char const *test_str = "test_sendmsg";
++	char buf[SEND_LEN * MAX_FRAGS];
++	struct iovec vec[MAX_FRAGS];
++	struct msghdr msg;
++	int i, frags;
++
++	for (frags = 1; frags <= MAX_FRAGS; frags++) {
++		for (i = 0; i < frags; i++) {
++			vec[i].iov_base = (char *)test_str;
++			vec[i].iov_len = SEND_LEN;
++		}
++
++		memset(&msg, 0, sizeof(struct msghdr));
++		msg.msg_iov = vec;
++		msg.msg_iovlen = frags;
++
++		EXPECT_EQ(sendmsg(self->fd, &msg, 0), SEND_LEN * frags);
++		EXPECT_EQ(recv(self->cfd, buf, SEND_LEN * frags, MSG_WAITALL),
++			  SEND_LEN * frags);
++
++		for (i = 0; i < frags; i++)
++			EXPECT_EQ(memcmp(buf + SEND_LEN * i,
++					 test_str, SEND_LEN), 0);
++	}
++}
++#undef MAX_FRAGS
++#undef SEND_LEN
++
+ TEST_F(tls, sendmsg_large)
+ {
+ 	void *mem = malloc(16384);
+@@ -694,6 +726,34 @@ TEST_F(tls, recv_lowat)
+ 	EXPECT_EQ(memcmp(send_mem, recv_mem + 10, 5), 0);
+ }
+ 
++TEST_F(tls, recv_rcvbuf)
++{
++	char send_mem[4096];
++	char recv_mem[4096];
++	int rcv_buf = 1024;
++
++	memset(send_mem, 0x1c, sizeof(send_mem));
++
++	EXPECT_EQ(setsockopt(self->cfd, SOL_SOCKET, SO_RCVBUF,
++			     &rcv_buf, sizeof(rcv_buf)), 0);
++
++	EXPECT_EQ(send(self->fd, send_mem, 512, 0), 512);
++	memset(recv_mem, 0, sizeof(recv_mem));
++	EXPECT_EQ(recv(self->cfd, recv_mem, sizeof(recv_mem), 0), 512);
++	EXPECT_EQ(memcmp(send_mem, recv_mem, 512), 0);
++
++	if (self->notls)
++		return;
++
++	EXPECT_EQ(send(self->fd, send_mem, 4096, 0), 4096);
++	memset(recv_mem, 0, sizeof(recv_mem));
++	EXPECT_EQ(recv(self->cfd, recv_mem, sizeof(recv_mem), 0), -1);
++	EXPECT_EQ(errno, EMSGSIZE);
++
++	EXPECT_EQ(recv(self->cfd, recv_mem, sizeof(recv_mem), 0), -1);
++	EXPECT_EQ(errno, EMSGSIZE);
++}
++
+ TEST_F(tls, bidir)
+ {
+ 	char const *test_str = "test_read";
 
 
