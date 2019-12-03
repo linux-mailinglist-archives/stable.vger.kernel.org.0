@@ -2,128 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D90E410FA5E
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 10:03:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1437410FA6C
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 10:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725954AbfLCJDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 04:03:50 -0500
-Received: from a27-11.smtp-out.us-west-2.amazonses.com ([54.240.27.11]:37510
-        "EHLO a27-11.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725773AbfLCJDt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 04:03:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1575363828;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:Message-ID:MIME-Version:Content-Type;
-        bh=Xr92H1SFzLYwwHnu4N4ph7LN617EsfgrqywWwIwvq5g=;
-        b=KZKyXJWu99cPHLmI9d2v8w7La6tHIU2D7xxYsSl1sovlTHqtaRYyEBmFRAmYi8V0
-        WoG/xwLiAQ2xwUs0XiYdwChC6gsj6mz699wwOqY35sN2JiJhtTe2HGqHLoX9oDCCwhb
-        dCdL9DCBmtG7LMdE94cr41h+tlJuAUWFi6g6KM9Y=
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1575363828;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:Message-ID:MIME-Version:Content-Type:Feedback-ID;
-        bh=Xr92H1SFzLYwwHnu4N4ph7LN617EsfgrqywWwIwvq5g=;
-        b=N/Ff18KAligSRfrXuDM+tXN8ncbGeDcDnBF7FN2KGwpYSF+k48YZfdGBl1aLrB4n
-        206I6vpcMM4cZoZojkrMJ4C0kfswx1o8ZEmo97gPFAkRDUMoCEiMOhzXS+Wk/415vib
-        XfIbU9Qad0Fbu9ig+NXkyBwyNWJCVuJPXuuw06yQ=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.0
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 0F355C433A2
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-From:   Kalle Valo <kvalo@codeaurora.org>
-To:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v4] iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif to Rx queues
-References: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
-        <20191203080849.12013-1-emmanuel.grumbach@intel.com>
-Date:   Tue, 3 Dec 2019 09:03:48 +0000
-In-Reply-To: <20191203080849.12013-1-emmanuel.grumbach@intel.com> (Emmanuel
-        Grumbach's message of "Tue, 3 Dec 2019 10:08:49 +0200")
-Message-ID: <0101016ecb005b15-cd83cdda-61c0-46bd-86e5-ae4449c195ef-000000@us-west-2.amazonses.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1725848AbfLCJGu convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 3 Dec 2019 04:06:50 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:36875 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725773AbfLCJGu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 04:06:50 -0500
+Received: by mail-oi1-f195.google.com with SMTP id x195so2600013oix.4;
+        Tue, 03 Dec 2019 01:06:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=99SpjBDj/3zwk9C1FEoFJcHmxVqPzeCRBXa6juwGTEo=;
+        b=TEUHwVtDBshfdDUNHM8pS8IOzahJbWBFwHrmrzXCITlpR5oXGkztp1u2jY26UCg7hk
+         koHU4dlOKtPjEPZVx9JUQNWrkx5VN2SXI/fZbG2gcJhoXSQZzz9WTJyEFfE93X9aWM0b
+         IBfvF2/gtJh/eCKWOevR/Us2m1Yj8RBOMA+GiVvn+1ZW5DhQazWaeqC3EHUFHtofUo6r
+         e0obTx+QUqHk3KqAzPxN4gLFzekg4nCx+Bxw5JepMs46BwMcr1KA9RX/V7gy9bATGApy
+         kxqWF7v35WyFC2mHI7AtbkqScfHPeGN54jL9xYk2r2GG0kmcqsJVkQ+le8nEcrSphfe5
+         6adg==
+X-Gm-Message-State: APjAAAXlnNEnVgUyyjscpwg5fc6iKxoh/wdLydNnpCzaiEUgnCPeXAS6
+        zoPPqgWXT4DfnzbyteHqLbyl7ftO4Nnc+KtMARo=
+X-Google-Smtp-Source: APXvYqwjoAhTRQ0xt52tIil49EnXS94YzS6iwjxlAYBuKV4vu5fc6aAklzn5FAd1MfYR6UoPe+55WjaSd8AcyJHVit0=
+X-Received: by 2002:aca:4e87:: with SMTP id c129mr511543oib.153.1575364009649;
+ Tue, 03 Dec 2019 01:06:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-SES-Outgoing: 2019.12.03-54.240.27.11
-Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
+References: <71cf82d5-5986-43b7-cf1c-acba429a89d6@c-s.fr> <3a95d445-1f5c-7750-f0de-ddc427800b3b@kernel.dk>
+In-Reply-To: <3a95d445-1f5c-7750-f0de-ddc427800b3b@kernel.dk>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 3 Dec 2019 10:06:37 +0100
+Message-ID: <CAMuHMdUzqnPpbSXB1JaY-+BbAvKno3akSYi6c8ZLQfLuOCC7rg@mail.gmail.com>
+Subject: Re: Build failure on latest powerpc/merge (311ae9e159d8 io_uring: fix
+ dead-hung for non-iter fixed rw)
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Emmanuel Grumbach <emmanuel.grumbach@intel.com> writes:
+Hi Jens,
 
-> The purpose of this was to keep all the queues updated with
-> the Rx sequence numbers because unlikely yet possible
-> situations where queues can't understand if a specific
-> packet needs to be dropped or not.
+On Fri, Nov 29, 2019 at 5:06 PM Jens Axboe <axboe@kernel.dk> wrote:
+> On 11/29/19 6:53 AM, Christophe Leroy wrote:
+> >     CC      fs/io_uring.o
+> > fs/io_uring.c: In function ‘loop_rw_iter’:
+> > fs/io_uring.c:1628:21: error: implicit declaration of function ‘kmap’
+> > [-Werror=implicit-function-declaration]
+> >       iovec.iov_base = kmap(iter->bvec->bv_page)
+> >                        ^
+> > fs/io_uring.c:1628:19: warning: assignment makes pointer from integer
+> > without a cast [-Wint-conversion]
+> >       iovec.iov_base = kmap(iter->bvec->bv_page)
+> >                      ^
+> > fs/io_uring.c:1643:4: error: implicit declaration of function ‘kunmap’
+> > [-Werror=implicit-function-declaration]
+> >       kunmap(iter->bvec->bv_page);
+> >       ^
+> >
+> >
+> > Reverting commit 311ae9e159d8 ("io_uring: fix dead-hung for non-iter
+> > fixed rw") clears the failure.
+> >
+> > Most likely an #include is missing.
 >
-> Unfortunately, it was reported that this caused issues in
-> our DMA engine. We don't fully understand how this is related,
-> but this is being currently debugged. For now, just don't send
-> this notification to the Rx queues. This de-facto reverts my
-> commit 3c514bf831ac12356b695ff054bef641b9e99593:
->
-> iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
->
-> This issue was reported here:
-> https://bugzilla.kernel.org/show_bug.cgi?id=204873
-> https://bugzilla.kernel.org/show_bug.cgi?id=205001
-> and others maybe.
->
-> Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
-> CC: <stable@vger.kernel.org> # 5.3+
-> Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-> ---
-> v2: fix an unused variable warning
-> v3: don't comment out the code
-> v4: fix checkpatch issues
-> ---
->  .../wireless/intel/iwlwifi/mvm/constants.h    |  1 +
->  drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 19 +++++++++++--------
->  2 files changed, 12 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/constants.h b/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
-> index 60aff2ecec12..58df25e2fb32 100644
-> --- a/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
-> +++ b/drivers/net/wireless/intel/iwlwifi/mvm/constants.h
-> @@ -154,5 +154,6 @@
->  #define IWL_MVM_D3_DEBUG			false
->  #define IWL_MVM_USE_TWT				false
->  #define IWL_MVM_AMPDU_CONSEC_DROPS_DELBA	10
-> +#define IWL_MVM_USE_NSSN_SYNC			0
->  
+> Huh weird how the build bots didn't catch that. Does the below work?
 
-[...]
+Thanks, this fixes the same issue on SuperH:
 
->  static void iwl_mvm_sync_nssn(struct iwl_mvm *mvm, u8 baid, u16 nssn)
->  {
-> -	struct iwl_mvm_rss_sync_notif notif = {
-> -		.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
-> -		.metadata.sync = 0,
-> -		.nssn_sync.baid = baid,
-> -		.nssn_sync.nssn = nssn,
-> -	};
-> -
-> -	iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
-> +	if (IWL_MVM_USE_NSSN_SYNC) {
-> +		struct iwl_mvm_rss_sync_notif notif = {
-> +			.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
-> +			.metadata.sync = 0,
-> +			.nssn_sync.baid = baid,
-> +			.nssn_sync.nssn = nssn,
-> +		};
-> +
-> +		iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif,
-> +						sizeof(notif));
-> +	}
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-This is dead code, which is frowned upon and we most likely get cleanup
-patches removing it in no time. Please just remove the code, and maybe
-even the function. You can easily add it back with git-revert when you
-want to fix it. Let's not leave dead code lying around.
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -69,6 +69,7 @@
+>   #include <linux/nospec.h>
+>   #include <linux/sizes.h>
+>   #include <linux/hugetlb.h>
+> +#include <linux/highmem.h>
+>
+>   #define CREATE_TRACE_POINTS
+>   #include <trace/events/io_uring.h>
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
