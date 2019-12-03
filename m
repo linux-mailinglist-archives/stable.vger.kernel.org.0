@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFB1111CD6
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:48:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24967111CDE
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728928AbfLCWr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:47:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38402 "EHLO mail.kernel.org"
+        id S1729283AbfLCWsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:48:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729136AbfLCWr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:47:58 -0500
+        id S1729412AbfLCWsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:48:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CB7F20656;
-        Tue,  3 Dec 2019 22:47:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70A422080F;
+        Tue,  3 Dec 2019 22:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413278;
-        bh=zfH7E1dQ0QMkwOWmVhltnebB7TPcOcSQTtCRkRBoYr0=;
+        s=default; t=1575413293;
+        bh=mlWxuW4QaOp/nmQEFoM+4MUVtpTnW56Eknmzh6voCTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLNwZebowHCJpmZAw4Cnyaq4SO4EnNm09tyrgvibodlJXTILrH+MDnfbYY/yT6zhr
-         CQjqAMvbhk0m5QHefaNRqnJGmR1C5t7OZ+7Q6s3qZ2j19hlkPgFJbXVix9jM/odcO8
-         aJaBzhtc639Txg+9AnmSeWF+RN1BxHYtNjLrgcbg=
+        b=rKULnxd0zd3XF0tBQJpGb6u5yaaTzNxbbAe71kb5WgNNoi63qc71cWtlHRolyF5UX
+         7kZte0SZ9TixMrXWN0nwNj4IrWQEGnPX3fYnZAN3F6ajPALHP3qFnUMdt60kek8TtQ
+         OHd5+Gq01CisHBDF038f8wJgypJS3m58/VXRstpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Franchi <marco.franchi@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/321] ARM: dts: imx53-voipac-dmm-668: Fix memory node duplication
-Date:   Tue,  3 Dec 2019 23:32:13 +0100
-Message-Id: <20191203223430.654153564@linuxfoundation.org>
+Subject: [PATCH 4.19 072/321] arm64: smp: Handle errors reported by the firmware
+Date:   Tue,  3 Dec 2019 23:32:18 +0100
+Message-Id: <20191203223430.910289672@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,42 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Suzuki K Poulose <Suzuki.Poulose@arm.com>
 
-[ Upstream commit 998a84c27a7f3f9133d32af64e19c05cec161a1a ]
+[ Upstream commit f357b3a7e17af7736d67d8267edc1ed3d1dd9391 ]
 
-imx53-voipac-dmm-668 has two memory nodes, but the correct representation
-would be to use a single one with two reg entries - one for each RAM chip
-select, so fix it accordingly.
+The __cpu_up() routine ignores the errors reported by the firmware
+for a CPU bringup operation and looks for the error status set by the
+booting CPU. If the CPU never entered the kernel, we could end up
+in assuming stale error status, which otherwise would have been
+set/cleared appropriately by the booting CPU.
 
-Reported-by: Marco Franchi <marco.franchi@nxp.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Marco Franchi <marco.franchi@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reported-by: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/arm64/kernel/smp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
-index f83a8c62ea531..d595034f3f1bf 100644
---- a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
-+++ b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
-@@ -17,12 +17,8 @@
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index 2c31d65bc541b..52aa51f6310b0 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -146,6 +146,7 @@ int __cpu_up(unsigned int cpu, struct task_struct *idle)
+ 		}
+ 	} else {
+ 		pr_err("CPU%u: failed to boot: %d\n", cpu, ret);
++		return ret;
+ 	}
  
- 	memory@70000000 {
- 		device_type = "memory";
--		reg = <0x70000000 0x20000000>;
--	};
--
--	memory@b0000000 {
--		device_type = "memory";
--		reg = <0xb0000000 0x20000000>;
-+		reg = <0x70000000 0x20000000>,
-+		      <0xb0000000 0x20000000>;
- 	};
- 
- 	regulators {
+ 	secondary_data.task = NULL;
 -- 
 2.20.1
 
