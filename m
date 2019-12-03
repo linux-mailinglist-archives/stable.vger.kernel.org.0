@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C89A111BE0
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:38:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50584111DCF
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbfLCWiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:38:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47004 "EHLO mail.kernel.org"
+        id S1730247AbfLCW5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:57:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727924AbfLCWiK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:38:10 -0500
+        id S1729539AbfLCW5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:57:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E01FC20684;
-        Tue,  3 Dec 2019 22:38:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A67F2053B;
+        Tue,  3 Dec 2019 22:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412690;
-        bh=V7L122m0JCzG3CnlKLZqRrIIAH7E7YKziM47LY8R0HQ=;
+        s=default; t=1575413839;
+        bh=GYUwYBLbPvTeBue7pRSHLIh9EK/b9Y9ty9FB+eIcFBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNAns0xYdf8sVoAAR+lufx6NlZ9PHsgmvVNO2UY/GZvw7yYQBpuoJfgBlOM6WZvIA
-         yo9Tk/GfG85zfYyW9bTgolwPfVmgv7YEKuEH58g7fERR/u2hB7tc/FGpUfPjpfzqpe
-         gd7yxQj4Hh3UpEqEqlFxzfJvuhGmQldlTitE+sok=
+        b=hvW55LPNn2MCDOgxIbKk6apD/8a768o+kXLrdaa88+Oc0zfm2mVZu3PrbSMIarZ16
+         dSE4QniiFeg/TqvQcVfkxfG/gN4kjW28xdT1ParydWxFBtmzYMZ58cKQmM0QWw8731
+         QhedN3EQMOplQXwTRE9sb69X2BjZAgLxFWqPWeDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 27/46] openvswitch: drop unneeded BUG_ON() in ovs_flow_cmd_build_info()
-Date:   Tue,  3 Dec 2019 23:35:47 +0100
-Message-Id: <20191203212742.616954608@linuxfoundation.org>
+Subject: [PATCH 4.19 282/321] macvlan: schedule bc_work even if error
+Date:   Tue,  3 Dec 2019 23:35:48 +0100
+Message-Id: <20191203223441.807130327@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
-References: <20191203212705.175425505@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Menglong Dong <dong.menglong@zte.com.cn>
 
-[ Upstream commit 8ffeb03fbba3b599690b361467bfd2373e8c450f ]
+[ Upstream commit 1d7ea55668878bb350979c377fc72509dd6f5b21 ]
 
-All the callers of ovs_flow_cmd_build_info() already deal with
-error return code correctly, so we can handle the error condition
-in a more gracefull way. Still dump a warning to preserve
-debuggability.
+While enqueueing a broadcast skb to port->bc_queue, schedule_work()
+is called to add port->bc_work, which processes the skbs in
+bc_queue, to "events" work queue. If port->bc_queue is full, the
+skb will be discarded and schedule_work(&port->bc_work) won't be
+called. However, if port->bc_queue is full and port->bc_work is not
+running or pending, port->bc_queue will keep full and schedule_work()
+won't be called any more, and all broadcast skbs to macvlan will be
+discarded. This case can happen:
 
-v1 -> v2:
- - clarify the commit message
- - clean the skb and report the error (DaveM)
+macvlan_process_broadcast() is the pending function of port->bc_work,
+it moves all the skbs in port->bc_queue to the queue "list", and
+processes the skbs in "list". During this, new skbs will keep being
+added to port->bc_queue in macvlan_broadcast_enqueue(), and
+port->bc_queue may already full when macvlan_process_broadcast()
+return. This may happen, especially when there are a lot of real-time
+threads and the process is preempted.
 
-Fixes: ccb1352e76cf ("net: Add Open vSwitch kernel components.")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fix this by calling schedule_work(&port->bc_work) even if
+port->bc_work is full in macvlan_broadcast_enqueue().
+
+Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/datapath.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/macvlan.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -886,7 +886,10 @@ static struct sk_buff *ovs_flow_cmd_buil
- 	retval = ovs_flow_cmd_fill_info(flow, dp_ifindex, skb,
- 					info->snd_portid, info->snd_seq, 0,
- 					cmd, ufid_flags);
--	BUG_ON(retval < 0);
-+	if (WARN_ON_ONCE(retval < 0)) {
-+		kfree_skb(skb);
-+		skb = ERR_PTR(retval);
-+	}
- 	return skb;
- }
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -363,10 +363,11 @@ static void macvlan_broadcast_enqueue(st
+ 	}
+ 	spin_unlock(&port->bc_queue.lock);
  
++	schedule_work(&port->bc_work);
++
+ 	if (err)
+ 		goto free_nskb;
+ 
+-	schedule_work(&port->bc_work);
+ 	return;
+ 
+ free_nskb:
 
 
