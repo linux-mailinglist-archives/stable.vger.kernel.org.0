@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB89B111BE9
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:38:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8DF111C6D
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728010AbfLCWia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:38:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
+        id S1728029AbfLCWoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:44:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728005AbfLCWi3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:38:29 -0500
+        id S1728897AbfLCWoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:44:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA27120684;
-        Tue,  3 Dec 2019 22:38:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA5162073C;
+        Tue,  3 Dec 2019 22:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412709;
-        bh=9dFJH4pPKlk5GhffhpQUM7dSEIwNSARrX0h+XxeiS18=;
+        s=default; t=1575413043;
+        bh=nAX1jztnTArJns5G3zDXl5/umt/1KT8SVroE95f7pao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NrsBZ35hv2/L+9+GwdaL/ONME8t97sunjN1Io1vLw8Muz5MOtEOJ28Df3b1vdi00P
-         LwFDS1uCwdw5VWBlyYGdF0+E6e+7OUFgq8m4BahkVFV9PSya7VQo2IZPBAfCQHqmt5
-         j4rC3lTVza4BN/9j8zH2j7yVhZM8RXb2FS4OBJMU=
+        b=aUfIx4EbURUmg5rYYkHHxCsK/goKbmUrj5UsqDRZMtZ0Zk1YGnFyoIyJQpJPvrjo5
+         cezuLMJpnC4JVeAt4H06wADmscF7WDaYqaA6myzDWtYwK+XsEIOqjnjzI5vyzo0CqW
+         ofvHWgnA61iBDuMFRA3qVHWF5ACyJwe8H9zzh+M0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 33/46] net/tls: remove the dead inplace_crypto code
+Subject: [PATCH 5.3 113/135] net: macb: add missed tasklet_kill
 Date:   Tue,  3 Dec 2019 23:35:53 +0100
-Message-Id: <20191203212753.658284453@linuxfoundation.org>
+Message-Id: <20191203213042.298448731@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
-References: <20191203212705.175425505@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +43,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 9e5ffed37df68d0ccfb2fdc528609e23a1e70ebe ]
+[ Upstream commit 61183b056b49e2937ff92a1424291ba36a6f6d05 ]
 
-Looks like when BPF support was added by commit d3b18ad31f93
-("tls: add bpf support to sk_msg handling") and
-commit d829e9c4112b ("tls: convert to generic sk_msg interface")
-it broke/removed the support for in-place crypto as added by
-commit 4e6d47206c32 ("tls: Add support for inplace records
-encryption").
+This driver forgets to kill tasklet in remove.
+Add the call to fix it.
 
-The inplace_crypto member of struct tls_rec is dead, inited
-to zero, and sometimes set to zero again. It used to be
-set to 1 when record was allocated, but the skmsg code doesn't
-seem to have been written with the idea of in-place crypto
-in mind.
-
-Since non trivial effort is required to bring the feature back
-and we don't really have the HW to measure the benefit just
-remove the left over support for now to avoid confusing readers.
-
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Fixes: 032dc41ba6e2 ("net: macb: Handle HRESP error")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h |    1 -
- net/tls/tls_sw.c  |    6 +-----
- 2 files changed, 1 insertion(+), 6 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -122,7 +122,6 @@ struct tls_rec {
- 	struct list_head list;
- 	int tx_ready;
- 	int tx_flags;
--	int inplace_crypto;
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -4393,6 +4393,7 @@ static int macb_remove(struct platform_d
+ 		mdiobus_free(bp->mii_bus);
  
- 	struct sk_msg msg_plaintext;
- 	struct sk_msg msg_encrypted;
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -705,8 +705,7 @@ static int tls_push_record(struct sock *
- 	}
- 
- 	i = msg_pl->sg.start;
--	sg_chain(rec->sg_aead_in, 2, rec->inplace_crypto ?
--		 &msg_en->sg.data[i] : &msg_pl->sg.data[i]);
-+	sg_chain(rec->sg_aead_in, 2, &msg_pl->sg.data[i]);
- 
- 	i = msg_en->sg.end;
- 	sk_msg_iter_var_prev(i);
-@@ -971,8 +970,6 @@ alloc_encrypted:
- 			if (ret)
- 				goto fallback_to_reg_send;
- 
--			rec->inplace_crypto = 0;
--
- 			num_zc++;
- 			copied += try_to_copy;
- 
-@@ -1171,7 +1168,6 @@ alloc_payload:
- 
- 		tls_ctx->pending_open_record_frags = true;
- 		if (full_record || eor || sk_msg_full(msg_pl)) {
--			rec->inplace_crypto = 0;
- 			ret = bpf_exec_tx_verdict(msg_pl, sk, full_record,
- 						  record_type, &copied, flags);
- 			if (ret) {
+ 		unregister_netdev(dev);
++		tasklet_kill(&bp->hresp_err_tasklet);
+ 		pm_runtime_disable(&pdev->dev);
+ 		pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 		if (!pm_runtime_suspended(&pdev->dev)) {
 
 
