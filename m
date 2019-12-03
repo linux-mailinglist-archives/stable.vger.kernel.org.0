@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D136111E46
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:01:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EEA8111FB4
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729866AbfLCXAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:00:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54306 "EHLO mail.kernel.org"
+        id S1727744AbfLCWhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:37:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729663AbfLCW6H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:58:07 -0500
+        id S1727722AbfLCWhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:37:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A7C620674;
-        Tue,  3 Dec 2019 22:58:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0C0B2073C;
+        Tue,  3 Dec 2019 22:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413886;
-        bh=KPDAVAKouFyIEFHXh9DD1GFKn0HUaQo3/0x6ooC9+u4=;
+        s=default; t=1575412656;
+        bh=klQsIEaLdkvQn9mXHsL/19l5ID92BD8wx7KpDUk+fkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09U03Vet6tmzWgQb1WvRHG4ePbTN0CPUdATTQFu8flNuNG5Y79Polp800h+Y9yIla
-         4V3ZRNReMUWptmohGaCL/DIRnAEtVNiZzKmVQ/9e4puyM4ID6yHJIpAX3t2c+IGDfj
-         6X3N6CwzGgLjYh7xm53BrqCH9bpTPOsaxG7BUfD4=
+        b=KWVMQ9fbZ2HoZvK4+WzTM2G+XC2R/H8QZrPFENjvQc8/TiZUsSROeGwY4o3k5eNPj
+         NCKAdaQ973ig1MNV5vuEs20IeDUA7vGmgQJplTz6rLhpTfw7sN2C0FNfMmtC4dwNeP
+         ac+phyoTcESEhgMgPdk0ImyTjg7iulTiUXWDuIWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gen Zhang <blackgod016574@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 260/321] powerpc/pseries/dlpar: Fix a missing check in dlpar_parse_cc_property()
+        stable@vger.kernel.org, Mathias Kresin <dev@kresin.me>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 5.4 06/46] usb: dwc2: use a longer core rest timeout in dwc2_core_reset()
 Date:   Tue,  3 Dec 2019 23:35:26 +0100
-Message-Id: <20191203223440.658123571@linuxfoundation.org>
+Message-Id: <20191203212716.752250752@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gen Zhang <blackgod016574@gmail.com>
+From: Mathias Kresin <dev@kresin.me>
 
-[ Upstream commit efa9ace68e487ddd29c2b4d6dd23242158f1f607 ]
+commit 6689f0f4bb14e50917ba42eb9b41c25e0184970c upstream.
 
-In dlpar_parse_cc_property(), 'prop->name' is allocated by kstrdup().
-kstrdup() may return NULL, so it should be checked and handle error.
-And prop should be freed if 'prop->name' is NULL.
+Testing on different generations of Lantiq MIPS SoC based boards, showed
+that it takes up to 1500 us until the core reset bit is cleared.
 
-Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The driver from the vendor SDK (ifxhcd) uses a 1 second timeout. Use the
+same timeout to fix wrong hang detections and make the driver work for
+Lantiq MIPS SoCs.
+
+At least till kernel 4.14 the hanging reset only caused a warning but
+the driver was probed successful. With kernel 4.19 errors out with
+EBUSY.
+
+Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Mathias Kresin <dev@kresin.me>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/platforms/pseries/dlpar.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/dwc2/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/dlpar.c b/arch/powerpc/platforms/pseries/dlpar.c
-index e3010b14aea51..c5ffcadab7302 100644
---- a/arch/powerpc/platforms/pseries/dlpar.c
-+++ b/arch/powerpc/platforms/pseries/dlpar.c
-@@ -63,6 +63,10 @@ static struct property *dlpar_parse_cc_property(struct cc_workarea *ccwa)
+--- a/drivers/usb/dwc2/core.c
++++ b/drivers/usb/dwc2/core.c
+@@ -524,7 +524,7 @@ int dwc2_core_reset(struct dwc2_hsotg *h
+ 	greset |= GRSTCTL_CSFTRST;
+ 	dwc2_writel(hsotg, greset, GRSTCTL);
  
- 	name = (char *)ccwa + be32_to_cpu(ccwa->name_offset);
- 	prop->name = kstrdup(name, GFP_KERNEL);
-+	if (!prop->name) {
-+		dlpar_free_cc_property(prop);
-+		return NULL;
-+	}
- 
- 	prop->length = be32_to_cpu(ccwa->prop_length);
- 	value = (char *)ccwa + be32_to_cpu(ccwa->prop_offset);
--- 
-2.20.1
-
+-	if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL, GRSTCTL_CSFTRST, 50)) {
++	if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL, GRSTCTL_CSFTRST, 10000)) {
+ 		dev_warn(hsotg->dev, "%s: HANG! Soft Reset timeout GRSTCTL GRSTCTL_CSFTRST\n",
+ 			 __func__);
+ 		return -EBUSY;
 
 
