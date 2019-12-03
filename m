@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03879111E8F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC44E11200A
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728397AbfLCWym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:54:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48712 "EHLO mail.kernel.org"
+        id S1728054AbfLCXL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:11:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729804AbfLCWyl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:54:41 -0500
+        id S1728493AbfLCWlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:41:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B066921555;
-        Tue,  3 Dec 2019 22:54:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A77892080F;
+        Tue,  3 Dec 2019 22:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413681;
-        bh=Cfh5iaPFdbxtC3r2r5rJvmuhIpcUY0ww7bg/ux2CRcw=;
+        s=default; t=1575412870;
+        bh=gmkqITVE8PGJGuEhaWc9mN+E4wkFS7wTkN2DS9OIQpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6dtR60mEsC+Iy2XTEw/MyebulE0bMB4KcgI5s30RhYFwYyOxfNjFoPXKx74NX0/K
-         AYModSaTIg0/7O91PtBWkigvVlRbAE5iYFGGDB42rec/WELzxjyUw5waC57HRoDtZt
-         HVHBl7mTflZyV5v09Mgn/h6CJ1HuThaq+m7A9Fwk=
+        b=Zj/mtU4sxdkPtF8WoZkZCwCCw0eWzMiQqAQ7y4z/ELHwlt0o5LX89BAeeKfBUNJFR
+         4pMhlQBOuyowdtXazXEJe1i7cFT1iUo6i1mext9I9dJZ40ovM8LrLdfG8uETtVwo36
+         dmcmqm1mrcYUgVvWDNPELcm3BA7pzcXwAHllTcYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 222/321] ip_tunnel: Make none-tunnel-dst tunnel port work with lwtunnel
-Date:   Tue,  3 Dec 2019 23:34:48 +0100
-Message-Id: <20191203223438.666158833@linuxfoundation.org>
+Subject: [PATCH 5.3 049/135] netfilter: nf_tables_offload: skip EBUSY on chain update
+Date:   Tue,  3 Dec 2019 23:34:49 +0100
+Message-Id: <20191203213019.293433576@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wenxu <wenxu@ucloud.cn>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit d71b57532d70c03f4671dd04e84157ac6bf021b0 ]
+[ Upstream commit 88c749840dff58e7a40e18bf9bdace15f27ef259 ]
 
-ip l add dev tun type gretap key 1000
-ip a a dev tun 10.0.0.1/24
+Do not try to bind a chain again if it exists, otherwise the driver
+returns EBUSY.
 
-Packets with tun-id 1000 can be recived by tun dev. But packet can't
-be sent through dev tun for non-tunnel-dst
-
-With this patch: tunnel-dst can be get through lwtunnel like beflow:
-ip r a 10.0.0.7 encap ip dst 172.168.0.11 dev tun
-
-Signed-off-by: wenxu <wenxu@ucloud.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c9626a2cbdb2 ("netfilter: nf_tables: add hardware offload support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_tunnel.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_offload.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index c4f5602308edc..054d01c16dc6a 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -644,13 +644,19 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
- 	dst = tnl_params->daddr;
- 	if (dst == 0) {
- 		/* NBMA tunnel */
-+		struct ip_tunnel_info *tun_info;
+diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
+index c0d18c1d77ac0..04fbab60e8080 100644
+--- a/net/netfilter/nf_tables_offload.c
++++ b/net/netfilter/nf_tables_offload.c
+@@ -241,7 +241,8 @@ int nft_flow_rule_offload_commit(struct net *net)
  
- 		if (!skb_dst(skb)) {
- 			dev->stats.tx_fifo_errors++;
- 			goto tx_error;
- 		}
+ 		switch (trans->msg_type) {
+ 		case NFT_MSG_NEWCHAIN:
+-			if (!(trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD))
++			if (!(trans->ctx.chain->flags & NFT_CHAIN_HW_OFFLOAD) ||
++			    nft_trans_chain_update(trans))
+ 				continue;
  
--		if (skb->protocol == htons(ETH_P_IP)) {
-+		tun_info = skb_tunnel_info(skb);
-+		if (tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) &&
-+		    ip_tunnel_info_af(tun_info) == AF_INET &&
-+		    tun_info->key.u.ipv4.dst)
-+			dst = tun_info->key.u.ipv4.dst;
-+		else if (skb->protocol == htons(ETH_P_IP)) {
- 			rt = skb_rtable(skb);
- 			dst = rt_nexthop(rt, inner_iph->daddr);
- 		}
+ 			err = nft_flow_offload_chain(trans, FLOW_BLOCK_BIND);
 -- 
 2.20.1
 
