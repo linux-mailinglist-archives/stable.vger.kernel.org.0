@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3784F111D1B
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:51:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92533111D1E
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:51:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729732AbfLCWuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:50:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41830 "EHLO mail.kernel.org"
+        id S1728794AbfLCWuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:50:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729731AbfLCWuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:50:19 -0500
+        id S1729065AbfLCWuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:50:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA09D20656;
-        Tue,  3 Dec 2019 22:50:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9315B2080F;
+        Tue,  3 Dec 2019 22:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413418;
-        bh=ixzM77mmAEzKa7tBc5NRii33XANhKZZ0LS4L+LzBBAE=;
+        s=default; t=1575413424;
+        bh=n7bbc5CvXmVJKbMZHCqQRLTFZI8HbEAAyJkp28oPY4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wDHlWWjvE00zLBHRIeyiqpEpqUh8YWs+nGMZ8PkZRpIweZ2AwN/rckcRIZXR1ohaQ
-         g0ArDOQEn9x7kJvXvEfJytNAAVE6jniQ9WwlumvhDrwgBpl37Hq3rj5jul5ZGseD6R
-         42BPpQpdmwaXkfp0cJhvJck78ewkQ84axiBtpNVA=
+        b=H/3pqlkM8xWaNe4xe5bMqRfrOsCXdZOhWR9M/vOYHhKkC6KDpqjzkTy+dAsF2E+Ty
+         3HHr89GuOpB8t+fZciKWO99Q7NMLyzvnTRjH1h3rR6gPcNpE5F11WZ3g7cbyUPfNiX
+         3pCjqLe2CHLGDk13VuDYwFrrgkoX+lA5ZIuReV68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <jbacik@fb.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/321] btrfs: dev-replace: set result code of cancel by status of scrub
-Date:   Tue,  3 Dec 2019 23:33:05 +0100
-Message-Id: <20191203223433.348700452@linuxfoundation.org>
+Subject: [PATCH 4.19 121/321] btrfs: only track ref_heads in delayed_ref_updates
+Date:   Tue,  3 Dec 2019 23:33:07 +0100
+Message-Id: <20191203223433.451314810@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -44,62 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Josef Bacik <jbacik@fb.com>
 
-[ Upstream commit b47dda2ef6d793b67fd5979032dcd106e3f0a5c9 ]
+[ Upstream commit 158ffa364bf723fa1ef128060646d23dc3942994 ]
 
-The device-replace needs to check the result code of the scrub workers
-in btrfs_dev_replace_cancel and distinguish if successful cancel
-operation and when the there was no operation running.
+We use this number to figure out how many delayed refs to run, but
+__btrfs_run_delayed_refs really only checks every time we need a new
+delayed ref head, so we always run at least one ref head completely no
+matter what the number of items on it.  Fix the accounting to only be
+adjusted when we add/remove a ref head.
 
-If btrfs_scrub_cancel() fails, return
-BTRFS_IOCTL_DEV_REPLACE_RESULT_NOT_STARTED so that user can try
-to cancel the replace again.
+In addition to using this number to limit the number of delayed refs
+run, a future patch is also going to use it to calculate the amount of
+space required for delayed refs space reservation.
 
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ update changelog ]
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <jbacik@fb.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/dev-replace.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ fs/btrfs/delayed-ref.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
-index 23b13fbecdc22..96763805787ed 100644
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -810,16 +810,23 @@ int btrfs_dev_replace_cancel(struct btrfs_fs_info *fs_info)
- 		btrfs_dev_replace_write_unlock(dev_replace);
- 		break;
- 	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
--		result = BTRFS_IOCTL_DEV_REPLACE_RESULT_NO_ERROR;
- 		tgt_device = dev_replace->tgtdev;
- 		src_device = dev_replace->srcdev;
- 		btrfs_dev_replace_write_unlock(dev_replace);
--		btrfs_scrub_cancel(fs_info);
--		/* btrfs_dev_replace_finishing() will handle the cleanup part */
--		btrfs_info_in_rcu(fs_info,
--			"dev_replace from %s (devid %llu) to %s canceled",
--			btrfs_dev_name(src_device), src_device->devid,
--			btrfs_dev_name(tgt_device));
-+		ret = btrfs_scrub_cancel(fs_info);
-+		if (ret < 0) {
-+			result = BTRFS_IOCTL_DEV_REPLACE_RESULT_NOT_STARTED;
-+		} else {
-+			result = BTRFS_IOCTL_DEV_REPLACE_RESULT_NO_ERROR;
-+			/*
-+			 * btrfs_dev_replace_finishing() will handle the
-+			 * cleanup part
-+			 */
-+			btrfs_info_in_rcu(fs_info,
-+				"dev_replace from %s (devid %llu) to %s canceled",
-+				btrfs_dev_name(src_device), src_device->devid,
-+				btrfs_dev_name(tgt_device));
-+		}
- 		break;
- 	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
- 		/*
+diff --git a/fs/btrfs/delayed-ref.c b/fs/btrfs/delayed-ref.c
+index 62ff545ba1f71..7e5c81e80e15d 100644
+--- a/fs/btrfs/delayed-ref.c
++++ b/fs/btrfs/delayed-ref.c
+@@ -234,8 +234,6 @@ static inline void drop_delayed_ref(struct btrfs_trans_handle *trans,
+ 	ref->in_tree = 0;
+ 	btrfs_put_delayed_ref(ref);
+ 	atomic_dec(&delayed_refs->num_entries);
+-	if (trans->delayed_ref_updates)
+-		trans->delayed_ref_updates--;
+ }
+ 
+ static bool merge_ref(struct btrfs_trans_handle *trans,
+@@ -446,7 +444,6 @@ inserted:
+ 	if (ref->action == BTRFS_ADD_DELAYED_REF)
+ 		list_add_tail(&ref->add_list, &href->ref_add_list);
+ 	atomic_inc(&root->num_entries);
+-	trans->delayed_ref_updates++;
+ 	spin_unlock(&href->lock);
+ 	return ret;
+ }
 -- 
 2.20.1
 
