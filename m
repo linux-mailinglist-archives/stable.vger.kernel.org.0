@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EEA8111FB4
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15BFA111FB5
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727744AbfLCWhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:37:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
+        id S1727766AbfLCWhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727722AbfLCWhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:37:37 -0500
+        id S1727722AbfLCWhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:37:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0C0B2073C;
-        Tue,  3 Dec 2019 22:37:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C56A2073C;
+        Tue,  3 Dec 2019 22:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412656;
-        bh=klQsIEaLdkvQn9mXHsL/19l5ID92BD8wx7KpDUk+fkw=;
+        s=default; t=1575412659;
+        bh=fTap50hOM9PnZz9jwJ7d7gNLsTKF+xqDJGkeYz8Vz6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWVMQ9fbZ2HoZvK4+WzTM2G+XC2R/H8QZrPFENjvQc8/TiZUsSROeGwY4o3k5eNPj
-         NCKAdaQ973ig1MNV5vuEs20IeDUA7vGmgQJplTz6rLhpTfw7sN2C0FNfMmtC4dwNeP
-         ac+phyoTcESEhgMgPdk0ImyTjg7iulTiUXWDuIWc=
+        b=E/VJ1PG+SXaWCGZU/ML/BIYJpnqTPRvn8cK67m6dyW6OU0o+lmCbkVZXCXZ2VFu4R
+         da3+/LxCoaB9DA3SjAtrH9GtxG8bfhSpMvgfgYVvmWyXE4UFuOAZqdarQZ1HIPtkDh
+         Et7fEgD4bjTlskgdcK0M9VMhnBQZuoqBPR5ZUWX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Kresin <dev@kresin.me>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 5.4 06/46] usb: dwc2: use a longer core rest timeout in dwc2_core_reset()
-Date:   Tue,  3 Dec 2019 23:35:26 +0100
-Message-Id: <20191203212716.752250752@linuxfoundation.org>
+        stable@vger.kernel.org,
+        coverity-bot <keescook+coverity-bot@chromium.org>,
+        Ajay Singh <ajay.kathat@microchip.com>
+Subject: [PATCH 5.4 07/46] staging: wilc1000: fix illegal memory access in wilc_parse_join_bss_param()
+Date:   Tue,  3 Dec 2019 23:35:27 +0100
+Message-Id: <20191203212719.625581572@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
 References: <20191203212705.175425505@linuxfoundation.org>
@@ -43,40 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Kresin <dev@kresin.me>
+From: Ajay Singh <ajay.kathat@microchip.com>
 
-commit 6689f0f4bb14e50917ba42eb9b41c25e0184970c upstream.
+commit c7e621bb981b76d3bfd8a595070ee8282ac4a32b upstream.
 
-Testing on different generations of Lantiq MIPS SoC based boards, showed
-that it takes up to 1500 us until the core reset bit is cleared.
+Do not copy the extended supported rates in 'param->supp_rates' if the
+array is already full with basic rates values. The array size check
+helped to avoid possible illegal memory access [1] while copying to
+'param->supp_rates' array.
 
-The driver from the vendor SDK (ifxhcd) uses a 1 second timeout. Use the
-same timeout to fix wrong hang detections and make the driver work for
-Lantiq MIPS SoCs.
+1. https://marc.info/?l=linux-next&m=157301720517456&w=2
 
-At least till kernel 4.14 the hanging reset only caused a warning but
-the driver was probed successful. With kernel 4.19 errors out with
-EBUSY.
-
-Cc: linux-stable <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Mathias Kresin <dev@kresin.me>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Addresses-Coverity-ID: 1487400 ("Memory - illegal accesses")
+Fixes: 4e0b0f42c9c7 ("staging: wilc1000: use struct to pack join parameters for FW")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
+Link: https://lore.kernel.org/r/20191106062127.3165-1-ajay.kathat@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc2/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/wilc1000/wilc_hif.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/dwc2/core.c
-+++ b/drivers/usb/dwc2/core.c
-@@ -524,7 +524,7 @@ int dwc2_core_reset(struct dwc2_hsotg *h
- 	greset |= GRSTCTL_CSFTRST;
- 	dwc2_writel(hsotg, greset, GRSTCTL);
+--- a/drivers/staging/wilc1000/wilc_hif.c
++++ b/drivers/staging/wilc1000/wilc_hif.c
+@@ -477,16 +477,21 @@ void *wilc_parse_join_bss_param(struct c
+ 		memcpy(&param->supp_rates[1], rates_ie + 2, rates_len);
+ 	}
  
--	if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL, GRSTCTL_CSFTRST, 50)) {
-+	if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL, GRSTCTL_CSFTRST, 10000)) {
- 		dev_warn(hsotg->dev, "%s: HANG! Soft Reset timeout GRSTCTL GRSTCTL_CSFTRST\n",
- 			 __func__);
- 		return -EBUSY;
+-	supp_rates_ie = cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES, ies->data,
+-					 ies->len);
+-	if (supp_rates_ie) {
+-		if (supp_rates_ie[1] > (WILC_MAX_RATES_SUPPORTED - rates_len))
+-			param->supp_rates[0] = WILC_MAX_RATES_SUPPORTED;
+-		else
+-			param->supp_rates[0] += supp_rates_ie[1];
++	if (rates_len < WILC_MAX_RATES_SUPPORTED) {
++		supp_rates_ie = cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES,
++						 ies->data, ies->len);
++		if (supp_rates_ie) {
++			u8 ext_rates = supp_rates_ie[1];
+ 
+-		memcpy(&param->supp_rates[rates_len + 1], supp_rates_ie + 2,
+-		       (param->supp_rates[0] - rates_len));
++			if (ext_rates > (WILC_MAX_RATES_SUPPORTED - rates_len))
++				param->supp_rates[0] = WILC_MAX_RATES_SUPPORTED;
++			else
++				param->supp_rates[0] += ext_rates;
++
++			memcpy(&param->supp_rates[rates_len + 1],
++			       supp_rates_ie + 2,
++			       (param->supp_rates[0] - rates_len));
++		}
+ 	}
+ 
+ 	ht_ie = cfg80211_find_ie(WLAN_EID_HT_CAPABILITY, ies->data, ies->len);
 
 
