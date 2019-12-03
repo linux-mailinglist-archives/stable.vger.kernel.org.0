@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 195A2111C80
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:44:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 884AD111DBA
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728676AbfLCWoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:44:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60938 "EHLO mail.kernel.org"
+        id S1728140AbfLCW43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:56:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727956AbfLCWop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:44:45 -0500
+        id S1730434AbfLCW42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:56:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 003B52073C;
-        Tue,  3 Dec 2019 22:44:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B505520866;
+        Tue,  3 Dec 2019 22:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413084;
-        bh=LtANjkoHYToz+uzM+RsYoOHUKZFGyX8k2IRCUe6MGLU=;
+        s=default; t=1575413788;
+        bh=Z8aICHbrIM347DJ5/MBMdz5RRjHh6rlblcjp0EeSyYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MGtiVpL2xxFjgVCgNLsxYZn7KP9fHahn/pQg1kx+8UPMKmuJR//H2xWwv7vqVcV6
-         lQ4aC2blGMDnMH7Ohw/ytRwd432TmkJJp89kuK0hpQy7ZOp8ffJnnyxmrLEmroPvHk
-         iQ2vwrSjHUih28DFjotXWiux86luMBo5O4qzaQaI=
+        b=1CEQIKwYK3eOc16aO7G2BlbA0DK3N8Ea1bo8P2ukMElPkMFRe0sN1YCEIRv5m7kNM
+         MiT/E4m8ytrxvZT++2i0hsVpiIO16hKmOmjnltwq8/bkionWHHJoD0eaH+niD6PNHE
+         q+vJR6Ti2Y0MH0YMpWTP8Ze5HGaHLOl+ULGNzCmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 088/135] ceph: return -EINVAL if given fsc mount option on kernel w/o support
-Date:   Tue,  3 Dec 2019 23:35:28 +0100
-Message-Id: <20191203213035.327225900@linuxfoundation.org>
+Subject: [PATCH 4.19 263/321] mm, gup: add missing refcount overflow checks on s390
+Date:   Tue,  3 Dec 2019 23:35:29 +0100
+Message-Id: <20191203223440.811248012@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-[ Upstream commit ff29fde84d1fc82f233c7da0daa3574a3942bec7 ]
+The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
+overflowing page refcount") was backported to 4.19.y stable as commit
+d972ebbf42ba. The backport however missed that in 4.19, there are several
+arch-specific gup.c versions with fast gup implementations, so these do not
+prevent refcount overflow.
 
-If someone requests fscache on the mount, and the kernel doesn't
-support it, it should fail the mount.
+This stable-only commit fixes the s390 version, and is based on the backport in
+SUSE SLES/openSUSE 4.12-based kernels.
 
-[ Drop ceph prefix -- it's provided by pr_err. ]
+The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
+the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
+problem for those architectures, and I don't feel confident enough to patch
+them.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/super.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/s390/mm/gup.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ceph/super.c b/fs/ceph/super.c
-index ab4868c7308ec..b565c55ed0648 100644
---- a/fs/ceph/super.c
-+++ b/fs/ceph/super.c
-@@ -255,6 +255,7 @@ static int parse_fsopt_token(char *c, void *private)
- 			return -ENOMEM;
- 		break;
- 	case Opt_fscache_uniq:
-+#ifdef CONFIG_CEPH_FSCACHE
- 		kfree(fsopt->fscache_uniq);
- 		fsopt->fscache_uniq = kstrndup(argstr[0].from,
- 					       argstr[0].to-argstr[0].from,
-@@ -263,7 +264,10 @@ static int parse_fsopt_token(char *c, void *private)
- 			return -ENOMEM;
- 		fsopt->flags |= CEPH_MOUNT_OPT_FSCACHE;
- 		break;
--		/* misc */
-+#else
-+		pr_err("fscache support is disabled\n");
-+		return -EINVAL;
-+#endif
- 	case Opt_wsize:
- 		if (intval < (int)PAGE_SIZE || intval > CEPH_MAX_WRITE_SIZE)
- 			return -EINVAL;
-@@ -340,10 +344,15 @@ static int parse_fsopt_token(char *c, void *private)
- 		fsopt->flags &= ~CEPH_MOUNT_OPT_INO32;
- 		break;
- 	case Opt_fscache:
-+#ifdef CONFIG_CEPH_FSCACHE
- 		fsopt->flags |= CEPH_MOUNT_OPT_FSCACHE;
- 		kfree(fsopt->fscache_uniq);
- 		fsopt->fscache_uniq = NULL;
- 		break;
-+#else
-+		pr_err("fscache support is disabled\n");
-+		return -EINVAL;
-+#endif
- 	case Opt_nofscache:
- 		fsopt->flags &= ~CEPH_MOUNT_OPT_FSCACHE;
- 		kfree(fsopt->fscache_uniq);
+diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
+index 2809d11c7a283..9b5b866d8adf1 100644
+--- a/arch/s390/mm/gup.c
++++ b/arch/s390/mm/gup.c
+@@ -39,7 +39,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+ 		head = compound_head(page);
+-		if (!page_cache_get_speculative(head))
++		if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++		    || !page_cache_get_speculative(head)))
+ 			return 0;
+ 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+ 			put_page(head);
+@@ -77,7 +78,8 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs))) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -151,7 +153,8 @@ static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs))) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
 -- 
 2.20.1
 
