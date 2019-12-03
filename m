@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FEC111E9C
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7BFF111FE8
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728033AbfLCXCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:02:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47562 "EHLO mail.kernel.org"
+        id S1728384AbfLCWkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:40:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728720AbfLCWx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:53:57 -0500
+        id S1728065AbfLCWkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:40:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EE2A20865;
-        Tue,  3 Dec 2019 22:53:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A03920684;
+        Tue,  3 Dec 2019 22:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413637;
-        bh=ZJ8gpXQBhU0zBIqGfk5Yz47S/EoXgQRH3InZOl3iSCY=;
+        s=default; t=1575412821;
+        bh=UrwV+/fwXSBpY1YoZJU5Of4gNpHAM4fNjoTfjtPcWBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKsxlspFcicI+edsttfkauZmJzeYqoPXVP40LHdSuM3bGZBa9bluSxmhiD3pNBkRm
-         9nYKcDvd++jUVHeblcMWD/dt+8kfbesUpjVOJz3Z4SKt+wb4l2ElFRcKaP9GcpdceU
-         9hCbvPeT2WpwtivH6wfYmExKUfgoGc0naS4e70SE=
+        b=je02bISGallaB8QMIxZM9MXLuDuiSwgXtAeZ9A2wlOcN4dhi0S/28wRjaOBgq3zA3
+         GMaecIYgb05oIkU+QMKxKkxgVaiTT/wgevSTqokiWSo2FIvfcLyFrQT3mjvtFRuIuJ
+         mW+hTcJgRS1j6mA+3k6ASBa9rQLuhKCSub/QLMLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Maxime Ripard <mripard@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 203/321] xprtrdma: Prevent leak of rpcrdma_rep objects
+Subject: [PATCH 5.3 029/135] clk: sunxi: Fix operator precedence in sunxi_divs_clk_setup
 Date:   Tue,  3 Dec 2019 23:34:29 +0100
-Message-Id: <20191203223437.682769675@linuxfoundation.org>
+Message-Id: <20191203213011.737005692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 07e10308ee5da8e6132e0b737ece1c99dd651fb6 ]
+[ Upstream commit afdc74ed2d57e86c10b1d6831339770a802bab9a ]
 
-If a reply has been processed but the RPC is later retransmitted
-anyway, the req->rl_reply field still contains the only pointer to
-the old rpcrdma rep. When the next reply comes in, the reply handler
-will stomp on the rl_reply field, leaking the old rep.
+r375326 in Clang exposes an issue with operator precedence in
+sunxi_div_clk_setup:
 
-A trace event is added to capture such leaks.
+drivers/clk/sunxi/clk-sunxi.c:1083:30: warning: operator '?:' has lower
+precedence than '|'; '|' will be evaluated first
+[-Wbitwise-conditional-parentheses]
+                                                 data->div[i].critical ?
+                                                 ~~~~~~~~~~~~~~~~~~~~~ ^
+drivers/clk/sunxi/clk-sunxi.c:1083:30: note: place parentheses around
+the '|' expression to silence this warning
+                                                 data->div[i].critical ?
+                                                                       ^
+                                                                      )
+drivers/clk/sunxi/clk-sunxi.c:1083:30: note: place parentheses around
+the '?:' expression to evaluate it first
+                                                 data->div[i].critical ?
+                                                                       ^
+                                                 (
+1 warning generated.
 
-This problem seems to be worsened by the restructuring of the RPC
-Call path in v4.20. Fully addressing this issue will require at
-least a re-architecture of the disconnect logic, which is not
-appropriate during -rc.
+It appears that the intention was for ?: to be evaluated first so that
+CLK_IS_CRITICAL could be added to clkflags if the critical boolean was
+set; right now, | is being evaluated first. Add parentheses around the
+?: block to have it be evaluated first.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 9919d44ff297 ("clk: sunxi: Use CLK_IS_CRITICAL flag for critical clks")
+Link: https://github.com/ClangBuiltLinux/linux/issues/745
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Maxime Ripard <mripard@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rpcrdma.h | 28 ++++++++++++++++++++++++++++
- net/sunrpc/xprtrdma/rpc_rdma.c |  4 ++++
- 2 files changed, 32 insertions(+)
+ drivers/clk/sunxi/clk-sunxi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/trace/events/rpcrdma.h b/include/trace/events/rpcrdma.h
-index 53df203b8057a..4c91cadd1871d 100644
---- a/include/trace/events/rpcrdma.h
-+++ b/include/trace/events/rpcrdma.h
-@@ -917,6 +917,34 @@ TRACE_EVENT(xprtrdma_cb_setup,
- DEFINE_CB_EVENT(xprtrdma_cb_call);
- DEFINE_CB_EVENT(xprtrdma_cb_reply);
+diff --git a/drivers/clk/sunxi/clk-sunxi.c b/drivers/clk/sunxi/clk-sunxi.c
+index d3a43381a7927..27201fd26e442 100644
+--- a/drivers/clk/sunxi/clk-sunxi.c
++++ b/drivers/clk/sunxi/clk-sunxi.c
+@@ -1080,8 +1080,8 @@ static struct clk ** __init sunxi_divs_clk_setup(struct device_node *node,
+ 						 rate_hw, rate_ops,
+ 						 gate_hw, &clk_gate_ops,
+ 						 clkflags |
+-						 data->div[i].critical ?
+-							CLK_IS_CRITICAL : 0);
++						 (data->div[i].critical ?
++							CLK_IS_CRITICAL : 0));
  
-+TRACE_EVENT(xprtrdma_leaked_rep,
-+	TP_PROTO(
-+		const struct rpc_rqst *rqst,
-+		const struct rpcrdma_rep *rep
-+	),
-+
-+	TP_ARGS(rqst, rep),
-+
-+	TP_STRUCT__entry(
-+		__field(unsigned int, task_id)
-+		__field(unsigned int, client_id)
-+		__field(u32, xid)
-+		__field(const void *, rep)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->task_id = rqst->rq_task->tk_pid;
-+		__entry->client_id = rqst->rq_task->tk_client->cl_clid;
-+		__entry->xid = be32_to_cpu(rqst->rq_xid);
-+		__entry->rep = rep;
-+	),
-+
-+	TP_printk("task:%u@%u xid=0x%08x rep=%p",
-+		__entry->task_id, __entry->client_id, __entry->xid,
-+		__entry->rep
-+	)
-+);
-+
- /**
-  ** Server-side RPC/RDMA events
-  **/
-diff --git a/net/sunrpc/xprtrdma/rpc_rdma.c b/net/sunrpc/xprtrdma/rpc_rdma.c
-index c8ae983c6cc01..f2eaf264726be 100644
---- a/net/sunrpc/xprtrdma/rpc_rdma.c
-+++ b/net/sunrpc/xprtrdma/rpc_rdma.c
-@@ -1360,6 +1360,10 @@ void rpcrdma_reply_handler(struct rpcrdma_rep *rep)
- 	spin_unlock(&xprt->recv_lock);
- 
- 	req = rpcr_to_rdmar(rqst);
-+	if (req->rl_reply) {
-+		trace_xprtrdma_leaked_rep(rqst, req->rl_reply);
-+		rpcrdma_recv_buffer_put(req->rl_reply);
-+	}
- 	req->rl_reply = rep;
- 	rep->rr_rqst = rqst;
- 	clear_bit(RPCRDMA_REQ_F_PENDING, &req->rl_flags);
+ 		WARN_ON(IS_ERR(clk_data->clks[i]));
+ 	}
 -- 
 2.20.1
 
