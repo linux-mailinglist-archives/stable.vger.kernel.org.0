@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B1A111DCB
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4167F111BDD
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730348AbfLCW5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:57:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52624 "EHLO mail.kernel.org"
+        id S1727908AbfLCWiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:38:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730526AbfLCW5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:57:10 -0500
+        id S1727901AbfLCWiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:38:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CC9020865;
-        Tue,  3 Dec 2019 22:57:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C923A20684;
+        Tue,  3 Dec 2019 22:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413829;
-        bh=hg3O3/S4lttXG+2JlF6GAvLeIN89WGF2hMXQbXeBU/Q=;
+        s=default; t=1575412685;
+        bh=h9hAePb4rgYiXNu8nffA2t81ggA4eShFI9X4lZFf2fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHb+o8CKyjzmtw7zmVVRYExBjRn2+20MLBqLqHlWBknL0MQIME4v8uqN4Agb6rltC
-         04ZF0tG63FXDXjg2WCL9VfOyCXpQQJH9dwmoY7RKZAiFQBfo/yWu67S1z8bIgY37Yk
-         aLprnI5CORgwkgsmoYUQQnzVKXeCSnYDNmphiViU=
+        b=yZjKcSRNC7xGjQHBV18JKiX0SZCXRN28sHeDL9GqDnsNfImMgFMPMNYSyin7AV2Tn
+         FUiHCvFsZ5trcQgqCHXCOTXNyVZpKKYJC+7by1JMqZzgqU5sjEbm/g6UjMi47q/+QE
+         myBE2r7WSymVaG8NtOB4A0F9DPwD9XB4YTSvRasg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 278/321] net: macb: fix error format in dev_err()
-Date:   Tue,  3 Dec 2019 23:35:44 +0100
-Message-Id: <20191203223441.589593297@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+4d5170758f3762109542@syzkaller.appspotmail.com,
+        David Miller <davem@davemloft.net>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 5.4 25/46] slip: Fix use-after-free Read in slip_open
+Date:   Tue,  3 Dec 2019 23:35:45 +0100
+Message-Id: <20191203212739.816120146@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,88 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-commit f413cbb332a0b5251a790f396d0eb4ebcade5dec upstream.
+[ Upstream commit e58c1912418980f57ba2060017583067f5f71e52 ]
 
-Errors are negative numbers. Using %u shows them as very large positive
-numbers such as 4294967277 that don't make sense. Use the %d format
-instead, and get a much nicer -19.
+Slip_open doesn't clean-up device which registration failed from the
+slip_devs device list. On next open after failure this list is iterated
+and freed device is accessed. Fix this by calling sl_free_netdev in error
+path.
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Fixes: b48e0bab142f ("net: macb: Migrate to devm clock interface")
-Fixes: 93b31f48b3ba ("net/macb: unify clock management")
-Fixes: 421d9df0628b ("net/macb: merge at91_ether driver into macb driver")
-Fixes: aead88bd0e99 ("net: ethernet: macb: Add support for rx_clk")
-Fixes: f5473d1d44e4 ("net: macb: Support clock management for tsu_clk")
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Here is the trace from the Syzbot:
+
+__dump_stack lib/dump_stack.c:77 [inline]
+dump_stack+0x197/0x210 lib/dump_stack.c:118
+print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+__kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
+kasan_report+0x12/0x20 mm/kasan/common.c:634
+__asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:132
+sl_sync drivers/net/slip/slip.c:725 [inline]
+slip_open+0xecd/0x11b7 drivers/net/slip/slip.c:801
+tty_ldisc_open.isra.0+0xa3/0x110 drivers/tty/tty_ldisc.c:469
+tty_set_ldisc+0x30e/0x6b0 drivers/tty/tty_ldisc.c:596
+tiocsetd drivers/tty/tty_io.c:2334 [inline]
+tty_ioctl+0xe8d/0x14f0 drivers/tty/tty_io.c:2594
+vfs_ioctl fs/ioctl.c:46 [inline]
+file_ioctl fs/ioctl.c:509 [inline]
+do_vfs_ioctl+0xdb6/0x13e0 fs/ioctl.c:696
+ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+__do_sys_ioctl fs/ioctl.c:720 [inline]
+__se_sys_ioctl fs/ioctl.c:718 [inline]
+__x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 3b5a39979daf ("slip: Fix memory leak in slip_open error path")
+Reported-by: syzbot+4d5170758f3762109542@syzkaller.appspotmail.com
+Cc: David Miller <davem@davemloft.net>
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/cadence/macb_main.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/slip/slip.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -3328,7 +3328,7 @@ static int macb_clk_init(struct platform
- 		if (!err)
- 			err = -ENODEV;
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -855,6 +855,7 @@ err_free_chan:
+ 	sl->tty = NULL;
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
++	sl_free_netdev(sl->dev);
+ 	free_netdev(sl->dev);
  
--		dev_err(&pdev->dev, "failed to get macb_clk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to get macb_clk (%d)\n", err);
- 		return err;
- 	}
- 
-@@ -3337,7 +3337,7 @@ static int macb_clk_init(struct platform
- 		if (!err)
- 			err = -ENODEV;
- 
--		dev_err(&pdev->dev, "failed to get hclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to get hclk (%d)\n", err);
- 		return err;
- 	}
- 
-@@ -3351,25 +3351,25 @@ static int macb_clk_init(struct platform
- 
- 	err = clk_prepare_enable(*pclk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
- 		return err;
- 	}
- 
- 	err = clk_prepare_enable(*hclk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable hclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable hclk (%d)\n", err);
- 		goto err_disable_pclk;
- 	}
- 
- 	err = clk_prepare_enable(*tx_clk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable tx_clk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable tx_clk (%d)\n", err);
- 		goto err_disable_hclk;
- 	}
- 
- 	err = clk_prepare_enable(*rx_clk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable rx_clk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable rx_clk (%d)\n", err);
- 		goto err_disable_txclk;
- 	}
- 
-@@ -3839,7 +3839,7 @@ static int at91ether_clk_init(struct pla
- 
- 	err = clk_prepare_enable(*pclk);
- 	if (err) {
--		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
-+		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
- 		return err;
- 	}
- 
+ err_exit:
 
 
