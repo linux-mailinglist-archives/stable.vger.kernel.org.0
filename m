@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE4E111FA9
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B84D111E6F
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728010AbfLCWln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:41:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S1730208AbfLCWzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:55:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727693AbfLCWlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:41:42 -0500
+        id S1730246AbfLCWzP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:55:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52584207DD;
-        Tue,  3 Dec 2019 22:41:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDCD420674;
+        Tue,  3 Dec 2019 22:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412901;
-        bh=dWq0ySzyJnxJdJhCQJbxx49QxdxOFKU1fwd+oyAFV/o=;
+        s=default; t=1575413714;
+        bh=zXt9GqHUeIEH2vibE824zaULD6dlD3GFqN4+W2MhxWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ty5SlETn7UoXOIsw6AN0zZy2r6Ph+Dll53tqaY79WUXocAbaN3S66qa8CmI7LJqQq
-         t4IgdPM/ThS++ftJyH86k6wi3WdzvZch/Nff3oki/N/EziOTAN7cYLD7K0bnf/DLAw
-         YI/c6y8H55Y7S8NLg+zAjn9UTmC4JR7CPyRG55mQ=
+        b=PDD88H4R8lOzmcCqy3C55o2P9E+dRI8wvffX6FzlMxRBtffViqKn/3rjSehcsYQH8
+         4+iVGCk2xutDzzBipnPGmQhOosDFTIoXM8rIA4HxqEmg6vW6amLGcgbp9pG4Pw3LbK
+         HrZcWb/pH2MhOzBSCAQs+PEF6uL/vUGzf2Q2mBQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Zhivich <mzhivich@akamai.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 060/135] x86/tsc: Respect tsc command line paraemeter for clocksource_tsc_early
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Andrea Claudi <aclaudi@redhat.com>
+Subject: [PATCH 4.19 234/321] geneve: change NET_UDP_TUNNEL dependency to select
 Date:   Tue,  3 Dec 2019 23:35:00 +0100
-Message-Id: <20191203213022.231008467@linuxfoundation.org>
+Message-Id: <20191203223439.304940377@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Zhivich <mzhivich@akamai.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit 63ec58b44fcc05efd1542045abd7faf056ac27d9 ]
+[ Upstream commit a7603ac1fc8ce1409f8ff70e6ce505f308b2c002 ]
 
-The introduction of clocksource_tsc_early broke the functionality of
-"tsc=reliable" and "tsc=nowatchdog" command line parameters, since
-clocksource_tsc_early is unconditionally registered with
-CLOCK_SOURCE_MUST_VERIFY and thus put on the watchdog list.
+Due to the depends on NET_UDP_TUNNEL, at the moment it is impossible to
+compile GENEVE if no other protocol depending on NET_UDP_TUNNEL is
+selected.
 
-This can cause the TSC to be declared unstable during boot:
+Fix this changing the depends to a select, and drop NET_IP_TUNNEL from the
+select list, as it already depends on NET_UDP_TUNNEL.
 
-  clocksource: timekeeping watchdog on CPU0: Marking clocksource
-               'tsc-early' as unstable because the skew is too large:
-  clocksource: 'refined-jiffies' wd_now: fffb7018 wd_last: fffb6e9d
-               mask: ffffffff
-  clocksource: 'tsc-early' cs_now: 68a6a7070f6a0 cs_last: 68a69ab6f74d6
-               mask: ffffffffffffffff
-  tsc: Marking TSC unstable due to clocksource watchdog
-
-The corresponding elapsed times are cs_nsec=1224152026 and wd_nsec=378942392, so
-the watchdog differs from TSC by 0.84 seconds.
-
-This happens when HPET is not available and jiffies are used as the TSC
-watchdog instead and the jiffies update is not happening due to lost timer
-interrupts in periodic mode, which can happen e.g. with expensive debug
-mechanisms enabled or under massive overload conditions in virtualized
-environments.
-
-Before the introduction of the early TSC clocksource the command line
-parameters "tsc=reliable" and "tsc=nowatchdog" could be used to work around
-this issue.
-
-Restore the behaviour by disabling the watchdog if requested on the kernel
-command line.
-
-[ tglx: Clarify changelog ]
-
-Fixes: aa83c45762a24 ("x86/tsc: Introduce early tsc clocksource")
-Signed-off-by: Michael Zhivich <mzhivich@akamai.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191024175945.14338-1-mzhivich@akamai.com
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Reviewed-and-tested-by: Andrea Claudi <aclaudi@redhat.com>
+Tested-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/tsc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index 57d87f79558f2..04dd3cc6c6edd 100644
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -1505,6 +1505,9 @@ void __init tsc_init(void)
- 		return;
- 	}
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 619bf1498a662..0652caad57ec1 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -197,9 +197,9 @@ config VXLAN
  
-+	if (tsc_clocksource_reliable || no_tsc_watchdog)
-+		clocksource_tsc_early.flags &= ~CLOCK_SOURCE_MUST_VERIFY;
-+
- 	clocksource_register_khz(&clocksource_tsc_early, tsc_khz);
- 	detect_art();
- }
+ config GENEVE
+        tristate "Generic Network Virtualization Encapsulation"
+-       depends on INET && NET_UDP_TUNNEL
++       depends on INET
+        depends on IPV6 || !IPV6
+-       select NET_IP_TUNNEL
++       select NET_UDP_TUNNEL
+        select GRO_CELLS
+        ---help---
+ 	  This allows one to create geneve virtual interfaces that provide
 -- 
 2.20.1
 
