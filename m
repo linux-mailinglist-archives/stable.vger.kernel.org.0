@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1AB4111C35
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:41:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60032111DB1
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728571AbfLCWli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:41:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56136 "EHLO mail.kernel.org"
+        id S1730070AbfLCW4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:56:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728010AbfLCWlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:41:37 -0500
+        id S1730236AbfLCW4C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:56:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC224206EC;
-        Tue,  3 Dec 2019 22:41:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83DF220656;
+        Tue,  3 Dec 2019 22:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412896;
-        bh=rVZzP/AuY95X8lLF2WPC13H6Ownzzvvg4e07Aeokemg=;
+        s=default; t=1575413762;
+        bh=P5MK6TYywY9tI5CraYsnaK8zbolAgZwzdiJIM/eB5SE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=phDpWh07NSfw36yYfTK2zYGmngx1k4BiMG4iGPP2dOmTlpsob2Aj8Ao/wQGIHjAUX
-         fGnBL/Jl/bCWT/Lq8S14Cq//CVy+/3xRlNkHnmDHSOzdufEiIiFbycceHrM3x3K+Oq
-         Ib99zmdmUZ1Pg0l8jDQVL1ftpDc8GVabXYSmHcws=
+        b=EMAzsjds5dOJRHFCdzUHkJKWTd9Hf+TlA41B854CmTZ+SuS1AO25znXCDqYQkcVDS
+         /BueBgugyUVR0nG2dSK/QMaHM6jOhT61u7w9ouc8qq/d44rqkh+hBTB8l0A9t23uC6
+         kAP/Xg1lHVOEnyFiNFIy5XhcNRkYRhjAyz8k7d6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, noreply@ellerman.id.au,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 041/135] fbdev: c2p: Fix link failure on non-inlining
+Subject: [PATCH 4.19 215/321] net/core/neighbour: tell kmemleak about hash tables
 Date:   Tue,  3 Dec 2019 23:34:41 +0100
-Message-Id: <20191203213014.848583874@linuxfoundation.org>
+Message-Id: <20191203223438.305235221@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,75 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit b330f3972f4f2a829d41fb9e9b552bec7d73a840 ]
+[ Upstream commit 85704cb8dcfd88d351bfc87faaeba1c8214f3177 ]
 
-When the compiler decides not to inline the Chunky-to-Planar core
-functions, the build fails with:
+This fixes false-positive kmemleak reports about leaked neighbour entries:
 
-    c2p_planar.c:(.text+0xd6): undefined reference to `c2p_unsupported'
-    c2p_planar.c:(.text+0x1dc): undefined reference to `c2p_unsupported'
-    c2p_iplan2.c:(.text+0xc4): undefined reference to `c2p_unsupported'
-    c2p_iplan2.c:(.text+0x150): undefined reference to `c2p_unsupported'
+unreferenced object 0xffff8885c6e4d0a8 (size 1024):
+  comm "softirq", pid 0, jiffies 4294922664 (age 167640.804s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 20 2c f3 83 ff ff ff ff  ........ ,......
+    08 c0 ef 5f 84 88 ff ff 01 8c 7d 02 01 00 00 00  ..._......}.....
+  backtrace:
+    [<00000000748509fe>] ip6_finish_output2+0x887/0x1e40
+    [<0000000036d7a0d8>] ip6_output+0x1ba/0x600
+    [<0000000027ea7dba>] ip6_send_skb+0x92/0x2f0
+    [<00000000d6e2111d>] udp_v6_send_skb.isra.24+0x680/0x15e0
+    [<000000000668a8be>] udpv6_sendmsg+0x18c9/0x27a0
+    [<000000004bd5fa90>] sock_sendmsg+0xb3/0xf0
+    [<000000008227b29f>] ___sys_sendmsg+0x745/0x8f0
+    [<000000008698009d>] __sys_sendmsg+0xde/0x170
+    [<00000000889dacf1>] do_syscall_64+0x9b/0x400
+    [<0000000081cdb353>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    [<000000005767ed39>] 0xffffffffffffffff
 
-Fix this by marking the functions __always_inline.
-
-While this could be triggered before by manually enabling both
-CONFIG_OPTIMIZE_INLINING and CONFIG_CC_OPTIMIZE_FOR_SIZE, it was exposed
-in the m68k defconfig by commit ac7c3e4ff401b304 ("compiler: enable
-CONFIG_OPTIMIZE_INLINING forcibly").
-
-Fixes: 9012d011660ea5cf ("compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING")
-Reported-by: noreply@ellerman.id.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190927094708.11563-1-geert@linux-m68k.org
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/c2p_core.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/core/neighbour.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/video/fbdev/c2p_core.h b/drivers/video/fbdev/c2p_core.h
-index e1035a865fb94..45a6d895a7d72 100644
---- a/drivers/video/fbdev/c2p_core.h
-+++ b/drivers/video/fbdev/c2p_core.h
-@@ -29,7 +29,7 @@ static inline void _transp(u32 d[], unsigned int i1, unsigned int i2,
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index c52d6e6b341cf..4721793babed5 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -18,6 +18,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
- extern void c2p_unsupported(void);
+ #include <linux/slab.h>
++#include <linux/kmemleak.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+@@ -363,12 +364,14 @@ static struct neigh_hash_table *neigh_hash_alloc(unsigned int shift)
+ 	ret = kmalloc(sizeof(*ret), GFP_ATOMIC);
+ 	if (!ret)
+ 		return NULL;
+-	if (size <= PAGE_SIZE)
++	if (size <= PAGE_SIZE) {
+ 		buckets = kzalloc(size, GFP_ATOMIC);
+-	else
++	} else {
+ 		buckets = (struct neighbour __rcu **)
+ 			  __get_free_pages(GFP_ATOMIC | __GFP_ZERO,
+ 					   get_order(size));
++		kmemleak_alloc(buckets, size, 0, GFP_ATOMIC);
++	}
+ 	if (!buckets) {
+ 		kfree(ret);
+ 		return NULL;
+@@ -388,10 +391,12 @@ static void neigh_hash_free_rcu(struct rcu_head *head)
+ 	size_t size = (1 << nht->hash_shift) * sizeof(struct neighbour *);
+ 	struct neighbour __rcu **buckets = nht->hash_buckets;
  
--static inline u32 get_mask(unsigned int n)
-+static __always_inline u32 get_mask(unsigned int n)
- {
- 	switch (n) {
- 	case 1:
-@@ -57,7 +57,7 @@ static inline u32 get_mask(unsigned int n)
-      *  Transpose operations on 8 32-bit words
-      */
- 
--static inline void transp8(u32 d[], unsigned int n, unsigned int m)
-+static __always_inline void transp8(u32 d[], unsigned int n, unsigned int m)
- {
- 	u32 mask = get_mask(n);
- 
-@@ -99,7 +99,7 @@ static inline void transp8(u32 d[], unsigned int n, unsigned int m)
-      *  Transpose operations on 4 32-bit words
-      */
- 
--static inline void transp4(u32 d[], unsigned int n, unsigned int m)
-+static __always_inline void transp4(u32 d[], unsigned int n, unsigned int m)
- {
- 	u32 mask = get_mask(n);
- 
-@@ -126,7 +126,7 @@ static inline void transp4(u32 d[], unsigned int n, unsigned int m)
-      *  Transpose operations on 4 32-bit words (reverse order)
-      */
- 
--static inline void transp4x(u32 d[], unsigned int n, unsigned int m)
-+static __always_inline void transp4x(u32 d[], unsigned int n, unsigned int m)
- {
- 	u32 mask = get_mask(n);
+-	if (size <= PAGE_SIZE)
++	if (size <= PAGE_SIZE) {
+ 		kfree(buckets);
+-	else
++	} else {
++		kmemleak_free(buckets);
+ 		free_pages((unsigned long)buckets, get_order(size));
++	}
+ 	kfree(nht);
+ }
  
 -- 
 2.20.1
