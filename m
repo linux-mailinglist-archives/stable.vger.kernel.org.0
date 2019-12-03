@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E428111FA4
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DEC2111E68
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728380AbfLCXKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:10:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56560 "EHLO mail.kernel.org"
+        id S1730030AbfLCWzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:55:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728602AbfLCWly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:41:54 -0500
+        id S1728988AbfLCWz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:55:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AB132084F;
-        Tue,  3 Dec 2019 22:41:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F72C217D9;
+        Tue,  3 Dec 2019 22:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412914;
-        bh=5o3M3UYp5jDE3x0RN1DzajD151l0mFd9GSKZfDzrcyU=;
+        s=default; t=1575413728;
+        bh=aEig3xLJ0ayeEDQUT+Zv0DbOuIHBjOVxj1yI+WpZ7DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlSp2XahCHL/RmAaZcIFQcDEH21md2Bk7zpMpQgkGAjvCzPFbGGmM9QmVkJ7hpCNv
-         04UqRKmANmcJw3jXywd9ecmmirdTQRKtm6zX64uD3FQPe0oVFQOv5EUt7DoNjNNFIy
-         IUil8yZL8mFmb4RhlkQzO9EFKwL1Jl3PAkmDktJQ=
+        b=to8Rl+XOr0izzPN9LUbGwKFx8DtTg1fZ8jPQH3IB0/bFlsKYtW477sX5JcX1+Crwc
+         TNPXn9HCuquhAnIkgCetxAYvdyP5JpPJV8oA4dbu4sEsdDCheIvLCb1t43wiP9iigJ
+         IQQUM9k4ISDlK5iWyswQaFC23nDtCDcJ+EZH/BK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Peng Sun <sironhide0null@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 065/135] watchdog: pm8916_wdt: fix pretimeout registration flow
+Subject: [PATCH 4.19 239/321] bpf: decrease usercnt if bpf_map_new_fd() fails in bpf_map_get_fd_by_id()
 Date:   Tue,  3 Dec 2019 23:35:05 +0100
-Message-Id: <20191203213024.737650554@linuxfoundation.org>
+Message-Id: <20191203223439.576369519@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,59 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+From: Peng Sun <sironhide0null@gmail.com>
 
-[ Upstream commit 1993f1d7ca3f315e0459c58c8e7038039a96dd85 ]
+[ Upstream commit 781e62823cb81b972dc8652c1827205cda2ac9ac ]
 
-When an IRQ is present in the dts, the probe function shall fail if
-the interrupt can not be registered.
+In bpf/syscall.c, bpf_map_get_fd_by_id() use bpf_map_inc_not_zero()
+to increase the refcount, both map->refcnt and map->usercnt. Then, if
+bpf_map_new_fd() fails, should handle map->usercnt too.
 
-The probe function shall also be retried if getting the irq is being
-deferred.
-
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: bd5f5f4ecb78 ("bpf: Add BPF_MAP_GET_FD_BY_ID")
+Signed-off-by: Peng Sun <sironhide0null@gmail.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/pm8916_wdt.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ kernel/bpf/syscall.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
-index 2d3652004e39c..1213179f863c2 100644
---- a/drivers/watchdog/pm8916_wdt.c
-+++ b/drivers/watchdog/pm8916_wdt.c
-@@ -163,9 +163,17 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 6e544e364821e..90bb0c05c10e9 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -1887,7 +1887,7 @@ static int bpf_map_get_fd_by_id(const union bpf_attr *attr)
  
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq > 0) {
--		if (devm_request_irq(dev, irq, pm8916_wdt_isr, 0, "pm8916_wdt",
--				     wdt))
--			irq = 0;
-+		err = devm_request_irq(dev, irq, pm8916_wdt_isr, 0,
-+				       "pm8916_wdt", wdt);
-+		if (err)
-+			return err;
-+
-+		wdt->wdev.info = &pm8916_wdt_pt_ident;
-+	} else {
-+		if (irq == -EPROBE_DEFER)
-+			return -EPROBE_DEFER;
-+
-+		wdt->wdev.info = &pm8916_wdt_ident;
- 	}
+ 	fd = bpf_map_new_fd(map, f_flags);
+ 	if (fd < 0)
+-		bpf_map_put(map);
++		bpf_map_put_with_uref(map);
  
- 	/* Configure watchdog to hard-reset mode */
-@@ -177,7 +185,6 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
--	wdt->wdev.info = (irq > 0) ? &pm8916_wdt_pt_ident : &pm8916_wdt_ident,
- 	wdt->wdev.ops = &pm8916_wdt_ops,
- 	wdt->wdev.parent = dev;
- 	wdt->wdev.min_timeout = PM8916_WDT_MIN_TIMEOUT;
+ 	return fd;
+ }
 -- 
 2.20.1
 
