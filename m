@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1037111F42
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D37B111F43
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729086AbfLCWqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:46:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36342 "EHLO mail.kernel.org"
+        id S1729215AbfLCWqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:46:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbfLCWqg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:46:36 -0500
+        id S1729214AbfLCWqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:46:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F08AD2084B;
-        Tue,  3 Dec 2019 22:46:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 880D420684;
+        Tue,  3 Dec 2019 22:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413195;
-        bh=HJIMmg4bFMw3QQFQHg2hsidB0buLvQM3GwFp4muuUxI=;
+        s=default; t=1575413198;
+        bh=9JYLrUUpM0aBZhoAx+R07YXaj7ac/jBYho1RxIWZO7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3pl4MxcVt+qevtUv35x29D/Mm8pz9Otwj5fblBbCkuLRgHurIZrkMq6so6Gr12Gu
-         5URLE9qWKULNkq5TDfe/+cwzfoWECqEJq6zXb3LnIDcIcfbr4+Oso49RbLScnkB92F
-         36Z9YOXnWjZm/p9TDp2cTX1PmIdSATdIswndyZl4=
+        b=bN9Pg7reBYyhH09h6GssUZHZlm7lVfWrwcdpwDxNYQUnPDL2phvf8UAeNqfD/i5Rg
+         w9gvM6/TUtsbR+vX0D+MMrBs9WywMetZtE225jWxjuYCfvqgZIEwt6wik6mu+9AH0g
+         zTuelXdnMeWqHYUYfVuxnlpvJIY8lapfdOx1mDd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Hundeb=C3=B8ll?= <martin@geanix.com>,
+        =?UTF-8?q?Timo=20Schl=C3=BC=C3=9Fler?= <schluessler@krause.de>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 034/321] can: flexcan: increase error counters if skb enqueueing via can_rx_offload_queue_sorted() fails
-Date:   Tue,  3 Dec 2019 23:31:40 +0100
-Message-Id: <20191203223428.889570507@linuxfoundation.org>
+Subject: [PATCH 4.19 035/321] can: mcp251x: mcp251x_restart_work_handler(): Fix potential force_quit race condition
+Date:   Tue,  3 Dec 2019 23:31:41 +0100
+Message-Id: <20191203223428.940510843@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,66 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Timo Schlüßler <schluessler@krause.de>
 
-[ Upstream commit 758124335a9dd649ab820bfb5b328170919ee7dc ]
+[ Upstream commit 27a0e54bae09d2dd023a01254db506d61cc50ba1 ]
 
-The call to can_rx_offload_queue_sorted() may fail and return an error
-(in the current implementation due to resource shortage). The passed skb
-is consumed.
+In mcp251x_restart_work_handler() the variable to stop the interrupt
+handler (priv->force_quit) is reset after the chip is restarted and thus
+a interrupt might occur.
 
-This patch adds incrementing of the appropriate error counters to let
-the device statistics reflect that there's a problem.
+This patch fixes the potential race condition by resetting force_quit
+before enabling interrupts.
 
-Reported-by: Martin Hundebøll <martin@geanix.com>
+Signed-off-by: Timo Schlüßler <schluessler@krause.de>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/can/spi/mcp251x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
-index 581e84d8e2c89..bfe13c6627bed 100644
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -566,6 +566,7 @@ static void flexcan_irq_bus_err(struct net_device *dev, u32 reg_esr)
- 	struct can_frame *cf;
- 	bool rx_errors = false, tx_errors = false;
- 	u32 timestamp;
-+	int err;
+diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
+index de8d9dceb1236..0b0dd3f096dc6 100644
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -773,6 +773,7 @@ static void mcp251x_restart_work_handler(struct work_struct *ws)
+ 	if (priv->after_suspend) {
+ 		mcp251x_hw_reset(spi);
+ 		mcp251x_setup(net, spi);
++		priv->force_quit = 0;
+ 		if (priv->after_suspend & AFTER_SUSPEND_RESTART) {
+ 			mcp251x_set_normal_mode(spi);
+ 		} else if (priv->after_suspend & AFTER_SUSPEND_UP) {
+@@ -784,7 +785,6 @@ static void mcp251x_restart_work_handler(struct work_struct *ws)
+ 			mcp251x_hw_sleep(spi);
+ 		}
+ 		priv->after_suspend = 0;
+-		priv->force_quit = 0;
+ 	}
  
- 	timestamp = priv->read(&regs->timer) << 16;
- 
-@@ -614,7 +615,9 @@ static void flexcan_irq_bus_err(struct net_device *dev, u32 reg_esr)
- 	if (tx_errors)
- 		dev->stats.tx_errors++;
- 
--	can_rx_offload_queue_sorted(&priv->offload, skb, timestamp);
-+	err = can_rx_offload_queue_sorted(&priv->offload, skb, timestamp);
-+	if (err)
-+		dev->stats.rx_fifo_errors++;
- }
- 
- static void flexcan_irq_state(struct net_device *dev, u32 reg_esr)
-@@ -627,6 +630,7 @@ static void flexcan_irq_state(struct net_device *dev, u32 reg_esr)
- 	int flt;
- 	struct can_berr_counter bec;
- 	u32 timestamp;
-+	int err;
- 
- 	timestamp = priv->read(&regs->timer) << 16;
- 
-@@ -658,7 +662,9 @@ static void flexcan_irq_state(struct net_device *dev, u32 reg_esr)
- 	if (unlikely(new_state == CAN_STATE_BUS_OFF))
- 		can_bus_off(dev);
- 
--	can_rx_offload_queue_sorted(&priv->offload, skb, timestamp);
-+	err = can_rx_offload_queue_sorted(&priv->offload, skb, timestamp);
-+	if (err)
-+		dev->stats.rx_fifo_errors++;
- }
- 
- static inline struct flexcan_priv *rx_offload_to_priv(struct can_rx_offload *offload)
+ 	if (priv->restart_tx) {
 -- 
 2.20.1
 
