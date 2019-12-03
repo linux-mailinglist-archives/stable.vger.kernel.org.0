@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 703B7111FD6
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4159111F82
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728190AbfLCWjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:39:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49298 "EHLO mail.kernel.org"
+        id S1728454AbfLCWnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:43:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727850AbfLCWjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:39:19 -0500
+        id S1727923AbfLCWnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:43:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4BDE207DD;
-        Tue,  3 Dec 2019 22:39:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1458F207DD;
+        Tue,  3 Dec 2019 22:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412758;
-        bh=4Hi7puFYa9ZD/tWeZe+cdHnTgvx3uxgPBqtlp1x6mX4=;
+        s=default; t=1575412994;
+        bh=qY0P0E0BvbecrqZR3RJQkrXgiBEdtUhhcKjdkgFs8uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sEEJmQkr85TyA++YBeasVmLoubQC4/Did/d5PNzK3B58xG3bTlgQidmJ1SKQ6ILrw
-         jlqR1AvDZDaOn5nzk/3poWHpBEvSsVcM7YjZXj6nvuqiDvHYs5+fRcv79ncaEonFon
-         COLKqeTTAD7CybjZWLJgqED50rVwFv+pEkw7cTU0=
+        b=WGdYd/ne/+435wbFd9CGgSyHLHlr1pJAJrOSry9OYQ7mAKXlIJNWuC0VwwfuYM/pE
+         y9TD0pLp/xyhppS2IxVqATSMlcdYoxHK49ag++h5NA/6nHuV8tavJUlzh/sxq5DiCq
+         UcZyEKWf3xw9jMNL+N5MFZosL+B2sl1RTP2Bze7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeroen de Borst <jeroendb@google.com>,
-        Catherine Sullivan <csully@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 16/46] gve: Fix the queue page list allocated pages count
+        stable@vger.kernel.org,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 096/135] i40e: Fix for ethtool -m issue on X722 NIC
 Date:   Tue,  3 Dec 2019 23:35:36 +0100
-Message-Id: <20191203212733.526080403@linuxfoundation.org>
+Message-Id: <20191203213037.811098163@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
-References: <20191203212705.175425505@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeroen de Borst <jeroendb@google.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-[ Upstream commit a95069ecb7092d03b2ea1c39ee04514fe9627540 ]
+[ Upstream commit 4c9da6f2b8a029052c75bd4a61ae229135831177 ]
 
-In gve_alloc_queue_page_list(), when a page allocation fails,
-qpl->num_entries will be wrong.  In this case priv->num_registered_pages
-can underflow in gve_free_queue_page_list(), causing subsequent calls
-to gve_alloc_queue_page_list() to fail.
+This patch contains fix for a problem with command:
+'ethtool -m <dev>'
+which breaks functionality of:
+'ethtool <dev>'
+when called on X722 NIC
 
-Fixes: f5cedc84a30d ("gve: Add transmit and receive support")
-Signed-off-by: Jeroen de Borst <jeroendb@google.com>
-Reviewed-by: Catherine Sullivan <csully@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Disallowed update of link phy_types on X722 NIC
+Currently correct value cannot be obtained from FW
+Previously wrong value returned by FW was used and was
+a root cause for incorrect output of 'ethtool <dev>' command
+
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c |    3 ++-
+ drivers/net/ethernet/intel/i40e/i40e_common.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -544,7 +544,7 @@ static int gve_alloc_queue_page_list(str
- 	}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_common.c b/drivers/net/ethernet/intel/i40e/i40e_common.c
+index 906cf68d3453a..4a53bfc017b13 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_common.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_common.c
+@@ -1861,7 +1861,8 @@ i40e_status i40e_aq_get_link_info(struct i40e_hw *hw,
+ 	     hw->aq.fw_min_ver < 40)) && hw_link_info->phy_type == 0xE)
+ 		hw_link_info->phy_type = I40E_PHY_TYPE_10GBASE_SFPP_CU;
  
- 	qpl->id = id;
--	qpl->num_entries = pages;
-+	qpl->num_entries = 0;
- 	qpl->pages = kvzalloc(pages * sizeof(*qpl->pages), GFP_KERNEL);
- 	/* caller handles clean up */
- 	if (!qpl->pages)
-@@ -562,6 +562,7 @@ static int gve_alloc_queue_page_list(str
- 		/* caller handles clean up */
- 		if (err)
- 			return -ENOMEM;
-+		qpl->num_entries++;
- 	}
- 	priv->num_registered_pages += pages;
+-	if (hw->flags & I40E_HW_FLAG_AQ_PHY_ACCESS_CAPABLE) {
++	if (hw->flags & I40E_HW_FLAG_AQ_PHY_ACCESS_CAPABLE &&
++	    hw->mac.type != I40E_MAC_X722) {
+ 		__le32 tmp;
  
+ 		memcpy(&tmp, resp->link_type, sizeof(tmp));
+-- 
+2.20.1
+
 
 
