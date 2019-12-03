@@ -2,134 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D880710FDC9
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:37:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D6F10FDF6
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:47:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726017AbfLCMhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 07:37:52 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44706 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725997AbfLCMhv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 07:37:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575376670;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=54X8pHWwMS1IN0TIuQGpPfqhR5ohmDGILGJEdAlHlh8=;
-        b=CCyN+zfWwawaka3Y6KOT/L3Qs9F+rEuFLTfc3nhhaKuAJTVzCmylaMcR5oDrYMaB5FNfoT
-        aswFV0ZdoVHEkGLiDUUujlmPPmHW6oe7eWFGts8LNmuWj8yI/6IGKuDJe5GTNON1REF6BB
-        oIqmcsQ6SfX/OtYSO/6+7d/Ceuerhqg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-214-Bm26GCEgMEqBXWdgn7snag-1; Tue, 03 Dec 2019 07:37:46 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6E040107ACC5;
-        Tue,  3 Dec 2019 12:37:45 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 64E8510016DA;
-        Tue,  3 Dec 2019 12:37:45 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 2DA0C1803C32;
-        Tue,  3 Dec 2019 12:37:45 +0000 (UTC)
-Date:   Tue, 3 Dec 2019 07:37:44 -0500 (EST)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Cyril Hrubis <chrubis@suse.cz>
-Cc:     Rachel Sibley <rasibley@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        CKI Project <cki-project@redhat.com>
-Message-ID: <1532241482.14811981.1575376664944.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20191203122236.GC2844@rei>
-References: <cki.B4696121A3.SRVKVUGWT3@redhat.com> <546bd6ac-8ab1-9a9b-5856-e6410fb8ee89@redhat.com> <20191203122236.GC2844@rei>
-Subject: Re: [LTP] ??? FAIL: Test report for kernel 5.3.13-cc9917b.cki
- (stable-queue)
+        id S1726017AbfLCMrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 07:47:03 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56350 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725957AbfLCMrD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 07:47:03 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 655E7ABEA;
+        Tue,  3 Dec 2019 12:47:00 +0000 (UTC)
+Subject: Re: [PATCH STABLE 4.9 1/1] mm, gup: add missing refcount overflow
+ checks on x86 and s390
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Ajay Kaher <akaher@vmware.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+References: <20191129090351.3507-1-vbabka@suse.cz>
+ <20191129090351.3507-2-vbabka@suse.cz>
+ <645311d0c03b3ae4604ac297e15af6471a6b0fb4.camel@codethink.co.uk>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <e274291b-054f-2fad-28e8-59fabf312e61@suse.cz>
+Date:   Tue, 3 Dec 2019 13:46:59 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-X-Originating-IP: [10.43.17.163, 10.4.195.11]
-Thread-Topic: ??? FAIL: Test report for kernel 5.3.13-cc9917b.cki (stable-queue)
-Thread-Index: MUwpaipbQw9RwUQoDqqdHMeXe+/oWw==
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: Bm26GCEgMEqBXWdgn7snag-1
-X-Mimecast-Spam-Score: 0
+In-Reply-To: <645311d0c03b3ae4604ac297e15af6471a6b0fb4.camel@codethink.co.uk>
 Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
------ Original Message -----
-> Hi!
-> > > We ran automated tests on a recent commit from this kernel tree:
-> > > 
-> > >         Kernel repo:
-> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-> > >              Commit: cc9917b40848 - mdio_bus: Fix init if
-> > >              CONFIG_RESET_CONTROLLER=n
-> > > 
-> > > The results of these automated tests are provided below.
-> > > 
-> > >      Overall result: FAILED (see details below)
-> > >               Merge: OK
-> > >             Compile: OK
-> > >               Tests: FAILED
-> > > 
-> > > All kernel binaries, config files, and logs are available for download
-> > > here:
-> > > 
-> > >    https://artifacts.cki-project.org/pipelines/309848
-> > > 
-> > > One or more kernel tests failed:
-> > > 
-> > >      ppc64le:
-> > >       ??? LTP
-> > 
-> > I see a slew of syscalls failures here for LTP:
-> > https://artifacts.cki-project.org/pipelines/309848/logs/ppc64le_host_1_LTP_resultoutputfile.log
-> > https://artifacts.cki-project.org/pipelines/309848/logs/ppc64le_host_1_LTP_syscalls.run.log
+On 12/3/19 1:22 PM, Ben Hutchings wrote:
+>> +		    || !page_cache_get_speculative(head)))
+>>  			return 0;
+>>  		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+>>  			put_page(head);
+> [...]
+>> --- a/arch/x86/mm/gup.c
+>> +++ b/arch/x86/mm/gup.c
+>> @@ -202,10 +202,12 @@ static int __gup_device_huge_pmd(pmd_t pmd, unsigned long addr,
+>>  			undo_dev_pagemap(nr, nr_start, pages);
+>>  			return 0;
+>>  		}
+>> +		if (unlikely(!try_get_page(page))) {
+>> +			put_dev_pagemap(pgmap);
+>> +			return 0;
+>> +		}
+>>  		SetPageReferenced(page);
+>>  		pages[*nr] = page;
+>> -		get_page(page);
+>> -		put_dev_pagemap(pgmap);
 > 
-> There are a few syslog failures, which does not seem to be related to
-> the kernel commit at all. The commit above seems to touch error handling
-> in a mdio bus which is used to configure network hardware. I would say
-> that this is connected to the rest of the unexplained failures on
-> ppc64le that seems to happen randomly.
+> This leaks a pgmap reference on success!
 
-I think this is different. Test is spam-ing serial console with:
- preadv203 (765613): drop_caches: 3
+Good catch, deleted one line too many!
 
-which leads to RCU stall:
-[ 4338.611873] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-[ 4517.198118] systemd[1]: systemd-journald.service: State 'stop-watchdog' timed out. Terminating.
-[ 4518.688311] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-[ 4518.688318] rcu: 	0-...0: (2 ticks this GP) idle=7da/1/0x4000000000000000 softirq=208692/208696 fqs=11772 
-[ 4518.688321] 	(detected by 3, t=24007 jiffies, g=280901, q=430)
-[ 4518.688324] Sending NMI from CPU 3 to CPUs 0:
-[ 4524.259240] CPU 0 didn't respond to backtrace IPI, inspecting paca.
-[ 4524.259243] irq_soft_mask: 0x01 in_mce: 0 in_nmi: 0 current: 765613 (preadv203)
-[ 4524.259245] Back trace of paca->saved_r1 (0xc000000029b47990) (possibly stale):
-[ 4524.259246] Call Trace:
-[ 4524.259250] [c000000029b47990] [0000000000000001] 0x1 (unreliable)
-[ 4524.259255] [c000000029b47a00] [c0000000007e8b28] hvterm_raw_put_chars+0x48/0x70
-[ 4524.259257] [c000000029b47a20] [c0000000007eb174] hvc_console_print+0x124/0x2c0
-[ 4524.259260] [c000000029b47ab0] [c0000000001b2238] console_unlock+0x588/0x760
-[ 4524.259262] [c000000029b47b90] [c0000000001b4a8c] vprintk_emit+0x22c/0x330
-[ 4524.259264] [c000000029b47c00] [c0000000001b5d28] vprintk_func+0x78/0x1b0
-[ 4524.259266] [c000000029b47c50] [c0000000001b5294] printk+0x40/0x54
-[ 4524.259269] [c000000029b47c70] [c0000000004e6c7c] drop_caches_sysctl_handler+0x14c/0x170
-[ 4524.259271] [c000000029b47ce0] [c000000000512390] proc_sys_call_handler+0x230/0x240
-[ 4524.259273] [c000000029b47d60] [c000000000432098] __vfs_write+0x38/0x70
-[ 4524.259275] [c000000029b47d80] [c0000000004363c8] vfs_write+0xd8/0x250
-[ 4524.259277] [c000000029b47dd0] [c000000000436798] ksys_write+0x78/0x130
-[ 4524.259280] [c000000029b47e20] [c00000000000bae4] system_call+0x5c/0x70
+>>  		(*nr)++;
+>>  		pfn++;
+>>  	} while (addr += PAGE_SIZE, addr != end);
+>> @@ -230,6 +232,8 @@ static noinline int gup_huge_pmd(pmd_t pmd, unsigned long addr,
+>>  
+>>  	refs = 0;
+>>  	head = pmd_page(pmd);
+>> +	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
+> 
+> Why <= 0, given we use < 0 elsewhere?
 
-Maybe we could temporarily lower printk level during this test.
+The code uses get_head_page_multiple() which boils down to atomic_add
+and not add_unless_zero(), so it assumes a pre-existing pin that must
+not go away or it's a bug (one that I've been hunting recently in this
+area). The check makes it explicit.
 
-Test also fails to release loop device and subsequent tests fail
-because they try to use same one.
+> 
+>> +		return 0;
+>>  	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+>>  	do {
+>>  		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+>> @@ -289,6 +293,8 @@ static noinline int gup_huge_pud(pud_t pud, unsigned long addr,
+>>  
+>>  	refs = 0;
+>>  	head = pud_page(pud);
+>> +	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
+> 
+> Same question here.
+
+Same as above.
+
+> Ben.
+> 
+>> +		return 0;
+>>  	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+>>  	do {
+>>  		VM_BUG_ON_PAGE(compound_head(page) != head, page);
 
