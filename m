@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5480F111E51
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B01111F17
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:09:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727165AbfLCXAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:00:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52694 "EHLO mail.kernel.org"
+        id S1728474AbfLCWnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:43:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729717AbfLCW5M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:57:12 -0500
+        id S1728836AbfLCWnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:43:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACB982053B;
-        Tue,  3 Dec 2019 22:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 827DE2073C;
+        Tue,  3 Dec 2019 22:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413832;
-        bh=XI4eYl+AXLPIs4AC6NGottTKKCcMM/rYzhe4Q8RfOow=;
+        s=default; t=1575413020;
+        bh=Gvbq7mVM0/PgnucgqGPLHNcebP9gPhf52e++PEBwkx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmzgoL/dfXfwvWo8VM9hGMAUuu+aOWqOOtbEwtbqUz6txDy6Mhom/8nDCN/O1G+Kh
-         pi2rr7p7w78lTf1YG966NDgY/sxv8dsYCWFSayXT5WsSu9hotUNSEUbW9V0Mn2UcOH
-         Gr4SdiPr3njIiyWLDGO1KhpYzA5H7BJQCNxXAAYk=
+        b=EZLMn7CF4Lf3v/DGTxn1YjtTDG4FgagGamg/aEy3yqIdLOTgvL25gzmgtLHOvd+Vh
+         ctu8l2XnVLbEcNjDFSp9mrkbt0u6yV/iViBNFLZ+aSnqGKLTcxpHotAjGRpCpYRcGY
+         O6gCrS3KriehR0oZR3fO6uPbptlZtq3+rJVRleW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 279/321] pwm: Clear chip_data in pwm_put()
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.3 105/135] mei: me: add comet point V device id
 Date:   Tue,  3 Dec 2019 23:35:45 +0100
-Message-Id: <20191203223441.640027205@linuxfoundation.org>
+Message-Id: <20191203213040.474020711@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit e926b12c611c2095c7976e2ed31753ad6eb5ff1a upstream.
+commit 82b29b9f72afdccb40ea5f3c13c6a3cb65a597bc upstream.
 
-After a PWM is disposed by its user the per chip data becomes invalid.
-Clear the data in common code instead of the device drivers to get
-consistent behaviour. Before this patch only three of nine drivers
-cleaned up here.
+Comet Point (Comet Lake) V device id.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20191105150514.14010-2-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pwm/core.c        |    1 +
- drivers/pwm/pwm-berlin.c  |    1 -
- drivers/pwm/pwm-pca9685.c |    1 -
- drivers/pwm/pwm-samsung.c |    1 -
- 4 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/misc/mei/hw-me-regs.h |    1 +
+ drivers/misc/mei/pci-me.c     |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/pwm/core.c
-+++ b/drivers/pwm/core.c
-@@ -874,6 +874,7 @@ void pwm_put(struct pwm_device *pwm)
- 	if (pwm->chip->ops->free)
- 		pwm->chip->ops->free(pwm->chip, pwm);
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -81,6 +81,7 @@
  
-+	pwm_set_chip_data(pwm, NULL);
- 	pwm->label = NULL;
+ #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
+ #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
++#define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
  
- 	module_put(pwm->chip->ops->owner);
---- a/drivers/pwm/pwm-berlin.c
-+++ b/drivers/pwm/pwm-berlin.c
-@@ -84,7 +84,6 @@ static void berlin_pwm_free(struct pwm_c
- {
- 	struct berlin_pwm_channel *channel = pwm_get_chip_data(pwm);
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
  
--	pwm_set_chip_data(pwm, NULL);
- 	kfree(channel);
- }
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -98,6 +98,7 @@ static const struct pci_device_id mei_me
  
---- a/drivers/pwm/pwm-pca9685.c
-+++ b/drivers/pwm/pwm-pca9685.c
-@@ -176,7 +176,6 @@ static void pca9685_pwm_gpio_free(struct
- 	pm_runtime_put(pca->chip.dev);
- 	mutex_lock(&pca->lock);
- 	pwm = &pca->chip.pwms[offset];
--	pwm_set_chip_data(pwm, NULL);
- 	mutex_unlock(&pca->lock);
- }
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
  
---- a/drivers/pwm/pwm-samsung.c
-+++ b/drivers/pwm/pwm-samsung.c
-@@ -238,7 +238,6 @@ static int pwm_samsung_request(struct pw
- static void pwm_samsung_free(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	devm_kfree(chip->dev, pwm_get_chip_data(pwm));
--	pwm_set_chip_data(pwm, NULL);
- }
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
  
- static int pwm_samsung_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 
 
