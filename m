@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC88111E3B
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E113111FB9
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730228AbfLCW5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:57:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
+        id S1727838AbfLCWiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:38:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730089AbfLCW5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:57:02 -0500
+        id S1727208AbfLCWh6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:37:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26DA22053B;
-        Tue,  3 Dec 2019 22:57:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76047207DD;
+        Tue,  3 Dec 2019 22:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413821;
-        bh=ZbzCA+8tCD2OdOmVoHIvAZlA87DvMw3bhEqOki+cICI=;
+        s=default; t=1575412677;
+        bh=lYKSAswVfPteq73o1eKOBazyhwewy+QEmUEO8U2L2is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVqwfCxxE2maBr/4QdQG6R4eHOx3Z/pkd/9iyM//MmptBU/e4upkP9xe3MjsfEbeS
-         9wEMiCg3QKSWuJaPBU+yuc1RF2sfiZdJvxdVX0lMHYlwVvriDIGlqVQ7Kq11uYbJKv
-         XSPSmIiKRfJ3ora4E/s87wEwG5wqPsQHpyStvPkc=
+        b=g6GfVcyklIZQmd9AoGjvt97tWcVD4+z0rkc9y9Km0r6BCPVFYyddqKDGxhBwrbrcZ
+         wOmecGtr40S5smMJbQTd0SOYm8QVgYwP/XhxIZ0oKPx+9fUz4eSu/MwZFqGNuwnUJa
+         6dLdFzpNAVgivvjTm1lGFTgw9NweWIAHn60d49/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zang <dump@tzib.net>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 4.19 275/321] thunderbolt: Power cycle the router if NVM authentication fails
-Date:   Tue,  3 Dec 2019 23:35:41 +0100
-Message-Id: <20191203223441.434753857@linuxfoundation.org>
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 22/46] net: sched: fix `tc -s class show` no bstats on class with nolock subqueues
+Date:   Tue,  3 Dec 2019 23:35:42 +0100
+Message-Id: <20191203212737.321968405@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,156 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-commit 7a7ebfa85f4fac349f3ab219538c44efe18b0cf6 upstream.
+[ Upstream commit 14e54ab9143fa60794d13ea0a66c792a2046a8f3 ]
 
-On zang's Dell XPS 13 9370 after Thunderbolt NVM firmware upgrade the
-Thunderbolt controller did not come back as expected. Only after the
-system was rebooted it became available again. It is not entirely clear
-what happened but I suspect the new NVM firmware image authentication
-failed for some reason. Regardless of this the router needs to be power
-cycled if NVM authentication fails in order to get it fully functional
-again.
+When a classful qdisc's child qdisc has set the flag
+TCQ_F_CPUSTATS (pfifo_fast for example), the child qdisc's
+cpu_bstats should be passed to gnet_stats_copy_basic(),
+but many classful qdisc didn't do that. As a result,
+`tc -s class show dev DEV` always return 0 for bytes and
+packets in this case.
 
-This modifies the driver to issue a power cycle in case the NVM
-authentication fails immediately when dma_port_flash_update_auth()
-returns. We also need to call tb_switch_set_uuid() earlier to be able to
-fetch possible NVM authentication failure when DMA port is added.
+Pass the child qdisc's cpu_bstats to gnet_stats_copy_basic()
+to fix this issue.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205457
-Reported-by: zang <dump@tzib.net>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+The qstats also has this problem, but it has been fixed
+in 5dd431b6b9 ("net: sched: introduce and use qstats read...")
+and bstats still remains buggy.
+
+Fixes: 22e0f8b9322c ("net: sched: make bstats per cpu and estimator RCU safe")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/thunderbolt/switch.c |   54 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
+ net/sched/sch_mq.c     |    3 ++-
+ net/sched/sch_mqprio.c |    4 ++--
+ net/sched/sch_multiq.c |    2 +-
+ net/sched/sch_prio.c   |    2 +-
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -167,7 +167,7 @@ static int nvm_validate_and_write(struct
+--- a/net/sched/sch_mq.c
++++ b/net/sched/sch_mq.c
+@@ -245,7 +245,8 @@ static int mq_dump_class_stats(struct Qd
+ 	struct netdev_queue *dev_queue = mq_queue_get(sch, cl);
  
- static int nvm_authenticate_host(struct tb_switch *sw)
- {
--	int ret;
-+	int ret = 0;
+ 	sch = dev_queue->qdisc_sleeping;
+-	if (gnet_stats_copy_basic(&sch->running, d, NULL, &sch->bstats) < 0 ||
++	if (gnet_stats_copy_basic(&sch->running, d, sch->cpu_bstats,
++				  &sch->bstats) < 0 ||
+ 	    qdisc_qstats_copy(d, sch) < 0)
+ 		return -1;
+ 	return 0;
+--- a/net/sched/sch_mqprio.c
++++ b/net/sched/sch_mqprio.c
+@@ -557,8 +557,8 @@ static int mqprio_dump_class_stats(struc
+ 		struct netdev_queue *dev_queue = mqprio_queue_get(sch, cl);
  
- 	/*
- 	 * Root switch NVM upgrade requires that we disconnect the
-@@ -175,6 +175,8 @@ static int nvm_authenticate_host(struct
- 	 * already).
- 	 */
- 	if (!sw->safe_mode) {
-+		u32 status;
-+
- 		ret = tb_domain_disconnect_all_paths(sw->tb);
- 		if (ret)
- 			return ret;
-@@ -183,7 +185,16 @@ static int nvm_authenticate_host(struct
- 		 * everything goes well so getting timeout is expected.
- 		 */
- 		ret = dma_port_flash_update_auth(sw->dma_port);
--		return ret == -ETIMEDOUT ? 0 : ret;
-+		if (!ret || ret == -ETIMEDOUT)
-+			return 0;
-+
-+		/*
-+		 * Any error from update auth operation requires power
-+		 * cycling of the host router.
-+		 */
-+		tb_sw_warn(sw, "failed to authenticate NVM, power cycling\n");
-+		if (dma_port_flash_update_auth_status(sw->dma_port, &status) > 0)
-+			nvm_set_auth_status(sw, status);
+ 		sch = dev_queue->qdisc_sleeping;
+-		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-					  d, NULL, &sch->bstats) < 0 ||
++		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch), d,
++					  sch->cpu_bstats, &sch->bstats) < 0 ||
+ 		    qdisc_qstats_copy(d, sch) < 0)
+ 			return -1;
  	}
+--- a/net/sched/sch_multiq.c
++++ b/net/sched/sch_multiq.c
+@@ -339,7 +339,7 @@ static int multiq_dump_class_stats(struc
  
- 	/*
-@@ -191,7 +202,7 @@ static int nvm_authenticate_host(struct
- 	 * switch.
- 	 */
- 	dma_port_power_cycle(sw->dma_port);
--	return 0;
-+	return ret;
- }
+ 	cl_q = q->queues[cl - 1];
+ 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-				  d, NULL, &cl_q->bstats) < 0 ||
++				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
+ 	    qdisc_qstats_copy(d, cl_q) < 0)
+ 		return -1;
  
- static int nvm_authenticate_device(struct tb_switch *sw)
-@@ -199,8 +210,16 @@ static int nvm_authenticate_device(struc
- 	int ret, retries = 10;
+--- a/net/sched/sch_prio.c
++++ b/net/sched/sch_prio.c
+@@ -356,7 +356,7 @@ static int prio_dump_class_stats(struct
  
- 	ret = dma_port_flash_update_auth(sw->dma_port);
--	if (ret && ret != -ETIMEDOUT)
-+	switch (ret) {
-+	case 0:
-+	case -ETIMEDOUT:
-+	case -EACCES:
-+	case -EINVAL:
-+		/* Power cycle is required */
-+		break;
-+	default:
- 		return ret;
-+	}
- 
- 	/*
- 	 * Poll here for the authentication status. It takes some time
-@@ -937,8 +956,6 @@ static ssize_t nvm_authenticate_store(st
- 			 */
- 			nvm_authenticate_start(sw);
- 			ret = nvm_authenticate_host(sw);
--			if (ret)
--				nvm_authenticate_complete(sw);
- 		} else {
- 			ret = nvm_authenticate_device(sw);
- 		}
-@@ -1332,13 +1349,16 @@ static int tb_switch_add_dma_port(struct
- 	int ret;
- 
- 	switch (sw->generation) {
--	case 3:
--		break;
--
- 	case 2:
- 		/* Only root switch can be upgraded */
- 		if (tb_route(sw))
- 			return 0;
-+
-+		/* fallthrough */
-+	case 3:
-+		ret = tb_switch_set_uuid(sw);
-+		if (ret)
-+			return ret;
- 		break;
- 
- 	default:
-@@ -1359,6 +1379,19 @@ static int tb_switch_add_dma_port(struct
- 		return 0;
- 
- 	/*
-+	 * If there is status already set then authentication failed
-+	 * when the dma_port_flash_update_auth() returned. Power cycling
-+	 * is not needed (it was done already) so only thing we do here
-+	 * is to unblock runtime PM of the root port.
-+	 */
-+	nvm_get_auth_status(sw, &status);
-+	if (status) {
-+		if (!tb_route(sw))
-+			nvm_authenticate_complete(sw);
-+		return 0;
-+	}
-+
-+	/*
- 	 * Check status of the previous flash authentication. If there
- 	 * is one we need to power cycle the switch in any case to make
- 	 * it functional again.
-@@ -1373,9 +1406,6 @@ static int tb_switch_add_dma_port(struct
- 
- 	if (status) {
- 		tb_sw_info(sw, "switch flash authentication failed\n");
--		ret = tb_switch_set_uuid(sw);
--		if (ret)
--			return ret;
- 		nvm_set_auth_status(sw, status);
- 	}
+ 	cl_q = q->queues[cl - 1];
+ 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-				  d, NULL, &cl_q->bstats) < 0 ||
++				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
+ 	    qdisc_qstats_copy(d, cl_q) < 0)
+ 		return -1;
  
 
 
