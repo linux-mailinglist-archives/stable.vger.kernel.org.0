@@ -2,129 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63EF7110381
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 18:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C2B11039A
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 18:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726224AbfLCRbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 12:31:43 -0500
-Received: from userp2120.oracle.com ([156.151.31.85]:58966 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726074AbfLCRbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 12:31:43 -0500
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB3HOOFd050929;
-        Tue, 3 Dec 2019 17:31:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
- mime-version : subject : from : in-reply-to : date : cc :
- content-transfer-encoding : message-id : references : to;
- s=corp-2019-08-05; bh=iDDV1MNXRn9oPYn0jG/x5P+zH4XXxCnPUsxhYkfKBRE=;
- b=jdb47o9DjrlFKzU7xs7IZLvdvbVXpL7joCaJovJUo34Rwo3nt+dXtZCENMkqcr5cEuNX
- R8UL34ozv/cmu4hvn907uzLRkutls789KxXGAvYer89ymxKvxBsUGZHw3bi4W8+ej3Yt
- gvJn6xgPoG8w5l8+b53uksJsZfm2Atm99tUhykFeSIi51W15uHRr8+qLRZmMsHUE1Bkz
- 86GPFuqZaBYHOJI1LB8/oVBJ0ak+goaI/s1Cq9eXgMlxvU0upqzbBpvtVy/B2M49/DH+
- XBSg81/orEwNqzlo/6na0gegiBEBHCg13sch/sos6bk3jAJbfTJkRiXjhcTm4ZyXYkJB mQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2120.oracle.com with ESMTP id 2wkh2r94xr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 03 Dec 2019 17:31:08 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB3HSt0L077617;
-        Tue, 3 Dec 2019 17:31:08 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3020.oracle.com with ESMTP id 2wn4qqa5u2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 03 Dec 2019 17:31:08 +0000
-Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id xB3HUtGf030441;
-        Tue, 3 Dec 2019 17:30:55 GMT
-Received: from dhcp-10-154-129-170.vpn.oracle.com (/10.154.129.170)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 03 Dec 2019 09:30:55 -0800
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 11.5 \(3445.9.1\))
-Subject: Re:  FAILED -  [PATCH v2 3/3] drm/mgag200: Add workaround for HW that
- does not support 'startadd'
-From:   John Donnelly <john.p.donnelly@oracle.com>
-In-Reply-To: <20191128142337.1B32A217F5@mail.kernel.org>
-Date:   Tue, 3 Dec 2019 11:30:50 -0600
-Cc:     Thomas Zimmermann <tzimmermann@suse.de>, airlied@redhat.com,
-        daniel@ffwll.ch, stable@vger.kernel.org,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        id S1726075AbfLCRhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 12:37:01 -0500
+Received: from mail-yb1-f193.google.com ([209.85.219.193]:33266 "EHLO
+        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726074AbfLCRhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 12:37:01 -0500
+Received: by mail-yb1-f193.google.com with SMTP id o63so1872606ybc.0
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 09:37:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=poorly.run; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=xeeGZfYufHDDThZZkCNhlPdUw/ATxZKnbtQlImLeHzE=;
+        b=e+99GIhkG7gRu6w9n+9FiPQorXrVx8PolI+WOX4gxHjKQ9kjN2F1VF3MMA6BAWBMKD
+         CSbaSMkvgQyXIYY++ltCrFJlhhmHx9vO3XOs2WjgIt0bAUFZDmyKqeyxmpTg/R4nq318
+         pKEGZRj2IxAEtzQWhINvN0CMBxqD0DowE5gbKDu5XmucGX3Arx1ZDv73Ale6RY9laPmV
+         uddaWK7vJNA7K3uEfUbUKRIwPugVjjVdCYsOlTNJLLiAirqWjNy0O4wAEvWo79vO7ma8
+         R+r8OqDesE4VQTAlm4Dysii+kmQz5wj0V+HHs0uPgKxNlvb27APnDlvwSdkCgSVjW1S7
+         FWDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=xeeGZfYufHDDThZZkCNhlPdUw/ATxZKnbtQlImLeHzE=;
+        b=ZTnT1DG/mGGaXEsqOkoVRuZIuI2ObxhT/nNzq3YTVNODCYNJup9IxtO1JbkFXO2Rg4
+         /LAl3h6hyDt/sIskdr2fzDtohB/9JFPYfEKqO0DQTzF92dQPGwfTOoEW5IwpcmoDOUSU
+         UGvnUCFKUVwR2czuXI8/iSLzlQhruN5OPRLHmPeEu/Dmeit8bMktv/gha0zUFSfBC2Gc
+         pBZYAepNStyYFZu4e42QXWL6SJpC6RBit3tH8OYhe5fbvyEq/Fs+JktW8O8mQzG0E9Ee
+         GpCdsDlKlLtQEgETqFNKRsWO4+Rq2sNxRmWa/jm5yTHLwKNUJAgRy4lLXzrAmd5mDhe2
+         YoQg==
+X-Gm-Message-State: APjAAAV3Ywgp++1ms1dhdTMelumQJxn51sykRVA5P8BdBph3Z78FC1ct
+        bbEH8/qbxk80wNdFUQNyltEv3g==
+X-Google-Smtp-Source: APXvYqxiMpI/ZJUJfq+HWSgGaFlb7XMaUvg3BmERIw0yoe2xI8QAmfiQBaq40Bq/2cNOSz3TCr1yeQ==
+X-Received: by 2002:a25:ae12:: with SMTP id a18mr5204934ybj.120.1575394618477;
+        Tue, 03 Dec 2019 09:36:58 -0800 (PST)
+Received: from rosewood.cam.corp.google.com ([2620:0:1013:11:89c6:2139:5435:371d])
+        by smtp.gmail.com with ESMTPSA id g190sm1729426ywf.41.2019.12.03.09.36.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Dec 2019 09:36:58 -0800 (PST)
+From:   Sean Paul <sean@poorly.run>
+To:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        ramalingm.c@intel.com
+Cc:     Sean Paul <seanpaul@chromium.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org,
         David Airlie <airlied@linux.ie>,
-        dri-devel@lists.freedesktop.org, Gerd Hoffmann <kraxel@redhat.com>,
-        =?utf-8?Q?Jos=C3=A9_Roberto_de_Souza?= <jose.souza@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Sam Ravnborg <sam@ravnborg.org>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <53967A49-E729-409B-8FDD-019160FFF675@oracle.com>
-References: <20191126101529.20356-4-tzimmermann@suse.de>
- <20191128142337.1B32A217F5@mail.kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-X-Mailer: Apple Mail (2.3445.9.1)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9460 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1912030131
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9460 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-1912030131
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>, Sean Paul <sean@poorly.run>
+Subject: [PATCH 01/11] drm/i915: Fix sha_text population code
+Date:   Tue,  3 Dec 2019 12:36:24 -0500
+Message-Id: <20191203173638.94919-2-sean@poorly.run>
+X-Mailer: git-send-email 2.24.0.393.g34dc348eaf-goog
+In-Reply-To: <20191203173638.94919-1-sean@poorly.run>
+References: <20191203173638.94919-1-sean@poorly.run>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Sean Paul <seanpaul@chromium.org>
 
-Hello Sasha and Thomas ,
+This patch fixes a few bugs:
 
+1- We weren't taking into account sha_leftovers when adding multiple
+   ksvs to sha_text. As such, we were or'ing the end of ksv[j - 1] with
+   the beginning of ksv[j]
 
-This particular patch has failed on one class of servers that has a =
-slightly different Sun Vendor. ID for  the BMC video device:=20
+2- In the sha_leftovers == 2 and sha_leftovers == 3 case, bstatus was
+   being placed on the wrong half of sha_text, overlapping the leftover
+   ksv value
 
-I will follow up with additional details in  the review comments for the =
-original message,.=20
+3- In the sha_leftovers == 2 case, we need to manually terminate the
+   byte stream with 0x80 since the hardware doesn't have enough room to
+   add it after writing M0
 
+The upside is that all of the "HDCP supported" HDMI repeaters I could
+find on Amazon just strip HDCP anyways, so it turns out to be _really_
+hard to hit any of these cases without an MST hub, which is not (yet)
+supported. Oh, and the sha_leftovers == 1 case works perfectly!
 
+Fixes: ee5e5e7a5e0f ("drm/i915: Add HDCP framework + base implementation")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Ramalingam C <ramalingm.c@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.17+
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+---
+ drivers/gpu/drm/i915/display/intel_hdcp.c | 25 +++++++++++++++++------
+ include/drm/drm_hdcp.h                    |  3 +++
+ 2 files changed, 22 insertions(+), 6 deletions(-)
 
-
-> On Nov 28, 2019, at 8:23 AM, Sasha Levin <sashal@kernel.org> wrote:
->=20
-> Hi,
->=20
-> [This is an automated email]
->=20
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: 81da87f63a1e ("drm: Replace =
-drm_gem_vram_push_to_system() with kunmap + unpin").
->=20
-> The bot has tested the following trees: v5.3.13.
->=20
-> v5.3.13: Build failed! Errors:
->    drivers/gpu/drm/mgag200/mgag200_drv.c:104:18: error: =
-=E2=80=98drm_vram_mm_debugfs_init=E2=80=99 undeclared here (not in a =
-function); did you mean =E2=80=98drm_client_debugfs_init=E2=80=99?
->=20
->=20
-> NOTE: The patch will not be queued to stable trees until it is =
-upstream.
->=20
-> How should we proceed with this patch?
->=20
-> --=20
-> Thanks,
-> Sasha
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> =
-https://urldefense.proofpoint.com/v2/url?u=3Dhttps-3A__lists.freedesktop.o=
-rg_mailman_listinfo_dri-2Ddevel&d=3DDwIGaQ&c=3DRoP1YumCXCgaWHvlZYR8PZh8Bv7=
-qIrMUB65eapI_JnE&r=3Dt2fPg9D87F7D8jm0_3CG9yoiIKdRg4qc_thBw4bzMhc&m=3DvxMDO=
-LV77rRe2ekdNFH9IxMSBQrTccltZd8A1H6xYCc&s=3DefHs2lc_RQYvzLC82c-D3wa8MpX5DCU=
-_YsIo6XruAQg&e=3D
+diff --git a/drivers/gpu/drm/i915/display/intel_hdcp.c b/drivers/gpu/drm/i915/display/intel_hdcp.c
+index f1f41ca8402b..8325bf9501e4 100644
+--- a/drivers/gpu/drm/i915/display/intel_hdcp.c
++++ b/drivers/gpu/drm/i915/display/intel_hdcp.c
+@@ -335,8 +335,10 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 
+ 		/* Fill up the empty slots in sha_text and write it out */
+ 		sha_empty = sizeof(sha_text) - sha_leftovers;
+-		for (j = 0; j < sha_empty; j++)
+-			sha_text |= ksv[j] << ((sizeof(sha_text) - j - 1) * 8);
++		for (j = 0; j < sha_empty; j++) {
++			u8 off = ((sizeof(sha_text) - j - 1 - sha_leftovers) * 8);
++			sha_text |= ksv[j] << off;
++		}
+ 
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+@@ -426,7 +428,7 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 	} else if (sha_leftovers == 2) {
+ 		/* Write 32 bits of text */
+ 		I915_WRITE(HDCP_REP_CTL, rep_ctl | HDCP_SHA1_TEXT_32);
+-		sha_text |= bstatus[0] << 24 | bstatus[1] << 16;
++		sha_text |= bstatus[0] << 8 | bstatus[1];
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+ 			return ret;
+@@ -440,16 +442,27 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 				return ret;
+ 			sha_idx += sizeof(sha_text);
+ 		}
++
++		/*
++		 * Terminate the SHA-1 stream by hand. For the other leftover
++		 * cases this is appended by the hardware.
++		 */
++		I915_WRITE(HDCP_REP_CTL, rep_ctl | HDCP_SHA1_TEXT_32);
++		sha_text = DRM_HDCP_SHA1_TERMINATOR << 24;
++		ret = intel_write_sha_text(dev_priv, sha_text);
++		if (ret < 0)
++			return ret;
++		sha_idx += sizeof(sha_text);
+ 	} else if (sha_leftovers == 3) {
+-		/* Write 32 bits of text */
++		/* Write 32 bits of text (filled from LSB) */
+ 		I915_WRITE(HDCP_REP_CTL, rep_ctl | HDCP_SHA1_TEXT_32);
+-		sha_text |= bstatus[0] << 24;
++		sha_text |= bstatus[0];
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+ 			return ret;
+ 		sha_idx += sizeof(sha_text);
+ 
+-		/* Write 8 bits of text, 24 bits of M0 */
++		/* Write 8 bits of text (filled from LSB), 24 bits of M0 */
+ 		I915_WRITE(HDCP_REP_CTL, rep_ctl | HDCP_SHA1_TEXT_8);
+ 		ret = intel_write_sha_text(dev_priv, bstatus[1]);
+ 		if (ret < 0)
+diff --git a/include/drm/drm_hdcp.h b/include/drm/drm_hdcp.h
+index 06a11202a097..20498c822204 100644
+--- a/include/drm/drm_hdcp.h
++++ b/include/drm/drm_hdcp.h
+@@ -29,6 +29,9 @@
+ /* Slave address for the HDCP registers in the receiver */
+ #define DRM_HDCP_DDC_ADDR			0x3A
+ 
++/* Value to use at the end of the SHA-1 bytestream used for repeaters */
++#define DRM_HDCP_SHA1_TERMINATOR		0x80
++
+ /* HDCP register offsets for HDMI/DVI devices */
+ #define DRM_HDCP_DDC_BKSV			0x00
+ #define DRM_HDCP_DDC_RI_PRIME			0x08
+-- 
+Sean Paul, Software Engineer, Google / Chromium OS
 
