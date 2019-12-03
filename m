@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEBF2111CD5
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:48:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AFB1111CD6
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:48:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728014AbfLCWr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:47:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38344 "EHLO mail.kernel.org"
+        id S1728928AbfLCWr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:47:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729354AbfLCWr4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:47:56 -0500
+        id S1729136AbfLCWr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:47:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FA1420684;
-        Tue,  3 Dec 2019 22:47:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CB7F20656;
+        Tue,  3 Dec 2019 22:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413275;
-        bh=qQ7ADBan6Cki+gjs7P4HZzdhbGN9+BaZSrq2OioHsOM=;
+        s=default; t=1575413278;
+        bh=zfH7E1dQ0QMkwOWmVhltnebB7TPcOcSQTtCRkRBoYr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IE0mln7vNUGN9cFet09Jo0RBuYaMsc2i3J5Ct4qRSPDWIYmuyzjrd+WtXXAyvI2tc
-         WNn2wJkWP5SEuaB518YzYyGwiH63y4qFVwLWv8RR9aDsMUKtuQD/ZySEVJo+CI5eel
-         PpNOEA4koFiD7pPCEAw2WeIjRd195WrHr04zH/lI=
+        b=MLNwZebowHCJpmZAw4Cnyaq4SO4EnNm09tyrgvibodlJXTILrH+MDnfbYY/yT6zhr
+         CQjqAMvbhk0m5QHefaNRqnJGmR1C5t7OZ+7Q6s3qZ2j19hlkPgFJbXVix9jM/odcO8
+         aJaBzhtc639Txg+9AnmSeWF+RN1BxHYtNjLrgcbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        stable@vger.kernel.org, Marco Franchi <marco.franchi@nxp.com>,
         Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 066/321] ARM: dts: imx25: Fix memory node duplication
-Date:   Tue,  3 Dec 2019 23:32:12 +0100
-Message-Id: <20191203223430.602770010@linuxfoundation.org>
+Subject: [PATCH 4.19 067/321] ARM: dts: imx53-voipac-dmm-668: Fix memory node duplication
+Date:   Tue,  3 Dec 2019 23:32:13 +0100
+Message-Id: <20191203223430.654153564@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -47,79 +47,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 59d8bb363f563e4a147a291037bf979cb8ff9a59 ]
+[ Upstream commit 998a84c27a7f3f9133d32af64e19c05cec161a1a ]
 
-Boards based on imx25 have duplicate memory nodes:
+imx53-voipac-dmm-668 has two memory nodes, but the correct representation
+would be to use a single one with two reg entries - one for each RAM chip
+select, so fix it accordingly.
 
-- One coming from the board dts file: memory@
-
-- One coming from the imx25.dtsi file.
-
-Fix the duplication by removing the memory node from the dtsi file
-and by adding 'device_type = "memory";' in the board dts.
-
-Reported-by: Rob Herring <robh@kernel.org>
+Reported-by: Marco Franchi <marco.franchi@nxp.com>
 Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Marco Franchi <marco.franchi@nxp.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx25-eukrea-cpuimx25.dtsi | 1 +
- arch/arm/boot/dts/imx25-karo-tx25.dts        | 1 +
- arch/arm/boot/dts/imx25-pdk.dts              | 1 +
- arch/arm/boot/dts/imx25.dtsi                 | 2 --
- 4 files changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx25-eukrea-cpuimx25.dtsi b/arch/arm/boot/dts/imx25-eukrea-cpuimx25.dtsi
-index e316fe08837a3..e4d7da267532d 100644
---- a/arch/arm/boot/dts/imx25-eukrea-cpuimx25.dtsi
-+++ b/arch/arm/boot/dts/imx25-eukrea-cpuimx25.dtsi
-@@ -18,6 +18,7 @@
- 	compatible = "eukrea,cpuimx25", "fsl,imx25";
+diff --git a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
+index f83a8c62ea531..d595034f3f1bf 100644
+--- a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
++++ b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
+@@ -17,12 +17,8 @@
  
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x4000000>; /* 64M */
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx25-karo-tx25.dts b/arch/arm/boot/dts/imx25-karo-tx25.dts
-index 5cb6967866c0a..f37e9a75a3ca7 100644
---- a/arch/arm/boot/dts/imx25-karo-tx25.dts
-+++ b/arch/arm/boot/dts/imx25-karo-tx25.dts
-@@ -37,6 +37,7 @@
- 	};
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x02000000 0x90000000 0x02000000>;
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx25-pdk.dts b/arch/arm/boot/dts/imx25-pdk.dts
-index a5626b46ac4e1..f8544a9e46330 100644
---- a/arch/arm/boot/dts/imx25-pdk.dts
-+++ b/arch/arm/boot/dts/imx25-pdk.dts
-@@ -12,6 +12,7 @@
- 	compatible = "fsl,imx25-pdk", "fsl,imx25";
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x4000000>;
+ 	memory@70000000 {
+ 		device_type = "memory";
+-		reg = <0x70000000 0x20000000>;
+-	};
+-
+-	memory@b0000000 {
+-		device_type = "memory";
+-		reg = <0xb0000000 0x20000000>;
++		reg = <0x70000000 0x20000000>,
++		      <0xb0000000 0x20000000>;
  	};
  
-diff --git a/arch/arm/boot/dts/imx25.dtsi b/arch/arm/boot/dts/imx25.dtsi
-index 85c15ee632727..8c8ad80de4614 100644
---- a/arch/arm/boot/dts/imx25.dtsi
-+++ b/arch/arm/boot/dts/imx25.dtsi
-@@ -12,10 +12,8 @@
- 	 * The decompressor and also some bootloaders rely on a
- 	 * pre-existing /chosen node to be available to insert the
- 	 * command line and merge other ATAGS info.
--	 * Also for U-Boot there must be a pre-existing /memory node.
- 	 */
- 	chosen {};
--	memory { device_type = "memory"; };
- 
- 	aliases {
- 		ethernet0 = &fec;
+ 	regulators {
 -- 
 2.20.1
 
