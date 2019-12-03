@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D774C111C8B
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:45:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C41111E08
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:00:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729001AbfLCWpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:45:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33474 "EHLO mail.kernel.org"
+        id S1728416AbfLCW7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:59:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728763AbfLCWpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:45:08 -0500
+        id S1730751AbfLCW7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:59:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86E89207DD;
-        Tue,  3 Dec 2019 22:45:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 531F52053B;
+        Tue,  3 Dec 2019 22:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413108;
-        bh=fGEGqqPn/RtkHfVgz6CHl74WTaoHeZ1ndAUeCWAUmQU=;
+        s=default; t=1575413950;
+        bh=+VVthImIyyeUHD5JnsPr9zqBqs/M5+BBgzlheJPEASg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7sHPR4EZOrZtTu16ZIAuLBQDEbAOYqfbfc7LhXyYVbkfnRZLCLpSjwig78qHFe86
-         jDwAanLRhLT5yDRriWdkWAz/Ef76IXwLJHv/tsVdRBJvSdmXdJPokEd2YDhSvNKB4l
-         m2RdsBJtlKah+85wjb4rz4Gxd3kHoV0tbpZpmRIk=
+        b=vRljNE+f24H7N+HuT+2inR4YEpV2JqC4QyvZzbRAj5AuRL778GGllal1J1/k7VmB0
+         IiOjFA10++JzKNyScc5O29rSbdOfJ1csooSscH9kcIIkHQPXjwK6CsEoRE2wtdOJHM
+         df0IR6u8vAMo/sHBoqy0dWTt5+G43478K04roLCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 128/135] selftests: bpf: test_sockmap: handle file creation failures gracefully
+        stable@vger.kernel.org, Arnaud Pouliquen <arnaud.pouliquen@st.com>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.19 302/321] mailbox: stm32_ipcc: add spinlock to fix channels concurrent access
 Date:   Tue,  3 Dec 2019 23:36:08 +0100
-Message-Id: <20191203213045.237909265@linuxfoundation.org>
+Message-Id: <20191203223442.860584761@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Arnaud Pouliquen <arnaud.pouliquen@st.com>
 
-[ Upstream commit 4b67c515036313f3c3ecba3cb2babb9cbddb3f85 ]
+commit dba9a3dfe912dc47c9dbc9ba1f5f65adbf9aea0f upstream.
 
-test_sockmap creates a temporary file to use for sendpage.
-this may fail for various reasons. Handle the error rather
-than segfault.
+Add spinlock protection on IPCC register update to avoid race condition.
+Without this fix, stm32_ipcc_set_bits and stm32_ipcc_clr_bits can be
+called in parallel for different channels. This results in register
+corruptions.
 
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
+Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/bpf/test_sockmap.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
 
---- a/tools/testing/selftests/bpf/test_sockmap.c
-+++ b/tools/testing/selftests/bpf/test_sockmap.c
-@@ -332,6 +332,10 @@ static int msg_loop_sendpage(int fd, int
- 	int i, fp;
+---
+ drivers/mailbox/stm32-ipcc.c |   37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
+
+--- a/drivers/mailbox/stm32-ipcc.c
++++ b/drivers/mailbox/stm32-ipcc.c
+@@ -50,6 +50,7 @@ struct stm32_ipcc {
+ 	void __iomem *reg_base;
+ 	void __iomem *reg_proc;
+ 	struct clk *clk;
++	spinlock_t lock; /* protect access to IPCC registers */
+ 	int irqs[IPCC_IRQ_NUM];
+ 	int wkp;
+ 	u32 proc_id;
+@@ -58,14 +59,24 @@ struct stm32_ipcc {
+ 	u32 xmr;
+ };
  
- 	file = fopen(".sendpage_tst.tmp", "w+");
-+	if (!file) {
-+		perror("create file for sendpage");
-+		return 1;
-+	}
- 	for (i = 0; i < iov_length * cnt; i++, k++)
- 		fwrite(&k, sizeof(char), 1, file);
- 	fflush(file);
-@@ -339,6 +343,11 @@ static int msg_loop_sendpage(int fd, int
- 	fclose(file);
- 
- 	fp = open(".sendpage_tst.tmp", O_RDONLY);
-+	if (fp < 0) {
-+		perror("reopen file for sendpage");
-+		return 1;
-+	}
+-static inline void stm32_ipcc_set_bits(void __iomem *reg, u32 mask)
++static inline void stm32_ipcc_set_bits(spinlock_t *lock, void __iomem *reg,
++				       u32 mask)
+ {
++	unsigned long flags;
 +
- 	clock_gettime(CLOCK_MONOTONIC, &s->start);
- 	for (i = 0; i < cnt; i++) {
- 		int sent = sendfile(fd, fp, NULL, iov_length);
++	spin_lock_irqsave(lock, flags);
+ 	writel_relaxed(readl_relaxed(reg) | mask, reg);
++	spin_unlock_irqrestore(lock, flags);
+ }
+ 
+-static inline void stm32_ipcc_clr_bits(void __iomem *reg, u32 mask)
++static inline void stm32_ipcc_clr_bits(spinlock_t *lock, void __iomem *reg,
++				       u32 mask)
+ {
++	unsigned long flags;
++
++	spin_lock_irqsave(lock, flags);
+ 	writel_relaxed(readl_relaxed(reg) & ~mask, reg);
++	spin_unlock_irqrestore(lock, flags);
+ }
+ 
+ static irqreturn_t stm32_ipcc_rx_irq(int irq, void *data)
+@@ -92,7 +103,7 @@ static irqreturn_t stm32_ipcc_rx_irq(int
+ 
+ 		mbox_chan_received_data(&ipcc->controller.chans[chan], NULL);
+ 
+-		stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XSCR,
++		stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XSCR,
+ 				    RX_BIT_CHAN(chan));
+ 
+ 		ret = IRQ_HANDLED;
+@@ -121,7 +132,7 @@ static irqreturn_t stm32_ipcc_tx_irq(int
+ 		dev_dbg(dev, "%s: chan:%d tx\n", __func__, chan);
+ 
+ 		/* mask 'tx channel free' interrupt */
+-		stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XMR,
++		stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
+ 				    TX_BIT_CHAN(chan));
+ 
+ 		mbox_chan_txdone(&ipcc->controller.chans[chan], 0);
+@@ -141,10 +152,12 @@ static int stm32_ipcc_send_data(struct m
+ 	dev_dbg(ipcc->controller.dev, "%s: chan:%d\n", __func__, chan);
+ 
+ 	/* set channel n occupied */
+-	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XSCR, TX_BIT_CHAN(chan));
++	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XSCR,
++			    TX_BIT_CHAN(chan));
+ 
+ 	/* unmask 'tx channel free' interrupt */
+-	stm32_ipcc_clr_bits(ipcc->reg_proc + IPCC_XMR, TX_BIT_CHAN(chan));
++	stm32_ipcc_clr_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
++			    TX_BIT_CHAN(chan));
+ 
+ 	return 0;
+ }
+@@ -163,7 +176,8 @@ static int stm32_ipcc_startup(struct mbo
+ 	}
+ 
+ 	/* unmask 'rx channel occupied' interrupt */
+-	stm32_ipcc_clr_bits(ipcc->reg_proc + IPCC_XMR, RX_BIT_CHAN(chan));
++	stm32_ipcc_clr_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
++			    RX_BIT_CHAN(chan));
+ 
+ 	return 0;
+ }
+@@ -175,7 +189,7 @@ static void stm32_ipcc_shutdown(struct m
+ 					       controller);
+ 
+ 	/* mask rx/tx interrupt */
+-	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XMR,
++	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
+ 			    RX_BIT_CHAN(chan) | TX_BIT_CHAN(chan));
+ 
+ 	clk_disable_unprepare(ipcc->clk);
+@@ -208,6 +222,8 @@ static int stm32_ipcc_probe(struct platf
+ 	if (!ipcc)
+ 		return -ENOMEM;
+ 
++	spin_lock_init(&ipcc->lock);
++
+ 	/* proc_id */
+ 	if (of_property_read_u32(np, "st,proc-id", &ipcc->proc_id)) {
+ 		dev_err(dev, "Missing st,proc-id\n");
+@@ -259,9 +275,10 @@ static int stm32_ipcc_probe(struct platf
+ 	}
+ 
+ 	/* mask and enable rx/tx irq */
+-	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XMR,
++	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XMR,
+ 			    RX_BIT_MASK | TX_BIT_MASK);
+-	stm32_ipcc_set_bits(ipcc->reg_proc + IPCC_XCR, XCR_RXOIE | XCR_TXOIE);
++	stm32_ipcc_set_bits(&ipcc->lock, ipcc->reg_proc + IPCC_XCR,
++			    XCR_RXOIE | XCR_TXOIE);
+ 
+ 	/* wakeup */
+ 	if (of_property_read_bool(np, "wakeup-source")) {
 
 
