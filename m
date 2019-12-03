@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5270B111F76
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD55111FD8
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728432AbfLCXJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:09:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60844 "EHLO mail.kernel.org"
+        id S1728201AbfLCWjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:39:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727720AbfLCWom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:44:42 -0500
+        id S1727872AbfLCWjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:39:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E317C207DD;
-        Tue,  3 Dec 2019 22:44:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF16F207DD;
+        Tue,  3 Dec 2019 22:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413081;
-        bh=Aozy7mvmIKkmP6PcJtF3CLj0u5npcPm8oxfNLsn1C1o=;
+        s=default; t=1575412763;
+        bh=yPoiiB8nW+V4aZlHFa+hH08rvxh+w9pWkK2I9swro+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=186DrpfJcb2ADntaazIjqhd0IoWHAloUo6M/wCM3G4dOC1bLVkXiGgKOd0AYLqz7G
-         yaHGbXofJci54v4ZgKymxsFK/Mux67lRG5KsVDL72/6S23wlzER9ltIpNX2vfLoInC
-         C/95aiwrP/aN5qY2vDLyyL1SNvhZgyJqkhAYQAdA=
+        b=SFVV8yKizovC3i7sK/1WRWcvD0izFZ4m8q6gGb2Ogg8Nnf1HFKftcBf5z5+ZjEW2I
+         Uh9Au1BasDDY7yXmqpaW+XdJsAIYM+wRY5HkiD3bXr4aVplaySXeGXluYm+HsrS1JB
+         E1XYPX9/4e1uXBUfWjlWySvW6oPZq6yRlbUUs4+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 087/135] net: stmmac: xgmac: Disable Flow Control when 1 or more queues are in AV
-Date:   Tue,  3 Dec 2019 23:35:27 +0100
-Message-Id: <20191203213034.577291467@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.4 08/46] staging: rtl8192e: fix potential use after free
+Date:   Tue,  3 Dec 2019 23:35:28 +0100
+Message-Id: <20191203212722.065206368@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 132f2f20c9866325d12c155aca06d260f358d3cb ]
+commit b7aa39a2ed0112d07fc277ebd24a08a7b2368ab9 upstream.
 
-When in AVB mode we need to disable flow control to prevent MAC from
-pausing in TX side.
+The variable skb is released via kfree_skb() when the return value of
+_rtl92e_tx is not zero. However, after that, skb is accessed again to
+read its length, which may result in a use after free bug. This patch
+fixes the bug by moving the release operation to where skb is never
+used later.
 
-Fixes: ec6ea8e3eee9 ("net: stmmac: Add CBS support in XGMAC2")
-Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1572965351-6745-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/rtl8192e/rtl8192e/rtl_core.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
-index a4f236e3593e7..28dc3b33606e1 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_dma.c
-@@ -441,6 +441,7 @@ static void dwxgmac2_enable_tso(void __iomem *ioaddr, bool en, u32 chan)
- static void dwxgmac2_qmode(void __iomem *ioaddr, u32 channel, u8 qmode)
- {
- 	u32 value = readl(ioaddr + XGMAC_MTL_TXQ_OPMODE(channel));
-+	u32 flow = readl(ioaddr + XGMAC_RX_FLOW_CTRL);
+--- a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
++++ b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
+@@ -1616,14 +1616,15 @@ static void _rtl92e_hard_data_xmit(struc
+ 	memcpy((unsigned char *)(skb->cb), &dev, sizeof(dev));
+ 	skb_push(skb, priv->rtllib->tx_headroom);
+ 	ret = _rtl92e_tx(dev, skb);
+-	if (ret != 0)
+-		kfree_skb(skb);
  
- 	value &= ~XGMAC_TXQEN;
- 	if (qmode != MTL_QUEUE_AVB) {
-@@ -448,6 +449,7 @@ static void dwxgmac2_qmode(void __iomem *ioaddr, u32 channel, u8 qmode)
- 		writel(0, ioaddr + XGMAC_MTL_TCx_ETS_CONTROL(channel));
- 	} else {
- 		value |= 0x1 << XGMAC_TXQEN_SHIFT;
-+		writel(flow & (~XGMAC_RFE), ioaddr + XGMAC_RX_FLOW_CTRL);
+ 	if (queue_index != MGNT_QUEUE) {
+ 		priv->rtllib->stats.tx_bytes += (skb->len -
+ 						 priv->rtllib->tx_headroom);
+ 		priv->rtllib->stats.tx_packets++;
  	}
++
++	if (ret != 0)
++		kfree_skb(skb);
+ }
  
- 	writel(value, ioaddr +  XGMAC_MTL_TXQ_OPMODE(channel));
--- 
-2.20.1
-
+ static int _rtl92e_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
 
 
