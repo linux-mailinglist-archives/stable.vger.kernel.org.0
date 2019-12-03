@@ -2,89 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0626211201F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:17:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BF2112033
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727247AbfLCXRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:17:35 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:38087 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727240AbfLCXRf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:17:35 -0500
-Received: by mail-wm1-f65.google.com with SMTP id p17so5747767wmi.3
-        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:17:32 -0800 (PST)
+        id S1726926AbfLCXWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:22:31 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:45858 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726534AbfLCXWa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:22:30 -0500
+Received: by mail-wr1-f65.google.com with SMTP id j42so6092997wrj.12
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:22:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SS5+8rwkLwqLJi6xH1RZebMbkXc7Vuqf7UknLD2SdHg=;
-        b=mTp5Vub4vQIvQpUeiW3qDPgB1sr8T8a61dmF4OGF4Qq6QnTMkm3P9TtW3Ar+gWDGVC
-         EH9VMT0/6j0WoIC3PcwJCtm6/zOQnDHrIOVoKy9TuMfaHOxA+LrWMHAW7cv5cgmgrVhw
-         GupRwv/9/rwKbPoxdkeZbB8qOUdpVo+DH3Capi5ZtPesKE8Rmqqx7HoryPcwgm7wyapX
-         YDRJQWphmd+ldyj2RcTypj2c8zhdUPTfaMEvRBHMqlpmC/immd8mvfP+IQVoTossYOHQ
-         AavOVMg4U5ebvrSkVAK03pS2qGF/McrFeM/UwPWt58O+JjLsJGl1Hgb1Pwkuz6Os6Y9C
-         K8tA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NpenWaUnhEmG0XfcQQWcUjpUKGMIJpUPSzZJnMUmC2A=;
+        b=zNyi3JFy/YOWC/R5xMR5rYvtclnrFnQbHHYOH64b02+59ebd6RJtMVASpCJvD+FWYb
+         OFCDzbSZBMUZFItsSC/MBRa1Cm6BIdnORGmHAOti7JiDUUuqUbB/mnlxM0WDSACrLBMm
+         W9GwtIAi3jH4/tUVpyrAVEEMZGAU1dV3yA6KJG7hV4lXJIcOrK2F9tRoGNXt9Mt2iLnb
+         tU0fP6qVTXiP7c7jB3NF2njpJlCditffIt0XVQJVlHPGxXSWq8TFFaSzuwmAtNQy4/zk
+         5HwISooCqFx6qNKcSd+mXjTRsf890ep6HCVKrj1oMIT+OEpemxolRGy9wt/Y01uZ+VL/
+         5Dlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SS5+8rwkLwqLJi6xH1RZebMbkXc7Vuqf7UknLD2SdHg=;
-        b=eXWYOysvyZ5mZUN+fE8tLsk2YwxXLEvua/FjR46SNCJd+5cqo5GZq7ItdGrWJ8EN8j
-         dqyp5AWtdJBtyf/7G/00qE5x5NHwYlZinALAOzd4BY/vJsD+dgxmd64PLybYIkSjakNQ
-         qm4QC3XJG/uh9nA3+/xsADSKc1ewhLSemKvkjU00f5vc9meRnYUAso2fywTOW//LPBjw
-         wpqyfJKeWiaHdKCSHxClbbYUCodEigh1JXLnUgmH9rgHm+asJpZ4Cz5oOyf/oXPNv0cn
-         MTFXN2UJRSqhnn2D29t254PzQpH5PEPMbCsFMyGlANZxJL22Ygtt5qhyu8q5y3BWOnlr
-         USiQ==
-X-Gm-Message-State: APjAAAUV8n7FhBMNIicA9gaN1j+7ERjTcJvhQy7Ez1UYf4qDC+q3cq0R
-        tF1pR3INC+drJeNfNkTV5sN5U4igDBNm2S73OLSJ5J8808w=
-X-Google-Smtp-Source: APXvYqxAnCgFYQDDhuTgRvBPrWxxSdFyWAfacChdQEzT0Aawjc5z62GOanvpeAI1PhnbEMACRiqdm6qfVULHBChwx2w=
-X-Received: by 2002:a7b:cd83:: with SMTP id y3mr39095260wmj.168.1575415051248;
- Tue, 03 Dec 2019 15:17:31 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NpenWaUnhEmG0XfcQQWcUjpUKGMIJpUPSzZJnMUmC2A=;
+        b=qVEMZJMaHBwKVyVXS/d1n9i5ANr+DowjImxWoW0CD49E33AyoeSiSSf8DGIMLFbNQN
+         6wUR1A3KO3WdUZ4aJm6e6LpAeQvGyYjBFhGNtMuhi0leIr7ZaMkc74djz1NwH8QCq/SH
+         4bfqTiimFcvPveJkdjWZpl2nVQh7U6iOmiAFB1N21uW5ekR3ibulxL+5MMZggvmPBi3D
+         4joom6r9mGy3AhZXzlOLFZdP/3holXnDZVz+9veUg6TDktGaKtHx1RoSBqGqJI04QgUu
+         l/RqJT9VhINjt2zf3CpNjqchzGwRlqOCzq1Lbo17vSqrv1jPYFWfqUc3VC/+tMObGN0l
+         Woeg==
+X-Gm-Message-State: APjAAAUGk8aHdVqJY2aWTBxd3rnB2S/ynMkApaqN0cfc16KgX8qpJU0p
+        sgsTxGDO0TTYeImzV5mlCYTi+ZCoUZPfAA==
+X-Google-Smtp-Source: APXvYqyvZETzjgMsCLTVXelLlOMtJIAgEYzAC4dJVQkHNQ6IZyeaxOZuazjKWFPU37rAyVBMOrB7ZQ==
+X-Received: by 2002:a5d:6ac3:: with SMTP id u3mr589054wrw.25.1575415348175;
+        Tue, 03 Dec 2019 15:22:28 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w13sm5903300wru.38.2019.12.03.15.22.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Dec 2019 15:22:27 -0800 (PST)
+Message-ID: <5de6ee33.1c69fb81.2d872.e361@mx.google.com>
+Date:   Tue, 03 Dec 2019 15:22:27 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <CAPtwhKrmvw8wm1u_36YEoLgQ8pGe=v5xaV2RN4W6jVw3zOgeQQ@mail.gmail.com>
- <20191203230944.GA3495297@kroah.com>
-In-Reply-To: <20191203230944.GA3495297@kroah.com>
-From:   Xuewei Zhang <xueweiz@google.com>
-Date:   Tue, 3 Dec 2019 15:17:20 -0800
-Message-ID: <CAPtwhKpZCequxTMzAcVcJ34EW4AFqNDcWuoud-D3nywpYxzx5Q@mail.gmail.com>
-Subject: Re: Request to backport 4929a4e6faa0 to stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.14-133-g7c5eb6144103
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.3.y
+Subject: stable-rc/linux-5.3.y boot: 154 boots: 3 failed,
+ 144 passed with 6 offline, 1 untried/unknown (v5.3.14-133-g7c5eb6144103)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 3, 2019 at 3:09 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Dec 03, 2019 at 02:54:57PM -0800, Xuewei Zhang wrote:
-> > Hi Stable kernel maintainers,
-> >
-> > I want to backport below patch to stable tree:
-> > 4929a4e6faa0 sched/fair: Scale bandwidth quota and period without
-> > losing quota/period ratio precision
->
-> What tree(s) do you want it backported to?
->
-> It's already been backported to 5.3.9 and 5.4, is that not sufficient?
+stable-rc/linux-5.3.y boot: 154 boots: 3 failed, 144 passed with 6 offline,=
+ 1 untried/unknown (v5.3.14-133-g7c5eb6144103)
 
-We should backport this into all supported stable versions, as the bug
-is affecting all of them:
-4.19, 4.14, 4.9, 4.4, 3.16.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.14-133-g7c5eb6144103/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.14-133-g7c5eb6144103/
 
->
-> If so, can you provide working backports to any older stable kernels
-> that you wish to see it merged into?
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.14-133-g7c5eb6144103
+Git Commit: 7c5eb6144103f29dc9f28ef0b9b5f65ff075cece
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 90 unique boards, 25 SoC families, 19 builds out of 208
 
-Happy to do that! I will send them in a few Emails following this
-thread to provide the backports.
-Please let me know if this is not the correct way to send patches.
+Boot Failures Detected:
 
-Thanks!
-Xuewei
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s805x-libretech-ac: 1 failed lab
+            meson-gxl-s905d-p230: 1 failed lab
+            meson-gxm-q200: 1 failed lab
 
->
-> thanks,
->
-> greg k-h
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
