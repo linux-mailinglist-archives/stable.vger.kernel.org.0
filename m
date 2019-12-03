@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D566111C24
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8025D111C03
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:39:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728465AbfLCWk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:40:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54834 "EHLO mail.kernel.org"
+        id S1727883AbfLCWj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:39:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727731AbfLCWky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:40:54 -0500
+        id S1727872AbfLCWj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:39:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBA3420684;
-        Tue,  3 Dec 2019 22:40:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF960207DD;
+        Tue,  3 Dec 2019 22:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412854;
-        bh=DbmV8Tc7S3hQcDoJhHZdPkFhSwiSaATw4JEzfkOUwB0=;
+        s=default; t=1575412768;
+        bh=L8aTFcBkYlwSH4hb0/HZBFxZiMJsBbKPtEM+pulKXFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQeU2a+5Y0FYDighp77oQxeJkjrOCZNPu463iPVKwMMqp7R4b/44YhwzzsV8ULfW8
-         1n+VH7kyHCxRXacjd6Bc6xXU7z0XP9WSHMOAnSpqP7jMM6PHvk0/3YZeBQCIoCUDox
-         ynprr1Ij6AIB/VKxRnrlxaNCBEBh6MonhKlGBftg=
+        b=IfJR9JHSXM4BwDgKjuCAT19m9w5uS9qjVVHtQSWbYZoG8mOnUQuCtuw6oJyQFS5JN
+         fZK1eG99na4FYVIXYpsOGcVAG+jSZgQNQpKvC5ndn9ksgc7bi11bB06RciL8zGxUIP
+         /3I3ntE7yccvqKPV475h+gc0pMiTryFrIpqDDvdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 006/135] clk: at91: sam9x60: fix programmable clock
-Date:   Tue,  3 Dec 2019 23:34:06 +0100
-Message-Id: <20191203213006.960516373@linuxfoundation.org>
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 010/135] soundwire: intel: fix intel_register_dai PDI offsets and numbers
+Date:   Tue,  3 Dec 2019 23:34:10 +0100
+Message-Id: <20191203213007.585191169@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -47,38 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit 2200ab6a7403f4fcd052c55ca328fc942f9392b6 ]
+[ Upstream commit cf9249626f72878b6d205a4965093cba5cce98df ]
 
-The prescaler mask for sam9x60 must be 0xff (8 bits).
-Being set to 0, means that we cannot set any prescaler, thus the
-programmable clocks do not work (except the case with prescaler 0)
-Set the mask accordingly in layout struct.
+There are two issues, likely copy/paste:
 
-Fixes: 01e2113de9a5 ("clk: at91: add sam9x60 pmc driver")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Link: https://lkml.kernel.org/r/1569321191-27606-1-git-send-email-eugen.hristev@microchip.com
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+1. Use cdns->pcm.num_in instead of stream_num_in for consistency with
+the rest of the code. This was not detected earlier since platforms did
+not have input-only PDIs.
+
+2. use the correct offset for bi-dir PDM, based on IN and OUT
+PDIs. Again this was not detected since PDM was not supported earlier.
+
+Reported-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190916192348.467-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/sam9x60.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soundwire/intel.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/at91/sam9x60.c b/drivers/clk/at91/sam9x60.c
-index 9790ddfa5b3cb..86238d5ecb4da 100644
---- a/drivers/clk/at91/sam9x60.c
-+++ b/drivers/clk/at91/sam9x60.c
-@@ -43,6 +43,7 @@ static const struct clk_pll_characteristics upll_characteristics = {
- };
+diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
+index ec25a71d08873..db9c138adb1ff 100644
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -765,7 +765,7 @@ static int intel_register_dai(struct sdw_intel *sdw)
+ 	/* Create PCM DAIs */
+ 	stream = &cdns->pcm;
  
- static const struct clk_programmable_layout sam9x60_programmable_layout = {
-+	.pres_mask = 0xff,
- 	.pres_shift = 8,
- 	.css_mask = 0x1f,
- 	.have_slck_mck = 0,
+-	ret = intel_create_dai(cdns, dais, INTEL_PDI_IN, stream->num_in,
++	ret = intel_create_dai(cdns, dais, INTEL_PDI_IN, cdns->pcm.num_in,
+ 			       off, stream->num_ch_in, true);
+ 	if (ret)
+ 		return ret;
+@@ -796,7 +796,7 @@ static int intel_register_dai(struct sdw_intel *sdw)
+ 	if (ret)
+ 		return ret;
+ 
+-	off += cdns->pdm.num_bd;
++	off += cdns->pdm.num_out;
+ 	ret = intel_create_dai(cdns, dais, INTEL_PDI_BD, cdns->pdm.num_bd,
+ 			       off, stream->num_ch_bd, false);
+ 	if (ret)
 -- 
 2.20.1
 
