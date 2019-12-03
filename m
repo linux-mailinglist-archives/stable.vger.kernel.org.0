@@ -2,120 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC48110184
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 16:46:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5417F1101E7
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 17:09:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725848AbfLCPqE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 10:46:04 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:39655 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725997AbfLCPqD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 10:46:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575387962;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kc5rkL3td8wGQyELKRpVhUJRs7tCH4UJEAnN2TRUY9w=;
-        b=GKUIn2qvXUnNcF6HL7WBhWaGat3NxO8U4ONaCOJiHsCBye9yrfHywkqSBipQPoDtj/xsHx
-        +H51T1zqmVZSnRpH6RDv3dgI1go6GkfWPtxjVhX5GQ1OIZa091FlnLLoR7caDSFa9tJD6m
-        sOa2r2Im5sMW8mb4kjAlqd281oM9SPY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-198-b_5q-eTlOdeE_p0bfQ0z6w-1; Tue, 03 Dec 2019 10:45:59 -0500
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 85E38186EA76;
-        Tue,  3 Dec 2019 15:45:57 +0000 (UTC)
-Received: from [10.10.124.173] (ovpn-124-173.rdu2.redhat.com [10.10.124.173])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BC6F367E5D;
-        Tue,  3 Dec 2019 15:45:56 +0000 (UTC)
-Subject: Re: [PATCH] nbd: fix shutdown and recv work deadlock
-To:     sunke32@huawei.com, nbd@other.debian.org, axboe@kernel.dk,
-        josef@toxicpanda.com, linux-block@vger.kernel.org
-References: <20191202215150.10250-1-mchristi@redhat.com>
-Cc:     stable@vger.kernel.org
-From:   Mike Christie <mchristi@redhat.com>
-Message-ID: <5DE68334.8090605@redhat.com>
-Date:   Tue, 3 Dec 2019 09:45:56 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101
- Thunderbird/38.6.0
+        id S1726480AbfLCQJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 11:09:41 -0500
+Received: from userp2130.oracle.com ([156.151.31.86]:38240 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726131AbfLCQJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 11:09:41 -0500
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB3G9101187017;
+        Tue, 3 Dec 2019 16:09:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2019-08-05;
+ bh=C0csOh2IiwBU5rvm/p9C2Rx3FifNjZcosDBlbkKZ43o=;
+ b=boQXu3APvvYLEv5xvZUy66ylMTjWdR8SQ8XqXS/bsfn4lRshgT6DmNGUWx475cUzj13b
+ M5pssdl5Wudwqxkldan7mmqoPL+RfjvQtP6meKmRqnSnzsdJUIpV45NodVSYd0n+8W3+
+ zt0LSUYI3j1GX7AZgBaWYFvKqq3beN+jJJXRy8tfORrs4hv8S0ymJyVAYq59fIB8rRsI
+ VxEX2Alcz5CE4XB8RnIXuCPEWAYjZeVAPv3B/UZ8eLx185N+11H9ORIsmVYaty4igRV+
+ 8VIE3lmuyUn+VG+yQYJvuZv69TFc9dFDmLXOMp1r7XiPbc/m0WKF615cEs4eBF+alVeS 7w== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2130.oracle.com with ESMTP id 2wkfuu8tgr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 03 Dec 2019 16:09:05 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB3G8lZh034082;
+        Tue, 3 Dec 2019 16:09:04 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3020.oracle.com with ESMTP id 2wn4qq6cg0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 03 Dec 2019 16:09:04 +0000
+Received: from abhmp0011.oracle.com (abhmp0011.oracle.com [141.146.116.17])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id xB3G8e93008786;
+        Tue, 3 Dec 2019 16:08:40 GMT
+Received: from localhost (/67.169.218.210)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 03 Dec 2019 08:08:40 -0800
+Date:   Tue, 3 Dec 2019 08:08:39 -0800
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Jan Stancek <jstancek@redhat.com>
+Cc:     Christoph Hellwig <hch@infradead.org>, linux-xfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Memory Management <mm-qe@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        CKI Project <cki-project@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [bug] userspace hitting sporadic SIGBUS on xfs (Power9,
+ ppc64le), v4.19 and later
+Message-ID: <20191203160839.GJ7335@magnolia>
+References: <cki.6C6A189643.3T2ZUWEMOI@redhat.com>
+ <1738119916.14437244.1575151003345.JavaMail.zimbra@redhat.com>
+ <8736e3ffen.fsf@mpe.ellerman.id.au>
+ <1420623640.14527843.1575289859701.JavaMail.zimbra@redhat.com>
+ <1766807082.14812757.1575377439007.JavaMail.zimbra@redhat.com>
+ <20191203130757.GA2267@infradead.org>
+ <433638211.14837331.1575383728189.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20191202215150.10250-1-mchristi@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: b_5q-eTlOdeE_p0bfQ0z6w-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <433638211.14837331.1575383728189.JavaMail.zimbra@redhat.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9460 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1911140001 definitions=main-1912030122
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9460 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
+ definitions=main-1912030122
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Josef and Jens,
+On Tue, Dec 03, 2019 at 09:35:28AM -0500, Jan Stancek wrote:
+> 
+> ----- Original Message -----
+> > On Tue, Dec 03, 2019 at 07:50:39AM -0500, Jan Stancek wrote:
+> > > My theory is that there's a race in iomap. There appear to be
+> > > interleaved calls to iomap_set_range_uptodate() for same page
+> > > with varying offset and length. Each call sees bitmap as _not_
+> > > entirely "uptodate" and hence doesn't call SetPageUptodate().
+> > > Even though each bit in bitmap ends up uptodate by the time
+> > > all calls finish.
+> > 
+> > Weird.  That should be prevented by the page lock that all callers
+> > of iomap_set_range_uptodate.  But in case I miss something, does
+> > the patch below trigger?  If not it is not jut a race, but might
+> > be some weird ordering problem with the bitops, especially if it
+> > only triggers on ppc, which is very weakly ordered.
+> > 
+> > diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+> > index d33c7bc5ee92..25e942c71590 100644
+> > --- a/fs/iomap/buffered-io.c
+> > +++ b/fs/iomap/buffered-io.c
+> > @@ -148,6 +148,8 @@ iomap_set_range_uptodate(struct page *page, unsigned off,
+> > unsigned len)
+> >  	unsigned int i;
+> >  	bool uptodate = true;
+> >  
+> > +	WARN_ON_ONCE(!PageLocked(page));
+> > +
+> >  	if (iop) {
+> >  		for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
+> >  			if (i >= first && i <= last)
+> > 
+> 
+> Hit it pretty quick this time:
+> 
+> # uptime
+>  09:27:42 up 22 min,  2 users,  load average: 0.09, 13.38, 26.18
+> 
+> # /mnt/testarea/ltp/testcases/bin/genbessel                                                                                                                                     
+> Bus error (core dumped)
+> 
+> # dmesg | grep -i -e warn -e call                                                                                                                                               
+> [    0.000000] dt-cpu-ftrs: not enabling: system-call-vectored (disabled or unsupported by kernel)
+> [    0.000000] random: get_random_u64 called from cache_random_seq_create+0x98/0x1e0 with crng_init=0
+> [    0.000000] rcu:     Offload RCU callbacks from CPUs: (none).
+> [    5.312075] megaraid_sas 0031:01:00.0: megasas_disable_intr_fusion is called outbound_intr_mask:0x40000009
+> [    5.357307] megaraid_sas 0031:01:00.0: megasas_disable_intr_fusion is called outbound_intr_mask:0x40000009
+> [    5.485126] megaraid_sas 0031:01:00.0: megasas_enable_intr_fusion is called outbound_intr_mask:0x40000000
+> 
+> So, extra WARN_ON_ONCE applied on top of v5.4-8836-g81b6b96475ac
+> did not trigger.
+> 
+> Is it possible for iomap code to submit multiple bio-s for same
+> locked page and then receive callbacks in parallel?
 
-Ignore this patch. It could also deadlock but in a different way, and it
-looks like there are other possible issues with races and refcounts. I
-will send some new patches.
+Yes, if (say) you have 64k pages on a 4k-block filesystem and the extent
+mapping for all 16 blocks aren't contiguous, then iomap will issue
+separate bios for each physical fragment it finds.  iomap will call
+submit_bio on those bios whenever it thinks it's done filling the bio,
+so you can indeed get multiple callbacks in parallel.
 
-
-On 12/02/2019 03:51 PM, Mike Christie wrote:
-> This fixes a regression added with:
-> 
-> commit e9e006f5fcf2bab59149cb38a48a4817c1b538b4
-> Author: Mike Christie <mchristi@redhat.com>
-> Date:   Sun Aug 4 14:10:06 2019 -0500
-> 
->     nbd: fix max number of supported devs
-> 
-> where we can deadlock during device shutdown. The problem will occur if
-> userpsace has done a NBD_CLEAR_SOCK call, then does close() before the
-> recv_work work has done its nbd_config_put() call. If recv_work does the
-> last call then it will do destroy_workqueue which will then be stuck
-> waiting for the work we are running from.
-> 
-> This fixes the issue by having nbd_start_device_ioctl flush the work
-> queue on both the failure and success cases and has a refcount on the
-> nbd_device while it is flushing the work queue.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mike Christie <mchristi@redhat.com>
-> ---
->  drivers/block/nbd.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-> index 57532465fb83..f8597d2fb365 100644
-> --- a/drivers/block/nbd.c
-> +++ b/drivers/block/nbd.c
-> @@ -1293,13 +1293,15 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
->  
->  	if (max_part)
->  		bdev->bd_invalidated = 1;
-> +
-> +	refcount_inc(&nbd->config_refs);
->  	mutex_unlock(&nbd->config_lock);
->  	ret = wait_event_interruptible(config->recv_wq,
->  					 atomic_read(&config->recv_threads) == 0);
-> -	if (ret) {
-> +	if (ret)
->  		sock_shutdown(nbd);
-> -		flush_workqueue(nbd->recv_workq);
-> -	}
-> +	flush_workqueue(nbd->recv_workq);
-> +
->  	mutex_lock(&nbd->config_lock);
->  	nbd_bdev_reset(bdev);
->  	/* user requested, ignore socket errors */
-> @@ -1307,6 +1309,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
->  		ret = 0;
->  	if (test_bit(NBD_RT_TIMEDOUT, &config->runtime_flags))
->  		ret = -ETIMEDOUT;
-> +	nbd_config_put(nbd);
->  	return ret;
->  }
->  
-> 
-
+--D
