@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B84D111E6F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A81B111FA8
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:11:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730208AbfLCWzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:55:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49486 "EHLO mail.kernel.org"
+        id S1728592AbfLCWls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:41:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730246AbfLCWzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:55:15 -0500
+        id S1728587AbfLCWlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:41:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDCD420674;
-        Tue,  3 Dec 2019 22:55:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 307D1206EC;
+        Tue,  3 Dec 2019 22:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413714;
-        bh=zXt9GqHUeIEH2vibE824zaULD6dlD3GFqN4+W2MhxWM=;
+        s=default; t=1575412906;
+        bh=SQ88NzCVo4FfYtk3jHrQFqZQpHL9QPX0q0E6FyiuBbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDD88H4R8lOzmcCqy3C55o2P9E+dRI8wvffX6FzlMxRBtffViqKn/3rjSehcsYQH8
-         4+iVGCk2xutDzzBipnPGmQhOosDFTIoXM8rIA4HxqEmg6vW6amLGcgbp9pG4Pw3LbK
-         HrZcWb/pH2MhOzBSCAQs+PEF6uL/vUGzf2Q2mBQU=
+        b=UHPScInDULYuCVQpvr9CM9oIvN4nZKLLrXeHrSnx4lqXibipTWoxNZMqXGnXFXDSU
+         tzrOSfIBCAB+JSHK71g3c6NErOzr6aZa4elAxM7Ib5OzkhSP1aa1+OlZOvP5r0GCfr
+         TwXjh0rx3eSMkn2C5sa0MMytbsci2VxISrgHSck4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Andrea Claudi <aclaudi@redhat.com>
-Subject: [PATCH 4.19 234/321] geneve: change NET_UDP_TUNNEL dependency to select
-Date:   Tue,  3 Dec 2019 23:35:00 +0100
-Message-Id: <20191203223439.304940377@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Timo=20Schl=C3=BC=C3=9Fler?= <schluessler@krause.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 062/135] can: mcp251x: mcp251x_restart_work_handler(): Fix potential force_quit race condition
+Date:   Tue,  3 Dec 2019 23:35:02 +0100
+Message-Id: <20191203213023.079828697@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@redhat.com>
+From: Timo Schlüßler <schluessler@krause.de>
 
-[ Upstream commit a7603ac1fc8ce1409f8ff70e6ce505f308b2c002 ]
+[ Upstream commit 27a0e54bae09d2dd023a01254db506d61cc50ba1 ]
 
-Due to the depends on NET_UDP_TUNNEL, at the moment it is impossible to
-compile GENEVE if no other protocol depending on NET_UDP_TUNNEL is
-selected.
+In mcp251x_restart_work_handler() the variable to stop the interrupt
+handler (priv->force_quit) is reset after the chip is restarted and thus
+a interrupt might occur.
 
-Fix this changing the depends to a select, and drop NET_IP_TUNNEL from the
-select list, as it already depends on NET_UDP_TUNNEL.
+This patch fixes the potential race condition by resetting force_quit
+before enabling interrupts.
 
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Reviewed-and-tested-by: Andrea Claudi <aclaudi@redhat.com>
-Tested-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Timo Schlüßler <schluessler@krause.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/spi/mcp251x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 619bf1498a662..0652caad57ec1 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -197,9 +197,9 @@ config VXLAN
+diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
+index 5d6f8977df3f8..c0ee0fa909702 100644
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -759,6 +759,7 @@ static void mcp251x_restart_work_handler(struct work_struct *ws)
+ 	if (priv->after_suspend) {
+ 		mcp251x_hw_reset(spi);
+ 		mcp251x_setup(net, spi);
++		priv->force_quit = 0;
+ 		if (priv->after_suspend & AFTER_SUSPEND_RESTART) {
+ 			mcp251x_set_normal_mode(spi);
+ 		} else if (priv->after_suspend & AFTER_SUSPEND_UP) {
+@@ -770,7 +771,6 @@ static void mcp251x_restart_work_handler(struct work_struct *ws)
+ 			mcp251x_hw_sleep(spi);
+ 		}
+ 		priv->after_suspend = 0;
+-		priv->force_quit = 0;
+ 	}
  
- config GENEVE
-        tristate "Generic Network Virtualization Encapsulation"
--       depends on INET && NET_UDP_TUNNEL
-+       depends on INET
-        depends on IPV6 || !IPV6
--       select NET_IP_TUNNEL
-+       select NET_UDP_TUNNEL
-        select GRO_CELLS
-        ---help---
- 	  This allows one to create geneve virtual interfaces that provide
+ 	if (priv->restart_tx) {
 -- 
 2.20.1
 
