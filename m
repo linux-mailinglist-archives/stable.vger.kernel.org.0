@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A390111C71
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91811111BED
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:38:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728089AbfLCWoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:44:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59918 "EHLO mail.kernel.org"
+        id S1727689AbfLCWih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:38:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728916AbfLCWoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:44:09 -0500
+        id S1728023AbfLCWie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:38:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ADC0206EC;
-        Tue,  3 Dec 2019 22:44:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6D6320684;
+        Tue,  3 Dec 2019 22:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413048;
-        bh=2AC5dinst3Ntp9oN+hLsaPSDW5/oiPHCqmHwbgE47Q8=;
+        s=default; t=1575412714;
+        bh=fGEGqqPn/RtkHfVgz6CHl74WTaoHeZ1ndAUeCWAUmQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWAncrs/YUm/C/odp0ZrR3mL5kKkiAdaiAIPVJI0kYEx3aCgYfmKMWVzvDCc89PiC
-         doegAZdkdlGFZAWFTlWIpYdZO/8oy15N/xxYH7MuVyLLTLMFOj2+mYYmzn46zLJVx3
-         lWlKCzu8Ta/sT28ytvOfZsk0gsOsxKHT7r3z0FvY=
+        b=x1xHkXLsxJiOKHjxvJfUBvkCuaTWl2OKC39BdKvTJO2Z1sR75Faygnq+4l37IZxUr
+         qTa3xcjuynsOvtuA8ExMmCBiw9dMBTNIvdN7RlBVdoEbDKzF+O7NbTLueJQ6KFnJ+H
+         FTpxlZouHsvuNFH6aedlW9pq+P61dLAX8uUIkBs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Simon Horman <simon.horman@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 115/135] net: sched: fix `tc -s class show` no bstats on class with nolock subqueues
+Subject: [PATCH 5.4 35/46] selftests: bpf: test_sockmap: handle file creation failures gracefully
 Date:   Tue,  3 Dec 2019 23:35:55 +0100
-Message-Id: <20191203213043.050109353@linuxfoundation.org>
+Message-Id: <20191203212756.099294275@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,83 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dust Li <dust.li@linux.alibaba.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit 14e54ab9143fa60794d13ea0a66c792a2046a8f3 ]
+[ Upstream commit 4b67c515036313f3c3ecba3cb2babb9cbddb3f85 ]
 
-When a classful qdisc's child qdisc has set the flag
-TCQ_F_CPUSTATS (pfifo_fast for example), the child qdisc's
-cpu_bstats should be passed to gnet_stats_copy_basic(),
-but many classful qdisc didn't do that. As a result,
-`tc -s class show dev DEV` always return 0 for bytes and
-packets in this case.
+test_sockmap creates a temporary file to use for sendpage.
+this may fail for various reasons. Handle the error rather
+than segfault.
 
-Pass the child qdisc's cpu_bstats to gnet_stats_copy_basic()
-to fix this issue.
-
-The qstats also has this problem, but it has been fixed
-in 5dd431b6b9 ("net: sched: introduce and use qstats read...")
-and bstats still remains buggy.
-
-Fixes: 22e0f8b9322c ("net: sched: make bstats per cpu and estimator RCU safe")
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_mq.c     |    3 ++-
- net/sched/sch_mqprio.c |    4 ++--
- net/sched/sch_multiq.c |    2 +-
- net/sched/sch_prio.c   |    2 +-
- 4 files changed, 6 insertions(+), 5 deletions(-)
+ tools/testing/selftests/bpf/test_sockmap.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/sched/sch_mq.c
-+++ b/net/sched/sch_mq.c
-@@ -245,7 +245,8 @@ static int mq_dump_class_stats(struct Qd
- 	struct netdev_queue *dev_queue = mq_queue_get(sch, cl);
+--- a/tools/testing/selftests/bpf/test_sockmap.c
++++ b/tools/testing/selftests/bpf/test_sockmap.c
+@@ -332,6 +332,10 @@ static int msg_loop_sendpage(int fd, int
+ 	int i, fp;
  
- 	sch = dev_queue->qdisc_sleeping;
--	if (gnet_stats_copy_basic(&sch->running, d, NULL, &sch->bstats) < 0 ||
-+	if (gnet_stats_copy_basic(&sch->running, d, sch->cpu_bstats,
-+				  &sch->bstats) < 0 ||
- 	    qdisc_qstats_copy(d, sch) < 0)
- 		return -1;
- 	return 0;
---- a/net/sched/sch_mqprio.c
-+++ b/net/sched/sch_mqprio.c
-@@ -557,8 +557,8 @@ static int mqprio_dump_class_stats(struc
- 		struct netdev_queue *dev_queue = mqprio_queue_get(sch, cl);
+ 	file = fopen(".sendpage_tst.tmp", "w+");
++	if (!file) {
++		perror("create file for sendpage");
++		return 1;
++	}
+ 	for (i = 0; i < iov_length * cnt; i++, k++)
+ 		fwrite(&k, sizeof(char), 1, file);
+ 	fflush(file);
+@@ -339,6 +343,11 @@ static int msg_loop_sendpage(int fd, int
+ 	fclose(file);
  
- 		sch = dev_queue->qdisc_sleeping;
--		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
--					  d, NULL, &sch->bstats) < 0 ||
-+		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch), d,
-+					  sch->cpu_bstats, &sch->bstats) < 0 ||
- 		    qdisc_qstats_copy(d, sch) < 0)
- 			return -1;
- 	}
---- a/net/sched/sch_multiq.c
-+++ b/net/sched/sch_multiq.c
-@@ -330,7 +330,7 @@ static int multiq_dump_class_stats(struc
- 
- 	cl_q = q->queues[cl - 1];
- 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
--				  d, NULL, &cl_q->bstats) < 0 ||
-+				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
- 	    qdisc_qstats_copy(d, cl_q) < 0)
- 		return -1;
- 
---- a/net/sched/sch_prio.c
-+++ b/net/sched/sch_prio.c
-@@ -356,7 +356,7 @@ static int prio_dump_class_stats(struct
- 
- 	cl_q = q->queues[cl - 1];
- 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
--				  d, NULL, &cl_q->bstats) < 0 ||
-+				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
- 	    qdisc_qstats_copy(d, cl_q) < 0)
- 		return -1;
- 
+ 	fp = open(".sendpage_tst.tmp", O_RDONLY);
++	if (fp < 0) {
++		perror("reopen file for sendpage");
++		return 1;
++	}
++
+ 	clock_gettime(CLOCK_MONOTONIC, &s->start);
+ 	for (i = 0; i < cnt; i++) {
+ 		int sent = sendfile(fd, fp, NULL, iov_length);
 
 
