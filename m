@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60032111DB1
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D35AB111C4F
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:43:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730070AbfLCW4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:56:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
+        id S1728357AbfLCWmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:42:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730236AbfLCW4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:56:02 -0500
+        id S1728343AbfLCWmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:42:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83DF220656;
-        Tue,  3 Dec 2019 22:56:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 812C020803;
+        Tue,  3 Dec 2019 22:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413762;
-        bh=P5MK6TYywY9tI5CraYsnaK8zbolAgZwzdiJIM/eB5SE=;
+        s=default; t=1575412955;
+        bh=Sh1A6WczwZM9OYsqHw8JzdjYAOOxO4WI8CWupzY34jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMAzsjds5dOJRHFCdzUHkJKWTd9Hf+TlA41B854CmTZ+SuS1AO25znXCDqYQkcVDS
-         /BueBgugyUVR0nG2dSK/QMaHM6jOhT61u7w9ouc8qq/d44rqkh+hBTB8l0A9t23uC6
-         kAP/Xg1lHVOEnyFiNFIy5XhcNRkYRhjAyz8k7d6g=
+        b=W6IX0gFMfaPYosoSSd+VSLT96dpCM6RX/crfvAlaGzSgZEs9ZZ4OkhWyCxPsnr3rj
+         iZsbWXvMRDX4yUzoxeGRyjBZFftOTkJP5hYXXX+f21S6E/ByzcYLYruSAhAdzF01Gf
+         QdFSY1Yodc1cIKA4NooGowqplLDGUVkccov5rOAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 215/321] net/core/neighbour: tell kmemleak about hash tables
-Date:   Tue,  3 Dec 2019 23:34:41 +0100
-Message-Id: <20191203223438.305235221@linuxfoundation.org>
+Subject: [PATCH 5.3 043/135] clk: ti: dra7-atl-clock: Remove ti_clk_add_alias call
+Date:   Tue,  3 Dec 2019 23:34:43 +0100
+Message-Id: <20191203213015.983469970@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,81 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 85704cb8dcfd88d351bfc87faaeba1c8214f3177 ]
+[ Upstream commit 9982b0f69b49931b652d35f86f519be2ccfc7027 ]
 
-This fixes false-positive kmemleak reports about leaked neighbour entries:
+ti_clk_register() calls it already so the driver should not create
+duplicated alias.
 
-unreferenced object 0xffff8885c6e4d0a8 (size 1024):
-  comm "softirq", pid 0, jiffies 4294922664 (age 167640.804s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 20 2c f3 83 ff ff ff ff  ........ ,......
-    08 c0 ef 5f 84 88 ff ff 01 8c 7d 02 01 00 00 00  ..._......}.....
-  backtrace:
-    [<00000000748509fe>] ip6_finish_output2+0x887/0x1e40
-    [<0000000036d7a0d8>] ip6_output+0x1ba/0x600
-    [<0000000027ea7dba>] ip6_send_skb+0x92/0x2f0
-    [<00000000d6e2111d>] udp_v6_send_skb.isra.24+0x680/0x15e0
-    [<000000000668a8be>] udpv6_sendmsg+0x18c9/0x27a0
-    [<000000004bd5fa90>] sock_sendmsg+0xb3/0xf0
-    [<000000008227b29f>] ___sys_sendmsg+0x745/0x8f0
-    [<000000008698009d>] __sys_sendmsg+0xde/0x170
-    [<00000000889dacf1>] do_syscall_64+0x9b/0x400
-    [<0000000081cdb353>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
-    [<000000005767ed39>] 0xffffffffffffffff
-
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lkml.kernel.org/r/20191002083436.10194-1-peter.ujfalusi@ti.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/clk/ti/clk-dra7-atl.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index c52d6e6b341cf..4721793babed5 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -18,6 +18,7 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+diff --git a/drivers/clk/ti/clk-dra7-atl.c b/drivers/clk/ti/clk-dra7-atl.c
+index a01ca9395179a..f65e16c4f3c4b 100644
+--- a/drivers/clk/ti/clk-dra7-atl.c
++++ b/drivers/clk/ti/clk-dra7-atl.c
+@@ -174,7 +174,6 @@ static void __init of_dra7_atl_clock_setup(struct device_node *node)
+ 	struct clk_init_data init = { NULL };
+ 	const char **parent_names = NULL;
+ 	struct clk *clk;
+-	int ret;
  
- #include <linux/slab.h>
-+#include <linux/kmemleak.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -363,12 +364,14 @@ static struct neigh_hash_table *neigh_hash_alloc(unsigned int shift)
- 	ret = kmalloc(sizeof(*ret), GFP_ATOMIC);
- 	if (!ret)
- 		return NULL;
--	if (size <= PAGE_SIZE)
-+	if (size <= PAGE_SIZE) {
- 		buckets = kzalloc(size, GFP_ATOMIC);
--	else
-+	} else {
- 		buckets = (struct neighbour __rcu **)
- 			  __get_free_pages(GFP_ATOMIC | __GFP_ZERO,
- 					   get_order(size));
-+		kmemleak_alloc(buckets, size, 0, GFP_ATOMIC);
-+	}
- 	if (!buckets) {
- 		kfree(ret);
- 		return NULL;
-@@ -388,10 +391,12 @@ static void neigh_hash_free_rcu(struct rcu_head *head)
- 	size_t size = (1 << nht->hash_shift) * sizeof(struct neighbour *);
- 	struct neighbour __rcu **buckets = nht->hash_buckets;
+ 	clk_hw = kzalloc(sizeof(*clk_hw), GFP_KERNEL);
+ 	if (!clk_hw) {
+@@ -207,11 +206,6 @@ static void __init of_dra7_atl_clock_setup(struct device_node *node)
+ 	clk = ti_clk_register(NULL, &clk_hw->hw, node->name);
  
--	if (size <= PAGE_SIZE)
-+	if (size <= PAGE_SIZE) {
- 		kfree(buckets);
--	else
-+	} else {
-+		kmemleak_free(buckets);
- 		free_pages((unsigned long)buckets, get_order(size));
-+	}
- 	kfree(nht);
- }
- 
+ 	if (!IS_ERR(clk)) {
+-		ret = ti_clk_add_alias(NULL, clk, node->name);
+-		if (ret) {
+-			clk_unregister(clk);
+-			goto cleanup;
+-		}
+ 		of_clk_add_provider(node, of_clk_src_simple_get, clk);
+ 		kfree(parent_names);
+ 		return;
 -- 
 2.20.1
 
