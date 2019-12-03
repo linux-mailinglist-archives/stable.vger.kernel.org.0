@@ -2,129 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD8A810FD87
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:23:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A7F810FD8B
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfLCMXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 07:23:03 -0500
-Received: from imap1.codethink.co.uk ([176.9.8.82]:39981 "EHLO
-        imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725907AbfLCMXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 07:23:03 -0500
-Received: from [167.98.27.226] (helo=xylophone)
-        by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
-        id 1ic7Cl-0000E5-7a; Tue, 03 Dec 2019 12:22:59 +0000
-Message-ID: <645311d0c03b3ae4604ac297e15af6471a6b0fb4.camel@codethink.co.uk>
-Subject: Re: [PATCH STABLE 4.9 1/1] mm, gup: add missing refcount overflow
- checks on x86 and s390
-From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
-To:     Vlastimil Babka <vbabka@suse.cz>, stable@vger.kernel.org
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        Ajay Kaher <akaher@vmware.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Date:   Tue, 03 Dec 2019 12:22:58 +0000
-In-Reply-To: <20191129090351.3507-2-vbabka@suse.cz>
-References: <20191129090351.3507-1-vbabka@suse.cz>
-         <20191129090351.3507-2-vbabka@suse.cz>
-Organization: Codethink Ltd.
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1725957AbfLCMZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 07:25:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49594 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725907AbfLCMZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 07:25:25 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F5C320684;
+        Tue,  3 Dec 2019 12:25:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575375924;
+        bh=mqSfcHXhBbJxxombjupI9PkM139O3uHhvAJNFahX9nY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OimR7FXWKXoDmPiUD8BgYZU3uIkZ/o2yAgPb5W5//tZrvJz6JICKRqFCq+5J6VfSu
+         nOTce0bzB2ZRfrSffXrgWMdwVGR53pW74wVU/sRi1CeTx2shsVUVyBQE6Z0crJ4br9
+         bQVC40dyhZMqVkON0pDV4/uw7XJiRC1ALG5PUDeM=
+Date:   Tue, 3 Dec 2019 13:25:22 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: elf_hwcap: Export userspace ASEs
+Message-ID: <20191203122522.GA2131225@kroah.com>
+References: <20191030090214.GA628862@kroah.com>
+ <20191030132224.15731-1-jiaxun.yang@flygoat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191030132224.15731-1-jiaxun.yang@flygoat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2019-11-29 at 10:03 +0100, Vlastimil Babka wrote:
-> The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
-> overflowing page refcount") was backported to 4.9.y stable as commit
-> 2ed768cfd895. The backport however missed that in 4.9, there are several
-> arch-specific gup.c versions with fast gup implementations, so these do not
-> prevent refcount overflow.
+On Wed, Oct 30, 2019 at 09:22:24PM +0800, Jiaxun Yang wrote:
+> A Golang developer reported MIPS hwcap isn't reflecting instructions
+> that the processor actually supported so programs can't apply optimized
+> code at runtime.
 > 
-> This is partially fixed for x86 in stable-only commit d73af79742e7 ("x86, mm,
-> gup: prevent get_page() race with munmap in paravirt guest"). This stable-only
-> commit adds missing parts to x86 version, as well as s390 version, both taken
-> from the SUSE SLES/openSUSE 4.12-based kernels.
+> Thus we export the ASEs that can be used in userspace programs.
 > 
-> The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
-> the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
-> problem for those architectures, and I don't feel confident enough to patch
-> them.
-> 
-> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+> Reported-by: Meng Zhuo <mengzhuo1203@gmail.com>
+> Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> Cc: linux-mips@vger.kernel.org
+> Cc: Paul Burton <paul.burton@mips.com>
+> Cc: <stable@vger.kernel.org> # 4.14+
+> Signed-off-by: Paul Burton <paul.burton@mips.com>
 > ---
->  arch/s390/mm/gup.c |  9 ++++++---
->  arch/x86/mm/gup.c  | 10 ++++++++--
->  2 files changed, 14 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-> index 97fc449a7470..33a940389a6d 100644
-> --- a/arch/s390/mm/gup.c
-> +++ b/arch/s390/mm/gup.c
-> @@ -38,7 +38,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
->  		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
->  		page = pte_page(pte);
->  		head = compound_head(page);
-> -		if (!page_cache_get_speculative(head))
-> +		if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
+>  arch/mips/include/uapi/asm/hwcap.h | 11 ++++++++++
+>  arch/mips/kernel/cpu-probe.c       | 33 ++++++++++++++++++++++++++++++
+>  2 files changed, 44 insertions(+)
 
-No need for unlikely(); WARN_ON() includes that.
+This fails to apply to the current 4.14.y tree:
 
-> +		    || !page_cache_get_speculative(head)))
->  			return 0;
->  		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
->  			put_page(head);
-[...]
-> --- a/arch/x86/mm/gup.c
-> +++ b/arch/x86/mm/gup.c
-> @@ -202,10 +202,12 @@ static int __gup_device_huge_pmd(pmd_t pmd, unsigned long addr,
->  			undo_dev_pagemap(nr, nr_start, pages);
->  			return 0;
->  		}
-> +		if (unlikely(!try_get_page(page))) {
-> +			put_dev_pagemap(pgmap);
-> +			return 0;
-> +		}
->  		SetPageReferenced(page);
->  		pages[*nr] = page;
-> -		get_page(page);
-> -		put_dev_pagemap(pgmap);
+	checking file arch/mips/include/uapi/asm/hwcap.h
+	Hunk #1 FAILED at 6.
+	1 out of 1 hunk FAILED
+	checking file arch/mips/kernel/cpu-probe.c
+	Hunk #1 succeeded at 2076 (offset -104 lines).
 
-This leaks a pgmap reference on success!
+Can you refresh it and resend?  Also remember to include the git id that
+this patch is in Linus's tree, I had to look it up by hand :(
 
->  		(*nr)++;
->  		pfn++;
->  	} while (addr += PAGE_SIZE, addr != end);
-> @@ -230,6 +232,8 @@ static noinline int gup_huge_pmd(pmd_t pmd, unsigned long addr,
->  
->  	refs = 0;
->  	head = pmd_page(pmd);
-> +	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
+thanks,
 
-Why <= 0, given we use < 0 elsewhere?
-
-> +		return 0;
->  	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
->  	do {
->  		VM_BUG_ON_PAGE(compound_head(page) != head, page);
-> @@ -289,6 +293,8 @@ static noinline int gup_huge_pud(pud_t pud, unsigned long addr,
->  
->  	refs = 0;
->  	head = pud_page(pud);
-> +	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
-
-Same question here.
-
-Ben.
-
-> +		return 0;
->  	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
->  	do {
->  		VM_BUG_ON_PAGE(compound_head(page) != head, page);
--- 
-Ben Hutchings, Software Developer                         Codethink Ltd
-https://www.codethink.co.uk/                 Dale House, 35 Dale Street
-                                     Manchester, M1 2HF, United Kingdom
-
+greg k-h
