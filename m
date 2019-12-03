@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99440111D29
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:51:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD278111CF8
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:50:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729486AbfLCWur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:50:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
+        id S1729510AbfLCWtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:49:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728093AbfLCWup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:50:45 -0500
+        id S1729532AbfLCWtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:49:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BB732084F;
-        Tue,  3 Dec 2019 22:50:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0B3E20803;
+        Tue,  3 Dec 2019 22:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413444;
-        bh=ag2mKLmjAtSuEZfhNw8ozyv0sgkKC0hv88NtfoEpkIE=;
+        s=default; t=1575413344;
+        bh=i2TUQ1gesl9JwdNVYVse27uEquLrDG/YSkiLYku2988=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wYy9azh783ikBDnzwQGeoGyX0XE/Q5F0fai/+gS6Orr0ABIsVMXo8GYh8iNMISVM
-         W6TWutk1ACnElWSRFi/7ixtKH11tsUIpaTOMDl2KLx5PHcslxjOGg8fBEbfdDJkzxr
-         fAjbK/xqgvaYcztxdiaHqxJPv/y6geu0y1Q2JBIg=
+        b=Ush9cVmEfxP1XCCwaDM9HNHlcfmtToVNlTd/HucvtHrSxubc57Q1sst7r1etV3nXi
+         mCPBd34hjXGWkIs2R+24rckunwiIeUI3r+rBRExp/dp+bKM7RI4Dc1jJnSZ2F+EpyV
+         LALZMTHhdPWBpQCJzD2sN8rXbeejcbamM/GiMr2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        stable@vger.kernel.org,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Madhan Mohan R <madhanmohan.r@cypress.com>,
+        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/321] mwifiex: fix potential NULL dereference and use after free
-Date:   Tue,  3 Dec 2019 23:32:36 +0100
-Message-Id: <20191203223431.833683132@linuxfoundation.org>
+Subject: [PATCH 4.19 093/321] brcmfmac: set SDIO F1 MesBusyCtrl for CYW4373
+Date:   Tue,  3 Dec 2019 23:32:39 +0100
+Message-Id: <20191203223431.987493166@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -44,53 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Madhan Mohan R <MadhanMohan.R@cypress.com>
 
-[ Upstream commit 1dcd9429212b98bea87fc6ec92fb50bf5953eb47 ]
+[ Upstream commit 58e4bbea0c1d9b5ace11df968c5dc096ce052a73 ]
 
-There are two defects: (1) passing a NULL bss to
-mwifiex_save_hidden_ssid_channels will result in NULL dereference,
-(2) using bss after dropping the reference to it via cfg80211_put_bss.
-To fix them, the patch moves the buggy code to the branch that bss is
-not NULL and puts it before cfg80211_put_bss.
+Along with F2 watermark (existing) configuration, F1 MesBusyCtrl
+should be enabled & sdio device RX FIFO watermark should be
+configured to avoid overflow errors.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Madhan Mohan R <madhanmohan.r@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/scan.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 3 +++
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h | 9 ++++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/scan.c b/drivers/net/wireless/marvell/mwifiex/scan.c
-index ed27147efcb37..dd02bbd9544e7 100644
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -1906,15 +1906,17 @@ mwifiex_parse_single_response_buf(struct mwifiex_private *priv, u8 **bss_info,
- 					    ETH_ALEN))
- 					mwifiex_update_curr_bss_params(priv,
- 								       bss);
--				cfg80211_put_bss(priv->wdev.wiphy, bss);
--			}
- 
--			if ((chan->flags & IEEE80211_CHAN_RADAR) ||
--			    (chan->flags & IEEE80211_CHAN_NO_IR)) {
--				mwifiex_dbg(adapter, INFO,
--					    "radar or passive channel %d\n",
--					    channel);
--				mwifiex_save_hidden_ssid_channels(priv, bss);
-+				if ((chan->flags & IEEE80211_CHAN_RADAR) ||
-+				    (chan->flags & IEEE80211_CHAN_NO_IR)) {
-+					mwifiex_dbg(adapter, INFO,
-+						    "radar or passive channel %d\n",
-+						    channel);
-+					mwifiex_save_hidden_ssid_channels(priv,
-+									  bss);
-+				}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index e487dd78cc024..abaed2fa2defd 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -4133,6 +4133,9 @@ static void brcmf_sdio_firmware_callback(struct device *dev, int err,
+ 			devctl |= SBSDIO_DEVCTL_F2WM_ENAB;
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_DEVICE_CTL, devctl,
+ 					   &err);
++			brcmf_sdiod_writeb(sdiod, SBSDIO_FUNC1_MESBUSYCTRL,
++					   CY_4373_F2_WATERMARK |
++					   SBSDIO_MESBUSYCTRL_ENAB, &err);
+ 			break;
+ 		default:
+ 			brcmf_sdiod_writeb(sdiod, SBSDIO_WATERMARK,
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
+index 7faed831f07d5..34b031154da93 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.h
+@@ -77,7 +77,7 @@
+ #define SBSDIO_GPIO_OUT			0x10006
+ /* gpio enable */
+ #define SBSDIO_GPIO_EN			0x10007
+-/* rev < 7, watermark for sdio device */
++/* rev < 7, watermark for sdio device TX path */
+ #define SBSDIO_WATERMARK		0x10008
+ /* control busy signal generation */
+ #define SBSDIO_DEVICE_CTL		0x10009
+@@ -104,6 +104,13 @@
+ #define SBSDIO_FUNC1_RFRAMEBCHI		0x1001C
+ /* MesBusyCtl (rev 11) */
+ #define SBSDIO_FUNC1_MESBUSYCTRL	0x1001D
++/* Watermark for sdio device RX path */
++#define SBSDIO_MESBUSY_RXFIFO_WM_MASK	0x7F
++#define SBSDIO_MESBUSY_RXFIFO_WM_SHIFT	0
++/* Enable busy capability for MES access */
++#define SBSDIO_MESBUSYCTRL_ENAB		0x80
++#define SBSDIO_MESBUSYCTRL_ENAB_SHIFT	7
 +
-+				cfg80211_put_bss(priv->wdev.wiphy, bss);
- 			}
- 		}
- 	} else {
+ /* Sdio Core Rev 12 */
+ #define SBSDIO_FUNC1_WAKEUPCTRL		0x1001E
+ #define SBSDIO_FUNC1_WCTRL_ALPWAIT_MASK		0x1
 -- 
 2.20.1
 
