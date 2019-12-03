@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0651F111C87
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:45:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4768B111E20
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:00:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728980AbfLCWo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:44:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33112 "EHLO mail.kernel.org"
+        id S1729961AbfLCW61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:58:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728871AbfLCWo5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:44:57 -0500
+        id S1730121AbfLCW6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:58:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56A7F2073C;
-        Tue,  3 Dec 2019 22:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 904F820863;
+        Tue,  3 Dec 2019 22:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413096;
-        bh=sceLJGCo77DPR9JBaWfFyeAjcJUerBMlT9tLv1Mf0SQ=;
+        s=default; t=1575413905;
+        bh=lBGsPdVqWRIlpSzE9JQT9JoBoAkeI+DuX9UVhFt3syA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DMx4GQMSM/wc6DW4g63NVXPqaqcepG+tRz09dopoLTQ2up7zZa0SpOexz7pNbMSmK
-         NRlp7IlFvTjMVXxtD5Qob7qpvilf4GtOC24R60+URi+1zMpA2oRN729/LwPwfGVKX8
-         Qo0ZEcliwyPAwxV/erfLGpJRewn6lwo3AQBVZW7o=
+        b=bK/l6evGiv5mfJT/elkVJvKpUJcKTcPjvabb4sR2lErXC/Yo31aAcr7bn59GwE19v
+         CGZCCPk5PqROHHz9aICKeX1WTRKm7BH3zqjcFXx9NCqiZ1Ie+d2OaJCpjEcHDP1Ct3
+         ItcSQX9lp6P6tDeU8exgzDhdMpgNHcB/CFwlgL9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.3 134/135] platform/x86: hp-wmi: Fix ACPI errors caused by too small buffer
+        stable@vger.kernel.org, Lionel Debieve <lionel.debieve@st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.19 308/321] hwrng: stm32 - fix unbalanced pm_runtime_enable
 Date:   Tue,  3 Dec 2019 23:36:14 +0100
-Message-Id: <20191203213046.260872434@linuxfoundation.org>
+Message-Id: <20191203223443.169670189@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Lionel Debieve <lionel.debieve@st.com>
 
-commit 16245db1489cd9aa579506f64afeeeb13d825a93 upstream.
+commit af0d4442dd6813de6e77309063beb064fa8e89ae upstream.
 
-The HP WMI calls may take up to 128 bytes of data as input, and
-the AML methods implementing the WMI calls, declare a couple of fields for
-accessing input in different sizes, specifycally the HWMC method contains:
+No remove function implemented yet in the driver.
+Without remove function, the pm_runtime implementation
+complains when removing and probing again the driver.
 
-        CreateField (Arg1, 0x80, 0x0400, D128)
-
-Even though we do not use any of the WMI command-types which need a buffer
-of this size, the APCI interpreter still tries to create it as it is
-declared in generoc code at the top of the HWMC method which runs before
-the code looks at which command-type is requested.
-
-This results in many of these errors on many different HP laptop models:
-
-[   14.459261] ACPI Error: Field [D128] at 1152 exceeds Buffer [NULL] size 160 (bits) (20170303/dsopcode-236)
-[   14.459268] ACPI Error: Method parse/execution failed [\HWMC] (Node ffff8edcc61507f8), AE_AML_BUFFER_LIMIT (20170303/psparse-543)
-[   14.459279] ACPI Error: Method parse/execution failed [\_SB.WMID.WMAA] (Node ffff8edcc61523c0), AE_AML_BUFFER_LIMIT (20170303/psparse-543)
-
-This commit increases the size of the data element of the bios_args struct
-to 128 bytes fixing these errors.
-
-Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197007
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201981
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1520703
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lionel Debieve <lionel.debieve@st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/hp-wmi.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/hw_random/stm32-rng.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -65,7 +65,7 @@ struct bios_args {
- 	u32 command;
- 	u32 commandtype;
- 	u32 datasize;
--	u32 data;
-+	u8 data[128];
+--- a/drivers/char/hw_random/stm32-rng.c
++++ b/drivers/char/hw_random/stm32-rng.c
+@@ -169,6 +169,13 @@ static int stm32_rng_probe(struct platfo
+ 	return devm_hwrng_register(dev, &priv->rng);
+ }
+ 
++static int stm32_rng_remove(struct platform_device *ofdev)
++{
++	pm_runtime_disable(&ofdev->dev);
++
++	return 0;
++}
++
+ #ifdef CONFIG_PM
+ static int stm32_rng_runtime_suspend(struct device *dev)
+ {
+@@ -210,6 +217,7 @@ static struct platform_driver stm32_rng_
+ 		.of_match_table = stm32_rng_match,
+ 	},
+ 	.probe = stm32_rng_probe,
++	.remove = stm32_rng_remove,
  };
  
- enum hp_wmi_commandtype {
-@@ -216,7 +216,7 @@ static int hp_wmi_perform_query(int quer
- 		.command = command,
- 		.commandtype = query,
- 		.datasize = insize,
--		.data = 0,
-+		.data = { 0 },
- 	};
- 	struct acpi_buffer input = { sizeof(struct bios_args), &args };
- 	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
-@@ -228,7 +228,7 @@ static int hp_wmi_perform_query(int quer
- 
- 	if (WARN_ON(insize > sizeof(args.data)))
- 		return -EINVAL;
--	memcpy(&args.data, buffer, insize);
-+	memcpy(&args.data[0], buffer, insize);
- 
- 	wmi_evaluate_method(HPWMI_BIOS_GUID, 0, mid, &input, &output);
- 
+ module_platform_driver(stm32_rng_driver);
 
 
