@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50584111DCF
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E519D111BE5
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730247AbfLCW5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:57:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52920 "EHLO mail.kernel.org"
+        id S1727953AbfLCWiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:38:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729539AbfLCW5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:57:20 -0500
+        id S1727969AbfLCWiT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:38:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A67F2053B;
-        Tue,  3 Dec 2019 22:57:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AFE720862;
+        Tue,  3 Dec 2019 22:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413839;
-        bh=GYUwYBLbPvTeBue7pRSHLIh9EK/b9Y9ty9FB+eIcFBk=;
+        s=default; t=1575412698;
+        bh=X0xSGi6xT4B5606Mrh/tfrSpMoE/QoK7hRlEwjUTq+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvW55LPNn2MCDOgxIbKk6apD/8a768o+kXLrdaa88+Oc0zfm2mVZu3PrbSMIarZ16
-         dSE4QniiFeg/TqvQcVfkxfG/gN4kjW28xdT1ParydWxFBtmzYMZ58cKQmM0QWw8731
-         QhedN3EQMOplQXwTRE9sb69X2BjZAgLxFWqPWeDU=
+        b=iTGhNi0q/HIFNYvcd6jPm3l/9+3gC2dhft5MkXFwMkZqA9lmJ+GcDMJAijLRpxe13
+         beUDjg/yIQpG7+EecGSVb7V9sOSRgDOU+F6+hozPKdKqFttfzs8yS0d4kCFIRmyhbx
+         OjA3f7CG9/OhIVHvk5XHGj9/f6pap62pi5B7IFqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        John Fastabend <john.fastabend@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 282/321] macvlan: schedule bc_work even if error
-Date:   Tue,  3 Dec 2019 23:35:48 +0100
-Message-Id: <20191203223441.807130327@linuxfoundation.org>
+Subject: [PATCH 5.4 29/46] net/tls: take into account that bpf_exec_tx_verdict() may free the record
+Date:   Tue,  3 Dec 2019 23:35:49 +0100
+Message-Id: <20191203212744.480975788@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit 1d7ea55668878bb350979c377fc72509dd6f5b21 ]
+[ Upstream commit c329ef9684de9517d82af5b4758c9e1b64a8a11a ]
 
-While enqueueing a broadcast skb to port->bc_queue, schedule_work()
-is called to add port->bc_work, which processes the skbs in
-bc_queue, to "events" work queue. If port->bc_queue is full, the
-skb will be discarded and schedule_work(&port->bc_work) won't be
-called. However, if port->bc_queue is full and port->bc_work is not
-running or pending, port->bc_queue will keep full and schedule_work()
-won't be called any more, and all broadcast skbs to macvlan will be
-discarded. This case can happen:
+bpf_exec_tx_verdict() may free the record if tls_push_record()
+fails, or if the entire record got consumed by BPF. Re-check
+ctx->open_rec before touching the data.
 
-macvlan_process_broadcast() is the pending function of port->bc_work,
-it moves all the skbs in port->bc_queue to the queue "list", and
-processes the skbs in "list". During this, new skbs will keep being
-added to port->bc_queue in macvlan_broadcast_enqueue(), and
-port->bc_queue may already full when macvlan_process_broadcast()
-return. This may happen, especially when there are a lot of real-time
-threads and the process is preempted.
-
-Fix this by calling schedule_work(&port->bc_work) even if
-port->bc_work is full in macvlan_broadcast_enqueue().
-
-Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+Fixes: d3b18ad31f93 ("tls: add bpf support to sk_msg handling")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macvlan.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/tls/tls_sw.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -363,10 +363,11 @@ static void macvlan_broadcast_enqueue(st
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -979,7 +979,7 @@ alloc_encrypted:
+ 					num_async++;
+ 				else if (ret == -ENOMEM)
+ 					goto wait_for_memory;
+-				else if (ret == -ENOSPC)
++				else if (ctx->open_rec && ret == -ENOSPC)
+ 					goto rollback_iter;
+ 				else if (ret != -EAGAIN)
+ 					goto send_end;
+@@ -1048,11 +1048,12 @@ wait_for_memory:
+ 		ret = sk_stream_wait_memory(sk, &timeo);
+ 		if (ret) {
+ trim_sgl:
+-			tls_trim_both_msgs(sk, orig_size);
++			if (ctx->open_rec)
++				tls_trim_both_msgs(sk, orig_size);
+ 			goto send_end;
+ 		}
+ 
+-		if (msg_en->sg.size < required_size)
++		if (ctx->open_rec && msg_en->sg.size < required_size)
+ 			goto alloc_encrypted;
  	}
- 	spin_unlock(&port->bc_queue.lock);
  
-+	schedule_work(&port->bc_work);
-+
- 	if (err)
- 		goto free_nskb;
+@@ -1185,11 +1186,13 @@ wait_for_sndbuf:
+ wait_for_memory:
+ 		ret = sk_stream_wait_memory(sk, &timeo);
+ 		if (ret) {
+-			tls_trim_both_msgs(sk, msg_pl->sg.size);
++			if (ctx->open_rec)
++				tls_trim_both_msgs(sk, msg_pl->sg.size);
+ 			goto sendpage_end;
+ 		}
  
--	schedule_work(&port->bc_work);
- 	return;
+-		goto alloc_payload;
++		if (ctx->open_rec)
++			goto alloc_payload;
+ 	}
  
- free_nskb:
+ 	if (num_async) {
 
 
