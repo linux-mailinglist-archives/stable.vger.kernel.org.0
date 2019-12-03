@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CBB3111F1E
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:09:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1902B111F27
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728857AbfLCWn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:43:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59544 "EHLO mail.kernel.org"
+        id S1728288AbfLCWon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:44:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728883AbfLCWn5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:43:57 -0500
+        id S1728823AbfLCWoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:44:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BFF42073C;
-        Tue,  3 Dec 2019 22:43:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7117B207DD;
+        Tue,  3 Dec 2019 22:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413035;
-        bh=5CfqdPpLGQxt/doP6KHgiyWtQhtxDNWKoNiJXqVrP78=;
+        s=default; t=1575413078;
+        bh=BiAWvKfoHGAKRlj5CSh0QhwnBtGaHcGsgpYFPZmmYSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ic17hu0Baswhj78MZ/X2TgPE23LcnqCC6joQ8RwxXq6TR6+Yr66bt8RmzaaJT/q8H
-         Iw6Nf1cVLkTKz7S06iNHjsQxJuqJDbMbwLS596B8y0Oa541JdAbntCzyBxkyrBji9B
-         GEzyFKapX+61sbAffvAb4bkLpm9QaUMW9lY0vkaU=
+        b=SZFeNq1fxz/WdFgghlFgON2aSh3cmfz+AkGRDD5/ylo+t+kAAHfOSxR433Hu7473m
+         kmidOMGa2iiPrvGpaQYkBVuG/9Xzwqy3/6ugBS0VbZi55o56Wxv6XolImUmhXIXkVo
+         5jxFqoJ3woqto2vb14DeNaVwJNdzfJt1lxh2TlhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 084/135] net: stmmac: gmac4: bitrev32 returns u32
-Date:   Tue,  3 Dec 2019 23:35:24 +0100
-Message-Id: <20191203213033.340861877@linuxfoundation.org>
+Subject: [PATCH 5.3 086/135] net: stmmac: xgmac: Fix TSA selection
+Date:   Tue,  3 Dec 2019 23:35:26 +0100
+Message-Id: <20191203213034.476395405@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -46,31 +46,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 4d7c47e34fab0d25790bb6e85b85e26fdf0090d5 ]
+[ Upstream commit 97add93fbcfa566735d6a4b96684110d356ebd35 ]
 
-The bitrev32 function returns an u32 var, not an int. Fix it.
+When we change between Transmission Scheduling Algorithms, we need to
+clear previous values so that the new chosen algorithm is correctly
+selected.
 
-Fixes: 477286b53f55 ("stmmac: add GMAC4 core support")
+Fixes: ec6ea8e3eee9 ("net: stmmac: Add CBS support in XGMAC2")
 Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-index 9c73fb759b575..ff830bb5fcaf7 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -438,7 +438,7 @@ static void dwmac4_set_filter(struct mac_device_info *hw,
- 			 * bits used depends on the hardware configuration
- 			 * selected at core configuration time.
- 			 */
--			int bit_nr = bitrev32(~crc32_le(~0, ha->addr,
-+			u32 bit_nr = bitrev32(~crc32_le(~0, ha->addr,
- 					ETH_ALEN)) >> (32 - mcbitslog2);
- 			/* The most significant bit determines the register to
- 			 * use (H/L) while the other 5 bits determine the bit
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+index 91d7dec2540a1..341c7a70fc71a 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+@@ -196,6 +196,7 @@ static void dwxgmac2_config_cbs(struct mac_device_info *hw,
+ 	writel(low_credit, ioaddr + XGMAC_MTL_TCx_LOCREDIT(queue));
+ 
+ 	value = readl(ioaddr + XGMAC_MTL_TCx_ETS_CONTROL(queue));
++	value &= ~XGMAC_TSA;
+ 	value |= XGMAC_CC | XGMAC_CBS;
+ 	writel(value, ioaddr + XGMAC_MTL_TCx_ETS_CONTROL(queue));
+ }
 -- 
 2.20.1
 
