@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3039111C8F
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02102111E0D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729017AbfLCWpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33578 "EHLO mail.kernel.org"
+        id S1728344AbfLCW7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:59:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729002AbfLCWpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:45:11 -0500
+        id S1730768AbfLCW7R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:59:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05377207DD;
-        Tue,  3 Dec 2019 22:45:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0ACD20863;
+        Tue,  3 Dec 2019 22:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413110;
-        bh=zu+sqw2iuBQpxvHwWCWDs3LdcAd3OGvse7iGBAp+gGs=;
+        s=default; t=1575413956;
+        bh=Y1XKfJuXjy39KPJH9e4Xl+EwcLsYEVs3ugH0qIETbPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sord+HX/p2QufqVArD1I7us7MQiGetXsMhfkE+8do+0iarEPy72DGv51VI7aVtZTY
-         hyOzYfeWxWTGA/PSbJPL01UfJ4/2xKrY5FlG9c+Al7Ei4rQqN/603fCKpFq8MHGuMd
-         DY2lK7ekWMrbXFphLeSZAhM+sjEz32tiefp1Ergk=
+        b=BV4ReeKta/TGSjPt4sDpgDsoPpqryAVMM8B8pIe3DU7wPK0tWOJPxQVo6L7nK5WcI
+         PHOvpjXwPHFrcI/V/oP4mndiWCibyD2YffGVrjtaM4KhxIIM2bfTEsnpZ4B/ywDgqb
+         X38iZ2oxD7k5+imtGEJsGZz9Kj8B0UHhAGCJlF3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 129/135] selftests: bpf: correct perror strings
-Date:   Tue,  3 Dec 2019 23:36:09 +0100
-Message-Id: <20191203213045.417085200@linuxfoundation.org>
+        stable@vger.kernel.org, Candle Sun <candle.sun@unisoc.com>,
+        Nianfu Bai <nianfu.bai@unisoc.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Siarhei Vishniakou <svv@google.com>
+Subject: [PATCH 4.19 304/321] HID: core: check whether Usage Page item is after Usage ID items
+Date:   Tue,  3 Dec 2019 23:36:10 +0100
+Message-Id: <20191203223442.963254398@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,202 +46,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Candle Sun <candle.sun@unisoc.com>
 
-[ Upstream commit e5dc9dd3258098bf8b5ceb75fc3433b41eff618a ]
+commit 1cb0d2aee26335d0bccf29100c7bed00ebece851 upstream.
 
-perror(str) is basically equivalent to
-print("%s: %s\n", str, strerror(errno)).
-New line or colon at the end of str is
-a mistake/breaks formatting.
+Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
+to Main item") adds support for Usage Page item after Usage ID items
+(such as keyboards manufactured by Primax).
 
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Usage Page concatenation in Main item works well for following report
+descriptor patterns:
+
+    USAGE_PAGE (Keyboard)                   05 07
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    INPUT (Data,Var,Abs)                    81 02
+
+-------------
+
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    USAGE_PAGE (Keyboard)                   05 07
+    INPUT (Data,Var,Abs)                    81 02
+
+But it makes the parser act wrong for the following report
+descriptor pattern(such as some Gamepads):
+
+    USAGE_PAGE (Button)                     05 09
+    USAGE (Button 1)                        09 01
+    USAGE (Button 2)                        09 02
+    USAGE (Button 4)                        09 04
+    USAGE (Button 5)                        09 05
+    USAGE (Button 7)                        09 07
+    USAGE (Button 8)                        09 08
+    USAGE (Button 14)                       09 0E
+    USAGE (Button 15)                       09 0F
+    USAGE (Button 13)                       09 0D
+    USAGE_PAGE (Consumer Devices)           05 0C
+    USAGE (Back)                            0a 24 02
+    USAGE (HomePage)                        0a 23 02
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (11)                       95 0B
+    INPUT (Data,Var,Abs)                    81 02
+
+With Usage Page concatenation in Main item, parser recognizes all the
+11 Usages as consumer keys, it is not the HID device's real intention.
+
+This patch checks whether Usage Page is really defined after Usage ID
+items by comparing usage page using status.
+
+Usage Page concatenation on currently defined Usage Page will always
+do in local parsing when Usage ID items encountered.
+
+When Main item is parsing, concatenation will do again with last
+defined Usage Page if this page has not been used in the previous
+usages concatenation.
+
+Signed-off-by: Candle Sun <candle.sun@unisoc.com>
+Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Siarhei Vishniakou <svv@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/bpf/test_sockmap.c |   38 ++++++++++++++---------------
- tools/testing/selftests/bpf/xdping.c       |    2 -
- 2 files changed, 20 insertions(+), 20 deletions(-)
 
---- a/tools/testing/selftests/bpf/test_sockmap.c
-+++ b/tools/testing/selftests/bpf/test_sockmap.c
-@@ -240,14 +240,14 @@ static int sockmap_init_sockets(int verb
- 	addr.sin_port = htons(S1_PORT);
- 	err = bind(s1, (struct sockaddr *)&addr, sizeof(addr));
- 	if (err < 0) {
--		perror("bind s1 failed()\n");
-+		perror("bind s1 failed()");
- 		return errno;
+---
+ drivers/hid/hid-core.c |   51 +++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 45 insertions(+), 6 deletions(-)
+
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -212,6 +212,18 @@ static unsigned hid_lookup_collection(st
+ }
+ 
+ /*
++ * Concatenate usage which defines 16 bits or less with the
++ * currently defined usage page to form a 32 bit usage
++ */
++
++static void complete_usage(struct hid_parser *parser, unsigned int index)
++{
++	parser->local.usage[index] &= 0xFFFF;
++	parser->local.usage[index] |=
++		(parser->global.usage_page & 0xFFFF) << 16;
++}
++
++/*
+  * Add a usage to the temporary parser table.
+  */
+ 
+@@ -222,6 +234,14 @@ static int hid_add_usage(struct hid_pars
+ 		return -1;
  	}
+ 	parser->local.usage[parser->local.usage_index] = usage;
++
++	/*
++	 * If Usage item only includes usage id, concatenate it with
++	 * currently defined usage page
++	 */
++	if (size <= 2)
++		complete_usage(parser, parser->local.usage_index);
++
+ 	parser->local.usage_size[parser->local.usage_index] = size;
+ 	parser->local.collection_index[parser->local.usage_index] =
+ 		parser->collection_stack_ptr ?
+@@ -542,13 +562,32 @@ static int hid_parser_local(struct hid_p
+  * usage value."
+  */
  
- 	addr.sin_port = htons(S2_PORT);
- 	err = bind(s2, (struct sockaddr *)&addr, sizeof(addr));
- 	if (err < 0) {
--		perror("bind s2 failed()\n");
-+		perror("bind s2 failed()");
- 		return errno;
- 	}
+-static void hid_concatenate_usage_page(struct hid_parser *parser)
++static void hid_concatenate_last_usage_page(struct hid_parser *parser)
+ {
+ 	int i;
++	unsigned int usage_page;
++	unsigned int current_page;
++
++	if (!parser->local.usage_index)
++		return;
  
-@@ -255,14 +255,14 @@ static int sockmap_init_sockets(int verb
- 	addr.sin_port = htons(S1_PORT);
- 	err = listen(s1, 32);
- 	if (err < 0) {
--		perror("listen s1 failed()\n");
-+		perror("listen s1 failed()");
- 		return errno;
- 	}
+-	for (i = 0; i < parser->local.usage_index; i++)
+-		if (parser->local.usage_size[i] <= 2)
+-			parser->local.usage[i] += parser->global.usage_page << 16;
++	usage_page = parser->global.usage_page;
++
++	/*
++	 * Concatenate usage page again only if last declared Usage Page
++	 * has not been already used in previous usages concatenation
++	 */
++	for (i = parser->local.usage_index - 1; i >= 0; i--) {
++		if (parser->local.usage_size[i] > 2)
++			/* Ignore extended usages */
++			continue;
++
++		current_page = parser->local.usage[i] >> 16;
++		if (current_page == usage_page)
++			break;
++
++		complete_usage(parser, i);
++	}
+ }
  
- 	addr.sin_port = htons(S2_PORT);
- 	err = listen(s2, 32);
- 	if (err < 0) {
--		perror("listen s1 failed()\n");
-+		perror("listen s1 failed()");
- 		return errno;
- 	}
+ /*
+@@ -560,7 +599,7 @@ static int hid_parser_main(struct hid_pa
+ 	__u32 data;
+ 	int ret;
  
-@@ -270,14 +270,14 @@ static int sockmap_init_sockets(int verb
- 	addr.sin_port = htons(S1_PORT);
- 	err = connect(c1, (struct sockaddr *)&addr, sizeof(addr));
- 	if (err < 0 && errno != EINPROGRESS) {
--		perror("connect c1 failed()\n");
-+		perror("connect c1 failed()");
- 		return errno;
- 	}
+-	hid_concatenate_usage_page(parser);
++	hid_concatenate_last_usage_page(parser);
  
- 	addr.sin_port = htons(S2_PORT);
- 	err = connect(c2, (struct sockaddr *)&addr, sizeof(addr));
- 	if (err < 0 && errno != EINPROGRESS) {
--		perror("connect c2 failed()\n");
-+		perror("connect c2 failed()");
- 		return errno;
- 	} else if (err < 0) {
- 		err = 0;
-@@ -286,13 +286,13 @@ static int sockmap_init_sockets(int verb
- 	/* Accept Connecrtions */
- 	p1 = accept(s1, NULL, NULL);
- 	if (p1 < 0) {
--		perror("accept s1 failed()\n");
-+		perror("accept s1 failed()");
- 		return errno;
- 	}
+ 	data = item_udata(item);
  
- 	p2 = accept(s2, NULL, NULL);
- 	if (p2 < 0) {
--		perror("accept s1 failed()\n");
-+		perror("accept s1 failed()");
- 		return errno;
- 	}
+@@ -771,7 +810,7 @@ static int hid_scan_main(struct hid_pars
+ 	__u32 data;
+ 	int i;
  
-@@ -353,7 +353,7 @@ static int msg_loop_sendpage(int fd, int
- 		int sent = sendfile(fd, fp, NULL, iov_length);
+-	hid_concatenate_usage_page(parser);
++	hid_concatenate_last_usage_page(parser);
  
- 		if (!drop && sent < 0) {
--			perror("send loop error:");
-+			perror("send loop error");
- 			close(fp);
- 			return sent;
- 		} else if (drop && sent >= 0) {
-@@ -472,7 +472,7 @@ static int msg_loop(int fd, int iov_coun
- 			int sent = sendmsg(fd, &msg, flags);
- 
- 			if (!drop && sent < 0) {
--				perror("send loop error:");
-+				perror("send loop error");
- 				goto out_errno;
- 			} else if (drop && sent >= 0) {
- 				printf("send loop error expected: %i\n", sent);
-@@ -508,7 +508,7 @@ static int msg_loop(int fd, int iov_coun
- 		total_bytes -= txmsg_pop_total;
- 		err = clock_gettime(CLOCK_MONOTONIC, &s->start);
- 		if (err < 0)
--			perror("recv start time: ");
-+			perror("recv start time");
- 		while (s->bytes_recvd < total_bytes) {
- 			if (txmsg_cork) {
- 				timeout.tv_sec = 0;
-@@ -552,7 +552,7 @@ static int msg_loop(int fd, int iov_coun
- 			if (recv < 0) {
- 				if (errno != EWOULDBLOCK) {
- 					clock_gettime(CLOCK_MONOTONIC, &s->end);
--					perror("recv failed()\n");
-+					perror("recv failed()");
- 					goto out_errno;
- 				}
- 			}
-@@ -566,7 +566,7 @@ static int msg_loop(int fd, int iov_coun
- 
- 				errno = msg_verify_data(&msg, recv, chunk_sz);
- 				if (errno) {
--					perror("data verify msg failed\n");
-+					perror("data verify msg failed");
- 					goto out_errno;
- 				}
- 				if (recvp) {
-@@ -574,7 +574,7 @@ static int msg_loop(int fd, int iov_coun
- 								recvp,
- 								chunk_sz);
- 					if (errno) {
--						perror("data verify msg_peek failed\n");
-+						perror("data verify msg_peek failed");
- 						goto out_errno;
- 					}
- 				}
-@@ -663,7 +663,7 @@ static int sendmsg_test(struct sockmap_o
- 			err = 0;
- 		exit(err ? 1 : 0);
- 	} else if (rxpid == -1) {
--		perror("msg_loop_rx: ");
-+		perror("msg_loop_rx");
- 		return errno;
- 	}
- 
-@@ -690,7 +690,7 @@ static int sendmsg_test(struct sockmap_o
- 				s.bytes_recvd, recvd_Bps, recvd_Bps/giga);
- 		exit(err ? 1 : 0);
- 	} else if (txpid == -1) {
--		perror("msg_loop_tx: ");
-+		perror("msg_loop_tx");
- 		return errno;
- 	}
- 
-@@ -724,7 +724,7 @@ static int forever_ping_pong(int rate, s
- 	/* Ping/Pong data from client to server */
- 	sc = send(c1, buf, sizeof(buf), 0);
- 	if (sc < 0) {
--		perror("send failed()\n");
-+		perror("send failed()");
- 		return sc;
- 	}
- 
-@@ -757,7 +757,7 @@ static int forever_ping_pong(int rate, s
- 			rc = recv(i, buf, sizeof(buf), 0);
- 			if (rc < 0) {
- 				if (errno != EWOULDBLOCK) {
--					perror("recv failed()\n");
-+					perror("recv failed()");
- 					return rc;
- 				}
- 			}
-@@ -769,7 +769,7 @@ static int forever_ping_pong(int rate, s
- 
- 			sc = send(i, buf, rc, 0);
- 			if (sc < 0) {
--				perror("send failed()\n");
-+				perror("send failed()");
- 				return sc;
- 			}
- 		}
---- a/tools/testing/selftests/bpf/xdping.c
-+++ b/tools/testing/selftests/bpf/xdping.c
-@@ -45,7 +45,7 @@ static int get_stats(int fd, __u16 count
- 	printf("\nXDP RTT data:\n");
- 
- 	if (bpf_map_lookup_elem(fd, &raddr, &pinginfo)) {
--		perror("bpf_map_lookup elem: ");
-+		perror("bpf_map_lookup elem");
- 		return 1;
- 	}
+ 	data = item_udata(item);
  
 
 
