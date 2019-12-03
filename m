@@ -2,215 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B8110FE0E
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:50:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A26FB10FE11
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 13:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726017AbfLCMu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 07:50:29 -0500
-Received: from mx2.suse.de ([195.135.220.15]:57402 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725957AbfLCMu3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 07:50:29 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 52152ABB1;
-        Tue,  3 Dec 2019 12:50:26 +0000 (UTC)
-Subject: Re: [PATCH STABLE ONLY] add missing page refcount overflow checks
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Matthew Wilcox <willy@infradead.org>,
-        Ajay Kaher <akaher@vmware.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-References: <20191129090351.3507-1-vbabka@suse.cz>
- <20191201165510.GT5861@sasha-vm>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <c53e1e47-f30a-3458-42d6-4c09ba937a7d@suse.cz>
-Date:   Tue, 3 Dec 2019 13:50:26 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1726189AbfLCMup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 07:50:45 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:25911 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726186AbfLCMup (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 07:50:45 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575377445;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=vUK+qbv4vcR++ilRAwdwA/Hrp9NPAPx99bcSEG1xv8w=;
+        b=MqDtkLKXV5FWiVTfwBWsuyDRDAUbVCn+lFGbDRVEbCyUmVUamgzFtLg7FQqqy43k18enwo
+        udmLBoWGKvvOVpsn3nBpYm9HhNnzxPSMZ9NuS1Mwx8Ug43/u+r3bDF6VehEy2jpIg02fxM
+        E/uMDEAu0FT6WLNCNVdLil5nVfR1pEw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-329-twkIHNhdORWSSUH0wNu3iA-1; Tue, 03 Dec 2019 07:50:41 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0AABB18C35A4;
+        Tue,  3 Dec 2019 12:50:40 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D0F9A67E5D;
+        Tue,  3 Dec 2019 12:50:39 +0000 (UTC)
+Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 4498918089C8;
+        Tue,  3 Dec 2019 12:50:39 +0000 (UTC)
+Date:   Tue, 3 Dec 2019 07:50:39 -0500 (EST)
+From:   Jan Stancek <jstancek@redhat.com>
+To:     linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        hch@infradead.org, darrick.wong@oracle.com
+Cc:     linuxppc-dev@lists.ozlabs.org,
+        Memory Management <mm-qe@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        CKI Project <cki-project@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Message-ID: <1766807082.14812757.1575377439007.JavaMail.zimbra@redhat.com>
+In-Reply-To: <1420623640.14527843.1575289859701.JavaMail.zimbra@redhat.com>
+References: <cki.6C6A189643.3T2ZUWEMOI@redhat.com> <1738119916.14437244.1575151003345.JavaMail.zimbra@redhat.com> <8736e3ffen.fsf@mpe.ellerman.id.au> <1420623640.14527843.1575289859701.JavaMail.zimbra@redhat.com>
+Subject: [bug] userspace hitting sporadic SIGBUS on xfs (Power9, ppc64le),
+ v4.19 and later
 MIME-Version: 1.0
-In-Reply-To: <20191201165510.GT5861@sasha-vm>
+X-Originating-IP: [10.43.17.163, 10.4.195.10]
+Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel
+ 5.3.13-3b5f971.cki (stable-queue)
+Thread-Index: cteAZVs1buDEh+CFMxyFiJYhnT9cJLxMrbue
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: twkIHNhdORWSSUH0wNu3iA-1
+X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/1/19 5:55 PM, Sasha Levin wrote:
-> On Fri, Nov 29, 2019 at 10:03:48AM +0100, Vlastimil Babka wrote:
->> This collection of patches add the missing overflow checks in arch-specific
->> gup.c variants for x86 and s390. Those were missed in backport of 8fde12ca79af
->> ("mm: prevent get_user_pages() from overflowing page refcount") as mainline
->> had a single gup.c implementation at that point. See individual patches for
->> details.
-> 
-> Queued up, thanks!
+Hi,
 
-Please replace the 4.9 version with the following fixed one, thanks to Ben:
+(This bug report is summary from thread [1] with some additions)
 
-----8<----
-From fe7f18bd152094f8516d79e847fcb5453a6f8368 Mon Sep 17 00:00:00 2001
-From: Vlastimil Babka <vbabka@suse.cz>
-Date: Wed, 6 Nov 2019 16:32:57 +0100
-Subject: [PATCH] mm, gup: add missing refcount overflow checks on x86 and s390
+User-space binaries on Power9 ppc64le (with 64k pages) on xfs
+filesystem are sporadically hitting SIGBUS:
 
-The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
-overflowing page refcount") was backported to 4.9.y stable as commit
-2ed768cfd895. The backport however missed that in 4.9, there are several
-arch-specific gup.c versions with fast gup implementations, so these do not
-prevent refcount overflow.
+---------- 8< ----------
+(gdb) r
+Starting program: /mnt/testarea/ltp/testcases/bin/genasin
 
-This is partially fixed for x86 in stable-only commit d73af79742e7 ("x86, mm,
-gup: prevent get_page() race with munmap in paravirt guest"). This stable-only
-commit adds missing parts to x86 version, as well as s390 version, both taken
-from the SUSE SLES/openSUSE 4.12-based kernels.
+Program received signal SIGBUS, Bus error.
+dl_main (phdr=0x10000040, phnum=<optimized out>, user_entry=0x7fffffffe760, auxv=<optimized out>) at rtld.c:1362
+1362        switch (ph->p_type)
 
-The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
-the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
-problem for those architectures, and I don't feel confident enough to patch
-them.
+(gdb) p ph
+$1 = (const Elf64_Phdr *) 0x10000040
 
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
----
- arch/s390/mm/gup.c | 9 ++++++---
- arch/x86/mm/gup.c  | 9 ++++++++-
- 2 files changed, 14 insertions(+), 4 deletions(-)
+(gdb) p *ph
+Cannot access memory at address 0x10000040
 
-diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-index 97fc449a7470..cf045f56581e 100644
---- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -38,7 +38,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
- 		page = pte_page(pte);
- 		head = compound_head(page);
--		if (!page_cache_get_speculative(head))
-+		if (WARN_ON_ONCE(page_ref_count(head) < 0)
-+		    || !page_cache_get_speculative(head))
- 			return 0;
- 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
- 			put_page(head);
-@@ -76,7 +77,8 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
- 
--	if (!page_cache_add_speculative(head, refs)) {
-+	if (WARN_ON_ONCE(page_ref_count(head) < 0)
-+	    || !page_cache_add_speculative(head, refs)) {
- 		*nr -= refs;
- 		return 0;
- 	}
-@@ -150,7 +152,8 @@ static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
- 
--	if (!page_cache_add_speculative(head, refs)) {
-+	if (WARN_ON_ONCE(page_ref_count(head) < 0)
-+	    || !page_cache_add_speculative(head, refs)) {
- 		*nr -= refs;
- 		return 0;
- 	}
-diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
-index d7db45bdfb3b..82f727fbbbd2 100644
---- a/arch/x86/mm/gup.c
-+++ b/arch/x86/mm/gup.c
-@@ -202,9 +202,12 @@ static int __gup_device_huge_pmd(pmd_t pmd, unsigned long addr,
- 			undo_dev_pagemap(nr, nr_start, pages);
- 			return 0;
- 		}
-+		if (unlikely(!try_get_page(page))) {
-+			put_dev_pagemap(pgmap);
-+			return 0;
-+		}
- 		SetPageReferenced(page);
- 		pages[*nr] = page;
--		get_page(page);
- 		put_dev_pagemap(pgmap);
- 		(*nr)++;
- 		pfn++;
-@@ -230,6 +233,8 @@ static noinline int gup_huge_pmd(pmd_t pmd, unsigned long addr,
- 
- 	refs = 0;
- 	head = pmd_page(pmd);
-+	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
-+		return 0;
- 	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
- 	do {
- 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
-@@ -289,6 +294,8 @@ static noinline int gup_huge_pud(pud_t pud, unsigned long addr,
- 
- 	refs = 0;
- 	head = pud_page(pud);
-+	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
-+		return 0;
- 	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
- 	do {
- 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
--- 
-2.24.0
+(gdb) info proc map
+process 1110670
+Mapped address spaces:
+
+          Start Addr           End Addr       Size     Offset objfile
+          0x10000000         0x10010000    0x10000        0x0 /mnt/testarea/ltp/testcases/bin/genasin
+          0x10010000         0x10030000    0x20000        0x0 /mnt/testarea/ltp/testcases/bin/genasin
+      0x7ffff7f90000     0x7ffff7fb0000    0x20000        0x0 [vdso]
+      0x7ffff7fb0000     0x7ffff7fe0000    0x30000        0x0 /usr/lib64/ld-2.30.so
+      0x7ffff7fe0000     0x7ffff8000000    0x20000    0x20000 /usr/lib64/ld-2.30.so
+      0x7ffffffd0000     0x800000000000    0x30000        0x0 [stack]
+
+(gdb) x/1x 0x10000040
+0x10000040:     Cannot access memory at address 0x10000040
+---------- >8 ----------
+
+When this happens the binary continues to hit SIGBUS until page
+is released, for example by: echo 3 > /proc/sys/vm/drop_caches
+
+The issue goes back to at least v4.19.
+
+I can semi-reliably reproduce it with LTP is installed to /mnt/testarea/ltp by:
+while [ True ]; do
+        echo 3 > /proc/sys/vm/drop_caches
+        rm -f /mnt/testarea/ltp/results/RUNTEST.log /mnt/testarea/ltp/output/RUNTEST.run.log
+        ./runltp -p -d results -l RUNTEST.log -o RUNTEST.run.log -f math
+        grep FAIL /mnt/testarea/ltp/results/RUNTEST.log && exit 1
+done
+
+and some stress activity in other terminal (e.g. kernel build).
+Sometimes in minutes, sometimes in hours. It is not reliable
+enough to get meaningful bisect results.
+
+My theory is that there's a race in iomap. There appear to be
+interleaved calls to iomap_set_range_uptodate() for same page
+with varying offset and length. Each call sees bitmap as _not_
+entirely "uptodate" and hence doesn't call SetPageUptodate().
+Even though each bit in bitmap ends up uptodate by the time
+all calls finish.
+
+For example, with following traces:
+
+iomap_set_range_uptodate()
+...
+        if (uptodate && !PageError(page))
+                SetPageUptodate(page);
++       
++       if (mycheck(page)) {
++               trace_printk("page: %px, iop: %px, uptodate: %d, !PageError(page): %d, flags: %lx\n", page, iop, uptodate, !PageError(page), page->flags);
++               trace_printk("first: %u, last: %u, off: %u, len: %u, i: %u\n", first, last, off, len, i);
++       }
+
+I get:
+         genacos-18471 [057] ....   162.465730: iomap_readpages: mapping: c000003f185a1ab0
+         genacos-18471 [057] ....   162.465732: iomap_page_create: iomap_page_create page: c00c00000fe26180, page->private: 0000000000000000, iop: c000003fc70a19c0, flags: 3ffff800000001
+         genacos-18471 [057] ....   162.465736: iomap_set_range_uptodate: page: c00c00000fe26180, iop: c000003fc70a19c0, uptodate: 0, !PageError(page): 1, flags: 3ffff800002001
+         genacos-18471 [057] ....   162.465736: iomap_set_range_uptodate: first: 1, last: 14, off: 4096, len: 57344, i: 16
+          <idle>-0     [060] ..s.   162.534862: iomap_set_range_uptodate: page: c00c00000fe26180, iop: c000003fc70a19c0, uptodate: 0, !PageError(page): 1, flags: 3ffff800002081
+          <idle>-0     [061] ..s.   162.534862: iomap_set_range_uptodate: page: c00c00000fe26180, iop: c000003fc70a19c0, uptodate: 0, !PageError(page): 1, flags: 3ffff800002081
+          <idle>-0     [060] ..s.   162.534864: iomap_set_range_uptodate: first: 0, last: 0, off: 0, len: 4096, i: 16
+          <idle>-0     [061] ..s.   162.534864: iomap_set_range_uptodate: first: 15, last: 15, off: 61440, len: 4096, i: 16
+
+This page doesn't have Uptodate flag set, which leads to filemap_fault()
+returning VM_FAULT_SIGBUS:
+
+crash> p/x ((struct page *) 0xc00c00000fe26180)->flags                                                                                                                                             
+$1 = 0x3ffff800002032
+
+crash> kmem -g 0x3ffff800002032
+FLAGS: 3ffff800002032
+  PAGE-FLAG       BIT  VALUE
+  PG_error          1  0000002
+  PG_dirty          4  0000010
+  PG_lru            5  0000020
+  PG_private_2     13  0002000
+  PG_fscache       13  0002000
+  PG_savepinned     4  0000010
+  PG_double_map    13  0002000
+
+But iomap_page->uptodate in page->private suggests all bits are uptodate:
+
+crash> p/x ((struct page *) 0xc00c00000fe26180)->private
+$2 = 0xc000003fc70a19c0
+
+crash> p/x ((struct iomap_page *) 0xc000003fc70a19c0)->uptodate                                                                                                                                    
+$3 = {0xffff, 0x0}
 
 
+It appears (after ~4 hours) that I can avoid the problem if I split
+the loop so that bits are checked only after all updates are made.
+Not sure if this correct approach, or just making it less reproducible:
+
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index e25901ae3ff4..abe37031c93d 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -131,7 +131,11 @@ iomap_set_range_uptodate(struct page *page, unsigned off, unsigned len)
+                for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
+                        if (i >= first && i <= last)
+                                set_bit(i, iop->uptodate);
+-                       else if (!test_bit(i, iop->uptodate))
++               }
++               for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
++                       if (i >= first && i <= last)
++                               continue;
++                       if (!test_bit(i, iop->uptodate))
+                                uptodate = false;
+                }
+        }
+
+Thanks,
+Jan
+
+[1] https://lore.kernel.org/stable/1420623640.14527843.1575289859701.JavaMail.zimbra@redhat.com/T/#u
 
