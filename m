@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D31111E31
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:01:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E497111F90
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730345AbfLCW4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:56:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51300 "EHLO mail.kernel.org"
+        id S1727772AbfLCXKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:10:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730335AbfLCW4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:56:20 -0500
+        id S1728686AbfLCWms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:42:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CA9220656;
-        Tue,  3 Dec 2019 22:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65AF020684;
+        Tue,  3 Dec 2019 22:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413780;
-        bh=DVaKPiUmHGKWMJgDHNMiWfSzaP1Ywwb9Top1BdaLCeo=;
+        s=default; t=1575412967;
+        bh=5gOlZR1tvFzT779USqpuu7JWs+nEHLrWwYc3pmbp98Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fackK0Pzl1sDQ8ERjI7u5YA/say3tSKm9p3GxSOr37KYsEnssm9uQCdDs5G0e7i4Q
-         g6TJfJMmd9AWHbFgc1Th+VVwZY1Z7JfUrzgAKZY4RW83bhvZyM9suY+IuOQW0ZjsxX
-         qvxyOnolZfrRlwr65fThkQuOF6dOSt63XQeJDJx8=
+        b=HEXhV8s4Q/Vk6wNeaPFvy6zbKnuXtgp7Mk0cWiSyqNaiUkFd/fq8pFogWbB7iM661
+         WeJ6YHA+pf0Y9cqr2dScgROtpwhXTiJkGv8JJRYta6b2HdsIGGx+HjjhermQdQ+dlz
+         O/N+Qlqm+oYM2Ct1XV2Rd2+SBvaCn8wZSJ+/V5hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 220/321] gpu: ipu-v3: pre: dont trigger update if buffer address doesnt change
+Subject: [PATCH 5.3 046/135] netfilter: ipset: Fix nla_policies to fully support NL_VALIDATE_STRICT
 Date:   Tue,  3 Dec 2019 23:34:46 +0100
-Message-Id: <20191203223438.564186639@linuxfoundation.org>
+Message-Id: <20191203213018.708261928@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
 
-[ Upstream commit eb0200a4357da100064971689d3a0e9e3cf57f33 ]
+[ Upstream commit 1289975643f4cdecb071dc641059a47679fd170f ]
 
-On a NOP double buffer update where current buffer address is the same
-as the next buffer address, the SDW_UPDATE bit clears too late. As we
-are now using this bit to determine when it is safe to signal flip
-completion to userspace this will delay completion of atomic commits
-where one plane doesn't change the buffer by a whole frame period.
+Since v5.2 (commit "netlink: re-add parse/validate functions in strict
+mode") NL_VALIDATE_STRICT is enabled. Fix the ipset nla_policies which did
+not support strict mode and convert from deprecated parsings to verified ones.
 
-Fix this by remembering the last buffer address and just skip the
-double buffer update if it would not change the buffer address.
-
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-[p.zabel@pengutronix.de: initialize last_bufaddr in ipu_pre_configure]
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/ipu-v3/ipu-pre.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/netfilter/ipset/ip_set_core.c        | 41 ++++++++++++++++--------
+ net/netfilter/ipset/ip_set_hash_net.c    |  1 +
+ net/netfilter/ipset/ip_set_hash_netnet.c |  1 +
+ 3 files changed, 30 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-pre.c b/drivers/gpu/ipu-v3/ipu-pre.c
-index 2f8db9d625514..4a28f3fbb0a28 100644
---- a/drivers/gpu/ipu-v3/ipu-pre.c
-+++ b/drivers/gpu/ipu-v3/ipu-pre.c
-@@ -106,6 +106,7 @@ struct ipu_pre {
- 	void			*buffer_virt;
- 	bool			in_use;
- 	unsigned int		safe_window_end;
-+	unsigned int		last_bufaddr;
- };
+diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
+index e7288eab75126..d73d1828216a6 100644
+--- a/net/netfilter/ipset/ip_set_core.c
++++ b/net/netfilter/ipset/ip_set_core.c
+@@ -296,7 +296,8 @@ ip_set_get_ipaddr4(struct nlattr *nla,  __be32 *ipaddr)
  
- static DEFINE_MUTEX(ipu_pre_list_mutex);
-@@ -185,6 +186,7 @@ void ipu_pre_configure(struct ipu_pre *pre, unsigned int width,
+ 	if (unlikely(!flag_nested(nla)))
+ 		return -IPSET_ERR_PROTOCOL;
+-	if (nla_parse_nested_deprecated(tb, IPSET_ATTR_IPADDR_MAX, nla, ipaddr_policy, NULL))
++	if (nla_parse_nested(tb, IPSET_ATTR_IPADDR_MAX, nla,
++			     ipaddr_policy, NULL))
+ 		return -IPSET_ERR_PROTOCOL;
+ 	if (unlikely(!ip_set_attr_netorder(tb, IPSET_ATTR_IPADDR_IPV4)))
+ 		return -IPSET_ERR_PROTOCOL;
+@@ -314,7 +315,8 @@ ip_set_get_ipaddr6(struct nlattr *nla, union nf_inet_addr *ipaddr)
+ 	if (unlikely(!flag_nested(nla)))
+ 		return -IPSET_ERR_PROTOCOL;
  
- 	writel(bufaddr, pre->regs + IPU_PRE_CUR_BUF);
- 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
-+	pre->last_bufaddr = bufaddr;
+-	if (nla_parse_nested_deprecated(tb, IPSET_ATTR_IPADDR_MAX, nla, ipaddr_policy, NULL))
++	if (nla_parse_nested(tb, IPSET_ATTR_IPADDR_MAX, nla,
++			     ipaddr_policy, NULL))
+ 		return -IPSET_ERR_PROTOCOL;
+ 	if (unlikely(!ip_set_attr_netorder(tb, IPSET_ATTR_IPADDR_IPV6)))
+ 		return -IPSET_ERR_PROTOCOL;
+@@ -934,7 +936,8 @@ static int ip_set_create(struct net *net, struct sock *ctnl,
  
- 	val = IPU_PRE_PREF_ENG_CTRL_INPUT_PIXEL_FORMAT(0) |
- 	      IPU_PRE_PREF_ENG_CTRL_INPUT_ACTIVE_BPP(active_bpp) |
-@@ -242,7 +244,11 @@ void ipu_pre_update(struct ipu_pre *pre, unsigned int bufaddr)
- 	unsigned short current_yblock;
- 	u32 val;
+ 	/* Without holding any locks, create private part. */
+ 	if (attr[IPSET_ATTR_DATA] &&
+-	    nla_parse_nested_deprecated(tb, IPSET_ATTR_CREATE_MAX, attr[IPSET_ATTR_DATA], set->type->create_policy, NULL)) {
++	    nla_parse_nested(tb, IPSET_ATTR_CREATE_MAX, attr[IPSET_ATTR_DATA],
++			     set->type->create_policy, NULL)) {
+ 		ret = -IPSET_ERR_PROTOCOL;
+ 		goto put_out;
+ 	}
+@@ -1281,6 +1284,14 @@ dump_attrs(struct nlmsghdr *nlh)
+ 	}
+ }
  
-+	if (bufaddr == pre->last_bufaddr)
-+		return;
++static const struct nla_policy
++ip_set_dump_policy[IPSET_ATTR_CMD_MAX + 1] = {
++	[IPSET_ATTR_PROTOCOL]	= { .type = NLA_U8 },
++	[IPSET_ATTR_SETNAME]	= { .type = NLA_NUL_STRING,
++				    .len = IPSET_MAXNAMELEN - 1 },
++	[IPSET_ATTR_FLAGS]	= { .type = NLA_U32 },
++};
 +
- 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
-+	pre->last_bufaddr = bufaddr;
+ static int
+ dump_init(struct netlink_callback *cb, struct ip_set_net *inst)
+ {
+@@ -1292,9 +1303,9 @@ dump_init(struct netlink_callback *cb, struct ip_set_net *inst)
+ 	ip_set_id_t index;
+ 	int ret;
  
- 	do {
- 		if (time_after(jiffies, timeout)) {
+-	ret = nla_parse_deprecated(cda, IPSET_ATTR_CMD_MAX, attr,
+-				   nlh->nlmsg_len - min_len,
+-				   ip_set_setname_policy, NULL);
++	ret = nla_parse(cda, IPSET_ATTR_CMD_MAX, attr,
++			nlh->nlmsg_len - min_len,
++			ip_set_dump_policy, NULL);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1543,9 +1554,9 @@ call_ad(struct sock *ctnl, struct sk_buff *skb, struct ip_set *set,
+ 		memcpy(&errmsg->msg, nlh, nlh->nlmsg_len);
+ 		cmdattr = (void *)&errmsg->msg + min_len;
+ 
+-		ret = nla_parse_deprecated(cda, IPSET_ATTR_CMD_MAX, cmdattr,
+-					   nlh->nlmsg_len - min_len,
+-					   ip_set_adt_policy, NULL);
++		ret = nla_parse(cda, IPSET_ATTR_CMD_MAX, cmdattr,
++				nlh->nlmsg_len - min_len, ip_set_adt_policy,
++				NULL);
+ 
+ 		if (ret) {
+ 			nlmsg_free(skb2);
+@@ -1596,7 +1607,9 @@ static int ip_set_ad(struct net *net, struct sock *ctnl,
+ 
+ 	use_lineno = !!attr[IPSET_ATTR_LINENO];
+ 	if (attr[IPSET_ATTR_DATA]) {
+-		if (nla_parse_nested_deprecated(tb, IPSET_ATTR_ADT_MAX, attr[IPSET_ATTR_DATA], set->type->adt_policy, NULL))
++		if (nla_parse_nested(tb, IPSET_ATTR_ADT_MAX,
++				     attr[IPSET_ATTR_DATA],
++				     set->type->adt_policy, NULL))
+ 			return -IPSET_ERR_PROTOCOL;
+ 		ret = call_ad(ctnl, skb, set, tb, adt, flags,
+ 			      use_lineno);
+@@ -1606,7 +1619,8 @@ static int ip_set_ad(struct net *net, struct sock *ctnl,
+ 		nla_for_each_nested(nla, attr[IPSET_ATTR_ADT], nla_rem) {
+ 			if (nla_type(nla) != IPSET_ATTR_DATA ||
+ 			    !flag_nested(nla) ||
+-			    nla_parse_nested_deprecated(tb, IPSET_ATTR_ADT_MAX, nla, set->type->adt_policy, NULL))
++			    nla_parse_nested(tb, IPSET_ATTR_ADT_MAX, nla,
++					     set->type->adt_policy, NULL))
+ 				return -IPSET_ERR_PROTOCOL;
+ 			ret = call_ad(ctnl, skb, set, tb, adt,
+ 				      flags, use_lineno);
+@@ -1655,7 +1669,8 @@ static int ip_set_utest(struct net *net, struct sock *ctnl, struct sk_buff *skb,
+ 	if (!set)
+ 		return -ENOENT;
+ 
+-	if (nla_parse_nested_deprecated(tb, IPSET_ATTR_ADT_MAX, attr[IPSET_ATTR_DATA], set->type->adt_policy, NULL))
++	if (nla_parse_nested(tb, IPSET_ATTR_ADT_MAX, attr[IPSET_ATTR_DATA],
++			     set->type->adt_policy, NULL))
+ 		return -IPSET_ERR_PROTOCOL;
+ 
+ 	rcu_read_lock_bh();
+@@ -1961,7 +1976,7 @@ static const struct nfnl_callback ip_set_netlink_subsys_cb[IPSET_MSG_MAX] = {
+ 	[IPSET_CMD_LIST]	= {
+ 		.call		= ip_set_dump,
+ 		.attr_count	= IPSET_ATTR_CMD_MAX,
+-		.policy		= ip_set_setname_policy,
++		.policy		= ip_set_dump_policy,
+ 	},
+ 	[IPSET_CMD_SAVE]	= {
+ 		.call		= ip_set_dump,
+diff --git a/net/netfilter/ipset/ip_set_hash_net.c b/net/netfilter/ipset/ip_set_hash_net.c
+index c259cbc3ef453..3d932de0ad295 100644
+--- a/net/netfilter/ipset/ip_set_hash_net.c
++++ b/net/netfilter/ipset/ip_set_hash_net.c
+@@ -368,6 +368,7 @@ static struct ip_set_type hash_net_type __read_mostly = {
+ 		[IPSET_ATTR_IP_TO]	= { .type = NLA_NESTED },
+ 		[IPSET_ATTR_CIDR]	= { .type = NLA_U8 },
+ 		[IPSET_ATTR_TIMEOUT]	= { .type = NLA_U32 },
++		[IPSET_ATTR_LINENO]	= { .type = NLA_U32 },
+ 		[IPSET_ATTR_CADT_FLAGS]	= { .type = NLA_U32 },
+ 		[IPSET_ATTR_BYTES]	= { .type = NLA_U64 },
+ 		[IPSET_ATTR_PACKETS]	= { .type = NLA_U64 },
+diff --git a/net/netfilter/ipset/ip_set_hash_netnet.c b/net/netfilter/ipset/ip_set_hash_netnet.c
+index a3ae69bfee668..4398322fad592 100644
+--- a/net/netfilter/ipset/ip_set_hash_netnet.c
++++ b/net/netfilter/ipset/ip_set_hash_netnet.c
+@@ -476,6 +476,7 @@ static struct ip_set_type hash_netnet_type __read_mostly = {
+ 		[IPSET_ATTR_CIDR]	= { .type = NLA_U8 },
+ 		[IPSET_ATTR_CIDR2]	= { .type = NLA_U8 },
+ 		[IPSET_ATTR_TIMEOUT]	= { .type = NLA_U32 },
++		[IPSET_ATTR_LINENO]	= { .type = NLA_U32 },
+ 		[IPSET_ATTR_CADT_FLAGS]	= { .type = NLA_U32 },
+ 		[IPSET_ATTR_BYTES]	= { .type = NLA_U64 },
+ 		[IPSET_ATTR_PACKETS]	= { .type = NLA_U64 },
 -- 
 2.20.1
 
