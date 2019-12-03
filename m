@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 884AD111DBA
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48537111BD5
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbfLCW43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:56:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
+        id S1727774AbfLCWhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:37:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730434AbfLCW42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:56:28 -0500
+        id S1727782AbfLCWhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:37:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B505520866;
-        Tue,  3 Dec 2019 22:56:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AE432158C;
+        Tue,  3 Dec 2019 22:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413788;
-        bh=Z8aICHbrIM347DJ5/MBMdz5RRjHh6rlblcjp0EeSyYs=;
+        s=default; t=1575412664;
+        bh=rbxxTSCTtzeyzH8V7lyMIsbwabxAb/eHcLvFhgCc4qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CEQIKwYK3eOc16aO7G2BlbA0DK3N8Ea1bo8P2ukMElPkMFRe0sN1YCEIRv5m7kNM
-         MiT/E4m8ytrxvZT++2i0hsVpiIO16hKmOmjnltwq8/bkionWHHJoD0eaH+niD6PNHE
-         q+vJR6Ti2Y0MH0YMpWTP8Ze5HGaHLOl+ULGNzCmU=
+        b=kCrD1/Utpr7BG8+WVAo+gReJTnoz30uBVbwE8ILcA2gLXao/M/1XqN0fhLE2w7+05
+         tVU4nG1/kKVWu6LV8TuRmco1odSGhlYTjCW7uBlMcGy+6raAY8B42vfA6pNKciBp3Y
+         VbL4CTEPNdmjH8YFM4aUaCK9WFzrcTtjrCPWKZe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 263/321] mm, gup: add missing refcount overflow checks on s390
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.4 09/46] staging: rtl8723bs: Drop ACPI device ids
 Date:   Tue,  3 Dec 2019 23:35:29 +0100
-Message-Id: <20191203223440.811248012@linuxfoundation.org>
+Message-Id: <20191203212723.466453730@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Hans de Goede <hdegoede@redhat.com>
 
-The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
-overflowing page refcount") was backported to 4.19.y stable as commit
-d972ebbf42ba. The backport however missed that in 4.19, there are several
-arch-specific gup.c versions with fast gup implementations, so these do not
-prevent refcount overflow.
+commit 2d9d2491530a156b9a5614adf9dc79285e35d55e upstream.
 
-This stable-only commit fixes the s390 version, and is based on the backport in
-SUSE SLES/openSUSE 4.12-based kernels.
+The driver only binds by SDIO device-ids, all the ACPI device-id does
+is causing the driver to load unnecessarily on devices where the DSDT
+contains a bogus OBDA8723 device.
 
-The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
-the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
-problem for those architectures, and I don't feel confident enough to patch
-them.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191111113846.24940-2-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/gup.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/sdio_intf.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-index 2809d11c7a283..9b5b866d8adf1 100644
---- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -39,7 +39,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
- 		page = pte_page(pte);
- 		head = compound_head(page);
--		if (!page_cache_get_speculative(head))
-+		if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
-+		    || !page_cache_get_speculative(head)))
- 			return 0;
- 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
- 			put_page(head);
-@@ -77,7 +78,8 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
+--- a/drivers/staging/rtl8723bs/os_dep/sdio_intf.c
++++ b/drivers/staging/rtl8723bs/os_dep/sdio_intf.c
+@@ -23,13 +23,7 @@ static const struct sdio_device_id sdio_
+ 	{ SDIO_DEVICE(0x024c, 0xb723), },
+ 	{ /* end: all zeroes */				},
+ };
+-static const struct acpi_device_id acpi_ids[] = {
+-	{"OBDA8723", 0x0000},
+-	{}
+-};
+-
+ MODULE_DEVICE_TABLE(sdio, sdio_ids);
+-MODULE_DEVICE_TABLE(acpi, acpi_ids);
  
--	if (!page_cache_add_speculative(head, refs)) {
-+	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
-+	    || !page_cache_add_speculative(head, refs))) {
- 		*nr -= refs;
- 		return 0;
- 	}
-@@ -151,7 +153,8 @@ static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
- 
--	if (!page_cache_add_speculative(head, refs)) {
-+	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
-+	    || !page_cache_add_speculative(head, refs))) {
- 		*nr -= refs;
- 		return 0;
- 	}
--- 
-2.20.1
-
+ static int rtw_drv_init(struct sdio_func *func, const struct sdio_device_id *id);
+ static void rtw_dev_remove(struct sdio_func *func);
 
 
