@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F408B111FD5
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5058B111F83
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727833AbfLCWjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:39:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49066 "EHLO mail.kernel.org"
+        id S1728449AbfLCWnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:43:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728171AbfLCWjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:39:14 -0500
+        id S1726834AbfLCWnM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:43:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 922AE207DD;
-        Tue,  3 Dec 2019 22:39:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D721206EC;
+        Tue,  3 Dec 2019 22:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412753;
-        bh=Sn94HdVLW/OEn/8TqLeKciNkLqOP6DkWHZCCKHmmbSk=;
+        s=default; t=1575412991;
+        bh=KxTiF+clM6zkDw/1Ly8e3THCRXNCPT+1U5GKrKVfEJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTuaS/2QdIyQe+Vke0Y5PDblhSPmyO+BdVSm45JYhz9gKurheW0c9/T7VcnfL8+HG
-         uBf3yhEB+Kp9a6DB3182xYwVUx63vo8crs2irzYCAI1N/neUuJVmpHJLR9OM2UuXbZ
-         IkGwNGXErmx8y/xtwNPcVapeIY0FEHPXUhXE6gmc=
+        b=mi5zTbMJj/f8usKAPWEkc2mR0J9LBvRIFAZ1pZHgQg45IZYuqzU4XvOeeM1IGlXOs
+         iRQapinnUmn+4hZAstKh7BLTVAfbPIgAcSKU0AF9hnQgnL/PaDCh+83FMQnkl6pwyC
+         dz3f6IAoZfmOsmxouy7wHZjrD+jCC5TphVJJkNdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zang <dump@tzib.net>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.4 14/46] thunderbolt: Power cycle the router if NVM authentication fails
-Date:   Tue,  3 Dec 2019 23:35:34 +0100
-Message-Id: <20191203212729.315284594@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicholas Nunley <nicholas.d.nunley@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 095/135] iavf: initialize ITRN registers with correct values
+Date:   Tue,  3 Dec 2019 23:35:35 +0100
+Message-Id: <20191203213037.584629529@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
-References: <20191203212705.175425505@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,156 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Nicholas Nunley <nicholas.d.nunley@intel.com>
 
-commit 7a7ebfa85f4fac349f3ab219538c44efe18b0cf6 upstream.
+[ Upstream commit 4eda4e0096842764d725bcfd77471a419832b074 ]
 
-On zang's Dell XPS 13 9370 after Thunderbolt NVM firmware upgrade the
-Thunderbolt controller did not come back as expected. Only after the
-system was rebooted it became available again. It is not entirely clear
-what happened but I suspect the new NVM firmware image authentication
-failed for some reason. Regardless of this the router needs to be power
-cycled if NVM authentication fails in order to get it fully functional
-again.
+Since commit 92418fb14750 ("i40e/i40evf: Use usec value instead of reg
+value for ITR defines") the driver tracks the interrupt throttling
+intervals in single usec units, although the actual ITRN registers are
+programmed in 2 usec units. Most register programming flows in the driver
+correctly handle the conversion, although it is currently not applied when
+the registers are initialized to their default values. Most of the time
+this doesn't present a problem since the default values are usually
+immediately overwritten through the standard adaptive throttling mechanism,
+or updated manually by the user, but if adaptive throttling is disabled and
+the interval values are left alone then the incorrect value will persist.
 
-This modifies the driver to issue a power cycle in case the NVM
-authentication fails immediately when dma_port_flash_update_auth()
-returns. We also need to call tb_switch_set_uuid() earlier to be able to
-fetch possible NVM authentication failure when DMA port is added.
+Since the intended default interval of 50 usecs (vs. 100 usecs as
+programmed) performs better for most traffic workloads, this can lead to
+performance regressions.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205457
-Reported-by: zang <dump@tzib.net>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch adds the correct conversion when writing the initial values to
+the ITRN registers.
 
+Signed-off-by: Nicholas Nunley <nicholas.d.nunley@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/switch.c |   54 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -168,7 +168,7 @@ static int nvm_validate_and_write(struct
- 
- static int nvm_authenticate_host(struct tb_switch *sw)
- {
--	int ret;
-+	int ret = 0;
- 
- 	/*
- 	 * Root switch NVM upgrade requires that we disconnect the
-@@ -176,6 +176,8 @@ static int nvm_authenticate_host(struct
- 	 * already).
- 	 */
- 	if (!sw->safe_mode) {
-+		u32 status;
-+
- 		ret = tb_domain_disconnect_all_paths(sw->tb);
- 		if (ret)
- 			return ret;
-@@ -184,7 +186,16 @@ static int nvm_authenticate_host(struct
- 		 * everything goes well so getting timeout is expected.
- 		 */
- 		ret = dma_port_flash_update_auth(sw->dma_port);
--		return ret == -ETIMEDOUT ? 0 : ret;
-+		if (!ret || ret == -ETIMEDOUT)
-+			return 0;
-+
-+		/*
-+		 * Any error from update auth operation requires power
-+		 * cycling of the host router.
-+		 */
-+		tb_sw_warn(sw, "failed to authenticate NVM, power cycling\n");
-+		if (dma_port_flash_update_auth_status(sw->dma_port, &status) > 0)
-+			nvm_set_auth_status(sw, status);
- 	}
- 
- 	/*
-@@ -192,7 +203,7 @@ static int nvm_authenticate_host(struct
- 	 * switch.
- 	 */
- 	dma_port_power_cycle(sw->dma_port);
--	return 0;
-+	return ret;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 9d2b50964a08f..fa857b60ba2b6 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -336,7 +336,7 @@ iavf_map_vector_to_rxq(struct iavf_adapter *adapter, int v_idx, int r_idx)
+ 	q_vector->rx.target_itr = ITR_TO_REG(rx_ring->itr_setting);
+ 	q_vector->ring_mask |= BIT(r_idx);
+ 	wr32(hw, IAVF_VFINT_ITRN1(IAVF_RX_ITR, q_vector->reg_idx),
+-	     q_vector->rx.current_itr);
++	     q_vector->rx.current_itr >> 1);
+ 	q_vector->rx.current_itr = q_vector->rx.target_itr;
  }
  
- static int nvm_authenticate_device(struct tb_switch *sw)
-@@ -200,8 +211,16 @@ static int nvm_authenticate_device(struc
- 	int ret, retries = 10;
+@@ -362,7 +362,7 @@ iavf_map_vector_to_txq(struct iavf_adapter *adapter, int v_idx, int t_idx)
+ 	q_vector->tx.target_itr = ITR_TO_REG(tx_ring->itr_setting);
+ 	q_vector->num_ringpairs++;
+ 	wr32(hw, IAVF_VFINT_ITRN1(IAVF_TX_ITR, q_vector->reg_idx),
+-	     q_vector->tx.target_itr);
++	     q_vector->tx.target_itr >> 1);
+ 	q_vector->tx.current_itr = q_vector->tx.target_itr;
+ }
  
- 	ret = dma_port_flash_update_auth(sw->dma_port);
--	if (ret && ret != -ETIMEDOUT)
-+	switch (ret) {
-+	case 0:
-+	case -ETIMEDOUT:
-+	case -EACCES:
-+	case -EINVAL:
-+		/* Power cycle is required */
-+		break;
-+	default:
- 		return ret;
-+	}
- 
- 	/*
- 	 * Poll here for the authentication status. It takes some time
-@@ -1246,8 +1265,6 @@ static ssize_t nvm_authenticate_store(st
- 			 */
- 			nvm_authenticate_start(sw);
- 			ret = nvm_authenticate_host(sw);
--			if (ret)
--				nvm_authenticate_complete(sw);
- 		} else {
- 			ret = nvm_authenticate_device(sw);
- 		}
-@@ -1690,13 +1707,16 @@ static int tb_switch_add_dma_port(struct
- 	int ret;
- 
- 	switch (sw->generation) {
--	case 3:
--		break;
--
- 	case 2:
- 		/* Only root switch can be upgraded */
- 		if (tb_route(sw))
- 			return 0;
-+
-+		/* fallthrough */
-+	case 3:
-+		ret = tb_switch_set_uuid(sw);
-+		if (ret)
-+			return ret;
- 		break;
- 
- 	default:
-@@ -1721,6 +1741,19 @@ static int tb_switch_add_dma_port(struct
- 		return 0;
- 
- 	/*
-+	 * If there is status already set then authentication failed
-+	 * when the dma_port_flash_update_auth() returned. Power cycling
-+	 * is not needed (it was done already) so only thing we do here
-+	 * is to unblock runtime PM of the root port.
-+	 */
-+	nvm_get_auth_status(sw, &status);
-+	if (status) {
-+		if (!tb_route(sw))
-+			nvm_authenticate_complete(sw);
-+		return 0;
-+	}
-+
-+	/*
- 	 * Check status of the previous flash authentication. If there
- 	 * is one we need to power cycle the switch in any case to make
- 	 * it functional again.
-@@ -1735,9 +1768,6 @@ static int tb_switch_add_dma_port(struct
- 
- 	if (status) {
- 		tb_sw_info(sw, "switch flash authentication failed\n");
--		ret = tb_switch_set_uuid(sw);
--		if (ret)
--			return ret;
- 		nvm_set_auth_status(sw, status);
- 	}
- 
+-- 
+2.20.1
+
 
 
