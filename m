@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B81111DEB
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:59:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8DA111C51
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:43:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728266AbfLCW6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:58:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
+        id S1728177AbfLCWml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:42:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730629AbfLCW6O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:58:14 -0500
+        id S1728343AbfLCWmk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:42:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB6420656;
-        Tue,  3 Dec 2019 22:58:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7640B20803;
+        Tue,  3 Dec 2019 22:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413894;
-        bh=Hg7/XqMKWSjexJGTuiwjWqUsEomk2ejWFfAGBHr0WEo=;
+        s=default; t=1575412959;
+        bh=NqpJgS/zcGankvvKn6DxWuKh1tqx5rUAmShdIQvPmpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LccXEoa5fdA/cHkxO5FHcLNPJ+4H8D1U4NxyzrwJYscfzDmV3i3osAX740XvFZJmn
-         oxOUk7SIxvYKDC4VTC+42HVakdWlJ2wmPEnwzyfy8vT+7l765P8j05KRVy2D4MKBFO
-         fWNS5r4pPUaqDFzOAWTQsQDsSAdgQxASy0AZArLE=
+        b=1CUpkkXBb3uwJxEPfuzJBheWx9yMcERz4vVeKx9nGTMWo+50Hg1f+KSBRDkkyJs2X
+         FlJ5cjoBoQjix+kLmSTL0nYuAeN+wm2s4rRlJ5eoE1csZrneF6JgulzBMfOiSO1tus
+         9c6sUFc0fl18jzlEEE/O927mMCufTrIziPiArpOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 253/321] scsi: hisi_sas: shutdown axi bus to avoid exception CQ returned
-Date:   Tue,  3 Dec 2019 23:35:19 +0100
-Message-Id: <20191203223440.298152074@linuxfoundation.org>
+Subject: [PATCH 5.3 080/135] net: mscc: ocelot: fix __ocelot_rmw_ix prototype
+Date:   Tue,  3 Dec 2019 23:35:20 +0100
+Message-Id: <20191203213030.489718361@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Vladimir Oltean <olteanv@gmail.com>
 
-[ Upstream commit 5c31b0c677531c2b8b4e29b3cfb923df663f39b7 ]
+[ Upstream commit 17fdd7638cb687cd7f15a48545f25d738f0101e0 ]
 
-When injecting 2 bit ECC error, it will cause fatal AXI interrupts. Before
-the recovery of SAS controller reset, the internal of SAS controller is in
-error. If CQ interrupts return at the time, actually it is exception CQ
-interrupt, and it may cause resource release in disorder.
+The "read-modify-write register index" function is declared with a
+confusing prototype: the "mask" and "reg" arguments are swapped.
 
-To avoid the exception situation, shutdown AXI bus after fatal AXI
-interrupt. In SAS controller reset, it will restart AXI bus. For later
-version of v3 hw, hardware will shutdown AXI bus for this situation, so
-just fix current ver of v3 hw.
+Fortunately, this does not affect callers so far. Both arguments are
+u32, and the wrapper macros (ocelot_rmw_ix etc) have the arguments in
+the correct order (the one from ocelot_io.c).
 
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/ethernet/mscc/ocelot.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index fb2a5969181b5..a7407d5376ba2 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -1520,6 +1520,7 @@ static irqreturn_t fatal_axi_int_v3_hw(int irq_no, void *p)
- 	u32 irq_value, irq_msk;
- 	struct hisi_hba *hisi_hba = p;
- 	struct device *dev = hisi_hba->dev;
-+	struct pci_dev *pdev = hisi_hba->pci_dev;
- 	int i;
+diff --git a/drivers/net/ethernet/mscc/ocelot.h b/drivers/net/ethernet/mscc/ocelot.h
+index f7eeb4806897d..aa372aba66c8c 100644
+--- a/drivers/net/ethernet/mscc/ocelot.h
++++ b/drivers/net/ethernet/mscc/ocelot.h
+@@ -479,7 +479,7 @@ void __ocelot_write_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 offset);
+ #define ocelot_write_rix(ocelot, val, reg, ri) __ocelot_write_ix(ocelot, val, reg, reg##_RSZ * (ri))
+ #define ocelot_write(ocelot, val, reg) __ocelot_write_ix(ocelot, val, reg, 0)
  
- 	irq_msk = hisi_sas_read32(hisi_hba, ENT_INT_SRC_MSK3);
-@@ -1551,6 +1552,17 @@ static irqreturn_t fatal_axi_int_v3_hw(int irq_no, void *p)
- 				error->msg, irq_value);
- 			queue_work(hisi_hba->wq, &hisi_hba->rst_work);
- 		}
-+
-+		if (pdev->revision < 0x21) {
-+			u32 reg_val;
-+
-+			reg_val = hisi_sas_read32(hisi_hba,
-+						  AXI_MASTER_CFG_BASE +
-+						  AM_CTRL_GLOBAL);
-+			reg_val |= AM_CTRL_SHUTDOWN_REQ_MSK;
-+			hisi_sas_write32(hisi_hba, AXI_MASTER_CFG_BASE +
-+					 AM_CTRL_GLOBAL, reg_val);
-+		}
- 	}
- 
- 	if (irq_value & BIT(ENT_INT_SRC3_ITC_INT_OFF)) {
+-void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 mask,
++void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 mask, u32 reg,
+ 		     u32 offset);
+ #define ocelot_rmw_ix(ocelot, val, m, reg, gi, ri) __ocelot_rmw_ix(ocelot, val, m, reg, reg##_GSZ * (gi) + reg##_RSZ * (ri))
+ #define ocelot_rmw_gix(ocelot, val, m, reg, gi) __ocelot_rmw_ix(ocelot, val, m, reg, reg##_GSZ * (gi))
 -- 
 2.20.1
 
