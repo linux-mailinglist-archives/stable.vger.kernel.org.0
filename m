@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84944111F97
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E24E0111F9A
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728234AbfLCWme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:42:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57482 "EHLO mail.kernel.org"
+        id S1728484AbfLCXKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:10:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727887AbfLCWma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:42:30 -0500
+        id S1728327AbfLCWmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:42:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DB1B207DD;
-        Tue,  3 Dec 2019 22:42:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C291206EC;
+        Tue,  3 Dec 2019 22:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412949;
-        bh=MPHWoj54lG3YeA/Bjj1a9WRZin6Iim6rDflS+9K2Mf0=;
+        s=default; t=1575412952;
+        bh=qm5/sHBfu8SWriiyMEBV4y7WHmX7oPbse1mtJOkC930=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z70EO+J5HRH/zXxuleINZ6OSuhrFzhauwW84Qz5jv/tyxHZdTZtUlrhg0zY1mhdeb
-         731miaYkKPzfCKbjKVa3RvsQPuS5oNg9hojG+Zi9kiefUWxDBJsPT+uyxqu6iFGaTJ
-         HuUxH+BZHyFSduaCZ2pevNWSl0MXHRop7k7tdQDU=
+        b=dj9YFIUnh/5fCIkTyerhuB4+GEsHI+Vd+FyWEuHl7Tdo4pK2E8J2jT389YKr86KEL
+         8BX16zaLE9M7Gu/gqZ3QBuqAaXguZ2/BRlSkRs/7wQRcr8FTF6MOF7rJLOtByulbiP
+         N0Q9RkKklsrvfqt1xq8SbdpXz+MvwpIVU/90Xqw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirish S <shirish.s@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
+        Eli Britstein <elibr@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 077/135] drm/amdgpu: dont schedule jobs while in reset
-Date:   Tue,  3 Dec 2019 23:35:17 +0100
-Message-Id: <20191203213029.135880551@linuxfoundation.org>
+Subject: [PATCH 5.3 078/135] net/mlx5e: Fix eswitch debug print of max fdb flow
+Date:   Tue,  3 Dec 2019 23:35:18 +0100
+Message-Id: <20191203213029.374329807@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -46,51 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shirish S <shirish.s@amd.com>
+From: Roi Dayan <roid@mellanox.com>
 
-[ Upstream commit f2efc6e60089c99c342a6b7da47f1037e06c4296 ]
+[ Upstream commit f382b0df6946d48fae80a2201ccff43b41382099 ]
 
-[Why]
+The value is already the calculation so remove the log prefix.
 
-doing kthread_park()/unpark() from drm_sched_entity_fini
-while GPU reset is in progress defeats all the purpose of
-drm_sched_stop->kthread_park.
-If drm_sched_entity_fini->kthread_unpark() happens AFTER
-drm_sched_stop->kthread_park nothing prevents from another
-(third) thread to keep submitting job to HW which will be
-picked up by the unparked scheduler thread and try to submit
-to HW but fail because the HW ring is deactivated.
-
-[How]
-grab the reset lock before calling drm_sched_entity_fini()
-
-Signed-off-by: Shirish S <shirish.s@amd.com>
-Suggested-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: e52c28024008 ("net/mlx5: E-Switch, Add chains and priorities")
+Signed-off-by: Roi Dayan <roid@mellanox.com>
+Reviewed-by: Eli Britstein <elibr@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-index 7398b4850649b..b7633484d15f2 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c
-@@ -597,8 +597,11 @@ void amdgpu_ctx_mgr_entity_fini(struct amdgpu_ctx_mgr *mgr)
- 			continue;
- 		}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 35945cdd0a618..3ac6104e9924c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -1085,7 +1085,7 @@ static int esw_create_offloads_fdb_tables(struct mlx5_eswitch *esw, int nvports)
+ 			    MLX5_CAP_GEN(dev, max_flow_counter_15_0);
+ 	fdb_max = 1 << MLX5_CAP_ESW_FLOWTABLE_FDB(dev, log_max_ft_size);
  
--		for (i = 0; i < num_entities; i++)
-+		for (i = 0; i < num_entities; i++) {
-+			mutex_lock(&ctx->adev->lock_reset);
- 			drm_sched_entity_fini(&ctx->entities[0][i].entity);
-+			mutex_unlock(&ctx->adev->lock_reset);
-+		}
- 	}
- }
- 
+-	esw_debug(dev, "Create offloads FDB table, min (max esw size(2^%d), max counters(%d), groups(%d), max flow table size(2^%d))\n",
++	esw_debug(dev, "Create offloads FDB table, min (max esw size(2^%d), max counters(%d), groups(%d), max flow table size(%d))\n",
+ 		  MLX5_CAP_ESW_FLOWTABLE_FDB(dev, log_max_ft_size),
+ 		  max_flow_counter, ESW_OFFLOADS_NUM_GROUPS,
+ 		  fdb_max);
 -- 
 2.20.1
 
