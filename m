@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CAF4112005
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C2A111E91
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728326AbfLCWl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:41:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
+        id S1729075AbfLCWzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:55:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727988AbfLCWl2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:41:28 -0500
+        id S1729095AbfLCWzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:55:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 657E020684;
-        Tue,  3 Dec 2019 22:41:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D566820803;
+        Tue,  3 Dec 2019 22:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412887;
-        bh=z9Lv6c8+GmFz9VuW7PWrb5r+yWIK4n3hGIo4aYP7fRI=;
+        s=default; t=1575413709;
+        bh=geeeVQ63UDrNG1JfFxbc//qDRyzxsQyqhEbu7hEACLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWEQPSRYQQL2HQqszhIg6PmSoBPlrSAuuCufnhi+tbp3GbX6OjcG+beSI/d36HST6
-         NhHaR4kSt+dDVl7tt1upHXVtL2pbT2e6e/549uBLm9n76D+KWW1EXM+0CROaC9vpZz
-         tUFMkng2DJRpXx5PTJ1+CB5f7J3TZeEmha3OnCsE=
+        b=WICSmkavbHDbDoRuwMZC9k4Zb7FLxsIcPtxMdT9WXjf2M3OhHfuSjwZpEsyz9c21z
+         vQJOgrqJWV0i/RHz1xdjQpxpWQETKvUzClMubEGdg9aj3V+VoROSiNf3tOuZF2LAQu
+         H9vRkgC8sJVqXQHtGCwEEfGAe28L4Db1bh4lPTpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 056/135] can: rx-offload: can_rx_offload_offload_one(): use ERR_PTR() to propagate error value in case of errors
-Date:   Tue,  3 Dec 2019 23:34:56 +0100
-Message-Id: <20191203213020.521176489@linuxfoundation.org>
+Subject: [PATCH 4.19 232/321] ASoC: samsung: i2s: Fix prescaler setting for the secondary DAI
+Date:   Tue,  3 Dec 2019 23:34:58 +0100
+Message-Id: <20191203223439.187234389@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,163 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit d763ab3044f0bf50bd0e6179f6b2cf1c125d1d94 ]
+[ Upstream commit 323fb7b947b265753de34703dbbf8acc8ea3a4de ]
 
-Before this patch can_rx_offload_offload_one() returns a pointer to a
-skb containing the read CAN frame or a NULL pointer.
+Make sure i2s->rclk_srcrate is properly initialized also during
+playback through the secondary DAI.
 
-However the meaning of the NULL pointer is ambiguous, it can either mean
-the requested mailbox is empty or there was an error.
-
-This patch fixes this situation by returning:
-- pointer to skb on success
-- NULL pointer if mailbox is empty
-- ERR_PTR() in case of an error
-
-All users of can_rx_offload_offload_one() have been adopted, no
-functional change intended.
-
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rx-offload.c | 86 ++++++++++++++++++++++++++++++------
- 1 file changed, 73 insertions(+), 13 deletions(-)
+ sound/soc/samsung/i2s.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
-index e224530a06300..3f5e040f0c712 100644
---- a/drivers/net/can/rx-offload.c
-+++ b/drivers/net/can/rx-offload.c
-@@ -107,39 +107,95 @@ static int can_rx_offload_compare(struct sk_buff *a, struct sk_buff *b)
- 	return cb_b->timestamp - cb_a->timestamp;
- }
- 
--static struct sk_buff *can_rx_offload_offload_one(struct can_rx_offload *offload, unsigned int n)
-+/**
-+ * can_rx_offload_offload_one() - Read one CAN frame from HW
-+ * @offload: pointer to rx_offload context
-+ * @n: number of mailbox to read
-+ *
-+ * The task of this function is to read a CAN frame from mailbox @n
-+ * from the device and return the mailbox's content as a struct
-+ * sk_buff.
-+ *
-+ * If the struct can_rx_offload::skb_queue exceeds the maximal queue
-+ * length (struct can_rx_offload::skb_queue_len_max) or no skb can be
-+ * allocated, the mailbox contents is discarded by reading it into an
-+ * overflow buffer. This way the mailbox is marked as free by the
-+ * driver.
-+ *
-+ * Return: A pointer to skb containing the CAN frame on success.
-+ *
-+ *         NULL if the mailbox @n is empty.
-+ *
-+ *         ERR_PTR() in case of an error
-+ */
-+static struct sk_buff *
-+can_rx_offload_offload_one(struct can_rx_offload *offload, unsigned int n)
+diff --git a/sound/soc/samsung/i2s.c b/sound/soc/samsung/i2s.c
+index ce00fe2f6aae3..d4bde4834ce5f 100644
+--- a/sound/soc/samsung/i2s.c
++++ b/sound/soc/samsung/i2s.c
+@@ -604,6 +604,7 @@ static int i2s_set_fmt(struct snd_soc_dai *dai,
+ 	unsigned int fmt)
  {
--	struct sk_buff *skb = NULL;
-+	struct sk_buff *skb = NULL, *skb_error = NULL;
- 	struct can_rx_offload_cb *cb;
- 	struct can_frame *cf;
- 	int ret;
+ 	struct i2s_dai *i2s = to_info(dai);
++	struct i2s_dai *other = get_other_dai(i2s);
+ 	int lrp_shift, sdf_shift, sdf_mask, lrp_rlow, mod_slave;
+ 	u32 mod, tmp = 0;
+ 	unsigned long flags;
+@@ -661,7 +662,8 @@ static int i2s_set_fmt(struct snd_soc_dai *dai,
+ 		 * CLK_I2S_RCLK_SRC clock is not exposed so we ensure any
+ 		 * clock configuration assigned in DT is not overwritten.
+ 		 */
+-		if (i2s->rclk_srcrate == 0 && i2s->clk_data.clks == NULL)
++		if (i2s->rclk_srcrate == 0 && i2s->clk_data.clks == NULL &&
++		    other->clk_data.clks == NULL)
+ 			i2s_set_sysclk(dai, SAMSUNG_I2S_RCLKSRC_0,
+ 							0, SND_SOC_CLOCK_IN);
+ 		break;
+@@ -699,6 +701,7 @@ static int i2s_hw_params(struct snd_pcm_substream *substream,
+ 	struct snd_pcm_hw_params *params, struct snd_soc_dai *dai)
+ {
+ 	struct i2s_dai *i2s = to_info(dai);
++	struct i2s_dai *other = get_other_dai(i2s);
+ 	u32 mod, mask = 0, val = 0;
+ 	struct clk *rclksrc;
+ 	unsigned long flags;
+@@ -784,6 +787,9 @@ static int i2s_hw_params(struct snd_pcm_substream *substream,
+ 	i2s->frmclk = params_rate(params);
  
--	/* If queue is full or skb not available, read to discard mailbox */
- 	if (likely(skb_queue_len(&offload->skb_queue) <
--		   offload->skb_queue_len_max))
-+		   offload->skb_queue_len_max)) {
- 		skb = alloc_can_skb(offload->dev, &cf);
-+		if (unlikely(!skb))
-+			skb_error = ERR_PTR(-ENOMEM);	/* skb alloc failed */
-+	} else {
-+		skb_error = ERR_PTR(-ENOBUFS);		/* skb_queue is full */
-+	}
- 
--	if (!skb) {
-+	/* If queue is full or skb not available, drop by reading into
-+	 * overflow buffer.
-+	 */
-+	if (unlikely(skb_error)) {
- 		struct can_frame cf_overflow;
- 		u32 timestamp;
- 
- 		ret = offload->mailbox_read(offload, &cf_overflow,
- 					    &timestamp, n);
--		if (ret) {
--			offload->dev->stats.rx_dropped++;
--			offload->dev->stats.rx_fifo_errors++;
--		}
- 
--		return NULL;
-+		/* Mailbox was empty. */
-+		if (unlikely(!ret))
-+			return NULL;
+ 	rclksrc = i2s->clk_table[CLK_I2S_RCLK_SRC];
++	if (!rclksrc || IS_ERR(rclksrc))
++		rclksrc = other->clk_table[CLK_I2S_RCLK_SRC];
 +
-+		/* Mailbox has been read and we're dropping it or
-+		 * there was a problem reading the mailbox.
-+		 *
-+		 * Increment error counters in any case.
-+		 */
-+		offload->dev->stats.rx_dropped++;
-+		offload->dev->stats.rx_fifo_errors++;
-+
-+		/* There was a problem reading the mailbox, propagate
-+		 * error value.
-+		 */
-+		if (unlikely(ret < 0))
-+			return ERR_PTR(ret);
-+
-+		return skb_error;
- 	}
+ 	if (rclksrc && !IS_ERR(rclksrc))
+ 		i2s->rclk_srcrate = clk_get_rate(rclksrc);
  
- 	cb = can_rx_offload_get_cb(skb);
- 	ret = offload->mailbox_read(offload, cf, &cb->timestamp, n);
--	if (!ret) {
-+
-+	/* Mailbox was empty. */
-+	if (unlikely(!ret)) {
- 		kfree_skb(skb);
- 		return NULL;
- 	}
- 
-+	/* There was a problem reading the mailbox, propagate error value. */
-+	if (unlikely(ret < 0)) {
-+		kfree_skb(skb);
-+
-+		offload->dev->stats.rx_dropped++;
-+		offload->dev->stats.rx_fifo_errors++;
-+
-+		return ERR_PTR(ret);
-+	}
-+
-+	/* Mailbox was read. */
- 	return skb;
- }
- 
-@@ -159,7 +215,7 @@ int can_rx_offload_irq_offload_timestamp(struct can_rx_offload *offload, u64 pen
- 			continue;
- 
- 		skb = can_rx_offload_offload_one(offload, i);
--		if (!skb)
-+		if (IS_ERR_OR_NULL(skb))
- 			break;
- 
- 		__skb_queue_add_sort(&skb_queue, skb, can_rx_offload_compare);
-@@ -190,7 +246,11 @@ int can_rx_offload_irq_offload_fifo(struct can_rx_offload *offload)
- 	struct sk_buff *skb;
- 	int received = 0;
- 
--	while ((skb = can_rx_offload_offload_one(offload, 0))) {
-+	while (1) {
-+		skb = can_rx_offload_offload_one(offload, 0);
-+		if (IS_ERR_OR_NULL(skb))
-+			break;
-+
- 		skb_queue_tail(&offload->skb_queue, skb);
- 		received++;
- 	}
 -- 
 2.20.1
 
