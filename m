@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40B01111F17
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:09:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F91C111E3E
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728474AbfLCWnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:43:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59188 "EHLO mail.kernel.org"
+        id S1730532AbfLCW5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:57:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbfLCWnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:43:41 -0500
+        id S1730530AbfLCW5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:57:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 827DE2073C;
-        Tue,  3 Dec 2019 22:43:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3368A20656;
+        Tue,  3 Dec 2019 22:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413020;
-        bh=Gvbq7mVM0/PgnucgqGPLHNcebP9gPhf52e++PEBwkx4=;
+        s=default; t=1575413834;
+        bh=D0BI7uvsR2toHHS39zyx3t22aAkKT99mkx4mwPedCbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZLMn7CF4Lf3v/DGTxn1YjtTDG4FgagGamg/aEy3yqIdLOTgvL25gzmgtLHOvd+Vh
-         ctu8l2XnVLbEcNjDFSp9mrkbt0u6yV/iViBNFLZ+aSnqGKLTcxpHotAjGRpCpYRcGY
-         O6gCrS3KriehR0oZR3fO6uPbptlZtq3+rJVRleW8=
+        b=S7+1Vn+//yvD2n8heoUgVkU0Wg77mxxpH9yzs2EKz+eUMQxd/G+MmiRlfoLDb2Dv7
+         gDVEXt9TkM7368KzceLt8ku7lGVFmp6ACBDFjUtfpjVeFEB3vR4J1X+NzqmXo86ozf
+         X985RQypeITcwV2eyHLZMPwg2LIBjFBoJlPlNwgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.3 105/135] mei: me: add comet point V device id
-Date:   Tue,  3 Dec 2019 23:35:45 +0100
-Message-Id: <20191203213040.474020711@linuxfoundation.org>
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.19 280/321] media: atmel: atmel-isc: fix asd memory allocation
+Date:   Tue,  3 Dec 2019 23:35:46 +0100
+Message-Id: <20191203223441.692023594@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-commit 82b29b9f72afdccb40ea5f3c13c6a3cb65a597bc upstream.
+commit 1e4e25c4959c10728fbfcc6a286f9503d32dfe02 upstream.
 
-Comet Point (Comet Lake) V device id.
+The subsystem will free the asd memory on notifier cleanup, if the asd is
+added to the notifier.
+However the memory is freed using kfree.
+Thus, we cannot allocate the asd using devm_*
+This can lead to crashes and problems.
+To test this issue, just return an error at probe, but cleanup the
+notifier beforehand.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191105150514.14010-2-tomas.winkler@intel.com
+Fixes: 106267444f ("[media] atmel-isc: add the Image Sensor Controller code")
+
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/hw-me-regs.h |    1 +
- drivers/misc/mei/pci-me.c     |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/media/platform/atmel/atmel-isc.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -81,6 +81,7 @@
+--- a/drivers/media/platform/atmel/atmel-isc.c
++++ b/drivers/media/platform/atmel/atmel-isc.c
+@@ -2062,8 +2062,11 @@ static int isc_parse_dt(struct device *d
+ 			break;
+ 		}
  
- #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
- #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
-+#define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
- 
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -98,6 +98,7 @@ static const struct pci_device_id mei_me
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
+-		subdev_entity->asd = devm_kzalloc(dev,
+-				     sizeof(*subdev_entity->asd), GFP_KERNEL);
++		/* asd will be freed by the subsystem once it's added to the
++		 * notifier list
++		 */
++		subdev_entity->asd = kzalloc(sizeof(*subdev_entity->asd),
++					     GFP_KERNEL);
+ 		if (!subdev_entity->asd) {
+ 			of_node_put(rem);
+ 			ret = -ENOMEM;
+@@ -2209,6 +2212,7 @@ static int atmel_isc_probe(struct platfo
+ 						   &subdev_entity->notifier);
+ 		if (ret) {
+ 			dev_err(dev, "fail to register async notifier\n");
++			kfree(subdev_entity->asd);
+ 			goto cleanup_subdev;
+ 		}
  
 
 
