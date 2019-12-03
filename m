@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB4D3111E76
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A66DB111FDD
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729944AbfLCWxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:53:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46370 "EHLO mail.kernel.org"
+        id S1728276AbfLCWjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:39:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728773AbfLCWxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:53:13 -0500
+        id S1728285AbfLCWjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:39:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E26520863;
-        Tue,  3 Dec 2019 22:53:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16A2920684;
+        Tue,  3 Dec 2019 22:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413592;
-        bh=+MPkf+/1ZgSXTTcyRZTaHbIWLFnK7BZRQH9Tcq5LrlY=;
+        s=default; t=1575412784;
+        bh=pBxMfA/LO0cfq4iF5n+Gp0OohudChbk11rq/YDa8EcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQTSl5p4IAoCxM0u6O9oS7WXzyoLFN4csTVRAhG9pXlzv/mJC9CE5pbACAG6jqS+C
-         c7JKT07qJvA5vcz8XGHXiICTe0gRzYp2+r01f6bRn6RRbKGtfJ7C/9U1/f9aqfnwuW
-         fS7/799ZI+zg+IZ+lcbyfdssioVz05H8HD1SEtS8=
+        b=j6jjfVuCZygD8zbRVZdQafdz0ApaEiuYKuTsPjTdvv5lAtsPvrlLTLCoxIQyjS/qA
+         10jegVuD4jSKKVPnaFdTFMl9TdcLOLa70aj7qi7lz6jzwJdzAeXNXrBzGrg6hVUg4F
+         UcOyn5lpEd0ouSTnvPLYB0497J0D+0yU4biL78eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 188/321] um: Make GCOV depend on !KCOV
-Date:   Tue,  3 Dec 2019 23:34:14 +0100
-Message-Id: <20191203223436.901129745@linuxfoundation.org>
+Subject: [PATCH 5.3 016/135] ASoC: kirkwood: fix external clock probe defer
+Date:   Tue,  3 Dec 2019 23:34:16 +0100
+Message-Id: <20191203213008.857821884@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 550ed0e2036663b35cec12374b835444f9c60454 ]
+[ Upstream commit 4523817d51bc3b2ef38da768d004fda2c8bc41de ]
 
-Both do more or less the same thing and are mutually exclusive.
-If both are enabled the build will fail.
-Sooner or later we can kill UML's GCOV.
+When our call to get the external clock fails, we forget to clean up
+the enabled internal clock correctly.  Enable the clock after we have
+obtained all our resources.
 
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 84aac6c79bfd ("ASoC: kirkwood: fix loss of external clock at probe time")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/E1iNGyK-0004oF-6A@rmk-PC.armlinux.org.uk
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/kirkwood/kirkwood-i2s.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/um/Kconfig.debug b/arch/um/Kconfig.debug
-index 2014597605ea9..85726eeec3451 100644
---- a/arch/um/Kconfig.debug
-+++ b/arch/um/Kconfig.debug
-@@ -16,6 +16,7 @@ config GPROF
- config GCOV
- 	bool "Enable gcov support"
- 	depends on DEBUG_INFO
-+	depends on !KCOV
- 	help
- 	  This option allows developers to retrieve coverage data from a UML
- 	  session.
+diff --git a/sound/soc/kirkwood/kirkwood-i2s.c b/sound/soc/kirkwood/kirkwood-i2s.c
+index 3446a113f482e..c323ae314b554 100644
+--- a/sound/soc/kirkwood/kirkwood-i2s.c
++++ b/sound/soc/kirkwood/kirkwood-i2s.c
+@@ -559,10 +559,6 @@ static int kirkwood_i2s_dev_probe(struct platform_device *pdev)
+ 		return PTR_ERR(priv->clk);
+ 	}
+ 
+-	err = clk_prepare_enable(priv->clk);
+-	if (err < 0)
+-		return err;
+-
+ 	priv->extclk = devm_clk_get(&pdev->dev, "extclk");
+ 	if (IS_ERR(priv->extclk)) {
+ 		if (PTR_ERR(priv->extclk) == -EPROBE_DEFER)
+@@ -578,6 +574,10 @@ static int kirkwood_i2s_dev_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	err = clk_prepare_enable(priv->clk);
++	if (err < 0)
++		return err;
++
+ 	/* Some sensible defaults - this reflects the powerup values */
+ 	priv->ctl_play = KIRKWOOD_PLAYCTL_SIZE_24;
+ 	priv->ctl_rec = KIRKWOOD_RECCTL_SIZE_24;
 -- 
 2.20.1
 
