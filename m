@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35921111BCD
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:37:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EDBD111DE5
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:59:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727739AbfLCWhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:37:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45894 "EHLO mail.kernel.org"
+        id S1730454AbfLCW6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:58:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727714AbfLCWhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:37:34 -0500
+        id S1730236AbfLCW6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:58:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 380D2207DD;
-        Tue,  3 Dec 2019 22:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0298420674;
+        Tue,  3 Dec 2019 22:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412653;
-        bh=6hPF5tdZKwGefFuOFN1JDyKRb95J50q7shAcN+XnPRc=;
+        s=default; t=1575413884;
+        bh=pz78iwdXUENbZcbYUMALJIFQGQOKoTGxA9AdC7L3WZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdKY9pgWr27XG4zoaOoJD5ToyUF9y3X3d3CHFA20H7/qZ5bobliL5Zp7tchyR8nZK
-         /nJ/ClYRlEIhr8SxzjPJVpcx1fQVCFdGb98WDdmEoY2ow+vVm8E1D8UoMxJadc3RGB
-         ED6oymlYFaMgos3d5OOrNp5dYmIweY1oAi2h4n6w=
+        b=D5YgEhrs2Kpz8NO52MNXovF+B7aiHGjNAew6fV3mDeJ2AtspGk5urCiZZz8kaXJCy
+         tCNoXS09Qmjz16aXS6bGYeN12WTk1+OHOa8HgxR/6tgRv10Ye/mzY2S6VXC1sfm8Pt
+         OSPxrADFoBARV7Mae8FPt7FGxv4GKM4gr6N4Gn2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 05/46] driver core: platform: use the correct callback type for bus_find_device
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 259/321] ASoC: rt5645: Headphone Jack sense inverts on the LattePanda board
 Date:   Tue,  3 Dec 2019 23:35:25 +0100
-Message-Id: <20191203212715.632735792@linuxfoundation.org>
+Message-Id: <20191203223440.607002578@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
-References: <20191203212705.175425505@linuxfoundation.org>
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+References: <20191203223427.103571230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 492c88720d36eb662f9f10c1633f7726fbb07fc4 upstream.
+[ Upstream commit 406dcbc55a0a20fd155be889a4a0c4b812f7c18e ]
 
-platform_find_device_by_driver calls bus_find_device and passes
-platform_match as the callback function. Casting the function to a
-mismatching type trips indirect call Control-Flow Integrity (CFI) checking.
+The LattePanda board has a sound card chtrt5645, when there is nothing
+plugged in the headphone jack, the system thinks the headphone is
+plugged in, while we plug a headphone in the jack, the system thinks
+the headphone is unplugged.
 
-This change adds a callback function with the correct type and instead
-of casting the function, explicitly casts the second parameter to struct
-device_driver* as expected by platform_match.
+If adding quirk=0x21 in the module parameter, the headphone jack can
+work well. So let us fix it via platform_data.
 
-Fixes: 36f3313d6bff9 ("platform: Add platform_find_device_by_driver() helper")
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191112214156.3430-1-samitolvanen@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+https://bugs.launchpad.net/bugs/182459
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/soc/codecs/rt5645.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -1278,6 +1278,11 @@ struct bus_type platform_bus_type = {
+diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
+index 1dc70f452c1b9..f842db498c741 100644
+--- a/sound/soc/codecs/rt5645.c
++++ b/sound/soc/codecs/rt5645.c
+@@ -3662,6 +3662,11 @@ static const struct rt5645_platform_data jd_mode3_platform_data = {
+ 	.jd_mode = 3,
  };
- EXPORT_SYMBOL_GPL(platform_bus_type);
  
-+static inline int __platform_match(struct device *dev, const void *drv)
-+{
-+	return platform_match(dev, (struct device_driver *)drv);
-+}
++static const struct rt5645_platform_data lattepanda_board_platform_data = {
++	.jd_mode = 2,
++	.inv_jd1_1 = true
++};
 +
- /**
-  * platform_find_device_by_driver - Find a platform device with a given
-  * driver.
-@@ -1288,7 +1293,7 @@ struct device *platform_find_device_by_d
- 					      const struct device_driver *drv)
- {
- 	return bus_find_device(&platform_bus_type, start, drv,
--			       (void *)platform_match);
-+			       __platform_match);
- }
- EXPORT_SYMBOL_GPL(platform_find_device_by_driver);
+ static const struct dmi_system_id dmi_platform_data[] = {
+ 	{
+ 		.ident = "Chrome Buddy",
+@@ -3759,6 +3764,15 @@ static const struct dmi_system_id dmi_platform_data[] = {
+ 		},
+ 		.driver_data = (void *)&intel_braswell_platform_data,
+ 	},
++	{
++		.ident = "LattePanda board",
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
++		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++		  DMI_EXACT_MATCH(DMI_BOARD_VERSION, "Default string"),
++		},
++		.driver_data = (void *)&lattepanda_board_platform_data,
++	},
+ 	{ }
+ };
  
+-- 
+2.20.1
+
 
 
