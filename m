@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BAC2111FFE
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B341A112001
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728500AbfLCWlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:41:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55544 "EHLO mail.kernel.org"
+        id S1727731AbfLCWlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:41:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727731AbfLCWlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:41:13 -0500
+        id S1728504AbfLCWlQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:41:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DC212080A;
-        Tue,  3 Dec 2019 22:41:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 001932080F;
+        Tue,  3 Dec 2019 22:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412872;
-        bh=EaplAfuheF1sBF4x0lD26ZSodyHdeqvGBmEQkvmT834=;
+        s=default; t=1575412875;
+        bh=vJgGt+XVMnYKZoAG5h05kAuYMAWp/uN3IP2/FWjb6iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSmvNfosgqxixKjFTIsIglyJTlBDnVM6oXOLblal5oM/N1IgbqupWtjdTLky1Wumh
-         T9t07g8SDyGFBtPCDNF9YIhkaYUBBBTtchoiBvWNzZqmOLsqqnGvy8NK4e/2D87U2n
-         nwi6QCQf9VksbzCSdk0yJtMKAHi6d4di3Y3PS8e0=
+        b=2P+itleDkb84vxJrA1s/Lz4e35yVEk10icMmFjNftSQLsZVTrgfBeA8G5gah+R5TX
+         YXFDrn1aSi1xQxCpu0X4sm1r1P2dzPW3IvVHYWoM7dWCJi2waIGoUxAxXiggsvomlQ
+         zhSfMQJj0Crwm8f7efG6hyMW4QX/H8PB4r73S4tU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Michal Suchanek <msuchanek@suse.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org,
+        Jeroen Hofstee <jhofstee@victronenergy.com>,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 050/135] stacktrace: Dont skip first entry on noncurrent tasks
-Date:   Tue,  3 Dec 2019 23:34:50 +0100
-Message-Id: <20191203213019.500970064@linuxfoundation.org>
+Subject: [PATCH 5.3 051/135] can: peak_usb: report bus recovery as well
+Date:   Tue,  3 Dec 2019 23:34:51 +0100
+Message-Id: <20191203213019.620878955@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -46,55 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Jeroen Hofstee <jhofstee@victronenergy.com>
 
-[ Upstream commit b0c51f158455e31d5024100cf3580fcd88214b0e ]
+[ Upstream commit 128a1b87d3ceb2ba449d5aadb222fe22395adeb0 ]
 
-When doing cat /proc/<PID>/stack, the output is missing the first entry.
-When the current code walks the stack starting in stack_trace_save_tsk,
-it skips all scheduler functions (that's OK) plus one more function. But
-this one function should be skipped only for the 'current' task as it is
-stack_trace_save_tsk proper.
+While the state changes are reported when the error counters increase
+and decrease, there is no event when the bus recovers and the error
+counters decrease again. So add those as well.
 
-The original code (before the common infrastructure) skipped one
-function only for the 'current' task -- see save_stack_trace_tsk before
-3599fe12a125. So do so also in the new infrastructure now.
+Change the state going downward to be ERROR_PASSIVE -> ERROR_WARNING ->
+ERROR_ACTIVE instead of directly to ERROR_ACTIVE again.
 
-Fixes: 214d8ca6ee85 ("stacktrace: Provide common infrastructure")
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Michal Suchanek <msuchanek@suse.de>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lkml.kernel.org/r/20191030072545.19462-1-jslaby@suse.cz
+Signed-off-by: Jeroen Hofstee <jhofstee@victronenergy.com>
+Cc: Stephane Grosjean <s.grosjean@peak-system.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/stacktrace.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/stacktrace.c b/kernel/stacktrace.c
-index f5440abb75329..9bbfbdb96ae51 100644
---- a/kernel/stacktrace.c
-+++ b/kernel/stacktrace.c
-@@ -141,7 +141,8 @@ unsigned int stack_trace_save_tsk(struct task_struct *tsk, unsigned long *store,
- 	struct stacktrace_cookie c = {
- 		.store	= store,
- 		.size	= size,
--		.skip	= skipnr + 1,
-+		/* skip this function if they are tracing us */
-+		.skip	= skipnr + !!(current == tsk),
- 	};
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb.c b/drivers/net/can/usb/peak_usb/pcan_usb.c
+index 5a66c9f53aae6..d2539c95adb65 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb.c
+@@ -436,8 +436,8 @@ static int pcan_usb_decode_error(struct pcan_usb_msg_context *mc, u8 n,
+ 		}
+ 		if ((n & PCAN_USB_ERROR_BUS_LIGHT) == 0) {
+ 			/* no error (back to active state) */
+-			mc->pdev->dev.can.state = CAN_STATE_ERROR_ACTIVE;
+-			return 0;
++			new_state = CAN_STATE_ERROR_ACTIVE;
++			break;
+ 		}
+ 		break;
  
- 	if (!try_get_task_stack(tsk))
-@@ -298,7 +299,8 @@ unsigned int stack_trace_save_tsk(struct task_struct *task,
- 	struct stack_trace trace = {
- 		.entries	= store,
- 		.max_entries	= size,
--		.skip		= skipnr + 1,
-+		/* skip this function if they are tracing us */
-+		.skip	= skipnr + !!(current == task),
- 	};
+@@ -460,9 +460,9 @@ static int pcan_usb_decode_error(struct pcan_usb_msg_context *mc, u8 n,
+ 		}
  
- 	save_stack_trace_tsk(task, &trace);
+ 		if ((n & PCAN_USB_ERROR_BUS_HEAVY) == 0) {
+-			/* no error (back to active state) */
+-			mc->pdev->dev.can.state = CAN_STATE_ERROR_ACTIVE;
+-			return 0;
++			/* no error (back to warning state) */
++			new_state = CAN_STATE_ERROR_WARNING;
++			break;
+ 		}
+ 		break;
+ 
+@@ -501,6 +501,11 @@ static int pcan_usb_decode_error(struct pcan_usb_msg_context *mc, u8 n,
+ 		mc->pdev->dev.can.can_stats.error_warning++;
+ 		break;
+ 
++	case CAN_STATE_ERROR_ACTIVE:
++		cf->can_id |= CAN_ERR_CRTL;
++		cf->data[1] = CAN_ERR_CRTL_ACTIVE;
++		break;
++
+ 	default:
+ 		/* CAN_STATE_MAX (trick to handle other errors) */
+ 		cf->can_id |= CAN_ERR_CRTL;
 -- 
 2.20.1
 
