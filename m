@@ -2,69 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C1FC112056
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:37:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF2611205D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:43:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726928AbfLCXhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:37:51 -0500
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:38429 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726653AbfLCXhv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:37:51 -0500
-Received: by mail-wr1-f54.google.com with SMTP id y17so6219465wrh.5
-        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:37:49 -0800 (PST)
+        id S1726482AbfLCXnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:43:03 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:34242 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726410AbfLCXnC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:43:02 -0500
+Received: by mail-pl1-f194.google.com with SMTP id h13so2333537plr.1
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:43:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=XNArJCVLTUii44OkzDLyVOCWdJvTZXM9By5hqHfNVuA=;
-        b=LqGeMr48cG7jvG57jaHjKdq5EdpwBJ2/fLLxACful6TfelqzyC7nuEnpvBCoTvtN7Z
-         Aj4yAomM47tN3JhCecMvxJGpr8mVrN3mWsw4xkFSReKm5v1VtZsoBUz/LZwAWfWqB+g3
-         5CzQUmfb3cVu1f2w/9YK/ququxFU4nwkUYn3EXxYxU+QxxxlpVR3bZtg6EgZjFGi6ACx
-         Ipo9qRPpBiOyAlUayacips8cIRildUYqzxrP11QaFieF8gjCVFIDY1FOuBvE0HKPQ/M7
-         pUrriN0nxaj7aMt2IoyWn+TnVktBScc+YqH5SX6S+sOJxIZ9RUDyIj3LoLg6NfO3cuHd
-         vFig==
+        bh=1OxHtutk6hA28dBcP13TAqzlvKk2lKOdJ3WPlSn/d8Q=;
+        b=uBxB61F3xk/UPfo0PM/WCB9wWcWlnn9tx+m5s5ni7sO5yubFDPbYeUwsd1Xr9ZLHXk
+         qFffrP2WZ9fTLbOTRJCfW5JrjSTbEGBwKAIBQNV+3vHHKmL8kSBu87Xq2BeT1jOHSLVA
+         +f6wqWc/QSIsa+BdofFpZg0vu986rtLubTKRduvc/tWYcIMDwAioR181kAdCURwk3s5c
+         /EXNj4O6hQCPYh6Y4QChj1ba+yl2sYnOpUXPjkclbFZB4b/FYvPThE04WBsI0+SQG6qs
+         q97LPxZ5HwzxA5J8lR4mn/sRMTztmCgzniV91J0Ku8WOuUmgBK958reThbkupRKeI++P
+         H8dQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XNArJCVLTUii44OkzDLyVOCWdJvTZXM9By5hqHfNVuA=;
-        b=Mm6z9oiDjReoqkbQkPfCSkOjXmKf9E+bG2dPseLzDoj8MDnYjW7cHX5WccPL3h3EyB
-         oc0DWubXtJTsJlNMY+b4cu0hR5T7uAZO9h806ex23AGdqQy0EfeLADElwrXu3Phc0jrF
-         +BAvIXnmB0XeL1sC44DfUEfsCKwAEdRwo30rEBnuMHlpNOSobjlC0sCdTC5rrZRmKE/9
-         C5PL1CqjSdzUC1ChwEzC+pznuG0IJPESGMkNd4dSTHx4tJ2fetuxXf8JpR4LPkJARsFJ
-         hUDOYx4ZW1Ian9jvDLeOze2A3MZ/3zsLez7WCQaPraVIXvlXilsAKtvuUMqATQ1xJ/CR
-         CWUw==
-X-Gm-Message-State: APjAAAXDyNQh1UupRvpsxyKUKlsYQ7WREOXvmOfyJK946E8iOycBXAad
-        plwtUHzeij+UojjU3T7KuwYDMd1t/PYUQnkydaN2eQ==
-X-Google-Smtp-Source: APXvYqzkegJSTflqiIY/mn6cQ2tcdTUaAkD46NQ4PbmgXBrs47LbgQ9RpeQKipPpoKeWInoG169t3j1hiY7zyQmsMaI=
-X-Received: by 2002:adf:ff8a:: with SMTP id j10mr653621wrr.312.1575416268924;
- Tue, 03 Dec 2019 15:37:48 -0800 (PST)
+        bh=1OxHtutk6hA28dBcP13TAqzlvKk2lKOdJ3WPlSn/d8Q=;
+        b=DaAtlFM0vqXnrXZzATWAzzO7tP8nR09UGwT17qk8ui0DrVl5Oo53x/rWWTcabQbLQ/
+         5BvnfRUgyDQyOtwN+uKA2jKdjMip6LQDNKqCGd+NtsUThsCO1yw73ax5yDMZdw1c/W0g
+         iryhYVgBIBH+q5oHTctPOB+GW+nrBeKLqsjOlZCBSaUecLwApSkL+RX1LNoQ3EBNH1F1
+         H3AabdcfMnrfXpER+DfSJ/4SgCViaOfuX1+7WW4nRjmb9WngYINmrarimdykJh/OeOaT
+         xes5JzT6b5+lK5V3WyzFWJ6/+G30Qd6Uvi++8vBCNh6J6yxOOhoQ/7lsZ4D98BPuZ/is
+         35Rg==
+X-Gm-Message-State: APjAAAXcifYC4Qa+iwGTX8LIajFprfe8J4L9vAo8QNzQ68MMLBmYTVHR
+        +hgTbYtz0UhYz/nEo13UQY8zeCY/ltTgxaH9NzGUjw==
+X-Google-Smtp-Source: APXvYqx74YmiLdGue6ov0CGItqQOhr5aoFMW+ZHNwajbQUlkcMKQiACOe6MPfcXVaEk15NyKto8aP2Tqx74SBbu6mW0=
+X-Received: by 2002:a17:902:8ec8:: with SMTP id x8mr519623plo.119.1575416581305;
+ Tue, 03 Dec 2019 15:43:01 -0800 (PST)
 MIME-Version: 1.0
-References: <CAPtwhKrmvw8wm1u_36YEoLgQ8pGe=v5xaV2RN4W6jVw3zOgeQQ@mail.gmail.com>
- <20191203230944.GA3495297@kroah.com> <CAPtwhKpZCequxTMzAcVcJ34EW4AFqNDcWuoud-D3nywpYxzx5Q@mail.gmail.com>
- <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com>
- <CAPtwhKrCY4ZWFPYsr5N3LcAJOJVStN9Qb93-zk+GFRNVsfGxgQ@mail.gmail.com> <CAPtwhKoMk+AY2D9Akoh_v4fSTj9JtUT1k+DQ_qcuK=zbZSdpgw@mail.gmail.com>
-In-Reply-To: <CAPtwhKoMk+AY2D9Akoh_v4fSTj9JtUT1k+DQ_qcuK=zbZSdpgw@mail.gmail.com>
-From:   Xuewei Zhang <xueweiz@google.com>
-Date:   Tue, 3 Dec 2019 15:37:36 -0800
-Message-ID: <CAPtwhKpjLswXm3fSZ6o0hiNxM2Zgj3zmfsLLPYtPpqmN91792g@mail.gmail.com>
-Subject: Re: Request to backport 4929a4e6faa0 to stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
+References: <20191122185522.20582-1-ndesaulniers@google.com> <nycvar.YSQ.7.76.1911291614480.8537@knanqh.ubzr>
+In-Reply-To: <nycvar.YSQ.7.76.1911291614480.8537@knanqh.ubzr>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Tue, 3 Dec 2019 15:42:50 -0800
+Message-ID: <CAKwvOdmAFp=p=z8bhaRHf8uRhUBKpoAYtissyLTk5DC8f-=BUw@mail.gmail.com>
+Subject: Re: [PATCH] arm: explicitly place .fixup in .text
+To:     Nicolas Pitre <nico@fluxnic.net>,
+        Manoj Gupta <manojgupta@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Cc:     Russell King - ARM Linux <linux@armlinux.org.uk>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Kees Cook <keescook@chromium.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Fri, Nov 29, 2019 at 1:33 PM Nicolas Pitre <nico@fluxnic.net> wrote:
+>
+> On Fri, 22 Nov 2019, Nick Desaulniers wrote:
+>
+> > From: Kees Cook <keescook@chromium.org>
+> >
+> > There's an implicit dependency on the section ordering of the orphaned
+> > section .fixup that can break arm_copy_from_user if the linker places
+> > the .fixup section before the .text section. Since .fixup is not
+> > explicitly placed in the existing ARM linker scripts, the linker is free
+> > to order it anywhere with respect to the rest of the sections.
+> >
+> > Multiple users from different distros (Raspbian, CrOS) reported kernel
+> > panics executing seccomp() syscall with Linux kernels linked with LLD.
+> >
+> > Documentation/x86/exception-tables.rst alludes to the ordering
+> > dependency. The relevant quote:
+> >
+> > ```
+> > NOTE:
+> > Due to the way that the exception table is built and needs to be ordered,
+> > only use exceptions for code in the .text section.  Any other section
+> > will cause the exception table to not be sorted correctly, and the
+> > exceptions will fail.
+> >
+> > Things changed when 64-bit support was added to x86 Linux. Rather than
+> > double the size of the exception table by expanding the two entries
+> > from 32-bits to 64 bits, a clever trick was used to store addresses
+> > as relative offsets from the table itself. The assembly code changed
+> > from::
+> >
+> >     .long 1b,3b
+> >   to:
+> >           .long (from) - .
+> >           .long (to) - .
+> >
+> > and the C-code that uses these values converts back to absolute addresses
+> > like this::
+> >
+> >         ex_insn_addr(const struct exception_table_entry *x)
+> >         {
+> >                 return (unsigned long)&x->insn + x->insn;
+> >         }
+> > ```
+> >
+> > Since the addresses stored in the __ex_table are RELATIVE offsets and
+> > not ABSOLUTE addresses, ordering the fixup anywhere that's not
+> > immediately preceding .text causes the relative offset of the faulting
+> > instruction to be wrong, causing the wrong (or no) address of the fixup
+> > handler to looked up in __ex_table.
+>
+> This explanation makes no sense.
+>
+> The above is valid only when ARCH_HAS_RELATIVE_EXTABLE is defined. On
+> ARM32 it is not, nor would it make sense to be.
 
-I sent the backports which should apply cleanly to the 5 stable kernel
-versions: 4.19, 4.14, 4.9, 4.4, 3.16.
+Hmm...I thought that was the smoking gun. From the description in
+Documentation, I thought they meant that exception table entry lookup
+was changed to be homogeneous for 32b AND 64b arch's, but as you point
+out they're not.  Now with the reference to ARCH_HAS_RELATIVE_EXTABLE,
+I know to look through:
+include/asm-generic/extable.h
+include/linux/extable.h
+lib/extable.c
+kernel/extable.c
+arch/arm/mm/extable.c
+arch/arm/mm/fault.c (__do_kernel_fault() calls fixup_exception(),
+which is of interest).
 
-Does it work for you? Please let me know if I should submit them using
-some other formats. Apologize ahead if my current format is wrong.
+Looks like the exception table is sorted by address of faulting
+instruction, then binary searched when an exception occurs.  Seems the
+exception table is like an array of pairs of addresses (address of
+faulting instruction from the get_user() call, address of fixup
+handler) (when !ARCH_HAS_RELATIVE_EXTABLE), IIUC.
 
-Best regards,
-Xuewei
+Reviewing the logs from the bugreport
+(https://bugs.chromium.org/p/chromium/issues/detail?id=1020633#c44)
+indeed the error string looks like the error message from
+__do_kernel_fault() in arch/arm/mm/fault.c where a call to
+fixup_exceptions() in arch/arm/mm/extable returned 1 because the call
+to search_exception_tables() in kernel/extable.c returned NULL.
+
+So I was right that `no address of the fixup handler to (be) looked up
+in __ex_table`, but not quite right about *why* it fails to be looked
+up.
+
+search_exception_tables() in kernel/extable.c calls 3 functions:
+1. search_kernel_exception_table()
+2. search_module_extables()
+3. search_bpf_extables()
+
+So the next question is which one of the above should have found the
+exception table entry, and why did it not when LLD placed the orphaned
+.fixup section BEFORE .text?  All three of the above do some
+processing on the address but in the end all call search_extable().
+
+I really don't think kernel modules are involved.
+
+Since we're observing the fault via a call to seccomp(), which IIUC
+takes a BPF program when setting a filter (SECCOMP_SET_MODE_FILTER),
+I'm curious to look into search_bpf_extables() first.  Maybe
+constructing a BPF program involves insertion of special exception
+handler?  Looks like bpf programs are stored in an rb_tree called
+bpf_tree.  They have an auxiliary field that contains a pointer to an
+exception table entry.  "Auxiliary" makes it sounds optional, and the
+only assignment I can find to this field is in
+arch/x86/net/bpf_jit_comp.c, so I doubt it's relevant for arm.  It
+also just looks like it's zero initialized (bpf_prog_alloc_no_stats()
+in kernel/bpf/core.c) for arch generic code.
+
+That leaves just search_kernel_exception_table().  I wonder if it
+fails because we put garbage entries in, or sorted it improperly?
+
+Oh, and messing around with grep, it looks like entries to the
+exception table can be sorted at build time rather than boot time via
+CONFIG_BUILDTIME_EXTABLE_SORT?
+
+I don't see the pr_notice from sort_main_extable() (kernel/extable.c
+called from start_kernel() in init/main.c) in the bugreports:
+https://bugs.chromium.org/p/chromium/issues/attachmentText?aid=421842
+https://github.com/ClangBuiltLinux/linux/issues/282
+(But IIRC, the log level may not be set to display these).
+
+CONFIG_BUILDTIME_EXTABLE_SORT is selected by arch/arm/Kconfig if
+CONFIG_MMU, which I highly suspect is already selected for the above
+two reports. (Would an arm32 based chromebook not have an MMU? I doubt
+it.)
+
+So there may be an ordering dependency in scripts/sortextable.{c|h}?
+Neither mention `fixup`.
+
+Will continue debugging more tomorrow or later this week, but please
+stop me if any of the above is also incorrect.  Some ideas for further
+experiments:
+- scripts/check_extable.sh sounds like some kind of validator.
+Manoj/Nathan, I wonder if you linked the problematic kernel with LLD
+than ran `./scripts/check_extable.sh vmlinux` if it would warn? Dunno
+about all those command line flags though.
+- if we apply a similar diff to the patch I posted, but force .fixup
+to be before .text for BFD (as LLD is placing the orphaned section
+currently), relinked with BFD and could reproduce the issue, that
+seems like proof about the implicit section ordering.
+```
+diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
+index 319ccb10846a..adfb5297f359 100644
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -58,6 +58,7 @@ SECTIONS
+ #ifdef CONFIG_ARM_MPU
+        . = ALIGN(PMSAv8_MINALIGN);
+ #endif
++       .fixup : { *(.fixup) }
+        .text : {                       /* Real text segment            */
+                _stext = .;             /* Text and read-only data      */
+                ARM_TEXT
+```
+
+-- 
+Thanks,
+~Nick Desaulniers
