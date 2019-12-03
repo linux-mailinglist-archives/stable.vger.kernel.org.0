@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 963E2111E17
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A9D111E18
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:00:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730602AbfLCW7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:59:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55472 "EHLO mail.kernel.org"
+        id S1730009AbfLCW7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:59:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728845AbfLCW64 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:58:56 -0500
+        id S1730486AbfLCW66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:58:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5CD220656;
-        Tue,  3 Dec 2019 22:58:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F30A820803;
+        Tue,  3 Dec 2019 22:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413935;
-        bh=VeOfFR/MlblkVzYBRlCoJb5qQ47Er/IwMm3cLCj+7mM=;
+        s=default; t=1575413938;
+        bh=fn5ihxksOkvHYhFfgCE8xyhI+MbV1Hr1ZAb+Xisteog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oi2zhyF0kp6Cmvw5tTHjt20ILNQNreX9HI/0LxSk2GwDnkQNSa/Ck4uVV3tEfLkbP
-         vg1ZLKjIRcaSstR9Pi9jNVawtyTN06HEGabEEWP5E4NRlocclMLGKTRz6o+K584Wtf
-         Xg71o8TokdRltTmvCOAorcP6kBjM0Ae3L1KpN8/M=
+        b=sdzZTV6ltYgz0zeUvWZSX3gxrEC/H/rW2epR1NgCt0KOz5tRoaTAPmLA2iCaiYSf3
+         JsjT5RaEO53Mp2mmbBhSEK3voOyK8f6dkKbmpKbulnpjNoeLW26lP19KL/ii9EVaPi
+         KBNXBDpZKhKImLeRufXt6A+pp7ZNB98Sqs52D3yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.19 319/321] dmaengine: stm32-dma: check whether length is aligned on FIFO threshold
-Date:   Tue,  3 Dec 2019 23:36:25 +0100
-Message-Id: <20191203223443.738270452@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 320/321] platform/x86: hp-wmi: Fix ACPI errors caused by too small buffer
+Date:   Tue,  3 Dec 2019 23:36:26 +0100
+Message-Id: <20191203223443.789772361@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,55 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit cc832dc8e32785a730ba07c3a357e17c201a5df8 upstream.
+commit 16245db1489cd9aa579506f64afeeeb13d825a93 upstream.
 
-When a period length is not multiple of FIFO some data may be stuck
-within FIFO.
+The HP WMI calls may take up to 128 bytes of data as input, and
+the AML methods implementing the WMI calls, declare a couple of fields for
+accessing input in different sizes, specifycally the HWMC method contains:
 
-Burst/FIFO Threshold/Period or buffer length check has to be hardened
+        CreateField (Arg1, 0x80, 0x0400, D128)
 
-In any case DMA will grant any request from client but will degraded
-any parameters whether awkward.
+Even though we do not use any of the WMI command-types which need a buffer
+of this size, the APCI interpreter still tries to create it as it is
+declared in generoc code at the top of the HWMC method which runs before
+the code looks at which command-type is requested.
 
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+This results in many of these errors on many different HP laptop models:
+
+[   14.459261] ACPI Error: Field [D128] at 1152 exceeds Buffer [NULL] size 160 (bits) (20170303/dsopcode-236)
+[   14.459268] ACPI Error: Method parse/execution failed [\HWMC] (Node ffff8edcc61507f8), AE_AML_BUFFER_LIMIT (20170303/psparse-543)
+[   14.459279] ACPI Error: Method parse/execution failed [\_SB.WMID.WMAA] (Node ffff8edcc61523c0), AE_AML_BUFFER_LIMIT (20170303/psparse-543)
+
+This commit increases the size of the data element of the bios_args struct
+to 128 bytes fixing these errors.
+
+Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197007
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201981
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1520703
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/stm32-dma.c |   20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ drivers/platform/x86/hp-wmi.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/dma/stm32-dma.c
-+++ b/drivers/dma/stm32-dma.c
-@@ -308,20 +308,12 @@ static bool stm32_dma_fifo_threshold_is_
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -78,7 +78,7 @@ struct bios_args {
+ 	u32 command;
+ 	u32 commandtype;
+ 	u32 datasize;
+-	u32 data;
++	u8 data[128];
+ };
  
- static bool stm32_dma_is_burst_possible(u32 buf_len, u32 threshold)
- {
--	switch (threshold) {
--	case STM32_DMA_FIFO_THRESHOLD_FULL:
--		if (buf_len >= STM32_DMA_MAX_BURST)
--			return true;
--		else
--			return false;
--	case STM32_DMA_FIFO_THRESHOLD_HALFFULL:
--		if (buf_len >= STM32_DMA_MAX_BURST / 2)
--			return true;
--		else
--			return false;
--	default:
--		return false;
--	}
-+	/*
-+	 * Buffer or period length has to be aligned on FIFO depth.
-+	 * Otherwise bytes may be stuck within FIFO at buffer or period
-+	 * length.
-+	 */
-+	return ((buf_len % ((threshold + 1) * 4)) == 0);
- }
+ enum hp_wmi_commandtype {
+@@ -229,7 +229,7 @@ static int hp_wmi_perform_query(int quer
+ 		.command = command,
+ 		.commandtype = query,
+ 		.datasize = insize,
+-		.data = 0,
++		.data = { 0 },
+ 	};
+ 	struct acpi_buffer input = { sizeof(struct bios_args), &args };
+ 	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
+@@ -241,7 +241,7 @@ static int hp_wmi_perform_query(int quer
  
- static u32 stm32_dma_get_best_burst(u32 buf_len, u32 max_burst, u32 threshold,
+ 	if (WARN_ON(insize > sizeof(args.data)))
+ 		return -EINVAL;
+-	memcpy(&args.data, buffer, insize);
++	memcpy(&args.data[0], buffer, insize);
+ 
+ 	wmi_evaluate_method(HPWMI_BIOS_GUID, 0, mid, &input, &output);
+ 
 
 
