@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC0A111D67
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:53:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C671E111C08
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729915AbfLCWxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:53:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46228 "EHLO mail.kernel.org"
+        id S1728232AbfLCWjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:39:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729296AbfLCWxI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:53:08 -0500
+        id S1727918AbfLCWje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:39:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 939F920866;
-        Tue,  3 Dec 2019 22:53:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AC702073C;
+        Tue,  3 Dec 2019 22:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413588;
-        bh=pBpKq8YAfrzjP6r5Cix8xgkbdENAqmPfCWGwTiL6DOs=;
+        s=default; t=1575412773;
+        bh=j9FuM004d7noslHy407gvNN4CA2tvw5TnqGfzR6rNZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PwYYSgnfOu5Yn8hlD96KVPGTexrrVKB9nCQNTRf+rKVPe1D02uAEs1q6shTk4XkDn
-         PS6wi9Rdm5gVNCH/aSie6P6k0VbmP5/Al7udqqbT6j7+8hEVO0Q8+U6r177VNK87SM
-         /qF2qsBfaiinXw5yMO37JDdqIq7169ZEqYVlaDZQ=
+        b=c47J8bSgurwap9xxhBNR2zDyh9b7MfSnqPbSffcR3hcVyKfNRBK73cnyaYNni4b+Y
+         szsj8oCf/wb3gwIxAZ+WvVSssxVnAGhd1xRHw16RmGPLthWCAG7NurHMUA9IGGxxG7
+         xEqoJeqeLL5Hg/sE2fJSaL4XpauY/slqeGszSrfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Xiaojun Sang <xsang@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 186/321] f2fs: fix to dirty inode synchronously
+Subject: [PATCH 5.3 012/135] ASoC: compress: fix unsigned integer overflow check
 Date:   Tue,  3 Dec 2019 23:34:12 +0100
-Message-Id: <20191203223436.798577872@linuxfoundation.org>
+Message-Id: <20191203213007.890854179@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Xiaojun Sang <xsang@codeaurora.org>
 
-[ Upstream commit b32e019049e959ee10ec359893c9dd5d057dad55 ]
+[ Upstream commit d3645b055399538415586ebaacaedebc1e5899b0 ]
 
-If user change inode's i_flags via ioctl, let's add it into global
-dirty list, so that checkpoint can guarantee its persistence before
-fsync, it can make checkpoint keeping strong consistency.
+Parameter fragments and fragment_size are type of u32. U32_MAX is
+the correct check.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Xiaojun Sang <xsang@codeaurora.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Acked-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20191021095432.5639-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 2 +-
+ sound/core/compress_offload.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index c7ea122997695..187bf7e260c99 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1667,7 +1667,7 @@ static int __f2fs_ioc_setflags(struct inode *inode, unsigned int flags)
- 
- 	inode->i_ctime = current_time(inode);
- 	f2fs_set_inode_flags(inode);
--	f2fs_mark_inode_dirty_sync(inode, false);
-+	f2fs_mark_inode_dirty_sync(inode, true);
- 	return 0;
- }
+diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
+index 41905afada63f..f34ce564d92c4 100644
+--- a/sound/core/compress_offload.c
++++ b/sound/core/compress_offload.c
+@@ -528,7 +528,7 @@ static int snd_compress_check_input(struct snd_compr_params *params)
+ {
+ 	/* first let's check the buffer parameter's */
+ 	if (params->buffer.fragment_size == 0 ||
+-	    params->buffer.fragments > INT_MAX / params->buffer.fragment_size ||
++	    params->buffer.fragments > U32_MAX / params->buffer.fragment_size ||
+ 	    params->buffer.fragments == 0)
+ 		return -EINVAL;
  
 -- 
 2.20.1
