@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF12111F2F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056DD111F29
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728799AbfLCWpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:45:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
+        id S1728904AbfLCWpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:45:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729032AbfLCWpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:45:21 -0500
+        id S1728714AbfLCWo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:44:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15D8220803;
-        Tue,  3 Dec 2019 22:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C632E20803;
+        Tue,  3 Dec 2019 22:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413120;
-        bh=MP99nh/TM0pE6NtJsYqybo9a6kDwZHzSSkrdsojSgnY=;
+        s=default; t=1575413099;
+        bh=ZAElCnF+kBhFRZbe6dsOPCbD8yjQ/4Ks1M5RIlRXWCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2a127N5pBW+yyL0dMYkngzWpfgdifzJ50DVvK9vywry3/JsJlDhRLMPjZLeF9dJLt
-         5mwSqvqZTfIySC+0bhqIuInP2byH3LSdgIehIaHlrYJXRciuk8WMwfhXj6sDG61GF0
-         /weuv7l76Ns6OSK8Vf1cCqcQaVwlpAwYCEH1e208=
+        b=RhT/eunyRVPZ+Cea9XDD9hBtUk3NDHhgymuFLECJrLYj37pnhBhc5TngMexOoEju0
+         XMTE7S3sWhDz+xurtP3LqwqQsvBO0gnDLaYkbzmXxzNhh4HK2ULZ8jFldKsJedA3ws
+         1PLF8Mu2v6A2Ni6SCI0Uuh6C+q+hZce6gm68cc6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Candle Sun <candle.sun@unisoc.com>,
-        Nianfu Bai <nianfu.bai@unisoc.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Siarhei Vishniakou <svv@google.com>
-Subject: [PATCH 5.3 133/135] HID: core: check whether Usage Page item is after Usage ID items
-Date:   Tue,  3 Dec 2019 23:36:13 +0100
-Message-Id: <20191203213045.992118661@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.3 135/135] platform/x86: hp-wmi: Fix ACPI errors caused by passing 0 as input size
+Date:   Tue,  3 Dec 2019 23:36:15 +0100
+Message-Id: <20191203213046.334463331@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -46,173 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Candle Sun <candle.sun@unisoc.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 1cb0d2aee26335d0bccf29100c7bed00ebece851 upstream.
+commit f3e4f3fc8ee9729c4b1b27a478c68b713df53c0c upstream.
 
-Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
-to Main item") adds support for Usage Page item after Usage ID items
-(such as keyboards manufactured by Primax).
+The AML code implementing the WMI methods creates a variable length
+field to hold the input data we pass like this:
 
-Usage Page concatenation in Main item works well for following report
-descriptor patterns:
+        CreateDWordField (Arg1, 0x0C, DSZI)
+        Local5 = DSZI /* \HWMC.DSZI */
+        CreateField (Arg1, 0x80, (Local5 * 0x08), DAIN)
 
-    USAGE_PAGE (Keyboard)                   05 07
-    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
-    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
-    LOGICAL_MINIMUM (0)                     15 00
-    LOGICAL_MAXIMUM (1)                     25 01
-    REPORT_SIZE (1)                         75 01
-    REPORT_COUNT (8)                        95 08
-    INPUT (Data,Var,Abs)                    81 02
+If we pass 0 as bios_args.datasize argument then (Local5 * 0x08)
+is 0 which results in these errors:
 
--------------
+[   71.973305] ACPI BIOS Error (bug): Attempt to CreateField of length zero (20190816/dsopcode-133)
+[   71.973332] ACPI Error: Aborting method \HWMC due to previous error (AE_AML_OPERAND_VALUE) (20190816/psparse-529)
+[   71.973413] ACPI Error: Aborting method \_SB.WMID.WMAA due to previous error (AE_AML_OPERAND_VALUE) (20190816/psparse-529)
 
-    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
-    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
-    LOGICAL_MINIMUM (0)                     15 00
-    LOGICAL_MAXIMUM (1)                     25 01
-    REPORT_SIZE (1)                         75 01
-    REPORT_COUNT (8)                        95 08
-    USAGE_PAGE (Keyboard)                   05 07
-    INPUT (Data,Var,Abs)                    81 02
+And in our HPWMI_WIRELESS2_QUERY calls always failing. for read commands
+like HPWMI_WIRELESS2_QUERY the DSZI value is not used / checked, except for
+read commands where extra input is needed to specify exactly what to read.
 
-But it makes the parser act wrong for the following report
-descriptor pattern(such as some Gamepads):
+So for HPWMI_WIRELESS2_QUERY we can safely pass the size of the expected
+output as insize to hp_wmi_perform_query(), as we are already doing for all
+other HPWMI_READ commands we send. Doing so fixes these errors.
 
-    USAGE_PAGE (Button)                     05 09
-    USAGE (Button 1)                        09 01
-    USAGE (Button 2)                        09 02
-    USAGE (Button 4)                        09 04
-    USAGE (Button 5)                        09 05
-    USAGE (Button 7)                        09 07
-    USAGE (Button 8)                        09 08
-    USAGE (Button 14)                       09 0E
-    USAGE (Button 15)                       09 0F
-    USAGE (Button 13)                       09 0D
-    USAGE_PAGE (Consumer Devices)           05 0C
-    USAGE (Back)                            0a 24 02
-    USAGE (HomePage)                        0a 23 02
-    LOGICAL_MINIMUM (0)                     15 00
-    LOGICAL_MAXIMUM (1)                     25 01
-    REPORT_SIZE (1)                         75 01
-    REPORT_COUNT (11)                       95 0B
-    INPUT (Data,Var,Abs)                    81 02
-
-With Usage Page concatenation in Main item, parser recognizes all the
-11 Usages as consumer keys, it is not the HID device's real intention.
-
-This patch checks whether Usage Page is really defined after Usage ID
-items by comparing usage page using status.
-
-Usage Page concatenation on currently defined Usage Page will always
-do in local parsing when Usage ID items encountered.
-
-When Main item is parsing, concatenation will do again with last
-defined Usage Page if this page has not been used in the previous
-usages concatenation.
-
-Signed-off-by: Candle Sun <candle.sun@unisoc.com>
-Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Cc: Siarhei Vishniakou <svv@google.com>
+Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197007
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201981
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1520703
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-core.c |   51 +++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 45 insertions(+), 6 deletions(-)
+ drivers/platform/x86/hp-wmi.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -212,6 +212,18 @@ static unsigned hid_lookup_collection(st
- }
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -380,7 +380,7 @@ static int hp_wmi_rfkill2_refresh(void)
+ 	int err, i;
  
- /*
-+ * Concatenate usage which defines 16 bits or less with the
-+ * currently defined usage page to form a 32 bit usage
-+ */
-+
-+static void complete_usage(struct hid_parser *parser, unsigned int index)
-+{
-+	parser->local.usage[index] &= 0xFFFF;
-+	parser->local.usage[index] |=
-+		(parser->global.usage_page & 0xFFFF) << 16;
-+}
-+
-+/*
-  * Add a usage to the temporary parser table.
-  */
+ 	err = hp_wmi_perform_query(HPWMI_WIRELESS2_QUERY, HPWMI_READ, &state,
+-				   0, sizeof(state));
++				   sizeof(state), sizeof(state));
+ 	if (err)
+ 		return err;
  
-@@ -222,6 +234,14 @@ static int hid_add_usage(struct hid_pars
- 		return -1;
- 	}
- 	parser->local.usage[parser->local.usage_index] = usage;
-+
-+	/*
-+	 * If Usage item only includes usage id, concatenate it with
-+	 * currently defined usage page
-+	 */
-+	if (size <= 2)
-+		complete_usage(parser, parser->local.usage_index);
-+
- 	parser->local.usage_size[parser->local.usage_index] = size;
- 	parser->local.collection_index[parser->local.usage_index] =
- 		parser->collection_stack_ptr ?
-@@ -543,13 +563,32 @@ static int hid_parser_local(struct hid_p
-  * usage value."
-  */
+@@ -777,7 +777,7 @@ static int __init hp_wmi_rfkill2_setup(s
+ 	int err, i;
  
--static void hid_concatenate_usage_page(struct hid_parser *parser)
-+static void hid_concatenate_last_usage_page(struct hid_parser *parser)
- {
- 	int i;
-+	unsigned int usage_page;
-+	unsigned int current_page;
-+
-+	if (!parser->local.usage_index)
-+		return;
- 
--	for (i = 0; i < parser->local.usage_index; i++)
--		if (parser->local.usage_size[i] <= 2)
--			parser->local.usage[i] += parser->global.usage_page << 16;
-+	usage_page = parser->global.usage_page;
-+
-+	/*
-+	 * Concatenate usage page again only if last declared Usage Page
-+	 * has not been already used in previous usages concatenation
-+	 */
-+	for (i = parser->local.usage_index - 1; i >= 0; i--) {
-+		if (parser->local.usage_size[i] > 2)
-+			/* Ignore extended usages */
-+			continue;
-+
-+		current_page = parser->local.usage[i] >> 16;
-+		if (current_page == usage_page)
-+			break;
-+
-+		complete_usage(parser, i);
-+	}
- }
- 
- /*
-@@ -561,7 +600,7 @@ static int hid_parser_main(struct hid_pa
- 	__u32 data;
- 	int ret;
- 
--	hid_concatenate_usage_page(parser);
-+	hid_concatenate_last_usage_page(parser);
- 
- 	data = item_udata(item);
- 
-@@ -772,7 +811,7 @@ static int hid_scan_main(struct hid_pars
- 	__u32 data;
- 	int i;
- 
--	hid_concatenate_usage_page(parser);
-+	hid_concatenate_last_usage_page(parser);
- 
- 	data = item_udata(item);
+ 	err = hp_wmi_perform_query(HPWMI_WIRELESS2_QUERY, HPWMI_READ, &state,
+-				   0, sizeof(state));
++				   sizeof(state), sizeof(state));
+ 	if (err)
+ 		return err < 0 ? err : -EINVAL;
  
 
 
