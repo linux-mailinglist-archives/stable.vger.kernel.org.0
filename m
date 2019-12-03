@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6399F111EAE
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AED111ED0
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:05:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbfLCXDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:03:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45356 "EHLO mail.kernel.org"
+        id S1729834AbfLCWvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:51:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730027AbfLCWwf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:52:35 -0500
+        id S1729829AbfLCWvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:51:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AC1720866;
-        Tue,  3 Dec 2019 22:52:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05ABF2054F;
+        Tue,  3 Dec 2019 22:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413554;
-        bh=fY0cUHA/BGwsaXhpKpud9uM8lZl5kyKXm4wqjazhbmM=;
+        s=default; t=1575413465;
+        bh=jbC6ZhBxthZDxgG7DkeDeiHxtbSvJq26q5IiyQFNSwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsV3j//8tn5+dnHpataQD0cBfu8ThIW4pudCaABl0c0rythiMjLVUeeXSOXdgCBwB
-         F1liGAqTAVMPOIw3aCqyo/zZsEiVzF52diw7tqgr9ZD2lJIpgWG+yJz9M33qp9jhXt
-         8pqBpPKZ27uBSKg6e7uw1DWEg0L14IOtzYNvJhcU=
+        b=lus3WQy6Pfrr+DL/VwSxegBxAwgevSkjB6tKiFgGwJBj0dd6ZUodW5xOUd2gentiz
+         LhAKeIwZmtlEQcfDs8EdjxxI+FR2dDHOBMSq0elyq9As46X04mUNdd+LJViLvz8w7h
+         gNtjQK5m3av33xNQB6GR7AqAYNrALjx4ahXwKGYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        John Crispin <john@phrozen.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/321] pinctrl: xway: fix gpio-hog related boot issues
-Date:   Tue,  3 Dec 2019 23:33:18 +0100
-Message-Id: <20191203223434.018968748@linuxfoundation.org>
+Subject: [PATCH 4.19 139/321] KVM: s390: unregister debug feature on failing arch init
+Date:   Tue,  3 Dec 2019 23:33:25 +0100
+Message-Id: <20191203223434.392479435@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,87 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Michael Mueller <mimu@linux.ibm.com>
 
-[ Upstream commit 9b4924da4711674e62d97d4f5360446cc78337af ]
+[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
 
-This patch is based on commit a86caa9ba5d7 ("pinctrl: msm: fix gpio-hog
-related boot issues").
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
 
-It fixes the issue that the gpio ranges needs to be defined before
-gpiochip_add().
+A related indication of the issue will be reported as kernel
+message.
 
-Therefore, we also have to swap the order of registering the pinctrl
-driver and registering the gpio chip.
-
-You also have to add the "gpio-ranges" property to the pinctrl device
-node to get it finally working.
-
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-Acked-by: John Crispin <john@phrozen.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-xway.c | 39 +++++++++++++++++++++++-----------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-xway.c b/drivers/pinctrl/pinctrl-xway.c
-index 93f8bd04e7fe6..ae74b260b014b 100644
---- a/drivers/pinctrl/pinctrl-xway.c
-+++ b/drivers/pinctrl/pinctrl-xway.c
-@@ -1746,14 +1746,6 @@ static int pinmux_xway_probe(struct platform_device *pdev)
- 	}
- 	xway_pctrl_desc.pins = xway_info.pads;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 3c317bc6b7997..db3196aebaa1c 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -416,19 +416,30 @@ static void kvm_s390_cpu_feat_init(void)
  
--	/* register the gpio chip */
--	xway_chip.parent = &pdev->dev;
--	ret = devm_gpiochip_add_data(&pdev->dev, &xway_chip, NULL);
--	if (ret) {
--		dev_err(&pdev->dev, "Failed to register gpio chip\n");
--		return ret;
--	}
--
- 	/* setup the data needed by pinctrl */
- 	xway_pctrl_desc.name	= dev_name(&pdev->dev);
- 	xway_pctrl_desc.npins	= xway_chip.ngpio;
-@@ -1775,10 +1767,33 @@ static int pinmux_xway_probe(struct platform_device *pdev)
- 		return ret;
+ int kvm_arch_init(void *opaque)
+ {
++	int rc;
++
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
+ 
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out_debug_unreg;
  	}
  
--	/* finish with registering the gpio range in pinctrl */
--	xway_gpio_range.npins = xway_chip.ngpio;
--	xway_gpio_range.base = xway_chip.base;
--	pinctrl_add_gpio_range(xway_info.pctrl, &xway_gpio_range);
-+	/* register the gpio chip */
-+	xway_chip.parent = &pdev->dev;
-+	xway_chip.owner = THIS_MODULE;
-+	xway_chip.of_node = pdev->dev.of_node;
-+	ret = devm_gpiochip_add_data(&pdev->dev, &xway_chip, NULL);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to register gpio chip\n");
-+		return ret;
+ 	kvm_s390_cpu_feat_init();
+ 
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
 +	}
++	return 0;
 +
-+	/*
-+	 * For DeviceTree-supported systems, the gpio core checks the
-+	 * pinctrl's device node for the "gpio-ranges" property.
-+	 * If it is present, it takes care of adding the pin ranges
-+	 * for the driver. In this case the driver can skip ahead.
-+	 *
-+	 * In order to remain compatible with older, existing DeviceTree
-+	 * files which don't set the "gpio-ranges" property or systems that
-+	 * utilize ACPI the driver has to call gpiochip_add_pin_range().
-+	 */
-+	if (!of_property_read_bool(pdev->dev.of_node, "gpio-ranges")) {
-+		/* finish with registering the gpio range in pinctrl */
-+		xway_gpio_range.npins = xway_chip.ngpio;
-+		xway_gpio_range.base = xway_chip.base;
-+		pinctrl_add_gpio_range(xway_info.pctrl, &xway_gpio_range);
-+	}
-+
- 	dev_info(&pdev->dev, "Init done\n");
- 	return 0;
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
  }
+ 
+ void kvm_arch_exit(void)
 -- 
 2.20.1
 
