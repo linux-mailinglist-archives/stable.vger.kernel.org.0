@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A541E111D8B
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1AB4111C35
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728566AbfLCWyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:54:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48538 "EHLO mail.kernel.org"
+        id S1728571AbfLCWli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:41:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727937AbfLCWyf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:54:35 -0500
+        id S1728010AbfLCWlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:41:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 157CC20866;
-        Tue,  3 Dec 2019 22:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC224206EC;
+        Tue,  3 Dec 2019 22:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413675;
-        bh=cvFZvCXWVi56kGin9wBixbYsa4vDrv6sQdpsJCuvV0I=;
+        s=default; t=1575412896;
+        bh=rVZzP/AuY95X8lLF2WPC13H6Ownzzvvg4e07Aeokemg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHSXQvwT/++yF7cxqziH3bKfUNTasYBIZ+IUYnhfuCRIpxZ/AJpjooTKEAxYrEIu5
-         Kc/clvb/1afVSPk80CvwkO+d2O2rPQWX2VcE+4sjbV8ZmRN09OKVcipgyliO83/8oO
-         zk5fzPX7ChHpN6HypFNFytqtIpGJCsnY+LlMomVM=
+        b=phDpWh07NSfw36yYfTK2zYGmngx1k4BiMG4iGPP2dOmTlpsob2Aj8Ao/wQGIHjAUX
+         fGnBL/Jl/bCWT/Lq8S14Cq//CVy+/3xRlNkHnmDHSOzdufEiIiFbycceHrM3x3K+Oq
+         Ib99zmdmUZ1Pg0l8jDQVL1ftpDc8GVabXYSmHcws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Shijie <sjhuang@iluvatar.ai>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Skidanov <alexey.skidanov@intel.com>,
-        Olof Johansson <olof@lixom.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, noreply@ellerman.id.au,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 212/321] lib/genalloc.c: include vmalloc.h
-Date:   Tue,  3 Dec 2019 23:34:38 +0100
-Message-Id: <20191203223438.149719034@linuxfoundation.org>
+Subject: [PATCH 5.3 041/135] fbdev: c2p: Fix link failure on non-inlining
+Date:   Tue,  3 Dec 2019 23:34:41 +0100
+Message-Id: <20191203213014.848583874@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olof Johansson <olof@lixom.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 35004f2e55807a1a1491db24ab512dd2f770a130 ]
+[ Upstream commit b330f3972f4f2a829d41fb9e9b552bec7d73a840 ]
 
-Fixes build break on most ARM/ARM64 defconfigs:
+When the compiler decides not to inline the Chunky-to-Planar core
+functions, the build fails with:
 
-  lib/genalloc.c: In function 'gen_pool_add_virt':
-  lib/genalloc.c:190:10: error: implicit declaration of function 'vzalloc_node'; did you mean 'kzalloc_node'?
-  lib/genalloc.c:190:8: warning: assignment to 'struct gen_pool_chunk *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
-  lib/genalloc.c: In function 'gen_pool_destroy':
-  lib/genalloc.c:254:3: error: implicit declaration of function 'vfree'; did you mean 'kfree'?
+    c2p_planar.c:(.text+0xd6): undefined reference to `c2p_unsupported'
+    c2p_planar.c:(.text+0x1dc): undefined reference to `c2p_unsupported'
+    c2p_iplan2.c:(.text+0xc4): undefined reference to `c2p_unsupported'
+    c2p_iplan2.c:(.text+0x150): undefined reference to `c2p_unsupported'
 
-Fixes: 6862d2fc8185 ('lib/genalloc.c: use vzalloc_node() to allocate the bitmap')
-Cc: Huang Shijie <sjhuang@iluvatar.ai>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexey Skidanov <alexey.skidanov@intel.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fix this by marking the functions __always_inline.
+
+While this could be triggered before by manually enabling both
+CONFIG_OPTIMIZE_INLINING and CONFIG_CC_OPTIMIZE_FOR_SIZE, it was exposed
+in the m68k defconfig by commit ac7c3e4ff401b304 ("compiler: enable
+CONFIG_OPTIMIZE_INLINING forcibly").
+
+Fixes: 9012d011660ea5cf ("compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING")
+Reported-by: noreply@ellerman.id.au
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190927094708.11563-1-geert@linux-m68k.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/genalloc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/c2p_core.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/lib/genalloc.c b/lib/genalloc.c
-index f365d71cdc774..7e85d1e37a6ea 100644
---- a/lib/genalloc.c
-+++ b/lib/genalloc.c
-@@ -35,6 +35,7 @@
- #include <linux/interrupt.h>
- #include <linux/genalloc.h>
- #include <linux/of_device.h>
-+#include <linux/vmalloc.h>
+diff --git a/drivers/video/fbdev/c2p_core.h b/drivers/video/fbdev/c2p_core.h
+index e1035a865fb94..45a6d895a7d72 100644
+--- a/drivers/video/fbdev/c2p_core.h
++++ b/drivers/video/fbdev/c2p_core.h
+@@ -29,7 +29,7 @@ static inline void _transp(u32 d[], unsigned int i1, unsigned int i2,
  
- static inline size_t chunk_size(const struct gen_pool_chunk *chunk)
+ extern void c2p_unsupported(void);
+ 
+-static inline u32 get_mask(unsigned int n)
++static __always_inline u32 get_mask(unsigned int n)
  {
+ 	switch (n) {
+ 	case 1:
+@@ -57,7 +57,7 @@ static inline u32 get_mask(unsigned int n)
+      *  Transpose operations on 8 32-bit words
+      */
+ 
+-static inline void transp8(u32 d[], unsigned int n, unsigned int m)
++static __always_inline void transp8(u32 d[], unsigned int n, unsigned int m)
+ {
+ 	u32 mask = get_mask(n);
+ 
+@@ -99,7 +99,7 @@ static inline void transp8(u32 d[], unsigned int n, unsigned int m)
+      *  Transpose operations on 4 32-bit words
+      */
+ 
+-static inline void transp4(u32 d[], unsigned int n, unsigned int m)
++static __always_inline void transp4(u32 d[], unsigned int n, unsigned int m)
+ {
+ 	u32 mask = get_mask(n);
+ 
+@@ -126,7 +126,7 @@ static inline void transp4(u32 d[], unsigned int n, unsigned int m)
+      *  Transpose operations on 4 32-bit words (reverse order)
+      */
+ 
+-static inline void transp4x(u32 d[], unsigned int n, unsigned int m)
++static __always_inline void transp4x(u32 d[], unsigned int n, unsigned int m)
+ {
+ 	u32 mask = get_mask(n);
+ 
 -- 
 2.20.1
 
