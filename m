@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 759D8111EAC
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9C9111ED1
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:05:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727864AbfLCXDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:03:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45676 "EHLO mail.kernel.org"
+        id S1729667AbfLCWu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:50:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730042AbfLCWwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:52:45 -0500
+        id S1729594AbfLCWuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:50:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AA80214AF;
-        Tue,  3 Dec 2019 22:52:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F8A32054F;
+        Tue,  3 Dec 2019 22:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413564;
-        bh=Ql9x8nBLRruSTrj/axpdo25m6wC+H80WPeR0h+hYPu4=;
+        s=default; t=1575413454;
+        bh=UxEp8ox6OzQg67AWkKUhgIDhv14VbLfTIqTETNkCDyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWhrUVIn8MrwDpDmw5s8aM8Jp2175+CCc+UsKc66ZUQENm/qWWyowmg7Qf/IJNOdt
-         TQSx7E32GLJSruAiSVVos0KHXfPlKRHHakYJ4Q7EPKR/C/EqrZgSgA+NYb2UvXerOX
-         KjwDKrQCqrKXwyIJSLmGwL4Ff42pGI2GKI3i02nU=
+        b=mjEFN5Rqe6ezSQRiwre4KETt4a5uKtX12TjWbXbpn0OXgCyZPQRnECWYmThQZW2jh
+         4RvBVsP8f2Tw6bRmpDj+vajFbTcsepjFCy8Prlimp1a72B3fl9NIdqEIANaKcPxxLR
+         z4bmB2B7ZuherE4DZmSIbWCz8MamoSPOqVySNdVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <righi.andrea@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 126/321] kprobes/x86/xen: blacklist non-attachable xen interrupt functions
-Date:   Tue,  3 Dec 2019 23:33:12 +0100
-Message-Id: <20191203223433.708420039@linuxfoundation.org>
+Subject: [PATCH 4.19 127/321] xen/pciback: Check dev_data before using it
+Date:   Tue,  3 Dec 2019 23:33:13 +0100
+Message-Id: <20191203223433.759938991@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,43 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <righi.andrea@gmail.com>
+From: Ross Lagerwall <ross.lagerwall@citrix.com>
 
-[ Upstream commit bf9445a33ae6ac2f0822d2f1ce1365408387d568 ]
+[ Upstream commit 1669907e3d1abfa3f7586e2d55dbbc117b5adba2 ]
 
-Blacklist symbols in Xen probe-prohibited areas, so that user can see
-these prohibited symbols in debugfs.
+If pcistub_init_device fails, the release function will be called with
+dev_data set to NULL.  Check it before using it to avoid a NULL pointer
+dereference.
 
-See also: a50480cb6d61.
-
-Signed-off-by: Andrea Righi <righi.andrea@gmail.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/xen-asm_64.S | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/xen/xen-pciback/pci_stub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/xen-asm_64.S b/arch/x86/xen/xen-asm_64.S
-index 3a6feed76dfc1..a93d8a7cef26c 100644
---- a/arch/x86/xen/xen-asm_64.S
-+++ b/arch/x86/xen/xen-asm_64.S
-@@ -12,6 +12,7 @@
- #include <asm/segment.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
-+#include <asm/asm.h>
- 
- #include <xen/interface/xen.h>
- 
-@@ -24,6 +25,7 @@ ENTRY(xen_\name)
- 	pop %r11
- 	jmp  \name
- END(xen_\name)
-+_ASM_NOKPROBE(xen_\name)
- .endm
- 
- xen_pv_trap divide_error
+diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-pciback/pci_stub.c
+index 59661db144e51..097410a7cdb74 100644
+--- a/drivers/xen/xen-pciback/pci_stub.c
++++ b/drivers/xen/xen-pciback/pci_stub.c
+@@ -106,7 +106,8 @@ static void pcistub_device_release(struct kref *kref)
+ 	 * is called from "unbind" which takes a device_lock mutex.
+ 	 */
+ 	__pci_reset_function_locked(dev);
+-	if (pci_load_and_free_saved_state(dev, &dev_data->pci_saved_state))
++	if (dev_data &&
++	    pci_load_and_free_saved_state(dev, &dev_data->pci_saved_state))
+ 		dev_info(&dev->dev, "Could not reload PCI state\n");
+ 	else
+ 		pci_restore_state(dev);
 -- 
 2.20.1
 
