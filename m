@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76474111F09
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBB5111F07
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727908AbfLCXGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:06:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39054 "EHLO mail.kernel.org"
+        id S1729434AbfLCWs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:48:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728187AbfLCWsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:48:25 -0500
+        id S1729317AbfLCWs2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:48:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC31820656;
-        Tue,  3 Dec 2019 22:48:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3526820862;
+        Tue,  3 Dec 2019 22:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413305;
-        bh=cWK1kp03Or15lWIONAwKQIPs6G7BvNiBb99QgZGfv+E=;
+        s=default; t=1575413307;
+        bh=MqOdMBcFN7cKpxoPq7s5s29VjuTXuCthvZFz0pCPqiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v5eG8xQVh++RcJ5Jxwzuaq/0BG0YtQFdwcu7O52PpW2kCUlF4CfMi1KobdjYnEW4e
-         00Bnp67dLjRNPIy2dcEDgyn11DzOYHm4jPQS6VONtG4TUkHwTsudUBH8VXZS9VHBBK
-         pIBOeQNlYnGDAWJV2HCV/MNslb6Vi3ZHS44q1erI=
+        b=xVnuhXVWZfmQ7YneRNSsKvFjG9SGzV2N2VF9tCs6KbPohVzkh7eFeTVOdSfqy4DDB
+         16t7c0RPHGyVtOVkZf/bpNb0pgTqw7y6GtdnlLssfw6Kdocv8Sj1ZT4mQ1/2Pi/Qop
+         umZ8XFE5rENHQR+JqLshkg0AYlC/eT7r8zJTVAfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Ou <oulijun@huawei.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Will Deacon <will.deacon@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 076/321] RDMA/hns: Fix the bug while use multi-hop of pbl
-Date:   Tue,  3 Dec 2019 23:32:22 +0100
-Message-Id: <20191203223431.115229525@linuxfoundation.org>
+Subject: [PATCH 4.19 077/321] arm64: preempt: Fix big-endian when checking preempt count in assembly
+Date:   Tue,  3 Dec 2019 23:32:23 +0100
+Message-Id: <20191203223431.166680020@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -44,40 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Ou <oulijun@huawei.com>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit 4af07f01f7a787ba5158352b98c9e3cb74995a1c ]
+[ Upstream commit 7faa313f05cad184e8b17750f0cbe5216ac6debb ]
 
-It will prevent multiply overflow when defines the pbl for u64 type.
+Commit 396244692232 ("arm64: preempt: Provide our own implementation of
+asm/preempt.h") extended the preempt count field in struct thread_info
+to 64 bits, so that it consists of a 32-bit count plus a 32-bit flag
+indicating whether or not the current task needs rescheduling.
 
-Signed-off-by: Lijun Ou <oulijun@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Whilst the asm-offsets definition of TSK_TI_PREEMPT was updated to point
+to this new field, the assembly usage was left untouched meaning that a
+32-bit load from TSK_TI_PREEMPT on a big-endian machine actually returns
+the reschedule flag instead of the count.
+
+Whilst we could fix this by pointing TSK_TI_PREEMPT at the count field,
+we're actually better off reworking the two assembly users so that they
+operate on the whole 64-bit value in favour of inspecting the thread
+flags separately in order to determine whether a reschedule is needed.
+
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Tested-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_mr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/assembler.h | 8 +++-----
+ arch/arm64/kernel/entry.S          | 6 ++----
+ 2 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
-index 41a538d23b802..c68596d4e8037 100644
---- a/drivers/infiniband/hw/hns/hns_roce_mr.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
-@@ -1017,14 +1017,14 @@ struct ib_mr *hns_roce_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
- 			goto err_umem;
- 		}
- 	} else {
--		int pbl_size = 1;
-+		u64 pbl_size = 1;
+diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+index 5a97ac8531682..0c100506a29aa 100644
+--- a/arch/arm64/include/asm/assembler.h
++++ b/arch/arm64/include/asm/assembler.h
+@@ -683,11 +683,9 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
+ 	.macro		if_will_cond_yield_neon
+ #ifdef CONFIG_PREEMPT
+ 	get_thread_info	x0
+-	ldr		w1, [x0, #TSK_TI_PREEMPT]
+-	ldr		x0, [x0, #TSK_TI_FLAGS]
+-	cmp		w1, #PREEMPT_DISABLE_OFFSET
+-	csel		x0, x0, xzr, eq
+-	tbnz		x0, #TIF_NEED_RESCHED, .Lyield_\@	// needs rescheduling?
++	ldr		x0, [x0, #TSK_TI_PREEMPT]
++	sub		x0, x0, #PREEMPT_DISABLE_OFFSET
++	cbz		x0, .Lyield_\@
+ 	/* fall through to endif_yield_neon */
+ 	.subsection	1
+ .Lyield_\@ :
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index 5f800384cb9a8..bb68323530458 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -622,10 +622,8 @@ el1_irq:
+ 	irq_handler
  
- 		bt_size = (1 << (hr_dev->caps.pbl_ba_pg_sz + PAGE_SHIFT)) / 8;
- 		for (i = 0; i < hr_dev->caps.pbl_hop_num; i++)
- 			pbl_size *= bt_size;
- 		if (n > pbl_size) {
- 			dev_err(dev,
--			    " MR len %lld err. MR page num is limited to %d!\n",
-+			    " MR len %lld err. MR page num is limited to %lld!\n",
- 			    length, pbl_size);
- 			ret = -EINVAL;
- 			goto err_umem;
+ #ifdef CONFIG_PREEMPT
+-	ldr	w24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
+-	cbnz	w24, 1f				// preempt count != 0
+-	ldr	x0, [tsk, #TSK_TI_FLAGS]	// get flags
+-	tbz	x0, #TIF_NEED_RESCHED, 1f	// needs rescheduling?
++	ldr	x24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
++	cbnz	x24, 1f				// preempt count != 0
+ 	bl	el1_preempt
+ 1:
+ #endif
 -- 
 2.20.1
 
