@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A757C111D7E
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94907111D80
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730242AbfLCWyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:54:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47764 "EHLO mail.kernel.org"
+        id S1729974AbfLCWyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:54:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728742AbfLCWyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:54:05 -0500
+        id S1730122AbfLCWyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:54:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1AA720674;
-        Tue,  3 Dec 2019 22:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A87420674;
+        Tue,  3 Dec 2019 22:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413645;
-        bh=AK+0iL2K88+4zjkWg6cRz/Q8lxIKszoqmc5G3IFXL+c=;
+        s=default; t=1575413650;
+        bh=JB48OivgvDkEPWzY0v698UMzPguwajsoOOPQ3FdxZNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8oQiIuKMuTIIUOJEXpJQp9nVrXkc2OpeVg1Q9Q2ozzyKPT8qgrdBIfpn3n+fopk1
-         34KTMIhVErLzdt1siSMOjVeNMgc4x/V50ZEfXYbxx2avCdPE3CzMj5/UGJjGZXtyVs
-         23XbTqnC3r3nSIJtex/GxNEisWbEAw4K1cGhV9nk=
+        b=VUVnbCgqXmMqvBRi/nfuzQ36+s/UCczXQBpB8mtlfkQDCYygTAKXJMQ3CFKBSOeTF
+         946ZyJcrhHRzS6+6Gbq+vAjsZDx1wj66f/13PEi9yXmNdqZvogpi/LMniDHoBVlKAb
+         PnKOrrGPtv69fIGyZdWAAHYkSex3/Lbvc51YLie4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
+        Alexey Skidanov <alexey.skidanov@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Daniel Mentz <danielmentz@google.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Laura Abbott <labbott@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 206/321] firmware: arm_sdei: fix wrong of_node_put() in init function
-Date:   Tue,  3 Dec 2019 23:34:32 +0100
-Message-Id: <20191203223437.838369982@linuxfoundation.org>
+Subject: [PATCH 4.19 208/321] lib/genalloc.c: fix allocation of aligned buffer from non-aligned chunk
+Date:   Tue,  3 Dec 2019 23:34:34 +0100
+Message-Id: <20191203223437.943364296@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -46,38 +50,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Alexey Skidanov <alexey.skidanov@intel.com>
 
-[ Upstream commit c3790b3799f8d75d93d26f6fd7bb569fc8c8b0cb ]
+[ Upstream commit 52fbf1134d479234d7e64ba9dcbaea23405f229e ]
 
-After finding a "firmware" dt node arm_sdei tries to match it's
-compatible string with it. To do so it's calling of_find_matching_node()
-which already takes care of decreasing the refcount on the "firmware"
-node. We are then incorrectly decreasing the refcount on that node
-again.
+gen_pool_alloc_algo() uses different allocation functions implementing
+different allocation algorithms.  With gen_pool_first_fit_align()
+allocation function, the returned address should be aligned on the
+requested boundary.
 
-This patch removes the unwarranted call to of_node_put().
+If chunk start address isn't aligned on the requested boundary, the
+returned address isn't aligned too.  The only way to get properly
+aligned address is to initialize the pool with chunks aligned on the
+requested boundary.  If want to have an ability to allocate buffers
+aligned on different boundaries (for example, 4K, 1MB, ...), the chunk
+start address should be aligned on the max possible alignment.
 
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+This happens because gen_pool_first_fit_align() looks for properly
+aligned memory block without taking into account the chunk start address
+alignment.
+
+To fix this, we provide chunk start address to
+gen_pool_first_fit_align() and change its implementation such that it
+starts looking for properly aligned block with appropriate offset
+(exactly as is done in CMA).
+
+Link: https://lkml.kernel.org/lkml/a170cf65-6884-3592-1de9-4c235888cc8a@intel.com
+Link: http://lkml.kernel.org/r/1541690953-4623-1-git-send-email-alexey.skidanov@intel.com
+Signed-off-by: Alexey Skidanov <alexey.skidanov@intel.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Daniel Mentz <danielmentz@google.com>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Laura Abbott <labbott@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_sdei.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/linux/genalloc.h | 13 +++++++------
+ lib/genalloc.c           | 20 ++++++++++++--------
+ 2 files changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/firmware/arm_sdei.c b/drivers/firmware/arm_sdei.c
-index 1ea71640fdc21..dffb47c6b4801 100644
---- a/drivers/firmware/arm_sdei.c
-+++ b/drivers/firmware/arm_sdei.c
-@@ -1017,7 +1017,6 @@ static bool __init sdei_present_dt(void)
- 		return false;
+diff --git a/include/linux/genalloc.h b/include/linux/genalloc.h
+index 872f930f1b06d..dd0a452373e71 100644
+--- a/include/linux/genalloc.h
++++ b/include/linux/genalloc.h
+@@ -51,7 +51,8 @@ typedef unsigned long (*genpool_algo_t)(unsigned long *map,
+ 			unsigned long size,
+ 			unsigned long start,
+ 			unsigned int nr,
+-			void *data, struct gen_pool *pool);
++			void *data, struct gen_pool *pool,
++			unsigned long start_addr);
  
- 	np = of_find_matching_node(fw_np, sdei_of_match);
--	of_node_put(fw_np);
- 	if (!np)
- 		return false;
+ /*
+  *  General purpose special memory pool descriptor.
+@@ -131,24 +132,24 @@ extern void gen_pool_set_algo(struct gen_pool *pool, genpool_algo_t algo,
  
+ extern unsigned long gen_pool_first_fit(unsigned long *map, unsigned long size,
+ 		unsigned long start, unsigned int nr, void *data,
+-		struct gen_pool *pool);
++		struct gen_pool *pool, unsigned long start_addr);
+ 
+ extern unsigned long gen_pool_fixed_alloc(unsigned long *map,
+ 		unsigned long size, unsigned long start, unsigned int nr,
+-		void *data, struct gen_pool *pool);
++		void *data, struct gen_pool *pool, unsigned long start_addr);
+ 
+ extern unsigned long gen_pool_first_fit_align(unsigned long *map,
+ 		unsigned long size, unsigned long start, unsigned int nr,
+-		void *data, struct gen_pool *pool);
++		void *data, struct gen_pool *pool, unsigned long start_addr);
+ 
+ 
+ extern unsigned long gen_pool_first_fit_order_align(unsigned long *map,
+ 		unsigned long size, unsigned long start, unsigned int nr,
+-		void *data, struct gen_pool *pool);
++		void *data, struct gen_pool *pool, unsigned long start_addr);
+ 
+ extern unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
+ 		unsigned long start, unsigned int nr, void *data,
+-		struct gen_pool *pool);
++		struct gen_pool *pool, unsigned long start_addr);
+ 
+ 
+ extern struct gen_pool *devm_gen_pool_create(struct device *dev,
+diff --git a/lib/genalloc.c b/lib/genalloc.c
+index ca06adc4f4451..5deb25c40a5a1 100644
+--- a/lib/genalloc.c
++++ b/lib/genalloc.c
+@@ -311,7 +311,7 @@ unsigned long gen_pool_alloc_algo(struct gen_pool *pool, size_t size,
+ 		end_bit = chunk_size(chunk) >> order;
+ retry:
+ 		start_bit = algo(chunk->bits, end_bit, start_bit,
+-				 nbits, data, pool);
++				 nbits, data, pool, chunk->start_addr);
+ 		if (start_bit >= end_bit)
+ 			continue;
+ 		remain = bitmap_set_ll(chunk->bits, start_bit, nbits);
+@@ -525,7 +525,7 @@ EXPORT_SYMBOL(gen_pool_set_algo);
+  */
+ unsigned long gen_pool_first_fit(unsigned long *map, unsigned long size,
+ 		unsigned long start, unsigned int nr, void *data,
+-		struct gen_pool *pool)
++		struct gen_pool *pool, unsigned long start_addr)
+ {
+ 	return bitmap_find_next_zero_area(map, size, start, nr, 0);
+ }
+@@ -543,16 +543,19 @@ EXPORT_SYMBOL(gen_pool_first_fit);
+  */
+ unsigned long gen_pool_first_fit_align(unsigned long *map, unsigned long size,
+ 		unsigned long start, unsigned int nr, void *data,
+-		struct gen_pool *pool)
++		struct gen_pool *pool, unsigned long start_addr)
+ {
+ 	struct genpool_data_align *alignment;
+-	unsigned long align_mask;
++	unsigned long align_mask, align_off;
+ 	int order;
+ 
+ 	alignment = data;
+ 	order = pool->min_alloc_order;
+ 	align_mask = ((alignment->align + (1UL << order) - 1) >> order) - 1;
+-	return bitmap_find_next_zero_area(map, size, start, nr, align_mask);
++	align_off = (start_addr & (alignment->align - 1)) >> order;
++
++	return bitmap_find_next_zero_area_off(map, size, start, nr,
++					      align_mask, align_off);
+ }
+ EXPORT_SYMBOL(gen_pool_first_fit_align);
+ 
+@@ -567,7 +570,7 @@ EXPORT_SYMBOL(gen_pool_first_fit_align);
+  */
+ unsigned long gen_pool_fixed_alloc(unsigned long *map, unsigned long size,
+ 		unsigned long start, unsigned int nr, void *data,
+-		struct gen_pool *pool)
++		struct gen_pool *pool, unsigned long start_addr)
+ {
+ 	struct genpool_data_fixed *fixed_data;
+ 	int order;
+@@ -601,7 +604,8 @@ EXPORT_SYMBOL(gen_pool_fixed_alloc);
+  */
+ unsigned long gen_pool_first_fit_order_align(unsigned long *map,
+ 		unsigned long size, unsigned long start,
+-		unsigned int nr, void *data, struct gen_pool *pool)
++		unsigned int nr, void *data, struct gen_pool *pool,
++		unsigned long start_addr)
+ {
+ 	unsigned long align_mask = roundup_pow_of_two(nr) - 1;
+ 
+@@ -624,7 +628,7 @@ EXPORT_SYMBOL(gen_pool_first_fit_order_align);
+  */
+ unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
+ 		unsigned long start, unsigned int nr, void *data,
+-		struct gen_pool *pool)
++		struct gen_pool *pool, unsigned long start_addr)
+ {
+ 	unsigned long start_bit = size;
+ 	unsigned long len = size + 1;
 -- 
 2.20.1
 
