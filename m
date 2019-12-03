@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 411D9111E83
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20E35111FEB
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbfLCWyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:54:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47636 "EHLO mail.kernel.org"
+        id S1728393AbfLCWk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:40:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730087AbfLCWyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:54:00 -0500
+        id S1727635AbfLCWk1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:40:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1550520674;
-        Tue,  3 Dec 2019 22:53:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12F5920684;
+        Tue,  3 Dec 2019 22:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413639;
-        bh=aSTWXn1mXOhWQyL0OsDJGPKyYnCAWp191htXRIztyUw=;
+        s=default; t=1575412826;
+        bh=4kPvRMRLgZy/2VSwiRkaGhNj7f40GzKfVOJEh+tET2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OT1Gik5a9+RO5lHEswtIkJN8pem/tXRF2YJvlDukbB2RzrE4G1ha3aQAbsfd0uCL9
-         mDi2Dl+GyvLR64SSPw+jGYNbSaTUCLTF4lw0pyznmqBxBVV96/7SWTmsYiO3nhaOn5
-         iqi8pieMmu0O6u0xnRf/sWuc1gMb31zNUYl38lUs=
+        b=dXdOrqY8t7AbY4aU/csztt7ThLQJfmVwmio20rooTPT5zERJaYdWfIz7x92KEbhYD
+         Md0zawZPNPSXIVWwihDdEKJzHAYsKDZc9vRMIf5nhNnhjlPgg2x7Lh0qf4z3CgtcEQ
+         kHKH9OX8E19VdClZz4GESijQg9v+4P5d+2sZ3WHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Devesh Sharma <devesh.sharma@broadcom.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Maxime Ripard <mripard@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 204/321] infiniband: bnxt_re: qplib: Check the return value of send_message
+Subject: [PATCH 5.3 030/135] clk: sunxi-ng: a80: fix the zeroing of bits 16 and 18
 Date:   Tue,  3 Dec 2019 23:34:30 +0100
-Message-Id: <20191203223437.734205800@linuxfoundation.org>
+Message-Id: <20191203213011.985095233@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 94edd87a1c59f3efa6fdf4e98d6d492e6cec6173 ]
+[ Upstream commit cdfc2e2086bf9c465f44e2db25561373b084a113 ]
 
-In bnxt_qplib_map_tc2cos(), bnxt_qplib_rcfw_send_message() can return an
-error value but it is lost. Propagate this error to the callers.
+The zero'ing of bits 16 and 18 is incorrect. Currently the code
+is masking with the bitwise-and of BIT(16) & BIT(18) which is
+0, so the updated value for val is always zero. Fix this by bitwise
+and-ing value with the correct mask that will zero bits 16 and 18.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Acked-By: Devesh Sharma <devesh.sharma@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Addresses-Coverity: (" Suspicious &= or |= constant expression")
+Fixes: b8eb71dcdd08 ("clk: sunxi-ng: Add A80 CCU")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Maxime Ripard <mripard@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/qplib_sp.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/clk/sunxi-ng/ccu-sun9i-a80.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_sp.c b/drivers/infiniband/hw/bnxt_re/qplib_sp.c
-index 4097f3fa25c5f..09e7d3dd30553 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_sp.c
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_sp.c
-@@ -775,9 +775,8 @@ int bnxt_qplib_map_tc2cos(struct bnxt_qplib_res *res, u16 *cids)
- 	req.cos0 = cpu_to_le16(cids[0]);
- 	req.cos1 = cpu_to_le16(cids[1]);
+diff --git a/drivers/clk/sunxi-ng/ccu-sun9i-a80.c b/drivers/clk/sunxi-ng/ccu-sun9i-a80.c
+index dcac1391767f6..ef29582676f6e 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun9i-a80.c
++++ b/drivers/clk/sunxi-ng/ccu-sun9i-a80.c
+@@ -1224,7 +1224,7 @@ static int sun9i_a80_ccu_probe(struct platform_device *pdev)
  
--	bnxt_qplib_rcfw_send_message(rcfw, (void *)&req, (void *)&resp, NULL,
--				     0);
--	return 0;
-+	return bnxt_qplib_rcfw_send_message(rcfw, (void *)&req, (void *)&resp,
-+						NULL, 0);
- }
+ 	/* Enforce d1 = 0, d2 = 0 for Audio PLL */
+ 	val = readl(reg + SUN9I_A80_PLL_AUDIO_REG);
+-	val &= (BIT(16) & BIT(18));
++	val &= ~(BIT(16) | BIT(18));
+ 	writel(val, reg + SUN9I_A80_PLL_AUDIO_REG);
  
- int bnxt_qplib_get_roce_stats(struct bnxt_qplib_rcfw *rcfw,
+ 	/* Enforce P = 1 for both CPU cluster PLLs */
 -- 
 2.20.1
 
