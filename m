@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6BB6111DD4
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:57:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB89B111BE9
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728621AbfLCW5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:57:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53232 "EHLO mail.kernel.org"
+        id S1728010AbfLCWia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:38:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728147AbfLCW5a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:57:30 -0500
+        id S1728005AbfLCWi3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:38:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C711D2053B;
-        Tue,  3 Dec 2019 22:57:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA27120684;
+        Tue,  3 Dec 2019 22:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413850;
-        bh=cHqf/GDQkrLblnHXVBJEh3Se7p/h8tmHw77chspOyJs=;
+        s=default; t=1575412709;
+        bh=9dFJH4pPKlk5GhffhpQUM7dSEIwNSARrX0h+XxeiS18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjh4+GgHDM6oqb6pnA6MRwyttPQkIQlhCeGetcVfBun0Vf0q56zDCrQm3+HGSmIHN
-         N9pc46vovQEO1aSFW+XyqBGI3+3zeaO1o/YTTnFbN8yuBxOgzwqogdCoXHSJYd80E4
-         wFEgh1RceIeRIadm3G76ZrumJg4yn+Q7JnF7Et3I=
+        b=NrsBZ35hv2/L+9+GwdaL/ONME8t97sunjN1Io1vLw8Muz5MOtEOJ28Df3b1vdi00P
+         LwFDS1uCwdw5VWBlyYGdF0+E6e+7OUFgq8m4BahkVFV9PSya7VQo2IZPBAfCQHqmt5
+         j4rC3lTVza4BN/9j8zH2j7yVhZM8RXb2FS4OBJMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.19 285/321] sctp: Fix memory leak in sctp_sf_do_5_2_4_dupcook
-Date:   Tue,  3 Dec 2019 23:35:51 +0100
-Message-Id: <20191203223441.964341526@linuxfoundation.org>
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 33/46] net/tls: remove the dead inplace_crypto code
+Date:   Tue,  3 Dec 2019 23:35:53 +0100
+Message-Id: <20191203212753.658284453@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit b6631c6031c746ed004c4221ec0616d7a520f441 ]
+[ Upstream commit 9e5ffed37df68d0ccfb2fdc528609e23a1e70ebe ]
 
-In the implementation of sctp_sf_do_5_2_4_dupcook() the allocated
-new_asoc is leaked if security_sctp_assoc_request() fails. Release it
-via sctp_association_free().
+Looks like when BPF support was added by commit d3b18ad31f93
+("tls: add bpf support to sk_msg handling") and
+commit d829e9c4112b ("tls: convert to generic sk_msg interface")
+it broke/removed the support for in-place crypto as added by
+commit 4e6d47206c32 ("tls: Add support for inplace records
+encryption").
 
-Fixes: 2277c7cd75e3 ("sctp: Add LSM hooks")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+The inplace_crypto member of struct tls_rec is dead, inited
+to zero, and sometimes set to zero again. It used to be
+set to 1 when record was allocated, but the skmsg code doesn't
+seem to have been written with the idea of in-place crypto
+in mind.
+
+Since non trivial effort is required to bring the feature back
+and we don't really have the HW to measure the benefit just
+remove the left over support for now to avoid confusing readers.
+
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_statefuns.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/net/tls.h |    1 -
+ net/tls/tls_sw.c  |    6 +-----
+ 2 files changed, 1 insertion(+), 6 deletions(-)
 
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -2175,8 +2175,10 @@ enum sctp_disposition sctp_sf_do_5_2_4_d
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -122,7 +122,6 @@ struct tls_rec {
+ 	struct list_head list;
+ 	int tx_ready;
+ 	int tx_flags;
+-	int inplace_crypto;
  
- 	/* Update socket peer label if first association. */
- 	if (security_sctp_assoc_request((struct sctp_endpoint *)ep,
--					chunk->skb))
-+					chunk->skb)) {
-+		sctp_association_free(new_asoc);
- 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+	}
+ 	struct sk_msg msg_plaintext;
+ 	struct sk_msg msg_encrypted;
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -705,8 +705,7 @@ static int tls_push_record(struct sock *
+ 	}
  
- 	/* Set temp so that it won't be added into hashtable */
- 	new_asoc->temp = 1;
+ 	i = msg_pl->sg.start;
+-	sg_chain(rec->sg_aead_in, 2, rec->inplace_crypto ?
+-		 &msg_en->sg.data[i] : &msg_pl->sg.data[i]);
++	sg_chain(rec->sg_aead_in, 2, &msg_pl->sg.data[i]);
+ 
+ 	i = msg_en->sg.end;
+ 	sk_msg_iter_var_prev(i);
+@@ -971,8 +970,6 @@ alloc_encrypted:
+ 			if (ret)
+ 				goto fallback_to_reg_send;
+ 
+-			rec->inplace_crypto = 0;
+-
+ 			num_zc++;
+ 			copied += try_to_copy;
+ 
+@@ -1171,7 +1168,6 @@ alloc_payload:
+ 
+ 		tls_ctx->pending_open_record_frags = true;
+ 		if (full_record || eor || sk_msg_full(msg_pl)) {
+-			rec->inplace_crypto = 0;
+ 			ret = bpf_exec_tx_verdict(msg_pl, sk, full_record,
+ 						  record_type, &copied, flags);
+ 			if (ret) {
 
 
