@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF95111C43
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6D6111C47
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728143AbfLCWmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:42:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57138 "EHLO mail.kernel.org"
+        id S1728466AbfLCWmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:42:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728626AbfLCWmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:42:17 -0500
+        id S1727887AbfLCWmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:42:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE17E2073C;
-        Tue,  3 Dec 2019 22:42:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 745CE206EC;
+        Tue,  3 Dec 2019 22:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412936;
-        bh=DGfUc6OPcdg+selrsf0vCRMAyp9NIYMTOzMVaFuB3xs=;
+        s=default; t=1575412943;
+        bh=cet8sYWhO/iD+8etpg2NUEaddX7y3venOG+F3NFCEH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pG07fZ7XRAjsg+o6P/4Ae7J0hjEPm2KmLUkTQ2a9dBWOgiUusck31L/TlTsl6BTqC
-         w+f6ahzBA0N0O7a7HA2muSZJlfM3pZnAkAig7OA98fAi7GL34udtlrl+DYS9YfA80w
-         MdSXO4bx2+hEHduwFQU9Y+7PmxLYCxe6mo95YAmc=
+        b=qLuW73lE4+9cvV5GRDhlZDGE3+h9xs+UOfr+9nIwGY7D4KqhxKcS1HVZY3JXmvA73
+         7gvuFVRdpHwhsaZL23+W8tWhbo1/DNEefad0BL3VWGvr+CxKHBw3nlE0/B6ip498PZ
+         bk8SK3sUTXXtkf2if3cr2vf7ppcYBHJGOc2zb4xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaska Uimonen <jaska.uimonen@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Dragos Tarcatu <dragos_tarcatu@mentor.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 072/135] ASoC: SOF: topology: Fix bytes control size checks
-Date:   Tue,  3 Dec 2019 23:35:12 +0100
-Message-Id: <20191203213026.735283478@linuxfoundation.org>
+Subject: [PATCH 5.3 075/135] net: bcmgenet: use RGMII loopback for MAC reset
+Date:   Tue,  3 Dec 2019 23:35:15 +0100
+Message-Id: <20191203213027.860936034@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -47,58 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tarcatu <dragos_tarcatu@mentor.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit 9508ef5a980f5d847cad9b932b6ada8f2a3466c1 ]
+[ Upstream commit 3a55402c93877d291b0a612d25edb03d1b4b93ac ]
 
-When using the example SOF amp widget topology, KASAN dumps this
-when the AMP bytes kcontrol gets loaded:
+As noted in commit 28c2d1a7a0bf ("net: bcmgenet: enable loopback
+during UniMAC sw_reset") the UniMAC must be clocked while sw_reset
+is asserted for its state machines to reset cleanly.
 
-[ 9.579548] BUG: KASAN: slab-out-of-bounds in
-sof_control_load+0x8cc/0xac0 [snd_sof]
-[ 9.588194] Write of size 40 at addr ffff8882314559dc by task
-systemd-udevd/2411
+The transmit and receive clocks used by the UniMAC are derived from
+the signals used on its PHY interface. The bcmgenet MAC can be
+configured to work with different PHY interfaces including MII,
+GMII, RGMII, and Reverse MII on internal and external interfaces.
+Unfortunately for the UniMAC, when configured for MII the Tx clock
+is always driven from the PHY which places it outside of the direct
+control of the MAC.
 
-Fix that by rejecting the topology if the bytes data size > max_size
+The earlier commit enabled a local loopback mode within the UniMAC
+so that the receive clock would be derived from the transmit clock
+which addressed the observed issue with an external GPHY disabling
+it's Rx clock. However, when a Tx clock is not available this
+loopback is insufficient.
 
-Fixes: 311ce4fe7637d ("ASoC: SOF: Add support for loading topologies")
-Reviewed-by: Jaska Uimonen <jaska.uimonen@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Dragos Tarcatu <dragos_tarcatu@mentor.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191106145816.9367-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This commit implements a workaround that leverages the fact that
+the MAC can reliably generate all of its necessary clocking by
+enterring the external GPHY RGMII interface mode with the UniMAC in
+local loopback during the sw_reset interval. Unfortunately, this
+has the undesirable side efect of the RGMII GTXCLK signal being
+driven during the same window.
+
+In most configurations this is a benign side effect as the signal
+is either not routed to a pin or is already expected to drive the
+pin. The one exception is when an external MII PHY is expected to
+drive the same pin with its TX_CLK output creating output driver
+contention.
+
+This commit exploits the IEEE 802.3 clause 22 standard defined
+isolate mode to force an external MII PHY to present a high
+impedance on its TX_CLK output during the window to prevent any
+contention at the pin.
+
+The MII interface is used internally with the 40nm internal EPHY
+which agressively disables its clocks for power savings leading to
+incomplete resets of the UniMAC and many instabilities observed
+over the years. The workaround of this commit is expected to put
+an end to those problems.
+
+Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/topology.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ .../net/ethernet/broadcom/genet/bcmgenet.c    |  2 --
+ drivers/net/ethernet/broadcom/genet/bcmmii.c  | 33 +++++++++++++++++++
+ 2 files changed, 33 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
-index 96230329e678f..355f04663f576 100644
---- a/sound/soc/sof/topology.c
-+++ b/sound/soc/sof/topology.c
-@@ -533,15 +533,16 @@ static int sof_control_load_bytes(struct snd_soc_component *scomp,
- 	struct soc_bytes_ext *sbe = (struct soc_bytes_ext *)kc->private_value;
- 	int max_size = sbe->max;
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 06e2581b28eaf..4c90923d7a1c8 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1996,8 +1996,6 @@ static void reset_umac(struct bcmgenet_priv *priv)
  
--	if (le32_to_cpu(control->priv.size) > max_size) {
-+	/* init the get/put bytes data */
-+	scontrol->size = sizeof(struct sof_ipc_ctrl_data) +
-+		le32_to_cpu(control->priv.size);
+ 	/* issue soft reset with (rg)mii loopback to ensure a stable rxclk */
+ 	bcmgenet_umac_writel(priv, CMD_SW_RESET | CMD_LCL_LOOP_EN, UMAC_CMD);
+-	udelay(2);
+-	bcmgenet_umac_writel(priv, 0, UMAC_CMD);
+ }
+ 
+ static void bcmgenet_intr_disable(struct bcmgenet_priv *priv)
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmmii.c b/drivers/net/ethernet/broadcom/genet/bcmmii.c
+index e7c291bf4ed17..dbe18cdf6c1b8 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
+@@ -181,8 +181,38 @@ int bcmgenet_mii_config(struct net_device *dev, bool init)
+ 	const char *phy_name = NULL;
+ 	u32 id_mode_dis = 0;
+ 	u32 port_ctrl;
++	int bmcr = -1;
++	int ret;
+ 	u32 reg;
+ 
++	/* MAC clocking workaround during reset of umac state machines */
++	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
++	if (reg & CMD_SW_RESET) {
++		/* An MII PHY must be isolated to prevent TXC contention */
++		if (priv->phy_interface == PHY_INTERFACE_MODE_MII) {
++			ret = phy_read(phydev, MII_BMCR);
++			if (ret >= 0) {
++				bmcr = ret;
++				ret = phy_write(phydev, MII_BMCR,
++						bmcr | BMCR_ISOLATE);
++			}
++			if (ret) {
++				netdev_err(dev, "failed to isolate PHY\n");
++				return ret;
++			}
++		}
++		/* Switch MAC clocking to RGMII generated clock */
++		bcmgenet_sys_writel(priv, PORT_MODE_EXT_GPHY, SYS_PORT_CTRL);
++		/* Ensure 5 clks with Rx disabled
++		 * followed by 5 clks with Reset asserted
++		 */
++		udelay(4);
++		reg &= ~(CMD_SW_RESET | CMD_LCL_LOOP_EN);
++		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
++		/* Ensure 5 more clocks before Rx is enabled */
++		udelay(2);
++	}
 +
-+	if (scontrol->size > max_size) {
- 		dev_err(sdev->dev, "err: bytes data size %d exceeds max %d.\n",
--			control->priv.size, max_size);
-+			scontrol->size, max_size);
- 		return -EINVAL;
- 	}
+ 	priv->ext_phy = !priv->internal_phy &&
+ 			(priv->phy_interface != PHY_INTERFACE_MODE_MOCA);
  
--	/* init the get/put bytes data */
--	scontrol->size = sizeof(struct sof_ipc_ctrl_data) +
--		le32_to_cpu(control->priv.size);
- 	scontrol->control_data = kzalloc(max_size, GFP_KERNEL);
- 	cdata = scontrol->control_data;
- 	if (!scontrol->control_data)
+@@ -214,6 +244,9 @@ int bcmgenet_mii_config(struct net_device *dev, bool init)
+ 		phy_set_max_speed(phydev, SPEED_100);
+ 		bcmgenet_sys_writel(priv,
+ 				    PORT_MODE_EXT_EPHY, SYS_PORT_CTRL);
++		/* Restore the MII PHY after isolation */
++		if (bmcr >= 0)
++			phy_write(phydev, MII_BMCR, bmcr);
+ 		break;
+ 
+ 	case PHY_INTERFACE_MODE_REVMII:
 -- 
 2.20.1
 
