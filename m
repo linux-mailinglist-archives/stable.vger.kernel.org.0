@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E914111FBA
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40846111F15
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:09:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727874AbfLCWiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:38:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
+        id S1728083AbfLCWnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:43:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727866AbfLCWiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:38:01 -0500
+        id S1728203AbfLCWnh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:43:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2BD220848;
-        Tue,  3 Dec 2019 22:37:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ED3620803;
+        Tue,  3 Dec 2019 22:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412680;
-        bh=3MNQJ8h/QNCVQM0lJNWt4aerH/FjCtoGLkxPP7BRwOw=;
+        s=default; t=1575413015;
+        bh=LSTdpTaR8hFMPic0CKoXaJCg2EX49Lkv4RNvwW08Kyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jW8xd6Tlr9RcsN3g4L6RZHMQ0uLzx30qoHc86FrTVKX6EK2+gvGp+Kvjx+mG8m1d+
-         pszFCQfs7aA+MAl2bQBB6tgaNQsEUWmbz++FFEU5Rze8fIOLRbrDJzvaK0snwG3ymN
-         Y8xs0lojXPAZrgwAhbtFfz/ZKA180LkScdahERUs=
+        b=DrNnqViprd+e6vYc5D+W56fc6fyYh3sW/0OwXdS24el9h726oMVpym8SGTXbh/8mM
+         7GZz/qkaObcheKlkBECH/1FTFLNlhUflOzfJJv4/pM5Jnwt3u3WPs0GwyfdksXnFRI
+         /AnllyHVlNiqeGlsKXPqpLcZX7jodkJcci1PflHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qi Jun Ding <qding@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 23/46] openvswitch: fix flow command message size
+        stable@vger.kernel.org, Fabio DUrso <fabiodurso@hotmail.it>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.3 103/135] USB: serial: ftdi_sio: add device IDs for U-Blox C099-F9P
 Date:   Tue,  3 Dec 2019 23:35:43 +0100
-Message-Id: <20191203212737.988432826@linuxfoundation.org>
+Message-Id: <20191203213039.967919092@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
-References: <20191203212705.175425505@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Fabio D'Urso <fabiodurso@hotmail.it>
 
-[ Upstream commit 4e81c0b3fa93d07653e2415fa71656b080a112fd ]
+commit c1a1f273d0825774c80896b8deb1c9ea1d0b91e3 upstream.
 
-When user-space sets the OVS_UFID_F_OMIT_* flags, and the relevant
-flow has no UFID, we can exceed the computed size, as
-ovs_nla_put_identifier() will always dump an OVS_FLOW_ATTR_KEY
-attribute.
-Take the above in account when computing the flow command message
-size.
+This device presents itself as a USB hub with three attached devices:
+ - An ACM serial port connected to the GPS module (not affected by this
+   commit)
+ - An FTDI serial port connected to the GPS module (1546:0502)
+ - Another FTDI serial port connected to the ODIN-W2 radio module
+   (1546:0503)
 
-Fixes: 74ed7ab9264c ("openvswitch: Add support for unique flow IDs.")
-Reported-by: Qi Jun Ding <qding@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This commit registers U-Blox's VID and the PIDs of the second and third
+devices.
+
+Datasheet: https://www.u-blox.com/sites/default/files/C099-F9P-AppBoard-Mbed-OS3-FW_UserGuide_%28UBX-18063024%29.pdf
+
+Signed-off-by: Fabio D'Urso <fabiodurso@hotmail.it>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/openvswitch/datapath.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -704,9 +704,13 @@ static size_t ovs_flow_cmd_msg_size(cons
- {
- 	size_t len = NLMSG_ALIGN(sizeof(struct ovs_header));
+---
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
+ 2 files changed, 10 insertions(+)
+
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1033,6 +1033,9 @@ static const struct usb_device_id id_tab
+ 	/* Sienna devices */
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
+ 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
++	/* U-Blox devices */
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+ 	{ }					/* Terminating entry */
+ };
  
--	/* OVS_FLOW_ATTR_UFID */
-+	/* OVS_FLOW_ATTR_UFID, or unmasked flow key as fallback
-+	 * see ovs_nla_put_identifier()
-+	 */
- 	if (sfid && ovs_identifier_is_ufid(sfid))
- 		len += nla_total_size(sfid->ufid_len);
-+	else
-+		len += nla_total_size(ovs_key_attr_size());
- 
- 	/* OVS_FLOW_ATTR_KEY */
- 	if (!sfid || should_fill_key(sfid, ufid_flags))
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1558,3 +1558,10 @@
+  */
+ #define UNJO_VID			0x22B7
+ #define UNJO_ISODEBUG_V1_PID		0x150D
++
++/*
++ * U-Blox products (http://www.u-blox.com).
++ */
++#define UBLOX_VID			0x1546
++#define UBLOX_C099F9P_ZED_PID		0x0502
++#define UBLOX_C099F9P_ODIN_PID		0x0503
 
 
