@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF8A111F6F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF12111F2F
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728497AbfLCXIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:08:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33810 "EHLO mail.kernel.org"
+        id S1728799AbfLCWpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:45:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729026AbfLCWpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:45:18 -0500
+        id S1729032AbfLCWpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:45:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6314D20803;
-        Tue,  3 Dec 2019 22:45:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15D8220803;
+        Tue,  3 Dec 2019 22:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413117;
-        bh=7TJDgx84nCACAaNLo8pxn2QH6mbY7YKuaYRX/WxnJX0=;
+        s=default; t=1575413120;
+        bh=MP99nh/TM0pE6NtJsYqybo9a6kDwZHzSSkrdsojSgnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PYMBlZqDVW9GzvNO18JOiihTFFP5824AQLvdIvemc9EwKURFeoFQuz2NpmM+NvMp+
-         a36sTNEaEM8Do7LCbx3rI4rmI0mQUErEiV+PDcFj4qyouygVc7RuYkTyYUYXd/dx7n
-         hQ+uETR2JzJS2sZxeSiN2QgD6GmT/EzoGoBMBj28=
+        b=2a127N5pBW+yyL0dMYkngzWpfgdifzJ50DVvK9vywry3/JsJlDhRLMPjZLeF9dJLt
+         5mwSqvqZTfIySC+0bhqIuInP2byH3LSdgIehIaHlrYJXRciuk8WMwfhXj6sDG61GF0
+         /weuv7l76Ns6OSK8Vf1cCqcQaVwlpAwYCEH1e208=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f8d6f8386ceacdbfff57@syzkaller.appspotmail.com,
-        syzbot+33d7ea72e47de3bdf4e1@syzkaller.appspotmail.com,
-        syzbot+44b6763edfc17144296f@syzkaller.appspotmail.com,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.3 132/135] ext4: add more paranoia checking in ext4_expand_extra_isize handling
-Date:   Tue,  3 Dec 2019 23:36:12 +0100
-Message-Id: <20191203213045.748648671@linuxfoundation.org>
+        stable@vger.kernel.org, Candle Sun <candle.sun@unisoc.com>,
+        Nianfu Bai <nianfu.bai@unisoc.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Siarhei Vishniakou <svv@google.com>
+Subject: [PATCH 5.3 133/135] HID: core: check whether Usage Page item is after Usage ID items
+Date:   Tue,  3 Dec 2019 23:36:13 +0100
+Message-Id: <20191203213045.992118661@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -46,93 +46,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Candle Sun <candle.sun@unisoc.com>
 
-commit 4ea99936a1630f51fc3a2d61a58ec4a1c4b7d55a upstream.
+commit 1cb0d2aee26335d0bccf29100c7bed00ebece851 upstream.
 
-It's possible to specify a non-zero s_want_extra_isize via debugging
-option, and this can cause bad things(tm) to happen when using a file
-system with an inode size of 128 bytes.
+Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
+to Main item") adds support for Usage Page item after Usage ID items
+(such as keyboards manufactured by Primax).
 
-Add better checking when the file system is mounted, as well as when
-we are actually doing the trying to do the inode expansion.
+Usage Page concatenation in Main item works well for following report
+descriptor patterns:
 
-Link: https://lore.kernel.org/r/20191110121510.GH23325@mit.edu
-Reported-by: syzbot+f8d6f8386ceacdbfff57@syzkaller.appspotmail.com
-Reported-by: syzbot+33d7ea72e47de3bdf4e1@syzkaller.appspotmail.com
-Reported-by: syzbot+44b6763edfc17144296f@syzkaller.appspotmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+    USAGE_PAGE (Keyboard)                   05 07
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    INPUT (Data,Var,Abs)                    81 02
+
+-------------
+
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    USAGE_PAGE (Keyboard)                   05 07
+    INPUT (Data,Var,Abs)                    81 02
+
+But it makes the parser act wrong for the following report
+descriptor pattern(such as some Gamepads):
+
+    USAGE_PAGE (Button)                     05 09
+    USAGE (Button 1)                        09 01
+    USAGE (Button 2)                        09 02
+    USAGE (Button 4)                        09 04
+    USAGE (Button 5)                        09 05
+    USAGE (Button 7)                        09 07
+    USAGE (Button 8)                        09 08
+    USAGE (Button 14)                       09 0E
+    USAGE (Button 15)                       09 0F
+    USAGE (Button 13)                       09 0D
+    USAGE_PAGE (Consumer Devices)           05 0C
+    USAGE (Back)                            0a 24 02
+    USAGE (HomePage)                        0a 23 02
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (11)                       95 0B
+    INPUT (Data,Var,Abs)                    81 02
+
+With Usage Page concatenation in Main item, parser recognizes all the
+11 Usages as consumer keys, it is not the HID device's real intention.
+
+This patch checks whether Usage Page is really defined after Usage ID
+items by comparing usage page using status.
+
+Usage Page concatenation on currently defined Usage Page will always
+do in local parsing when Usage ID items encountered.
+
+When Main item is parsing, concatenation will do again with last
+defined Usage Page if this page has not been used in the previous
+usages concatenation.
+
+Signed-off-by: Candle Sun <candle.sun@unisoc.com>
+Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Siarhei Vishniakou <svv@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   15 +++++++++++++++
- fs/ext4/super.c |   21 ++++++++++++---------
- 2 files changed, 27 insertions(+), 9 deletions(-)
+ drivers/hid/hid-core.c |   51 +++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 45 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5942,8 +5942,23 @@ static int __ext4_expand_extra_isize(str
- {
- 	struct ext4_inode *raw_inode;
- 	struct ext4_xattr_ibody_header *header;
-+	unsigned int inode_size = EXT4_INODE_SIZE(inode->i_sb);
-+	struct ext4_inode_info *ei = EXT4_I(inode);
- 	int error;
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -212,6 +212,18 @@ static unsigned hid_lookup_collection(st
+ }
  
-+	/* this was checked at iget time, but double check for good measure */
-+	if ((EXT4_GOOD_OLD_INODE_SIZE + ei->i_extra_isize > inode_size) ||
-+	    (ei->i_extra_isize & 3)) {
-+		EXT4_ERROR_INODE(inode, "bad extra_isize %u (inode size %u)",
-+				 ei->i_extra_isize,
-+				 EXT4_INODE_SIZE(inode->i_sb));
-+		return -EFSCORRUPTED;
-+	}
-+	if ((new_extra_isize < ei->i_extra_isize) ||
-+	    (new_extra_isize < 4) ||
-+	    (new_extra_isize > inode_size - EXT4_GOOD_OLD_INODE_SIZE))
-+		return -EINVAL;	/* Should never happen */
+ /*
++ * Concatenate usage which defines 16 bits or less with the
++ * currently defined usage page to form a 32 bit usage
++ */
 +
- 	raw_inode = ext4_raw_inode(iloc);
++static void complete_usage(struct hid_parser *parser, unsigned int index)
++{
++	parser->local.usage[index] &= 0xFFFF;
++	parser->local.usage[index] |=
++		(parser->global.usage_page & 0xFFFF) << 16;
++}
++
++/*
+  * Add a usage to the temporary parser table.
+  */
  
- 	header = IHDR(inode, raw_inode);
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3544,12 +3544,15 @@ static void ext4_clamp_want_extra_isize(
+@@ -222,6 +234,14 @@ static int hid_add_usage(struct hid_pars
+ 		return -1;
+ 	}
+ 	parser->local.usage[parser->local.usage_index] = usage;
++
++	/*
++	 * If Usage item only includes usage id, concatenate it with
++	 * currently defined usage page
++	 */
++	if (size <= 2)
++		complete_usage(parser, parser->local.usage_index);
++
+ 	parser->local.usage_size[parser->local.usage_index] = size;
+ 	parser->local.collection_index[parser->local.usage_index] =
+ 		parser->collection_stack_ptr ?
+@@ -543,13 +563,32 @@ static int hid_parser_local(struct hid_p
+  * usage value."
+  */
+ 
+-static void hid_concatenate_usage_page(struct hid_parser *parser)
++static void hid_concatenate_last_usage_page(struct hid_parser *parser)
  {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_super_block *es = sbi->s_es;
-+	unsigned def_extra_isize = sizeof(struct ext4_inode) -
-+						EXT4_GOOD_OLD_INODE_SIZE;
- 
--	/* determine the minimum size of new large inodes, if present */
--	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE &&
--	    sbi->s_want_extra_isize == 0) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						     EXT4_GOOD_OLD_INODE_SIZE;
-+	if (sbi->s_inode_size == EXT4_GOOD_OLD_INODE_SIZE) {
-+		sbi->s_want_extra_isize = 0;
+ 	int i;
++	unsigned int usage_page;
++	unsigned int current_page;
++
++	if (!parser->local.usage_index)
 +		return;
+ 
+-	for (i = 0; i < parser->local.usage_index; i++)
+-		if (parser->local.usage_size[i] <= 2)
+-			parser->local.usage[i] += parser->global.usage_page << 16;
++	usage_page = parser->global.usage_page;
++
++	/*
++	 * Concatenate usage page again only if last declared Usage Page
++	 * has not been already used in previous usages concatenation
++	 */
++	for (i = parser->local.usage_index - 1; i >= 0; i--) {
++		if (parser->local.usage_size[i] > 2)
++			/* Ignore extended usages */
++			continue;
++
++		current_page = parser->local.usage[i] >> 16;
++		if (current_page == usage_page)
++			break;
++
++		complete_usage(parser, i);
 +	}
-+	if (sbi->s_want_extra_isize < 4) {
-+		sbi->s_want_extra_isize = def_extra_isize;
- 		if (ext4_has_feature_extra_isize(sb)) {
- 			if (sbi->s_want_extra_isize <
- 			    le16_to_cpu(es->s_want_extra_isize))
-@@ -3562,10 +3565,10 @@ static void ext4_clamp_want_extra_isize(
- 		}
- 	}
- 	/* Check if enough inode space is available */
--	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
--							sbi->s_inode_size) {
--		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
--						       EXT4_GOOD_OLD_INODE_SIZE;
-+	if ((sbi->s_want_extra_isize > sbi->s_inode_size) ||
-+	    (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
-+							sbi->s_inode_size)) {
-+		sbi->s_want_extra_isize = def_extra_isize;
- 		ext4_msg(sb, KERN_INFO,
- 			 "required extra inode space not available");
- 	}
+ }
+ 
+ /*
+@@ -561,7 +600,7 @@ static int hid_parser_main(struct hid_pa
+ 	__u32 data;
+ 	int ret;
+ 
+-	hid_concatenate_usage_page(parser);
++	hid_concatenate_last_usage_page(parser);
+ 
+ 	data = item_udata(item);
+ 
+@@ -772,7 +811,7 @@ static int hid_scan_main(struct hid_pars
+ 	__u32 data;
+ 	int i;
+ 
+-	hid_concatenate_usage_page(parser);
++	hid_concatenate_last_usage_page(parser);
+ 
+ 	data = item_udata(item);
+ 
 
 
