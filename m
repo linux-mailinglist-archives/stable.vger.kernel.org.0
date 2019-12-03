@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8081D111E3C
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E914111FBA
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730515AbfLCW5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:57:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52482 "EHLO mail.kernel.org"
+        id S1727874AbfLCWiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:38:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730509AbfLCW5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:57:05 -0500
+        id S1727866AbfLCWiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:38:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DA3720656;
-        Tue,  3 Dec 2019 22:57:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2BD220848;
+        Tue,  3 Dec 2019 22:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413824;
-        bh=yh+2c6J0zAyztqR0GF8zOuMWQhpHsSGmydaLfkOhlhY=;
+        s=default; t=1575412680;
+        bh=3MNQJ8h/QNCVQM0lJNWt4aerH/FjCtoGLkxPP7BRwOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chjUQv9v9HMuyO55vm7oTIhFMwd+5dO/dh2gwe/cym9N+qzLIJJP6pxsYj2FiZYXr
-         PUftCuu4fwMWeQtPpGNAIeuumPQi0nsQ5l+OtDYEdlFBYWU1O5EBrGzUAnJOO4tCdx
-         H5LaaTlM/dXxjKetPn6JvsePhmmLuBj9khRjiJWs=
+        b=jW8xd6Tlr9RcsN3g4L6RZHMQ0uLzx30qoHc86FrTVKX6EK2+gvGp+Kvjx+mG8m1d+
+         pszFCQfs7aA+MAl2bQBB6tgaNQsEUWmbz++FFEU5Rze8fIOLRbrDJzvaK0snwG3ymN
+         Y8xs0lojXPAZrgwAhbtFfz/ZKA180LkScdahERUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, JD <jdtxs00@gmail.com>,
-        Paul Wouters <paul@nohats.ca>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.19 276/321] xfrm: Fix memleak on xfrm state destroy
-Date:   Tue,  3 Dec 2019 23:35:42 +0100
-Message-Id: <20191203223441.485499204@linuxfoundation.org>
+        stable@vger.kernel.org, Qi Jun Ding <qding@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 23/46] openvswitch: fix flow command message size
+Date:   Tue,  3 Dec 2019 23:35:43 +0100
+Message-Id: <20191203212737.988432826@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 86c6739eda7d2a03f2db30cbee67a5fb81afa8ba upstream.
+[ Upstream commit 4e81c0b3fa93d07653e2415fa71656b080a112fd ]
 
-We leak the page that we use to create skb page fragments
-when destroying the xfrm_state. Fix this by dropping a
-page reference if a page was assigned to the xfrm_state.
+When user-space sets the OVS_UFID_F_OMIT_* flags, and the relevant
+flow has no UFID, we can exceed the computed size, as
+ovs_nla_put_identifier() will always dump an OVS_FLOW_ATTR_KEY
+attribute.
+Take the above in account when computing the flow command message
+size.
 
-Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
-Reported-by: JD <jdtxs00@gmail.com>
-Reported-by: Paul Wouters <paul@nohats.ca>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 74ed7ab9264c ("openvswitch: Add support for unique flow IDs.")
+Reported-by: Qi Jun Ding <qding@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/xfrm/xfrm_state.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/openvswitch/datapath.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -456,6 +456,8 @@ static void ___xfrm_state_destroy(struct
- 		x->type->destructor(x);
- 		xfrm_put_type(x->type);
- 	}
-+	if (x->xfrag.page)
-+		put_page(x->xfrag.page);
- 	xfrm_dev_state_free(x);
- 	security_xfrm_state_free(x);
- 	xfrm_state_free(x);
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -704,9 +704,13 @@ static size_t ovs_flow_cmd_msg_size(cons
+ {
+ 	size_t len = NLMSG_ALIGN(sizeof(struct ovs_header));
+ 
+-	/* OVS_FLOW_ATTR_UFID */
++	/* OVS_FLOW_ATTR_UFID, or unmasked flow key as fallback
++	 * see ovs_nla_put_identifier()
++	 */
+ 	if (sfid && ovs_identifier_is_ufid(sfid))
+ 		len += nla_total_size(sfid->ufid_len);
++	else
++		len += nla_total_size(ovs_key_attr_size());
+ 
+ 	/* OVS_FLOW_ATTR_KEY */
+ 	if (!sfid || should_fill_key(sfid, ufid_flags))
 
 
