@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F66111EF3
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:06:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F741111EF4
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:06:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729565AbfLCWtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:49:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40224 "EHLO mail.kernel.org"
+        id S1728595AbfLCWtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:49:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729393AbfLCWtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:49:15 -0500
+        id S1727790AbfLCWtV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:49:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C00662080F;
-        Tue,  3 Dec 2019 22:49:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 609AF20684;
+        Tue,  3 Dec 2019 22:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413355;
-        bh=k5xwEgIV4ziJaLKkSs+CpZaMBlRyfllb3ryncgJ5w1Q=;
+        s=default; t=1575413360;
+        bh=ABAw+0UN3/JtufQLU7PxhHLTB+FOGf2VHn3pTd88+wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRJ1dzsS04kdY4n4sFD8nFcXNtUoU6ffUCXEoX5UB62HaFWWx0uAMKVwvgZ8szd6L
-         hmTZh3R2Am3K0AQ2CqGIWKB2sJ/cNAREulbvqns/SGA7X0W49MrjcU0C2dMMbzKkVt
-         f1rlbv+go2Aty4Tp7ppbEsWG9sW3A+Sfo2g7sPDo=
+        b=BVq6jTTHM9fNRSs9L9e4ODYFYrkyhqYb5iCoDNZRST88PuwuQGoXZ65jVDyL2H2Jq
+         RvDnZcHJspmb0BTC6ly0eBWLjpDmc9PlZpeaeqfTkDtJ+KK+mkSmCx0vR6j46XcRWf
+         WAiLGEh8N7Oo/ow+D5kT1SBS+27pZHDF0DJVI/W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Bill ODonnell <billodo@redhat.com>,
+        stable@vger.kernel.org, Gabor Juhos <juhosg@openwrt.org>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/321] xfs: require both realtime inodes to mount
-Date:   Tue,  3 Dec 2019 23:32:43 +0100
-Message-Id: <20191203223432.204775804@linuxfoundation.org>
+Subject: [PATCH 4.19 099/321] ubifs: Fix default compression selection in ubifs
+Date:   Tue,  3 Dec 2019 23:32:45 +0100
+Message-Id: <20191203223432.306953012@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,43 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Gabor Juhos <juhosg@openwrt.org>
 
-[ Upstream commit 64bafd2f1e484e27071e7584642005d56516cb77 ]
+[ Upstream commit d62e98ed1efcaa94caa004f622944afdce5f1c3c ]
 
-Since mkfs always formats the filesystem with the realtime bitmap and
-summary inodes immediately after the root directory, we should expect
-that both of them are present and loadable, even if there isn't a
-realtime volume attached.  There's no reason to skip this if rbmino ==
-NULLFSINO; in fact, this causes an immediate crash if the there /is/ a
-realtime volume and someone writes to it.
+When ubifs is build without the LZO compressor and no compressor is
+given the creation of the default file system will fail. before
+selection the LZO compressor check if it is present and if not fall back
+to the zlib or none.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Bill O'Donnell <billodo@redhat.com>
+Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_rtalloc.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/ubifs/sb.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
-index 926ed314ffba1..484eb0adcefb2 100644
---- a/fs/xfs/xfs_rtalloc.c
-+++ b/fs/xfs/xfs_rtalloc.c
-@@ -1198,13 +1198,11 @@ xfs_rtmount_inodes(
- 	xfs_sb_t	*sbp;
+diff --git a/fs/ubifs/sb.c b/fs/ubifs/sb.c
+index bf17f58908ff9..11dc3977fb64f 100644
+--- a/fs/ubifs/sb.c
++++ b/fs/ubifs/sb.c
+@@ -63,6 +63,17 @@
+ /* Default time granularity in nanoseconds */
+ #define DEFAULT_TIME_GRAN 1000000000
  
- 	sbp = &mp->m_sb;
--	if (sbp->sb_rbmino == NULLFSINO)
--		return 0;
- 	error = xfs_iget(mp, NULL, sbp->sb_rbmino, 0, 0, &mp->m_rbmip);
- 	if (error)
- 		return error;
- 	ASSERT(mp->m_rbmip != NULL);
--	ASSERT(sbp->sb_rsumino != NULLFSINO);
++static int get_default_compressor(struct ubifs_info *c)
++{
++	if (ubifs_compr_present(c, UBIFS_COMPR_LZO))
++		return UBIFS_COMPR_LZO;
 +
- 	error = xfs_iget(mp, NULL, sbp->sb_rsumino, 0, 0, &mp->m_rsumip);
- 	if (error) {
- 		xfs_irele(mp->m_rbmip);
++	if (ubifs_compr_present(c, UBIFS_COMPR_ZLIB))
++		return UBIFS_COMPR_ZLIB;
++
++	return UBIFS_COMPR_NONE;
++}
++
+ /**
+  * create_default_filesystem - format empty UBI volume.
+  * @c: UBIFS file-system description object
+@@ -186,7 +197,7 @@ static int create_default_filesystem(struct ubifs_info *c)
+ 	if (c->mount_opts.override_compr)
+ 		sup->default_compr = cpu_to_le16(c->mount_opts.compr_type);
+ 	else
+-		sup->default_compr = cpu_to_le16(UBIFS_COMPR_LZO);
++		sup->default_compr = cpu_to_le16(get_default_compressor(c));
+ 
+ 	generate_random_uuid(sup->uuid);
+ 
 -- 
 2.20.1
 
