@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1720A111EEC
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D04E111EEA
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:05:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727665AbfLCXFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:05:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40834 "EHLO mail.kernel.org"
+        id S1729420AbfLCWty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:49:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729392AbfLCWtj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:49:39 -0500
+        id S1729676AbfLCWtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:49:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 856782084B;
-        Tue,  3 Dec 2019 22:49:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EDC22084B;
+        Tue,  3 Dec 2019 22:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413379;
-        bh=cPUc9BD9WzvMPqJG1za/uFkew6pNIQo4k/jUTu9jzNU=;
+        s=default; t=1575413391;
+        bh=oRalRQLcvw3mDLy4hoii35OLsY/POsYuwsyEtYJ06wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUP+74BUFEJIFNyPTtOZnJGyGhSINbBB4XIHR1LRo4v8VkxKZJcjzn2nvpet4ii9m
-         T1D3ZjXCgXx70H/k5oJm0NwFd0LBqQ/Wjix/jCsWA/hpBp1cPciHmbDDEHsEo84wK7
-         8dMZo0ogiclDacUT1Sqv7C2KJuWZdsbB25iXc2lY=
+        b=mhXxfRB49bTNn+mQ8cLMCuV//gZ+641UGPoikvW39BEO0e2bOVImc0UwRaE/KzEfw
+         HU5BKNGGlQLcgnArXMSfbTo3ahwsiogj1HfcDuN0ra6vb1QlDYJzJpWG+B+tMXBFUg
+         ex93bbjkZWXDxIcVYw52GNYwpUa1pqhESuMOIAdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/321] iwlwifi: move iwl_nvm_check_version() into dvm
-Date:   Tue,  3 Dec 2019 23:32:51 +0100
-Message-Id: <20191203223432.615096106@linuxfoundation.org>
+Subject: [PATCH 4.19 110/321] gpiolib: Fix return value of gpio_to_desc() stub if !GPIOLIB
+Date:   Tue,  3 Dec 2019 23:32:56 +0100
+Message-Id: <20191203223432.875862512@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -43,128 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 64866e5da1eabd0c52ff45029b245f5465920031 ]
+[ Upstream commit c5510b8dafce5f3f5a039c9b262ebcae0092c462 ]
 
-This function is only half-used by mvm (i.e. only the nvm_version part
-matters, since the calibration version is irrelevant), so it's
-pointless to export it from iwlwifi.  If mvm uses this function, it
-has the additional complexity of setting the calib version to a bogus
-value on all cfg structs.
+If CONFIG_GPOILIB is not set, the stub of gpio_to_desc() should return
+the same type of error as regular version: NULL.  All the callers
+compare the return value of gpio_to_desc() against NULL, so returned
+ERR_PTR would be treated as non-error case leading to dereferencing of
+error value.
 
-To avoid this, move the function to dvm and make a simple comparison
-of the nvm_version in mvm instead.
-
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 79a9becda894 ("gpiolib: export descriptor-based GPIO interface")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/dvm/main.c | 17 +++++++++++++++++
- .../wireless/intel/iwlwifi/iwl-eeprom-parse.c | 19 -------------------
- .../wireless/intel/iwlwifi/iwl-eeprom-parse.h |  5 ++---
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c   |  4 +++-
- 4 files changed, 22 insertions(+), 23 deletions(-)
+ include/linux/gpio/consumer.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/main.c b/drivers/net/wireless/intel/iwlwifi/dvm/main.c
-index 030482b357a3c..06dd4e81b7374 100644
---- a/drivers/net/wireless/intel/iwlwifi/dvm/main.c
-+++ b/drivers/net/wireless/intel/iwlwifi/dvm/main.c
-@@ -1227,6 +1227,23 @@ static int iwl_eeprom_init_hw_params(struct iwl_priv *priv)
- 	return 0;
+diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
+index 412098b24f58b..8dfd8300d9c31 100644
+--- a/include/linux/gpio/consumer.h
++++ b/include/linux/gpio/consumer.h
+@@ -475,7 +475,7 @@ static inline int gpiod_set_consumer_name(struct gpio_desc *desc,
+ 
+ static inline struct gpio_desc *gpio_to_desc(unsigned gpio)
+ {
+-	return ERR_PTR(-EINVAL);
++	return NULL;
  }
  
-+static int iwl_nvm_check_version(struct iwl_nvm_data *data,
-+				 struct iwl_trans *trans)
-+{
-+	if (data->nvm_version >= trans->cfg->nvm_ver ||
-+	    data->calib_version >= trans->cfg->nvm_calib_ver) {
-+		IWL_DEBUG_INFO(trans, "device EEPROM VER=0x%x, CALIB=0x%x\n",
-+			       data->nvm_version, data->calib_version);
-+		return 0;
-+	}
-+
-+	IWL_ERR(trans,
-+		"Unsupported (too old) EEPROM VER=0x%x < 0x%x CALIB=0x%x < 0x%x\n",
-+		data->nvm_version, trans->cfg->nvm_ver,
-+		data->calib_version,  trans->cfg->nvm_calib_ver);
-+	return -EINVAL;
-+}
-+
- static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
- 						 const struct iwl_cfg *cfg,
- 						 const struct iwl_fw *fw,
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c
-index a4c96215933ba..a59bab8345f4e 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c
-@@ -928,22 +928,3 @@ iwl_parse_eeprom_data(struct device *dev, const struct iwl_cfg *cfg,
- 	return NULL;
- }
- IWL_EXPORT_SYMBOL(iwl_parse_eeprom_data);
--
--/* helper functions */
--int iwl_nvm_check_version(struct iwl_nvm_data *data,
--			     struct iwl_trans *trans)
--{
--	if (data->nvm_version >= trans->cfg->nvm_ver ||
--	    data->calib_version >= trans->cfg->nvm_calib_ver) {
--		IWL_DEBUG_INFO(trans, "device EEPROM VER=0x%x, CALIB=0x%x\n",
--			       data->nvm_version, data->calib_version);
--		return 0;
--	}
--
--	IWL_ERR(trans,
--		"Unsupported (too old) EEPROM VER=0x%x < 0x%x CALIB=0x%x < 0x%x\n",
--		data->nvm_version, trans->cfg->nvm_ver,
--		data->calib_version,  trans->cfg->nvm_calib_ver);
--	return -EINVAL;
--}
--IWL_EXPORT_SYMBOL(iwl_nvm_check_version);
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h
-index 8be50ed12300f..c59dd47cf15d3 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h
-@@ -7,6 +7,7 @@
-  *
-  * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2015 Intel Mobile Communications GmbH
-+ * Copyright (C) 2018 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -33,6 +34,7 @@
-  *
-  * Copyright(c) 2005 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2015 Intel Mobile Communications GmbH
-+ * Copyright (C) 2018 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -122,9 +124,6 @@ struct iwl_nvm_data *
- iwl_parse_eeprom_data(struct device *dev, const struct iwl_cfg *cfg,
- 		      const u8 *eeprom, size_t eeprom_size);
- 
--int iwl_nvm_check_version(struct iwl_nvm_data *data,
--			  struct iwl_trans *trans);
--
- int iwl_init_sband_channels(struct iwl_nvm_data *data,
- 			    struct ieee80211_supported_band *sband,
- 			    int n_channels, enum nl80211_band band);
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index 2eba6d6f367f8..9808d954dca29 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -547,7 +547,9 @@ int iwl_run_init_mvm_ucode(struct iwl_mvm *mvm, bool read_nvm)
- 	if (mvm->nvm_file_name)
- 		iwl_mvm_load_nvm_to_nic(mvm);
- 
--	WARN_ON(iwl_nvm_check_version(mvm->nvm_data, mvm->trans));
-+	WARN_ONCE(mvm->nvm_data->nvm_version < mvm->trans->cfg->nvm_ver,
-+		  "Too old NVM version (0x%0x, required = 0x%0x)",
-+		  mvm->nvm_data->nvm_version, mvm->trans->cfg->nvm_ver);
- 
- 	/*
- 	 * abort after reading the nvm in case RF Kill is on, we will complete
+ static inline int desc_to_gpio(const struct gpio_desc *desc)
 -- 
 2.20.1
 
