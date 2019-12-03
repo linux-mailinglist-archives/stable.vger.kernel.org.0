@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1229111CBD
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:47:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A68F111C95
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:45:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727918AbfLCWrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:47:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37048 "EHLO mail.kernel.org"
+        id S1728951AbfLCWph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:45:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729263AbfLCWrC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:47:02 -0500
+        id S1729075AbfLCWpg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:45:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F19720656;
-        Tue,  3 Dec 2019 22:47:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7434720803;
+        Tue,  3 Dec 2019 22:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413221;
-        bh=p8Vp5uNKjcNilaqcwYrNFRcA9gpBPwD+1ufKOzif0mI=;
+        s=default; t=1575413135;
+        bh=cUBxm5bpX3BNZcvYOv8A70HiYFqDP/A/TSE0hj9URx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TpY8UuuUjZpo1uOFvBNb2hsBeJtXoX108bVfAOT9X4mcQmgC/j7AIPR4rLXIf4mJO
-         yI1NuSK0AVdAvrmosKBoUZ7VHxZJVB4XbIQ0Bx9Xpbg2yFkL4Tegjqt8sjT9LLKrBM
-         q+LWDzRJX+xlwY0aYg3gIhO3zWptOw+ULV3yzn3Y=
+        b=nyxwLgA4x6EXFweshLoXkl5WwJbVI7sdNUxg/Cl4YaZtRhb8kkEhRnlBI1dTHCEIo
+         NOWpyrIW7Lwtxe5NKIYrq8U1APkBrlnAXWOjgbRc1nHa3S+VEdOhyU6g4lVkabDhja
+         cstrrUBF1mZnXfsGBA5ScFzrze6IrRYiJp5T0Qa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 008/321] ASoC: kirkwood: fix device remove ordering
-Date:   Tue,  3 Dec 2019 23:31:14 +0100
-Message-Id: <20191203223427.554244186@linuxfoundation.org>
+Subject: [PATCH 4.19 013/321] clk: at91: avoid sleeping early
+Date:   Tue,  3 Dec 2019 23:31:19 +0100
+Message-Id: <20191203223427.809547362@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -44,59 +47,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit dc39596a906d5b604f4e64597b6e904fc14625e8 ]
+[ Upstream commit 658fd65cf0b0d511de1718e48d9a28844c385ae0 ]
 
-The devm conversion of kirkwood was incorrect; on removal, devm takes
-effect after the "remove" function has returned.  So, the effect of
-the conversion was to change the order during remove from:
+It is not allowed to sleep to early in the boot process and this may lead
+to kernel issues if the bootloader didn't prepare the slow clock and main
+clock.
 
-  - snd_soc_unregister_component() (unpublishes interfaces)
-  - clk_disable_unprepare()
-  - cleanup resources
+This results in the following error and dump stack on the AriettaG25:
+   bad: scheduling from the idle thread!
 
-After the conversion, this became:
+Ensure it is possible to sleep, else simply have a delay.
 
-  - clk_disable_unprepare() - while the device may still be active
-  - snd_soc_unregister_component()
-  - cleanup resources
-
-Hence, it introduces a bug, where the internal clock for the device
-may be shut down before the device itself has been shut down.  It is
-known that Marvell SoCs, including Dove, locks up if registers for a
-peripheral that has its clocks disabled are accessed.
-
-Fixes: f98fc0f8154e ("ASoC: kirkwood: replace platform to component")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/E1iNGyP-0004oN-BA@rmk-PC.armlinux.org.uk
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lkml.kernel.org/r/20190920153906.20887-1-alexandre.belloni@bootlin.com
+Fixes: 80eded6ce8bb ("clk: at91: add slow clks driver")
+Tested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/kirkwood/kirkwood-i2s.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/at91/clk-main.c |  5 ++++-
+ drivers/clk/at91/sckc.c     | 20 ++++++++++++++++----
+ 2 files changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/kirkwood/kirkwood-i2s.c b/sound/soc/kirkwood/kirkwood-i2s.c
-index b84a504168473..4395bb7029a06 100644
---- a/sound/soc/kirkwood/kirkwood-i2s.c
-+++ b/sound/soc/kirkwood/kirkwood-i2s.c
-@@ -595,7 +595,7 @@ static int kirkwood_i2s_dev_probe(struct platform_device *pdev)
- 		priv->ctl_rec |= KIRKWOOD_RECCTL_BURST_128;
+diff --git a/drivers/clk/at91/clk-main.c b/drivers/clk/at91/clk-main.c
+index 2f97a843d6d6b..fb5c14af8cc8d 100644
+--- a/drivers/clk/at91/clk-main.c
++++ b/drivers/clk/at91/clk-main.c
+@@ -354,7 +354,10 @@ static int clk_main_probe_frequency(struct regmap *regmap)
+ 		regmap_read(regmap, AT91_CKGR_MCFR, &mcfr);
+ 		if (mcfr & AT91_PMC_MAINRDY)
+ 			return 0;
+-		usleep_range(MAINF_LOOP_MIN_WAIT, MAINF_LOOP_MAX_WAIT);
++		if (system_state < SYSTEM_RUNNING)
++			udelay(MAINF_LOOP_MIN_WAIT);
++		else
++			usleep_range(MAINF_LOOP_MIN_WAIT, MAINF_LOOP_MAX_WAIT);
+ 	} while (time_before(prep_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+diff --git a/drivers/clk/at91/sckc.c b/drivers/clk/at91/sckc.c
+index ab6ecefc49ad8..43ba2a8b03faf 100644
+--- a/drivers/clk/at91/sckc.c
++++ b/drivers/clk/at91/sckc.c
+@@ -74,7 +74,10 @@ static int clk_slow_osc_prepare(struct clk_hw *hw)
+ 
+ 	writel(tmp | AT91_SCKC_OSC32EN, sckcr);
+ 
+-	usleep_range(osc->startup_usec, osc->startup_usec + 1);
++	if (system_state < SYSTEM_RUNNING)
++		udelay(osc->startup_usec);
++	else
++		usleep_range(osc->startup_usec, osc->startup_usec + 1);
+ 
+ 	return 0;
+ }
+@@ -197,7 +200,10 @@ static int clk_slow_rc_osc_prepare(struct clk_hw *hw)
+ 
+ 	writel(readl(sckcr) | AT91_SCKC_RCEN, sckcr);
+ 
+-	usleep_range(osc->startup_usec, osc->startup_usec + 1);
++	if (system_state < SYSTEM_RUNNING)
++		udelay(osc->startup_usec);
++	else
++		usleep_range(osc->startup_usec, osc->startup_usec + 1);
+ 
+ 	return 0;
+ }
+@@ -310,7 +316,10 @@ static int clk_sam9x5_slow_set_parent(struct clk_hw *hw, u8 index)
+ 
+ 	writel(tmp, sckcr);
+ 
+-	usleep_range(SLOWCK_SW_TIME_USEC, SLOWCK_SW_TIME_USEC + 1);
++	if (system_state < SYSTEM_RUNNING)
++		udelay(SLOWCK_SW_TIME_USEC);
++	else
++		usleep_range(SLOWCK_SW_TIME_USEC, SLOWCK_SW_TIME_USEC + 1);
+ 
+ 	return 0;
+ }
+@@ -443,7 +452,10 @@ static int clk_sama5d4_slow_osc_prepare(struct clk_hw *hw)
+ 		return 0;
  	}
  
--	err = devm_snd_soc_register_component(&pdev->dev, &kirkwood_soc_component,
-+	err = snd_soc_register_component(&pdev->dev, &kirkwood_soc_component,
- 					 soc_dai, 2);
- 	if (err) {
- 		dev_err(&pdev->dev, "snd_soc_register_component failed\n");
-@@ -618,6 +618,7 @@ static int kirkwood_i2s_dev_remove(struct platform_device *pdev)
- {
- 	struct kirkwood_dma_data *priv = dev_get_drvdata(&pdev->dev);
+-	usleep_range(osc->startup_usec, osc->startup_usec + 1);
++	if (system_state < SYSTEM_RUNNING)
++		udelay(osc->startup_usec);
++	else
++		usleep_range(osc->startup_usec, osc->startup_usec + 1);
+ 	osc->prepared = true;
  
-+	snd_soc_unregister_component(&pdev->dev);
- 	if (!IS_ERR(priv->extclk))
- 		clk_disable_unprepare(priv->extclk);
- 	clk_disable_unprepare(priv->clk);
+ 	return 0;
 -- 
 2.20.1
 
