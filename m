@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA95E111F16
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:09:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7617D111FBC
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728834AbfLCWni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:43:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59118 "EHLO mail.kernel.org"
+        id S1727894AbfLCWiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:38:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728631AbfLCWnh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:43:37 -0500
+        id S1727866AbfLCWiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:38:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1820D2080F;
-        Tue,  3 Dec 2019 22:43:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A5D6207DD;
+        Tue,  3 Dec 2019 22:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413017;
-        bh=Bl5HF763uz37dvHlnO+fYfAMU1dfaMnL3BK6UUDKfgE=;
+        s=default; t=1575412682;
+        bh=vEcNmvKCgxhstNeitHI26rx6hjGSxbZqu/hfVZccZEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Up6YCdSCQAnLnbc0krfrtdu8ziLQOSAwHi37Y5YcpRiWrbhhk2DMQXlmueKBRdENY
-         ajSlmI+55K2QFRrLttn3nUJnmyRP22jBGszRZ6HjQR5XVGkNnwDnGv5ehLJk80NoM1
-         Qz3dixSKb51aLyufPEXBiMJBGW/AZnKtd5vGBlRI=
+        b=u8ihQlairGhqJHNysN9Hnskvud70r9ioWuagnpTvX+r7LmtIf35/sW3kK+/c0tD2y
+         7oR8YhlO2YZJoPXLzhQXwrPJjMwZCHVLqBo4pasDX+Qr8GZizjjf2TnXgll6Pp2J2+
+         SULdFGZAJqmW/W6sWJx7an0KS8T+HJTFUwvh8OjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.3 104/135] mei: bus: prefix device names on bus with the bus name
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 5.4 24/46] sctp: Fix memory leak in sctp_sf_do_5_2_4_dupcook
 Date:   Tue,  3 Dec 2019 23:35:44 +0100
-Message-Id: <20191203213040.249954854@linuxfoundation.org>
+Message-Id: <20191203212739.336309468@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
-References: <20191203213005.828543156@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit 7a2b9e6ec84588b0be65cc0ae45a65bac431496b upstream.
+[ Upstream commit b6631c6031c746ed004c4221ec0616d7a520f441 ]
 
-Add parent device name to the name of devices on bus to avoid
-device names collisions for same client UUID available
-from different MEI heads. Namely this prevents sysfs collision under
-/sys/bus/mei/device/
+In the implementation of sctp_sf_do_5_2_4_dupcook() the allocated
+new_asoc is leaked if security_sctp_assoc_request() fails. Release it
+via sctp_association_free().
 
-In the device part leave just UUID other parameters that are
-required for device matching are not required here and are
-just bloating the name.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191105150514.14010-1-tomas.winkler@intel.com
+Fixes: 2277c7cd75e3 ("sctp: Add LSM hooks")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/misc/mei/bus.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ net/sctp/sm_statefuns.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -873,15 +873,16 @@ static const struct device_type mei_cl_d
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -2160,8 +2160,10 @@ enum sctp_disposition sctp_sf_do_5_2_4_d
  
- /**
-  * mei_cl_bus_set_name - set device name for me client device
-+ *  <controller>-<client device>
-+ *  Example: 0000:00:16.0-55213584-9a29-4916-badf-0fb7ed682aeb
-  *
-  * @cldev: me client device
-  */
- static inline void mei_cl_bus_set_name(struct mei_cl_device *cldev)
- {
--	dev_set_name(&cldev->dev, "mei:%s:%pUl:%02X",
--		     cldev->name,
--		     mei_me_cl_uuid(cldev->me_cl),
--		     mei_me_cl_ver(cldev->me_cl));
-+	dev_set_name(&cldev->dev, "%s-%pUl",
-+		     dev_name(cldev->bus->dev),
-+		     mei_me_cl_uuid(cldev->me_cl));
- }
+ 	/* Update socket peer label if first association. */
+ 	if (security_sctp_assoc_request((struct sctp_endpoint *)ep,
+-					chunk->skb))
++					chunk->skb)) {
++		sctp_association_free(new_asoc);
+ 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++	}
  
- /**
+ 	/* Set temp so that it won't be added into hashtable */
+ 	new_asoc->temp = 1;
 
 
