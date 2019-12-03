@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB63F111D96
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:55:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E994111C30
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:41:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729441AbfLCWzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:55:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49144 "EHLO mail.kernel.org"
+        id S1727953AbfLCWl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:41:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730321AbfLCWy7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:54:59 -0500
+        id S1728550AbfLCWlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:41:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7693214AF;
-        Tue,  3 Dec 2019 22:54:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D68B82084B;
+        Tue,  3 Dec 2019 22:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413699;
-        bh=zYB41gfG09mqdRPWxWlUgH4vOV0svqU0ru6XZw2f+fE=;
+        s=default; t=1575412885;
+        bh=VbReP7Qkbf3t3xJNhOIE20IUIgjrJJkVWaMD9BCNTDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfOQ6YKmwFX1jXj3bUBCiHsUUwldpfFHtuoU0IWPdqdI3h2fX56mKU7Qo4hY2tzoX
-         PPwNg1qPNQu3J1ZdhETk66fJmJG1PcMlitpjsN8ZaxPY8FItC5BMaDRLeV+vV8KhzE
-         Al2HA0x32hN4fTNZsPXnr1sXAHZ3OPcnRrsm9lOs=
+        b=MQDNCXplqanrNyczn6msiZuQdwNfI2L57OyRPSpAVD7ZJ2lDVXmmVYynf2R4Qm/Sd
+         0uOwTsS+HE3nT/c6vRzfP70wPEJjEONE7d1b8sMP7dIt9V4h6xcXotw0894WTWOelX
+         LMNBeqsJVOi7gH4zO40B4SHpgnxVT9tWw998MXrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 229/321] blktrace: Show requests without sector
+Subject: [PATCH 5.3 055/135] can: rx-offload: can_rx_offload_offload_one(): increment rx_fifo_errors on queue overflow or OOM
 Date:   Tue,  3 Dec 2019 23:34:55 +0100
-Message-Id: <20191203223439.028520755@linuxfoundation.org>
+Message-Id: <20191203213020.458989998@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 0803de78049fe1b0baf44bcddc727b036fb9139b ]
+[ Upstream commit 4e9016bee3bf0c24963097edace034ff205b565c ]
 
-Currently, blktrace will not show requests that don't have any data as
-rq->__sector is initialized to -1 which is out of device range and thus
-discarded by act_log_check(). This is most notably the case for cache
-flush requests sent to the device. Fix the problem by making
-blk_rq_trace_sector() return 0 for requests without initialized sector.
+If the rx-offload skb_queue is full or the skb allocation fails (due to OOM),
+the mailbox contents is discarded.
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This patch adds the incrementing of the rx_fifo_errors statistics counter.
+
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/blktrace_api.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/can/rx-offload.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/blktrace_api.h b/include/linux/blktrace_api.h
-index 8804753805ac5..7bb2d8de9f308 100644
---- a/include/linux/blktrace_api.h
-+++ b/include/linux/blktrace_api.h
-@@ -116,7 +116,13 @@ extern void blk_fill_rwbs(char *rwbs, unsigned int op, int bytes);
+diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
+index bdc27481b57f9..e224530a06300 100644
+--- a/drivers/net/can/rx-offload.c
++++ b/drivers/net/can/rx-offload.c
+@@ -125,8 +125,10 @@ static struct sk_buff *can_rx_offload_offload_one(struct can_rx_offload *offload
  
- static inline sector_t blk_rq_trace_sector(struct request *rq)
- {
--	return blk_rq_is_passthrough(rq) ? 0 : blk_rq_pos(rq);
-+	/*
-+	 * Tracing should ignore starting sector for passthrough requests and
-+	 * requests where starting sector didn't get set.
-+	 */
-+	if (blk_rq_is_passthrough(rq) || blk_rq_pos(rq) == (sector_t)-1)
-+		return 0;
-+	return blk_rq_pos(rq);
- }
+ 		ret = offload->mailbox_read(offload, &cf_overflow,
+ 					    &timestamp, n);
+-		if (ret)
++		if (ret) {
+ 			offload->dev->stats.rx_dropped++;
++			offload->dev->stats.rx_fifo_errors++;
++		}
  
- static inline unsigned int blk_rq_trace_nr_sectors(struct request *rq)
+ 		return NULL;
+ 	}
 -- 
 2.20.1
 
