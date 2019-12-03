@@ -2,153 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E025110623
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 21:49:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2769911062C
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 21:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727309AbfLCUtK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 15:49:10 -0500
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:40551 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727244AbfLCUtK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 15:49:10 -0500
-Received: by mail-pl1-f194.google.com with SMTP id g6so2161217plp.7;
-        Tue, 03 Dec 2019 12:49:10 -0800 (PST)
+        id S1727458AbfLCU5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 15:57:37 -0500
+Received: from mail-wm1-f53.google.com ([209.85.128.53]:55781 "EHLO
+        mail-wm1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727244AbfLCU5h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 15:57:37 -0500
+Received: by mail-wm1-f53.google.com with SMTP id q9so3474411wmj.5
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 12:57:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XLtelNLxbVZEHBasZGnixH3U/kq18l4OfB2alic4gpk=;
+        b=Fy4QuTV3Lk/RlT5fzy0aTUYaudXQevVy1rjbXli2hjEPFJ8NNhXLfBvT2OF/TOs/yy
+         nqYAZnoNhsO0cRzdmKgvl5IiccIMqbWpIAXDAFOFf9zOmAPcTCmlCQw/nbpN4DyU6ET2
+         W+n2x+2MwraIqk9eXynEKwdSF8IE8FXItF6MjT9tUb9JXllm/m2KUqmQRqRl+BF6ypTH
+         sIZV5U2oYYk1AK87W+LxeVCv55ke5QbiqgZUXS4Jhp4MieZFSS/rKJNT5YkfayFLqZw9
+         KrALU11pylCeJnvmvdd8thMum7CwSDlxm21UWnaeyS4TAQAAZhzJZlJEuohdScRcNjoq
+         4SuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=1G+L1iXyg9WsvAhiBU0plOD98ZEEqTeAJKnio8PQGVI=;
-        b=VAn4c43hRYNSW9YkW6dId/qpM9dnxo4p4wAtBaWee3y7TG49LiyZXvkwVZBFFV2ZG+
-         9wYbscEz9tKyiJ+3Ir1QqSAjKkXYERWTucu8usmLXmFvdcJ9PuWFZQhz6IYhXOBqvwsq
-         cfe4qD0Mw5F6jDWComWSKa3tXnCmDlpbBH5wPQ9ne3S4C7/owKORmvfCiOtGxlrguBtM
-         Mn4wyEDpUpOVlijoeQYv+YiMlMTj3oRUD1fmxLXZ5cYekS9bpulDPnjn1nkD1+h1fbJB
-         g3FY8seMYL4r30oxZoeb3GIWqVgBrwf8tCnyQWIBIfwvtZ0yFsIbn5DcVygIYF6F/s/k
-         FTQQ==
-X-Gm-Message-State: APjAAAXHAklSrQyMYm10YoX+omDdL9558g2cHPHwicaCZh0mw/gB2Rzz
-        q2llT/doQK+I9unIMGxBMeCCEedwnqg=
-X-Google-Smtp-Source: APXvYqx4TZrkwIhqDQl9aBJXa/SKofSy+menGC9K2DEaF74w1ikQ3eXm3kKGaRz2rKzU4/MOI4G61A==
-X-Received: by 2002:a17:902:6b8a:: with SMTP id p10mr7129455plk.10.1575406149016;
-        Tue, 03 Dec 2019 12:49:09 -0800 (PST)
-Received: from localhost ([2601:646:8a00:9810:5af3:56d9:f882:39d4])
-        by smtp.gmail.com with ESMTPSA id fz12sm3711580pjb.15.2019.12.03.12.49.07
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XLtelNLxbVZEHBasZGnixH3U/kq18l4OfB2alic4gpk=;
+        b=Xw/Wq+iWBs1AdixfUrpXGG/1M8Bde0sePgFROpd8djCdoBAzKWz7da6AwB65GBAXe6
+         BAEQNdP/kgL2fj9w8lKlqvwZujNJPX+IudHj9+mskBRV1nEdFwVkT9EO9nR5WPqUECo6
+         LJCWD+nxsr4kQ8KYYpLnMf/WxlEZPwyOR6cYEUNTuoJEjzN9ONE/kM/Ba3AtavB460vU
+         I9DyfFJHuSg5PNg5f/TtQahi1RSdKFfiYE1TMAkKERW5Pc9K2AwoD1bV77JxXI9fSmd4
+         NFYD2X845bVwRZdWW2Xclp7/RC83oIWk9B4KWINITTDQlrsAwB6illHZX4J3GEEd4mzK
+         9gCg==
+X-Gm-Message-State: APjAAAU7M53w6KmuaPaAZF4/mSIS5+JVzCji1x6Nn2/onvZYXh66pCcT
+        nm4xBP5Q9szzn5uqopUjyfmgh92cOpY/DA==
+X-Google-Smtp-Source: APXvYqza/46KOqypvUvRvqB6VZ+5o4xbmICCBgHGQgedU8nhOO6qD2xuG2Sj+JeynPa3J1g00L0tKQ==
+X-Received: by 2002:a05:600c:21d6:: with SMTP id x22mr36954498wmj.126.1575406654639;
+        Tue, 03 Dec 2019 12:57:34 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x11sm5392695wre.68.2019.12.03.12.57.32
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Dec 2019 12:49:08 -0800 (PST)
-From:   Paul Burton <paulburton@kernel.org>
-To:     linux-mips@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP loads/stores
-Date:   Tue,  3 Dec 2019 12:49:33 -0800
-Message-Id: <20191203204933.1642259-1-paulburton@kernel.org>
-X-Mailer: git-send-email 2.24.0
+        Tue, 03 Dec 2019 12:57:32 -0800 (PST)
+Message-ID: <5de6cc3c.1c69fb81.80445.bc2a@mx.google.com>
+Date:   Tue, 03 Dec 2019 12:57:32 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.87-304-g18087c2f2df3
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 119 boots: 0 failed,
+ 112 passed with 6 offline, 1 untried/unknown (v4.19.87-304-g18087c2f2df3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Our FPU emulator currently uses __get_user() & __put_user() to perform
-emulated loads & stores. This is problematic because __get_user() &
-__put_user() are only suitable for naturally aligned memory accesses,
-and the address we're accessing is entirely under the control of
-userland.
+stable-rc/linux-4.19.y boot: 119 boots: 0 failed, 112 passed with 6 offline=
+, 1 untried/unknown (v4.19.87-304-g18087c2f2df3)
 
-This allows userland to cause a kernel panic by simply performing an
-unaligned floating point load or store - the kernel will handle the
-address error exception by attempting to emulate the instruction, and in
-the process it may generate another address error exception itself.
-This time the exception is taken with EPC pointing at the kernels FPU
-emulation code, and we hit a die_if_kernel() in
-emulate_load_store_insn().
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.87-304-g18087c2f2df3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.87-304-g18087c2f2df3/
 
-Fix this up by using __copy_from_user() instead of __get_user() and
-__copy_to_user() instead of __put_user(). These replacements will handle
-arbitrary alignment without problems.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.87-304-g18087c2f2df3
+Git Commit: 18087c2f2df3a451ab41c9b64fd85a933732a6ea
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 64 unique boards, 21 SoC families, 17 builds out of 206
 
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: <stable@vger.kernel.org> # v2.6.12+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
- arch/mips/math-emu/cp1emu.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/arch/mips/math-emu/cp1emu.c b/arch/mips/math-emu/cp1emu.c
-index 710e1f804a54..d2009b4b5209 100644
---- a/arch/mips/math-emu/cp1emu.c
-+++ b/arch/mips/math-emu/cp1emu.c
-@@ -1056,7 +1056,7 @@ static int cop1Emulate(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 			*fault_addr = dva;
- 			return SIGBUS;
- 		}
--		if (__get_user(dval, dva)) {
-+		if (__copy_from_user(&dval, dva, sizeof(u64))) {
- 			MIPS_FPU_EMU_INC_STATS(errors);
- 			*fault_addr = dva;
- 			return SIGSEGV;
-@@ -1074,7 +1074,7 @@ static int cop1Emulate(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 			*fault_addr = dva;
- 			return SIGBUS;
- 		}
--		if (__put_user(dval, dva)) {
-+		if (__copy_to_user(dva, &dval, sizeof(u64))) {
- 			MIPS_FPU_EMU_INC_STATS(errors);
- 			*fault_addr = dva;
- 			return SIGSEGV;
-@@ -1090,7 +1090,7 @@ static int cop1Emulate(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 			*fault_addr = wva;
- 			return SIGBUS;
- 		}
--		if (__get_user(wval, wva)) {
-+		if (__copy_from_user(&wval, wva, sizeof(u32))) {
- 			MIPS_FPU_EMU_INC_STATS(errors);
- 			*fault_addr = wva;
- 			return SIGSEGV;
-@@ -1108,7 +1108,7 @@ static int cop1Emulate(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 			*fault_addr = wva;
- 			return SIGBUS;
- 		}
--		if (__put_user(wval, wva)) {
-+		if (__copy_to_user(wva, &wval, sizeof(u32))) {
- 			MIPS_FPU_EMU_INC_STATS(errors);
- 			*fault_addr = wva;
- 			return SIGSEGV;
-@@ -1486,7 +1486,7 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 				*fault_addr = va;
- 				return SIGBUS;
- 			}
--			if (__get_user(val, va)) {
-+			if (__copy_from_user(&val, va, sizeof(u32))) {
- 				MIPS_FPU_EMU_INC_STATS(errors);
- 				*fault_addr = va;
- 				return SIGSEGV;
-@@ -1506,7 +1506,7 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 				*fault_addr = va;
- 				return SIGBUS;
- 			}
--			if (put_user(val, va)) {
-+			if (__copy_to_user(va, &val, sizeof(u32))) {
- 				MIPS_FPU_EMU_INC_STATS(errors);
- 				*fault_addr = va;
- 				return SIGSEGV;
-@@ -1583,7 +1583,7 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 				*fault_addr = va;
- 				return SIGBUS;
- 			}
--			if (__get_user(val, va)) {
-+			if (__copy_from_user(&val, va, sizeof(u64))) {
- 				MIPS_FPU_EMU_INC_STATS(errors);
- 				*fault_addr = va;
- 				return SIGSEGV;
-@@ -1602,7 +1602,7 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
- 				*fault_addr = va;
- 				return SIGBUS;
- 			}
--			if (__put_user(val, va)) {
-+			if (__copy_to_user(va, &val, sizeof(u64))) {
- 				MIPS_FPU_EMU_INC_STATS(errors);
- 				*fault_addr = va;
- 				return SIGSEGV;
--- 
-2.24.0
-
+For more info write to <info@kernelci.org>
