@@ -2,203 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01EE810FAC1
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 10:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 221C210FB64
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 11:08:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725997AbfLCJbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 04:31:24 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:36011 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725773AbfLCJbX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 04:31:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575365481;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ccF0ajXP8HBc8ijEIbPxb/SW3cou8LZhbpgUuAl6x/w=;
-        b=R1ul3ac7fxG4eGFSN9xr0wFmxRaGQmCdb5z/GbXib5PNBcyNGobhxc5ub6nUvPc1I2Np7M
-        CXHoPxXfQMt5vMd8PFeulCPD2F+cdI3EYGUuiN+O+kJChLIOYLZ9q6UR4KKhrcyfBg5QW4
-        VE1D8jrorZ3h9jaOzpWZVSldmIshi8k=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-199-NCUEbCQLOeyvrRChc5HxCg-1; Tue, 03 Dec 2019 04:31:17 -0500
-Received: by mail-wr1-f69.google.com with SMTP id 92so1461839wro.14
-        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 01:31:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=pqLIE58UAw3dvThIrcQE32eMUDCSJr2Vnkr2jVztGkA=;
-        b=KMR578JnURiNZ1GUbrGnmVbGxiZ3Br5lYACqD6Y8eb8iTeSh2bORr7ZqMkTK/y8uaT
-         qY6UKqLaHs5uw7GtPQK7iumeuk6LdCBmmj2epO5xDd8EPMTNkRtt3SgpED+lTFnXz9wE
-         9aBLe45fI/T8mXo8fSl9XdG0iKNwXd4fRiUDG1hDaa6AIz//7u8g7d/Vo7Y4o0vA9xYt
-         v2CA6CtpfW4WNvI2mMcQOUBUrd2nmQMiGScscJx/CYFAJ2377xFtXXqXlb18/BoGzrz8
-         RLOFIzU+yK00bHuzAn7oPyN5uYkbutvStc3jWNpXA8tiYyK2PL99N0b7gu00IAgwcTMN
-         FqVA==
-X-Gm-Message-State: APjAAAV/3G0d0KV7WROKNL5t6fKuSAK1znSDqS/2xzVM76uCGEzIcgL8
-        N0WYcVx6/rfBWV/t75kmqhoJ1+L1Go13oGpJ3p/1I79yczt4Kf9Xz6jLqWnnguEWOyQEdB8poaT
-        H2gbfPBDo3oi7Lkf2
-X-Received: by 2002:a1c:2745:: with SMTP id n66mr32903746wmn.171.1575365475980;
-        Tue, 03 Dec 2019 01:31:15 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxv/8chgzjepA9kVkC4EBIYQZG5mCLApSK9DTOrQR3Wnj2da3SiM30rKwmR/e/7TAIKVntRKA==
-X-Received: by 2002:a1c:2745:: with SMTP id n66mr32903710wmn.171.1575365475660;
-        Tue, 03 Dec 2019 01:31:15 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:8dc6:5dd5:2c0a:6a9a? ([2001:b07:6468:f312:8dc6:5dd5:2c0a:6a9a])
-        by smtp.gmail.com with ESMTPSA id r6sm2783864wrv.40.2019.12.03.01.31.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Dec 2019 01:31:15 -0800 (PST)
-Subject: Re: [PATCH 4.19 067/306] KVM: nVMX: move check_vmentry_postreqs()
- call to nested_vmx_enter_non_root_mode()
-To:     Jack Wang <jack.wang.usish@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1726189AbfLCKID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 05:08:03 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:48651 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725774AbfLCKIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 05:08:01 -0500
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1ic560-0005np-35; Tue, 03 Dec 2019 11:07:52 +0100
+Received: from [IPv6:2a03:f580:87bc:d400:858e:130c:14c0:366e] (unknown [IPv6:2a03:f580:87bc:d400:858e:130c:14c0:366e])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits)
+         client-signature RSA-PSS (4096 bits))
+        (Client CN "mkl@blackshift.org", Issuer "StartCom Class 1 Client CA" (not verified))
+        (Authenticated sender: mkl@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 8E67B4873E6;
+        Tue,  3 Dec 2019 10:07:50 +0000 (UTC)
+Subject: Re: [PATCH] can: ucan: fix non-atomic allocation in completion
+ handler
+To:     Johan Hovold <johan@kernel.org>,
+        Wolfgang Grandegger <wg@grandegger.com>
+Cc:     linux-can@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jim Mattson <jmattson@google.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20191127203114.766709977@linuxfoundation.org>
- <20191127203119.676489279@linuxfoundation.org>
- <CA+res+QKCAn8PsSgbkqXNAF0Ov5pOkj=732=M5seWj+-JFQOwQ@mail.gmail.com>
- <20191202145105.GA571975@kroah.com>
- <bccbfccd-0e96-29c3-b2ba-2b1800364b08@redhat.com>
- <CA+res+SffBsmmeEBYfoDwyLHvL8nqW+O=ZKedWCxccmQ9X6itA@mail.gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <828cf8b7-11ac-e707-57b6-cb598cc37f1b@redhat.com>
-Date:   Tue, 3 Dec 2019 10:31:13 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
+        Martin Elshuber <martin.elshuber@theobroma-systems.com>,
+        Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+References: <20191128182603.22004-1-johan@kernel.org>
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+Openpgp: preference=signencrypt
+Autocrypt: addr=mkl@pengutronix.de; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <6bb1865a-ecfd-6fb4-0621-0fa2c7693aec@pengutronix.de>
+Date:   Tue, 3 Dec 2019 11:07:46 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <CA+res+SffBsmmeEBYfoDwyLHvL8nqW+O=ZKedWCxccmQ9X6itA@mail.gmail.com>
-Content-Language: en-US
-X-MC-Unique: NCUEbCQLOeyvrRChc5HxCg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191128182603.22004-1-johan@kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="JnoY2PbaAEAL5dQV9OIN73qLYQw3HAP20"
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/12/19 10:21, Jack Wang wrote:
-> Paolo Bonzini <pbonzini@redhat.com> =E4=BA=8E2019=E5=B9=B412=E6=9C=882=E6=
-=97=A5=E5=91=A8=E4=B8=80 =E4=B8=8B=E5=8D=884:09=E5=86=99=E9=81=93=EF=BC=9A
->>
->> On 02/12/19 15:51, Greg Kroah-Hartman wrote:
->>> On Mon, Dec 02, 2019 at 03:40:04PM +0100, Jack Wang wrote:
->>>> Greg Kroah-Hartman <gregkh@linuxfoundation.org> =E4=BA=8E2019=E5=B9=B4=
-11=E6=9C=8827=E6=97=A5=E5=91=A8=E4=B8=89 =E4=B8=8B=E5=8D=8810:30=E5=86=99=
-=E9=81=93=EF=BC=9A
->>>>>
->>>>> From: Sean Christopherson <sean.j.christopherson@intel.com>
->>>>>
->>>>> [ Upstream commit 7671ce21b13b9596163a29f4712cb2451a9b97dc ]
->>>>>
->>>>> In preparation of supporting checkpoint/restore for nested state,
->>>>> commit ca0bde28f2ed ("kvm: nVMX: Split VMCS checks from nested_vmx_ru=
-n()")
->>>>> modified check_vmentry_postreqs() to only perform the guest EFER
->>>>> consistency checks when nested_run_pending is true.  But, in the
->>>>> normal nested VMEntry flow, nested_run_pending is only set after
->>>>> check_vmentry_postreqs(), i.e. the consistency check is being skipped=
-.
->>>>>
->>>>> Alternatively, nested_run_pending could be set prior to calling
->>>>> check_vmentry_postreqs() in nested_vmx_run(), but placing the
->>>>> consistency checks in nested_vmx_enter_non_root_mode() allows us
->>>>> to split prepare_vmcs02() and interleave the preparation with
->>>>> the consistency checks without having to change the call sites
->>>>> of nested_vmx_enter_non_root_mode().  In other words, the rest
->>>>> of the consistency check code in nested_vmx_run() will be joining
->>>>> the postreqs checks in future patches.
->>>>>
->>>>> Fixes: ca0bde28f2ed ("kvm: nVMX: Split VMCS checks from nested_vmx_ru=
-n()")
->>>>> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
->>>>> Cc: Jim Mattson <jmattson@google.com>
->>>>> Reviewed-by: Jim Mattson <jmattson@google.com>
->>>>> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
->>>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
->>>>> ---
->>>>>  arch/x86/kvm/vmx.c | 10 +++-------
->>>>>  1 file changed, 3 insertions(+), 7 deletions(-)
->>>>>
->>>>> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
->>>>> index fe7fdd666f091..bdf019f322117 100644
->>>>> --- a/arch/x86/kvm/vmx.c
->>>>> +++ b/arch/x86/kvm/vmx.c
->>>>> @@ -12694,6 +12694,9 @@ static int enter_vmx_non_root_mode(struct kvm=
-_vcpu *vcpu, u32 *exit_qual)
->>>>>         if (likely(!evaluate_pending_interrupts) && kvm_vcpu_apicv_ac=
-tive(vcpu))
->>>>>                 evaluate_pending_interrupts |=3D vmx_has_apicv_interr=
-upt(vcpu);
->>>>>
->>>>> +       if (from_vmentry && check_vmentry_postreqs(vcpu, vmcs12, exit=
-_qual))
->>>>> +               return EXIT_REASON_INVALID_STATE;
->>>>> +
->>>>>         enter_guest_mode(vcpu);
->>>>>
->>>>>         if (!(vmcs12->vm_entry_controls & VM_ENTRY_LOAD_DEBUG_CONTROL=
-S))
->>>>> @@ -12836,13 +12839,6 @@ static int nested_vmx_run(struct kvm_vcpu *v=
-cpu, bool launch)
->>>>>          */
->>>>>         skip_emulated_instruction(vcpu);
->>>>>
->>>>> -       ret =3D check_vmentry_postreqs(vcpu, vmcs12, &exit_qual);
->>>>> -       if (ret) {
->>>>> -               nested_vmx_entry_failure(vcpu, vmcs12,
->>>>> -                                        EXIT_REASON_INVALID_STATE, e=
-xit_qual);
->>>>> -               return 1;
->>>>> -       }
->>>>> -
->>>>>         /*
->>>>>          * We're finally done with prerequisite checking, and can sta=
-rt with
->>>>>          * the nested entry.
->>>>> --
->>>>> 2.20.1
->>>>>
->>>>>
->>>>>
->>>> Hi all,
->>>>
->>>> This commit caused many kvm-unit-tests regression, cherry-pick
->>>> following commits from 4.20 fix the regression:
->>>> d63907dc7dd1 ("KVM: nVMX: rename enter_vmx_non_root_mode to
->>>> nested_vmx_enter_non_root_mode")
->>>> a633e41e7362 ("KVM: nVMX: assimilate nested_vmx_entry_failure() into
->>>> nested_vmx_enter_non_root_mode()")
->>>
->>> Now queued up, thanks!
->>>
->>> greg k-h
->>>
->>
->> Why was it backported anyway?  Can everybody please just stop applying
->> KVM patches to stable kernels unless CCed to stable@vger.kernel.org?
->>
->> I thought I had already asked Sasha to opt out of the autoselect
->> nonsense after catching another bug that would have been introduced.
->>
->> Paolo
->>
-> Hi Paolo,
->=20
-> Should we simply revert the patch, maybe also
-> 9fe573d539a8 ("KVM: nVMX: reset cache/shadows when switching loaded VMCS"=
-)
->=20
-> Both of them are from one big patchset:
-> https://patchwork.kernel.org/cover/10616179/
->=20
-> Revert both patches recover the regression I see on kvm-unit-tests.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--JnoY2PbaAEAL5dQV9OIN73qLYQw3HAP20
+Content-Type: multipart/mixed; boundary="aW3TfrPLtE7jtOJRGUnuzATBqHuU3ZHsv";
+ protected-headers="v1"
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+To: Johan Hovold <johan@kernel.org>, Wolfgang Grandegger <wg@grandegger.com>
+Cc: linux-can@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
+ Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>,
+ Martin Elshuber <martin.elshuber@theobroma-systems.com>,
+ Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+Message-ID: <6bb1865a-ecfd-6fb4-0621-0fa2c7693aec@pengutronix.de>
+Subject: Re: [PATCH] can: ucan: fix non-atomic allocation in completion
+ handler
+References: <20191128182603.22004-1-johan@kernel.org>
+In-Reply-To: <20191128182603.22004-1-johan@kernel.org>
 
-Greg already included the patches that the bot missed, so it's okay.
+--aW3TfrPLtE7jtOJRGUnuzATBqHuU3ZHsv
+Content-Type: text/plain; charset=utf-8
+Content-Language: de-DE
+Content-Transfer-Encoding: quoted-printable
 
-Paolo
+On 11/28/19 7:26 PM, Johan Hovold wrote:
+> USB completion handlers are called in atomic context and must
+> specifically not allocate memory using GFP_KERNEL.
+>=20
+> Fixes: 9f2d3eae88d2 ("can: ucan: add driver for Theobroma Systems UCAN =
+devices")
+> Cc: stable <stable@vger.kernel.org>     # 4.19
+> Cc: Jakob Unterwurzacher <jakob.unterwurzacher@theobroma-systems.com>
+> Cc: Martin Elshuber <martin.elshuber@theobroma-systems.com>
+> Cc: Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
+Added to linux-can.
+
+tnx,
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+
+
+--aW3TfrPLtE7jtOJRGUnuzATBqHuU3ZHsv--
+
+--JnoY2PbaAEAL5dQV9OIN73qLYQw3HAP20
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEmvEkXzgOfc881GuFWsYho5HknSAFAl3mM/IACgkQWsYho5Hk
+nSCuTgf/fwPYT7PvRKMrRRKbuCiqAnUaOvo85yVfBkEzrLkcIkXCaCpxvncLjJ+W
+xhfittVwuCMkM1ed/W6M3a90qn48XR8tlfqoL4TK9rpNczgeowZg7/iHOM8Jdofs
+nSOG9xGmd2oz3cZH6nd7pkEswRLqNZ8qgmxxxOSvT/17w2fFqVsZqZJ+jQOci6um
+dGpsA6Nf9rmX2+ibTLBdp/Ley+27eZ1ezgrsGFPokaHumMpJLlNw08EbtGfAzAjO
++VXcPDXZWgN6wHIOJpSjsMpsOk1IuTLwP98bdUWI/TBKJl8uuHDaj2zqZ+G0JvZA
+UC7QgRTucSHb2HoBa+xyDB6EzCHcOg==
+=8qrr
+-----END PGP SIGNATURE-----
+
+--JnoY2PbaAEAL5dQV9OIN73qLYQw3HAP20--
