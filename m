@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A68F111C95
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05EEA111C96
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728951AbfLCWph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:45:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34262 "EHLO mail.kernel.org"
+        id S1729084AbfLCWpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:45:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729075AbfLCWpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:45:36 -0500
+        id S1728492AbfLCWpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:45:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7434720803;
-        Tue,  3 Dec 2019 22:45:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F25E92080F;
+        Tue,  3 Dec 2019 22:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413135;
-        bh=cUBxm5bpX3BNZcvYOv8A70HiYFqDP/A/TSE0hj9URx0=;
+        s=default; t=1575413138;
+        bh=8s/D6N+MLCFZDqBWjmbNVUY9RQVu/I3sSk1MbvKERwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyxwLgA4x6EXFweshLoXkl5WwJbVI7sdNUxg/Cl4YaZtRhb8kkEhRnlBI1dTHCEIo
-         NOWpyrIW7Lwtxe5NKIYrq8U1APkBrlnAXWOjgbRc1nHa3S+VEdOhyU6g4lVkabDhja
-         cstrrUBF1mZnXfsGBA5ScFzrze6IrRYiJp5T0Qa8=
+        b=See+KfZ48Y5xt+G0Xogc6imvKVM0+s82b77lWBuI7zb0lyoQdjW8ZrNvKmKfdb1rw
+         afoiMbRBj/+oFNTY9nNJCmlQ8CzcCB2I9AY9XFC0ebaWDUSBJdx9f/OgTrsK1K1Sxg
+         pd2VWknT5dsg0J4XIvkNh6tklwckKRogAKZEzqUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Maxime Ripard <mripard@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 013/321] clk: at91: avoid sleeping early
-Date:   Tue,  3 Dec 2019 23:31:19 +0100
-Message-Id: <20191203223427.809547362@linuxfoundation.org>
+Subject: [PATCH 4.19 014/321] clk: sunxi: Fix operator precedence in sunxi_divs_clk_setup
+Date:   Tue,  3 Dec 2019 23:31:20 +0100
+Message-Id: <20191203223427.862800725@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -47,99 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 658fd65cf0b0d511de1718e48d9a28844c385ae0 ]
+[ Upstream commit afdc74ed2d57e86c10b1d6831339770a802bab9a ]
 
-It is not allowed to sleep to early in the boot process and this may lead
-to kernel issues if the bootloader didn't prepare the slow clock and main
-clock.
+r375326 in Clang exposes an issue with operator precedence in
+sunxi_div_clk_setup:
 
-This results in the following error and dump stack on the AriettaG25:
-   bad: scheduling from the idle thread!
+drivers/clk/sunxi/clk-sunxi.c:1083:30: warning: operator '?:' has lower
+precedence than '|'; '|' will be evaluated first
+[-Wbitwise-conditional-parentheses]
+                                                 data->div[i].critical ?
+                                                 ~~~~~~~~~~~~~~~~~~~~~ ^
+drivers/clk/sunxi/clk-sunxi.c:1083:30: note: place parentheses around
+the '|' expression to silence this warning
+                                                 data->div[i].critical ?
+                                                                       ^
+                                                                      )
+drivers/clk/sunxi/clk-sunxi.c:1083:30: note: place parentheses around
+the '?:' expression to evaluate it first
+                                                 data->div[i].critical ?
+                                                                       ^
+                                                 (
+1 warning generated.
 
-Ensure it is possible to sleep, else simply have a delay.
+It appears that the intention was for ?: to be evaluated first so that
+CLK_IS_CRITICAL could be added to clkflags if the critical boolean was
+set; right now, | is being evaluated first. Add parentheses around the
+?: block to have it be evaluated first.
 
-Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lkml.kernel.org/r/20190920153906.20887-1-alexandre.belloni@bootlin.com
-Fixes: 80eded6ce8bb ("clk: at91: add slow clks driver")
-Tested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 9919d44ff297 ("clk: sunxi: Use CLK_IS_CRITICAL flag for critical clks")
+Link: https://github.com/ClangBuiltLinux/linux/issues/745
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Maxime Ripard <mripard@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/clk-main.c |  5 ++++-
- drivers/clk/at91/sckc.c     | 20 ++++++++++++++++----
- 2 files changed, 20 insertions(+), 5 deletions(-)
+ drivers/clk/sunxi/clk-sunxi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/at91/clk-main.c b/drivers/clk/at91/clk-main.c
-index 2f97a843d6d6b..fb5c14af8cc8d 100644
---- a/drivers/clk/at91/clk-main.c
-+++ b/drivers/clk/at91/clk-main.c
-@@ -354,7 +354,10 @@ static int clk_main_probe_frequency(struct regmap *regmap)
- 		regmap_read(regmap, AT91_CKGR_MCFR, &mcfr);
- 		if (mcfr & AT91_PMC_MAINRDY)
- 			return 0;
--		usleep_range(MAINF_LOOP_MIN_WAIT, MAINF_LOOP_MAX_WAIT);
-+		if (system_state < SYSTEM_RUNNING)
-+			udelay(MAINF_LOOP_MIN_WAIT);
-+		else
-+			usleep_range(MAINF_LOOP_MIN_WAIT, MAINF_LOOP_MAX_WAIT);
- 	} while (time_before(prep_time, timeout));
+diff --git a/drivers/clk/sunxi/clk-sunxi.c b/drivers/clk/sunxi/clk-sunxi.c
+index 012714d94b429..004b411b640b3 100644
+--- a/drivers/clk/sunxi/clk-sunxi.c
++++ b/drivers/clk/sunxi/clk-sunxi.c
+@@ -1086,8 +1086,8 @@ static struct clk ** __init sunxi_divs_clk_setup(struct device_node *node,
+ 						 rate_hw, rate_ops,
+ 						 gate_hw, &clk_gate_ops,
+ 						 clkflags |
+-						 data->div[i].critical ?
+-							CLK_IS_CRITICAL : 0);
++						 (data->div[i].critical ?
++							CLK_IS_CRITICAL : 0));
  
- 	return -ETIMEDOUT;
-diff --git a/drivers/clk/at91/sckc.c b/drivers/clk/at91/sckc.c
-index ab6ecefc49ad8..43ba2a8b03faf 100644
---- a/drivers/clk/at91/sckc.c
-+++ b/drivers/clk/at91/sckc.c
-@@ -74,7 +74,10 @@ static int clk_slow_osc_prepare(struct clk_hw *hw)
- 
- 	writel(tmp | AT91_SCKC_OSC32EN, sckcr);
- 
--	usleep_range(osc->startup_usec, osc->startup_usec + 1);
-+	if (system_state < SYSTEM_RUNNING)
-+		udelay(osc->startup_usec);
-+	else
-+		usleep_range(osc->startup_usec, osc->startup_usec + 1);
- 
- 	return 0;
- }
-@@ -197,7 +200,10 @@ static int clk_slow_rc_osc_prepare(struct clk_hw *hw)
- 
- 	writel(readl(sckcr) | AT91_SCKC_RCEN, sckcr);
- 
--	usleep_range(osc->startup_usec, osc->startup_usec + 1);
-+	if (system_state < SYSTEM_RUNNING)
-+		udelay(osc->startup_usec);
-+	else
-+		usleep_range(osc->startup_usec, osc->startup_usec + 1);
- 
- 	return 0;
- }
-@@ -310,7 +316,10 @@ static int clk_sam9x5_slow_set_parent(struct clk_hw *hw, u8 index)
- 
- 	writel(tmp, sckcr);
- 
--	usleep_range(SLOWCK_SW_TIME_USEC, SLOWCK_SW_TIME_USEC + 1);
-+	if (system_state < SYSTEM_RUNNING)
-+		udelay(SLOWCK_SW_TIME_USEC);
-+	else
-+		usleep_range(SLOWCK_SW_TIME_USEC, SLOWCK_SW_TIME_USEC + 1);
- 
- 	return 0;
- }
-@@ -443,7 +452,10 @@ static int clk_sama5d4_slow_osc_prepare(struct clk_hw *hw)
- 		return 0;
+ 		WARN_ON(IS_ERR(clk_data->clks[i]));
  	}
- 
--	usleep_range(osc->startup_usec, osc->startup_usec + 1);
-+	if (system_state < SYSTEM_RUNNING)
-+		udelay(osc->startup_usec);
-+	else
-+		usleep_range(osc->startup_usec, osc->startup_usec + 1);
- 	osc->prepared = true;
- 
- 	return 0;
 -- 
 2.20.1
 
