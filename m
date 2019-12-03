@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8C91111DE4
-	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:59:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35921111BCD
+	for <lists+stable@lfdr.de>; Tue,  3 Dec 2019 23:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730190AbfLCW6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:58:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
+        id S1727739AbfLCWhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:37:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729656AbfLCW6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:58:01 -0500
+        id S1727714AbfLCWhe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:37:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCC3420656;
-        Tue,  3 Dec 2019 22:58:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 380D2207DD;
+        Tue,  3 Dec 2019 22:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413881;
-        bh=BBuT6WcOlJ5I5KToApIymCv4XRE2claoTNM1LLNUSx8=;
+        s=default; t=1575412653;
+        bh=6hPF5tdZKwGefFuOFN1JDyKRb95J50q7shAcN+XnPRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbeDX6tGz1Gz50j9NWG97zSkySFeW/x9fUbrFB8sk4+nFYTLijpqLLXNYcFvFIRy6
-         shE/38o0xS3OpPBxrxerJMntaGLbGI0HIlwwXz4RK2rBkajQAMW5DtPApi84fCG7Bs
-         MPVeYXmHVwVQpUQFWe+oOc9tpnqsVb2pGRjgbuTc=
+        b=hdKY9pgWr27XG4zoaOoJD5ToyUF9y3X3d3CHFA20H7/qZ5bobliL5Zp7tchyR8nZK
+         /nJ/ClYRlEIhr8SxzjPJVpcx1fQVCFdGb98WDdmEoY2ow+vVm8E1D8UoMxJadc3RGB
+         ED6oymlYFaMgos3d5OOrNp5dYmIweY1oAi2h4n6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 258/321] RDMA/hns: Use GFP_ATOMIC in hns_roce_v2_modify_qp
-Date:   Tue,  3 Dec 2019 23:35:24 +0100
-Message-Id: <20191203223440.555593418@linuxfoundation.org>
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 05/46] driver core: platform: use the correct callback type for bus_find_device
+Date:   Tue,  3 Dec 2019 23:35:25 +0100
+Message-Id: <20191203212715.632735792@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
+References: <20191203212705.175425505@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 4e69cf1fe2c52d189acdd06c1fd99cc258aba61f ]
+commit 492c88720d36eb662f9f10c1633f7726fbb07fc4 upstream.
 
-The the below commit, hns_roce_v2_modify_qp is called inside spinlock
-while using GFP_KERNEL. Change it to GFP_ATOMIC.
+platform_find_device_by_driver calls bus_find_device and passes
+platform_match as the callback function. Casting the function to a
+mismatching type trips indirect call Control-Flow Integrity (CFI) checking.
 
-Fixes: 0425e3e6e0c7 ("RDMA/hns: Support flush cqe for hip08 in kernel space")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This change adds a callback function with the correct type and instead
+of casting the function, explicitly casts the second parameter to struct
+device_driver* as expected by platform_match.
+
+Fixes: 36f3313d6bff9 ("platform: Add platform_find_device_by_driver() helper")
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191112214156.3430-1-samitolvanen@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/platform.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index a5ec900a14ae9..7021444f18b46 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -3446,7 +3446,7 @@ static int hns_roce_v2_modify_qp(struct ib_qp *ibqp,
- 	struct device *dev = hr_dev->dev;
- 	int ret = -EINVAL;
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -1278,6 +1278,11 @@ struct bus_type platform_bus_type = {
+ };
+ EXPORT_SYMBOL_GPL(platform_bus_type);
  
--	context = kcalloc(2, sizeof(*context), GFP_KERNEL);
-+	context = kcalloc(2, sizeof(*context), GFP_ATOMIC);
- 	if (!context)
- 		return -ENOMEM;
++static inline int __platform_match(struct device *dev, const void *drv)
++{
++	return platform_match(dev, (struct device_driver *)drv);
++}
++
+ /**
+  * platform_find_device_by_driver - Find a platform device with a given
+  * driver.
+@@ -1288,7 +1293,7 @@ struct device *platform_find_device_by_d
+ 					      const struct device_driver *drv)
+ {
+ 	return bus_find_device(&platform_bus_type, start, drv,
+-			       (void *)platform_match);
++			       __platform_match);
+ }
+ EXPORT_SYMBOL_GPL(platform_find_device_by_driver);
  
--- 
-2.20.1
-
 
 
