@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A17C111F2A
+	by mail.lfdr.de (Postfix) with ESMTP id F1C27111F2B
 	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728989AbfLCWpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:45:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33350 "EHLO mail.kernel.org"
+        id S1728735AbfLCWpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:45:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728739AbfLCWpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:45:02 -0500
+        id S1729020AbfLCWpN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:45:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B826207DD;
-        Tue,  3 Dec 2019 22:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74A7D207DD;
+        Tue,  3 Dec 2019 22:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413102;
-        bh=c6CoG+ElvzE2nJ6/nYqSH5WvSz4hUr4TXIojSkX6nYY=;
+        s=default; t=1575413112;
+        bh=+2CN5l6mJ8eMxZslm+VysI6hfxmKHCqxHd9jh/oSp9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzBFtC8VIbdP4pKXUMVYUqBkrtwrubvoBQBXFSEiNTxd9LIR4u396dFr0xll7Y+ce
-         8UFmp4+fn7buo0kov4ytXW5Nh9Yci6pskyAxNq9XNt06yiXE/Os0PA8uPpyQq3TIRS
-         FFW3cxm4XqSsl4/LCt1Ics9wrM0nwOcxT1M+BoF4=
+        b=sIrzcLe9U1iAFQhzJa+KgTdu5X84GKAImEHyf6Fx9do5iwdELbZaD5ClHeOZmMt6L
+         HPwfCuT0zbfyBiaqyE0BSaHKdZXCwtnO+WPULTK1Z/xeALx1b4YZwpw7o+fHO2utBB
+         HMMeEBe4SEXg3AIYi30jgva0G/ec5R0qwnkMJS9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
+        John Rutherford <john.rutherford@dektech.com.au>,
+        Jon Maloy <jon.maloy@ericsson.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 126/135] net/tls: remove the dead inplace_crypto code
-Date:   Tue,  3 Dec 2019 23:36:06 +0100
-Message-Id: <20191203213045.019713052@linuxfoundation.org>
+Subject: [PATCH 5.3 130/135] tipc: fix link name length check
+Date:   Tue,  3 Dec 2019 23:36:10 +0100
+Message-Id: <20191203213045.578963380@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
 References: <20191203213005.828543156@linuxfoundation.org>
@@ -45,74 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: John Rutherford <john.rutherford@dektech.com.au>
 
-[ Upstream commit 9e5ffed37df68d0ccfb2fdc528609e23a1e70ebe ]
+[ Upstream commit fd567ac20cb0377ff466d3337e6e9ac5d0cb15e4 ]
 
-Looks like when BPF support was added by commit d3b18ad31f93
-("tls: add bpf support to sk_msg handling") and
-commit d829e9c4112b ("tls: convert to generic sk_msg interface")
-it broke/removed the support for in-place crypto as added by
-commit 4e6d47206c32 ("tls: Add support for inplace records
-encryption").
+In commit 4f07b80c9733 ("tipc: check msg->req data len in
+tipc_nl_compat_bearer_disable") the same patch code was copied into
+routines: tipc_nl_compat_bearer_disable(),
+tipc_nl_compat_link_stat_dump() and tipc_nl_compat_link_reset_stats().
+The two link routine occurrences should have been modified to check
+the maximum link name length and not bearer name length.
 
-The inplace_crypto member of struct tls_rec is dead, inited
-to zero, and sometimes set to zero again. It used to be
-set to 1 when record was allocated, but the skmsg code doesn't
-seem to have been written with the idea of in-place crypto
-in mind.
-
-Since non trivial effort is required to bring the feature back
-and we don't really have the HW to measure the benefit just
-remove the left over support for now to avoid confusing readers.
-
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Fixes: 4f07b80c9733 ("tipc: check msg->reg data len in tipc_nl_compat_bearer_disable")
+Signed-off-by: John Rutherford <john.rutherford@dektech.com.au>
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h |    1 -
- net/tls/tls_sw.c  |    6 +-----
- 2 files changed, 1 insertion(+), 6 deletions(-)
+ net/tipc/netlink_compat.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -121,7 +121,6 @@ struct tls_rec {
- 	struct list_head list;
- 	int tx_ready;
- 	int tx_flags;
--	int inplace_crypto;
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -550,7 +550,7 @@ static int tipc_nl_compat_link_stat_dump
+ 	if (len <= 0)
+ 		return -EINVAL;
  
- 	struct sk_msg msg_plaintext;
- 	struct sk_msg msg_encrypted;
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -705,8 +705,7 @@ static int tls_push_record(struct sock *
- 	}
+-	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
++	len = min_t(int, len, TIPC_MAX_LINK_NAME);
+ 	if (!string_is_valid(name, len))
+ 		return -EINVAL;
  
- 	i = msg_pl->sg.start;
--	sg_chain(rec->sg_aead_in, 2, rec->inplace_crypto ?
--		 &msg_en->sg.data[i] : &msg_pl->sg.data[i]);
-+	sg_chain(rec->sg_aead_in, 2, &msg_pl->sg.data[i]);
+@@ -822,7 +822,7 @@ static int tipc_nl_compat_link_reset_sta
+ 	if (len <= 0)
+ 		return -EINVAL;
  
- 	i = msg_en->sg.end;
- 	sk_msg_iter_var_prev(i);
-@@ -971,8 +970,6 @@ alloc_encrypted:
- 			if (ret)
- 				goto fallback_to_reg_send;
+-	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
++	len = min_t(int, len, TIPC_MAX_LINK_NAME);
+ 	if (!string_is_valid(name, len))
+ 		return -EINVAL;
  
--			rec->inplace_crypto = 0;
--
- 			num_zc++;
- 			copied += try_to_copy;
- 
-@@ -1171,7 +1168,6 @@ alloc_payload:
- 
- 		tls_ctx->pending_open_record_frags = true;
- 		if (full_record || eor || sk_msg_full(msg_pl)) {
--			rec->inplace_crypto = 0;
- 			ret = bpf_exec_tx_verdict(msg_pl, sk, full_record,
- 						  record_type, &copied, flags);
- 			if (ret) {
 
 
