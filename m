@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED740111F3A
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43663111F3F
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:10:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728967AbfLCWpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:45:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34872 "EHLO mail.kernel.org"
+        id S1729037AbfLCWqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:46:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728492AbfLCWpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:45:55 -0500
+        id S1728015AbfLCWqX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:46:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8784620656;
-        Tue,  3 Dec 2019 22:45:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 210C52084B;
+        Tue,  3 Dec 2019 22:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413154;
-        bh=MyMPnGxQeKNHSmYWYeGk/5IhCg2s/1dE9/TP62ybBlA=;
+        s=default; t=1575413182;
+        bh=3MPmXrUepXMgUnsZ9X97eB/Uc79sY9PVqfT/RaSuPHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6YRhbA2WmS2JlDonWRjm9ppD0RbstFoP7CZPUbW06TBXaZGT5TiBCfHZkqp78Epk
-         cUBK2gwSnu9xcc4BlGHe24b42UVPgfYRwggvAQOQEBvTCWRGlpcL40DRXb5K2XhhtI
-         R8obaVPIerAWvGARjq8+49opTMK7fTJno/MQsQ9M=
+        b=Na2R5+CbQRoiutVWgNGSpjVp0m0RlZ5Czqz11CCJW8l2sSTRGGlN5EOFeXoh/WRM5
+         v4zXzJJAEQFExMECrsdWYYN+u158nt+ApbDKHskQPWv5NQsZ21ZUFsJLmwrXx6NlFP
+         bn0Whu616EZnhL8I1+W2dB47U7R7XvFV6Xe7mfHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 002/321] clocksource/drivers/mediatek: Fix error handling
-Date:   Tue,  3 Dec 2019 23:31:08 +0100
-Message-Id: <20191203223427.247624075@linuxfoundation.org>
+Subject: [PATCH 4.19 003/321] ASoC: msm8916-wcd-analog: Fix RX1 selection in RDAC2 MUX
+Date:   Tue,  3 Dec 2019 23:31:09 +0100
+Message-Id: <20191203223427.298941996@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -44,137 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Parent <fparent@baylibre.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 41d49e7939de5ec532d86494185b2ca2e99c848a ]
+[ Upstream commit 9110d1b0e229cebb1ffce0c04db2b22beffd513d ]
 
-When timer_of_init fails, it cleans up after itself by undoing
-everything it did during the initialization function.
+According to the PM8916 Hardware Register Description,
+CDC_D_CDC_CONN_HPHR_DAC_CTL has only a single bit (RX_SEL)
+to switch between RX1 (0) and RX2 (1). It is not possible to
+disable it entirely to achieve the "ZERO" state.
 
-mtk_syst_init and mtk_gpt_init both call timer_of_cleanup if
-timer_of_init fails. timer_of_cleanup try to release the resource
-taken.  Since these resources have already been cleaned up by
-timer_of_init, we end up getting a few warnings printed:
+However, at the moment the "RDAC2 MUX" mixer defines three possible
+values ("ZERO", "RX2" and "RX1"). Setting the mixer to "ZERO"
+actually configures it to RX1. Setting the mixer to "RX1" has
+(seemingly) no effect.
 
-[    0.001935] WARNING: CPU: 0 PID: 0 at __clk_put+0xe8/0x128
-[    0.002650] Modules linked in:
-[    0.003058] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.67+ #1
-[    0.003852] Hardware name: MediaTek MT8183 (DT)
-[    0.004446] pstate: 20400085 (nzCv daIf +PAN -UAO)
-[    0.005073] pc : __clk_put+0xe8/0x128
-[    0.005555] lr : clk_put+0xc/0x14
-[    0.005988] sp : ffffff80090b3ea0
-[    0.006422] x29: ffffff80090b3ea0 x28: 0000000040e20018
-[    0.007121] x27: ffffffc07bfff780 x26: 0000000000000001
-[    0.007819] x25: ffffff80090bda80 x24: ffffff8008ec5828
-[    0.008517] x23: ffffff80090bd000 x22: ffffff8008d8b2e8
-[    0.009216] x21: 0000000000000001 x20: fffffffffffffdfb
-[    0.009914] x19: ffffff8009166180 x18: 00000000002bffa8
-[    0.010612] x17: ffffffc012996980 x16: 0000000000000000
-[    0.011311] x15: ffffffbf004a6800 x14: 3536343038393334
-[    0.012009] x13: 2079726576652073 x12: 7eb9c62c5c38f100
-[    0.012707] x11: ffffff80090b3ba0 x10: ffffff80090b3ba0
-[    0.013405] x9 : 0000000000000004 x8 : 0000000000000040
-[    0.014103] x7 : ffffffc079400270 x6 : 0000000000000000
-[    0.014801] x5 : ffffffc079400248 x4 : 0000000000000000
-[    0.015499] x3 : 0000000000000000 x2 : 0000000000000000
-[    0.016197] x1 : ffffff80091661c0 x0 : fffffffffffffdfb
-[    0.016896] Call trace:
-[    0.017218]  __clk_put+0xe8/0x128
-[    0.017654]  clk_put+0xc/0x14
-[    0.018048]  timer_of_cleanup+0x60/0x7c
-[    0.018551]  mtk_syst_init+0x8c/0x9c
-[    0.019020]  timer_probe+0x6c/0xe0
-[    0.019469]  time_init+0x14/0x44
-[    0.019893]  start_kernel+0x2d0/0x46c
-[    0.020378] ---[ end trace 8c1efabea1267649 ]---
-[    0.020982] ------------[ cut here ]------------
-[    0.021586] Trying to vfree() nonexistent vm area ((____ptrval____))
-[    0.022427] WARNING: CPU: 0 PID: 0 at __vunmap+0xd0/0xd8
-[    0.023119] Modules linked in:
-[    0.023524] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W         4.19.67+ #1
-[    0.024498] Hardware name: MediaTek MT8183 (DT)
-[    0.025091] pstate: 60400085 (nZCv daIf +PAN -UAO)
-[    0.025718] pc : __vunmap+0xd0/0xd8
-[    0.026176] lr : __vunmap+0xd0/0xd8
-[    0.026632] sp : ffffff80090b3e90
-[    0.027066] x29: ffffff80090b3e90 x28: 0000000040e20018
-[    0.027764] x27: ffffffc07bfff780 x26: 0000000000000001
-[    0.028462] x25: ffffff80090bda80 x24: ffffff8008ec5828
-[    0.029160] x23: ffffff80090bd000 x22: ffffff8008d8b2e8
-[    0.029858] x21: 0000000000000000 x20: 0000000000000000
-[    0.030556] x19: ffffff800800d000 x18: 00000000002bffa8
-[    0.031254] x17: 0000000000000000 x16: 0000000000000000
-[    0.031952] x15: ffffffbf004a6800 x14: 3536343038393334
-[    0.032651] x13: 2079726576652073 x12: 7eb9c62c5c38f100
-[    0.033349] x11: ffffff80090b3b40 x10: ffffff80090b3b40
-[    0.034047] x9 : 0000000000000005 x8 : 5f5f6c6176727470
-[    0.034745] x7 : 5f5f5f5f28282061 x6 : ffffff80091c86ef
-[    0.035443] x5 : ffffff800852b690 x4 : 0000000000000000
-[    0.036141] x3 : 0000000000000002 x2 : 0000000000000002
-[    0.036839] x1 : 7eb9c62c5c38f100 x0 : 7eb9c62c5c38f100
-[    0.037536] Call trace:
-[    0.037859]  __vunmap+0xd0/0xd8
-[    0.038271]  vunmap+0x24/0x30
-[    0.038664]  __iounmap+0x2c/0x34
-[    0.039088]  timer_of_cleanup+0x70/0x7c
-[    0.039591]  mtk_syst_init+0x8c/0x9c
-[    0.040060]  timer_probe+0x6c/0xe0
-[    0.040507]  time_init+0x14/0x44
-[    0.040932]  start_kernel+0x2d0/0x46c
+Remove "ZERO" and replace it with "RX1" to fix this.
 
-This commit remove the calls to timer_of_cleanup when timer_of_init
-fails since it is unnecessary and actually cause warnings to be printed.
-
-Fixes: a0858f937960 ("mediatek: Convert the driver to timer-of")
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/linux-arm-kernel/20190919191315.25190-1-fparent@baylibre.com/
+Fixes: 585e881e5b9e ("ASoC: codecs: Add msm8916-wcd analog codec")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20191020153007.206070-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-mediatek.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ sound/soc/codecs/msm8916-wcd-analog.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/timer-mediatek.c b/drivers/clocksource/timer-mediatek.c
-index eb10321f85178..8e7894a026ace 100644
---- a/drivers/clocksource/timer-mediatek.c
-+++ b/drivers/clocksource/timer-mediatek.c
-@@ -277,15 +277,12 @@ static int __init mtk_syst_init(struct device_node *node)
+diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
+index b7cf7cce95fec..4f0497ab1aa80 100644
+--- a/sound/soc/codecs/msm8916-wcd-analog.c
++++ b/sound/soc/codecs/msm8916-wcd-analog.c
+@@ -303,7 +303,7 @@ struct pm8916_wcd_analog_priv {
+ };
  
- 	ret = timer_of_init(node, &to);
- 	if (ret)
--		goto err;
-+		return ret;
+ static const char *const adc2_mux_text[] = { "ZERO", "INP2", "INP3" };
+-static const char *const rdac2_mux_text[] = { "ZERO", "RX2", "RX1" };
++static const char *const rdac2_mux_text[] = { "RX1", "RX2" };
+ static const char *const hph_text[] = { "ZERO", "Switch", };
  
- 	clockevents_config_and_register(&to.clkevt, timer_of_rate(&to),
- 					TIMER_SYNC_TICKS, 0xffffffff);
+ static const struct soc_enum hph_enum = SOC_ENUM_SINGLE_VIRT(
+@@ -318,7 +318,7 @@ static const struct soc_enum adc2_enum = SOC_ENUM_SINGLE_VIRT(
  
- 	return 0;
--err:
--	timer_of_cleanup(&to);
--	return ret;
- }
+ /* RDAC2 MUX */
+ static const struct soc_enum rdac2_mux_enum = SOC_ENUM_SINGLE(
+-			CDC_D_CDC_CONN_HPHR_DAC_CTL, 0, 3, rdac2_mux_text);
++			CDC_D_CDC_CONN_HPHR_DAC_CTL, 0, 2, rdac2_mux_text);
  
- static int __init mtk_gpt_init(struct device_node *node)
-@@ -302,7 +299,7 @@ static int __init mtk_gpt_init(struct device_node *node)
- 
- 	ret = timer_of_init(node, &to);
- 	if (ret)
--		goto err;
-+		return ret;
- 
- 	/* Configure clock source */
- 	mtk_gpt_setup(&to, TIMER_CLK_SRC, GPT_CTRL_OP_FREERUN);
-@@ -320,9 +317,6 @@ static int __init mtk_gpt_init(struct device_node *node)
- 	mtk_gpt_enable_irq(&to, TIMER_CLK_EVT);
- 
- 	return 0;
--err:
--	timer_of_cleanup(&to);
--	return ret;
- }
- TIMER_OF_DECLARE(mtk_mt6577, "mediatek,mt6577-timer", mtk_gpt_init);
- TIMER_OF_DECLARE(mtk_mt6765, "mediatek,mt6765-timer", mtk_syst_init);
+ static const struct snd_kcontrol_new spkr_switch[] = {
+ 	SOC_DAPM_SINGLE("Switch", CDC_A_SPKR_DAC_CTL, 7, 1, 0)
 -- 
 2.20.1
 
