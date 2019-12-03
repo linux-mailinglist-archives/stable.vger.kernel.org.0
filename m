@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83AC4111EF9
+	by mail.lfdr.de (Postfix) with ESMTP id 09794111EF8
 	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729369AbfLCWtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:49:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
+        id S1729549AbfLCWtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 17:49:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729547AbfLCWtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:49:07 -0500
+        id S1729386AbfLCWtK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:49:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 955CE20684;
-        Tue,  3 Dec 2019 22:49:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 136BC20803;
+        Tue,  3 Dec 2019 22:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413347;
-        bh=nqrDeAiqwjw67y0i2EHRlzpeX2mJIKdZBClni9COesA=;
+        s=default; t=1575413349;
+        bh=JtACATcwmcbz708hHUzdd0IOTSOOkUpjlomJex/Mlv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpQxCeoY2nqdvylUr7jVZe7sv4lcBYP0TgW0ETc1iEZ9AuHu2x70e7CDQCcmkxovP
-         /5qlhv20SeHFbvphiS7tuS2iVgaWhY4QvDs5jJG/vz4pqSzNWuW1X2rRWUa/0WBGk4
-         JZrLLFuYlw/0Ik5xCbM44IFyNa/Z9M+ed3gYDI4k=
+        b=lxtkVZPT8swUkTkx9TTf1b7WA0UnLGdjHAPSTYiyq1ufXZMuptpq7fWqhNX0iLxSm
+         ZUfqOBQt6N3JbpOsMbEnMCYEm91TKERUSXbPbsfoOtafohfje7+RgS04tXxt9rctR3
+         ZFXnLCYNZ3nv2zc3tKS5qK8+skXlaC0aHMxoxwlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Shenghui Wang <shhuiw@foxmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 094/321] rtl818x: fix potential use after free
-Date:   Tue,  3 Dec 2019 23:32:40 +0100
-Message-Id: <20191203223432.051347388@linuxfoundation.org>
+Subject: [PATCH 4.19 095/321] bcache: do not check if debug dentry is ERR or NULL explicitly on remove
+Date:   Tue,  3 Dec 2019 23:32:41 +0100
+Message-Id: <20191203223432.102563399@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
 References: <20191203223427.103571230@linuxfoundation.org>
@@ -45,41 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Shenghui Wang <shhuiw@foxmail.com>
 
-[ Upstream commit afbb1947db94eacc5a13302eee88a9772fb78935 ]
+[ Upstream commit ae17102316550b4b230a283febe31b2a9ff30084 ]
 
-entry is released via usb_put_urb just after calling usb_submit_urb.
-However, entry is used if the submission fails, resulting in a use after
-free bug. The patch fixes this.
+debugfs_remove and debugfs_remove_recursive will check if the dentry
+pointer is NULL or ERR, and will do nothing in that case.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-ACKed-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Remove the check in cache_set_free and bch_debug_init.
+
+Signed-off-by: Shenghui Wang <shhuiw@foxmail.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/bcache/debug.c | 3 +--
+ drivers/md/bcache/super.c | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c b/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
-index 9a1d15b3ce453..518caaaf8a987 100644
---- a/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
-+++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
-@@ -444,12 +444,13 @@ static int rtl8187_init_urbs(struct ieee80211_hw *dev)
- 		skb_queue_tail(&priv->rx_queue, skb);
- 		usb_anchor_urb(entry, &priv->anchored);
- 		ret = usb_submit_urb(entry, GFP_KERNEL);
--		usb_put_urb(entry);
- 		if (ret) {
- 			skb_unlink(skb, &priv->rx_queue);
- 			usb_unanchor_urb(entry);
-+			usb_put_urb(entry);
- 			goto err;
- 		}
-+		usb_put_urb(entry);
- 	}
- 	return ret;
+diff --git a/drivers/md/bcache/debug.c b/drivers/md/bcache/debug.c
+index 06da66b2488ae..8c53d874ada4a 100644
+--- a/drivers/md/bcache/debug.c
++++ b/drivers/md/bcache/debug.c
+@@ -249,8 +249,7 @@ void bch_debug_init_cache_set(struct cache_set *c)
  
+ void bch_debug_exit(void)
+ {
+-	if (!IS_ERR_OR_NULL(bcache_debug))
+-		debugfs_remove_recursive(bcache_debug);
++	debugfs_remove_recursive(bcache_debug);
+ }
+ 
+ void __init bch_debug_init(struct kobject *kobj)
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 4998b4cae9c11..14d381cc6d747 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1491,8 +1491,7 @@ static void cache_set_free(struct closure *cl)
+ 	struct cache *ca;
+ 	unsigned int i;
+ 
+-	if (!IS_ERR_OR_NULL(c->debug))
+-		debugfs_remove(c->debug);
++	debugfs_remove(c->debug);
+ 
+ 	bch_open_buckets_free(c);
+ 	bch_btree_cache_free(c);
 -- 
 2.20.1
 
