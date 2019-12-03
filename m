@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6793811204A
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:31:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4CB311204C
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:33:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726395AbfLCXbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:31:08 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51823 "EHLO
+        id S1726363AbfLCXdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:33:04 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:50889 "EHLO
         mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726144AbfLCXbH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:31:07 -0500
-Received: by mail-wm1-f66.google.com with SMTP id g206so5074808wme.1
-        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:31:05 -0800 (PST)
+        with ESMTP id S1726144AbfLCXdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:33:03 -0500
+Received: by mail-wm1-f66.google.com with SMTP id p9so5088193wmg.0
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:33:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Y8UcjpPXP0dkBwA69LJ0NpHT+UcdWSS4UtsNwrG9naw=;
-        b=VVd+jIIqv/fZbl8HJH6MpkCVFVQ3wFQ8llBTT/wLdAAkbl8eW1yviv8q3DGYSciqUA
-         sqa8gNx98no8UWiyhpQoojgqAfHfhgzvdCWF8IAD5vd689Ls+j7wl1Ky3dODMONQ8uwA
-         bT7OCzDfYWUz1HG5ATYy2nNNLgiLeO5GIIOrSo/WqFVTTRmYGAttRnVp5rP4MFvyl6Cd
-         wF8rufwLmVXWBMIHqZK7mk15Ev4ocuuSVP40yBkpnghB02WVnbnmImx3GBhNqCMJtKtF
-         noYLJj9QR07uCJ2lVtSiD1KXjpVb63CKzVVrDr9nuh8tOFiJzfbNzKk+Z4uUk5PW3fYl
-         W/5w==
+        bh=6kWvmHfYLNjYH7WfXIG9DzsdlHfQiN3oEcT8iN70hvU=;
+        b=PiDlUPTZ61CMlKTUM6DaegG5B+7wSr90EIrsP8oWMDectOk7CaBu3LUH2Cn00DBUxq
+         RJj+D1OB7bEQBOv65/YmKRHPam4uAs/xVym1ks2Fp0j0RKWiFjf4JhpecDVNKXOWBUsI
+         syysQkaKDNlalD2gp3G7DZ77wdymyrhTLkHZ5M6RB7nyGnR8gYXRv8pR8Jg6nFyLDSIy
+         E6bYQDL/LIeo2nxtkzGsGtQ2XeqLbWj08qK8ou4Yr91txmuEsy30bXvbqIUX+BvgVFbE
+         z4UsEkb4qT5A6yV5XrSW7vXSBJjua7qbf2pMV4Hzikv/8XzM3AQwDR9tTX1Ok4btdPAP
+         Hf+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Y8UcjpPXP0dkBwA69LJ0NpHT+UcdWSS4UtsNwrG9naw=;
-        b=JNH3+iMtftTwHV1RIQCyWaz+yuCvvnQY54rP19/+3pFZ6c6ZSZJZBCnr4tz573dTB2
-         qqdUlwvc7NLtGdtP4uUil1KhbsYvAzc5bjm2CaHlaa0Y1+gs1HNoDPfWhiqzveusk/ot
-         7i/QWblDfYrfoBhQ4eZRKX1GHhXOthFP4UPYOOWjBzWyzFQg26D9C/0PP0caQuynXp/m
-         H6QktS2+mQDCq7YrYzfVakxUutrwbcdZZ+cY5VSdRMkt3scwHELxXLH1TxGOvzNmJpH1
-         bBmBYcNZOnWVaJCG+ir1rsJytzRWfbOTXcY9AJkeQ9vaci2JC9uaGb6yS09WOwCI0iDw
-         KTgQ==
-X-Gm-Message-State: APjAAAUz5Wh9e9LpMUESUfo1wddWxfssKIQc9yzyxCHNncq2P2dK3FAM
-        SZ58qUwmZC9G9KFtoUc+r9tgKFW0QZu4ClRXWB5mpg==
-X-Google-Smtp-Source: APXvYqyGpAnPog5jh2rVlqBoxDi0Lr8PEA/g6DfdhwatQXkXFEzLOPSBSG9StDKYdaOCgZsXA7+XwrDGP69IuUohkJs=
-X-Received: by 2002:a7b:cd83:: with SMTP id y3mr39136133wmj.168.1575415864420;
- Tue, 03 Dec 2019 15:31:04 -0800 (PST)
+        bh=6kWvmHfYLNjYH7WfXIG9DzsdlHfQiN3oEcT8iN70hvU=;
+        b=LnF0h3LXqqya2GvqgNlvR9L4SoQCjC0g1+tn0RtEdrdwVViTWT3ehg5EiUOyXsTqha
+         IUVrWBJdnMxYjneEbMQtX5U1ibtibQ5X00WoR0zPyJW2dXi4TqhXfBXBGgvGiGO1AA4G
+         qW0A94nbzdLiOkU1I0QyrTZiuU6ghTOUM3dHCUkdI+AISxyudAKb1SiBlzLRju4+sUzq
+         oChvWPsnueaX5rCn6IrZbEIMubGntKyDvj28XwGG0yEQdQpSG6Yy3jLaxkn2Goath9tN
+         8QAN4fD1MJUyQHqzmeCDHLGH8/MM9NPLbLmxNcrnfMxvCWLB8VZa2TaebUHKOdbIn6G3
+         ZVgg==
+X-Gm-Message-State: APjAAAXnqrXWlILysoj54Jh3F1XriS1x663uS62Sz28Er8Y1AeIta/+D
+        tVIAjotncLHyEB59BRYLvj7qgnXFS5vv9G2XsqX2wFFKiOo=
+X-Google-Smtp-Source: APXvYqzSFZB3RIezZR8G+wrSkiiV1V5Ycz0g8EmIpCLQz5g56LhdOwfs4ehfHyRhnwc8Rhula+W1rO3ZTXJQe6Edqd0=
+X-Received: by 2002:a7b:c392:: with SMTP id s18mr24362934wmj.169.1575415980390;
+ Tue, 03 Dec 2019 15:33:00 -0800 (PST)
 MIME-Version: 1.0
 References: <CAPtwhKrmvw8wm1u_36YEoLgQ8pGe=v5xaV2RN4W6jVw3zOgeQQ@mail.gmail.com>
  <20191203230944.GA3495297@kroah.com> <CAPtwhKpZCequxTMzAcVcJ34EW4AFqNDcWuoud-D3nywpYxzx5Q@mail.gmail.com>
- <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com>
-In-Reply-To: <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com>
+ <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com> <CAPtwhKrCY4ZWFPYsr5N3LcAJOJVStN9Qb93-zk+GFRNVsfGxgQ@mail.gmail.com>
+In-Reply-To: <CAPtwhKrCY4ZWFPYsr5N3LcAJOJVStN9Qb93-zk+GFRNVsfGxgQ@mail.gmail.com>
 From:   Xuewei Zhang <xueweiz@google.com>
-Date:   Tue, 3 Dec 2019 15:30:52 -0800
-Message-ID: <CAPtwhKrCY4ZWFPYsr5N3LcAJOJVStN9Qb93-zk+GFRNVsfGxgQ@mail.gmail.com>
+Date:   Tue, 3 Dec 2019 15:32:49 -0800
+Message-ID: <CAPtwhKoMk+AY2D9Akoh_v4fSTj9JtUT1k+DQ_qcuK=zbZSdpgw@mail.gmail.com>
 Subject: Re: Request to backport 4929a4e6faa0 to stable tree
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org
@@ -57,7 +57,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Backport patch that cleanly applies for 4.19, 4.14, 4.9, 4.4 stable trees:
+Backport patch that cleanly applies for 3.16 stable tree:
 
 From 199df9edf62c339b5459fc53d4631c82a3b82f5b Mon Sep 17 00:00:00 2001
 From: Xuewei Zhang <xueweiz@google.com>
