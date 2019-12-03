@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A631111E81
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:03:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91638112012
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729867AbfLCWxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:53:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47228 "EHLO mail.kernel.org"
+        id S1728389AbfLCXMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:12:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730046AbfLCWxs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:53:48 -0500
+        id S1728049AbfLCWkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:40:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E8C720656;
-        Tue,  3 Dec 2019 22:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78FB22073C;
+        Tue,  3 Dec 2019 22:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575413626;
-        bh=KG6ooScHarpxP6/uZ0p1fKUiCMRXaGr7NhSoKbbuXzU=;
+        s=default; t=1575412815;
+        bh=6aZUMqtER/CrO+tBsO/WYKls1zOlhwfAyEZ/V2jk7+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HRWP2Qq59Z190qGBEyLpa4ecjV7A83YO1PskE2DjhTxUnInbIwwniG6lXjolo3zCM
-         6vGoySEU7dRv97ArwIjwtvgwb3UcL+KVNAWCO4W2ImQ9BcaJpg4R1WWSVHv9AUAlra
-         gl3PZPu9+aZSaqMx5REvBL6tWLa2C1fcJAN8jnGI=
+        b=l3UcRbsA35SjTOQXtyhxAEDFvddfuJEklDQqdpLzlrD5sAsKl6Q9N3TjipytVeaKE
+         cbXpIM8TdO605KSsjLQCL8lePI7xxy76VKWoGKDUSNHCzamfw3dAtIyTRWU3n15TVC
+         rShIJjaHNIurUlv+VK5Ck9cCNvXmynZyILiJGNUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Lu <aaron.lu@intel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Pankaj gupta <pagupta@redhat.com>,
-        Pawel Staszewski <pstaszewski@itcare.pl>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Cheng-Yi Chiang <cychiang@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 199/321] mm/page_alloc.c: use a single function to free page
-Date:   Tue,  3 Dec 2019 23:34:25 +0100
-Message-Id: <20191203223437.473215664@linuxfoundation.org>
+Subject: [PATCH 5.3 027/135] ASoC: rockchip: rockchip_max98090: Enable SHDN to fix headset detection
+Date:   Tue,  3 Dec 2019 23:34:27 +0100
+Message-Id: <20191203213011.147408629@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
-References: <20191203223427.103571230@linuxfoundation.org>
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+References: <20191203213005.828543156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Lu <aaron.lu@intel.com>
+From: Cheng-Yi Chiang <cychiang@chromium.org>
 
-[ Upstream commit 742aa7fb52c56fb3b307e704f93e67b698959cc2 ]
+[ Upstream commit 07c1b73e2a027ea9a52677beeb6a943a3e357139 ]
 
-There are multiple places of freeing a page, they all do the same things
-so a common function can be used to reduce code duplicate.
+max98090 spec states that chip needs to be in turned-on state to supply
+mic bias. Enable SHDN dapm widget along with MICBIAS widget to
+actually turn on mic bias for proper headset button detection.
+This is similar to cht_ti_jack_event in
+sound/soc/intel/boards/cht_bsw_max98090_ti.c.
 
-It also avoids bug fixed in one function but left in another.
+Note that due to ts3a227e reports the jack event right away before the
+notifier is registered, if headset is plugged on boot, headset button
+will not get detected until headset is unplugged and plugged. This is
+still an issue to be fixed.
 
-Link: http://lkml.kernel.org/r/20181119134834.17765-3-aaron.lu@intel.com
-Signed-off-by: Aaron Lu <aaron.lu@intel.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Cc: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Cc: Jesper Dangaard Brouer <brouer@redhat.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Pankaj gupta <pagupta@redhat.com>
-Cc: Pawel Staszewski <pstaszewski@itcare.pl>
-Cc: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Cheng-Yi Chiang <cychiang@chromium.org>
+Link: https://lore.kernel.org/r/20191028095229.99438-1-cychiang@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 37 ++++++++++++++-----------------------
- 1 file changed, 14 insertions(+), 23 deletions(-)
+ sound/soc/rockchip/rockchip_max98090.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index dcc46d955df2e..74fb5c338e8fb 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4451,16 +4451,19 @@ unsigned long get_zeroed_page(gfp_t gfp_mask)
- }
- EXPORT_SYMBOL(get_zeroed_page);
+diff --git a/sound/soc/rockchip/rockchip_max98090.c b/sound/soc/rockchip/rockchip_max98090.c
+index 782e534d4c0dd..f2add1fe2e79d 100644
+--- a/sound/soc/rockchip/rockchip_max98090.c
++++ b/sound/soc/rockchip/rockchip_max98090.c
+@@ -67,10 +67,13 @@ static int rk_jack_event(struct notifier_block *nb, unsigned long event,
+ 	struct snd_soc_jack *jack = (struct snd_soc_jack *)data;
+ 	struct snd_soc_dapm_context *dapm = &jack->card->dapm;
  
--void __free_pages(struct page *page, unsigned int order)
-+static inline void free_the_page(struct page *page, unsigned int order)
- {
--	if (put_page_testzero(page)) {
--		if (order == 0)
--			free_unref_page(page);
--		else
--			__free_pages_ok(page, order);
--	}
-+	if (order == 0)		/* Via pcp? */
-+		free_unref_page(page);
-+	else
-+		__free_pages_ok(page, order);
- }
+-	if (event & SND_JACK_MICROPHONE)
++	if (event & SND_JACK_MICROPHONE) {
+ 		snd_soc_dapm_force_enable_pin(dapm, "MICBIAS");
+-	else
++		snd_soc_dapm_force_enable_pin(dapm, "SHDN");
++	} else {
+ 		snd_soc_dapm_disable_pin(dapm, "MICBIAS");
++		snd_soc_dapm_disable_pin(dapm, "SHDN");
++	}
  
-+void __free_pages(struct page *page, unsigned int order)
-+{
-+	if (put_page_testzero(page))
-+		free_the_page(page, order);
-+}
- EXPORT_SYMBOL(__free_pages);
- 
- void free_pages(unsigned long addr, unsigned int order)
-@@ -4509,14 +4512,8 @@ void __page_frag_cache_drain(struct page *page, unsigned int count)
- {
- 	VM_BUG_ON_PAGE(page_ref_count(page) == 0, page);
- 
--	if (page_ref_sub_and_test(page, count)) {
--		unsigned int order = compound_order(page);
--
--		if (order == 0)
--			free_unref_page(page);
--		else
--			__free_pages_ok(page, order);
--	}
-+	if (page_ref_sub_and_test(page, count))
-+		free_the_page(page, compound_order(page));
- }
- EXPORT_SYMBOL(__page_frag_cache_drain);
- 
-@@ -4581,14 +4578,8 @@ void page_frag_free(void *addr)
- {
- 	struct page *page = virt_to_head_page(addr);
- 
--	if (unlikely(put_page_testzero(page))) {
--		unsigned int order = compound_order(page);
--
--		if (order == 0)		/* Via pcp? */
--			free_unref_page(page);
--		else
--			__free_pages_ok(page, order);
--	}
-+	if (unlikely(put_page_testzero(page)))
-+		free_the_page(page, compound_order(page));
- }
- EXPORT_SYMBOL(page_frag_free);
+ 	snd_soc_dapm_sync(dapm);
  
 -- 
 2.20.1
