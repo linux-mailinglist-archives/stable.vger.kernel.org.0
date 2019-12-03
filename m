@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90068112047
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6793811204A
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726319AbfLCXaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 18:30:20 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:38800 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726144AbfLCXaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:30:19 -0500
-Received: by mail-wm1-f65.google.com with SMTP id p17so5798938wmi.3
-        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:30:17 -0800 (PST)
+        id S1726395AbfLCXbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:31:08 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:51823 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726144AbfLCXbH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 18:31:07 -0500
+Received: by mail-wm1-f66.google.com with SMTP id g206so5074808wme.1
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 15:31:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=f91aHxajX6/f3KnCbIoNI76adRPUjukEDh9fO/UAK6I=;
-        b=ROO+zq2a1CJPLhVMIDGZ7gBTko6D+GmkclJt9dpOs9oB/gmxj0IOWQL4bGmCRzemCc
-         30+54ms3YO9Tay+bGmSOR1TyqDxO/ZMdbcPMSQaOHtNMAeQCHPVUdcdJ71kXE6jUBjdA
-         4HxDgqzIPuTnDn9TT0ljlLY+dAYb1reeEum1gvLXlUSuedo5CGYbYUcivR8sTRrIGKfD
-         NRQ0aQBiqFakYjza4z/G+ke6s+WL98MpaZRle7TyNRzARRv/ixcN/Zhg0VDOJd0z2asf
-         NYEwd/Uxsf0228P/PFT4KORi5Sq3UA/KqCE3AYrTJyVQAXrrNtxp6jJzvDH5smFqyX4K
-         9aVg==
+        bh=Y8UcjpPXP0dkBwA69LJ0NpHT+UcdWSS4UtsNwrG9naw=;
+        b=VVd+jIIqv/fZbl8HJH6MpkCVFVQ3wFQ8llBTT/wLdAAkbl8eW1yviv8q3DGYSciqUA
+         sqa8gNx98no8UWiyhpQoojgqAfHfhgzvdCWF8IAD5vd689Ls+j7wl1Ky3dODMONQ8uwA
+         bT7OCzDfYWUz1HG5ATYy2nNNLgiLeO5GIIOrSo/WqFVTTRmYGAttRnVp5rP4MFvyl6Cd
+         wF8rufwLmVXWBMIHqZK7mk15Ev4ocuuSVP40yBkpnghB02WVnbnmImx3GBhNqCMJtKtF
+         noYLJj9QR07uCJ2lVtSiD1KXjpVb63CKzVVrDr9nuh8tOFiJzfbNzKk+Z4uUk5PW3fYl
+         W/5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=f91aHxajX6/f3KnCbIoNI76adRPUjukEDh9fO/UAK6I=;
-        b=Ngu2hWzwGL8Tcm3r4GpDo+qEjFMfd+6e1CynVdSPKiudzsRTC6gu+UEMK+3PsGp/HC
-         mKvBs2D60AvawmeDAK0iBNA+9pkeSunaibfO4CCJYEF0NmeosuM69+deVOtziwgjodHF
-         bz11x8mGnABL0TA0BAq8DXByWVUIuwyLq56H+aARYUjb/LWiOvlMj8ShHsrpHfb1IG9n
-         emCDQPrlmwgB+/KnwYwMOuGHhGACUkoiLLlqj/+2iY6eBtKQjWS9E9eiosN2XLkppnro
-         nAM1Yrzc9pOgUse77ZnqGXAP5DkN3dAUz94B2CEYCsWCB8mboRmavOrnTjtU7lN9AAfM
-         fG/A==
-X-Gm-Message-State: APjAAAUieRtQ4L0Yj7QcN5ydCLv2UE0HCGiktONk5/ZTKQ7o9RwEdPJK
-        icQMnjLLq8/AefmQV+HKFN24kLoodtqB9AsqPWKkTYJPlD4=
-X-Google-Smtp-Source: APXvYqxcJfWSneObAPZOaT7Gl1CPed+hZUlKecTGrqqLSfAN0yBRi91DwLi1bF5GRXX654I0xS524ZVE20O1HfQ9LsI=
-X-Received: by 2002:a05:600c:204:: with SMTP id 4mr20445243wmi.1.1575415816436;
- Tue, 03 Dec 2019 15:30:16 -0800 (PST)
+        bh=Y8UcjpPXP0dkBwA69LJ0NpHT+UcdWSS4UtsNwrG9naw=;
+        b=JNH3+iMtftTwHV1RIQCyWaz+yuCvvnQY54rP19/+3pFZ6c6ZSZJZBCnr4tz573dTB2
+         qqdUlwvc7NLtGdtP4uUil1KhbsYvAzc5bjm2CaHlaa0Y1+gs1HNoDPfWhiqzveusk/ot
+         7i/QWblDfYrfoBhQ4eZRKX1GHhXOthFP4UPYOOWjBzWyzFQg26D9C/0PP0caQuynXp/m
+         H6QktS2+mQDCq7YrYzfVakxUutrwbcdZZ+cY5VSdRMkt3scwHELxXLH1TxGOvzNmJpH1
+         bBmBYcNZOnWVaJCG+ir1rsJytzRWfbOTXcY9AJkeQ9vaci2JC9uaGb6yS09WOwCI0iDw
+         KTgQ==
+X-Gm-Message-State: APjAAAUz5Wh9e9LpMUESUfo1wddWxfssKIQc9yzyxCHNncq2P2dK3FAM
+        SZ58qUwmZC9G9KFtoUc+r9tgKFW0QZu4ClRXWB5mpg==
+X-Google-Smtp-Source: APXvYqyGpAnPog5jh2rVlqBoxDi0Lr8PEA/g6DfdhwatQXkXFEzLOPSBSG9StDKYdaOCgZsXA7+XwrDGP69IuUohkJs=
+X-Received: by 2002:a7b:cd83:: with SMTP id y3mr39136133wmj.168.1575415864420;
+ Tue, 03 Dec 2019 15:31:04 -0800 (PST)
 MIME-Version: 1.0
 References: <CAPtwhKrmvw8wm1u_36YEoLgQ8pGe=v5xaV2RN4W6jVw3zOgeQQ@mail.gmail.com>
  <20191203230944.GA3495297@kroah.com> <CAPtwhKpZCequxTMzAcVcJ34EW4AFqNDcWuoud-D3nywpYxzx5Q@mail.gmail.com>
-In-Reply-To: <CAPtwhKpZCequxTMzAcVcJ34EW4AFqNDcWuoud-D3nywpYxzx5Q@mail.gmail.com>
+ <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com>
+In-Reply-To: <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com>
 From:   Xuewei Zhang <xueweiz@google.com>
-Date:   Tue, 3 Dec 2019 15:30:05 -0800
-Message-ID: <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com>
+Date:   Tue, 3 Dec 2019 15:30:52 -0800
+Message-ID: <CAPtwhKrCY4ZWFPYsr5N3LcAJOJVStN9Qb93-zk+GFRNVsfGxgQ@mail.gmail.com>
 Subject: Re: Request to backport 4929a4e6faa0 to stable tree
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org
@@ -58,7 +59,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Backport patch that cleanly applies for 4.19, 4.14, 4.9, 4.4 stable trees:
 
-From 974bb36176677c05f257a8385fb69720ae8ed071 Mon Sep 17 00:00:00 2001
+From 199df9edf62c339b5459fc53d4631c82a3b82f5b Mon Sep 17 00:00:00 2001
 From: Xuewei Zhang <xueweiz@google.com>
 Date: Thu, 3 Oct 2019 17:12:43 -0700
 Subject: [PATCH] sched/fair: Scale bandwidth quota and period without losing
@@ -121,10 +122,10 @@ Cc: Xuewei Zhang <xueweiz@google.com>
  1 file changed, 22 insertions(+), 14 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index f77fcd37b226..f0abb8fe0ae9 100644
+index ea2d33aa1f55..773135f534ef 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -4868,20 +4868,28 @@ static enum hrtimer_restart
+@@ -3753,20 +3753,28 @@ static enum hrtimer_restart
 sched_cfs_period_timer(struct hrtimer *timer)
   if (++count > 3) {
   u64 new, old = ktime_to_ns(cfs_b->period);
@@ -139,11 +140,11 @@ sched_cfs_period_timer(struct hrtimer *timer)
 - cfs_b->quota = div64_u64(cfs_b->quota, old);
 -
 - pr_warn_ratelimited(
--        "cfs_period_timer[cpu%d]: period too short, scaling up (new
+- "cfs_period_timer[cpu%d]: period too short, scaling up (new
 cfs_period_us %lld, cfs_quota_us = %lld)\n",
--                         smp_processor_id(),
--                         div_u64(new, NSEC_PER_USEC),
--                                div_u64(cfs_b->quota, NSEC_PER_USEC));
+- smp_processor_id(),
+- div_u64(new, NSEC_PER_USEC),
+- div_u64(cfs_b->quota, NSEC_PER_USEC));
 + /*
 + * Grow period by a factor of 2 to avoid losing precision.
 + * Precision loss in the quota/period ratio can cause __cfs_schedulable
