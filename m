@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2CC2111FBF
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D4E11201C
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 00:17:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbfLCWiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 17:38:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47090 "EHLO mail.kernel.org"
+        id S1727790AbfLCXNK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 18:13:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727936AbfLCWiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 3 Dec 2019 17:38:13 -0500
+        id S1727721AbfLCWin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 3 Dec 2019 17:38:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60526207DD;
-        Tue,  3 Dec 2019 22:38:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C7E420803;
+        Tue,  3 Dec 2019 22:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575412692;
-        bh=2od75twyd8JsIVh0E+fMHEG4l6sBN9ezELJsWv4ca5o=;
+        s=default; t=1575412722;
+        bh=LSTdpTaR8hFMPic0CKoXaJCg2EX49Lkv4RNvwW08Kyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EoQiuuF2Pkia43sO0xZuMF7RxTmKU4tIzTyuiwWlBxB1f7spzuD7jSPXqGyRG8FwS
-         zdLS85qfXXBI+OrKKBi9JZgH7j1kAr4qGH9nIvDCY0dVKg2rNFpzCAMtvwg7U7VXbZ
-         vnJ8YFBfbzgtF+5acVTgcF6TppYkVqEyDt3jG1zs=
+        b=mgysItCqGVB/eqdU3+hI/KBK14Vy8BQk1IFuSnbIYW4yCRpRnScQYxNwzZsoD3DOo
+         eJ8qB1DYnaYe11rOcX7Nx13Y3xX3JuFqqyYTc7Ba00gRJxJ3ltibEusT6IC7ldxD/I
+         6OclnwoR6ajfhGWSZcPON5e7SQ3nhpMYbuxNmSq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        youling257 <youling257@gmail.com>
-Subject: [PATCH 5.4 10/46] staging: rtl8723bs: Add 024c:0525 to the list of SDIO device-ids
-Date:   Tue,  3 Dec 2019 23:35:30 +0100
-Message-Id: <20191203212724.815744118@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio DUrso <fabiodurso@hotmail.it>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 11/46] USB: serial: ftdi_sio: add device IDs for U-Blox C099-F9P
+Date:   Tue,  3 Dec 2019 23:35:31 +0100
+Message-Id: <20191203212725.867552506@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191203212705.175425505@linuxfoundation.org>
 References: <20191203212705.175425505@linuxfoundation.org>
@@ -43,33 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Fabio D'Urso <fabiodurso@hotmail.it>
 
-commit 3d5f1eedbfd22ceea94b39989d6021b1958181f4 upstream.
+commit c1a1f273d0825774c80896b8deb1c9ea1d0b91e3 upstream.
 
-Add 024c:0525 to the list of SDIO device-ids, based on a patch found
-in the Android X86 kernels. According to that patch this device id is
-used on the Alcatel Plus 10 device.
+This device presents itself as a USB hub with three attached devices:
+ - An ACM serial port connected to the GPS module (not affected by this
+   commit)
+ - An FTDI serial port connected to the GPS module (1546:0502)
+ - Another FTDI serial port connected to the ODIN-W2 radio module
+   (1546:0503)
 
-Reported-and-tested-by: youling257 <youling257@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+This commit registers U-Blox's VID and the PIDs of the second and third
+devices.
+
+Datasheet: https://www.u-blox.com/sites/default/files/C099-F9P-AppBoard-Mbed-OS3-FW_UserGuide_%28UBX-18063024%29.pdf
+
+Signed-off-by: Fabio D'Urso <fabiodurso@hotmail.it>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191111113846.24940-1-hdegoede@redhat.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8723bs/os_dep/sdio_intf.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
+ 2 files changed, 10 insertions(+)
 
---- a/drivers/staging/rtl8723bs/os_dep/sdio_intf.c
-+++ b/drivers/staging/rtl8723bs/os_dep/sdio_intf.c
-@@ -18,6 +18,7 @@
- static const struct sdio_device_id sdio_ids[] =
- {
- 	{ SDIO_DEVICE(0x024c, 0x0523), },
-+	{ SDIO_DEVICE(0x024c, 0x0525), },
- 	{ SDIO_DEVICE(0x024c, 0x0623), },
- 	{ SDIO_DEVICE(0x024c, 0x0626), },
- 	{ SDIO_DEVICE(0x024c, 0xb723), },
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1033,6 +1033,9 @@ static const struct usb_device_id id_tab
+ 	/* Sienna devices */
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
+ 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
++	/* U-Blox devices */
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+ 	{ }					/* Terminating entry */
+ };
+ 
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1558,3 +1558,10 @@
+  */
+ #define UNJO_VID			0x22B7
+ #define UNJO_ISODEBUG_V1_PID		0x150D
++
++/*
++ * U-Blox products (http://www.u-blox.com).
++ */
++#define UBLOX_VID			0x1546
++#define UBLOX_C099F9P_ZED_PID		0x0502
++#define UBLOX_C099F9P_ODIN_PID		0x0503
 
 
