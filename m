@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E13113187
+	by mail.lfdr.de (Postfix) with ESMTP id EC294113188
 	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:01:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729294AbfLDSAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:00:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38406 "EHLO mail.kernel.org"
+        id S1729306AbfLDSAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:00:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728236AbfLDSAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:00:14 -0500
+        id S1729301AbfLDSAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:00:17 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 896432081B;
-        Wed,  4 Dec 2019 18:00:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB8052073B;
+        Wed,  4 Dec 2019 18:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482414;
-        bh=QbBuGS/coJEwh6RluN11VrD758/GAztJk087GoksdZc=;
+        s=default; t=1575482416;
+        bh=3UYTPmBAQW/svZFcNquzT/A11hrYjh5lf4XFdXscCdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSTbBVdWEDwo5vHPMuLsfKv6HGxCButCwjVETvSVLs6fuWn+jcIDaMSvty96opA5C
-         rOF1hZaxclClpZc/DdgGCCt9hkl0GnCtsTGjcL8MmdPE9/ugAdzDuLMxufzB5notPk
-         w4Yqs+r76GFYH0s8JaxGKTodlbQEg+4b2RdoiFRk=
+        b=RkGxU/HkfLl1AwtYGDOjzEjB/eK0MIUY9yk+1Mz5mlpsb+hcVbd8AqDshm4CURHUj
+         HfqeRWSnIG7O013xL4tiQ13idYSuYOX2id2r7L0ZHypQjr6WA0n/yNEpYXhFkCVQ9L
+         tI53aja+lcE63wVj122iU1neOMuCKqaLBCVFhKrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.4 77/92] staging: rtl8192e: fix potential use after free
-Date:   Wed,  4 Dec 2019 18:50:17 +0100
-Message-Id: <20191204174334.879073522@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio DUrso <fabiodurso@hotmail.it>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 78/92] USB: serial: ftdi_sio: add device IDs for U-Blox C099-F9P
+Date:   Wed,  4 Dec 2019 18:50:18 +0100
+Message-Id: <20191204174334.929961825@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -43,45 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Fabio D'Urso <fabiodurso@hotmail.it>
 
-commit b7aa39a2ed0112d07fc277ebd24a08a7b2368ab9 upstream.
+commit c1a1f273d0825774c80896b8deb1c9ea1d0b91e3 upstream.
 
-The variable skb is released via kfree_skb() when the return value of
-_rtl92e_tx is not zero. However, after that, skb is accessed again to
-read its length, which may result in a use after free bug. This patch
-fixes the bug by moving the release operation to where skb is never
-used later.
+This device presents itself as a USB hub with three attached devices:
+ - An ACM serial port connected to the GPS module (not affected by this
+   commit)
+ - An FTDI serial port connected to the GPS module (1546:0502)
+ - Another FTDI serial port connected to the ODIN-W2 radio module
+   (1546:0503)
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+This commit registers U-Blox's VID and the PIDs of the second and third
+devices.
+
+Datasheet: https://www.u-blox.com/sites/default/files/C099-F9P-AppBoard-Mbed-OS3-FW_UserGuide_%28UBX-18063024%29.pdf
+
+Signed-off-by: Fabio D'Urso <fabiodurso@hotmail.it>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1572965351-6745-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8192e/rtl8192e/rtl_core.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
+ 2 files changed, 10 insertions(+)
 
---- a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
-+++ b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
-@@ -1631,14 +1631,15 @@ static void _rtl92e_hard_data_xmit(struc
- 	memcpy((unsigned char *)(skb->cb), &dev, sizeof(dev));
- 	skb_push(skb, priv->rtllib->tx_headroom);
- 	ret = _rtl92e_tx(dev, skb);
--	if (ret != 0)
--		kfree_skb(skb);
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1028,6 +1028,9 @@ static const struct usb_device_id id_tab
+ 	/* Sienna devices */
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
+ 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
++	/* U-Blox devices */
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+ 	{ }					/* Terminating entry */
+ };
  
- 	if (queue_index != MGNT_QUEUE) {
- 		priv->rtllib->stats.tx_bytes += (skb->len -
- 						 priv->rtllib->tx_headroom);
- 		priv->rtllib->stats.tx_packets++;
- 	}
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1557,3 +1557,10 @@
+  */
+ #define UNJO_VID			0x22B7
+ #define UNJO_ISODEBUG_V1_PID		0x150D
 +
-+	if (ret != 0)
-+		kfree_skb(skb);
- }
- 
- static int _rtl92e_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
++/*
++ * U-Blox products (http://www.u-blox.com).
++ */
++#define UBLOX_VID			0x1546
++#define UBLOX_C099F9P_ZED_PID		0x0502
++#define UBLOX_C099F9P_ODIN_PID		0x0503
 
 
