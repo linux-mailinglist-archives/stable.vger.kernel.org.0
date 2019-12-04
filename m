@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6265D1134D9
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56AA91134CB
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729240AbfLDS0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:26:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37616 "EHLO mail.kernel.org"
+        id S1729220AbfLDSAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:00:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728784AbfLDR77 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 12:59:59 -0500
+        id S1729254AbfLDSAC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:00:02 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DF1C20675;
-        Wed,  4 Dec 2019 17:59:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79B5520675;
+        Wed,  4 Dec 2019 18:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482399;
-        bh=884x5ShrfFbzeDpMRlDucGW/FgT0RTwPFiSeSuVL/Xw=;
+        s=default; t=1575482401;
+        bh=Oq84LTVSVC75WPxhcTGPrRuAJow9CRZ9cyQfe033SG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J921b+PQKApR+yg1dnCF7oYfJkbOrpHmMI6Wj8XG0RbVm9vQBSoyDqwkD1PENMyHc
-         882CelFqFNvwsm1o9JZ/Qo95Y8RtyyN6VduTTh8/cR5/yyWBKcA/yb+ZX8JSly+xeR
-         ke3AK6BJJqgr0DuU/TKshSQ3belzEmMlXtc0670M=
+        b=fuqsMjr52jxmmUmMfAQCooJv67JsXWzwf9v5NoPqgMZ5lY/Qhhybk6cmFafHHy1hq
+         2tyhVdntwd+gu3DDDvMsHL40YhX/MdYcq4wuDnZV4AwMNV4iur6ccN0q0y96xGC31h
+         yeRbLj5kqgWV4xVlPephn5VvlWlCXs1p1T6pPaYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jian Luo <luojian5@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 71/92] net: dev: Use unsigned integer as an argument to left-shift
-Date:   Wed,  4 Dec 2019 18:50:11 +0100
-Message-Id: <20191204174334.568891601@linuxfoundation.org>
+Subject: [PATCH 4.4 72/92] scsi: libsas: Support SATA PHY connection rate unmatch fixing during discovery
+Date:   Wed,  4 Dec 2019 18:50:12 +0100
+Message-Id: <20191204174334.620697720@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -45,33 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit f4d7b3e23d259c44f1f1c39645450680fcd935d6 ]
+[ Upstream commit cec9771d2e954650095aa37a6a97722c8194e7d2 ]
 
-1 << 31 is Undefined Behaviour according to the C standard.
-Use U type modifier to avoid theoretical overflow.
+   +----------+             +----------+
+   |          |             |          |
+   |          |--- 3.0 G ---|          |--- 6.0 G --- SAS  disk
+   |          |             |          |
+   |          |--- 3.0 G ---|          |--- 6.0 G --- SAS  disk
+   |initiator |             |          |
+   | device   |--- 3.0 G ---| Expander |--- 6.0 G --- SAS  disk
+   |          |             |          |
+   |          |--- 3.0 G ---|          |--- 6.0 G --- SATA disk  -->failed to connect
+   |          |             |          |
+   |          |             |          |--- 6.0 G --- SATA disk  -->failed to connect
+   |          |             |          |
+   +----------+             +----------+
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+According to Serial Attached SCSI - 1.1 (SAS-1.1):
+If an expander PHY attached to a SATA PHY is using a physical link rate
+greater than the maximum connection rate supported by the pathway from an
+STP initiator port, a management application client should use the SMP PHY
+CONTROL function (see 10.4.3.10) to set the PROGRAMMED MAXIMUM PHYSICAL
+LINK RATE field of the expander PHY to the maximum connection rate
+supported by the pathway from that STP initiator port.
+
+Currently libsas does not support checking if this condition occurs, nor
+rectifying when it does.
+
+Such a condition is not at all common, however it has been seen on some
+pre-silicon environments where the initiator PHY only supports a 1.5 Gbit
+maximum linkrate, mated with 12G expander PHYs and 3/6G SATA phy.
+
+This patch adds support for checking and rectifying this condition during
+initial device discovery only.
+
+We do support checking min pathway connection rate during revalidation phase,
+when new devices can be detected in the topology. However we do not
+support in the case of the the user reprogramming PHY linkrates, such that
+min pathway condition is not met/maintained.
+
+A note on root port PHY rates:
+The libsas root port PHY rates calculation is broken. Libsas sets the
+rates (min, max, and current linkrate) of a root port to the same linkrate
+of the first PHY member of that same port. In doing so, it assumes that
+all other PHYs which subsequently join the port to have the same
+negotiated linkrate, when they could actually be different.
+
+In practice this doesn't happen, as initiator and expander PHYs are
+normally initialised with consistent min/max linkrates.
+
+This has not caused an issue so far, so leave alone for now.
+
+Tested-by: Jian Luo <luojian5@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/libsas/sas_expander.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 0b211d482c961..861b71377e5e1 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -3298,7 +3298,7 @@ static inline u32 netif_msg_init(int debug_value, int default_msg_enable_bits)
- 	if (debug_value == 0)	/* no output */
- 		return 0;
- 	/* set low N bits */
--	return (1 << debug_value) - 1;
-+	return (1U << debug_value) - 1;
- }
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index d44f18f773c0f..b7e4493d3dc16 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -806,6 +806,26 @@ static struct domain_device *sas_ex_discover_end_dev(
  
- static inline void __netif_tx_lock(struct netdev_queue *txq, int cpu)
+ #ifdef CONFIG_SCSI_SAS_ATA
+ 	if ((phy->attached_tproto & SAS_PROTOCOL_STP) || phy->attached_sata_dev) {
++		if (child->linkrate > parent->min_linkrate) {
++			struct sas_phy_linkrates rates = {
++				.maximum_linkrate = parent->min_linkrate,
++				.minimum_linkrate = parent->min_linkrate,
++			};
++			int ret;
++
++			pr_notice("ex %016llx phy%02d SATA device linkrate > min pathway connection rate, attempting to lower device linkrate\n",
++				   SAS_ADDR(child->sas_addr), phy_id);
++			ret = sas_smp_phy_control(parent, phy_id,
++						  PHY_FUNC_LINK_RESET, &rates);
++			if (ret) {
++				pr_err("ex %016llx phy%02d SATA device could not set linkrate (%d)\n",
++				       SAS_ADDR(child->sas_addr), phy_id, ret);
++				goto out_free;
++			}
++			pr_notice("ex %016llx phy%02d SATA device set linkrate successfully\n",
++				  SAS_ADDR(child->sas_addr), phy_id);
++			child->linkrate = child->min_linkrate;
++		}
+ 		res = sas_get_ata_info(child, phy);
+ 		if (res)
+ 			goto out_free;
 -- 
 2.20.1
 
