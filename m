@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AED1113414
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A602311335E
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728186AbfLDSGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:06:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
+        id S1731325AbfLDSKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:10:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730487AbfLDSGE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:06:04 -0500
+        id S1731337AbfLDSKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:10:53 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1308320866;
-        Wed,  4 Dec 2019 18:06:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B8E52084B;
+        Wed,  4 Dec 2019 18:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482763;
-        bh=/Ilz3DQrQMnik72iidlCKhIT7D03qFszYXIadrSkDLE=;
+        s=default; t=1575483052;
+        bh=ZCOYm7uvTGNlci+Nc06dmUObDmY7JSDWXNomo+BzJS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixf/4sNDIUh12dM8Oygq9DiS7W0tWgFy2SSCFwTV6YRvoSxcR0OdjKlxmhI6uneQR
-         TBpXkMPPWMihGrxp1RaCleIcAzv7mVepo6w0nLiY+5Qj0oJSPTaRqfz/4MidwNhghc
-         hz+gQC8iDf5kFslaW0x8QSxrLpdc2pgPlu/zK+9k=
+        b=s+d1Bi/yn4L81yP3bVx1HQFoGYdlfe2qQ9ACp2dYcGzToE/A/w35OJXDD5aTonwg7
+         XGUMAgfNP4oBiiYLcCaf7+nG6IRla4X4sv5uTFDvXku4iivweKvqq+65vDR7I9tmLU
+         fhHK9E+ych7gGmldImMihpLEcj0kQWVc+3Y/xYiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@gmx.us>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/209] drivers/base/platform.c: kmemleak ignore a known leak
+Subject: [PATCH 4.9 031/125] microblaze: adjust the help to the real behavior
 Date:   Wed,  4 Dec 2019 18:55:36 +0100
-Message-Id: <20191204175331.600922320@linuxfoundation.org>
+Message-Id: <20191204175320.887612811@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,81 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@gmx.us>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 967d3010df8b6f6f9aa95c198edc5fe3646ebf36 ]
+[ Upstream commit bafcc61d998c1ca18f556d92a0e95335ac68c7da ]
 
-unreferenced object 0xffff808ec6dc5a80 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294938063 (age 2560.530s)
-  hex dump (first 32 bytes):
-    ff ff ff ff 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b  ........kkkkkkkk
-    6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-  backtrace:
-    [<00000000476dcf8c>] kmem_cache_alloc_trace+0x430/0x500
-    [<000000004f708d37>] platform_device_register_full+0xbc/0x1e8
-    [<000000006c2a7ec7>] acpi_create_platform_device+0x370/0x450
-    [<00000000ef135642>] acpi_default_enumeration+0x34/0x78
-    [<000000003bd9a052>] acpi_bus_attach+0x2dc/0x3e0
-    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
-    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
-    [<000000002968643e>] acpi_bus_scan+0xb0/0x110
-    [<0000000010dd0bd7>] acpi_scan_init+0x1a8/0x410
-    [<00000000965b3c5a>] acpi_init+0x408/0x49c
-    [<00000000ed4b9fe2>] do_one_initcall+0x178/0x7f4
-    [<00000000a5ac5a74>] kernel_init_freeable+0x9d4/0xa9c
-    [<0000000070ea6c15>] kernel_init+0x18/0x138
-    [<00000000fb8fff06>] ret_from_fork+0x10/0x1c
-    [<0000000041273a0d>] 0xffffffffffffffff
+"make ARCH=microblaze help" mentions simpleImage.<dt>.unstrip,
+but it is not a real Make target. It does not work because Makefile
+assumes "system.unstrip" is the name of DT.
 
-Then, faddr2line pointed out this line,
+$ make ARCH=microblaze CROSS_COMPILE=microblaze-linux- simpleImage.system.unstrip
+  [ snip ]
+make[1]: *** No rule to make target 'arch/microblaze/boot/dts/system.unstrip.dtb', needed by 'arch/microblaze/boot/dts/system.dtb'.  Stop.
+make: *** [Makefile;1060: arch/microblaze/boot/dts] Error 2
+make: *** Waiting for unfinished jobs....
 
-/*
- * This memory isn't freed when the device is put,
- * I don't have a nice idea for that though.  Conceptually
- * dma_mask in struct device should not be a pointer.
- * See http://thread.gmane.org/gmane.linux.kernel.pci/9081
- */
-pdev->dev.dma_mask =
-	kmalloc(sizeof(*pdev->dev.dma_mask), GFP_KERNEL);
+simpleImage.<dt> works like a phony target that generates multiple
+images. Reflect the real behavior. I removed the DT directory path
+information because it is already explained a few lines below.
 
-Since this leak has existed for more than 8 years and it does not
-reference other parts of the memory, let kmemleak ignore it, so users
-don't need to waste time reporting this in the future.
+While I am here, I deleted the redundant *_defconfig explanation.
 
-Link: http://lkml.kernel.org/r/20181206160751.36211-1-cai@gmx.us
-Signed-off-by: Qian Cai <cai@gmx.us>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The top-level Makefile caters to list available defconfig files:
+
+  mmu_defconfig            - Build for mmu
+  nommu_defconfig          - Build for nommu
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/microblaze/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 9045c5f3734e8..f1105de0d9fed 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -27,6 +27,7 @@
- #include <linux/clk/clk-conf.h>
- #include <linux/limits.h>
- #include <linux/property.h>
-+#include <linux/kmemleak.h>
- 
- #include "base.h"
- #include "power/power.h"
-@@ -526,6 +527,8 @@ struct platform_device *platform_device_register_full(
- 		if (!pdev->dev.dma_mask)
- 			goto err;
- 
-+		kmemleak_ignore(pdev->dev.dma_mask);
-+
- 		*pdev->dev.dma_mask = pdevinfo->dma_mask;
- 		pdev->dev.coherent_dma_mask = pdevinfo->dma_mask;
- 	}
+diff --git a/arch/microblaze/Makefile b/arch/microblaze/Makefile
+index 740f2b82a182a..5e1e18540a571 100644
+--- a/arch/microblaze/Makefile
++++ b/arch/microblaze/Makefile
+@@ -83,11 +83,11 @@ define archhelp
+   echo '* linux.bin    - Create raw binary'
+   echo '  linux.bin.gz - Create compressed raw binary'
+   echo '  linux.bin.ub - Create U-Boot wrapped raw binary'
+-  echo '  simpleImage.<dt> - ELF image with $(arch)/boot/dts/<dt>.dts linked in'
+-  echo '                   - stripped elf with fdt blob'
+-  echo '  simpleImage.<dt>.unstrip - full ELF image with fdt blob'
+-  echo '  *_defconfig      - Select default config from arch/microblaze/configs'
+-  echo ''
++  echo '  simpleImage.<dt> - Create the following images with <dt>.dtb linked in'
++  echo '                    simpleImage.<dt>        : raw image'
++  echo '                    simpleImage.<dt>.ub     : raw image with U-Boot header'
++  echo '                    simpleImage.<dt>.unstrip: ELF (identical to vmlinux)'
++  echo '                    simpleImage.<dt>.strip  : stripped ELF'
+   echo '  Targets with <dt> embed a device tree blob inside the image'
+   echo '  These targets support board with firmware that does not'
+   echo '  support passing a device tree directly. Replace <dt> with the'
 -- 
 2.20.1
 
