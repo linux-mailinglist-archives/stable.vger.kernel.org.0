@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A111133C6
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B34D8113343
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731076AbfLDSJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:09:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S1731446AbfLDSQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:16:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730607AbfLDSJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:09:38 -0500
+        id S1731762AbfLDSNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:13:30 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 313A320674;
-        Wed,  4 Dec 2019 18:09:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75A62206DF;
+        Wed,  4 Dec 2019 18:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482977;
-        bh=wjIAeldskLilIvaoK2XJFjAhvpCuqT460oTLXStuPl4=;
+        s=default; t=1575483210;
+        bh=UE13o5NrIZhLN81xQOZBSUABipSuNtXeuxUj/NUsRM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yL9/FuaMr6OhAOX8yNjHyCzNAHQ7FNOm7MXRavnu5JlgzHWrKW8eG9zBZTB81uT/1
-         Pvpkr99Xq81OnI4TcwyWdzm9v7AMofctxpVi32lgiUVePJ2/2FUzzvqhGdun4m5/Ii
-         bVC1URyKdSsV16EOHLkZHDnH0QG1ykr8PZZgSLoE=
+        b=NTunWYox9mo8cV6jG0zkpezGWv9PBUTlNtA2KNBvBREPvRJqOX6IlbiiAfVQOz3NK
+         +XsfnDfQbIGcLbD4bATboNh0rnjSIa47uPWYKCJti6owzmQEO56RhjXjHlq/CINFp/
+         PJsENwbjyxyI9SCQlqr3Z097THlukG7Ltn5ucfmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.14 190/209] futex: Split futex_mm_release() for exit/exec
-Date:   Wed,  4 Dec 2019 18:56:42 +0100
-Message-Id: <20191204175336.567830543@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 098/125] net: dev: Use unsigned integer as an argument to left-shift
+Date:   Wed,  4 Dec 2019 18:56:43 +0100
+Message-Id: <20191204175325.062669571@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 150d71584b12809144b8145b817e83b81158ae5f upstream.
+[ Upstream commit f4d7b3e23d259c44f1f1c39645450680fcd935d6 ]
 
-To allow separate handling of the futex exit state in the futex exit code
-for exit and exec, split futex_mm_release() into two functions and invoke
-them from the corresponding exit/exec_mm_release() callsites.
+1 << 31 is Undefined Behaviour according to the C standard.
+Use U type modifier to avoid theoretical overflow.
 
-Preparatory only, no functional change.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20191106224556.332094221@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/futex.h |    6 ++++--
- kernel/fork.c         |    5 ++---
- kernel/futex.c        |    7 ++++++-
- 3 files changed, 12 insertions(+), 6 deletions(-)
+ include/linux/netdevice.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/futex.h
-+++ b/include/linux/futex.h
-@@ -96,14 +96,16 @@ static inline void futex_exit_done(struc
- 	tsk->futex_state = FUTEX_STATE_DEAD;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 2ecf0f32444e0..29ed5977ac041 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3565,7 +3565,7 @@ static inline u32 netif_msg_init(int debug_value, int default_msg_enable_bits)
+ 	if (debug_value == 0)	/* no output */
+ 		return 0;
+ 	/* set low N bits */
+-	return (1 << debug_value) - 1;
++	return (1U << debug_value) - 1;
  }
  
--void futex_mm_release(struct task_struct *tsk);
-+void futex_exit_release(struct task_struct *tsk);
-+void futex_exec_release(struct task_struct *tsk);
- 
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
- 	      u32 __user *uaddr2, u32 val2, u32 val3);
- #else
- static inline void futex_init_task(struct task_struct *tsk) { }
--static inline void futex_mm_release(struct task_struct *tsk) { }
- static inline void futex_exit_done(struct task_struct *tsk) { }
-+static inline void futex_exit_release(struct task_struct *tsk) { }
-+static inline void futex_exec_release(struct task_struct *tsk) { }
- #endif
- 
- #endif
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1134,9 +1134,6 @@ static int wait_for_vfork_done(struct ta
-  */
- static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
--	/* Get rid of any futexes when releasing the mm */
--	futex_mm_release(tsk);
--
- 	uprobe_free_utask(tsk);
- 
- 	/* Get rid of any cached register state */
-@@ -1171,11 +1168,13 @@ static void mm_release(struct task_struc
- 
- void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
-+	futex_exit_release(tsk);
- 	mm_release(tsk, mm);
- }
- 
- void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
- {
-+	futex_exec_release(tsk);
- 	mm_release(tsk, mm);
- }
- 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -3684,7 +3684,7 @@ static void exit_robust_list(struct task
- 	}
- }
- 
--void futex_mm_release(struct task_struct *tsk)
-+void futex_exec_release(struct task_struct *tsk)
- {
- 	if (unlikely(tsk->robust_list)) {
- 		exit_robust_list(tsk);
-@@ -3702,6 +3702,11 @@ void futex_mm_release(struct task_struct
- 		exit_pi_state_list(tsk);
- }
- 
-+void futex_exit_release(struct task_struct *tsk)
-+{
-+	futex_exec_release(tsk);
-+}
-+
- long do_futex(u32 __user *uaddr, int op, u32 val, ktime_t *timeout,
- 		u32 __user *uaddr2, u32 val2, u32 val3)
- {
+ static inline void __netif_tx_lock(struct netdev_queue *txq, int cpu)
+-- 
+2.20.1
+
 
 
