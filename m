@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5031132DC
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:15:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D66D41133F3
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730664AbfLDSMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:12:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41174 "EHLO mail.kernel.org"
+        id S1730922AbfLDSUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:20:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731606AbfLDSMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:12:30 -0500
+        id S1728285AbfLDSHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:07:42 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5896F20863;
-        Wed,  4 Dec 2019 18:12:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73E1820674;
+        Wed,  4 Dec 2019 18:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483149;
-        bh=CwOyJhYvJ50e9gPlFXRLR7fWplvXt+Ui3hq056Pm6gE=;
+        s=default; t=1575482861;
+        bh=ZT9hE5sgcjgxC6yyVZcf8H6SE6UHbXRxc6/y6fFDXhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ju2s/qI61IWBauAtE+RBgdlv69ylG/udRv8TSpV8rVZHOQ/KjEFENrTLXeuVT94K7
-         ESRi31TDzL75FKOsCaNZvyoW9JcT+7mVRcagGnXxKOeg8jeY2bV23gVnHh1O5O/Eoh
-         qQDikqZz9osui+X7MuFZr5bS3h6Aey8hmftAT6XM=
+        b=mQhV5e1JJoWEzI8Mt1LQOO1ExE5i9mRJ8xyk66SWKrg/zq7bBC7S/wqaa+QUaz79K
+         mHrRSsGUD20gcHOxfPcRIk+OXK3cUdplDfjvb7FBkpFK00QCafUlP+lA75lp4oWgro
+         tTkz1WTg/s4XR0gE55aSIiPBvmupCaRkAkwzVOSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 071/125] powerpc/pseries: Fix node leak in update_lmb_associativity_index()
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 164/209] media: v4l2-ctrl: fix flags for DO_WHITE_BALANCE
 Date:   Wed,  4 Dec 2019 18:56:16 +0100
-Message-Id: <20191204175323.343774436@linuxfoundation.org>
+Message-Id: <20191204175334.773732457@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 47918bc68b7427e961035949cc1501a864578a69 ]
+commit a0816e5088baab82aa738d61a55513114a673c8e upstream.
 
-In update_lmb_associativity_index() we lookup dr_node using
-of_find_node_by_path() which takes a reference for us. In the
-non-error case we forget to drop the reference. Note that
-find_aa_index() does modify properties of the node, but doesn't need
-an extra reference held once it's returned.
+Control DO_WHITE_BALANCE is a button, with read only and execute-on-write flags.
+Adding this control in the proper list in the fill function.
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After adding it here, we can see output of v4l2-ctl -L
+do_white_balance 0x0098090d (button) : flags=write-only, execute-on-write
+
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/platforms/pseries/hotplug-memory.c | 1 +
+ drivers/media/v4l2-core/v4l2-ctrls.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/powerpc/platforms/pseries/hotplug-memory.c
-index 656bbbd731d03..6c12b02f4a61d 100644
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -294,6 +294,7 @@ static u32 lookup_lmb_associativity_index(struct of_drconf_cell *lmb)
- 
- 	aa_index = find_aa_index(dr_node, ala_prop, lmb_assoc);
- 
-+	of_node_put(dr_node);
- 	dlpar_free_cc_nodes(lmb_node);
- 	return aa_index;
- }
--- 
-2.20.1
-
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -1014,6 +1014,7 @@ void v4l2_ctrl_fill(u32 id, const char *
+ 	case V4L2_CID_FLASH_STROBE_STOP:
+ 	case V4L2_CID_AUTO_FOCUS_START:
+ 	case V4L2_CID_AUTO_FOCUS_STOP:
++	case V4L2_CID_DO_WHITE_BALANCE:
+ 		*type = V4L2_CTRL_TYPE_BUTTON;
+ 		*flags |= V4L2_CTRL_FLAG_WRITE_ONLY |
+ 			  V4L2_CTRL_FLAG_EXECUTE_ON_WRITE;
 
 
