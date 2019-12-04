@@ -2,71 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A463A11351B
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A139D113561
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 20:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728059AbfLDSjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:39:35 -0500
-Received: from mail-il1-f196.google.com ([209.85.166.196]:33830 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728271AbfLDSjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 13:39:35 -0500
-Received: by mail-il1-f196.google.com with SMTP id w13so510515ilo.1
-        for <stable@vger.kernel.org>; Wed, 04 Dec 2019 10:39:35 -0800 (PST)
+        id S1728649AbfLDTEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 14:04:39 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:43454 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728114AbfLDTEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 14:04:39 -0500
+Received: by mail-pl1-f196.google.com with SMTP id q16so100073plr.10;
+        Wed, 04 Dec 2019 11:04:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=tQ5qELpfmLpg+SoNAJYkTHK20GEF+bmbSEnesw7yWxw=;
-        b=obkicj+dTzNUWgQS19hbqEz24x9MgaQk+8H0QpPPqTxAk4fJW69ItxIBm8IOj07C/s
-         UsyVwhX/TGyQ6fHbyqtPxB3eSpFKN0QJ/g/Ks9bCTDkZGP6ytbPu3ojKfO4axk6coosl
-         cfcIvhBDdpC69vDbULq6OCThDf3akBr8VTy1NRJeovCsSxrU5OW7drAMhqE8uPwQ5osG
-         gH7juqiaLwWQYHnb8+ctEXoaidlIBqhi8GVlcD82uvydPD+88omioS6CLmNi9NVvBzv3
-         BIexnGtAVTOoeEF7JbNE1Fyx/JhLuxY3/dhy2oSkeR2Fqz0u2Ik+H27E2ncCgkdaanuR
-         eqkg==
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=93/C6curlOLqRyWodQ4iy3j2Dr/kM4AwvdGenAfLMBQ=;
+        b=fgLvlZOeb3C8aV1BToHfGusEsZJ5VeOHxlwx6vqRPjuKHsySAO2z5rNCGa2JdW+0LZ
+         h3MqgJF2xTnDyn++JAG3yXNBPM8m4i9oTRpehCPJ2EK1AuySzDvUNB2W1F99SJl0ErzJ
+         154oR68vMOBie8yqYe4glGc04JiEwgkGLlRip1MD00imEj+jFnQjM5KLScEC9MwSENzE
+         v3SGD5aBJxyQCJy7Ck/47vfkJt80aHDTHI80OYEwVLFS7j9Dd2860RrLm3Qqk0L1VQeg
+         AXqtnUfoxPmd7dfnQh4skpNpF59EMlXV6Xu6cSgaMJnhrACos8UobghaK7o8xZYBZ99J
+         NSeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=tQ5qELpfmLpg+SoNAJYkTHK20GEF+bmbSEnesw7yWxw=;
-        b=NQS9+OdF/h4NEXFui9o/z38D2NvEQTGz+57uo6SVfmBZGpIAUmx1lFKIMd0bk+36gE
-         bZPo94W99HfeV+vRqQYrRUfyuc3G5QV26G1Wizs9GmSE/+XJW+wqWMhwlF77S1j+b6f3
-         MQqa53Yuc2TOF0XaHcZXqX2f37mN4gg1aJhcFqyUCOaVRdyMQWgDAp7RWEHhORZC5itO
-         Ih8p7HWrURMwSQ2GmmrGxXNk61UyLzo6FjKL9RrwSyj9nEjcuwz/C5U8R10Xhy5V8Mxi
-         88pch5IV60i5C0uWok+BxZHGPicJ5oAucN2JBPwmA4zL8+kt26O0F03t4BneWNWauIDw
-         KlFQ==
-X-Gm-Message-State: APjAAAW2bB4Mgjl13PrlzFM6ogb/ER5x373uzhiDC7fVmv786prX2gJ1
-        7aHXVce/ja79PAfFXPZ4FTMmdLzr38TGjkjo8qM=
-X-Google-Smtp-Source: APXvYqwDhw3nGtFFhaOVpUF151dYt32QIICbpBiBeUcRdvAQRu7JTVTeB4iG3QMfef4P3ZRvo7AKF+/sMyAllm/9h5w=
-X-Received: by 2002:a92:4788:: with SMTP id e8mr4927808ilk.258.1575484774485;
- Wed, 04 Dec 2019 10:39:34 -0800 (PST)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=93/C6curlOLqRyWodQ4iy3j2Dr/kM4AwvdGenAfLMBQ=;
+        b=BVmz8vwVR0nQQRUIaweuOb+vVk7xddi7WUKoBqw66Kp2bEcq1CWiM3BqHRDu7l7vI1
+         0NFOwQ9OY8IthhFzupds8uGXuF2PitEAICniuhzUDAQLMVuouaI9DL5LetJRnobioEmh
+         BTc2TiaXTZhy1bhX4xnuZELIBCcKCPtqt8ynUXLCxVWGGCJvn6pA0cGaHkYUCgfFgArv
+         B3mPrT9Y6Ck4fNKLWZBfyJyG4sFJAwnIfJt3dJdWi0PrnoRNeRFoPEzoqCW3Q0bTe0sb
+         E8cArtHaw5fcW+l1I7nxIHu8iMwJlClT1yyHCNSfmzKWdAK6n6XDkwrkxMP7bowmUCAa
+         10Vg==
+X-Gm-Message-State: APjAAAUx1Iqv+YvaNDZQxk1QBPKvoubV1DK1dyO1qwvpjOjDZdAx+5sE
+        uoI8K/an9AVEBr7j2g/2Fos6Blgl
+X-Google-Smtp-Source: APXvYqzWdkHgUjHAiqg2nq9sP39LmRlVXylbdfHMwq4cP1rqkcWHIFKA7/tNhncdq+PPwg4vPPpWCA==
+X-Received: by 2002:a17:902:b68c:: with SMTP id c12mr4861370pls.126.1575486278993;
+        Wed, 04 Dec 2019 11:04:38 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id u18sm8526804pgi.44.2019.12.04.11.04.38
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 04 Dec 2019 11:04:38 -0800 (PST)
+Date:   Wed, 4 Dec 2019 11:04:37 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 000/321] 4.19.88-stable review
+Message-ID: <20191204190437.GB11419@roeck-us.net>
+References: <20191203223427.103571230@linuxfoundation.org>
 MIME-Version: 1.0
-Received: by 2002:a02:c766:0:0:0:0:0 with HTTP; Wed, 4 Dec 2019 10:39:33 -0800 (PST)
-Reply-To: lisa.wilams@yahoo.com
-From:   Lisa Williams <peterallan104@gmail.com>
-Date:   Wed, 4 Dec 2019 18:39:33 +0000
-Message-ID: <CANd-gj_5VgM0B4kSjhHXLFmnFdRqx3YkAy+LJ2TuumbxtEzurg@mail.gmail.com>
-Subject: Hi Dear
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191203223427.103571230@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Dear,
+On Tue, Dec 03, 2019 at 11:31:06PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.88 release.
+> There are 321 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 05 Dec 2019 22:30:32 +0000.
+> Anything received after that time might be too late.
+> 
+Build results:
+	total: 156 pass: 156 fail: 0
+Qemu test results:
+	total: 390 pass: 390 fail: 0
 
-      How are you doing hope you are fine and OK?
-
-I was just going through the Internet search when I found your email
-address, I want to make a new and special friend, so I decided to
-contact you to see how we can make it work out if we can. Please I
-wish you will have the desire with me so that we can get to know each
-other better and see what happens in future.
-
-My name is Lisa Williams, I am an American, but presently I live in
-the UK, I will be glad to see your reply via my private ID (
-lisawilams@yahoo.com ) for us to know each other better to exchange
-pictures and details about us.
-
-Yours
-Lisa
+Guenter
