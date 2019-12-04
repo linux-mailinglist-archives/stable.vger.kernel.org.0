@@ -2,125 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E77112DCB
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 15:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E90F6112E6C
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 16:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727958AbfLDOxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 09:53:30 -0500
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:10230 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727889AbfLDOx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 09:53:29 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5de7c8640000>; Wed, 04 Dec 2019 06:53:25 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 04 Dec 2019 06:53:28 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 04 Dec 2019 06:53:28 -0800
-Received: from [10.21.133.51] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 4 Dec
- 2019 14:53:26 +0000
-Subject: Re: [PATCH 4.19 000/321] 4.19.88-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191203223427.103571230@linuxfoundation.org>
- <79c636e7-145b-3062-04a3-f03c78d51318@nvidia.com>
- <20191204112936.GA3565947@kroah.com>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <4f1552b1-ff6b-7342-b66e-04685aacf6ea@nvidia.com>
-Date:   Wed, 4 Dec 2019 14:53:24 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1728311AbfLDP3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 10:29:44 -0500
+Received: from mga05.intel.com ([192.55.52.43]:33320 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728281AbfLDP3n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 10:29:43 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Dec 2019 07:29:43 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,277,1571727600"; 
+   d="scan'208";a="201434986"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.41])
+  by orsmga007.jf.intel.com with ESMTP; 04 Dec 2019 07:29:43 -0800
+Date:   Wed, 4 Dec 2019 07:29:42 -0800
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] KVM: x86: use CPUID to locate host page table reserved
+ bits
+Message-ID: <20191204152942.GB6323@linux.intel.com>
+References: <1575471060-55790-1-git-send-email-pbonzini@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20191204112936.GA3565947@kroah.com>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1575471205; bh=pKQ4dcP1Vhq7519pIbBUF5wIUt54ljjOZI1JZjZzBpA=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=kqxgzo71shZdTNaZbvnM0+x+fnWmZn5TbLgZO1InYj3brllXzFQSUnuPIRZDrYrQb
-         Ir4YqZ+lriKcvLrmTHS5r0HvlE1stBlo+zJ6n/85rvO4BFmXYKPEZWycKM8AO4JBFm
-         hJq63SlU0MYQXNYYSr4IFuh6yUnrStunXbGmfh9es7tvJ68tyJETKU4iH2Ok0qi1hm
-         rHKiLghwuPoK9OWyOzAMsu8DNdsAfpIX7q+Bi9MJf/ZcK91h931nq+2ktvQQtsbmjY
-         a19FJaax48W4TxHmzx8k14t7H+4iZXSc+u/x3ozuEt95dgOosw9siqXFMyNhscpXQE
-         VXlbfU2wD1YYw==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1575471060-55790-1-git-send-email-pbonzini@redhat.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 04/12/2019 11:29, Greg Kroah-Hartman wrote:
-> On Wed, Dec 04, 2019 at 09:45:31AM +0000, Jon Hunter wrote:
->>
->> On 03/12/2019 22:31, Greg Kroah-Hartman wrote:
->>> This is the start of the stable review cycle for the 4.19.88 release.
->>> There are 321 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Thu, 05 Dec 2019 22:30:32 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.88-rc1.gz
->>> or in the git tree and branch at:
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->>>
->>> -------------
->>> Pseudo-Shortlog of commits:
->>
->> ...
->>
->>> Ding Tao <miyatsu@qq.com>
->>>     arm64: dts: marvell: armada-37xx: Enable emmc on espressobin
->>
->> The above commit is causing the following build failure for ARM64 ...
->>
->>   DTC     arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb
->> arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb: ERROR
->> (phandle_references): /soc/internal-regs@d0000000/sdhci@d0000: Reference
->> to non-existent node or label "sdio_pins"
->>
->> arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb: ERROR
->> (phandle_references): /soc/internal-regs@d0000000/sdhci@d8000: Reference
->> to non-existent node or label "mmc_pins"
+On Wed, Dec 04, 2019 at 03:51:00PM +0100, Paolo Bonzini wrote:
+> The comment in kvm_get_shadow_phys_bits refers to MKTME, but the same is actually
+> true of SME and SEV.  Just use CPUID[0x8000_0008].EAX[7:0] unconditionally, it is
+> simplest and works even if memory is not encrypted.
 > 
-> Thanks for letting me know, I'll go drop this one and push out a -rc2
-> with that removed.
+> Cc: stable@vger.kernel.org
+> Reported-by: Tom Lendacky <thomas.lendacky@amd.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  arch/x86/kvm/mmu/mmu.c | 12 ++++--------
+>  1 file changed, 4 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+> index 6f92b40d798c..8b8edfbdbaef 100644
+> --- a/arch/x86/kvm/mmu/mmu.c
+> +++ b/arch/x86/kvm/mmu/mmu.c
+> @@ -538,15 +538,11 @@ void kvm_mmu_set_mask_ptes(u64 user_mask, u64 accessed_mask,
+>  static u8 kvm_get_shadow_phys_bits(void)
+>  {
+>  	/*
+> -	 * boot_cpu_data.x86_phys_bits is reduced when MKTME is detected
+> -	 * in CPU detection code, but MKTME treats those reduced bits as
+> -	 * 'keyID' thus they are not reserved bits. Therefore for MKTME
+> -	 * we should still return physical address bits reported by CPUID.
+> +	 * boot_cpu_data.x86_phys_bits is reduced when MKTME or SME are detected
+> +	 * in CPU detection code, but the processor treats those reduced bits as
+> +	 * 'keyID' thus they are not reserved bits. Therefore KVM needs to look at
+> +	 * the physical address bits reported by CPUID.
+>  	 */
+> -	if (!boot_cpu_has(X86_FEATURE_TME) ||
+> -	    WARN_ON_ONCE(boot_cpu_data.extended_cpuid_level < 0x80000008))
+> -		return boot_cpu_data.x86_phys_bits;
 
+Removing this entirely will break CPUs that don't support leaf 0x80000008.
+From a VMX perspective, I'm pretty sure all Intel hardware that supports
+VMX is guaranteed to support 0x80000008, but I've no idea about SVM or any
+non-Intel CPU, and not supporting 0x80000008 in a virtual machine is
+technically legal/possible.  We conditioned doing CPUID on TME because TME
+would be reported as supported iff 0x80000008 existed.
 
-Great! All tests now passing for Tegra ...
+The extra bit of paranoia doesn't cost much, so play it safe?  E.g.:
 
-Test results for stable-v4.19:
-    13 builds:	13 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    32 tests:	32 pass, 0 fail
+	if (unlikely(boot_cpu_data.extended_cpuid_level < 0x80000008)) {
+		WARN_ON_ONCE(boot_cpu_has(X86_FEATURE_TME) || SME?);
+		return boot_cpu_data.x86_phys_bits;
+	}
 
-Linux version:	4.19.88-rc2-gba731ec12c66
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+	return cpuid_eax(0x80000008) & 0xff;
 
-Cheers
-Jon
-
--- 
-nvpublic
+> -
+>  	return cpuid_eax(0x80000008) & 0xff;
+>  }
+>  
+> -- 
+> 1.8.3.1
+> 
