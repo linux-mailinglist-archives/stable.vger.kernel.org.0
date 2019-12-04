@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C82A81134B4
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B38181134B6
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728201AbfLDR6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 12:58:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33370 "EHLO mail.kernel.org"
+        id S1728159AbfLDR6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 12:58:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728812AbfLDR6f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 12:58:35 -0500
+        id S1728777AbfLDR6h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 12:58:37 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27DC22081B;
-        Wed,  4 Dec 2019 17:58:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8960D2073B;
+        Wed,  4 Dec 2019 17:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482314;
-        bh=0VH8yrhi9GC0ENQNA7KNwTLpwZFqByhMisUPcy4OreE=;
+        s=default; t=1575482317;
+        bh=4UUe5xhh7O/MyXb31+TgBKcz6e1KFA7Sq4PVGQ2k+NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dK9srWF5LWUjdL4dFMpeSXr6X5pGL4U6wDsnwh/Ri8eiHYS/E9MY3MGTexV+iHW3R
-         7RazH7dXVWWaxgh018HgMMB1SjwmKqvtpyzhUhQJ1evR7hOPFPMETEFeqpoEx2kDnl
-         pS5D64fKSVKiqOTHKch98UgdSjhV4+4YGYZftk0c=
+        b=s5EmwKZ9QiP26lIn3u82JuNW/sg79C6AUHBg5aCNJKD8dxbkXbccNkTaQrl54UP8g
+         yKyECdzVJKO+TGqsa32knygG0iXgCKRk8CVSzqLN+hbMh6ZtEFaSA3Y/CzFzlVF0Dc
+         uzp/Cq36BKdD7ihdYfg9ZnB/rHi36Qifa2AQQRhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Bowler <nbowler@draconx.ca>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 36/92] xfs: Align compat attrlist_by_handle with native implementation.
-Date:   Wed,  4 Dec 2019 18:49:36 +0100
-Message-Id: <20191204174332.736774344@linuxfoundation.org>
+Subject: [PATCH 4.4 37/92] IB/qib: Fix an error code in qib_sdma_verbs_send()
+Date:   Wed,  4 Dec 2019 18:49:37 +0100
+Message-Id: <20191204174332.788569888@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -44,54 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Bowler <nbowler@draconx.ca>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c456d64449efe37da50832b63d91652a85ea1d20 ]
+[ Upstream commit 5050ae5fa3d54c8e83e1e447cc7e3591110a7f57 ]
 
-While inspecting the ioctl implementations, I noticed that the compat
-implementation of XFS_IOC_ATTRLIST_BY_HANDLE does not do exactly the
-same thing as the native implementation.  Specifically, the "cursor"
-does not appear to be written out to userspace on the compat path,
-like it is on the native path.
+We accidentally return success on this error path.
 
-This adjusts the compat implementation to copy out the cursor just
-like the native implementation does.  The attrlist cursor does not
-require any special compat handling.  This fixes xfstests xfs/269
-on both IA-32 and x32 userspace, when running on an amd64 kernel.
-
-Signed-off-by: Nick Bowler <nbowler@draconx.ca>
-Fixes: 0facef7fb053b ("xfs: in _attrlist_by_handle, copy the cursor back to userspace")
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_ioctl32.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/infiniband/hw/qib/qib_sdma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_ioctl32.c b/fs/xfs/xfs_ioctl32.c
-index 1a05d8ae327db..e7372cef5ac33 100644
---- a/fs/xfs/xfs_ioctl32.c
-+++ b/fs/xfs/xfs_ioctl32.c
-@@ -346,6 +346,7 @@ xfs_compat_attrlist_by_handle(
- {
- 	int			error;
- 	attrlist_cursor_kern_t	*cursor;
-+	compat_xfs_fsop_attrlist_handlereq_t __user *p = arg;
- 	compat_xfs_fsop_attrlist_handlereq_t al_hreq;
- 	struct dentry		*dentry;
- 	char			*kbuf;
-@@ -380,6 +381,11 @@ xfs_compat_attrlist_by_handle(
- 	if (error)
- 		goto out_kfree;
- 
-+	if (copy_to_user(&p->pos, cursor, sizeof(attrlist_cursor_kern_t))) {
-+		error = -EFAULT;
-+		goto out_kfree;
-+	}
-+
- 	if (copy_to_user(compat_ptr(al_hreq.buffer), kbuf, al_hreq.buflen))
- 		error = -EFAULT;
- 
+diff --git a/drivers/infiniband/hw/qib/qib_sdma.c b/drivers/infiniband/hw/qib/qib_sdma.c
+index c6d6a54d2e19d..1c9a3e8752012 100644
+--- a/drivers/infiniband/hw/qib/qib_sdma.c
++++ b/drivers/infiniband/hw/qib/qib_sdma.c
+@@ -597,8 +597,10 @@ retry:
+ 		dw = (len + 3) >> 2;
+ 		addr = dma_map_single(&ppd->dd->pcidev->dev, sge->vaddr,
+ 				      dw << 2, DMA_TO_DEVICE);
+-		if (dma_mapping_error(&ppd->dd->pcidev->dev, addr))
++		if (dma_mapping_error(&ppd->dd->pcidev->dev, addr)) {
++			ret = -ENOMEM;
+ 			goto unmap;
++		}
+ 		sdmadesc[0] = 0;
+ 		make_sdma_desc(ppd, sdmadesc, (u64) addr, dw, dwoffset);
+ 		/* SDmaUseLargeBuf has to be set in every descriptor */
 -- 
 2.20.1
 
