@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C8B8113137
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 18:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B38AC113156
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 18:58:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728226AbfLDR51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 12:57:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58158 "EHLO mail.kernel.org"
+        id S1728734AbfLDR60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 12:58:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728139AbfLDR50 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 12:57:26 -0500
+        id S1728720AbfLDR6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 12:58:25 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 062C82073B;
-        Wed,  4 Dec 2019 17:57:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E9A620675;
+        Wed,  4 Dec 2019 17:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482246;
-        bh=nPEWjF0dK8mtdwVv8wVLGr4RFLQuZAZNFBZ6cZq1WZ0=;
+        s=default; t=1575482305;
+        bh=SW33faG0QdwdMLwIaMIhaWkEIxY3MQr5swYVYVOmzg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AeBmme82DmafsgM9Vb3sLSVVbSHkyr39Vo27+LdVO8NGrxLXM+QJnEYejjxrQXwxV
-         h7Ou3RkLp92LToAXh5kvs9uEmWRyJ/d7NbTkRC26bu2T6nU1ff/isvnz15wnBiWWpM
-         A12Xe1Xe2SKpp6y4XHDLu94DLp+pnfV302GV1hWs=
+        b=Fq/EFgZLha7gnUG5jvl/V6YIdfg0V0xEj0UZ97I6jRWFpLzqk2Hj9ru2hdi2XvvCS
+         el32U5W9tDIOUYQ7hsyL+JFB9dqA+gkMHQsGfvPxS9cXeeWYbuYEUGlVZjxf6CLL2W
+         KLe4/5Eg6cBcdp7kOzmdl1pEd49iydXhz9k0JCIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Jeroen Hofstee <jhofstee@victronenergy.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/92] ASoC: kirkwood: fix external clock probe defer
-Date:   Wed,  4 Dec 2019 18:49:02 +0100
-Message-Id: <20191204174327.965499564@linuxfoundation.org>
+Subject: [PATCH 4.4 06/92] can: c_can: D_CAN: c_can_chip_config(): perform a sofware reset on open
+Date:   Wed,  4 Dec 2019 18:49:06 +0100
+Message-Id: <20191204174329.171128563@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -44,49 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Jeroen Hofstee <jhofstee@victronenergy.com>
 
-[ Upstream commit 4523817d51bc3b2ef38da768d004fda2c8bc41de ]
+[ Upstream commit 23c5a9488f076bab336177cd1d1a366bd8ddf087 ]
 
-When our call to get the external clock fails, we forget to clean up
-the enabled internal clock correctly.  Enable the clock after we have
-obtained all our resources.
+When the CAN interface is closed it the hardwre is put in power down
+mode, but does not reset the error counters / state. Reset the D_CAN on
+open, so the reported state and the actual state match.
 
-Fixes: 84aac6c79bfd ("ASoC: kirkwood: fix loss of external clock at probe time")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/E1iNGyK-0004oF-6A@rmk-PC.armlinux.org.uk
-Signed-off-by: Mark Brown <broonie@kernel.org>
+According to [1], the C_CAN module doesn't have the software reset.
+
+[1] http://www.bosch-semiconductors.com/media/ip_modules/pdf_2/c_can_fd8/users_manual_c_can_fd8_r210_1.pdf
+
+Signed-off-by: Jeroen Hofstee <jhofstee@victronenergy.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/kirkwood/kirkwood-i2s.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/can/c_can/c_can.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/sound/soc/kirkwood/kirkwood-i2s.c b/sound/soc/kirkwood/kirkwood-i2s.c
-index 3a36d60e17850..0a5d9fb6fc84b 100644
---- a/sound/soc/kirkwood/kirkwood-i2s.c
-+++ b/sound/soc/kirkwood/kirkwood-i2s.c
-@@ -570,10 +570,6 @@ static int kirkwood_i2s_dev_probe(struct platform_device *pdev)
- 		return PTR_ERR(priv->clk);
- 	}
+diff --git a/drivers/net/can/c_can/c_can.c b/drivers/net/can/c_can/c_can.c
+index 7d35f6737499c..4ead5a18b7940 100644
+--- a/drivers/net/can/c_can/c_can.c
++++ b/drivers/net/can/c_can/c_can.c
+@@ -52,6 +52,7 @@
+ #define CONTROL_EX_PDR		BIT(8)
  
--	err = clk_prepare_enable(priv->clk);
--	if (err < 0)
--		return err;
--
- 	priv->extclk = devm_clk_get(&pdev->dev, "extclk");
- 	if (IS_ERR(priv->extclk)) {
- 		if (PTR_ERR(priv->extclk) == -EPROBE_DEFER)
-@@ -589,6 +585,10 @@ static int kirkwood_i2s_dev_probe(struct platform_device *pdev)
- 		}
- 	}
+ /* control register */
++#define CONTROL_SWR		BIT(15)
+ #define CONTROL_TEST		BIT(7)
+ #define CONTROL_CCE		BIT(6)
+ #define CONTROL_DISABLE_AR	BIT(5)
+@@ -572,6 +573,26 @@ static void c_can_configure_msg_objects(struct net_device *dev)
+ 				   IF_MCONT_RCV_EOB);
+ }
  
-+	err = clk_prepare_enable(priv->clk);
-+	if (err < 0)
-+		return err;
++static int c_can_software_reset(struct net_device *dev)
++{
++	struct c_can_priv *priv = netdev_priv(dev);
++	int retry = 0;
 +
- 	/* Some sensible defaults - this reflects the powerup values */
- 	priv->ctl_play = KIRKWOOD_PLAYCTL_SIZE_24;
- 	priv->ctl_rec = KIRKWOOD_RECCTL_SIZE_24;
++	if (priv->type != BOSCH_D_CAN)
++		return 0;
++
++	priv->write_reg(priv, C_CAN_CTRL_REG, CONTROL_SWR | CONTROL_INIT);
++	while (priv->read_reg(priv, C_CAN_CTRL_REG) & CONTROL_SWR) {
++		msleep(20);
++		if (retry++ > 100) {
++			netdev_err(dev, "CCTRL: software reset failed\n");
++			return -EIO;
++		}
++	}
++
++	return 0;
++}
++
+ /*
+  * Configure C_CAN chip:
+  * - enable/disable auto-retransmission
+@@ -581,6 +602,11 @@ static void c_can_configure_msg_objects(struct net_device *dev)
+ static int c_can_chip_config(struct net_device *dev)
+ {
+ 	struct c_can_priv *priv = netdev_priv(dev);
++	int err;
++
++	err = c_can_software_reset(dev);
++	if (err)
++		return err;
+ 
+ 	/* enable automatic retransmission */
+ 	priv->write_reg(priv, C_CAN_CTRL_REG, CONTROL_ENABLE_AR);
 -- 
 2.20.1
 
