@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2338113489
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:25:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CA4B11348A
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729654AbfLDSBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:01:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42572 "EHLO mail.kernel.org"
+        id S1729204AbfLDSBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:01:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729644AbfLDSBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:01:41 -0500
+        id S1729637AbfLDSBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:01:44 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C2CA20675;
-        Wed,  4 Dec 2019 18:01:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1F31206DF;
+        Wed,  4 Dec 2019 18:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482501;
-        bh=Q1BI4t7VuryP7jp7IngtWsjMIyxCI9X1WHqqjjPUh1s=;
+        s=default; t=1575482503;
+        bh=KtvtfVhh4d+XHkmCqF5Q/paFYbGma6zpuEW1PkAKSR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyT9FL4n4xUAxPyk5j+aLZx3JQcImKFF/Yd8PsfLlvoIJXntC7qPYQp1jEMUd5HM3
-         xi0oAtRXP/QVSUVpScJxqGzC1H0ITLEGij5PyozXRW8pvgR12NkiepaSQ48j3Fx55f
-         q3dzFRI/MhkcsTG65eHUsdo75qxcyY8KW9yVKhI4=
+        b=J7vXRiPQ+e6z38/ws3oLxLVcSDs0DF1G+/pJDl0DdlrYwW3o64gACLpg7K68bTD0l
+         OiOiss/znSkQw3X03vb/QfRvKFqZf3JtEh6Oot6jeNY/sL67vZMJWPZke/iQkn8q/0
+         glnwkZkF0lMrYTMzLE0ze/N5BYKlr8MEEZbBt8Sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeroen Hofstee <jhofstee@victronenergy.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 021/209] can: rx-offload: can_rx_offload_irq_offload_timestamp(): continue on error
-Date:   Wed,  4 Dec 2019 18:53:53 +0100
-Message-Id: <20191204175322.977400077@linuxfoundation.org>
+Subject: [PATCH 4.14 022/209] can: rx-offload: can_rx_offload_irq_offload_fifo(): continue on error
+Date:   Wed,  4 Dec 2019 18:53:54 +0100
+Message-Id: <20191204175323.030935417@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -45,43 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeroen Hofstee <jhofstee@victronenergy.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit c2a9f74c9d18acfdcabd3361adc7eac82c537a66 ]
+[ Upstream commit 1f7f504dcd9d1262437bdcf4fa071e41dec1af03 ]
 
 In case of a resource shortage, i.e. the rx_offload queue will overflow
 or a skb fails to be allocated (due to OOM),
 can_rx_offload_offload_one() will call mailbox_read() to discard the
 mailbox and return an ERR_PTR.
 
-However can_rx_offload_irq_offload_timestamp() bails out in the error
-case. In case of a resource shortage all mailboxes should be discarded,
-to avoid an IRQ storm and give the system some time to recover.
+If the hardware FIFO is empty can_rx_offload_offload_one() will return
+NULL.
 
-Since can_rx_offload_irq_offload_timestamp() is typically called from a
-while loop, all message will eventually be discarded. So let's continue
-on error instead to discard them directly.
+In case a CAN frame was read from the hardware,
+can_rx_offload_offload_one() returns the skb containing it.
 
-Signed-off-by: Jeroen Hofstee <jhofstee@victronenergy.com>
+Without this patch can_rx_offload_irq_offload_fifo() bails out if no skb
+returned, regardless of the reason.
+
+Similar to can_rx_offload_irq_offload_timestamp() in case of a resource
+shortage the whole FIFO should be discarded, to avoid an IRQ storm and
+give the system some time to recover. However if the FIFO is empty the
+loop can be left.
+
+With this patch the loop is left in case of empty FIFO, but not on
+errors.
+
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rx-offload.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/rx-offload.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
-index 840aef094f208..fef6534f163b7 100644
+index fef6534f163b7..54ffd1e91a693 100644
 --- a/drivers/net/can/rx-offload.c
 +++ b/drivers/net/can/rx-offload.c
-@@ -225,7 +225,7 @@ int can_rx_offload_irq_offload_timestamp(struct can_rx_offload *offload, u64 pen
+@@ -257,7 +257,9 @@ int can_rx_offload_irq_offload_fifo(struct can_rx_offload *offload)
  
- 		skb = can_rx_offload_offload_one(offload, i);
- 		if (IS_ERR_OR_NULL(skb))
--			break;
+ 	while (1) {
+ 		skb = can_rx_offload_offload_one(offload, 0);
+-		if (IS_ERR_OR_NULL(skb))
++		if (IS_ERR(skb))
 +			continue;
++		if (!skb)
+ 			break;
  
- 		__skb_queue_add_sort(&skb_queue, skb, can_rx_offload_compare);
- 	}
+ 		skb_queue_tail(&offload->skb_queue, skb);
 -- 
 2.20.1
 
