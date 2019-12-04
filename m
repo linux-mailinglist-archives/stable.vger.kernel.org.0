@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 006201132D6
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:15:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DA9B1133F6
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731107AbfLDSMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:12:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40952 "EHLO mail.kernel.org"
+        id S1731234AbfLDSUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:20:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731594AbfLDSMV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:12:21 -0500
+        id S1728812AbfLDSHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:07:35 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A188120675;
-        Wed,  4 Dec 2019 18:12:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14F5520674;
+        Wed,  4 Dec 2019 18:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483140;
-        bh=LHiUdUHDdThUMjt+1McqXD4GQsQ6DLH4P+4atOmQcvU=;
+        s=default; t=1575482854;
+        bh=xN/rKSd6vn+vMQ3g11/LLfqRX9ym0pzwVRcA2VE9quI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpsjrKXQCYUM6ddudViiuisxB3TRHvsHAbN1EWrIzuPVqQyFa9/rPadLX12rgbYYM
-         ++EbmwfPOD60axc4gCKzbWRWh+fNFd+GiRW0H8V6ZoWfHhw+hy4x/gJXOoD/UBdnP6
-         obk0/a2iyMEdTtjKLtwfqRQBXgPfdg1K2qrkBjHo=
+        b=1VTi44t5NP+h9ep1GPkjNFNuvbqvFrq6RAnYTqM5pmNBN6tUzdRTXCvcDti7NKSAW
+         9Zn0acWDlKm6sxpYAKliz6wBpBEkqKBydEWI677xxIpRavbHcCeNtLWNP32BXkTI7h
+         xusFqGTkfKafmpmxb4FMIqQ7fct6XU6EYpUR3hfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 067/125] drbd: do not block when adjusting "disk-options" while IO is frozen
-Date:   Wed,  4 Dec 2019 18:56:12 +0100
-Message-Id: <20191204175323.049531441@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio DUrso <fabiodurso@hotmail.it>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 161/209] USB: serial: ftdi_sio: add device IDs for U-Blox C099-F9P
+Date:   Wed,  4 Dec 2019 18:56:13 +0100
+Message-Id: <20191204175334.567296991@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Ellenberg <lars.ellenberg@linbit.com>
+From: Fabio D'Urso <fabiodurso@hotmail.it>
 
-[ Upstream commit f708bd08ecbdc23d03aaedf5b3311ebe44cfdb50 ]
+commit c1a1f273d0825774c80896b8deb1c9ea1d0b91e3 upstream.
 
-"suspending" IO is overloaded.
-It can mean "do not allow new requests" (obviously),
-but it also may mean "must not complete pending IO",
-for example while the fencing handlers do their arbitration.
+This device presents itself as a USB hub with three attached devices:
+ - An ACM serial port connected to the GPS module (not affected by this
+   commit)
+ - An FTDI serial port connected to the GPS module (1546:0502)
+ - Another FTDI serial port connected to the ODIN-W2 radio module
+   (1546:0503)
 
-When adjusting disk options, we suspend io (disallow new requests), then
-wait for the activity-log to become unused (drain all IO completions),
-and possibly replace it with a new activity log of different size.
+This commit registers U-Blox's VID and the PIDs of the second and third
+devices.
 
-If the other "suspend IO" aspect is active, pending IO completions won't
-happen, and we would block forever (unkillable drbdsetup process).
+Datasheet: https://www.u-blox.com/sites/default/files/C099-F9P-AppBoard-Mbed-OS3-FW_UserGuide_%28UBX-18063024%29.pdf
 
-Fix this by skipping the activity log adjustment if the "al-extents"
-setting did not change. Also, in case it did change, fail early without
-blocking if it looks like we would block forever.
+Signed-off-by: Fabio D'Urso <fabiodurso@hotmail.it>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_nl.c | 37 ++++++++++++++++++++++++++++--------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
-index ff26f676f24d1..b809f325c2bea 100644
---- a/drivers/block/drbd/drbd_nl.c
-+++ b/drivers/block/drbd/drbd_nl.c
-@@ -1508,6 +1508,30 @@ static void sanitize_disk_conf(struct drbd_device *device, struct disk_conf *dis
- 	}
- }
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1028,6 +1028,9 @@ static const struct usb_device_id id_tab
+ 	/* Sienna devices */
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
+ 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
++	/* U-Blox devices */
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
++	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+ 	{ }					/* Terminating entry */
+ };
  
-+static int disk_opts_check_al_size(struct drbd_device *device, struct disk_conf *dc)
-+{
-+	int err = -EBUSY;
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1558,3 +1558,10 @@
+  */
+ #define UNJO_VID			0x22B7
+ #define UNJO_ISODEBUG_V1_PID		0x150D
 +
-+	if (device->act_log &&
-+	    device->act_log->nr_elements == dc->al_extents)
-+		return 0;
-+
-+	drbd_suspend_io(device);
-+	/* If IO completion is currently blocked, we would likely wait
-+	 * "forever" for the activity log to become unused. So we don't. */
-+	if (atomic_read(&device->ap_bio_cnt))
-+		goto out;
-+
-+	wait_event(device->al_wait, lc_try_lock(device->act_log));
-+	drbd_al_shrink(device);
-+	err = drbd_check_al_size(device, dc);
-+	lc_unlock(device->act_log);
-+	wake_up(&device->al_wait);
-+out:
-+	drbd_resume_io(device);
-+	return err;
-+}
-+
- int drbd_adm_disk_opts(struct sk_buff *skb, struct genl_info *info)
- {
- 	struct drbd_config_context adm_ctx;
-@@ -1570,15 +1594,12 @@ int drbd_adm_disk_opts(struct sk_buff *skb, struct genl_info *info)
- 		}
- 	}
- 
--	drbd_suspend_io(device);
--	wait_event(device->al_wait, lc_try_lock(device->act_log));
--	drbd_al_shrink(device);
--	err = drbd_check_al_size(device, new_disk_conf);
--	lc_unlock(device->act_log);
--	wake_up(&device->al_wait);
--	drbd_resume_io(device);
--
-+	err = disk_opts_check_al_size(device, new_disk_conf);
- 	if (err) {
-+		/* Could be just "busy". Ignore?
-+		 * Introduce dedicated error code? */
-+		drbd_msg_put_info(adm_ctx.reply_skb,
-+			"Try again without changing current al-extents setting");
- 		retcode = ERR_NOMEM;
- 		goto fail_unlock;
- 	}
--- 
-2.20.1
-
++/*
++ * U-Blox products (http://www.u-blox.com).
++ */
++#define UBLOX_VID			0x1546
++#define UBLOX_C099F9P_ZED_PID		0x0502
++#define UBLOX_C099F9P_ODIN_PID		0x0503
 
 
