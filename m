@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2991611313B
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 18:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29A5311313D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 18:57:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728289AbfLDR5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 12:57:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58498 "EHLO mail.kernel.org"
+        id S1728321AbfLDR5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 12:57:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728244AbfLDR5e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 12:57:34 -0500
+        id S1728311AbfLDR5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 12:57:36 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F5002073B;
-        Wed,  4 Dec 2019 17:57:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B370D2081B;
+        Wed,  4 Dec 2019 17:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482253;
-        bh=7Ry9jrHQuYnZY7uOPI526vZCkCbcI2sx4X8O3i8qnwc=;
+        s=default; t=1575482256;
+        bh=+4ZYxgp6JPeEo+Ag+AOKVeFQr15T9Pdm9jbIOQcVegU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jRVV7Ds3Fv8cxUtRlVIyJYlrTi4vXncUmrzId1xKagEce3TrF74ZjJlLao8iEcGL
-         jUYeM6I/tkMMHXqaxYhGpgRPUVykuuJfrYJPk4WBHOj9S4EYRTZKUq6rTDrno2DYfR
-         0DN0VpavHx+TKZgpMyKUWqKMsvz+95eR8BKXV9G8=
+        b=joItWs5kKSpB99nZCpMWH63l1R3FRvun2eUrFQyP6WTIJFGGEbbXmqarfmGsyjjXh
+         8dDxu+lu9n6bNCBrQNnOtfFWc2sn3JRY0JpEVaAlkkBJIsb4aPsECVoxrQiG5ctYva
+         XWWcr99ZHc55KnzIWoWt8bT4+T+ErWN6iaeKReqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org, Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/92] parisc: Fix HP SDC hpa address output
-Date:   Wed,  4 Dec 2019 18:49:13 +0100
-Message-Id: <20191204174330.080172993@linuxfoundation.org>
+Subject: [PATCH 4.4 14/92] arm64: smp: Handle errors reported by the firmware
+Date:   Wed,  4 Dec 2019 18:49:14 +0100
+Message-Id: <20191204174330.241834671@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -43,34 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Suzuki K Poulose <Suzuki.Poulose@arm.com>
 
-[ Upstream commit c4bff35ca1bfba886da6223c9fed76a2b1382b8e ]
+[ Upstream commit f357b3a7e17af7736d67d8267edc1ed3d1dd9391 ]
 
-Show the hpa address of the HP SDC instead of a hashed value, e.g.:
-HP SDC: HP SDC at 0xf0201000, IRQ 23 (NMI IRQ 24)
+The __cpu_up() routine ignores the errors reported by the firmware
+for a CPU bringup operation and looks for the error status set by the
+booting CPU. If the CPU never entered the kernel, we could end up
+in assuming stale error status, which otherwise would have been
+set/cleared appropriately by the booting CPU.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/hp_sdc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/smp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 852858e5d8d08..92f541db98a09 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -887,8 +887,8 @@ static int __init hp_sdc_init(void)
- 			"HP SDC NMI", &hp_sdc))
- 		goto err2;
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index 03c0946b79d20..7e90f429f7e5c 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -115,6 +115,7 @@ int __cpu_up(unsigned int cpu, struct task_struct *idle)
+ 		}
+ 	} else {
+ 		pr_err("CPU%u: failed to boot: %d\n", cpu, ret);
++		return ret;
+ 	}
  
--	printk(KERN_INFO PREFIX "HP SDC at 0x%p, IRQ %d (NMI IRQ %d)\n",
--	       (void *)hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
-+	pr_info(PREFIX "HP SDC at 0x%08lx, IRQ %d (NMI IRQ %d)\n",
-+	       hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
- 
- 	hp_sdc_status_in8();
- 	hp_sdc_data_in8();
+ 	secondary_data.stack = NULL;
 -- 
 2.20.1
 
