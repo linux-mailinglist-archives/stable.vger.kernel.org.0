@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31BDF1131FA
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:05:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D1E11343E
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730185AbfLDSE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:04:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
+        id S1730194AbfLDSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:04:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729698AbfLDSE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:04:26 -0500
+        id S1729827AbfLDSE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:04:28 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 776AD2081B;
-        Wed,  4 Dec 2019 18:04:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4F912073B;
+        Wed,  4 Dec 2019 18:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482665;
-        bh=HCpe2lcAKMEod+j8fUlTruYV/naXXSJiIcXAgDtIsF4=;
+        s=default; t=1575482668;
+        bh=1kQsmX0swMTAzM23lP+WYgI3kFE27ittERjogfKgQlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziXGkbvRAsO+8DAJCxmBJPlPXFBGBEWGLlOADvltq6nft+K43CySKSyQBkdE9jlXt
-         DiT6bMokjRH8k7zF/QL+oGsswz/Es/x7S/4dU3kfEtmeC7PDCtGxLkDTx7lZXPopvj
-         AHfTx9EN5PvGZPSaoSbe9EMZS03ukH9rXZTLZmzo=
+        b=MG92232ZihhwNT9iToEg+7OFIIgDlwx0eP4/zs7dxcJLKOlBv6XEvjcj0zje11FJr
+         A4YCdeqVNo6aA9MGt0LC9gGTjvUMnrb2QwEYYUUDHWCgGo3W1m42m0Slo8GjaUV7jU
+         i7oRwewZhz/YCo1aXmohDkF565cNLRep14uWzItw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 085/209] Bluetooth: hci_bcm: Handle specific unknown packets after firmware loading
-Date:   Wed,  4 Dec 2019 18:54:57 +0100
-Message-Id: <20191204175327.469493673@linuxfoundation.org>
+Subject: [PATCH 4.14 086/209] serial: max310x: Fix tx_empty() callback
+Date:   Wed,  4 Dec 2019 18:54:58 +0100
+Message-Id: <20191204175327.562751834@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -45,78 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Alexander Shiyan <shc_work@mail.ru>
 
-[ Upstream commit 22bba80500fdf624a7cfbb65fdfa97a038ae224d ]
+[ Upstream commit a8da3c7873ea57acb8f9cea58c0af477522965aa ]
 
-The Broadcom controller on aries S5PV210 boards sends out a couple of
-unknown packets after the firmware is loaded.  This will cause
-logging of errors such as:
-	Bluetooth: hci0: Frame reassembly failed (-84)
+Function max310x_tx_empty() accesses the IRQSTS register, which is
+cleared by IC when reading, so if there is an interrupt status, we
+will lose it. This patch implement the transmitter check only by
+the current FIFO level.
 
-This is probably also the case with other boards, as there are related
-Android userspace patches for custom ROMs such as
-https://review.lineageos.org/#/c/LineageOS/android_system_bt/+/142721/
-Since this appears to be intended behaviour, treated them as diagnostic
-packets.
-
-Note that this is another variant of commit 01d5e44ace8a
-("Bluetooth: hci_bcm: Handle empty packet after firmware loading")
-
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_bcm.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/tty/serial/max310x.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-index 6d41b2023f09d..61971ddbd2313 100644
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -50,6 +50,12 @@
- #define BCM_LM_DIAG_PKT 0x07
- #define BCM_LM_DIAG_SIZE 63
+diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
+index 0969a0d97b2be..cec995ec11eab 100644
+--- a/drivers/tty/serial/max310x.c
++++ b/drivers/tty/serial/max310x.c
+@@ -769,12 +769,9 @@ static void max310x_start_tx(struct uart_port *port)
  
-+#define BCM_TYPE49_PKT 0x31
-+#define BCM_TYPE49_SIZE 0
-+
-+#define BCM_TYPE52_PKT 0x34
-+#define BCM_TYPE52_SIZE 0
-+
- #define BCM_AUTOSUSPEND_DELAY	5000 /* default autosleep delay */
+ static unsigned int max310x_tx_empty(struct uart_port *port)
+ {
+-	unsigned int lvl, sts;
++	u8 lvl = max310x_port_read(port, MAX310X_TXFIFOLVL_REG);
  
- /* platform device driver resources */
-@@ -483,12 +489,28 @@ finalize:
- 	.lsize = 0, \
- 	.maxlen = BCM_NULL_SIZE
+-	lvl = max310x_port_read(port, MAX310X_TXFIFOLVL_REG);
+-	sts = max310x_port_read(port, MAX310X_IRQSTS_REG);
+-
+-	return ((sts & MAX310X_IRQ_TXEMPTY_BIT) && !lvl) ? TIOCSER_TEMT : 0;
++	return lvl ? 0 : TIOCSER_TEMT;
+ }
  
-+#define BCM_RECV_TYPE49 \
-+	.type = BCM_TYPE49_PKT, \
-+	.hlen = BCM_TYPE49_SIZE, \
-+	.loff = 0, \
-+	.lsize = 0, \
-+	.maxlen = BCM_TYPE49_SIZE
-+
-+#define BCM_RECV_TYPE52 \
-+	.type = BCM_TYPE52_PKT, \
-+	.hlen = BCM_TYPE52_SIZE, \
-+	.loff = 0, \
-+	.lsize = 0, \
-+	.maxlen = BCM_TYPE52_SIZE
-+
- static const struct h4_recv_pkt bcm_recv_pkts[] = {
- 	{ H4_RECV_ACL,      .recv = hci_recv_frame },
- 	{ H4_RECV_SCO,      .recv = hci_recv_frame },
- 	{ H4_RECV_EVENT,    .recv = hci_recv_frame },
- 	{ BCM_RECV_LM_DIAG, .recv = hci_recv_diag  },
- 	{ BCM_RECV_NULL,    .recv = hci_recv_diag  },
-+	{ BCM_RECV_TYPE49,  .recv = hci_recv_diag  },
-+	{ BCM_RECV_TYPE52,  .recv = hci_recv_diag  },
- };
- 
- static int bcm_recv(struct hci_uart *hu, const void *data, int count)
+ static unsigned int max310x_get_mctrl(struct uart_port *port)
 -- 
 2.20.1
 
