@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2790E113249
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:08:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E531132C9
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:12:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730712AbfLDSHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:07:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56460 "EHLO mail.kernel.org"
+        id S1730933AbfLDSL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:11:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730700AbfLDSHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:07:08 -0500
+        id S1731535AbfLDSL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:11:56 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3BDC20674;
-        Wed,  4 Dec 2019 18:07:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 862CD20675;
+        Wed,  4 Dec 2019 18:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482827;
-        bh=HS84tFKpKufgsJQxZKLcluRkNCzY3Fs/Uh0TZmuPb40=;
+        s=default; t=1575483116;
+        bh=u+OorGplPoo4KPqhEBpJTPq5149qy2NJwf/txWg4fFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gf7sqid04AhN/kQPJmtiHQobhxig0zqaeGyP15SVa29iXwvagQ7FMztT74vt7TMCg
-         zf5VvFK1WI1K9SuZmvlGlr8vyp/QXdWjF2eb+mpGkijLlSg6rt7DrC+pzYm0qfvV6M
-         2aTy6PTJ+ePC3WM8YCc0YiC1T4vEuyn426cEkPEo=
+        b=gcCNNOgsncrEyVsLy3QI5E4FWk5qQRPpE2hSr7dnFcH1ZyCdouIzhXe25UmRmYYT8
+         JYNTkTHPooMM7nYit1a5xCU2ut+GkH6bZEma2jI5MLfXbbSIm3ad/2wunAxf9edp2R
+         GWEKagFSve5Qp5gjRAlE5IP/pkrknm+ncoLD9VH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Borislav Petkov <bp@suse.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Kyle Roeschley <kyle.roeschley@ni.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 151/209] ACPI / APEI: Switch estatus pool to use vmalloc memory
+Subject: [PATCH 4.9 058/125] ath6kl: Only use match sets when firmware supports it
 Date:   Wed,  4 Dec 2019 18:56:03 +0100
-Message-Id: <20191204175333.892862473@linuxfoundation.org>
+Message-Id: <20191204175322.495760838@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Kyle Roeschley <kyle.roeschley@ni.com>
 
-[ Upstream commit 0ac234be1a9497498e57d958f4251f5257b116b4 ]
+[ Upstream commit fb376a495fbdb886f38cfaf5a3805401b9e46f13 ]
 
-The ghes code is careful to parse and round firmware's advertised
-memory requirements for CPER records, up to a maximum of 64K.
-However when ghes_estatus_pool_expand() does its work, it splits
-the requested size into PAGE_SIZE granules.
+Commit dd45b7598f1c ("ath6kl: Include match ssid list in scheduled scan")
+merged the probed and matched SSID lists before sending them to the
+firmware. In the process, it assumed match set support is always available
+in ath6kl_set_probed_ssids, which breaks scans for hidden SSIDs. Now, check
+that the firmware supports matching SSIDs in scheduled scans before setting
+MATCH_SSID_FLAG.
 
-This means if firmware generates 5K of CPER records, and correctly
-describes this in the table, __process_error() will silently fail as it
-is unable to allocate more than PAGE_SIZE.
-
-Switch the estatus pool to vmalloc() memory. On x86 vmalloc() memory
-may fault and be fixed up by vmalloc_fault(). To prevent this call
-vmalloc_sync_all() before an NMI handler could discover the memory.
-
-Signed-off-by: James Morse <james.morse@arm.com>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: dd45b7598f1c ("ath6kl: Include match ssid list in scheduled scan")
+Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/ghes.c | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/net/wireless/ath/ath6kl/cfg80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-index 9c31c7cd5cb5e..cd6fae6ad4c2a 100644
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -170,40 +170,40 @@ static int ghes_estatus_pool_init(void)
- 	return 0;
- }
+diff --git a/drivers/net/wireless/ath/ath6kl/cfg80211.c b/drivers/net/wireless/ath/ath6kl/cfg80211.c
+index b7fe0af4cb240..0cce5a2bca161 100644
+--- a/drivers/net/wireless/ath/ath6kl/cfg80211.c
++++ b/drivers/net/wireless/ath/ath6kl/cfg80211.c
+@@ -934,7 +934,7 @@ static int ath6kl_set_probed_ssids(struct ath6kl *ar,
+ 		else
+ 			ssid_list[i].flag = ANY_SSID_FLAG;
  
--static void ghes_estatus_pool_free_chunk_page(struct gen_pool *pool,
-+static void ghes_estatus_pool_free_chunk(struct gen_pool *pool,
- 					      struct gen_pool_chunk *chunk,
- 					      void *data)
- {
--	free_page(chunk->start_addr);
-+	vfree((void *)chunk->start_addr);
- }
+-		if (n_match_ssid == 0)
++		if (ar->wiphy->max_match_sets != 0 && n_match_ssid == 0)
+ 			ssid_list[i].flag |= MATCH_SSID_FLAG;
+ 	}
  
- static void ghes_estatus_pool_exit(void)
- {
- 	gen_pool_for_each_chunk(ghes_estatus_pool,
--				ghes_estatus_pool_free_chunk_page, NULL);
-+				ghes_estatus_pool_free_chunk, NULL);
- 	gen_pool_destroy(ghes_estatus_pool);
- }
- 
- static int ghes_estatus_pool_expand(unsigned long len)
- {
--	unsigned long i, pages, size, addr;
--	int ret;
-+	unsigned long size, addr;
- 
- 	ghes_estatus_pool_size_request += PAGE_ALIGN(len);
- 	size = gen_pool_size(ghes_estatus_pool);
- 	if (size >= ghes_estatus_pool_size_request)
- 		return 0;
--	pages = (ghes_estatus_pool_size_request - size) / PAGE_SIZE;
--	for (i = 0; i < pages; i++) {
--		addr = __get_free_page(GFP_KERNEL);
--		if (!addr)
--			return -ENOMEM;
--		ret = gen_pool_add(ghes_estatus_pool, addr, PAGE_SIZE, -1);
--		if (ret)
--			return ret;
--	}
- 
--	return 0;
-+	addr = (unsigned long)vmalloc(PAGE_ALIGN(len));
-+	if (!addr)
-+		return -ENOMEM;
-+
-+	/*
-+	 * New allocation must be visible in all pgd before it can be found by
-+	 * an NMI allocating from the pool.
-+	 */
-+	vmalloc_sync_all();
-+
-+	return gen_pool_add(ghes_estatus_pool, addr, PAGE_ALIGN(len), -1);
- }
- 
- static int map_gen_v2(struct ghes *ghes)
 -- 
 2.20.1
 
