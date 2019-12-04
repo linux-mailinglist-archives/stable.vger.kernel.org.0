@@ -2,143 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 767F3112F14
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 16:57:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12944112FD9
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 17:19:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727867AbfLDP5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 10:57:21 -0500
-Received: from mail-eopbgr790042.outbound.protection.outlook.com ([40.107.79.42]:23589
-        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727008AbfLDP5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 10:57:21 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FK+9OuQo9dgLfVhWdzuMK/ZnuzzQuakph2Ck5vODusXKejxHN05cDQ4aNfcdnVN0c0mK3VW7SVkxn9JJi5tIWZIDSSVdm71gJFkNQny6s7zJ9KxseKitM/PVwP2x2Dma43W/mMVVvMUl9two5ZvYWfoqeBwZVc5ZDK5xD6c5ywXg95oip6CiobUfS0AEjgadJpg9TVJK/Lq/0GYxhbH2v0L0OFs+DdWjtNGOBKipqKn9s0Es6vanLzsUc4KMHVHFtcpB+RPxIbc3/p6BJQbHwEnfkhmtGDM4noilU43JxAn3/h2M6L9DybcM2DZWCUsI7Rj1Lp7of7PJR1hpL75W9g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hbfMhQG78o8HkyaGhiYpQ6euyVURvLChY/j7nT0OEpc=;
- b=ffdd9muenqWj1nFGqrUHchSc2hO5soXxrEDGj7yTD3o6Sw5bv3vfqUOJoejbYM0r2vk8w3W8OTMcZ+j733U/ZF3ip3Ia59pBcm32ME46PqGWvlIHgLT2o5Ivh1WapxBBbQshIAc8ptXeFUYtovi6q0hupYciQX7UzGmh7aiSmFzneHuSVyOklgrJYgdxSfBujzC6HBuV+lpzY2v1QMpv7D/81gVMjrigFlz4fCvF6P+PhdmwyGeiGJhMvksvUqB2xxZIlrRnKWodT5/ePnCGzXg3TPpREM5h7GdbPlHxjHT3zataDAJZo+PHR7jsfMskt4fMe7WBIQHJtdgeAXbPWQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hbfMhQG78o8HkyaGhiYpQ6euyVURvLChY/j7nT0OEpc=;
- b=aLhgRbbKdYfiZctL3/6KsG9VdeMcfrv4n8k7FsHthSVoRcr20Lfy9VeTTf61fG5iJQ3nFT1l2N9DvnR0aIVqZ1ycIETjXnBT5YHDcbOgZgm61n3uenZyE7AIDpkl79y8jD2FYyiQCI/pZtgkYpGlgHR1IzulbKnHycbLZH8GKRE=
-Authentication-Results: spf=none (sender IP is )
- smtp.mailfrom=Thomas.Lendacky@amd.com; 
-Received: from DM6PR12MB3163.namprd12.prod.outlook.com (20.179.71.154) by
- DM6PR12MB3257.namprd12.prod.outlook.com (20.179.105.10) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2495.19; Wed, 4 Dec 2019 15:57:18 +0000
-Received: from DM6PR12MB3163.namprd12.prod.outlook.com
- ([fe80::dd0c:8e53:4913:8ef4]) by DM6PR12MB3163.namprd12.prod.outlook.com
- ([fe80::dd0c:8e53:4913:8ef4%5]) with mapi id 15.20.2495.014; Wed, 4 Dec 2019
- 15:57:18 +0000
-Subject: Re: [PATCH v2] KVM: x86: use CPUID to locate host page table reserved
- bits
-To:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     sean.j.christopherson@intel.com, stable@vger.kernel.org
-References: <1575474037-7903-1-git-send-email-pbonzini@redhat.com>
-From:   Tom Lendacky <thomas.lendacky@amd.com>
-Message-ID: <8f7e3e87-15dc-2269-f5ee-c3155f91983c@amd.com>
-Date:   Wed, 4 Dec 2019 09:57:16 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
-In-Reply-To: <1575474037-7903-1-git-send-email-pbonzini@redhat.com>
-Content-Type: text/plain; charset=utf-8
+        id S1727867AbfLDQS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 11:18:56 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:46059 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727990AbfLDQS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 11:18:56 -0500
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-51-1dN_2ZUoNVmFbAyoH-JP6g-1; Wed, 04 Dec 2019 16:18:52 +0000
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Wed, 4 Dec 2019 16:18:52 +0000
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Wed, 4 Dec 2019 16:18:52 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Paul Burton' <paulburton@kernel.org>
+CC:     "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP
+ loads/stores
+Thread-Topic: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP
+ loads/stores
+Thread-Index: AQHVqhshCXVq7CTTBEufX7LGTbPWHKep0u6ggABLQQCAAAO1QA==
+Date:   Wed, 4 Dec 2019 16:18:52 +0000
+Message-ID: <e220ba9a19da41abba599b5873afa494@AcuMS.aculab.com>
+References: <20191203204933.1642259-1-paulburton@kernel.org>
+ <f5e09155580d417e9dcd07b1c20786ed@AcuMS.aculab.com>
+ <20191204154048.eotzglp4rdlx4yzl@lantea.localdomain>
+In-Reply-To: <20191204154048.eotzglp4rdlx4yzl@lantea.localdomain>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: DM6PR21CA0014.namprd21.prod.outlook.com
- (2603:10b6:5:174::24) To DM6PR12MB3163.namprd12.prod.outlook.com
- (2603:10b6:5:15e::26)
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-X-Originating-IP: [165.204.77.1]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 9a79e736-6e92-4ab0-82ea-08d778d2a38d
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3257:
-X-Microsoft-Antispam-PRVS: <DM6PR12MB3257C3B919C13B03D90CDDCBEC5D0@DM6PR12MB3257.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
-X-Forefront-PRVS: 0241D5F98C
-X-Forefront-Antispam-Report: SFV:NSPM;SFS:(10009020)(4636009)(136003)(39860400002)(376002)(346002)(366004)(396003)(189003)(199004)(66476007)(66556008)(31696002)(6116002)(230700001)(8936002)(6512007)(3846002)(31686004)(25786009)(36756003)(4326008)(14454004)(5660300002)(6246003)(2906002)(478600001)(99286004)(81156014)(26005)(6506007)(2616005)(23676004)(53546011)(81166006)(186003)(229853002)(305945005)(50466002)(66946007)(65956001)(58126008)(8676002)(6436002)(7736002)(6486002)(52116002)(76176011)(86362001)(11346002)(316002);DIR:OUT;SFP:1101;SCL:1;SRVR:DM6PR12MB3257;H:DM6PR12MB3163.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-Received-SPF: None (protection.outlook.com: amd.com does not designate
- permitted sender hosts)
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FOs8OvRqZnhTn4XQ5rCJy8PUFFmWD7xMVFxFz9b3oiP1WdSTX53VTiqcMpjnL6CNHMLub5+cGp6TtEwuamGtoMZgJmnFDQYAck4KP8EENxjktsvR6jsAEdB7+mgpCiW2n/fo1loPMx4F3DPUabIGGGos44n1ILAEb3eRpxzrLlXJ+YQtjc1TG8LGeHkgHGiG4srvt81hZf+uaJPqKI9QvqLWxaRAsmH68v4balpmoaF3DN5SDNdGfo/OVrDWLo//9/YMlPxxpZX6UmgY2LCY8vL1vRmDdqciu/xwmC1wSZLLR3Wno6fDmjdIkrPRHscsOHeNdDIXkOl4BXfo0Hiktus6C4W/Axd4y8ZsyLJibm8FUyFWVlb/TZltaYacnAoJpsOlxu8x5qLrKuJMOS5lSGTrVN/LO4P2hi1rYfbkbiJ/3UZs29wtYSbKEoyz0xlm
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9a79e736-6e92-4ab0-82ea-08d778d2a38d
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Dec 2019 15:57:18.0768
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: F95ax/b/2ti/O4VU/eyRFiqem7n/ovS48pz2+29kUTNaM0aELmOnXsri27YZs2JdbPO3XssMF6Tr7ERsGMErHw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3257
+X-MC-Unique: 1dN_2ZUoNVmFbAyoH-JP6g-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/4/19 9:40 AM, Paolo Bonzini wrote:
-> The comment in kvm_get_shadow_phys_bits refers to MKTME, but the same is actually
-> true of SME and SEV.  Just use CPUID[0x8000_0008].EAX[7:0] unconditionally if
-> available, it is simplest and works even if memory is not encrypted.
+RnJvbTogUGF1bCBCdXJ0b24NCj4gU2VudDogMDQgRGVjZW1iZXIgMjAxOSAxNTo0MQ0KPiBPbiBX
+ZWQsIERlYyAwNCwgMjAxOSBhdCAxMToxNDowOEFNICswMDAwLCBEYXZpZCBMYWlnaHQgd3JvdGU6
+DQo+ID4gRnJvbTogUGF1bCBCdXJ0b24NCj4gPiA+IFNlbnQ6IDAzIERlY2VtYmVyIDIwMTkgMjA6
+NTANCj4gPiA+IE91ciBGUFUgZW11bGF0b3IgY3VycmVudGx5IHVzZXMgX19nZXRfdXNlcigpICYg
+X19wdXRfdXNlcigpIHRvIHBlcmZvcm0NCj4gPiA+IGVtdWxhdGVkIGxvYWRzICYgc3RvcmVzLiBU
+aGlzIGlzIHByb2JsZW1hdGljIGJlY2F1c2UgX19nZXRfdXNlcigpICYNCj4gPiA+IF9fcHV0X3Vz
+ZXIoKSBhcmUgb25seSBzdWl0YWJsZSBmb3IgbmF0dXJhbGx5IGFsaWduZWQgbWVtb3J5IGFjY2Vz
+c2VzLA0KPiA+ID4gYW5kIHRoZSBhZGRyZXNzIHdlJ3JlIGFjY2Vzc2luZyBpcyBlbnRpcmVseSB1
+bmRlciB0aGUgY29udHJvbCBvZg0KPiA+ID4gdXNlcmxhbmQuDQo+ID4gPg0KPiA+ID4gVGhpcyBh
+bGxvd3MgdXNlcmxhbmQgdG8gY2F1c2UgYSBrZXJuZWwgcGFuaWMgYnkgc2ltcGx5IHBlcmZvcm1p
+bmcgYW4NCj4gPiA+IHVuYWxpZ25lZCBmbG9hdGluZyBwb2ludCBsb2FkIG9yIHN0b3JlIC0gdGhl
+IGtlcm5lbCB3aWxsIGhhbmRsZSB0aGUNCj4gPiA+IGFkZHJlc3MgZXJyb3IgZXhjZXB0aW9uIGJ5
+IGF0dGVtcHRpbmcgdG8gZW11bGF0ZSB0aGUgaW5zdHJ1Y3Rpb24sIGFuZCBpbg0KPiA+ID4gdGhl
+IHByb2Nlc3MgaXQgbWF5IGdlbmVyYXRlIGFub3RoZXIgYWRkcmVzcyBlcnJvciBleGNlcHRpb24g
+aXRzZWxmLg0KPiA+ID4gVGhpcyB0aW1lIHRoZSBleGNlcHRpb24gaXMgdGFrZW4gd2l0aCBFUEMg
+cG9pbnRpbmcgYXQgdGhlIGtlcm5lbHMgRlBVDQo+ID4gPiBlbXVsYXRpb24gY29kZSwgYW5kIHdl
+IGhpdCBhIGRpZV9pZl9rZXJuZWwoKSBpbg0KPiA+ID4gZW11bGF0ZV9sb2FkX3N0b3JlX2luc24o
+KS4NCj4gPg0KPiA+IFdvbid0IHRoaXMgYmUgdHJ1ZSBvZiBhbG1vc3QgYWxsIGNvZGUgdGhhdCB1
+c2VzIGdldF91c2VyKCkgYW5kIHB1dF91c2VyKCkNCj4gPiAod2l0aCBvciB3aXRob3V0IHRoZSBs
+ZWFkaW5nIF9fKS4NCj4gDQo+IE9ubHkgaWYgdGhlIGFkZHJlc3MgYmVpbmcgYWNjZXNzZWQgaXMg
+dW5kZXIgdGhlIGNvbnRyb2wgb2YgdXNlcmxhbmQgdG8NCj4gdGhlIGV4dGVudCB0aGF0IGl0IGNh
+biBjcmVhdGUgYW4gdW5hbGlnbmVkIGFkZHJlc3MuIFlvdSdyZSByaWdodCB0aGF0DQo+IG1heSBi
+ZSBtb3JlIHdpZGVzcHJlYWQgdGhvdWdoOyBpdCBuZWVkcyBjaGVja2luZy4uLg0KDQpMb29rIGF0
+IChmb3IgZXhhbXBsZSkgdGhlIHJlY3ZtbXNnKCkgY29kZSBvciBlcG9sbF93YWl0KCkuDQoNCkkn
+ZCBleHBlY3QgYWxsIGdldC9wdXRfdXNlcigpIHRvIGJlIHBvdGVudGlhbGx5IHVuYWxpZ25lZC4N
+ClRoZSB1c2VyIG1pZ2h0IGhhdmUgdG8gdHJ5IGhhcmQgKHRvIGF2b2lkIGFsbCB0aGUgZmF1bHRz
+IGluIHVzZXJzcGFjZSkNCmJ1dCBhbnkgYnVmZmVyIHBhc3NlZCB0byB0aGUga2VybmVsIGNhbiBw
+b3RlbnRpYWxseSBiZSBtaXNhbGlnbmVkIGFuZA0Kbm90aGluZyAoSSd2ZSBzZWVuKSBpcyBkb2N1
+bWVudGVkIGFzIHJldHVybmluZyBFRkFVTFQvU0lHU0VHVg0KZm9yIHN1Y2ggdW5hbGlnbmVkIGJ1
+ZmZlcnMuDQoNCkluICdkYXlzIG9mIHlvcmUuLi4nIFNQQVJDIHN5c3RlbXMgd291bGQgaGF2ZSBk
+b25lIGEgU0lHU0VHViBmb3INCmFueSBtaXNhbGlnbmVkIGFjY2VzcyBpbiB1c2Vyc3BhY2UuDQpO
+b3Qgc3VyZSB3aHkgTGludXggZXZlciB0aG91Z2h0IGl0IHdhcyBuZWNlc3NhcnkgdG8gJ2ZpeHVw
+JyBzdWNoIGZhdWx0cy4NCk9UT0ggaXQgaXMgdG9vIGxhdGUgdG8gY2hhbmdlIHRoYXQgYmVoYXZp
+b3VyIChhdCBsZWFzdCBmb3IgZXhpc3RpbmcgcG9ydHMpLg0KDQo+IFdlIHVzZWQgdG8gaGF2ZSBz
+ZXBhcmF0ZSBnZXRfdXNlcl91bmFsaWduZWQoKSAmIHB1dF91c2VyX3VuYWxpZ25lZCgpDQo+IHdo
+aWNoIHdvdWxkIHN1Z2dlc3QgdGhhdCBpdCdzIGV4cGVjdGVkIHRoYXQgZ2V0X3VzZXIoKSAmIHB1
+dF91c2VyKCkNCj4gcmVxdWlyZSB0aGVpciBhY2Nlc3NlcyBiZSBhbGlnbmVkLCBidXQgdGhleSB3
+ZXJlIHJlbW92ZWQgYnkgY29tbWl0DQo+IDMxNzBkOGQyMjZjMiAoImtpbGwge19fLH17Z2V0LHB1
+dH1fdXNlcl91bmFsaWduZWQoKSIpIGluIHY0LjEzLg0KPiANCj4gQnV0IHBlcmhhcHMgd2Ugc2hv
+dWxkIGp1c3QgdGFrZSB0aGUgc2Vjb25kIEFkRUwgZXhjZXB0aW9uICYgcmVjb3ZlciB2aWENCj4g
+dGhlIGZpeHVwcyB0YWJsZS4gV2UgZGVmaW5pdGVseSBkb24ndCByaWdodCBub3cuLi4gTmVlZHMg
+ZnVydGhlcg0KPiBpbnZlc3RpZ2F0aW9uLi4uDQoNCmdldC9wdXRfdXNlciBjYW4gZmF1bHQgYmVj
+YXVzZSB0aGUgdXNlciBwYWdlIGlzIGFic2VudCAoZXRjKS4NClNvIHRoZXJlIG11c3QgYmUgY29k
+ZSB0byAnZXhwZWN0JyBhIGZhdWx0IG9uIHRob3NlIGluc3RydWN0aW9ucy4NCg0KCURhdmlkDQoN
+Ci0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJt
+LCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChX
+YWxlcykNCg==
 
-This isn't correct for AMD. The reduction in physical addressing is
-correct. You can't set, e.g. bit 45, in the nested page table, because
-that will be considered a reserved bit and generate an NPF. When memory
-encryption is enabled today, bit 47 is the encryption indicator bit and
-bits 46:43 must be zero or else an NPF is generated. The hardware uses
-these bits internally based on the whether running as the hypervisor or
-based on the ASID of the guest.
-
-Thanks,
-Tom
-
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Tom Lendacky <thomas.lendacky@amd.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/kvm/mmu/mmu.c | 20 ++++++++++++--------
->  1 file changed, 12 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-> index 6f92b40d798c..1e4ee4f8de5f 100644
-> --- a/arch/x86/kvm/mmu/mmu.c
-> +++ b/arch/x86/kvm/mmu/mmu.c
-> @@ -538,16 +538,20 @@ void kvm_mmu_set_mask_ptes(u64 user_mask, u64 accessed_mask,
->  static u8 kvm_get_shadow_phys_bits(void)
->  {
->  	/*
-> -	 * boot_cpu_data.x86_phys_bits is reduced when MKTME is detected
-> -	 * in CPU detection code, but MKTME treats those reduced bits as
-> -	 * 'keyID' thus they are not reserved bits. Therefore for MKTME
-> -	 * we should still return physical address bits reported by CPUID.
-> +	 * boot_cpu_data.x86_phys_bits is reduced when MKTME or SME are detected
-> +	 * in CPU detection code, but the processor treats those reduced bits as
-> +	 * 'keyID' thus they are not reserved bits. Therefore KVM needs to look at
-> +	 * the physical address bits reported by CPUID.
->  	 */
-> -	if (!boot_cpu_has(X86_FEATURE_TME) ||
-> -	    WARN_ON_ONCE(boot_cpu_data.extended_cpuid_level < 0x80000008))
-> -		return boot_cpu_data.x86_phys_bits;
-> +	if (likely(boot_cpu_data.extended_cpuid_level >= 0x80000008))
-> +		return cpuid_eax(0x80000008) & 0xff;
->  
-> -	return cpuid_eax(0x80000008) & 0xff;
-> +	/*
-> +	 * Quite weird to have VMX or SVM but not MAXPHYADDR; probably a VM with
-> +	 * custom CPUID.  Proceed with whatever the kernel found since these features
-> +	 * aren't virtualizable (SME/SEV also require CPUIDs higher than 0x80000008).
-> +	 */
-> +	return boot_cpu_data.x86_phys_bits;
->  }
->  
->  static void kvm_mmu_reset_all_pte_masks(void)
-> 
