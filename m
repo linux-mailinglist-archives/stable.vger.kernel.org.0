@@ -2,345 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A35B11211C
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 02:40:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E042112121
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 02:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfLDBkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 20:40:32 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:40885 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726107AbfLDBkc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 20:40:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575423629;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=TH1e4S6l5s17S3O2SrtMN7RXVRxt7hdkZ4Cs/X4/j6k=;
-        b=hAxfahSlcZvTxFUX0U6EQRqQO/wqKSCLUrp+AgX4CAPGp4Ovk79sevQaPTdJ6LCnADOLRo
-        +T7UQC/yXj7Fzz+1QzIuxRoHtkhpa8n8KcBOfHb3qtM6ckb9/H42pQjs9a+WQTv/dKheTl
-        I4r0pumJwj6B7LWnOaA1rj1mQu+ewwM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-300-SIzMPBTYMJy0eOMs8KU5vg-1; Tue, 03 Dec 2019 20:40:27 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726131AbfLDBtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 20:49:08 -0500
+Received: from sv2-smtprelay2.synopsys.com ([149.117.73.133]:41302 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726107AbfLDBtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 20:49:08 -0500
+Received: from mailhost.synopsys.com (badc-mailhost2.synopsys.com [10.192.0.18])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0125E10054E3
-        for <stable@vger.kernel.org>; Wed,  4 Dec 2019 01:40:27 +0000 (UTC)
-Received: from [172.54.108.34] (cpt-1042.paas.prod.upshift.rdu2.redhat.com [10.0.19.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DEC1919C69;
-        Wed,  4 Dec 2019 01:40:21 +0000 (UTC)
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.15-rc1-7c5eb61.cki
- (stable)
-Date:   Wed, 04 Dec 2019 01:40:21 -0000
-CC:     Yi Zhang <yi.zhang@redhat.com>
-Message-ID: <cki.8A9ABDA1ED.QRWL4JCK0S@redhat.com>
-X-Gitlab-Pipeline-ID: 321479
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/321479
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: SIzMPBTYMJy0eOMs8KU5vg-1
-X-Mimecast-Spam-Score: 0
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 21E1E404FC;
+        Wed,  4 Dec 2019 01:49:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1575424147; bh=5G3Tfi9QbP6Gkkc9zWpZlXVImf771SG4AJym0YgjMkI=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+        b=VXVXUHlXKGAZm8k5lCm/JrqEoN4cArsE4BvFwVO8c41pnDB/eY3XAIECu0KIs5awn
+         yYy81uqCAq1iB23CLnMys5soID8IQgjxFz2RMPu2UFlIvevNLkjNy/IRBshagsaxZU
+         iEjPnWjvWXPRFNsUAHP8YjJ34TXVAAX4prB6e6y/yhJSD+KOBoxH3qkln1szGdwRzG
+         qoD5cLIvty5EjYAFe37MNHJQ9fJgKAyvJFkWk0ogowE2Il7odFMpUgxE2sTQOXst1w
+         Ch45rb8ZvTeLx2xXm4gRU6ll8y+JAzmzOivaqRhT6UcROQKXdo+qPel741/eAJ9hRu
+         jTuV62mp1p1Lw==
+Received: from US01WEHTC3.internal.synopsys.com (us01wehtc3.internal.synopsys.com [10.15.84.232])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPS id D8145A008E;
+        Wed,  4 Dec 2019 01:49:00 +0000 (UTC)
+Received: from US01HYBRID2.internal.synopsys.com (10.15.246.24) by
+ US01WEHTC3.internal.synopsys.com (10.15.84.232) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Tue, 3 Dec 2019 17:48:53 -0800
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (10.13.177.249)
+ by mrs.synopsys.com (10.15.246.24) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Tue, 3 Dec 2019 17:48:53 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JsY5+Z1hK9trPA8CMMKLMY9xrLQ8A8WgAZe5Ki83U9Vaw4TIGY3b9PTgQqpVO3SRQHHtsGV3JJCFBKvn6GDVbexi4qnqFIIMCr3nOBVU+kvk621xQuQXqQ0y9dxaEbjjZLrJezciaXiNIsyGiTF01+r19Mmkyhk/4PiA31wJ4eo7fUTrPRIz635Rvy9fkLfTFOJebjP41vpKXMNBDQCl+f9XBy2HbGTNVrapkIh6KfMkEm8OV9CFfxj0jPqTAoh5wQugAXQISHQbSq6Bv6U4xnu2hV/N3g9wvzgVbZO9aMmpTrXl6x2O0RnxlQUZj2RJTwfddARGVWX5QSS6/aFSFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5G3Tfi9QbP6Gkkc9zWpZlXVImf771SG4AJym0YgjMkI=;
+ b=l3VlsRV6ovaY8nhr1Lcam/SNAZClwAHMuhopIf/NF1c5bOr92DapS7/IIQzmyjtlFmAGSv7LbGlrPEwMskAu67afNLZH0CC8bl9OJR0jEB27wAKb6E6FsPOVqRR7ZRn3J1GvuCqA5p9f+HsgLTLPPC1YUkK2SU/yUxI+R7E4fiD0ScbxLR1tD4wIvOXZDRL+PeThvkjU9vPqBk5jH6gxHlC5fQG8WgnWPzilN1UcJSgpmQEp/e049JYbgUn2VVhfuVHN83KnOGIWYnnVBp19Gs0kw2TmCPEbhzY/RBuwDxCLV40Kr2pKvvdOhf2swHZXMrRg/ysmyNS9Gae4FzGBfw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
+ dkim=pass header.d=synopsys.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=synopsys.onmicrosoft.com; s=selector2-synopsys-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5G3Tfi9QbP6Gkkc9zWpZlXVImf771SG4AJym0YgjMkI=;
+ b=VZxtF2ppX6wAKmwcbdVkxQSIjmzJlG/M0z0m/dPrFlCd+dxQCrXRT9z166swy+RuJaDYnPhotVFUBmWFd4kokCdWH5chKuFuh84p0vHUYjI00hw2VDDLAiQ0k+0rWYxSayEHRvrX6W38s2IkuR0Ql0yHimg3hgasRfbC9ufN94A=
+Received: from CY4PR1201MB0037.namprd12.prod.outlook.com (10.172.78.22) by
+ CY4PR1201MB0181.namprd12.prod.outlook.com (10.172.79.139) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2495.22; Wed, 4 Dec 2019 01:48:51 +0000
+Received: from CY4PR1201MB0037.namprd12.prod.outlook.com
+ ([fe80::5d88:202f:2fff:24b4]) by CY4PR1201MB0037.namprd12.prod.outlook.com
+ ([fe80::5d88:202f:2fff:24b4%8]) with mapi id 15.20.2495.014; Wed, 4 Dec 2019
+ 01:48:51 +0000
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+CC:     John Youn <John.Youn@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] usb: dwc3: gadget: Check for NULL descriptor
+Thread-Topic: [PATCH] usb: dwc3: gadget: Check for NULL descriptor
+Thread-Index: AQHVpWwJjRcuVvPds0SRD8AQcHPAOqeoee0AgADFLgA=
+Date:   Wed, 4 Dec 2019 01:48:51 +0000
+Message-ID: <b2277d8d-8b7f-15cd-fa18-e8c3d08ead4a@synopsys.com>
+References: <bbb1564aa649a6b5b97160ec3ef9fefdd8c85aea.1574891043.git.thinhn@synopsys.com>
+ <87sgm18q1x.fsf@gmail.com>
+In-Reply-To: <87sgm18q1x.fsf@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=thinhn@synopsys.com; 
+x-originating-ip: [149.117.75.12]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 062299fa-0d59-4037-b6e3-08d7785c1d0d
+x-ms-traffictypediagnostic: CY4PR1201MB0181:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <CY4PR1201MB01812D12518FA644DF8CAD5AAA5D0@CY4PR1201MB0181.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:3631;
+x-forefront-prvs: 0241D5F98C
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(396003)(366004)(376002)(39860400002)(136003)(199004)(189003)(316002)(66446008)(64756008)(6486002)(229853002)(66476007)(7736002)(76116006)(81156014)(8676002)(66946007)(2501003)(14444005)(4744005)(256004)(305945005)(5660300002)(6116002)(2906002)(14454004)(3846002)(31686004)(81166006)(76176011)(71190400001)(6512007)(4326008)(6436002)(86362001)(8936002)(71200400001)(6246003)(446003)(66556008)(36756003)(25786009)(54906003)(11346002)(478600001)(6506007)(186003)(2616005)(31696002)(99286004)(110136005)(102836004)(26005);DIR:OUT;SFP:1102;SCL:1;SRVR:CY4PR1201MB0181;H:CY4PR1201MB0037.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: synopsys.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 1bC7FyqWluvBcKeJXI3w7TLQzLscuOv+qfkLUoT0NzgkvlE4HXO/O1q8GPXZb6kOOjmkN6K4tTPrPVzrS053CyftbsY0+1OucRITD9TppL+jsqnjbh39/gPC8C55FEsPmIvuJep2sNFRZfS0omvm+1v0HPUpgZIrf//oshQHodT8LRlSeMQgujz5BVTw7isLGtyx8pXhlttr+AWE72EmnMvuaP4P9kDQQ3fcyb4hmNHSq3VT62bo2Vl4qzIuZwxzRJKaNxlbJVBawkIMboDkUUY82LmXquBrNpYJ73+iaCpISE1MGCzoYD49z1CQKwXb6fTt7yBOh3MZiq9Wg4gGqgyDH9q+397XF41/3Liyj2GSRInJED2BrnZGhdKEY7IGqAo9EiIlogZWKHkpRnUBXB0PqX5hhRaF1/N/r7/RGvnsYpXDjHgYnhoL0yKLKfg7
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-ID: <545755798B32FD47BDB749AE3367AC57@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-Network-Message-Id: 062299fa-0d59-4037-b6e3-08d7785c1d0d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Dec 2019 01:48:51.4527
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: rbmgIdnIqBlnQQFqJQ4xxFLDd4GKBFEzip/7Pq+cxn+z9tGh1EBGYMkZgCDICilNzr4tPu3d9p/va7PGqW4XKA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR1201MB0181
+X-OriginatorOrg: synopsys.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-Hello,
-
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 7c5eb6144103 - Linux 5.3.15-rc1
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/321479
-
-One or more kernel tests failed:
-
-    x86_64:
-     =E2=9D=8C Boot test
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-tests=
-uite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns transport
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-tests=
-uite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns tunnel
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm test suite
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: ext4
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 4:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
-est
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/bas=
-ic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+SGkgRmVsaXBlLA0KDQpGZWxpcGUgQmFsYmkgd3JvdGU6DQo+IEhpLA0KPg0KPiBUaGluaCBOZ3V5
+ZW4gPFRoaW5oLk5ndXllbkBzeW5vcHN5cy5jb20+IHdyaXRlczoNCj4NCj4+IFRoZSBmdW5jdGlv
+biBkcml2ZXIgbWF5IHRyeSB0byBlbmFibGUgYW4gdW5jb25maWd1cmVkIGVuZHBvaW50LiBUaGlz
+DQo+PiBjaGVjayBtYWtlIHN1cmUgdGhhdCB3ZSBkbyBub3QgYXR0ZW1wdCB0byBhY2Nlc3MgYSBO
+VUxMIGRlc2NyaXB0b3IgYW5kDQo+PiBjcmFzaC4NCj4+DQo+PiBDYzogc3RhYmxlQHZnZXIua2Vy
+bmVsLm9yZw0KPj4gU2lnbmVkLW9mZi1ieTogVGhpbmggTmd1eWVuIDx0aGluaG5Ac3lub3BzeXMu
+Y29tPg0KPj4gLS0tDQo+PiAgIGRyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMgfCAzICsrKw0KPj4g
+ICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspDQo+Pg0KPj4gZGlmZiAtLWdpdCBhL2Ry
+aXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMgYi9kcml2ZXJzL3VzYi9kd2MzL2dhZGdldC5jDQo+PiBp
+bmRleCA3Zjk3ODU2ZTZiMjAuLjAwZjhmMDc5YmJmMiAxMDA2NDQNCj4+IC0tLSBhL2RyaXZlcnMv
+dXNiL2R3YzMvZ2FkZ2V0LmMNCj4+ICsrKyBiL2RyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMNCj4+
+IEBAIC02MTksNiArNjE5LDkgQEAgc3RhdGljIGludCBfX2R3YzNfZ2FkZ2V0X2VwX2VuYWJsZShz
+dHJ1Y3QgZHdjM19lcCAqZGVwLCB1bnNpZ25lZCBpbnQgYWN0aW9uKQ0KPj4gICAJdTMyCQkJcmVn
+Ow0KPj4gICAJaW50CQkJcmV0Ow0KPj4gICANCj4+ICsJaWYgKCFkZXNjKQ0KPj4gKwkJcmV0dXJu
+IC1FSU5WQUw7DQo+IEkgd291bGQgcmF0aGVyIGhhdmUgYSBkZXZfV0FSTigpIChhbmQgcmV0dXJu
+IC1FSU5WQUwpIGFkZGVkIHRvDQo+IHVzYl9lcF9lbmFibGUoKSBzbyB3ZSBjYXRjaCB0aG9zZSBk
+b2luZyB0aGlzLiBUaGF0IHdheSB3ZSBkb24ndCBoYXZlIHRvDQo+IHBhdGNoIGV2ZXJ5IFVEQy4N
+Cj4NCg0KU3VyZSwgd2UgY2FuIGRvIHRoYXQuDQoNClRoYW5rcywNClRoaW5oDQo=
