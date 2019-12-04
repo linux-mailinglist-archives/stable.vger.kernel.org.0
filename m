@@ -2,93 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2161112369
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 08:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA94A11236F
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 08:15:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727209AbfLDHOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 02:14:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37462 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726048AbfLDHOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 02:14:20 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DD82206DF;
-        Wed,  4 Dec 2019 07:14:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575443659;
-        bh=Cwv1kql4NHvUwwQgzVHWaWKIlK5ISRIKAetwzq4MSnE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O2BvOavbnZnLGfNrzYPOt8r3wb3gV/o5U95NoWdokw+R3FiRIWnc84L75hC75OFpc
-         fA/eBnwD4CeOj8d3qh0RhGcLOABAfSdqqjaO9V9v7TasyRqIFrr3reoKIRbSwdA8ie
-         RJmlLjuRtCYFvw9RIE5rOPiwtP9/jT6F89Yez+KU=
-Date:   Wed, 4 Dec 2019 08:14:16 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 024/321] net: fec: add missed clk_disable_unprepare
- in remove
-Message-ID: <20191204071416.GB3513626@kroah.com>
-References: <20191203223427.103571230@linuxfoundation.org>
- <20191203223428.376628375@linuxfoundation.org>
- <20191204055738.nl5db2xtigoamtbk@toshiba.co.jp>
+        id S1727286AbfLDHOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 02:14:46 -0500
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:46356 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726048AbfLDHOm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 02:14:42 -0500
+Received: by mail-wr1-f43.google.com with SMTP id z7so7086217wrl.13
+        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 23:14:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lO5JYKHbjBjFAq0hKJQ8JdWsBUBr0lRorddlK5xGyPk=;
+        b=VdOyF9MctoPo2FlpH97gJ84zc3RuOHWcrmWi46ZfdzjUQZosnwbhEL6KXLHbrzHXgJ
+         gVbDy0Qbxx970w8scqktMh/czzSudXcFQqneEnxdnXrGMkhLeMCWrVaTKM9+l0EF0m/q
+         ZWL1wU6I9EG6Z6bs8L8aSQwyiLrZhg/Zne8FGSGffMP6Evl0fi7iCQ8KZ35zWZAySuQh
+         QxuWGGnN3LY1rDYvyuFvq/bQr2Y9rr8g9USSw9120SSAjh6PvhGy5iHKUALck4NqJEss
+         92T9e34vEs4LEIOQRTBXaeVxUrRqWMoPk3iGaUmrJ2GXEtFEPRiqvLzg3tiQA61hVx4o
+         +9WA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lO5JYKHbjBjFAq0hKJQ8JdWsBUBr0lRorddlK5xGyPk=;
+        b=uSD+TWbWjzKa5WF1+3iG2CfPvl1ev1yOOP1m0E4b8BvIPEMdKMSm8ixwUqEo2QHe3D
+         qJvBtpmulj5/bxyTnvUc7rm6Neue+DY0XwrWGRbG7QRQ9+dzwUcQt9ileYbj4MvF5fcg
+         oxLsJyi/UKo/ea/2oJX7ML6H5kazuNGqqkorrdRSmzh8YoU6pwMQNZ2ud4s87ABakrM/
+         MrO6+OzyktoE/HVIOfckcGr6zPuNs7uP/9hflJmJEuAZZUN2lS3c3ZQPfO0qeTgHgTbE
+         YuYVjwCERvRiRCb/aIj7M6+08P1RJ/35Kb4FQMGPSStbzQTIYkF0r6RDU/w5YtlKSclQ
+         FPBA==
+X-Gm-Message-State: APjAAAWNpnG+DZxo7KzyarLXM8WZnC3fshuzoMqloJEUOugglSHi2bop
+        KKh2bFUcJiofxuF5NVoajD2ICmK06qKCkN6VHKde3tk1kcY=
+X-Google-Smtp-Source: APXvYqxkCYGI+p78YxD0vMpDCOf34JWsyZusdUYM+ov1x2az86l8a9E5CKoqlLb7A9VDAvTMzQ9J1blyMLK3MGcLZ1o=
+X-Received: by 2002:adf:f80b:: with SMTP id s11mr2129449wrp.12.1575443680348;
+ Tue, 03 Dec 2019 23:14:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191204055738.nl5db2xtigoamtbk@toshiba.co.jp>
+References: <CAPtwhKrmvw8wm1u_36YEoLgQ8pGe=v5xaV2RN4W6jVw3zOgeQQ@mail.gmail.com>
+ <20191203230944.GA3495297@kroah.com> <CAPtwhKpZCequxTMzAcVcJ34EW4AFqNDcWuoud-D3nywpYxzx5Q@mail.gmail.com>
+ <CAPtwhKqiKZtTGO_7Jpx9nEDhQu8LESvaZth4uHb5a8Ur+=65SA@mail.gmail.com>
+ <CAPtwhKrCY4ZWFPYsr5N3LcAJOJVStN9Qb93-zk+GFRNVsfGxgQ@mail.gmail.com>
+ <CAPtwhKoMk+AY2D9Akoh_v4fSTj9JtUT1k+DQ_qcuK=zbZSdpgw@mail.gmail.com>
+ <CAPtwhKpjLswXm3fSZ6o0hiNxM2Zgj3zmfsLLPYtPpqmN91792g@mail.gmail.com> <20191204071156.GA3513626@kroah.com>
+In-Reply-To: <20191204071156.GA3513626@kroah.com>
+From:   Xuewei Zhang <xueweiz@google.com>
+Date:   Tue, 3 Dec 2019 23:14:28 -0800
+Message-ID: <CAPtwhKrpO2ARxua3ScdmXZGZYViz03DJydY0-e=t5dJgX-FjkA@mail.gmail.com>
+Subject: Re: Request to backport 4929a4e6faa0 to stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 04, 2019 at 02:57:38PM +0900, Nobuhiro Iwamatsu wrote:
-> Hi,
-> 
-> On Tue, Dec 03, 2019 at 11:31:30PM +0100, Greg Kroah-Hartman wrote:
-> > From: Chuhong Yuan <hslester96@gmail.com>
-> > 
-> > [ Upstream commit c43eab3eddb4c6742ac20138659a9b701822b274 ]
-> > 
-> > This driver forgets to disable and unprepare clks when remove.
-> > Add calls to clk_disable_unprepare to fix it.
-> > 
-> > Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-> > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> 
-> This commit also requires the following commit:
-> 
-> commit a31eda65ba210741b598044d045480494d0ed52a
-> Author: Chuhong Yuan <hslester96@gmail.com>
-> Date:   Wed Nov 20 09:25:13 2019 +0800
-> 
->     net: fec: fix clock count mis-match
-> 
->     pm_runtime_put_autosuspend in probe will call runtime suspend to
->     disable clks automatically if CONFIG_PM is defined. (If CONFIG_PM
->     is not defined, its implementation will be empty, then runtime
->     suspend will not be called.)
-> 
->     Therefore, we can call pm_runtime_get_sync to runtime resume it
->     first to enable clks, which matches the runtime suspend. (Only when
->     CONFIG_PM is defined, otherwise pm_runtime_get_sync will also be
->     empty, then runtime resume will not be called.)
-> 
->     Then it is fine to disable clks without causing clock count mis-match.
-> 
->     Fixes: c43eab3eddb4 ("net: fec: add missed clk_disable_unprepare in remove")
->     Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
->     Acked-by: Fugang Duan <fugang.duan@nxp.com>
->     Signed-off-by: David S. Miller <davem@davemloft.net>
-> 
-> 
-> And this should also apply to 5.3.
+On Tue, Dec 3, 2019 at 11:12 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Dec 03, 2019 at 03:37:36PM -0800, Xuewei Zhang wrote:
+> > Hi Greg,
+> >
+> > I sent the backports which should apply cleanly to the 5 stable kernel
+> > versions: 4.19, 4.14, 4.9, 4.4, 3.16.
+> >
+> > Does it work for you? Please let me know if I should submit them using
+> > some other formats. Apologize ahead if my current format is wrong.
+>
+> That looks good, I'll queue them up later this week once the current
+> round of stable kernels are released.
+>
+> thanks,
+>
+> greg k-h
 
-Thanks, now queued up.
+Thanks for the help Greg!
 
-greg k-h
+Best regards,
+Xuewei
