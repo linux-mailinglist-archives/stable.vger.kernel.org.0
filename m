@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 914A611321A
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4693F1133AB
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730454AbfLDSFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:05:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53002 "EHLO mail.kernel.org"
+        id S1731277AbfLDSKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:10:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730447AbfLDSFs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:05:48 -0500
+        id S1731297AbfLDSKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:10:38 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A509D2073B;
-        Wed,  4 Dec 2019 18:05:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9631E20674;
+        Wed,  4 Dec 2019 18:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482748;
-        bh=PJgEEjbp1H8Kosvd8hBCuPEx4y/bSeGp4cUM17V5jY0=;
+        s=default; t=1575483038;
+        bh=ThoYSDuOyMrEllBnixLtzC0SAlAY938sTf+e4ht6PkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2hIR3ej53Kj0syEVOHwf3sm1PlM7DmR7B35xgymA3gW7lfgkUZk6d0oijv/woixK
-         4hn02ZD5/7pO94XS0hPR4aC5Xt63Fnpav722HqyBmxpkh3hATBytU+q05hqDkp+nb0
-         iJA3IK4MWN7Rgj/5VnSsktWjLyhB4iHsNg6Rx6QM=
+        b=cyEruBWmubLslg/RiEcQ3SsAZNpgbsWrYUGrjvTWR1JyPThtNM0Ky7Jz0XjVLuhl1
+         UGEpISXTONNEbnARzj8lH3wLSm94JaHFoYNp3m3EbeC5F8NQSCl77FWRP3DOtK5uP/
+         mCUbRBGLSuNXWCPWjBvoRRVPejGl9P/FaNJsEdGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Yiwen Jiang <jiangyiwen@huawei.com>,
-        Joseph Qi <jiangqi903@gmail.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Changwei Ge <ge.changwei@h3c.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Mark Fasheh <mfasheh@versity.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 119/209] ocfs2: clear journal dirty flag after shutdown journal
+Subject: [PATCH 4.9 026/125] mwifiex: debugfs: correct histogram spacing, formatting
 Date:   Wed,  4 Dec 2019 18:55:31 +0100
-Message-Id: <20191204175331.300579581@linuxfoundation.org>
+Message-Id: <20191204175319.891222735@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,55 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit d85400af790dba2aa294f0a77e712f166681f977 ]
+[ Upstream commit 4cb777c64e030778c569f605398d7604d8aabc0f ]
 
-Dirty flag of the journal should be cleared at the last stage of umount,
-if do it before jbd2_journal_destroy(), then some metadata in uncommitted
-transaction could be lost due to io error, but as dirty flag of journal
-was already cleared, we can't find that until run a full fsck.  This may
-cause system panic or other corruption.
+Currently, snippets of this file look like:
 
-Link: http://lkml.kernel.org/r/20181121020023.3034-3-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Yiwen Jiang <jiangyiwen@huawei.com>
-Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Changwei Ge <ge.changwei@h3c.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Mark Fasheh <mfasheh@versity.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+rx rates (in Mbps): 0=1M   1=2M2=5.5M  3=11M   4=6M   5=9M  6=12M
+7=18M  8=24M  9=36M  10=48M  11=54M12-27=MCS0-15(BW20) 28-43=MCS0-15(BW40)
+44-53=MCS0-9(VHT:BW20)54-63=MCS0-9(VHT:BW40)64-73=MCS0-9(VHT:BW80)
+...
+noise_flr[--96dBm] = 22
+noise_flr[--95dBm] = 149
+noise_flr[--94dBm] = 9
+noise_flr[--93dBm] = 2
+
+We're missing some spaces, and we're adding a minus sign ('-') on values
+that are already negative signed integers.
+
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/journal.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/debugfs.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
-index f7fba58618ef3..2459ae9d2234f 100644
---- a/fs/ocfs2/journal.c
-+++ b/fs/ocfs2/journal.c
-@@ -1018,7 +1018,8 @@ void ocfs2_journal_shutdown(struct ocfs2_super *osb)
- 			mlog_errno(status);
- 	}
+diff --git a/drivers/net/wireless/marvell/mwifiex/debugfs.c b/drivers/net/wireless/marvell/mwifiex/debugfs.c
+index ae2b69db59940..6eacea28d7ac8 100644
+--- a/drivers/net/wireless/marvell/mwifiex/debugfs.c
++++ b/drivers/net/wireless/marvell/mwifiex/debugfs.c
+@@ -296,15 +296,13 @@ mwifiex_histogram_read(struct file *file, char __user *ubuf,
+ 		     "total samples = %d\n",
+ 		     atomic_read(&phist_data->num_samples));
  
--	if (status == 0) {
-+	/* Shutdown the kernel journal system */
-+	if (!jbd2_journal_destroy(journal->j_journal) && !status) {
- 		/*
- 		 * Do not toggle if flush was unsuccessful otherwise
- 		 * will leave dirty metadata in a "clean" journal
-@@ -1027,9 +1028,6 @@ void ocfs2_journal_shutdown(struct ocfs2_super *osb)
- 		if (status < 0)
- 			mlog_errno(status);
- 	}
--
--	/* Shutdown the kernel journal system */
--	jbd2_journal_destroy(journal->j_journal);
- 	journal->j_journal = NULL;
+-	p += sprintf(p, "rx rates (in Mbps): 0=1M   1=2M");
+-	p += sprintf(p, "2=5.5M  3=11M   4=6M   5=9M  6=12M\n");
+-	p += sprintf(p, "7=18M  8=24M  9=36M  10=48M  11=54M");
+-	p += sprintf(p, "12-27=MCS0-15(BW20) 28-43=MCS0-15(BW40)\n");
++	p += sprintf(p,
++		     "rx rates (in Mbps): 0=1M   1=2M 2=5.5M  3=11M   4=6M   5=9M  6=12M\n"
++		     "7=18M  8=24M  9=36M  10=48M  11=54M 12-27=MCS0-15(BW20) 28-43=MCS0-15(BW40)\n");
  
- 	OCFS2_I(inode)->ip_open_count--;
+ 	if (ISSUPP_11ACENABLED(priv->adapter->fw_cap_info)) {
+-		p += sprintf(p, "44-53=MCS0-9(VHT:BW20)");
+-		p += sprintf(p, "54-63=MCS0-9(VHT:BW40)");
+-		p += sprintf(p, "64-73=MCS0-9(VHT:BW80)\n\n");
++		p += sprintf(p,
++			     "44-53=MCS0-9(VHT:BW20) 54-63=MCS0-9(VHT:BW40) 64-73=MCS0-9(VHT:BW80)\n\n");
+ 	} else {
+ 		p += sprintf(p, "\n");
+ 	}
+@@ -333,7 +331,7 @@ mwifiex_histogram_read(struct file *file, char __user *ubuf,
+ 	for (i = 0; i < MWIFIEX_MAX_NOISE_FLR; i++) {
+ 		value = atomic_read(&phist_data->noise_flr[i]);
+ 		if (value)
+-			p += sprintf(p, "noise_flr[-%02ddBm] = %d\n",
++			p += sprintf(p, "noise_flr[%02ddBm] = %d\n",
+ 				(int)(i-128), value);
+ 	}
+ 	for (i = 0; i < MWIFIEX_MAX_SIG_STRENGTH; i++) {
 -- 
 2.20.1
 
