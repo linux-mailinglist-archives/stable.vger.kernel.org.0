@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA4B11348A
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14173113487
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbfLDSBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:01:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42644 "EHLO mail.kernel.org"
+        id S1728680AbfLDSBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:01:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729637AbfLDSBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:01:44 -0500
+        id S1729245AbfLDSBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:01:46 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1F31206DF;
-        Wed,  4 Dec 2019 18:01:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D08F20675;
+        Wed,  4 Dec 2019 18:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482503;
-        bh=KtvtfVhh4d+XHkmCqF5Q/paFYbGma6zpuEW1PkAKSR4=;
+        s=default; t=1575482505;
+        bh=cC+AaLKi1MCjWftMUPCXFQDUqGCKEaeipBYcLrwOllI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7vXRiPQ+e6z38/ws3oLxLVcSDs0DF1G+/pJDl0DdlrYwW3o64gACLpg7K68bTD0l
-         OiOiss/znSkQw3X03vb/QfRvKFqZf3JtEh6Oot6jeNY/sL67vZMJWPZke/iQkn8q/0
-         glnwkZkF0lMrYTMzLE0ze/N5BYKlr8MEEZbBt8Sg=
+        b=MihOl13B/b3AW9QXmwtVTkk4E6nDqJ5lb0gAACYuRFd5Hht7RHKD2CRpUsXezDSt5
+         zpKXgnzh4LhfKtzDXL72Vh4HAbv3uRhVE+iV+8qOtxUtWcNEcK38sjZ6hinLRPRr14
+         9700sppUiLAGm8EG4Prq33W6kUfIJlUU2SqbneFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Xingyu Chen <xingyu.chen@amlogic.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/209] can: rx-offload: can_rx_offload_irq_offload_fifo(): continue on error
-Date:   Wed,  4 Dec 2019 18:53:54 +0100
-Message-Id: <20191204175323.030935417@linuxfoundation.org>
+Subject: [PATCH 4.14 023/209] watchdog: meson: Fix the wrong value of left time
+Date:   Wed,  4 Dec 2019 18:53:55 +0100
+Message-Id: <20191204175323.096279200@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -43,53 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Xingyu Chen <xingyu.chen@amlogic.com>
 
-[ Upstream commit 1f7f504dcd9d1262437bdcf4fa071e41dec1af03 ]
+[ Upstream commit 2c77734642d52448aca673e889b39f981110828b ]
 
-In case of a resource shortage, i.e. the rx_offload queue will overflow
-or a skb fails to be allocated (due to OOM),
-can_rx_offload_offload_one() will call mailbox_read() to discard the
-mailbox and return an ERR_PTR.
+The left time value is wrong when we get it by sysfs. The left time value
+should be equal to preset timeout value minus elapsed time value. According
+to the Meson-GXB/GXL datasheets which can be found at [0], the timeout value
+is saved to BIT[0-15] of the WATCHDOG_TCNT, and elapsed time value is saved
+to BIT[16-31] of the WATCHDOG_TCNT.
 
-If the hardware FIFO is empty can_rx_offload_offload_one() will return
-NULL.
+[0]: http://linux-meson.com
 
-In case a CAN frame was read from the hardware,
-can_rx_offload_offload_one() returns the skb containing it.
-
-Without this patch can_rx_offload_irq_offload_fifo() bails out if no skb
-returned, regardless of the reason.
-
-Similar to can_rx_offload_irq_offload_timestamp() in case of a resource
-shortage the whole FIFO should be discarded, to avoid an IRQ storm and
-give the system some time to recover. However if the FIFO is empty the
-loop can be left.
-
-With this patch the loop is left in case of empty FIFO, but not on
-errors.
-
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 683fa50f0e18 ("watchdog: Add Meson GXBB Watchdog Driver")
+Signed-off-by: Xingyu Chen <xingyu.chen@amlogic.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/rx-offload.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/watchdog/meson_gxbb_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/rx-offload.c b/drivers/net/can/rx-offload.c
-index fef6534f163b7..54ffd1e91a693 100644
---- a/drivers/net/can/rx-offload.c
-+++ b/drivers/net/can/rx-offload.c
-@@ -257,7 +257,9 @@ int can_rx_offload_irq_offload_fifo(struct can_rx_offload *offload)
+diff --git a/drivers/watchdog/meson_gxbb_wdt.c b/drivers/watchdog/meson_gxbb_wdt.c
+index 69a5a57f14462..61297a6ab43a0 100644
+--- a/drivers/watchdog/meson_gxbb_wdt.c
++++ b/drivers/watchdog/meson_gxbb_wdt.c
+@@ -137,8 +137,8 @@ static unsigned int meson_gxbb_wdt_get_timeleft(struct watchdog_device *wdt_dev)
  
- 	while (1) {
- 		skb = can_rx_offload_offload_one(offload, 0);
--		if (IS_ERR_OR_NULL(skb))
-+		if (IS_ERR(skb))
-+			continue;
-+		if (!skb)
- 			break;
+ 	reg = readl(data->reg_base + GXBB_WDT_TCNT_REG);
  
- 		skb_queue_tail(&offload->skb_queue, skb);
+-	return ((reg >> GXBB_WDT_TCNT_CNT_SHIFT) -
+-		(reg & GXBB_WDT_TCNT_SETUP_MASK)) / 1000;
++	return ((reg & GXBB_WDT_TCNT_SETUP_MASK) -
++		(reg >> GXBB_WDT_TCNT_CNT_SHIFT)) / 1000;
+ }
+ 
+ static const struct watchdog_ops meson_gxbb_wdt_ops = {
 -- 
 2.20.1
 
