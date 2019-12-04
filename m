@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 157D01133E9
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C76C911338F
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731538AbfLDSUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:20:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33612 "EHLO mail.kernel.org"
+        id S1729087AbfLDSRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:17:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730941AbfLDSIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:08:53 -0500
+        id S1731431AbfLDSLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:11:24 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E18120674;
-        Wed,  4 Dec 2019 18:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D71802084B;
+        Wed,  4 Dec 2019 18:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482933;
-        bh=XNoYKvz5jYsa7e1+etOwz3MmWT1KcokIq3KV72exAlg=;
+        s=default; t=1575483084;
+        bh=rbDfZ37pyFkTziq+H9O55VekzIqVmSm6qVNT7/Ygp88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QublcnU4b/6ZCijHaO6HmT0E7VGmf8z95LHCO2fCG5XxflXfMtnH/wn1E/SSqqHD3
-         oy7QCjzXtgpTrH7F7dgiqyM8PmLgrkZGUp7lE02KiyLhFIPZAsyLgu32pM89bI4R4A
-         twIBEsswX7siAyrUkugqYP5/s28Zvta46Re4b92w=
+        b=HFX5VbZZMwZCWOrSRZEo7YI/qstubkYWoFCXcYD1oEwR7MfD30kIxG6fzwnYQfpQT
+         i6M4263QBPjZ38QA9+Nu0PUzioEjSdr+dCenz8vc5ygRKt2tc3UUT1vLFg9xqeDqQ9
+         7Ohob/eWrE1T2oXpqOLPjUBnwZarqtzEf9N5PPGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bert Kenward <bkenward@solarflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 139/209] sfc: initialise found bitmap in efx_ef10_mtd_probe
+Subject: [PATCH 4.9 046/125] gfs2: take jdata unstuff into account in do_grow
 Date:   Wed,  4 Dec 2019 18:55:51 +0100
-Message-Id: <20191204175332.872633447@linuxfoundation.org>
+Message-Id: <20191204175321.766471076@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bert Kenward <bkenward@solarflare.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit c65285428b6e7797f1bb063f33b0ae7e93397b7b ]
+[ Upstream commit bc0205612bbd4dd4026d4ba6287f5643c37366ec ]
 
-The bitmap of found partitions in efx_ef10_mtd_probe was not
-initialised, causing partitions to be suppressed based off whatever
-value was in the bitmap at the start.
+Before this patch, function do_grow would not reserve enough journal
+blocks in the transaction to unstuff jdata files while growing them.
+This patch adds the logic to add one more block if the file to grow
+is jdata.
 
-Fixes: 3366463513f5 ("sfc: suppress duplicate nvmem partition types in efx_ef10_mtd_probe")
-Signed-off-by: Bert Kenward <bkenward@solarflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Reviewed-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/bmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index cc3be94d05622..2d92a9fe4606c 100644
---- a/drivers/net/ethernet/sfc/ef10.c
-+++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -5918,7 +5918,7 @@ static int efx_ef10_mtd_probe_partition(struct efx_nic *efx,
- static int efx_ef10_mtd_probe(struct efx_nic *efx)
- {
- 	MCDI_DECLARE_BUF(outbuf, MC_CMD_NVRAM_PARTITIONS_OUT_LENMAX);
--	DECLARE_BITMAP(found, EF10_NVRAM_PARTITION_COUNT);
-+	DECLARE_BITMAP(found, EF10_NVRAM_PARTITION_COUNT) = { 0 };
- 	struct efx_mcdi_mtd_partition *parts;
- 	size_t outlen, n_parts_total, i, n_parts;
- 	unsigned int type;
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index 39af17b407f00..d83e99fa98b3a 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -1236,6 +1236,8 @@ static int do_grow(struct inode *inode, u64 size)
+ 	}
+ 
+ 	error = gfs2_trans_begin(sdp, RES_DINODE + RES_STATFS + RES_RG_BIT +
++				 (unstuff &&
++				  gfs2_is_jdata(ip) ? RES_JDATA : 0) +
+ 				 (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF ?
+ 				  0 : RES_QUOTA), 0);
+ 	if (error)
 -- 
 2.20.1
 
