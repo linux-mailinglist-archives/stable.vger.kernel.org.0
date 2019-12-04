@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 327101133AD
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F200E11341B
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:22:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731260AbfLDSKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:10:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37846 "EHLO mail.kernel.org"
+        id S1730438AbfLDSFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:05:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731277AbfLDSKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:10:31 -0500
+        id S1730433AbfLDSFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:05:43 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73BA1206DF;
-        Wed,  4 Dec 2019 18:10:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B141520659;
+        Wed,  4 Dec 2019 18:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483030;
-        bh=IPTb/noze68zxc4Ep0YinQYWP6168edJf7Te72FHfnk=;
+        s=default; t=1575482743;
+        bh=G+dN70EWZVxlSDhL9Zb00I684se8PKnfRkgk/5cWS/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ik0dD3H5/TxwwkJgWT2SCmkUnktvBYVfGQwy6uYlGCDQtHjvku1Gl45q9UP35Wpje
-         WWoiWna2afvT5oua3SEK003NSpGp86/YypJQFCy/CtJFFR2z0C5YeB+qlfgp3NJwqS
-         xl8kS5Zv+0zmeG4kW/2nhqc3j/OuUeGileuB9i6Y=
+        b=qO2RUI5ruaHxUQpb2S20WSBv6ScFWYeuwSwMFdYjxQJat6xkjLJnM1ev9hEoxQZqw
+         UtwOaEMRGyvLwwM4R223e6YQS09gXh6hvbRplki1bBcHu2iu9dQTq9Ik8Q2nr4K24J
+         9TDGCsNcU52loluoo7XfMLI41qZtapbn6zLFCEhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 023/125] ACPI / LPSS: Ignore acpi_device_fix_up_power() return value
-Date:   Wed,  4 Dec 2019 18:55:28 +0100
-Message-Id: <20191204175319.121388614@linuxfoundation.org>
+Subject: [PATCH 4.14 117/209] tipc: fix a missing check of genlmsg_put
+Date:   Wed,  4 Dec 2019 18:55:29 +0100
+Message-Id: <20191204175331.183836454@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 1a2fa02f7489dc4d746f2a15fb77b3ce1affade8 ]
+[ Upstream commit 46273cf7e009231d2b6bc10a926e82b8928a9fb2 ]
 
-Ignore acpi_device_fix_up_power() return value. If we return an error
-we end up with acpi_default_enumeration() still creating a platform-
-device for the device and we end up with the device still being used
-but without the special LPSS related handling which is not useful.
+genlmsg_put could fail. The fix inserts a check of its return value, and
+if it fails, returns -EMSGSIZE.
 
-Specicifically ignoring the error fixes the touchscreen no longer
-working after a suspend/resume on a Prowise PT301 tablet.
-
-This tablet has a broken _PS0 method on the touchscreen's I2C controller,
-causing acpi_device_fix_up_power() to fail, causing fallback to standard
-platform-dev handling and specifically causing acpi_lpss_save/restore_ctx
-to not run.
-
-The I2C controllers _PS0 method does actually turn on the device, but then
-does some more nonsense which fails when run during early boot trying to
-use I2C opregion handling on another not-yet registered I2C controller.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_lpss.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ net/tipc/netlink_compat.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
-index 8e38249311bdf..a9158858f54cd 100644
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -448,12 +448,7 @@ static int acpi_lpss_create_device(struct acpi_device *adev,
- 	 * have _PS0 and _PS3 without _PSC (and no power resources), so
- 	 * acpi_bus_init_power() will assume that the BIOS has put them into D0.
- 	 */
--	ret = acpi_device_fix_up_power(adev);
--	if (ret) {
--		/* Skip the device, but continue the namespace scan. */
--		ret = 0;
--		goto err_out;
--	}
-+	acpi_device_fix_up_power(adev);
+diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
+index 1c8ac0c11008c..91d51a595ac23 100644
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -974,6 +974,8 @@ static int tipc_nl_compat_publ_dump(struct tipc_nl_compat_msg *msg, u32 sock)
  
- 	adev->driver_data = pdata;
- 	pdev = acpi_create_platform_device(adev, dev_desc->properties);
+ 	hdr = genlmsg_put(args, 0, 0, &tipc_genl_family, NLM_F_MULTI,
+ 			  TIPC_NL_PUBL_GET);
++	if (!hdr)
++		return -EMSGSIZE;
+ 
+ 	nest = nla_nest_start(args, TIPC_NLA_SOCK);
+ 	if (!nest) {
 -- 
 2.20.1
 
