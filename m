@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B72113472
+	by mail.lfdr.de (Postfix) with ESMTP id 8225C113471
 	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:24:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729028AbfLDSYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:24:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44228 "EHLO mail.kernel.org"
+        id S1728852AbfLDSCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:02:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729817AbfLDSCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:02:21 -0500
+        id S1729356AbfLDSCY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:02:24 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E9642073B;
-        Wed,  4 Dec 2019 18:02:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2318620659;
+        Wed,  4 Dec 2019 18:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482540;
-        bh=l9yHDJcal3aq3sI6P1LeEpTZuLYipVHXnMG2ZNDim2g=;
+        s=default; t=1575482543;
+        bh=/FPIsBSNgYNCB0baNnp3NAbjXgfFsAp3hpp42LK7BVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2kmDTnSnJ4HhcmgMF43VgLVtiloGeQb2uNqKdyj2oRrC1THahrK+Oaqz+mX8k8Kn
-         4jRtQjlT726Gy/gkBBcAz1Q5y6NSCJS2j/vPuEI89Htbe+MI4IJ4O9Fw5LPZ2mqlI4
-         qOE3BIPk62VswibToVewhJK6UCcC5uJE9kVm3zXA=
+        b=U+/OZnRpD6u1bYP4zmly8nF3/lwFsXrs6LOGcscrLoIS6Dz/O1Z2skPKUi2z9gTxD
+         ia16p7gPwImZUWv2PU5Fe9hcLIUV7rCSyrt37VyF/HGqZUdwSSuBNC0naQCZJ4NHUo
+         km89EgvKnE/qa82ymAGfTgApndzc3t+/d5rRVjNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org, Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 036/209] parisc: Fix HP SDC hpa address output
-Date:   Wed,  4 Dec 2019 18:54:08 +0100
-Message-Id: <20191204175323.921464877@linuxfoundation.org>
+Subject: [PATCH 4.14 037/209] arm64: mm: Prevent mismatched 52-bit VA support
+Date:   Wed,  4 Dec 2019 18:54:09 +0100
+Message-Id: <20191204175323.988332965@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -43,34 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Steve Capper <steve.capper@arm.com>
 
-[ Upstream commit c4bff35ca1bfba886da6223c9fed76a2b1382b8e ]
+[ Upstream commit a96a33b1ca57dbea4285893dedf290aeb8eb090b ]
 
-Show the hpa address of the HP SDC instead of a hashed value, e.g.:
-HP SDC: HP SDC at 0xf0201000, IRQ 23 (NMI IRQ 24)
+For cases where there is a mismatch in ARMv8.2-LVA support between CPUs
+we have to be careful in allowing secondary CPUs to boot if 52-bit
+virtual addresses have already been enabled on the boot CPU.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+This patch adds code to the secondary startup path. If the boot CPU has
+enabled 52-bit VAs then ID_AA64MMFR2_EL1 is checked to see if the
+secondary can also enable 52-bit support. If not, the secondary is
+prevented from booting and an error message is displayed indicating why.
+
+Technically this patch could be implemented using the cpufeature code
+when considering 52-bit userspace support. However, we employ low level
+checks here as the cpufeature code won't be able to run if we have
+mismatched 52-bit kernel va support.
+
+Signed-off-by: Steve Capper <steve.capper@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/hp_sdc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/head.S | 26 ++++++++++++++++++++++++++
+ arch/arm64/kernel/smp.c  |  5 +++++
+ 2 files changed, 31 insertions(+)
 
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 8eef6849d0660..5585823ced19d 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -887,8 +887,8 @@ static int __init hp_sdc_init(void)
- 			"HP SDC NMI", &hp_sdc))
- 		goto err2;
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index 92cc7b51f1002..9c00fd2acc2a4 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -594,6 +594,7 @@ secondary_startup:
+ 	/*
+ 	 * Common entry point for secondary CPUs.
+ 	 */
++	bl	__cpu_secondary_check52bitva
+ 	bl	__cpu_setup			// initialise processor
+ 	bl	__enable_mmu
+ 	ldr	x8, =__secondary_switched
+@@ -668,6 +669,31 @@ ENTRY(__enable_mmu)
+ 	ret
+ ENDPROC(__enable_mmu)
  
--	printk(KERN_INFO PREFIX "HP SDC at 0x%p, IRQ %d (NMI IRQ %d)\n",
--	       (void *)hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
-+	pr_info(PREFIX "HP SDC at 0x%08lx, IRQ %d (NMI IRQ %d)\n",
-+	       hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
++ENTRY(__cpu_secondary_check52bitva)
++#ifdef CONFIG_ARM64_52BIT_VA
++	ldr_l	x0, vabits_user
++	cmp	x0, #52
++	b.ne	2f
++
++	mrs_s	x0, SYS_ID_AA64MMFR2_EL1
++	and	x0, x0, #(0xf << ID_AA64MMFR2_LVA_SHIFT)
++	cbnz	x0, 2f
++
++	adr_l	x0, va52mismatch
++	mov	w1, #1
++	strb	w1, [x0]
++	dmb	sy
++	dc	ivac, x0	// Invalidate potentially stale cache line
++
++	update_early_cpu_boot_status CPU_STUCK_IN_KERNEL, x0, x1
++1:	wfe
++	wfi
++	b	1b
++
++#endif
++2:	ret
++ENDPROC(__cpu_secondary_check52bitva)
++
+ __no_granule_support:
+ 	/* Indicate that this CPU can't boot and is stuck in the kernel */
+ 	update_early_cpu_boot_status CPU_STUCK_IN_KERNEL, x1, x2
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index a683cd4995157..0881dfab10f8f 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -106,6 +106,7 @@ static int boot_secondary(unsigned int cpu, struct task_struct *idle)
+ }
  
- 	hp_sdc_status_in8();
- 	hp_sdc_data_in8();
+ static DECLARE_COMPLETION(cpu_running);
++bool va52mismatch __ro_after_init;
+ 
+ int __cpu_up(unsigned int cpu, struct task_struct *idle)
+ {
+@@ -135,6 +136,10 @@ int __cpu_up(unsigned int cpu, struct task_struct *idle)
+ 
+ 		if (!cpu_online(cpu)) {
+ 			pr_crit("CPU%u: failed to come online\n", cpu);
++
++			if (IS_ENABLED(CONFIG_ARM64_52BIT_VA) && va52mismatch)
++				pr_crit("CPU%u: does not support 52-bit VAs\n", cpu);
++
+ 			ret = -EIO;
+ 		}
+ 	} else {
 -- 
 2.20.1
 
