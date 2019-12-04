@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD7111334B
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 198D11132F5
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731475AbfLDSQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:16:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42344 "EHLO mail.kernel.org"
+        id S1731743AbfLDSNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:13:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729434AbfLDSNS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:13:18 -0500
+        id S1731741AbfLDSNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:13:21 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5503820862;
-        Wed,  4 Dec 2019 18:13:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8771206DF;
+        Wed,  4 Dec 2019 18:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483197;
-        bh=3pT4tzAQDoCWy1rARRfevvK6RgLlOffebbAAx/Ips6Y=;
+        s=default; t=1575483200;
+        bh=jBC81i7U8izKqPJ1jAPMmeyW0nekulh1PNMe8Er95Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y26ukgRNIeclXz6jVGpjWFVc9jZnDUpJOGlJ++Eh+wvk8zEK9EfC6/jM59s1e/d9/
-         KYP2dEQkhtYdcKm5y9s7cbcxAOPpoZlyFS1pJhO/qC2UI3te5ZGtn+8SH0i3nembuG
-         pik7rcURSFNE2qME/+++gQemtMObVtK8u+Klck9E=
+        b=GX4Fh+F31+lbZtSzHPcfU1CO9a9whGaJt/Yvp15OOsUBnn7+BqIaS9XqTUu5yRTfR
+         YxGzzNpPesYLXoSzP0nuiI5QoBr87P8Otv0MID5PaHRLVFucVe91elzZOegY+DJov4
+         QSCs+KXDudmFDeBzTtCeZL5KB9lR5Ydaa77zdpUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
+        Jon Maloy <maloy@donjonn.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/125] decnet: fix DN_IFREQ_SIZE
-Date:   Wed,  4 Dec 2019 18:56:38 +0100
-Message-Id: <20191204175324.726824069@linuxfoundation.org>
+Subject: [PATCH 4.9 094/125] tipc: fix skb may be leaky in tipc_link_input
+Date:   Wed,  4 Dec 2019 18:56:39 +0100
+Message-Id: <20191204175324.790391062@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
 References: <20191204175308.377746305@linuxfoundation.org>
@@ -44,65 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit 50c2936634bcb1db78a8ca63249236810c11a80f ]
+[ Upstream commit 7384b538d3aed2ed49d3575483d17aeee790fb06 ]
 
-Digging through the ioctls with Al because of the previous
-patches, we found that on 64-bit decnet's dn_dev_ioctl()
-is wrong, because struct ifreq::ifr_ifru is actually 24
-bytes (not 16 as expected from struct sockaddr) due to the
-ifru_map and ifru_settings members.
+When we free skb at tipc_data_input, we return a 'false' boolean.
+Then, skb passed to subcalling tipc_link_input in tipc_link_rcv,
 
-Clearly, decnet expects the ioctl to be called with a struct
-like
-  struct ifreq_dn {
-    char ifr_name[IFNAMSIZ];
-    struct sockaddr_dn ifr_addr;
-  };
+<snip>
+1303 int tipc_link_rcv:
+...
+1354    if (!tipc_data_input(l, skb, l->inputq))
+1355        rc |= tipc_link_input(l, skb, l->inputq);
+</snip>
 
-since it does
-  struct ifreq *ifr = ...;
-  struct sockaddr_dn *sdn = (struct sockaddr_dn *)&ifr->ifr_addr;
+Fix it by simple changing to a 'true' boolean when skb is being free-ed.
+Then, tipc_link_rcv will bypassed to subcalling tipc_link_input as above
+condition.
 
-This means that DN_IFREQ_SIZE is too big for what it wants on
-64-bit, as it is
-  sizeof(struct ifreq) - sizeof(struct sockaddr) +
-  sizeof(struct sockaddr_dn)
-
-This assumes that sizeof(struct sockaddr) is the size of ifr_ifru
-but that isn't true.
-
-Fix this to use offsetof(struct ifreq, ifr_ifru).
-
-This indeed doesn't really matter much - the result is that we
-copy in/out 8 bytes more than we should on 64-bit platforms. In
-case the "struct ifreq_dn" lands just on the end of a page though
-it might lead to faults.
-
-As far as I can tell, it has been like this forever, so it seems
-very likely that nobody cares.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Acked-by: Jon Maloy <maloy@donjonn.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/decnet/dn_dev.c | 2 +-
+ net/tipc/link.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/decnet/dn_dev.c b/net/decnet/dn_dev.c
-index b2c26b081134a..80554e7e9a0f6 100644
---- a/net/decnet/dn_dev.c
-+++ b/net/decnet/dn_dev.c
-@@ -55,7 +55,7 @@
- #include <net/dn_neigh.h>
- #include <net/dn_fib.h>
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index 4e8647aef01c1..c7406c1fdc14b 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -1063,7 +1063,7 @@ static bool tipc_data_input(struct tipc_link *l, struct sk_buff *skb,
+ 	default:
+ 		pr_warn("Dropping received illegal msg type\n");
+ 		kfree_skb(skb);
+-		return false;
++		return true;
+ 	};
+ }
  
--#define DN_IFREQ_SIZE (sizeof(struct ifreq) - sizeof(struct sockaddr) + sizeof(struct sockaddr_dn))
-+#define DN_IFREQ_SIZE (offsetof(struct ifreq, ifr_ifru) + sizeof(struct sockaddr_dn))
- 
- static char dn_rt_all_end_mcast[ETH_ALEN] = {0xAB,0x00,0x00,0x04,0x00,0x00};
- static char dn_rt_all_rt_mcast[ETH_ALEN]  = {0xAB,0x00,0x00,0x03,0x00,0x00};
 -- 
 2.20.1
 
