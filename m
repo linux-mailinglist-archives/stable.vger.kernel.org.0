@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 323C2113403
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27FEF113405
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729540AbfLDSGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:06:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54606 "EHLO mail.kernel.org"
+        id S1730030AbfLDSGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:06:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730539AbfLDSGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:06:23 -0500
+        id S1730024AbfLDSG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:06:28 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66F0C206DF;
-        Wed,  4 Dec 2019 18:06:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B2D620833;
+        Wed,  4 Dec 2019 18:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482782;
-        bh=M3ojh6xd7Sh422K7jc7cJuoAtbq2AUgs1fVwY82uxaM=;
+        s=default; t=1575482787;
+        bh=m46hbcDViVWHgP9ujJrVxd/nsrnZXJ5GEUJVDJ3t0e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wX+se30i9E5lwFCSREDEhHP5tlZDfQcMFtwfDUAgdYFPdnsqZdnx11y1pP8qa99F9
-         o+tvFFqfHIJOOUXv+N0tf0p4cAyhGKuPeHLTqlZvQnuKNXvvYc7qG8bMDpkbQjluUK
-         gb4lrYaz2W/1VVHbhIqE31ajiEPCqdNUx+R6toNk=
+        b=SmbCPz05r2JuORJNQdc/y4Tnxi/VKpw3DOW3TuG+/D39ktQHz2wEO+JglIVaKeUqu
+         koGAthXDKtUTzKRsvlP2+ZDS3OlXv531QJZvE5ICsuUIPYXVf7fHcCEhoYpUPQ9aAh
+         jsC0lgxhg6sCB/LdS7MzP53UWOTiyPlt1kIij2HA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
-        Darwin Dingel <darwin.dingel@alliedtelesis.co.nz>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 131/209] serial: 8250: Fix serial8250 initialization crash
-Date:   Wed,  4 Dec 2019 18:55:43 +0100
-Message-Id: <20191204175332.178927173@linuxfoundation.org>
+Subject: [PATCH 4.14 132/209] gpu: ipu-v3: pre: dont trigger update if buffer address doesnt change
+Date:   Wed,  4 Dec 2019 18:55:44 +0100
+Message-Id: <20191204175332.267410745@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -44,70 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Zhe <zhe.he@windriver.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 352c4cf40c4a7d439fa5d30aa2160f54b394da82 ]
+[ Upstream commit eb0200a4357da100064971689d3a0e9e3cf57f33 ]
 
-The initialization code of interrupt backoff work might reference NULL
-pointer and cause the following crash, if no port was found.
+On a NOP double buffer update where current buffer address is the same
+as the next buffer address, the SDW_UPDATE bit clears too late. As we
+are now using this bit to determine when it is safe to signal flip
+completion to userspace this will delay completion of atomic commits
+where one plane doesn't change the buffer by a whole frame period.
 
-[   10.017727] CPU 0 Unable to handle kernel paging request at virtual address 000001b0, epc == 807088e0, ra == 8070863c
----- snip ----
-[   11.704470] [<807088e0>] serial8250_register_8250_port+0x318/0x4ac
-[   11.747251] [<80708d74>] serial8250_probe+0x148/0x1c0
-[   11.789301] [<80728450>] platform_drv_probe+0x40/0x94
-[   11.830515] [<807264f8>] really_probe+0xf8/0x318
-[   11.870876] [<80726b7c>] __driver_attach+0x110/0x12c
-[   11.910960] [<80724374>] bus_for_each_dev+0x78/0xcc
-[   11.951134] [<80725958>] bus_add_driver+0x200/0x234
-[   11.989756] [<807273d8>] driver_register+0x84/0x148
-[   12.029832] [<80d72f84>] serial8250_init+0x138/0x198
-[   12.070447] [<80100e6c>] do_one_initcall+0x5c/0x2a0
-[   12.110104] [<80d3a208>] kernel_init_freeable+0x370/0x484
-[   12.150722] [<80a49420>] kernel_init+0x10/0xf8
-[   12.191517] [<8010756c>] ret_from_kernel_thread+0x14/0x1c
+Fix this by remembering the last buffer address and just skip the
+double buffer update if it would not change the buffer address.
 
-This patch makes sure the initialization code can be reached only if a port
-is found.
-
-Fixes: 6d7f677a2afa ("serial: 8250: Rate limit serial port rx interrupts during input overruns")
-Signed-off-by: He Zhe <zhe.he@windriver.com>
-Reviewed-by: Darwin Dingel <darwin.dingel@alliedtelesis.co.nz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+[p.zabel@pengutronix.de: initialize last_bufaddr in ipu_pre_configure]
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/gpu/ipu-v3/ipu-pre.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index ceeea4b159c4b..c698ebab6d3bd 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -1077,15 +1077,16 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
+diff --git a/drivers/gpu/ipu-v3/ipu-pre.c b/drivers/gpu/ipu-v3/ipu-pre.c
+index 1d1612e28854b..6fd4af647f599 100644
+--- a/drivers/gpu/ipu-v3/ipu-pre.c
++++ b/drivers/gpu/ipu-v3/ipu-pre.c
+@@ -102,6 +102,7 @@ struct ipu_pre {
+ 	void			*buffer_virt;
+ 	bool			in_use;
+ 	unsigned int		safe_window_end;
++	unsigned int		last_bufaddr;
+ };
  
- 			ret = 0;
- 		}
--	}
+ static DEFINE_MUTEX(ipu_pre_list_mutex);
+@@ -177,6 +178,7 @@ void ipu_pre_configure(struct ipu_pre *pre, unsigned int width,
  
--	/* Initialise interrupt backoff work if required */
--	if (up->overrun_backoff_time_ms > 0) {
--		uart->overrun_backoff_time_ms = up->overrun_backoff_time_ms;
--		INIT_DELAYED_WORK(&uart->overrun_backoff,
--				  serial_8250_overrun_backoff_work);
--	} else {
--		uart->overrun_backoff_time_ms = 0;
-+		/* Initialise interrupt backoff work if required */
-+		if (up->overrun_backoff_time_ms > 0) {
-+			uart->overrun_backoff_time_ms =
-+				up->overrun_backoff_time_ms;
-+			INIT_DELAYED_WORK(&uart->overrun_backoff,
-+					serial_8250_overrun_backoff_work);
-+		} else {
-+			uart->overrun_backoff_time_ms = 0;
-+		}
- 	}
+ 	writel(bufaddr, pre->regs + IPU_PRE_CUR_BUF);
+ 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
++	pre->last_bufaddr = bufaddr;
  
- 	mutex_unlock(&serial_mutex);
+ 	val = IPU_PRE_PREF_ENG_CTRL_INPUT_PIXEL_FORMAT(0) |
+ 	      IPU_PRE_PREF_ENG_CTRL_INPUT_ACTIVE_BPP(active_bpp) |
+@@ -218,7 +220,11 @@ void ipu_pre_update(struct ipu_pre *pre, unsigned int bufaddr)
+ 	unsigned short current_yblock;
+ 	u32 val;
+ 
++	if (bufaddr == pre->last_bufaddr)
++		return;
++
+ 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
++	pre->last_bufaddr = bufaddr;
+ 
+ 	do {
+ 		if (time_after(jiffies, timeout)) {
 -- 
 2.20.1
 
