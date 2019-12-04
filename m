@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A9A11337D
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E15B11133C9
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:20:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731620AbfLDSMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:12:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41278 "EHLO mail.kernel.org"
+        id S1730399AbfLDSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:07:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731614AbfLDSMf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:12:35 -0500
+        id S1730233AbfLDSHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:07:47 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3599220863;
-        Wed,  4 Dec 2019 18:12:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52CCF20675;
+        Wed,  4 Dec 2019 18:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483154;
-        bh=wLBO30qA8tZlK3OT5pGv0t3ty/ImslmbiEW2j4YjAG0=;
+        s=default; t=1575482866;
+        bh=Nyk+2Is+5yTrW7bgCbDpJPRVHk3eBtaas59ZWBHLOfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1HvRGwzkKWRq0d5ns+cTCDtY6Y8G/mX4l06CnvbrMHTeKxjt1hjNbXzWtRRCSBQe
-         tsH1fZkWnidw431fmSI6jhaDg/cNUqB+4PcalsbIG5HM/tnBXN/YPbDWnY8zvJdT+T
-         DDvzoNqySIqx1jIKyjnshQVME+lGXYKPJXrDo8QY=
+        b=mS6+s8p5eIYAkJNqwkWGJTVvN6+IIG0dl1mQY1Dl7L1iF3T+PEAun63wz8vwyt24G
+         wXgOnzFcAwPhILN8yQyFH8Wyv3rtITKfwGYaO4IgvRZxxzjhKzD+gveCBdbOpC2gnx
+         nM4CaydaNyW/PvzpscFBx7iDTYl5wtIOq1Nx9F34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 073/125] pwm: clps711x: Fix period calculation
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 166/209] pwm: Clear chip_data in pwm_put()
 Date:   Wed,  4 Dec 2019 18:56:18 +0100
-Message-Id: <20191204175323.471018208@linuxfoundation.org>
+Message-Id: <20191204175334.909576588@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shiyan <shc_work@mail.ru>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b0f17570b8203c22f139459c86cfbaa0311313ed ]
+commit e926b12c611c2095c7976e2ed31753ad6eb5ff1a upstream.
 
-Commit e39c0df1be5a ("pwm: Introduce the pwm_args concept") has
-changed the variable for the period for clps711x-pwm driver, so now
-pwm_get/set_period() works with pwm->state.period variable instead
-of pwm->args.period.
-This patch changes the period variable in other places where it is used.
+After a PWM is disposed by its user the per chip data becomes invalid.
+Clear the data in common code instead of the device drivers to get
+consistent behaviour. Before this patch only three of nine drivers
+cleaned up here.
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/pwm/pwm-clps711x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/pwm/pwm-clps711x.c b/drivers/pwm/pwm-clps711x.c
-index 26ec24e457b12..7e16b7def0dcb 100644
---- a/drivers/pwm/pwm-clps711x.c
-+++ b/drivers/pwm/pwm-clps711x.c
-@@ -48,7 +48,7 @@ static void clps711x_pwm_update_val(struct clps711x_chip *priv, u32 n, u32 v)
- static unsigned int clps711x_get_duty(struct pwm_device *pwm, unsigned int v)
+---
+ drivers/pwm/core.c        |    1 +
+ drivers/pwm/pwm-berlin.c  |    1 -
+ drivers/pwm/pwm-pca9685.c |    1 -
+ drivers/pwm/pwm-samsung.c |    1 -
+ 4 files changed, 1 insertion(+), 3 deletions(-)
+
+--- a/drivers/pwm/core.c
++++ b/drivers/pwm/core.c
+@@ -874,6 +874,7 @@ void pwm_put(struct pwm_device *pwm)
+ 	if (pwm->chip->ops->free)
+ 		pwm->chip->ops->free(pwm->chip, pwm);
+ 
++	pwm_set_chip_data(pwm, NULL);
+ 	pwm->label = NULL;
+ 
+ 	module_put(pwm->chip->ops->owner);
+--- a/drivers/pwm/pwm-berlin.c
++++ b/drivers/pwm/pwm-berlin.c
+@@ -78,7 +78,6 @@ static void berlin_pwm_free(struct pwm_c
  {
- 	/* Duty cycle 0..15 max */
--	return DIV_ROUND_CLOSEST(v * 0xf, pwm_get_period(pwm));
-+	return DIV_ROUND_CLOSEST(v * 0xf, pwm->args.period);
+ 	struct berlin_pwm_channel *channel = pwm_get_chip_data(pwm);
+ 
+-	pwm_set_chip_data(pwm, NULL);
+ 	kfree(channel);
  }
  
- static int clps711x_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
-@@ -71,7 +71,7 @@ static int clps711x_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
- 	struct clps711x_chip *priv = to_clps711x_chip(chip);
- 	unsigned int duty;
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -176,7 +176,6 @@ static void pca9685_pwm_gpio_free(struct
+ 	pm_runtime_put(pca->chip.dev);
+ 	mutex_lock(&pca->lock);
+ 	pwm = &pca->chip.pwms[offset];
+-	pwm_set_chip_data(pwm, NULL);
+ 	mutex_unlock(&pca->lock);
+ }
  
--	if (period_ns != pwm_get_period(pwm))
-+	if (period_ns != pwm->args.period)
- 		return -EINVAL;
+--- a/drivers/pwm/pwm-samsung.c
++++ b/drivers/pwm/pwm-samsung.c
+@@ -238,7 +238,6 @@ static int pwm_samsung_request(struct pw
+ static void pwm_samsung_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	devm_kfree(chip->dev, pwm_get_chip_data(pwm));
+-	pwm_set_chip_data(pwm, NULL);
+ }
  
- 	duty = clps711x_get_duty(pwm, duty_ns);
--- 
-2.20.1
-
+ static int pwm_samsung_enable(struct pwm_chip *chip, struct pwm_device *pwm)
 
 
