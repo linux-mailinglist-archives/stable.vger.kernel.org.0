@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A9B21131F6
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 846B7113441
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729381AbfLDSEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:04:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49276 "EHLO mail.kernel.org"
+        id S1730165AbfLDSER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:04:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730154AbfLDSEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:04:14 -0500
+        id S1729801AbfLDSER (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:04:17 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A7AF20675;
-        Wed,  4 Dec 2019 18:04:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F068B20675;
+        Wed,  4 Dec 2019 18:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482653;
-        bh=kqpzJnTxRpyBYOpXv54CkIzJJid5vTn2KtSckSJ5ySM=;
+        s=default; t=1575482656;
+        bh=c92/BLyGFwnUnlC9RHs4LORE2AeBCegKXnWlVU3xO4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FupoDx1cisAZbV9EoC2phTzbcgYX21xO/PGr+8z51Gvmr0+CwsoK/3veyc0iQIlbc
-         HWWOdfPuJNUqoFogMYM7gTgal3ZgNGxgcqKCQydNez5mP2qjb4zuMRz8BmdqUAr3f7
-         4/XcDbHpN+fk8aN/OlFjyORbexRYL9JN5oUQ4MbQ=
+        b=bGS8P3/8uaAjYsNfV8cY60gcL+FWw0hjUC7WwSNUctjAtdNZPsYlIy+k9tukEXsH+
+         6cr4P0ffc0l76fkc9FwHg839Um1hGJ9hZ37eeO2CNThfIqWc3LkAHkdx41Mhvadjtr
+         oXrp8QY5Uqk7eyyxaGHLOCFFHhPD1e0C4J/+zr8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/209] vxlan: Fix error path in __vxlan_dev_create()
-Date:   Wed,  4 Dec 2019 18:54:53 +0100
-Message-Id: <20191204175327.105634330@linuxfoundation.org>
+Subject: [PATCH 4.14 082/209] powerpc/book3s/32: fix number of bats in p/v_block_mapped()
+Date:   Wed,  4 Dec 2019 18:54:54 +0100
+Message-Id: <20191204175327.188907859@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -44,81 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 6db9246871394b3a136cd52001a0763676563840 ]
+[ Upstream commit e93ba1b7eb5b188c749052df7af1c90821c5f320 ]
 
-When a failure occurs in rtnl_configure_link(), the current code
-calls unregister_netdevice() to roll back the earlier call to
-register_netdevice(), and jumps to errout, which calls
-vxlan_fdb_destroy().
+This patch fixes the loop in p_block_mapped() and v_block_mapped()
+to scan the entire bat_addrs[] array.
 
-However unregister_netdevice() calls transitively ndo_uninit, which is
-vxlan_uninit(), and that already takes care of deleting the default FDB
-entry by calling vxlan_fdb_delete_default(). Since the entry added
-earlier in __vxlan_dev_create() is exactly the default entry, the
-cleanup code in the errout block always leads to double free and thus a
-panic.
-
-Besides, since vxlan_fdb_delete_default() always destroys the FDB entry
-with notification enabled, the deletion of the default entry is notified
-even before the addition was notified.
-
-Instead, move the unregister_netdevice() call after the manual destroy,
-which solves both problems.
-
-Fixes: 0241b836732f ("vxlan: fix default fdb entry netlink notify ordering during netdev create")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/powerpc/mm/ppc_mmu_32.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 6d26bbd190dd6..153a81ece9fe4 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -3217,6 +3217,7 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
- 	struct vxlan_net *vn = net_generic(net, vxlan_net_id);
- 	struct vxlan_dev *vxlan = netdev_priv(dev);
- 	struct vxlan_fdb *f = NULL;
-+	bool unregister = false;
- 	int err;
- 
- 	err = vxlan_dev_configure(net, dev, conf, false, extack);
-@@ -3242,12 +3243,11 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
- 	err = register_netdevice(dev);
- 	if (err)
- 		goto errout;
-+	unregister = true;
- 
- 	err = rtnl_configure_link(dev, NULL);
--	if (err) {
--		unregister_netdevice(dev);
-+	if (err)
- 		goto errout;
--	}
- 
- 	/* notify default fdb entry */
- 	if (f)
-@@ -3255,9 +3255,16 @@ static int __vxlan_dev_create(struct net *net, struct net_device *dev,
- 
- 	list_add(&vxlan->next, &vn->vxlan_list);
+diff --git a/arch/powerpc/mm/ppc_mmu_32.c b/arch/powerpc/mm/ppc_mmu_32.c
+index 2a049fb8523d5..96c52271e9c2d 100644
+--- a/arch/powerpc/mm/ppc_mmu_32.c
++++ b/arch/powerpc/mm/ppc_mmu_32.c
+@@ -52,7 +52,7 @@ struct batrange {		/* stores address ranges mapped by BATs */
+ phys_addr_t v_block_mapped(unsigned long va)
+ {
+ 	int b;
+-	for (b = 0; b < 4; ++b)
++	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
+ 		if (va >= bat_addrs[b].start && va < bat_addrs[b].limit)
+ 			return bat_addrs[b].phys + (va - bat_addrs[b].start);
  	return 0;
-+
- errout:
-+	/* unregister_netdevice() destroys the default FDB entry with deletion
-+	 * notification. But the addition notification was not sent yet, so
-+	 * destroy the entry by hand here.
-+	 */
- 	if (f)
- 		vxlan_fdb_destroy(vxlan, f, false);
-+	if (unregister)
-+		unregister_netdevice(dev);
- 	return err;
- }
- 
+@@ -64,7 +64,7 @@ phys_addr_t v_block_mapped(unsigned long va)
+ unsigned long p_block_mapped(phys_addr_t pa)
+ {
+ 	int b;
+-	for (b = 0; b < 4; ++b)
++	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
+ 		if (pa >= bat_addrs[b].phys
+ 	    	    && pa < (bat_addrs[b].limit-bat_addrs[b].start)
+ 		              +bat_addrs[b].phys)
 -- 
 2.20.1
 
