@@ -2,98 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA113112211
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 05:26:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57363112233
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 05:47:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726834AbfLDE06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Dec 2019 23:26:58 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:54944 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726804AbfLDE06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 23:26:58 -0500
-Received: by mail-wm1-f68.google.com with SMTP id b11so5510698wmj.4
-        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 20:26:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SRdEYLWMmgsVVSm57GuRlDkgW1kFE2G81WKf5xFV59o=;
-        b=G89Yw0rO2R2rpWT973iQNonfTYcNssp+XMAp4AV8zippPwUV8VYtITmAzoOZIhaJy1
-         BzZTDunWiCUkvL5HOQQbn/cCEz+WTCwJtE5+ohXZpR7kybIYnoSRI1tPUCIEf79xLZTA
-         uI9JUEMhghs/7efJWRwcTGSlPYOuBFHdv6Crza6JOLIVGn5xcaOPKYHeqodI3/EnM+ka
-         IiOJ+ZnjRqC5VdrJQ5zv+gNHFfv7rWKI69Allma9IzKLlm6nh5jXZ+hM6Qn6SXayR/yr
-         vkTgTjYvprUEzsWm/7aCGXFnY5rlzPG+ojrw+UC6h2i5uAD5E1pnX93/0HxdH54lmv1E
-         8xKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SRdEYLWMmgsVVSm57GuRlDkgW1kFE2G81WKf5xFV59o=;
-        b=NVu+6LgZhm9xdxpbPPN0abBKG+x1seYBIK0KwgTa0l1dKDa7r7j0qiqB3lBm/rfzKH
-         CuBpjQL+dbm/NAJugmKx5kjg+QrNieXokNCBdQIydM5rkVDcL/77wOk4b6216BVNeh79
-         vCAtlKXTx9tPqJHT92Nofzfxf9p/AJW4qdEAattUDBFtO6vG/9vw7qaNbHUCvOchtDcr
-         5rfn5kLPWqSeqsJePYmJ2kP7GdLlrmlFe98/9WohFICXA8e0hIv9WsKZmSU+uJ8oRoys
-         Z/s3GiEkpD8aKGP9gwjI+iYeHdey0bH51qsuykunMuE6tMq0B60394k0fgB92dD7doHL
-         q58A==
-X-Gm-Message-State: APjAAAXu4GptBL67cl53AAVexF/Ym8SJkX9bfF08paRXBUU4b7Kg0b0N
-        dKPBz3I9ANIiIC0JgFRBIDNibarZnlE1Sg==
-X-Google-Smtp-Source: APXvYqw9WgcvA800CXYRmXqkzk6kulqwCTaNcNwuIj730CX2FbtmfrAwh+C2P9lrOJLPGLoo4oIGlQ==
-X-Received: by 2002:a1c:1b15:: with SMTP id b21mr30294819wmb.104.1575433616302;
-        Tue, 03 Dec 2019 20:26:56 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u189sm4025206wmg.40.2019.12.03.20.26.55
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Dec 2019 20:26:55 -0800 (PST)
-Message-ID: <5de7358f.1c69fb81.69a0b.3ed6@mx.google.com>
-Date:   Tue, 03 Dec 2019 20:26:55 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.205-93-gcbb4900ac29c
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 52 boots: 0 failed,
- 49 passed with 3 untried/unknown (v4.4.205-93-gcbb4900ac29c)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726923AbfLDErl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Dec 2019 23:47:41 -0500
+Received: from lgeamrelo11.lge.com ([156.147.23.51]:60499 "EHLO
+        lgeamrelo11.lge.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726835AbfLDErl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Dec 2019 23:47:41 -0500
+Received: from unknown (HELO lgeamrelo02.lge.com) (156.147.1.126)
+        by 156.147.23.51 with ESMTP; 4 Dec 2019 13:47:39 +0900
+X-Original-SENDERIP: 156.147.1.126
+X-Original-MAILFROM: chanho.min@lge.com
+Received: from unknown (HELO localhost.localdomain) (10.178.31.96)
+        by 156.147.1.126 with ESMTP; 4 Dec 2019 13:47:38 +0900
+X-Original-SENDERIP: 10.178.31.96
+X-Original-MAILFROM: chanho.min@lge.com
+From:   Chanho Min <chanho.min@lge.com>
+To:     Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        seungho1.park@lge.com, Inkyu Hwang <inkyu.hwang@lge.com>,
+        Jinsuk Choi <jjinsuk.choi@lge.com>, stable@vger.kernel.org,
+        Chanho Min <chanho.min@lge.com>
+Subject: [PATCH RESEND] mm/zsmalloc.c: fix the migrated zspage statistics.
+Date:   Wed,  4 Dec 2019 13:47:21 +0900
+Message-Id: <1575434841-48009-1-git-send-email-chanho.min@lge.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 52 boots: 0 failed, 49 passed with 3 untried/un=
-known (v4.4.205-93-gcbb4900ac29c)
+When zspage is migrated to the other zone, the zone page state should
+be updated as well, otherwise the NR_ZSPAGE for each zone shows wrong
+counts including proc/zoneinfo in practice.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.205-93-gcbb4900ac29c/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.205-93-gcbb4900ac29c/
-
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.205-93-gcbb4900ac29c
-Git Commit: cbb4900ac29c9bb0cbc873b0aa78f60a9760aaca
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 25 unique boards, 9 SoC families, 9 builds out of 190
-
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v4.4.205-90-g6daac5f965=
-98)
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v4.4.205-90-g6daac5f965=
-98)
-
+Cc: <stable@vger.kernel.org>        [4.9+]
+Fixes: 91537fee0013 ("mm: add NR_ZSMALLOC to vmstat")
+Signed-off-by: Chanho Min <chanho.min@lge.com>
+Signed-off-by: Jinsuk Choi <jjinsuk.choi@lge.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ mm/zsmalloc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 2b2b9aa..22d17ec 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -2069,6 +2069,11 @@ static int zs_page_migrate(struct address_space *mapping, struct page *newpage,
+ 		zs_pool_dec_isolated(pool);
+ 	}
+ 
++	if (page_zone(newpage) != page_zone(page)) {
++		dec_zone_page_state(page, NR_ZSPAGES);
++		inc_zone_page_state(newpage, NR_ZSPAGES);
++	}
++
+ 	reset_page(page);
+ 	put_page(page);
+ 	page = newpage;
+-- 
+2.7.4
+
