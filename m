@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4691131E2
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7742311344D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:23:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730064AbfLDSDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:03:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47370 "EHLO mail.kernel.org"
+        id S1729860AbfLDSXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:23:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730061AbfLDSDa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:03:30 -0500
+        id S1729723AbfLDSD4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:03:56 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19FA620659;
-        Wed,  4 Dec 2019 18:03:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF4792073B;
+        Wed,  4 Dec 2019 18:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482609;
-        bh=+101NAiM32AfaI/JI1P5ZDUUQ7lZCyxXo7+NbrFvf4Q=;
+        s=default; t=1575482636;
+        bh=nqrDeAiqwjw67y0i2EHRlzpeX2mJIKdZBClni9COesA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioVxT41OcHk3S3zK2GsZoL4sqOzUkIlkJNWv6F4VeAP7y8Meofed9NZWlrJ3/97xw
-         rzHYBgnKReewHZ+oW+sCr1T5Ck4yy+WnL3q4iUokEkVawg2nCAp6JD4C+qANo3Xeyp
-         8xxwzwBxlh5bJWcyrMqOqrtfOQw8AU30HKqBwN/w=
+        b=E2ASZ2Wj1ijkpV0HIBxt8Q4FS/r47SJFer2BZYiNWsiKKShPMF6tjJDyA8y5+IWBF
+         A1R0LLdTX4CwDxGfKbxBdihZvwrJxol6TzflavsIa9DAe8SXxJk7WxYwAJrF1ileIu
+         EJNr7GyWfn2NpSH9ERy0fXnahxBAxuYRfNia2WfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/209] mwifiex: debugfs: correct histogram spacing, formatting
-Date:   Wed,  4 Dec 2019 18:54:19 +0100
-Message-Id: <20191204175324.623121841@linuxfoundation.org>
+Subject: [PATCH 4.14 048/209] rtl818x: fix potential use after free
+Date:   Wed,  4 Dec 2019 18:54:20 +0100
+Message-Id: <20191204175324.678822977@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -44,65 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 4cb777c64e030778c569f605398d7604d8aabc0f ]
+[ Upstream commit afbb1947db94eacc5a13302eee88a9772fb78935 ]
 
-Currently, snippets of this file look like:
+entry is released via usb_put_urb just after calling usb_submit_urb.
+However, entry is used if the submission fails, resulting in a use after
+free bug. The patch fixes this.
 
-rx rates (in Mbps): 0=1M   1=2M2=5.5M  3=11M   4=6M   5=9M  6=12M
-7=18M  8=24M  9=36M  10=48M  11=54M12-27=MCS0-15(BW20) 28-43=MCS0-15(BW40)
-44-53=MCS0-9(VHT:BW20)54-63=MCS0-9(VHT:BW40)64-73=MCS0-9(VHT:BW80)
-...
-noise_flr[--96dBm] = 22
-noise_flr[--95dBm] = 149
-noise_flr[--94dBm] = 9
-noise_flr[--93dBm] = 2
-
-We're missing some spaces, and we're adding a minus sign ('-') on values
-that are already negative signed integers.
-
-Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+ACKed-by: Larry Finger <Larry.Finger@lwfinger.net>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/debugfs.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/debugfs.c b/drivers/net/wireless/marvell/mwifiex/debugfs.c
-index 6f4239be609d0..49ca84ef1a992 100644
---- a/drivers/net/wireless/marvell/mwifiex/debugfs.c
-+++ b/drivers/net/wireless/marvell/mwifiex/debugfs.c
-@@ -296,15 +296,13 @@ mwifiex_histogram_read(struct file *file, char __user *ubuf,
- 		     "total samples = %d\n",
- 		     atomic_read(&phist_data->num_samples));
- 
--	p += sprintf(p, "rx rates (in Mbps): 0=1M   1=2M");
--	p += sprintf(p, "2=5.5M  3=11M   4=6M   5=9M  6=12M\n");
--	p += sprintf(p, "7=18M  8=24M  9=36M  10=48M  11=54M");
--	p += sprintf(p, "12-27=MCS0-15(BW20) 28-43=MCS0-15(BW40)\n");
-+	p += sprintf(p,
-+		     "rx rates (in Mbps): 0=1M   1=2M 2=5.5M  3=11M   4=6M   5=9M  6=12M\n"
-+		     "7=18M  8=24M  9=36M  10=48M  11=54M 12-27=MCS0-15(BW20) 28-43=MCS0-15(BW40)\n");
- 
- 	if (ISSUPP_11ACENABLED(priv->adapter->fw_cap_info)) {
--		p += sprintf(p, "44-53=MCS0-9(VHT:BW20)");
--		p += sprintf(p, "54-63=MCS0-9(VHT:BW40)");
--		p += sprintf(p, "64-73=MCS0-9(VHT:BW80)\n\n");
-+		p += sprintf(p,
-+			     "44-53=MCS0-9(VHT:BW20) 54-63=MCS0-9(VHT:BW40) 64-73=MCS0-9(VHT:BW80)\n\n");
- 	} else {
- 		p += sprintf(p, "\n");
+diff --git a/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c b/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
+index 9a1d15b3ce453..518caaaf8a987 100644
+--- a/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
++++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
+@@ -444,12 +444,13 @@ static int rtl8187_init_urbs(struct ieee80211_hw *dev)
+ 		skb_queue_tail(&priv->rx_queue, skb);
+ 		usb_anchor_urb(entry, &priv->anchored);
+ 		ret = usb_submit_urb(entry, GFP_KERNEL);
+-		usb_put_urb(entry);
+ 		if (ret) {
+ 			skb_unlink(skb, &priv->rx_queue);
+ 			usb_unanchor_urb(entry);
++			usb_put_urb(entry);
+ 			goto err;
+ 		}
++		usb_put_urb(entry);
  	}
-@@ -333,7 +331,7 @@ mwifiex_histogram_read(struct file *file, char __user *ubuf,
- 	for (i = 0; i < MWIFIEX_MAX_NOISE_FLR; i++) {
- 		value = atomic_read(&phist_data->noise_flr[i]);
- 		if (value)
--			p += sprintf(p, "noise_flr[-%02ddBm] = %d\n",
-+			p += sprintf(p, "noise_flr[%02ddBm] = %d\n",
- 				(int)(i-128), value);
- 	}
- 	for (i = 0; i < MWIFIEX_MAX_SIG_STRENGTH; i++) {
+ 	return ret;
+ 
 -- 
 2.20.1
 
