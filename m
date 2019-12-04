@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED0D1133DD
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6164113334
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731061AbfLDSJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:09:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
+        id S1731253AbfLDSPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:15:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730521AbfLDSJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:09:28 -0500
+        id S1731423AbfLDSOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:14:16 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D90F20863;
-        Wed,  4 Dec 2019 18:09:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 846FE20674;
+        Wed,  4 Dec 2019 18:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482968;
-        bh=fn5ihxksOkvHYhFfgCE8xyhI+MbV1Hr1ZAb+Xisteog=;
+        s=default; t=1575483256;
+        bh=MBR4kE6kntoCbO0Wu7sIJIXGDvpYrsBMg0KIwE56k+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiM/0bM76rHYklSSaBBMGnGZDbRUCe98LKJCiJe1r27YTcN+FHSqToyHsqbFRFaM4
-         ToLTYXjIn8qP9FsRGhjcLVQl5Ng+5Vrn5Ahevt4zcaUYSYzv8CwbXRBMWJGGQXJ3l5
-         LuNYjmeSNlVteF+hvHbBRWOFQX3F0Ow06sWDStQI=
+        b=jkULXJIAm/ZotmKAwEW7dydlpuPZVKY0HFyyHvfyzObm/+zIOsDDDg0QW2xjzNRGJ
+         8yYGZc3bs+66RTsZQtpCCjwTOOimIlGZRJC8k+ecrAxz4kVq0//P1Bv+C7JEny3XIt
+         h5uyBotLrbqxNKqtmkVnWgJ0U6rFuUeVBol1bNJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 207/209] platform/x86: hp-wmi: Fix ACPI errors caused by too small buffer
-Date:   Wed,  4 Dec 2019 18:56:59 +0100
-Message-Id: <20191204175337.737546972@linuxfoundation.org>
+        stable@vger.kernel.org, Qi Jun Ding <qding@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 115/125] openvswitch: fix flow command message size
+Date:   Wed,  4 Dec 2019 18:57:00 +0100
+Message-Id: <20191204175326.136116021@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 16245db1489cd9aa579506f64afeeeb13d825a93 upstream.
+[ Upstream commit 4e81c0b3fa93d07653e2415fa71656b080a112fd ]
 
-The HP WMI calls may take up to 128 bytes of data as input, and
-the AML methods implementing the WMI calls, declare a couple of fields for
-accessing input in different sizes, specifycally the HWMC method contains:
+When user-space sets the OVS_UFID_F_OMIT_* flags, and the relevant
+flow has no UFID, we can exceed the computed size, as
+ovs_nla_put_identifier() will always dump an OVS_FLOW_ATTR_KEY
+attribute.
+Take the above in account when computing the flow command message
+size.
 
-        CreateField (Arg1, 0x80, 0x0400, D128)
-
-Even though we do not use any of the WMI command-types which need a buffer
-of this size, the APCI interpreter still tries to create it as it is
-declared in generoc code at the top of the HWMC method which runs before
-the code looks at which command-type is requested.
-
-This results in many of these errors on many different HP laptop models:
-
-[   14.459261] ACPI Error: Field [D128] at 1152 exceeds Buffer [NULL] size 160 (bits) (20170303/dsopcode-236)
-[   14.459268] ACPI Error: Method parse/execution failed [\HWMC] (Node ffff8edcc61507f8), AE_AML_BUFFER_LIMIT (20170303/psparse-543)
-[   14.459279] ACPI Error: Method parse/execution failed [\_SB.WMID.WMAA] (Node ffff8edcc61523c0), AE_AML_BUFFER_LIMIT (20170303/psparse-543)
-
-This commit increases the size of the data element of the bios_args struct
-to 128 bytes fixing these errors.
-
-Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197007
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=201981
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1520703
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 74ed7ab9264c ("openvswitch: Add support for unique flow IDs.")
+Reported-by: Qi Jun Ding <qding@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/platform/x86/hp-wmi.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/openvswitch/datapath.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -78,7 +78,7 @@ struct bios_args {
- 	u32 command;
- 	u32 commandtype;
- 	u32 datasize;
--	u32 data;
-+	u8 data[128];
- };
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -738,9 +738,13 @@ static size_t ovs_flow_cmd_msg_size(cons
+ {
+ 	size_t len = NLMSG_ALIGN(sizeof(struct ovs_header));
  
- enum hp_wmi_commandtype {
-@@ -229,7 +229,7 @@ static int hp_wmi_perform_query(int quer
- 		.command = command,
- 		.commandtype = query,
- 		.datasize = insize,
--		.data = 0,
-+		.data = { 0 },
- 	};
- 	struct acpi_buffer input = { sizeof(struct bios_args), &args };
- 	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
-@@ -241,7 +241,7 @@ static int hp_wmi_perform_query(int quer
+-	/* OVS_FLOW_ATTR_UFID */
++	/* OVS_FLOW_ATTR_UFID, or unmasked flow key as fallback
++	 * see ovs_nla_put_identifier()
++	 */
+ 	if (sfid && ovs_identifier_is_ufid(sfid))
+ 		len += nla_total_size(sfid->ufid_len);
++	else
++		len += nla_total_size(ovs_key_attr_size());
  
- 	if (WARN_ON(insize > sizeof(args.data)))
- 		return -EINVAL;
--	memcpy(&args.data, buffer, insize);
-+	memcpy(&args.data[0], buffer, insize);
- 
- 	wmi_evaluate_method(HPWMI_BIOS_GUID, 0, mid, &input, &output);
- 
+ 	/* OVS_FLOW_ATTR_KEY */
+ 	if (!sfid || should_fill_key(sfid, ufid_flags))
 
 
