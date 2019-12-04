@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8B3E113308
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5085B1133E3
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731847AbfLDSOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:14:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43268 "EHLO mail.kernel.org"
+        id S1729433AbfLDSTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:19:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731591AbfLDSOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:14:02 -0500
+        id S1730749AbfLDSJP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:09:15 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1203620674;
-        Wed,  4 Dec 2019 18:14:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AD05206DF;
+        Wed,  4 Dec 2019 18:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483241;
-        bh=p7INORYUB13x9yMBYw7vrRhjb1Z0s8eDehJ1i0IUyFA=;
+        s=default; t=1575482955;
+        bh=5jTL89Ac1aKEmuArLkIevarTZw7GfS4bGWIRynkOwCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTvb23UXiWrl2mmzTEjj5KBOB7DU9rP5Y6g1JkUBroI5J+LjaSwIDak3JddrZMQLG
-         bcwNZvBGN7LoiGyTPFHhgax25+pB0AKjNTIBCnZU5HNivN7t5nyyNce3SIhrw3L3gV
-         qiWuIQfTduVKYXW0UaMlJkNxvUSsJLbharMLr42w=
+        b=ygCRE/89GCv7Ab0s9bB2BqclsP5lGVfd99YcAUZ7V3VK3kqIhz9v98x88X628LGie
+         8koWKPkx/adeBPSWF7qsz3lWbUhW7zfIEfVgohITwQbK8NQPMeKFlbVVJ/6nW3oa/z
+         h8ioeyyTooMMZniLMjqfdF1o2dLaNCq6FEDlzDLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 110/125] media: v4l2-ctrl: fix flags for DO_WHITE_BALANCE
+        stable@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.14 203/209] pinctrl: stm32: fix memory leak issue
 Date:   Wed,  4 Dec 2019 18:56:55 +0100
-Message-Id: <20191204175325.810481526@linuxfoundation.org>
+Message-Id: <20191204175337.462548536@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Alexandre Torgue <alexandre.torgue@st.com>
 
-commit a0816e5088baab82aa738d61a55513114a673c8e upstream.
+commit cd8c9b5a49576bf28990237715bc2cb2210ac80a upstream.
 
-Control DO_WHITE_BALANCE is a button, with read only and execute-on-write flags.
-Adding this control in the proper list in the fill function.
+configs is allocated by pinconf_generic_parse_dt_config(),
+pinctrl_utils_add_map_configs() duplicates configs so it can and has to
+be freed to prevent memory leaks.
 
-After adding it here, we can see output of v4l2-ctl -L
-do_white_balance 0x0098090d (button) : flags=write-only, execute-on-write
-
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/stm32/pinctrl-stm32.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -1007,6 +1007,7 @@ void v4l2_ctrl_fill(u32 id, const char *
- 	case V4L2_CID_FLASH_STROBE_STOP:
- 	case V4L2_CID_AUTO_FOCUS_START:
- 	case V4L2_CID_AUTO_FOCUS_STOP:
-+	case V4L2_CID_DO_WHITE_BALANCE:
- 		*type = V4L2_CTRL_TYPE_BUTTON;
- 		*flags |= V4L2_CTRL_FLAG_WRITE_ONLY |
- 			  V4L2_CTRL_FLAG_EXECUTE_ON_WRITE;
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -403,7 +403,7 @@ static int stm32_pctrl_dt_subnode_to_map
+ 	unsigned int num_configs;
+ 	bool has_config = 0;
+ 	unsigned reserve = 0;
+-	int num_pins, num_funcs, maps_per_pin, i, err;
++	int num_pins, num_funcs, maps_per_pin, i, err = 0;
+ 
+ 	pctl = pinctrl_dev_get_drvdata(pctldev);
+ 
+@@ -430,41 +430,45 @@ static int stm32_pctrl_dt_subnode_to_map
+ 	if (has_config && num_pins >= 1)
+ 		maps_per_pin++;
+ 
+-	if (!num_pins || !maps_per_pin)
+-		return -EINVAL;
++	if (!num_pins || !maps_per_pin) {
++		err = -EINVAL;
++		goto exit;
++	}
+ 
+ 	reserve = num_pins * maps_per_pin;
+ 
+ 	err = pinctrl_utils_reserve_map(pctldev, map,
+ 			reserved_maps, num_maps, reserve);
+ 	if (err)
+-		return err;
++		goto exit;
+ 
+ 	for (i = 0; i < num_pins; i++) {
+ 		err = of_property_read_u32_index(node, "pinmux",
+ 				i, &pinfunc);
+ 		if (err)
+-			return err;
++			goto exit;
+ 
+ 		pin = STM32_GET_PIN_NO(pinfunc);
+ 		func = STM32_GET_PIN_FUNC(pinfunc);
+ 
+ 		if (!stm32_pctrl_is_function_valid(pctl, pin, func)) {
+ 			dev_err(pctl->dev, "invalid function.\n");
+-			return -EINVAL;
++			err = -EINVAL;
++			goto exit;
+ 		}
+ 
+ 		grp = stm32_pctrl_find_group_by_pin(pctl, pin);
+ 		if (!grp) {
+ 			dev_err(pctl->dev, "unable to match pin %d to group\n",
+ 					pin);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto exit;
+ 		}
+ 
+ 		err = stm32_pctrl_dt_node_to_map_func(pctl, pin, func, grp, map,
+ 				reserved_maps, num_maps);
+ 		if (err)
+-			return err;
++			goto exit;
+ 
+ 		if (has_config) {
+ 			err = pinctrl_utils_add_map_configs(pctldev, map,
+@@ -472,11 +476,13 @@ static int stm32_pctrl_dt_subnode_to_map
+ 					configs, num_configs,
+ 					PIN_MAP_TYPE_CONFIGS_GROUP);
+ 			if (err)
+-				return err;
++				goto exit;
+ 		}
+ 	}
+ 
+-	return 0;
++exit:
++	kfree(configs);
++	return err;
+ }
+ 
+ static int stm32_pctrl_dt_node_to_map(struct pinctrl_dev *pctldev,
 
 
