@@ -2,94 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2421F112EE8
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 16:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A8D112EF4
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 16:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727944AbfLDPsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 10:48:07 -0500
-Received: from mga12.intel.com ([192.55.52.136]:58121 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727878AbfLDPsH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 10:48:07 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Dec 2019 07:48:06 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,277,1571727600"; 
-   d="scan'208";a="262988929"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.41])
-  by FMSMGA003.fm.intel.com with ESMTP; 04 Dec 2019 07:48:06 -0800
-Date:   Wed, 4 Dec 2019 07:48:06 -0800
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        thomas.lendacky@amd.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2] KVM: x86: use CPUID to locate host page table
- reserved bits
-Message-ID: <20191204154806.GC6323@linux.intel.com>
-References: <1575474037-7903-1-git-send-email-pbonzini@redhat.com>
+        id S1728177AbfLDPvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 10:51:33 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:40101 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727878AbfLDPvd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 10:51:33 -0500
+Received: by mail-pf1-f193.google.com with SMTP id q8so46195pfh.7;
+        Wed, 04 Dec 2019 07:51:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=5ysUJsELO1ZM9MQnRAeaIoc7Nsf0kwXFJFQgtF5DDrc=;
+        b=vJM9OhZbApPtC0MItVItG7kzERfpevGB5B4fq6y+ZdX3b/FqLkjdfoa8s7XIDtY2Ze
+         f1VDiPXsDgGB/uA1Oidcc1JxgQHNduPDK2cb4qFLcIaH/SQypWjWESIu/HY/Gh4zFlmW
+         6RH33lMfwbCGTsy8Qur2YXPgw754mK1R2BZeUP4OkKmtUqI2Q7r1bFKXWYX+9WCo2ifr
+         9/M7+UkzK/78yVbNsmCXQTftkcEVHBiS1yRkgiuHNbF32qLqc1SA9gor3thyWTgu+WDJ
+         eIOr2S7n6YHaYaduBc2P92E2xTXTOUsZFNvWso37i8/xYskRFMLnV2fkwSpr6D7Ei4Z8
+         oo8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=5ysUJsELO1ZM9MQnRAeaIoc7Nsf0kwXFJFQgtF5DDrc=;
+        b=nnDiTOrkX7k8LtWqKcqopR56s2OvyABhzGFIvxV6uG89tesixbIEGlaA3qlMdrtib1
+         /7XWGnu/MhCEklFxFsrh8PxUp8Istnn5z08zN08sowIcWlaamupF5MTlTLDRtEbujm+x
+         XaapzjT+H9bsYm93OgEsCC+RP2jVUMBj1OEgjN55GLOIJ/ZdPjzzZhzQioF0pFrHksXw
+         X/VmgkjqmzjP8KO9ipOf7oDXzSmc7tcd43pN58lj2DklVkIi/CpjMYx0OqR1Om0ll9Tq
+         5sFScKs3zA4mId/Hzs6SiCzuRaoQYBe4sVsbJfTQuGAKgTKv5wUcQJoSk+ZaaHf4Udwy
+         U8aA==
+X-Gm-Message-State: APjAAAVzVPpsn/gnlea6QsJKQ8oip2rmqPmV8wWzsg2TKeMrjK+7jkyf
+        UMr0NXhzv6lf7TKG9dw+xw8=
+X-Google-Smtp-Source: APXvYqxduuYANVN21ivuLEuZ6kDH1FV9esMxOY6viym6WqyBRRT6K7OiGfF3Am+P6w+21r9DRWlZOA==
+X-Received: by 2002:a63:5442:: with SMTP id e2mr2897040pgm.18.1575474692288;
+        Wed, 04 Dec 2019 07:51:32 -0800 (PST)
+Received: from iclxps ([155.98.131.2])
+        by smtp.gmail.com with ESMTPSA id d85sm8886344pfd.146.2019.12.04.07.51.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Dec 2019 07:51:31 -0800 (PST)
+Message-ID: <7eb0ed7d51b53f7d720a78d9b959c462adb850d4.camel@gmail.com>
+Subject: Re: [PATCH v5 2/4] lib: devres: add a helper function for ioremap_uc
+From:   Tuowen Zhao <ztuowen@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     lee.jones@linaro.org, linux-kernel@vger.kernel.org,
+        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        stable@vger.kernel.org, linux@roeck-us.net
+Date:   Wed, 04 Dec 2019 08:51:30 -0700
+In-Reply-To: <20191018164738.GY31224@sasha-vm>
+References: <20191016210629.1005086-3-ztuowen@gmail.com>
+         <20191017143144.9985421848@mail.kernel.org>
+         <b113dd8da86934acc90859dc592e0234fa88cfdc.camel@gmail.com>
+         <20191018164738.GY31224@sasha-vm>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1575474037-7903-1-git-send-email-pbonzini@redhat.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 04, 2019 at 04:40:37PM +0100, Paolo Bonzini wrote:
-> The comment in kvm_get_shadow_phys_bits refers to MKTME, but the same is actually
-> true of SME and SEV.  Just use CPUID[0x8000_0008].EAX[7:0] unconditionally if
-> available, it is simplest and works even if memory is not encrypted.
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Tom Lendacky <thomas.lendacky@amd.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/kvm/mmu/mmu.c | 20 ++++++++++++--------
->  1 file changed, 12 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-> index 6f92b40d798c..1e4ee4f8de5f 100644
-> --- a/arch/x86/kvm/mmu/mmu.c
-> +++ b/arch/x86/kvm/mmu/mmu.c
-> @@ -538,16 +538,20 @@ void kvm_mmu_set_mask_ptes(u64 user_mask, u64 accessed_mask,
->  static u8 kvm_get_shadow_phys_bits(void)
->  {
->  	/*
-> -	 * boot_cpu_data.x86_phys_bits is reduced when MKTME is detected
-> -	 * in CPU detection code, but MKTME treats those reduced bits as
-> -	 * 'keyID' thus they are not reserved bits. Therefore for MKTME
-> -	 * we should still return physical address bits reported by CPUID.
-> +	 * boot_cpu_data.x86_phys_bits is reduced when MKTME or SME are detected
-> +	 * in CPU detection code, but the processor treats those reduced bits as
-> +	 * 'keyID' thus they are not reserved bits. Therefore KVM needs to look at
-> +	 * the physical address bits reported by CPUID.
->  	 */
-> -	if (!boot_cpu_has(X86_FEATURE_TME) ||
-> -	    WARN_ON_ONCE(boot_cpu_data.extended_cpuid_level < 0x80000008))
-> -		return boot_cpu_data.x86_phys_bits;
-> +	if (likely(boot_cpu_data.extended_cpuid_level >= 0x80000008))
-> +		return cpuid_eax(0x80000008) & 0xff;
->  
-> -	return cpuid_eax(0x80000008) & 0xff;
-> +	/*
-> +	 * Quite weird to have VMX or SVM but not MAXPHYADDR; probably a VM with
-> +	 * custom CPUID.  Proceed with whatever the kernel found since these features
-> +	 * aren't virtualizable (SME/SEV also require CPUIDs higher than 0x80000008).
+Hi Sasha,
 
-No love for MKTME?  :-D
+Sorry to bother. Can I ask for patches in this series to NOT be applied
+to stable?
 
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+They causes build failure on Hexagon.
 
-> +	 */
-> +	return boot_cpu_data.x86_phys_bits;
->  }
->  
->  static void kvm_mmu_reset_all_pte_masks(void)
-> -- 
-> 1.8.3.1
-> 
+Relevant patches include
+
+sparc64: implement ioremap_uc
+lib: devres: add a helper function for ioremap_uc
+mfd: intel-lpss: Use devm_ioremap_uc for MMIO
+
+Best,
+Tuowen
+
