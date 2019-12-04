@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E44113406
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19633113351
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730178AbfLDSGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:06:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55190 "EHLO mail.kernel.org"
+        id S1729434AbfLDSQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:16:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729976AbfLDSGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:06:36 -0500
+        id S1731706AbfLDSNI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:13:08 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D989421772;
-        Wed,  4 Dec 2019 18:06:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA43520674;
+        Wed,  4 Dec 2019 18:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482795;
-        bh=fIDkp3nQknwUGs/jEnpCYRRi9+4jX4CW2Ox9ygyMYls=;
+        s=default; t=1575483188;
+        bh=v/ELUbqxZyXrZuAAY7IR8tKjXYRyU+EDsOX/Vedj/xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cibv5LKQ94tqGT2y4C9E6vgHXrjyfjsBGahICzSIMs0BI/yxhuv/XiRmbZqszTruK
-         Dg08Y7mOF3835YNdOtrw/yWjTIJyaXr/eTwUkK+1cKPX4hgiIHy+BhH3sJ3LCh6ONt
-         YCBBrmx53c8dkEoynN+XUqIWecBvBuhD/MkxnqZQ=
+        b=g83zwmgTmkMAhA1tQ/VS7MXIFFpJUxQgWnH81Eeqxm3S0yoVZ0tjFqKDAu/6ZDLpl
+         f+M+CLY2ff9CnLyQkol9q04RmnZGebNsW3HmM/VTDZM0nr7H3fMHz/qvUuFOJtrtRU
+         k0fw0vhpcs4JHFlk5/SGBuKCIKBt+OvBBjBedozI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/209] decnet: fix DN_IFREQ_SIZE
-Date:   Wed,  4 Dec 2019 18:55:47 +0100
-Message-Id: <20191204175332.530697021@linuxfoundation.org>
+Subject: [PATCH 4.9 043/125] pinctrl: sh-pfc: sh7734: Fix shifted values in IPSR10
+Date:   Wed,  4 Dec 2019 18:55:48 +0100
+Message-Id: <20191204175321.578634906@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 50c2936634bcb1db78a8ca63249236810c11a80f ]
+[ Upstream commit 054f2400f706327f96770219c3065b5131f8f154 ]
 
-Digging through the ioctls with Al because of the previous
-patches, we found that on 64-bit decnet's dn_dev_ioctl()
-is wrong, because struct ifreq::ifr_ifru is actually 24
-bytes (not 16 as expected from struct sockaddr) due to the
-ifru_map and ifru_settings members.
+Some values in the Peripheral Function Select Register 10 descriptor are
+shifted by one position, which may cause a peripheral function to be
+programmed incorrectly.
 
-Clearly, decnet expects the ioctl to be called with a struct
-like
-  struct ifreq_dn {
-    char ifr_name[IFNAMSIZ];
-    struct sockaddr_dn ifr_addr;
-  };
+Fixing this makes all HSCIF0 pins use Function 4 (value 3), like was
+already the case for the HSCK0 pin in field IP10[5:3].
 
-since it does
-  struct ifreq *ifr = ...;
-  struct sockaddr_dn *sdn = (struct sockaddr_dn *)&ifr->ifr_addr;
-
-This means that DN_IFREQ_SIZE is too big for what it wants on
-64-bit, as it is
-  sizeof(struct ifreq) - sizeof(struct sockaddr) +
-  sizeof(struct sockaddr_dn)
-
-This assumes that sizeof(struct sockaddr) is the size of ifr_ifru
-but that isn't true.
-
-Fix this to use offsetof(struct ifreq, ifr_ifru).
-
-This indeed doesn't really matter much - the result is that we
-copy in/out 8 bytes more than we should on 64-bit platforms. In
-case the "struct ifreq_dn" lands just on the end of a page though
-it might lead to faults.
-
-As far as I can tell, it has been like this forever, so it seems
-very likely that nobody cares.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ac1ebc2190f575fc ("sh-pfc: Add sh7734 pinmux support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/decnet/dn_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/sh-pfc/pfc-sh7734.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/decnet/dn_dev.c b/net/decnet/dn_dev.c
-index df042b6d80b83..22876a197ebec 100644
---- a/net/decnet/dn_dev.c
-+++ b/net/decnet/dn_dev.c
-@@ -56,7 +56,7 @@
- #include <net/dn_neigh.h>
- #include <net/dn_fib.h>
- 
--#define DN_IFREQ_SIZE (sizeof(struct ifreq) - sizeof(struct sockaddr) + sizeof(struct sockaddr_dn))
-+#define DN_IFREQ_SIZE (offsetof(struct ifreq, ifr_ifru) + sizeof(struct sockaddr_dn))
- 
- static char dn_rt_all_end_mcast[ETH_ALEN] = {0xAB,0x00,0x00,0x04,0x00,0x00};
- static char dn_rt_all_rt_mcast[ETH_ALEN]  = {0xAB,0x00,0x00,0x03,0x00,0x00};
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7734.c b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+index 6502e676d3686..33232041ee86d 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7734.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
+@@ -2213,22 +2213,22 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 	    /* IP10_22 [1] */
+ 		FN_CAN_CLK_A, FN_RX4_D,
+ 	    /* IP10_21_19 [3] */
+-		FN_AUDIO_CLKOUT, FN_TX1_E, FN_HRTS0_C, FN_FSE_B,
+-		FN_LCD_M_DISP_B, 0, 0, 0,
++		FN_AUDIO_CLKOUT, FN_TX1_E, 0, FN_HRTS0_C, FN_FSE_B,
++		FN_LCD_M_DISP_B, 0, 0,
+ 	    /* IP10_18_16 [3] */
+-		FN_AUDIO_CLKC, FN_SCK1_E, FN_HCTS0_C, FN_FRB_B,
+-		FN_LCD_VEPWC_B, 0, 0, 0,
++		FN_AUDIO_CLKC, FN_SCK1_E, 0, FN_HCTS0_C, FN_FRB_B,
++		FN_LCD_VEPWC_B, 0, 0,
+ 	    /* IP10_15 [1] */
+ 		FN_AUDIO_CLKB_A, FN_LCD_CLK_B,
+ 	    /* IP10_14_12 [3] */
+ 		FN_AUDIO_CLKA_A, FN_VI1_CLK_B, FN_SCK1_D, FN_IECLK_B,
+ 		FN_LCD_FLM_B, 0, 0, 0,
+ 	    /* IP10_11_9 [3] */
+-		FN_SSI_SDATA3, FN_VI1_7_B, FN_HTX0_C, FN_FWE_B,
+-		FN_LCD_CL2_B, 0, 0, 0,
++		FN_SSI_SDATA3, FN_VI1_7_B, 0, FN_HTX0_C, FN_FWE_B,
++		FN_LCD_CL2_B, 0, 0,
+ 	    /* IP10_8_6 [3] */
+-		FN_SSI_SDATA2, FN_VI1_6_B, FN_HRX0_C, FN_FRE_B,
+-		FN_LCD_CL1_B, 0, 0, 0,
++		FN_SSI_SDATA2, FN_VI1_6_B, 0, FN_HRX0_C, FN_FRE_B,
++		FN_LCD_CL1_B, 0, 0,
+ 	    /* IP10_5_3 [3] */
+ 		FN_SSI_WS23, FN_VI1_5_B, FN_TX1_D, FN_HSCK0_C, FN_FALE_B,
+ 		FN_LCD_DON_B, 0, 0, 0,
 -- 
 2.20.1
 
