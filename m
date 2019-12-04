@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C7B1133E0
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A8E9113312
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731077AbfLDSJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:09:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35416 "EHLO mail.kernel.org"
+        id S1731463AbfLDSOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:14:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731076AbfLDSJd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:09:33 -0500
+        id S1730756AbfLDSOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:14:21 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5453320674;
-        Wed,  4 Dec 2019 18:09:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A26C20674;
+        Wed,  4 Dec 2019 18:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482972;
-        bh=dbyZp+xybfQ+kEBZ9QafyIkcBlBHcHxTME3B22Hds74=;
+        s=default; t=1575483260;
+        bh=ymmdOMpoTUi2nRCMXulIM8OpjOTxMBNwjovAUehgbuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14y6ceWTOafVBSuoOEIKtisyiFjYdm7BmowtppvT2Rr5VXg4yO5888LD266NIJPON
-         lCKkU5wEDtfOvpY+Rtx8cV68pg/CcBxtA8f+R56Cu+4GICkVp9uluKSK6v2zGaGk5w
-         pLjkwtX3XBOjN6p7oXbvtpeTo/qjlOOglpL9wD34=
+        b=gMMK0LZnrhMQrBSNEnClpKJYgGvBVyBik01bWBwZME4eNXMpllZ+xBJ7nf8T8eAdt
+         UYUsPD9vfbJJQ33j5zV7qQqFDQXKcFUplNasHk8xLjjCqci45C1vhUD3v4+rgBof1A
+         uctMHupYtuoOUvMjXhl3CzpLwJqXIPHWUloJqMN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.14 209/209] net: fec: fix clock count mis-match
-Date:   Wed,  4 Dec 2019 18:57:01 +0100
-Message-Id: <20191204175337.873317389@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 117/125] openvswitch: drop unneeded BUG_ON() in ovs_flow_cmd_build_info()
+Date:   Wed,  4 Dec 2019 18:57:02 +0100
+Message-Id: <20191204175326.322840740@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit a31eda65ba210741b598044d045480494d0ed52a upstream.
+[ Upstream commit 8ffeb03fbba3b599690b361467bfd2373e8c450f ]
 
-pm_runtime_put_autosuspend in probe will call runtime suspend to
-disable clks automatically if CONFIG_PM is defined. (If CONFIG_PM
-is not defined, its implementation will be empty, then runtime
-suspend will not be called.)
+All the callers of ovs_flow_cmd_build_info() already deal with
+error return code correctly, so we can handle the error condition
+in a more gracefull way. Still dump a warning to preserve
+debuggability.
 
-Therefore, we can call pm_runtime_get_sync to runtime resume it
-first to enable clks, which matches the runtime suspend. (Only when
-CONFIG_PM is defined, otherwise pm_runtime_get_sync will also be
-empty, then runtime resume will not be called.)
+v1 -> v2:
+ - clarify the commit message
+ - clean the skb and report the error (DaveM)
 
-Then it is fine to disable clks without causing clock count mis-match.
-
-Fixes: c43eab3eddb4 ("net: fec: add missed clk_disable_unprepare in remove")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Acked-by: Fugang Duan <fugang.duan@nxp.com>
+Fixes: ccb1352e76cf ("net: Add Open vSwitch kernel components.")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/freescale/fec_main.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ net/openvswitch/datapath.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -3565,6 +3565,11 @@ fec_drv_remove(struct platform_device *p
- 	struct net_device *ndev = platform_get_drvdata(pdev);
- 	struct fec_enet_private *fep = netdev_priv(ndev);
- 	struct device_node *np = pdev->dev.of_node;
-+	int ret;
-+
-+	ret = pm_runtime_get_sync(&pdev->dev);
-+	if (ret < 0)
-+		return ret;
- 
- 	cancel_work_sync(&fep->tx_timeout_work);
- 	fec_ptp_stop(pdev);
-@@ -3572,15 +3577,17 @@ fec_drv_remove(struct platform_device *p
- 	fec_enet_mii_remove(fep);
- 	if (fep->reg_phy)
- 		regulator_disable(fep->reg_phy);
--	pm_runtime_put(&pdev->dev);
--	pm_runtime_disable(&pdev->dev);
--	clk_disable_unprepare(fep->clk_ahb);
--	clk_disable_unprepare(fep->clk_ipg);
-+
- 	if (of_phy_is_fixed_link(np))
- 		of_phy_deregister_fixed_link(np);
- 	of_node_put(fep->phy_node);
- 	free_netdev(ndev);
- 
-+	clk_disable_unprepare(fep->clk_ahb);
-+	clk_disable_unprepare(fep->clk_ipg);
-+	pm_runtime_put_noidle(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
- 	return 0;
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -920,7 +920,10 @@ static struct sk_buff *ovs_flow_cmd_buil
+ 	retval = ovs_flow_cmd_fill_info(flow, dp_ifindex, skb,
+ 					info->snd_portid, info->snd_seq, 0,
+ 					cmd, ufid_flags);
+-	BUG_ON(retval < 0);
++	if (WARN_ON_ONCE(retval < 0)) {
++		kfree_skb(skb);
++		skb = ERR_PTR(retval);
++	}
+ 	return skb;
  }
  
 
