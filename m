@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B0C113346
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2C11133C3
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729511AbfLDSQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:16:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42752 "EHLO mail.kernel.org"
+        id S1730593AbfLDSJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:09:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731753AbfLDSNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:13:35 -0500
+        id S1730415AbfLDSJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:09:45 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4509320674;
-        Wed,  4 Dec 2019 18:13:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7771420833;
+        Wed,  4 Dec 2019 18:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483214;
-        bh=Oq84LTVSVC75WPxhcTGPrRuAJow9CRZ9cyQfe033SG0=;
+        s=default; t=1575482985;
+        bh=CIYWjrQB1Yla/YD6iEyhdovrzYBqTTehPpIQsk9KBY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+p+UrNCTgWJ2QcBtvTFluOkX0Tq1Of/q6/VJ5pQJ6otrZ5MDfhTGAMlUUSMJAUlQ
-         4ZHloam7fyfffNvqJux8bTLQRoUwSyGsi7kZmoE5iGlVxz3l42VFXuvv0ydWdlKJ4a
-         9rb99W/QXpm6/pyuLetfF4bNQfHh1jLbglKt6vjA=
+        b=KFi640vSNFS5yBuQjIpgxMk6VIdGC00K9LiwzEGdoMR1Cew1O/XnD4Z0qbwU/onkd
+         YgzEQic2sO0rCbzz2EHNgfP2XDLDcV1XF14mBoXldB+NvcwpEShvDHat71bT1SxtAL
+         uf1uJGjdoDpbJ7/euDydLOvsTM2+8zdyiwrsAX7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Luo <luojian5@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 100/125] scsi: libsas: Support SATA PHY connection rate unmatch fixing during discovery
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.14 193/209] futex: Sanitize exit state handling
 Date:   Wed,  4 Dec 2019 18:56:45 +0100
-Message-Id: <20191204175325.182554385@linuxfoundation.org>
+Message-Id: <20191204175336.773715138@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit cec9771d2e954650095aa37a6a97722c8194e7d2 ]
+commit 4a8e991b91aca9e20705d434677ac013974e0e30 upstream.
 
-   +----------+             +----------+
-   |          |             |          |
-   |          |--- 3.0 G ---|          |--- 6.0 G --- SAS  disk
-   |          |             |          |
-   |          |--- 3.0 G ---|          |--- 6.0 G --- SAS  disk
-   |initiator |             |          |
-   | device   |--- 3.0 G ---| Expander |--- 6.0 G --- SAS  disk
-   |          |             |          |
-   |          |--- 3.0 G ---|          |--- 6.0 G --- SATA disk  -->failed to connect
-   |          |             |          |
-   |          |             |          |--- 6.0 G --- SATA disk  -->failed to connect
-   |          |             |          |
-   +----------+             +----------+
+Instead of having a smp_mb() and an empty lock/unlock of task::pi_lock move
+the state setting into to the lock section.
 
-According to Serial Attached SCSI - 1.1 (SAS-1.1):
-If an expander PHY attached to a SATA PHY is using a physical link rate
-greater than the maximum connection rate supported by the pathway from an
-STP initiator port, a management application client should use the SMP PHY
-CONTROL function (see 10.4.3.10) to set the PROGRAMMED MAXIMUM PHYSICAL
-LINK RATE field of the expander PHY to the maximum connection rate
-supported by the pathway from that STP initiator port.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20191106224556.645603214@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Currently libsas does not support checking if this condition occurs, nor
-rectifying when it does.
-
-Such a condition is not at all common, however it has been seen on some
-pre-silicon environments where the initiator PHY only supports a 1.5 Gbit
-maximum linkrate, mated with 12G expander PHYs and 3/6G SATA phy.
-
-This patch adds support for checking and rectifying this condition during
-initial device discovery only.
-
-We do support checking min pathway connection rate during revalidation phase,
-when new devices can be detected in the topology. However we do not
-support in the case of the the user reprogramming PHY linkrates, such that
-min pathway condition is not met/maintained.
-
-A note on root port PHY rates:
-The libsas root port PHY rates calculation is broken. Libsas sets the
-rates (min, max, and current linkrate) of a root port to the same linkrate
-of the first PHY member of that same port. In doing so, it assumes that
-all other PHYs which subsequently join the port to have the same
-negotiated linkrate, when they could actually be different.
-
-In practice this doesn't happen, as initiator and expander PHYs are
-normally initialised with consistent min/max linkrates.
-
-This has not caused an issue so far, so leave alone for now.
-
-Tested-by: Jian Luo <luojian5@huawei.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_expander.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ kernel/futex.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
-index d44f18f773c0f..b7e4493d3dc16 100644
---- a/drivers/scsi/libsas/sas_expander.c
-+++ b/drivers/scsi/libsas/sas_expander.c
-@@ -806,6 +806,26 @@ static struct domain_device *sas_ex_discover_end_dev(
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -3726,16 +3726,19 @@ void futex_exit_recursive(struct task_st
  
- #ifdef CONFIG_SCSI_SAS_ATA
- 	if ((phy->attached_tproto & SAS_PROTOCOL_STP) || phy->attached_sata_dev) {
-+		if (child->linkrate > parent->min_linkrate) {
-+			struct sas_phy_linkrates rates = {
-+				.maximum_linkrate = parent->min_linkrate,
-+				.minimum_linkrate = parent->min_linkrate,
-+			};
-+			int ret;
-+
-+			pr_notice("ex %016llx phy%02d SATA device linkrate > min pathway connection rate, attempting to lower device linkrate\n",
-+				   SAS_ADDR(child->sas_addr), phy_id);
-+			ret = sas_smp_phy_control(parent, phy_id,
-+						  PHY_FUNC_LINK_RESET, &rates);
-+			if (ret) {
-+				pr_err("ex %016llx phy%02d SATA device could not set linkrate (%d)\n",
-+				       SAS_ADDR(child->sas_addr), phy_id, ret);
-+				goto out_free;
-+			}
-+			pr_notice("ex %016llx phy%02d SATA device set linkrate successfully\n",
-+				  SAS_ADDR(child->sas_addr), phy_id);
-+			child->linkrate = child->min_linkrate;
-+		}
- 		res = sas_get_ata_info(child, phy);
- 		if (res)
- 			goto out_free;
--- 
-2.20.1
-
+ void futex_exit_release(struct task_struct *tsk)
+ {
+-	tsk->futex_state = FUTEX_STATE_EXITING;
+-	/*
+-	 * Ensure that all new tsk->pi_lock acquisitions must observe
+-	 * FUTEX_STATE_EXITING. Serializes against attach_to_pi_owner().
+-	 */
+-	smp_mb();
+ 	/*
+-	 * Ensure that we must observe the pi_state in exit_pi_state_list().
++	 * Switch the state to FUTEX_STATE_EXITING under tsk->pi_lock.
++	 *
++	 * This ensures that all subsequent checks of tsk->futex_state in
++	 * attach_to_pi_owner() must observe FUTEX_STATE_EXITING with
++	 * tsk->pi_lock held.
++	 *
++	 * It guarantees also that a pi_state which was queued right before
++	 * the state change under tsk->pi_lock by a concurrent waiter must
++	 * be observed in exit_pi_state_list().
+ 	 */
+ 	raw_spin_lock_irq(&tsk->pi_lock);
++	tsk->futex_state = FUTEX_STATE_EXITING;
+ 	raw_spin_unlock_irq(&tsk->pi_lock);
+ 
+ 	futex_exec_release(tsk);
 
 
