@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 457D911316D
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 18:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4396011316F
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 18:59:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbfLDR7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 12:59:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35422 "EHLO mail.kernel.org"
+        id S1728490AbfLDR7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 12:59:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729068AbfLDR7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 12:59:16 -0500
+        id S1729077AbfLDR7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 12:59:21 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 562F32073B;
-        Wed,  4 Dec 2019 17:59:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E4D42073B;
+        Wed,  4 Dec 2019 17:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482355;
-        bh=5UKKWctJDQZ8xRe1z8NZtBEcyGxr87Z4366ykrJckvA=;
+        s=default; t=1575482360;
+        bh=P9GYmps93i2okIbNbc/AK4prQ0fNyA3k4l8pKlYRpCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MupuoFVA0w1FAByqAENQ9LbmFVwgsaGyHl0r5fzdiWmw/ZGbH7IK2cNqaKG5v3o4O
-         yFut+XdR0CPeQLvnfmVyAas4KcrmCdr8YsF5fnz0FEr1OPG5hC/H8VmboyhaptCdtW
-         KB48+EaeRLieD/cccUp1Z9goTldyeWP7+PGU3tWg=
+        b=ZX3yeE/1PavtiUJalcfjdg8tgATzw4uRY0ndJr1t3G6BPgMKQf7oTbTn9BMhSKCwx
+         erZFJWhnbdyvgXLn38KiLwq5bL3m9pCroRk0ziW3NJMl3BxNEKtzQV1cP0xFfmiREu
+         fSjzhfOFsqaHvkDR8DH/8tSnCN9dhplpZFj+DJ4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 55/92] um: Make GCOV depend on !KCOV
-Date:   Wed,  4 Dec 2019 18:49:55 +0100
-Message-Id: <20191204174333.740129153@linuxfoundation.org>
+Subject: [PATCH 4.4 57/92] atl1e: checking the status of atl1e_write_phy_reg
+Date:   Wed,  4 Dec 2019 18:49:57 +0100
+Message-Id: <20191204174333.842636116@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -43,32 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 550ed0e2036663b35cec12374b835444f9c60454 ]
+[ Upstream commit ff07d48d7bc0974d4f96a85a4df14564fb09f1ef ]
 
-Both do more or less the same thing and are mutually exclusive.
-If both are enabled the build will fail.
-Sooner or later we can kill UML's GCOV.
+atl1e_write_phy_reg() could fail. The fix issues an error message when
+it fails.
 
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/atheros/atl1e/atl1e_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/Kconfig.debug b/arch/um/Kconfig.debug
-index 68205fd3b08c8..6ae7f0f434a9c 100644
---- a/arch/um/Kconfig.debug
-+++ b/arch/um/Kconfig.debug
-@@ -18,6 +18,7 @@ config GPROF
- config GCOV
- 	bool "Enable gcov support"
- 	depends on DEBUG_INFO
-+	depends on !KCOV
- 	help
- 	  This option allows developers to retrieve coverage data from a UML
- 	  session.
+diff --git a/drivers/net/ethernet/atheros/atl1e/atl1e_main.c b/drivers/net/ethernet/atheros/atl1e/atl1e_main.c
+index 59a03a193e835..4384b2b4d2382 100644
+--- a/drivers/net/ethernet/atheros/atl1e/atl1e_main.c
++++ b/drivers/net/ethernet/atheros/atl1e/atl1e_main.c
+@@ -478,7 +478,9 @@ static void atl1e_mdio_write(struct net_device *netdev, int phy_id,
+ {
+ 	struct atl1e_adapter *adapter = netdev_priv(netdev);
+ 
+-	atl1e_write_phy_reg(&adapter->hw, reg_num & MDIO_REG_ADDR_MASK, val);
++	if (atl1e_write_phy_reg(&adapter->hw,
++				reg_num & MDIO_REG_ADDR_MASK, val))
++		netdev_err(netdev, "write phy register failed\n");
+ }
+ 
+ static int atl1e_mii_ioctl(struct net_device *netdev,
 -- 
 2.20.1
 
