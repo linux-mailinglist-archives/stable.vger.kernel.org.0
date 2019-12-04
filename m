@@ -2,72 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99282113689
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 21:37:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5C411368D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 21:37:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728042AbfLDUhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 15:37:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45330 "EHLO mail.kernel.org"
+        id S1728149AbfLDUhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 15:37:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727911AbfLDUhQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 15:37:16 -0500
+        id S1727911AbfLDUhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 15:37:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 561702073B;
-        Wed,  4 Dec 2019 20:37:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05B2B2073B;
+        Wed,  4 Dec 2019 20:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575491835;
-        bh=zpttg4wTmrnmWgU+meM5WiRudYKWetdf+Ntkr9iOltw=;
+        s=default; t=1575491850;
+        bh=1MjL0LW0EvInXo0rn8wTxuCEjcjRqg11OdyPfReULqw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=USu9K8erfGC8SMJC/MfMFdcIf1GKAZkQOFnddGA30OdAYK+wWmqkyQ4B4z4VWfkZW
-         RoiaCwzQJbBwKAbypjfdQIoMePdJWgqr92eDLe1cwxM05mwAsyr1/nIhuJgU9v5El4
-         RcAibY98n3unHuw0IhgV5UM3t6pTIyWHzI25fciM=
-Date:   Wed, 4 Dec 2019 21:37:11 +0100
+        b=FJsNIsEQYANecq/DmuKsNFzKGpT+H+833xwlWyKtLTssX/79bBzFB1nFNAoHAxLKu
+         7cVqrrH4bou5rZfRV5lSE5c1QoQiyLv2F9crPMvNT5QsWkPG6QWVxTWDHa3s8K5xHb
+         z16XeBA9AotLqeLDKO6itzkh8IY85em/45TK18gA=
+Date:   Wed, 4 Dec 2019 21:37:28 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: Re: [PATCH 4.9 105/125] mm, gup: add missing refcount overflow
- checks on x86 and s390
-Message-ID: <20191204203711.GA3685601@kroah.com>
-References: <20191204175308.377746305@linuxfoundation.org>
- <20191204175325.500930880@linuxfoundation.org>
- <7ca516fa-c526-b5e6-4b7c-855f229112ac@suse.cz>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/46] 5.4.2-stable review
+Message-ID: <20191204203728.GB3685601@kroah.com>
+References: <20191203212705.175425505@linuxfoundation.org>
+ <20191204190543.GD11419@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7ca516fa-c526-b5e6-4b7c-855f229112ac@suse.cz>
+In-Reply-To: <20191204190543.GD11419@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 04, 2019 at 07:27:44PM +0100, Vlastimil Babka wrote:
-> On 12/4/19 6:56 PM, Greg Kroah-Hartman wrote:
-> > From: Vlastimil Babka <vbabka@suse.cz>
+On Wed, Dec 04, 2019 at 11:05:43AM -0800, Guenter Roeck wrote:
+> On Tue, Dec 03, 2019 at 11:35:20PM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.2 release.
+> > There are 46 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
-> > overflowing page refcount") was backported to 4.9.y stable as commit
-> > 2ed768cfd895. The backport however missed that in 4.9, there are several
-> > arch-specific gup.c versions with fast gup implementations, so these do not
-> > prevent refcount overflow.
+> > Responses should be made by Thu, 05 Dec 2019 21:20:36 +0000.
+> > Anything received after that time might be too late.
 > > 
-> > This is partially fixed for x86 in stable-only commit d73af79742e7 ("x86, mm,
-> > gup: prevent get_page() race with munmap in paravirt guest"). This stable-only
-> > commit adds missing parts to x86 version, as well as s390 version, both taken
-> > from the SUSE SLES/openSUSE 4.12-based kernels.
-> > 
-> > The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
-> > the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
-> > problem for those architectures, and I don't feel confident enough to patch
-> > them.
-> > 
-> > Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> No, this one had a leak bug and I've sent updated version:
-> https://lore.kernel.org/linux-mm/e274291b-054f-2fad-28e8-59fabf312e61@suse.cz/
+> Build results:
+> 	total: 158 pass: 157 fail: 1
+> Failed builds:
+> 	mips:allmodconfig
+> Qemu test results:
+> 	total: 394 pass: 394 fail: 0
 
-Ugh.  Ok, let me go fix that up...
+Thanks for testing all of these and letting me know.
+
+greg k-h
