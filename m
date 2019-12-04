@@ -2,104 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A75D11300E
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 17:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A8F11302D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 17:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727989AbfLDQbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 11:31:23 -0500
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:41324 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727008AbfLDQbX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 11:31:23 -0500
-Received: by mail-wr1-f45.google.com with SMTP id c9so2948118wrw.8
-        for <stable@vger.kernel.org>; Wed, 04 Dec 2019 08:31:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0BcnPWhEvpShuDEu+EzcyfmGLkL5UJvkZ7Ys4xUeUCE=;
-        b=vNdA40tXJxpSEr2GIEhHHlrsmo9U7eTfFcnqnS/DgHSZ0p23TCiO3PAXrZmthm+5H4
-         Rx8hoRzXSg2weoE7k5Swc5Fl/2UGRWPcIJshZvMBFyrHpVO7mwUQ2umsBh7JsCYaC4GN
-         oXgo9u2TbE9SKvXyvE1a2JlBc9eIEf9l6Ct6l4P/qnbdA5V3iCLLqvGqwNSyYY09WtLy
-         SOLikFloIr8MjTFYaaXz0wx9Ip2XYojyDkwgWjn5BX5fubZ5HpElR8ZAV0K4zuELO9kR
-         uKPuDcjMTAnFf/dXTRnWOlgLCDYkQ4KuOfXj7uR4QMpvTu9p9MX0nOnw8FwziINxzV+p
-         XBuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0BcnPWhEvpShuDEu+EzcyfmGLkL5UJvkZ7Ys4xUeUCE=;
-        b=rNeJZbWWYVeVGXsnFfOem5yBVwpn0/F+KYLrvKmi0wE0ih7n/MudlfKI4NeBf80ATV
-         LDjtYrXyF0UrdC9mKIlw7oQji07ceZ9QG+n9xpspz9h/nAgzRBFHKcDvABzZCHd7bO7q
-         BQzIZ5lpPJxPSGOTsUg65QVjKNMKKpNbOfAol+0eGSg8F8oppn4ZRUsjdP/aQWhUF/IY
-         74a/h9sxUOepHREiyOHcQTNhWDoAl4q/8I5OczHmGlGHeGI/fF1g0ElL2dy6ZQVMNYyk
-         E4dYZ1YZPjhTvXMB5n761QN5m1zdTUQHfUgTugvPrxvAEQZeDuZtsS4V9G9+AKgeFQXY
-         FmdQ==
-X-Gm-Message-State: APjAAAU9kh481FgwCqRuMFksS4B9veT+Ly4/DS1PXg/0tVt9PMpq/5Et
-        Ih5mBcFdat11Xm2nWmV/VJDSlUluB18=
-X-Google-Smtp-Source: APXvYqyetGoNopaPlu05xh2YhieP1nJhPpk4SxxH2IXYFXLV/BUA4Iu3dIAIhh9t+hhcOx/w810NQw==
-X-Received: by 2002:adf:b64e:: with SMTP id i14mr4878732wre.332.1575477081517;
-        Wed, 04 Dec 2019 08:31:21 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id v188sm7698933wma.10.2019.12.04.08.31.20
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Dec 2019 08:31:20 -0800 (PST)
-Message-ID: <5de7df58.1c69fb81.f9fad.6e10@mx.google.com>
-Date:   Wed, 04 Dec 2019 08:31:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727989AbfLDQoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 11:44:04 -0500
+Received: from s3.sipsolutions.net ([144.76.43.62]:55796 "EHLO
+        sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727008AbfLDQoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 11:44:04 -0500
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.92.3)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1icXkp-0013uy-Uj; Wed, 04 Dec 2019 17:43:56 +0100
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     linux-um@lists.infradead.org
+Cc:     Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Richard Weinberger <richard@nod.at>,
+        Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
+Subject: [PATCH] Revert "um: Enable CONFIG_CONSTRUCTORS"
+Date:   Wed,  4 Dec 2019 17:43:46 +0100
+Message-Id: <20191204174346.78dfd358bd15.I19e7eb2601fbdc0270fb1e1b647a75301e9e4503@changeid>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <4913d030-84c0-0eb9-f8b2-c006a1dd0757@cambridgegreys.com>
+References: <4913d030-84c0-0eb9-f8b2-c006a1dd0757@cambridgegreys.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.87-322-gba731ec12c66
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 101 boots: 0 failed,
- 95 passed with 6 offline (v4.19.87-322-gba731ec12c66)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 101 boots: 0 failed, 95 passed with 6 offline =
-(v4.19.87-322-gba731ec12c66)
+From: Johannes Berg <johannes.berg@intel.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.87-322-gba731ec12c66/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.87-322-gba731ec12c66/
+This reverts commit 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS").
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.87-322-gba731ec12c66
-Git Commit: ba731ec12c667db0f1f85e4bfe11387587feb243
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 20 SoC families, 17 builds out of 206
+There are two issues with this commit, uncovered by Anton in tests
+on some (Debian) systems:
 
-Offline Platforms:
+1) I completely forgot to call any constructors if CONFIG_CONSTRUCTORS
+   isn't set. Don't recall now if it just wasn't needed on my system, or
+   if I never tested this case.
 
-arm:
+2) With that fixed, it works - with CONFIG_CONSTRUCTORS *unset*. If I
+   set CONFIG_CONSTRUCTORS, it fails again, which isn't totally
+   unexpected since whatever wanted to run is likely to have to run
+   before the kernel init etc. that calls the constructors in this case.
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
+Basically, some constructors that gcc emits (libc has?) need to run
+very early during init; the failure mode otherwise was that the ptrace
+fork test already failed:
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
+----------------------
+$ ./linux mem=512M
+Core dump limits :
+	soft - 0
+	hard - NONE
+Checking that ptrace can change system call numbers...check_ptrace : child exited with exitcode 6, while expecting 0; status 0x67f
+Aborted
+----------------------
 
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
+Thinking more about this, it's clear that we simply cannot support
+CONFIG_CONSTRUCTORS in UML. All the cases we need now (gcov, kasan)
+involve not use of the __attribute__((constructor)), but instead
+some constructor code/entry generated by gcc. Therefore, we cannot
+distinguish between kernel constructors and system constructors.
 
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            mt7623n-bananapi-bpi-r2: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
+Thus, revert this commit.
 
+Cc: stable@vger.kernel.org [5.4+]
+Fixes: 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS")
+Reported-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 ---
-For more info write to <info@kernelci.org>
+ arch/um/include/asm/common.lds.S | 2 +-
+ arch/um/kernel/dyn.lds.S         | 1 +
+ init/Kconfig                     | 1 +
+ kernel/gcov/Kconfig              | 2 +-
+ 4 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/arch/um/include/asm/common.lds.S b/arch/um/include/asm/common.lds.S
+index d7086b985f27..4049f2c46387 100644
+--- a/arch/um/include/asm/common.lds.S
++++ b/arch/um/include/asm/common.lds.S
+@@ -83,8 +83,8 @@
+ 	__preinit_array_end = .;
+   }
+   .init_array : {
+-        /* dummy - we call this ourselves */
+ 	__init_array_start = .;
++	*(.init_array)
+ 	__init_array_end = .;
+   }
+   .fini_array : {
+diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
+index c69d69ee96be..f5001481010c 100644
+--- a/arch/um/kernel/dyn.lds.S
++++ b/arch/um/kernel/dyn.lds.S
+@@ -103,6 +103,7 @@ SECTIONS
+      be empty, which isn't pretty.  */
+   . = ALIGN(32 / 8);
+   .preinit_array     : { *(.preinit_array) }
++  .init_array     : { *(.init_array) }
+   .fini_array     : { *(.fini_array) }
+   .data           : {
+     INIT_TASK_DATA(KERNEL_STACK_SIZE)
+diff --git a/init/Kconfig b/init/Kconfig
+index b4daad2bac23..0328b53d09ad 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -54,6 +54,7 @@ config CC_DISABLE_WARN_MAYBE_UNINITIALIZED
+ 
+ config CONSTRUCTORS
+ 	bool
++	depends on !UML
+ 
+ config IRQ_WORK
+ 	bool
+diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
+index 060e8e726755..3941a9c48f83 100644
+--- a/kernel/gcov/Kconfig
++++ b/kernel/gcov/Kconfig
+@@ -4,7 +4,7 @@ menu "GCOV-based kernel profiling"
+ config GCOV_KERNEL
+ 	bool "Enable gcov-based kernel profiling"
+ 	depends on DEBUG_FS
+-	select CONSTRUCTORS
++	select CONSTRUCTORS if !UML
+ 	default n
+ 	---help---
+ 	This option enables gcov-based code profiling (e.g. for code coverage
+-- 
+2.23.0
+
