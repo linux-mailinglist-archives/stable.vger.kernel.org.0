@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CAEB1133CC
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 445A21132E5
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:15:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730844AbfLDSIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:08:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58990 "EHLO mail.kernel.org"
+        id S1731199AbfLDSMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:12:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730128AbfLDSH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:07:59 -0500
+        id S1731163AbfLDSMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:12:47 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EB8320833;
-        Wed,  4 Dec 2019 18:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 606DA20675;
+        Wed,  4 Dec 2019 18:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482878;
-        bh=EyTKddO2LPBBXakQwEj42oEIyFUW9OFg3yCs0O6VSTY=;
+        s=default; t=1575483166;
+        bh=cOvGadzz/Ilq3zzfuxDAcHCG50XJYvtc3zrOv6YrSSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AeFDfD5jlElrvXQjy0aZa9sbMutKf509CdGMG9Zblk2ffLB25wz/z4Lo5fukncDge
-         zasiySeG+VuLioLdWrDVXL5GIZzs4UZ6Vt1Y7WC8jthcTzuDVfZNb3lghA9ex6UIgo
-         98LHQC1QrfBtbVxeZqNEQKGFKmZsW1c7NxV34xLY=
+        b=akB+nLloHt6aJu1ppbLmJacQNXEpPpEDa6WlQ5rQv7qEFI/NWI5YkUDKwYLLqOXVY
+         6KYCRcnwmxv+PwZv61B5/kBrGlSJscua29ECRbla45/+fOIhqH59OeDpg1awqjs9gl
+         qkSUjqc88VMWK6C7twI0bKMBUxvjTV+P3PqP1VrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yotam Gigi <yotamg@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 170/209] net: psample: fix skb_over_panic
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 077/125] net: dsa: bcm_sf2: Propagate error value from mdio_write
 Date:   Wed,  4 Dec 2019 18:56:22 +0100
-Message-Id: <20191204175335.182835822@linuxfoundation.org>
+Message-Id: <20191204175323.721819604@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,95 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 7eb9d7675c08937cd11d32b0b40442d4d731c5ee ]
+[ Upstream commit e49505f7255be8ced695919c08a29bf2c3d79616 ]
 
-We need to calculate the skb size correctly otherwise we risk triggering
-skb_over_panic[1]. The issue is that data_len is added to the skb in a
-nl attribute, but we don't account for its header size (nlattr 4 bytes)
-and alignment. We account for it when calculating the total size in
-the > PSAMPLE_MAX_PACKET_SIZE comparison correctly, but not when
-allocating after that. The fix is simple - use nla_total_size() for
-data_len when allocating.
+Both bcm_sf2_sw_indir_rw and mdiobus_write_nested could fail, so let's
+return their error codes upstream.
 
-To reproduce:
- $ tc qdisc add dev eth1 clsact
- $ tc filter add dev eth1 egress matchall action sample rate 1 group 1 trunc 129
- $ mausezahn eth1 -b bcast -a rand -c 1 -p 129
- < skb_over_panic BUG(), tail is 4 bytes past skb->end >
-
-[1] Trace:
- [   50.459526][ T3480] skbuff: skb_over_panic: text:(____ptrval____) len:196 put:136 head:(____ptrval____) data:(____ptrval____) tail:0xc4 end:0xc0 dev:<NULL>
- [   50.474339][ T3480] ------------[ cut here ]------------
- [   50.481132][ T3480] kernel BUG at net/core/skbuff.c:108!
- [   50.486059][ T3480] invalid opcode: 0000 [#1] PREEMPT SMP
- [   50.489463][ T3480] CPU: 3 PID: 3480 Comm: mausezahn Not tainted 5.4.0-rc7 #108
- [   50.492844][ T3480] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
- [   50.496551][ T3480] RIP: 0010:skb_panic+0x79/0x7b
- [   50.498261][ T3480] Code: bc 00 00 00 41 57 4c 89 e6 48 c7 c7 90 29 9a 83 4c 8b 8b c0 00 00 00 50 8b 83 b8 00 00 00 50 ff b3 c8 00 00 00 e8 ae ef c0 fe <0f> 0b e8 2f df c8 fe 48 8b 55 08 44 89 f6 4c 89 e7 48 c7 c1 a0 22
- [   50.504111][ T3480] RSP: 0018:ffffc90000447a10 EFLAGS: 00010282
- [   50.505835][ T3480] RAX: 0000000000000087 RBX: ffff888039317d00 RCX: 0000000000000000
- [   50.507900][ T3480] RDX: 0000000000000000 RSI: ffffffff812716e1 RDI: 00000000ffffffff
- [   50.509820][ T3480] RBP: ffffc90000447a60 R08: 0000000000000001 R09: 0000000000000000
- [   50.511735][ T3480] R10: ffffffff81d4f940 R11: 0000000000000000 R12: ffffffff834a22b0
- [   50.513494][ T3480] R13: ffffffff82c10433 R14: 0000000000000088 R15: ffffffff838a8084
- [   50.515222][ T3480] FS:  00007f3536462700(0000) GS:ffff88803eac0000(0000) knlGS:0000000000000000
- [   50.517135][ T3480] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [   50.518583][ T3480] CR2: 0000000000442008 CR3: 000000003b222000 CR4: 00000000000006e0
- [   50.520723][ T3480] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [   50.522709][ T3480] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [   50.524450][ T3480] Call Trace:
- [   50.525214][ T3480]  skb_put.cold+0x1b/0x1b
- [   50.526171][ T3480]  psample_sample_packet+0x1d3/0x340
- [   50.527307][ T3480]  tcf_sample_act+0x178/0x250
- [   50.528339][ T3480]  tcf_action_exec+0xb1/0x190
- [   50.529354][ T3480]  mall_classify+0x67/0x90
- [   50.530332][ T3480]  tcf_classify+0x72/0x160
- [   50.531286][ T3480]  __dev_queue_xmit+0x3db/0xd50
- [   50.532327][ T3480]  dev_queue_xmit+0x18/0x20
- [   50.533299][ T3480]  packet_sendmsg+0xee7/0x2090
- [   50.534331][ T3480]  sock_sendmsg+0x54/0x70
- [   50.535271][ T3480]  __sys_sendto+0x148/0x1f0
- [   50.536252][ T3480]  ? tomoyo_file_ioctl+0x23/0x30
- [   50.537334][ T3480]  ? ksys_ioctl+0x5e/0xb0
- [   50.540068][ T3480]  __x64_sys_sendto+0x2a/0x30
- [   50.542810][ T3480]  do_syscall_64+0x73/0x1f0
- [   50.545383][ T3480]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- [   50.548477][ T3480] RIP: 0033:0x7f35357d6fb3
- [   50.551020][ T3480] Code: 48 8b 0d 18 90 20 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d f9 d3 20 00 00 75 13 49 89 ca b8 2c 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 34 c3 48 83 ec 08 e8 eb f6 ff ff 48 89 04 24
- [   50.558547][ T3480] RSP: 002b:00007ffe0c7212c8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
- [   50.561870][ T3480] RAX: ffffffffffffffda RBX: 0000000001dac010 RCX: 00007f35357d6fb3
- [   50.565142][ T3480] RDX: 0000000000000082 RSI: 0000000001dac2a2 RDI: 0000000000000003
- [   50.568469][ T3480] RBP: 00007ffe0c7212f0 R08: 00007ffe0c7212d0 R09: 0000000000000014
- [   50.571731][ T3480] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000082
- [   50.574961][ T3480] R13: 0000000001dac2a2 R14: 0000000000000001 R15: 0000000000000003
- [   50.578170][ T3480] Modules linked in: sch_ingress virtio_net
- [   50.580976][ T3480] ---[ end trace 61a515626a595af6 ]---
-
-CC: Yotam Gigi <yotamg@mellanox.com>
-CC: Jiri Pirko <jiri@mellanox.com>
-CC: Jamal Hadi Salim <jhs@mojatatu.com>
-CC: Simon Horman <simon.horman@netronome.com>
-CC: Roopa Prabhu <roopa@cumulusnetworks.com>
-Fixes: 6ae0a6286171 ("net: Introduce psample, a new genetlink channel for packet sampling")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/psample/psample.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/bcm_sf2.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/net/psample/psample.c
-+++ b/net/psample/psample.c
-@@ -223,7 +223,7 @@ void psample_sample_packet(struct psampl
- 		data_len = PSAMPLE_MAX_PACKET_SIZE - meta_len - NLA_HDRLEN
- 			    - NLA_ALIGNTO;
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index c2cd540e9c9ec..a3a8d7b62f3fb 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -405,11 +405,10 @@ static int bcm_sf2_sw_mdio_write(struct mii_bus *bus, int addr, int regnum,
+ 	 * send them to our master MDIO bus controller
+ 	 */
+ 	if (addr == BRCM_PSEUDO_PHY_ADDR && priv->indir_phy_mask & BIT(addr))
+-		bcm_sf2_sw_indir_rw(priv, 0, addr, regnum, val);
++		return bcm_sf2_sw_indir_rw(priv, 0, addr, regnum, val);
+ 	else
+-		mdiobus_write_nested(priv->master_mii_bus, addr, regnum, val);
+-
+-	return 0;
++		return mdiobus_write_nested(priv->master_mii_bus, addr,
++				regnum, val);
+ }
  
--	nl_skb = genlmsg_new(meta_len + data_len, GFP_ATOMIC);
-+	nl_skb = genlmsg_new(meta_len + nla_total_size(data_len), GFP_ATOMIC);
- 	if (unlikely(!nl_skb))
- 		return;
- 
+ static irqreturn_t bcm_sf2_switch_0_isr(int irq, void *dev_id)
+-- 
+2.20.1
+
 
 
