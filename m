@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF761131F8
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BDF1131FA
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:05:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730182AbfLDSEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:04:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49536 "EHLO mail.kernel.org"
+        id S1730185AbfLDSE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:04:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730178AbfLDSEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:04:21 -0500
+        id S1729698AbfLDSE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:04:26 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8DA12073B;
-        Wed,  4 Dec 2019 18:04:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 776AD2081B;
+        Wed,  4 Dec 2019 18:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482661;
-        bh=Z+GRDGXvde3IqbQAMR4FdDnPTDNca8lROt2Va9pj+gk=;
+        s=default; t=1575482665;
+        bh=HCpe2lcAKMEod+j8fUlTruYV/naXXSJiIcXAgDtIsF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H16I0NLTD4DtJgMfFu9zJozqgislp08StRkXTLCtzbY4iR486PyB5B8J7T9oAYxs/
-         v+1vv+LkNalhfeEsdw08akApUqoXd0d+d1SYPPCPFZzo+gHIj4UW4fCTUMC2xEtJO6
-         wPj+Jl+keSfGJROkyd5GGbufMAx2XiqF1TlhAB4s=
+        b=ziXGkbvRAsO+8DAJCxmBJPlPXFBGBEWGLlOADvltq6nft+K43CySKSyQBkdE9jlXt
+         DiT6bMokjRH8k7zF/QL+oGsswz/Es/x7S/4dU3kfEtmeC7PDCtGxLkDTx7lZXPopvj
+         AHfTx9EN5PvGZPSaoSbe9EMZS03ukH9rXZTLZmzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 084/209] drivers/regulator: fix a missing check of return value
-Date:   Wed,  4 Dec 2019 18:54:56 +0100
-Message-Id: <20191204175327.377474570@linuxfoundation.org>
+Subject: [PATCH 4.14 085/209] Bluetooth: hci_bcm: Handle specific unknown packets after firmware loading
+Date:   Wed,  4 Dec 2019 18:54:57 +0100
+Message-Id: <20191204175327.469493673@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -44,44 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-[ Upstream commit 966e927bf8cc6a44f8b72582a1d6d3ffc73b12ad ]
+[ Upstream commit 22bba80500fdf624a7cfbb65fdfa97a038ae224d ]
 
-If palmas_smps_read() fails, we should not use the read data in "reg"
-which may contain random value. The fix inserts a check for the return
-value of palmas_smps_read(): If it fails, we return the error code
-upstream and stop using "reg".
+The Broadcom controller on aries S5PV210 boards sends out a couple of
+unknown packets after the firmware is loaded.  This will cause
+logging of errors such as:
+	Bluetooth: hci0: Frame reassembly failed (-84)
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This is probably also the case with other boards, as there are related
+Android userspace patches for custom ROMs such as
+https://review.lineageos.org/#/c/LineageOS/android_system_bt/+/142721/
+Since this appears to be intended behaviour, treated them as diagnostic
+packets.
+
+Note that this is another variant of commit 01d5e44ace8a
+("Bluetooth: hci_bcm: Handle empty packet after firmware loading")
+
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/palmas-regulator.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/bluetooth/hci_bcm.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/regulator/palmas-regulator.c b/drivers/regulator/palmas-regulator.c
-index bb5ab7d78895b..c2cc392a27d40 100644
---- a/drivers/regulator/palmas-regulator.c
-+++ b/drivers/regulator/palmas-regulator.c
-@@ -443,13 +443,16 @@ static int palmas_ldo_write(struct palmas *palmas, unsigned int reg,
- static int palmas_set_mode_smps(struct regulator_dev *dev, unsigned int mode)
- {
- 	int id = rdev_get_id(dev);
-+	int ret;
- 	struct palmas_pmic *pmic = rdev_get_drvdata(dev);
- 	struct palmas_pmic_driver_data *ddata = pmic->palmas->pmic_ddata;
- 	struct palmas_regs_info *rinfo = &ddata->palmas_regs_info[id];
- 	unsigned int reg;
- 	bool rail_enable = true;
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index 6d41b2023f09d..61971ddbd2313 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -50,6 +50,12 @@
+ #define BCM_LM_DIAG_PKT 0x07
+ #define BCM_LM_DIAG_SIZE 63
  
--	palmas_smps_read(pmic->palmas, rinfo->ctrl_addr, &reg);
-+	ret = palmas_smps_read(pmic->palmas, rinfo->ctrl_addr, &reg);
-+	if (ret)
-+		return ret;
++#define BCM_TYPE49_PKT 0x31
++#define BCM_TYPE49_SIZE 0
++
++#define BCM_TYPE52_PKT 0x34
++#define BCM_TYPE52_SIZE 0
++
+ #define BCM_AUTOSUSPEND_DELAY	5000 /* default autosleep delay */
  
- 	reg &= ~PALMAS_SMPS12_CTRL_MODE_ACTIVE_MASK;
+ /* platform device driver resources */
+@@ -483,12 +489,28 @@ finalize:
+ 	.lsize = 0, \
+ 	.maxlen = BCM_NULL_SIZE
  
++#define BCM_RECV_TYPE49 \
++	.type = BCM_TYPE49_PKT, \
++	.hlen = BCM_TYPE49_SIZE, \
++	.loff = 0, \
++	.lsize = 0, \
++	.maxlen = BCM_TYPE49_SIZE
++
++#define BCM_RECV_TYPE52 \
++	.type = BCM_TYPE52_PKT, \
++	.hlen = BCM_TYPE52_SIZE, \
++	.loff = 0, \
++	.lsize = 0, \
++	.maxlen = BCM_TYPE52_SIZE
++
+ static const struct h4_recv_pkt bcm_recv_pkts[] = {
+ 	{ H4_RECV_ACL,      .recv = hci_recv_frame },
+ 	{ H4_RECV_SCO,      .recv = hci_recv_frame },
+ 	{ H4_RECV_EVENT,    .recv = hci_recv_frame },
+ 	{ BCM_RECV_LM_DIAG, .recv = hci_recv_diag  },
+ 	{ BCM_RECV_NULL,    .recv = hci_recv_diag  },
++	{ BCM_RECV_TYPE49,  .recv = hci_recv_diag  },
++	{ BCM_RECV_TYPE52,  .recv = hci_recv_diag  },
+ };
+ 
+ static int bcm_recv(struct hci_uart *hu, const void *data, int count)
 -- 
 2.20.1
 
