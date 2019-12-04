@@ -2,100 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77EA811225B
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 06:23:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7630A1122AD
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 06:57:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725922AbfLDFXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 00:23:00 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:46182 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725776AbfLDFXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 00:23:00 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z7so6832295wrl.13
-        for <stable@vger.kernel.org>; Tue, 03 Dec 2019 21:22:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ubyN4PJ9h348rYAtYPdhmHp4mBXmKLrIPA0+fpLnI0M=;
-        b=C1cvhY+CC9ry3S4cCre6KlANV3rtvHHdiHOnfhJnmPS5Gvve0FWWM5FBWCI0Ae2fCc
-         jBoOYk+EpbI2k9KPerzmspyZTugViTbNdo82QoxPq+DEcbd3sCexI+CoPAMY8OgEYQEQ
-         YYL35OTCKdof7AtSYs1FPzAew7FLXlpTIe+QtA6xJQK6hIMx4Mbo1Ua0C/+6z9K0MCwn
-         a5N4OffeBCdHvAFSnij9w8e8ZA4DhW0+HDxYRAbKngLNhsizw0BkAd8CnpPAD2yIhndK
-         54d0pGaBD0hAS2IppJ1HmSdCjsLbjbJlz+zPCyLPF/Nw8RE94WEN5/NanInsYfXRWzLZ
-         4R7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ubyN4PJ9h348rYAtYPdhmHp4mBXmKLrIPA0+fpLnI0M=;
-        b=gZe9QLPIg3aZ6jVK/JT6gJcn6Fr02vwQblMu5ZkR61QuMp5uyst8LYVIGSKEbAx3Hh
-         U7q4gCsqCK3DhLH0Hzx/DWHe+zeNKrKEiHsNUKh2lpUVx+vSLEAiu6RIKPNBf+tzvJkE
-         c4+KIcqi4LHjDrvtFBmWULJtOMQXHS9aSgPolS0E8TkszyzlE7BPCO8tGH6k9H+HKta5
-         QrhgtwyDchz3BGanl2ZUgwlYV0Z5bggaK9ibAcUFhQKYrPiwJ4gMBnly4JboazVJfTss
-         dmjdPDp2oKQfSVM4VjX0nZeNafAL8GWlPsvxSjAyy4KblS/kFi7X5Zm5aQ1iq50g63NR
-         lv6w==
-X-Gm-Message-State: APjAAAXDhE009N4A7llKlR099psta8Ne3nCe249ieBEUkU8+qYDQUt+k
-        l0ixQEmjeYItDKx0Gwo/Edh+pQxpMxRBKQ==
-X-Google-Smtp-Source: APXvYqwYfGP1iOFEHwlgx1aCMa+8UC3PS7hrPtb5KpaNKft04jj8p/z1IDs4rbb4OS07q2jJmgijtw==
-X-Received: by 2002:a5d:5091:: with SMTP id a17mr1727386wrt.362.1575436978175;
-        Tue, 03 Dec 2019 21:22:58 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h97sm7124685wrh.56.2019.12.03.21.22.57
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Dec 2019 21:22:57 -0800 (PST)
-Message-ID: <5de742b1.1c69fb81.ade93.2259@mx.google.com>
-Date:   Tue, 03 Dec 2019 21:22:57 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1725830AbfLDF5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 00:57:52 -0500
+Received: from mo-csw1516.securemx.jp ([210.130.202.155]:51566 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfLDF5w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 00:57:52 -0500
+Received: by mo-csw.securemx.jp (mx-mo-csw1516) id xB45vfEV000828; Wed, 4 Dec 2019 14:57:41 +0900
+X-Iguazu-Qid: 34trMIO5KbHSsEZMoA
+X-Iguazu-QSIG: v=2; s=0; t=1575439061; q=34trMIO5KbHSsEZMoA; m=V2vpPc3Sm8twmhncTu+7E1ruTxjV6fReYAEGcFjdpzc=
+Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
+        by relay.securemx.jp (mx-mr1512) id xB45veRP011189;
+        Wed, 4 Dec 2019 14:57:40 +0900
+Received: from enc01.localdomain ([106.186.93.100])
+        by imx2.toshiba.co.jp  with ESMTP id xB45vecE019581;
+        Wed, 4 Dec 2019 14:57:40 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.localdomain  with ESMTP id xB45vdwX011619;
+        Wed, 4 Dec 2019 14:57:40 +0900
+Date:   Wed, 4 Dec 2019 14:57:38 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Chuhong Yuan <hslester96@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 024/321] net: fec: add missed clk_disable_unprepare
+ in remove
+X-TSB-HOP: ON
+Message-ID: <20191204055738.nl5db2xtigoamtbk@toshiba.co.jp>
+References: <20191203223427.103571230@linuxfoundation.org>
+ <20191203223428.376628375@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.205-125-g32fd05a6e791
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 32 boots: 0 failed,
- 30 passed with 2 untried/unknown (v4.9.205-125-g32fd05a6e791)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191203223428.376628375@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 32 boots: 0 failed, 30 passed with 2 untried/un=
-known (v4.9.205-125-g32fd05a6e791)
+Hi,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.205-125-g32fd05a6e791/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.205-125-g32fd05a6e791/
+On Tue, Dec 03, 2019 at 11:31:30PM +0100, Greg Kroah-Hartman wrote:
+> From: Chuhong Yuan <hslester96@gmail.com>
+> 
+> [ Upstream commit c43eab3eddb4c6742ac20138659a9b701822b274 ]
+> 
+> This driver forgets to disable and unprepare clks when remove.
+> Add calls to clk_disable_unprepare to fix it.
+> 
+> Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.205-125-g32fd05a6e791
-Git Commit: 32fd05a6e79145a5d0532e68d0bb30b4a556a079
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 22 unique boards, 8 SoC families, 10 builds out of 197
 
-Boot Regressions Detected:
+This commit also requires the following commit:
 
-arm:
+commit a31eda65ba210741b598044d045480494d0ed52a
+Author: Chuhong Yuan <hslester96@gmail.com>
+Date:   Wed Nov 20 09:25:13 2019 +0800
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-lcdk:
-              lab-baylibre: new failure (last pass: v4.9.205-122-gb1edc48eb=
-b5f)
+    net: fec: fix clock count mis-match
 
-arm64:
+    pm_runtime_put_autosuspend in probe will call runtime suspend to
+    disable clks automatically if CONFIG_PM is defined. (If CONFIG_PM
+    is not defined, its implementation will be empty, then runtime
+    suspend will not be called.)
 
-    defconfig:
-        gcc-8:
-          meson-gxbb-p200:
-              lab-baylibre: new failure (last pass: v4.9.205-122-gb1edc48eb=
-b5f)
+    Therefore, we can call pm_runtime_get_sync to runtime resume it
+    first to enable clks, which matches the runtime suspend. (Only when
+    CONFIG_PM is defined, otherwise pm_runtime_get_sync will also be
+    empty, then runtime resume will not be called.)
 
----
-For more info write to <info@kernelci.org>
+    Then it is fine to disable clks without causing clock count mis-match.
+
+    Fixes: c43eab3eddb4 ("net: fec: add missed clk_disable_unprepare in remove")
+    Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+    Acked-by: Fugang Duan <fugang.duan@nxp.com>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+
+And this should also apply to 5.3.
+
+Best regards,
+  Nobuhiro
