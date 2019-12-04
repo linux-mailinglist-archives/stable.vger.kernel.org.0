@@ -2,157 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C4311350F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A463A11351B
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727912AbfLDSes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:34:48 -0500
-Received: from ivanoab7.miniserver.com ([37.128.132.42]:37496 "EHLO
-        www.kot-begemot.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727867AbfLDSer (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 13:34:47 -0500
-Received: from tun252.jain.kot-begemot.co.uk ([192.168.18.6] helo=jain.kot-begemot.co.uk)
-        by www.kot-begemot.co.uk with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1icZU4-0000uf-2a; Wed, 04 Dec 2019 18:34:44 +0000
-Received: from jain.kot-begemot.co.uk ([192.168.3.3])
-        by jain.kot-begemot.co.uk with esmtp (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1icZU1-0000AM-Jv; Wed, 04 Dec 2019 18:34:43 +0000
-Subject: Re: [PATCH] Revert "um: Enable CONFIG_CONSTRUCTORS"
-To:     Johannes Berg <johannes@sipsolutions.net>,
-        linux-um@lists.infradead.org
-Cc:     Richard Weinberger <richard@nod.at>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-References: <4913d030-84c0-0eb9-f8b2-c006a1dd0757@cambridgegreys.com>
- <20191204174346.78dfd358bd15.I19e7eb2601fbdc0270fb1e1b647a75301e9e4503@changeid>
-From:   Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Message-ID: <6581dcc9-daef-5a14-194c-1b351e3b8f85@cambridgegreys.com>
-Date:   Wed, 4 Dec 2019 18:34:41 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1728059AbfLDSjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:39:35 -0500
+Received: from mail-il1-f196.google.com ([209.85.166.196]:33830 "EHLO
+        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728271AbfLDSjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 13:39:35 -0500
+Received: by mail-il1-f196.google.com with SMTP id w13so510515ilo.1
+        for <stable@vger.kernel.org>; Wed, 04 Dec 2019 10:39:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=tQ5qELpfmLpg+SoNAJYkTHK20GEF+bmbSEnesw7yWxw=;
+        b=obkicj+dTzNUWgQS19hbqEz24x9MgaQk+8H0QpPPqTxAk4fJW69ItxIBm8IOj07C/s
+         UsyVwhX/TGyQ6fHbyqtPxB3eSpFKN0QJ/g/Ks9bCTDkZGP6ytbPu3ojKfO4axk6coosl
+         cfcIvhBDdpC69vDbULq6OCThDf3akBr8VTy1NRJeovCsSxrU5OW7drAMhqE8uPwQ5osG
+         gH7juqiaLwWQYHnb8+ctEXoaidlIBqhi8GVlcD82uvydPD+88omioS6CLmNi9NVvBzv3
+         BIexnGtAVTOoeEF7JbNE1Fyx/JhLuxY3/dhy2oSkeR2Fqz0u2Ik+H27E2ncCgkdaanuR
+         eqkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=tQ5qELpfmLpg+SoNAJYkTHK20GEF+bmbSEnesw7yWxw=;
+        b=NQS9+OdF/h4NEXFui9o/z38D2NvEQTGz+57uo6SVfmBZGpIAUmx1lFKIMd0bk+36gE
+         bZPo94W99HfeV+vRqQYrRUfyuc3G5QV26G1Wizs9GmSE/+XJW+wqWMhwlF77S1j+b6f3
+         MQqa53Yuc2TOF0XaHcZXqX2f37mN4gg1aJhcFqyUCOaVRdyMQWgDAp7RWEHhORZC5itO
+         Ih8p7HWrURMwSQ2GmmrGxXNk61UyLzo6FjKL9RrwSyj9nEjcuwz/C5U8R10Xhy5V8Mxi
+         88pch5IV60i5C0uWok+BxZHGPicJ5oAucN2JBPwmA4zL8+kt26O0F03t4BneWNWauIDw
+         KlFQ==
+X-Gm-Message-State: APjAAAW2bB4Mgjl13PrlzFM6ogb/ER5x373uzhiDC7fVmv786prX2gJ1
+        7aHXVce/ja79PAfFXPZ4FTMmdLzr38TGjkjo8qM=
+X-Google-Smtp-Source: APXvYqwDhw3nGtFFhaOVpUF151dYt32QIICbpBiBeUcRdvAQRu7JTVTeB4iG3QMfef4P3ZRvo7AKF+/sMyAllm/9h5w=
+X-Received: by 2002:a92:4788:: with SMTP id e8mr4927808ilk.258.1575484774485;
+ Wed, 04 Dec 2019 10:39:34 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191204174346.78dfd358bd15.I19e7eb2601fbdc0270fb1e1b647a75301e9e4503@changeid>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -1.0
-X-Spam-Score: -1.0
-X-Clacks-Overhead: GNU Terry Pratchett
+Received: by 2002:a02:c766:0:0:0:0:0 with HTTP; Wed, 4 Dec 2019 10:39:33 -0800 (PST)
+Reply-To: lisa.wilams@yahoo.com
+From:   Lisa Williams <peterallan104@gmail.com>
+Date:   Wed, 4 Dec 2019 18:39:33 +0000
+Message-ID: <CANd-gj_5VgM0B4kSjhHXLFmnFdRqx3YkAy+LJ2TuumbxtEzurg@mail.gmail.com>
+Subject: Hi Dear
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Dear,
 
+      How are you doing hope you are fine and OK?
 
-On 04/12/2019 16:43, Johannes Berg wrote:
-> From: Johannes Berg <johannes.berg@intel.com>
-> 
-> This reverts commit 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS").
-> 
-> There are two issues with this commit, uncovered by Anton in tests
-> on some (Debian) systems:
-> 
-> 1) I completely forgot to call any constructors if CONFIG_CONSTRUCTORS
->     isn't set. Don't recall now if it just wasn't needed on my system, or
->     if I never tested this case.
-> 
-> 2) With that fixed, it works - with CONFIG_CONSTRUCTORS *unset*. If I
->     set CONFIG_CONSTRUCTORS, it fails again, which isn't totally
->     unexpected since whatever wanted to run is likely to have to run
->     before the kernel init etc. that calls the constructors in this case.
-> 
-> Basically, some constructors that gcc emits (libc has?) need to run
-> very early during init; the failure mode otherwise was that the ptrace
-> fork test already failed:
-> 
-> ----------------------
-> $ ./linux mem=512M
-> Core dump limits :
-> 	soft - 0
-> 	hard - NONE
-> Checking that ptrace can change system call numbers...check_ptrace : child exited with exitcode 6, while expecting 0; status 0x67f
-> Aborted
-> ----------------------
-> 
-> Thinking more about this, it's clear that we simply cannot support
-> CONFIG_CONSTRUCTORS in UML. All the cases we need now (gcov, kasan)
-> involve not use of the __attribute__((constructor)), but instead
-> some constructor code/entry generated by gcc. Therefore, we cannot
-> distinguish between kernel constructors and system constructors.
-> 
-> Thus, revert this commit.
-> 
-> Cc: stable@vger.kernel.org [5.4+]
-> Fixes: 786b2384bf1c ("um: Enable CONFIG_CONSTRUCTORS")
-> Reported-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-> ---
->   arch/um/include/asm/common.lds.S | 2 +-
->   arch/um/kernel/dyn.lds.S         | 1 +
->   init/Kconfig                     | 1 +
->   kernel/gcov/Kconfig              | 2 +-
->   4 files changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/um/include/asm/common.lds.S b/arch/um/include/asm/common.lds.S
-> index d7086b985f27..4049f2c46387 100644
-> --- a/arch/um/include/asm/common.lds.S
-> +++ b/arch/um/include/asm/common.lds.S
-> @@ -83,8 +83,8 @@
->   	__preinit_array_end = .;
->     }
->     .init_array : {
-> -        /* dummy - we call this ourselves */
->   	__init_array_start = .;
-> +	*(.init_array)
->   	__init_array_end = .;
->     }
->     .fini_array : {
-> diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-> index c69d69ee96be..f5001481010c 100644
-> --- a/arch/um/kernel/dyn.lds.S
-> +++ b/arch/um/kernel/dyn.lds.S
-> @@ -103,6 +103,7 @@ SECTIONS
->        be empty, which isn't pretty.  */
->     . = ALIGN(32 / 8);
->     .preinit_array     : { *(.preinit_array) }
-> +  .init_array     : { *(.init_array) }
->     .fini_array     : { *(.fini_array) }
->     .data           : {
->       INIT_TASK_DATA(KERNEL_STACK_SIZE)
-> diff --git a/init/Kconfig b/init/Kconfig
-> index b4daad2bac23..0328b53d09ad 100644
-> --- a/init/Kconfig
-> +++ b/init/Kconfig
-> @@ -54,6 +54,7 @@ config CC_DISABLE_WARN_MAYBE_UNINITIALIZED
->   
->   config CONSTRUCTORS
->   	bool
-> +	depends on !UML
->   
->   config IRQ_WORK
->   	bool
-> diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
-> index 060e8e726755..3941a9c48f83 100644
-> --- a/kernel/gcov/Kconfig
-> +++ b/kernel/gcov/Kconfig
-> @@ -4,7 +4,7 @@ menu "GCOV-based kernel profiling"
->   config GCOV_KERNEL
->   	bool "Enable gcov-based kernel profiling"
->   	depends on DEBUG_FS
-> -	select CONSTRUCTORS
-> +	select CONSTRUCTORS if !UML
->   	default n
->   	---help---
->   	This option enables gcov-based code profiling (e.g. for code coverage
-> 
+I was just going through the Internet search when I found your email
+address, I want to make a new and special friend, so I decided to
+contact you to see how we can make it work out if we can. Please I
+wish you will have the desire with me so that we can get to know each
+other better and see what happens in future.
 
-Acked-by: Anton Ivanov <anton.ivanov@cambridgegreys.co.uk>
+My name is Lisa Williams, I am an American, but presently I live in
+the UK, I will be glad to see your reply via my private ID (
+lisawilams@yahoo.com ) for us to know each other better to exchange
+pictures and details about us.
 
--- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
+Yours
+Lisa
