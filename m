@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 810661133C1
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A86C11341E
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:22:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731155AbfLDSJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:09:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36384 "EHLO mail.kernel.org"
+        id S1730380AbfLDSF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:05:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730618AbfLDSJz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:09:55 -0500
+        id S1730373AbfLDSF2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:05:28 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3824420865;
-        Wed,  4 Dec 2019 18:09:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6653720659;
+        Wed,  4 Dec 2019 18:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482994;
-        bh=DFBgrIvg0BuTOOkN8cvpbyIpAt5L15g4xAD3vpifjs4=;
+        s=default; t=1575482727;
+        bh=AdbyIqRS5cklHI4/34lbBdZESZsUf8IC0zfP30HwNIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AFDBqZyNTtyoZnKMNLUF8CgIh7Ht0vb6F/VkB5rxj46z4gZ/k2E80NYv9YGpt/KbX
-         XA4iWMHVXbq3Gq4c8UD5ssafTUk08zmLjNJ+k9RC5LQjBR718l8GrxzeDjbOPSbCxS
-         rf1SiwM1O/8D5i+dZkKmK7hhK0Gm9tn7H+USmDpU=
+        b=f/Fshp6K2Dn23GB3EQ4a5maSOWXdk1KGOUKAj3YVpZqQU82wUhHXs8oh61vxdwG4L
+         imgkEOiTO/sOoMTwAmWL50918sLHjE7cUlG8kd8MkI2yJQ//AbXYfuOmC2dSxrZKkP
+         kvHcS7NbF+GASiimYBIDBYT/PyECe/d0FMPHupy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaojun Sang <xsang@codeaurora.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 001/125] ASoC: compress: fix unsigned integer overflow check
+Subject: [PATCH 4.14 094/209] powerpc/prom: fix early DEBUG messages
 Date:   Wed,  4 Dec 2019 18:55:06 +0100
-Message-Id: <20191204175309.112404439@linuxfoundation.org>
+Message-Id: <20191204175328.337796602@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,36 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaojun Sang <xsang@codeaurora.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit d3645b055399538415586ebaacaedebc1e5899b0 ]
+[ Upstream commit b18f0ae92b0a1db565c3e505fa87b6971ad3b641 ]
 
-Parameter fragments and fragment_size are type of u32. U32_MAX is
-the correct check.
+This patch fixes early DEBUG messages in prom.c:
+- Use %px instead of %p to see the addresses
+- Cast memblock_phys_mem_size() with (unsigned long long) to
+avoid build failure when phys_addr_t is not 64 bits.
 
-Signed-off-by: Xiaojun Sang <xsang@codeaurora.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20191021095432.5639-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/compress_offload.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/prom.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
-index 2e2d184684911..7ae8e24dc1e61 100644
---- a/sound/core/compress_offload.c
-+++ b/sound/core/compress_offload.c
-@@ -529,7 +529,7 @@ static int snd_compress_check_input(struct snd_compr_params *params)
- {
- 	/* first let's check the buffer parameter's */
- 	if (params->buffer.fragment_size == 0 ||
--	    params->buffer.fragments > INT_MAX / params->buffer.fragment_size ||
-+	    params->buffer.fragments > U32_MAX / params->buffer.fragment_size ||
- 	    params->buffer.fragments == 0)
- 		return -EINVAL;
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index f830562974417..d96b284150904 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -128,7 +128,7 @@ static void __init move_device_tree(void)
+ 		p = __va(memblock_alloc(size, PAGE_SIZE));
+ 		memcpy(p, initial_boot_params, size);
+ 		initial_boot_params = p;
+-		DBG("Moved device tree to 0x%p\n", p);
++		DBG("Moved device tree to 0x%px\n", p);
+ 	}
  
+ 	DBG("<- move_device_tree\n");
+@@ -662,7 +662,7 @@ void __init early_init_devtree(void *params)
+ {
+ 	phys_addr_t limit;
+ 
+-	DBG(" -> early_init_devtree(%p)\n", params);
++	DBG(" -> early_init_devtree(%px)\n", params);
+ 
+ 	/* Too early to BUG_ON(), do it by hand */
+ 	if (!early_init_dt_verify(params))
+@@ -722,7 +722,7 @@ void __init early_init_devtree(void *params)
+ 	memblock_allow_resize();
+ 	memblock_dump_all();
+ 
+-	DBG("Phys. mem: %llx\n", memblock_phys_mem_size());
++	DBG("Phys. mem: %llx\n", (unsigned long long)memblock_phys_mem_size());
+ 
+ 	/* We may need to relocate the flat tree, do it now.
+ 	 * FIXME .. and the initrd too? */
 -- 
 2.20.1
 
