@@ -2,89 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA5A112A24
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 12:29:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D668D112A60
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 12:41:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727445AbfLDL3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 06:29:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40616 "EHLO mail.kernel.org"
+        id S1727445AbfLDLl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 06:41:58 -0500
+Received: from foss.arm.com ([217.140.110.172]:54768 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727268AbfLDL3k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 06:29:40 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0178A20637;
-        Wed,  4 Dec 2019 11:29:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575458979;
-        bh=i8PGKJFkZ0p8Bhydo4YK4a99qPDQstolTjL5vPdYd5Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=D7vAley61mEi18IJH+HCmxX/nyifLJpM45HEkhMpmKHcPaP2fJ+6eGejG09hkt6I4
-         Ue808TzYLW2FpBrRkO9cgYFMmCC0SHEZoO2NxWJhuhUgYrN+xuD7KKzHIDXtqTF0ZU
-         4VaeOKZ3FuhB1UhIeie/ZSn1V9PLw3Bveo9NK18M=
-Date:   Wed, 4 Dec 2019 12:29:36 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.19 000/321] 4.19.88-stable review
-Message-ID: <20191204112936.GA3565947@kroah.com>
-References: <20191203223427.103571230@linuxfoundation.org>
- <79c636e7-145b-3062-04a3-f03c78d51318@nvidia.com>
+        id S1727268AbfLDLl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 06:41:58 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4C36D31B;
+        Wed,  4 Dec 2019 03:41:57 -0800 (PST)
+Received: from [10.1.194.43] (e112269-lin.cambridge.arm.com [10.1.194.43])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7F1B43F68E;
+        Wed,  4 Dec 2019 03:41:56 -0800 (PST)
+Subject: Re: [PATCH 7/8] drm/panfrost: Add the panfrost_gem_mapping concept
+To:     Daniel Vetter <daniel@ffwll.ch>,
+        Boris Brezillon <boris.brezillon@collabora.com>
+Cc:     stable <stable@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+References: <20191129135908.2439529-1-boris.brezillon@collabora.com>
+ <20191129135908.2439529-8-boris.brezillon@collabora.com>
+ <20191129201459.GS624164@phenom.ffwll.local>
+ <20191129223629.3aaab761@collabora.com>
+ <20191202085532.GY624164@phenom.ffwll.local>
+ <20191202101321.5a053f32@collabora.com>
+ <CAKMK7uG2Zwm5zCud1CZHvAgxgtpg+LopSFM4uB1KO4=yJhYq+Q@mail.gmail.com>
+From:   Steven Price <steven.price@arm.com>
+Message-ID: <cfdfb3f8-75dc-2e01-bc6f-4c7508412137@arm.com>
+Date:   Wed, 4 Dec 2019 11:41:55 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <79c636e7-145b-3062-04a3-f03c78d51318@nvidia.com>
+In-Reply-To: <CAKMK7uG2Zwm5zCud1CZHvAgxgtpg+LopSFM4uB1KO4=yJhYq+Q@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 04, 2019 at 09:45:31AM +0000, Jon Hunter wrote:
+On 02/12/2019 09:44, Daniel Vetter wrote:
+> On Mon, Dec 2, 2019 at 10:13 AM Boris Brezillon
+> <boris.brezillon@collabora.com> wrote:
+>>
+>> On Mon, 2 Dec 2019 09:55:32 +0100
+>> Daniel Vetter <daniel@ffwll.ch> wrote:
+>>
+>>> On Fri, Nov 29, 2019 at 10:36:29PM +0100, Boris Brezillon wrote:
+>>>> On Fri, 29 Nov 2019 21:14:59 +0100
+>>>> Daniel Vetter <daniel@ffwll.ch> wrote:
+>>>>
+>>>>> On Fri, Nov 29, 2019 at 02:59:07PM +0100, Boris Brezillon wrote:
+>>>>>> With the introduction of per-FD address space, the same BO can be mapped
+>>>>>> in different address space if the BO is globally visible (GEM_FLINK)
+>>>>>
+>>>>> Also dma-buf self-imports for wayland/dri3 ...
+>>>>
+>>>> Indeed, I'll extend the commit message to mention that case.
+>>>>
+>>>>>
+>>>>>> and opened in different context. The current implementation does not
+>>>>>> take case into account, and attaches the mapping directly to the
+>>>>>> panfrost_gem_object.
+>>>>>>
+>>>>>> Let's create a panfrost_gem_mapping struct and allow multiple mappings
+>>>>>> per BO.
+>>>>>>
+>>>>>> The mappings are refcounted, which helps solve another problem where
+>>>>>> mappings were teared down (GEM handle closed by userspace) while GPU
+>>>>>> jobs accessing those BOs were still in-flight. Jobs now keep a
+>>>>>> reference on the mappings they use.
+>>>>>
+>>>>> uh what.
+>>>>>
+>>>>> tbh this sounds bad enough (as in how did a desktop on panfrost ever work)
+>>>>
+>>>> Well, we didn't discover this problem until recently because:
+>>>>
+>>>> 1/ We have a BO cache in mesa, and until recently, this cache could
+>>>> only grow (no entry eviction and no MADVISE support), meaning that BOs
+>>>> were staying around forever until the app was killed.
+>>>
+>>> Uh, so where was the userspace when we merged this?
+>>
+>> Well, userspace was there, it's just that we probably didn't stress
+>> the implementation as it should have been when doing the changes
+>> described in #1, #2 and 3.
+>>
+>>>
+>>>> 2/ Mappings were teared down at BO destruction time before commit
+>>>> a5efb4c9a562 ("drm/panfrost: Restructure the GEM object creation"), and
+>>>> jobs are retaining references to all the BO they access.
+>>>>
+>>>> 3/ The mesa driver was serializing GPU jobs, and only releasing the BO
+>>>> reference when the job was done (wait on the completion fence). This
+>>>> has recently been changed, and now BOs are returned to the cache as
+>>>> soon as the job has been submitted to the kernel. When that
+>>>> happens,those BOs are marked purgeable which means the kernel can
+>>>> reclaim them when it's under memory pressure.
+>>>>
+>>>> So yes, kernel 5.4 with a recent mesa version is currently subject to
+>>>> GPU page-fault storms when the system starts reclaiming memory.
+>>>>
+>>>>> that I think you really want a few igts to test this stuff.
+>>>>
+>>>> I'll see what I can come up with (not sure how to easily detect
+>>>> pagefaults from userspace).
+>>>
+>>> The dumb approach we do is just thrash memory and check nothing has blown
+>>> up (which the runner does by looking at the dmesg and a few proc files).
+>>> If you run that on a kernel with all debugging enabled, it's pretty good
+>>> at catching issues.
+>>
+>> We could also check the fence state (assuming it's signaled with an
+>> error, which I'm not sure is the case right now).
+>>
+>>>
+>>> For added nastiness lots of interrupts to check error paths/syscall
+>>> restarting, and at the end of the testcase, some sanity check that all the
+>>> bo still contain what you think they should contain.
+>>
+>> Okay, but that requires a GPU job (vertex or fragment shader) touching
+>> a BO. Apparently we haven't done that for panfrost IGT tests yet, and
+>> I'm not sure how to approach that. Should we manually forge a cmdstream
+>> and submit it?
 > 
-> On 03/12/2019 22:31, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.19.88 release.
-> > There are 321 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 05 Dec 2019 22:30:32 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.88-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > -------------
-> > Pseudo-Shortlog of commits:
-> 
-> ...
-> 
-> > Ding Tao <miyatsu@qq.com>
-> >     arm64: dts: marvell: armada-37xx: Enable emmc on espressobin
-> 
-> The above commit is causing the following build failure for ARM64 ...
-> 
->   DTC     arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb
-> arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb: ERROR
-> (phandle_references): /soc/internal-regs@d0000000/sdhci@d0000: Reference
-> to non-existent node or label "sdio_pins"
-> 
-> arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtb: ERROR
-> (phandle_references): /soc/internal-regs@d0000000/sdhci@d8000: Reference
-> to non-existent node or label "mmc_pins"
+> Yeah that's what we do all the time in i915 igts. Usually a simple
+> commandstream dword write (if you have that somewhere) is good enough
+> for tests. We also have a 2d blitter engine, plus a library for
+> issuing copies using the rendercopy.
 
-Thanks for letting me know, I'll go drop this one and push out a -rc2
-with that removed.
+Midgard has a "write value" job (or "set value" as Panfrost calls it).
+See the "infinite job" test I submitted for IGT [1] for an example where
+the job descriptor (of another job) is being modified. Although I don't
+think that has actually been merged into IGT yet?
 
-greg k-h
+[1]
+https://lists.freedesktop.org/archives/igt-dev/2019-September/016251.html
+
+Steve
