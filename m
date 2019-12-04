@@ -2,152 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E86D112928
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 11:20:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 462A91128DA
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 11:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727445AbfLDKUg convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 4 Dec 2019 05:20:36 -0500
-Received: from 8.mo3.mail-out.ovh.net ([87.98.172.249]:35756 "EHLO
-        8.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727408AbfLDKUg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 05:20:36 -0500
-X-Greylist: delayed 989 seconds by postgrey-1.27 at vger.kernel.org; Wed, 04 Dec 2019 05:20:33 EST
-Received: from player697.ha.ovh.net (unknown [10.108.35.74])
-        by mo3.mail-out.ovh.net (Postfix) with ESMTP id A799A234A99
-        for <stable@vger.kernel.org>; Wed,  4 Dec 2019 11:04:02 +0100 (CET)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player697.ha.ovh.net (Postfix) with ESMTPSA id 67649CE63FCC;
-        Wed,  4 Dec 2019 10:03:54 +0000 (UTC)
-Date:   Wed, 4 Dec 2019 11:03:51 +0100
-From:   Greg Kurz <groug@kaod.org>
-To:     =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        David Gibson <david@gibson.dropbear.id.au>, lvivier@redhat.com,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH] powerpc/xive: skip ioremap() of ESB pages for LSI
- interrupts
-Message-ID: <20191204110351.4ba43a6d@bahia.w3ibm.bluemix.net>
-In-Reply-To: <20191203163642.2428-1-clg@kaod.org>
-References: <20191203163642.2428-1-clg@kaod.org>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1726893AbfLDKG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 05:06:59 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:13458 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727009AbfLDKG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 05:06:59 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5de7853e0002>; Wed, 04 Dec 2019 02:06:54 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 04 Dec 2019 02:06:58 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 04 Dec 2019 02:06:58 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 4 Dec
+ 2019 10:06:56 +0000
+Subject: Re: [PATCH 5.3 000/135] 5.3.15-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191203213005.828543156@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <a733eda6-3320-7541-1acd-0da811f345c4@nvidia.com>
+Date:   Wed, 4 Dec 2019 10:06:54 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Ovh-Tracer-Id: 9552697761820285323
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrudejledgtdelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdqfffguegfifdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffukfgjfhfogggtgfesthhqredtredtjeenucfhrhhomhepifhrvghgucfmuhhriicuoehgrhhouhhgsehkrghougdrohhrgheqnecukfhppedtrddtrddtrddtpdekvddrvdehfedrvddtkedrvdegkeenucfrrghrrghmpehmohguvgepshhmthhpqdhouhhtpdhhvghlohepphhlrgihvghrieeljedrhhgrrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpehgrhhouhhgsehkrghougdrohhrghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedt
+In-Reply-To: <20191203213005.828543156@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1575454014; bh=rnPR8U9XeJLdCyOba3N21J4rZNuPYEnZ6X79buUkGlc=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=eLDlVHj2ta3ksqVsb65UuY0V+X9RzdPOuSF2mfqFPk/WVYe5MmtvBbCks392yoKX7
+         v6/MG9ZNEL2IpQHXMZOCXMbE6VE32geCCbOeL601kkyZFuCAM9oGr8ds3eA8Osv5JX
+         7+jOAc2fpqOFe1K0GJQE3/BX1mUbIJAoCpKu153XHxbD5u0qoIE9dW14fIfeXjfmZu
+         unEky/pjqE4CfriDKO55LI4cQjpLqUg08uR2JXdvZIBi9ujnjhugvvglvUo8l+9uKy
+         JuNQE6sbU3pm9T7XypKRioGwAd7yyQaw3Szhte+UbMv/c8upHlu904z9RGXRQvEthW
+         w25fVK9LuUVpA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue,  3 Dec 2019 17:36:42 +0100
-Cédric Le Goater <clg@kaod.org> wrote:
 
-> The PCI INTx interrupts and other LSI interrupts are handled differently
-> under a sPAPR platform. When the interrupt source characteristics are
-> queried, the hypervisor returns an H_INT_ESB flag to inform the OS
-> that it should be using the H_INT_ESB hcall for interrupt management
-> and not loads and stores on the interrupt ESB pages.
+On 03/12/2019 22:34, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.3.15 release.
+> There are 135 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> A default -1 value is returned for the addresses of the ESB pages. The
-> driver ignores this condition today and performs a bogus IO mapping.
-> Recent changes and the DEBUG_VM configuration option make the bug
-> visible with :
+> Responses should be made by Thu, 05 Dec 2019 21:20:36 +0000.
+> Anything received after that time might be too late.
 > 
-> [    0.015518] kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
-> [    0.015578] Oops: Exception in kernel mode, sig: 5 [#1]
-> [    0.015627] LE PAGE_SIZE=64K MMU=Radix MMU=Hash SMP NR_CPUS=1024 NUMA pSeries
-> [    0.015697] Modules linked in:
-> [    0.015739] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.0-0.rc6.git0.1.fc32.ppc64le #1
-> [    0.015812] NIP:  c000000000f63294 LR: c000000000f62e44 CTR: 0000000000000000
-> [    0.015889] REGS: c0000000fa45f0d0 TRAP: 0700   Not tainted  (5.4.0-0.rc6.git0.1.fc32.ppc64le)
-> [    0.015971] MSR:  8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 44000424  XER: 00000000
-> [    0.016050] CFAR: c000000000f63128 IRQMASK: 0
-> [    0.016050] GPR00: c000000000f62e44 c0000000fa45f360 c000000001be5400 0000000000000000
-> [    0.016050] GPR04: c0000000019c7d38 c0000000fa340030 00000000fa330009 c000000001c15e18
-> [    0.016050] GPR08: 0000000000000040 ffe0000000000000 0000000000000000 8418dd352dbd190f
-> [    0.016050] GPR12: 0000000000000000 c000000001e00000 c00a000080060000 c00a000080060000
-> [    0.016050] GPR16: 0000ffffffffffff 80000000000001ae c000000001c24d98 ffffffffffff0000
-> [    0.016050] GPR20: c00a00008007ffff c000000001cafca0 c00a00008007ffff ffffffffffff0000
-> [    0.016050] GPR24: c00a000080080000 c00a000080080000 c000000001cafca8 c00a000080080000
-> [    0.016050] GPR28: c0000000fa32e010 c00a000080060000 ffffffffffff0000 c0000000fa330000
-> [    0.016711] NIP [c000000000f63294] ioremap_page_range+0x4c4/0x6e0
-> [    0.016778] LR [c000000000f62e44] ioremap_page_range+0x74/0x6e0
-> [    0.016846] Call Trace:
-> [    0.016876] [c0000000fa45f360] [c000000000f62e44] ioremap_page_range+0x74/0x6e0 (unreliable)
-> [    0.016969] [c0000000fa45f460] [c0000000000934bc] do_ioremap+0x8c/0x120
-> [    0.017037] [c0000000fa45f4b0] [c0000000000938e8] __ioremap_caller+0x128/0x140
-> [    0.017116] [c0000000fa45f500] [c0000000000931a0] ioremap+0x30/0x50
-> [    0.017184] [c0000000fa45f520] [c0000000000d1380] xive_spapr_populate_irq_data+0x170/0x260
-> [    0.017263] [c0000000fa45f5c0] [c0000000000cc90c] xive_irq_domain_map+0x8c/0x170
-> [    0.017344] [c0000000fa45f600] [c000000000219124] irq_domain_associate+0xb4/0x2d0
-> [    0.017424] [c0000000fa45f690] [c000000000219fe0] irq_create_mapping+0x1e0/0x3b0
-> [    0.017506] [c0000000fa45f730] [c00000000021ad6c] irq_create_fwspec_mapping+0x27c/0x3e0
-> [    0.017586] [c0000000fa45f7c0] [c00000000021af68] irq_create_of_mapping+0x98/0xb0
-> [    0.017666] [c0000000fa45f830] [c0000000008d4e48] of_irq_parse_and_map_pci+0x168/0x230
-> [    0.017746] [c0000000fa45f910] [c000000000075428] pcibios_setup_device+0x88/0x250
-> [    0.017826] [c0000000fa45f9a0] [c000000000077b84] pcibios_setup_bus_devices+0x54/0x100
-> [    0.017906] [c0000000fa45fa10] [c0000000000793f0] __of_scan_bus+0x160/0x310
-> [    0.017973] [c0000000fa45faf0] [c000000000075fc0] pcibios_scan_phb+0x330/0x390
-> [    0.018054] [c0000000fa45fba0] [c00000000139217c] pcibios_init+0x8c/0x128
-> [    0.018121] [c0000000fa45fc20] [c0000000000107b0] do_one_initcall+0x60/0x2c0
-> [    0.018201] [c0000000fa45fcf0] [c000000001384624] kernel_init_freeable+0x290/0x378
-> [    0.018280] [c0000000fa45fdb0] [c000000000010d24] kernel_init+0x2c/0x148
-> [    0.018348] [c0000000fa45fe20] [c00000000000bdbc] ret_from_kernel_thread+0x5c/0x80
-> [    0.018427] Instruction dump:
-> [    0.018468] 41820014 3920fe7f 7d494838 7d290074 7929d182 f8e10038 69290001 0b090000
-> [    0.018552] 7a098420 0b090000 7bc95960 7929a802 <0b090000> 7fc68b78 e8610048 7dc47378
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.15-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> and the diffstat can be found below.
 > 
-> Cc: stable@vger.kernel.org # v4.14+
-> Fixes: bed81ee181dd ("powerpc/xive: introduce H_INT_ESB hcall")
-> Signed-off-by: Cédric Le Goater <clg@kaod.org>
-> ---
->  arch/powerpc/sysdev/xive/spapr.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
+> thanks,
 > 
-> diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
-> index 33c10749edec..55dc61cb4867 100644
-> --- a/arch/powerpc/sysdev/xive/spapr.c
-> +++ b/arch/powerpc/sysdev/xive/spapr.c
-> @@ -392,20 +392,28 @@ static int xive_spapr_populate_irq_data(u32 hw_irq, struct xive_irq_data *data)
->  	data->esb_shift = esb_shift;
->  	data->trig_page = trig_page;
->  
-> +	data->hw_irq = hw_irq;
-> +
+> greg k-h
+> 
+> -------------
 
-This is a side effect in the case where the XIVE_IRQ_FLAG_H_INT_ESB flag
-isn't set and ioremap() fails. But I guess a sane caller shouldn't look
-at data->hw_irq if this function fails in the first place, so:
+All tests are passing for Tegra ...
 
-Reviewed-by: Greg Kurz <groug@kaod.org>
+Test results for stable-v5.3:
+    13 builds:	13 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    38 tests:	38 pass, 0 fail
 
->  	/*
->  	 * No chip-id for the sPAPR backend. This has an impact how we
->  	 * pick a target. See xive_pick_irq_target().
->  	 */
->  	data->src_chip = XIVE_INVALID_CHIP_ID;
->  
-> +	/*
-> +	 * When the H_INT_ESB flag is set, the H_INT_ESB hcall should
-> +	 * be used for interrupt management. Skip the remapping of the
-> +	 * ESB pages which are not available.
-> +	 */
-> +	if (data->flags & XIVE_IRQ_FLAG_H_INT_ESB)
-> +		return 0;
-> +
->  	data->eoi_mmio = ioremap(data->eoi_page, 1u << data->esb_shift);
->  	if (!data->eoi_mmio) {
->  		pr_err("Failed to map EOI page for irq 0x%x\n", hw_irq);
->  		return -ENOMEM;
->  	}
->  
-> -	data->hw_irq = hw_irq;
-> -
->  	/* Full function page supports trigger */
->  	if (flags & XIVE_SRC_TRIGGER) {
->  		data->trig_mmio = data->eoi_mmio;
+Linux version:	5.3.15-rc1-g682bd5084c78
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
+Cheers
+Jon
+
+-- 
+nvpublic
