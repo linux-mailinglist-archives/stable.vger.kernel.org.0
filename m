@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A439511323D
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A6F113364
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:18:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729276AbfLDSGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:06:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55560 "EHLO mail.kernel.org"
+        id S1731366AbfLDSLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:11:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728490AbfLDSGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:06:46 -0500
+        id S1731362AbfLDSLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:11:00 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2F3520675;
-        Wed,  4 Dec 2019 18:06:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EB482084B;
+        Wed,  4 Dec 2019 18:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482805;
-        bh=Qfbrh3CAl/9De393ORqQNDprdkPEaFRcGApPRM3ToAc=;
+        s=default; t=1575483060;
+        bh=6gBP4j6U7yeNBj0eNTpRBUArgZTCEi7eTGuf8x+3BP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQyq6/yKgp9sbPWfGb7GpO3N4TiNhj64aauWxFF0UNY/Z8fqGo1n2K5KkpFVwPTgb
-         cueRXsKchQnRwOlen+gTLtNMREGrxpDPJalYv2noAXCT1HA9IqLDdmnkwLHOzF0CuS
-         23td3Mk8rPXK+qjD23Y+hzkol7ZLdsoxLf6P5Dl8=
+        b=CQdhwcH4OUh+xPKeauQuhTC/dfVvMm46Cq6lgIJv6cLvkd9cBBUPpxTubbifaC9Zg
+         PCPlo7U7E51ONyVVUqSutNoBETixLFCpFBgRqHboVnYuMa7IwAODFVqwJupO621d3u
+         0rtYTaPge8SUvjYXZ89h20AGQKCI0AZ4jG6kTodU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 097/209] vfio/spapr_tce: Get rid of possible infinite loop
+Subject: [PATCH 4.9 004/125] reset: fix reset_control_ops kerneldoc comment
 Date:   Wed,  4 Dec 2019 18:55:09 +0100
-Message-Id: <20191204175328.542496478@linuxfoundation.org>
+Message-Id: <20191204175310.486489838@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 517ad4ae8aa93dccdb9a88c27257ecb421c9e848 ]
+[ Upstream commit f430c7ed8bc22992ed528b518da465b060b9223f ]
 
-As a part of cleanup, the SPAPR TCE IOMMU subdriver releases preregistered
-memory. If there is a bug in memory release, the loop in
-tce_iommu_release() becomes infinite; this actually happened to me.
+Add a missing short description to the reset_control_ops documentation.
 
-This makes the loop finite and prints a warning on every failure to make
-the code more bug prone.
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
-Acked-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+[p.zabel@pengutronix.de: rebased and updated commit message]
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio_iommu_spapr_tce.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ include/linux/reset-controller.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/vfio_iommu_spapr_tce.c b/drivers/vfio/vfio_iommu_spapr_tce.c
-index b4c68f3b82be9..eba9aaf3cc17c 100644
---- a/drivers/vfio/vfio_iommu_spapr_tce.c
-+++ b/drivers/vfio/vfio_iommu_spapr_tce.c
-@@ -409,6 +409,7 @@ static void tce_iommu_release(void *iommu_data)
- {
- 	struct tce_container *container = iommu_data;
- 	struct tce_iommu_group *tcegrp;
-+	struct tce_iommu_prereg *tcemem, *tmtmp;
- 	long i;
+diff --git a/include/linux/reset-controller.h b/include/linux/reset-controller.h
+index db1fe6772ad50..b5542aff192cd 100644
+--- a/include/linux/reset-controller.h
++++ b/include/linux/reset-controller.h
+@@ -6,7 +6,7 @@
+ struct reset_controller_dev;
  
- 	while (tce_groups_attached(container)) {
-@@ -431,13 +432,8 @@ static void tce_iommu_release(void *iommu_data)
- 		tce_iommu_free_table(container, tbl);
- 	}
- 
--	while (!list_empty(&container->prereg_list)) {
--		struct tce_iommu_prereg *tcemem;
--
--		tcemem = list_first_entry(&container->prereg_list,
--				struct tce_iommu_prereg, next);
--		WARN_ON_ONCE(tce_iommu_prereg_free(container, tcemem));
--	}
-+	list_for_each_entry_safe(tcemem, tmtmp, &container->prereg_list, next)
-+		WARN_ON(tce_iommu_prereg_free(container, tcemem));
- 
- 	tce_iommu_disable(container);
- 	if (container->mm)
+ /**
+- * struct reset_control_ops
++ * struct reset_control_ops - reset controller driver callbacks
+  *
+  * @reset: for self-deasserting resets, does all necessary
+  *         things to reset the device
 -- 
 2.20.1
 
