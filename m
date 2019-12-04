@@ -2,82 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A6541129EB
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 12:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E05C0112A21
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 12:29:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbfLDLOO convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 4 Dec 2019 06:14:14 -0500
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:47863 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727445AbfLDLON (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 06:14:13 -0500
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-171-xQ-iqH-0NqakegqgDHauPg-1; Wed, 04 Dec 2019 11:14:09 +0000
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 4 Dec 2019 11:14:08 +0000
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 4 Dec 2019 11:14:08 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Paul Burton' <paulburton@kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP
- loads/stores
-Thread-Topic: [PATCH] MIPS: Use __copy_{to,from}_user() for emulated FP
- loads/stores
-Thread-Index: AQHVqhshCXVq7CTTBEufX7LGTbPWHKep0u6g
-Date:   Wed, 4 Dec 2019 11:14:08 +0000
-Message-ID: <f5e09155580d417e9dcd07b1c20786ed@AcuMS.aculab.com>
-References: <20191203204933.1642259-1-paulburton@kernel.org>
-In-Reply-To: <20191203204933.1642259-1-paulburton@kernel.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1727388AbfLDL3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 06:29:24 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:38485 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727268AbfLDL3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 06:29:24 -0500
+Received: by mail-oi1-f195.google.com with SMTP id b8so6523397oiy.5
+        for <stable@vger.kernel.org>; Wed, 04 Dec 2019 03:29:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=PIksvy54BvbX1Z31Ur8PRmMaQ2k5RUAx+YYbfsO0LL0=;
+        b=OZnU+aK/mpE98eR3+4uftGHYyPULCJHAD9q3Fnjb3qkyLFo9BJff1AHhqbMFtebPhd
+         SYKeAumREb95nwyAdpDNWw68YnUHx2/HQrQnKNQGhDRYUhQymYttF9WblNmx8HTKU8y9
+         r3jUdX+MHzSbx2fuAErUlWVfmVZSCxsz9kSi4Ez2fY4eog2nZAqDvdD9twMoyk3ZwJ1p
+         3CyGms+csr6/tv1LwLtSy2WzMONE/iUBZtvSq0RbIsjAsoOLhaBpvHSjA+CppzU6xGMw
+         8cySWywSzqCH9/wt5aGIB/0HXTKj4yjKnb1Wu6k0As0Mdg9GoyYmQPGLZtcbhMSWN2Bu
+         0g6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=PIksvy54BvbX1Z31Ur8PRmMaQ2k5RUAx+YYbfsO0LL0=;
+        b=DulDeCnDz0YxB2lMQzUf2YpwagB0Dh49o2VGvY8rhFE/hT8MB6Rdo4Qv7Qip5cWWqd
+         y6sUu96Tbuj2mYwVtwUh27+QO+De3uLq9YkekQ4WjGCYl/yo7RzjON8ElixBN6HFIWyw
+         Zoxy1VxJ4BX4TtyINdzzYiYc02PcMrYQefTNpMp0BxSDRIUOMaq4OVrb+sGPUtCcbOj7
+         yNhMcCSqY+kSrV/VuqlWkIHL365cmY76PmtMtJHNN3lmvsgaWha3XaDGb5crzx6LIAsj
+         dBDYANJE+89ia4Iey54BgXaORNQwxpYuBzUKw7+T7GYK4WpvKG/J+dOguctq0Lp1Odco
+         Yghg==
+X-Gm-Message-State: APjAAAVHKN3O2shjchweL/rUU0H7PUNbkv8202aPMWh4XZCJPVm8uWRE
+        SmnjorgFUQbWUaKtskEZzdDYEcmfD6tjmimWfvU=
+X-Google-Smtp-Source: APXvYqwEsa/qWSpHycGB0Svd24vPN9+dKmOHK2nx0e64AuB1RVPvrvIaR9PVx5aBr8Dd8YQeQIqZy0JTVo6ebIjU8xQ=
+X-Received: by 2002:a54:480d:: with SMTP id j13mr2080079oij.93.1575458963272;
+ Wed, 04 Dec 2019 03:29:23 -0800 (PST)
 MIME-Version: 1.0
-X-MC-Unique: xQ-iqH-0NqakegqgDHauPg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Received: by 2002:a4a:7d5a:0:0:0:0:0 with HTTP; Wed, 4 Dec 2019 03:29:22 -0800 (PST)
+Reply-To: miss.aminatouzainab@gmail.com
+From:   Aminatou Zainab <miss.basiratibrahimmusa@gmail.com>
+Date:   Wed, 4 Dec 2019 03:29:22 -0800
+Message-ID: <CA+s9U9Esi6QekjFB+MkD1fWNyNGmNYAS0WsaBHwedXQiCEQqJA@mail.gmail.com>
+Subject: ATTENTION: DEAR BENEFICIARY CONGRATULATIONS TO YOU,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton
-> Sent: 03 December 2019 20:50
-> Our FPU emulator currently uses __get_user() & __put_user() to perform
-> emulated loads & stores. This is problematic because __get_user() &
-> __put_user() are only suitable for naturally aligned memory accesses,
-> and the address we're accessing is entirely under the control of
-> userland.
-> 
-> This allows userland to cause a kernel panic by simply performing an
-> unaligned floating point load or store - the kernel will handle the
-> address error exception by attempting to emulate the instruction, and in
-> the process it may generate another address error exception itself.
-> This time the exception is taken with EPC pointing at the kernels FPU
-> emulation code, and we hit a die_if_kernel() in
-> emulate_load_store_insn().
+ATTENTION: DEAR BENEFICIARY CONGRATULATIONS TO YOU,
 
-Won't this be true of almost all code that uses get_user() and put_user()
-(with or without the leading __).
+I RECEIVE YOUR CONTENT OF YOUR EMAIL FROM THIS DHL MASTER CARD OFFICES
+YOUR FUNDS SUM OF $10.5MILLION DOLLARS, HAS DISCOVER HERE AFTER THE
+BOARD OF DIRECTORS MEETINGS, THE UNITED NATIONS GOVERNMENT HAVE
+DECIDED TO ISSUE YOU YOUR (ATM MASTER CARD) VALUED AT $10.5 MILLION
+UNITED STATES DOLLARS.
 
-> Fix this up by using __copy_from_user() instead of __get_user() and
-> __copy_to_user() instead of __put_user(). These replacements will handle
-> arbitrary alignment without problems.
+THIS IS TO BRING TO YOUR NOTICE THAT YOURE VALUED SUM OF 10.5 MILLION
+DOLLARS HAS BEING CREDITED IN YOUR NAME. AS BENEFICIARY TO THIS (ATM
+MASTER CARD), AND HAS BEEN HANDLE TO THE FOREIGN REMITTANCE DEPARTMENT
+TO SEND IT TO YOU IN YOUR FAVOR IMMEDIATELY WITHOUT ANY DELAY.
 
-They'll also kill performance.....
+THIS YOUR (ATM MASTER CARD), YOU HAVE ACCESS TO MAKE DAILY WITHDRAWALS
+OF; $2,500 UNITED STATE DOLLARS DAILIES, AS ALREADY PROGRAMMED.
 
-	David
+AS SOON AS WE RECEIVE YOUR INFORMATIONS AND YOUR HOME ADDRESS OF YOUR
+COUNTRY AS ALREADY PROGRAMMED; WE WILL SEND TO YOU YOUR (ATM MASTER
+CARD), WE HAVE RECEIVED A SIGNAL FROM THE SWISS WORLD BANK TO INFECT
+YOUR TRANSFER TO YOU WITHIN ONE WEEK, WITHOUT ANY DELAY AS WE RECORD.
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+WE HAVE JUST FINISHED OUR ANNUAL GENERAL MEETING WITH THE CENTRAL BANK
+OF AMERICA (BOA). AT THE END OF THE BOARD OF DIRECTORS MEETINGS.
 
+WE HAVE CONCLUDED TO IMMEDIATELY ISSUE YOUR DISCOVER ATM MASTER CARD,
+WHICH CONTAIN SUM OF $10.5 MILLION DOLLARS, SEND TO YOU AS DIRECTED IN
+YOUR NAME, NOW WE NEED ANY AVAILABLE COURIER COMPANY, INSURANCE
+COMPANY, AND DHL SERVICE. OF YOUR CHOICE TO RECEIVE YOUR DISCOVER ATM
+MASTER CARD AND SEND TO YOU  AS SOON AS POSSIBLE, AS WE RECORD.
+
+ONCE AGAIN CONGRATULATIONS TO YOU AND YOUR LOVELY FAMILYS,
+
+YOURS
+SINCERELY.
+
+DIRECTOR FEDEX SERVICE CENTRE,
