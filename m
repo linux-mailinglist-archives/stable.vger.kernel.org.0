@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 892F0113301
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA827113287
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731238AbfLDSNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:13:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43096 "EHLO mail.kernel.org"
+        id S1731011AbfLDSJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:09:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731820AbfLDSNu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:13:50 -0500
+        id S1728331AbfLDSJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:09:05 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3C2F206DF;
-        Wed,  4 Dec 2019 18:13:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FB7C20674;
+        Wed,  4 Dec 2019 18:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483229;
-        bh=osEXV0FwrCCNyBYKCk+cgRyj4+wj5wEU5wmwMpQtlF8=;
+        s=default; t=1575482942;
+        bh=owi18TCNgYufNafDvouzmapsiDvy3CTxjvZiPq0Szs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTiyjsHcCU/Q0B8WAN5Oe2SEDW/Eh9wrz6Su+2AnnmxDQq9Ltnzc9mCmj2Z4PcUAP
-         cBOuevAivn57SY42cS+/KnuuW0RfPUVTZkyvTVpZu0Rao4C/NWiMrE5aQ1RpGvPKmn
-         iJa/sFgcaGkquvnRhKwZw9HhXToOO8EbAby02Tuc=
+        b=VzolBm0Xlah+qe6YVOeAkrBfNBixxw98LIfiNHivhpj8N3TmIj0YV7JX2W2uzUeEZ
+         lP1kpsHjM8Theklr4YVFMIjLFsICnPcxQKEAHDZGd689CEoN8+n47q58oWakzLXAMG
+         3IKTttb3t26r0uwTUWpdwiFAYwtPZ+KQoZu/R/Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 105/125] mm, gup: add missing refcount overflow checks on x86 and s390
+        stable@vger.kernel.org, Candle Sun <candle.sun@unisoc.com>,
+        Nianfu Bai <nianfu.bai@unisoc.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Siarhei Vishniakou <svv@google.com>
+Subject: [PATCH 4.14 198/209] HID: core: check whether Usage Page item is after Usage ID items
 Date:   Wed,  4 Dec 2019 18:56:50 +0100
-Message-Id: <20191204175325.500930880@linuxfoundation.org>
+Message-Id: <20191204175337.115348642@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +46,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Candle Sun <candle.sun@unisoc.com>
 
-The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
-overflowing page refcount") was backported to 4.9.y stable as commit
-2ed768cfd895. The backport however missed that in 4.9, there are several
-arch-specific gup.c versions with fast gup implementations, so these do not
-prevent refcount overflow.
+commit 1cb0d2aee26335d0bccf29100c7bed00ebece851 upstream.
 
-This is partially fixed for x86 in stable-only commit d73af79742e7 ("x86, mm,
-gup: prevent get_page() race with munmap in paravirt guest"). This stable-only
-commit adds missing parts to x86 version, as well as s390 version, both taken
-from the SUSE SLES/openSUSE 4.12-based kernels.
+Upstream commit 58e75155009c ("HID: core: move Usage Page concatenation
+to Main item") adds support for Usage Page item after Usage ID items
+(such as keyboards manufactured by Primax).
 
-The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
-the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
-problem for those architectures, and I don't feel confident enough to patch
-them.
+Usage Page concatenation in Main item works well for following report
+descriptor patterns:
 
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    USAGE_PAGE (Keyboard)                   05 07
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    INPUT (Data,Var,Abs)                    81 02
+
+-------------
+
+    USAGE_MINIMUM (Keyboard LeftControl)    19 E0
+    USAGE_MAXIMUM (Keyboard Right GUI)      29 E7
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (8)                        95 08
+    USAGE_PAGE (Keyboard)                   05 07
+    INPUT (Data,Var,Abs)                    81 02
+
+But it makes the parser act wrong for the following report
+descriptor pattern(such as some Gamepads):
+
+    USAGE_PAGE (Button)                     05 09
+    USAGE (Button 1)                        09 01
+    USAGE (Button 2)                        09 02
+    USAGE (Button 4)                        09 04
+    USAGE (Button 5)                        09 05
+    USAGE (Button 7)                        09 07
+    USAGE (Button 8)                        09 08
+    USAGE (Button 14)                       09 0E
+    USAGE (Button 15)                       09 0F
+    USAGE (Button 13)                       09 0D
+    USAGE_PAGE (Consumer Devices)           05 0C
+    USAGE (Back)                            0a 24 02
+    USAGE (HomePage)                        0a 23 02
+    LOGICAL_MINIMUM (0)                     15 00
+    LOGICAL_MAXIMUM (1)                     25 01
+    REPORT_SIZE (1)                         75 01
+    REPORT_COUNT (11)                       95 0B
+    INPUT (Data,Var,Abs)                    81 02
+
+With Usage Page concatenation in Main item, parser recognizes all the
+11 Usages as consumer keys, it is not the HID device's real intention.
+
+This patch checks whether Usage Page is really defined after Usage ID
+items by comparing usage page using status.
+
+Usage Page concatenation on currently defined Usage Page will always
+do in local parsing when Usage ID items encountered.
+
+When Main item is parsing, concatenation will do again with last
+defined Usage Page if this page has not been used in the previous
+usages concatenation.
+
+Signed-off-by: Candle Sun <candle.sun@unisoc.com>
+Signed-off-by: Nianfu Bai <nianfu.bai@unisoc.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Siarhei Vishniakou <svv@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/mm/gup.c |  9 ++++++---
- arch/x86/mm/gup.c  | 10 ++++++++--
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/hid/hid-core.c |   51 +++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 45 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-index 97fc449a74707..33a940389a6d1 100644
---- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -38,7 +38,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
- 		page = pte_page(pte);
- 		head = compound_head(page);
--		if (!page_cache_get_speculative(head))
-+		if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
-+		    || !page_cache_get_speculative(head)))
- 			return 0;
- 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
- 			put_page(head);
-@@ -76,7 +77,8 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -196,6 +196,18 @@ static unsigned hid_lookup_collection(st
+ }
  
--	if (!page_cache_add_speculative(head, refs)) {
-+	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
-+	    || !page_cache_add_speculative(head, refs))) {
- 		*nr -= refs;
- 		return 0;
+ /*
++ * Concatenate usage which defines 16 bits or less with the
++ * currently defined usage page to form a 32 bit usage
++ */
++
++static void complete_usage(struct hid_parser *parser, unsigned int index)
++{
++	parser->local.usage[index] &= 0xFFFF;
++	parser->local.usage[index] |=
++		(parser->global.usage_page & 0xFFFF) << 16;
++}
++
++/*
+  * Add a usage to the temporary parser table.
+  */
+ 
+@@ -206,6 +218,14 @@ static int hid_add_usage(struct hid_pars
+ 		return -1;
  	}
-@@ -150,7 +152,8 @@ static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
+ 	parser->local.usage[parser->local.usage_index] = usage;
++
++	/*
++	 * If Usage item only includes usage id, concatenate it with
++	 * currently defined usage page
++	 */
++	if (size <= 2)
++		complete_usage(parser, parser->local.usage_index);
++
+ 	parser->local.usage_size[parser->local.usage_index] = size;
+ 	parser->local.collection_index[parser->local.usage_index] =
+ 		parser->collection_stack_ptr ?
+@@ -522,13 +542,32 @@ static int hid_parser_local(struct hid_p
+  * usage value."
+  */
  
--	if (!page_cache_add_speculative(head, refs)) {
-+	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
-+	    || !page_cache_add_speculative(head, refs))) {
- 		*nr -= refs;
- 		return 0;
- 	}
-diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
-index d7db45bdfb3bd..551fc7fea046d 100644
---- a/arch/x86/mm/gup.c
-+++ b/arch/x86/mm/gup.c
-@@ -202,10 +202,12 @@ static int __gup_device_huge_pmd(pmd_t pmd, unsigned long addr,
- 			undo_dev_pagemap(nr, nr_start, pages);
- 			return 0;
- 		}
-+		if (unlikely(!try_get_page(page))) {
-+			put_dev_pagemap(pgmap);
-+			return 0;
-+		}
- 		SetPageReferenced(page);
- 		pages[*nr] = page;
--		get_page(page);
--		put_dev_pagemap(pgmap);
- 		(*nr)++;
- 		pfn++;
- 	} while (addr += PAGE_SIZE, addr != end);
-@@ -230,6 +232,8 @@ static noinline int gup_huge_pmd(pmd_t pmd, unsigned long addr,
+-static void hid_concatenate_usage_page(struct hid_parser *parser)
++static void hid_concatenate_last_usage_page(struct hid_parser *parser)
+ {
+ 	int i;
++	unsigned int usage_page;
++	unsigned int current_page;
++
++	if (!parser->local.usage_index)
++		return;
  
- 	refs = 0;
- 	head = pmd_page(pmd);
-+	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
-+		return 0;
- 	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
- 	do {
- 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
-@@ -289,6 +293,8 @@ static noinline int gup_huge_pud(pud_t pud, unsigned long addr,
+-	for (i = 0; i < parser->local.usage_index; i++)
+-		if (parser->local.usage_size[i] <= 2)
+-			parser->local.usage[i] += parser->global.usage_page << 16;
++	usage_page = parser->global.usage_page;
++
++	/*
++	 * Concatenate usage page again only if last declared Usage Page
++	 * has not been already used in previous usages concatenation
++	 */
++	for (i = parser->local.usage_index - 1; i >= 0; i--) {
++		if (parser->local.usage_size[i] > 2)
++			/* Ignore extended usages */
++			continue;
++
++		current_page = parser->local.usage[i] >> 16;
++		if (current_page == usage_page)
++			break;
++
++		complete_usage(parser, i);
++	}
+ }
  
- 	refs = 0;
- 	head = pud_page(pud);
-+	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
-+		return 0;
- 	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
- 	do {
- 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
--- 
-2.20.1
-
+ /*
+@@ -540,7 +579,7 @@ static int hid_parser_main(struct hid_pa
+ 	__u32 data;
+ 	int ret;
+ 
+-	hid_concatenate_usage_page(parser);
++	hid_concatenate_last_usage_page(parser);
+ 
+ 	data = item_udata(item);
+ 
+@@ -751,7 +790,7 @@ static int hid_scan_main(struct hid_pars
+ 	__u32 data;
+ 	int i;
+ 
+-	hid_concatenate_usage_page(parser);
++	hid_concatenate_last_usage_page(parser);
+ 
+ 	data = item_udata(item);
+ 
 
 
