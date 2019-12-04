@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EFFC1131E6
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:04:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A19C1131E8
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:04:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730086AbfLDSDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:03:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47874 "EHLO mail.kernel.org"
+        id S1729632AbfLDSDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:03:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730082AbfLDSDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:03:39 -0500
+        id S1730091AbfLDSDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:03:42 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1BA02073B;
-        Wed,  4 Dec 2019 18:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32FA6206DF;
+        Wed,  4 Dec 2019 18:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482619;
-        bh=/rzahTB47Q+suoizA3yYb2auJQHO7WTea6i2JGa39i0=;
+        s=default; t=1575482621;
+        bh=vdwaTwkiAhmYG/mez884oyyzASldPyX2HzsGMIGaA/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NKx/uXhXUrY/dyhJwgE8XyC+plsueg/afcJas16ZnQPmCQTM/noMP3ajWDqHOoKce
-         6cKppxn9p1QMchOLdW6TlrddwpLzLoylL/O/CdGdDaYaZaM31br6Jn+R+S1/p5GzZf
-         nP4eP1jSs14A7jg5XJj8qZjgJrgFIUXFmW7GSNJk=
+        b=tGVgBMxxvcT9vOI2jcDIrSFX5xATo7EOyKbPestKDShfm8nU7SIsRQt6cfmZyHTyn
+         1nUynvyYV6Y+6AEI+0cdXB444gCBTCvj71jzfG3egSqiU+r+To7a+1jBzT++hOMsN8
+         rq449fFth1bYeBxFAvizVQEtLFFMhBXrPGm7AZNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 068/209] exofs_mount(): fix leaks on failure exits
-Date:   Wed,  4 Dec 2019 18:54:40 +0100
-Message-Id: <20191204175325.957586519@linuxfoundation.org>
+Subject: [PATCH 4.14 069/209] bnxt_en: Return linux standard errors in bnxt_ethtool.c
+Date:   Wed,  4 Dec 2019 18:54:41 +0100
+Message-Id: <20191204175326.035833894@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -44,92 +46,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit 26cb5a328c6b2bda9e859307ce4cfc60df3a2c28 ]
+[ Upstream commit 7c675421afef18253a86ffc383f57bc15ef32ea8 ]
 
-... and don't abuse mount_nodev(), while we are at it.
+Currently firmware specific errors are returned directly in flash_device
+and reset ethtool hooks. Modify it to return linux standard errors
+to userspace when flashing operations fail.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exofs/super.c | 37 +++++++++++++++++++++++++++++--------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ .../net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 56 +++++++++++++------
+ 1 file changed, 39 insertions(+), 17 deletions(-)
 
-diff --git a/fs/exofs/super.c b/fs/exofs/super.c
-index c9ec652e2fcd2..881d5798a1814 100644
---- a/fs/exofs/super.c
-+++ b/fs/exofs/super.c
-@@ -702,21 +702,18 @@ out:
- /*
-  * Read the superblock from the OSD and fill in the fields
-  */
--static int exofs_fill_super(struct super_block *sb, void *data, int silent)
-+static int exofs_fill_super(struct super_block *sb,
-+				struct exofs_mountopt *opts,
-+				struct exofs_sb_info *sbi,
-+				int silent)
- {
- 	struct inode *root;
--	struct exofs_mountopt *opts = data;
--	struct exofs_sb_info *sbi;	/*extended info                  */
- 	struct osd_dev *od;		/* Master device                 */
- 	struct exofs_fscb fscb;		/*on-disk superblock info        */
- 	struct ore_comp comp;
- 	unsigned table_count;
- 	int ret;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index a22336fef66b2..4879371ad0c75 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1339,14 +1339,22 @@ static int bnxt_flash_nvram(struct net_device *dev,
+ 	rc = hwrm_send_message(bp, &req, sizeof(req), FLASH_NVRAM_TIMEOUT);
+ 	dma_free_coherent(&bp->pdev->dev, data_len, kmem, dma_handle);
  
--	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
--	if (!sbi)
--		return -ENOMEM;
--
- 	/* use mount options to fill superblock */
- 	if (opts->is_osdname) {
- 		struct osd_dev_info odi = {.systemid_len = 0};
-@@ -860,7 +857,9 @@ static struct dentry *exofs_mount(struct file_system_type *type,
- 			  int flags, const char *dev_name,
- 			  void *data)
- {
-+	struct super_block *s;
- 	struct exofs_mountopt opts;
-+	struct exofs_sb_info *sbi;
- 	int ret;
- 
- 	ret = parse_options(data, &opts);
-@@ -869,9 +868,31 @@ static struct dentry *exofs_mount(struct file_system_type *type,
- 		return ERR_PTR(ret);
- 	}
- 
-+	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
-+	if (!sbi) {
-+		kfree(opts.dev_name);
-+		return ERR_PTR(-ENOMEM);
++	if (rc == HWRM_ERR_CODE_RESOURCE_ACCESS_DENIED) {
++		netdev_info(dev,
++			    "PF does not have admin privileges to flash the device\n");
++		rc = -EACCES;
++	} else if (rc) {
++		rc = -EIO;
 +	}
-+
-+	s = sget(type, NULL, set_anon_super, flags, NULL);
-+
-+	if (IS_ERR(s)) {
-+		kfree(opts.dev_name);
-+		kfree(sbi);
-+		return ERR_CAST(s);
-+	}
-+
- 	if (!opts.dev_name)
- 		opts.dev_name = dev_name;
--	return mount_nodev(type, flags, &opts, exofs_fill_super);
-+
-+
-+	ret = exofs_fill_super(s, &opts, sbi, flags & SB_SILENT ? 1 : 0);
-+	if (ret) {
-+		deactivate_locked_super(s);
-+		return ERR_PTR(ret);
-+	}
-+	s->s_flags |= SB_ACTIVE;
-+	return dget(s->s_root);
+ 	return rc;
  }
  
- /*
+ static int bnxt_firmware_reset(struct net_device *dev,
+ 			       u16 dir_type)
+ {
+-	struct bnxt *bp = netdev_priv(dev);
+ 	struct hwrm_fw_reset_input req = {0};
++	struct bnxt *bp = netdev_priv(dev);
++	int rc;
+ 
+ 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FW_RESET, -1, -1);
+ 
+@@ -1380,7 +1388,15 @@ static int bnxt_firmware_reset(struct net_device *dev,
+ 		return -EINVAL;
+ 	}
+ 
+-	return hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
++	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
++	if (rc == HWRM_ERR_CODE_RESOURCE_ACCESS_DENIED) {
++		netdev_info(dev,
++			    "PF does not have admin privileges to reset the device\n");
++		rc = -EACCES;
++	} else if (rc) {
++		rc = -EIO;
++	}
++	return rc;
+ }
+ 
+ static int bnxt_flash_firmware(struct net_device *dev,
+@@ -1587,9 +1603,9 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
+ 	struct hwrm_nvm_install_update_output *resp = bp->hwrm_cmd_resp_addr;
+ 	struct hwrm_nvm_install_update_input install = {0};
+ 	const struct firmware *fw;
++	int rc, hwrm_err = 0;
+ 	u32 item_len;
+ 	u16 index;
+-	int rc;
+ 
+ 	bnxt_hwrm_fw_set_time(bp);
+ 
+@@ -1632,15 +1648,16 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
+ 			memcpy(kmem, fw->data, fw->size);
+ 			modify.host_src_addr = cpu_to_le64(dma_handle);
+ 
+-			rc = hwrm_send_message(bp, &modify, sizeof(modify),
+-					       FLASH_PACKAGE_TIMEOUT);
++			hwrm_err = hwrm_send_message(bp, &modify,
++						     sizeof(modify),
++						     FLASH_PACKAGE_TIMEOUT);
+ 			dma_free_coherent(&bp->pdev->dev, fw->size, kmem,
+ 					  dma_handle);
+ 		}
+ 	}
+ 	release_firmware(fw);
+-	if (rc)
+-		return rc;
++	if (rc || hwrm_err)
++		goto err_exit;
+ 
+ 	if ((install_type & 0xffff) == 0)
+ 		install_type >>= 16;
+@@ -1648,12 +1665,10 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
+ 	install.install_type = cpu_to_le32(install_type);
+ 
+ 	mutex_lock(&bp->hwrm_cmd_lock);
+-	rc = _hwrm_send_message(bp, &install, sizeof(install),
+-				INSTALL_PACKAGE_TIMEOUT);
+-	if (rc) {
+-		rc = -EOPNOTSUPP;
++	hwrm_err = _hwrm_send_message(bp, &install, sizeof(install),
++				      INSTALL_PACKAGE_TIMEOUT);
++	if (hwrm_err)
+ 		goto flash_pkg_exit;
+-	}
+ 
+ 	if (resp->error_code) {
+ 		u8 error_code = ((struct hwrm_err_output *)resp)->cmd_err;
+@@ -1661,12 +1676,11 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
+ 		if (error_code == NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
+ 			install.flags |= cpu_to_le16(
+ 			       NVM_INSTALL_UPDATE_REQ_FLAGS_ALLOWED_TO_DEFRAG);
+-			rc = _hwrm_send_message(bp, &install, sizeof(install),
+-						INSTALL_PACKAGE_TIMEOUT);
+-			if (rc) {
+-				rc = -EOPNOTSUPP;
++			hwrm_err = _hwrm_send_message(bp, &install,
++						      sizeof(install),
++						      INSTALL_PACKAGE_TIMEOUT);
++			if (hwrm_err)
+ 				goto flash_pkg_exit;
+-			}
+ 		}
+ 	}
+ 
+@@ -1677,6 +1691,14 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
+ 	}
+ flash_pkg_exit:
+ 	mutex_unlock(&bp->hwrm_cmd_lock);
++err_exit:
++	if (hwrm_err == HWRM_ERR_CODE_RESOURCE_ACCESS_DENIED) {
++		netdev_info(dev,
++			    "PF does not have admin privileges to flash the device\n");
++		rc = -EACCES;
++	} else if (hwrm_err) {
++		rc = -EOPNOTSUPP;
++	}
+ 	return rc;
+ }
+ 
 -- 
 2.20.1
 
