@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 970FD11340A
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 157D01133E9
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728775AbfLDSGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:06:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
+        id S1731538AbfLDSUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:20:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730600AbfLDSGn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:06:43 -0500
+        id S1730941AbfLDSIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:08:53 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50E6020674;
-        Wed,  4 Dec 2019 18:06:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E18120674;
+        Wed,  4 Dec 2019 18:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482802;
-        bh=wNd1Ypc07C+SO24ci5vdLe9kWhtQsRuetC3eZJESgBM=;
+        s=default; t=1575482933;
+        bh=XNoYKvz5jYsa7e1+etOwz3MmWT1KcokIq3KV72exAlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+cN6IqLxp1Kf5+IOOtujV8zANVxnGjEtQOP61eIghNTxFFFquw1iGFj4xcYpzRj4
-         CsofAN3pHNqW9jUyiizTp/IQRCl3xDgr2mATxD2KcETQMaRNz0dV4CMqIIPMWezGzS
-         RczyYQQORGNBr/gukapY9miJXfyIKt602HWicJvA=
+        b=QublcnU4b/6ZCijHaO6HmT0E7VGmf8z95LHCO2fCG5XxflXfMtnH/wn1E/SSqqHD3
+         oy7QCjzXtgpTrH7F7dgiqyM8PmLgrkZGUp7lE02KiyLhFIPZAsyLgu32pM89bI4R4A
+         twIBEsswX7siAyrUkugqYP5/s28Zvta46Re4b92w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
-        Jon Maloy <maloy@donjonn.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
+        stable@vger.kernel.org, Bert Kenward <bkenward@solarflare.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 138/209] tipc: fix skb may be leaky in tipc_link_input
-Date:   Wed,  4 Dec 2019 18:55:50 +0100
-Message-Id: <20191204175332.783192524@linuxfoundation.org>
+Subject: [PATCH 4.14 139/209] sfc: initialise found bitmap in efx_ef10_mtd_probe
+Date:   Wed,  4 Dec 2019 18:55:51 +0100
+Message-Id: <20191204175332.872633447@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -46,46 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Bert Kenward <bkenward@solarflare.com>
 
-[ Upstream commit 7384b538d3aed2ed49d3575483d17aeee790fb06 ]
+[ Upstream commit c65285428b6e7797f1bb063f33b0ae7e93397b7b ]
 
-When we free skb at tipc_data_input, we return a 'false' boolean.
-Then, skb passed to subcalling tipc_link_input in tipc_link_rcv,
+The bitmap of found partitions in efx_ef10_mtd_probe was not
+initialised, causing partitions to be suppressed based off whatever
+value was in the bitmap at the start.
 
-<snip>
-1303 int tipc_link_rcv:
-...
-1354    if (!tipc_data_input(l, skb, l->inputq))
-1355        rc |= tipc_link_input(l, skb, l->inputq);
-</snip>
-
-Fix it by simple changing to a 'true' boolean when skb is being free-ed.
-Then, tipc_link_rcv will bypassed to subcalling tipc_link_input as above
-condition.
-
-Acked-by: Ying Xue <ying.xue@windriver.com>
-Acked-by: Jon Maloy <maloy@donjonn.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Fixes: 3366463513f5 ("sfc: suppress duplicate nvmem partition types in efx_ef10_mtd_probe")
+Signed-off-by: Bert Kenward <bkenward@solarflare.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/link.c | 2 +-
+ drivers/net/ethernet/sfc/ef10.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/tipc/link.c b/net/tipc/link.c
-index 631bfc7e9127e..da749916faac4 100644
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -1073,7 +1073,7 @@ static bool tipc_data_input(struct tipc_link *l, struct sk_buff *skb,
- 	default:
- 		pr_warn("Dropping received illegal msg type\n");
- 		kfree_skb(skb);
--		return false;
-+		return true;
- 	};
- }
- 
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index cc3be94d05622..2d92a9fe4606c 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -5918,7 +5918,7 @@ static int efx_ef10_mtd_probe_partition(struct efx_nic *efx,
+ static int efx_ef10_mtd_probe(struct efx_nic *efx)
+ {
+ 	MCDI_DECLARE_BUF(outbuf, MC_CMD_NVRAM_PARTITIONS_OUT_LENMAX);
+-	DECLARE_BITMAP(found, EF10_NVRAM_PARTITION_COUNT);
++	DECLARE_BITMAP(found, EF10_NVRAM_PARTITION_COUNT) = { 0 };
+ 	struct efx_mcdi_mtd_partition *parts;
+ 	size_t outlen, n_parts_total, i, n_parts;
+ 	unsigned int type;
 -- 
 2.20.1
 
