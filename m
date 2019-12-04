@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D4E711330B
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0740411326F
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731878AbfLDSOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:14:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43404 "EHLO mail.kernel.org"
+        id S1730885AbfLDSIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:08:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731591AbfLDSOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:14:07 -0500
+        id S1730896AbfLDSIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:08:24 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBE9B20675;
-        Wed,  4 Dec 2019 18:14:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDDE420674;
+        Wed,  4 Dec 2019 18:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483246;
-        bh=ZK8IW9ixll6gcK15zLwQ+Fsl2kqOkRxWzoox6wnNZ+g=;
+        s=default; t=1575482903;
+        bh=1DUZ4/SRYVLn8adnb6JLa3/MVMs1tGobVah7ENH7hKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEfKwVJL6dkcZgOsJjbrGzV68OWLkfugFaD+4JinIlpOE/ftvlMgCZUOA7hgZgPT3
-         VtbXR3RKr7t8Je9Cp80owV7Fqa9dAEHLMxs5IhCEbyqC71L+pA+yO44HXR7/N3CE6w
-         C0B+mv9540Rh3ronXusUpxc0+f28iHun135ldYtM=
+        b=gst50i9lK84zberQLDazzUeCc0Ao6BDfefw6d0bCfRKyr1aNc2e3TxiG5g07HfGj5
+         tSNezsQDMnEA/d7AXFAHPg7TDSmV+uUhYT72O55BBD2yFIW951yKTX928c5diw1/PW
+         XqFf/EBKLck+8TyoAsteB5Wt6u/wP+crGxVM6rCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@gmx.us>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 085/125] drivers/base/platform.c: kmemleak ignore a known leak
-Date:   Wed,  4 Dec 2019 18:56:30 +0100
-Message-Id: <20191204175324.230810674@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 179/209] watchdog: sama5d4: fix WDD value to be always set to max
+Date:   Wed,  4 Dec 2019 18:56:31 +0100
+Message-Id: <20191204175335.812989624@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@gmx.us>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 967d3010df8b6f6f9aa95c198edc5fe3646ebf36 ]
+commit 8632944841d41a36d77dd1fa88d4201b5291100f upstream.
 
-unreferenced object 0xffff808ec6dc5a80 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294938063 (age 2560.530s)
-  hex dump (first 32 bytes):
-    ff ff ff ff 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b  ........kkkkkkkk
-    6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-  backtrace:
-    [<00000000476dcf8c>] kmem_cache_alloc_trace+0x430/0x500
-    [<000000004f708d37>] platform_device_register_full+0xbc/0x1e8
-    [<000000006c2a7ec7>] acpi_create_platform_device+0x370/0x450
-    [<00000000ef135642>] acpi_default_enumeration+0x34/0x78
-    [<000000003bd9a052>] acpi_bus_attach+0x2dc/0x3e0
-    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
-    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
-    [<000000002968643e>] acpi_bus_scan+0xb0/0x110
-    [<0000000010dd0bd7>] acpi_scan_init+0x1a8/0x410
-    [<00000000965b3c5a>] acpi_init+0x408/0x49c
-    [<00000000ed4b9fe2>] do_one_initcall+0x178/0x7f4
-    [<00000000a5ac5a74>] kernel_init_freeable+0x9d4/0xa9c
-    [<0000000070ea6c15>] kernel_init+0x18/0x138
-    [<00000000fb8fff06>] ret_from_fork+0x10/0x1c
-    [<0000000041273a0d>] 0xffffffffffffffff
+WDD value must be always set to max (0xFFF) otherwise the hardware
+block will reset the board on the first ping of the watchdog.
 
-Then, faddr2line pointed out this line,
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-/*
- * This memory isn't freed when the device is put,
- * I don't have a nice idea for that though.  Conceptually
- * dma_mask in struct device should not be a pointer.
- * See http://thread.gmane.org/gmane.linux.kernel.pci/9081
- */
-pdev->dev.dma_mask =
-	kmalloc(sizeof(*pdev->dev.dma_mask), GFP_KERNEL);
-
-Since this leak has existed for more than 8 years and it does not
-reference other parts of the memory, let kmemleak ignore it, so users
-don't need to waste time reporting this in the future.
-
-Link: http://lkml.kernel.org/r/20181206160751.36211-1-cai@gmx.us
-Signed-off-by: Qian Cai <cai@gmx.us>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/watchdog/sama5d4_wdt.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 14ff40371f013..f90b1b9bbad0d 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -27,6 +27,7 @@
- #include <linux/clk/clk-conf.h>
- #include <linux/limits.h>
- #include <linux/property.h>
-+#include <linux/kmemleak.h>
+--- a/drivers/watchdog/sama5d4_wdt.c
++++ b/drivers/watchdog/sama5d4_wdt.c
+@@ -111,9 +111,7 @@ static int sama5d4_wdt_set_timeout(struc
+ 	u32 value = WDT_SEC2TICKS(timeout);
  
- #include "base.h"
- #include "power/power.h"
-@@ -516,6 +517,8 @@ struct platform_device *platform_device_register_full(
- 		if (!pdev->dev.dma_mask)
- 			goto err;
+ 	wdt->mr &= ~AT91_WDT_WDV;
+-	wdt->mr &= ~AT91_WDT_WDD;
+ 	wdt->mr |= AT91_WDT_SET_WDV(value);
+-	wdt->mr |= AT91_WDT_SET_WDD(value);
  
-+		kmemleak_ignore(pdev->dev.dma_mask);
-+
- 		*pdev->dev.dma_mask = pdevinfo->dma_mask;
- 		pdev->dev.coherent_dma_mask = pdevinfo->dma_mask;
- 	}
--- 
-2.20.1
-
+ 	/*
+ 	 * WDDIS has to be 0 when updating WDD/WDV. The datasheet states: When
+@@ -255,7 +253,7 @@ static int sama5d4_wdt_probe(struct plat
+ 
+ 	timeout = WDT_SEC2TICKS(wdd->timeout);
+ 
+-	wdt->mr |= AT91_WDT_SET_WDD(timeout);
++	wdt->mr |= AT91_WDT_SET_WDD(WDT_SEC2TICKS(MAX_WDT_TIMEOUT));
+ 	wdt->mr |= AT91_WDT_SET_WDV(timeout);
+ 
+ 	ret = sama5d4_wdt_init(wdt);
 
 
