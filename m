@@ -2,118 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9085A112DC7
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 15:52:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7A9C112DAB
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 15:43:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727930AbfLDOwP convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 4 Dec 2019 09:52:15 -0500
-Received: from 7.mo68.mail-out.ovh.net ([46.105.63.230]:33713 "EHLO
-        7.mo68.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727912AbfLDOwP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 09:52:15 -0500
-X-Greylist: delayed 577 seconds by postgrey-1.27 at vger.kernel.org; Wed, 04 Dec 2019 09:52:13 EST
-Received: from player770.ha.ovh.net (unknown [10.108.57.72])
-        by mo68.mail-out.ovh.net (Postfix) with ESMTP id 49C061471BD
-        for <stable@vger.kernel.org>; Wed,  4 Dec 2019 15:42:35 +0100 (CET)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player770.ha.ovh.net (Postfix) with ESMTPSA id 90CCFCE77CBA;
-        Wed,  4 Dec 2019 14:42:24 +0000 (UTC)
-Date:   Wed, 4 Dec 2019 15:42:20 +0100
-From:   Greg Kurz <groug@kaod.org>
-To:     Michael Ellerman <patch-notifications@ellerman.id.au>
-Cc:     =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>,
-        lvivier@redhat.com, stable@vger.kernel.org,
+        id S1728088AbfLDOnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 09:43:14 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:55147 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727944AbfLDOnN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 09:43:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575470593;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=g3VYZu2Msuo/GrqTGe5D8EVEkLes+Ylvr+P670WnJo0=;
+        b=DBOhUV7Ye1ODezRCtpMBZdxHd/vC/chLRPaY5FCiu1kMzdxME1h888c8UR/toN/lIQgRZe
+        GNR/zGpFLH5fhqikzKLrd50pGEDs/QAKW3Y6XiIdBTfq41iYJEY7H4rqQrINZNEDlqZ6ko
+        9n39X+RihZh93NgwxLoqCyiD00fPaho=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-61-JNulPZWVPeum3MOUKv5umw-1; Wed, 04 Dec 2019 09:43:09 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CB77818543A6;
+        Wed,  4 Dec 2019 14:43:07 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 869F65D6AE;
+        Wed,  4 Dec 2019 14:43:07 +0000 (UTC)
+Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id E20315BC09;
+        Wed,  4 Dec 2019 14:43:04 +0000 (UTC)
+Date:   Wed, 4 Dec 2019 09:43:04 -0500 (EST)
+From:   Jan Stancek <jstancek@redhat.com>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        darrick wong <darrick.wong@oracle.com>,
         linuxppc-dev@lists.ozlabs.org,
-        David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH] powerpc/xive: skip ioremap() of ESB pages for LSI
- interrupts
-Message-ID: <20191204154220.7affb01f@bahia.w3ibm.bluemix.net>
-In-Reply-To: <47Sfr1448xz9sR1@ozlabs.org>
-References: <20191203163642.2428-1-clg@kaod.org>
-        <47Sfr1448xz9sR1@ozlabs.org>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        Memory Management <mm-qe@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        CKI Project <cki-project@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Message-ID: <385099805.15030947.1575470584839.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20191203190925.GA5150@infradead.org>
+References: <cki.6C6A189643.3T2ZUWEMOI@redhat.com> <1738119916.14437244.1575151003345.JavaMail.zimbra@redhat.com> <8736e3ffen.fsf@mpe.ellerman.id.au> <1420623640.14527843.1575289859701.JavaMail.zimbra@redhat.com> <1766807082.14812757.1575377439007.JavaMail.zimbra@redhat.com> <20191203190925.GA5150@infradead.org>
+Subject: Re: [bug] userspace hitting sporadic SIGBUS on xfs (Power9,
+ ppc64le), v4.19 and later
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Ovh-Tracer-Id: 14256989045691881862
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrudejledgieeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdqfffguegfifdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffukfgjfhfogggtgfesthhqredtredtjeenucfhrhhomhepifhrvghgucfmuhhriicuoehgrhhouhhgsehkrghougdrohhrgheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkpheptddrtddrtddrtddpkedvrddvheefrddvtdekrddvgeeknecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejjedtrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepghhrohhugheskhgrohgurdhorhhgpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+X-Originating-IP: [10.43.17.163, 10.4.195.3]
+Thread-Topic: userspace hitting sporadic SIGBUS on xfs (Power9, ppc64le), v4.19 and later
+Thread-Index: bZFnIYc4/9CmmxXsANYOsGnjcI2iPQ==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-MC-Unique: JNulPZWVPeum3MOUKv5umw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu,  5 Dec 2019 00:30:56 +1100 (AEDT)
-Michael Ellerman <patch-notifications@ellerman.id.au> wrote:
 
-> On Tue, 2019-12-03 at 16:36:42 UTC, =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= wrote:
-> > The PCI INTx interrupts and other LSI interrupts are handled differently
-> > under a sPAPR platform. When the interrupt source characteristics are
-> > queried, the hypervisor returns an H_INT_ESB flag to inform the OS
-> > that it should be using the H_INT_ESB hcall for interrupt management
-> > and not loads and stores on the interrupt ESB pages.
-> > 
-> > A default -1 value is returned for the addresses of the ESB pages. The
-> > driver ignores this condition today and performs a bogus IO mapping.
-> > Recent changes and the DEBUG_VM configuration option make the bug
-> > visible with :
-> > 
-> > [    0.015518] kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
-> > [    0.015578] Oops: Exception in kernel mode, sig: 5 [#1]
-> > [    0.015627] LE PAGE_SIZE=64K MMU=Radix MMU=Hash SMP NR_CPUS=1024 NUMA pSeries
-> > [    0.015697] Modules linked in:
-> > [    0.015739] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.0-0.rc6.git0.1.fc32.ppc64le #1
-> > [    0.015812] NIP:  c000000000f63294 LR: c000000000f62e44 CTR: 0000000000000000
-> > [    0.015889] REGS: c0000000fa45f0d0 TRAP: 0700   Not tainted  (5.4.0-0.rc6.git0.1.fc32.ppc64le)
-> > [    0.015971] MSR:  8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 44000424  XER: 00000000
-> > [    0.016050] CFAR: c000000000f63128 IRQMASK: 0
-> > [    0.016050] GPR00: c000000000f62e44 c0000000fa45f360 c000000001be5400 0000000000000000
-> > [    0.016050] GPR04: c0000000019c7d38 c0000000fa340030 00000000fa330009 c000000001c15e18
-> > [    0.016050] GPR08: 0000000000000040 ffe0000000000000 0000000000000000 8418dd352dbd190f
-> > [    0.016050] GPR12: 0000000000000000 c000000001e00000 c00a000080060000 c00a000080060000
-> > [    0.016050] GPR16: 0000ffffffffffff 80000000000001ae c000000001c24d98 ffffffffffff0000
-> > [    0.016050] GPR20: c00a00008007ffff c000000001cafca0 c00a00008007ffff ffffffffffff0000
-> > [    0.016050] GPR24: c00a000080080000 c00a000080080000 c000000001cafca8 c00a000080080000
-> > [    0.016050] GPR28: c0000000fa32e010 c00a000080060000 ffffffffffff0000 c0000000fa330000
-> > [    0.016711] NIP [c000000000f63294] ioremap_page_range+0x4c4/0x6e0
-> > [    0.016778] LR [c000000000f62e44] ioremap_page_range+0x74/0x6e0
-> > [    0.016846] Call Trace:
-> > [    0.016876] [c0000000fa45f360] [c000000000f62e44] ioremap_page_range+0x74/0x6e0 (unreliable)
-> > [    0.016969] [c0000000fa45f460] [c0000000000934bc] do_ioremap+0x8c/0x120
-> > [    0.017037] [c0000000fa45f4b0] [c0000000000938e8] __ioremap_caller+0x128/0x140
-> > [    0.017116] [c0000000fa45f500] [c0000000000931a0] ioremap+0x30/0x50
-> > [    0.017184] [c0000000fa45f520] [c0000000000d1380] xive_spapr_populate_irq_data+0x170/0x260
-> > [    0.017263] [c0000000fa45f5c0] [c0000000000cc90c] xive_irq_domain_map+0x8c/0x170
-> > [    0.017344] [c0000000fa45f600] [c000000000219124] irq_domain_associate+0xb4/0x2d0
-> > [    0.017424] [c0000000fa45f690] [c000000000219fe0] irq_create_mapping+0x1e0/0x3b0
-> > [    0.017506] [c0000000fa45f730] [c00000000021ad6c] irq_create_fwspec_mapping+0x27c/0x3e0
-> > [    0.017586] [c0000000fa45f7c0] [c00000000021af68] irq_create_of_mapping+0x98/0xb0
-> > [    0.017666] [c0000000fa45f830] [c0000000008d4e48] of_irq_parse_and_map_pci+0x168/0x230
-> > [    0.017746] [c0000000fa45f910] [c000000000075428] pcibios_setup_device+0x88/0x250
-> > [    0.017826] [c0000000fa45f9a0] [c000000000077b84] pcibios_setup_bus_devices+0x54/0x100
-> > [    0.017906] [c0000000fa45fa10] [c0000000000793f0] __of_scan_bus+0x160/0x310
-> > [    0.017973] [c0000000fa45faf0] [c000000000075fc0] pcibios_scan_phb+0x330/0x390
-> > [    0.018054] [c0000000fa45fba0] [c00000000139217c] pcibios_init+0x8c/0x128
-> > [    0.018121] [c0000000fa45fc20] [c0000000000107b0] do_one_initcall+0x60/0x2c0
-> > [    0.018201] [c0000000fa45fcf0] [c000000001384624] kernel_init_freeable+0x290/0x378
-> > [    0.018280] [c0000000fa45fdb0] [c000000000010d24] kernel_init+0x2c/0x148
-> > [    0.018348] [c0000000fa45fe20] [c00000000000bdbc] ret_from_kernel_thread+0x5c/0x80
-> > [    0.018427] Instruction dump:
-> > [    0.018468] 41820014 3920fe7f 7d494838 7d290074 7929d182 f8e10038 69290001 0b090000
-> > [    0.018552] 7a098420 0b090000 7bc95960 7929a802 <0b090000> 7fc68b78 e8610048 7dc47378
-> > 
-> > Cc: stable@vger.kernel.org # v4.14+
-> > Fixes: bed81ee181dd ("powerpc/xive: introduce H_INT_ESB hcall")
-> > Signed-off-by: Cédric Le Goater <clg@kaod.org>
-> 
-> Applied to powerpc fixes, thanks.
-> 
-> https://git.kernel.org/powerpc/c/b67a95f2abff0c34e5667c15ab8900de73d8d087
-> 
+----- Original Message -----
+> Please try the patch below:
 
-My R-b tag is missing... I guess I didn't review it quick enough :)
-
-> cheers
+I ran reproducer for 18 hours on 2 systems were it previously reproduced,
+there were no crashes / SIGBUS.
 
