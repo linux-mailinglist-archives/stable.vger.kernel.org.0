@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8B21133B6
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87351113426
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729972AbfLDSS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:18:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37316 "EHLO mail.kernel.org"
+        id S1730527AbfLDSWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:22:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731234AbfLDSKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:10:16 -0500
+        id S1729824AbfLDSFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:05:25 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E52CA20675;
-        Wed,  4 Dec 2019 18:10:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D510B2081B;
+        Wed,  4 Dec 2019 18:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483016;
-        bh=7Ry9jrHQuYnZY7uOPI526vZCkCbcI2sx4X8O3i8qnwc=;
+        s=default; t=1575482725;
+        bh=uAYZUiGgVZVA8TdMU5/qfdvQ0kgDh1SXmr8vRZKpNZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbjanHpsTaCrUKo+SwPwdNHUKFxVOUXqCCw//KgoF4vsN4bVRqa42bdeqLgoJe++p
-         4M8vn49DFmUdAiXOMBDnEspOXI62ymO6NbolSQv3m//FV3iU3mQTGO8dGVOJTSTW0M
-         KkgYo53NbM8/o3r9GH/ZxyvldT1oKmhClDKOLAtw=
+        b=YeBiyh0mGR2RmO67ujwV4NQaxPZ1L32Cq8UID0RTD9wWi73l9w5T/GdO8tyeD3SjO
+         uIqse54dka3idgXMtuRbORrTt/NdyVepuTO2oL1zmhMKe70JdruhVN86pREuL2pMNS
+         KpJQMi7qxWzpsQJ2hZWK+NkUOWANG0kPXiVSRyjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 018/125] parisc: Fix HP SDC hpa address output
+Subject: [PATCH 4.14 111/209] f2fs: fix to dirty inode synchronously
 Date:   Wed,  4 Dec 2019 18:55:23 +0100
-Message-Id: <20191204175317.679328309@linuxfoundation.org>
+Message-Id: <20191204175329.699008290@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit c4bff35ca1bfba886da6223c9fed76a2b1382b8e ]
+[ Upstream commit b32e019049e959ee10ec359893c9dd5d057dad55 ]
 
-Show the hpa address of the HP SDC instead of a hashed value, e.g.:
-HP SDC: HP SDC at 0xf0201000, IRQ 23 (NMI IRQ 24)
+If user change inode's i_flags via ioctl, let's add it into global
+dirty list, so that checkpoint can guarantee its persistence before
+fsync, it can make checkpoint keeping strong consistency.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/hp_sdc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 852858e5d8d08..92f541db98a09 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -887,8 +887,8 @@ static int __init hp_sdc_init(void)
- 			"HP SDC NMI", &hp_sdc))
- 		goto err2;
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 1b17921994459..d68b0132718a6 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -1593,7 +1593,7 @@ static int __f2fs_ioc_setflags(struct inode *inode, unsigned int flags)
  
--	printk(KERN_INFO PREFIX "HP SDC at 0x%p, IRQ %d (NMI IRQ %d)\n",
--	       (void *)hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
-+	pr_info(PREFIX "HP SDC at 0x%08lx, IRQ %d (NMI IRQ %d)\n",
-+	       hp_sdc.base_io, hp_sdc.irq, hp_sdc.nmi);
+ 	inode->i_ctime = current_time(inode);
+ 	f2fs_set_inode_flags(inode);
+-	f2fs_mark_inode_dirty_sync(inode, false);
++	f2fs_mark_inode_dirty_sync(inode, true);
+ 	return 0;
+ }
  
- 	hp_sdc_status_in8();
- 	hp_sdc_data_in8();
 -- 
 2.20.1
 
