@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96382113431
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F991133FD
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:21:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729100AbfLDSEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:04:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50220 "EHLO mail.kernel.org"
+        id S1729629AbfLDSG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:06:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730242AbfLDSEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:04:42 -0500
+        id S1730668AbfLDSG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:06:57 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C60D206DF;
-        Wed,  4 Dec 2019 18:04:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD6F120675;
+        Wed,  4 Dec 2019 18:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482681;
-        bh=3QMdufV80+4d+hL2KT7BVZFNM0dt7I/JcvPcovucgcc=;
+        s=default; t=1575482817;
+        bh=XnpCKP1VGa9Neef0VB7/f4VFR7F6r56u+ItKvz+RVng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APir3mACw7GzvowYUbgTtpkp/mceSVKKryyMgEi9U2w7lY5GmOkMm2M4iuJW/fSbr
-         sFMPireU568r5m4V7HIMh8QOCMiRmGyACb1RBhp/KYEd/jcTBabgkREMS7Hx3Be5Ko
-         NXTazFPqVH5ts37h1PfY2VfQaE2KlrMwhhiX1x1I=
+        b=QSbjyACFzGWZBBRg/Iiszip03l2qI3cddaNr/evZFaJXP0z26nN/7dujsFRHzTFSt
+         c8AuH6FHnODtF9lbJc3XxSLnZ1Y1yRb9+TASxT2QXI1J8xlEdU8YPRUM9bPW42tgfC
+         EaeBBJk2RV5kRThS9sPC8E7zU6sY90AHNI5NL26c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kyle Roeschley <kyle.roeschley@ni.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 091/209] ath6kl: Only use match sets when firmware supports it
-Date:   Wed,  4 Dec 2019 18:55:03 +0100
-Message-Id: <20191204175328.020098178@linuxfoundation.org>
+Subject: [PATCH 4.14 092/209] ath6kl: Fix off by one error in scan completion
+Date:   Wed,  4 Dec 2019 18:55:04 +0100
+Message-Id: <20191204175328.182621418@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -46,16 +46,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kyle Roeschley <kyle.roeschley@ni.com>
 
-[ Upstream commit fb376a495fbdb886f38cfaf5a3805401b9e46f13 ]
+[ Upstream commit 5803c12816c43bd09e5f4247dd9313c2d9a2c41b ]
 
-Commit dd45b7598f1c ("ath6kl: Include match ssid list in scheduled scan")
-merged the probed and matched SSID lists before sending them to the
-firmware. In the process, it assumed match set support is always available
-in ath6kl_set_probed_ssids, which breaks scans for hidden SSIDs. Now, check
-that the firmware supports matching SSIDs in scheduled scans before setting
-MATCH_SSID_FLAG.
+When ath6kl was reworked to share code between regular and scheduled scans
+in commit 3b8ffc6a22ba ("ath6kl: Configure probed SSID list consistently"),
+probed SSID entry changed from 1-index to 0-indexed. However,
+ath6kl_cfg80211_scan_complete_event() was missed in that change. Fix its
+indexing so that we correctly clear out the probed SSID list.
 
-Fixes: dd45b7598f1c ("ath6kl: Include match ssid list in scheduled scan")
 Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
@@ -64,18 +62,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/wireless/ath/ath6kl/cfg80211.c b/drivers/net/wireless/ath/ath6kl/cfg80211.c
-index 414b5b596efcd..f790d8021fa17 100644
+index f790d8021fa17..37deb9bae3643 100644
 --- a/drivers/net/wireless/ath/ath6kl/cfg80211.c
 +++ b/drivers/net/wireless/ath/ath6kl/cfg80211.c
-@@ -939,7 +939,7 @@ static int ath6kl_set_probed_ssids(struct ath6kl *ar,
- 		else
- 			ssid_list[i].flag = ANY_SSID_FLAG;
- 
--		if (n_match_ssid == 0)
-+		if (ar->wiphy->max_match_sets != 0 && n_match_ssid == 0)
- 			ssid_list[i].flag |= MATCH_SSID_FLAG;
+@@ -1093,7 +1093,7 @@ void ath6kl_cfg80211_scan_complete_event(struct ath6kl_vif *vif, bool aborted)
+ 	if (vif->scan_req->n_ssids && vif->scan_req->ssids[0].ssid_len) {
+ 		for (i = 0; i < vif->scan_req->n_ssids; i++) {
+ 			ath6kl_wmi_probedssid_cmd(ar->wmi, vif->fw_vif_idx,
+-						  i + 1, DISABLE_SSID_FLAG,
++						  i, DISABLE_SSID_FLAG,
+ 						  0, NULL);
+ 		}
  	}
- 
 -- 
 2.20.1
 
