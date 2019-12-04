@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDC5113210
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 184471132A2
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729905AbfLDSF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:05:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51950 "EHLO mail.kernel.org"
+        id S1731230AbfLDSKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:10:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729347AbfLDSFX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:05:23 -0500
+        id S1729763AbfLDSKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:10:14 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 634F420659;
-        Wed,  4 Dec 2019 18:05:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7878E20674;
+        Wed,  4 Dec 2019 18:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482722;
-        bh=2fVdgC/fjirU6vo9EcK3UR87dC/f+jTse9YxNMAOxKE=;
+        s=default; t=1575483013;
+        bh=pBD8D54Jh+aAZ584Gec2gIdMiQfp2n7SefwZdXpySxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mj0jOfP87S98KaTy2D2NsWI8I6rlf1vmG0mr8cCi0naaU2r+TO2179xnmXlH6AsCH
-         Ycd/AoQj8BnGlWmIj5kYS6qIL19qyui4vub34RNoP5ismqyIl2O6ZtGosnuTFK3Xno
-         l49FWAuUOMhXgdM5f0OPpDRAktPL+g3STpRgM3i0=
+        b=UjgYreU687s0kGO9I0YzU+OHZ7K/QDn9afyrCZFuWTZ14LK1JcjZAzkM9IE7bF0IB
+         uoeu/xjfpKtYHutmnBH/r/xd0QiKYIuPNvza3ZqcNQQ+Wc/A/BdZtGVs2msZakJSCz
+         RBtHshN4q3HeuESfCI2UfBKppf6RLSTy2rLGQHag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 110/209] net/net_namespace: Check the return value of register_pernet_subsys()
+Subject: [PATCH 4.9 017/125] parisc: Fix serio address output
 Date:   Wed,  4 Dec 2019 18:55:22 +0100
-Message-Id: <20191204175329.569679172@linuxfoundation.org>
+Message-Id: <20191204175317.366024596@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 0eb987c874dc93f9c9d85a6465dbde20fdd3884c ]
+[ Upstream commit 785145171d17af2554128becd6a7c8f89e101141 ]
 
-In net_ns_init(), register_pernet_subsys() could fail while registering
-network namespace subsystems. The fix checks the return value and
-sends a panic() on failure.
+We want the hpa addresses printed in the serio modules, not some
+virtual ioremap()ed address, e.g.:
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ serio: gsc-ps2-keyboard port at 0xf0108000 irq 22 @ 2:0:11
+ serio: gsc-ps2-mouse port at 0xf0108100 irq 22 @ 2:0:12
+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net_namespace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/serio/gscps2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
-index 60b88718b1d48..1af25d53f63ca 100644
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -854,7 +854,8 @@ static int __init net_ns_init(void)
+diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
+index ecba666afadb7..cca26e6f38b36 100644
+--- a/drivers/input/serio/gscps2.c
++++ b/drivers/input/serio/gscps2.c
+@@ -382,9 +382,9 @@ static int gscps2_probe(struct parisc_device *dev)
+ 		goto fail;
+ #endif
  
- 	mutex_unlock(&net_mutex);
+-	printk(KERN_INFO "serio: %s port at 0x%p irq %d @ %s\n",
++	pr_info("serio: %s port at 0x%08lx irq %d @ %s\n",
+ 		ps2port->port->name,
+-		ps2port->addr,
++		hpa,
+ 		ps2port->padev->irq,
+ 		ps2port->port->phys);
  
--	register_pernet_subsys(&net_ns_ops);
-+	if (register_pernet_subsys(&net_ns_ops))
-+		panic("Could not register network namespace subsystems");
- 
- 	rtnl_register(PF_UNSPEC, RTM_NEWNSID, rtnl_net_newid, NULL,
- 		      RTNL_FLAG_DOIT_UNLOCKED);
 -- 
 2.20.1
 
