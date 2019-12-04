@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 451CD11334D
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B755A11326A
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731725AbfLDSNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:13:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42214 "EHLO mail.kernel.org"
+        id S1730888AbfLDSIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:08:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731721AbfLDSNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:13:14 -0500
+        id S1730885AbfLDSIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:08:16 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80BCC20674;
-        Wed,  4 Dec 2019 18:13:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A81320675;
+        Wed,  4 Dec 2019 18:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483193;
-        bh=rkaZ7GFBTezRs+c1psX1fLT4Sv2NwyXuvcK7sz8Rltk=;
+        s=default; t=1575482896;
+        bh=GKrDquQmMc8HbmJnc35y54RKrxR7EJFTx2TQSEMwkZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtAZe80FOGRJCMxvrbnx6FvN7Vng0HcBiYae+ITk01PhO2+BELQeL/jW6m/69L9qd
-         aOTS83v57BniLwtt2r1X8yLv3Z1HHJBUiDWYK9CMslWsezBC8NNp4z4ECXyC7F0vmg
-         qf1qpegPbC7MckHvNbJa3hERdnTCYetd9QQ1XDmA=
+        b=wj3biG7SsbsUcjFhHT4VNUxsQWCyAIS5Q4po/L/A/6ho8LBWquaoDoN5eMR9rnklW
+         eY5OWwR5KhhwG3j2wTyk0dufGkU3mSCAdev2K9PddDzyRNqZVAWR/xKQ4Gy2hRy7G1
+         9d7kgphPqwKx3NheNGPWFLPT0z5wqPPpr9ymroZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexey Skidanov <alexey.skidanov@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Daniel Mentz <danielmentz@google.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 083/125] lib/genalloc.c: fix allocation of aligned buffer from non-aligned chunk
-Date:   Wed,  4 Dec 2019 18:56:28 +0100
-Message-Id: <20191204175324.082049865@linuxfoundation.org>
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 177/209] net: sched: fix `tc -s class show` no bstats on class with nolock subqueues
+Date:   Wed,  4 Dec 2019 18:56:29 +0100
+Message-Id: <20191204175335.671731498@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,166 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Skidanov <alexey.skidanov@intel.com>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-[ Upstream commit 52fbf1134d479234d7e64ba9dcbaea23405f229e ]
+[ Upstream commit 14e54ab9143fa60794d13ea0a66c792a2046a8f3 ]
 
-gen_pool_alloc_algo() uses different allocation functions implementing
-different allocation algorithms.  With gen_pool_first_fit_align()
-allocation function, the returned address should be aligned on the
-requested boundary.
+When a classful qdisc's child qdisc has set the flag
+TCQ_F_CPUSTATS (pfifo_fast for example), the child qdisc's
+cpu_bstats should be passed to gnet_stats_copy_basic(),
+but many classful qdisc didn't do that. As a result,
+`tc -s class show dev DEV` always return 0 for bytes and
+packets in this case.
 
-If chunk start address isn't aligned on the requested boundary, the
-returned address isn't aligned too.  The only way to get properly
-aligned address is to initialize the pool with chunks aligned on the
-requested boundary.  If want to have an ability to allocate buffers
-aligned on different boundaries (for example, 4K, 1MB, ...), the chunk
-start address should be aligned on the max possible alignment.
+Pass the child qdisc's cpu_bstats to gnet_stats_copy_basic()
+to fix this issue.
 
-This happens because gen_pool_first_fit_align() looks for properly
-aligned memory block without taking into account the chunk start address
-alignment.
+The qstats also has this problem, but it has been fixed
+in 5dd431b6b9 ("net: sched: introduce and use qstats read...")
+and bstats still remains buggy.
 
-To fix this, we provide chunk start address to
-gen_pool_first_fit_align() and change its implementation such that it
-starts looking for properly aligned block with appropriate offset
-(exactly as is done in CMA).
-
-Link: https://lkml.kernel.org/lkml/a170cf65-6884-3592-1de9-4c235888cc8a@intel.com
-Link: http://lkml.kernel.org/r/1541690953-4623-1-git-send-email-alexey.skidanov@intel.com
-Signed-off-by: Alexey Skidanov <alexey.skidanov@intel.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Daniel Mentz <danielmentz@google.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 22e0f8b9322c ("net: sched: make bstats per cpu and estimator RCU safe")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/genalloc.h | 13 +++++++------
- lib/genalloc.c           | 20 ++++++++++++--------
- 2 files changed, 19 insertions(+), 14 deletions(-)
+ net/sched/sch_mq.c     |    3 ++-
+ net/sched/sch_mqprio.c |    4 ++--
+ net/sched/sch_multiq.c |    2 +-
+ net/sched/sch_prio.c   |    2 +-
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/genalloc.h b/include/linux/genalloc.h
-index 206fe3bcccccd..575f2dee8cf71 100644
---- a/include/linux/genalloc.h
-+++ b/include/linux/genalloc.h
-@@ -50,7 +50,8 @@ typedef unsigned long (*genpool_algo_t)(unsigned long *map,
- 			unsigned long size,
- 			unsigned long start,
- 			unsigned int nr,
--			void *data, struct gen_pool *pool);
-+			void *data, struct gen_pool *pool,
-+			unsigned long start_addr);
+--- a/net/sched/sch_mq.c
++++ b/net/sched/sch_mq.c
+@@ -191,7 +191,8 @@ static int mq_dump_class_stats(struct Qd
+ 	struct netdev_queue *dev_queue = mq_queue_get(sch, cl);
  
- /*
-  *  General purpose special memory pool descriptor.
-@@ -130,24 +131,24 @@ extern void gen_pool_set_algo(struct gen_pool *pool, genpool_algo_t algo,
+ 	sch = dev_queue->qdisc_sleeping;
+-	if (gnet_stats_copy_basic(&sch->running, d, NULL, &sch->bstats) < 0 ||
++	if (gnet_stats_copy_basic(&sch->running, d, sch->cpu_bstats,
++				  &sch->bstats) < 0 ||
+ 	    gnet_stats_copy_queue(d, NULL, &sch->qstats, sch->q.qlen) < 0)
+ 		return -1;
+ 	return 0;
+--- a/net/sched/sch_mqprio.c
++++ b/net/sched/sch_mqprio.c
+@@ -366,8 +366,8 @@ static int mqprio_dump_class_stats(struc
+ 		struct netdev_queue *dev_queue = mqprio_queue_get(sch, cl);
  
- extern unsigned long gen_pool_first_fit(unsigned long *map, unsigned long size,
- 		unsigned long start, unsigned int nr, void *data,
--		struct gen_pool *pool);
-+		struct gen_pool *pool, unsigned long start_addr);
+ 		sch = dev_queue->qdisc_sleeping;
+-		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-					  d, NULL, &sch->bstats) < 0 ||
++		if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch), d,
++					  sch->cpu_bstats, &sch->bstats) < 0 ||
+ 		    gnet_stats_copy_queue(d, NULL,
+ 					  &sch->qstats, sch->q.qlen) < 0)
+ 			return -1;
+--- a/net/sched/sch_multiq.c
++++ b/net/sched/sch_multiq.c
+@@ -340,7 +340,7 @@ static int multiq_dump_class_stats(struc
  
- extern unsigned long gen_pool_fixed_alloc(unsigned long *map,
- 		unsigned long size, unsigned long start, unsigned int nr,
--		void *data, struct gen_pool *pool);
-+		void *data, struct gen_pool *pool, unsigned long start_addr);
+ 	cl_q = q->queues[cl - 1];
+ 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-				  d, NULL, &cl_q->bstats) < 0 ||
++				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
+ 	    gnet_stats_copy_queue(d, NULL, &cl_q->qstats, cl_q->q.qlen) < 0)
+ 		return -1;
  
- extern unsigned long gen_pool_first_fit_align(unsigned long *map,
- 		unsigned long size, unsigned long start, unsigned int nr,
--		void *data, struct gen_pool *pool);
-+		void *data, struct gen_pool *pool, unsigned long start_addr);
+--- a/net/sched/sch_prio.c
++++ b/net/sched/sch_prio.c
+@@ -298,7 +298,7 @@ static int prio_dump_class_stats(struct
  
+ 	cl_q = q->queues[cl - 1];
+ 	if (gnet_stats_copy_basic(qdisc_root_sleeping_running(sch),
+-				  d, NULL, &cl_q->bstats) < 0 ||
++				  d, cl_q->cpu_bstats, &cl_q->bstats) < 0 ||
+ 	    gnet_stats_copy_queue(d, NULL, &cl_q->qstats, cl_q->q.qlen) < 0)
+ 		return -1;
  
- extern unsigned long gen_pool_first_fit_order_align(unsigned long *map,
- 		unsigned long size, unsigned long start, unsigned int nr,
--		void *data, struct gen_pool *pool);
-+		void *data, struct gen_pool *pool, unsigned long start_addr);
- 
- extern unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
- 		unsigned long start, unsigned int nr, void *data,
--		struct gen_pool *pool);
-+		struct gen_pool *pool, unsigned long start_addr);
- 
- 
- extern struct gen_pool *devm_gen_pool_create(struct device *dev,
-diff --git a/lib/genalloc.c b/lib/genalloc.c
-index ca06adc4f4451..5deb25c40a5a1 100644
---- a/lib/genalloc.c
-+++ b/lib/genalloc.c
-@@ -311,7 +311,7 @@ unsigned long gen_pool_alloc_algo(struct gen_pool *pool, size_t size,
- 		end_bit = chunk_size(chunk) >> order;
- retry:
- 		start_bit = algo(chunk->bits, end_bit, start_bit,
--				 nbits, data, pool);
-+				 nbits, data, pool, chunk->start_addr);
- 		if (start_bit >= end_bit)
- 			continue;
- 		remain = bitmap_set_ll(chunk->bits, start_bit, nbits);
-@@ -525,7 +525,7 @@ EXPORT_SYMBOL(gen_pool_set_algo);
-  */
- unsigned long gen_pool_first_fit(unsigned long *map, unsigned long size,
- 		unsigned long start, unsigned int nr, void *data,
--		struct gen_pool *pool)
-+		struct gen_pool *pool, unsigned long start_addr)
- {
- 	return bitmap_find_next_zero_area(map, size, start, nr, 0);
- }
-@@ -543,16 +543,19 @@ EXPORT_SYMBOL(gen_pool_first_fit);
-  */
- unsigned long gen_pool_first_fit_align(unsigned long *map, unsigned long size,
- 		unsigned long start, unsigned int nr, void *data,
--		struct gen_pool *pool)
-+		struct gen_pool *pool, unsigned long start_addr)
- {
- 	struct genpool_data_align *alignment;
--	unsigned long align_mask;
-+	unsigned long align_mask, align_off;
- 	int order;
- 
- 	alignment = data;
- 	order = pool->min_alloc_order;
- 	align_mask = ((alignment->align + (1UL << order) - 1) >> order) - 1;
--	return bitmap_find_next_zero_area(map, size, start, nr, align_mask);
-+	align_off = (start_addr & (alignment->align - 1)) >> order;
-+
-+	return bitmap_find_next_zero_area_off(map, size, start, nr,
-+					      align_mask, align_off);
- }
- EXPORT_SYMBOL(gen_pool_first_fit_align);
- 
-@@ -567,7 +570,7 @@ EXPORT_SYMBOL(gen_pool_first_fit_align);
-  */
- unsigned long gen_pool_fixed_alloc(unsigned long *map, unsigned long size,
- 		unsigned long start, unsigned int nr, void *data,
--		struct gen_pool *pool)
-+		struct gen_pool *pool, unsigned long start_addr)
- {
- 	struct genpool_data_fixed *fixed_data;
- 	int order;
-@@ -601,7 +604,8 @@ EXPORT_SYMBOL(gen_pool_fixed_alloc);
-  */
- unsigned long gen_pool_first_fit_order_align(unsigned long *map,
- 		unsigned long size, unsigned long start,
--		unsigned int nr, void *data, struct gen_pool *pool)
-+		unsigned int nr, void *data, struct gen_pool *pool,
-+		unsigned long start_addr)
- {
- 	unsigned long align_mask = roundup_pow_of_two(nr) - 1;
- 
-@@ -624,7 +628,7 @@ EXPORT_SYMBOL(gen_pool_first_fit_order_align);
-  */
- unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
- 		unsigned long start, unsigned int nr, void *data,
--		struct gen_pool *pool)
-+		struct gen_pool *pool, unsigned long start_addr)
- {
- 	unsigned long start_bit = size;
- 	unsigned long len = size + 1;
--- 
-2.20.1
-
 
 
