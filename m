@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB23A1132F0
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EE0113238
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:08:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731696AbfLDSNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:13:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41970 "EHLO mail.kernel.org"
+        id S1729929AbfLDSGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:06:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731353AbfLDSNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:13:01 -0500
+        id S1730024AbfLDSGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:06:33 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B353620674;
-        Wed,  4 Dec 2019 18:13:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B02D20674;
+        Wed,  4 Dec 2019 18:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483181;
-        bh=8rpbA/I/vOJX++ZcZmL05DkRyFxZUOMgDCs+tabDovA=;
+        s=default; t=1575482792;
+        bh=OUxMEqaedTerczHBI7WUPaEO4Ds7NoVMV/fIilPn1tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qxtoLOQYsZEEfzdJMyW5qo9N+kbdSmVza8qC2b/z56s9kTlAL/TTPojVvbOQEEzmF
-         84WdD7hkSMqiNPNgHdRxcvUx8gzy7jlguCgvM6Eu7pBlPr4lzGKZJHuVsg1FiD4GMz
-         IyW6w2SLgSdOJtdjfZErDJasvdEYdfLTm0IAhvdg=
+        b=NjRdYUI3pDktxWO/aXFyQcHeCIuOaxWsSnohMGjiZLuc7iFz1zbcVNo+r6gqdkOow
+         Fz0PHarssx32tcpOwbRde0KBVfPzc6GWxud2z85SAxCgmv7TYfNZ6mixTIW1T72VJW
+         Y3wjrcaXfaEowfNvobKTTHwD50jwGNFIP9H1kX1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeedm@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 040/125] net/mlx5: Continue driver initialization despite debugfs failure
-Date:   Wed,  4 Dec 2019 18:55:45 +0100
-Message-Id: <20191204175321.407733280@linuxfoundation.org>
+Subject: [PATCH 4.14 134/209] ip_tunnel: Make none-tunnel-dst tunnel port work with lwtunnel
+Date:   Wed,  4 Dec 2019 18:55:46 +0100
+Message-Id: <20191204175332.445673372@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: wenxu <wenxu@ucloud.cn>
 
-[ Upstream commit 199fa087dc6b503baad06712716fac645a983e8a ]
+[ Upstream commit d71b57532d70c03f4671dd04e84157ac6bf021b0 ]
 
-The failure to create debugfs entry is unpleasant event, but not enough
-to abort drier initialization. Align the mlx5_core code to debugfs design
-and continue execution whenever debugfs_create_dir() successes or not.
+ip l add dev tun type gretap key 1000
+ip a a dev tun 10.0.0.1/24
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Packets with tun-id 1000 can be recived by tun dev. But packet can't
+be sent through dev tun for non-tunnel-dst
+
+With this patch: tunnel-dst can be get through lwtunnel like beflow:
+ip r a 10.0.0.7 encap ip dst 172.168.0.11 dev tun
+
+Signed-off-by: wenxu <wenxu@ucloud.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/ipv4/ip_tunnel.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index d676088512cf8..c9fb589690ee9 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -786,11 +786,9 @@ static int mlx5_pci_init(struct mlx5_core_dev *dev, struct mlx5_priv *priv)
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index fabc299cb875f..7a31287ff1232 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -661,13 +661,19 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	dst = tnl_params->daddr;
+ 	if (dst == 0) {
+ 		/* NBMA tunnel */
++		struct ip_tunnel_info *tun_info;
  
- 	priv->numa_node = dev_to_node(&dev->pdev->dev);
+ 		if (!skb_dst(skb)) {
+ 			dev->stats.tx_fifo_errors++;
+ 			goto tx_error;
+ 		}
  
--	priv->dbg_root = debugfs_create_dir(dev_name(&pdev->dev), mlx5_debugfs_root);
--	if (!priv->dbg_root) {
--		dev_err(&pdev->dev, "Cannot create debugfs dir, aborting\n");
--		return -ENOMEM;
--	}
-+	if (mlx5_debugfs_root)
-+		priv->dbg_root =
-+			debugfs_create_dir(pci_name(pdev), mlx5_debugfs_root);
- 
- 	err = mlx5_pci_enable_device(dev);
- 	if (err) {
+-		if (skb->protocol == htons(ETH_P_IP)) {
++		tun_info = skb_tunnel_info(skb);
++		if (tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) &&
++		    ip_tunnel_info_af(tun_info) == AF_INET &&
++		    tun_info->key.u.ipv4.dst)
++			dst = tun_info->key.u.ipv4.dst;
++		else if (skb->protocol == htons(ETH_P_IP)) {
+ 			rt = skb_rtable(skb);
+ 			dst = rt_nexthop(rt, inner_iph->daddr);
+ 		}
 -- 
 2.20.1
 
