@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11499113371
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:18:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD84A11327D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:11:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731465AbfLDSLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:11:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39826 "EHLO mail.kernel.org"
+        id S1730945AbfLDSIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:08:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730942AbfLDSLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:11:34 -0500
+        id S1730941AbfLDSIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:08:40 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 987C720674;
-        Wed,  4 Dec 2019 18:11:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B56AF20862;
+        Wed,  4 Dec 2019 18:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483094;
-        bh=c92/BLyGFwnUnlC9RHs4LORE2AeBCegKXnWlVU3xO4I=;
+        s=default; t=1575482920;
+        bh=nQybpkEgQGYlDZRpW33M8eWJcLoJzleNnd/FTE5dnzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIFR1ZLWRrWB2+PuKXzpKeE62E5xvGI3UPAGCh8RZ9UuYlUZPaWKQNj911rVZ3tXk
-         ov9S1wMUEzWpGBkEbJgxgI5rN8yJn1T6Wtipt/nMPkWdGLcTe/CgKbIluyqSsn5+gt
-         oq3o3n9Lqb3iBbR69S5r4S2SCFrkqqUO//Zxs80s=
+        b=Y7o86Fw/MgKz1abtPdwg/FDV8A4deapwn2+KwPCLedDEowQqgtPElvovNtgH7zCa5
+         umFKjFMStZPD8uINhwY+3Tiq9mHJ/eDml6qLOmlqhs97IJ44tYhD+6qtqz6NimFUJk
+         083BjZrT1iky91GXtGt3xpeW8wqtCCxagyx9tb1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 050/125] powerpc/book3s/32: fix number of bats in p/v_block_mapped()
-Date:   Wed,  4 Dec 2019 18:55:55 +0100
-Message-Id: <20191204175322.048057205@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+7857962b4d45e602b8ad@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 144/209] kvm: properly check debugfs dentry before using it
+Date:   Wed,  4 Dec 2019 18:55:56 +0100
+Message-Id: <20191204175333.233165534@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit e93ba1b7eb5b188c749052df7af1c90821c5f320 ]
+[ Upstream commit 8ed0579c12b2fe56a1fac2f712f58fc26c1dc49b ]
 
-This patch fixes the loop in p_block_mapped() and v_block_mapped()
-to scan the entire bat_addrs[] array.
+debugfs can now report an error code if something went wrong instead of
+just NULL.  So if the return value is to be used as a "real" dentry, it
+needs to be checked if it is an error before dereferencing it.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+This is now happening because of ff9fb72bc077 ("debugfs: return error
+values, not NULL").  syzbot has found a way to trigger multiple debugfs
+files attempting to be created, which fails, and then the error code
+gets passed to dentry_path_raw() which obviously does not like it.
+
+Reported-by: Eric Biggers <ebiggers@kernel.org>
+Reported-and-tested-by: syzbot+7857962b4d45e602b8ad@syzkaller.appspotmail.com
+Cc: "Radim Krčmář" <rkrcmar@redhat.com>
+Cc: kvm@vger.kernel.org
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/ppc_mmu_32.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ virt/kvm/kvm_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/ppc_mmu_32.c b/arch/powerpc/mm/ppc_mmu_32.c
-index 2a049fb8523d5..96c52271e9c2d 100644
---- a/arch/powerpc/mm/ppc_mmu_32.c
-+++ b/arch/powerpc/mm/ppc_mmu_32.c
-@@ -52,7 +52,7 @@ struct batrange {		/* stores address ranges mapped by BATs */
- phys_addr_t v_block_mapped(unsigned long va)
- {
- 	int b;
--	for (b = 0; b < 4; ++b)
-+	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
- 		if (va >= bat_addrs[b].start && va < bat_addrs[b].limit)
- 			return bat_addrs[b].phys + (va - bat_addrs[b].start);
- 	return 0;
-@@ -64,7 +64,7 @@ phys_addr_t v_block_mapped(unsigned long va)
- unsigned long p_block_mapped(phys_addr_t pa)
- {
- 	int b;
--	for (b = 0; b < 4; ++b)
-+	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
- 		if (pa >= bat_addrs[b].phys
- 	    	    && pa < (bat_addrs[b].limit-bat_addrs[b].start)
- 		              +bat_addrs[b].phys)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index cdaacdf7bc877..deff4b3eb9722 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3989,7 +3989,7 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm)
+ 	}
+ 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
+ 
+-	if (kvm->debugfs_dentry) {
++	if (!IS_ERR_OR_NULL(kvm->debugfs_dentry)) {
+ 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL);
+ 
+ 		if (p) {
 -- 
 2.20.1
 
