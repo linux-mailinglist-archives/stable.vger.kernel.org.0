@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA9D1132CD
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:12:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE44F11324D
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730874AbfLDSMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:12:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40616 "EHLO mail.kernel.org"
+        id S1730747AbfLDSHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:07:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731551AbfLDSMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:12:06 -0500
+        id S1730737AbfLDSHS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:07:18 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3ACEA214AF;
-        Wed,  4 Dec 2019 18:12:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B090020675;
+        Wed,  4 Dec 2019 18:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575483125;
-        bh=ZhJ+AoQEj/5MiznVVd92YNDSv6J7kOWoIuf5m+J3hN0=;
+        s=default; t=1575482837;
+        bh=XOT+X/DKPEi5dZaEYS+gn3/ARlU0Jl/JFo1hv2SUL3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3odKegJ0pC0JKz2z77k+gWgwnPppQ0PUOSeo1coFV9r40ybn1Qu9B5/hTbnwTUvN
-         OueBuisazF8Pl0inwSbJRjWcJgvJ7DqxCGks6v1lNSuu7sooKjTCcOcVbLPRgPXiiQ
-         S62cgI3Ju4w8BVGOkFM73H2bYaOdfzZBS1mYQbd4=
+        b=lDCZe4hy0JCCggl8/0GCLeCOzypJVFbuslUzE/g2dK6VGwl+WezOCZDLlpJ/F3evA
+         A4o3KRqKGUKc/D3GGib2pNjvhXo5UtONfceY4Cv0tcHn51CIdaUzh9oUxg0ylsusvX
+         SGsaFj3zoGVSpqtGbo/776hpMoKHie289ENqS+lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 062/125] powerpc/44x/bamboo: Fix PCI range
+Subject: [PATCH 4.14 155/209] mm, gup: add missing refcount overflow checks on s390
 Date:   Wed,  4 Dec 2019 18:56:07 +0100
-Message-Id: <20191204175322.742339862@linuxfoundation.org>
+Message-Id: <20191204175334.154600538@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
-References: <20191204175308.377746305@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+References: <20191204175321.609072813@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-[ Upstream commit 3cfb9ebe906b51f2942b1e251009bb251efd2ba6 ]
+The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
+overflowing page refcount") was backported to 4.14.y stable as commit
+04198de24771. The backport however missed that in 4.14, there are several
+arch-specific gup.c versions with fast gup implementations, so these do not
+prevent refcount overflow.
 
-The bamboo dts has a bug: it uses a non-naturally aligned range
-for PCI memory space. This isnt' supported by the code, thus
-causing PCI to break on this system.
+This stable-only commit fixes the s390 version, and is based on the backport in
+SUSE SLES/openSUSE 4.12-based kernels.
 
-This is due to the fact that while the chip memory map has 1G
-reserved for PCI memory, it's only 512M aligned. The code doesn't
-know how to split that into 2 different PMMs and fails, so limit
-the region to 512M.
+The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
+the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
+problem for those architectures, and I don't feel confident enough to patch
+them.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/bamboo.dts | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/mm/gup.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/bamboo.dts b/arch/powerpc/boot/dts/bamboo.dts
-index aa68911f6560a..084b82ba74933 100644
---- a/arch/powerpc/boot/dts/bamboo.dts
-+++ b/arch/powerpc/boot/dts/bamboo.dts
-@@ -268,8 +268,10 @@
- 			/* Outbound ranges, one memory and one IO,
- 			 * later cannot be changed. Chip supports a second
- 			 * IO range but we don't use it for now
-+			 * The chip also supports a larger memory range but
-+			 * it's not naturally aligned, so our code will break
- 			 */
--			ranges = <0x02000000 0x00000000 0xa0000000 0x00000000 0xa0000000 0x00000000 0x40000000
-+			ranges = <0x02000000 0x00000000 0xa0000000 0x00000000 0xa0000000 0x00000000 0x20000000
- 				  0x02000000 0x00000000 0x00000000 0x00000000 0xe0000000 0x00000000 0x00100000
- 				  0x01000000 0x00000000 0x00000000 0x00000000 0xe8000000 0x00000000 0x00010000>;
+diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
+index 05c8abd864f1d..9bce54eac0b07 100644
+--- a/arch/s390/mm/gup.c
++++ b/arch/s390/mm/gup.c
+@@ -39,7 +39,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+ 		head = compound_head(page);
+-		if (!page_cache_get_speculative(head))
++		if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++		    || !page_cache_get_speculative(head)))
+ 			return 0;
+ 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+ 			put_page(head);
+@@ -77,7 +78,8 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
  
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs))) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -151,7 +153,8 @@ static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs))) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
 -- 
 2.20.1
 
