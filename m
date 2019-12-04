@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC8171133CD
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B2D2113356
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729560AbfLDSIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:08:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59104 "EHLO mail.kernel.org"
+        id S1731373AbfLDSQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:16:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730847AbfLDSIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:08:01 -0500
+        id S1730863AbfLDSMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:12:49 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD4DD20674;
-        Wed,  4 Dec 2019 18:08:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC5EC20675;
+        Wed,  4 Dec 2019 18:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482881;
-        bh=fd8Mb3TSzCyjnQWsjzliE7N5Lylgz2eJBuYrzVdusLY=;
+        s=default; t=1575483169;
+        bh=zHpT5ox9eP1tHLBjnqlnUf9eoQ/p8QToFJchykBnIfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUcz2thnCrcAHLBZei7ocE5ARgBZMTpjBO1ZCZz3Unaft5MVTwhFuCGctq+QihoHl
-         DLSygMOAvySy7WRJBtFq624kYzzbS1f/kbmFiZpmkDBpy54PJLuCHxBzIvz9UnFOUd
-         GCRYz+5FeyxFFPN1dmWCOyNP1AcktFrHxTcpc/C4=
+        b=mMjEWZbRUa1xGpogglavwu9MY4wZceUAdTVd5TTp5eraZeOs2IXo5JZcsYeQUedVw
+         QVVwx4PTfXq6aXt6xUIwohLN7h2UFA2X5QuvqY3CN4cCp0Z2GCUAeiV0NwSjGKX4sy
+         bIRHcLWysozXB2eDiLCbldlLFOERIHDNCPV+kNC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qi Jun Ding <qding@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 171/209] openvswitch: fix flow command message size
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 078/125] atl1e: checking the status of atl1e_write_phy_reg
 Date:   Wed,  4 Dec 2019 18:56:23 +0100
-Message-Id: <20191204175335.261039886@linuxfoundation.org>
+Message-Id: <20191204175323.775773586@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 4e81c0b3fa93d07653e2415fa71656b080a112fd ]
+[ Upstream commit ff07d48d7bc0974d4f96a85a4df14564fb09f1ef ]
 
-When user-space sets the OVS_UFID_F_OMIT_* flags, and the relevant
-flow has no UFID, we can exceed the computed size, as
-ovs_nla_put_identifier() will always dump an OVS_FLOW_ATTR_KEY
-attribute.
-Take the above in account when computing the flow command message
-size.
+atl1e_write_phy_reg() could fail. The fix issues an error message when
+it fails.
 
-Fixes: 74ed7ab9264c ("openvswitch: Add support for unique flow IDs.")
-Reported-by: Qi Jun Ding <qding@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/atheros/atl1e/atl1e_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -724,9 +724,13 @@ static size_t ovs_flow_cmd_msg_size(cons
+diff --git a/drivers/net/ethernet/atheros/atl1e/atl1e_main.c b/drivers/net/ethernet/atheros/atl1e/atl1e_main.c
+index 974713b19ab64..5e1f03590aaf2 100644
+--- a/drivers/net/ethernet/atheros/atl1e/atl1e_main.c
++++ b/drivers/net/ethernet/atheros/atl1e/atl1e_main.c
+@@ -478,7 +478,9 @@ static void atl1e_mdio_write(struct net_device *netdev, int phy_id,
  {
- 	size_t len = NLMSG_ALIGN(sizeof(struct ovs_header));
+ 	struct atl1e_adapter *adapter = netdev_priv(netdev);
  
--	/* OVS_FLOW_ATTR_UFID */
-+	/* OVS_FLOW_ATTR_UFID, or unmasked flow key as fallback
-+	 * see ovs_nla_put_identifier()
-+	 */
- 	if (sfid && ovs_identifier_is_ufid(sfid))
- 		len += nla_total_size(sfid->ufid_len);
-+	else
-+		len += nla_total_size(ovs_key_attr_size());
+-	atl1e_write_phy_reg(&adapter->hw, reg_num & MDIO_REG_ADDR_MASK, val);
++	if (atl1e_write_phy_reg(&adapter->hw,
++				reg_num & MDIO_REG_ADDR_MASK, val))
++		netdev_err(netdev, "write phy register failed\n");
+ }
  
- 	/* OVS_FLOW_ATTR_KEY */
- 	if (!sfid || should_fill_key(sfid, ufid_flags))
+ static int atl1e_mii_ioctl(struct net_device *netdev,
+-- 
+2.20.1
+
 
 
