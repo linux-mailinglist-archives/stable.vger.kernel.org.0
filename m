@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D28561134AE
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58AFA1134AF
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728644AbfLDR6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 12:58:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60562 "EHLO mail.kernel.org"
+        id S1728662AbfLDR6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 12:58:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728629AbfLDR6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 12:58:13 -0500
+        id S1728660AbfLDR6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 12:58:15 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E1CB2081B;
-        Wed,  4 Dec 2019 17:58:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B799220675;
+        Wed,  4 Dec 2019 17:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482292;
-        bh=4p/gyj2qvuKUImwhJLlJyPMVzrfpz0Q0/esrhrsDW6I=;
+        s=default; t=1575482295;
+        bh=D7hjSmdXK7WHeWT3wuT6ycmjaZRsL2baVYrJHqcHwl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dl4xZVkE8Tdn9o1ku+spNNRIvAbDLdTYr4W928tNJ/BNk13t8TiQ+sihQuOAtRw99
-         ZI+e5rFpMsd7hmCtdofNdcVBtT5Fwpvqv+2dYjk73bmoRatRJGkeELAaoDLknIuzNL
-         biljHTFxA6JePykPRj0Z3CnDYH/Sqc1gG/hQdgdc=
+        b=TS0FcpREkBBszxHttwgdMsm6o3/dhMhaSXJJrlnftql+G9r2H6/btTcurwO5RBNGN
+         YNTzBl67aiGj/+WRr/kkCzZxd0EQqHWBjud6qUGkOv7PSGiUwTc4zi0VELZIj4+h2r
+         UACHtZ29T4qFiaa4e5F0XujNXpD6KP0AGl1RpXCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lepton Wu <ytht.net@gmail.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <jbacik@fb.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 28/92] VSOCK: bind to random port for VMADDR_PORT_ANY
-Date:   Wed,  4 Dec 2019 18:49:28 +0100
-Message-Id: <20191204174332.317108068@linuxfoundation.org>
+Subject: [PATCH 4.4 29/92] btrfs: only track ref_heads in delayed_ref_updates
+Date:   Wed,  4 Dec 2019 18:49:29 +0100
+Message-Id: <20191204174332.368279605@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -45,53 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lepton Wu <ytht.net@gmail.com>
+From: Josef Bacik <jbacik@fb.com>
 
-[ Upstream commit 8236b08cf50f85bbfaf48910a0b3ee68318b7c4b ]
+[ Upstream commit 158ffa364bf723fa1ef128060646d23dc3942994 ]
 
-The old code always starts from fixed port for VMADDR_PORT_ANY. Sometimes
-when VMM crashed, there is still orphaned vsock which is waiting for
-close timer, then it could cause connection time out for new started VM
-if they are trying to connect to same port with same guest cid since the
-new packets could hit that orphaned vsock. We could also fix this by doing
-more in vhost_vsock_reset_orphans, but any way, it should be better to start
-from a random local port instead of a fixed one.
+We use this number to figure out how many delayed refs to run, but
+__btrfs_run_delayed_refs really only checks every time we need a new
+delayed ref head, so we always run at least one ref head completely no
+matter what the number of items on it.  Fix the accounting to only be
+adjusted when we add/remove a ref head.
 
-Signed-off-by: Lepton Wu <ytht.net@gmail.com>
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In addition to using this number to limit the number of delayed refs
+run, a future patch is also going to use it to calculate the amount of
+space required for delayed refs space reservation.
+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <jbacik@fb.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/btrfs/delayed-ref.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 7f1d166ce6128..412d56614fd5e 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -89,6 +89,7 @@
- #include <linux/mutex.h>
- #include <linux/net.h>
- #include <linux/poll.h>
-+#include <linux/random.h>
- #include <linux/skbuff.h>
- #include <linux/smp.h>
- #include <linux/socket.h>
-@@ -483,9 +484,13 @@ out:
- static int __vsock_bind_stream(struct vsock_sock *vsk,
- 			       struct sockaddr_vm *addr)
- {
--	static u32 port = LAST_RESERVED_PORT + 1;
-+	static u32 port = 0;
- 	struct sockaddr_vm new_addr;
+diff --git a/fs/btrfs/delayed-ref.c b/fs/btrfs/delayed-ref.c
+index e06dd75ad13f9..a2f165029ee62 100644
+--- a/fs/btrfs/delayed-ref.c
++++ b/fs/btrfs/delayed-ref.c
+@@ -193,8 +193,6 @@ static inline void drop_delayed_ref(struct btrfs_trans_handle *trans,
+ 	ref->in_tree = 0;
+ 	btrfs_put_delayed_ref(ref);
+ 	atomic_dec(&delayed_refs->num_entries);
+-	if (trans->delayed_ref_updates)
+-		trans->delayed_ref_updates--;
+ }
  
-+	if (!port)
-+		port = LAST_RESERVED_PORT + 1 +
-+			prandom_u32_max(U32_MAX - LAST_RESERVED_PORT);
-+
- 	vsock_addr_init(&new_addr, addr->svm_cid, addr->svm_port);
- 
- 	if (addr->svm_port == VMADDR_PORT_ANY) {
+ static bool merge_ref(struct btrfs_trans_handle *trans,
+@@ -444,7 +442,6 @@ add_delayed_ref_tail_merge(struct btrfs_trans_handle *trans,
+ add_tail:
+ 	list_add_tail(&ref->list, &href->ref_list);
+ 	atomic_inc(&root->num_entries);
+-	trans->delayed_ref_updates++;
+ 	spin_unlock(&href->lock);
+ 	return ret;
+ }
 -- 
 2.20.1
 
