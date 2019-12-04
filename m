@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4AC11318F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5B21134D1
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729363AbfLDSAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:00:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39110 "EHLO mail.kernel.org"
+        id S1729370AbfLDSAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:00:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbfLDSA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:00:29 -0500
+        id S1729348AbfLDSAb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:00:31 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 003A720863;
-        Wed,  4 Dec 2019 18:00:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6520D2084B;
+        Wed,  4 Dec 2019 18:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482428;
-        bh=CnR8VqjPbUSexk0XC+b+VtAavmvPNRvwVEfAPui/OqE=;
+        s=default; t=1575482430;
+        bh=AdY9CoZS6VbSim8ej2vJKKJ5+4ut52l1UdMkaC/yLbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iuvxDbweGKZtZppFNYljV/VRKnLIk6M/bBoMcsLDm1KdB0DYsozQmRCgtslNsBpKF
-         /5TaPizTeEIoTn+vBdMHXrgpWqmbT2XmDamE3EHHVb4ItHIOUq5qWMTw5gM/oVpIut
-         jPPrOi5UTiCy8bfzcURBkCN6gkSM66DjWuoCMqpQ=
+        b=cIfi40BCo1ZQWpx3EYM7sG6LvQu2ry0Fq/9aZz+qygsTjxsJzuoUs0nZzh3ttEgLL
+         mQVADSMEzL4OAQkulp1rd9k+lVo/l/7t4CrUWEQ26O4Hu+RUeZPR+yLU/2Ktp5Oik/
+         mnUyyUQJqZVDvgM2YRJtCYhpTotL4fSNItzAdusY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 82/92] pwm: Clear chip_data in pwm_put()
-Date:   Wed,  4 Dec 2019 18:50:22 +0100
-Message-Id: <20191204174335.134718709@linuxfoundation.org>
+        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 83/92] macvlan: schedule bc_work even if error
+Date:   Wed,  4 Dec 2019 18:50:23 +0100
+Message-Id: <20191204174335.185471437@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -46,44 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Menglong Dong <dong.menglong@zte.com.cn>
 
-commit e926b12c611c2095c7976e2ed31753ad6eb5ff1a upstream.
+[ Upstream commit 1d7ea55668878bb350979c377fc72509dd6f5b21 ]
 
-After a PWM is disposed by its user the per chip data becomes invalid.
-Clear the data in common code instead of the device drivers to get
-consistent behaviour. Before this patch only three of nine drivers
-cleaned up here.
+While enqueueing a broadcast skb to port->bc_queue, schedule_work()
+is called to add port->bc_work, which processes the skbs in
+bc_queue, to "events" work queue. If port->bc_queue is full, the
+skb will be discarded and schedule_work(&port->bc_work) won't be
+called. However, if port->bc_queue is full and port->bc_work is not
+running or pending, port->bc_queue will keep full and schedule_work()
+won't be called any more, and all broadcast skbs to macvlan will be
+discarded. This case can happen:
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+macvlan_process_broadcast() is the pending function of port->bc_work,
+it moves all the skbs in port->bc_queue to the queue "list", and
+processes the skbs in "list". During this, new skbs will keep being
+added to port->bc_queue in macvlan_broadcast_enqueue(), and
+port->bc_queue may already full when macvlan_process_broadcast()
+return. This may happen, especially when there are a lot of real-time
+threads and the process is preempted.
+
+Fix this by calling schedule_work(&port->bc_work) even if
+port->bc_work is full in macvlan_broadcast_enqueue().
+
+Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/pwm/core.c        |    1 +
- drivers/pwm/pwm-samsung.c |    1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/macvlan.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pwm/core.c
-+++ b/drivers/pwm/core.c
-@@ -781,6 +781,7 @@ void pwm_put(struct pwm_device *pwm)
- 	if (pwm->chip->ops->free)
- 		pwm->chip->ops->free(pwm->chip, pwm);
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -326,10 +326,11 @@ static void macvlan_broadcast_enqueue(st
+ 	}
+ 	spin_unlock(&port->bc_queue.lock);
  
-+	pwm_set_chip_data(pwm, NULL);
- 	pwm->label = NULL;
++	schedule_work(&port->bc_work);
++
+ 	if (err)
+ 		goto free_nskb;
  
- 	module_put(pwm->chip->ops->owner);
---- a/drivers/pwm/pwm-samsung.c
-+++ b/drivers/pwm/pwm-samsung.c
-@@ -226,7 +226,6 @@ static int pwm_samsung_request(struct pw
- static void pwm_samsung_free(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	devm_kfree(chip->dev, pwm_get_chip_data(pwm));
--	pwm_set_chip_data(pwm, NULL);
- }
+-	schedule_work(&port->bc_work);
+ 	return;
  
- static int pwm_samsung_enable(struct pwm_chip *chip, struct pwm_device *pwm)
+ free_nskb:
 
 
