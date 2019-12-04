@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8F211343C
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E86113439
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730594AbfLDSXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:23:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49932 "EHLO mail.kernel.org"
+        id S1729984AbfLDSW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:22:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730203AbfLDSEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:04:31 -0500
+        id S1730218AbfLDSEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:04:33 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A59B2081B;
-        Wed,  4 Dec 2019 18:04:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A45AF2073B;
+        Wed,  4 Dec 2019 18:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482670;
-        bh=+ki55RV1IzPV8OlLCUZQK5QE1EvFkv2OU2Lgd/dUtRg=;
+        s=default; t=1575482673;
+        bh=+WTmaawSFZUDjVsY9VTEerUrq2y3yubX2tca8Lyc2ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gu/vqV6kKgB+sZOGrYiHyyuAUpnZLOSZ/fEg8/mcCy6z02fVeVY65tso7YIxjm55d
-         c2pzAdWVgOsF3W1UadFUZkvg6Jsa90X+8x71dOPWCDPuKqRS3KdnstOLtlSziXwohD
-         URpuZq9webY+S7KX85ZGJgmQREqIVzfCnLpnfNq8=
+        b=DY4LTyRqCbbqyoD9ggJmdY34Le+C9gANeR0/uQhXMgesbRHZOdD22Tz5w1PiS9fcH
+         j0ewFqPM0IHdqAXxBFmsgbq78xk3nf1kp4dfCwAQ+9/HClSwe1HOCW5cTrT9r/MhwU
+         pRmq5GTpbVfww22t3KghGhIlmzO8fDiY4j27eK/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Stafford Horne <shorne@gmail.com>,
+        stable@vger.kernel.org, Sergey Gorenko <sergeygo@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Laurence Oberman <loberman@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Doug Ledford <dledford@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/209] openrisc: Fix broken paths to arch/or32
-Date:   Wed,  4 Dec 2019 18:54:59 +0100
-Message-Id: <20191204175327.655874234@linuxfoundation.org>
+Subject: [PATCH 4.14 088/209] RDMA/srp: Propagate ib_post_send() failures to the SCSI mid-layer
+Date:   Wed,  4 Dec 2019 18:55:00 +0100
+Message-Id: <20191204175327.742009518@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
 References: <20191204175321.609072813@linuxfoundation.org>
@@ -44,47 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 57ce8ba0fd3a95bf29ed741df1c52bd591bf43ff ]
+[ Upstream commit 2ee00f6a98c36f7e4ba07cc33f24cc5a69060cc9 ]
 
-OpenRISC was mainlined as "openrisc", not "or32".
-vmlinux.lds is generated from vmlinux.lds.S.
+This patch avoids that the SCSI mid-layer keeps retrying forever if
+ib_post_send() fails. This was discovered while testing immediate
+data support and passing a too large num_sge value to ib_post_send().
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Cc: Sergey Gorenko <sergeygo@mellanox.com>
+Cc: Max Gurtovoy <maxg@mellanox.com>
+Cc: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/kernel/entry.S | 2 +-
- arch/openrisc/kernel/head.S  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index b16e95a4e875f..1107d34e45bf1 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -184,7 +184,7 @@ handler:							;\
-  *	 occured. in fact they never do. if you need them use
-  *	 values saved on stack (for SPR_EPC, SPR_ESR) or content
-  *       of r4 (for SPR_EEAR). for details look at EXCEPTION_HANDLE()
-- *       in 'arch/or32/kernel/head.S'
-+ *       in 'arch/openrisc/kernel/head.S'
-  */
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index 3f5b5893792cd..9f7287f45d06f 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -2210,6 +2210,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
  
- /* =====================================================[ exceptions] === */
-diff --git a/arch/openrisc/kernel/head.S b/arch/openrisc/kernel/head.S
-index 90979acdf165b..4d878d13b8606 100644
---- a/arch/openrisc/kernel/head.S
-+++ b/arch/openrisc/kernel/head.S
-@@ -1551,7 +1551,7 @@ _string_nl:
+ 	if (srp_post_send(ch, iu, len)) {
+ 		shost_printk(KERN_ERR, target->scsi_host, PFX "Send failed\n");
++		scmnd->result = DID_ERROR << 16;
+ 		goto err_unmap;
+ 	}
  
- /*
-  * .data section should be page aligned
-- *	(look into arch/or32/kernel/vmlinux.lds)
-+ *	(look into arch/openrisc/kernel/vmlinux.lds.S)
-  */
- 	.section .data,"aw"
- 	.align	8192
 -- 
 2.20.1
 
