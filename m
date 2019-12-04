@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A5B21134D1
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3236011319E
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:01:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729370AbfLDSAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:00:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39222 "EHLO mail.kernel.org"
+        id S1729511AbfLDSBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:01:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729348AbfLDSAb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:00:31 -0500
+        id S1729507AbfLDSBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:01:07 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6520D2084B;
-        Wed,  4 Dec 2019 18:00:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA66320659;
+        Wed,  4 Dec 2019 18:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482430;
-        bh=AdY9CoZS6VbSim8ej2vJKKJ5+4ut52l1UdMkaC/yLbQ=;
+        s=default; t=1575482467;
+        bh=BaDNO1DIXNOXEwsttBOGtCsin7DuO1+IanV1X3Qh7dM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cIfi40BCo1ZQWpx3EYM7sG6LvQu2ry0Fq/9aZz+qygsTjxsJzuoUs0nZzh3ttEgLL
-         mQVADSMEzL4OAQkulp1rd9k+lVo/l/7t4CrUWEQ26O4Hu+RUeZPR+yLU/2Ktp5Oik/
-         mnUyyUQJqZVDvgM2YRJtCYhpTotL4fSNItzAdusY=
+        b=Dr9VJbX3XDJGyLzqGcTivDETjTx6BCq6clTv6mLYdXd1M1ef7MF7ZABikE0W1iT3p
+         TaMa/X8mkvK8fQgxCiF8BCPoQZAahicIlWvR4hkzzyBAgENWNUUmhG163rmeTIFxnM
+         ZP3o9bcHksUYKWWmC/KiizovFTQAxqox/a+10FKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
+        stable@vger.kernel.org, Qi Jun Ding <qding@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 83/92] macvlan: schedule bc_work even if error
-Date:   Wed,  4 Dec 2019 18:50:23 +0100
-Message-Id: <20191204174335.185471437@linuxfoundation.org>
+Subject: [PATCH 4.4 84/92] openvswitch: fix flow command message size
+Date:   Wed,  4 Dec 2019 18:50:24 +0100
+Message-Id: <20191204174335.238995400@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 References: <20191204174327.215426506@linuxfoundation.org>
@@ -43,52 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 1d7ea55668878bb350979c377fc72509dd6f5b21 ]
+[ Upstream commit 4e81c0b3fa93d07653e2415fa71656b080a112fd ]
 
-While enqueueing a broadcast skb to port->bc_queue, schedule_work()
-is called to add port->bc_work, which processes the skbs in
-bc_queue, to "events" work queue. If port->bc_queue is full, the
-skb will be discarded and schedule_work(&port->bc_work) won't be
-called. However, if port->bc_queue is full and port->bc_work is not
-running or pending, port->bc_queue will keep full and schedule_work()
-won't be called any more, and all broadcast skbs to macvlan will be
-discarded. This case can happen:
+When user-space sets the OVS_UFID_F_OMIT_* flags, and the relevant
+flow has no UFID, we can exceed the computed size, as
+ovs_nla_put_identifier() will always dump an OVS_FLOW_ATTR_KEY
+attribute.
+Take the above in account when computing the flow command message
+size.
 
-macvlan_process_broadcast() is the pending function of port->bc_work,
-it moves all the skbs in port->bc_queue to the queue "list", and
-processes the skbs in "list". During this, new skbs will keep being
-added to port->bc_queue in macvlan_broadcast_enqueue(), and
-port->bc_queue may already full when macvlan_process_broadcast()
-return. This may happen, especially when there are a lot of real-time
-threads and the process is preempted.
-
-Fix this by calling schedule_work(&port->bc_work) even if
-port->bc_work is full in macvlan_broadcast_enqueue().
-
-Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+Fixes: 74ed7ab9264c ("openvswitch: Add support for unique flow IDs.")
+Reported-by: Qi Jun Ding <qding@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macvlan.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/openvswitch/datapath.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -326,10 +326,11 @@ static void macvlan_broadcast_enqueue(st
- 	}
- 	spin_unlock(&port->bc_queue.lock);
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -725,9 +725,13 @@ static size_t ovs_flow_cmd_msg_size(cons
+ {
+ 	size_t len = NLMSG_ALIGN(sizeof(struct ovs_header));
  
-+	schedule_work(&port->bc_work);
-+
- 	if (err)
- 		goto free_nskb;
+-	/* OVS_FLOW_ATTR_UFID */
++	/* OVS_FLOW_ATTR_UFID, or unmasked flow key as fallback
++	 * see ovs_nla_put_identifier()
++	 */
+ 	if (sfid && ovs_identifier_is_ufid(sfid))
+ 		len += nla_total_size(sfid->ufid_len);
++	else
++		len += nla_total_size(ovs_key_attr_size());
  
--	schedule_work(&port->bc_work);
- 	return;
- 
- free_nskb:
+ 	/* OVS_FLOW_ATTR_KEY */
+ 	if (!sfid || should_fill_key(sfid, ufid_flags))
 
 
