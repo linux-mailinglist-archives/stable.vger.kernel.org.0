@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC50113220
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:06:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9CFA1133A6
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730486AbfLDSGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:06:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53540 "EHLO mail.kernel.org"
+        id S1729420AbfLDSSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:18:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728331AbfLDSGB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:06:01 -0500
+        id S1731324AbfLDSKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:10:50 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D87420675;
-        Wed,  4 Dec 2019 18:06:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B755220674;
+        Wed,  4 Dec 2019 18:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482761;
-        bh=q/nXUueN+PhY2qiBQi4R8Z9iq0FW4Qo7pZkcszenzB0=;
+        s=default; t=1575483050;
+        bh=9FiMZ05AyP9vz7NADwi6aGobRVfRNQnwiHXVl7PW3TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVahyrZyqAHCcqgISyaTbr1eKiOTjzW/Om4MaA1L3mqGQx4awFIQs/9aUO1pqI2dv
-         SGMwCwGrCFalZ5XLUznYndFQbngNFjQTC+zjx54e+gdcS7xVwj9wtk9ZOP+suUSFi7
-         yNbFRNVWQjIHdgv8n2MG4/VFzssbipXvBIMTwljI=
+        b=Rszgw9KYMNuK8mhNTu4sh6yg/9SPYWKZwfjh+TQiiMKLOS43DfnvPKwo+fLWdNihP
+         0oWObN/ezM61MYAH6ziM4p3CEl9+48GMMp3xL+qJ8QIwrOZfq1bCSpISyVr3gkwk0r
+         5Q0y450NhibkZovc+IWkhLhmu0DpLzB8gjhvEVeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Wang <wang.yi59@zte.com.cn>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Boris Brezillon <boris.brezillon@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/209] fork: fix some -Wmissing-prototypes warnings
+Subject: [PATCH 4.9 030/125] ubi: Do not drop UBI device reference before using
 Date:   Wed,  4 Dec 2019 18:55:35 +0100
-Message-Id: <20191204175331.534849390@linuxfoundation.org>
+Message-Id: <20191204175320.478059871@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,81 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Wang <wang.yi59@zte.com.cn>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit fb5bf31722d0805a3f394f7d59f2e8cd07acccb7 ]
+[ Upstream commit e542087701f09418702673631a908429feb3eae0 ]
 
-We get a warning when building kernel with W=1:
+The UBI device reference is dropped but then the device is used as a
+parameter of ubi_err. The bug is introduced in changing ubi_err's
+behavior. The old ubi_err does not require a UBI device as its first
+parameter, but the new one does.
 
-  kernel/fork.c:167:13: warning: no previous prototype for `arch_release_thread_stack' [-Wmissing-prototypes]
-  kernel/fork.c:779:13: warning: no previous prototype for `fork_init' [-Wmissing-prototypes]
-
-Add the missing declaration in head file to fix this.
-
-Also, remove arch_release_thread_stack() completely because no arch
-seems to implement it since bb9d81264 (arch: remove tile port).
-
-Link: http://lkml.kernel.org/r/1542170087-23645-1-git-send-email-wang.yi59@zte.com.cn
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 32608703310 ("UBI: Extend UBI layer debug/messaging capabilities")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched/task.h | 2 ++
- init/main.c                | 1 -
- kernel/fork.c              | 5 -----
- 3 files changed, 2 insertions(+), 6 deletions(-)
+ drivers/mtd/ubi/kapi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index a74ec619ac510..11b4fba82950f 100644
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -39,6 +39,8 @@ void __noreturn do_task_dead(void);
- 
- extern void proc_caches_init(void);
- 
-+extern void fork_init(void);
-+
- extern void release_task(struct task_struct * p);
- 
- #ifdef CONFIG_HAVE_COPY_THREAD_TLS
-diff --git a/init/main.c b/init/main.c
-index 51067e2db509d..b1ab36fe1a55c 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -98,7 +98,6 @@
- static int kernel_init(void *);
- 
- extern void init_IRQ(void);
--extern void fork_init(void);
- extern void radix_tree_init(void);
- 
- /*
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 3352fdbd5e20d..3d9d6a28e21d9 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -162,10 +162,6 @@ static inline void free_task_struct(struct task_struct *tsk)
+diff --git a/drivers/mtd/ubi/kapi.c b/drivers/mtd/ubi/kapi.c
+index 88b1897aeb40f..7826f7c4ec2fb 100644
+--- a/drivers/mtd/ubi/kapi.c
++++ b/drivers/mtd/ubi/kapi.c
+@@ -227,9 +227,9 @@ out_unlock:
+ out_free:
+ 	kfree(desc);
+ out_put_ubi:
+-	ubi_put_device(ubi);
+ 	ubi_err(ubi, "cannot open device %d, volume %d, error %d",
+ 		ubi_num, vol_id, err);
++	ubi_put_device(ubi);
+ 	return ERR_PTR(err);
  }
- #endif
- 
--void __weak arch_release_thread_stack(unsigned long *stack)
--{
--}
--
- #ifndef CONFIG_ARCH_THREAD_STACK_ALLOCATOR
- 
- /*
-@@ -348,7 +344,6 @@ static void release_task_stack(struct task_struct *tsk)
- 		return;  /* Better to leak the stack than to free prematurely */
- 
- 	account_kernel_stack(tsk, -1);
--	arch_release_thread_stack(tsk->stack);
- 	free_thread_stack(tsk);
- 	tsk->stack = NULL;
- #ifdef CONFIG_VMAP_STACK
+ EXPORT_SYMBOL_GPL(ubi_open_volume);
 -- 
 2.20.1
 
