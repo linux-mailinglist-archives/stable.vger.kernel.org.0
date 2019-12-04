@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1459C11328A
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB8C113306
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728331AbfLDSJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:09:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34520 "EHLO mail.kernel.org"
+        id S1731850AbfLDSOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:14:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731026AbfLDSJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:09:13 -0500
+        id S1731847AbfLDSN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:13:59 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1862120674;
-        Wed,  4 Dec 2019 18:09:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94B1820675;
+        Wed,  4 Dec 2019 18:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482952;
-        bh=2t/IrvB4eJyhojy7MPif2j02JqHk+eNwDHMPvDXIcdE=;
+        s=default; t=1575483239;
+        bh=EBU95pZ5uKXBZyqQnkyuXOQNp3CjOgzLTvsnaQegq20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1iNZjC62PusGuXklXtIiWUWHfJMxYC75tiAPhb9MdOtjSZkfNu1Os9pZP3tDJtKAB
-         KGDSdNVoyMN7B7cWhaMcvkvQ7+msxklXXoQbBADSyZjoq32BWvUKPhLf+s3ncjOnq/
-         xzwtrDmwKUPHPW3iISpaIqjHBDiYyhSGe7HQm9uk=
+        b=LrsmY3qC7wlVmb7lvdlQSTO+PRj89yPvn9LQG9b6XnTp5AxAgPRspNDm6FONN2VXm
+         mpZAe+xt0x44omrJtwCphGnM5kmmRLRfwGa2oTwGKTdx1Us2xMDVs3QDXBa+pcel+Y
+         dgvZEqa6s3WMnc8ZtvHRyksFEhuAzGMp4PHjB3kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
-        Fabien Dessenne <fabien.dessenne@st.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 202/209] mailbox: mailbox-test: fix null pointer if no mmio
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 4.9 109/125] mei: bus: prefix device names on bus with the bus name
 Date:   Wed,  4 Dec 2019 18:56:54 +0100
-Message-Id: <20191204175337.394459343@linuxfoundation.org>
+Message-Id: <20191204175325.733951455@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Dessenne <fabien.dessenne@st.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 6899b4f7c99c72968e58e502f96084f74f6e5e86 upstream.
+commit 7a2b9e6ec84588b0be65cc0ae45a65bac431496b upstream.
 
-Fix null pointer issue if resource_size is called with no ioresource.
+Add parent device name to the name of devices on bus to avoid
+device names collisions for same client UUID available
+from different MEI heads. Namely this prevents sysfs collision under
+/sys/bus/mei/device/
 
-Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+In the device part leave just UUID other parameters that are
+required for device matching are not required here and are
+just bloating the name.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20191105150514.14010-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mailbox/mailbox-test.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/misc/mei/bus.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/mailbox/mailbox-test.c
-+++ b/drivers/mailbox/mailbox-test.c
-@@ -363,22 +363,24 @@ static int mbox_test_probe(struct platfo
+--- a/drivers/misc/mei/bus.c
++++ b/drivers/misc/mei/bus.c
+@@ -765,15 +765,16 @@ static struct device_type mei_cl_device_
  
- 	/* It's okay for MMIO to be NULL */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	size = resource_size(res);
- 	tdev->tx_mmio = devm_ioremap_resource(&pdev->dev, res);
--	if (PTR_ERR(tdev->tx_mmio) == -EBUSY)
-+	if (PTR_ERR(tdev->tx_mmio) == -EBUSY) {
- 		/* if reserved area in SRAM, try just ioremap */
-+		size = resource_size(res);
- 		tdev->tx_mmio = devm_ioremap(&pdev->dev, res->start, size);
--	else if (IS_ERR(tdev->tx_mmio))
-+	} else if (IS_ERR(tdev->tx_mmio)) {
- 		tdev->tx_mmio = NULL;
-+	}
+ /**
+  * mei_cl_bus_set_name - set device name for me client device
++ *  <controller>-<client device>
++ *  Example: 0000:00:16.0-55213584-9a29-4916-badf-0fb7ed682aeb
+  *
+  * @cldev: me client device
+  */
+ static inline void mei_cl_bus_set_name(struct mei_cl_device *cldev)
+ {
+-	dev_set_name(&cldev->dev, "mei:%s:%pUl:%02X",
+-		     cldev->name,
+-		     mei_me_cl_uuid(cldev->me_cl),
+-		     mei_me_cl_ver(cldev->me_cl));
++	dev_set_name(&cldev->dev, "%s-%pUl",
++		     dev_name(cldev->bus->dev),
++		     mei_me_cl_uuid(cldev->me_cl));
+ }
  
- 	/* If specified, second reg entry is Rx MMIO */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	size = resource_size(res);
- 	tdev->rx_mmio = devm_ioremap_resource(&pdev->dev, res);
--	if (PTR_ERR(tdev->rx_mmio) == -EBUSY)
-+	if (PTR_ERR(tdev->rx_mmio) == -EBUSY) {
-+		size = resource_size(res);
- 		tdev->rx_mmio = devm_ioremap(&pdev->dev, res->start, size);
--	else if (IS_ERR(tdev->rx_mmio))
-+	} else if (IS_ERR(tdev->rx_mmio)) {
- 		tdev->rx_mmio = tdev->tx_mmio;
-+	}
- 
- 	tdev->tx_channel = mbox_test_request_channel(pdev, "tx");
- 	tdev->rx_channel = mbox_test_request_channel(pdev, "rx");
+ /**
 
 
