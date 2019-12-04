@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D2FD11328F
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:11:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFAA5113336
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731057AbfLDSJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:09:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35080 "EHLO mail.kernel.org"
+        id S1731773AbfLDSPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:15:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730544AbfLDSJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:09:26 -0500
+        id S1731885AbfLDSOO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:14:14 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 054CD20833;
-        Wed,  4 Dec 2019 18:09:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23B982084B;
+        Wed,  4 Dec 2019 18:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482965;
-        bh=45pYFyKcVPl9aq3G/+/M2pqNf9Ix+NuT7eye5i+f9yo=;
+        s=default; t=1575483253;
+        bh=/JEUComnzssphgvapKlCGUknhFpfg98LRpewh02rEns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZQls3f2KRrwg5xirkBQe4+g00YgmSfmoovTGmQLwQjDeSaoIKZF1S9eKePm3KrFY
-         98Vj0MRdZHKqOVRwIhHKL/3MG9z8mVtqh72t/ER4XxRxGvMNSYw26IKLcWmVM/kX+2
-         hsECOcyAaJm70dRtFcRwuThpjPhlPI7hDiIZ0mJo=
+        b=LY4/AtuTItifIR4Xsv8pZHlrwTYWtnR32B0NXDYKMHVq6vUBL2wTURYwZ9PZtHT1u
+         9rKPs70CD/tSvOXmlcFTidm98+IfbXiPcvvS23cbtzs3dB6XJ2cgbqOE4FPqHZP6ky
+         KPbHreYtut3PN02Lllu54ohmyHay3gY1m+ZTshmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 206/209] ASoC: stm32: i2s: fix IRQ clearing
-Date:   Wed,  4 Dec 2019 18:56:58 +0100
-Message-Id: <20191204175337.669141996@linuxfoundation.org>
+        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 114/125] macvlan: schedule bc_work even if error
+Date:   Wed,  4 Dec 2019 18:56:59 +0100
+Message-Id: <20191204175326.065506336@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@st.com>
+From: Menglong Dong <dong.menglong@zte.com.cn>
 
-commit 8ba3c5215d69c09f5c39783ff3b78347769822ad upstream.
+[ Upstream commit 1d7ea55668878bb350979c377fc72509dd6f5b21 ]
 
-Because of regmap cache, interrupts may not be cleared
-as expected.
-Declare IFCR register as write only and make writings
-to IFCR register unconditional.
+While enqueueing a broadcast skb to port->bc_queue, schedule_work()
+is called to add port->bc_work, which processes the skbs in
+bc_queue, to "events" work queue. If port->bc_queue is full, the
+skb will be discarded and schedule_work(&port->bc_work) won't be
+called. However, if port->bc_queue is full and port->bc_work is not
+running or pending, port->bc_queue will keep full and schedule_work()
+won't be called any more, and all broadcast skbs to macvlan will be
+discarded. This case can happen:
 
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+macvlan_process_broadcast() is the pending function of port->bc_work,
+it moves all the skbs in port->bc_queue to the queue "list", and
+processes the skbs in "list". During this, new skbs will keep being
+added to port->bc_queue in macvlan_broadcast_enqueue(), and
+port->bc_queue may already full when macvlan_process_broadcast()
+return. This may happen, especially when there are a lot of real-time
+threads and the process is preempted.
+
+Fix this by calling schedule_work(&port->bc_work) even if
+port->bc_work is full in macvlan_broadcast_enqueue().
+
+Fixes: 412ca1550cbe ("macvlan: Move broadcasts into a work queue")
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/soc/stm/stm32_i2s.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/macvlan.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/soc/stm/stm32_i2s.c
-+++ b/sound/soc/stm/stm32_i2s.c
-@@ -246,8 +246,8 @@ static irqreturn_t stm32_i2s_isr(int irq
- 		return IRQ_NONE;
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -334,10 +334,11 @@ static void macvlan_broadcast_enqueue(st
  	}
+ 	spin_unlock(&port->bc_queue.lock);
  
--	regmap_update_bits(i2s->regmap, STM32_I2S_IFCR_REG,
--			   I2S_IFCR_MASK, flags);
-+	regmap_write_bits(i2s->regmap, STM32_I2S_IFCR_REG,
-+			  I2S_IFCR_MASK, flags);
++	schedule_work(&port->bc_work);
++
+ 	if (err)
+ 		goto free_nskb;
  
- 	if (flags & I2S_SR_OVR) {
- 		dev_dbg(&pdev->dev, "Overrun\n");
-@@ -276,7 +276,6 @@ static bool stm32_i2s_readable_reg(struc
- 	case STM32_I2S_CFG2_REG:
- 	case STM32_I2S_IER_REG:
- 	case STM32_I2S_SR_REG:
--	case STM32_I2S_IFCR_REG:
- 	case STM32_I2S_TXDR_REG:
- 	case STM32_I2S_RXDR_REG:
- 	case STM32_I2S_CGFR_REG:
-@@ -547,8 +546,8 @@ static int stm32_i2s_startup(struct snd_
- 	i2s->refcount++;
- 	spin_unlock(&i2s->lock_fd);
+-	schedule_work(&port->bc_work);
+ 	return;
  
--	return regmap_update_bits(i2s->regmap, STM32_I2S_IFCR_REG,
--				  I2S_IFCR_MASK, I2S_IFCR_MASK);
-+	return regmap_write_bits(i2s->regmap, STM32_I2S_IFCR_REG,
-+				 I2S_IFCR_MASK, I2S_IFCR_MASK);
- }
- 
- static int stm32_i2s_hw_params(struct snd_pcm_substream *substream,
-@@ -603,8 +602,8 @@ static int stm32_i2s_trigger(struct snd_
- 			return ret;
- 		}
- 
--		regmap_update_bits(i2s->regmap, STM32_I2S_IFCR_REG,
--				   I2S_IFCR_MASK, I2S_IFCR_MASK);
-+		regmap_write_bits(i2s->regmap, STM32_I2S_IFCR_REG,
-+				  I2S_IFCR_MASK, I2S_IFCR_MASK);
- 
- 		if (playback_flg) {
- 			ier = I2S_IER_UDRIE;
+ free_nskb:
 
 
