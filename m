@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C31AD113246
-	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:08:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C71A11338C
+	for <lists+stable@lfdr.de>; Wed,  4 Dec 2019 19:19:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730686AbfLDSHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 13:07:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56326 "EHLO mail.kernel.org"
+        id S1731569AbfLDSRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 13:17:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729039AbfLDSHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 13:07:05 -0500
+        id S1730757AbfLDSLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 13:11:54 -0500
 Received: from localhost (unknown [217.68.49.72])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6388D206DF;
-        Wed,  4 Dec 2019 18:07:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A14F20675;
+        Wed,  4 Dec 2019 18:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575482824;
-        bh=WbGhciv/qtk73dVy7tm29B/NrK/nbLd9KuYwwCP2gxM=;
+        s=default; t=1575483113;
+        bh=krRnmuaqC7qVirxcwWinxCXHxJDjFmPmqqWCcCAM/RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euvaVx0ussl4iv/ZGgRkSKvNkJqSrUtodz4jsaUh/NcskhXT5RKr1H1nr0TgG3yj7
-         e8Bl4bveiv4MsGT7RQXQbfifTJG8u9+a6qqxNvM1UCoU5VUvMrcVL5DWJ9kZpy7I0t
-         qow1dPGOO3E4lWUzfckCdELt1Fy5pzmsypR0fbho=
+        b=VJVe6mLhE6qRoK4vpzmnU0tz0yftqcUntotGuHnnm9RPzdr441ig9LP+qxSpUkxyn
+         e+kQ/RMvj8DaTukRR8i2/TPuec1hQIEBCX692WCYKOUJ0cmK3Z6HC/KnV2CZJJZ+uV
+         0B/KYKk6wraC/K/w5PtvZj8A9jd4Px3iiyJ05ZY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        James Morse <james.morse@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 150/209] ACPI / APEI: Dont wait to serialise with oops messages when panic()ing
+Subject: [PATCH 4.9 057/125] scsi: csiostor: fix incorrect dma device in case of vport
 Date:   Wed,  4 Dec 2019 18:56:02 +0100
-Message-Id: <20191204175333.828341942@linuxfoundation.org>
+Message-Id: <20191204175322.442459743@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
-References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175308.377746305@linuxfoundation.org>
+References: <20191204175308.377746305@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Varun Prakash <varun@chelsio.com>
 
-[ Upstream commit 78b0b690f6558ed788dccafa45965325dd11ba89 ]
+[ Upstream commit 9934613edcb40b92a216122876cd3b7e76d08390 ]
 
-oops_begin() exists to group printk() messages with the oops message
-printed by die(). To reach this caller we know that platform firmware
-took this error first, then notified the OS via NMI with a 'panic'
-severity.
+In case of ->vport_create() call scsi_add_host_with_dma() instead of
+scsi_add_host() to pass correct dma device.
 
-Don't wait for another CPU to release the die-lock before panic()ing,
-our only goal is to print this fatal error and panic().
-
-This code is always called in_nmi(), and since commit 42a0bb3f7138
-("printk/nmi: generic solution for safe printk in NMI"), it has been
-safe to call printk() from this context. Messages are batched in a
-per-cpu buffer and printed via irq-work, or a call back from panic().
-
-Link: https://patchwork.kernel.org/patch/10313555/
-Acked-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/ghes.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/csiostor/csio_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-index 5889f6407fea8..9c31c7cd5cb5e 100644
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -33,7 +33,6 @@
- #include <linux/interrupt.h>
- #include <linux/timer.h>
- #include <linux/cper.h>
--#include <linux/kdebug.h>
- #include <linux/platform_device.h>
- #include <linux/mutex.h>
- #include <linux/ratelimit.h>
-@@ -936,7 +935,6 @@ static int ghes_notify_nmi(unsigned int cmd, struct pt_regs *regs)
+diff --git a/drivers/scsi/csiostor/csio_init.c b/drivers/scsi/csiostor/csio_init.c
+index dbe416ff46c27..776b992786881 100644
+--- a/drivers/scsi/csiostor/csio_init.c
++++ b/drivers/scsi/csiostor/csio_init.c
+@@ -648,7 +648,7 @@ csio_shost_init(struct csio_hw *hw, struct device *dev,
+ 	if (csio_lnode_init(ln, hw, pln))
+ 		goto err_shost_put;
  
- 		sev = ghes_severity(ghes->estatus->error_severity);
- 		if (sev >= GHES_SEV_PANIC) {
--			oops_begin();
- 			ghes_print_queued_estatus();
- 			__ghes_panic(ghes);
- 		}
+-	if (scsi_add_host(shost, dev))
++	if (scsi_add_host_with_dma(shost, dev, &hw->pdev->dev))
+ 		goto err_lnode_exit;
+ 
+ 	return ln;
 -- 
 2.20.1
 
