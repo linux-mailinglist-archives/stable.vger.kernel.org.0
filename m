@@ -2,156 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD031148F5
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 22:59:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C611148F7
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 23:00:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729739AbfLEV7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 16:59:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59678 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbfLEV7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Dec 2019 16:59:09 -0500
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D07BA2466E;
-        Thu,  5 Dec 2019 21:59:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575583148;
-        bh=7XlcxWZoMXkBqEKOOafUDlrQasCLzp/sp2PiaRgpSwE=;
-        h=Date:From:To:Subject:From;
-        b=smDSLPcCujXBCrmXaH2ez/XQkTpIVumhmBo0IlzhX2tpPcn+ketXp1CFwUEvrrBPx
-         cxOh3tSf4mxOiZGnqmIWNLPbReIcelB+G/0i23DZa9dqZF0miOHFDoJvTnLHeBlrdq
-         nP83//HCq1C3gs4KNhh5W0opDdzGoCPiZwYabR6U=
-Date:   Thu, 05 Dec 2019 13:59:07 -0800
-From:   akpm@linux-foundation.org
-To:     borntraeger@de.ibm.com, guro@fb.com, hannes@cmpxchg.org,
-        mhocko@suse.com, mm-commits@vger.kernel.org, shakeelb@google.com,
-        stable@vger.kernel.org
-Subject:  [merged]
- =?US-ASCII?Q?mm-memcg-slab-wait-for-root-kmem=5Fcache-refcnt-killing-on-r?=
- =?US-ASCII?Q?oot-kmem=5Fcache-destruction.patch?= removed from -mm tree
-Message-ID: <20191205215907._Xzry33k4%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726589AbfLEWAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 17:00:02 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:60978 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729708AbfLEWAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 17:00:02 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Tk42G0I_1575583184;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tk42G0I_1575583184)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 06 Dec 2019 05:59:53 +0800
+Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the
+ page is already on the target node
+To:     Christopher Lameter <cl@linux.com>
+Cc:     fabecassis@nvidia.com, jhubbard@nvidia.com, mhocko@suse.com,
+        vbabka@suse.cz, mgorman@techsingularity.net,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <1575572053-128363-1-git-send-email-yang.shi@linux.alibaba.com>
+ <alpine.DEB.2.21.1912051944030.10280@www.lameter.com>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <9731e7ff-6c0c-419f-5237-decf9a54e8f3@linux.alibaba.com>
+Date:   Thu, 5 Dec 2019 13:59:44 -0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <alpine.DEB.2.21.1912051944030.10280@www.lameter.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm: memcg/slab: wait for !root kmem_cache refcnt killing on root kmem_cache destruction
-has been removed from the -mm tree.  Its filename was
-     mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction.patch
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+On 12/5/19 11:45 AM, Christopher Lameter wrote:
+> On Fri, 6 Dec 2019, Yang Shi wrote:
+>
+>> Felix Abecassis reports move_pages() would return random status if the
+>> pages are already on the target node by the below test program:
+> Looks ok.
+>
+> Acked-by: Christoph Lameter <cl@linux.com>
+>
+> Nitpicks:
+>
+>> @@ -1553,7 +1555,7 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+>>   	if (PageHuge(page)) {
+>>   		if (PageHead(page)) {
+>>   			isolate_huge_page(page, pagelist);
+>> -			err = 0;
+>> +			err = 1;
+> Add a meaningful constant instead of 1?
 
-------------------------------------------------------
-From: Roman Gushchin <guro@fb.com>
-Subject: mm: memcg/slab: wait for !root kmem_cache refcnt killing on root kmem_cache destruction
+Since it just returns errno, 0 and 1 it sounds not worth a constant or enum.
 
-Christian reported a warning like the following obtained during running
-some KVM-related tests on s390:
+>
+>>   out:
+>>   	up_read(&mm->mmap_sem);
+>> +
+>>   	return err;
+> Dont do that.
 
-WARNING: CPU: 8 PID: 208 at lib/percpu-refcount.c:108 percpu_ref_exit+0x50/0x58
-Modules linked in: kvm(-) xt_CHECKSUM xt_MASQUERADE bonding xt_tcpudp ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_na>
-CPU: 8 PID: 208 Comm: kworker/8:1 Not tainted 5.2.0+ #66
-Hardware name: IBM 2964 NC9 712 (LPAR)
-Workqueue: events sysfs_slab_remove_workfn
-Krnl PSW : 0704e00180000000 0000001529746850 (percpu_ref_exit+0x50/0x58)
-           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
-Krnl GPRS: 00000000ffff8808 0000001529746740 000003f4e30e8e18 0036008100000000
-           0000001f00000000 0035008100000000 0000001fb3573ab8 0000000000000000
-           0000001fbdb6de00 0000000000000000 0000001529f01328 0000001fb3573b00
-           0000001fbb27e000 0000001fbdb69300 000003e009263d00 000003e009263cd0
-Krnl Code: 0000001529746842: f0a0000407fe        srp        4(11,%r0),2046,0
-           0000001529746848: 47000700            bc         0,1792
-          #000000152974684c: a7f40001            brc        15,152974684e
-          >0000001529746850: a7f4fff2            brc        15,1529746834
-           0000001529746854: 0707                bcr        0,%r7
-           0000001529746856: 0707                bcr        0,%r7
-           0000001529746858: eb8ff0580024        stmg       %r8,%r15,88(%r15)
-           000000152974685e: a738ffff            lhi        %r3,-1
-Call Trace:
-([<000003e009263d00>] 0x3e009263d00)
- [<00000015293252ea>] slab_kmem_cache_release+0x3a/0x70
- [<0000001529b04882>] kobject_put+0xaa/0xe8
- [<000000152918cf28>] process_one_work+0x1e8/0x428
- [<000000152918d1b0>] worker_thread+0x48/0x460
- [<00000015291942c6>] kthread+0x126/0x160
- [<0000001529b22344>] ret_from_fork+0x28/0x30
- [<0000001529b2234c>] kernel_thread_starter+0x0/0x10
-Last Breaking-Event-Address:
- [<000000152974684c>] percpu_ref_exit+0x4c/0x58
----[ end trace b035e7da5788eb09 ]---
-
-The problem occurs because kmem_cache_destroy() is called immediately
-after deleting of a memcg, so it races with the memcg kmem_cache
-deactivation.
-
-flush_memcg_workqueue() at the beginning of kmem_cache_destroy() is
-supposed to guarantee that all deactivation processes are finished, but
-failed to do so.  It waits for an rcu grace period, after which all
-children kmem_caches should be deactivated.  During the deactivation
-percpu_ref_kill() is called for non root kmem_cache refcounters, but it
-requires yet another rcu grace period to finish the transition to the
-atomic (dead) state.
-
-So in a rare case when not all children kmem_caches are destroyed at the
-moment when the root kmem_cache is about to be gone, we need to wait
-another rcu grace period before destroying the root kmem_cache.
-
-This issue can be triggered only with dynamically created kmem_caches
-which are used with memcg accounting.  In this case per-memcg child
-kmem_caches are created.  They are deactivated from the cgroup removing
-path.  If the destruction of the root kmem_cache is racing with the
-removal of the cgroup (both are quite complicated multi-stage processes),
-the described issue can occur.  The only known way to trigger it in the
-real life, is to unload some kernel module which creates a dedicated
-kmem_cache, used from different memory cgroups with GFP_ACCOUNT flag.  If
-the unloading happens immediately after calling rmdir on the corresponding
-cgroup, there is some chance to trigger the issue.
-
-Link: http://lkml.kernel.org/r/20191129025011.3076017-1-guro@fb.com
-Fixes: f0a3a24b532d ("mm: memcg/slab: rework non-root kmem_cache lifecycle management")
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/slab_common.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
---- a/mm/slab_common.c~mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction
-+++ a/mm/slab_common.c
-@@ -904,6 +904,18 @@ static void flush_memcg_workqueue(struct
- 	 * previous workitems on workqueue are processed.
- 	 */
- 	flush_workqueue(memcg_kmem_cache_wq);
-+
-+	/*
-+	 * If we're racing with children kmem_cache deactivation, it might
-+	 * take another rcu grace period to complete their destruction.
-+	 * At this moment the corresponding percpu_ref_kill() call should be
-+	 * done, but it might take another rcu grace period to complete
-+	 * switching to the atomic mode.
-+	 * Please, note that we check without grabbing the slab_mutex. It's safe
-+	 * because at this moment the children list can't grow.
-+	 */
-+	if (!list_empty(&s->memcg_params.children))
-+		rcu_barrier();
- }
- #else
- static inline int shutdown_memcg_caches(struct kmem_cache *s)
-_
-
-Patches currently in -mm which might be from guro@fb.com are
+Yes, my fat finger.
 
 
