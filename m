@@ -2,82 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF8211149CA
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 00:23:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A63461149CF
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 00:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725959AbfLEXX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 18:23:26 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:50979 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725926AbfLEXX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 18:23:26 -0500
-Received: by mail-wm1-f65.google.com with SMTP id p9so5907325wmg.0
-        for <stable@vger.kernel.org>; Thu, 05 Dec 2019 15:23:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=s5B4IFv39Uq6TeuwTRt1p7p6miMKcTZ+Fw+iq83BEkw=;
-        b=lquT/N877pMMarWo1mYkIjYpb10Y8g/LxCkyv6CYzlAHp1+6FL28u1LvX2tzE9AL8M
-         R9mhDwkuhwRQqlVjEAQpa7p/lysPLGtE4Q8jKGbPc1tv610wXIpp1ry2JqsayFABbTCu
-         wJGOtPh6vEdYa0PVQLg0fR5xhT/3WbMezvlkU/Pt7JP6d5TCefACoHVJ+KTNv+M8Zgxs
-         XJMGRpIJFVmbdqB4J3o8JTnVA5zLjPcIeDADTyuHN/bWCLUc7g4n7cJBKajKc/EIsAT6
-         iC++TxX7ugjidJlNHa8V4ojoO/8nDmadu1i7Bk2zZFJRBBOaA4T8HJCU/F/7nJjYgGFz
-         2SLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=s5B4IFv39Uq6TeuwTRt1p7p6miMKcTZ+Fw+iq83BEkw=;
-        b=OWTFI184U60E7IEIOYTP3lpAR6JmijA8TpcACGi+RS3BQRNm2buWtafJK7PDArGpJ9
-         rQCqGKXfoaMnNV8RE47qaQ4usjVmU+hmSU42RvQ7c/ccw88f+FPnEff7ElZXhe+814vI
-         nw97BdzdAQu92U12ufD8e41Ed2lS9NFtjKqI28JqnbpxLT70rOBh/mtRYDpWToOZkz67
-         I8tX5vPTCnKRJoRt+6E6F73aS3QLXAjUBf3vHY02Pc/5pM9ouSbgi9G9mYIg5qN6P0mM
-         3uulu5OqxtGovqxPAHfX/ToANmQTTO2vSHx2gWPQGi3bLPfdA0VQWQmxj++qHc4gFkZ5
-         uhYA==
-X-Gm-Message-State: APjAAAX6on4G8NyqZL60mOE0DX/F/xYjsY57RbGeEyL7T3Xw/f4cZJ5C
-        35wwgG1sGuGNIxCNlXip+jDczZ2Y2yNmmg==
-X-Google-Smtp-Source: APXvYqznSUle1sbS1U8RxmO2Ev7kutpVpJR34SNP0hZwHKbTKuPgwh3AmuxQGJbRsRCVI4t4kLP2vg==
-X-Received: by 2002:a7b:c19a:: with SMTP id y26mr7500034wmi.152.1575588203946;
-        Thu, 05 Dec 2019 15:23:23 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id l6sm1406036wme.42.2019.12.05.15.23.23
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Dec 2019 15:23:23 -0800 (PST)
-Message-ID: <5de9916b.1c69fb81.86dde.8675@mx.google.com>
-Date:   Thu, 05 Dec 2019 15:23:23 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726171AbfLEXYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 18:24:07 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:4072 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725926AbfLEXYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 18:24:07 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5de991920001>; Thu, 05 Dec 2019 15:24:02 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 05 Dec 2019 15:24:06 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 05 Dec 2019 15:24:06 -0800
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 5 Dec
+ 2019 23:24:06 +0000
+Received: from [10.110.48.28] (10.124.1.5) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 5 Dec 2019
+ 23:24:06 +0000
+Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the
+ page is already on the target node
+To:     Qian Cai <cai@lca.pw>
+CC:     Yang Shi <yang.shi@linux.alibaba.com>, <fabecassis@nvidia.com>,
+        <mhocko@suse.com>, <cl@linux.com>, <vbabka@suse.cz>,
+        <mgorman@techsingularity.net>, <akpm@linux-foundation.org>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <bd3f2ee5-9cbd-ed4f-9863-8859866da810@nvidia.com>
+ <4C589824-CA40-41A3-8F2B-C2AA2A924510@lca.pw>
+From:   John Hubbard <jhubbard@nvidia.com>
+X-Nvconfidentiality: public
+Message-ID: <a7f354b7-d2f9-71c0-7311-97255933b9a2@nvidia.com>
+Date:   Thu, 5 Dec 2019 15:24:05 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.206
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable/linux-4.9.y boot: 61 boots: 0 failed,
- 60 passed with 1 untried/unknown (v4.9.206)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <4C589824-CA40-41A3-8F2B-C2AA2A924510@lca.pw>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1575588242; bh=Ab8rY4ay+5Y5dcV8urGXOfE2qIJ9aPxsk4hQ7HgMonA=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:X-Nvconfidentiality:
+         Message-ID:Date:User-Agent:MIME-Version:In-Reply-To:
+         X-Originating-IP:X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=MPqzdlHwcfwR0Ie02pSlatkIvc5TpipiNn58lbnSWReZxeutyVajGB4ZD+2Ghb+PO
+         nwk96+jLLfwS6r+vdWBXymIq8m+PV+9gid8+g0ia0I3cnyt3Du48FE9P6SJOi1p94o
+         gX/xeOlvFl6VKcBeQAO7rkSyAd7KNM8nW7JlL7jOvWUYgYKRse8LCqg2v96wXRMTkc
+         VlAn8dbvQqyV7xQ1JDc1+UcLkLc9t4mivgRHgHKe1gdiA5fTDO0xcLdFnfvJDD+hQU
+         uGQsbkbpyaV4MkTQZ0YdRJY1pSBDjJCNs4IsyQwqFkQ1YS5t1q7+MIZSflL5h8AZFG
+         ETB+/yoeXgRdA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y boot: 61 boots: 0 failed, 60 passed with 1 untried/unkno=
-wn (v4.9.206)
+On 12/5/19 3:16 PM, Qian Cai wrote:
+> 
+> 
+>> On Dec 5, 2019, at 5:41 PM, John Hubbard <jhubbard@nvidia.com> wrote:
+>>
+>> Please recall how this started: it was due to a report from a real end user, who was 
+>> seeing a real problem. After a few emails, it was clear that there's not a good
+>> work around available for cases like this:
+>>
+>> * User space calls move_pages(), gets 0 (success) returned, and based on that,
+>> proceeds to iterate through the status array.
+>>
+>> * The status array remains untouched by the move_pages() call, so confusion and
+>> wrong behavior ensues.
+>>
+>> After some further discussion, we decided that the current behavior really is 
+>> incorrect, and that it needs fixing in the kernel. Which this patch does.
+> 
+> Well, that test code itself  does not really tell any real world use case.  Also, thanks to the discussion, it brought to me it is more obvious and critical  that the return code is wrong according to the spec. Then, if that part is taking care of, it would kill two-bird with one stone because there is no need to return status array anymore. Make sense?
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-9.y/kernel/v4.9.206/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.206/
+Let's check in the fix that is clearly correct and non-controversial, in one
+patch. Then another patch can be created for the other case. This allows forward
+progress and quick resolution of the user's bug report, while still dealing
+with all the problems.
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.206
-Git Commit: de84c554e33b28d68e09bbd0ce5447b8a85853ff
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 32 unique boards, 13 SoC families, 12 builds out of 196
+If you try to fix too many problems in one patch (and remember, sometimes ">1"
+is too many), then things bog down. It's always a judgment call, but what's 
+unfolding here is quite consistent with the usual judgment calls in this area.
 
----
-For more info write to <info@kernelci.org>
+I don't think anyone is saying, "don't work on the second problem", it's just
+that it's less urgent, due to no reports from the field. If you are passionate
+about fixing the second problem (and are ready and willing to handle the fallout
+from user space, if it occurs), then I'd encourage you to look into it.
+
+It could turn out to be one of those "cannot change this because user space expectations
+have baked and hardened, and changes would break user space" situations, just to
+warn you in advance, though.
+
+thanks,
+-- 
+John Hubbard
+NVIDIA
