@@ -2,172 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D9A11491F
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 23:19:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7BB3114926
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 23:22:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbfLEWTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 17:19:32 -0500
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:35396 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729154AbfLEWTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 17:19:32 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R671e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0Tk4Lq1Z_1575584354;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tk4Lq1Z_1575584354)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 06 Dec 2019 06:19:21 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     fabecassis@nvidia.com, jhubbard@nvidia.com, mhocko@suse.com,
-        cl@linux.com, vbabka@suse.cz, mgorman@techsingularity.net,
-        akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v4 PATCH] mm: move_pages: return valid node id in status if the page is already on the target node
-Date:   Fri,  6 Dec 2019 06:19:13 +0800
-Message-Id: <1575584353-125392-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1729187AbfLEWWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 17:22:50 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45514 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727305AbfLEWWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 17:22:49 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id E811E1C246E; Thu,  5 Dec 2019 23:22:47 +0100 (CET)
+Date:   Thu, 5 Dec 2019 23:22:47 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Christoph Hellwig <hch@lst.de>, Faiz Abbas <faiz_abbas@ti.com>,
+        linux-block@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 240/321] mmc: core: align max segment size with
+ logical block size
+Message-ID: <20191205222247.GC25107@duo.ucw.cz>
+References: <20191203223427.103571230@linuxfoundation.org>
+ <20191203223439.627632861@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="E13BgyNx05feLLmH"
+Content-Disposition: inline
+In-Reply-To: <20191203223439.627632861@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Felix Abecassis reports move_pages() would return random status if the
-pages are already on the target node by the below test program:
 
----8<---
+--E13BgyNx05feLLmH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-int main(void)
-{
-	const long node_id = 1;
-	const long page_size = sysconf(_SC_PAGESIZE);
-	const int64_t num_pages = 8;
+Hi!
 
-	unsigned long nodemask =  1 << node_id;
-	long ret = set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask));
-	if (ret < 0)
-		return (EXIT_FAILURE);
+> From: Ming Lei <ming.lei@redhat.com>
+>=20
+> [ Upstream commit c53336c8f5f29043fded57912cc06c24e12613d7 ]
+>=20
+> Logical block size is the lowest possible block size that the storage
+> device can address. Max segment size is often related with controller's
+> DMA capability. And it is reasonable to align max segment size with
+> logical block size.
 
-	void **pages = malloc(sizeof(void*) * num_pages);
-	for (int i = 0; i < num_pages; ++i) {
-		pages[i] = mmap(NULL, page_size, PROT_WRITE | PROT_READ,
-				MAP_PRIVATE | MAP_POPULATE | MAP_ANONYMOUS,
-				-1, 0);
-		if (pages[i] == MAP_FAILED)
-			return (EXIT_FAILURE);
-	}
+> SDHCI sets un-aligned max segment size, and causes ADMA error, so
+> fix it by aligning max segment size with logical block size.
 
-	ret = set_mempolicy(MPOL_DEFAULT, NULL, 0);
-	if (ret < 0)
-		return (EXIT_FAILURE);
+If un-aligned max segment sizes are problem, should we add checks to
+prevent setting them?
 
-	int *nodes = malloc(sizeof(int) * num_pages);
-	int *status = malloc(sizeof(int) * num_pages);
-	for (int i = 0; i < num_pages; ++i) {
-		nodes[i] = node_id;
-		status[i] = 0xd0; /* simulate garbage values */
-	}
+At least these set unaligned problems; is that a problem?
 
-	ret = move_pages(0, num_pages, pages, nodes, status, MPOL_MF_MOVE);
-	printf("move_pages: %ld\n", ret);
-	for (int i = 0; i < num_pages; ++i)
-		printf("status[%d] = %d\n", i, status[i]);
-}
----8<---
+drivers/block/nbd.c:	blk_queue_max_segment_size(disk->queue, UINT_MAX);
+drivers/block/virtio_blk.c:		blk_queue_max_segment_size(q, -1U);
+drivers/block/rbd.c:	blk_queue_max_segment_size(q, UINT_MAX);
 
-Then running the program would return nonsense status values:
-$ ./move_pages_bug
-move_pages: 0
-status[0] = 208
-status[1] = 208
-status[2] = 208
-status[3] = 208
-status[4] = 208
-status[5] = 208
-status[6] = 208
-status[7] = 208
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-This is because the status is not set if the page is already on the
-target node, but move_pages() should return valid status as long as it
-succeeds.  The valid status may be errno or node id.
+--E13BgyNx05feLLmH
+Content-Type: application/pgp-signature; name="signature.asc"
 
-We can't simply initialize status array to zero since the pages may be
-not on node 0.  Fix it by updating status with node id which the page is
-already on.
+-----BEGIN PGP SIGNATURE-----
 
-Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
-Reported-by: Felix Abecassis <fabecassis@nvidia.com>
-Tested-by: Felix Abecassis <fabecassis@nvidia.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Acked-by: Christoph Lameter <cl@linux.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org> 4.17+
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
----
-v4: * Fixed the comments from Christopher and John and added their Acked-by
-      and Reviewed-by.
-v3: * Adopted the suggestion from Michal.
-v2: * Correted the return value when add_page_for_migration() returns 1.
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXemDNwAKCRAw5/Bqldv6
+8qURAJ4kOXj+tnqLfx1WyRpyhyio48ajTACfROmekocIzIC5gwaHRrxa13c9rik=
+=96V+
+-----END PGP SIGNATURE-----
 
- mm/migrate.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
-
-diff --git a/mm/migrate.c b/mm/migrate.c
-index a8f87cb..6b44818f 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -1512,9 +1512,11 @@ static int do_move_pages_to_node(struct mm_struct *mm,
- /*
-  * Resolves the given address to a struct page, isolates it from the LRU and
-  * puts it to the given pagelist.
-- * Returns -errno if the page cannot be found/isolated or 0 when it has been
-- * queued or the page doesn't need to be migrated because it is already on
-- * the target node
-+ * Returns:
-+ *     errno - if the page cannot be found/isolated
-+ *     0 - when it doesn't have to be migrated because it is already on the
-+ *         target node
-+ *     1 - when it has been queued
-  */
- static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
- 		int node, struct list_head *pagelist, bool migrate_all)
-@@ -1553,7 +1555,7 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
- 	if (PageHuge(page)) {
- 		if (PageHead(page)) {
- 			isolate_huge_page(page, pagelist);
--			err = 0;
-+			err = 1;
- 		}
- 	} else {
- 		struct page *head;
-@@ -1563,7 +1565,7 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
- 		if (err)
- 			goto out_putpage;
- 
--		err = 0;
-+		err = 1;
- 		list_add_tail(&head->lru, pagelist);
- 		mod_node_page_state(page_pgdat(head),
- 			NR_ISOLATED_ANON + page_is_file_cache(head),
-@@ -1640,8 +1642,17 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
- 		 */
- 		err = add_page_for_migration(mm, addr, current_node,
- 				&pagelist, flags & MPOL_MF_MOVE_ALL);
--		if (!err)
-+
-+		if (!err) {
-+			/* The page is already on the target node */
-+			err = store_status(status, i, current_node, 1);
-+			if (err)
-+				goto out_flush;
- 			continue;
-+		} else if (err > 0) {
-+			/* The page is successfully queued for migration */
-+			continue;
-+		}
- 
- 		err = store_status(status, i, err, 1);
- 		if (err)
--- 
-1.8.3.1
-
+--E13BgyNx05feLLmH--
