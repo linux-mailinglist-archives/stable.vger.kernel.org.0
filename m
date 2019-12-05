@@ -2,124 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D32FD113B78
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 06:53:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B205113C03
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 07:59:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725963AbfLEFx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 00:53:27 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:13518 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725953AbfLEFx1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 00:53:27 -0500
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5de89b460000>; Wed, 04 Dec 2019 21:53:10 -0800
+        id S1725953AbfLEG7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 01:59:14 -0500
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:8950 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725880AbfLEG7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 01:59:14 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5de8aac50000>; Wed, 04 Dec 2019 22:59:17 -0800
 Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Wed, 04 Dec 2019 21:53:26 -0800
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 04 Dec 2019 22:59:13 -0800
 X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Wed, 04 Dec 2019 21:53:26 -0800
-Received: from [10.2.163.157] (10.124.1.5) by HQMAIL107.nvidia.com
+        by hqpgpgate101.nvidia.com on Wed, 04 Dec 2019 22:59:13 -0800
+Received: from [10.26.11.205] (10.124.1.5) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 5 Dec
- 2019 05:53:26 +0000
-Subject: Re: [v2 PATCH] mm: move_pages: return valid node id in status if the
- page is already on the target node
-From:   John Hubbard <jhubbard@nvidia.com>
-To:     Yang Shi <yang.shi@linux.alibaba.com>, <fabecassis@nvidia.com>,
-        <mhocko@suse.com>, <cl@linux.com>, <vbabka@suse.cz>,
-        <mgorman@techsingularity.net>, <akpm@linux-foundation.org>
-CC:     <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-References: <1575519678-86510-1-git-send-email-yang.shi@linux.alibaba.com>
- <d4935b9f-39ef-fb91-1786-be84784dccd0@nvidia.com>
-X-Nvconfidentiality: public
-Message-ID: <565bf53f-1a08-d472-30ac-cf9953e1490a@nvidia.com>
-Date:   Wed, 4 Dec 2019 21:50:37 -0800
+ 2019 06:59:10 +0000
+Subject: Re: [PATCH 4.4 00/92] 4.4.206-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191204174327.215426506@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <3faa827e-eb8b-ef26-0392-0fbb1cd589b2@nvidia.com>
+Date:   Thu, 5 Dec 2019 06:59:07 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-In-Reply-To: <d4935b9f-39ef-fb91-1786-be84784dccd0@nvidia.com>
+In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
  HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1575525191; bh=fcuwO+qF7oSQ+luHDShI2/Xlyftz/4idYXdV3q3Mch0=;
-        h=X-PGP-Universal:Subject:From:To:CC:References:X-Nvconfidentiality:
-         Message-ID:Date:User-Agent:MIME-Version:In-Reply-To:
-         X-Originating-IP:X-ClientProxiedBy:Content-Type:Content-Language:
+        t=1575529157; bh=ZX192Uyt24fnPEqsVv7TYZEmGjW8ChTs/SJylwWFttU=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
          Content-Transfer-Encoding;
-        b=Dwjcnt5J5LvzvJBffj8B2N/ltqQn5cKac3cmsokwj8ehF2Tuyf4UkltlP3JiuOYGD
-         lXOJkJlWp867qETui/MZlkheM+VapeBQwRZORmakbX3GB/x6Ehp2Nzfr0YBmlbMtLU
-         MAoPyiRDKM02I8d8ZrJzTWKWtaabl7WegDuxXmSLtpM/MLbb5WumxKRrkPQtqO9bbC
-         gmbm4nRNYKzWH8h2xfU0tyQtRGI6uKU1z2yC846tTCEwUzthb3jbTVZvD7OVoBmEYw
-         fwzbkJ0YoKvQRm+SgtV7zdwYay3hXJRxOd0elGYyMQlQcFHH3wr0E+ijirQwcp6obs
-         bDDcS84I+g8Fg==
+        b=V7T9IEYErW1YLAzF6zPs0yW6vyt4cdgr3/KR9wTseO1dYvHCocFScd8tHpL4hQ7xp
+         nw9SOHWwvwkUYp3wz79e/9X+5uSW2sCdYg9XBj+jZNnNNC/sIpLzMkjls/9VLv1cUI
+         QdlTZR7Nku7kMi8Tz//eXfS6zXtUF5ZhSYhuu8tdArtonjitWeZejGBJ7xZYKM2Mvn
+         DsCovCyzxMFf1iOT2vjclASt/Xdhfh2rAbBC4Z1g5QQFEzSBuK74zh30hV8FMjXrbA
+         4B3t2KJMzQb/cLoKTQ6Tlc/bWUgZ4frONxzSh81AtSdpDc+76VP8S+b1x+Z8SjA6Oc
+         /dJGAlT9GXH1Q==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/4/19 9:44 PM, John Hubbard wrote:
-...=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
->=20
-> Let's change the comment above add_page_for_migration(), to read:
->=20
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /*
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * Most errors in the pa=
-ge lookup or isolation are not fatal
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * and we simply report =
-them via the status array. However,
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * positive error values=
- are fatal.
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
->=20
->=20
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 err =3D add_page_=
-for_migration(mm, addr, current_node,
->> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 &pagelist, flags & MPOL_MF_MOVE_ALL);
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 &pagelist, flags & MPOL_MF_MOVE_ALL, status,
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 i);
->> +
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!err)
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 continue;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* store_status() failed in =
-add_page_for_migration() */
->=20
-> ...and let's replace the above line, with the following:
->=20
 
-Correction, I experienced a fatal editor copy-paste mistake here. :) I mean=
-t to
-suggest this:
+On 04/12/2019 17:49, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.206 release.
+> There are 92 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 06 Dec 2019 17:42:37 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.206-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
 
-		/*
-		 * add_page_for_migration() experienced a fatal failure (see the
-		 * comments in that routine for details).
-		 */
 
->=20
->=20
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (err > 0) {
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 err =
-=3D -EFAULT;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto=
- out_flush;
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->> +
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 err =3D store_sta=
-tus(status, i, err, 1);
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (err)
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 goto out_flush;
->>
+All tests are passing for Tegra ...
 
-thanks,
---=20
-John Hubbard
-NVIDIA
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
+
+Linux version:	4.4.206-rc1-g4fd2af91bc35
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
