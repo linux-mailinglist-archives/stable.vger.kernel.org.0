@@ -2,204 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C342B113AC2
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 05:21:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4755113B21
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 06:17:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728470AbfLEEVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 23:21:34 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:47731 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728321AbfLEEVe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 23:21:34 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0Tk0Wdfi_1575519678;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tk0Wdfi_1575519678)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 05 Dec 2019 12:21:29 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     fabecassis@nvidia.com, jhubbard@nvidia.com, mhocko@suse.com,
-        cl@linux.com, vbabka@suse.cz, mgorman@techsingularity.net,
-        akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v2 PATCH] mm: move_pages: return valid node id in status if the page is already on the target node
-Date:   Thu,  5 Dec 2019 12:21:18 +0800
-Message-Id: <1575519678-86510-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1725953AbfLEFR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 00:17:56 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41755 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725855AbfLEFR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 00:17:56 -0500
+Received: by mail-lj1-f194.google.com with SMTP id h23so1966387ljc.8
+        for <stable@vger.kernel.org>; Wed, 04 Dec 2019 21:17:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=NZoGtGNraQjc6dXpO63gnHnybL5cQ5VU6VDjK1ICWQc=;
+        b=VvgqPCA5a+ncw5lN4K5wCoAXVP82RQDe7aIYPCX2P3s0aglm9imMn5f1exi3Uu2SnO
+         q3FauUIX9r1w93aBhn4O8jetIcMWfQMy0uxAJFDv0di9gK5FyDX/J08pQx5p569vQ+5u
+         X+Kridh3N3ckknEVglo733nKcojDWvoZRo7HdNdzMQ05cmjsQp88Qy6AnmesEjl5EX/w
+         qmbtSKd9E3MWSf49cn/VfQw/RcOI/WbQd8RwcIW3RJQfqibRtJPYg8q6jcj2elUO8+ei
+         gY2wWqQZSrnIG0qppBOi6n4nYenaDFq7SnCT2OMZO/+kbmfeiKp04u6eEj20jhgKWBlc
+         Df5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=NZoGtGNraQjc6dXpO63gnHnybL5cQ5VU6VDjK1ICWQc=;
+        b=l7ZtUy7ELN4vZE+puuyoPg1jMjvGjiRSk1I0QHfKV+zoLZmdo7aSIG3R8rA5Y+Yyhp
+         Y7yPCjnb0/RHXWiJmbW90jM2FMiVND/T5C4CpY/8gyedxGXTyv1pjYl2Vy02eLnTmSt4
+         N/mCXudYryUsCuH65LjSk5DGYzWc8n1dup2LOl0inNPM93XR7VPNWEDbp4QEguifpBIu
+         oT2ckNTM/VP30nxwk9e6OSa9bm73xevKaqFcjjlf8BnsYXNfUEAY42Ap/AOUiAMIxplG
+         5PXfdN9H7wm2Rjo1TJegtUu/KqY5veLZxKl5UBQ5QLowh9jXUAaueRHSJvn0ncdynJAp
+         rbQQ==
+X-Gm-Message-State: APjAAAUS6h8PUbUMmqM0CIdJHE5WS902zReghpE6H0RD8kR0t2UoMxhG
+        h0jpKN9KBcZ6bjTNWkrVKt+6CuAyZ6RZ/Dw67agj0A==
+X-Google-Smtp-Source: APXvYqzcmmEJ9J8SmZa/0V3/vBFSLXxIu2GgQsEu2IA7tDLo8TcQ/Wgyismvoxl0/qGsGaDYNBtAjXy8HAIMFzm7uLI=
+X-Received: by 2002:a2e:585e:: with SMTP id x30mr4373672ljd.141.1575523074671;
+ Wed, 04 Dec 2019 21:17:54 -0800 (PST)
+MIME-Version: 1.0
+References: <20191204175321.609072813@linuxfoundation.org>
+In-Reply-To: <20191204175321.609072813@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 5 Dec 2019 10:47:43 +0530
+Message-ID: <CA+G9fYuMt0GJ87r7xkME4xz6rD2wx-Sn=mFph_7k2Dr_DXCKOQ@mail.gmail.com>
+Subject: Re: [PATCH 4.14 000/209] 4.14.158-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Felix Abecassis reports move_pages() would return random status if the
-pages are already on the target node by the below test program:
+On Wed, 4 Dec 2019 at 23:33, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.158 release.
+> There are 209 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 06 Dec 2019 17:50:10 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.158-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
----8<---
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-int main(void)
-{
-	const long node_id = 1;
-	const long page_size = sysconf(_SC_PAGESIZE);
-	const int64_t num_pages = 8;
+Summary
+------------------------------------------------------------------------
 
-	unsigned long nodemask =  1 << node_id;
-	long ret = set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask));
-	if (ret < 0)
-		return (EXIT_FAILURE);
+kernel: 4.14.158-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: ce267d7b1d71f10d722fd3c8a729ccca53830262
+git describe: v4.14.157-210-gce267d7b1d71
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.157-210-gce267d7b1d71
 
-	void **pages = malloc(sizeof(void*) * num_pages);
-	for (int i = 0; i < num_pages; ++i) {
-		pages[i] = mmap(NULL, page_size, PROT_WRITE | PROT_READ,
-				MAP_PRIVATE | MAP_POPULATE | MAP_ANONYMOUS,
-				-1, 0);
-		if (pages[i] == MAP_FAILED)
-			return (EXIT_FAILURE);
-	}
 
-	ret = set_mempolicy(MPOL_DEFAULT, NULL, 0);
-	if (ret < 0)
-		return (EXIT_FAILURE);
+No regressions (compared to build v4.14.157)
 
-	int *nodes = malloc(sizeof(int) * num_pages);
-	int *status = malloc(sizeof(int) * num_pages);
-	for (int i = 0; i < num_pages; ++i) {
-		nodes[i] = node_id;
-		status[i] = 0xd0; /* simulate garbage values */
-	}
 
-	ret = move_pages(0, num_pages, pages, nodes, status, MPOL_MF_MOVE);
-	printf("move_pages: %ld\n", ret);
-	for (int i = 0; i < num_pages; ++i)
-		printf("status[%d] = %d\n", i, status[i]);
-}
----8<---
+No fixes (compared to build v4.14.157)
 
-Then running the program would return nonsense status values:
-$ ./move_pages_bug
-move_pages: 0
-status[0] = 208
-status[1] = 208
-status[2] = 208
-status[3] = 208
-status[4] = 208
-status[5] = 208
-status[6] = 208
-status[7] = 208
+Ran 24134 total tests in the following environments and test suites.
 
-This is because the status is not set if the page is already on the
-target node, but move_pages() should return valid status as long as it
-succeeds.  The valid status may be errno or node id.
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
 
-We can't simply initialize status array to zero since the pages may be
-not on node 0.  Fix it by updating status with node id which the page is
-already on.  And, it looks we have to update the status inside
-add_page_for_migration() since the page struct is not available outside
-it.
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-io-tests
+* spectre-meltdown-checker-test
+* ltp-commands-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
 
-Make add_page_for_migration() return 1 if store_status() is failed in
-order to not mix up the status value since -EFAULT is also a valid
-status.
-
-Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
-Reported-by: Felix Abecassis <fabecassis@nvidia.com>
-Tested-by: Felix Abecassis <fabecassis@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org> 4.17+
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
----
-v2: *Correted the return value when add_page_for_migration() returns 1.
-
-John noticed another return value inconsistency between the implementation and
-the manpage.  The manpage says it should return -ENOENT if the page is already
-on the target node, but it doesn't.  It looks the original code didn't return
--ENOENT either, I'm not sure if this is a document issue or not.  Anyway this
-is another issue, once we confirm it we can fix it later.
-
- mm/migrate.c | 36 ++++++++++++++++++++++++++++++------
- 1 file changed, 30 insertions(+), 6 deletions(-)
-
-diff --git a/mm/migrate.c b/mm/migrate.c
-index a8f87cb..f1090a0 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -1512,17 +1512,21 @@ static int do_move_pages_to_node(struct mm_struct *mm,
- /*
-  * Resolves the given address to a struct page, isolates it from the LRU and
-  * puts it to the given pagelist.
-- * Returns -errno if the page cannot be found/isolated or 0 when it has been
-- * queued or the page doesn't need to be migrated because it is already on
-- * the target node
-+ * Returns:
-+ *     errno - if the page cannot be found/isolated
-+ *     0 - when it has been queued or the page doesn't need to be migrated
-+ *         because it is already on the target node
-+ *     1 - if store_status() is failed
-  */
- static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
--		int node, struct list_head *pagelist, bool migrate_all)
-+		int node, struct list_head *pagelist, bool migrate_all,
-+		int __user *status, int start)
- {
- 	struct vm_area_struct *vma;
- 	struct page *page;
- 	unsigned int follflags;
- 	int err;
-+	bool same_node = false;
- 
- 	down_read(&mm->mmap_sem);
- 	err = -EFAULT;
-@@ -1543,8 +1547,10 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
- 		goto out;
- 
- 	err = 0;
--	if (page_to_nid(page) == node)
-+	if (page_to_nid(page) == node) {
-+		same_node = true;
- 		goto out_putpage;
-+	}
- 
- 	err = -EACCES;
- 	if (page_mapcount(page) > 1 && !migrate_all)
-@@ -1578,6 +1584,16 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
- 	put_page(page);
- out:
- 	up_read(&mm->mmap_sem);
-+
-+	/*
-+	 * Must call store_status() after releasing mmap_sem since put_user
-+	 * need acquire mmap_sem too, otherwise potential deadlock may exist.
-+	 */
-+	if (same_node) {
-+		if (store_status(status, start, node, 1))
-+			err = 1;
-+	}
-+
- 	return err;
- }
- 
-@@ -1639,10 +1655,18 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
- 		 * report them via status
- 		 */
- 		err = add_page_for_migration(mm, addr, current_node,
--				&pagelist, flags & MPOL_MF_MOVE_ALL);
-+				&pagelist, flags & MPOL_MF_MOVE_ALL, status,
-+				i);
-+
- 		if (!err)
- 			continue;
- 
-+		/* store_status() failed in add_page_for_migration() */
-+		if (err > 0) {
-+			err = -EFAULT;
-+			goto out_flush;
-+		}
-+
- 		err = store_status(status, i, err, 1);
- 		if (err)
- 			goto out_flush;
--- 
-1.8.3.1
-
+--=20
+Linaro LKFT
+https://lkft.linaro.org
