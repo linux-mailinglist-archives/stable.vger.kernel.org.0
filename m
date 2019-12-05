@@ -2,224 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD07113DC1
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 10:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C24E3113E5F
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 10:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726096AbfLEJYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 04:24:36 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42279 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728549AbfLEJYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 04:24:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575537873;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=J26eL/Qneqeb8lxIMubff3fK1SSsc72Uv7vw6agP32Y=;
-        b=fnsvahmVFNVNHz31EvRTDJ7xBmQnW+wB4d9COTccTmvqv8AO4IYzndwE68Mobaj9cKWr+l
-        QMxCv+JRK9Hev4pMfeWBRtHHalDaCFZn7jMo2rOz8r7P+/P02BoCICtaCzDDqrv83BJcvi
-        /a+jmha18lGM32Q8JPfPI0kgvu7gBLU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-384-dn3o6PC8P9u6M3q0hpFDrQ-1; Thu, 05 Dec 2019 04:24:30 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DC7D2800D5A;
-        Thu,  5 Dec 2019 09:24:28 +0000 (UTC)
-Received: from t460s.redhat.com (ovpn-117-254.ams2.redhat.com [10.36.117.254])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0BA7F6EE39;
-        Thu,  5 Dec 2019 09:24:20 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
-        Yumei Huang <yuhuang@redhat.com>, stable@vger.kernel.org,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, Jiang Liu <liuj97@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH v2] virtio-balloon: fix managed page counts when migrating pages between zones
-Date:   Thu,  5 Dec 2019 10:24:20 +0100
-Message-Id: <20191205092420.6934-1-david@redhat.com>
-MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-MC-Unique: dn3o6PC8P9u6M3q0hpFDrQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
+        id S1729070AbfLEJm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 04:42:29 -0500
+Received: from mail-qv1-f66.google.com ([209.85.219.66]:40002 "EHLO
+        mail-qv1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729068AbfLEJm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 04:42:28 -0500
+Received: by mail-qv1-f66.google.com with SMTP id i3so1031605qvv.7
+        for <stable@vger.kernel.org>; Thu, 05 Dec 2019 01:42:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=lca.pw; s=google;
+        h=content-transfer-encoding:from:mime-version:subject:date:message-id
+         :references:cc:in-reply-to:to;
+        bh=zI7a5PBMJJ5CQd2iIgpWJ2uNZMsj1Eei+ZBMJ2MdOPA=;
+        b=fTOKyT6d57EX40FTt7xk4dm4F/UKZ5SwM2IFqMsoI3yfCsmiz1FI8MWUjUkTW+F8U5
+         5tgPXiXJqUuWe7Qodfx5FSKinWR7lJg97JBfWXy+kq3FYdd5l+903umSf2oRYNDRhE2R
+         S5uHHUuFYZBkm8h4EnoqLKT1Rlyo2awbgrNFIjBCmTDh6UMW1KhhO6gVLyTg6d6H4tEW
+         0Zr1G6WSRkal+43oiuUQ6FomOPA2umQZSFlLBokCeW4eEfBPY3I+Wzptb5XhEznTm8h5
+         eNDVrRQcoEuMf+9dH1iAr5C0eHAXzOIecEf9jsze1Bpz6oGXAn4ShzKYlvb++3dY3XXz
+         gvSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version
+         :subject:date:message-id:references:cc:in-reply-to:to;
+        bh=zI7a5PBMJJ5CQd2iIgpWJ2uNZMsj1Eei+ZBMJ2MdOPA=;
+        b=lUII0B88QkMnu3ydWEy5Melf0WplQILU0q8L5SYNld+YxiuoSe3NHIMFfs8IMKbU87
+         z1D5YWRLffx5sm03numxmaDVMgLExChU7RbHqpVo7luxqdBCwqOFhRKFOCTheVXoaULB
+         aBu1YNx2cmg3gSiDbbhjJ6gljOh6kSDoCQzxn1S/LjYXfhePNoMDAkAdQDgtT/KOeruG
+         UDDIb6oyQLecp4DpueqBECgZX/oSj0neOny4l6JZLL0ynOPk/yLP9Q5II1fOsCzd+vxf
+         yLvstZhLjAFiEWUAKVrnQeLHylKk4anb0UBg3myeytNkZV+wNeYB+qpE95XCJWBSj1zh
+         aXVQ==
+X-Gm-Message-State: APjAAAXc2ZWOQ+m8GQ/cml6X6SPRSNa60lcBBiAhrKtxXfFVgq7h5+Ce
+        QgRAQTJmDWMFowZF2z11YgzcNxRSQYkzkw==
+X-Google-Smtp-Source: APXvYqw4MD2MUemRLyJ8RFAeY7TUJzzy4DevHu4JGTfkFeWfxi7tVEGh2w/A/72jz0ef24uQmreUGw==
+X-Received: by 2002:ad4:5689:: with SMTP id bc9mr6409168qvb.132.1575538947064;
+        Thu, 05 Dec 2019 01:42:27 -0800 (PST)
+Received: from [192.168.1.183] (pool-71-184-117-43.bstnma.fios.verizon.net. [71.184.117.43])
+        by smtp.gmail.com with ESMTPSA id 13sm4716663qke.85.2019.12.05.01.42.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Dec 2019 01:42:26 -0800 (PST)
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+From:   Qian Cai <cai@lca.pw>
+Mime-Version: 1.0 (1.0)
+Subject: Re: [v2 PATCH] mm: move_pages: return valid node id in status if the page is already on the target node
+Date:   Thu, 5 Dec 2019 04:42:25 -0500
+Message-Id: <9E51ECF6-E9E8-4772-B7D8-7E528DD56A89@lca.pw>
+References: <1575519678-86510-1-git-send-email-yang.shi@linux.alibaba.com>
+Cc:     fabecassis@nvidia.com, jhubbard@nvidia.com, mhocko@suse.com,
+        cl@linux.com, vbabka@suse.cz, mgorman@techsingularity.net,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <1575519678-86510-1-git-send-email-yang.shi@linux.alibaba.com>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+X-Mailer: iPhone Mail (17B111)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case we have to migrate a ballon page to a newpage of another zone, the
-managed page count of both zones is wrong. Paired with memory offlining
-(which will adjust the managed page count), we can trigger kernel crashes
-and all kinds of different symptoms.
 
-One way to reproduce:
-1. Start a QEMU guest with 4GB, no NUMA
-2. Hotplug a 1GB DIMM and only the memory to ZONE_NORMAL
-3. Inflate the balloon to 1GB
-4. Unplug the DIMM (be quick, otherwise unmovable data ends up on it)
-5. Observe /proc/zoneinfo
-  Node 0, zone   Normal
-    pages free     16810
-          min      24848885473806
-          low      18471592959183339
-          high     36918337032892872
-          spanned  262144
-          present  262144
-          managed  18446744073709533486
-6. Do anything that requires some memory (e.g., inflate the balloon some
-more). The OOM goes crazy and the system crashes
-  [  238.324946] Out of memory: Killed process 537 (login) total-vm:27584kB=
-, anon-rss:860kB, file-rss:0kB, shmem-rss:00
-  [  238.338585] systemd invoked oom-killer: gfp_mask=3D0x100cca(GFP_HIGHUS=
-ER_MOVABLE), order=3D0, oom_score_adj=3D0
-  [  238.339420] CPU: 0 PID: 1 Comm: systemd Tainted: G      D W         5.=
-4.0-next-20191204+ #75
-  [  238.340139] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIO=
-S rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
-  [  238.341121] Call Trace:
-  [  238.341337]  dump_stack+0x8f/0xd0
-  [  238.341630]  dump_header+0x61/0x5ea
-  [  238.341942]  oom_kill_process.cold+0xb/0x10
-  [  238.342299]  out_of_memory+0x24d/0x5a0
-  [  238.342625]  __alloc_pages_slowpath+0xd12/0x1020
-  [  238.343024]  __alloc_pages_nodemask+0x391/0x410
-  [  238.343407]  pagecache_get_page+0xc3/0x3a0
-  [  238.343757]  filemap_fault+0x804/0xc30
-  [  238.344083]  ? ext4_filemap_fault+0x28/0x42
-  [  238.344444]  ext4_filemap_fault+0x30/0x42
-  [  238.344789]  __do_fault+0x37/0x1a0
-  [  238.345087]  __handle_mm_fault+0x104d/0x1ab0
-  [  238.345450]  handle_mm_fault+0x169/0x360
-  [  238.345790]  do_user_addr_fault+0x20d/0x490
-  [  238.346154]  do_page_fault+0x31/0x210
-  [  238.346468]  async_page_fault+0x43/0x50
-  [  238.346797] RIP: 0033:0x7f47eba4197e
-  [  238.347110] Code: Bad RIP value.
-  [  238.347387] RSP: 002b:00007ffd7c0c1890 EFLAGS: 00010293
-  [  238.347834] RAX: 0000000000000002 RBX: 000055d196a20a20 RCX: 00007f47e=
-ba4197e
-  [  238.348437] RDX: 0000000000000033 RSI: 00007ffd7c0c18c0 RDI: 000000000=
-0000004
-  [  238.349047] RBP: 00007ffd7c0c1c20 R08: 0000000000000000 R09: 000000000=
-0000033
-  [  238.349660] R10: 00000000ffffffff R11: 0000000000000293 R12: 000000000=
-0000001
-  [  238.350261] R13: ffffffffffffffff R14: 0000000000000000 R15: 00007ffd7=
-c0c18c0
-  [  238.350878] Mem-Info:
-  [  238.351085] active_anon:3121 inactive_anon:51 isolated_anon:0
-  [  238.351085]  active_file:12 inactive_file:7 isolated_file:0
-  [  238.351085]  unevictable:0 dirty:0 writeback:0 unstable:0
-  [  238.351085]  slab_reclaimable:5565 slab_unreclaimable:10170
-  [  238.351085]  mapped:3 shmem:111 pagetables:155 bounce:0
-  [  238.351085]  free:720717 free_pcp:2 free_cma:0
-  [  238.353757] Node 0 active_anon:12484kB inactive_anon:204kB active_file=
-:48kB inactive_file:28kB unevictable:0kB iss
-  [  238.355979] Node 0 DMA free:11556kB min:36kB low:48kB high:60kB reserv=
-ed_highatomic:0KB active_anon:152kB inactivB
-  [  238.358345] lowmem_reserve[]: 0 2955 2884 2884 2884
-  [  238.358761] Node 0 DMA32 free:2677864kB min:7004kB low:10028kB high:13=
-052kB reserved_highatomic:0KB active_anon:0B
-  [  238.361202] lowmem_reserve[]: 0 0 72057594037927865 72057594037927865 =
-72057594037927865
-  [  238.361888] Node 0 Normal free:193448kB min:99395541895224kB low:73886=
-371836733356kB high:147673348131571488kB reB
-  [  238.364765] lowmem_reserve[]: 0 0 0 0 0
-  [  238.365101] Node 0 DMA: 7*4kB (U) 5*8kB (UE) 6*16kB (UME) 2*32kB (UM) =
-1*64kB (U) 2*128kB (UE) 3*256kB (UME) 2*512B
-  [  238.366379] Node 0 DMA32: 0*4kB 1*8kB (U) 2*16kB (UM) 2*32kB (UM) 2*64=
-kB (UM) 1*128kB (U) 1*256kB (U) 1*512kB (U)B
-  [  238.367654] Node 0 Normal: 1985*4kB (UME) 1321*8kB (UME) 844*16kB (UME=
-) 524*32kB (UME) 300*64kB (UME) 138*128kB (B
-  [  238.369184] Node 0 hugepages_total=3D0 hugepages_free=3D0 hugepages_su=
-rp=3D0 hugepages_size=3D2048kB
-  [  238.369915] 130 total pagecache pages
-  [  238.370241] 0 pages in swap cache
-  [  238.370533] Swap cache stats: add 0, delete 0, find 0/0
-  [  238.370981] Free swap  =3D 0kB
-  [  238.371239] Total swap =3D 0kB
-  [  238.371488] 1048445 pages RAM
-  [  238.371756] 0 pages HighMem/MovableOnly
-  [  238.372090] 306992 pages reserved
-  [  238.372376] 0 pages cma reserved
-  [  238.372661] 0 pages hwpoisoned
 
-In another instance (older kernel), I was able to observe this
-(negative page count :/):
-  [  180.896971] Offlined Pages 32768
-  [  182.667462] Offlined Pages 32768
-  [  184.408117] Offlined Pages 32768
-  [  186.026321] Offlined Pages 32768
-  [  187.684861] Offlined Pages 32768
-  [  189.227013] Offlined Pages 32768
-  [  190.830303] Offlined Pages 32768
-  [  190.833071] Built 1 zonelists, mobility grouping on.  Total pages: -36=
-920272750453009
+> On Dec 4, 2019, at 11:21 PM, Yang Shi <yang.shi@linux.alibaba.com> wrote:
+>=20
+> Felix Abecassis reports move_pages() would return random status if the
+> pages are already on the target node by the below test program:
+>=20
+> ---8<---
+>=20
+> int main(void)
+> {
+>    const long node_id =3D 1;
+>    const long page_size =3D sysconf(_SC_PAGESIZE);
+>    const int64_t num_pages =3D 8;
+>=20
+>    unsigned long nodemask =3D  1 << node_id;
+>    long ret =3D set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask));
+>    if (ret < 0)
+>        return (EXIT_FAILURE);
+>=20
+>    void **pages =3D malloc(sizeof(void*) * num_pages);
+>    for (int i =3D 0; i < num_pages; ++i) {
+>        pages[i] =3D mmap(NULL, page_size, PROT_WRITE | PROT_READ,
+>                MAP_PRIVATE | MAP_POPULATE | MAP_ANONYMOUS,
+>                -1, 0);
+>        if (pages[i] =3D=3D MAP_FAILED)
+>            return (EXIT_FAILURE);
+>    }
+>=20
+>    ret =3D set_mempolicy(MPOL_DEFAULT, NULL, 0);
+>    if (ret < 0)
+>        return (EXIT_FAILURE);
+>=20
+>    int *nodes =3D malloc(sizeof(int) * num_pages);
+>    int *status =3D malloc(sizeof(int) * num_pages);
+>    for (int i =3D 0; i < num_pages; ++i) {
+>        nodes[i] =3D node_id;
+>        status[i] =3D 0xd0; /* simulate garbage values */
+>    }
+>=20
+>    ret =3D move_pages(0, num_pages, pages, nodes, status, MPOL_MF_MOVE);
+>    printf("move_pages: %ld\n", ret);
+>    for (int i =3D 0; i < num_pages; ++i)
+>        printf("status[%d] =3D %d\n", i, status[i]);
+> }
+> ---8<---
+>=20
+> Then running the program would return nonsense status values:
+> $ ./move_pages_bug
+> move_pages: 0
+> status[0] =3D 208
+> status[1] =3D 208
+> status[2] =3D 208
+> status[3] =3D 208
+> status[4] =3D 208
+> status[5] =3D 208
+> status[6] =3D 208
+> status[7] =3D 208
+>=20
+> This is because the status is not set if the page is already on the
+> target node, but move_pages() should return valid status as long as it
+> succeeds.  The valid status may be errno or node id.
+>=20
+> We can't simply initialize status array to zero since the pages may be
+> not on node 0.  Fix it by updating status with node id which the page is
+> already on.  And, it looks we have to update the status inside
+> add_page_for_migration() since the page struct is not available outside
+> it.
+>=20
+> Make add_page_for_migration() return 1 if store_status() is failed in
+> order to not mix up the status value since -EFAULT is also a valid
+> status.
 
-In another instance (older kernel), I was no longer able to start any
-process:
-  [root@vm ~]# [  214.348068] Offlined Pages 32768
-  [  215.973009] Offlined Pages 32768
-  cat /proc/meminfo
-  -bash: fork: Cannot allocate memory
-  [root@vm ~]# cat /proc/meminfo
-  -bash: fork: Cannot allocate memory
-
-Fix it by properly adjusting the managed page count when migrating if
-the zone changed. The managed page count of the zones now looks after
-unplug of the DIMM (and after deflating the balloon) just like before
-inflating the balloon (and plugging+onlining the DIMM).
-
-We'll temporarily modify the totalram page count. If this ever becomes a
-problem, we can fine tune by providing helpers that don't touch
-the totalram pages (e.g., adjust_zone_managed_page_count()).
-
-Reported-by: Yumei Huang <yuhuang@redhat.com>
-Fixes: 3dcc0571cd64 ("mm: correctly update zone->managed_pages")
-Cc: <stable@vger.kernel.org> # v3.11+
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Jiang Liu <liuj97@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
-
-v1 -> v2:
-- Adjust count before enquing newpage (and it possibly gets free form the
-  balloon)
-- Check if the zone changed
-
----
- drivers/virtio/virtio_balloon.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloo=
-n.c
-index 15b7f1d8c334..3078e1ac2a8f 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -722,6 +722,13 @@ static int virtballoon_migratepage(struct balloon_dev_=
-info *vb_dev_info,
-=20
- =09get_page(newpage); /* balloon reference */
-=20
-+=09/* fixup the managed page count (esp. of the zone) */
-+=09if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM) &&
-+=09    page_zone(page) !=3D page_zone(newpage)) {
-+=09=09adjust_managed_page_count(page, 1);
-+=09=09adjust_managed_page_count(newpage, -1);
-+=09}
-+
- =09/* balloon's page migration 1st step  -- inflate "newpage" */
- =09spin_lock_irqsave(&vb_dev_info->pages_lock, flags);
- =09balloon_page_insert(vb_dev_info, newpage);
---=20
-2.21.0
-
+Don=E2=80=99t really feel it is a bug after all. As you mentioned, the manpa=
+ge was rather poorly written. Why it is not a good idea just update the manp=
+age or/and code comments instead to document the current behavior?=
