@@ -2,77 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB7A3113D51
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 09:48:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2431B113D55
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 09:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728991AbfLEIsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 03:48:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
+        id S1726137AbfLEIu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 03:50:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726032AbfLEIsW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 5 Dec 2019 03:48:22 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1725974AbfLEIu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 5 Dec 2019 03:50:59 -0500
+Received: from wens.tw (mirror2.csie.ntu.edu.tw [140.112.30.76])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55A77224F8;
-        Thu,  5 Dec 2019 08:48:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DB4F205ED;
+        Thu,  5 Dec 2019 08:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575535701;
-        bh=nvmdoKn/TI7KsGLRiKbr33Ub6XrfjaXy6E6Z8CeVjJc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QJvVCLlaVznI8M/byNoO9JyuFr1/Um02FzsS1ktr2/OeLriDDo7QlOaIjxELNBkef
-         TvCVtC+8o4fQ1UrbA7UOaSbPu4DyxrlWDeCLk4Nhy14hY2YsNOfPoNb3Fk0zmYVEYF
-         CU1ucCn4Ke7vP1/iYBWkv/HwOwAvFv10rP8fs2rM=
-Date:   Thu, 5 Dec 2019 09:48:19 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.14 000/209] 4.14.158-stable review
-Message-ID: <20191205084819.GB302248@kroah.com>
-References: <20191204175321.609072813@linuxfoundation.org>
- <CA+G9fYuMt0GJ87r7xkME4xz6rD2wx-Sn=mFph_7k2Dr_DXCKOQ@mail.gmail.com>
+        s=default; t=1575535858;
+        bh=jv3bVtccHNR/eO6WUrlGuplkynPeqmKgBox/+jgglmY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=zJ2Pgng4JVDyPDNCnaCPVIuU4jWEK7fe+PHC7tvpnKoUvx93g75P4sFbdREl/Zw8p
+         /bM6Ao3pHaM1MNS83wq5HStQHqVgS9QC7HkwRQM/Q82q0WsFYYTRjWadNWKsj/FWWK
+         2sWWQ1VmT1c9uzt3wrafhsOLLDYXqPNnwbzhpNkI=
+Received: by wens.tw (Postfix, from userid 1000)
+        id C09F55FA9F; Thu,  5 Dec 2019 16:50:54 +0800 (CST)
+From:   Chen-Yu Tsai <wens@kernel.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Maxime Ripard <mripard@kernel.org>
+Cc:     Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] rtc: sun6i: Add support for RTC clocks on R40
+Date:   Thu,  5 Dec 2019 16:50:54 +0800
+Message-Id: <20191205085054.6049-1-wens@kernel.org>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYuMt0GJ87r7xkME4xz6rD2wx-Sn=mFph_7k2Dr_DXCKOQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 05, 2019 at 10:47:43AM +0530, Naresh Kamboju wrote:
-> On Wed, 4 Dec 2019 at 23:33, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 4.14.158 release.
-> > There are 209 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri, 06 Dec 2019 17:50:10 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.158-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+From: Chen-Yu Tsai <wens@csie.org>
 
-Thanks for testing all of these and letting me know.
+When support for the R40 in the rtc-sun6i driver was split out for a
+separate compatible string, only the RTC half was covered, and not the
+clock half. Unfortunately this results in the whole driver not working,
+as the RTC half expects the clock half to have been initialized.
 
-greg k-h
+Add support for the clock part as well. The clock part is like the H3,
+but does not need to export the internal oscillator, nor does it have
+a gateable LOSC external output.
+
+This fixes issues with WiFi and Bluetooth not working on the BPI M2U.
+
+Fixes: d6624cc75021 ("rtc: sun6i: Add R40 compatible")
+Cc: <stable@vger.kernel.org> # 5.3.x
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+
+Please merge this for fixes.
+
+---
+ drivers/rtc/rtc-sun6i.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 5e2bd9f1d01e..fc32be687606 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -380,6 +380,22 @@ static void __init sun50i_h6_rtc_clk_init(struct device_node *node)
+ CLK_OF_DECLARE_DRIVER(sun50i_h6_rtc_clk, "allwinner,sun50i-h6-rtc",
+ 		      sun50i_h6_rtc_clk_init);
+ 
++/*
++ * The R40 user manual is self-conflicting on whether the prescaler is
++ * fixed or configurable. The clock diagram shows it as fixed, but there
++ * is also a configurable divider in the RTC block.
++ */
++static const struct sun6i_rtc_clk_data sun8i_r40_rtc_data = {
++	.rc_osc_rate = 16000000,
++	.fixed_prescaler = 512,
++};
++static void __init sun8i_r40_rtc_clk_init(struct device_node *node)
++{
++	sun6i_rtc_clk_init(node, &sun8i_r40_rtc_data);
++}
++CLK_OF_DECLARE_DRIVER(sun8i_r40_rtc_clk, "allwinner,sun8i-r40-rtc",
++		      sun8i_r40_rtc_clk_init);
++
+ static const struct sun6i_rtc_clk_data sun8i_v3_rtc_data = {
+ 	.rc_osc_rate = 32000,
+ 	.has_out_clk = 1,
+-- 
+2.24.0
+
