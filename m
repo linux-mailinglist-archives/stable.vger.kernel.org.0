@@ -2,142 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 398CB1138F8
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 01:49:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BEF511393A
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 02:22:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbfLEAts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 19:49:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42954 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728100AbfLEAts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 4 Dec 2019 19:49:48 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 462A121744;
-        Thu,  5 Dec 2019 00:49:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575506987;
-        bh=wkrQFN6Kq8Ou3Lz07bek7ArmyqMfltH3U/1gfPEd504=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=fnjeICquZHgwTvfV2aSgw5bbkpKlraJVaNoeuhIU1ZdS97UlEPJxD42xU9OR5ri3h
-         Uj9/xFy1HTXQ8cLaV6ljsLrl8+EhfDX0KUv65qdNFH7FmeJ8QAAks4yZoABdZkBGuQ
-         x597a/Q2lYhjdSorG6lYl5rHe1rKLTktF+nNc//I=
-Date:   Wed, 04 Dec 2019 16:49:46 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, borntraeger@de.ibm.com, guro@fb.com,
-        hannes@cmpxchg.org, linux-mm@kvack.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, shakeelb@google.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 02/86] mm: memcg/slab: wait for !root kmem_cache
- refcnt killing on root kmem_cache destruction
-Message-ID: <20191205004946.YQxscs-3o%akpm@linux-foundation.org>
-In-Reply-To: <20191204164858.fe4ed8886e34ad9f3b34ea00@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1728098AbfLEBWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 20:22:48 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:44408 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727146AbfLEBWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 4 Dec 2019 20:22:48 -0500
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id E633FFAEBC8C67171223;
+        Thu,  5 Dec 2019 09:22:46 +0800 (CST)
+Received: from [127.0.0.1] (10.173.220.96) by DGGEMS402-HUB.china.huawei.com
+ (10.3.19.202) with Microsoft SMTP Server id 14.3.439.0; Thu, 5 Dec 2019
+ 09:22:40 +0800
+Subject: Re: [4.19.y PATCH] tmpfs: fix unable to remount nr_inodes from
+ limited to unlimited
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <hughd@google.com>,
+        <viro@zeniv.linux.org.uk>, <yi.zhang@huawei.com>,
+        <zhengbin13@huawei.com>, <houtao1@huawei.com>
+References: <20191204131137.10388-1-yukuai3@huawei.com>
+ <20191204173334.GB3630950@kroah.com>
+From:   "yukuai (C)" <yukuai3@huawei.com>
+Message-ID: <bdd3dbd7-e5a1-1ba1-235d-972f726f9ef2@huawei.com>
+Date:   Thu, 5 Dec 2019 09:22:40 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
+MIME-Version: 1.0
+In-Reply-To: <20191204173334.GB3630950@kroah.com>
+Content-Type: text/plain; charset="gbk"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.173.220.96]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
-Subject: mm: memcg/slab: wait for !root kmem_cache refcnt killing on root kmem_cache destruction
 
-Christian reported a warning like the following obtained during running
-some KVM-related tests on s390:
 
-WARNING: CPU: 8 PID: 208 at lib/percpu-refcount.c:108 percpu_ref_exit+0x50/0x58
-Modules linked in: kvm(-) xt_CHECKSUM xt_MASQUERADE bonding xt_tcpudp ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_na>
-CPU: 8 PID: 208 Comm: kworker/8:1 Not tainted 5.2.0+ #66
-Hardware name: IBM 2964 NC9 712 (LPAR)
-Workqueue: events sysfs_slab_remove_workfn
-Krnl PSW : 0704e00180000000 0000001529746850 (percpu_ref_exit+0x50/0x58)
-           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
-Krnl GPRS: 00000000ffff8808 0000001529746740 000003f4e30e8e18 0036008100000000
-           0000001f00000000 0035008100000000 0000001fb3573ab8 0000000000000000
-           0000001fbdb6de00 0000000000000000 0000001529f01328 0000001fb3573b00
-           0000001fbb27e000 0000001fbdb69300 000003e009263d00 000003e009263cd0
-Krnl Code: 0000001529746842: f0a0000407fe        srp        4(11,%r0),2046,0
-           0000001529746848: 47000700            bc         0,1792
-          #000000152974684c: a7f40001            brc        15,152974684e
-          >0000001529746850: a7f4fff2            brc        15,1529746834
-           0000001529746854: 0707                bcr        0,%r7
-           0000001529746856: 0707                bcr        0,%r7
-           0000001529746858: eb8ff0580024        stmg       %r8,%r15,88(%r15)
-           000000152974685e: a738ffff            lhi        %r3,-1
-Call Trace:
-([<000003e009263d00>] 0x3e009263d00)
- [<00000015293252ea>] slab_kmem_cache_release+0x3a/0x70
- [<0000001529b04882>] kobject_put+0xaa/0xe8
- [<000000152918cf28>] process_one_work+0x1e8/0x428
- [<000000152918d1b0>] worker_thread+0x48/0x460
- [<00000015291942c6>] kthread+0x126/0x160
- [<0000001529b22344>] ret_from_fork+0x28/0x30
- [<0000001529b2234c>] kernel_thread_starter+0x0/0x10
-Last Breaking-Event-Address:
- [<000000152974684c>] percpu_ref_exit+0x4c/0x58
----[ end trace b035e7da5788eb09 ]---
+On 2019/12/5 1:33, Greg KH wrote:
+> On Wed, Dec 04, 2019 at 09:11:37PM +0800, yu kuai wrote:
+>> tmpfs support 'size', 'nr_blocks' and 'nr_inodes' mount options. mount or
+>> remount them to zero means unlimited. 'size' and 'br_blocks' can remount
+>> from limited to unlimited, while 'nr_inodes' can't.
+>>
+>> The problem is fixed since upstream commit 0b5071dd323d ("
+>> shmem_parse_options(): use a separate structure to keep the results"). But
+>> in order to backport it, the amount of related patches need to backport is
+>> huge.
+>>
+>> So, I made some local changes to fix the problem.
+>>
+>> Signed-off-by: yu kuai <yukuai3@huawei.com>
+>> ---
+>>   mm/shmem.c | 7 +++++--
+>>   1 file changed, 5 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/mm/shmem.c b/mm/shmem.c
+>> index 3c8742655756..966fc69ee8fb 100644
+>> --- a/mm/shmem.c
+>> +++ b/mm/shmem.c
+>> @@ -3444,7 +3444,7 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
+>>   	inodes = sbinfo->max_inodes - sbinfo->free_inodes;
+>>   	if (percpu_counter_compare(&sbinfo->used_blocks, config.max_blocks) > 0)
+>>   		goto out;
+>> -	if (config.max_inodes < inodes)
+>> +	if (config.max_inodes && config.max_inodes < inodes)
+>>   		goto out;
+>>   	/*
+>>   	 * Those tests disallow limited->unlimited while any are in use;
+>> @@ -3460,7 +3460,10 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
+>>   	sbinfo->huge = config.huge;
+>>   	sbinfo->max_blocks  = config.max_blocks;
+>>   	sbinfo->max_inodes  = config.max_inodes;
+>> -	sbinfo->free_inodes = config.max_inodes - inodes;
+>> +	if (!config.max_inodes)
+>> +		sbinfo->free_inodes = 0;
+>> +	else
+>> +		sbinfo->free_inodes = config.max_inodes - inodes;
+>>   
+>>   	/*
+>>   	 * Preserve previous mempolicy unless mpol remount option was specified.
+>> -- 
+>> 2.17.2
+>>
+> 
+> Hm, sorry about my bot, this looked like an odd one-off patch.
+> 
+> What about 5.3.y, should this patch also go there as well?
+Yes, 4.4y and 5.3y have the same problem.
+> 
+> But is it really an issue as this is a new "feature" that 5.4 now has,
+> can't you just use 5.4.y if you need this type of thing?  It's never
+> worked in the past, right?
+> 
+It's true that it never worked in the past. I thoult it might be a bug 
+because the behavior is not like what the document said.
 
-The problem occurs because kmem_cache_destroy() is called immediately
-after deleting of a memcg, so it races with the memcg kmem_cache
-deactivation.
+Thanks for your response.
+Yu Kuai
 
-flush_memcg_workqueue() at the beginning of kmem_cache_destroy() is
-supposed to guarantee that all deactivation processes are finished, but
-failed to do so.  It waits for an rcu grace period, after which all
-children kmem_caches should be deactivated.  During the deactivation
-percpu_ref_kill() is called for non root kmem_cache refcounters, but it
-requires yet another rcu grace period to finish the transition to the
-atomic (dead) state.
-
-So in a rare case when not all children kmem_caches are destroyed at the
-moment when the root kmem_cache is about to be gone, we need to wait
-another rcu grace period before destroying the root kmem_cache.
-
-This issue can be triggered only with dynamically created kmem_caches
-which are used with memcg accounting.  In this case per-memcg child
-kmem_caches are created.  They are deactivated from the cgroup removing
-path.  If the destruction of the root kmem_cache is racing with the
-removal of the cgroup (both are quite complicated multi-stage processes),
-the described issue can occur.  The only known way to trigger it in the
-real life, is to unload some kernel module which creates a dedicated
-kmem_cache, used from different memory cgroups with GFP_ACCOUNT flag.  If
-the unloading happens immediately after calling rmdir on the corresponding
-cgroup, there is some chance to trigger the issue.
-
-Link: http://lkml.kernel.org/r/20191129025011.3076017-1-guro@fb.com
-Fixes: f0a3a24b532d ("mm: memcg/slab: rework non-root kmem_cache lifecycle management")
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/slab_common.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
---- a/mm/slab_common.c~mm-memcg-slab-wait-for-root-kmem_cache-refcnt-killing-on-root-kmem_cache-destruction
-+++ a/mm/slab_common.c
-@@ -904,6 +904,18 @@ static void flush_memcg_workqueue(struct
- 	 * previous workitems on workqueue are processed.
- 	 */
- 	flush_workqueue(memcg_kmem_cache_wq);
-+
-+	/*
-+	 * If we're racing with children kmem_cache deactivation, it might
-+	 * take another rcu grace period to complete their destruction.
-+	 * At this moment the corresponding percpu_ref_kill() call should be
-+	 * done, but it might take another rcu grace period to complete
-+	 * switching to the atomic mode.
-+	 * Please, note that we check without grabbing the slab_mutex. It's safe
-+	 * because at this moment the children list can't grow.
-+	 */
-+	if (!list_empty(&s->memcg_params.children))
-+		rcu_barrier();
- }
- #else
- static inline int shutdown_memcg_caches(struct kmem_cache *s)
-_
