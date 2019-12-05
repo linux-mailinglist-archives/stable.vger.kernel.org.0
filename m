@@ -2,120 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F2F2113A4A
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 04:18:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEAAC113AAB
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 05:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728470AbfLEDSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Dec 2019 22:18:23 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:43753 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728449AbfLEDSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 22:18:22 -0500
-Received: by mail-wr1-f66.google.com with SMTP id d16so1631199wre.10
-        for <stable@vger.kernel.org>; Wed, 04 Dec 2019 19:18:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vGCd4KXjLAWzsflIYoEbX/Wkb8hTNj43948EzwaYao4=;
-        b=zH2spSFOxMHyTRhGvl8fpt08yEC5KDeXc1VPKwfomWxV+PxuWamvxU47P9QGKGbWhe
-         FNNJoKGiwAQwVzhJ1Dt14XYCBW3QroYKm3NJRUhVaUrceTBos6MFLyeW+AZ0ORrfKhQ/
-         mrmGfvRm3IJX6DyZr3HqDLsMUKc3kKjdgA2vzyGDf+lxVLSfOuQHamL361naEZlmDaDS
-         NYf3q5VQ4AWiQomh8bjhHzaeHPGK/O06ZUj3uOCnPVlwU3Zaaxix/OmDSWrMoO0FkC2Y
-         c5i8pF1Lrm6DDMzDG03xF3QIuF85AyrhhkXxbH45TRn3u4g8sCmeaQwV19RToWVHXGRN
-         0bBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vGCd4KXjLAWzsflIYoEbX/Wkb8hTNj43948EzwaYao4=;
-        b=beqsC9xjKmRUKfp+pkors1dIYcSk9I9s03E/SWg+07wmfUwmaWnhgJTY+BI0KQ1ZdM
-         kmc5IixhOpZR68AEXyMXM0EO/q3QfLMmMFg/yE789To4s+Jmgqwj9EFgVp9XNyNoq55g
-         NV6XRgmUh9jKjtX40OevL7F5+y1q5dGqzPth+6A/sQ5m9n834fERkUGzHY7B6rmJmLfi
-         rHeYZy8cJI6fZY48rmxopvlxMOJM6NSOLM2gtZJkNUJL4KRuC7cBtUjYUmyp5NpYor/C
-         o9SIMBl6Lg3GIZ+j84kBMJEJHlLlOGn+FNZbjdWRLe6JVpDpO/IZ8elZIrTsxLhVg4gJ
-         6NVw==
-X-Gm-Message-State: APjAAAXBW01+inbhKjJtEQqElCJyeM9AfxWmjv/3ibyjDP8P/QlfLCc0
-        XMHM8oRrZS78k7LdGuOVvy36u5L2pzg=
-X-Google-Smtp-Source: APXvYqwQJ+f6KS/ZDdp3FsDlFvFve58wRF/sdRFayya7gLH5rFVjaYipGfPLrqIq/Seo/aPmHzkC5A==
-X-Received: by 2002:a05:6000:cb:: with SMTP id q11mr7152617wrx.14.1575515900414;
-        Wed, 04 Dec 2019 19:18:20 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u14sm10296396wrm.51.2019.12.04.19.18.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Dec 2019 19:18:19 -0800 (PST)
-Message-ID: <5de876fb.1c69fb81.e9c88.3f4a@mx.google.com>
-Date:   Wed, 04 Dec 2019 19:18:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.205-126-geedf6ee6d6cc
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 112 boots: 1 failed,
- 104 passed with 5 offline, 1 untried/unknown,
- 1 conflict (v4.9.205-126-geedf6ee6d6cc)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1728459AbfLEEAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Dec 2019 23:00:38 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:42630 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728449AbfLEEAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Dec 2019 23:00:37 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0Tk0Tvpk_1575518425;
+Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tk0Tvpk_1575518425)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 05 Dec 2019 12:00:32 +0800
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+To:     fabecassis@nvidia.com, jhubbard@nvidia.com, mhocko@suse.com,
+        cl@linux.com, vbabka@suse.cz, mgorman@techsingularity.net,
+        akpm@linux-foundation.org
+Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] mm: move_pages: return valid node id in status if the page is already on the target node
+Date:   Thu,  5 Dec 2019 12:00:25 +0800
+Message-Id: <1575518425-58788-1-git-send-email-yang.shi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 112 boots: 1 failed, 104 passed with 5 offline,=
- 1 untried/unknown, 1 conflict (v4.9.205-126-geedf6ee6d6cc)
+Felix Abecassis reports move_pages() would return random status if the
+pages are already on the target node by the below test program:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.205-126-geedf6ee6d6cc/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.205-126-geedf6ee6d6cc/
+---8<---
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.205-126-geedf6ee6d6cc
-Git Commit: eedf6ee6d6ccee71e628b172e33ef860e05e6bb2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 57 unique boards, 19 SoC families, 16 builds out of 197
+int main(void)
+{
+	const long node_id = 1;
+	const long page_size = sysconf(_SC_PAGESIZE);
+	const int64_t num_pages = 8;
 
-Boot Failure Detected:
+	unsigned long nodemask =  1 << node_id;
+	long ret = set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask));
+	if (ret < 0)
+		return (EXIT_FAILURE);
 
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
+	void **pages = malloc(sizeof(void*) * num_pages);
+	for (int i = 0; i < num_pages; ++i) {
+		pages[i] = mmap(NULL, page_size, PROT_WRITE | PROT_READ,
+				MAP_PRIVATE | MAP_POPULATE | MAP_ANONYMOUS,
+				-1, 0);
+		if (pages[i] == MAP_FAILED)
+			return (EXIT_FAILURE);
+	}
 
-Offline Platforms:
+	ret = set_mempolicy(MPOL_DEFAULT, NULL, 0);
+	if (ret < 0)
+		return (EXIT_FAILURE);
 
-arm:
+	int *nodes = malloc(sizeof(int) * num_pages);
+	int *status = malloc(sizeof(int) * num_pages);
+	for (int i = 0; i < num_pages; ++i) {
+		nodes[i] = node_id;
+		status[i] = 0xd0; /* simulate garbage values */
+	}
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
+	ret = move_pages(0, num_pages, pages, nodes, status, MPOL_MF_MOVE);
+	printf("move_pages: %ld\n", ret);
+	for (int i = 0; i < num_pages; ++i)
+		printf("status[%d] = %d\n", i, status[i]);
+}
+---8<---
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
+Then running the program would return nonsense status values:
+$ ./move_pages_bug
+move_pages: 0
+status[0] = 208
+status[1] = 208
+status[2] = 208
+status[3] = 208
+status[4] = 208
+status[5] = 208
+status[6] = 208
+status[7] = 208
 
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
+This is because the status is not set if the page is already on the
+target node, but move_pages() should return valid status as long as it
+succeeds.  The valid status may be errno or node id.
 
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
+We can't simply initialize status array to zero since the pages may be
+not on node 0.  Fix it by updating status with node id which the page is
+already on.  And, it looks we have to update the status inside
+add_page_for_migration() since the page struct is not available outside
+it.
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
+Make add_page_for_migration() return 1 if store_status() is failed in
+order to not mix up the status value since -EFAULT is also a valid
+status.
 
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-baylibre: PASS (gcc-8)
-            lab-collabora: FAIL (gcc-8)
-
+Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+Reported-by: Felix Abecassis <fabecassis@nvidia.com>
+Tested-by: Felix Abecassis <fabecassis@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org> 4.17+
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
 ---
-For more info write to <info@kernelci.org>
+John found another return value inconsistency between the implementation and
+the manpage.  The manpage says it should return -ENOENT if the page is already
+on the target node, but it doesn't.  It looks the original code didn't return
+-ENOENT either, I'm not sure if this is a document issue or not.  Anyway this
+is another issue, once we confirm it we can fix it later.
+  
+ mm/migrate.c | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
+
+diff --git a/mm/migrate.c b/mm/migrate.c
+index a8f87cb..c427bb2 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -1512,17 +1512,21 @@ static int do_move_pages_to_node(struct mm_struct *mm,
+ /*
+  * Resolves the given address to a struct page, isolates it from the LRU and
+  * puts it to the given pagelist.
+- * Returns -errno if the page cannot be found/isolated or 0 when it has been
+- * queued or the page doesn't need to be migrated because it is already on
+- * the target node
++ * Returns:
++ *     errno - if the page cannot be found/isolated
++ *     0 - when it has been queued or the page doesn't need to be migrated
++ *         because it is already on the target node
++ *     1 - if store_status() is failed
+  */
+ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+-		int node, struct list_head *pagelist, bool migrate_all)
++		int node, struct list_head *pagelist, bool migrate_all,
++		int __user *status, int start)
+ {
+ 	struct vm_area_struct *vma;
+ 	struct page *page;
+ 	unsigned int follflags;
+ 	int err;
++	bool same_node = false;
+ 
+ 	down_read(&mm->mmap_sem);
+ 	err = -EFAULT;
+@@ -1543,8 +1547,10 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+ 		goto out;
+ 
+ 	err = 0;
+-	if (page_to_nid(page) == node)
++	if (page_to_nid(page) == node) {
++		same_node = true;
+ 		goto out_putpage;
++	}
+ 
+ 	err = -EACCES;
+ 	if (page_mapcount(page) > 1 && !migrate_all)
+@@ -1578,6 +1584,16 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+ 	put_page(page);
+ out:
+ 	up_read(&mm->mmap_sem);
++
++	/*
++	 * Must call store_status() after releasing mmap_sem since put_user
++	 * need acquire mmap_sem too, otherwise potential deadlock may exist.
++	 */
++	if (same_node) {
++		if (store_status(status, start, node, 1))
++			err = 1;
++	}
++
+ 	return err;
+ }
+ 
+@@ -1639,10 +1655,16 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+ 		 * report them via status
+ 		 */
+ 		err = add_page_for_migration(mm, addr, current_node,
+-				&pagelist, flags & MPOL_MF_MOVE_ALL);
++				&pagelist, flags & MPOL_MF_MOVE_ALL, status,
++				i);
++
+ 		if (!err)
+ 			continue;
+ 
++		/* store_status() failed in add_page_for_migration() */
++		if (err > 0)
++			goto out_flush;
++
+ 		err = store_status(status, i, err, 1);
+ 		if (err)
+ 			goto out_flush;
+-- 
+1.8.3.1
+
