@@ -2,88 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB07114928
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 23:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 763E311493B
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 23:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727305AbfLEWXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 17:23:48 -0500
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:43483 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729154AbfLEWXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 17:23:47 -0500
-Received: by mail-qt1-f194.google.com with SMTP id q8so5110509qtr.10
-        for <stable@vger.kernel.org>; Thu, 05 Dec 2019 14:23:47 -0800 (PST)
+        id S1727522AbfLEW1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 17:27:52 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:35967 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727511AbfLEW1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 17:27:52 -0500
+Received: by mail-wr1-f68.google.com with SMTP id z3so5633291wru.3
+        for <stable@vger.kernel.org>; Thu, 05 Dec 2019 14:27:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=lca.pw; s=google;
-        h=content-transfer-encoding:from:mime-version:subject:date:message-id
-         :references:cc:in-reply-to:to;
-        bh=s9HuZFqazi071tR46CJtidfMMQKEUIWC1jwTBGYP1+w=;
-        b=cZ6NlkcxxGeMFCfa3hNffYbt0adwBZu56/wsfc7GzrfjY7exDtzAzT69JkqoOcFpm8
-         f/DyD28W+DSoWxWBnipzKKfbHXYFVd1KXHBALe7U92Rlb0TUsWCVWecCbyZNfsdy5b+Q
-         umBbiwYYXAJFbsr4PPSFRGm5XP7lnsOzGREK8bLhFcBl19HybxYqB34HQGQBygroaZYe
-         KTHKnPrku21QGMQky2zEVpbt8qArb3r30PwDE6ztueSyGlJ4chmylOb3WfxksBOp/SdP
-         88RI15LyNSV036ykGPGm2olovdquCBRFsjwq8Y8+9XHkNtSjyAb5qjPcekWz2+rrhUQ+
-         omuw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hDcK3df9L180/ZqUlZg8Gf7qSSwKRsFNy1W+OBSjsTo=;
+        b=YvguBbInMRX0/Oy+BkjTk8Vuc6yclGNKB9KFeep0Q7eYAgZA9GDTOEKFCyj0FA/Hi+
+         ByyCRBB5ltlHoe1CRMj26ff33NZzM0IN7dPDctwPVyrTsZbNiHEXwAF7Dof+hpf+Lene
+         HztIc5gYVK0PsLPpcrZSz4TxmJr5ehebP9SEtDVAL5K+gWgfhJ6wrTBGnlJu4KPHuDOD
+         ZMc7HnWn7oG4EMMfRDdPqE2yE2AKGh/F1KyHK2VtPFCzUPtY6tVUqD9McjPJS1BM8tXV
+         0C5EWRf3qjjshMiB6eKES/37LNa3/ok0f1sum4jWJEKc2zacsyC24YGpN9LGfgXoTTIO
+         G2/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:content-transfer-encoding:from:mime-version
-         :subject:date:message-id:references:cc:in-reply-to:to;
-        bh=s9HuZFqazi071tR46CJtidfMMQKEUIWC1jwTBGYP1+w=;
-        b=ZEu6Br7BDhfR92/gpIc53Qdb5Y4qE0yxoR3PlQvQYOt4U1BNcnvjJ3s28Fuy5EOvpI
-         RZwvWduFdp2gQ0hoLboR+PHeFIuGDqEmrXzEVfMSUMMfKKhBx9NZDCOBPtmMzwPwS2f+
-         7lplDZBwJ8evsN0rZj7D6YcF7zHaCl2Raq8UzdYSSf8EfrjoDR1rGf/4zfR+6lfGPsED
-         +iHrDt9GTHexfZpGoTxPH94LL2dN7dblivM9q8IihdgLvR7HfsxVFFpGTF9mLzaFzdn8
-         pbSuVMklqCKZwQgbDbp7K5FTGl9ArexzJfyXOjhDDJArPT1EDFppqEpih5FBIm0oohT5
-         DImg==
-X-Gm-Message-State: APjAAAWAEyBRn8jIxhIuoV6nBN1VBO+OH2n9cf8I6hkpCwTVgJFn56YE
-        cWF/KLC6Ow8VKay+P329N1bQO9UL9d0=
-X-Google-Smtp-Source: APXvYqx7GJ9s3s0mo7mEDapHflc+9TKM5IVSvrVc5pjmpmXIK6z7WiQr0sZpTn3eRDhYfRmpclVinA==
-X-Received: by 2002:ac8:43d0:: with SMTP id w16mr10371261qtn.43.1575584626599;
-        Thu, 05 Dec 2019 14:23:46 -0800 (PST)
-Received: from ?IPv6:2600:1000:b06e:b1cc:9498:2fee:3c1:2a4? ([2600:1000:b06e:b1cc:9498:2fee:3c1:2a4])
-        by smtp.gmail.com with ESMTPSA id k62sm3911034qkc.95.2019.12.05.14.23.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Dec 2019 14:23:46 -0800 (PST)
-Content-Type: text/plain; charset=us-ascii
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hDcK3df9L180/ZqUlZg8Gf7qSSwKRsFNy1W+OBSjsTo=;
+        b=WsH4ZR9fQJ7nnCJpk6fFIBX7ctR5ePwhZTanPJfzty8iYoEXyzMTDPe/Rzn6zCT8B1
+         UaZltUJrWsmmoXweXgOLLBXTvywaIvy/TLQHKtNXwBUKkyTT51Dw4Eq97PjDGWYRpYuy
+         9XhXGOKawwQ7b5HE2wTTBD931VEk0wFHUu4F4SYtOpQslK2YOLop5nGcTGx2ryZmPycJ
+         MC9FQ0dyhMM7fsMAqOJ/yFwUxEz13cEoaoGmFTJzqkzh71efM+GNm+TMDAv/DRPBPzmC
+         UgGSvWzB0LApeA87RfmNPvWnVqzxPnLlWgE3UcILjL2FIFhCVZqrDZL24k4AdJsOE8l9
+         SchA==
+X-Gm-Message-State: APjAAAXH+2pQqsFsrky+u88NNeyKVmIwafx/U2KZEB8or5TzXes3Tewx
+        zCLfpm8pXNjrSpYmk+sRm9KH0PvDjWkFww==
+X-Google-Smtp-Source: APXvYqzom/umgXI3yv67zL6ADkME9Z1hpbri7lwa1c1lDEknNkeVSOeLRoHZ+FznEdGUHCMqnCyM5Q==
+X-Received: by 2002:a5d:45c4:: with SMTP id b4mr12178072wrs.303.1575584870104;
+        Thu, 05 Dec 2019 14:27:50 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g21sm16109871wrb.48.2019.12.05.14.27.49
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Dec 2019 14:27:49 -0800 (PST)
+Message-ID: <5de98465.1c69fb81.4ac1f.3f2b@mx.google.com>
+Date:   Thu, 05 Dec 2019 14:27:49 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-From:   Qian Cai <cai@lca.pw>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the page is already on the target node
-Date:   Thu, 5 Dec 2019 17:23:44 -0500
-Message-Id: <D04891DC-0EE8-4EA0-8541-97E4AB4DED3C@lca.pw>
-References: <ff202f9f-4124-7e63-a5fb-ebeb2a263632@linux.alibaba.com>
-Cc:     fabecassis@nvidia.com, jhubbard@nvidia.com, mhocko@suse.com,
-        cl@linux.com, vbabka@suse.cz, mgorman@techsingularity.net,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-In-Reply-To: <ff202f9f-4124-7e63-a5fb-ebeb2a263632@linux.alibaba.com>
-To:     Yang Shi <yang.shi@linux.alibaba.com>
-X-Mailer: iPhone Mail (17B111)
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.158
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable/linux-4.14.y boot: 70 boots: 0 failed,
+ 69 passed with 1 untried/unknown (v4.14.158)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.14.y boot: 70 boots: 0 failed, 69 passed with 1 untried/unkn=
+own (v4.14.158)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.158/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.158/
 
-> On Dec 5, 2019, at 5:09 PM, Yang Shi <yang.shi@linux.alibaba.com> wrote:
->=20
-> As I said the status return value issue is a regression, but the -ENOENT i=
-ssue has been there since the syscall was introduced (The visual inspection s=
-hows so I didn't actually run test against 2.6.x kernel, but it returns 0 fo=
-r >=3D 3.10 at least). It does need further clarification (doc problem or co=
-de problem).
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.158
+Git Commit: a844dc4c544291470aa69edbe2434b040794e269
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 39 unique boards, 14 SoC families, 12 builds out of 201
 
-The question is why we should care about this change of behavior. It is argu=
-ably you are even trying to fix an ambiguous part of the manpage, but instea=
-d leave a more obviously one still broken. It is really difficult to underst=
-and the logical here.
-
->=20
-> Michal also noticed several inconsistencies when he was reworking move_pag=
-es(), and I agree with him that we'd better not touch them without a clear u=
-secase.
-
-It could argue that there is no use case to restore the behavior either.
-
-
+---
+For more info write to <info@kernelci.org>
