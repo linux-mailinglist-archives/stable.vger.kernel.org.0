@@ -2,140 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D70CD113FBB
-	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 11:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60746114023
+	for <lists+stable@lfdr.de>; Thu,  5 Dec 2019 12:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729167AbfLEKxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 05:53:35 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:24945 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729099AbfLEKxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 05:53:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575543212;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=N9MiSBkYrxLRkaMO4KvAeXN7MtJgEoseaGFx+AejKDY=;
-        b=ID0m9ekLsxzmFpzzqQKUYSIuA+1jfenqFRuhurVHJTxXPJfNqOuaw1n5or1v/s6OkRO8k9
-        mhIanhArMrgwECkdoT301wrI/0ANVFUdc44XseyPONwotNxVyJHGxbWIDrrpE1j8PxCnTU
-        ad59fhJGb35PxA28dgkklqfaKL+Gr50=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-198-Ur_x81lKOTeAXAEqoibweA-1; Thu, 05 Dec 2019 05:53:31 -0500
-Received: by mail-wm1-f71.google.com with SMTP id p5so726400wmc.4
-        for <stable@vger.kernel.org>; Thu, 05 Dec 2019 02:53:31 -0800 (PST)
+        id S1729044AbfLELcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 06:32:01 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:53188 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728735AbfLELcB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 06:32:01 -0500
+Received: by mail-wm1-f66.google.com with SMTP id p9so3291393wmc.2;
+        Thu, 05 Dec 2019 03:31:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=N9MiSBkYrxLRkaMO4KvAeXN7MtJgEoseaGFx+AejKDY=;
-        b=KHnIVJFv/AnlcfD0IJdTMZAC452P07zH3A7TUp6P6L+pk6no7xt5KeDYPUb9e8qngG
-         fRCR++wQNSNc1Ws5+sbVd0FDJa16itfEI+iP0ViFp2Tzz/Ref+5IpkcRziJl4TRBxeCs
-         612NUAddJ0bx3IJo34WDar9SbeCNbCdimEXGBtuFjYFD4KQOD5a3LpgPHFpucnSviOtr
-         ppijTyQlMJGL/+ZxLtwsftWAdLiI5jGZFoPwLjxrx+RrE+P3V4o50wYghB21WVYi05oN
-         Oz+c0yX/A6CSkNOrcgdJBhtYqJh/4/vBg6ZIMwWdKNLOGf+7m7FSY37wzj/zhxwo1ye5
-         ovBg==
-X-Gm-Message-State: APjAAAVW7tqah5v2CZViUCXMT2PG3VhPuQpSC6ugsODF5x5wl06XEDJo
-        MAtuo18VqdYcfX6n+FE4nnf82YM2o48+XvIfMjyHY/LWRYI63WR6jfyatvtTdtIXTlw4oxf9PQa
-        f99fYsK0ZHY6pDMLV
-X-Received: by 2002:a05:600c:305:: with SMTP id q5mr4663226wmd.167.1575543210703;
-        Thu, 05 Dec 2019 02:53:30 -0800 (PST)
-X-Google-Smtp-Source: APXvYqz8Siikx+RenjGmb9/JgaiAJarJ4WUklGanKOUVM3RJ8HVeGo3sn10PEYhU/9toFV3BE5uKLQ==
-X-Received: by 2002:a05:600c:305:: with SMTP id q5mr4663212wmd.167.1575543210518;
-        Thu, 05 Dec 2019 02:53:30 -0800 (PST)
-Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
-        by smtp.gmail.com with ESMTPSA id x132sm1419084wmg.0.2019.12.05.02.53.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Dec 2019 02:53:29 -0800 (PST)
-Subject: Re: [PATCH 4.19 082/321] ACPI / LPSS: Ignore
- acpi_device_fix_up_power() return value
-To:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20191203223427.103571230@linuxfoundation.org>
- <20191203223431.423864271@linuxfoundation.org> <20191204212735.GC7678@amd>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <ffcc90cc-3b75-af81-832b-1387fcca7e06@redhat.com>
-Date:   Thu, 5 Dec 2019 11:53:29 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=JjJxU4HP6eaRRyFxsdouinTrpCEow/Z7i31krH2kwCs=;
+        b=kZv7nmk+Oo+yT7euE/vMskqQ3z7iw/omRSYYBtuRQPWvgye2SGBAhdOs+c3V9qmnOX
+         RcHXHX9narKM7amnmA6NvaE225rRWQJJyryXU5XtxhQujOqoyfnONznedvC0On+0P2Ub
+         1GnCS0jPziFJ0mLPlPdEv8/bzRmKR6+B9uUF92/IXFiycm4JFFxnm3okv+2A5wuKwutJ
+         YgqU5CeMWQ170EBVwUeilrfZu+13cVfjW9219ZG5CHlhXwtdSsHZdP++8TbhsAa5PevI
+         okr2MALjPwOMZKcpQjVN6FmS4vTAnwqtla0Tyl00yZ2hNV3qiH767ltafdbecOnC4r7t
+         FLAw==
+X-Gm-Message-State: APjAAAW6gZ3AwjJQsaRsgz5SHzFsoXSrvAZgbKa7YSQejHFUfbbbsfq8
+        vsalwUULJQ/gLAL8fGFkbKQ=
+X-Google-Smtp-Source: APXvYqzpDPHksDnygy5Fg+9DCfEclhSTLYJunPk0DVHsHi1gH3jci6q0s1hvYgMua9JGOYKPgXNpXQ==
+X-Received: by 2002:a1c:61d7:: with SMTP id v206mr4592095wmb.13.1575545518284;
+        Thu, 05 Dec 2019 03:31:58 -0800 (PST)
+Received: from localhost (prg-ext-pat.suse.com. [213.151.95.130])
+        by smtp.gmail.com with ESMTPSA id z11sm11966035wrt.82.2019.12.05.03.31.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Dec 2019 03:31:57 -0800 (PST)
+Date:   Thu, 5 Dec 2019 12:31:56 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     fabecassis@nvidia.com, jhubbard@nvidia.com, cl@linux.com,
+        vbabka@suse.cz, mgorman@techsingularity.net,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [v2 PATCH] mm: move_pages: return valid node id in status if the
+ page is already on the target node
+Message-ID: <20191205113156.GE28317@dhcp22.suse.cz>
+References: <1575519678-86510-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20191204212735.GC7678@amd>
-Content-Language: en-US
-X-MC-Unique: Ur_x81lKOTeAXAEqoibweA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1575519678-86510-1-git-send-email-yang.shi@linux.alibaba.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On 04-12-2019 22:27, Pavel Machek wrote:
-> Hi!
+On Thu 05-12-19 12:21:18, Yang Shi wrote:
+> Felix Abecassis reports move_pages() would return random status if the
+> pages are already on the target node by the below test program:
 > 
->> From: Hans de Goede <hdegoede@redhat.com>
->>
->> [ Upstream commit 1a2fa02f7489dc4d746f2a15fb77b3ce1affade8 ]
->>
->> Ignore acpi_device_fix_up_power() return value. If we return an error
->> we end up with acpi_default_enumeration() still creating a platform-
->> device for the device and we end up with the device still being used
->> but without the special LPSS related handling which is not useful.
->>
->> Specicifically ignoring the error fixes the touchscreen no longer
->> working after a suspend/resume on a Prowise PT301 tablet.
+> ---8<---
 > 
-> I'm pretty sure it does, but:
+> int main(void)
+> {
+> 	const long node_id = 1;
+> 	const long page_size = sysconf(_SC_PAGESIZE);
+> 	const int64_t num_pages = 8;
 > 
-> a) do you believe this is right patch for -stable? Should it get lot
-> more testing in mainline as it.... may change things in a wrong way
-> for someone else?
-
-This has already been answered by Rafael.
-
-> b) if we are ignoring errors now, should we at least printk() to let
-> the user know that something is wrong with the ACPI tables?
-
-acpi_device_fix_up_power() fails when the ACPI _PS0 method fails and
-when there are errors while executing an ACPI method the ACPI subsystem
-already is pretty verbose about this.
-
-Regards,
-
-Hans
-
-
+> 	unsigned long nodemask =  1 << node_id;
+> 	long ret = set_mempolicy(MPOL_BIND, &nodemask, sizeof(nodemask));
+> 	if (ret < 0)
+> 		return (EXIT_FAILURE);
 > 
-> Best regards,
-> 									Pavel
+> 	void **pages = malloc(sizeof(void*) * num_pages);
+> 	for (int i = 0; i < num_pages; ++i) {
+> 		pages[i] = mmap(NULL, page_size, PROT_WRITE | PROT_READ,
+> 				MAP_PRIVATE | MAP_POPULATE | MAP_ANONYMOUS,
+> 				-1, 0);
+> 		if (pages[i] == MAP_FAILED)
+> 			return (EXIT_FAILURE);
+> 	}
 > 
->> diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
->> index b21c241aaab9f..30ccd94f87d24 100644
->> --- a/drivers/acpi/acpi_lpss.c
->> +++ b/drivers/acpi/acpi_lpss.c
->> @@ -665,12 +665,7 @@ static int acpi_lpss_create_device(struct acpi_device *adev,
->>   	 * have _PS0 and _PS3 without _PSC (and no power resources), so
->>   	 * acpi_bus_init_power() will assume that the BIOS has put them into D0.
->>   	 */
->> -	ret = acpi_device_fix_up_power(adev);
->> -	if (ret) {
->> -		/* Skip the device, but continue the namespace scan. */
->> -		ret = 0;
->> -		goto err_out;
->> -	}
->> +	acpi_device_fix_up_power(adev);
+> 	ret = set_mempolicy(MPOL_DEFAULT, NULL, 0);
+> 	if (ret < 0)
+> 		return (EXIT_FAILURE);
 > 
+> 	int *nodes = malloc(sizeof(int) * num_pages);
+> 	int *status = malloc(sizeof(int) * num_pages);
+> 	for (int i = 0; i < num_pages; ++i) {
+> 		nodes[i] = node_id;
+> 		status[i] = 0xd0; /* simulate garbage values */
+> 	}
 > 
+> 	ret = move_pages(0, num_pages, pages, nodes, status, MPOL_MF_MOVE);
+> 	printf("move_pages: %ld\n", ret);
+> 	for (int i = 0; i < num_pages; ++i)
+> 		printf("status[%d] = %d\n", i, status[i]);
+> }
+> ---8<---
 > 
->>   	adev->driver_data = pdata;
->>   	pdev = acpi_create_platform_device(adev, dev_desc->properties);
+> Then running the program would return nonsense status values:
+> $ ./move_pages_bug
+> move_pages: 0
+> status[0] = 208
+> status[1] = 208
+> status[2] = 208
+> status[3] = 208
+> status[4] = 208
+> status[5] = 208
+> status[6] = 208
+> status[7] = 208
 > 
+> This is because the status is not set if the page is already on the
+> target node, but move_pages() should return valid status as long as it
+> succeeds.  The valid status may be errno or node id.
+> 
+> We can't simply initialize status array to zero since the pages may be
+> not on node 0.  Fix it by updating status with node id which the page is
+> already on.  And, it looks we have to update the status inside
+> add_page_for_migration() since the page struct is not available outside
+> it.
 
+The code is indeed more complex than I wanted but I couldn't figure an
+easier way back then. I wanted to keep store_status at a single place
+because the failure handling is quite complex already.
+
+> Make add_page_for_migration() return 1 if store_status() is failed in
+> order to not mix up the status value since -EFAULT is also a valid
+> status.
+
+Can we simply return 1 when there is something to migrate instead?
+Something like
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 4fe45d1428c8..f3730804b8d4 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -1516,9 +1516,9 @@ static int do_move_pages_to_node(struct mm_struct *mm,
+ /*
+  * Resolves the given address to a struct page, isolates it from the LRU and
+  * puts it to the given pagelist.
+- * Returns -errno if the page cannot be found/isolated or 0 when it has been
+- * queued or the page doesn't need to be migrated because it is already on
+- * the target node
++ * Returns -errno if the page cannot be found/isolated or 0 when it doesn't have
++ * to be migrate or 1 dwhen it has been queued or the page doesn't need to be
++ * migrated because it is already on the target node
+  */
+ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+ 		int node, struct list_head *pagelist, bool migrate_all)
+@@ -1557,7 +1557,7 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+ 	if (PageHuge(page)) {
+ 		if (PageHead(page)) {
+ 			isolate_huge_page(page, pagelist);
+-			err = 0;
++			err = 1;
+ 		}
+ 	} else {
+ 		struct page *head;
+@@ -1567,7 +1567,7 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+ 		if (err)
+ 			goto out_putpage;
+ 
+-		err = 0;
++		err = 1;
+ 		list_add_tail(&head->lru, pagelist);
+ 		mod_node_page_state(page_pgdat(head),
+ 			NR_ISOLATED_ANON + page_is_file_cache(head),
+@@ -1644,8 +1644,14 @@ static int do_pages_move(struct mm_struct *mm, nodemask_t task_nodes,
+ 		 */
+ 		err = add_page_for_migration(mm, addr, current_node,
+ 				&pagelist, flags & MPOL_MF_MOVE_ALL);
+-		if (!err)
++		if (!err) {
++			err = store_status(status, i, current_node, 1);
++			if (err)
++				goto out_flush;
++			continue;
++		} else if (err > 0) {
+ 			continue;
++		}
+ 
+ 		err = store_status(status, i, err, 1);
+ 		if (err)
+
+this would still keep store_status ugliness at a single place.
+
+>
+> Fixes: a49bd4d71637 ("mm, numa: rework do_pages_move")
+> Reported-by: Felix Abecassis <fabecassis@nvidia.com>
+> Tested-by: Felix Abecassis <fabecassis@nvidia.com>
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Christoph Lameter <cl@linux.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Mel Gorman <mgorman@techsingularity.net>
+> Cc: <stable@vger.kernel.org> 4.17+
+> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+> ---
+> v2: *Correted the return value when add_page_for_migration() returns 1.
+> 
+> John noticed another return value inconsistency between the implementation and
+> the manpage.  The manpage says it should return -ENOENT if the page is already
+> on the target node, but it doesn't.  It looks the original code didn't return
+> -ENOENT either, I'm not sure if this is a document issue or not.  Anyway this
+> is another issue, once we confirm it we can fix it later.
+
+I do not remember all the details but my recollection is that there were
+several inconsistencies present before I touched the code and I've
+decided to not touch them without a clear usecase.
+-- 
+Michal Hocko
+SUSE Labs
