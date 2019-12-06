@@ -2,131 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70692115130
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 14:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A5C115142
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 14:45:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726242AbfLFNkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 08:40:22 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:36752 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726171AbfLFNkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 08:40:22 -0500
-Received: by mail-pl1-f195.google.com with SMTP id k20so2753764pls.3
-        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 05:40:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:user-agent:mime-version;
-        bh=+qvH1fKU8akn1ivEXkhuxWeGCb/14Jyn5pqpcY23k+E=;
-        b=t5YCNjFcE5HcAgGix/qVZBF6Ke1Nb8W7PzEJelZ4k4xJ+ATO26iRJS3uUm2xR0mU7Z
-         f63e5vs8/4Gi3QyBAjOIQQgTwoQ14t5+aLsZGm74boIHJYhj+KjdE2oEsfF9YfMqp3dH
-         bg/el71wjLupxumyMJ4v9V6O+McXq7EqxbPSSSIFDMfhxBNm2Fxu6T6rlmdFv4wT1snP
-         I4NfcsH8QpKKQdC1nTCU8N43UTV5yb7xlP8exlRZHyFegjaca3Zl65FElkb9C3442iRI
-         GDg+Xwh7cy+RAQc7bxiy1TH/osWsiNcnBmn2g+xR2GjVDKncqQzhy5WYYUKgEUY/dn4/
-         6eCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:user-agent
-         :mime-version;
-        bh=+qvH1fKU8akn1ivEXkhuxWeGCb/14Jyn5pqpcY23k+E=;
-        b=oiNq2aZORdNeMLesVi7g03/y1/sN6CTHIrq5haI7FaKyGDbV0MKDy2N5yWCg8vuXGH
-         5LhNpDL71JiwKHiL26Awoiwd0BUtR468xFev4iTsbFCdaKD/Hb+QxxPkgrPYH65vowdA
-         QNX/mnoNTrqsvlHX8Ny6lSUPzNVQw126K/muB/JOg37IR+t+nWJ3+NAp9kx9MNujGw2C
-         hRbq7EvqkHEOxczjCR7R9FgiVRY8tvWVyMxwJIR7otSRYv8Q7mZkNUwctUj/U4Z8SdR8
-         6Xplu3NtX88t4cBtNMC5s5NG7o3mJ+4Bv6Y1Gyq1g2avXe8c9wzXKjpFOp/OuNRIORYQ
-         q9Sw==
-X-Gm-Message-State: APjAAAXmzCMsDiBGTNH9BZxkv2+dB7VqRpBz7RQznrWtyhh856a41IV+
-        sVwErW/fhJKOSdo2Zv+YAdM=
-X-Google-Smtp-Source: APXvYqwTcwrxFl9JWfaApbGq1OpeahhOMamVMMRvwesgAS9Qac08lW8+lcyi9LxoqrdOonIku2dwBQ==
-X-Received: by 2002:a17:902:542:: with SMTP id 60mr14338480plf.207.1575639621748;
-        Fri, 06 Dec 2019 05:40:21 -0800 (PST)
-Received: from joy.test (107-204-215-49.lightspeed.sntcca.sbcglobal.net. [107.204.215.49])
-        by smtp.gmail.com with ESMTPSA id d7sm17661554pfc.180.2019.12.06.05.40.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Dec 2019 05:40:21 -0800 (PST)
-Date:   Fri, 6 Dec 2019 05:40:10 -0800 (PST)
-From:   Richard Narron <comet.berkeley@gmail.com>
-X-X-Sender: comet.berkeley@joy.test
-To:     jbeulich@suse.com, tglx@linutronix.de
-cc:     stable@vger.kernel.org
-Subject: [PATCH 4.4] x86/apic/32: Avoid bogus LDR warnings
-Message-ID: <alpine.LNX.2.21.1912060523520.6537@joy.test>
-User-Agent: Alpine 2.21 (LNX 202 2017-01-01)
+        id S1726313AbfLFNpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 08:45:30 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:55573 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726213AbfLFNpa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 08:45:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575639929;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=AxChkYm0yBQdYCSo9K5fS2Y6ct4oJJSVzt3QR9uwmtY=;
+        b=K724XoU700/1AIR8XOWIU1DAPma+R3a5w5B3WLgIBP+bhJqYTa2/s1u01foINIwS6EkoHL
+        DmJqTgUPcTt07Zp91ozuZftEyApAuKFpl4SJXsrhhkmLHdABhKbOjEQ/bzW6tabQ4uRo2U
+        gAn2GZdrSJpJV4OoxzBXmBa5Fl3BqLk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-312-I2YEdcGCO4uHrjah08uYYg-1; Fri, 06 Dec 2019 08:45:23 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A78F78017DF;
+        Fri,  6 Dec 2019 13:45:21 +0000 (UTC)
+Received: from thuth.com (ovpn-116-205.ams2.redhat.com [10.36.116.205])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5E2006B8F0;
+        Fri,  6 Dec 2019 13:45:14 +0000 (UTC)
+From:   Thomas Huth <thuth@redhat.com>
+To:     kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        linux-kernel@vger.kernel.org
+Cc:     rkrcmar@redhat.com, radimkrcmar@gmail.com, drjones@redhat.com,
+        stable@vger.kernel.org, sean.j.christopherson@intel.com,
+        vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com,
+        joro@8bytes.org
+Subject: [PATCH] KVM: Radim is no longer available as KVM maintainer
+Date:   Fri,  6 Dec 2019 14:45:11 +0100
+Message-Id: <20191206134511.20036-1-thuth@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed; charset=US-ASCII
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: I2YEdcGCO4uHrjah08uYYg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch fixes my bug in 4.4.206:
+Radim's mail address @redhat.com is not valid anymore, so we should
+remove this line from the MAINTAINERS file to avoid that people send
+mails to this address in vain.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=205729
+Thank you very much for all your work on KVM during the past years,
+Radim!
 
-It could use testing by someone who exercises the code in a virtual
-machine environment...
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ MAINTAINERS | 2 --
+ 1 file changed, 2 deletions(-)
 
------------------------------------------------------------------------------------
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 067cae5bde23..54cf6e242e54 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9043,7 +9043,6 @@ F:=09include/linux/umh.h
+=20
+ KERNEL VIRTUAL MACHINE (KVM)
+ M:=09Paolo Bonzini <pbonzini@redhat.com>
+-M:=09Radim Kr=C4=8Dm=C3=A1=C5=99 <rkrcmar@redhat.com>
+ L:=09kvm@vger.kernel.org
+ W:=09http://www.linux-kvm.org
+ T:=09git git://git.kernel.org/pub/scm/virt/kvm/kvm.git
+@@ -9115,7 +9114,6 @@ F:=09tools/testing/selftests/kvm/*/s390x/
+=20
+ KERNEL VIRTUAL MACHINE FOR X86 (KVM/x86)
+ M:=09Paolo Bonzini <pbonzini@redhat.com>
+-M:=09Radim Kr=C4=8Dm=C3=A1=C5=99 <rkrcmar@redhat.com>
+ R:=09Sean Christopherson <sean.j.christopherson@intel.com>
+ R:=09Vitaly Kuznetsov <vkuznets@redhat.com>
+ R:=09Wanpeng Li <wanpengli@tencent.com>
+--=20
+2.18.1
 
-From: Jan Beulich <jbeulich@suse.com>
-
-[ Upstream commit fe6f85ca121e9c74e7490fe66b0c5aae38e332c3 ]
-
-The removal of the LDR initialization in the bigsmp_32 APIC code unearthed
-a problem in setup_local_APIC().
-
-The code checks unconditionally for a mismatch of the logical APIC id by
-comparing the early APIC id which was initialized in get_smp_config() with
-the actual LDR value in the APIC.
-
-Due to the removal of the bogus LDR initialization the check now can
-trigger on bigsmp_32 APIC systems emitting a warning for every booting
-CPU. This is of course a false positive because the APIC is not using
-logical destination mode.
-
-Restrict the check and the possibly resulting fixup to systems which are
-actually using the APIC in logical destination mode.
-
-[ tglx: Massaged changelog and added Cc stable ]
-
-Fixes: bae3a8d3308 ("x86/apic: Do not initialize LDR and DFR for bigsmp")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/666d8f91-b5a8-1afd-7add-821e72a35f03@suse.com
-[ comet.berkeley: Backported to 4.4: adjust context ]
-Signed-off-by: Richard Narron <comet.berkeley@gmail.com>
-
---- a/arch/x86/kernel/apic/apic.c.orig	2019-11-29 00:30:25.000000000 -0800
-+++ b/arch/x86/kernel/apic/apic.c	2019-12-04 07:47:16.913136344 -0800
-@@ -1298,16 +1298,21 @@ void setup_local_APIC(void)
-  	apic->init_apic_ldr();
-
-  #ifdef CONFIG_X86_32
--	/*
--	 * APIC LDR is initialized.  If logical_apicid mapping was
--	 * initialized during get_smp_config(), make sure it matches the
--	 * actual value.
--	 */
--	i = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
--	WARN_ON(i != BAD_APICID && i != logical_smp_processor_id());
--	/* always use the value from LDR */
--	early_per_cpu(x86_cpu_to_logical_apicid, cpu) =
--		logical_smp_processor_id();
-+	if (apic->dest_logical) {
-+		int logical_apicid, ldr_apicid;
-+
-+		/*
-+		 * APIC LDR is initialized.  If logical_apicid mapping was
-+		 * initialized during get_smp_config(), make sure it matches
-+		 * the actual value.
-+		 */
-+		logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
-+		ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
-+		if (logical_apicid != BAD_APICID)
-+			WARN_ON(logical_apicid != ldr_apicid);
-+		/* Always use the value from LDR. */
-+		early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
-+	}
-  #endif
-
-  	/*
