@@ -2,176 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4598114DB7
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 09:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1445D114DC4
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 09:54:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726088AbfLFIkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 03:40:53 -0500
-Received: from mail-bn8nam12on2062.outbound.protection.outlook.com ([40.107.237.62]:6074
-        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725866AbfLFIkx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Dec 2019 03:40:53 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WepbXKF9a4xtIPEVKc6UaFS9oqWnefbvwINUfT8c/h9CcAK1EKpXZccDO20yITjdwpdeBWD6fqdF6m3M2R4Pqf5aXDL9n4CfjapqTzAhyPFHA+x3QXn9UFhgNjafG9WPckDFizXS/kk/7WI4oGVgdXObzVctrDOiFCGs7OHspuZ6xeumCS2f4W4i+AntO7LWcSMVqbwizsFhxdp07g6dhN9nd4UIvCiCCWELecoTFfD2z5CuqH6l6Vr3t82Nc1+vLktzpmH28g6IwHPr4p2nq70dEFiL0JboWhIdpRNlwWv0PPN1gFU5xui80IBDS6UTLW2d+P7j+AcBV6gLjMAuzA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0R3dwO+2QLbiZ9BuHUs+Nq2pQBuBJEMh0pkrHYFUtHQ=;
- b=QlCd/pQEZKTJzPnjTVWuMXAtwE2Yxx/5XN6ZA/nrZF5XlVbCRLBMmxTTtlQEysvIMxfLO02fBccOIwhX8SJdvN1grSS9cM2MlIgBwU8hKznqdXrRkO7wioiTPEJzdc+TvgfRAPKNJRaDzvH/W2u0sYiIGNAKRJ4yQPh4xARBMA/g1EBVQuaJcEtI+ZZ/j8JJf7UEYdlcLQHYBm/pdUEJvfvXL5sRxPIi54EkjEzw0t+5/TnOmBz08EvDy4E5WVlIyZM/zhfLPqlR+p2V4gieuXQlAtAUhFtsuA0zteoYkRnG9+vlrerLaZqYCiVpaTaTOLuHaN19oAJT/Ugd3f7FzQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=permerror action=none header.from=amd.com; dkim=none (message not
- signed); arc=none
+        id S1726201AbfLFIyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 03:54:50 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:42545 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725966AbfLFIyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 03:54:50 -0500
+Received: by mail-lf1-f67.google.com with SMTP id y19so4647005lfl.9;
+        Fri, 06 Dec 2019 00:54:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0R3dwO+2QLbiZ9BuHUs+Nq2pQBuBJEMh0pkrHYFUtHQ=;
- b=qqLDZBuU9o0/gDYBXM2SQ8/drNgFRuCR1F5wT+Yun2kn2N4yYY/xa4eae8JlR1ya0F3gFIsm4GmtHRxfTIJGLcP3PH/eCb86vPmf2ghPzKT8iZ+YLCP6DISCCtV+k+ZcQ6tKhND+GB0IFlZ5lmWS3/t1HUHIYcZ1C907ZTAPK9s=
-Received: from DM5PR12CA0017.namprd12.prod.outlook.com (2603:10b6:4:1::27) by
- MW2PR12MB2555.namprd12.prod.outlook.com (2603:10b6:907:b::24) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2516.14; Fri, 6 Dec 2019 08:40:03 +0000
-Received: from BN8NAM11FT061.eop-nam11.prod.protection.outlook.com
- (2a01:111:f400:7eae::208) by DM5PR12CA0017.outlook.office365.com
- (2603:10b6:4:1::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2516.14 via Frontend
- Transport; Fri, 6 Dec 2019 08:40:03 +0000
-Authentication-Results: spf=none (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
- header.d=none;lists.freedesktop.org; dmarc=permerror action=none
- header.from=amd.com;
-Received-SPF: None (protection.outlook.com: amd.com does not designate
- permitted sender hosts)
-Received: from SATLEXMB02.amd.com (165.204.84.17) by
- BN8NAM11FT061.mail.protection.outlook.com (10.13.177.144) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.2451.23 via Frontend Transport; Fri, 6 Dec 2019 08:40:02 +0000
-Received: from SATLEXMB02.amd.com (10.181.40.143) by SATLEXMB02.amd.com
- (10.181.40.143) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Fri, 6 Dec 2019
- 02:40:01 -0600
-Received: from wayne-System-Product-Name.amd.com (10.180.168.240) by
- SATLEXMB02.amd.com (10.181.40.143) with Microsoft SMTP Server id 15.1.1713.5
- via Frontend Transport; Fri, 6 Dec 2019 02:39:59 -0600
-From:   Wayne Lin <Wayne.Lin@amd.com>
-To:     <dri-devel@lists.freedesktop.org>, <amd-gfx@lists.freedesktop.org>
-CC:     <Nicholas.Kazlauskas@amd.com>, <harry.wentland@amd.com>,
-        <jerry.zuo@amd.com>, <lyude@redhat.com>, <stable@vger.kernel.org>,
-        Wayne Lin <Wayne.Lin@amd.com>
-Subject: [PATCH] drm/dp_mst: clear time slots for ports invalid
-Date:   Fri, 6 Dec 2019 16:39:37 +0800
-Message-ID: <20191206083937.9411-1-Wayne.Lin@amd.com>
-X-Mailer: git-send-email 2.17.1
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=3gYEsWmy4JuBzTSatOZIC7YaHvzWd9GrO4iSAH/St48=;
+        b=mZ/H32HNjhBtmGVGVzYUoONZ3TdIjQkkOAdG0A6R0KbrKngB69GYZTX5vYNgqXTXkp
+         hrHG1sPKReq2zSTcEADqVOeSQentFypuxj7zP9QUAgdexgptroVnLqnrfil5byypjKs+
+         26vXMS+Ug/0jPkrtNyVV1/QSAbMs/0YbwrHiu5rEl2sT3G7brsWS9n6CV3sTxL2/temW
+         xDz5E+2Jl1D2fYm6ozZu2aSsrwtRBnaiOlExIwfYkJIgC+X0w13Cq8FNQHTc+z4r+z2e
+         1fbkKXx5NAf0LZxabslDnTrDJMw3ugiH5W1JB6XWjVCgFmjcv2tLYBmcTILz/DAjIrhU
+         dqxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=3gYEsWmy4JuBzTSatOZIC7YaHvzWd9GrO4iSAH/St48=;
+        b=XGdYgvWSiuTLnsZZ53IMgs0Gxevqm5He5MYAJCYWMf2VrVxco8Rh4M+xwvOpGzUCBB
+         8oAQ3hOeqztXRF7ZoyosAtc84Q6ggVlqd96Yu8KvYTJeO467cOThfVP393ZTFhK96pxj
+         +GTOsDhd+Bt1MlCCdh5l6RZABo+D+s/zav9qkUG1prNBrN6UzAF3fQTGaErce+O25KHp
+         bI5O75JV1s7VdVHkgurKEWjNTdxu19k1I6WH/4AJKp4zFMoJBpB8xcdNhN2RyVG/834A
+         s12tRBTECGXUGa9PAA9DJvQUnw8ZC0GcUOOKUZA6+FSgQy0aqO37H4Pj/nYbRbYjNTTx
+         fgYw==
+X-Gm-Message-State: APjAAAWZg0zmuqB7vDLOqF9jYwFlt9J0iRG5VDBHHjUZmrdDodkf3xoz
+        ewfI3tX52dD4EZG7w+f/jSoM3R8Z4WiBkpyGJjk=
+X-Google-Smtp-Source: APXvYqzJDNLegHkTWBLyYNdnUs5zFbKbLYmnQ8Kk67OLfKLg925XlaeADJQU7PgP1mVRAnZoso2rEHYtAEVS6jqPwJ4=
+X-Received: by 2002:ac2:4422:: with SMTP id w2mr7575453lfl.178.1575622486717;
+ Fri, 06 Dec 2019 00:54:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-HT: Tenant
-X-Forefront-Antispam-Report: CIP:165.204.84.17;IPV:NLI;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(4636009)(396003)(136003)(346002)(39860400002)(376002)(428003)(199004)(189003)(14444005)(7696005)(36756003)(51416003)(316002)(426003)(8676002)(336012)(16586007)(86362001)(110136005)(54906003)(2906002)(356004)(478600001)(2616005)(48376002)(70206006)(6666004)(70586007)(50466002)(8936002)(81156014)(81166006)(186003)(26005)(4326008)(1076003)(5660300002)(53416004)(305945005)(50226002);DIR:OUT;SFP:1101;SCL:1;SRVR:MW2PR12MB2555;H:SATLEXMB02.amd.com;FPR:;SPF:None;LANG:en;PTR:InfoDomainNonexistent;A:1;MX:1;
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d2eb6768-d564-4169-35eb-08d77a27e32b
-X-MS-TrafficTypeDiagnostic: MW2PR12MB2555:
-X-Microsoft-Antispam-PRVS: <MW2PR12MB2555070DAE4E8477A74E14D7FC5F0@MW2PR12MB2555.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
-X-Forefront-PRVS: 0243E5FD68
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FiEVtJ8tJp6edj/AHvcZX3sbn9OtUUsEFVtRIzDy+KCt4cwXZTiYORYSyyFgGdCKIMnktb59Ju7XrVX2i4ABmRFlR24sc9PVeqEcy5B0ABXJTsIj6tvYKsMSa9o6zfcsZ3LbXHTmrhCB/odgQuGT1I1ovDP+ad8gsGr3BpqU0nj5CUWDoS9ao25m3eYoom7qw3eCnKl4d15JSq78a46alYLj0vDXyn/CIRpkFjnPfope5mPy4FjFfkaqg1inBjuY5DyQFWKQdC7jYjWSc/4fsTJN49ZuW3vK2KuhH6WxVkntdeJCosw95OlajFJ2vXbMIxUucpfXtirrJQLa+4CLoCC1ufT9EWgjD+oF101z2F2l02ggdfs62+OvLbsd9j18exne67zYtFwbi5wFSV6ZkzecNVMoaD5SSNWvZyuK9RcWAlxn9kBUTlJEMB67wUsM
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Dec 2019 08:40:02.9347
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d2eb6768-d564-4169-35eb-08d77a27e32b
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB02.amd.com]
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW2PR12MB2555
+References: <20191127203114.766709977@linuxfoundation.org> <20191127203119.676489279@linuxfoundation.org>
+ <CA+res+QKCAn8PsSgbkqXNAF0Ov5pOkj=732=M5seWj+-JFQOwQ@mail.gmail.com>
+ <20191204175033.smve4dleem2ht7st@xps.therub.org> <CA+res+SW7o4YpUtv4-UYXP4WSPm417tgow68YM7YjOEcZ5xO3w@mail.gmail.com>
+ <20191205205206.2mnr3dj2slamuhrl@xps.therub.org>
+In-Reply-To: <20191205205206.2mnr3dj2slamuhrl@xps.therub.org>
+From:   Jack Wang <jack.wang.usish@gmail.com>
+Date:   Fri, 6 Dec 2019 09:54:35 +0100
+Message-ID: <CA+res+RQbK2wCWtfV4bNBF3GKYqRjPOAPDfWa_+6Zjqi--p8aw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 067/306] KVM: nVMX: move check_vmentry_postreqs()
+ call to nested_vmx_enter_non_root_mode()
+To:     Jack Wang <jack.wang.usish@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Why]
-When change the connection status in a MST topology, mst device
-which detect the event will send out CONNECTION_STATUS_NOTIFY messgae.
+Dan Rue <dan.rue@linaro.org> =E4=BA=8E2019=E5=B9=B412=E6=9C=885=E6=97=A5=E5=
+=91=A8=E5=9B=9B =E4=B8=8B=E5=8D=889:52=E5=86=99=E9=81=93=EF=BC=9A
+>
+> On Thu, Dec 05, 2019 at 10:51:18AM +0100, Jack Wang wrote:
+> > Dan Rue <dan.rue@linaro.org> =E4=BA=8E2019=E5=B9=B412=E6=9C=884=E6=97=
+=A5=E5=91=A8=E4=B8=89 =E4=B8=8B=E5=8D=886:50=E5=86=99=E9=81=93=EF=BC=9A
+> > >
+> > > On Mon, Dec 02, 2019 at 03:40:04PM +0100, Jack Wang wrote:
+> > > > Greg Kroah-Hartman <gregkh@linuxfoundation.org> =E4=BA=8E2019=E5=B9=
+=B411=E6=9C=8827=E6=97=A5=E5=91=A8=E4=B8=89 =E4=B8=8B=E5=8D=8810:30=E5=86=
+=99=E9=81=93=EF=BC=9A
+> > > > >
+> > > > > From: Sean Christopherson <sean.j.christopherson@intel.com>
+> > > > >
+> > > > > [ Upstream commit 7671ce21b13b9596163a29f4712cb2451a9b97dc ]
+> > > > >
+> > > > > In preparation of supporting checkpoint/restore for nested state,
+> > > > > commit ca0bde28f2ed ("kvm: nVMX: Split VMCS checks from nested_vm=
+x_run()")
+> > > > > modified check_vmentry_postreqs() to only perform the guest EFER
+> > > > > consistency checks when nested_run_pending is true.  But, in the
+> > > > > normal nested VMEntry flow, nested_run_pending is only set after
+> > > > > check_vmentry_postreqs(), i.e. the consistency check is being ski=
+pped.
+> > > > >
+> > > > > Alternatively, nested_run_pending could be set prior to calling
+> > > > > check_vmentry_postreqs() in nested_vmx_run(), but placing the
+> > > > > consistency checks in nested_vmx_enter_non_root_mode() allows us
+> > > > > to split prepare_vmcs02() and interleave the preparation with
+> > > > > the consistency checks without having to change the call sites
+> > > > > of nested_vmx_enter_non_root_mode().  In other words, the rest
+> > > > > of the consistency check code in nested_vmx_run() will be joining
+> > > > > the postreqs checks in future patches.
+> > > > >
+> > > > > Fixes: ca0bde28f2ed ("kvm: nVMX: Split VMCS checks from nested_vm=
+x_run()")
+> > > > > Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.c=
+om>
+> > > > > Cc: Jim Mattson <jmattson@google.com>
+> > > > > Reviewed-by: Jim Mattson <jmattson@google.com>
+> > > > > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> > > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > > > ---
+> > > > >  arch/x86/kvm/vmx.c | 10 +++-------
+> > > > >  1 file changed, 3 insertions(+), 7 deletions(-)
+> > > > >
+> > > > > diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> > > > > index fe7fdd666f091..bdf019f322117 100644
+> > > > > --- a/arch/x86/kvm/vmx.c
+> > > > > +++ b/arch/x86/kvm/vmx.c
+> > > > > @@ -12694,6 +12694,9 @@ static int enter_vmx_non_root_mode(struct=
+ kvm_vcpu *vcpu, u32 *exit_qual)
+> > > > >         if (likely(!evaluate_pending_interrupts) && kvm_vcpu_apic=
+v_active(vcpu))
+> > > > >                 evaluate_pending_interrupts |=3D vmx_has_apicv_in=
+terrupt(vcpu);
+> > > > >
+> > > > > +       if (from_vmentry && check_vmentry_postreqs(vcpu, vmcs12, =
+exit_qual))
+> > > > > +               return EXIT_REASON_INVALID_STATE;
+> > > > > +
+> > > > >         enter_guest_mode(vcpu);
+> > > > >
+> > > > >         if (!(vmcs12->vm_entry_controls & VM_ENTRY_LOAD_DEBUG_CON=
+TROLS))
+> > > > > @@ -12836,13 +12839,6 @@ static int nested_vmx_run(struct kvm_vcp=
+u *vcpu, bool launch)
+> > > > >          */
+> > > > >         skip_emulated_instruction(vcpu);
+> > > > >
+> > > > > -       ret =3D check_vmentry_postreqs(vcpu, vmcs12, &exit_qual);
+> > > > > -       if (ret) {
+> > > > > -               nested_vmx_entry_failure(vcpu, vmcs12,
+> > > > > -                                        EXIT_REASON_INVALID_STAT=
+E, exit_qual);
+> > > > > -               return 1;
+> > > > > -       }
+> > > > > -
+> > > > >         /*
+> > > > >          * We're finally done with prerequisite checking, and can=
+ start with
+> > > > >          * the nested entry.
+> > > > > --
+> > > > > 2.20.1
+> > > > >
+> > > > >
+> > > > >
+> > > > Hi all,
+> > > >
+> > > > This commit caused many kvm-unit-tests regression, cherry-pick
+> > > > following commits from 4.20 fix the regression:
+> > >
+> > > Hi Jack - can you be more specific about the failing tests? What type=
+ of
+> > > environment and which tests failed, which version of kvm-unit-tests? =
+Do
+> > > you have any logs available? I ask because we do run kvm-unit-tests o=
+n
+> > > x86 and arm64 but we did not see these regressions.
+> > >
+> > > Thanks,
+> > > Dan
+> > >
+> > Hi Dan,
+> >
+> > I'm running at kvm-unit-tests commit b1414c5f0142 ("x86: vmx: fix
+> > required alignment for posted interrupt descriptor")
+> >
+> > using "run_tests.sh -a -t -j8" with qemu-2.7.1
+> >
+> > Left side has only 78 tests ok, and right side has 112 tests ok.
+>
+> Thanks - so we run it with "run_tests.sh -v" and only see 43 passes in
+> the best case. Besides missing -a, we see a skip for the vmx related
+> tests because vmx isn't enabled in our environment.
+>
+> We will fix those problems in LKFT so that we can catch regressions like
+> this before they are released.
+>
+> Dan
+Sounds good.
 
-e.g. src-mst-mst-sst => src-mst (unplug) mst-sst
-
-Currently, under the above case of unplugging device, ports which have
-been allocated payloads and are no longer in the topology still occupy
-time slots and recorded in proposed_vcpi[] of topology manager.
-
-If we don't clean up the proposed_vcpi[], when code flow goes to try to
-update payload table by calling drm_dp_update_payload_part1(), we will
-fail at checking port validation due to there are ports with proposed
-time slots but no longer in the mst topology. As the result of that, we
-will also stop updating the DPCD payload table of down stream port.
-
-[How]
-While handling the CONNECTION_STATUS_NOTIFY message, add a detection to
-see if the event indicates that a device is unplugged to an output port.
-If the detection is true, then iterrate over all proposed_vcpi[] to
-see whether a port of the proposed_vcpi[] is still in the topology or
-not. If the port is invalid, set its num_slots to 0.
-
-Thereafter, when try to update payload table by calling
-drm_dp_update_payload_part1(), we can successfully update the DPCD
-payload table of down stream port and clear the proposed_vcpi[] to NULL.
-
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/drm_dp_mst_topology.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 5306c47dc820..2e236b6275c4 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2318,7 +2318,7 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch *mstb,
- {
- 	struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
- 	struct drm_dp_mst_port *port;
--	int old_ddps, ret;
-+	int old_ddps, old_input, ret, i;
- 	u8 new_pdt;
- 	bool dowork = false, create_connector = false;
- 
-@@ -2349,6 +2349,7 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch *mstb,
- 	}
- 
- 	old_ddps = port->ddps;
-+	old_input = port->input;
- 	port->input = conn_stat->input_port;
- 	port->mcs = conn_stat->message_capability_status;
- 	port->ldps = conn_stat->legacy_device_plug_status;
-@@ -2373,6 +2374,27 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch *mstb,
- 		dowork = false;
- 	}
- 
-+	if (!old_input && old_ddps != port->ddps && !port->ddps) {
-+		for (i = 0; i < mgr->max_payloads; i++) {
-+			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
-+			struct drm_dp_mst_port *port_validated;
-+
-+			if (vcpi) {
-+				port_validated =
-+					container_of(vcpi, struct drm_dp_mst_port, vcpi);
-+				port_validated =
-+					drm_dp_mst_topology_get_port_validated(mgr, port_validated);
-+				if (!port_validated) {
-+					mutex_lock(&mgr->payload_lock);
-+					vcpi->num_slots = 0;
-+					mutex_unlock(&mgr->payload_lock);
-+				} else {
-+					drm_dp_mst_topology_put_port(port_validated);
-+				}
-+			}
-+		}
-+	}
-+
- 	if (port->connector)
- 		drm_modeset_unlock(&mgr->base.lock);
- 	else if (create_connector)
--- 
-2.17.1
-
+Thanks,
+Jack
