@@ -2,112 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDC7114A60
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 02:12:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F79114A6C
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 02:20:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbfLFBMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 20:12:05 -0500
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:58155 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725959AbfLFBMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 20:12:05 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07488;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0Tk4mbZG_1575594719;
-Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tk4mbZG_1575594719)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 06 Dec 2019 09:12:02 +0800
-Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the
- page is already on the target node
-To:     Qian Cai <cai@lca.pw>, John Hubbard <jhubbard@nvidia.com>
-Cc:     fabecassis@nvidia.com, mhocko@suse.com, cl@linux.com,
-        vbabka@suse.cz, mgorman@techsingularity.net,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <22b5bfde-45be-95bd-5c98-2ab13302c107@nvidia.com>
- <D0A99204-A60F-428E-B77A-63DBCD7103F4@lca.pw>
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-Message-ID: <9588b886-7ced-6502-67f0-0eb623045903@linux.alibaba.com>
-Date:   Thu, 5 Dec 2019 17:11:58 -0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
- Gecko/20100101 Thunderbird/52.7.0
+        id S1725988AbfLFBUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 20:20:02 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:39247 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725959AbfLFBUC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 20:20:02 -0500
+Received: by mail-wr1-f68.google.com with SMTP id y11so5957512wrt.6
+        for <stable@vger.kernel.org>; Thu, 05 Dec 2019 17:20:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TCNIueDh4KtENKHBryJCv1cTPm1YDlPvnBoskSSpgRo=;
+        b=Qe2VDyCX37j7j2f/nYQakIlpJ1erhK3a4PLWG76Nlim1FpZ5cQhW8BvbS7tGUc3Xm1
+         nC0DgxUl64CUcb5P/XzfEYgK8N5QFYtDAD2YWD9JpqFD5Tb5nv4HmZFSY5pgXIKrRlMh
+         k/cMSb7/IlpOjZtiNiuj+mKQoRdMUliz9hDOO9NlGC760JZEDki+9P2bpd53cKDGazy4
+         Uryxgr+pM7BS3Vn9JijA1DnQXm9Li9rLwWj832KuhFi/qCLps2RVl/uaIuhPA/9JbMXT
+         diL8mAjqj47tZIGYcuUL9Sd8N6bTkbgmD8mCuF2liMKa7S+ZBno4mc/uTrEo3IbTswJj
+         B0zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TCNIueDh4KtENKHBryJCv1cTPm1YDlPvnBoskSSpgRo=;
+        b=E5CZEVRtxwiF8Ka2i9XG3Tj1uU7QtBzHgEcozGmXunta6bwmYuirri3shzPknViexB
+         Q5ounrknl0ZfEodarQ4rOrscpaRXpn19Fsk+4mmeWN1viM8kHokxjhM73+VOMZsWafWf
+         WBhoLGkERLjornBYzQJVfkH/3Us1cYg2C1vZtPzzLpXnJwKPmSoP670jqyzOwH2TLZGE
+         PETODwU/JnIe+UO1/jSf63iT28hMYTrU7Zu7H4iEc8eVFm/fYhQ5U5v3D70eOpMHYb0N
+         /+2ub6lqstHZ5tCBTzIwIpjKQ34AuFl/DaVPEtN52YJncLm+lpsZINwY1/rZYJ4Ez+IQ
+         cbSQ==
+X-Gm-Message-State: APjAAAX3MvAvKQS3cnydfDFSHn3PX7q5d8BqInXZuihiJWEoT9cqWCmm
+        pHOKt3BL70uvxR/uwnZAIxJH1It7plu+hA==
+X-Google-Smtp-Source: APXvYqx2/+imxEqCxF5gZLHKYVNMlKD4KExemG98TDFPWPxLz4mBb9wPrs7kzfMbXYaUJwZRyrR/HQ==
+X-Received: by 2002:adf:a141:: with SMTP id r1mr13111507wrr.285.1575595200267;
+        Thu, 05 Dec 2019 17:20:00 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id n1sm14073399wrw.52.2019.12.05.17.19.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Dec 2019 17:19:59 -0800 (PST)
+Message-ID: <5de9acbf.1c69fb81.df4e6.a8ae@mx.google.com>
+Date:   Thu, 05 Dec 2019 17:19:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <D0A99204-A60F-428E-B77A-63DBCD7103F4@lca.pw>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.206
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 94 boots: 1 failed,
+ 86 passed with 5 offline, 2 conflicts (v4.4.206)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 94 boots: 1 failed, 86 passed with 5 offline, 2=
+ conflicts (v4.4.206)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.206/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.206/
 
-On 12/5/19 4:19 PM, Qian Cai wrote:
->
->> On Dec 5, 2019, at 7:04 PM, John Hubbard <jhubbard@nvidia.com> wrote:
->>
->> Felix's code is not random test code. It's code he wrote and he expected it to work.
-> Sure, but could he show a bit detail if the kernel will start to behavior as expected like what was written in the manpage to return ENOENT in this case, why is it not acceptable? i.e., why is it important to depend on the broken behavior?
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.206
+Git Commit: dc824ef433c6b378e90bd87bd6a57fd607de7c32
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 46 unique boards, 16 SoC families, 14 builds out of 190
 
+Boot Failure Detected:
 
-I think I found the root cause. It did return -ENOENT when the syscall 
-was introduced (my first impression was wrong), but the behavior was 
-changed since 2.6.28 by commit e78bbfa82624 ("mm: stop returning -ENOENT 
-from sys_move_pages() if nothing got migrated"). The full commit log is 
-as below:
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            qcom-apq8064-cm-qs600: 1 failed lab
 
-Author: Brice Goglin <Brice.Goglin@inria.fr>
-Date:   Sat Oct 18 20:27:15 2008 -0700
+Offline Platforms:
 
-     mm: stop returning -ENOENT from sys_move_pages() if nothing got 
-migrated
+arm:
 
-     A patchset reworking sys_move_pages().  It removes the possibly large
-     vmalloc by using multiple chunks when migrating large buffers. It also
-     dramatically increases the throughput for large buffers since the 
-lookup
-     in new_page_node() is now limited to a single chunk, causing the 
-quadratic
-     complexity to have a much slower impact.  There is no need to use any
-     radix-tree-like structure to improve this lookup.
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-     sys_move_pages() duration on a 4-quadcore-opteron 2347HE (1.9Gz),
-     migrating between nodes #2 and #3:
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-             length          move_pages (us)         move_pages+patch (us)
-             4kB             126                     98
-             40kB            198                     168
-             400kB           963                     937
-             4MB             12503                   11930
-             40MB            246867                  11848
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
-     Patches #1 and #4 are the important ones:
-     1) stop returning -ENOENT from sys_move_pages() if nothing got migrated
-     2) don't vmalloc a huge page_to_node array for do_pages_stat()
-     3) extract do_pages_move() out of sys_move_pages()
-     4) rework do_pages_move() to work on page_sized chunks
-     5) move_pages: no need to set pp->page to ZERO_PAGE(0) by default
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-     This patch:
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
 
-     There is no point in returning -ENOENT from sys_move_pages() if all 
-pages
-     were already on the right node, while we return 0 if only 1 page 
-was not.
-     Most application don't know where their pages are allocated, so 
-it's not
-     an error to try to migrate them anyway.
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
 
-     Just return 0 and let the status array in user-space be checked if the
-     application needs details.
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
 
-     It will make the upcoming chunked-move_pages() support much easier.
-
-     Signed-off-by: Brice Goglin <Brice.Goglin@inria.fr>
-     Acked-by: Christoph Lameter <cl@linux-foundation.org>
-     Cc: Nick Piggin <nickpiggin@yahoo.com.au>
-     Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-     Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-
-So the behavior was changed in kernel intentionally but never reflected 
-in the manpage. I will propose a patch to fix the document.
+---
+For more info write to <info@kernelci.org>
