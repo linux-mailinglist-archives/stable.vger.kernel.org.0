@@ -2,70 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1E9114D45
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 09:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC20114D79
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 09:19:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726835AbfLFIKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 03:10:51 -0500
-Received: from mail-vs1-f68.google.com ([209.85.217.68]:40832 "EHLO
-        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726203AbfLFIKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 03:10:51 -0500
-Received: by mail-vs1-f68.google.com with SMTP id g23so4418269vsr.7
-        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 00:10:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=GYZOCY3o+eqMafwfKhYfCqBe81Zus8IfdyBiuStZKEM=;
-        b=mEO+R1/16DGScz5ujY/QzLDiuf4C9XC+AQW2IdfeuKWJxASqYRDlMjN4XjghltaNbN
-         FksHYmxafR8VPcNyqLW/4PA4CwmkFaWdwkhhvjtvAbv7MSZXX2DHh9vmDAFjvutykBYb
-         T3++7mII0HAu2EQjtUK3eFGwlKj7wkcg3tTszR4r+XiQBs1D42nBGblnMMauJoJuHHzW
-         Otkmnv3rGsAcHeMYy2bzM4D051vHD4Fik4/05qpVs+rLMDxB+3A+z0goR4cIzO/KPO5d
-         LkbQJYdY0OjuHazCEqDAcr7xqx+zpd18e9PaFTXyXXWXuXZPMzZvWiVPXk4YBl+ro2mJ
-         OQdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=GYZOCY3o+eqMafwfKhYfCqBe81Zus8IfdyBiuStZKEM=;
-        b=YOT8VmqjPSOjjNYFFu5RvmIHbPLhU69QwGLwRN6QMSElrssnWtFGEbIOUp5lrChPg8
-         Vefe6nE8o4a5TrM0iUHvdaVB4F5rw/Xv+vbhvB0Rshv8vRRCN/HmLbCcQWBikMgKQfTT
-         fy4Jkv9F1wzgaAlQv6QWcBA4rGd4pH2BfW57xOj/Fr29TlkqsFoXwotUq8L4M+9sPUCi
-         jBjEmvv+YGam1Ut9mx2OJgOL9kdFVJGknQynKxpBVVGFy+Rmj1pvvqz2/q/M3U9Hguvv
-         PEmGfobiXV5Zekm0zfPSPPy/DzmavojWoBe78dckROL74yoTK/B2MQA4eEYLdzGgAuu1
-         ZLUA==
-X-Gm-Message-State: APjAAAV+2g7U6eLFUi5pybopx0z8UsSVoczvrLLfRqnKFbo6VNTolUlu
-        NaPz55PqFaSrkw9bxxvMvDQITgaJwyA+xYXB/wk=
-X-Google-Smtp-Source: APXvYqzv6rS3GU4aswDGFgsd0l/8e1/wItx/X2LKyi7SE7pSs1SGv6WEZ4x/vCcieamOzlnzE6xEUQqRaS/9gbxgjYY=
-X-Received: by 2002:a67:f50c:: with SMTP id u12mr4097394vsn.24.1575619849688;
- Fri, 06 Dec 2019 00:10:49 -0800 (PST)
+        id S1726278AbfLFITJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 03:19:09 -0500
+Received: from mx2.suse.de ([195.135.220.15]:60830 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726088AbfLFITJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Dec 2019 03:19:09 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 5DBF5BA28;
+        Fri,  6 Dec 2019 08:19:07 +0000 (UTC)
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     john.p.donnelly@oracle.com, daniel.vetter@ffwll.ch,
+        airlied@redhat.com
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        "Y.C. Chen" <yc_chen@aspeedtech.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Allison Randal <allison@lohutok.net>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH] drm/mgag200: Flag all G200 SE A machines as broken wrt <startadd>
+Date:   Fri,  6 Dec 2019 09:19:01 +0100
+Message-Id: <20191206081901.9938-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Received: by 2002:a67:f86:0:0:0:0:0 with HTTP; Fri, 6 Dec 2019 00:10:48 -0800 (PST)
-Reply-To: hmufah19@gmail.com
-From:   Henry Mufah <oromangu@gmail.com>
-Date:   Fri, 6 Dec 2019 08:10:48 +0000
-Message-ID: <CAB0BW50kZ0Gpb0R+et_-43w09afOc4EeiJcwJXFHDK5Y+uYvww@mail.gmail.com>
-Subject: bd
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend
+Several MGA G200 SE machines don't respect the value of the startadd
+register field. After more feedback on affected machines, neither PCI
+subvendor ID nor the internal ID seem to hint towards the bug. All
+affected machines have a PCI ID of 0x0522 (i.e., G200 SE A). It was
+decided to flag all G200 SE A machines as broken.
 
-I am happy to inform you that i have successfully completed the
-transaction with a new partner that i found on his website and I have
-decided to compensate you with $200, 000,00 United States Dollars.
-Presently I am in Finland for fishing investment projects with my
-partner. Now kindly contact my accountant MRS GRACE OWEN, whom I have
-submitted a bank DRAFT valued $200,000,00 United States Dollars on
-your favor and she will help you to send your compensation sum of
-$200.000.00 USD. Contact MRS GRACE OWEN ( graceowen1967@gmail.com  )
-Instruct her on how to send the amount to you. However, I may not have
-chance to attend to your message for now because I will be very busy
-with my project at the moment.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 1591fadf857c ("drm/mgag200: Add workaround for HW that does not support 'startadd'")
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: John Donnelly <john.p.donnelly@oracle.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: "José Roberto de Souza" <jose.souza@intel.com>
+Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.3+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Allison Randal <allison@lohutok.net>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Noralf Trønnes" <noralf@tronnes.org>
+---
+ drivers/gpu/drm/mgag200/mgag200_drv.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Regards.
-Mr Henry Mufah
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
+index 30b3b827adf8..9f4f5f071add 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.c
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
+@@ -30,9 +30,8 @@ module_param_named(modeset, mgag200_modeset, int, 0400);
+ static struct drm_driver driver;
+ 
+ static const struct pci_device_id pciidlist[] = {
+-	{ PCI_VENDOR_ID_MATROX, 0x522, PCI_VENDOR_ID_SUN, 0x4852, 0, 0,
++	{ PCI_VENDOR_ID_MATROX, 0x522, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		G200_SE_A | MGAG200_FLAG_HW_BUG_NO_STARTADD},
+-	{ PCI_VENDOR_ID_MATROX, 0x522, PCI_ANY_ID, PCI_ANY_ID, 0, 0, G200_SE_A },
+ 	{ PCI_VENDOR_ID_MATROX, 0x524, PCI_ANY_ID, PCI_ANY_ID, 0, 0, G200_SE_B },
+ 	{ PCI_VENDOR_ID_MATROX, 0x530, PCI_ANY_ID, PCI_ANY_ID, 0, 0, G200_EV },
+ 	{ PCI_VENDOR_ID_MATROX, 0x532, PCI_ANY_ID, PCI_ANY_ID, 0, 0, G200_WB },
+-- 
+2.23.0
+
