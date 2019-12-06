@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2C6115850
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 21:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7182D11587E
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 22:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726352AbfLFUvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 15:51:05 -0500
-Received: from mail.kapsi.fi ([91.232.154.25]:48377 "EHLO mail.kapsi.fi"
+        id S1726403AbfLFVSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 16:18:43 -0500
+Received: from mail.kapsi.fi ([91.232.154.25]:43791 "EHLO mail.kapsi.fi"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726330AbfLFUvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Dec 2019 15:51:05 -0500
+        id S1726353AbfLFVSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Dec 2019 16:18:43 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=kapsi.fi;
          s=20161220; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
         Subject:To:From:Date:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=w+cVWrA45xf+tHdvZU6WM7nm43N7RXemwP51QMaBP9s=; b=P5J9s2XZ+YaS+14+tDKrallG72
-        clC5Yh2OYVUXW/7y3DumIj5bKikaxlkTcNJwPnTPZph0gsUuiWnJCSYx/9cGJbJMhOlNfaQYNe0mV
-        wBy/H9moMOa6FLiOkIFmnfUxyr/TnezSWH35eF4FRbKrSuwdDX9BEmWlLI0DfPSfwZKa8YCbggPzn
-        IDLZuHSvm466fxoM/2zPC5xdPW/H546Lm2+g6rpWYzDorOZiDIX5fs4D4Ce1jQyHoqCA4rQOXTkwp
-        Rxk1i+QDXv3ySKo80y2J4kTdQw/L8sdBQjeBZ4Jyd5VsY9UtehVvNWHZlu9fYfDVw/cDPH/w++mZS
-        hsUBdk0w==;
+        bh=YhwINRPF/DR2qVd4V05+XHQkRxdjPjCjqg8j4UAkqdc=; b=MjFQMi7MPcgPJYuyL7OSd5mPBx
+        xWfTQ42QTTHTNNschD6UHeHsSGzxTE1eJeY8z/NY+LbWajpJ3SOQj4NuwuBhgC3fKQYLkxj4sfjNj
+        WOYJg9usOMATDKMiVs1+VbA2aDXCpZfj82Vy8qoKxUG2A+I9D9comFJ68ZfwtqsdNYG365+6WPEBr
+        QaDCtHFR1XCiaUxELCSfRcoqmu/xc/MKQfCQ9BJ3qqMCFedAPl2hZOxQQJ6jCWuwpPoGhT67p6VBq
+        Xz+EDNQJ0xpqwvt9mi+No5FsRQk5HKs9sB3rfItWiWqLek0ec42nSgmArOFkusfVgV+4k97GmlpsJ
+        GNF3rlkA==;
 Received: from 91-154-92-5.elisa-laajakaista.fi ([91.154.92.5] helo=localhost)
         by mail.kapsi.fi with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <jarkko.sakkinen@linux.intel.com>)
-        id 1idKZ5-0002a2-7A; Fri, 06 Dec 2019 22:51:03 +0200
-Date:   Fri, 6 Dec 2019 22:51:03 +0200
+        id 1idKzj-0002Bb-LB; Fri, 06 Dec 2019 23:18:35 +0200
+Date:   Fri, 6 Dec 2019 23:18:34 +0200
 From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 To:     Dan Williams <dan.j.williams@intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -37,17 +37,18 @@ To:     Dan Williams <dan.j.williams@intel.com>,
         Stefan Berger <stefanb@linux.vnet.ibm.com>,
         stable <stable@vger.kernel.org>
 Subject: Re: [GIT PULL] tpmdd updates for Linux v5.4
-Message-ID: <20191206205103.GC9971@linux.intel.com>
+Message-ID: <20191206211834.GD9971@linux.intel.com>
 References: <20190902143121.pjnykevzlajlcrh6@linux.intel.com>
  <CAA9_cmeLnHK4y+usQaWo72nUG3RNsripuZnS-koY4XTRC+mwJA@mail.gmail.com>
- <20191122161836.ry3cbon2iy22ftoc@cantor>
- <20191129210400.GB12055@linux.intel.com>
- <20191129232249.bgj25rlwrcg3afj5@cantor>
- <20191129233247.oavwmrp65b5nc5hq@cantor>
+ <20191127205800.GA14290@linux.intel.com>
+ <20191127205912.GB14290@linux.intel.com>
+ <20191128012055.f3a6gq7bjpvuierx@cantor>
+ <20191129235322.GB21546@linux.intel.com>
+ <20191130001253.rtovohtfbg25uifm@cantor>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191129233247.oavwmrp65b5nc5hq@cantor>
+In-Reply-To: <20191130001253.rtovohtfbg25uifm@cantor>
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 User-Agent: Mutt/1.10.1 (2018-07-13)
 X-SA-Exim-Connect-IP: 91.154.92.5
@@ -58,16 +59,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 29, 2019 at 04:32:47PM -0700, Jerry Snitselaar wrote:
-> > I still don't have access to one of the laptops, but looking online
-> > they should have one of the following: i5-8265U, i5-8365U, i7-8565U,
-> > or i7-8665U. The tpm is discrete, so I don't know that the cpu will
-> > matter. Looking at a log, in the t490s case it is an STMicroelectronics
-> > chip. So both Infineon and STM so far.
+On Fri, Nov 29, 2019 at 05:12:53PM -0700, Jerry Snitselaar wrote:
+> On Sat Nov 30 19, Jarkko Sakkinen wrote:
+> > On Wed, Nov 27, 2019 at 06:20:55PM -0700, Jerry Snitselaar wrote:
+> > > There also was that other issue reported on the list about
+> > > tpm_tis_core_init failing when calling tpm_get_timeouts due to the
+> > > power gating changes.
+> > 
+> > Please add a (lore.ko) link for reference to this thread.
+> > 
+> > /Jarkko
 > > 
 > 
-> In the case reported on Fedora the cpu is a i7-8665U.
+> https://lore.kernel.org/linux-integrity/a60dadce-3650-44ce-8785-2f737ab9b993@www.fastmail.com/
 
-I don't think CPU will matter that much if it is a dTPM.
+tpm_chip_stop() probably causes the issue. That is why tpm2_probe()
+works and failure happens after that.
+
+tpm_chip_stop() should be called once at the end of the function.
 
 /Jarkko
