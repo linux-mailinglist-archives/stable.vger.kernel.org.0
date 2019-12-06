@@ -2,91 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E06A1150BD
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 14:03:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3A21150C4
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 14:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726157AbfLFNDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 08:03:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57700 "EHLO mail.kernel.org"
+        id S1726317AbfLFNDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 08:03:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726128AbfLFNDD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Dec 2019 08:03:03 -0500
+        id S1726245AbfLFNDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Dec 2019 08:03:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 903EF2464E;
-        Fri,  6 Dec 2019 13:03:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2591321835;
+        Fri,  6 Dec 2019 13:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575637383;
-        bh=nu9QCTqM5WXOIT+G9aiycC+1A31iUFHQjDd4ZczZSCQ=;
+        s=default; t=1575637430;
+        bh=FzzokkCcsl2DCADaSPwOIroR+3F5YdUB7UOvT1k/t0s=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=A7/Uc0ULYMTnDP7XBhIKeKkTGXW5DcmM/GjnT7fPd2vQ+hHIhe/OnDNUPtE9ymA3U
-         PeN53l7aGoU9A7T5xoWwlklJ+HezOHBgdlbyJFaOU81xt2s4GEDbkVJ/7nDZOX0D4A
-         l8V1IZiPOox7WXZobykU4ElqZHgFHTGHEI1DNq3o=
-Date:   Fri, 6 Dec 2019 14:03:00 +0100
+        b=knZBFrdnZxQK9YfYLjhMkJD99VKX+jihYEEYGQOeS09PK4lUz6HiSsTxOP29zLYPZ
+         d5NaPkp/R83BBLNEfH/6AmVSaWshlTm7KVtlvu56sdURwpEbfqd870oUGGG6yl7n76
+         sdrh/x9Ja+kOzY/6X4QniRNSEU+p33voG2TH3I9c=
+Date:   Fri, 6 Dec 2019 14:03:48 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     =?utf-8?B?546L5paH5rab?= <witallwang@gmail.com>
-Cc:     Mike Rapoport <rppt@linux.ibm.com>, Pavel Machek <pavel@denx.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Eric Biggers <ebiggers@kernel.org>,
+        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 200/321] mm/page_alloc.c: deduplicate
- __memblock_free_early() and memblock_free()
-Message-ID: <20191206130300.GB1399220@kroah.com>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+7857962b4d45e602b8ad@syzkaller.appspotmail.com
+Subject: Re: [PATCH 4.19 242/321] kvm: properly check debugfs dentry before
+ using it
+Message-ID: <20191206130348.GC1399220@kroah.com>
 References: <20191203223427.103571230@linuxfoundation.org>
- <20191203223437.527630884@linuxfoundation.org>
- <20191205115043.GA25107@duo.ucw.cz>
- <20191205131128.GA25566@linux.ibm.com>
- <CACzRS4cYJkJAhOdm+qf55H7O4S5HiQEe_fguJGx-mZYJzz62ug@mail.gmail.com>
+ <20191203223439.731003476@linuxfoundation.org>
+ <20191205222928.GD25107@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACzRS4cYJkJAhOdm+qf55H7O4S5HiQEe_fguJGx-mZYJzz62ug@mail.gmail.com>
+In-Reply-To: <20191205222928.GD25107@duo.ucw.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 06, 2019 at 10:34:19AM +0800, 王文涛 wrote:
-> Yes, Mike's follow up fix should be picked too with this change.
+On Thu, Dec 05, 2019 at 11:29:28PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> On Thu, Dec 5, 2019 at 9:11 PM Mike Rapoport <rppt@linux.ibm.com> wrote:
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> > [ Upstream commit 8ed0579c12b2fe56a1fac2f712f58fc26c1dc49b ]
+> > 
+> > debugfs can now report an error code if something went wrong instead of
+> > just NULL.  So if the return value is to be used as a "real" dentry, it
+> > needs to be checked if it is an error before dereferencing it.
+> > 
+> > This is now happening because of ff9fb72bc077 ("debugfs: return error
+> > values, not NULL").  syzbot has found a way to trigger multiple debugfs
+> > files attempting to be created, which fails, and then the error code
+> > gets passed to dentry_path_raw() which obviously does not like it.
 > 
-> > On Thu, Dec 05, 2019 at 12:50:43PM +0100, Pavel Machek wrote:
-> > > Hi!
-> > > On Tue 2019-12-03 23:34:26, Greg Kroah-Hartman wrote:
-> > > > From: Wentao Wang <witallwang@gmail.com>
-> > > >
-> > > > [ Upstream commit d31cfe7bff9109476da92c245b56083e9b48d60a ]
-> > >
-> > >
-> > > > @@ -1537,12 +1537,7 @@ void * __init memblock_virt_alloc_try_nid(
-> > > >   */
-> > > >  void __init __memblock_free_early(phys_addr_t base, phys_addr_t size)
-> > > >  {
-> > > > -   phys_addr_t end = base + size - 1;
-> > > > -
-> > > > -   memblock_dbg("%s: [%pa-%pa] %pF\n",
-> > > > -                __func__, &base, &end, (void *)_RET_IP_);
-> > > > -   kmemleak_free_part_phys(base, size);
-> > > > -   memblock_remove_range(&memblock.reserved, base, size);
-> > > > +   memblock_free(base, size);
-> > > >  }
-> > >
-> > > This makes the memblock_dbg() less useful: _RET_IP_ will now be one of
-> > > __memblock_free_early(), not of the original caller.
-> > >
-> > > That may be okay, but I guess it should be mentioned in changelog, and
-> > > I don't really see why it is queued for -stable.
-> >
-> > Not sure why this one was picked for -stable, but in upstream there is a
-> > followup commit 4d72868c8f7c ("memblock: replace usage of
-> > __memblock_free_early() with memblock_free()") that completely eliminates
-> > __memblock_free_early(). IMHO it would make sense to either to take both or
-> > to drop both.
+> 4.19-stable does not contain patch ff9fb72bc077, so is this still good
+> idea? It should not break anything, as it still uses IS_ERR_OR_NULL,
+> but...
 
+Yes it should as just testing for NULL was incorrect in the first place.
 
-This commit does not apply to the 4.19.y tree :(
+thanks,
 
+greg k-h
