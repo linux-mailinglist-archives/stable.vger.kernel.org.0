@@ -2,107 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF42114A0C
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 00:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B959D114A13
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 01:04:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725959AbfLEX6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 18:58:24 -0500
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:38305 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726097AbfLEX6X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 18:58:23 -0500
-Received: by mail-qt1-f194.google.com with SMTP id 14so5357630qtf.5
-        for <stable@vger.kernel.org>; Thu, 05 Dec 2019 15:58:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=lca.pw; s=google;
-        h=content-transfer-encoding:from:mime-version:subject:date:message-id
-         :references:cc:in-reply-to:to;
-        bh=19Kmz8PlMAAPnYoSfUTwu5grmM6qpP4/2uB2ZZCI+YU=;
-        b=T43/BXB2RbU8iqN7uGFJBhgKhlsGzA/O/QZiwcGDE249VIINHNqyDHDBSXSIaieStm
-         xia2qhJFBZXTOAe0wAIwJCWGhT2nfhGj5tC4wda1pfr+AZ49yVoWuB6S5wJe7i68j69n
-         +nyNzQIzdzUL7ivOWR3HODXcfF9QEtAqM6pCdF/zsq0RRtpEvEls4WbyuMkQGkz4H02h
-         ufO8yQG4DxMDVE6v7o6k80JH8zYEVm+BBM0JGwYbU1V7dEVha2ffyfNxit7kR2xqHP/a
-         Tnkg88W51Eu4TEMMS5VfrMccHz1/Ozr/239Gv6E7tJbR0qmCqwLctNRni3gYSmuP2Xq6
-         +yag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:content-transfer-encoding:from:mime-version
-         :subject:date:message-id:references:cc:in-reply-to:to;
-        bh=19Kmz8PlMAAPnYoSfUTwu5grmM6qpP4/2uB2ZZCI+YU=;
-        b=ogS98VRV4Zd+eeiClrjD7/leMPR4AujPyCJYFlVxbEXqns8Pyuls+5hbpcQraOnCVi
-         6q+v2JrHxYvgk80n1cRv2+efPGkqhJtbvOYuMtGY9v1Qol0nkkWnvGjm8qIhTzcTrxWz
-         ewLAFJFejR9JxojRG34aAGrEenwdrgfHounlb1NgTkdw25mcaFDlMA26C4nYaXc54OYt
-         5lc9P6e042UriVhs3VCvJf85VoE/EBbG8ZFYnoWrfy/tHPBAiNApvwEY3TlqLo3lEHOv
-         oMNPeXhteNDAsn2r1YkSqIVOwpwkDGv+IQGJfbQU/jOjzOa06SjiASJAmJkNWNghtQoU
-         MR/A==
-X-Gm-Message-State: APjAAAXvrkZjP1GIvcqzqSA+wqq8/Jl+zBLaUhM/1mFDTESRrDMYIJeo
-        R42uvMA8u22wBpO3dFx+0MvQKXu4OkE=
-X-Google-Smtp-Source: APXvYqyKRq0bhGDnJPvtjgM62dYIgvwyqyyk4HWNEGpHt9JsqMwQ8TkTT/lRXn+Ce3ZXZIYiOYxkyQ==
-X-Received: by 2002:aed:2926:: with SMTP id s35mr10543569qtd.220.1575590302083;
-        Thu, 05 Dec 2019 15:58:22 -0800 (PST)
-Received: from [192.168.1.183] (pool-71-184-117-43.bstnma.fios.verizon.net. [71.184.117.43])
-        by smtp.gmail.com with ESMTPSA id g64sm5273422qke.43.2019.12.05.15.58.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Dec 2019 15:58:21 -0800 (PST)
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From:   Qian Cai <cai@lca.pw>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the page is already on the target node
-Date:   Thu, 5 Dec 2019 18:58:20 -0500
-Message-Id: <2139CED9-6C12-48A5-BF61-F36923EB948E@lca.pw>
+        id S1725959AbfLFAEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 19:04:11 -0500
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:15992 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725926AbfLFAEK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 19:04:10 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5de99afe0000>; Thu, 05 Dec 2019 16:04:14 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Thu, 05 Dec 2019 16:04:10 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Thu, 05 Dec 2019 16:04:10 -0800
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 6 Dec
+ 2019 00:04:09 +0000
+Received: from [10.110.48.28] (10.124.1.5) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 6 Dec 2019
+ 00:04:09 +0000
+Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the
+ page is already on the target node
+To:     Qian Cai <cai@lca.pw>
+CC:     Yang Shi <yang.shi@linux.alibaba.com>, <fabecassis@nvidia.com>,
+        <mhocko@suse.com>, <cl@linux.com>, <vbabka@suse.cz>,
+        <mgorman@techsingularity.net>, <akpm@linux-foundation.org>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
 References: <a7f354b7-d2f9-71c0-7311-97255933b9a2@nvidia.com>
-Cc:     Yang Shi <yang.shi@linux.alibaba.com>, fabecassis@nvidia.com,
-        mhocko@suse.com, cl@linux.com, vbabka@suse.cz,
-        mgorman@techsingularity.net, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-In-Reply-To: <a7f354b7-d2f9-71c0-7311-97255933b9a2@nvidia.com>
-To:     John Hubbard <jhubbard@nvidia.com>
-X-Mailer: iPhone Mail (17B111)
+ <2139CED9-6C12-48A5-BF61-F36923EB948E@lca.pw>
+From:   John Hubbard <jhubbard@nvidia.com>
+X-Nvconfidentiality: public
+Message-ID: <22b5bfde-45be-95bd-5c98-2ab13302c107@nvidia.com>
+Date:   Thu, 5 Dec 2019 16:04:09 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+MIME-Version: 1.0
+In-Reply-To: <2139CED9-6C12-48A5-BF61-F36923EB948E@lca.pw>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1575590654; bh=HDeKv827CiSQ8RzNL5TATYMtNjIBTbYkbw7NU4jWVmc=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:X-Nvconfidentiality:
+         Message-ID:Date:User-Agent:MIME-Version:In-Reply-To:
+         X-Originating-IP:X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=e4500oBYXGcC8/koWSWB6iUl1ZFKQ4hL8OjrgxarlmjN3W3BViEVFRWaojft72r6L
+         hQ6AOW5/XOYcPNF5NN+IXSM8oiN5AW8G2lcmXuIVwVuYThty7VJnJH9Urj1pbrwJh+
+         KPUFCPxXk6/ydWrdWtKS/WxIPbTHPVdj8IAGRAt1m5sHpqe4/aeYquIJK4YctH2Kvf
+         WQ3wBtGo3e4IF6k09tVlTbaLO+9vY0vONgSfhnHIYykDP0w3kcfY+TnluubN9eov7b
+         2xpZkdqgepyjgEU2AilCc/axH7i+s6jq8CZvE2olsutb7UUchierqqoz6SkVlRiV6m
+         RJ6UWykhSVDMg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 12/5/19 3:58 PM, Qian Cai wrote:
+>=20
+>=20
+>> On Dec 5, 2019, at 6:24 PM, John Hubbard <jhubbard@nvidia.com> wrote:
+>>
+>> Let's check in the fix that is clearly correct and non-controversial, in=
+ one
+>> patch. Then another patch can be created for the other case. This allows=
+ forward
+>> progress and quick resolution of the user's bug report, while still deal=
+ing
+>> with all the problems.
+>>
+>> If you try to fix too many problems in one patch (and remember, sometime=
+s ">1"
+>> is too many), then things bog down. It's always a judgment call, but wha=
+t's=20
+>> unfolding here is quite consistent with the usual judgment calls in this=
+ area.
+>>
+>> I don't think anyone is saying, "don't work on the second problem", it's=
+ just
+>> that it's less urgent, due to no reports from the field. If you are pass=
+ionate
+>> about fixing the second problem (and are ready and willing to handle the=
+ fallout
+>> from user space, if it occurs), then I'd encourage you to look into it.
+>>
+>> It could turn out to be one of those "cannot change this because user sp=
+ace expectations
+>> have baked and hardened, and changes would break user space" situations,=
+ just to
+>> warn you in advance, though.
+>=20
+> There is no need to paper over the underlying issue. One can think there =
+is only one problem. The way move_pages() deal with pages are already in th=
+e desired node. Then, I don=E2=80=99t see there is any controversy that it =
+was broken for so long and just restore it to according to the manpage. If =
+you worried about people has already depended on the broken behavior, it co=
+uld stay in linux-next for many releases to gather feedback. In any case, I=
+ don=E2=80=99t see it need to hurry to fix this until someone can show the =
+real world use case for it apart from some random test code.
+>=20
 
+Felix's code is not random test code. It's code he wrote and he expected it=
+ to work.
 
-> On Dec 5, 2019, at 6:24 PM, John Hubbard <jhubbard@nvidia.com> wrote:
->=20
-> Let's check in the fix that is clearly correct and non-controversial, in o=
-ne
-> patch. Then another patch can be created for the other case. This allows f=
-orward
-> progress and quick resolution of the user's bug report, while still dealin=
-g
-> with all the problems.
->=20
-> If you try to fix too many problems in one patch (and remember, sometimes "=
->1"
-> is too many), then things bog down. It's always a judgment call, but what'=
-s=20
-> unfolding here is quite consistent with the usual judgment calls in this a=
-rea.
->=20
-> I don't think anyone is saying, "don't work on the second problem", it's j=
-ust
-> that it's less urgent, due to no reports from the field. If you are passio=
-nate
-> about fixing the second problem (and are ready and willing to handle the f=
-allout
-> from user space, if it occurs), then I'd encourage you to look into it.
->=20
-> It could turn out to be one of those "cannot change this because user spac=
-e expectations
-> have baked and hardened, and changes would break user space" situations, j=
-ust to
-> warn you in advance, though.
+Anyway, I've explained what I want here, and done my best to explain it. So=
+ I'm=20
+dropping off now. :)
 
-There is no need to paper over the underlying issue. One can think there is o=
-nly one problem. The way move_pages() deal with pages are already in the des=
-ired node. Then, I don=E2=80=99t see there is any controversy that it was br=
-oken for so long and just restore it to according to the manpage. If you wor=
-ried about people has already depended on the broken behavior, it could stay=
- in linux-next for many releases to gather feedback. In any case, I don=E2=80=
-=99t see it need to hurry to fix this until someone can show the real world u=
-se case for it apart from some random test code.=
+thanks,
+--=20
+John Hubbard
+NVIDIA
