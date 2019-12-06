@@ -2,166 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 953C911580B
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 20:57:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA1A7115825
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 21:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726330AbfLFT5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 14:57:09 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:60139 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726325AbfLFT5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 14:57:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575662227;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mnbiz0aMko2Xu1mk9CJ3thPybxK/sVkyzXNX584wmt4=;
-        b=XxXDYza/vlKGr9AE6wrGWt2pH0ViEWLAkD8UvaS0GmLFlVZwg47g03xeAYQpvG61bcoL6A
-        pp9rAVGBfeT7MXBhTvI0wJv7NG2vT4Si1+91HK4dA9xkv8SJ6kx8q+VrGNeAJ1FNXr9yMK
-        60cZoYYheexr+589san+lksX/JIMbZI=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-109-HXGKeKrEOU-Ov_gEmHJJJw-1; Fri, 06 Dec 2019 14:57:04 -0500
-Received: by mail-qv1-f70.google.com with SMTP id d7so530814qvq.12
-        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 11:57:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:organization:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=mnbiz0aMko2Xu1mk9CJ3thPybxK/sVkyzXNX584wmt4=;
-        b=WfnHTaXEIhWKVcWXgZjxmYo2BUjYxhAFamH+YgCzF8kKVLqR1Hq0HBSfAhrNC97a8l
-         WOj6yFgBRJOxjGhwdmCi/U01vFHSnnSAxKiLIGJQ3bsM371gc3JtVjYV02J8hua8434b
-         zYLdaminLrmRQNixAkB+Af7mSQbw2XX8eSXyu1+9btolrPPJ0AVJNF0xD2MOh5LbW0NQ
-         W2sW0KN4Bc6D3n45Nf/64NzXa3NP4RFLDAIg0nkz187zgL3QnwmTxjI9DGCj2+5p8TkZ
-         nBq7iDCJUyKfpe51Pgn85mJzotd3xVbZ48czcX/CaL+Z0XhE5uZierfbnqSoB0KRstzQ
-         L4RQ==
-X-Gm-Message-State: APjAAAVsH8E5N9Y/73+zALreM+7lS5rTh+YiuFOsWiJKoJjlf7JyJfWU
-        +fYK3sgOdaEQKeETkTSPeNO8xKZ9tXEvDMU1x3GEXSqa2ChZc0Mxo+xoUp832leYlqsd/rQSeA/
-        hHXxknpMHBzvfs4Np
-X-Received: by 2002:ac8:3f02:: with SMTP id c2mr14601026qtk.172.1575662224141;
-        Fri, 06 Dec 2019 11:57:04 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxZt1ynXXvg1Q6Rg+BR8GgD1VE8dpn6UFzBpg+ntd8RuIsVWUlvn6Ns5zhUOQlFwasVOuMgqg==
-X-Received: by 2002:ac8:3f02:: with SMTP id c2mr14600998qtk.172.1575662223931;
-        Fri, 06 Dec 2019 11:57:03 -0800 (PST)
-Received: from dhcp-10-20-1-90.bss.redhat.com ([144.121.20.162])
-        by smtp.gmail.com with ESMTPSA id u12sm6896518qta.79.2019.12.06.11.57.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Dec 2019 11:57:03 -0800 (PST)
-Message-ID: <ec3e020798d99ce638c05b0f3eb00ebf53c3bd7c.camel@redhat.com>
-Subject: Re: [PATCH v2] drm/dp_mst: Remove VCPI while disabling topology mgr
-From:   Lyude Paul <lyude@redhat.com>
-To:     Wayne Lin <Wayne.Lin@amd.com>, dri-devel@lists.freedesktop.org,
-        amd-gfx@lists.freedesktop.org
-Cc:     Nicholas.Kazlauskas@amd.com, harry.wentland@amd.com,
-        jerry.zuo@amd.com, stable@vger.kernel.org
-Date:   Fri, 06 Dec 2019 14:57:01 -0500
-In-Reply-To: <a6c4db964da7e00a6069d40abcb3aa887ef5522b.camel@redhat.com>
-References: <20191205090043.7580-1-Wayne.Lin@amd.com>
-         <a6c4db964da7e00a6069d40abcb3aa887ef5522b.camel@redhat.com>
-Organization: Red Hat
-User-Agent: Evolution 3.34.2 (3.34.2-1.fc31)
+        id S1726325AbfLFUQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 15:16:30 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:38036 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726404AbfLFUQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 15:16:29 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB6KEWgG114752;
+        Fri, 6 Dec 2019 20:16:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2019-08-05;
+ bh=p/YTvvom34GtZZcvXS0gonfPUVStG0D6uk5Y6bPRAes=;
+ b=kub5IABHD+tSbALFLNrsiqhjdr1mi4Msoy8ONy7ep/SwgEG+Re0vXFbmngyYj2/tF1i+
+ hl1+7w/UmSEoZMun820740k6ixBjWH0GBm84WE6hHWYzSsOhUh+pbq1yg7pUtxpjALNW
+ RSxTesMn5RMu/XHHKLQL9um024uBvensBIKgtjJqSUKs6aRm7guJH/+7VBPll/IVd9FR
+ LyL2qBVdGfQC3wf5ohJdY2YU3yZZ7Ql05G/uFKznm0JIWvnn99BUviNtVoUnzIRo77Gk
+ uaFbIFIVcDE6KykJp+C6zbmIOWu4T6htrBQkbXz3027YDwsrjsZj6cfMWWBQDfb+auHz WA== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2120.oracle.com with ESMTP id 2wkh2rx3rv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 06 Dec 2019 20:16:21 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB6K9O0n145755;
+        Fri, 6 Dec 2019 20:16:21 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3030.oracle.com with ESMTP id 2wqt45atmg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 06 Dec 2019 20:16:20 +0000
+Received: from abhmp0002.oracle.com (abhmp0002.oracle.com [141.146.116.8])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id xB6KGJPs030735;
+        Fri, 6 Dec 2019 20:16:19 GMT
+Received: from bostrovs-us.us.oracle.com (/10.152.32.65)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 06 Dec 2019 12:16:19 -0800
+Subject: Re: [PATCH] xen/pciback: Prevent NULL pointer dereference in
+ quirks_show
+To:     "Nuernberger, Stefan" <snu@amazon.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc:     "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        "Seidel, Conny" <consei@amazon.de>,
+        "jgross@suse.com" <jgross@suse.com>,
+        "ross.lagerwall@citrix.com" <ross.lagerwall@citrix.com>,
+        "Dannowski, Uwe" <uwed@amazon.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20191206134804.4537-1-snu@amazon.com>
+ <9917a357-12f6-107f-e08d-33e464036317@oracle.com>
+ <1575655787.7257.42.camel@amazon.de>
+From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Autocrypt: addr=boris.ostrovsky@oracle.com; prefer-encrypt=mutual; keydata=
+ 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
+ Jg6OxFYd01z+a+oL
+Message-ID: <4bc83b82-427f-2215-3161-5776867675a1@oracle.com>
+Date:   Fri, 6 Dec 2019 15:15:44 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-X-MC-Unique: HXGKeKrEOU-Ov_gEmHJJJw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1575655787.7257.42.camel@amazon.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9463 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1911140001 definitions=main-1912060161
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9463 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
+ definitions=main-1912060162
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2019-12-06 at 14:24 -0500, Lyude Paul wrote:
-> Reviewed-by: Lyude Paul <lyude@redhat.com>
-> 
-> I'll go ahead and push this to drm-misc-next-fixes right now, thanks!
+On 12/6/19 1:09 PM, Nuernberger, Stefan wrote:
+> On Fri, 2019-12-06 at 10:11 -0500, Boris Ostrovsky wrote:
+>> On 12/6/19 8:48 AM, Stefan Nuernberger wrote:
+>>> From: Uwe Dannowski <uwed@amazon.de>
+>>>
+>>> Reading /sys/bus/pci/drivers/pciback/quirks while unbinding can
+>>> result
+>>> in dereferencing a NULL pointer. Instead, skip printing information
+>>> about the dangling quirk.
+>>>
+>>> Reported-by: Conny Seidel <consei@amazon.de>
+>>> Signed-off-by: Uwe Dannowski <uwed@amazon.de>
+>>> Signed-off-by: Stefan Nuernberger <snu@amazon.com>
+>>>
+>>> Cc: xen-devel@lists.xenproject.org
+>>> Cc: stable@vger.kernel.org
+>>> ---
+>>>  drivers/xen/xen-pciback/pci_stub.c | 2 ++
+>>>  1 file changed, 2 insertions(+)
+>>>
+>>> diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-
+>>> pciback/pci_stub.c
+>>> index 097410a7cdb7..da725e474294 100644
+>>> --- a/drivers/xen/xen-pciback/pci_stub.c
+>>> +++ b/drivers/xen/xen-pciback/pci_stub.c
+>>> @@ -1346,6 +1346,8 @@ static ssize_t quirks_show(struct
+>>> device_driver *drv, char *buf)
+>>>  				   quirk->devid.subdevice);
+>>>  
+>>>  		dev_data = pci_get_drvdata(quirk->pdev);
+>>> +		if (!dev_data)
+>>> +			continue;
+>>>  
+>>>  		list_for_each_entry(cfg_entry, &dev_data-
+>>>> config_fields, list) {
+>> Couldn't you have the same race here?
+> Not quite the same, but it might not be entirely safe yet. The
+> 'quirks_show' takes the 'device_ids_lock' and races with unbind /
+> 'pcistub_device_release' "which takes device_lock mutex". So this might
+> now be a UAF read access instead of a NULL pointer dereference.
 
-Whoops-meant to say drm-misc-next here, anyway, pushed!
-> 
-> On Thu, 2019-12-05 at 17:00 +0800, Wayne Lin wrote:
-> > [Why]
-> > 
-> > This patch is trying to address the issue observed when hotplug DP
-> > daisy chain monitors.
-> > 
-> > e.g.
-> > src-mstb-mstb-sst -> src (unplug) mstb-mstb-sst -> src-mstb-mstb-sst
-> > (plug in again)
-> > 
-> > Once unplug a DP MST capable device, driver will call
-> > drm_dp_mst_topology_mgr_set_mst() to disable MST. In this function,
-> > it cleans data of topology manager while disabling mst_state. However,
-> > it doesn't clean up the proposed_vcpis of topology manager.
-> > If proposed_vcpi is not reset, once plug in MST daisy chain monitors
-> > later, code will fail at checking port validation while trying to
-> > allocate payloads.
-> > 
-> > When MST capable device is plugged in again and try to allocate
-> > payloads by calling drm_dp_update_payload_part1(), this
-> > function will iterate over all proposed virtual channels to see if
-> > any proposed VCPI's num_slots is greater than 0. If any proposed
-> > VCPI's num_slots is greater than 0 and the port which the
-> > specific virtual channel directed to is not in the topology, code then
-> > fails at the port validation. Since there are stale VCPI allocations
-> > from the previous topology enablement in proposed_vcpi[], code will fail
-> > at port validation and reurn EINVAL.
-> > 
-> > [How]
-> > 
-> > Clean up the data of stale proposed_vcpi[] and reset mgr->proposed_vcpis
-> > to NULL while disabling mst in drm_dp_mst_topology_mgr_set_mst().
-> > 
-> > Changes since v1:
-> > *Add on more details in commit message to describe the issue which the 
-> > patch is trying to fix
-> > 
-> > Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-> > ---
-> >  drivers/gpu/drm/drm_dp_mst_topology.c | 12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
-> > 
-> > diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c
-> > b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > index ae5809a1f19a..bf4f745a4edb 100644
-> > --- a/drivers/gpu/drm/drm_dp_mst_topology.c
-> > +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > @@ -3386,6 +3386,7 @@ static int drm_dp_get_vc_payload_bw(u8 dp_link_bw,
-> > u8  dp_link_count)
-> >  int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr,
-> > bool mst_state)
-> >  {
-> >  	int ret = 0;
-> > +	int i = 0;
-> >  	struct drm_dp_mst_branch *mstb = NULL;
-> >  
-> >  	mutex_lock(&mgr->lock);
-> > @@ -3446,10 +3447,21 @@ int drm_dp_mst_topology_mgr_set_mst(struct
-> > drm_dp_mst_topology_mgr *mgr, bool ms
-> >  		/* this can fail if the device is gone */
-> >  		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
-> >  		ret = 0;
-> > +		mutex_lock(&mgr->payload_lock);
-> >  		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct
-> > drm_dp_payload));
-> >  		mgr->payload_mask = 0;
-> >  		set_bit(0, &mgr->payload_mask);
-> > +		for (i = 0; i < mgr->max_payloads; i++) {
-> > +			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
-> > +
-> > +			if (vcpi) {
-> > +				vcpi->vcpi = 0;
-> > +				vcpi->num_slots = 0;
-> > +			}
-> > +			mgr->proposed_vcpis[i] = NULL;
-> > +		}
-> >  		mgr->vcpi_mask = 0;
-> > +		mutex_unlock(&mgr->payload_lock);
-> >  	}
-> >  
-> >  out_unlock:
--- 
-Cheers,
-	Lyude Paul
+Yes, that's what I meant (although I don't see much difference in this
+context).
+
+>  We have
+> not observed adversarial effects in our testing (compared to the
+> obvious issues with NULL pointer) but that's not a guarantee of course.
+>
+> So should quirks_show actually be protected by pcistub_devices_lock
+> instead as are other functions that access dev_data? Does it need both
+> locks in that case?
+
+device_ids_lock protects device_ids list, which is not what you are
+trying to access, so that doesn't look like right lock to hold. And
+AFAICT pcistub_devices_lock is not held when device data is cleared in
+pcistub_device_release() (which I think is where we are racing).
+
+-boris
+
+
 
