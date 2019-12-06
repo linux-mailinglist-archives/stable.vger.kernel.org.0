@@ -2,94 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2194114A4B
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 01:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDC7114A60
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 02:12:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726065AbfLFAyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Dec 2019 19:54:55 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:28754 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726037AbfLFAyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 19:54:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575593693;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wvC+UrzFhvb89O+Byz15qsgENexEOo6OJybWKjv9TuE=;
-        b=OsDmQ9DbRZGg7PBlW2AEPwNWN2ylk+Ig0Ocp1vtANAnoGUuk5VFwnh4SUYrBWM4a3sJ6Dl
-        w4/+6j6qpLM56hNHQECJ3OFOv+vC2qG5onphBf5MgrMHugkjiFN1pxWO5zBB1FruEOAJDc
-        km9szbZPfUmyaksnn49Gnj7+mZ8iM3k=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-333-GrJDkLvqNOmXp6AqZihGow-1; Thu, 05 Dec 2019 19:54:50 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9C586800D5E;
-        Fri,  6 Dec 2019 00:54:48 +0000 (UTC)
-Received: from ming.t460p (ovpn-8-25.pek2.redhat.com [10.72.8.25])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A633D19488;
-        Fri,  6 Dec 2019 00:54:41 +0000 (UTC)
-Date:   Fri, 6 Dec 2019 08:54:35 +0800
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Christoph Hellwig <hch@lst.de>, Faiz Abbas <faiz_abbas@ti.com>,
-        linux-block@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 240/321] mmc: core: align max segment size with
- logical block size
-Message-ID: <20191206005435.GA13152@ming.t460p>
-References: <20191203223427.103571230@linuxfoundation.org>
- <20191203223439.627632861@linuxfoundation.org>
- <20191205222247.GC25107@duo.ucw.cz>
+        id S1726174AbfLFBMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Dec 2019 20:12:05 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:58155 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725959AbfLFBMF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Dec 2019 20:12:05 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07488;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0Tk4mbZG_1575594719;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tk4mbZG_1575594719)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 06 Dec 2019 09:12:02 +0800
+Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the
+ page is already on the target node
+To:     Qian Cai <cai@lca.pw>, John Hubbard <jhubbard@nvidia.com>
+Cc:     fabecassis@nvidia.com, mhocko@suse.com, cl@linux.com,
+        vbabka@suse.cz, mgorman@techsingularity.net,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <22b5bfde-45be-95bd-5c98-2ab13302c107@nvidia.com>
+ <D0A99204-A60F-428E-B77A-63DBCD7103F4@lca.pw>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <9588b886-7ced-6502-67f0-0eb623045903@linux.alibaba.com>
+Date:   Thu, 5 Dec 2019 17:11:58 -0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-In-Reply-To: <20191205222247.GC25107@duo.ucw.cz>
-User-Agent: Mutt/1.12.1 (2019-06-15)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: GrJDkLvqNOmXp6AqZihGow-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+In-Reply-To: <D0A99204-A60F-428E-B77A-63DBCD7103F4@lca.pw>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 05, 2019 at 11:22:47PM +0100, Pavel Machek wrote:
-> Hi!
->=20
-> > From: Ming Lei <ming.lei@redhat.com>
-> >=20
-> > [ Upstream commit c53336c8f5f29043fded57912cc06c24e12613d7 ]
-> >=20
-> > Logical block size is the lowest possible block size that the storage
-> > device can address. Max segment size is often related with controller's
-> > DMA capability. And it is reasonable to align max segment size with
-> > logical block size.
->=20
-> > SDHCI sets un-aligned max segment size, and causes ADMA error, so
-> > fix it by aligning max segment size with logical block size.
->=20
-> If un-aligned max segment sizes are problem, should we add checks to
-> prevent setting them?
->=20
-> At least these set unaligned problems; is that a problem?
->=20
-> drivers/block/nbd.c:=09blk_queue_max_segment_size(disk->queue, UINT_MAX);
-> drivers/block/virtio_blk.c:=09=09blk_queue_max_segment_size(q, -1U);
-> drivers/block/rbd.c:=09blk_queue_max_segment_size(q, UINT_MAX);
-
-In theory, all segment size should be aligned, however the above MAX
-value just means the queue hasn't max segment size limit, so it won't
-be applied actually.
 
 
-Thanks,
-Ming
+On 12/5/19 4:19 PM, Qian Cai wrote:
+>
+>> On Dec 5, 2019, at 7:04 PM, John Hubbard <jhubbard@nvidia.com> wrote:
+>>
+>> Felix's code is not random test code. It's code he wrote and he expected it to work.
+> Sure, but could he show a bit detail if the kernel will start to behavior as expected like what was written in the manpage to return ENOENT in this case, why is it not acceptable? i.e., why is it important to depend on the broken behavior?
 
+
+I think I found the root cause. It did return -ENOENT when the syscall 
+was introduced (my first impression was wrong), but the behavior was 
+changed since 2.6.28 by commit e78bbfa82624 ("mm: stop returning -ENOENT 
+from sys_move_pages() if nothing got migrated"). The full commit log is 
+as below:
+
+Author: Brice Goglin <Brice.Goglin@inria.fr>
+Date:   Sat Oct 18 20:27:15 2008 -0700
+
+     mm: stop returning -ENOENT from sys_move_pages() if nothing got 
+migrated
+
+     A patchset reworking sys_move_pages().  It removes the possibly large
+     vmalloc by using multiple chunks when migrating large buffers. It also
+     dramatically increases the throughput for large buffers since the 
+lookup
+     in new_page_node() is now limited to a single chunk, causing the 
+quadratic
+     complexity to have a much slower impact.  There is no need to use any
+     radix-tree-like structure to improve this lookup.
+
+     sys_move_pages() duration on a 4-quadcore-opteron 2347HE (1.9Gz),
+     migrating between nodes #2 and #3:
+
+             length          move_pages (us)         move_pages+patch (us)
+             4kB             126                     98
+             40kB            198                     168
+             400kB           963                     937
+             4MB             12503                   11930
+             40MB            246867                  11848
+
+     Patches #1 and #4 are the important ones:
+     1) stop returning -ENOENT from sys_move_pages() if nothing got migrated
+     2) don't vmalloc a huge page_to_node array for do_pages_stat()
+     3) extract do_pages_move() out of sys_move_pages()
+     4) rework do_pages_move() to work on page_sized chunks
+     5) move_pages: no need to set pp->page to ZERO_PAGE(0) by default
+
+     This patch:
+
+     There is no point in returning -ENOENT from sys_move_pages() if all 
+pages
+     were already on the right node, while we return 0 if only 1 page 
+was not.
+     Most application don't know where their pages are allocated, so 
+it's not
+     an error to try to migrate them anyway.
+
+     Just return 0 and let the status array in user-space be checked if the
+     application needs details.
+
+     It will make the upcoming chunked-move_pages() support much easier.
+
+     Signed-off-by: Brice Goglin <Brice.Goglin@inria.fr>
+     Acked-by: Christoph Lameter <cl@linux-foundation.org>
+     Cc: Nick Piggin <nickpiggin@yahoo.com.au>
+     Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+     Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+
+So the behavior was changed in kernel intentionally but never reflected 
+in the manpage. I will propose a patch to fix the document.
