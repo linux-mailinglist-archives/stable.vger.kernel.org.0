@@ -2,94 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B84114C88
-	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 08:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E56114CAA
+	for <lists+stable@lfdr.de>; Fri,  6 Dec 2019 08:35:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726272AbfLFHJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 02:09:16 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:48277 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726214AbfLFHJQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 02:09:16 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id B53F120A34;
-        Fri,  6 Dec 2019 02:09:14 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Fri, 06 Dec 2019 02:09:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=SE3PRRsnCFQP+BXMvSJbVatzNAn
-        vG2jlSRLUaaaPD0E=; b=iDCSY9zMlSMfJFUvmOhdOH72dD7NhwNlYIHcaUnbNIc
-        lFJgAk2TTwHFtqfJ89HRZgBmPUyYbka+r7ta11c6p/Dq4x81it4Y2sZgiwv6QCJR
-        MBGvZx5zYIGP/cJ/Hdclao9BEQKprmLW2bBjFMxNV7qSzc66MS3w+k+DcHcR78hz
-        czK9HxTikZbqEMG7trEbiVS9UM/z4h84fsXrMgMv+birJfq/fScN6yqU14NPtHIP
-        aFSD9a8ovFI7rOiAdy9Jr1LqjIJZUtWsyipaAEtKQ7rco2vZfRwFjqo3ZeivdQtR
-        OojIcbg0vD4C6xqQaNEjQsGbQCoOHx5ntLnn5EhOAAQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=SE3PRR
-        snCFQP+BXMvSJbVatzNAnvG2jlSRLUaaaPD0E=; b=IzhoYnyqXPLqE+TkWc5KCP
-        DPq29+8OR/SWUbs+ZTm78Dr5G/yOov7E34nMyeUxckSqo2yqoIpS8DYUoFs1DHrF
-        ZT8fipoVqJ9KEHNP7w0NzHJQA0XlslehGTNfMUVrwQLZA4YBoltqJuAQpcqpmr36
-        4cSDCzGfXZbFZjdfb2ySdjAl6vkIpkot8CAcIYO8RGqw20ji17E/egLqTXQNQKbD
-        Hmspn4pM7thOnAV5TSigzHgoD/ydi8oKo8xhij2Jrwl6ozbIMOpB5XZPrx9qYuHA
-        p9S+CPrJONpPZ937Cn7suxJgG1YUMBXI+UfzaFQSmBgAhLKqney54yVm+cH+kyBw
-        ==
-X-ME-Sender: <xms:mv7pXbsXHAv-umzzx4cBKO4f8XYc5tmzC94Ap03KMCA6Q_vIDiLD8w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudekvddgjeehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrd
-    horhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhho
-    mhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:mv7pXWtVnZ7sUHAjmBya0TZDvq9A1-LfPXA6ADC5JLlamjeHVvBRWQ>
-    <xmx:mv7pXdsspGnDlRqhzo0NqW1rik0SkPetk_0j30sAXSks0j1w9HMQMw>
-    <xmx:mv7pXR36Vt1gYydQ2FwTaSuHHA618B_kR9bbzjL7O2HHQKgFW1oZEA>
-    <xmx:mv7pXYp91H8-wM1nqAS2OmIlWdXwU4g_shN8mNfft64EIE0wKpLo4A>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4484D30600D2;
-        Fri,  6 Dec 2019 02:09:14 -0500 (EST)
-Date:   Fri, 6 Dec 2019 08:09:12 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3 09/15] ASoC: tegra: Add fallback for audio mclk
-Message-ID: <20191206070912.GB1318959@kroah.com>
-References: <1575600438-26795-1-git-send-email-skomatineni@nvidia.com>
- <1575600438-26795-10-git-send-email-skomatineni@nvidia.com>
+        id S1726225AbfLFHfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 02:35:20 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:50779 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726184AbfLFHfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 02:35:19 -0500
+Received: by mail-wm1-f68.google.com with SMTP id p9so6747372wmg.0;
+        Thu, 05 Dec 2019 23:35:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TyEnM0ErjIPbJfUas4Rc8uwAWuUH9XQEwJswELT2XBM=;
+        b=a+kFwJP5liSG2np4IwwwWU2lewCtu4zvfDm/JS5H+b3V7A3axjM6rMfv4oJvf2VIDp
+         NMM+nb8Ml3KTFCmUnTYLrJORy7BpXKBTd58yjGWrZJlFuVUCDZiuh6T5EyxZyCDCur5h
+         mBpit7jrodl8vYrESeaIjxviC0PwIi2Gts7bMSkjfcMArn96eihs8vNCYwfvSBKYTzl8
+         tpHnXO1uOyQd6j1FVmlcYgthwfhUQqna7pJ7S8p/nP26JD5Pds90iAFYjqOjbS0Ptxvt
+         DQiaI0x4Up2kYiMJMIsl0vl84qts2L0+uUmiHkrcAfn2qBA+kaaXY27QDz7EVM1MQ8He
+         ASKA==
+X-Gm-Message-State: APjAAAUE2LaqxGmJ5c7GWHSWB01dtPrNkdgrqDgQIxtJAKr8s5FXsup2
+        /A4FNmB3CwWFZOeNYPsmYamGO0Le
+X-Google-Smtp-Source: APXvYqxMqJTdvmC8VrePF92jfpjNcRNRLwDaMoMIKM7+yrkmKV6C3nq+6QCBgOmZOdQ9wtQlW3Sf5Q==
+X-Received: by 2002:a1c:7914:: with SMTP id l20mr8727185wme.38.1575617717668;
+        Thu, 05 Dec 2019 23:35:17 -0800 (PST)
+Received: from localhost (ip-37-188-170-11.eurotel.cz. [37.188.170.11])
+        by smtp.gmail.com with ESMTPSA id e19sm2488431wme.6.2019.12.05.23.35.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Dec 2019 23:35:16 -0800 (PST)
+Date:   Fri, 6 Dec 2019 08:35:15 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Christopher Lameter <cl@linux.com>
+Cc:     Yang Shi <yang.shi@linux.alibaba.com>, fabecassis@nvidia.com,
+        jhubbard@nvidia.com, vbabka@suse.cz, mgorman@techsingularity.net,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [v3 PATCH] mm: move_pages: return valid node id in status if the
+ page is already on the target node
+Message-ID: <20191206073515.GH28317@dhcp22.suse.cz>
+References: <1575572053-128363-1-git-send-email-yang.shi@linux.alibaba.com>
+ <alpine.DEB.2.21.1912051944030.10280@www.lameter.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1575600438-26795-10-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <alpine.DEB.2.21.1912051944030.10280@www.lameter.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 05, 2019 at 06:47:12PM -0800, Sowjanya Komatineni wrote:
-> mclk is from clk_out_1 which is part of Tegra PMC block and pmc clocks
-> are moved to Tegra PMC driver with pmc as clock provider and using pmc
-> clock ids.
+On Thu 05-12-19 19:45:49, Cristopher Lameter wrote:
+> On Fri, 6 Dec 2019, Yang Shi wrote:
 > 
-> New device tree uses clk_out_1 from pmc clock provider.
+> > Felix Abecassis reports move_pages() would return random status if the
+> > pages are already on the target node by the below test program:
 > 
-> So, this patch adds fallback to extern1 in case of retrieving mclk fails
-> to be backward compatible of new device tree with older kernels.
+> Looks ok.
 > 
-> Cc: stable@vger.kernel.org
+> Acked-by: Christoph Lameter <cl@linux.com>
 > 
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-> ---
->  sound/soc/tegra/tegra_asoc_utils.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+> Nitpicks:
+> 
+> > @@ -1553,7 +1555,7 @@ static int add_page_for_migration(struct mm_struct *mm, unsigned long addr,
+> >  	if (PageHuge(page)) {
+> >  		if (PageHead(page)) {
+> >  			isolate_huge_page(page, pagelist);
+> > -			err = 0;
+> > +			err = 1;
+> 
+> Add a meaningful constant instead of 1?
 
-<formletter>
+Well 1 has a good meaning here actually. We have -errno or the number of
+queued pages.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
+-- 
+Michal Hocko
+SUSE Labs
