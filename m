@@ -2,136 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47380115979
-	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 00:03:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A784C11597F
+	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 00:09:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726374AbfLFXDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 18:03:02 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:33554 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726371AbfLFXDC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 18:03:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575673381;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=u6WTqIKjz3S325CCDp38W7Sg6rbkSpfGWJMYdV0cMT0=;
-        b=K7oCluiIXRY/sk25EjRl4Lo6y5IX3Bz0285jxCljhmzTxEAvOAbSA2wGxG3PWa8G2DKyNR
-        fFjuT0PKHXhqytXPLtkGU6GJjJb57hJi65UA9sC7eTHZIttmiTas8gXhxOp40xs8850rT9
-        9j7tv2YAPQEB36P75cQR2xPTpqKXQwQ=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-260-EttxO3eeMnGu5odyMcAOlQ-1; Fri, 06 Dec 2019 18:02:59 -0500
-Received: by mail-pg1-f199.google.com with SMTP id a4so4591819pgq.23
-        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 15:02:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=9Ch5m35fVkEKG5wxtfGoZa8Wx0h7Ub5VYf9I4jeT7RE=;
-        b=KvSn0HRiXdOUBWR+SnzlH4Clt3zG1WdrTn3ELpk1U+VZtaryw/3QN+Hjk739IbbWvh
-         iVNfyGweeS8TXm04obGGhGQtkDirDVVdIWTZbzQCTtokDT8SrLxD3xnqZruPZsiR+vV3
-         LKLY91pUt15VrHlP6gKIBIBFQS8Ppj0YskDemW8gqh6obwuT9fX60TqD04nRaOin5Z9v
-         /x8A6T0GP9LDnz1sjBAjeJKXiLtCIFIjPpaJAT5ohXGQuGGG6Qoxet60n4R7NHJabQ6P
-         GsXG/3Wu1N0rqTlzNKGtExCpNEldH4l/mxXQQQNUmpLrk3oW/NxBQHsLzM5v64U4UmNu
-         YCUQ==
-X-Gm-Message-State: APjAAAXxcR5zi30elrcywgMeyeCW6N3Dz/KGxPFjsnngyvALHkZwD5Pv
-        R4Izq78Cu9PQjl3drFaKmA38AiCbkA1KmekBgq5dKlx2YfuESge/ix598l8gJFcLIUofPdYRwCn
-        dMcuv/aujXmcNAtca
-X-Received: by 2002:a17:902:fe12:: with SMTP id g18mr17164261plj.20.1575673378486;
-        Fri, 06 Dec 2019 15:02:58 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwaH2k0aU5daJfRg60OkT59+hoEibc8Ok80QvecPXGnd9NYmO8bLlYzXX6tQ4naJPtMp1VAZQ==
-X-Received: by 2002:a17:902:fe12:: with SMTP id g18mr17164215plj.20.1575673377994;
-        Fri, 06 Dec 2019 15:02:57 -0800 (PST)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id m5sm4231286pjl.30.2019.12.06.15.02.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Dec 2019 15:02:57 -0800 (PST)
-Date:   Fri, 6 Dec 2019 16:02:55 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org, James Morris <jmorris@namei.org>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [GIT PULL] tpmdd updates for Linux v5.4
-Message-ID: <20191206230255.mhinntfevp6vdlkj@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org, James Morris <jmorris@namei.org>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>
-References: <20190902143121.pjnykevzlajlcrh6@linux.intel.com>
- <CAA9_cmeLnHK4y+usQaWo72nUG3RNsripuZnS-koY4XTRC+mwJA@mail.gmail.com>
- <20191127205800.GA14290@linux.intel.com>
- <20191127205912.GB14290@linux.intel.com>
- <20191128012055.f3a6gq7bjpvuierx@cantor>
- <20191129235322.GB21546@linux.intel.com>
- <20191130001253.rtovohtfbg25uifm@cantor>
- <20191206211834.GD9971@linux.intel.com>
+        id S1726414AbfLFXJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 18:09:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48234 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726353AbfLFXJf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Dec 2019 18:09:35 -0500
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7861C20707;
+        Fri,  6 Dec 2019 23:09:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575673774;
+        bh=RaM+Oy3r669HifD5FxIuJATpqVr4xnCOMyVJgH185Yk=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=L8h5bKKueEO0I5oS2iQ9RN3IR0mc+ygOGxRtNntofqKzJPdpSOggDh0MY/mIH2Yp5
+         JbCTE0m3qVpN2FP9kReL3QST9InhiBTvNx1JIRBEyLM/tQRJ4ji3T7XD/O0L38ppS4
+         766tnAJxXq0YAAB4moGKFla/6kgcZ7xIQvI0eygE=
+Received: by mail-qv1-f43.google.com with SMTP id n8so526650qvg.11;
+        Fri, 06 Dec 2019 15:09:34 -0800 (PST)
+X-Gm-Message-State: APjAAAVJYOnvYhoTAWgz3LFJt+6gQoqRV5EPHs5eOKSYc7oIYeBmXjMA
+        q78D9GW4XR1p7u7SNvj3ZgZPP/FZVaBS2O/ktQ==
+X-Google-Smtp-Source: APXvYqzWnNwzf8dLCUJCUqH51dSyQLO5ASJiJcUfiAC/hyQCDGeMzbYC7t2xZ1SBUVM1WYey++254IRzBkf23iPDnNw=
+X-Received: by 2002:a05:6214:11ac:: with SMTP id u12mr15257895qvv.85.1575673773643;
+ Fri, 06 Dec 2019 15:09:33 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191206211834.GD9971@linux.intel.com>
-X-MC-Unique: EttxO3eeMnGu5odyMcAOlQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+References: <20191206211821.E21A0206DB@mail.kernel.org>
+In-Reply-To: <20191206211821.E21A0206DB@mail.kernel.org>
+From:   Rob Herring <robh@kernel.org>
+Date:   Fri, 6 Dec 2019 17:09:22 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqJzm4uzGCzmUzwo32zu5EwS6O0TnpxFgGpAcOYvAi2zgg@mail.gmail.com>
+Message-ID: <CAL_JsqJzm4uzGCzmUzwo32zu5EwS6O0TnpxFgGpAcOYvAi2zgg@mail.gmail.com>
+Subject: Re: Patch "kbuild: Enable dtc graph_port warning by default" has been
+ added to the 4.19-stable tree
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri Dec 06 19, Jarkko Sakkinen wrote:
->On Fri, Nov 29, 2019 at 05:12:53PM -0700, Jerry Snitselaar wrote:
->> On Sat Nov 30 19, Jarkko Sakkinen wrote:
->> > On Wed, Nov 27, 2019 at 06:20:55PM -0700, Jerry Snitselaar wrote:
->> > > There also was that other issue reported on the list about
->> > > tpm_tis_core_init failing when calling tpm_get_timeouts due to the
->> > > power gating changes.
->> >
->> > Please add a (lore.ko) link for reference to this thread.
->> >
->> > /Jarkko
->> >
->>
->> https://lore.kernel.org/linux-integrity/a60dadce-3650-44ce-8785-2f737ab9=
-b993@www.fastmail.com/
+On Fri, Dec 6, 2019 at 3:18 PM Sasha Levin <sashal@kernel.org> wrote:
 >
->tpm_chip_stop() probably causes the issue. That is why tpm2_probe()
->works and failure happens after that.
+> This is a note to let you know that I've just added the patch titled
 >
->tpm_chip_stop() should be called once at the end of the function.
+>     kbuild: Enable dtc graph_port warning by default
 >
-
-The patch I posted that fixed the issue for him moved the
-tpm_chip_start() from the irq probing section right below there to
-before the tpm_get_timeouts call, but your idea is better.
-
-Any thoughts on the irq issue? I need to go back and look at the older
-commits again, but before Stefan's patch enabling the irq flag I'm not
-sure the last time that testing code section in tpm_tis_send was
-actually used. I think prior to that it always just went straight to
-tpm_tis_send_main.
-
-570a36097f30 ("tpm: drop 'irq' from struct tpm_vendor_specific") adds
-the flag, and I can see where it disables and enables the flag in the
-testing code in tpm_tis_send, but I don't see where it enables the
-flag originally for it to ever get into the testing section of
-tpm_tis_send. That means since this commit tpm_tis hasn't been using
-interrupts, right?
-
-Regards,
-Jerry
-
->/Jarkko
+> to the 4.19-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 >
+> The filename of the patch is:
+>      kbuild-enable-dtc-graph_port-warning-by-default.patch
+> and it can be found in the queue-4.19 subdirectory.
+>
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+>
+>
+>
+> commit fb5901019cef9ed5a76ddeaf83eccff8b2bd5c28
+> Author: Rob Herring <robh@kernel.org>
+> Date:   Fri Nov 30 09:08:21 2018 -0600
+>
+>     kbuild: Enable dtc graph_port warning by default
+>
+>     [ Upstream commit a2237fec1e0645d1e99e108f2658c26cb5a66c74 ]
+>
+>     All the 'graph_port' warnings have been fixed or have pending fixes, so
+>     we can enable it by default now.
 
+I doubt this statement is true when backported unless all the dtc
+warning fixes are backported. I've seen some backports, but it's
+doubtful anyone checked this.
+
+Rob
