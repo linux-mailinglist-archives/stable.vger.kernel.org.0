@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60115115D6C
-	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 17:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C079C115D8E
+	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 17:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726415AbfLGQGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Dec 2019 11:06:32 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:43399 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726414AbfLGQGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Dec 2019 11:06:31 -0500
-Received: by mail-wr1-f68.google.com with SMTP id d16so11107916wre.10
-        for <stable@vger.kernel.org>; Sat, 07 Dec 2019 08:06:24 -0800 (PST)
+        id S1726420AbfLGQk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Dec 2019 11:40:27 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:54496 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726414AbfLGQk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Dec 2019 11:40:27 -0500
+Received: by mail-wm1-f67.google.com with SMTP id b11so11036168wmj.4
+        for <stable@vger.kernel.org>; Sat, 07 Dec 2019 08:40:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=O6rtYZatqR6raslvEgp3RmX+MjKWMaXnaZW6eqIz2f0=;
-        b=E0QaCJSa7TJby1sKwxanqqwIXZR5LBihw1OncRaEhKmAEViHsCw6u7xvo2p/wplOG1
-         5BbmNU1pG3ZrFC1YoZLbbysD8FJUhBAf+sNPg8G0wxn3A5NXDUXyup/LrjrZnrxL/ocN
-         BUOn2BBkmGnd9mScHOK3UAIv/A6wsYpgHMc5VT9o27NyW2CWe8YiUQbukEYnizz/EQov
-         5/Ky3Jtt3B3ZNeHVsNtBVsRTLTQYPUv3Nw84kxu3kUwpfTl8VjHKbxaxsfvN/XPj7I8I
-         r0hHHp1cIhQGx7qlQMgqO64MDVYXmE7I9H5du1nNEQa84iSRYbhPuMvup2CYl6/w6CQI
-         jqVA==
+        bh=dnWTE9OEt+P3Q2rOiYTMsBU6h4ny73pdgTa+e4mk3UM=;
+        b=eqjMAQy159cDmEJjbe3Tdj/WFJhZMfpu+xcRj0BrynmFlpPvAGUrrf0iNbn8WsTkwc
+         w7NzcbKdGlSG94XX0e3Aqdm1sIJ39bUyOyR3o/dVICDPQF0voIgErT4ioU6fXsbI5f8w
+         mMOEb7DG0kpT/2P6fyMadh1p+V2kwguJ57HTZaYS8gDzjrDXC8A47Nz041WGO8I1itS7
+         evgn7XylHfNiDgojeJILBAynAjgjC1ZqJfeSfVOwvINMNB0o6EG8sFD3H8+9IPEth/0P
+         kG0c/dJ6zHn5xBgsvXzZIWxO/9JBtAZUruZsZm6e09VHkJM3dIuBSnrDk93abBd+xQRl
+         cOoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=O6rtYZatqR6raslvEgp3RmX+MjKWMaXnaZW6eqIz2f0=;
-        b=ZOrRCoNykDcP3u4RZk/IAvlCFkLgjpU+ep0o5Go87cibsdpY2/n4iFjoCPo7CimSG1
-         NsZZ7uSMNxLq8x0zM2oID6WGJBbup9PTn9QLPGMlEQC5+GjEecG9t6LUff9fAiXnKoem
-         X55ARTrNvgI+oDy5vjyqpWTcfijspFdycEs+kvTKSc/gdCjHunqhmCpjDvGzpK+QPoDx
-         AVT77WwKvpStL5F+rrSbG899vEvQN47jDS3tUmNAltL2InLCxkLS4mqaRMzD5zIvHtXs
-         jcVl3BQWUCqyntH6JGzKTdwO1nAAiMM6avNmMtXKE5Pm61THn7HPWxM9JaEXL/x8YW7d
-         ECwg==
-X-Gm-Message-State: APjAAAXuIgDw5VyuCtHRjDP2fAnuk1Zgx8gJg66cryWTuOzgDHY0GNP4
-        zad/Mhg8IBup/GHu6K6KxZhtH9fTPx/jRw==
-X-Google-Smtp-Source: APXvYqz+wV6l0LsUgtTW7z6bMpawIslOLPMmxFueOsZjPnCkRxg/CnoX2u7VQd3UtM9aayHyqRGTkQ==
-X-Received: by 2002:adf:c74f:: with SMTP id b15mr21439220wrh.272.1575734782838;
-        Sat, 07 Dec 2019 08:06:22 -0800 (PST)
+        bh=dnWTE9OEt+P3Q2rOiYTMsBU6h4ny73pdgTa+e4mk3UM=;
+        b=oNB5zH/MQwG5oLDYvUaLdSDoAV5P3DKyajEvKIztvv3lMq8qQBkGQWymmYQWRjAIfU
+         g9mhEiH+OW1cVG3FoDM5rmIDALLRHMGJr+cQKEitjMwb5u3j5zOB2AYvwozzFVEwDsko
+         cIJ3H4SZ4ylpmjxdqanfiVj7MLu70EplAnZoz8qpPEpDpXIKuK2fjHVi/prMf89JEciS
+         CXY01D6WmbZMjJcg/EYkW4WEBSPG5KBfcKphwaNZgmgsNk5HPckp//hfAR5mju/AksJ6
+         oP3Qpt24lGZrMD7z52H+910bCm9PGVWTljkdTAijSYSlZST1xOb7EL9CNEHjGaytalOK
+         meOg==
+X-Gm-Message-State: APjAAAX0UV0yUzIybqUMM6ximMi+Vf++uZUT42ngwXE66Xa+lfhp82Dx
+        YiMLwTImlHBN0to6eEm7MCXzRXS8ugA=
+X-Google-Smtp-Source: APXvYqxQo+LLhJANh0H/uQmZsSWkg0aPqUxawgfl/onB6zviilWIFSK9cZ3ywnt7ecql3Doum6fv+Q==
+X-Received: by 2002:a05:600c:30a:: with SMTP id q10mr15707251wmd.84.1575736815980;
+        Sat, 07 Dec 2019 08:40:15 -0800 (PST)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id g69sm7369900wmg.13.2019.12.07.08.06.22
+        by smtp.gmail.com with ESMTPSA id v20sm7220871wmj.32.2019.12.07.08.40.14
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Dec 2019 08:06:22 -0800 (PST)
-Message-ID: <5debcdfe.1c69fb81.77309.8cc9@mx.google.com>
-Date:   Sat, 07 Dec 2019 08:06:22 -0800 (PST)
+        Sat, 07 Dec 2019 08:40:15 -0800 (PST)
+Message-ID: <5debd5ef.1c69fb81.2a74f.935e@mx.google.com>
+Date:   Sat, 07 Dec 2019 08:40:15 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.9.206-76-gdd6cb1d9de70
+X-Kernelci-Kernel: v4.19.88-209-g5944fcdd7eb0
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y build: 197 builds: 3 failed, 194 passed,
- 5 errors, 1 warning (v4.9.206-76-gdd6cb1d9de70)
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y build: 206 builds: 3 failed, 203 passed,
+ 6 errors, 139 warnings (v4.19.88-209-g5944fcdd7eb0)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,63 +63,408 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y build: 197 builds: 3 failed, 194 passed, 5 errors, 1 =
-warning (v4.9.206-76-gdd6cb1d9de70)
+stable-rc/linux-4.19.y build: 206 builds: 3 failed, 203 passed, 6 errors, 1=
+39 warnings (v4.19.88-209-g5944fcdd7eb0)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.206-76-gdd6cb1d9de70/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.88-209-g5944fcdd7eb0/
 
 Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.206-76-gdd6cb1d9de70
-Git Commit: dd6cb1d9de70d0efaa3a3bba05a9c857226fcf3f
+Branch: linux-4.19.y
+Git Describe: v4.19.88-209-g5944fcdd7eb0
+Git Commit: 5944fcdd7eb0add713dd4b614377cb3ad97309b3
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Build Failures Detected:
+
+arm64:
+    defconfig: (gcc-8) FAIL
 
 arm:
     multi_v7_defconfig: (gcc-8) FAIL
     shmobile_defconfig: (gcc-8) FAIL
-
-mips:
-    32r2el_defconfig: (gcc-8) FAIL
 
 Errors and Warnings Detected:
 
 arc:
 
 arm64:
+    defconfig (gcc-8): 1 error, 1 warning
 
 arm:
+    hisi_defconfig (gcc-8): 24 warnings
+    imx_v6_v7_defconfig (gcc-8): 40 warnings
     multi_v7_defconfig (gcc-8): 1 error, 1 warning
+    omap2plus_defconfig (gcc-8): 3 warnings
+    qcom_defconfig (gcc-8): 45 warnings
     shmobile_defconfig (gcc-8): 4 errors
+    u8500_defconfig (gcc-8): 15 warnings
+    vexpress_defconfig (gcc-8): 4 warnings
 
 i386:
 
 mips:
+    lemote2f_defconfig (gcc-8): 1 warning
+    loongson3_defconfig (gcc-8): 2 warnings
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 warning
+
+riscv:
 
 x86_64:
+    tinyconfig (gcc-8): 1 warning
 
 Errors summary:
 
-    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1711:38: error: macro "VIN_DA=
+    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1753:38: error: macro "VIN_DA=
 TA_PIN_GROUP" passed 3 arguments, but takes just 2
-    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1709:38: error: macro "VIN_DA=
+    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1751:38: error: macro "VIN_DA=
 TA_PIN_GROUP" passed 3 arguments, but takes just 2
-    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1708:38: error: macro "VIN_DA=
+    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:38: error: macro "VIN_DA=
 TA_PIN_GROUP" passed 3 arguments, but takes just 2
-    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1708:2: error: =E2=80=98VIN_D=
+    1    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:2: error: =E2=80=98VIN_D=
 ATA_PIN_GROUP=E2=80=99 undeclared here (not in a function); did you mean =
 =E2=80=98PIN_MAP_TYPE_MUX_GROUP=E2=80=99?
-    1    drivers/dma/xilinx/xilinx_dma.c:1178:9: error: implicit declaratio=
+    1    drivers/dma/xilinx/xilinx_dma.c:1252:9: error: implicit declaratio=
 n of function =E2=80=98xilinx_prep_dma_addr_t=E2=80=99; did you mean =E2=80=
 =98xilinx_dma_start=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+    1    arch/arm64/net/bpf_jit_comp.c:633:9: error: implicit declaration o=
+f function =E2=80=98bpf_jit_get_func_addr=E2=80=99; did you mean =E2=80=98b=
+pf_jit_binary_hdr=E2=80=99? [-Werror=3Dimplicit-function-declaration]
 
 Warnings summary:
 
-    1    cc1: some warnings being treated as errors
+    3    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    2    cc1: some warnings being treated as errors
+    1    {standard input}:131: Warning: macro instruction expanded into mul=
+tiple instructions
+    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
+ invalid for HOTPLUG_PCI_SHPC
+    1    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): =
+/replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): =
+/funnel@20040000/ports/port@3: graph node unit address error, expected "2"
+    1    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): =
+/funnel@20040000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): =
+/funnel@20040000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-snowball.dtb: Warning (graph_port): /soc/rep=
+licator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-snowball.dtb: Warning (graph_port): /soc/fun=
+nel@801a6000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/ste-snowball.dtb: Warning (graph_port): /soc/fun=
+nel@801a6000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-hrefv60plus-tvk.dtb: Warning (graph_port): /=
+soc/replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-hrefv60plus-tvk.dtb: Warning (graph_port): /=
+soc/funnel@801a6000/ports/port@2: graph node unit address error, expected "=
+1"
+    1    arch/arm/boot/dts/ste-hrefv60plus-tvk.dtb: Warning (graph_port): /=
+soc/funnel@801a6000/ports/port@1: graph node unit address error, expected "=
+0"
+    1    arch/arm/boot/dts/ste-hrefv60plus-stuib.dtb: Warning (graph_port):=
+ /soc/replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-hrefv60plus-stuib.dtb: Warning (graph_port):=
+ /soc/funnel@801a6000/ports/port@2: graph node unit address error, expected=
+ "1"
+    1    arch/arm/boot/dts/ste-hrefv60plus-stuib.dtb: Warning (graph_port):=
+ /soc/funnel@801a6000/ports/port@1: graph node unit address error, expected=
+ "0"
+    1    arch/arm/boot/dts/ste-hrefprev60-tvk.dtb: Warning (graph_port): /s=
+oc/replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-hrefprev60-tvk.dtb: Warning (graph_port): /s=
+oc/funnel@801a6000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/ste-hrefprev60-tvk.dtb: Warning (graph_port): /s=
+oc/funnel@801a6000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-hrefprev60-stuib.dtb: Warning (graph_port): =
+/soc/replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/ste-hrefprev60-stuib.dtb: Warning (graph_port): =
+/soc/funnel@801a6000/ports/port@2: graph node unit address error, expected =
+"1"
+    1    arch/arm/boot/dts/ste-hrefprev60-stuib.dtb: Warning (graph_port): =
+/soc/funnel@801a6000/ports/port@1: graph node unit address error, expected =
+"0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (gr=
+aph_port): /soc/replicator@fc31c000/ports/port@2: graph node unit address e=
+rror, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (gr=
+aph_port): /soc/funnel@fc345000/ports/port@8: graph node unit address error=
+, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (gr=
+aph_port): /soc/funnel@fc31b000/ports/port@8: graph node unit address error=
+, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (gr=
+aph_port): /soc/funnel@fc31a000/ports/port@8: graph node unit address error=
+, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (gr=
+aph_port): /soc/etf@fc307000/ports/port@1: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (gr=
+aph_port): /soc/replicator@fc31c000/ports/port@2: graph node unit address e=
+rror, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (gr=
+aph_port): /soc/funnel@fc345000/ports/port@8: graph node unit address error=
+, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (gr=
+aph_port): /soc/funnel@fc31b000/ports/port@8: graph node unit address error=
+, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (gr=
+aph_port): /soc/funnel@fc31a000/ports/port@8: graph node unit address error=
+, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (gr=
+aph_port): /soc/etf@fc307000/ports/port@1: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (gra=
+ph_port): /soc/replicator@fc31c000/ports/port@2: graph node unit address er=
+ror, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (gra=
+ph_port): /soc/funnel@fc345000/ports/port@8: graph node unit address error,=
+ expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (gra=
+ph_port): /soc/funnel@fc31b000/ports/port@8: graph node unit address error,=
+ expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (gra=
+ph_port): /soc/funnel@fc31a000/ports/port@8: graph node unit address error,=
+ expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (gra=
+ph_port): /soc/etf@fc307000/ports/port@1: graph node unit address error, ex=
+pected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_po=
+rt): /soc/replicator@fc31c000/ports/port@2: graph node unit address error, =
+expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_po=
+rt): /soc/funnel@fc345000/ports/port@8: graph node unit address error, expe=
+cted "0"
+    1    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_po=
+rt): /soc/funnel@fc31b000/ports/port@8: graph node unit address error, expe=
+cted "0"
+    1    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_po=
+rt): /soc/funnel@fc31a000/ports/port@8: graph node unit address error, expe=
+cted "0"
+    1    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_po=
+rt): /soc/etf@fc307000/ports/port@1: graph node unit address error, expecte=
+d "0"
+    1    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning =
+(graph_port): /soc/replicator@fc31c000/ports/port@2: graph node unit addres=
+s error, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning =
+(graph_port): /soc/funnel@fc345000/ports/port@8: graph node unit address er=
+ror, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning =
+(graph_port): /soc/funnel@fc31b000/ports/port@8: graph node unit address er=
+ror, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning =
+(graph_port): /soc/funnel@fc31a000/ports/port@8: graph node unit address er=
+ror, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning =
+(graph_port): /soc/etf@fc307000/ports/port@1: graph node unit address error=
+, expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_p=
+ort): /soc/replicator@fc31c000/ports/port@2: graph node unit address error,=
+ expected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_p=
+ort): /soc/funnel@fc345000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_p=
+ort): /soc/funnel@fc31b000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_p=
+ort): /soc/funnel@fc31a000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    1    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_p=
+ort): /soc/etf@fc307000/ports/port@1: graph node unit address error, expect=
+ed "0"
+    1    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_por=
+t): /soc/replicator@fc31c000/ports/port@2: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_por=
+t): /soc/funnel@fc345000/ports/port@8: graph node unit address error, expec=
+ted "0"
+    1    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_por=
+t): /soc/funnel@fc31b000/ports/port@8: graph node unit address error, expec=
+ted "0"
+    1    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_por=
+t): /soc/funnel@fc31a000/ports/port@8: graph node unit address error, expec=
+ted "0"
+    1    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_por=
+t): /soc/etf@fc307000/ports/port@1: graph node unit address error, expected=
+ "0"
+    1    arch/arm/boot/dts/qcom-apq8064-sony-xperia-yuga.dtb: Warning (grap=
+h_port): /soc/replicator/ports/port@2: graph node unit address error, expec=
+ted "0"
+    1    arch/arm/boot/dts/qcom-apq8064-sony-xperia-yuga.dtb: Warning (grap=
+h_port): /soc/funnel@1a04000/ports/port@8: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/qcom-apq8064-ifc6410.dtb: Warning (graph_port): =
+/soc/replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/qcom-apq8064-ifc6410.dtb: Warning (graph_port): =
+/soc/funnel@1a04000/ports/port@8: graph node unit address error, expected "=
+0"
+    1    arch/arm/boot/dts/qcom-apq8064-cm-qs600.dtb: Warning (graph_port):=
+ /soc/replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/qcom-apq8064-cm-qs600.dtb: Warning (graph_port):=
+ /soc/funnel@1a04000/ports/port@8: graph node unit address error, expected =
+"0"
+    1    arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dtb: Warning (graph=
+_port): /soc/replicator/ports/port@2: graph node unit address error, expect=
+ed "0"
+    1    arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dtb: Warning (graph=
+_port): /soc/funnel@1a04000/ports/port@8: graph node unit address error, ex=
+pected "0"
+    1    arch/arm/boot/dts/qcom-apq8064-arrow-sd-600eval.dtb: Warning (grap=
+h_port): /soc/replicator/ports/port@2: graph node unit address error, expec=
+ted "0"
+    1    arch/arm/boot/dts/qcom-apq8064-arrow-sd-600eval.dtb: Warning (grap=
+h_port): /soc/funnel@1a04000/ports/port@8: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/omap3-gta04a5.dtb: Warning (graph_port): /ocp@68=
+000000/dss@48050000/encoder@48050c00/port: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/omap3-gta04a4.dtb: Warning (graph_port): /ocp@68=
+000000/dss@48050000/encoder@48050c00/port: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/omap3-gta04a3.dtb: Warning (graph_port): /ocp@68=
+000000/dss@48050000/encoder@48050c00/port: graph node unit address error, e=
+xpected "0"
+    1    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /soc/funne=
+l@30083000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /soc/funne=
+l@30041000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /soc/etf@3=
+0084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /replicato=
+r/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port):=
+ /soc/funnel@30083000/ports/port@2: graph node unit address error, expected=
+ "0"
+    1    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port):=
+ /soc/funnel@30041000/ports/port@2: graph node unit address error, expected=
+ "0"
+    1    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port):=
+ /soc/etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port):=
+ /replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /soc/funnel=
+@30083000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /soc/funnel=
+@30041000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /soc/etf@30=
+084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /replicator=
+/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /soc/=
+funnel@30083000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /soc/=
+funnel@30041000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /soc/=
+etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /repl=
+icator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /soc/f=
+unnel@30083000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /soc/f=
+unnel@30041000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /soc/e=
+tf@30084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /repli=
+cator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /soc/fu=
+nnel@30083000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /soc/fu=
+nnel@30041000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /soc/et=
+f@30084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /replic=
+ator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /soc/=
+funnel@30083000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /soc/=
+funnel@30041000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /soc/=
+etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /repl=
+icator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port):=
+ /soc/funnel@30083000/ports/port@2: graph node unit address error, expected=
+ "0"
+    1    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port):=
+ /soc/funnel@30041000/ports/port@2: graph node unit address error, expected=
+ "0"
+    1    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port):=
+ /soc/etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port):=
+ /replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_p=
+ort): /soc/funnel@30083000/ports/port@2: graph node unit address error, exp=
+ected "0"
+    1    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_p=
+ort): /soc/funnel@30041000/ports/port@2: graph node unit address error, exp=
+ected "0"
+    1    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_p=
+ort): /soc/etf@30084000/ports/port@1: graph node unit address error, expect=
+ed "0"
+    1    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_p=
+ort): /replicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /so=
+c/funnel@30083000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /so=
+c/funnel@30041000/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /so=
+c/etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /re=
+plicator/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator=
+3/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator=
+2/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator=
+1/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator=
+0/ports/port@2: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3d01000/ports/port@4: graph node unit address error, expected "3"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3d01000/ports/port@3: graph node unit address error, expected "2"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3d01000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3d01000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3cc1000/ports/port@4: graph node unit address error, expected "3"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3cc1000/ports/port@3: graph node unit address error, expected "2"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3cc1000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3cc1000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c81000/ports/port@4: graph node unit address error, expected "3"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c81000/ports/port@3: graph node unit address error, expected "2"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c81000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c81000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c41000/ports/port@4: graph node unit address error, expected "3"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c41000/ports/port@3: graph node unit address error, expected "2"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c41000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c41000/ports/port@1: graph node unit address error, expected "0"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c04000/ports/port@4: graph node unit address error, expected "3"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c04000/ports/port@3: graph node unit address error, expected "2"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c04000/ports/port@2: graph node unit address error, expected "1"
+    1    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e=
+3c04000/ports/port@1: graph node unit address error, expected "0"
+    1    .config:1009:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -130,7 +475,7 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -145,8 +490,28 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -157,21 +522,6 @@ ismatches
 -----
 allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -345,7 +695,20 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+defconfig (arm64, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
+atches
+
+Errors:
+    arch/arm64/net/bpf_jit_comp.c:633:9: error: implicit declaration of fun=
+ction =E2=80=98bpf_jit_get_func_addr=E2=80=99; did you mean =E2=80=98bpf_ji=
+t_binary_hdr=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
 ---------------------------------------------------------------------------=
@@ -405,6 +768,16 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
 gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
@@ -425,7 +798,72 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 24 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator0/por=
+ts/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator1/por=
+ts/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator2/por=
+ts/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /replicator3/por=
+ts/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c410=
+00/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c410=
+00/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c410=
+00/ports/port@3: graph node unit address error, expected "2"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c410=
+00/ports/port@4: graph node unit address error, expected "3"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c810=
+00/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c810=
+00/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c810=
+00/ports/port@3: graph node unit address error, expected "2"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c810=
+00/ports/port@4: graph node unit address error, expected "3"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3cc10=
+00/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3cc10=
+00/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3cc10=
+00/ports/port@3: graph node unit address error, expected "2"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3cc10=
+00/ports/port@4: graph node unit address error, expected "3"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3d010=
+00/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3d010=
+00/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3d010=
+00/ports/port@3: graph node unit address error, expected "2"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3d010=
+00/ports/port@4: graph node unit address error, expected "3"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c040=
+00/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c040=
+00/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c040=
+00/ports/port@3: graph node unit address error, expected "2"
+    arch/arm/boot/dts/hip04-d01.dtb: Warning (graph_port): /funnel@0,e3c040=
+00/ports/port@4: graph node unit address error, expected "3"
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
 ---------------------------------------------------------------------------=
@@ -445,8 +883,92 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 40 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /replica=
+tor/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /soc/fun=
+nel@30041000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /soc/fun=
+nel@30083000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-cl-som-imx7.dtb: Warning (graph_port): /soc/etf=
+@30084000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_port):=
+ /replicator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_port):=
+ /soc/funnel@30041000/ports/port@2: graph node unit address error, expected=
+ "0"
+    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_port):=
+ /soc/funnel@30083000/ports/port@2: graph node unit address error, expected=
+ "0"
+    arch/arm/boot/dts/imx7d-colibri-emmc-eval-v3.dtb: Warning (graph_port):=
+ /soc/etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port): /rep=
+licator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port): /soc=
+/funnel@30041000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port): /soc=
+/funnel@30083000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-colibri-eval-v3.dtb: Warning (graph_port): /soc=
+/etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /replicato=
+r/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /soc/funne=
+l@30041000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /soc/funne=
+l@30083000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-nitrogen7.dtb: Warning (graph_port): /soc/etf@3=
+0084000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /replicator/=
+ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /soc/funnel@=
+30041000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /soc/funnel@=
+30083000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-pico-pi.dtb: Warning (graph_port): /soc/etf@300=
+84000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /replicator=
+/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /soc/funnel=
+@30041000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /soc/funnel=
+@30083000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sbc-imx7.dtb: Warning (graph_port): /soc/etf@30=
+084000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /replicator/port=
+s/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /soc/funnel@3004=
+1000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /soc/funnel@3008=
+3000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb.dtb: Warning (graph_port): /soc/etf@3008400=
+0/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /replicato=
+r/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /soc/funne=
+l@30041000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /soc/funne=
+l@30083000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7d-sdb-sht11.dtb: Warning (graph_port): /soc/etf@3=
+0084000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port): /rep=
+licator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port): /soc=
+/funnel@30041000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port): /soc=
+/funnel@30083000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-colibri-eval-v3.dtb: Warning (graph_port): /soc=
+/etf@30084000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /replicator/por=
+ts/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /soc/funnel@300=
+41000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /soc/funnel@300=
+83000/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/imx7s-warp.dtb: Warning (graph_port): /soc/etf@300840=
+00/ports/port@1: graph node unit address error, expected "0"
 
 ---------------------------------------------------------------------------=
 -----
@@ -530,8 +1052,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -545,8 +1071,14 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
+lid for HOTPLUG_PCI_SHPC
+    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -595,8 +1127,12 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    {standard input}:131: Warning: macro instruction expanded into multiple=
+ instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -684,7 +1220,7 @@ multi_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    drivers/dma/xilinx/xilinx_dma.c:1178:9: error: implicit declaration of =
+    drivers/dma/xilinx/xilinx_dma.c:1252:9: error: implicit declaration of =
 function =E2=80=98xilinx_prep_dma_addr_t=E2=80=99; did you mean =E2=80=98xi=
 linx_dma_start=E2=80=99? [-Werror=3Dimplicit-function-declaration]
 
@@ -733,8 +1269,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3181:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -783,13 +1323,34 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 se=
 ction mismatches
+
+Warnings:
+    arch/arm/boot/dts/omap3-gta04a3.dtb: Warning (graph_port): /ocp@6800000=
+0/dss@48050000/encoder@48050c00/port: graph node unit address error, expect=
+ed "0"
+    arch/arm/boot/dts/omap3-gta04a4.dtb: Warning (graph_port): /ocp@6800000=
+0/dss@48050000/encoder@48050c00/port: graph node unit address error, expect=
+ed "0"
+    arch/arm/boot/dts/omap3-gta04a5.dtb: Warning (graph_port): /ocp@6800000=
+0/dss@48050000/encoder@48050c00/port: graph node unit address error, expect=
+ed "0"
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
 orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -853,8 +1414,137 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 45 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/boot/dts/qcom-apq8064-arrow-sd-600eval.dtb: Warning (graph_por=
+t): /soc/replicator/ports/port@2: graph node unit address error, expected "=
+0"
+    arch/arm/boot/dts/qcom-apq8064-arrow-sd-600eval.dtb: Warning (graph_por=
+t): /soc/funnel@1a04000/ports/port@8: graph node unit address error, expect=
+ed "0"
+    arch/arm/boot/dts/qcom-apq8064-cm-qs600.dtb: Warning (graph_port): /soc=
+/replicator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-apq8064-cm-qs600.dtb: Warning (graph_port): /soc=
+/funnel@1a04000/ports/port@8: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-apq8064-ifc6410.dtb: Warning (graph_port): /soc/=
+replicator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-apq8064-ifc6410.dtb: Warning (graph_port): /soc/=
+funnel@1a04000/ports/port@8: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-apq8064-sony-xperia-yuga.dtb: Warning (graph_por=
+t): /soc/replicator/ports/port@2: graph node unit address error, expected "=
+0"
+    arch/arm/boot/dts/qcom-apq8064-sony-xperia-yuga.dtb: Warning (graph_por=
+t): /soc/funnel@1a04000/ports/port@8: graph node unit address error, expect=
+ed "0"
+    arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dtb: Warning (graph_port=
+): /soc/replicator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-apq8064-asus-nexus7-flo.dtb: Warning (graph_port=
+): /soc/funnel@1a04000/ports/port@8: graph node unit address error, expecte=
+d "0"
+    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_port): /=
+soc/replicator@fc31c000/ports/port@2: graph node unit address error, expect=
+ed "0"
+    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_port): /=
+soc/etf@fc307000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_port): /=
+soc/funnel@fc31b000/ports/port@8: graph node unit address error, expected "=
+0"
+    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_port): /=
+soc/funnel@fc31a000/ports/port@8: graph node unit address error, expected "=
+0"
+    arch/arm/boot/dts/qcom-apq8074-dragonboard.dtb: Warning (graph_port): /=
+soc/funnel@fc345000/ports/port@8: graph node unit address error, expected "=
+0"
+    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_port):=
+ /soc/replicator@fc31c000/ports/port@2: graph node unit address error, expe=
+cted "0"
+    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_port):=
+ /soc/etf@fc307000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_port):=
+ /soc/funnel@fc31b000/ports/port@8: graph node unit address error, expected=
+ "0"
+    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_port):=
+ /soc/funnel@fc31a000/ports/port@8: graph node unit address error, expected=
+ "0"
+    arch/arm/boot/dts/qcom-msm8974-fairphone-fp2.dtb: Warning (graph_port):=
+ /soc/funnel@fc345000/ports/port@8: graph node unit address error, expected=
+ "0"
+    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning (grap=
+h_port): /soc/replicator@fc31c000/ports/port@2: graph node unit address err=
+or, expected "0"
+    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning (grap=
+h_port): /soc/etf@fc307000/ports/port@1: graph node unit address error, exp=
+ected "0"
+    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning (grap=
+h_port): /soc/funnel@fc31b000/ports/port@8: graph node unit address error, =
+expected "0"
+    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning (grap=
+h_port): /soc/funnel@fc31a000/ports/port@8: graph node unit address error, =
+expected "0"
+    arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dtb: Warning (grap=
+h_port): /soc/funnel@fc345000/ports/port@8: graph node unit address error, =
+expected "0"
+    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_port): =
+/soc/replicator@fc31c000/ports/port@2: graph node unit address error, expec=
+ted "0"
+    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_port): =
+/soc/etf@fc307000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_port): =
+/soc/funnel@fc31b000/ports/port@8: graph node unit address error, expected =
+"0"
+    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_port): =
+/soc/funnel@fc31a000/ports/port@8: graph node unit address error, expected =
+"0"
+    arch/arm/boot/dts/qcom-msm8974-samsung-klte.dtb: Warning (graph_port): =
+/soc/funnel@fc345000/ports/port@8: graph node unit address error, expected =
+"0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (graph_po=
+rt): /soc/replicator@fc31c000/ports/port@2: graph node unit address error, =
+expected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (graph_po=
+rt): /soc/etf@fc307000/ports/port@1: graph node unit address error, expecte=
+d "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (graph_po=
+rt): /soc/funnel@fc31b000/ports/port@8: graph node unit address error, expe=
+cted "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (graph_po=
+rt): /soc/funnel@fc31a000/ports/port@8: graph node unit address error, expe=
+cted "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-amami.dtb: Warning (graph_po=
+rt): /soc/funnel@fc345000/ports/port@8: graph node unit address error, expe=
+cted "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (graph_p=
+ort): /soc/replicator@fc31c000/ports/port@2: graph node unit address error,=
+ expected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (graph_p=
+ort): /soc/etf@fc307000/ports/port@1: graph node unit address error, expect=
+ed "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (graph_p=
+ort): /soc/funnel@fc31b000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (graph_p=
+ort): /soc/funnel@fc31a000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-castor.dtb: Warning (graph_p=
+ort): /soc/funnel@fc345000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (graph_p=
+ort): /soc/replicator@fc31c000/ports/port@2: graph node unit address error,=
+ expected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (graph_p=
+ort): /soc/etf@fc307000/ports/port@1: graph node unit address error, expect=
+ed "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (graph_p=
+ort): /soc/funnel@fc31b000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (graph_p=
+ort): /soc/funnel@fc31a000/ports/port@8: graph node unit address error, exp=
+ected "0"
+    arch/arm/boot/dts/qcom-msm8974-sony-xperia-honami.dtb: Warning (graph_p=
+ort): /soc/funnel@fc345000/ports/port@8: graph node unit address error, exp=
+ected "0"
 
 ---------------------------------------------------------------------------=
 -----
@@ -932,14 +1622,14 @@ shmobile_defconfig (arm, gcc-8) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 sec=
 tion mismatches
 
 Errors:
-    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1708:38: error: macro "VIN_DATA_PI=
+    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:38: error: macro "VIN_DATA_PI=
 N_GROUP" passed 3 arguments, but takes just 2
-    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1708:2: error: =E2=80=98VIN_DATA_P=
+    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:2: error: =E2=80=98VIN_DATA_P=
 IN_GROUP=E2=80=99 undeclared here (not in a function); did you mean =E2=80=
 =98PIN_MAP_TYPE_MUX_GROUP=E2=80=99?
-    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1709:38: error: macro "VIN_DATA_PI=
+    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1751:38: error: macro "VIN_DATA_PI=
 N_GROUP" passed 3 arguments, but takes just 2
-    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1711:38: error: macro "VIN_DATA_PI=
+    drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1753:38: error: macro "VIN_DATA_PI=
 N_GROUP" passed 3 arguments, but takes just 2
 
 ---------------------------------------------------------------------------=
@@ -984,6 +1674,11 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
 tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -1009,8 +1704,26 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1009:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1029,16 +1742,6 @@ matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
 trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -1049,8 +1752,40 @@ u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 15 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/arm/boot/dts/ste-snowball.dtb: Warning (graph_port): /soc/funnel@8=
+01a6000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-snowball.dtb: Warning (graph_port): /soc/funnel@8=
+01a6000/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/ste-snowball.dtb: Warning (graph_port): /soc/replicat=
+or/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefprev60-stuib.dtb: Warning (graph_port): /soc/=
+funnel@801a6000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefprev60-stuib.dtb: Warning (graph_port): /soc/=
+funnel@801a6000/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/ste-hrefprev60-stuib.dtb: Warning (graph_port): /soc/=
+replicator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefprev60-tvk.dtb: Warning (graph_port): /soc/fu=
+nnel@801a6000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefprev60-tvk.dtb: Warning (graph_port): /soc/fu=
+nnel@801a6000/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/ste-hrefprev60-tvk.dtb: Warning (graph_port): /soc/re=
+plicator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefv60plus-stuib.dtb: Warning (graph_port): /soc=
+/funnel@801a6000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefv60plus-stuib.dtb: Warning (graph_port): /soc=
+/funnel@801a6000/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/ste-hrefv60plus-stuib.dtb: Warning (graph_port): /soc=
+/replicator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefv60plus-tvk.dtb: Warning (graph_port): /soc/f=
+unnel@801a6000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/ste-hrefv60plus-tvk.dtb: Warning (graph_port): /soc/f=
+unnel@801a6000/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/ste-hrefv60plus-tvk.dtb: Warning (graph_port): /soc/r=
+eplicator/ports/port@2: graph node unit address error, expected "0"
 
 ---------------------------------------------------------------------------=
 -----
@@ -1069,8 +1804,18 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sec=
 tion mismatches
+
+Warnings:
+    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): /repl=
+icator/ports/port@2: graph node unit address error, expected "0"
+    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): /funn=
+el@20040000/ports/port@1: graph node unit address error, expected "0"
+    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): /funn=
+el@20040000/ports/port@2: graph node unit address error, expected "1"
+    arch/arm/boot/dts/vexpress-v2p-ca15_a7.dtb: Warning (graph_port): /funn=
+el@20040000/ports/port@3: graph node unit address error, expected "2"
 
 ---------------------------------------------------------------------------=
 -----
@@ -1081,6 +1826,11 @@ ion mismatches
 -----
 viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1104,23 +1854,8 @@ xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-zebu_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
 
 ---------------------------------------------------------------------------=
 -----
