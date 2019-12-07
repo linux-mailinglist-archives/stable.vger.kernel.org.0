@@ -2,82 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A784C11597F
-	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 00:09:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B07081159FD
+	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 01:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726414AbfLFXJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 18:09:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48234 "EHLO mail.kernel.org"
+        id S1726388AbfLGADE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 19:03:04 -0500
+Received: from smtp3-g21.free.fr ([212.27.42.3]:53321 "EHLO smtp3-g21.free.fr"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726353AbfLFXJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 6 Dec 2019 18:09:35 -0500
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7861C20707;
-        Fri,  6 Dec 2019 23:09:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575673774;
-        bh=RaM+Oy3r669HifD5FxIuJATpqVr4xnCOMyVJgH185Yk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=L8h5bKKueEO0I5oS2iQ9RN3IR0mc+ygOGxRtNntofqKzJPdpSOggDh0MY/mIH2Yp5
-         JbCTE0m3qVpN2FP9kReL3QST9InhiBTvNx1JIRBEyLM/tQRJ4ji3T7XD/O0L38ppS4
-         766tnAJxXq0YAAB4moGKFla/6kgcZ7xIQvI0eygE=
-Received: by mail-qv1-f43.google.com with SMTP id n8so526650qvg.11;
-        Fri, 06 Dec 2019 15:09:34 -0800 (PST)
-X-Gm-Message-State: APjAAAVJYOnvYhoTAWgz3LFJt+6gQoqRV5EPHs5eOKSYc7oIYeBmXjMA
-        q78D9GW4XR1p7u7SNvj3ZgZPP/FZVaBS2O/ktQ==
-X-Google-Smtp-Source: APXvYqzWnNwzf8dLCUJCUqH51dSyQLO5ASJiJcUfiAC/hyQCDGeMzbYC7t2xZ1SBUVM1WYey++254IRzBkf23iPDnNw=
-X-Received: by 2002:a05:6214:11ac:: with SMTP id u12mr15257895qvv.85.1575673773643;
- Fri, 06 Dec 2019 15:09:33 -0800 (PST)
+        id S1726377AbfLGADE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 6 Dec 2019 19:03:04 -0500
+Received: from [IPv6:2a01:e0a:2a2:1590:3130:d4af:7a6d:562c] (unknown [IPv6:2a01:e0a:2a2:1590:3130:d4af:7a6d:562c])
+        by smtp3-g21.free.fr (Postfix) with ESMTP id 45AD613F7E7
+        for <stable@vger.kernel.org>; Sat,  7 Dec 2019 01:02:57 +0100 (CET)
+Subject: Re: [bug] userspace hitting sporadic SIGBUS on xfs (Power9, ppc64le),
+ v4.19 and later
+To:     stable@vger.kernel.org
+References: <cki.6C6A189643.3T2ZUWEMOI@redhat.com>
+ <1738119916.14437244.1575151003345.JavaMail.zimbra@redhat.com>
+ <8736e3ffen.fsf@mpe.ellerman.id.au>
+ <1420623640.14527843.1575289859701.JavaMail.zimbra@redhat.com>
+ <1766807082.14812757.1575377439007.JavaMail.zimbra@redhat.com>
+From:   dftxbs3e <dftxbs3e@free.fr>
+Message-ID: <9c0af967-4916-4e8b-e77f-087515793d77@free.fr>
+Date:   Sat, 7 Dec 2019 01:02:57 +0100
+User-Agent: Mozilla/5.0 (X11; Linux ppc64le; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-References: <20191206211821.E21A0206DB@mail.kernel.org>
-In-Reply-To: <20191206211821.E21A0206DB@mail.kernel.org>
-From:   Rob Herring <robh@kernel.org>
-Date:   Fri, 6 Dec 2019 17:09:22 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqJzm4uzGCzmUzwo32zu5EwS6O0TnpxFgGpAcOYvAi2zgg@mail.gmail.com>
-Message-ID: <CAL_JsqJzm4uzGCzmUzwo32zu5EwS6O0TnpxFgGpAcOYvAi2zgg@mail.gmail.com>
-Subject: Re: Patch "kbuild: Enable dtc graph_port warning by default" has been
- added to the 4.19-stable tree
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1766807082.14812757.1575377439007.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 6, 2019 at 3:18 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> This is a note to let you know that I've just added the patch titled
->
->     kbuild: Enable dtc graph_port warning by default
->
-> to the 4.19-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
->
-> The filename of the patch is:
->      kbuild-enable-dtc-graph_port-warning-by-default.patch
-> and it can be found in the queue-4.19 subdirectory.
->
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
->
->
->
-> commit fb5901019cef9ed5a76ddeaf83eccff8b2bd5c28
-> Author: Rob Herring <robh@kernel.org>
-> Date:   Fri Nov 30 09:08:21 2018 -0600
->
->     kbuild: Enable dtc graph_port warning by default
->
->     [ Upstream commit a2237fec1e0645d1e99e108f2658c26cb5a66c74 ]
->
->     All the 'graph_port' warnings have been fixed or have pending fixes, so
->     we can enable it by default now.
+Hello!
 
-I doubt this statement is true when backported unless all the dtc
-warning fixes are backported. I've seen some backports, but it's
-doubtful anyone checked this.
+I am very happy that someone has found this issue.
 
-Rob
+I have been suffering from rather random SIGBUS errors in similar
+conditions described by the author.
+
+I don't have much troubleshooting information to provide, however, I hit
+the issue regularly so I could investigate during that.
+
+How do you debug such an issue? I tried a debugger etc. but besides
+crashing with SIGBUS, I couldnt get any other meaningful information.
+
+dftxbs3e
+
+On 12/3/19 1:50 PM, Jan Stancek wrote:
+> Hi,
+>
+> (This bug report is summary from thread [1] with some additions)
+>
+> User-space binaries on Power9 ppc64le (with 64k pages) on xfs
+> filesystem are sporadically hitting SIGBUS:
+>
+> ---------- 8< ----------
+> (gdb) r
+> Starting program: /mnt/testarea/ltp/testcases/bin/genasin
+>
+> Program received signal SIGBUS, Bus error.
+> dl_main (phdr=0x10000040, phnum=<optimized out>, user_entry=0x7fffffffe760, auxv=<optimized out>) at rtld.c:1362
+> 1362        switch (ph->p_type)
+>
+> (gdb) p ph
+> $1 = (const Elf64_Phdr *) 0x10000040
+>
+> (gdb) p *ph
+> Cannot access memory at address 0x10000040
+>
+> (gdb) info proc map
+> process 1110670
+> Mapped address spaces:
+>
+>            Start Addr           End Addr       Size     Offset objfile
+>            0x10000000         0x10010000    0x10000        0x0 /mnt/testarea/ltp/testcases/bin/genasin
+>            0x10010000         0x10030000    0x20000        0x0 /mnt/testarea/ltp/testcases/bin/genasin
+>        0x7ffff7f90000     0x7ffff7fb0000    0x20000        0x0 [vdso]
+>        0x7ffff7fb0000     0x7ffff7fe0000    0x30000        0x0 /usr/lib64/ld-2.30.so
+>        0x7ffff7fe0000     0x7ffff8000000    0x20000    0x20000 /usr/lib64/ld-2.30.so
+>        0x7ffffffd0000     0x800000000000    0x30000        0x0 [stack]
+>
+> (gdb) x/1x 0x10000040
+> 0x10000040:     Cannot access memory at address 0x10000040
+> ---------- >8 ----------
+>
+> When this happens the binary continues to hit SIGBUS until page
+> is released, for example by: echo 3 > /proc/sys/vm/drop_caches
+>
+> The issue goes back to at least v4.19.
+>
+> I can semi-reliably reproduce it with LTP is installed to /mnt/testarea/ltp by:
+> while [ True ]; do
+>          echo 3 > /proc/sys/vm/drop_caches
+>          rm -f /mnt/testarea/ltp/results/RUNTEST.log /mnt/testarea/ltp/output/RUNTEST.run.log
+>          ./runltp -p -d results -l RUNTEST.log -o RUNTEST.run.log -f math
+>          grep FAIL /mnt/testarea/ltp/results/RUNTEST.log && exit 1
+> done
+>
+> and some stress activity in other terminal (e.g. kernel build).
+> Sometimes in minutes, sometimes in hours. It is not reliable
+> enough to get meaningful bisect results.
+>
+> My theory is that there's a race in iomap. There appear to be
+> interleaved calls to iomap_set_range_uptodate() for same page
+> with varying offset and length. Each call sees bitmap as _not_
+> entirely "uptodate" and hence doesn't call SetPageUptodate().
+> Even though each bit in bitmap ends up uptodate by the time
+> all calls finish.
+>
+> For example, with following traces:
+>
+> iomap_set_range_uptodate()
+> ...
+>          if (uptodate && !PageError(page))
+>                  SetPageUptodate(page);
+> +
+> +       if (mycheck(page)) {
+> +               trace_printk("page: %px, iop: %px, uptodate: %d, !PageError(page): %d, flags: %lx\n", page, iop, uptodate, !PageError(page), page->flags);
+> +               trace_printk("first: %u, last: %u, off: %u, len: %u, i: %u\n", first, last, off, len, i);
+> +       }
+>
+> I get:
+>           genacos-18471 [057] ....   162.465730: iomap_readpages: mapping: c000003f185a1ab0
+>           genacos-18471 [057] ....   162.465732: iomap_page_create: iomap_page_create page: c00c00000fe26180, page->private: 0000000000000000, iop: c000003fc70a19c0, flags: 3ffff800000001
+>           genacos-18471 [057] ....   162.465736: iomap_set_range_uptodate: page: c00c00000fe26180, iop: c000003fc70a19c0, uptodate: 0, !PageError(page): 1, flags: 3ffff800002001
+>           genacos-18471 [057] ....   162.465736: iomap_set_range_uptodate: first: 1, last: 14, off: 4096, len: 57344, i: 16
+>            <idle>-0     [060] ..s.   162.534862: iomap_set_range_uptodate: page: c00c00000fe26180, iop: c000003fc70a19c0, uptodate: 0, !PageError(page): 1, flags: 3ffff800002081
+>            <idle>-0     [061] ..s.   162.534862: iomap_set_range_uptodate: page: c00c00000fe26180, iop: c000003fc70a19c0, uptodate: 0, !PageError(page): 1, flags: 3ffff800002081
+>            <idle>-0     [060] ..s.   162.534864: iomap_set_range_uptodate: first: 0, last: 0, off: 0, len: 4096, i: 16
+>            <idle>-0     [061] ..s.   162.534864: iomap_set_range_uptodate: first: 15, last: 15, off: 61440, len: 4096, i: 16
+>
+> This page doesn't have Uptodate flag set, which leads to filemap_fault()
+> returning VM_FAULT_SIGBUS:
+>
+> crash> p/x ((struct page *) 0xc00c00000fe26180)->flags
+> $1 = 0x3ffff800002032
+>
+> crash> kmem -g 0x3ffff800002032
+> FLAGS: 3ffff800002032
+>    PAGE-FLAG       BIT  VALUE
+>    PG_error          1  0000002
+>    PG_dirty          4  0000010
+>    PG_lru            5  0000020
+>    PG_private_2     13  0002000
+>    PG_fscache       13  0002000
+>    PG_savepinned     4  0000010
+>    PG_double_map    13  0002000
+>
+> But iomap_page->uptodate in page->private suggests all bits are uptodate:
+>
+> crash> p/x ((struct page *) 0xc00c00000fe26180)->private
+> $2 = 0xc000003fc70a19c0
+>
+> crash> p/x ((struct iomap_page *) 0xc000003fc70a19c0)->uptodate
+> $3 = {0xffff, 0x0}
+>
+>
+> It appears (after ~4 hours) that I can avoid the problem if I split
+> the loop so that bits are checked only after all updates are made.
+> Not sure if this correct approach, or just making it less reproducible:
+>
+> diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+> index e25901ae3ff4..abe37031c93d 100644
+> --- a/fs/iomap/buffered-io.c
+> +++ b/fs/iomap/buffered-io.c
+> @@ -131,7 +131,11 @@ iomap_set_range_uptodate(struct page *page, unsigned off, unsigned len)
+>                  for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
+>                          if (i >= first && i <= last)
+>                                  set_bit(i, iop->uptodate);
+> -                       else if (!test_bit(i, iop->uptodate))
+> +               }
+> +               for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
+> +                       if (i >= first && i <= last)
+> +                               continue;
+> +                       if (!test_bit(i, iop->uptodate))
+>                                  uptodate = false;
+>                  }
+>          }
+>
+> Thanks,
+> Jan
+>
+> [1] https://lore.kernel.org/stable/1420623640.14527843.1575289859701.JavaMail.zimbra@redhat.com/T/#u
+>
+>
