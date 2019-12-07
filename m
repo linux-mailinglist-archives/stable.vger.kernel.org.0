@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09DDE115A8A
-	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 02:10:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D263E115A8C
+	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 02:11:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726377AbfLGBKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 20:10:30 -0500
-Received: from mail-pg1-f202.google.com ([209.85.215.202]:47258 "EHLO
-        mail-pg1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726371AbfLGBKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 20:10:30 -0500
-Received: by mail-pg1-f202.google.com with SMTP id c10so4745669pgm.14
-        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 17:10:29 -0800 (PST)
+        id S1726375AbfLGBLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 20:11:09 -0500
+Received: from mail-ua1-f73.google.com ([209.85.222.73]:35992 "EHLO
+        mail-ua1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726371AbfLGBLI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 20:11:08 -0500
+Received: by mail-ua1-f73.google.com with SMTP id w25so2786179uaa.3
+        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 17:11:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:message-id:mime-version:subject:from:to:cc;
-        bh=fxNXKwP1G/Y527WH1IfO09a47RRj96LExIooWB62IMk=;
-        b=ew+UWwfyM4GKcPEiu01b6WIqW8WiU6D4KWQpajz2eM9SX88yIzcUDGIr+3t4FhD+d8
-         jFGGHWmTXCsJgri4rC4EXmgKyRs+odJRmPN32DUXTujTVmIdFmwk3WrHYpDzr56Fe+FB
-         7YIoI/PMCIYpJT4gL+/FBKCJfFnI/oM/TaFNWU/O8y4hEeHIs4G3ODQTd4WBjCrn6i1+
-         gt0Vro6enDzaPFPR9nRtmIq4AzHsRQoNmFZOp8KJH/XV+/zte5OgTieOh35UPKYxvl+f
-         VfDWcA4yhPrYcoP0gUSsdpEiVzABqeVS5Yktzd0MnsACbWzsPtgAaCguHMvFMvoh7RO6
-         FyKw==
+        bh=jPYB13Mo0gREDnBISRJFYRPUDs1XnOmlDuxNXnjXIHk=;
+        b=MWimuHK0UG21uUgkh1BOfhoOmqmtH/14WrZjgxgjm7vq1tUeZ1zLBIol4B0r9Zkvh2
+         OrN7YteDP0yk3gWEwvlhcp89MvAdxmI7h1QReuXSz+nvw8Tf8J2gcXNxhdJwIKPbGWZs
+         WNlFdaqk/yWiyGZXbIuJbyx/fNrPauEPaJ9ElIwn3gN5IXlWZa34CsIfOezdZR44vY18
+         bI6ON/1sH7Mwpom7KXGeSrqhIM7apGusR+sMpcueS2eQHF1vabRDlUy9miLeMPMWT/qZ
+         24gt8ff3xpzfReEh3xzWv2SNn7OuDlBIl4P9e5RDkQgK8FvTGlVUZmb++vYJNQ7Z6P7s
+         V62w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=fxNXKwP1G/Y527WH1IfO09a47RRj96LExIooWB62IMk=;
-        b=JqvBvmlqWhxcVVZvIL61/7Q37uc6NlaerBXOfD0kqztsOWwSi8bsEzatm0HGMbyMDT
-         hE9aO+49Jgceh4zUQVwKOU5pAiTI0XBi+gFJRhKShxhE8GZInUHK/UiazGbPXighZ3tC
-         p8gM6KQN4bzDFR4juNRyIuoKDL2TcGG9LBYZB4wOZi5COrrBTPypDNDUEEkI3DcBNIi/
-         8XAwhwJ5UZJJy7JWg24AR9NkgywlUuxAEEX4ukpf0G0h+BmeFNwCwSEEZCfsa6GoKWhR
-         4AqwSyfhYfb+taAjn72CBd3/lpvTk0uJawA+WMhRzdpKAe/WeWkdviKeQ6n5g4lMin/m
-         GysA==
-X-Gm-Message-State: APjAAAWdEX8J43AV5JKrhSUlkZF7QQYVDri4IHZ/M4r5tsLTMUJsNwKE
-        foH03EYj6dog/eyjyzI1ocSfjp8ad3YV
-X-Google-Smtp-Source: APXvYqwqwltZ4iiOYVvWnnVJlDYUsM+LTQRR9DZbIj3aBPrNnaoR808bkqI9cbrZ83lowV0B+p6ZsBS9OeMl
-X-Received: by 2002:a63:cf4f:: with SMTP id b15mr6757602pgj.216.1575681028790;
- Fri, 06 Dec 2019 17:10:28 -0800 (PST)
-Date:   Fri,  6 Dec 2019 17:10:25 -0800
-Message-Id: <20191207011025.119151-1-xueweiz@google.com>
+        bh=jPYB13Mo0gREDnBISRJFYRPUDs1XnOmlDuxNXnjXIHk=;
+        b=dtnGcEYadkfGm0QH1bjJewVR4wfY4qG0WME7mVX91nVjDltQUD1sExen07qwBtYJJ6
+         stRg9eNX3ICho3M9urWZ07wIYVivxpOwISrkUtZF6za0qFSYEw8D92rEJ9e3m3XfTT7y
+         xqRLG5S2mX9Eas+4/5ifa0l0DMFbdSGVUIyiIqQl4GuLXGxydfR/XhyYKWjW3apCYdRw
+         EqDNWTJ0eELx4WNObfB5t5lVlsRosds1bm3yMMP/y9P7gxEdlHg3UUQfsb26JSRXgbCR
+         GPHtGhXqw35kFeAatJA7E0iWsIfJP514eRvVEeHp3G9NQbTpbOKj5bQOw175zCZbt+po
+         Pw+g==
+X-Gm-Message-State: APjAAAWs9QTTA9HPKmXIsy4JW2dlS1UiMPzEWCc9tLhVqiAJ9jbJq8m/
+        qVZN+M///M3auJyyvIlggYI+MxlcAIKX
+X-Google-Smtp-Source: APXvYqzpiZ+4uxnTPC7Q/RqfzM9Pcf6iguuC/M+loo34pZdIjfcsLPMEhEZuIIlGE2dhPoRjaxGpe46nOxoY
+X-Received: by 2002:a67:f318:: with SMTP id p24mr12003371vsf.240.1575681067590;
+ Fri, 06 Dec 2019 17:11:07 -0800 (PST)
+Date:   Fri,  6 Dec 2019 17:11:02 -0800
+Message-Id: <20191207011102.120954-1-xueweiz@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.24.0.393.g34dc348eaf-goog
-Subject: [PATCH v4.9] sched/fair: Scale bandwidth quota and period without
+Subject: [PATCH v4.4] sched/fair: Scale bandwidth quota and period without
  losing quota/period ratio precision
 From:   Xuewei Zhang <xueweiz@google.com>
 To:     Greg KH <gregkh@linuxfoundation.org>
@@ -119,10 +119,10 @@ Signed-off-by: Ingo Molnar <mingo@kernel.org>
  1 file changed, 22 insertions(+), 14 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index b765a58cf20f..5e65c7eea872 100644
+index d012681fb1ab..b42d2b8b283e 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -4391,20 +4391,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
+@@ -4055,20 +4055,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
  		if (++count > 3) {
  			u64 new, old = ktime_to_ns(cfs_b->period);
  
