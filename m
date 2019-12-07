@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB47115B95
-	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 09:26:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5904115BC9
+	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 11:06:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726185AbfLGI0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 Dec 2019 03:26:15 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:57947 "EHLO
+        id S1726400AbfLGKGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 Dec 2019 05:06:47 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:21461 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725976AbfLGI0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 Dec 2019 03:26:15 -0500
+        by vger.kernel.org with ESMTP id S1726106AbfLGKGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 Dec 2019 05:06:47 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575707172;
+        s=mimecast20190719; t=1575713205;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=muc0DEe7Z8Hz0ewdhav5+FIuac+MaXZnc2b530k47V8=;
-        b=XgpznphksuEzJGLiFE+vFuAnQP8tOBd2Nx0LAU/oX9VmND8Q5X+HY0AEH5lwqoipkKBOgi
-        yrljIQkpGRe9yKN7Us/jYom0l5LShJRcGTv4Rpgd0WDvQOg4k6+2TWpCr3Us1Y/Jix2/MA
-        LM6GTa9OcshSTckxhyQxR6tyzJbUYyk=
+        bh=A0yqOx1GE7q1jjvnLqVrTC6nntLrfhTtK6+D1wGTMMA=;
+        b=T83C2HuiBj5JwaVdYDQZq65wlKIy4FJzrhR5eliL6T0Fmi7IyLdUMfFnXxna5XeUsuP8h3
+        AJJsGD+7MvyvYQ72VPChZCckQi8ww6CzRYgTkCGQ7Jf6hAtK1/88P9wCBtTkldBqEfT2Wm
+        llAJwuJ8/DUWGCCbmsqiR1Z8veB2SHI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-89-ALafIk-3MnmWLJWP0v5olw-1; Sat, 07 Dec 2019 03:26:10 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+ us-mta-353-eoFuJwZ_O_ulC78m3ehnrA-1; Sat, 07 Dec 2019 05:06:43 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 97014DB20
-        for <stable@vger.kernel.org>; Sat,  7 Dec 2019 08:26:09 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF2FA800D5A
+        for <stable@vger.kernel.org>; Sat,  7 Dec 2019 10:06:42 +0000 (UTC)
 Received: from [172.54.81.213] (cpt-1035.paas.prod.upshift.rdu2.redhat.com [10.0.19.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8C8D05C1D4;
-        Sat,  7 Dec 2019 08:26:04 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4A69BA4B8F;
+        Sat,  7 Dec 2019 10:06:40 +0000 (UTC)
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.15-5ebb572.cki
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.15-191a5c0.cki
  (stable-queue)
-Date:   Sat, 07 Dec 2019 08:26:04 -0000
-CC:     Yi Zhang <yi.zhang@redhat.com>
-Message-ID: <cki.4A652FFFD3.N5YURDZLSR@redhat.com>
-X-Gitlab-Pipeline-ID: 327336
+Date:   Sat, 07 Dec 2019 10:06:39 -0000
+Message-ID: <cki.BA28CB3BDD.6FUE1WDVV0@redhat.com>
+X-Gitlab-Pipeline-ID: 326729
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/327336
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-MC-Unique: ALafIk-3MnmWLJWP0v5olw-1
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/326729
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: eoFuJwZ_O_ulC78m3ehnrA-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
@@ -59,8 +58,8 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/st=
 able-queue.git
-            Commit: 5ebb572bd0f3 - i2c: core: fix use after free in of_i2c_=
-notify
+            Commit: 191a5c0133b5 - time: Zero the upper 32-bits in __kernel=
+_timespec on 32-bit
 
 The results of these automated tests are provided below.
 
@@ -72,7 +71,7 @@ The results of these automated tests are provided below.
 All kernel binaries, config files, and logs are available for download here=
 :
 
-  https://artifacts.cki-project.org/pipelines/327336
+  https://artifacts.cki-project.org/pipelines/326729
 
 Please reply to this email if you have any questions about the tests that w=
 e
@@ -150,13 +149,20 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
 
     Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
        =E2=9C=85 Boot test
        =E2=9C=85 xfstests: ext4
        =E2=9C=85 xfstests: xfs
        =E2=9C=85 lvm thinp sanity
        =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-tests=
+uite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
 
   ppc64le:
     Host 1:
@@ -168,7 +174,7 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
     Host 2:
        =E2=9C=85 Boot test
@@ -211,12 +217,25 @@ We booted each kernel and ran the following tests:
 
   x86_64:
     Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage SAN device stress - megaraid_sas
 
     Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage SAN device stress - mpt3sas driv=
+er
 
     Host 3:
        =E2=9C=85 Boot test
@@ -273,6 +292,14 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
        =F0=9F=9A=A7 =E2=9C=85 Usex - version 1.9-29
        =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 5:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Storage SAN device stress - megaraid_sas
+
+    Host 6:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Storage SAN device stress - mpt3sas driver
 
   Test sources: https://github.com/CKI-project/tests-beaker
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
