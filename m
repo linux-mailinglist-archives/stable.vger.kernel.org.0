@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D263E115A8C
-	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 02:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D74115A91
+	for <lists+stable@lfdr.de>; Sat,  7 Dec 2019 02:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726375AbfLGBLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Dec 2019 20:11:09 -0500
-Received: from mail-ua1-f73.google.com ([209.85.222.73]:35992 "EHLO
-        mail-ua1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726371AbfLGBLI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 20:11:08 -0500
-Received: by mail-ua1-f73.google.com with SMTP id w25so2786179uaa.3
-        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 17:11:08 -0800 (PST)
+        id S1726410AbfLGBNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Dec 2019 20:13:25 -0500
+Received: from mail-pj1-f74.google.com ([209.85.216.74]:45380 "EHLO
+        mail-pj1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726371AbfLGBNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Dec 2019 20:13:25 -0500
+Received: by mail-pj1-f74.google.com with SMTP id t7so4517231pjg.12
+        for <stable@vger.kernel.org>; Fri, 06 Dec 2019 17:13:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:message-id:mime-version:subject:from:to:cc;
-        bh=jPYB13Mo0gREDnBISRJFYRPUDs1XnOmlDuxNXnjXIHk=;
-        b=MWimuHK0UG21uUgkh1BOfhoOmqmtH/14WrZjgxgjm7vq1tUeZ1zLBIol4B0r9Zkvh2
-         OrN7YteDP0yk3gWEwvlhcp89MvAdxmI7h1QReuXSz+nvw8Tf8J2gcXNxhdJwIKPbGWZs
-         WNlFdaqk/yWiyGZXbIuJbyx/fNrPauEPaJ9ElIwn3gN5IXlWZa34CsIfOezdZR44vY18
-         bI6ON/1sH7Mwpom7KXGeSrqhIM7apGusR+sMpcueS2eQHF1vabRDlUy9miLeMPMWT/qZ
-         24gt8ff3xpzfReEh3xzWv2SNn7OuDlBIl4P9e5RDkQgK8FvTGlVUZmb++vYJNQ7Z6P7s
-         V62w==
+        bh=qkPBWqSaPLsjY9/IqoXF5kFK8MbvPPCmUvWE5QHTamc=;
+        b=pe9HQPX47HYDIkrLYMthZt10djFx+jepVBx7yJbcDIQ2EkWE99xpHXLTyV3AQS0QKH
+         88P7Hc3506KNG58nqx0SMxTw9PoysvTWKDSYXorh/ycUZ3/RXibr/mAJ6x0/xlrD8O23
+         I5JUduBUzyjCQsMueApdiKAwqOUTs/DHZWtCylMUJjLDz2Uj0mqT8dpW4vAhpUGXfzPb
+         b3yZXn6PM800MQtbFePDJqAmqruBDPGzavtkaI7kk8Jl/6nZCjOGVqFogdaWZETMhwWw
+         6kbFB/giZzDXeroYKWIGc45IJjaXYrfKjYKcdcddBZvEIYyqqrtrbsPQyV6U3EASf8FK
+         jW4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=jPYB13Mo0gREDnBISRJFYRPUDs1XnOmlDuxNXnjXIHk=;
-        b=dtnGcEYadkfGm0QH1bjJewVR4wfY4qG0WME7mVX91nVjDltQUD1sExen07qwBtYJJ6
-         stRg9eNX3ICho3M9urWZ07wIYVivxpOwISrkUtZF6za0qFSYEw8D92rEJ9e3m3XfTT7y
-         xqRLG5S2mX9Eas+4/5ifa0l0DMFbdSGVUIyiIqQl4GuLXGxydfR/XhyYKWjW3apCYdRw
-         EqDNWTJ0eELx4WNObfB5t5lVlsRosds1bm3yMMP/y9P7gxEdlHg3UUQfsb26JSRXgbCR
-         GPHtGhXqw35kFeAatJA7E0iWsIfJP514eRvVEeHp3G9NQbTpbOKj5bQOw175zCZbt+po
-         Pw+g==
-X-Gm-Message-State: APjAAAWs9QTTA9HPKmXIsy4JW2dlS1UiMPzEWCc9tLhVqiAJ9jbJq8m/
-        qVZN+M///M3auJyyvIlggYI+MxlcAIKX
-X-Google-Smtp-Source: APXvYqzpiZ+4uxnTPC7Q/RqfzM9Pcf6iguuC/M+loo34pZdIjfcsLPMEhEZuIIlGE2dhPoRjaxGpe46nOxoY
-X-Received: by 2002:a67:f318:: with SMTP id p24mr12003371vsf.240.1575681067590;
- Fri, 06 Dec 2019 17:11:07 -0800 (PST)
-Date:   Fri,  6 Dec 2019 17:11:02 -0800
-Message-Id: <20191207011102.120954-1-xueweiz@google.com>
+        bh=qkPBWqSaPLsjY9/IqoXF5kFK8MbvPPCmUvWE5QHTamc=;
+        b=tF/K9wcXtnVt0sC7y2vykmb1o52jQ+sSob/H4hUjQplGJXfOtpV/g2n9oj7PZ59ciZ
+         aO9U7YEMJhzzEBu7bWWjw3LBX3X0jju3hM23yG8CMGMe1c5r91V8B1YOPObq6wFRBntc
+         o3aTkzAYF8UiZnW8Hl9+AIbDoNB5i/5kI9Qybek7UPfsZob/OoMkEwbZgsAcTV6KyHWu
+         gIl6LNreBR/k0L2DEbnP3BhfDjVo/ejCJTP1zUf5uDmuesHrn5Dk+CTqIqPA/Swz7tJz
+         ceIrOBdt/lA6uP2E1j2TRrfAFNVo178Awe2aqd9vweUEvEhscFuTPEW0LUXg1aXwTl6S
+         SFmw==
+X-Gm-Message-State: APjAAAUtkEb+rRaxF7bkQurfqzK76LU+njQA0zfGxp5qmwQvsHbFawS/
+        XPFjKgTpbnRuxoXSIezmomiLr/3j7BCi
+X-Google-Smtp-Source: APXvYqyFXxOOfWAE3sfEbPHSi7KYTSTlE9LckJFWGjfoqUSGR/iAKR1Tb5tKeWzwMn4ljjaS+RRDm7v6ycjp
+X-Received: by 2002:a63:b20f:: with SMTP id x15mr6624818pge.65.1575681204432;
+ Fri, 06 Dec 2019 17:13:24 -0800 (PST)
+Date:   Fri,  6 Dec 2019 17:13:21 -0800
+Message-Id: <20191207011321.123774-1-xueweiz@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.24.0.393.g34dc348eaf-goog
-Subject: [PATCH v4.4] sched/fair: Scale bandwidth quota and period without
+Subject: [PATCH v3.16] sched/fair: Scale bandwidth quota and period without
  losing quota/period ratio precision
 From:   Xuewei Zhang <xueweiz@google.com>
 To:     Greg KH <gregkh@linuxfoundation.org>
@@ -119,10 +119,10 @@ Signed-off-by: Ingo Molnar <mingo@kernel.org>
  1 file changed, 22 insertions(+), 14 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index d012681fb1ab..b42d2b8b283e 100644
+index ea2d33aa1f55..773135f534ef 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -4055,20 +4055,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
+@@ -3753,20 +3753,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
  		if (++count > 3) {
  			u64 new, old = ktime_to_ns(cfs_b->period);
  
@@ -136,10 +136,10 @@ index d012681fb1ab..b42d2b8b283e 100644
 -			cfs_b->quota = div64_u64(cfs_b->quota, old);
 -
 -			pr_warn_ratelimited(
--        "cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
--	                        smp_processor_id(),
--	                        div_u64(new, NSEC_PER_USEC),
--                                div_u64(cfs_b->quota, NSEC_PER_USEC));
+-	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
+-				smp_processor_id(),
+-				div_u64(new, NSEC_PER_USEC),
+-				div_u64(cfs_b->quota, NSEC_PER_USEC));
 +			/*
 +			 * Grow period by a factor of 2 to avoid losing precision.
 +			 * Precision loss in the quota/period ratio can cause __cfs_schedulable
