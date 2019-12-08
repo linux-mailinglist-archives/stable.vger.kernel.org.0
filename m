@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0312D11620F
-	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:57:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DD3116226
+	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:58:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726783AbfLHNym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Dec 2019 08:54:42 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60142 "EHLO
+        id S1726822AbfLHN5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Dec 2019 08:57:52 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60098 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726707AbfLHNym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:42 -0500
+        by vger.kernel.org with ESMTP id S1726673AbfLHNyl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:41 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1C-0007dt-DR; Sun, 08 Dec 2019 13:54:38 +0000
+        id 1idx1C-0007dx-DL; Sun, 08 Dec 2019 13:54:38 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1B-0002MZ-Ae; Sun, 08 Dec 2019 13:54:37 +0000
+        id 1idx1B-0002Me-Bj; Sun, 08 Dec 2019 13:54:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Helge Deller" <deller@gmx.de>
-Date:   Sun, 08 Dec 2019 13:53:11 +0000
-Message-ID: <lsq.1575813165.675428564@decadent.org.uk>
+        "David Sterba" <dsterba@suse.com>,
+        "Filipe Manana" <fdmanana@suse.com>,
+        "Anand Jain" <anand.jain@oracle.com>,
+        "Nikolay Borisov" <nborisov@suse.com>
+Date:   Sun, 08 Dec 2019 13:53:12 +0000
+Message-ID: <lsq.1575813165.522399963@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 27/72] parisc: Disable HP HSC-PCI Cards to prevent
- kernel crash
+Subject: [PATCH 3.16 28/72] Btrfs: fix use-after-free when using the tree
+ modification log
 In-Reply-To: <lsq.1575813164.154362148@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,70 +49,96 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Helge Deller <deller@gmx.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 5fa1659105fac63e0f3c199b476025c2e04111ce upstream.
+commit efad8a853ad2057f96664328a0d327a05ce39c76 upstream.
 
-The HP Dino PCI controller chip can be used in two variants: as on-board
-controller (e.g. in B160L), or on an Add-On card ("Card-Mode") to bridge
-PCI components to systems without a PCI bus, e.g. to a HSC/GSC bus.  One
-such Add-On card is the HP HSC-PCI Card which has one or more DEC Tulip
-PCI NIC chips connected to the on-card Dino PCI controller.
+At ctree.c:get_old_root(), we are accessing a root's header owner field
+after we have freed the respective extent buffer. This results in an
+use-after-free that can lead to crashes, and when CONFIG_DEBUG_PAGEALLOC
+is set, results in a stack trace like the following:
 
-Dino in Card-Mode has a big disadvantage: All PCI memory accesses need
-to go through the DINO_MEM_DATA register, so Linux drivers will not be
-able to use the ioremap() function. Without ioremap() many drivers will
-not work, one example is the tulip driver which then simply crashes the
-kernel if it tries to access the ports on the HP HSC card.
+  [ 3876.799331] stack segment: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
+  [ 3876.799363] CPU: 0 PID: 15436 Comm: pool Not tainted 5.3.0-rc3-btrfs-next-54 #1
+  [ 3876.799385] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
+  [ 3876.799433] RIP: 0010:btrfs_search_old_slot+0x652/0xd80 [btrfs]
+  (...)
+  [ 3876.799502] RSP: 0018:ffff9f08c1a2f9f0 EFLAGS: 00010286
+  [ 3876.799518] RAX: ffff8dd300000000 RBX: ffff8dd85a7a9348 RCX: 000000038da26000
+  [ 3876.799538] RDX: 0000000000000000 RSI: ffffe522ce368980 RDI: 0000000000000246
+  [ 3876.799559] RBP: dae1922adadad000 R08: 0000000008020000 R09: ffffe522c0000000
+  [ 3876.799579] R10: ffff8dd57fd788c8 R11: 000000007511b030 R12: ffff8dd781ddc000
+  [ 3876.799599] R13: ffff8dd9e6240578 R14: ffff8dd6896f7a88 R15: ffff8dd688cf90b8
+  [ 3876.799620] FS:  00007f23ddd97700(0000) GS:ffff8dda20200000(0000) knlGS:0000000000000000
+  [ 3876.799643] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [ 3876.799660] CR2: 00007f23d4024000 CR3: 0000000710bb0005 CR4: 00000000003606f0
+  [ 3876.799682] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [ 3876.799703] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [ 3876.799723] Call Trace:
+  [ 3876.799735]  ? do_raw_spin_unlock+0x49/0xc0
+  [ 3876.799749]  ? _raw_spin_unlock+0x24/0x30
+  [ 3876.799779]  resolve_indirect_refs+0x1eb/0xc80 [btrfs]
+  [ 3876.799810]  find_parent_nodes+0x38d/0x1180 [btrfs]
+  [ 3876.799841]  btrfs_check_shared+0x11a/0x1d0 [btrfs]
+  [ 3876.799870]  ? extent_fiemap+0x598/0x6e0 [btrfs]
+  [ 3876.799895]  extent_fiemap+0x598/0x6e0 [btrfs]
+  [ 3876.799913]  do_vfs_ioctl+0x45a/0x700
+  [ 3876.799926]  ksys_ioctl+0x70/0x80
+  [ 3876.799938]  ? trace_hardirqs_off_thunk+0x1a/0x20
+  [ 3876.799953]  __x64_sys_ioctl+0x16/0x20
+  [ 3876.799965]  do_syscall_64+0x62/0x220
+  [ 3876.799977]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [ 3876.799993] RIP: 0033:0x7f23e0013dd7
+  (...)
+  [ 3876.800056] RSP: 002b:00007f23ddd96ca8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  [ 3876.800078] RAX: ffffffffffffffda RBX: 00007f23d80210f8 RCX: 00007f23e0013dd7
+  [ 3876.800099] RDX: 00007f23d80210f8 RSI: 00000000c020660b RDI: 0000000000000003
+  [ 3876.800626] RBP: 000055fa2a2a2440 R08: 0000000000000000 R09: 00007f23ddd96d7c
+  [ 3876.801143] R10: 00007f23d8022000 R11: 0000000000000246 R12: 00007f23ddd96d80
+  [ 3876.801662] R13: 00007f23ddd96d78 R14: 00007f23d80210f0 R15: 00007f23ddd96d80
+  (...)
+  [ 3876.805107] ---[ end trace e53161e179ef04f9 ]---
 
-This patch disables the HP HSC card if it finds one, and as such
-fixes the kernel crash on a HP D350/2 machine.
+Fix that by saving the root's header owner field into a local variable
+before freeing the root's extent buffer, and then use that local variable
+when needed.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Noticed-by: Phil Scarr <phil.scarr@pm.me>
+Fixes: 30b0463a9394d9 ("Btrfs: fix accessing the root pointer in tree mod log functions")
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/parisc/dino.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ fs/btrfs/ctree.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/parisc/dino.c
-+++ b/drivers/parisc/dino.c
-@@ -160,6 +160,15 @@ struct dino_device
- 	(struct dino_device *)__pdata; })
- 
- 
-+/* Check if PCI device is behind a Card-mode Dino. */
-+static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
-+{
-+	struct dino_device *dino_dev;
-+
-+	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
-+	return is_card_dino(&dino_dev->hba.dev->id);
-+}
-+
- /*
-  * Dino Configuration Space Accessor Functions
-  */
-@@ -442,6 +451,21 @@ static void quirk_cirrus_cardbus(struct
- }
- DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
- 
-+#ifdef CONFIG_TULIP
-+static void pci_fixup_tulip(struct pci_dev *dev)
-+{
-+	if (!pci_dev_is_behind_card_dino(dev))
-+		return;
-+	if (!(pci_resource_flags(dev, 1) & IORESOURCE_MEM))
-+		return;
-+	pr_warn("%s: HP HSC-PCI Cards with card-mode Dino not yet supported.\n",
-+		pci_name(dev));
-+	/* Disable this card by zeroing the PCI resources */
-+	memset(&dev->resource[0], 0, sizeof(dev->resource[0]));
-+	memset(&dev->resource[1], 0, sizeof(dev->resource[1]));
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_DEC, PCI_ANY_ID, pci_fixup_tulip);
-+#endif /* CONFIG_TULIP */
- 
- static void __init
- dino_bios_init(void)
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1411,6 +1411,7 @@ get_old_root(struct btrfs_root *root, u6
+ 	struct tree_mod_elem *tm;
+ 	struct extent_buffer *eb = NULL;
+ 	struct extent_buffer *eb_root;
++	u64 eb_root_owner = 0;
+ 	struct extent_buffer *old;
+ 	struct tree_mod_root *old_root = NULL;
+ 	u64 old_generation = 0;
+@@ -1445,6 +1446,7 @@ get_old_root(struct btrfs_root *root, u6
+ 			free_extent_buffer(old);
+ 		}
+ 	} else if (old_root) {
++		eb_root_owner = btrfs_header_owner(eb_root);
+ 		btrfs_tree_read_unlock(eb_root);
+ 		free_extent_buffer(eb_root);
+ 		eb = alloc_dummy_extent_buffer(logical, root->nodesize);
+@@ -1462,7 +1464,7 @@ get_old_root(struct btrfs_root *root, u6
+ 	if (old_root) {
+ 		btrfs_set_header_bytenr(eb, eb->start);
+ 		btrfs_set_header_backref_rev(eb, BTRFS_MIXED_BACKREF_REV);
+-		btrfs_set_header_owner(eb, btrfs_header_owner(eb_root));
++		btrfs_set_header_owner(eb, eb_root_owner);
+ 		btrfs_set_header_level(eb, old_root->level);
+ 		btrfs_set_header_generation(eb, old_generation);
+ 	}
 
