@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2201116234
-	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:58:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3042B1161C8
+	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726831AbfLHN6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Dec 2019 08:58:12 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60110 "EHLO
+        id S1727054AbfLHNyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Dec 2019 08:54:53 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60726 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726678AbfLHNyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:41 -0500
+        by vger.kernel.org with ESMTP id S1727016AbfLHNyv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:51 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1C-0007eC-Nn; Sun, 08 Dec 2019 13:54:38 +0000
+        id 1idx1C-0007eF-Tc; Sun, 08 Dec 2019 13:54:38 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1B-0002N8-Kw; Sun, 08 Dec 2019 13:54:37 +0000
+        id 1idx1B-0002ND-Li; Sun, 08 Dec 2019 13:54:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Nathan Lynch" <nathanl@linux.ibm.com>
-Date:   Sun, 08 Dec 2019 13:53:18 +0000
-Message-ID: <lsq.1575813165.714960861@decadent.org.uk>
+        "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
+        "David Howells" <dhowells@redhat.com>,
+        "Al Viro" <viro@zeniv.linux.org.uk>, linux-s390@vger.kernel.org,
+        "Heiko Carstens" <heiko.carstens@de.ibm.com>
+Date:   Sun, 08 Dec 2019 13:53:19 +0000
+Message-ID: <lsq.1575813165.422392579@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 34/72] powerpc/pseries: correctly track irq state in
- default idle
+Subject: [PATCH 3.16 35/72] hypfs: Fix error number left in struct pointer
+ member
 In-Reply-To: <lsq.1575813164.154362148@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,53 +49,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 92c94dfb69e350471473fd3075c74bc68150879e upstream.
+commit b54c64f7adeb241423cd46598f458b5486b0375e upstream.
 
-prep_irq_for_idle() is intended to be called before entering
-H_CEDE (and it is used by the pseries cpuidle driver). However the
-default pseries idle routine does not call it, leading to mismanaged
-lazy irq state when the cpuidle driver isn't in use. Manifestations of
-this include:
+In hypfs_fill_super(), if hypfs_create_update_file() fails,
+sbi->update_file is left holding an error number.  This is passed to
+hypfs_kill_super() which doesn't check for this.
 
-* Dropped IPIs in the time immediately after a cpu comes
-  online (before it has installed the cpuidle handler), making the
-  online operation block indefinitely waiting for the new cpu to
-  respond.
+Fix this by not setting sbi->update_value until after we've checked for
+error.
 
-* Hitting this WARN_ON in arch_local_irq_restore():
-	/*
-	 * We should already be hard disabled here. We had bugs
-	 * where that wasn't the case so let's dbl check it and
-	 * warn if we are wrong. Only do that when IRQ tracing
-	 * is enabled as mfmsr() can be costly.
-	 */
-	if (WARN_ON_ONCE(mfmsr() & MSR_EE))
-		__hard_irq_disable();
-
-Call prep_irq_for_idle() from pseries_lpar_idle() and honor its
-result.
-
-Fixes: 363edbe2614a ("powerpc: Default arch idle could cede processor on pseries")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190910225244.25056-1-nathanl@linux.ibm.com
+Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: linux-s390@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/powerpc/platforms/pseries/setup.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/hypfs/inode.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -360,6 +360,9 @@ static void pseries_lpar_idle(void)
- 	 * low power mode by cedeing processor to hypervisor
- 	 */
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -275,7 +275,7 @@ static int hypfs_show_options(struct seq
+ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct inode *root_inode;
+-	struct dentry *root_dentry;
++	struct dentry *root_dentry, *update_file;
+ 	int rc = 0;
+ 	struct hypfs_sb_info *sbi;
  
-+	if (!prep_irq_for_idle())
-+		return;
-+
- 	/* Indicate to hypervisor that we are idle. */
- 	get_lppaca()->idle = 1;
- 
+@@ -306,9 +306,10 @@ static int hypfs_fill_super(struct super
+ 		rc = hypfs_diag_create_files(root_dentry);
+ 	if (rc)
+ 		return rc;
+-	sbi->update_file = hypfs_create_update_file(root_dentry);
+-	if (IS_ERR(sbi->update_file))
+-		return PTR_ERR(sbi->update_file);
++	update_file = hypfs_create_update_file(root_dentry);
++	if (IS_ERR(update_file))
++		return PTR_ERR(update_file);
++	sbi->update_file = update_file;
+ 	hypfs_update_update(sb);
+ 	pr_info("Hypervisor filesystem mounted\n");
+ 	return 0;
 
