@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B9B311622A
-	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA129116247
+	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:59:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726667AbfLHN57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Dec 2019 08:57:59 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60068 "EHLO
+        id S1726599AbfLHN6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Dec 2019 08:58:50 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60008 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726661AbfLHNyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:41 -0500
+        by vger.kernel.org with ESMTP id S1726596AbfLHNyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:40 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1B-0007dZ-N3; Sun, 08 Dec 2019 13:54:37 +0000
+        id 1idx1B-0007db-U8; Sun, 08 Dec 2019 13:54:37 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1B-0002Lv-0Q; Sun, 08 Dec 2019 13:54:37 +0000
+        id 1idx1B-0002M0-1f; Sun, 08 Dec 2019 13:54:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        "Rakesh Pandit" <rakesh@tuxera.com>
-Date:   Sun, 08 Dec 2019 13:53:03 +0000
-Message-ID: <lsq.1575813165.296462381@decadent.org.uk>
+        "Hans Verkuil" <hverkuil-cisco@xs4all.nl>,
+        "Hans de Goede" <hdegoede@redhat.com>,
+        "Rui Salvaterra" <rsalvaterra@gmail.com>,
+        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>
+Date:   Sun, 08 Dec 2019 13:53:04 +0000
+Message-ID: <lsq.1575813165.40137105@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 19/72] ext4: fix warning inside ext4_convert_unwritten_extents_endio
+Subject: [PATCH 3.16 20/72] media: sn9c20x: Add MSI MS-1039 laptop to
+ flip_dmi_table
 In-Reply-To: <lsq.1575813164.154362148@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,34 +49,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Rakesh Pandit <rakesh@tuxera.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit e3d550c2c4f2f3dba469bc3c4b83d9332b4e99e1 upstream.
+commit 7e0bb5828311f811309bed5749528ca04992af2f upstream.
 
-Really enable warning when CONFIG_EXT4_DEBUG is set and fix missing
-first argument.  This was introduced in commit ff95ec22cd7f ("ext4:
-add warning to ext4_convert_unwritten_extents_endio") and splitting
-extents inside endio would trigger it.
+Like a bunch of other MSI laptops the MS-1039 uses a 0c45:627b
+SN9C201 + OV7660 webcam which is mounted upside down.
 
-Fixes: ff95ec22cd7f ("ext4: add warning to ext4_convert_unwritten_extents_endio")
-Signed-off-by: Rakesh Pandit <rakesh@tuxera.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Add it to the sn9c20x flip_dmi_table to deal with this.
+
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/ext4/extents.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/gspca/sn9c20x.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3775,8 +3775,8 @@ static int ext4_convert_unwritten_extent
- 	 * illegal.
- 	 */
- 	if (ee_block != map->m_lblk || ee_len > map->m_len) {
--#ifdef EXT4_DEBUG
--		ext4_warning("Inode (%ld) finished: extent logical block %llu,"
-+#ifdef CONFIG_EXT4_DEBUG
-+		ext4_warning(inode->i_sb, "Inode (%ld) finished: extent logical block %llu,"
- 			     " len %u; IO logical block %llu, len %u\n",
- 			     inode->i_ino, (unsigned long long)ee_block, ee_len,
- 			     (unsigned long long)map->m_lblk, map->m_len);
+--- a/drivers/media/usb/gspca/sn9c20x.c
++++ b/drivers/media/usb/gspca/sn9c20x.c
+@@ -139,6 +139,13 @@ static const struct dmi_system_id flip_d
+ 		}
+ 	},
+ 	{
++		.ident = "MSI MS-1039",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1039"),
++		}
++	},
++	{
+ 		.ident = "MSI MS-1632",
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "MSI"),
 
