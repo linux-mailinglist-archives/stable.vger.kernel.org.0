@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 370081161EA
-	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:56:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8991161E9
+	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:56:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726860AbfLHN4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726908AbfLHN4A (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 8 Dec 2019 08:56:00 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60444 "EHLO
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60430 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726884AbfLHNyp (ORCPT
+        by vger.kernel.org with ESMTP id S1726883AbfLHNyp (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:45 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1F-0007h9-QU; Sun, 08 Dec 2019 13:54:41 +0000
+        id 1idx1G-0007hK-6V; Sun, 08 Dec 2019 13:54:42 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1E-0002Ov-BL; Sun, 08 Dec 2019 13:54:40 +0000
+        id 1idx1E-0002P1-Jc; Sun, 08 Dec 2019 13:54:40 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,12 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Kalle Valo" <kvalo@codeaurora.org>,
-        "Navid Emamdoost" <navid.emamdoost@gmail.com>,
-        "Ganapathi Bhat" <gbhat@marvell.com>
-Date:   Sun, 08 Dec 2019 13:53:40 +0000
-Message-ID: <lsq.1575813165.802788036@decadent.org.uk>
+        "Herbert Xu" <herbert@gondor.apana.org.au>
+Date:   Sun, 08 Dec 2019 13:53:41 +0000
+Message-ID: <lsq.1575813165.245786844@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 56/72] mwifiex: pcie: Fix memory leak in
- mwifiex_pcie_init_evt_ring
+Subject: [PATCH 3.16 57/72] crypto: user - Fix crypto_alg_match race
 In-Reply-To: <lsq.1575813164.154362148@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,37 +45,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit d10dcb615c8e29d403a24d35f8310a7a53e3050c upstream.
+commit 016baaa1183bb0c5fb2a7de42413bba8a51c1bc8 upstream.
 
-In mwifiex_pcie_init_evt_ring, a new skb is allocated which should be
-released if mwifiex_map_pci_memory() fails. The release for skb and
-card->evtbd_ring_vbase is added.
+The function crypto_alg_match returns an algorithm without taking
+any references on it.  This means that the algorithm can be freed
+at any time, therefore all users of crypto_alg_match are buggy.
 
-Fixes: 0732484b47b5 ("mwifiex: separate ring initialization and ring creation routines")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Acked-by: Ganapathi Bhat <gbhat@marvell.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-[bwh: Backported to 3.16: adjust filename]
+This patch fixes this by taking a reference count on the algorithm
+to prevent such races.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/wireless/mwifiex/pcie.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ crypto/crypto_user.c | 39 +++++++++++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
 
---- a/drivers/net/wireless/mwifiex/pcie.c
-+++ b/drivers/net/wireless/mwifiex/pcie.c
-@@ -539,8 +539,11 @@ static int mwifiex_pcie_init_evt_ring(st
- 		skb_put(skb, MAX_EVENT_SIZE);
+--- a/crypto/crypto_user.c
++++ b/crypto/crypto_user.c
+@@ -65,10 +65,14 @@ static struct crypto_alg *crypto_alg_mat
+ 		else if (!exact)
+ 			match = !strcmp(q->cra_name, p->cru_name);
  
- 		if (mwifiex_map_pci_memory(adapter, skb, MAX_EVENT_SIZE,
--					   PCI_DMA_FROMDEVICE))
-+					   PCI_DMA_FROMDEVICE)) {
-+			kfree_skb(skb);
-+			kfree(card->evtbd_ring_vbase);
- 			return -1;
-+		}
+-		if (match) {
+-			alg = q;
+-			break;
+-		}
++		if (!match)
++			continue;
++
++		if (unlikely(!crypto_mod_get(q)))
++			continue;
++
++		alg = q;
++		break;
+ 	}
  
- 		buf_pa = MWIFIEX_SKB_DMA_ADDR(skb);
+ 	up_read(&crypto_alg_sem);
+@@ -211,9 +215,10 @@ static int crypto_report(struct sk_buff
+ 	if (!alg)
+ 		return -ENOENT;
  
++	err = -ENOMEM;
+ 	skb = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);
+ 	if (!skb)
+-		return -ENOMEM;
++		goto drop_alg;
+ 
+ 	info.in_skb = in_skb;
+ 	info.out_skb = skb;
+@@ -221,6 +226,10 @@ static int crypto_report(struct sk_buff
+ 	info.nlmsg_flags = 0;
+ 
+ 	err = crypto_report_alg(alg, &info);
++
++drop_alg:
++	crypto_mod_put(alg);
++
+ 	if (err)
+ 		return err;
+ 
+@@ -293,6 +302,7 @@ static int crypto_update_alg(struct sk_b
+ 
+ 	up_write(&crypto_alg_sem);
+ 
++	crypto_mod_put(alg);
+ 	crypto_remove_final(&list);
+ 
+ 	return 0;
+@@ -303,6 +313,7 @@ static int crypto_del_alg(struct sk_buff
+ {
+ 	struct crypto_alg *alg;
+ 	struct crypto_user_alg *p = nlmsg_data(nlh);
++	int err;
+ 
+ 	if (!netlink_capable(skb, CAP_NET_ADMIN))
+ 		return -EPERM;
+@@ -319,13 +330,19 @@ static int crypto_del_alg(struct sk_buff
+ 	 * if we try to unregister. Unregistering such an algorithm without
+ 	 * removing the module is not possible, so we restrict to crypto
+ 	 * instances that are build from templates. */
++	err = -EINVAL;
+ 	if (!(alg->cra_flags & CRYPTO_ALG_INSTANCE))
+-		return -EINVAL;
++		goto drop_alg;
+ 
+-	if (atomic_read(&alg->cra_refcnt) != 1)
+-		return -EBUSY;
++	err = -EBUSY;
++	if (atomic_read(&alg->cra_refcnt) > 2)
++		goto drop_alg;
+ 
+-	return crypto_unregister_instance(alg);
++	err = crypto_unregister_instance(alg);
++
++drop_alg:
++	crypto_mod_put(alg);
++	return err;
+ }
+ 
+ static struct crypto_alg *crypto_user_skcipher_alg(const char *name, u32 type,
+@@ -404,8 +421,10 @@ static int crypto_add_alg(struct sk_buff
+ 		return -EINVAL;
+ 
+ 	alg = crypto_alg_match(p, exact);
+-	if (alg)
++	if (alg) {
++		crypto_mod_put(alg);
+ 		return -EEXIST;
++	}
+ 
+ 	if (strlen(p->cru_driver_name))
+ 		name = p->cru_driver_name;
 
