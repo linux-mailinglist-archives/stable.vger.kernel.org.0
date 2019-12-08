@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A09D11624F
-	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E501161BD
+	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:54:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726484AbfLHNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726442AbfLHNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 8 Dec 2019 08:54:38 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:59914 "EHLO
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:59910 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726378AbfLHNyi (ORCPT
+        by vger.kernel.org with ESMTP id S1725939AbfLHNyi (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:38 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1A-0007cz-KM; Sun, 08 Dec 2019 13:54:36 +0000
+        id 1idx1A-0007d0-K0; Sun, 08 Dec 2019 13:54:36 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1A-0002KU-7M; Sun, 08 Dec 2019 13:54:36 +0000
+        id 1idx1A-0002KY-86; Sun, 08 Dec 2019 13:54:36 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -27,15 +27,13 @@ From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Mark Brown" <broonie@kernel.org>,
-        "Igor Opaniuk" <igor.opaniuk@toradex.com>,
-        "Fabio Estevam" <festevam@gmail.com>,
-        "Oleksandr Suvorov" <oleksandr.suvorov@toradex.com>,
-        "Marcel Ziswiler" <marcel.ziswiler@toradex.com>
-Date:   Sun, 08 Dec 2019 13:52:45 +0000
-Message-ID: <lsq.1575813165.361637279@decadent.org.uk>
+        "Jean-Michel Hautbois" <jhautbois@gmail.com>,
+        "Jean-Michel Hautbois" <jean-michel.hautbois@veo-labs.com>
+Date:   Sun, 08 Dec 2019 13:52:46 +0000
+Message-ID: <lsq.1575813165.808531661@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 01/72] ASoC: Define a set of DAPM pre/post-up events
+Subject: [PATCH 3.16 02/72] ASoC: sgtl5000: fix VAG power up timing
 In-Reply-To: <lsq.1575813164.154362148@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,33 +47,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+From: Jean-Michel Hautbois <jhautbois@gmail.com>
 
-commit cfc8f568aada98f9608a0a62511ca18d647613e2 upstream.
+commit c803cc2dcd722e08020c1ba63bb5ceece4a19fdb upstream.
 
-Prepare to use SND_SOC_DAPM_PRE_POST_PMU definition to
-reduce coming code size and make it more readable.
+When power up, a "pop" is heard on line-in and mic-in.
+An analysis of the PCM shows it lasts ~400ms
+and looks like a filter response.
+VAG power up should be delayed by 400ms as VAG power down is.
 
-Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Reviewed-by: Igor Opaniuk <igor.opaniuk@toradex.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20190719100524.23300-2-oleksandr.suvorov@toradex.com
+Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- include/sound/soc-dapm.h | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/sgtl5000.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/sound/soc-dapm.h
-+++ b/include/sound/soc-dapm.h
-@@ -329,6 +329,8 @@ struct device;
- #define SND_SOC_DAPM_WILL_PMD   0x80    /* called at start of sequence */
- #define SND_SOC_DAPM_PRE_POST_PMD \
- 				(SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD)
-+#define SND_SOC_DAPM_PRE_POST_PMU \
-+				(SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU)
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -175,6 +175,7 @@ static int power_vag_event(struct snd_so
+ 	case SND_SOC_DAPM_POST_PMU:
+ 		snd_soc_update_bits(w->codec, SGTL5000_CHIP_ANA_POWER,
+ 			SGTL5000_VAG_POWERUP, SGTL5000_VAG_POWERUP);
++		msleep(400);
+ 		break;
  
- /* convenience event type detection */
- #define SND_SOC_DAPM_EVENT_ON(e)	\
+ 	case SND_SOC_DAPM_PRE_PMD:
 
