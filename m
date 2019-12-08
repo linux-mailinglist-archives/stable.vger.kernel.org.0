@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E445116237
-	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:58:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71944116233
+	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 14:58:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726971AbfLHN6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Dec 2019 08:58:20 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60094 "EHLO
+        id S1727048AbfLHN6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Dec 2019 08:58:12 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60048 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726674AbfLHNyl (ORCPT
+        by vger.kernel.org with ESMTP id S1726646AbfLHNyl (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 08:54:41 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1C-0007dp-4a; Sun, 08 Dec 2019 13:54:38 +0000
+        id 1idx1C-0007ds-DL; Sun, 08 Dec 2019 13:54:38 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1idx1B-0002MP-7u; Sun, 08 Dec 2019 13:54:37 +0000
+        id 1idx1B-0002MU-9B; Sun, 08 Dec 2019 13:54:37 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Eric Biggers" <ebiggers@google.com>,
-        syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com,
-        "Casey Schaufler" <casey@schaufler-ca.com>
-Date:   Sun, 08 Dec 2019 13:53:09 +0000
-Message-ID: <lsq.1575813165.666306032@decadent.org.uk>
+        "Alan Stern" <stern@rowland.harvard.edu>,
+        "Jiri Kosina" <jkosina@suse.cz>
+Date:   Sun, 08 Dec 2019 13:53:10 +0000
+Message-ID: <lsq.1575813165.907082376@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 25/72] smack: use GFP_NOFS while holding
- inode_smack::smk_lock
+Subject: [PATCH 3.16 26/72] HID: prodikeys: Fix general protection fault
+ during probe
 In-Reply-To: <lsq.1575813164.154362148@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,53 +47,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Biggers <ebiggers@google.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit e5bfad3d7acc5702f32aafeb388362994f4d7bd0 upstream.
+commit 98375b86c79137416e9fd354177b85e768c16e56 upstream.
 
-inode_smack::smk_lock is taken during smack_d_instantiate(), which is
-called during a filesystem transaction when creating a file on ext4.
-Therefore to avoid a deadlock, all code that takes this lock must use
-GFP_NOFS, to prevent memory reclaim from waiting for the filesystem
-transaction to complete.
+The syzbot fuzzer provoked a general protection fault in the
+hid-prodikeys driver:
 
-Reported-by: syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-[bwh: Backported to 3.16:
- - Drop change to smk_netlbl_mls(), where GFP_ATOMIC is used
- - Adjust context]
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.3.0-rc5+ #28
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:pcmidi_submit_output_report drivers/hid/hid-prodikeys.c:300  [inline]
+RIP: 0010:pcmidi_set_operational drivers/hid/hid-prodikeys.c:558 [inline]
+RIP: 0010:pcmidi_snd_initialise drivers/hid/hid-prodikeys.c:686 [inline]
+RIP: 0010:pk_probe+0xb51/0xfd0 drivers/hid/hid-prodikeys.c:836
+Code: 0f 85 50 04 00 00 48 8b 04 24 4c 89 7d 10 48 8b 58 08 e8 b2 53 e4 fc
+48 8b 54 24 20 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f
+85 13 04 00 00 48 ba 00 00 00 00 00 fc ff df 49 8b
+
+The problem is caused by the fact that pcmidi_get_output_report() will
+return an error if the HID device doesn't provide the right sort of
+output report, but pcmidi_set_operational() doesn't bother to check
+the return code and assumes the function call always succeeds.
+
+This patch adds the missing check and aborts the probe operation if
+necessary.
+
+Reported-and-tested-by: syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/security/smack/smack_access.c
-+++ b/security/smack/smack_access.c
-@@ -430,7 +430,7 @@ char *smk_parse_smack(const char *string
- 	if (i == 0 || i >= SMK_LONGLABEL)
- 		return NULL;
+ drivers/hid/hid-prodikeys.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+--- a/drivers/hid/hid-prodikeys.c
++++ b/drivers/hid/hid-prodikeys.c
+@@ -557,10 +557,14 @@ static void pcmidi_setup_extra_keys(
  
--	smack = kzalloc(i + 1, GFP_KERNEL);
-+	smack = kzalloc(i + 1, GFP_NOFS);
- 	if (smack != NULL) {
- 		strncpy(smack, string, i + 1);
- 		smack[i] = '\0';
-@@ -502,7 +502,7 @@ struct smack_known *smk_import_entry(con
- 	if (skp != NULL)
- 		goto freeout;
+ static int pcmidi_set_operational(struct pcmidi_snd *pm)
+ {
++	int rc;
++
+ 	if (pm->ifnum != 1)
+ 		return 0; /* only set up ONCE for interace 1 */
  
--	skp = kzalloc(sizeof(*skp), GFP_KERNEL);
-+	skp = kzalloc(sizeof(*skp), GFP_NOFS);
- 	if (skp == NULL)
- 		goto freeout;
+-	pcmidi_get_output_report(pm);
++	rc = pcmidi_get_output_report(pm);
++	if (rc < 0)
++		return rc;
+ 	pcmidi_submit_output_report(pm, 0xc1);
+ 	return 0;
+ }
+@@ -689,7 +693,11 @@ static int pcmidi_snd_initialise(struct
+ 	spin_lock_init(&pm->rawmidi_in_lock);
  
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -70,7 +70,7 @@ static struct smack_known *smk_fetch(con
- 	if (ip->i_op->getxattr == NULL)
- 		return NULL;
+ 	init_sustain_timers(pm);
+-	pcmidi_set_operational(pm);
++	err = pcmidi_set_operational(pm);
++	if (err < 0) {
++		pk_error("failed to find output report\n");
++		goto fail_register;
++	}
  
--	buffer = kzalloc(SMK_LONGLABEL, GFP_KERNEL);
-+	buffer = kzalloc(SMK_LONGLABEL, GFP_NOFS);
- 	if (buffer == NULL)
- 		return NULL;
- 
+ 	/* register it */
+ 	err = snd_card_register(card);
 
