@@ -2,103 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A32C7116408
-	for <lists+stable@lfdr.de>; Sun,  8 Dec 2019 23:52:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96B8911644E
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 01:12:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726684AbfLHWwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Dec 2019 17:52:00 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:40033 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726661AbfLHWwA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 17:52:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575845519;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=uxowTAVazvKFjO4M9Fa4G18zrvWzg1FDkS8+HQr9N4E=;
-        b=hUkUJjNCiFIvfhc4ImVFq9lWWrt2Zmpg9E3UKMSlq2k2ZVPwZWeScQHGCCGEE6x2iVMdaN
-        WrhkWGgtqrQ6MsPOVHbTFawDxzc3khGl7+nb9tX9i/tKtWau0mC+j62Iz2IMw644kkRclV
-        BA/Voz73y4e5ipFnBeYDriPDiWJ9sVw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-316-zxUypHxhPRW5qQAZlAoKyg-1; Sun, 08 Dec 2019 17:51:55 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5EA40107ACC4;
-        Sun,  8 Dec 2019 22:51:54 +0000 (UTC)
-Received: from rh2.redhat.com (ovpn-120-141.rdu2.redhat.com [10.10.120.141])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 000B319C5B;
-        Sun,  8 Dec 2019 22:51:52 +0000 (UTC)
-From:   Mike Christie <mchristi@redhat.com>
-To:     sunke32@huawei.com, nbd@other.debian.org, axboe@kernel.dk,
-        josef@toxicpanda.com, linux-block@vger.kernel.org
-Cc:     Mike Christie <mchristi@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH] nbd: fix shutdown and recv work deadlock v2
-Date:   Sun,  8 Dec 2019 16:51:50 -0600
-Message-Id: <20191208225150.5944-1-mchristi@redhat.com>
+        id S1726653AbfLIAM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Dec 2019 19:12:27 -0500
+Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:33498 "EHLO
+        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726422AbfLIAM1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Dec 2019 19:12:27 -0500
+Received: from callcc.thunk.org (ec2-52-55-121-20.compute-1.amazonaws.com [52.55.121.20])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id xB90CFYW000391
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 8 Dec 2019 19:12:19 -0500
+Received: by callcc.thunk.org (Postfix, from userid 15806)
+        id B2F87421A48; Sun,  8 Dec 2019 19:12:11 -0500 (EST)
+Date:   Sun, 8 Dec 2019 19:12:11 -0500
+From:   "Theodore Y. Ts'o" <tytso@mit.edu>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-ext4@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] ext4: Fix ext4_empty_dir() for directories with holes
+Message-ID: <20191209001211.GA9343@mit.edu>
+References: <20191202170213.4761-1-jack@suse.cz>
+ <20191202170213.4761-2-jack@suse.cz>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: zxUypHxhPRW5qQAZlAoKyg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191202170213.4761-2-jack@suse.cz>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes a regression added with:
+On Mon, Dec 02, 2019 at 06:02:12PM +0100, Jan Kara wrote:
+> Function ext4_empty_dir() doesn't correctly handle directories with
+> holes and crashes on bh->b_data dereference when bh is NULL. Reorganize
+> the loop to use 'offset' variable all the times instead of comparing
+> pointers to current direntry with bh->b_data pointer. Also add more
+> strict checking of '.' and '..' directory entries to avoid entering loop
+> in possibly invalid state on corrupted filesystems.
+> 
+> References: CVE-2019-19037
+> CC: stable@vger.kernel.org
+> Fixes: 4e19d6b65fb4 ("ext4: allow directory holes")
+> Signed-off-by: Jan Kara <jack@suse.cz>
 
-commit e9e006f5fcf2bab59149cb38a48a4817c1b538b4
-Author: Mike Christie <mchristi@redhat.com>
-Date:   Sun Aug 4 14:10:06 2019 -0500
+Applied, thanks.
 
-    nbd: fix max number of supported devs
-
-where we can deadlock during device shutdown. The problem occurs if
-the recv_work's nbd_config_put occurs after nbd_start_device_ioctl has
-returned and the userspace app has droppped its reference via closing
-the device and running nbd_release. The recv_work nbd_config_put call
-would then drop the refcount to zero and try to destroy the config which
-would try to do destroy_workqueue from the recv work.
-
-This patch just has nbd_start_device_ioctl do a flush_workqueue when it
-wakes so we know after the ioctl returns running works have exited. This
-also fixes a possible race where we could try to reuse the device while
-old recv_works are still running.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Christie <mchristi@redhat.com>
----
-v2:
-- Drop the taking/dropping of a config_refs around the ioctl. This is
-not needed because the caller has incremented the refcount already via
-the open() call before doing the ioctl().
-
- drivers/block/nbd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 57532465fb83..b4607dd96185 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1296,10 +1296,10 @@ static int nbd_start_device_ioctl(struct nbd_device=
- *nbd, struct block_device *b
- =09mutex_unlock(&nbd->config_lock);
- =09ret =3D wait_event_interruptible(config->recv_wq,
- =09=09=09=09=09 atomic_read(&config->recv_threads) =3D=3D 0);
--=09if (ret) {
-+=09if (ret)
- =09=09sock_shutdown(nbd);
--=09=09flush_workqueue(nbd->recv_workq);
--=09}
-+=09flush_workqueue(nbd->recv_workq);
-+
- =09mutex_lock(&nbd->config_lock);
- =09nbd_bdev_reset(bdev);
- =09/* user requested, ignore socket errors */
---=20
-2.20.1
-
+					- Ted
