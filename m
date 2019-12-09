@@ -2,149 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD17E1168E8
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 10:10:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E701169F2
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 10:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727370AbfLIJKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 04:10:06 -0500
-Received: from mx2.suse.de ([195.135.220.15]:50072 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726377AbfLIJKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 04:10:05 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 1B281B17D;
-        Mon,  9 Dec 2019 09:10:02 +0000 (UTC)
-Subject: Re: [PATCH STABLE 4.4 5/8] mm: prevent get_user_pages() from
- overflowing page refcount
-To:     Ajay Kaher <akaher@vmware.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "stable@kernel.org" <stable@kernel.org>,
-        Srivatsa Bhat <srivatsab@vmware.com>,
-        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
-        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-References: <20191108093814.16032-1-vbabka@suse.cz>
- <20191108093814.16032-6-vbabka@suse.cz>
- <519D18AF-DD01-4107-96D2-D8E33058B2CB@vmware.com>
- <a490e671-7291-4a82-ad27-0a18c17d7272@suse.cz>
- <68445EC7-1814-48C4-B88C-9C1E00489418@vmware.com>
- <fc4e3b6e-90fc-cd9f-75ad-452b060250d6@suse.cz>
- <64284E33-3828-46E9-AFFB-649E0DA41023@vmware.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <ac76f388-9a73-b055-419a-37f182211343@suse.cz>
-Date:   Mon, 9 Dec 2019 10:10:01 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1727144AbfLIJrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 04:47:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58624 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725994AbfLIJrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Dec 2019 04:47:08 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24C1520726;
+        Mon,  9 Dec 2019 09:47:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1575884827;
+        bh=cFW2Px5ltAq0uvXZUr3YCm89N0WrwOLR4cp0l+4zZQc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cPnosmSY5wY2zdio5j/eMnegevHOLz/e2yRCsU5Yizr3WB1ER6vm3D4rxHsVR9Oa5
+         RK79NcoMNtijWDY2M6R+mS2Aa31KIPIDl5mt9W+Ihznp6NFjY06aEiveS695WmFu9y
+         FEgfpV4hFPCpugeyU248bqUhHUrhm2buZ5x7DJkI=
+Date:   Mon, 9 Dec 2019 10:47:05 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     stable@vger.kernel.org, Trond Myklebust <trondmy@hammerspace.com>,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: stable request: 5.4.y: SUNRPC: Avoid RPC delays when exiting
+ suspend
+Message-ID: <20191209094705.GC932866@kroah.com>
+References: <370ef599-8164-170c-8ba0-f8a9082578c4@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <64284E33-3828-46E9-AFFB-649E0DA41023@vmware.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <370ef599-8164-170c-8ba0-f8a9082578c4@nvidia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/9/19 9:54 AM, Ajay Kaher wrote:
+On Mon, Dec 09, 2019 at 08:46:24AM +0000, Jon Hunter wrote:
+> Hi Greg,
 > 
+> Please can you include the following for 5.4.y. This fixes long delays
+> exiting suspend when using NFS and was causing one of our suspend tests
+> to fail.
 > 
-> ﻿On 06/12/19, 8:02 PM, "Vlastimil Babka" <vbabka@suse.cz> wrote:
+> commit 66eb3add452aa1be65ad536da99fac4b8f620b74
+> Author: Trond Myklebust <trond.myklebust@hammerspace.com>
+> Date:   Tue Nov 5 09:10:54 2019 -0500
 > 
->> On 12/6/19 5:15 AM, Ajay Kaher wrote:
->>>
->>>
->>> On 03/12/19, 6:28 PM, "Vlastimil Babka" <vbabka@suse.cz> wrote:
->>>>>>    
->>>>>> [ 4.4 backport: there's get_page_foll(), so add try_get_page()-like checks
->>>>>>                 in there, enabled by a new parameter, which is false where
->>>>>>                 upstream patch doesn't replace get_page() with try_get_page()
->>>>>>                 (the THP and hugetlb callers).
->>>>>
->>>>> Could we have try_get_page_foll(), as in:
->>>>> https://nam04.safelinks.protection.outlook.com/?url=https%3A%2F%2Flore.kernel.org%2Fstable%2F1570581863-12090-3-git-send-email-akaher%40vmware.com%2F&amp;data=02%7C01%7Cakaher%40vmware.com%7Cb65cf5622ca8401fd2ba08d77a5914e8%7Cb39138ca3cee4b4aa4d6cd83d9dd62f0%7C0%7C0%7C637112395344338606&amp;sdata=sLbw%2BQWu0%2BB0y2OpfaQS%2FxXX6Z9jNB3wPeTcPsawNJA%3D&amp;reserved=0
->>>>>
->>>>> + Code will be in sync as we have try_get_page()
->>>>> + No need to add extra argument to try_get_page()
->>>>> + No need to modify the callers of try_get_page()
->>>
->>> Any reason for not using try_get_page_foll().
->>    
->> Ah, sorry, I missed that previously. It's certainly possible to do it
->> that way, I just didn't care so strongly to rewrite the existing SLES
->> patch. It's a stable backport for a rather old LTS, not a codebase for
->> further development.
->  
-> Thanks for your response.
-> 
-> I would appreciate if you would like to include try_get_page_foll(),
-> and resend this patch series again.
+>     SUNRPC: Avoid RPC delays when exiting suspend
 
-I won't have time for that now, but I don't mind if you do that, or
-resend your version with the missing x86 and s390 gup.c parts and
-preferably without 7aef4172c795.
+Now queued up, thanks!
+
+greg k-h
