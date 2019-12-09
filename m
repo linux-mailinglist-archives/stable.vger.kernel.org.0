@@ -2,93 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D3111753A
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 20:11:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F5011759E
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 20:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbfLITL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 14:11:26 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:21471 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726354AbfLITLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 14:11:25 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575918684;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WMZhpd4KgDtITiVnjNf/OLy9fA5Low7LZqWUO8jcLHM=;
-        b=fH1caN+BCaHv4Y5ubqpdX44FIJ6iCyelIHAJ5L12Zk0H2RyAgZ8mYheDLflyQ9mfmtWkil
-        m9Exd/YkPB8szXcIMb9yo2FrK6psVektDBJe0Unh82NuootgroQzda3CkJu3miiwgEHQ3+
-        M5av3wOC10MBhhXsmBzDqFog0uvKcaE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-362-ULGsp7UxMWalpjBMxNes9A-1; Mon, 09 Dec 2019 14:11:23 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DFBDB8017DF;
-        Mon,  9 Dec 2019 19:11:21 +0000 (UTC)
-Received: from max.com (ovpn-205-78.brq.redhat.com [10.40.205.78])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EBBFE6055E;
-        Mon,  9 Dec 2019 19:11:16 +0000 (UTC)
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Junichi Nomura <j-nomura@ce.jp.nec.com>,
-        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        Hannes Reinecke <hare@suse.de>, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        id S1726975AbfLITYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 14:24:46 -0500
+Received: from first.geanix.com ([116.203.34.67]:43958 "EHLO first.geanix.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726637AbfLITYq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Dec 2019 14:24:46 -0500
+Received: from zen.localdomain (unknown [85.184.140.241])
+        by first.geanix.com (Postfix) with ESMTPSA id 8AE87406;
+        Mon,  9 Dec 2019 19:24:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
+        t=1575919463; bh=QjFCVSAPy2ARG9bNtnMJwUs/JlDCCyMo7x7gCr7K2sI=;
+        h=From:To:Cc:Subject:Date;
+        b=IYtvEpy9iny1PUpxURu0mWMv74AMjeUYApWejNQpn2IBNEiLmENsth7ksA0oiqzSr
+         LtpsyxOdTbssUboWWn6TWE7ntrP2P4z0/0eGwIpx7qlT4XR063t6NFkajD3vkV/VWv
+         YsX1gkM053Y735cZm/HQ0TzLuVX2BaOcaTAGIfB8Sp4E0gyN1NmUQ0yZplhlobEZFz
+         CaPKS7YPs+YgvOtzeqAqRJWkS7gqfu7C0e52v1yQ3Vjx6XUltG1vQkwb+HmFbzitqe
+         WJ2EecPVAhZMvmlr95gioqaZ3MfppwLYIT17Y+Gmu4wx4JHnzqsEooLelAQLQHSo1L
+         cSKmIy6UNFHLg==
+From:   Sean Nyekjaer <sean@geanix.com>
+To:     mkl@pengutronix.de, dmurphy@ti.com, linux-can@vger.kernel.org
+Cc:     Sean Nyekjaer <sean@geanix.com>, martin@geanix.com,
         stable@vger.kernel.org
-Subject: [PATCH] block: fix "check bi_size overflow before merge"
-Date:   Mon,  9 Dec 2019 20:11:14 +0100
-Message-Id: <20191209191114.17266-1-agruenba@redhat.com>
+Subject: [PATCH v2 1/2] can: m_can: tcan4x5x: put the device out of standby before register access
+Date:   Mon,  9 Dec 2019 20:24:39 +0100
+Message-Id: <20191209192440.998659-1-sean@geanix.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-MC-Unique: ULGsp7UxMWalpjBMxNes9A-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=4.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,UNPARSEABLE_RELAY,URIBL_BLOCKED
+        autolearn=disabled version=3.4.2
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on 8b5b6f358cc9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This partially reverts commit e3a5d8e386c3fb973fa75f2403622a8f3640ec06.
+The m_can tries to detect of niso (canfd) is available while in standby,
+this function results in the following error:
 
-Commit e3a5d8e386c3 ("check bi_size overflow before merge") adds a bio_full
-check to __bio_try_merge_page.  This will cause __bio_try_merge_page to fai=
-l
-when the last bi_io_vec has been reached.  Instead, what we want here is on=
-ly
-the bi_size overflow check.
+tcan4x5x spi2.0 (unnamed net_device) (uninitialized): Failed to init module
+tcan4x5x spi2.0: m_can device registered (irq=84, version=32)
+tcan4x5x spi2.0 can2: TCAN4X5X successfully initialized.
 
-Fixes: e3a5d8e386c3 ("block: check bi_size overflow before merge")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+When the tcan device comes out of reset it comes out in standby mode.
+The m_can driver tries to access the control register but fails due to
+the device is in standby mode.
+So this patch will put the tcan device in normal mode before the m_can
+driver does the initialization.
+
+Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
 ---
- block/bio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+tcan4x5x_init will now be called from probe and the m_can call.
+Would it be better to move the mode switch only to the probe function?
 
-diff --git a/block/bio.c b/block/bio.c
-index 9d54aa37ce6c..a5d75f6bf4c7 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -754,10 +754,12 @@ bool __bio_try_merge_page(struct bio *bio, struct pag=
-e *page,
- =09if (WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED)))
- =09=09return false;
-=20
--=09if (bio->bi_vcnt > 0 && !bio_full(bio, len)) {
-+=09if (bio->bi_vcnt > 0) {
- =09=09struct bio_vec *bv =3D &bio->bi_io_vec[bio->bi_vcnt - 1];
-=20
- =09=09if (page_is_mergeable(bv, page, len, off, same_page)) {
-+=09=09=09if (bio->bi_iter.bi_size > UINT_MAX - len)
-+=09=09=09=09return false;
- =09=09=09bv->bv_len +=3D len;
- =09=09=09bio->bi_iter.bi_size +=3D len;
- =09=09=09return true;
---=20
-2.20.1
+ drivers/net/can/m_can/tcan4x5x.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
+index 4e1789ea2bc3..3c30209ca84c 100644
+--- a/drivers/net/can/m_can/tcan4x5x.c
++++ b/drivers/net/can/m_can/tcan4x5x.c
+@@ -455,6 +455,8 @@ static int tcan4x5x_can_probe(struct spi_device *spi)
+ 	if (ret)
+ 		goto out_clk;
+ 
++	tcan4x5x_init(mcan_class);
++
+ 	tcan4x5x_power_enable(priv->power, 1);
+ 
+ 	ret = m_can_class_register(mcan_class);
+-- 
+2.24.0
 
