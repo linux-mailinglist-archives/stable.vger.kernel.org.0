@@ -2,84 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF76116A1F
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 10:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13751116D14
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 13:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727165AbfLIJub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 04:50:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725994AbfLIJub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 04:50:31 -0500
-Received: from localhost (lfbn-1-10718-76.w90-89.abo.wanadoo.fr [90.89.68.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 393F324680;
-        Mon,  9 Dec 2019 09:50:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575885030;
-        bh=kK/I1htj5iKmRP2SOIMYrpp9j8JAcrd7L6geivuOKJ0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Pd3bkAeCwLsfknhYLwW5D5ACMrJir0Nd8fxBEHXzX23+IvhzeXMqC795QiGC6ii+t
-         Ab/ujdrOpc5MkZkjlFcuehhQsp+UtrbtsuVAZXR09sVyu3LXeVIzUPJJ/QlVWw25Lg
-         p9/gl1rc3XARVg/MwzOjTm7CT9xzPxo9/fE4NTOw=
-Date:   Mon, 9 Dec 2019 10:50:27 +0100
-From:   Maxime Ripard <mripard@kernel.org>
-To:     Chen-Yu Tsai <wens@kernel.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] rtc: sun6i: Add support for RTC clocks on R40
-Message-ID: <20191209095027.ivvatpcmft6357hs@gilmour.lan>
-References: <20191205085054.6049-1-wens@kernel.org>
+        id S1727379AbfLIMYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 07:24:50 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:33737 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727232AbfLIMYu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 07:24:50 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id EE450AC7;
+        Mon,  9 Dec 2019 07:24:48 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 09 Dec 2019 07:24:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=dYsceR
+        2HlHrBihzHAtFgVF5gwmFt1ZUxrns0OFpw2PM=; b=GrkYjP8UikRl0Udq+OGwSB
+        CBGymEzq09zWnqrNu/ox0tJsF3J+O9p6P+9ij7yoOspxMqH76zOmQPBzgEk4NvLS
+        7/SOPNsJPUfTEd1ZiwHvC/h7iMOYsTr78abLEdBdvLkmRyMl9OL8SI6y82UmgNlv
+        f82oZOGOn09BVG0YN8K41YgiXFSzXDIBeW31qXnZH26aLNdmsFr9x09ckKE4wgTV
+        aH+RzGuLPsf27Rzi7Z4GooHLFmYa5hYRVKE8PM8hsGfKkQka/IgxEFoUbbGNMqwZ
+        GKr1IAqk9FW6+ArI0jehaEoBvD5Y9l9AhNVRuGiOL9sEG2sFRFjX11S3rHGbeRyw
+        ==
+X-ME-Sender: <xms:ED3uXdEOY4NA1VNC3Gjmvvw06TN3VCOEW00647cJM9Adismp_MhOEA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeltddggedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:ED3uXQJyldv7IG1oNBCFz2t1FO4Ka3nbxbqeiiOaw3D2gSBxlBUSPg>
+    <xmx:ED3uXQDWybmtHHddzQolv4U685pr6MlD8g_AgaPpUK5B-ltL1KQIWQ>
+    <xmx:ED3uXeAkDBAnlnOltKRrTHqp7pcGQw5oKiYuXZ_yGWYWO-VWffLWVQ>
+    <xmx:ED3uXRxbloO1tcryll9b0QarXGaZxZr16Ntljh-GDVEfun4DnaNSIA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1BE7E8005B;
+        Mon,  9 Dec 2019 07:24:48 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Dell headphone has noise on unmute for" failed to apply to 4.9-stable tree
+To:     kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 09 Dec 2019 13:24:38 +0100
+Message-ID: <1575894278206142@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="adfqrlv2c7xcdepi"
-Content-Disposition: inline
-In-Reply-To: <20191205085054.6049-1-wens@kernel.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---adfqrlv2c7xcdepi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On Thu, Dec 05, 2019 at 04:50:54PM +0800, Chen-Yu Tsai wrote:
-> From: Chen-Yu Tsai <wens@csie.org>
->
-> When support for the R40 in the rtc-sun6i driver was split out for a
-> separate compatible string, only the RTC half was covered, and not the
-> clock half. Unfortunately this results in the whole driver not working,
-> as the RTC half expects the clock half to have been initialized.
->
-> Add support for the clock part as well. The clock part is like the H3,
-> but does not need to export the internal oscillator, nor does it have
-> a gateable LOSC external output.
->
-> This fixes issues with WiFi and Bluetooth not working on the BPI M2U.
->
-> Fixes: d6624cc75021 ("rtc: sun6i: Add R40 compatible")
-> Cc: <stable@vger.kernel.org> # 5.3.x
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+thanks,
 
-Acked-by: Maxime Ripard <mripard@kernel.org>
+greg k-h
 
-Maxime
+------------------ original commit in Linus's tree ------------------
 
---adfqrlv2c7xcdepi
-Content-Type: application/pgp-signature; name="signature.asc"
+From e1e8c1fdce8b00fce08784d9d738c60ebf598ebc Mon Sep 17 00:00:00 2001
+From: Kailang Yang <kailang@realtek.com>
+Date: Tue, 26 Nov 2019 17:04:23 +0800
+Subject: [PATCH] ALSA: hda/realtek - Dell headphone has noise on unmute for
+ ALC236
 
------BEGIN PGP SIGNATURE-----
+headphone have noise even the volume is very small.
+Let it fill up pcbeep hidden register to default value.
+The issue was gone.
 
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXe4Y4wAKCRDj7w1vZxhR
-xYNaAQCetuw+MBQxkDVO9bmDf8kmcwTq+uA3DS6rDGX1p7rgGwD/SEy8iOesX8M3
-XURC17yL4C6iJ4kO/yUvMDP24FhMpg0=
-=FAWR
------END PGP SIGNATURE-----
+Fixes: 4344aec84bd8 ("ALSA: hda/realtek - New codec support for ALC256")
+Fixes: 736f20a70608 ("ALSA: hda/realtek - Add support for ALC236/ALC3204")
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/9ae47f23a64d4e41a9c81e263cd8a250@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
---adfqrlv2c7xcdepi--
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index d2bf70a1d2fd..9f355b2f7d7b 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -367,9 +367,7 @@ static void alc_fill_eapd_coef(struct hda_codec *codec)
+ 	case 0x10ec0215:
+ 	case 0x10ec0233:
+ 	case 0x10ec0235:
+-	case 0x10ec0236:
+ 	case 0x10ec0255:
+-	case 0x10ec0256:
+ 	case 0x10ec0257:
+ 	case 0x10ec0282:
+ 	case 0x10ec0283:
+@@ -381,6 +379,11 @@ static void alc_fill_eapd_coef(struct hda_codec *codec)
+ 	case 0x10ec0300:
+ 		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
+ 		break;
++	case 0x10ec0236:
++	case 0x10ec0256:
++		alc_write_coef_idx(codec, 0x36, 0x5757);
++		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
++		break;
+ 	case 0x10ec0275:
+ 		alc_update_coef_idx(codec, 0xe, 0, 1<<0);
+ 		break;
+
