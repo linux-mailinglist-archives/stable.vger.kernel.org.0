@@ -2,165 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AEA511783F
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 22:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4674111786A
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 22:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726647AbfLIVSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 16:18:44 -0500
-Received: from aserp2120.oracle.com ([141.146.126.78]:45544 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726718AbfLIVSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 16:18:43 -0500
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB9LEJTt099179;
-        Mon, 9 Dec 2019 21:18:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2019-08-05;
- bh=DcHo2qcfzMbQlUOHHHSb+VlsPwDr5lda2gZcp52PhOE=;
- b=j6Tb2U+ealnyosc4c714KslmFt3jbEt3DAhcv9T//5gCV1QRXwhsJkLrUa1Anbc7I3uX
- cvHGFHPs1PCwHF/QVkOK+dj0n68DoD4JKjuqxigScmCdkdGmmKsj8cc613fEACR4q73E
- dTd6bFJBVgqYiO0a7kcIm3GnnMC2ouWCtP41GcBWF94n0IH8Gz06/U7k0A66PizPLmve
- tFNmgnd2Sla5GF+Xur5UZNw/cF+TuPz9wFYCm+jSnXfcVGIV5gcvIyoQlq4WibRiAZPL
- ugcYOjQHvZ250UTq2DnSdImkWT/+3DNpWNdvu6brKG4/u5Z0+C3H08fZKCCYYejMahNk pQ== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2120.oracle.com with ESMTP id 2wr41q28yv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 09 Dec 2019 21:18:34 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xB9LDike192068;
-        Mon, 9 Dec 2019 21:18:34 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3030.oracle.com with ESMTP id 2wsv8amj78-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 09 Dec 2019 21:18:34 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id xB9LHLtl022412;
-        Mon, 9 Dec 2019 21:17:21 GMT
-Received: from bostrovs-us.us.oracle.com (/10.152.32.65)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 09 Dec 2019 13:17:21 -0800
-Subject: Re: [PATCH] xen/pciback: Prevent NULL pointer dereference in
- quirks_show
-To:     "Nuernberger, Stefan" <snu@amazon.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc:     "Seidel, Conny" <consei@amazon.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "jgross@suse.com" <jgross@suse.com>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        "ross.lagerwall@citrix.com" <ross.lagerwall@citrix.com>,
-        "Dannowski, Uwe" <uwed@amazon.de>
-References: <20191206134804.4537-1-snu@amazon.com>
- <9917a357-12f6-107f-e08d-33e464036317@oracle.com>
- <1575655787.7257.42.camel@amazon.de>
- <4bc83b82-427f-2215-3161-5776867675a1@oracle.com>
- <1575915416.21160.49.camel@amazon.de>
-From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <7e20daf7-e351-205d-183d-5861e0839c66@oracle.com>
-Date:   Mon, 9 Dec 2019 16:21:33 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
-MIME-Version: 1.0
-In-Reply-To: <1575915416.21160.49.camel@amazon.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        id S1726366AbfLIV0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 16:26:00 -0500
+Received: from mail-eopbgr1410115.outbound.protection.outlook.com ([40.107.141.115]:45515
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726354AbfLIVZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Dec 2019 16:25:59 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OWNO78e0fqp+svQK/zD37KuHTENCJSmurreBJI7Y9TcUujK4leZjcTjP2ZRc8WBrdxXgJlsnmlp+P5rIhFbgp3NXH8q5z3ZdZ2x1XKXluN7M5Kl38ov9s0omi9mKEi/IBNWST/Tr3FMygylTViooo4KsmC+Zi4vSuGUgryULOdc7so/g0WpspXk0XbvMShqOO/oTHOOGdGf7vtl1BierpTGA0fw83K9e0skGpWlrDoekLbdx+cymUR/ZdrUbqGlkKXSfCyeX7x9KBRAu3tukPexwxxGlSPwT0Px5aGyf3Yet35IlUDRQS0Ty13Ro+qWljEXT5mjvLAqdLv5vXi86cg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0vcjQK9dWCaxOl36tnEWn/hs8q46Kt7bhJRiQAN0Qb0=;
+ b=G4NbmEhnPX/MpN8jR3FAl7cadS4wA8vAwnzjNRAIuGLGinVd2CDCk0K9Foy8iM8ZhPNB8UxfQZV37eOWOVYWBKzXW0FLhLf82xOlheDbWrzAt4wvHTw9OFqLavuPWATX9TKPprcBrewN1czNsMwgoYDh+iPteYbGqL14E0HN+ICIMK6C4Zv3D0PCmMahFsAnlUpaKF623GE2JcQITtIsMZmm9eaXIasBa9PWy+MDGp4Yts5FDwFVpKXQ2zjCVTDW4sVA7noeFtJDUiIxRZF8xJqriKnX1UiIm2RbAoZy2q02MqkP5Wg9B2ixvQQEdsYp8PKPnvsdWMHKHrbFjtcVvA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0vcjQK9dWCaxOl36tnEWn/hs8q46Kt7bhJRiQAN0Qb0=;
+ b=et5d0NmtE7UKX9Adb0FfdaFVMAHeNr36Yyzzz5b90OeYSa0/oGpI7AeWy/7z0RnjHsBZXJfjUIzapw9qDStxgENAhH0khRMB1hctqKzh8LUIQBBNCJQ/jBlYbxgYLWg1wxlEzZHW4tTZLe2ztQC9AUZBdJZPhntuLyqerbCuNDg=
+Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com (52.133.177.145) by
+ TYAPR01MB5216.jpnprd01.prod.outlook.com (20.179.174.81) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2516.14; Mon, 9 Dec 2019 21:25:57 +0000
+Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com
+ ([fe80::5025:20cb:31a2:4be1]) by TYAPR01MB2285.jpnprd01.prod.outlook.com
+ ([fe80::5025:20cb:31a2:4be1%5]) with mapi id 15.20.2516.018; Mon, 9 Dec 2019
+ 21:25:57 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>
+Subject: RE: Linux 4.4.207-rc1 8dbad6fe errors
+Thread-Topic: Linux 4.4.207-rc1 8dbad6fe errors
+Thread-Index: AdWurgt7utNWvBqZQ+ynUVtGfdoeNgABCgaAAAk5SjA=
+Date:   Mon, 9 Dec 2019 21:25:56 +0000
+Message-ID: <TYAPR01MB2285A8A7863EA1C8DB01E256B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+References: <TYAPR01MB22854300E93B9F6D02232982B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191209170047.GC1290729@kroah.com>
+In-Reply-To: <20191209170047.GC1290729@kroah.com>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9466 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1912090167
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9466 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-1912090167
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=Chris.Paterson2@renesas.com; 
+x-originating-ip: [90.218.76.176]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: aa129bb1-33c2-4ef7-43e5-08d77cee6129
+x-ms-traffictypediagnostic: TYAPR01MB5216:
+x-microsoft-antispam-prvs: <TYAPR01MB521676F630799902B93973B6B7580@TYAPR01MB5216.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:3513;
+x-forefront-prvs: 02462830BE
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(366004)(199004)(189003)(8676002)(66556008)(66946007)(66446008)(81166006)(26005)(4326008)(55016002)(4744005)(33656002)(229853002)(186003)(54906003)(66476007)(64756008)(71190400001)(305945005)(2906002)(71200400001)(966005)(6916009)(498600001)(86362001)(7696005)(6506007)(76116006)(5660300002)(55236004)(81156014)(8936002)(9686003)(52536014);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB5216;H:TYAPR01MB2285.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: renesas.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: vW6rIRKu9QvdtDA6ER5dPqskMRAUyoWKcRrgWlujsZ7IuJ6SMaRoNuZB5/dHEc7O9khDWkQs63dP/05i8nKsPhOsjnKBgSw75OwgHO/yac3pOF9bXQ56MB/oGXgjblJPTjeqDb/59y+YylaWo0d21/I/RPRoFxnnjkXe97+DnMU5L5rbD8htjP6zgyWfs5v//qet2Ntci1Vdh3wtjmduX4F2m27d7xX9pKCEK43i1iTaONXFP3Gh3I9FoOw4MiNKRNyHIcid6rYESA9UXKxw+8NWkjUgU8a9tx+w75myg/kUJasVR2cuctVvF8K15L2+W70KBkQkqp66B7N3Pu6H6qpoWXjguEGB3J61EACZt6tNbkzz6FEtwbH35C722OE3dDf8TEVzDsi2k/WKTJrP0uv9eDSyxgkCjk+Vt3CFcYX9lCpHGZyRLD1hLUptVBKBMrRjC5IrN5XzAd8bGj0k5YnEfc+FuUgi3WCG0YON6i4=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: aa129bb1-33c2-4ef7-43e5-08d77cee6129
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2019 21:25:56.8390
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: QpGW5nw+P0nO30HjyDEQx/r2z3JqPRiiDVc3dxLcRmJuRl5gV81OZyCI24vK3IpA1PVxy6PrM+VVgkwYoT+7f/LTShkZHE2OmWSb9mnqCP0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB5216
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> Behalf Of Greg Kroah-Hartman
+> Sent: 09 December 2019 17:01
+>=20
+> On Mon, Dec 09, 2019 at 04:33:17PM +0000, Chris Paterson wrote:
+> > Hello Greg, all,
+> >
+> > I've seen an error with 4.4.207-rc1 (8dbad6fe).
+> >
+> > 1)
+> > Config: arm multi_v7_defconfig
+> > Link: https://gitlab.com/cip-playground/linux-stable-rc-ci/-
+> /jobs/373483706#L3649
+> > Probable culprit: bc15f46a10dc ("serial: pl011: Fix DMA ->flush_buffer(=
+)")
+> > Issue log:
+> > 3649 drivers/tty/serial/amba-pl011.c: In function 'pl011_dma_flush_buff=
+er':
+> > 3650 drivers/tty/serial/amba-pl011.c:697:2: error: implicit declaration=
+ of
+> function 'dmaengine_terminate_async'; did you mean
+> 'dmaengine_terminate_all'? [-Werror=3Dimplicit-function-declaration]
+> > 3651   dmaengine_terminate_async(uap->dmatx.chan);
+> > 3652   ^~~~~~~~~~~~~~~~~~~~~~~~~
+>=20
+> I'll go drop the offending patch now, thanks for letting me know.
 
-On 12/9/19 1:16 PM, Nuernberger, Stefan wrote:
-> On Fri, 2019-12-06 at 15:15 -0500, Boris Ostrovsky wrote:
->> On 12/6/19 1:09 PM, Nuernberger, Stefan wrote:
->>> On Fri, 2019-12-06 at 10:11 -0500, Boris Ostrovsky wrote:
->>>> On 12/6/19 8:48 AM, Stefan Nuernberger wrote:
->>>>> From: Uwe Dannowski <uwed@amazon.de>
->>>>>   
->>>>>   		list_for_each_entry(cfg_entry, &dev_data-
->>>>>> config_fields, list) {
->>>> Couldn't you have the same race here?
->>> Not quite the same, but it might not be entirely safe yet. The
->>> 'quirks_show' takes the 'device_ids_lock' and races with unbind /
->>> 'pcistub_device_release' "which takes device_lock mutex". So this
->>> might
->>> now be a UAF read access instead of a NULL pointer dereference.
->> Yes, that's what I meant (although I don't see much difference in
->> this
->> context).
-> Well, the NULL ptr access causes an instant kernel panic whereas we
-> have not attributed crashes to the possible UAF read until now.
->
->>>   We have
->>> not observed adversarial effects in our testing (compared to the
->>> obvious issues with NULL pointer) but that's not a guarantee of
->>> course.
->>>
->>> So should quirks_show actually be protected by pcistub_devices_lock
->>> instead as are other functions that access dev_data? Does it need
->>> both
->>> locks in that case?
->> device_ids_lock protects device_ids list, which is not what you are
->> trying to access, so that doesn't look like right lock to hold. And
->> AFAICT pcistub_devices_lock is not held when device data is cleared
->> in
->> pcistub_device_release() (which I think is where we are racing).
-> Indeed. The xen_pcibk_quirks list does not have a separate lock to
-> protect it. It's either modified under 'pcistub_devices_lock', from
-> pcistub_remove(), or iterated over with the 'device_ids_lock' held in
-> quirks_show(). Also the quirks list is amended from
->    pcistub_init_device()
->      -> xen_pcibk_config_init_dev()
->        -> xen_pcibk_config_quirks_init()
-> without holding any lock at all. In fact the
-> pcistub_init_devices_late() and pcistub_seize() functions deliberately
-> release the pcistub_devices_lock before calling pcistub_init_device().
-> This looks broken.
+Thanks Greg, building okay for me now.
 
+Regards, Chris
 
-Indeed.
-
-
->
-> The race is between
->    pcistub_remove()
->      -> pcistub_device_put()
->        -> pcistub_device_release()
-> on one side and the quirks_show() on the other side. The problematic
-> quirk is freed from the xen_pcibk_quirks list in pcistub_remove() early
-> on under pcistub_devices_lock before the associated dev_data is freed
-> eventually. So switching from device_ids_lock to pcistub_devices_lock
-> in quirks_show() could be sufficient to always have valid dev_data for
-> all quirks in the list.
-
-
-Yes, that should do it. (I missed xen_pcibk_config_quirk_release() call, 
-which is why I wasn't sure pcistub_devices_lock is held where necessary).
-
-
->
-> There is also pcistub_put_pci_dev() possibly in the race, called from
-> xen_pcibk_remove_device(), or xen_pcibk_xenbus_remove(), or
-> pcistub_remove(). The pcistub_remove() call site is safe when we switch
-> to pcistub_devices_lock (same reasoning as above). For the others I
-> currently do not see when the quirks are ever freed?
-
-
-I wonder whether we should call xen_pcibk_config_quirk_release() from 
-pcistub_device_release() under pcistub_devices_lock.
-
-
--boris
-
+>=20
+> greg k-h
