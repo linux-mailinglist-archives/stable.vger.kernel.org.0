@@ -2,185 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6A981178E7
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 22:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A491178EA
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 22:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726522AbfLIVzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 16:55:48 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:45476 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726538AbfLIVzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 16:55:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575928547;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nvUwYk7XYnhVb8z+n/0PN8JFHiNkwWG7PVOySQ7OnAY=;
-        b=QCeDoRcg73hQUk5nN8AUGGSYu13i+JFcY5Eyq3m2qnQQY87mJzorHaZS9sCXF8ko5ojheH
-        J4vjuo+BaRe1Usg7I1LfmzjIV7NsGPbL5p3Ulei9TnwQ5/9BORPwoa/xQVZsCUUY4tWOFu
-        NCfyeYiP/BJy1LHlkH+n6J58C9XDzzM=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-73-Jrnip_RiN9Ck4akOO8mZ0g-1; Mon, 09 Dec 2019 16:55:43 -0500
-Received: by mail-qt1-f198.google.com with SMTP id o24so466243qtr.17
-        for <stable@vger.kernel.org>; Mon, 09 Dec 2019 13:55:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=LAlWxB0yFY54ciHDGB1TZgCbDYqMZXZ8KAXo988Qmv8=;
-        b=i/BlnUKJOHZMCg1scI6nyqdOnGq0+0WhwBS1q0G8b9ik38blCddUFbirUwEXRWfh5l
-         D/fc92y+UYBtXFtg5qmpmdHl2KkFjbMCl2LxzBD17E6/KWF3tQfDwIDeBncWrQoRvb+2
-         mHlf1qacAANnhF8LZA2bi/gndjRBQRY3EGixAfq5VGXbAu13wapEiS9QmyoMMpXzpSPe
-         QjWXCDaUPQ3HC+YzNgjSrD1FR4o/KBXVDlQPSUNGVfAiI0a5QAGl1LrRtVVw1wEKttHW
-         W46NQtcdnDxLjE4kcRFzCQLLxBpMqY2HFooKi5vWj+/3Ce192DJBckK7WpT2m03SL4lh
-         KXLA==
-X-Gm-Message-State: APjAAAWDgrCWm4ITce4rwqPFL6ID3fzMiGamzlOjQRIhgz9POgfDNQWs
-        bZDSLIS37C6uDPwBlfOWoz6/N1hMVrlPcjOdXh3bw1hsQJGapz3tjMGyyGrOP6X3IkTtwcuowU9
-        hjHxuY32fL68ZR2J6
-X-Received: by 2002:a0c:ada3:: with SMTP id w32mr24879210qvc.99.1575928543181;
-        Mon, 09 Dec 2019 13:55:43 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxHowXkavZQkKYqUB9IbaWdjd/W1CJgeGzAniL645TlGerE333C9O+ldy7Rdcjs3p1yhtWGBQ==
-X-Received: by 2002:a0c:ada3:: with SMTP id w32mr24879192qvc.99.1575928542771;
-        Mon, 09 Dec 2019 13:55:42 -0800 (PST)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id y187sm277800qkd.11.2019.12.09.13.55.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Dec 2019 13:55:41 -0800 (PST)
-Date:   Mon, 9 Dec 2019 14:55:35 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Stefan Berger <stefanb@linux.ibm.com>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 0/2] Revert patches fixing probing of interrupts
-Message-ID: <20191209215535.pw6ewyetskaet2o6@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-security-module@vger.kernel.org
-References: <20191126131753.3424363-1-stefanb@linux.vnet.ibm.com>
- <20191129223418.GA15726@linux.intel.com>
- <6f6f60a2-3b55-e76d-c11a-4677fcb72c16@linux.ibm.com>
- <20191202185520.57w2h3dgs5q7lhob@cantor>
- <20191209194248.GC19243@linux.intel.com>
-MIME-Version: 1.0
-In-Reply-To: <20191209194248.GC19243@linux.intel.com>
-X-MC-Unique: Jrnip_RiN9Ck4akOO8mZ0g-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S1726642AbfLIV4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 16:56:33 -0500
+Received: from mail-eopbgr1410117.outbound.protection.outlook.com ([40.107.141.117]:33703
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726483AbfLIV4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Dec 2019 16:56:33 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IDEZZYMnguNU6ggHJUjjJUX9D6fvnK33PHoaJyiAkYOYceccqKs61EQYv4kTPSOWaY5JEQKIRYT5h7ffZN2GBFugEyt5qE/hS6KJXJIVT9AMEDo8EpXspEkJggy+j7PefirISWM4NNStPYmj3Rs7nUTdzHeds05duqwlnIeKz7sxroMzFw09bBjrxJKs94EWIfob77vCp05mjXzM89MUI/qYbNZuJSTsTy3wuDwz95SsAwpCgYvafxPJYb8SApHIgJUhW+NT8zRWIwRFe4DAR2wTwHTqaDSTNsa01ZwG1yv/M1dJ8M4w702P4yLrHIMqqt+rcI22Nu7ov5zhi70iig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3pLAbRmeqHvqn1e0GPEEzjbjxxpRs9HfiR22RMfkrr8=;
+ b=P3LYF3Puvx08lK/gM6h6NezFFRaC0PUs5JNcXwqxDfpg0swxhoQ32qFV2EP2oXfLhs5tZlcl0qAoRyYKxu0FAfgWIWdZ2LzH5t4uvQqs3Vc5GtR9ID1IunDgi5GptySzT7f9+Sjbnigq3o7Z48ZI9CWW9MsoFfno5Hf3jfqDkCOm1LBa+r68dGasncfyHEfnpkyTD7A4+7lIEAZLCC23ygBFc/N9OKqbPHulwKemsoxYjf+BjvDDp/k2HOEb8ObbvQj3sjB2tWYK6C7Ti70ZRbNJrbww8OdfutVgBnjTHG3VNKN0TZJF02OjjSTIrbIyXwbmI3yJC7FA16I5vFvpLg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3pLAbRmeqHvqn1e0GPEEzjbjxxpRs9HfiR22RMfkrr8=;
+ b=rCgzgHlhjbuPgwmzByrORu9U0plnn1ABZP4iT9nnmKhMEQoRiTPVQlhC4N+ZWFuNXElQ9jVqsJrUWLC/pEhqf4aWmoUcshdVkRMyZ8xkPFBN5kGT0TYIss54e0+R9A7mNswNfsibaa18/W36rL20t33M5bjOi4rFi3z1kSyu9bc=
+Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com (52.133.177.145) by
+ TYAPR01MB3629.jpnprd01.prod.outlook.com (20.178.137.202) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2516.14; Mon, 9 Dec 2019 21:56:30 +0000
+Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com
+ ([fe80::5025:20cb:31a2:4be1]) by TYAPR01MB2285.jpnprd01.prod.outlook.com
+ ([fe80::5025:20cb:31a2:4be1%5]) with mapi id 15.20.2516.018; Mon, 9 Dec 2019
+ 21:56:29 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>
+Subject: RE: Linux 4.19.89-rc1 5944fcdd errors
+Thread-Topic: Linux 4.19.89-rc1 5944fcdd errors
+Thread-Index: AdWuq27YYqoiVr7aSmCEQeiV9xd6BQAC8Y6AAAjR8vA=
+Date:   Mon, 9 Dec 2019 21:56:29 +0000
+Message-ID: <TYAPR01MB2285135B15E6A152163E1A1AB7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+References: <TYAPR01MB228505DBC22568339F914C15B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191209173637.GF1290729@kroah.com>
+In-Reply-To: <20191209173637.GF1290729@kroah.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=Chris.Paterson2@renesas.com; 
+x-originating-ip: [90.218.76.176]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: f162a77b-ead7-4209-8da0-08d77cf2a5aa
+x-ms-traffictypediagnostic: TYAPR01MB3629:
+x-microsoft-antispam-prvs: <TYAPR01MB3629B6700D0C0ED2D6EFCC99B7580@TYAPR01MB3629.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:5516;
+x-forefront-prvs: 02462830BE
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(396003)(39850400004)(136003)(366004)(376002)(346002)(199004)(189003)(54906003)(316002)(71200400001)(33656002)(2906002)(966005)(478600001)(52536014)(6506007)(71190400001)(5660300002)(55236004)(26005)(64756008)(66446008)(86362001)(66476007)(186003)(66946007)(55016002)(76116006)(9686003)(66556008)(8936002)(4326008)(305945005)(229853002)(81156014)(7696005)(8676002)(81166006)(6916009);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB3629;H:TYAPR01MB2285.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: renesas.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: a/w9kuo6SWz5b2vB4WssgYHr8s5/FD8FQ22WirICz8IgsAgZud6Wp9CtvD++P2UDQ7tbs3uc5K2bgvZg3C37q22SjHuiy//ow4vnFI/7pXtqfX7RYne1NFXlWNztLGqklbzFtMswkwJGmZ7aqNxI7aJ/W9lk39j8XXCR6hEfEu6pZ/z9ZA4HhSntiFa4MqbAIFuqaAqjmB+K+Eb2+zijGTZbxYHpwkHb0ZtLvFv+T7cSlUWjnr/iiCNZQWcQOjeLzadvAlB11HhlzSv3sCbv0/hRgSMYKBIcX7mg0bGXkl+NsYtPWNPX62Jxzqm7iA/yFkiOxfiSyzkIYtifc08jcFRhxeW2tin+FXOD+mjOGGvoXs43DKwI8bcCPj8Zl5ZxjrU+UFNtDoqQF8p9imRjJx3xRmrQ8bRpMn9abl10IAT3Hs7jIOmV1aDEbVko/fhS/m+zmMdzxcbLByAYBmhEIXdJsHwJYE5b9wbYjkklR7s=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+MIME-Version: 1.0
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f162a77b-ead7-4209-8da0-08d77cf2a5aa
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2019 21:56:29.7703
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: /Zzf7v3KRfkEWDBqED21O2DIoUoJpDMkCXA7dyRLHtDqxXbYMSIqZI25WspL5OKiKfQqjS7yOPceI48dxK/xSku/A9aj81wMqcOSGSxHoic=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB3629
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon Dec 09 19, Jarkko Sakkinen wrote:
->On Mon, Dec 02, 2019 at 11:55:20AM -0700, Jerry Snitselaar wrote:
->> On Sun Dec 01 19, Stefan Berger wrote:
->> > On 11/29/19 5:37 PM, Jarkko Sakkinen wrote:
->> > > On Tue, Nov 26, 2019 at 08:17:51AM -0500, Stefan Berger wrote:
->> > > > From: Stefan Berger <stefanb@linux.ibm.com>
->> > > >
->> > > > Revert the patches that were fixing the probing of interrupts due
->> > > > to reports of interrupt stroms on some systems
->> > > Can you explain how reverting is going to fix the issue?
->> >
->> >
->> > The reverts fix 'the interrupt storm issue' that they are causing on
->> > some systems but don't fix the issue with the interrupt mode not being
->> > used. I was hoping Jerry would get access to a system faster but this
->> > didn't seem to be the case. So sending these patches seemed the better
->> > solution than leaving 5.4.x with the problem but going back to when it
->> > worked 'better.'
->> >
->>
->> I finally heard back from IT support, and unfortunately they don't
->> have any T490s systems to give out on temp loan. So I can only send
->> patched kernels to the end user that had the problem.
->
->At least it is a fact that tpm_chip_stop() is called too early and that
->is destined to cause issues.
->
->Should I bake a patch or do you have already something?
->
->/Jarkko
->
+> From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> Behalf Of Greg Kroah-Hartman
+> Sent: 09 December 2019 17:37
+>=20
+> On Mon, Dec 09, 2019 at 04:29:22PM +0000, Chris Paterson wrote:
+> > 3)
+> > Config: arm shmobile_defconfig
+> > Link: https://gitlab.com/cip-playground/linux-stable-rc-ci/-
+> /jobs/373484089#L2249
+> > Probable culprit: 984d7a8bff57 ("pinctrl: sh-pfc: r8a7792: Fix VIN vers=
+ioned
+> groups")
+> > Issue log:
+> > 2249 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:38: error: macro
+> "VIN_DATA_PIN_GROUP" passed 3 arguments, but takes just 2
+> > 2250   VIN_DATA_PIN_GROUP(vin1_data, 24, _b),
+> > 2251                                       ^
+> > 2252 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:2: error:
+> 'VIN_DATA_PIN_GROUP' undeclared here (not in a function); did you mean
+> 'PIN_MAP_TYPE_MUX_GROUP'?
+> > 2253   VIN_DATA_PIN_GROUP(vin1_data, 24, _b),
+> > 2254   ^~~~~~~~~~~~~~~~~~
+> > 2255   PIN_MAP_TYPE_MUX_GROUP
+> > 2256 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1751:38: error: macro
+> "VIN_DATA_PIN_GROUP" passed 3 arguments, but takes just 2
+> > 2257   VIN_DATA_PIN_GROUP(vin1_data, 20, _b),
+> > 2258                                       ^
+> > 2259 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1753:38: error: macro
+> "VIN_DATA_PIN_GROUP" passed 3 arguments, but takes just 2
+> > 2260   VIN_DATA_PIN_GROUP(vin1_data, 16, _b),
+> > 2261                                       ^
+>=20
+> Now dropped for 4.19, 4.14, and 4.9 (2 patches for 4.19 here.)
 
-This is what I'm currently building:
+Latest 4.19 now building, but I'm seeing a number of warnings and errors wh=
+en trying to build the arm64 defconfig dtbs.
+https://gitlab.com/cip-playground/linux-stable-rc-ci/-/jobs/374092442
+arm/juno.dtb
+qcom/apq8016-sbc.dtb
+arm/juno-r2.dtb
+arm/juno-r1.dtb
+hisilicon/hi6220-hikey.dtb
+allwinner/sun50i-a64-pinebook.dtb
+qcom/msm8916-mtp.dtb
+qcom/msm8916-mtp.dtb
+qcom/sdm845-mtp.dtb
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_cor=
-e.c
-index 270f43acbb77..17184c07eb51 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -899,13 +899,13 @@ int tpm_tis_core_init(struct device *dev, struct tpm_=
-tis_data *priv, int irq,
- =20
-  =09if (wait_startup(chip, 0) !=3D 0) {
-  =09=09rc =3D -ENODEV;
--=09=09goto out_err;
-+=09=09goto out_start;
-  =09}
- =20
-  =09/* Take control of the TPM's interrupt hardware and shut it off */
-  =09rc =3D tpm_tis_read32(priv, TPM_INT_ENABLE(priv->locality), &intmask);
-  =09if (rc < 0)
--=09=09goto out_err;
-+=09=09goto out_start;
- =20
-  =09intmask |=3D TPM_INTF_CMD_READY_INT | TPM_INTF_LOCALITY_CHANGE_INT |
-  =09=09   TPM_INTF_DATA_AVAIL_INT | TPM_INTF_STS_VALID_INT;
-@@ -914,9 +914,8 @@ int tpm_tis_core_init(struct device *dev, struct tpm_ti=
-s_data *priv, int irq,
- =20
-  =09rc =3D tpm_chip_start(chip);
-  =09if (rc)
--=09=09goto out_err;
-+=09=09goto out_start;
-  =09rc =3D tpm2_probe(chip);
--=09tpm_chip_stop(chip);
-  =09if (rc)
-  =09=09goto out_err;
- =20
-@@ -980,7 +979,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_ti=
-s_data *priv, int irq,
-  =09=09=09goto out_err;
-  =09=09}
- =20
--=09=09tpm_chip_start(chip);
-  =09=09chip->flags |=3D TPM_CHIP_FLAG_IRQ;
-  =09=09if (irq) {
-  =09=09=09tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
-@@ -991,18 +989,17 @@ int tpm_tis_core_init(struct device *dev, struct tpm_=
-tis_data *priv, int irq,
-  =09=09} else {
-  =09=09=09tpm_tis_probe_irq(chip, intmask);
-  =09=09}
--=09=09tpm_chip_stop(chip);
-  =09}
-+=09tpm_chip_stop(chip);
- =20
-  =09rc =3D tpm_chip_register(chip);
-  =09if (rc)
--=09=09goto out_err;
--
--=09if (chip->ops->clk_enable !=3D NULL)
--=09=09chip->ops->clk_enable(chip, false);
-+=09=09goto out_start;
- =20
-  =09return 0;
-  out_err:
-+=09tpm_chip_stop(chip);
-+out_start:
-  =09if ((chip->ops !=3D NULL) && (chip->ops->clk_enable !=3D NULL))
-  =09=09chip->ops->clk_enable(chip, false);
+Kind regards, Chris
 
+>=20
+> thanks,
+>=20
+> greg k-h
