@@ -2,148 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B22451171A1
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 17:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DCD71171BD
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 17:33:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726874AbfLIQ30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 11:29:26 -0500
-Received: from mail-eopbgr1410133.outbound.protection.outlook.com ([40.107.141.133]:43053
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726608AbfLIQ30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 11:29:26 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CXfMevSzeV878BbGvjRP43Vp8As9RyBW4LUx8l3EotipOMeJzVqJIzC3nLjM7ocvBa1DuFfvzGIg4FOHXnCtvyfZOz0Sd2fXaiOAIkd79GwVAJWEmOvfGaesKRaI+05FVF2SlvIcauD2fcqP/Jkzfu8iduAVIsTFlgxtzc67Nc4wxL4Kf6Xc3ixARRQ5wvglLfJHSgWE6uPR42djQ4H0S8eR1RJZwEt64WtJm1s8w4WaZw3MhLI7e4BbF56hD0JUw/5waSu6fW+PJWrte+NS2kg4ws10511FPoVu+vkwAYUKsd42X/+Ku7UcL8kUCZwQJu29DGRvjaOPViXGONLPwQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LttRioHDueAclKFpR/7WfXqTk1onUZXjk/jBuw8/O8U=;
- b=UFePS5uj6gOW6B90f5+lg10TfAQDu21hcZ2RhuipyiuryXTACUCTLRZJLXAUf0ytLIC4vsDcXCevirkOF/y5z99eh6w/0TxBm3e4pLOpVO8rP3GVzh5kUtgl4yhIZHZogXL9GAuvUfZGv5YRb+vSgm2Weo0/Pg1NV/69AINkT75r7AxNoHyr8mSmVMAqDIgGICbGWU2FBJ1XVSYzdu0M78Pvk9KOGBhDrJG51nvMU2oOqqjnh0iOaTw3UaY3SsEU2gfZEpKrioqE04z/x1UJXICRyTUBhkplbEI9PWd0r4TzoTM+oshZ9a8HuUfdTjHtTcVkzSfL0zQZbmNjX9PXAA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LttRioHDueAclKFpR/7WfXqTk1onUZXjk/jBuw8/O8U=;
- b=E3/Gr8VcvM4mW29GLuSkVn0uknfOUmMCWD9rE1VJxSuvHjB7O1rJgi/vJSm5J2m+Vo3MEVjqO+5LfFzRSVZ3ur/vekcO+26uV+dDOdL8AK4C1oynQCOh4VFfSMl4UTB/HfA8hVf6mYcObRV7KlT64A7T1Y2MaCK0fQmDo6HCuGs=
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com (52.133.177.145) by
- TYAPR01MB5166.jpnprd01.prod.outlook.com (20.179.173.86) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2516.16; Mon, 9 Dec 2019 16:29:23 +0000
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::5025:20cb:31a2:4be1]) by TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::5025:20cb:31a2:4be1%5]) with mapi id 15.20.2516.018; Mon, 9 Dec 2019
- 16:29:23 +0000
-From:   Chris Paterson <Chris.Paterson2@renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Linux 4.19.89-rc1 5944fcdd errors
-Thread-Topic: Linux 4.19.89-rc1 5944fcdd errors
-Thread-Index: AdWuq27YYqoiVr7aSmCEQeiV9xd6BQ==
-Date:   Mon, 9 Dec 2019 16:29:22 +0000
-Message-ID: <TYAPR01MB228505DBC22568339F914C15B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Chris.Paterson2@renesas.com; 
-x-originating-ip: [193.141.220.21]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: d7c4845c-250d-40de-e580-08d77cc4f320
-x-ms-traffictypediagnostic: TYAPR01MB5166:
-x-microsoft-antispam-prvs: <TYAPR01MB5166BB83E841B0058BBDFA4FB7580@TYAPR01MB5166.jpnprd01.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2089;
-x-forefront-prvs: 02462830BE
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(366004)(136003)(376002)(346002)(39860400002)(396003)(189003)(199004)(186003)(6506007)(76116006)(81166006)(5660300002)(316002)(305945005)(26005)(6916009)(66476007)(66946007)(66556008)(71190400001)(71200400001)(52536014)(7696005)(86362001)(9686003)(55016002)(478600001)(2906002)(33656002)(66446008)(64756008)(4326008)(966005)(81156014)(8676002)(8936002);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB5166;H:TYAPR01MB2285.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: renesas.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: R26S+s5DlIOAZ5rhXEDJL07JObBVwBAa7unPjSdthY4K+/5ERdvAMD0hsnn1DD3mQ/EEgxuybmqMMjh+kcC84TZnp51LcuSLdEcUDjkQHR/beoSU1jU33mQMQProKbCfnSyEmqNshmoMfvy7aCsSxBRE/TfI6xe2WVx4SNx49znRw3MW5uySXvBDlnazqVAkNLgE4VsmcYV/X6qiVQP+GgZgdBRiyXAYLYuUlBwryzmfddNY9hlMlMBwExOnn/keil5q6HMjhajD4INFKcbjm1V2pU25GYsfYcI36nMlTi5E7rBFI42qa+ZKC9F4DQcdhCA6Dg1srhhuuRLVc0IMNHW1drBvSvJXv8GSQu03ipNdcbQ0bjT0ygdc+7fBJypIOsd7MPCIB15GwBDqgydz555khYDYesnRhwfAVp7ij+XeAKCzZhd5xT9gabU+fKI1qraYF+lV5TAp3wHsZ4ae+NPTxZkJ7pBMcer2gfulH24=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S1726951AbfLIQdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 11:33:10 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:48549 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726881AbfLIQdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 11:33:05 -0500
+Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1ieLy1-0001up-2z; Mon, 09 Dec 2019 17:33:01 +0100
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Oleksij Rempel <o.rempel@pengutronix.de>,
+        syzbot+99e9e1b200a1e363237d@syzkaller.appspotmail.com,
+        linux-stable <stable@vger.kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 03/13] can: j1939: j1939_sk_bind(): take priv after lock is held
+Date:   Mon,  9 Dec 2019 17:32:46 +0100
+Message-Id: <20191209163256.12000-4-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191209163256.12000-1-mkl@pengutronix.de>
+References: <20191209163256.12000-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d7c4845c-250d-40de-e580-08d77cc4f320
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2019 16:29:22.9568
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: mt1Oqtid0no23Iro4jIo2hVuMnYpkpG0jF46xgj1myJ51tt+1RFbGQhm08Xkl5z/gnrC4l9AxUx+Rd1Tj1EnFtW0eavV1P6EJOuBRGgsNnQ=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB5166
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Greg, all,
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-I've seen a few errors with 4.19.89-rc1 (5944fcdd).
+syzbot reproduced following crash:
 
-1)
-Config: arm64 defconfig
-Link: https://gitlab.com/cip-playground/linux-stable-rc-ci/-/jobs/373484093=
-#L267
-Probable culprit: 227b635dcae6 ("bpf, arm64: fix getting subprog addr from =
-aux for calls")
-Issue log:
-267 arch/arm64/net/bpf_jit_comp.c: In function 'build_insn':
-268 arch/arm64/net/bpf_jit_comp.c:633:9: error: implicit declaration of fun=
-ction 'bpf_jit_get_func_addr'; did you mean 'bpf_jit_binary_hdr'? [-Werror=
-=3Dimplicit-function-declaration]
-269    ret =3D bpf_jit_get_func_addr(ctx->prog, insn, extra_pass,
-270          ^~~~~~~~~~~~~~~~~~~~~
-271          bpf_jit_binary_hdr
+===============================================================================
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 9844 Comm: syz-executor.0 Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+RIP: 0010:__lock_acquire+0x1254/0x4a00 kernel/locking/lockdep.c:3828
+Code: 00 0f 85 96 24 00 00 48 81 c4 f0 00 00 00 5b 41 5c 41 5d 41 5e 41
+5f 5d c3 48 b8 00 00 00 00 00 fc ff df 4c 89 f2 48 c1 ea 03 <80> 3c 02
+00 0f 85 0b 28 00 00 49 81 3e 20 19 78 8a 0f 84 5f ee ff
+RSP: 0018:ffff888099c3fb48 EFLAGS: 00010006
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000218 RSI: 0000000000000000 RDI: 0000000000000001
+RBP: ffff888099c3fc60 R08: 0000000000000001 R09: 0000000000000001
+R10: fffffbfff146e1d0 R11: ffff888098720400 R12: 00000000000010c0
+R13: 0000000000000000 R14: 00000000000010c0 R15: 0000000000000000
+FS:  00007f0559e98700(0000) GS:ffff8880ae800000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fe4d89e0000 CR3: 0000000099606000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ lock_acquire+0x190/0x410 kernel/locking/lockdep.c:4485
+ __raw_spin_lock_bh include/linux/spinlock_api_smp.h:135 [inline]
+ _raw_spin_lock_bh+0x33/0x50 kernel/locking/spinlock.c:175
+ spin_lock_bh include/linux/spinlock.h:343 [inline]
+ j1939_jsk_del+0x32/0x210 net/can/j1939/socket.c:89
+ j1939_sk_bind+0x2ea/0x8f0 net/can/j1939/socket.c:448
+ __sys_bind+0x239/0x290 net/socket.c:1648
+ __do_sys_bind net/socket.c:1659 [inline]
+ __se_sys_bind net/socket.c:1657 [inline]
+ __x64_sys_bind+0x73/0xb0 net/socket.c:1657
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x45a679
+Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89
+f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
+f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f0559e97c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000031
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 000000000045a679
+RDX: 0000000000000018 RSI: 0000000020000240 RDI: 0000000000000003
+RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f0559e986d4
+R13: 00000000004c09e9 R14: 00000000004d37d0 R15: 00000000ffffffff
+Modules linked in:
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 9844 at kernel/locking/mutex.c:1419
+mutex_trylock+0x279/0x2f0 kernel/locking/mutex.c:1427
+===============================================================================
 
+This issues was caused by null pointer deference. Where j1939_sk_bind()
+was using currently not existing priv.
 
-2)
-Config: arm multi_v7_defconfig
-Link: https://gitlab.com/cip-playground/linux-stable-rc-ci/-/jobs/373484091=
-#L2147
-Probable culprit: 192929fd944d ("dmaengine: xilinx_dma: Fix 64-bit simple C=
-DMA transfer")
-Issue log:
-2147 drivers/dma/xilinx/xilinx_dma.c: In function 'xilinx_cdma_start_transf=
-er':
-2148 drivers/dma/xilinx/xilinx_dma.c:1252:9: error: implicit declaration of=
- function 'xilinx_prep_dma_addr_t'; did you mean 'xilinx_dma_start'? [-Werr=
-or=3Dimplicit-function-declaration]
-2149          xilinx_prep_dma_addr_t(hw->src_addr));
-2150          ^~~~~~~~~~~~~~~~~~~~~~
-2151          xilinx_dma_start
+Possible scenario may look as following:
+cpu0                                    cpu1
+bind()
+                                        bind()
+ j1939_sk_bind()
+                                         j1939_sk_bind()
+  priv = jsk->priv;
+                                         priv = jsk->priv;
+  lock_sock(sock->sk);
+  priv = j1939_netdev_start(ndev);
+  j1939_jsk_add(priv, jsk);
+    jsk->priv = priv;
+  relase_sock(sock->sk);
+                                         lock_sock(sock->sk);
+                                         j1939_jsk_del(priv, jsk);
+                                         ..... ooops ......
 
+With this patch we move "priv = jsk->priv;" after the lock, to avoid
+assigning of wrong priv pointer.
 
-3)
-Config: arm shmobile_defconfig
-Link: https://gitlab.com/cip-playground/linux-stable-rc-ci/-/jobs/373484089=
-#L2249
-Probable culprit: 984d7a8bff57 ("pinctrl: sh-pfc: r8a7792: Fix VIN versione=
-d groups")
-Issue log:
-2249 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:38: error: macro "VIN_DATA_P=
-IN_GROUP" passed 3 arguments, but takes just 2
-2250   VIN_DATA_PIN_GROUP(vin1_data, 24, _b),
-2251                                       ^
-2252 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:2: error: 'VIN_DATA_PIN_GROU=
-P' undeclared here (not in a function); did you mean 'PIN_MAP_TYPE_MUX_GROU=
-P'?
-2253   VIN_DATA_PIN_GROUP(vin1_data, 24, _b),
-2254   ^~~~~~~~~~~~~~~~~~
-2255   PIN_MAP_TYPE_MUX_GROUP
-2256 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1751:38: error: macro "VIN_DATA_P=
-IN_GROUP" passed 3 arguments, but takes just 2
-2257   VIN_DATA_PIN_GROUP(vin1_data, 20, _b),
-2258                                       ^
-2259 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1753:38: error: macro "VIN_DATA_P=
-IN_GROUP" passed 3 arguments, but takes just 2
-2260   VIN_DATA_PIN_GROUP(vin1_data, 16, _b),
-2261                                       ^
+Reported-by: syzbot+99e9e1b200a1e363237d@syzkaller.appspotmail.com
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ net/can/j1939/socket.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-
-Kind regards, Chris
+diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
+index de09b0a65791..f7587428febd 100644
+--- a/net/can/j1939/socket.c
++++ b/net/can/j1939/socket.c
+@@ -423,9 +423,9 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ {
+ 	struct sockaddr_can *addr = (struct sockaddr_can *)uaddr;
+ 	struct j1939_sock *jsk = j1939_sk(sock->sk);
+-	struct j1939_priv *priv = jsk->priv;
+-	struct sock *sk = sock->sk;
+-	struct net *net = sock_net(sk);
++	struct j1939_priv *priv;
++	struct sock *sk;
++	struct net *net;
+ 	int ret = 0;
+ 
+ 	ret = j1939_sk_sanity_check(addr, len);
+@@ -434,6 +434,10 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 
+ 	lock_sock(sock->sk);
+ 
++	priv = jsk->priv;
++	sk = sock->sk;
++	net = sock_net(sk);
++
+ 	/* Already bound to an interface? */
+ 	if (jsk->state & J1939_SOCK_BOUND) {
+ 		/* A re-bind() to a different interface is not
+-- 
+2.24.0
 
