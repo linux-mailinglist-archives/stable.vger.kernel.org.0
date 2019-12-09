@@ -2,86 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 287CD1170E3
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 16:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A6811714E
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 17:15:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726197AbfLIPxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 10:53:46 -0500
-Received: from mail-pg1-f179.google.com ([209.85.215.179]:40488 "EHLO
-        mail-pg1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726080AbfLIPxp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 10:53:45 -0500
-Received: by mail-pg1-f179.google.com with SMTP id k25so7320668pgt.7
-        for <stable@vger.kernel.org>; Mon, 09 Dec 2019 07:53:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=O+rZ9+8sChTGUIad9SA96LAjyweFy1jeRgbI8aZttis=;
-        b=lPHQSmeFh0AQxTG4CfCA62GXYLYgABLL5QWnTk1G0QxUNLl1126lNBsNB0YnLnOi1e
-         WiGYXTQdSxe4az9BB+AsjVRoOvRGNiacLCO36enW9cqM/efdxYhMCfDvU2R2ZRJKVuQp
-         0noltlSSAPOnDcuLmr0Og6650zlx2+ZYztpx9gb8SMEdVIessnretqMdAlHFE6VRyqio
-         riSm9SlRpfRnv1GhXr2dqlMNaXermqTKUkghCPv3vscrzEYduqIlxVlB+KAULZw9YR4j
-         x0Ofr5pWi9Wsq8HsJ1oAzvVdt4mFZUElCb+68z2vrakVPary4ez4C503MS8sGyUPX4gF
-         cYEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=O+rZ9+8sChTGUIad9SA96LAjyweFy1jeRgbI8aZttis=;
-        b=ANofvTDYWYf1vq4+41Q1mciscF56+Pn2U5xKhC2LeCc0JXhtKoUlF7WSsql9J54WUx
-         wsaXMMId6LCF96+PF/LjvGcBTKhBTfoDOlWqaB0ZwIVJNbAb0OqDEbPUQiCdxFtzXxR3
-         X3KsvHXEnTClafCx6x/rlvdnOPO06pQ2ryxMdakeb+zbpuLjPE/r6R2Sb7xrPQBSYRI1
-         FpCwBuwm6gxA+gKk225kh2PEm9RlkCk/cywcZp7APttvcPT3qBfoRG0HdALSWotE7rCi
-         oIqHsJq66T6WLvUZVvOaP/YIbfHVKGxGBeGD20v/oEJRFyND1g3uNxUpkUqPLgsD89JB
-         /2Xg==
-X-Gm-Message-State: APjAAAWEb9XhRxrxexjTLCECdj1mOBRZbZ4X8jF0NjV1tIAb7PmICHjv
-        oYdVwCqw8c5YG0U+nqzamutHdiJD
-X-Google-Smtp-Source: APXvYqx0mgXa/UhjOmjPVX4j0bQ4hyUdjuZwJXFE1eXC/gkoC3rbdxGb9WLMw2pLlK9BFg7MWQ+WAw==
-X-Received: by 2002:a63:551a:: with SMTP id j26mr19159095pgb.370.1575906824709;
-        Mon, 09 Dec 2019 07:53:44 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id g26sm26847857pfo.128.2019.12.09.07.53.43
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 09 Dec 2019 07:53:44 -0800 (PST)
-Date:   Mon, 9 Dec 2019 07:53:42 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     stable@vger.kernel.org
-Subject: stable release candidate build/test status
-Message-ID: <20191209155342.GA30203@roeck-us.net>
+        id S1726491AbfLIQPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 11:15:39 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:56843 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726080AbfLIQPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 11:15:39 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 77D5CB82;
+        Mon,  9 Dec 2019 11:15:38 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 09 Dec 2019 11:15:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=v1zrmVcnZ4WpIY5x4d5EzxBO5Cs
+        vFdPWQBWdDjMCm8s=; b=J3GLCy9HhoVPOOau53BkJYq1v13QdtrvwhQad6/1iMj
+        YbaULP1jA+PyvvOUaeuATO4fbRMoEVw+ujVbd8LDUM0ppyY30qo5+YLN5RnZ9Lwn
+        DKdgUHLCA6Maq49aWEImlDET1SQd6dUtk/QwezFOcIvOPTiB8UuJ295dR8A5MjKE
+        wFDJUvpc3YeIoszyMBoJBkL0uVpDbycDljKC4+IkY/7KrrATSKYpPJta6a+tifSQ
+        0fkLjDmOBpLkR0SPZTDSYDYxEb5mQyflD6f6kqKxJ0ypr2dFsj/JBNvimU/jBsHh
+        wH+ledZd2Aru/Rp42Gn/d7H+FEgpth1DHBmfTfX8MeQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=v1zrmV
+        cnZ4WpIY5x4d5EzxBO5CsvFdPWQBWdDjMCm8s=; b=fEC6NZfM5a6TfIxXHHnbqy
+        HXzhwYlb7bLtkKwV2QDGtU8xICefScG8xUNVe/7dIT+cCQdwVK/0h7pmKAytuNhx
+        CsLUkg1ofvmN9muyqvCX5bPEKY1KxFgtj0iYkrxKjoZlxAmllMwCL1PWTfxA08mt
+        yYGe4WxkkkmnHoyDeP+vpFr7JBvaCOnPTAjxYTGeCvszLQi1SIWZizfPbUeYFnH8
+        nw+baUzljr4FL5BJIdSDeOImoYBWWykYhY9oB6Y1IWVvb7sfY+5Tz74aCDboayA+
+        +NmJ/SIADjGnPYKEXeZCnG4Fsg/ubWkCT7/TwRFT4jbyt/aMDFuhzRtwz2/Kbz+g
+        ==
+X-ME-Sender: <xms:KXPuXQL8FyFPPrh-kAGS6HXRAZFV9xmn2P-oSbBhoSPyJvSG8gGABw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeltddgkeejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujgesthdtre
+    dttddtvdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
+    necukfhppeekledrvddthedrudefvddrvdefnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:KXPuXW80tBUMZHHxuH_mVQar0bcdTPwEBDJ_UXAXExQFLUcX7AvQpw>
+    <xmx:KXPuXU-AlXI6qMCljqzb2tzvl00L6bw7i-3wNJ7etRK_UuVPnn5ymQ>
+    <xmx:KXPuXWIfr-yQLbLew7cYZj0QD_fWp-_PNmDJBdGo722sFaoTYDFKiw>
+    <xmx:KnPuXcKxGOQG7PNFIou_L4T-V8usYWUZsZU0bEZfAs2_yXDapHKAOg>
+Received: from localhost (unknown [89.205.132.23])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7CF4C30600FE;
+        Mon,  9 Dec 2019 11:15:37 -0500 (EST)
+Date:   Mon, 9 Dec 2019 17:15:36 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org
+Subject: Re: stable release candidate build/test status
+Message-ID: <20191209161536.GA1286960@kroah.com>
+References: <20191209155342.GA30203@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20191209155342.GA30203@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, Dec 09, 2019 at 07:53:42AM -0800, Guenter Roeck wrote:
+> Hi,
+> 
+> stable release candidates are a mess right now. Example build/boot
+> test results from 4.4.y.queue:
+> 
+> Build results:
+> 	total: 170 pass: 163 fail: 7
+> Failed builds:
+> 	arm:allmodconfig
+> 	arm:u8500_defconfig
+> 	arm:axm55xx_defconfig
+> 	arm:mxs_defconfig
+> 	arm:nhk8815_defconfig
+> 	arm64:defconfig
+> 	arm64:allmodconfig
+> Qemu test results:
+> 	total: 325 pass: 261 fail: 64
+> Failed tests:
+> 	<too many to list>
+> 
+> Most other branches are just as bad, and it isn't always just arm/arm64.
+> Is there a need to report details, or will it all be taken care of before
+> the next set of RCs ?
 
-stable release candidates are a mess right now. Example build/boot
-test results from 4.4.y.queue:
+I cleaned up a bunch of problems this weekend for x86, so I'm glad to
+see that working now :)
 
-Build results:
-	total: 170 pass: 163 fail: 7
-Failed builds:
-	arm:allmodconfig
-	arm:u8500_defconfig
-	arm:axm55xx_defconfig
-	arm:mxs_defconfig
-	arm:nhk8815_defconfig
-	arm64:defconfig
-	arm64:allmodconfig
-Qemu test results:
-	total: 325 pass: 261 fail: 64
-Failed tests:
-	<too many to list>
+Sasha, can you fix up the rest of these?
 
-Most other branches are just as bad, and it isn't always just arm/arm64.
-Is there a need to report details, or will it all be taken care of before
-the next set of RCs ?
+thanks,
 
-Thanks,
-Guenter
+greg k-h
