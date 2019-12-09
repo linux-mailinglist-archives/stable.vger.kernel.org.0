@@ -2,68 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E16141170D6
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 16:49:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 287CD1170E3
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 16:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726290AbfLIPtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 10:49:15 -0500
-Received: from mga18.intel.com ([134.134.136.126]:40719 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726197AbfLIPtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 10:49:15 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Dec 2019 07:49:14 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,296,1571727600"; 
-   d="scan'208";a="237786846"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.202])
-  by fmsmga004.fm.intel.com with ESMTP; 09 Dec 2019 07:49:13 -0800
-Date:   Mon, 9 Dec 2019 07:49:13 -0800
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Doug Reiland <doug.reiland@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Peter Xu <peterx@redhat.com>
-Subject: Re: [PATCH 3.16 31/72] KVM: x86: Manually calculate reserved bits
- when loading PDPTRS
-Message-ID: <20191209154913.GB4042@linux.intel.com>
-References: <lsq.1575813164.154362148@decadent.org.uk>
- <lsq.1575813165.887619822@decadent.org.uk>
+        id S1726197AbfLIPxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 10:53:46 -0500
+Received: from mail-pg1-f179.google.com ([209.85.215.179]:40488 "EHLO
+        mail-pg1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726080AbfLIPxp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 10:53:45 -0500
+Received: by mail-pg1-f179.google.com with SMTP id k25so7320668pgt.7
+        for <stable@vger.kernel.org>; Mon, 09 Dec 2019 07:53:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=O+rZ9+8sChTGUIad9SA96LAjyweFy1jeRgbI8aZttis=;
+        b=lPHQSmeFh0AQxTG4CfCA62GXYLYgABLL5QWnTk1G0QxUNLl1126lNBsNB0YnLnOi1e
+         WiGYXTQdSxe4az9BB+AsjVRoOvRGNiacLCO36enW9cqM/efdxYhMCfDvU2R2ZRJKVuQp
+         0noltlSSAPOnDcuLmr0Og6650zlx2+ZYztpx9gb8SMEdVIessnretqMdAlHFE6VRyqio
+         riSm9SlRpfRnv1GhXr2dqlMNaXermqTKUkghCPv3vscrzEYduqIlxVlB+KAULZw9YR4j
+         x0Ofr5pWi9Wsq8HsJ1oAzvVdt4mFZUElCb+68z2vrakVPary4ez4C503MS8sGyUPX4gF
+         cYEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=O+rZ9+8sChTGUIad9SA96LAjyweFy1jeRgbI8aZttis=;
+        b=ANofvTDYWYf1vq4+41Q1mciscF56+Pn2U5xKhC2LeCc0JXhtKoUlF7WSsql9J54WUx
+         wsaXMMId6LCF96+PF/LjvGcBTKhBTfoDOlWqaB0ZwIVJNbAb0OqDEbPUQiCdxFtzXxR3
+         X3KsvHXEnTClafCx6x/rlvdnOPO06pQ2ryxMdakeb+zbpuLjPE/r6R2Sb7xrPQBSYRI1
+         FpCwBuwm6gxA+gKk225kh2PEm9RlkCk/cywcZp7APttvcPT3qBfoRG0HdALSWotE7rCi
+         oIqHsJq66T6WLvUZVvOaP/YIbfHVKGxGBeGD20v/oEJRFyND1g3uNxUpkUqPLgsD89JB
+         /2Xg==
+X-Gm-Message-State: APjAAAWEb9XhRxrxexjTLCECdj1mOBRZbZ4X8jF0NjV1tIAb7PmICHjv
+        oYdVwCqw8c5YG0U+nqzamutHdiJD
+X-Google-Smtp-Source: APXvYqx0mgXa/UhjOmjPVX4j0bQ4hyUdjuZwJXFE1eXC/gkoC3rbdxGb9WLMw2pLlK9BFg7MWQ+WAw==
+X-Received: by 2002:a63:551a:: with SMTP id j26mr19159095pgb.370.1575906824709;
+        Mon, 09 Dec 2019 07:53:44 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id g26sm26847857pfo.128.2019.12.09.07.53.43
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 09 Dec 2019 07:53:44 -0800 (PST)
+Date:   Mon, 9 Dec 2019 07:53:42 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     stable@vger.kernel.org
+Subject: stable release candidate build/test status
+Message-ID: <20191209155342.GA30203@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <lsq.1575813165.887619822@decadent.org.uk>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 08, 2019 at 01:53:15PM +0000, Ben Hutchings wrote:
-> 3.16.79-rc1 review patch.  If anyone has any objections, please let me know.
-> 
-> ------------------
-> 
-> From: Sean Christopherson <sean.j.christopherson@intel.com>
-> 
-> commit 16cfacc8085782dab8e365979356ce1ca87fd6cc upstream.
+Hi,
 
-You'll also want to pull in two PAE related fixes (in this order):
+stable release candidates are a mess right now. Example build/boot
+test results from 4.4.y.queue:
 
-  d35b34a9a70e ("kvm: mmu: Don't read PDPTEs when paging is not enabled")
-  bf03d4f93347 ("KVM: x86: introduce is_pae_paging")
+Build results:
+	total: 170 pass: 163 fail: 7
+Failed builds:
+	arm:allmodconfig
+	arm:u8500_defconfig
+	arm:axm55xx_defconfig
+	arm:mxs_defconfig
+	arm:nhk8815_defconfig
+	arm64:defconfig
+	arm64:allmodconfig
+Qemu test results:
+	total: 325 pass: 261 fail: 64
+Failed tests:
+	<too many to list>
 
-The "introduce is_pae_paging" has an undocumented bug fix.  IIRC it
-manifests as an unexpected #GP on MOV CR3 in 64-bit mode.  Here's the blurb
-I added to the backports for 4.x.
+Most other branches are just as bad, and it isn't always just arm/arm64.
+Is there a need to report details, or will it all be taken care of before
+the next set of RCs ?
 
-  Moving to the common helper also fixes a subtle bug in kvm_set_cr3()
-  where it fails to check is_long_mode() and results in KVM incorrectly
-  attempting to load PDPTRs for a 64-bit guest.
-
+Thanks,
+Guenter
