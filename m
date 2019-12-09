@@ -2,174 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DBB117323
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 18:49:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6233B117379
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 19:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726801AbfLIRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 12:48:54 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:45193 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726598AbfLIRsw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 12:48:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575913730;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=5j9y6uTzLH6AC77P2ufw4QrIfhyaBDvoWP5b6gJS+oc=;
-        b=fR9binU0UU8PsjwemD+N7GlcTUGRDom3vaCWYaWIpRNwVhvuN9kXKJlWPMnFrnFKxkxkov
-        4ZwIfT00HNtP7g7gfQcS6AaXZeKZmIMwhqWLZsGH7iejU1RP9OpTGGkMtj5XstVrycMvJ4
-        2v7tBZV9Fz7mCwkLZWmHhXlb0EjvhBs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-362-Fe-49BicNvahBHQY8FMnhg-1; Mon, 09 Dec 2019 12:48:47 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 872581005514;
-        Mon,  9 Dec 2019 17:48:45 +0000 (UTC)
-Received: from t460s.redhat.com (ovpn-116-214.ams2.redhat.com [10.36.116.214])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 143951001B03;
-        Mon,  9 Dec 2019 17:48:42 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
-        stable@vger.kernel.org,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Pavel Tatashin <pasha.tatashin@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Steven Sistare <steven.sistare@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Bob Picco <bob.picco@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>
-Subject: [PATCH v1 1/3] mm: fix uninitialized memmaps on a partially populated last section
-Date:   Mon,  9 Dec 2019 18:48:34 +0100
-Message-Id: <20191209174836.11063-2-david@redhat.com>
-In-Reply-To: <20191209174836.11063-1-david@redhat.com>
-References: <20191209174836.11063-1-david@redhat.com>
+        id S1726509AbfLISHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 13:07:22 -0500
+Received: from m4a0039g.houston.softwaregrp.com ([15.124.2.85]:41896 "EHLO
+        m4a0039g.houston.softwaregrp.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726342AbfLISHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 13:07:20 -0500
+Received: FROM m4a0039g.houston.softwaregrp.com (15.120.17.146) BY m4a0039g.houston.softwaregrp.com WITH ESMTP;
+ Mon,  9 Dec 2019 18:06:10 +0000
+Received: from M9W0068.microfocus.com (2002:f79:bf::f79:bf) by
+ M4W0334.microfocus.com (2002:f78:1192::f78:1192) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1591.10; Mon, 9 Dec 2019 18:05:44 +0000
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (15.124.72.14) by
+ M9W0068.microfocus.com (15.121.0.191) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1591.10 via Frontend Transport; Mon, 9 Dec 2019 18:05:43 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=M8OMFJ/gs8r+cTSPMgwnBC2aZzt8g7iG0oTOeKzJ187hz+LKi1X/xiaHf8zHpcYRLdj42Y8onw7Pt2/eQJu/dQTGn+l7XeiPxbs6/OCyitBk9vENGZFcMV5eqHZiqwDc6DJVbx6RDlc76JjCRvqdt2r+kmgsJcGscvibimHA4YlAmIHptBCafES3g8w159tJqHpV7qUofxJh/zJu4ObPYuIyJx87s1z2XUjy/Kvee81hldXWiknVDc+9Mt74xQ4qT4uGOeBg6pxGDM43cZni7YPDQxNs0zunQBZDgDfvQyQb6E/Wi/yjnjJJFej3KODp4lwprlZSX/kED6yLsWbgkA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+2cxs0ORETCRxv0jdd4irZF1UklkYxpMrLMp6D62I7U=;
+ b=lZLM1ie9esCP7fPi70Eyv9tdILW/5IfbYjKOIzUsxafrGKUiw2TEU5YFb+OmFP4Kdj+kJemwqZKYCDAFxRSYr1w1qeGSwCPwgjOJt17/cQ2DfiNiJWftod+L70hhX1LUsEIbirVgD2KmdaHqGroz64aC25cDHbyz2qlUelo14YOmIZca0qo9OXF6bjrT27aMWKJiuCsdTh1d0aPirAH9mTypJT79f5547cPmlrL/cKloHTQ5BxG6wLaqGeKspyKVV2ZTOxZzvFbWDIol3PjRjxPEbr/+gptJ7E9hk+1t9yDLto1CysY/n6USApfPJFS4U2JRE+bRIevJdfzan2Pxpw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
+ dkim=pass header.d=suse.com; arc=none
+Received: from MN2PR18MB3278.namprd18.prod.outlook.com (10.255.237.204) by
+ MN2PR18MB3344.namprd18.prod.outlook.com (10.255.86.76) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2516.14; Mon, 9 Dec 2019 18:05:41 +0000
+Received: from MN2PR18MB3278.namprd18.prod.outlook.com
+ ([fe80::2914:6699:d7e5:de45]) by MN2PR18MB3278.namprd18.prod.outlook.com
+ ([fe80::2914:6699:d7e5:de45%3]) with mapi id 15.20.2516.018; Mon, 9 Dec 2019
+ 18:05:41 +0000
+From:   Lee Duncan <LDuncan@suse.com>
+To:     Bart Van Assche <bvanassche@acm.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>
+CC:     "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "Christoph Hellwig" <hch@lst.de>,
+        Keith Busch <keith.busch@intel.com>,
+        Chris Leech <cleech@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] iscsi: Fix a potential deadlock in the timeout handler
+Thread-Topic: [PATCH] iscsi: Fix a potential deadlock in the timeout handler
+Thread-Index: AQHVrrcBlB0UehsZYE+h9DghdG4TTqeyGRaA
+Date:   Mon, 9 Dec 2019 18:05:41 +0000
+Message-ID: <49adf8c8-d524-dfb8-1a2d-4daac7af50ad@suse.com>
+References: <20191209173457.187370-1-bvanassche@acm.org>
+In-Reply-To: <20191209173457.187370-1-bvanassche@acm.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: MWHPR04CA0060.namprd04.prod.outlook.com
+ (2603:10b6:300:6c::22) To MN2PR18MB3278.namprd18.prod.outlook.com
+ (2603:10b6:208:168::12)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=LDuncan@suse.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [73.25.22.216]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: b190a53a-f155-4ca7-0ed4-08d77cd2671b
+x-ms-traffictypediagnostic: MN2PR18MB3344:
+x-microsoft-antispam-prvs: <MN2PR18MB3344F48E3452B1F7BDF1C93BDA580@MN2PR18MB3344.namprd18.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:2399;
+x-forefront-prvs: 02462830BE
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(396003)(366004)(39860400002)(346002)(376002)(136003)(189003)(51234002)(199004)(66476007)(4326008)(229853002)(26005)(36756003)(64756008)(66446008)(66946007)(66556008)(71190400001)(305945005)(71200400001)(5660300002)(316002)(8676002)(81166006)(8936002)(81156014)(54906003)(2906002)(2616005)(31696002)(186003)(31686004)(53546011)(478600001)(6486002)(6512007)(6506007)(110136005)(86362001)(52116002);DIR:OUT;SFP:1102;SCL:1;SRVR:MN2PR18MB3344;H:MN2PR18MB3278.namprd18.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: suse.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: Qw7iGwqwS7Ki1/M/8zy1oZzxgkjjCDXK95JAevZJCQboo4c3ErXoOBouqGPnRXPmVeecUdrXwxiqCCIrr29gAtNzmjQImWyly8Zdi/rK0H16bfe/hovG1u0V1cVX8Y0NJltjl04/ApeJkh51Ref1OofKlfb0yJe+rEfEBGi1JKn9K4QGlAYNbb/SFP2qEHXZ8f0HgC4JSAAM20NOw8lnf5War4NblFte519egmueLg2eJ7ouexaY6EfHHzuj/mxgreWlgPNWbcizkot8En+u/zvCVQGOmO/D8pj7MElDSqEpVUj0PtxsSSZlxueLWlW8VlCQPr1MHHZrRmdMOH/EwEM0PJdl0saj+ovxxOsWwnj1wkrKc/54aumvH7iQHwfbasZKeVwBjM9pW+dfkj5ZIa2+fkkLXKyPWcUI0662AiKlOtEWJas3tspr2Q/5rwzZ+qzSxuGhNWnQA2SiJLogKgmDQYihVEMO9X5CnSYHFQw3uEcn2WXrahhTfnA3evXp
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <C7C256F448108241B62D00134858EC45@namprd18.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: Fe-49BicNvahBHQY8FMnhg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+X-MS-Exchange-CrossTenant-Network-Message-Id: b190a53a-f155-4ca7-0ed4-08d77cd2671b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2019 18:05:41.2416
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 856b813c-16e5-49a5-85ec-6f081e13b527
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: TudzXXrzdwqMgbctszf0KBgTLL/qwQkHvCWY/bRIPH4XoRScJZJUaia3C09rT51je9kHCVHTuJYFrl47n3CZuA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR18MB3344
+X-OriginatorOrg: suse.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If max_pfn is not aligned to a section boundary, we can easily run into
-BUGs. This can e.g., be triggered on x86-64 under QEMU by specifying a
-memory size that is not a multiple of 128MB (e.g., 4097MB, but also
-4160MB). I was told that on real HW, we can easily have this scenario
-(esp., one of the main reasons sub-section hotadd of devmem was added).
-
-The issue is, that we have a valid memmap (pfn_valid()) for the
-whole section, and the whole section will be marked "online".
-pfn_to_online_page() will succeed, but the memmap contains garbage.
-
-E.g., doing a "cat /proc/kpageflags > /dev/null" results in
-
-[  303.218313] BUG: unable to handle page fault for address: ffffffffffffff=
-fe
-[  303.218899] #PF: supervisor read access in kernel mode
-[  303.219344] #PF: error_code(0x0000) - not-present page
-[  303.219787] PGD 12614067 P4D 12614067 PUD 12616067 PMD 0
-[  303.220266] Oops: 0000 [#1] SMP NOPTI
-[  303.220587] CPU: 0 PID: 424 Comm: cat Not tainted 5.4.0-next-20191128+ #=
-17
-[  303.221169] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS =
-rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
-[  303.222140] RIP: 0010:stable_page_flags+0x4d/0x410
-[  303.222554] Code: f3 ff 41 89 c0 48 b8 00 00 00 00 01 00 00 00 45 84 c0 =
-0f 85 cd 02 00 00 48 8b 53 08 48 8b 2b 48f
-[  303.224135] RSP: 0018:ffff9f5980187e58 EFLAGS: 00010202
-[  303.224576] RAX: fffffffffffffffe RBX: ffffda1285004000 RCX: ffff9f59801=
-87dd4
-[  303.225178] RDX: 0000000000000001 RSI: ffffffff92662420 RDI: 00000000000=
-00246
-[  303.225789] RBP: ffffffffffffffff R08: 0000000000000000 R09: 00000000000=
-00000
-[  303.226405] R10: 0000000000000000 R11: 0000000000000000 R12: 00007f31d07=
-0e000
-[  303.227012] R13: 0000000000140100 R14: 00007f31d070e800 R15: ffffda12850=
-04000
-[  303.227629] FS:  00007f31d08f6580(0000) GS:ffff90a6bba00000(0000) knlGS:=
-0000000000000000
-[  303.228329] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  303.228820] CR2: fffffffffffffffe CR3: 00000001332a2000 CR4: 00000000000=
-006f0
-[  303.229438] Call Trace:
-[  303.229654]  kpageflags_read.cold+0x57/0xf0
-[  303.230016]  proc_reg_read+0x3c/0x60
-[  303.230332]  vfs_read+0xc2/0x170
-[  303.230614]  ksys_read+0x65/0xe0
-[  303.230898]  do_syscall_64+0x5c/0xa0
-[  303.231216]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-This patch fixes that by at least zero-ing out that memmap (so e.g.,
-page_to_pfn() will not crash). Commit 907ec5fca3dc ("mm: zero remaining
-unavailable struct pages") tried to fix a similar issue, but forgot to
-consider this special case.
-
-After this patch, there are still problems to solve. E.g., not all of these
-pages falling into a memory hole will actually get initialized later
-and set PageReserved - they are only zeroed out - but at least the
-immediate crashes are gone. A follow-up patch will take care of this.
-
-Fixes: f7f99100d8d9 ("mm: stop zeroing memory during allocation in vmemmap"=
-)
-Cc: <stable@vger.kernel.org> # v4.15+
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Steven Sistare <steven.sistare@oracle.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Bob Picco <bob.picco@oracle.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/page_alloc.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 62dcd6b76c80..1eb2ce7c79e4 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6932,7 +6932,8 @@ static u64 zero_pfn_range(unsigned long spfn, unsigne=
-d long epfn)
-  * This function also addresses a similar issue where struct pages are lef=
-t
-  * uninitialized because the physical address range is not covered by
-  * memblock.memory or memblock.reserved. That could happen when memblock
-- * layout is manually configured via memmap=3D.
-+ * layout is manually configured via memmap=3D, or when the highest physic=
-al
-+ * address (max_pfn) does not end on a section boundary.
-  */
- void __init zero_resv_unavail(void)
- {
-@@ -6950,7 +6951,16 @@ void __init zero_resv_unavail(void)
- =09=09=09pgcnt +=3D zero_pfn_range(PFN_DOWN(next), PFN_UP(start));
- =09=09next =3D end;
- =09}
--=09pgcnt +=3D zero_pfn_range(PFN_DOWN(next), max_pfn);
-+
-+=09/*
-+=09 * Early sections always have a fully populated memmap for the whole
-+=09 * section - see pfn_valid(). If the last section has holes at the
-+=09 * end and that section is marked "online", the memmap will be
-+=09 * considered initialized. Make sure that memmap has a well defined
-+=09 * state.
-+=09 */
-+=09pgcnt +=3D zero_pfn_range(PFN_DOWN(next),
-+=09=09=09=09round_up(max_pfn, PAGES_PER_SECTION));
-=20
- =09/*
- =09 * Struct pages that do not have backing memory. This could be because
---=20
-2.21.0
-
+T24gMTIvOS8xOSA5OjM0IEFNLCBCYXJ0IFZhbiBBc3NjaGUgd3JvdGU6DQo+IFNvbWUgdGltZSBh
+Z28gdGhlIGJsb2NrIGxheWVyIHdhcyBtb2RpZmllZCBzdWNoIHRoYXQgdGltZW91dCBoYW5kbGVy
+cyBhcmUgY2FsbGVkDQo+IGZyb20gdGhyZWFkIGNvbnRleHQgaW5zdGVhZCBvZiBpbnRlcnJ1cHQg
+Y29udGV4dC4gTWFrZSBpdCBzYWZlIHRvIHJ1biB0aGUgaVNDU0kNCj4gdGltZW91dCBoYW5kbGVy
+IGluIHRocmVhZCBjb250ZXh0LiBUaGlzIHBhdGNoIGZpeGVzIHRoZSBmb2xsb3dpbmcgbG9ja2Rl
+cA0KPiBjb21wbGFpbnQ6DQo+IA0KPiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0K
+PiBXQVJOSU5HOiBpbmNvbnNpc3RlbnQgbG9jayBzdGF0ZQ0KPiA1LjUuMS1kYmcrICMxMSBOb3Qg
+dGFpbnRlZA0KPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KPiBpbmNvbnNpc3Rl
+bnQge0lOLVNPRlRJUlEtV30gLT4ge1NPRlRJUlEtT04tV30gdXNhZ2UuDQo+IGt3b3JrZXIvNzox
+SC8yMDYgW0hDMFswXTpTQzBbMF06SEUxOlNFMV0gdGFrZXM6DQo+IGZmZmY4ODgwMmQ5ODI3ZTgg
+KCYoJnNlc3Npb24tPmZyd2RfbG9jayktPnJsb2NrKXsrLj8ufSwgYXQ6IGlzY3NpX2VoX2NtZF90
+aW1lZF9vdXQrMHhhNi8weDZkMCBbbGliaXNjc2ldDQo+IHtJTi1TT0ZUSVJRLVd9IHN0YXRlIHdh
+cyByZWdpc3RlcmVkIGF0Og0KPiAgIGxvY2tfYWNxdWlyZSsweDEwNi8weDI0MA0KPiAgIF9yYXdf
+c3Bpbl9sb2NrKzB4MzgvMHg1MA0KPiAgIGlzY3NpX2NoZWNrX3RyYW5zcG9ydF90aW1lb3V0cysw
+eDNlLzB4MjEwIFtsaWJpc2NzaV0NCj4gICBjYWxsX3RpbWVyX2ZuKzB4MTMyLzB4NDcwDQo+ICAg
+X19ydW5fdGltZXJzLnBhcnQuMCsweDM5Zi8weDViMA0KPiAgIHJ1bl90aW1lcl9zb2Z0aXJxKzB4
+NjMvMHhjMA0KPiAgIF9fZG9fc29mdGlycSsweDEyZC8weDVmZA0KPiAgIGlycV9leGl0KzB4YjMv
+MHgxMTANCj4gICBzbXBfYXBpY190aW1lcl9pbnRlcnJ1cHQrMHgxMzEvMHgzZDANCj4gICBhcGlj
+X3RpbWVyX2ludGVycnVwdCsweGYvMHgyMA0KPiAgIGRlZmF1bHRfaWRsZSsweDMxLzB4MjMwDQo+
+ICAgYXJjaF9jcHVfaWRsZSsweDEzLzB4MjANCj4gICBkZWZhdWx0X2lkbGVfY2FsbCsweDUzLzB4
+NjANCj4gICBkb19pZGxlKzB4MzhhLzB4M2YwDQo+ICAgY3B1X3N0YXJ0dXBfZW50cnkrMHgyNC8w
+eDMwDQo+ICAgc3RhcnRfc2Vjb25kYXJ5KzB4MjIyLzB4MjkwDQo+ICAgc2Vjb25kYXJ5X3N0YXJ0
+dXBfNjQrMHhhNC8weGIwDQo+IGlycSBldmVudCBzdGFtcDogMTM4MzcwNQ0KPiBoYXJkaXJxcyBs
+YXN0ICBlbmFibGVkIGF0ICgxMzgzNzA1KTogWzxmZmZmZmZmZjgxYWFjZTVjPl0gX3Jhd19zcGlu
+X3VubG9ja19pcnErMHgyYy8weDUwDQo+IGhhcmRpcnFzIGxhc3QgZGlzYWJsZWQgYXQgKDEzODM3
+MDQpOiBbPGZmZmZmZmZmODFhYWNiOTg+XSBfcmF3X3NwaW5fbG9ja19pcnErMHgxOC8weDUwDQo+
+IHNvZnRpcnFzIGxhc3QgIGVuYWJsZWQgYXQgKDEzODM2OTApOiBbPGZmZmZmZmZmYTBlMmVmZWE+
+XSBpc2NzaV9xdWV1ZWNvbW1hbmQrMHg3NmEvMHhhMjAgW2xpYmlzY3NpXQ0KPiBzb2Z0aXJxcyBs
+YXN0IGRpc2FibGVkIGF0ICgxMzgzNjgyKTogWzxmZmZmZmZmZmEwZTJlOTk4Pl0gaXNjc2lfcXVl
+dWVjb21tYW5kKzB4MTE4LzB4YTIwIFtsaWJpc2NzaV0NCj4gDQo+IG90aGVyIGluZm8gdGhhdCBt
+aWdodCBoZWxwIHVzIGRlYnVnIHRoaXM6DQo+ICBQb3NzaWJsZSB1bnNhZmUgbG9ja2luZyBzY2Vu
+YXJpbzoNCj4gDQo+ICAgICAgICBDUFUwDQo+ICAgICAgICAtLS0tDQo+ICAgbG9jaygmKCZzZXNz
+aW9uLT5mcndkX2xvY2spLT5ybG9jayk7DQo+ICAgPEludGVycnVwdD4NCj4gICAgIGxvY2soJigm
+c2Vzc2lvbi0+ZnJ3ZF9sb2NrKS0+cmxvY2spOw0KPiANCj4gICoqKiBERUFETE9DSyAqKioNCj4g
+DQo+IDIgbG9ja3MgaGVsZCBieSBrd29ya2VyLzc6MUgvMjA2Og0KPiAgIzA6IGZmZmY4ODgwZDU3
+YmY5MjggKCh3cV9jb21wbGV0aW9uKWtibG9ja2QpeysuKy59LCBhdDogcHJvY2Vzc19vbmVfd29y
+aysweDQ3Mi8weGFiMA0KPiAgIzE6IGZmZmY4ODgwMmI5YzdkZTggKCh3b3JrX2NvbXBsZXRpb24p
+KCZxLT50aW1lb3V0X3dvcmspKXsrLisufSwgYXQ6IHByb2Nlc3Nfb25lX3dvcmsrMHg0NzYvMHhh
+YjANCj4gDQo+IHN0YWNrIGJhY2t0cmFjZToNCj4gQ1BVOiA3IFBJRDogMjA2IENvbW06IGt3b3Jr
+ZXIvNzoxSCBOb3QgdGFpbnRlZCA1LjUuMS1kYmcrICMxMQ0KPiBIYXJkd2FyZSBuYW1lOiBCb2No
+cyBCb2NocywgQklPUyBCb2NocyAwMS8wMS8yMDExDQo+IFdvcmtxdWV1ZToga2Jsb2NrZCBibGtf
+bXFfdGltZW91dF93b3JrDQo+IENhbGwgVHJhY2U6DQo+ICBkdW1wX3N0YWNrKzB4YTUvMHhlNg0K
+PiAgcHJpbnRfdXNhZ2VfYnVnLmNvbGQrMHgyMzIvMHgyM2INCj4gIG1hcmtfbG9jaysweDhkYy8w
+eGE3MA0KPiAgX19sb2NrX2FjcXVpcmUrMHhjZWEvMHgyYWYwDQo+ICBsb2NrX2FjcXVpcmUrMHgx
+MDYvMHgyNDANCj4gIF9yYXdfc3Bpbl9sb2NrKzB4MzgvMHg1MA0KPiAgaXNjc2lfZWhfY21kX3Rp
+bWVkX291dCsweGE2LzB4NmQwIFtsaWJpc2NzaV0NCj4gIHNjc2lfdGltZXNfb3V0KzB4ZjQvMHg0
+NDAgW3Njc2lfbW9kXQ0KPiAgc2NzaV90aW1lb3V0KzB4MWQvMHgyMCBbc2NzaV9tb2RdDQo+ICBi
+bGtfbXFfY2hlY2tfZXhwaXJlZCsweDM2NS8weDNhMA0KPiAgYnRfaXRlcisweGQ2LzB4ZjANCj4g
+IGJsa19tcV9xdWV1ZV90YWdfYnVzeV9pdGVyKzB4M2RlLzB4NjUwDQo+ICBibGtfbXFfdGltZW91
+dF93b3JrKzB4MWFmLzB4MzgwDQo+ICBwcm9jZXNzX29uZV93b3JrKzB4NTZkLzB4YWIwDQo+ICB3
+b3JrZXJfdGhyZWFkKzB4N2EvMHg1ZDANCj4gIGt0aHJlYWQrMHgxYmMvMHgyMTANCj4gIHJldF9m
+cm9tX2ZvcmsrMHgyNC8weDMwDQo+IA0KPiBDYzogQ2hyaXN0b3BoIEhlbGx3aWcgPGhjaEBsc3Qu
+ZGU+DQo+IENjOiBLZWl0aCBCdXNjaCA8a2VpdGguYnVzY2hAaW50ZWwuY29tPg0KPiBDYzogTGVl
+IER1bmNhbiA8bGR1bmNhbkBzdXNlLmNvbT4NCj4gQ2M6IENocmlzIExlZWNoIDxjbGVlY2hAcmVk
+aGF0LmNvbT4NCj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPiBGaXhlczogMjg3OTIy
+ZWIwYjE4ICgiYmxvY2s6IGRlZmVyIHRpbWVvdXRzIHRvIGEgd29ya3F1ZXVlIikNCj4gU2lnbmVk
+LW9mZi1ieTogQmFydCBWYW4gQXNzY2hlIDxidmFuYXNzY2hlQGFjbS5vcmc+DQo+IC0tLQ0KPiAg
+ZHJpdmVycy9zY3NpL2xpYmlzY3NpLmMgfCA0ICsrLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAyIGlu
+c2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9z
+Y3NpL2xpYmlzY3NpLmMgYi9kcml2ZXJzL3Njc2kvbGliaXNjc2kuYw0KPiBpbmRleCBlYmQ0N2Mw
+Y2Y5ZTkuLjcwYjk5YzBlMmU2NyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9zY3NpL2xpYmlzY3Np
+LmMNCj4gKysrIGIvZHJpdmVycy9zY3NpL2xpYmlzY3NpLmMNCj4gQEAgLTE5NDUsNyArMTk0NSw3
+IEBAIGVudW0gYmxrX2VoX3RpbWVyX3JldHVybiBpc2NzaV9laF9jbWRfdGltZWRfb3V0KHN0cnVj
+dCBzY3NpX2NtbmQgKnNjKQ0KPiAgDQo+ICAJSVNDU0lfREJHX0VIKHNlc3Npb24sICJzY3NpIGNt
+ZCAlcCB0aW1lZG91dFxuIiwgc2MpOw0KPiAgDQo+IC0Jc3Bpbl9sb2NrKCZzZXNzaW9uLT5mcndk
+X2xvY2spOw0KPiArCXNwaW5fbG9ja19iaCgmc2Vzc2lvbi0+ZnJ3ZF9sb2NrKTsNCj4gIAl0YXNr
+ID0gKHN0cnVjdCBpc2NzaV90YXNrICopc2MtPlNDcC5wdHI7DQo+ICAJaWYgKCF0YXNrKSB7DQo+
+ICAJCS8qDQo+IEBAIC0yMDcyLDcgKzIwNzIsNyBAQCBlbnVtIGJsa19laF90aW1lcl9yZXR1cm4g
+aXNjc2lfZWhfY21kX3RpbWVkX291dChzdHJ1Y3Qgc2NzaV9jbW5kICpzYykNCj4gIGRvbmU6DQo+
+ICAJaWYgKHRhc2spDQo+ICAJCXRhc2stPmxhc3RfdGltZW91dCA9IGppZmZpZXM7DQo+IC0Jc3Bp
+bl91bmxvY2soJnNlc3Npb24tPmZyd2RfbG9jayk7DQo+ICsJc3Bpbl91bmxvY2tfYmgoJnNlc3Np
+b24tPmZyd2RfbG9jayk7DQo+ICAJSVNDU0lfREJHX0VIKHNlc3Npb24sICJyZXR1cm4gJXNcbiIs
+IHJjID09IEJMS19FSF9SRVNFVF9USU1FUiA/DQo+ICAJCSAgICAgInRpbWVyIHJlc2V0IiA6ICJz
+aHV0ZG93biBvciBuaCIpOw0KPiAgCXJldHVybiByYzsNCj4gDQoNClJldmlld2VkLWJ5OiBMZWUg
+RHVuY2FuIDxsZHVuY2FuQHN1c2UuY29tPg0K
