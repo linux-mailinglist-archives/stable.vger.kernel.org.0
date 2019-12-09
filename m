@@ -2,140 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED12E11743C
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 19:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1461711751B
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 20:00:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726379AbfLISaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 13:30:39 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:33325 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726614AbfLISaj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 13:30:39 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6013E2298C;
-        Mon,  9 Dec 2019 13:30:38 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 09 Dec 2019 13:30:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=T3gJrZ
-        AGMTqlJZ3i924GE+oiLVqdfnrb0qtzuthtGIc=; b=O542KoizrCfM5SM4Y0t/JL
-        SDTs8X6Rt7fWKY5qN0IQvmBRYpZg5EAcaso5YTwA6nPMePrzoN8t+eNSSxgzBobm
-        65p+EqL1QdsNFw/CoSpFC0stkW7kgARvMw3pFZnnA0QTrYe3WmayS28GIM2/qfVd
-        oBFKLzZYpk38gpqLYJfVklyaDRkLQRgyX8+fKD3rAyg8m3S2Iy7jHHOeezQQXaOE
-        2E6dCTk0oVyeJtVWNOaU1NBWppMekK1on5CIru+PgQPvzJq3pyFYv/49yR3r1pzj
-        fXBu9YbxKLPInNCZ4ouwLxnBweZN0qAebSb7agHZw1a9uvM5TeZJkkhe6o4Fx3oQ
-        ==
-X-ME-Sender: <xms:zpLuXZju4UIzH4TCL1PBft--YCjScjlZbtmSqv16mfmcEtb75BtUOg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeltddguddugecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:zpLuXZhwfm_ELZZgD63961nXUTFSIo1QrrzEOHR1x4gBCgjPiXQVXA>
-    <xmx:zpLuXQHE8v0CVCaaxik1_mHZ6zObKzlK8N6JRdYP-2GzylGGQImrIQ>
-    <xmx:zpLuXXNgN0QnYwmVMNGhNT0WwPgG9za7KL_a3Gih9sxy_2yfLEb4tg>
-    <xmx:zpLuXZFmThkpz6yXfMiqHOowTSEq54s6bGrK4AdnDEMYXENgbZIJRA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0063030600D4;
-        Mon,  9 Dec 2019 13:30:37 -0500 (EST)
-Subject: FAILED: patch "[PATCH] nfsd: Ensure CLONE persists data and metadata changes to the" failed to apply to 4.14-stable tree
-To:     trondmy@gmail.com, bfields@redhat.com,
-        trond.myklebust@hammerspace.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Dec 2019 19:30:27 +0100
-Message-ID: <15759162275055@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1726642AbfLITA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 14:00:26 -0500
+Received: from foss.arm.com ([217.140.110.172]:42674 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726562AbfLITAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Dec 2019 14:00:25 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 19850113E;
+        Mon,  9 Dec 2019 11:00:25 -0800 (PST)
+Received: from localhost (unknown [10.37.6.21])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8C6E73F6CF;
+        Mon,  9 Dec 2019 11:00:24 -0800 (PST)
+Date:   Mon, 09 Dec 2019 19:00:23 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Christophe Leroy <christophe.leroy@c-s.fr>
+Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-spi@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
+Subject: Applied "spi: fsl: don't map irq during probe" to the spi tree
+In-Reply-To: <518cfb83347d5372748e7fe72f94e2e9443d0d4a.1575905123.git.christophe.leroy@c-s.fr>
+Message-Id: <applied-518cfb83347d5372748e7fe72f94e2e9443d0d4a.1575905123.git.christophe.leroy@c-s.fr>
+X-Patchwork-Hint: ignore
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The patch
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+   spi: fsl: don't map irq during probe
 
-thanks,
+has been applied to the spi tree at
 
-greg k-h
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-5.5
 
------------------- original commit in Linus's tree ------------------
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
 
-From a25e3726b32c746c0098125d4c7463bb84df72bb Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trondmy@gmail.com>
-Date: Wed, 27 Nov 2019 17:05:51 -0500
-Subject: [PATCH] nfsd: Ensure CLONE persists data and metadata changes to the
- target file
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-The NFSv4.2 CLONE operation has implicit persistence requirements on the
-target file, since there is no protocol requirement that the client issue
-a separate operation to persist data.
-For that reason, we should call vfs_fsync_range() on the destination file
-after a successful call to vfs_clone_file_range().
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-Fixes: ffa0160a1039 ("nfsd: implement the NFSv4.2 CLONE operation")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.5+
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 4e3e77b76411..38c0aeda500e 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1077,7 +1077,8 @@ nfsd4_clone(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- 		goto out;
+Thanks,
+Mark
+
+From 3194d2533efffae8b815d84729ecc58b6a9000ab Mon Sep 17 00:00:00 2001
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Date: Mon, 9 Dec 2019 15:27:27 +0000
+Subject: [PATCH] spi: fsl: don't map irq during probe
+
+With lastest kernel, the following warning is observed at startup:
+
+[    1.500609] ------------[ cut here ]------------
+[    1.505225] remove_proc_entry: removing non-empty directory 'irq/22', leaking at least 'fsl_spi'
+[    1.514234] WARNING: CPU: 0 PID: 1 at fs/proc/generic.c:682 remove_proc_entry+0x198/0x1c0
+[    1.522403] CPU: 0 PID: 1 Comm: swapper Not tainted 5.4.0-s3k-dev-02248-g93532430a4ff #2564
+[    1.530724] NIP:  c0197694 LR: c0197694 CTR: c0050d80
+[    1.535762] REGS: df4a5af0 TRAP: 0700   Not tainted  (5.4.0-02248-g93532430a4ff)
+[    1.543818] MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 22028222  XER: 00000000
+[    1.550524]
+[    1.550524] GPR00: c0197694 df4a5ba8 df4a0000 00000054 00000000 00000000 00004a38 00000010
+[    1.550524] GPR08: c07c5a30 00000800 00000000 00001032 22000208 00000000 c0004b14 00000000
+[    1.550524] GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 c0830000 c07fc078
+[    1.550524] GPR24: c08e8ca0 df665d10 df60ea98 c07c9db8 00000001 df5d5ae3 df5d5a80 df43f8e3
+[    1.585327] NIP [c0197694] remove_proc_entry+0x198/0x1c0
+[    1.590628] LR [c0197694] remove_proc_entry+0x198/0x1c0
+[    1.595829] Call Trace:
+[    1.598280] [df4a5ba8] [c0197694] remove_proc_entry+0x198/0x1c0 (unreliable)
+[    1.605321] [df4a5bd8] [c0067acc] unregister_irq_proc+0x5c/0x70
+[    1.611238] [df4a5bf8] [c005fbc4] free_desc+0x3c/0x80
+[    1.616286] [df4a5c18] [c005fe2c] irq_free_descs+0x70/0xa8
+[    1.621778] [df4a5c38] [c033d3fc] of_fsl_spi_probe+0xdc/0x3cc
+[    1.627525] [df4a5c88] [c02f0f64] platform_drv_probe+0x44/0xa4
+[    1.633350] [df4a5c98] [c02eee44] really_probe+0x1ac/0x418
+[    1.638829] [df4a5cc8] [c02ed3e8] bus_for_each_drv+0x64/0xb0
+[    1.644481] [df4a5cf8] [c02ef950] __device_attach+0xd4/0x128
+[    1.650132] [df4a5d28] [c02ed61c] bus_probe_device+0xa0/0xbc
+[    1.655783] [df4a5d48] [c02ebbe8] device_add+0x544/0x74c
+[    1.661096] [df4a5d88] [c0382b78] of_platform_device_create_pdata+0xa4/0x100
+[    1.668131] [df4a5da8] [c0382cf4] of_platform_bus_create+0x120/0x20c
+[    1.674474] [df4a5df8] [c0382d50] of_platform_bus_create+0x17c/0x20c
+[    1.680818] [df4a5e48] [c0382e88] of_platform_bus_probe+0x9c/0xf0
+[    1.686907] [df4a5e68] [c0751404] __machine_initcall_cmpcpro_cmpcpro_declare_of_platform_devices+0x74/0x1a4
+[    1.696629] [df4a5e98] [c072a4cc] do_one_initcall+0x8c/0x1d4
+[    1.702282] [df4a5ef8] [c072a768] kernel_init_freeable+0x154/0x204
+[    1.708455] [df4a5f28] [c0004b2c] kernel_init+0x18/0x110
+[    1.713769] [df4a5f38] [c00122ac] ret_from_kernel_thread+0x14/0x1c
+[    1.719926] Instruction dump:
+[    1.722889] 2c030000 4182004c 3863ffb0 3c80c05f 80e3005c 388436a0 3c60c06d 7fa6eb78
+[    1.730630] 7fe5fb78 38840280 38634178 4be8c611 <0fe00000> 4bffff6c 3c60c071 7fe4fb78
+[    1.738556] ---[ end trace 05d0720bf2e352e2 ]---
+
+The problem comes from the error path which calls
+irq_dispose_mapping() while the IRQ has been requested with
+devm_request_irq().
+
+IRQ doesn't need to be mapped with irq_of_parse_and_map(). The only
+need is to get the IRQ virtual number. For that, use
+of_irq_to_resource() instead of the
+irq_of_parse_and_map()/irq_dispose_mapping() pair.
+
+Fixes: 500a32abaf81 ("spi: fsl: Call irq_dispose_mapping in err path")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Link: https://lore.kernel.org/r/518cfb83347d5372748e7fe72f94e2e9443d0d4a.1575905123.git.christophe.leroy@c-s.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ drivers/spi/spi-fsl-spi.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
+index 4b70887cf443..d0ad9709f4a6 100644
+--- a/drivers/spi/spi-fsl-spi.c
++++ b/drivers/spi/spi-fsl-spi.c
+@@ -746,8 +746,8 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
+ 	if (ret)
+ 		goto err;
  
- 	status = nfsd4_clone_file_range(src->nf_file, clone->cl_src_pos,
--			dst->nf_file, clone->cl_dst_pos, clone->cl_count);
-+			dst->nf_file, clone->cl_dst_pos, clone->cl_count,
-+			EX_ISSYNC(cstate->current_fh.fh_export));
- 
- 	nfsd_file_put(dst);
- 	nfsd_file_put(src);
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index bd0a385df3fc..cf423fea0c6f 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -525,7 +525,7 @@ __be32 nfsd4_set_nfs4_label(struct svc_rqst *rqstp, struct svc_fh *fhp,
- #endif
- 
- __be32 nfsd4_clone_file_range(struct file *src, u64 src_pos, struct file *dst,
--		u64 dst_pos, u64 count)
-+		u64 dst_pos, u64 count, bool sync)
- {
- 	loff_t cloned;
- 
-@@ -534,6 +534,12 @@ __be32 nfsd4_clone_file_range(struct file *src, u64 src_pos, struct file *dst,
- 		return nfserrno(cloned);
- 	if (count && cloned != count)
- 		return nfserrno(-EINVAL);
-+	if (sync) {
-+		loff_t dst_end = count ? dst_pos + count - 1 : LLONG_MAX;
-+		int status = vfs_fsync_range(dst, dst_pos, dst_end, 0);
-+		if (status < 0)
-+			return nfserrno(status);
-+	}
+-	irq = irq_of_parse_and_map(np, 0);
+-	if (!irq) {
++	irq = of_irq_to_resource(np, 0, NULL);
++	if (irq <= 0) {
+ 		ret = -EINVAL;
+ 		goto err;
+ 	}
+@@ -761,7 +761,6 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
  	return 0;
+ 
+ err:
+-	irq_dispose_mapping(irq);
+ 	return ret;
  }
  
-diff --git a/fs/nfsd/vfs.h b/fs/nfsd/vfs.h
-index a13fd9d7e1f5..cc110a10bfe8 100644
---- a/fs/nfsd/vfs.h
-+++ b/fs/nfsd/vfs.h
-@@ -56,7 +56,7 @@ __be32          nfsd4_set_nfs4_label(struct svc_rqst *, struct svc_fh *,
- __be32		nfsd4_vfs_fallocate(struct svc_rqst *, struct svc_fh *,
- 				    struct file *, loff_t, loff_t, int);
- __be32		nfsd4_clone_file_range(struct file *, u64, struct file *,
--			u64, u64);
-+				       u64, u64, bool);
- #endif /* CONFIG_NFSD_V4 */
- __be32		nfsd_create_locked(struct svc_rqst *, struct svc_fh *,
- 				char *name, int len, struct iattr *attrs,
+-- 
+2.20.1
 
