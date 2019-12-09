@@ -2,172 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7987F11682A
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 09:31:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 795A0116889
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 09:46:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727047AbfLIIbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 03:31:03 -0500
-Received: from a.mx.secunet.com ([62.96.220.36]:36958 "EHLO a.mx.secunet.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727144AbfLIIbD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 03:31:03 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by a.mx.secunet.com (Postfix) with ESMTP id 887E82057B;
-        Mon,  9 Dec 2019 09:31:01 +0100 (CET)
-X-Virus-Scanned: by secunet
-Received: from a.mx.secunet.com ([127.0.0.1])
-        by localhost (a.mx.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id JTCYIYR1m27q; Mon,  9 Dec 2019 09:31:01 +0100 (CET)
-Received: from mail-essen-01.secunet.de (mail-essen-01.secunet.de [10.53.40.204])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by a.mx.secunet.com (Postfix) with ESMTPS id 052BF2008D;
-        Mon,  9 Dec 2019 09:31:01 +0100 (CET)
-Received: from gauss2.secunet.de (10.182.7.193) by mail-essen-01.secunet.de
- (10.53.40.204) with Microsoft SMTP Server id 14.3.439.0; Mon, 9 Dec 2019
- 09:31:00 +0100
-Received: by gauss2.secunet.de (Postfix, from userid 1000)      id A88333180AFB;
- Mon,  9 Dec 2019 09:31:00 +0100 (CET)
-From:   Steffen Klassert <steffen.klassert@secunet.com>
-To:     Greg KH <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>
-CC:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        David Miller <davem@davemloft.net>, <netdev@vger.kernel.org>
-Subject: [PATCH stable v4.19 4/4] xfrm interface: fix management of phydev
-Date:   Mon, 9 Dec 2019 09:30:45 +0100
-Message-ID: <20191209083045.20657-5-steffen.klassert@secunet.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191209083045.20657-1-steffen.klassert@secunet.com>
-References: <20191209083045.20657-1-steffen.klassert@secunet.com>
+        id S1727207AbfLIIqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 03:46:31 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:9540 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727047AbfLIIqa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 03:46:30 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5dee09e00000>; Mon, 09 Dec 2019 00:46:24 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Mon, 09 Dec 2019 00:46:30 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Mon, 09 Dec 2019 00:46:30 -0800
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 9 Dec
+ 2019 08:46:28 +0000
+Received: from [10.26.11.118] (10.124.1.5) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 9 Dec 2019
+ 08:46:26 +0000
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>
+CC:     Trond Myklebust <trondmy@hammerspace.com>,
+        linux-tegra <linux-tegra@vger.kernel.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Subject: stable request: 5.4.y: SUNRPC: Avoid RPC delays when exiting suspend
+Message-ID: <370ef599-8164-170c-8ba0-f8a9082578c4@nvidia.com>
+Date:   Mon, 9 Dec 2019 08:46:24 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1575881184; bh=vPfpH4Ay0TA7NhdK1p/zLSLRILTBDa4Qtn4NYXmNOQw=;
+        h=X-PGP-Universal:To:CC:From:Subject:Message-ID:Date:User-Agent:
+         MIME-Version:X-Originating-IP:X-ClientProxiedBy:Content-Type:
+         Content-Language:Content-Transfer-Encoding;
+        b=dSceNNFuxqev0mbRkG2foQSEhv8uY2k09Cij0v2zPTOkASQqhNf2fopyhcDTnuiTW
+         1XskeNFPQWgDrmgDvCAEETWFqzX/QZ/wJHKtsCBV9u07SeBrn3KCW415RQSvt/hzDs
+         HTrPMVIkyfKm6p1AK5JWHkwsHXxHch0A+hIpOfC7xCFflB6JfVeaF2bzQ8sOt5cZSW
+         oMsveGT7Q0LhaIMsIpvCcRwE2QpgNl2y2J7pjUFjwnk6967yuXHsedL136+8BjITgl
+         OONlODumeHGHDwq9mnxLuE1QnPa4OT6m1anAJ4nHNethxWxSptS8uRtgsKVDO+xemw
+         QE6whImpe3Nww==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Hi Greg,
 
-commit 22d6552f827ef76ade3edf6bbb3f05048a0a7d8b upstream
+Please can you include the following for 5.4.y. This fixes long delays
+exiting suspend when using NFS and was causing one of our suspend tests
+to fail.
 
-With the current implementation, phydev cannot be removed:
+commit 66eb3add452aa1be65ad536da99fac4b8f620b74
+Author: Trond Myklebust <trond.myklebust@hammerspace.com>
+Date:   Tue Nov 5 09:10:54 2019 -0500
 
-$ ip link add dummy type dummy
-$ ip link add xfrm1 type xfrm dev dummy if_id 1
-$ ip l d dummy
- kernel:[77938.465445] unregister_netdevice: waiting for dummy to become free. Usage count = 1
+    SUNRPC: Avoid RPC delays when exiting suspend
 
-Manage it like in ip tunnels, ie just keep the ifindex. Not that the side
-effect, is that the phydev is now optional.
 
-Fixes: f203b76d7809 ("xfrm: Add virtual xfrm interfaces")
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Tested-by: Julien Floret <julien.floret@6wind.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
----
- include/net/xfrm.h        |  1 -
- net/xfrm/xfrm_interface.c | 32 +++++++++++++++++---------------
- 2 files changed, 17 insertions(+), 16 deletions(-)
+Thanks
+Jon
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 4ddd2b13ac8d..fb9b19a3b749 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1062,7 +1062,6 @@ struct xfrm_if_parms {
- struct xfrm_if {
- 	struct xfrm_if __rcu *next;	/* next interface in list */
- 	struct net_device *dev;		/* virtual device associated with interface */
--	struct net_device *phydev;	/* physical device */
- 	struct net *net;		/* netns for packet i/o */
- 	struct xfrm_if_parms p;		/* interface parms */
- 
-diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
-index 2ed779db8769..d6a3cdf7885c 100644
---- a/net/xfrm/xfrm_interface.c
-+++ b/net/xfrm/xfrm_interface.c
-@@ -177,7 +177,6 @@ static void xfrmi_dev_uninit(struct net_device *dev)
- 	struct xfrmi_net *xfrmn = net_generic(xi->net, xfrmi_net_id);
- 
- 	xfrmi_unlink(xfrmn, xi);
--	dev_put(xi->phydev);
- 	dev_put(dev);
- }
- 
-@@ -364,7 +363,7 @@ static netdev_tx_t xfrmi_xmit(struct sk_buff *skb, struct net_device *dev)
- 		goto tx_err;
- 	}
- 
--	fl.flowi_oif = xi->phydev->ifindex;
-+	fl.flowi_oif = xi->p.link;
- 
- 	ret = xfrmi_xmit2(skb, dev, &fl);
- 	if (ret < 0)
-@@ -553,7 +552,7 @@ static int xfrmi_get_iflink(const struct net_device *dev)
- {
- 	struct xfrm_if *xi = netdev_priv(dev);
- 
--	return xi->phydev->ifindex;
-+	return xi->p.link;
- }
- 
- 
-@@ -579,12 +578,14 @@ static void xfrmi_dev_setup(struct net_device *dev)
- 	dev->needs_free_netdev	= true;
- 	dev->priv_destructor	= xfrmi_dev_free;
- 	netif_keep_dst(dev);
-+
-+	eth_broadcast_addr(dev->broadcast);
- }
- 
- static int xfrmi_dev_init(struct net_device *dev)
- {
- 	struct xfrm_if *xi = netdev_priv(dev);
--	struct net_device *phydev = xi->phydev;
-+	struct net_device *phydev = __dev_get_by_index(xi->net, xi->p.link);
- 	int err;
- 
- 	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
-@@ -599,13 +600,19 @@ static int xfrmi_dev_init(struct net_device *dev)
- 
- 	dev->features |= NETIF_F_LLTX;
- 
--	dev->needed_headroom = phydev->needed_headroom;
--	dev->needed_tailroom = phydev->needed_tailroom;
-+	if (phydev) {
-+		dev->needed_headroom = phydev->needed_headroom;
-+		dev->needed_tailroom = phydev->needed_tailroom;
- 
--	if (is_zero_ether_addr(dev->dev_addr))
--		eth_hw_addr_inherit(dev, phydev);
--	if (is_zero_ether_addr(dev->broadcast))
--		memcpy(dev->broadcast, phydev->broadcast, dev->addr_len);
-+		if (is_zero_ether_addr(dev->dev_addr))
-+			eth_hw_addr_inherit(dev, phydev);
-+		if (is_zero_ether_addr(dev->broadcast))
-+			memcpy(dev->broadcast, phydev->broadcast,
-+			       dev->addr_len);
-+	} else {
-+		eth_hw_addr_random(dev);
-+		eth_broadcast_addr(dev->broadcast);
-+	}
- 
- 	return 0;
- }
-@@ -655,13 +662,8 @@ static int xfrmi_newlink(struct net *src_net, struct net_device *dev,
- 	xi->p = p;
- 	xi->net = net;
- 	xi->dev = dev;
--	xi->phydev = dev_get_by_index(net, p.link);
--	if (!xi->phydev)
--		return -ENODEV;
- 
- 	err = xfrmi_create(dev);
--	if (err < 0)
--		dev_put(xi->phydev);
- 	return err;
- }
- 
 -- 
-2.17.1
-
+nvpublic
