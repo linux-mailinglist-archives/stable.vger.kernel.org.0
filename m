@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BC4911743A
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 19:30:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712C011743B
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 19:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbfLISae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 13:30:34 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44027 "EHLO
+        id S1726607AbfLISai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 13:30:38 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:34799 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726379AbfLISad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 13:30:33 -0500
+        by vger.kernel.org with ESMTP id S1726379AbfLISai (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 13:30:38 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0EFD722A2A;
-        Mon,  9 Dec 2019 13:30:33 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id EA54822A2E;
+        Mon,  9 Dec 2019 13:30:36 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 09 Dec 2019 13:30:33 -0500
+  by compute6.internal (MEProxy); Mon, 09 Dec 2019 13:30:36 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=qcIVxk
-        kF89FgXUmENyBr0WWj+RcKSsnEgQ2d6wBLjbM=; b=mIYDczJkdHJShGI7uO7buE
-        gB+hlh9SBVa6x/aw8EdMYYg8lKWSGdF63uod/pRQktdRfEmEwsyDaqRh7A1Sy+kl
-        TxfvqKafEKv6mNbM1lNJ+5SIjqcmFKo7K7tRmzCTy5YhfcP7K3cB+WsabEeHLb55
-        VPCKSQxYGFUytU44pA0yYYMGjFjog3P6KuZZlXfAFboxEXtvPeSBKJPJckWOgTdK
-        8unD65zOxr9Vf5ZZVYZt9Lsv65N6UO8hrxeIOkx/ADhtF8GbzCaF2QKss7JTrjog
-        nG6+BC3OadckbfePCFpl2JhtzgLNoTZpYBHmo0aCF1Iy31sIu7QDmX6MJGvyGtAw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eQoFBV
+        LsTuup5xnNuo80BTMKdfV47o+z6a3AAz31AP8=; b=uoOmlCODX06Fe1nBIOODZ6
+        T/UDcFQ164FThrctBxXvA7cDLqZgorF6ws4jNmC2/L6k0gBMGtEGbi3MSyD0BC1W
+        yJsVA8VcGu6cHtMR9tKGc1D9Y+vvFk2+6LIi4bAXsXsfAtWLDTAXFn7TOlP6Yv5W
+        6w0HUCnKYn2P5RvYPJz8IrmwS7MWQ8pkA+zTOqZNSXxPGqrZYFWQCjFWbexQF2AV
+        v8MlcDwLcKvpcTnb9/TUmc4Pb93qA290CX2gOYoZjO3yaog0DQg7xqMC+vrl4fNF
+        6Z1+w85oUZcr5f8f4GcsAClsWdZPeq+RapSWn7CebdcXCfnA9WOanM9EHsAtCLOg
         ==
-X-ME-Sender: <xms:yJLuXVbf5A4wNrH1ELlhvJW4Ovz7J85k2hzLjv7hJ4oDMh3BA7Msaw>
+X-ME-Sender: <xms:zJLuXeyQrwLaZ8IUaHSon1QSwyYb9Sxwu1BplbvtJv8fm1ZIDtRkLQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeltddguddugecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
     hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:yJLuXUcB7d44SEC2ZxWgNybAqJIajZKyMXuEoqwNcVm3ADr9Gz3F9A>
-    <xmx:yJLuXdEK4t4SI2JfWktpHw_EkpQNSYA-3hDWg2AlXo3FtiUC7tAqyQ>
-    <xmx:yJLuXfPyyNtK-RYzFjRH6129frTfvZdTsSnweo24lsh-R1FcQqh-AA>
-    <xmx:yZLuXYg_m6NwLinYwj-6LoyttL6HFKVp9FXpYodu7Cesli_dPSJngA>
+X-ME-Proxy: <xmx:zJLuXWmpL-TlNiEY0VPSGxJQRsPUJevvqOfM1WydD03OC8OxqAMFIQ>
+    <xmx:zJLuXTGBSkTQUJW6i32QOujJRWbblOq-KBDr4fgqnD1zwZPyRpAeTw>
+    <xmx:zJLuXWWninMSuDtQBJT5IGWyI1DOued2dVJAeeXuGLc_XKD55F2Pwg>
+    <xmx:zJLuXVAQaoyfa-8LPq9Rk87CdkzueBr_pmpCuqcSKaEDBJEmFQCRWw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 75F8A30600D7;
-        Mon,  9 Dec 2019 13:30:32 -0500 (EST)
-Subject: FAILED: patch "[PATCH] nfsd: Ensure CLONE persists data and metadata changes to the" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 84B3530600D7;
+        Mon,  9 Dec 2019 13:30:36 -0500 (EST)
+Subject: FAILED: patch "[PATCH] nfsd: Ensure CLONE persists data and metadata changes to the" failed to apply to 4.9-stable tree
 To:     trondmy@gmail.com, bfields@redhat.com,
         trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 Dec 2019 19:30:26 +0100
-Message-ID: <157591622675229@kroah.com>
+Date:   Mon, 09 Dec 2019 19:30:27 +0100
+Message-ID: <157591622712828@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
