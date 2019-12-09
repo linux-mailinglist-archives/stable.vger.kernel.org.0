@@ -2,83 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 989801170C7
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 16:45:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E16141170D6
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 16:49:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726483AbfLIPpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 10:45:10 -0500
-Received: from frisell.zx2c4.com ([192.95.5.64]:46599 "EHLO frisell.zx2c4.com"
+        id S1726290AbfLIPtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 10:49:15 -0500
+Received: from mga18.intel.com ([134.134.136.126]:40719 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726197AbfLIPpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 10:45:10 -0500
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 993b7997;
-        Mon, 9 Dec 2019 14:49:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=from:to:cc
-        :subject:date:message-id:in-reply-to:references:mime-version
-        :content-transfer-encoding; s=mail; bh=We/tViqcNSYyTT+iqYw0DQdfr
-        xM=; b=Q5OawQr1HbUwCMdsIf6cI7Zd1M9bVuMDDY9mupyHdR2oGLBox1ui34uYZ
-        Vbkp5g8b4es4z232O7vLpWC41qNeLdoALzyzB4MrvluDYFmoewm1CkbOIW5o0tRg
-        VwbJO3LHYf/umnycOD/ex8veKp6FQkwDC3F5V4pAYcFtQG3sAQCfNzNGSafTMd9D
-        lmFKoxPkA60aKVoiCcp6whXUTlD7TXP338klIkNa8WPXHcLPXpC53FGjOZetYukw
-        NzxQdtkANxUWNQCrNhCz0jOqBpecc0L4y0ZRanmOiq0z2BCYCenmUPmD6B3A/BqX
-        4wIdwYKY5WNs9SvPO5FH3X93npmCQ==
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 561349ab (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Mon, 9 Dec 2019 14:49:42 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     x86@kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-Subject: [PATCH] x86/quirks: disable HPET on Intel Coffee Lake Refresh platforms
-Date:   Mon,  9 Dec 2019 16:45:05 +0100
-Message-Id: <20191209154505.6183-1-Jason@zx2c4.com>
-In-Reply-To: <20191203205716.1228-1-Jason@zx2c4.com>
-References: <20191203205716.1228-1-Jason@zx2c4.com>
+        id S1726197AbfLIPtP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Dec 2019 10:49:15 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Dec 2019 07:49:14 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,296,1571727600"; 
+   d="scan'208";a="237786846"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.202])
+  by fmsmga004.fm.intel.com with ESMTP; 09 Dec 2019 07:49:13 -0800
+Date:   Mon, 9 Dec 2019 07:49:13 -0800
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Doug Reiland <doug.reiland@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Peter Xu <peterx@redhat.com>
+Subject: Re: [PATCH 3.16 31/72] KVM: x86: Manually calculate reserved bits
+ when loading PDPTRS
+Message-ID: <20191209154913.GB4042@linux.intel.com>
+References: <lsq.1575813164.154362148@decadent.org.uk>
+ <lsq.1575813165.887619822@decadent.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <lsq.1575813165.887619822@decadent.org.uk>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a follow up of fc5db58539b4 ("x86/quirks: Disable HPET on Intel
-Coffe Lake platforms"), which addressed the issue for 8th generation
-Coffee Lake. Intel has released Coffee Lake again for 9th generation,
-apparently still with the same bug:
+On Sun, Dec 08, 2019 at 01:53:15PM +0000, Ben Hutchings wrote:
+> 3.16.79-rc1 review patch.  If anyone has any objections, please let me know.
+> 
+> ------------------
+> 
+> From: Sean Christopherson <sean.j.christopherson@intel.com>
+> 
+> commit 16cfacc8085782dab8e365979356ce1ca87fd6cc upstream.
 
-clocksource: timekeeping watchdog on CPU3: Marking clocksource 'tsc' as unstable because the skew is too large:
-clocksource:                       'hpet' wd_now: 24f422b8 wd_last: 247dea41 mask: ffffffff
-clocksource:                       'tsc' cs_now: 144d927c4e cs_last: 140ba6e2a0 mask: ffffffffffffffff
-tsc: Marking TSC unstable due to clocksource watchdog
-TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
-sched_clock: Marking unstable (26553416234, 4203921)<-(26567277071, -9656937)
-clocksource: Switched to clocksource hpet
+You'll also want to pull in two PAE related fixes (in this order):
 
-So, we add another quirk for the chipset
+  d35b34a9a70e ("kvm: mmu: Don't read PDPTEs when paging is not enabled")
+  bf03d4f93347 ("KVM: x86: introduce is_pae_paging")
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
----
- arch/x86/kernel/early-quirks.c | 2 ++
- 1 file changed, 2 insertions(+)
+The "introduce is_pae_paging" has an undocumented bug fix.  IIRC it
+manifests as an unexpected #GP on MOV CR3 in 64-bit mode.  Here's the blurb
+I added to the backports for 4.x.
 
-diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
-index 4cba91ec8049..a73f88dd7f86 100644
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -712,6 +712,8 @@ static struct chipset early_qrk[] __initdata = {
- 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
- 	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
- 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
-+	{ PCI_VENDOR_ID_INTEL, 0x3e20,
-+		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
- 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
- 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
- 	{}
--- 
-2.24.0
+  Moving to the common helper also fixes a subtle bug in kvm_set_cr3()
+  where it fails to check is_long_mode() and results in KVM incorrectly
+  attempting to load PDPTRs for a 64-bit guest.
 
