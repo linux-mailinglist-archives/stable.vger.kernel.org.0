@@ -2,129 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB96A116E21
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 14:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05F23116E2E
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 14:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbfLINqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 08:46:00 -0500
-Received: from mga07.intel.com ([134.134.136.100]:52814 "EHLO mga07.intel.com"
+        id S1727299AbfLINwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 08:52:45 -0500
+Received: from frisell.zx2c4.com ([192.95.5.64]:40033 "EHLO frisell.zx2c4.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727665AbfLINqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 08:46:00 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Dec 2019 05:45:59 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,294,1571727600"; 
-   d="scan'208";a="414073956"
-Received: from otc-lr-04.jf.intel.com ([10.54.39.104])
-  by fmsmga006.fm.intel.com with ESMTP; 09 Dec 2019 05:45:58 -0800
-From:   kan.liang@linux.intel.com
-To:     peterz@infradead.org, mingo@redhat.com,
-        linux-kernel@vger.kernel.org
-Cc:     like.xu@linux.intel.com, ak@linux.intel.com,
-        Kan Liang <kan.liang@linux.intel.com>, stable@vger.kernel.org
-Subject: [PATCH] perf/x86/intel/uncore: Fix missing marker for snr_uncore_imc_freerunning_events
-Date:   Mon,  9 Dec 2019 05:42:33 -0800
-Message-Id: <1575898953-85496-1-git-send-email-kan.liang@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S1727746AbfLINwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 9 Dec 2019 08:52:45 -0500
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id b843a08c;
+        Mon, 9 Dec 2019 12:57:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
+        :references:in-reply-to:from:date:message-id:subject:to:cc
+        :content-type; s=mail; bh=RYPNAO8pwh6iCrx5e80LVpnefCE=; b=M3+dta
+        J7fmYlPDFrZRk+CrGkxx3YJCFKgETgpVGUG5heIeWum69Y5vuRHU/rnSqQ6A7dLW
+        Siq7ElxDAAkxBuL0AimVlIE5BUdRDT760Jab3N6QU9Jf+GH2cepj432920uO0QaM
+        MQGuXgi5LiKSDgtS0ynKd5Z5f3Q/5e5ZXcUz4D//NVT5dundtG8QIpowgsaZIc44
+        uBib3CadAfB1rIfK04Evhi3GlDVPCXExbuynCGG3VgwGoFzPYuj/JtLKrPw4GzGk
+        Nkc9FNPPLG12Z9+9DB93S0YzR4JPvrU2D0o1z2jWdaX5ydcjo2Moh3wwVVL80VDX
+        j3b6jvnJQJjQnbEQ==
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id e11ee197 (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Mon, 9 Dec 2019 12:57:18 +0000 (UTC)
+Received: by mail-ot1-f42.google.com with SMTP id i4so12229795otr.3;
+        Mon, 09 Dec 2019 05:52:43 -0800 (PST)
+X-Gm-Message-State: APjAAAW0DYnkETybioBkwxN+WqwONLTeaZoBV/Av2lyz4HMcXUGzuqTV
+        uOE2iJzIKVXSJe5KZpILiE5vluYnpIDfI2QvnQg=
+X-Google-Smtp-Source: APXvYqyVURC5GTgUeS/91sj5vlJHeKhQEPMupfCXUeqGgPXGNQ5muw4Z3JyBpQmGlSHhAbaTSe0vPvDWaGq2pBLboqM=
+X-Received: by 2002:a05:6830:1b6a:: with SMTP id d10mr21943419ote.52.1575899562452;
+ Mon, 09 Dec 2019 05:52:42 -0800 (PST)
+MIME-Version: 1.0
+References: <20191203205716.1228-1-Jason@zx2c4.com>
+In-Reply-To: <20191203205716.1228-1-Jason@zx2c4.com>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Mon, 9 Dec 2019 14:52:31 +0100
+X-Gmail-Original-Message-ID: <CAHmME9qhDwHo8TEYy7TwukyMS2siS7yYP1o8dDBSe0x5BFQDWg@mail.gmail.com>
+Message-ID: <CAHmME9qhDwHo8TEYy7TwukyMS2siS7yYP1o8dDBSe0x5BFQDWg@mail.gmail.com>
+Subject: Re: [PATCH] x86/quirks: disable HPET on Intel Coffee Lake Refresh platforms
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Feng Tang <feng.tang@intel.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+Hey Thomas,
 
-An Oops during the boot is found on some SNR machines.
+Can we perhaps get this into 5.5-rc2?
 
-[   15.795410] BUG: unable to handle page fault for address:
-00000000000022b0
-[   15.795412] #PF: supervisor read access in kernel mode
-[   15.795413] #PF: error_code(0x0000) - not-present page
-[   15.795414] PGD 0 P4D 0
-[   15.795418] Oops: 0000 [#1] SMP NOPTI
-[   15.795420] CPU: 6 PID: 941 Comm: systemd-udevd Not tainted
-5.3.0-snr-v5.3 #292
-[   15.795421] Hardware name: Intel Corporation JACOBSVILLE/JACOBSVILLE,
-BIOS JBVLCRB1.86B.0011.D44.1909191126 09/19/2019
-[   15.795428] RIP: 0010:strlen+0x0/0x20
-[   15.795431] Code: 48 89 f9 74 09 48 83 c1 01 80 39 00 75 f7 31 d2 44
-0f
-b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee c3 0f 1f 80 00 00 00 00
-<80> 3f 00 74 10 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 c3 31
-[   15.855395] i801_smbus 0000:00:1f.4: SPD Write Disable is set
-[   15.858351] RSP: 0018:ffffaeb4812039c8 EFLAGS: 00010202
-[   15.858353] RAX: 0000000000000000 RBX: ffff9fec99c71300 RCX:
-0000000000008000
-[   15.858354] RDX: 00000000000022b0 RSI: 0000000000000cc0 RDI:
-00000000000022b0
-[   15.858355] RBP: 00000000000022b0 R08: 0000000000000000 R09:
-0000000000000000
-[   15.858356] R10: 0000000000000000 R11: 0000000000000000 R12:
-ffff9fec8583a800
-[   15.858357] R13: 0000000000000cc0 R14: ffff9fec94015648 R15:
-ffff9fec81f291a8
-[   15.858358] FS:  00007f89e7160940(0000) GS:ffff9fec9dc00000(0000)
-knlGS:0000000000000000
-[   15.858361] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   15.864343] i801_smbus 0000:00:1f.4: SMBus using polling
-[   15.869998] CR2: 00000000000022b0 CR3: 0000000842ca2000 CR4:
-0000000000340ee0
-[   15.870000] Call Trace:
-[   15.870006]  kstrdup+0x1a/0x60
-[   15.870012]  __kernfs_new_node+0x41/0x1f0
-[   15.870018]  ? __mutex_unlock_slowpath+0x4d/0x2a0
-[   15.895135] ioatdma 0000:00:01.3: enabling device (0004 -> 0006)
-[   15.899395]  kernfs_new_node+0x36/0x60
-[   15.899400]  __kernfs_create_file+0x2c/0xf3
-[   15.961374]  sysfs_add_file_mode_ns+0xa4/0x1a0
-[   15.961379]  internal_create_group+0x117/0x370
-[   15.972133]  ? sysfs_add_file_mode_ns+0xa4/0x1a0
-[   15.972138]  internal_create_groups.part.0+0x3d/0xa0
-[   15.982656]  device_add+0x625/0x690
-[   15.982662]  pmu_dev_alloc+0x93/0xf0
-[   15.982664]  perf_pmu_register+0x292/0x3e0
-[   15.982674]  uncore_pmu_register+0x76/0x120 [intel_uncore]
-[   15.982681]  intel_uncore_init+0x1fd/0xe2c [intel_uncore]
-[   15.982688]  ? uncore_types_init+0x1d4/0x1d4 [intel_uncore]
-[   16.013580]  do_one_initcall+0x5d/0x2e4
-[   16.013584]  ? do_init_module+0x23/0x230
-[   16.013586]  ? rcu_read_lock_sched_held+0x6b/0x80
-[   16.013589]  ? kmem_cache_alloc_trace+0x2c4/0x2f0
-[   16.013591]  ? do_init_module+0x23/0x230
-[   16.013594]  do_init_module+0x5c/0x230
-[   16.013597]  load_module+0x2779/0x2a90
-[   16.013605]  ? ima_post_read_file+0xfd/0x110
-[   16.026926] ioatdma 0000:00:01.4: enabling device (0004 -> 0006)
-[   16.028808]  ? __do_sys_finit_module+0xaa/0x110
-[   16.060527]  __do_sys_finit_module+0xaa/0x110
-[   16.060536]  do_syscall_64+0x5c/0xb0
-[   16.060540]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+It'd be nice if Intel could give us a list of SKUs that are affected
+(as you asked in another email thread), but barring that, the best we
+can do is whack-a-mole like this. I'm typing you this email on the
+hardware that this patch addresses.
 
-This snr_uncore_imc_freerunning_events array was missing an end-marker.
+Jason
 
-Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
-Reported-by: Like Xu <like.xu@linux.intel.com>
-Tested-by: Like Xu <like.xu@linux.intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: stable@vger.kernel.org
----
- arch/x86/events/intel/uncore_snbep.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index b10a5ec..0116448 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -4536,6 +4536,7 @@ static struct uncore_event_desc snr_uncore_imc_freerunning_events[] = {
- 	INTEL_UNCORE_EVENT_DESC(write,		"event=0xff,umask=0x21"),
- 	INTEL_UNCORE_EVENT_DESC(write.scale,	"3.814697266e-6"),
- 	INTEL_UNCORE_EVENT_DESC(write.unit,	"MiB"),
-+	{ /* end: all zeroes */ },
- };
- 
- static struct intel_uncore_ops snr_uncore_imc_freerunning_ops = {
--- 
-2.7.4
-
+On Tue, Dec 3, 2019 at 9:57 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+>
+> This is a follow up of fc5db58539b4 ("x86/quirks: Disable HPET on Intel
+> Coffe Lake platforms"), which addressed the issue for 8th generation
+> Coffee Lake. Intel has released Coffee Lake again for 9th generation,
+> apparently still with the same bug:
+>
+> clocksource: timekeeping watchdog on CPU3: Marking clocksource 'tsc' as unstable because the skew is too large:
+> clocksource:                       'hpet' wd_now: 24f422b8 wd_last: 247dea41 mask: ffffffff
+> clocksource:                       'tsc' cs_now: 144d927c4e cs_last: 140ba6e2a0 mask: ffffffffffffffff
+> tsc: Marking TSC unstable due to clocksource watchdog
+> TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+> sched_clock: Marking unstable (26553416234, 4203921)<-(26567277071, -9656937)
+> clocksource: Switched to clocksource hpet
+>
+> So, we add another quirk for the chipset
+>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Cc: Feng Tang <feng.tang@intel.com>
+> Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/x86/kernel/early-quirks.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
+> index 4cba91ec8049..a73f88dd7f86 100644
+> --- a/arch/x86/kernel/early-quirks.c
+> +++ b/arch/x86/kernel/early-quirks.c
+> @@ -712,6 +712,8 @@ static struct chipset early_qrk[] __initdata = {
+>                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>         { PCI_VENDOR_ID_INTEL, 0x3ec4,
+>                 PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> +       { PCI_VENDOR_ID_INTEL, 0x3e20,
+> +               PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+>         { PCI_VENDOR_ID_BROADCOM, 0x4331,
+>           PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+>         {}
+> --
+> 2.24.0
