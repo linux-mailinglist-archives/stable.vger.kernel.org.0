@@ -2,151 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1461711751B
-	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 20:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5D3111753A
+	for <lists+stable@lfdr.de>; Mon,  9 Dec 2019 20:11:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726642AbfLITA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 14:00:26 -0500
-Received: from foss.arm.com ([217.140.110.172]:42674 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726562AbfLITAZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 14:00:25 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 19850113E;
-        Mon,  9 Dec 2019 11:00:25 -0800 (PST)
-Received: from localhost (unknown [10.37.6.21])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8C6E73F6CF;
-        Mon,  9 Dec 2019 11:00:24 -0800 (PST)
-Date:   Mon, 09 Dec 2019 19:00:23 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Christophe Leroy <christophe.leroy@c-s.fr>
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-spi@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
-Subject: Applied "spi: fsl: don't map irq during probe" to the spi tree
-In-Reply-To: <518cfb83347d5372748e7fe72f94e2e9443d0d4a.1575905123.git.christophe.leroy@c-s.fr>
-Message-Id: <applied-518cfb83347d5372748e7fe72f94e2e9443d0d4a.1575905123.git.christophe.leroy@c-s.fr>
-X-Patchwork-Hint: ignore
+        id S1726605AbfLITL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 14:11:26 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:21471 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726354AbfLITLZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 14:11:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575918684;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=WMZhpd4KgDtITiVnjNf/OLy9fA5Low7LZqWUO8jcLHM=;
+        b=fH1caN+BCaHv4Y5ubqpdX44FIJ6iCyelIHAJ5L12Zk0H2RyAgZ8mYheDLflyQ9mfmtWkil
+        m9Exd/YkPB8szXcIMb9yo2FrK6psVektDBJe0Unh82NuootgroQzda3CkJu3miiwgEHQ3+
+        M5av3wOC10MBhhXsmBzDqFog0uvKcaE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-362-ULGsp7UxMWalpjBMxNes9A-1; Mon, 09 Dec 2019 14:11:23 -0500
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DFBDB8017DF;
+        Mon,  9 Dec 2019 19:11:21 +0000 (UTC)
+Received: from max.com (ovpn-205-78.brq.redhat.com [10.40.205.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id EBBFE6055E;
+        Mon,  9 Dec 2019 19:11:16 +0000 (UTC)
+From:   Andreas Gruenbacher <agruenba@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Junichi Nomura <j-nomura@ce.jp.nec.com>,
+        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
+        Hannes Reinecke <hare@suse.de>, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] block: fix "check bi_size overflow before merge"
+Date:   Mon,  9 Dec 2019 20:11:14 +0100
+Message-Id: <20191209191114.17266-1-agruenba@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-MC-Unique: ULGsp7UxMWalpjBMxNes9A-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+This partially reverts commit e3a5d8e386c3fb973fa75f2403622a8f3640ec06.
 
-   spi: fsl: don't map irq during probe
+Commit e3a5d8e386c3 ("check bi_size overflow before merge") adds a bio_full
+check to __bio_try_merge_page.  This will cause __bio_try_merge_page to fai=
+l
+when the last bi_io_vec has been reached.  Instead, what we want here is on=
+ly
+the bi_size overflow check.
 
-has been applied to the spi tree at
-
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-5.5
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
-From 3194d2533efffae8b815d84729ecc58b6a9000ab Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Date: Mon, 9 Dec 2019 15:27:27 +0000
-Subject: [PATCH] spi: fsl: don't map irq during probe
-
-With lastest kernel, the following warning is observed at startup:
-
-[    1.500609] ------------[ cut here ]------------
-[    1.505225] remove_proc_entry: removing non-empty directory 'irq/22', leaking at least 'fsl_spi'
-[    1.514234] WARNING: CPU: 0 PID: 1 at fs/proc/generic.c:682 remove_proc_entry+0x198/0x1c0
-[    1.522403] CPU: 0 PID: 1 Comm: swapper Not tainted 5.4.0-s3k-dev-02248-g93532430a4ff #2564
-[    1.530724] NIP:  c0197694 LR: c0197694 CTR: c0050d80
-[    1.535762] REGS: df4a5af0 TRAP: 0700   Not tainted  (5.4.0-02248-g93532430a4ff)
-[    1.543818] MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 22028222  XER: 00000000
-[    1.550524]
-[    1.550524] GPR00: c0197694 df4a5ba8 df4a0000 00000054 00000000 00000000 00004a38 00000010
-[    1.550524] GPR08: c07c5a30 00000800 00000000 00001032 22000208 00000000 c0004b14 00000000
-[    1.550524] GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 c0830000 c07fc078
-[    1.550524] GPR24: c08e8ca0 df665d10 df60ea98 c07c9db8 00000001 df5d5ae3 df5d5a80 df43f8e3
-[    1.585327] NIP [c0197694] remove_proc_entry+0x198/0x1c0
-[    1.590628] LR [c0197694] remove_proc_entry+0x198/0x1c0
-[    1.595829] Call Trace:
-[    1.598280] [df4a5ba8] [c0197694] remove_proc_entry+0x198/0x1c0 (unreliable)
-[    1.605321] [df4a5bd8] [c0067acc] unregister_irq_proc+0x5c/0x70
-[    1.611238] [df4a5bf8] [c005fbc4] free_desc+0x3c/0x80
-[    1.616286] [df4a5c18] [c005fe2c] irq_free_descs+0x70/0xa8
-[    1.621778] [df4a5c38] [c033d3fc] of_fsl_spi_probe+0xdc/0x3cc
-[    1.627525] [df4a5c88] [c02f0f64] platform_drv_probe+0x44/0xa4
-[    1.633350] [df4a5c98] [c02eee44] really_probe+0x1ac/0x418
-[    1.638829] [df4a5cc8] [c02ed3e8] bus_for_each_drv+0x64/0xb0
-[    1.644481] [df4a5cf8] [c02ef950] __device_attach+0xd4/0x128
-[    1.650132] [df4a5d28] [c02ed61c] bus_probe_device+0xa0/0xbc
-[    1.655783] [df4a5d48] [c02ebbe8] device_add+0x544/0x74c
-[    1.661096] [df4a5d88] [c0382b78] of_platform_device_create_pdata+0xa4/0x100
-[    1.668131] [df4a5da8] [c0382cf4] of_platform_bus_create+0x120/0x20c
-[    1.674474] [df4a5df8] [c0382d50] of_platform_bus_create+0x17c/0x20c
-[    1.680818] [df4a5e48] [c0382e88] of_platform_bus_probe+0x9c/0xf0
-[    1.686907] [df4a5e68] [c0751404] __machine_initcall_cmpcpro_cmpcpro_declare_of_platform_devices+0x74/0x1a4
-[    1.696629] [df4a5e98] [c072a4cc] do_one_initcall+0x8c/0x1d4
-[    1.702282] [df4a5ef8] [c072a768] kernel_init_freeable+0x154/0x204
-[    1.708455] [df4a5f28] [c0004b2c] kernel_init+0x18/0x110
-[    1.713769] [df4a5f38] [c00122ac] ret_from_kernel_thread+0x14/0x1c
-[    1.719926] Instruction dump:
-[    1.722889] 2c030000 4182004c 3863ffb0 3c80c05f 80e3005c 388436a0 3c60c06d 7fa6eb78
-[    1.730630] 7fe5fb78 38840280 38634178 4be8c611 <0fe00000> 4bffff6c 3c60c071 7fe4fb78
-[    1.738556] ---[ end trace 05d0720bf2e352e2 ]---
-
-The problem comes from the error path which calls
-irq_dispose_mapping() while the IRQ has been requested with
-devm_request_irq().
-
-IRQ doesn't need to be mapped with irq_of_parse_and_map(). The only
-need is to get the IRQ virtual number. For that, use
-of_irq_to_resource() instead of the
-irq_of_parse_and_map()/irq_dispose_mapping() pair.
-
-Fixes: 500a32abaf81 ("spi: fsl: Call irq_dispose_mapping in err path")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Link: https://lore.kernel.org/r/518cfb83347d5372748e7fe72f94e2e9443d0d4a.1575905123.git.christophe.leroy@c-s.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e3a5d8e386c3 ("block: check bi_size overflow before merge")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 ---
- drivers/spi/spi-fsl-spi.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ block/bio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
-index 4b70887cf443..d0ad9709f4a6 100644
---- a/drivers/spi/spi-fsl-spi.c
-+++ b/drivers/spi/spi-fsl-spi.c
-@@ -746,8 +746,8 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
- 	if (ret)
- 		goto err;
- 
--	irq = irq_of_parse_and_map(np, 0);
--	if (!irq) {
-+	irq = of_irq_to_resource(np, 0, NULL);
-+	if (irq <= 0) {
- 		ret = -EINVAL;
- 		goto err;
- 	}
-@@ -761,7 +761,6 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
- 	return 0;
- 
- err:
--	irq_dispose_mapping(irq);
- 	return ret;
- }
- 
--- 
+diff --git a/block/bio.c b/block/bio.c
+index 9d54aa37ce6c..a5d75f6bf4c7 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -754,10 +754,12 @@ bool __bio_try_merge_page(struct bio *bio, struct pag=
+e *page,
+ =09if (WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED)))
+ =09=09return false;
+=20
+-=09if (bio->bi_vcnt > 0 && !bio_full(bio, len)) {
++=09if (bio->bi_vcnt > 0) {
+ =09=09struct bio_vec *bv =3D &bio->bi_io_vec[bio->bi_vcnt - 1];
+=20
+ =09=09if (page_is_mergeable(bv, page, len, off, same_page)) {
++=09=09=09if (bio->bi_iter.bi_size > UINT_MAX - len)
++=09=09=09=09return false;
+ =09=09=09bv->bv_len +=3D len;
+ =09=09=09bio->bi_iter.bi_size +=3D len;
+ =09=09=09return true;
+--=20
 2.20.1
 
