@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0369119B2A
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:11:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5375E119B50
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729554AbfLJWFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:05:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36920 "EHLO mail.kernel.org"
+        id S1728441AbfLJWGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:06:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729518AbfLJWFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:05:24 -0500
+        id S1729563AbfLJWFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:05:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EF1B22464;
-        Tue, 10 Dec 2019 22:05:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7510C20637;
+        Tue, 10 Dec 2019 22:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015524;
-        bh=BqdLStzEJB6Zi2WSurBDBiPlZMz52nDuIolEUyiSz5g=;
+        s=default; t=1576015525;
+        bh=FsQts3PP/nHVQrfv5wO/f72h36bv4yWUk4siqw/b69Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CF2+64oRXqgVJ/UqswAm+sPJCP2X/CKQxMWMuqGt6KR8aGgPX0sdpvuXbZ6JRaGW5
-         isYpvTUFDm33zgVGZhb1H/boEeeIiCntLBJPdEtjuV+5eaETj5zWjleXAGRiLXFPH3
-         /XTtiaoKdD0lYsHb84bh5qUQhvu1C4dAoxc4DrLc=
+        b=MiBfPoOQzr8o3A2z4AaOIhKkIC0Yg65WXIEvNDT33PaQgY0tlDf4ZASD1WQdhWaGM
+         ikugCz4uEX73rMVlDS97K5hNoomf7pH8pRguJftNfMdq5HRbkbOkXru67oo/BAaZ26
+         346qKl+nHjiorLyyI4hBfbghGbmUfv3MESJ9hbGM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 119/130] iwlwifi: check kasprintf() return value
-Date:   Tue, 10 Dec 2019 17:02:50 -0500
-Message-Id: <20191210220301.13262-119-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.14 120/130] fbtft: Make sure string is NULL terminated
+Date:   Tue, 10 Dec 2019 17:02:51 -0500
+Message-Id: <20191210220301.13262-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,50 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 5974fbb5e10b018fdbe3c3b81cb4cc54e1105ab9 ]
+[ Upstream commit 21f585480deb4bcf0d92b08879c35d066dfee030 ]
 
-kasprintf() can fail, we should check the return value.
+New GCC warns about inappropriate use of strncpy():
 
-Fixes: 5ed540aecc2a ("iwlwifi: use mac80211 throughput trigger")
-Fixes: 8ca151b568b6 ("iwlwifi: add the MVM driver")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+drivers/staging/fbtft/fbtft-core.c: In function ‘fbtft_framebuffer_alloc’:
+drivers/staging/fbtft/fbtft-core.c:665:2: warning: ‘strncpy’ specified bound 16 equals destination size [-Wstringop-truncation]
+  665 |  strncpy(info->fix.id, dev->driver->name, 16);
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Later on the copy is being used with the assumption to be NULL terminated.
+Make sure string is NULL terminated by switching to snprintf().
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20191120095716.26628-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/dvm/led.c | 3 +++
- drivers/net/wireless/intel/iwlwifi/mvm/led.c | 3 +++
- 2 files changed, 6 insertions(+)
+ drivers/staging/fbtft/fbtft-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/led.c b/drivers/net/wireless/intel/iwlwifi/dvm/led.c
-index 1bbd17ada9747..20e16c4239901 100644
---- a/drivers/net/wireless/intel/iwlwifi/dvm/led.c
-+++ b/drivers/net/wireless/intel/iwlwifi/dvm/led.c
-@@ -185,6 +185,9 @@ void iwl_leds_init(struct iwl_priv *priv)
+diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
+index 0cbcbad8f0742..b81c6dfa5b249 100644
+--- a/drivers/staging/fbtft/fbtft-core.c
++++ b/drivers/staging/fbtft/fbtft-core.c
+@@ -780,7 +780,7 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
+ 	fbdefio->deferred_io =     fbtft_deferred_io;
+ 	fb_deferred_io_init(info);
  
- 	priv->led.name = kasprintf(GFP_KERNEL, "%s-led",
- 				   wiphy_name(priv->hw->wiphy));
-+	if (!priv->led.name)
-+		return;
-+
- 	priv->led.brightness_set = iwl_led_brightness_set;
- 	priv->led.blink_set = iwl_led_blink_set;
- 	priv->led.max_brightness = 1;
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/led.c b/drivers/net/wireless/intel/iwlwifi/mvm/led.c
-index b27269504a622..072f80c90ce4a 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/led.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/led.c
-@@ -131,6 +131,9 @@ int iwl_mvm_leds_init(struct iwl_mvm *mvm)
- 
- 	mvm->led.name = kasprintf(GFP_KERNEL, "%s-led",
- 				   wiphy_name(mvm->hw->wiphy));
-+	if (!mvm->led.name)
-+		return -ENOMEM;
-+
- 	mvm->led.brightness_set = iwl_led_brightness_set;
- 	mvm->led.max_brightness = 1;
- 
+-	strncpy(info->fix.id, dev->driver->name, 16);
++	snprintf(info->fix.id, sizeof(info->fix.id), "%s", dev->driver->name);
+ 	info->fix.type =           FB_TYPE_PACKED_PIXELS;
+ 	info->fix.visual =         FB_VISUAL_TRUECOLOR;
+ 	info->fix.xpanstep =	   0;
 -- 
 2.20.1
 
