@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A4E611969E
+	by mail.lfdr.de (Postfix) with ESMTP id 8A8D611969F
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728521AbfLJVKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728517AbfLJVKb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:10:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60486 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728513AbfLJVKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:30 -0500
+        id S1728086AbfLJVKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBFF02077B;
-        Tue, 10 Dec 2019 21:10:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15C78246AF;
+        Tue, 10 Dec 2019 21:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012229;
-        bh=cXHoFaCPOcdNxCGH5Nh0rBLLYZyaMEeDTY7yKhcYT/8=;
+        s=default; t=1576012231;
+        bh=aC3eF3AXy1D1tdrKUgWEMgfafwOFEfwvJ0RSRxPOri8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwYUKEwKYIk8arMW1TyelSgMlRX8JeLwMhD6cUFnkNRb7w9Fpv6BVxhw5Xe47Bcnw
-         amkAETaNDxE52qqDJ3tN66UNaXDjLA4VH0MjnL445ChlRBPzq9gbi77Hjr/QdnOHPa
-         JwdimdJx9G2VQgbWHJcRPfyTnNaKWfM3fPBmxp6E=
+        b=XgNDheJT2t4UbySnwFMde2nXRrLOBenU7Z2BwQc8t+r4qRej4u9zidKW8a5UB7hiz
+         6U5tJ9thYK9EmlR8yqSPHgy6Xljua2SxJK+ozKhSG3+YiZNsKr+DukdsILU117pfAA
+         lduHAMHY3z/Am++6E6kXmMinmDxAlw+iEM4LjnrU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 179/350] ALSA: hda/hdmi - implement mst_no_extra_pcms flag
-Date:   Tue, 10 Dec 2019 16:04:44 -0500
-Message-Id: <20191210210735.9077-140-sashal@kernel.org>
+Cc:     Biju Das <biju.das@bp.renesas.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 180/350] phy: renesas: phy-rcar-gen2: Fix the array off by one warning
+Date:   Tue, 10 Dec 2019 16:04:45 -0500
+Message-Id: <20191210210735.9077-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -45,90 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Biju Das <biju.das@bp.renesas.com>
 
-[ Upstream commit 2a2edfbbfee47947dd05f5860c66c0e80ee5e09d ]
+[ Upstream commit c9baab38fe0e28762d0d67611cbe2aef0fb3fc72 ]
 
-To support the DP-MST multiple streams via single connector feature,
-the HDMI driver was extended with the concept of backup PCMs. See
-commit 9152085defb6 ("ALSA: hda - add DP MST audio support").
+Fix the below smatch warning by adding variable check rather than the
+hardcoded value.
+warn: array off by one? 'data->select_value[channel_num]'
 
-This implementation works fine with snd_hda_intel.c as PCM topology
-is fully managed within the single driver.
-
-When the HDA codec driver is used from ASoC components, the concept
-of backup PCMs no longer fits. For ASoC topologies, the physical
-HDMI converters are presented as backend DAIs and these should match
-with hardware capabilities. The ASoC topology may define arbitrary
-PCMs (i.e. frontend DAIs) and have processing elements before eventual
-routing to the HDMI BE DAIs. With backup PCMs, the link between
-FE and BE DAIs would become dynamic and change when monitors are
-(un)plugged. This would lead to modifying the topology every time
-hotplug events happen, which is not currently possible in ASoC and
-there does not seem to be any obvious benefits from this design.
-
-To overcome above problems and enable the HDMI driver to be used
-from ASoC, this patch adds a new mode (mst_no_extra_pcms flags) to
-patch_hdmi.c. In this mode, the codec driver does not assume
-the backup PCMs to be created.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191029134017.18901-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hda_codec.h  |  1 +
- sound/pci/hda/patch_hdmi.c | 19 ++++++++++++++-----
- 2 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/phy/renesas/phy-rcar-gen2.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
-index 9a0393cf024c2..ac18f428eda6c 100644
---- a/include/sound/hda_codec.h
-+++ b/include/sound/hda_codec.h
-@@ -254,6 +254,7 @@ struct hda_codec {
- 	unsigned int force_pin_prefix:1; /* Add location prefix */
- 	unsigned int link_down_at_suspend:1; /* link down at runtime suspend */
- 	unsigned int relaxed_resume:1;	/* don't resume forcibly for jack */
-+	unsigned int mst_no_extra_pcms:1; /* no backup PCMs for DP-MST */
+diff --git a/drivers/phy/renesas/phy-rcar-gen2.c b/drivers/phy/renesas/phy-rcar-gen2.c
+index 2926e49373017..2e279ac0fa4d6 100644
+--- a/drivers/phy/renesas/phy-rcar-gen2.c
++++ b/drivers/phy/renesas/phy-rcar-gen2.c
+@@ -71,6 +71,7 @@ struct rcar_gen2_phy_driver {
+ struct rcar_gen2_phy_data {
+ 	const struct phy_ops *gen2_phy_ops;
+ 	const u32 (*select_value)[PHYS_PER_CHANNEL];
++	const u32 num_channels;
+ };
  
- #ifdef CONFIG_PM
- 	unsigned long power_on_acct;
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index d14f6684737d0..b8579cd218098 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2075,15 +2075,24 @@ static bool is_hdmi_pcm_attached(struct hdac_device *hdac, int pcm_idx)
- static int generic_hdmi_build_pcms(struct hda_codec *codec)
- {
- 	struct hdmi_spec *spec = codec->spec;
--	int idx;
-+	int idx, pcm_num;
+ static int rcar_gen2_phy_init(struct phy *p)
+@@ -271,11 +272,13 @@ static const u32 usb20_select_value[][PHYS_PER_CHANNEL] = {
+ static const struct rcar_gen2_phy_data rcar_gen2_usb_phy_data = {
+ 	.gen2_phy_ops = &rcar_gen2_phy_ops,
+ 	.select_value = pci_select_value,
++	.num_channels = ARRAY_SIZE(pci_select_value),
+ };
  
- 	/*
- 	 * for non-mst mode, pcm number is the same as before
--	 * for DP MST mode, pcm number is (nid number + dev_num - 1)
--	 *  dev_num is the device entry number in a pin
--	 *
-+	 * for DP MST mode without extra PCM, pcm number is same
-+	 * for DP MST mode with extra PCMs, pcm number is
-+	 *  (nid number + dev_num - 1)
-+	 * dev_num is the device entry number in a pin
- 	 */
--	for (idx = 0; idx < spec->num_nids + spec->dev_num - 1; idx++) {
-+
-+	if (codec->mst_no_extra_pcms)
-+		pcm_num = spec->num_nids;
-+	else
-+		pcm_num = spec->num_nids + spec->dev_num - 1;
-+
-+	codec_dbg(codec, "hdmi: pcm_num set to %d\n", pcm_num);
-+
-+	for (idx = 0; idx < pcm_num; idx++) {
- 		struct hda_pcm *info;
- 		struct hda_pcm_stream *pstr;
+ static const struct rcar_gen2_phy_data rz_g1c_usb_phy_data = {
+ 	.gen2_phy_ops = &rz_g1c_phy_ops,
+ 	.select_value = usb20_select_value,
++	.num_channels = ARRAY_SIZE(usb20_select_value),
+ };
  
+ static const struct of_device_id rcar_gen2_phy_match_table[] = {
+@@ -389,7 +392,7 @@ static int rcar_gen2_phy_probe(struct platform_device *pdev)
+ 		channel->selected_phy = -1;
+ 
+ 		error = of_property_read_u32(np, "reg", &channel_num);
+-		if (error || channel_num > 2) {
++		if (error || channel_num >= data->num_channels) {
+ 			dev_err(dev, "Invalid \"reg\" property\n");
+ 			of_node_put(np);
+ 			return error;
 -- 
 2.20.1
 
