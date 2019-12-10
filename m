@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 726B21193C6
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6E51193C8
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728380AbfLJVKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:10:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59642 "EHLO mail.kernel.org"
+        id S1728386AbfLJVKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:10:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728374AbfLJVKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:08 -0500
+        id S1728382AbfLJVKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 674B8246B6;
-        Tue, 10 Dec 2019 21:10:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99446246AF;
+        Tue, 10 Dec 2019 21:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012208;
-        bh=osEMQ+qjmPG568bwq3Y3oZd6+35Cqc6/K7SPM9SAm24=;
+        s=default; t=1576012209;
+        bh=dEYdNzA7sCJZoAWIs+glPqeh02jENtriAG4jZL0kQbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYsMBrNUu4O6C739L78hFjOmDIrMbkl1orucS7TJCA0dHrdL34hC7zarEIo9Kuol9
-         FRjOier54+NlUano2ImIwidcpO9bdtfaC1xSVIjn7eyGO3+EM03riGZdeJMBo/aaF5
-         GWYpyVujBsQ4/+wUY702Nte8YPymU71B8Xz9U2vc=
+        b=Xt4Xfaqkgn6L2U1WUYUNepDdvxuXnIfWYoW2LRdX6ZjapUlvMB84rQpHoI4Vao52M
+         4qmfkg742DoCANxKQFpy4q6kNYySFcb6k8+QSfofm8UtDpZSkchlmH85acNVG1s2tK
+         mwhL+OP0F7O/yUJxRFO0uelAnHFOYbd/lljvOZf0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhan liu <zhan.liu@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 160/350] drm/amd/display: setting the DIG_MODE to the correct value.
-Date:   Tue, 10 Dec 2019 16:04:25 -0500
-Message-Id: <20191210210735.9077-121-sashal@kernel.org>
+Cc:     Nicholas Nunley <nicholas.d.nunley@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 161/350] i40e: initialize ITRN registers with correct values
+Date:   Tue, 10 Dec 2019 16:04:26 -0500
+Message-Id: <20191210210735.9077-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -45,46 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhan liu <zhan.liu@amd.com>
+From: Nicholas Nunley <nicholas.d.nunley@intel.com>
 
-[ Upstream commit 967a3b85bac91c55eff740e61bf270c2732f48b2 ]
+[ Upstream commit 998e5166e604fd37afe94352f7b8c2d816b11049 ]
 
-[Why]
-This patch is for fixing Navi14 HDMI display pink screen issue.
+Since commit 92418fb14750 ("i40e/i40evf: Use usec value instead of reg
+value for ITR defines") the driver tracks the interrupt throttling
+intervals in single usec units, although the actual ITRN/ITR0 registers are
+programmed in 2 usec units. Most register programming flows in the driver
+correctly handle the conversion, although it is currently not applied when
+the registers are initialized to their default values. Most of the time
+this doesn't present a problem since the default values are usually
+immediately overwritten through the standard adaptive throttling mechanism,
+or updated manually by the user, but if adaptive throttling is disabled and
+the interval values are left alone then the incorrect value will persist.
 
-[How]
-Call stream->link->link_enc->funcs->setup twice. This is setting
-the DIG_MODE to the correct value after having been overridden by
-the call to transmitter control.
+Since the intended default interval of 50 usecs (vs. 100 usecs as
+programmed) performs better for most traffic workloads, this can lead to
+performance regressions.
 
-Signed-off-by: Zhan Liu <zhan.liu@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This patch adds the correct conversion when writing the initial values to
+the ITRN registers.
+
+Signed-off-by: Nicholas Nunley <nicholas.d.nunley@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index efc1d30544bb6..067f5579f4523 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -2769,6 +2769,15 @@ void core_link_enable_stream(
- 					CONTROLLER_DP_TEST_PATTERN_VIDEOMODE,
- 					COLOR_DEPTH_UNDEFINED);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 6031223eafab8..339925af02062 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -3534,14 +3534,14 @@ static void i40e_vsi_configure_msix(struct i40e_vsi *vsi)
+ 		q_vector->rx.target_itr =
+ 			ITR_TO_REG(vsi->rx_rings[i]->itr_setting);
+ 		wr32(hw, I40E_PFINT_ITRN(I40E_RX_ITR, vector - 1),
+-		     q_vector->rx.target_itr);
++		     q_vector->rx.target_itr >> 1);
+ 		q_vector->rx.current_itr = q_vector->rx.target_itr;
  
-+		/* This second call is needed to reconfigure the DIG
-+		 * as a workaround for the incorrect value being applied
-+		 * from transmitter control.
-+		 */
-+		if (!dc_is_virtual_signal(pipe_ctx->stream->signal))
-+			stream->link->link_enc->funcs->setup(
-+				stream->link->link_enc,
-+				pipe_ctx->stream->signal);
-+
- #ifdef CONFIG_DRM_AMD_DC_DSC_SUPPORT
- 		if (pipe_ctx->stream->timing.flags.DSC) {
- 			if (dc_is_dp_signal(pipe_ctx->stream->signal) ||
+ 		q_vector->tx.next_update = jiffies + 1;
+ 		q_vector->tx.target_itr =
+ 			ITR_TO_REG(vsi->tx_rings[i]->itr_setting);
+ 		wr32(hw, I40E_PFINT_ITRN(I40E_TX_ITR, vector - 1),
+-		     q_vector->tx.target_itr);
++		     q_vector->tx.target_itr >> 1);
+ 		q_vector->tx.current_itr = q_vector->tx.target_itr;
+ 
+ 		wr32(hw, I40E_PFINT_RATEN(vector - 1),
+@@ -3646,11 +3646,11 @@ static void i40e_configure_msi_and_legacy(struct i40e_vsi *vsi)
+ 	/* set the ITR configuration */
+ 	q_vector->rx.next_update = jiffies + 1;
+ 	q_vector->rx.target_itr = ITR_TO_REG(vsi->rx_rings[0]->itr_setting);
+-	wr32(hw, I40E_PFINT_ITR0(I40E_RX_ITR), q_vector->rx.target_itr);
++	wr32(hw, I40E_PFINT_ITR0(I40E_RX_ITR), q_vector->rx.target_itr >> 1);
+ 	q_vector->rx.current_itr = q_vector->rx.target_itr;
+ 	q_vector->tx.next_update = jiffies + 1;
+ 	q_vector->tx.target_itr = ITR_TO_REG(vsi->tx_rings[0]->itr_setting);
+-	wr32(hw, I40E_PFINT_ITR0(I40E_TX_ITR), q_vector->tx.target_itr);
++	wr32(hw, I40E_PFINT_ITR0(I40E_TX_ITR), q_vector->tx.target_itr >> 1);
+ 	q_vector->tx.current_itr = q_vector->tx.target_itr;
+ 
+ 	i40e_enable_misc_int_causes(pf);
+@@ -11396,7 +11396,7 @@ static int i40e_setup_misc_vector(struct i40e_pf *pf)
+ 
+ 	/* associate no queues to the misc vector */
+ 	wr32(hw, I40E_PFINT_LNKLST0, I40E_QUEUE_END_OF_LIST);
+-	wr32(hw, I40E_PFINT_ITR0(I40E_RX_ITR), I40E_ITR_8K);
++	wr32(hw, I40E_PFINT_ITR0(I40E_RX_ITR), I40E_ITR_8K >> 1);
+ 
+ 	i40e_flush(hw);
+ 
 -- 
 2.20.1
 
