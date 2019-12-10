@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA04119601
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:25:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 983DB119604
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:25:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729388AbfLJVYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727500AbfLJVYT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:24:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32930 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:32972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727958AbfLJVKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:52 -0500
+        id S1728627AbfLJVKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64F49246B8;
-        Tue, 10 Dec 2019 21:10:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6ABDA24697;
+        Tue, 10 Dec 2019 21:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012252;
-        bh=5h334oil8b9BE4AdJTlzTqznOyqxlcpwG2PSJfE1q/M=;
+        s=default; t=1576012253;
+        bh=u/TA5nCukRHIf1eZ2xTVzBsDtu7MZr78Wrzuy7Mx6ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUCOdgqTth2aLjqeG59ORYdRBHUGC/PE6+VnOZ1R73MOUc8TXNwYgv7ke9BxHXsTt
-         MulKs78mtWP+dYl18iw1l4DTtwvrm5tlWziT4z+P0GlLpMMxyZMDLuzlABGXLtTF+s
-         HK03i+sFaXUKHlC2jdbT4945LOQg9Qc7W7nxm5k0=
+        b=N6uqnIoUhdo2MvC4LH/L9AsCV3ErqKjwIsodv5koxBrvRgkzZH+2ZUkgC/SOqiRhK
+         r1tB6Ncb6HY4WbN/3Ht9lTvTpdYtlqwJeQu36BtdNNt5m3zf/+BLsZGeDyNvYZ3xTT
+         nf+KytQfrBNa63JbUXRVj5kk86o7aEibkVXFo460=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 199/350] pinctrl: amd: fix __iomem annotation in amd_gpio_irq_handler()
-Date:   Tue, 10 Dec 2019 16:05:04 -0500
-Message-Id: <20191210210735.9077-160-sashal@kernel.org>
+Cc:     Manjunath Patil <manjunath.b.patil@oracle.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 200/350] ixgbe: protect TX timestamping from API misuse
+Date:   Tue, 10 Dec 2019 16:05:05 -0500
+Message-Id: <20191210210735.9077-161-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -43,48 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>
+From: Manjunath Patil <manjunath.b.patil@oracle.com>
 
-[ Upstream commit 10ff58aa3c2e2a093b6ad615a7e3d8bb0dc613e5 ]
+[ Upstream commit 07066d9dc3d2326fbad8f7b0cb0120cff7b7dedb ]
 
-The regs pointer in amd_gpio_irq_handler() should have __iomem
-on it, so add that to fix the following sparse warnings:
+HW timestamping can only be requested for a packet if the NIC is first
+setup via ioctl(SIOCSHWTSTAMP). If this step was skipped, then the ixgbe
+driver still allowed TX packets to request HW timestamping. In this
+situation, we see 'clearing Tx Timestamp hang' noise in the log.
 
-drivers/pinctrl/pinctrl-amd.c:555:14: warning: incorrect type in assignment (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:555:14:    expected unsigned int [usertype] *regs
-drivers/pinctrl/pinctrl-amd.c:555:14:    got void [noderef] <asn:2> *base
-drivers/pinctrl/pinctrl-amd.c:563:34: warning: incorrect type in argument 1 (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:563:34:    expected void const volatile [noderef] <asn:2> *addr
-drivers/pinctrl/pinctrl-amd.c:563:34:    got unsigned int [usertype] *
-drivers/pinctrl/pinctrl-amd.c:580:34: warning: incorrect type in argument 1 (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:580:34:    expected void const volatile [noderef] <asn:2> *addr
-drivers/pinctrl/pinctrl-amd.c:580:34:    got unsigned int [usertype] *
-drivers/pinctrl/pinctrl-amd.c:587:25: warning: incorrect type in argument 2 (different address spaces)
-drivers/pinctrl/pinctrl-amd.c:587:25:    expected void volatile [noderef] <asn:2> *addr
-drivers/pinctrl/pinctrl-amd.c:587:25:    got unsigned int [usertype] *
+Fix this by checking that the NIC is configured for HW TX timestamping
+before accepting a HW TX timestamping request.
 
-Signed-off-by: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
-Link: https://lore.kernel.org/r/20191022151154.5986-1-ben.dooks@codethink.co.uk
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Similar-to:
+   commit 26bd4e2db06b ("igb: protect TX timestamping from API misuse")
+   commit 0a6f2f05a2f5 ("igb: Fix a test with HWTSTAMP_TX_ON")
+
+Signed-off-by: Manjunath Patil <manjunath.b.patil@oracle.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c | 3 ++-
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index 2c61141519f80..eab078244a4c3 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -540,7 +540,8 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
- 	irqreturn_t ret = IRQ_NONE;
- 	unsigned int i, irqnr;
- 	unsigned long flags;
--	u32 *regs, regval;
-+	u32 __iomem *regs;
-+	u32  regval;
- 	u64 status, mask;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 91b3780ddb040..1a7203fede12c 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -8639,7 +8639,8 @@ netdev_tx_t ixgbe_xmit_frame_ring(struct sk_buff *skb,
  
- 	/* Read the wake status */
+ 	if (unlikely(skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) &&
+ 	    adapter->ptp_clock) {
+-		if (!test_and_set_bit_lock(__IXGBE_PTP_TX_IN_PROGRESS,
++		if (adapter->tstamp_config.tx_type == HWTSTAMP_TX_ON &&
++		    !test_and_set_bit_lock(__IXGBE_PTP_TX_IN_PROGRESS,
+ 					   &adapter->state)) {
+ 			skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+ 			tx_flags |= IXGBE_TX_FLAGS_TSTAMP;
 -- 
 2.20.1
 
