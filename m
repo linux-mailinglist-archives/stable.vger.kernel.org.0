@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBC21193EA
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11665119586
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:21:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728837AbfLJVLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:11:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34890 "EHLO mail.kernel.org"
+        id S1729012AbfLJVVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:21:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726362AbfLJVLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727942AbfLJVLq (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Dec 2019 16:11:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 714B9246C5;
-        Tue, 10 Dec 2019 21:11:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A85F246B8;
+        Tue, 10 Dec 2019 21:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012305;
-        bh=yWdkQ3rxmA4VRJCK8d7wnzRs2F/xLxiKSnBauAWoCZc=;
+        s=default; t=1576012306;
+        bh=xsdow0IJ77bvirW4eYEduP638RtJRXOzATouebVsj6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NaC1OdxeXok3r6oGbZ8dNoOlorWwl/lWCp8zMwXGCiFGVsvnEop+Q4QTUiarBpsxl
-         8UpX4DpHm1ZYrye2tCFs8867x4IKLH7WUckR5vitfK7wmRzpxHrF5K5vX345g0mjm8
-         N9vTKk9NXxwg6HdpNLdS0BQJQHq+oBdgBeTRebUw=
+        b=KNUtXVrwa1LHxxt/ekDYJ9e5o2bmNZC3mTxWDawAzPx8w3kuN+mDOes45HxHL33jh
+         WsdSX0bx+vB1gV2SKW5UTDFhH5dN/oorm6iz6D2/KlhwSyd3hXDET4qQ03O9oWxXED
+         +62oMOQutYqcpYw4z3HkEZ+aYlJDwNc/EgJhoVy8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 241/350] perf probe: Filter out instances except for inlined subroutine and subprogram
-Date:   Tue, 10 Dec 2019 16:05:46 -0500
-Message-Id: <20191210210735.9077-202-sashal@kernel.org>
+Cc:     Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 242/350] libbpf: Fix negative FD close() in xsk_setup_xdp_prog()
+Date:   Tue, 10 Dec 2019 16:05:47 -0500
+Message-Id: <20191210210735.9077-203-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -45,119 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit da6cb952a89efe24bb76c4971370d485737a2d85 ]
+[ Upstream commit 9656b346b280c3e49c8a116c3a715f966633b161 ]
 
-Filter out instances except for inlined_subroutine and subprogram DIE in
-die_walk_instances() and die_is_func_instance().
+Fix issue reported by static analysis (Coverity). If bpf_prog_get_fd_by_id()
+fails, xsk_lookup_bpf_maps() will fail as well and clean-up code will attempt
+close() with fd=-1. Fix by checking bpf_prog_get_fd_by_id() return result and
+exiting early.
 
-This fixes an issue that perf probe sets some probes on calling address
-instead of a target function itself.
-
-When perf probe walks on instances of an abstruct origin (a kind of
-function prototype of inlined function), die_walk_instances() can also
-pass a GNU_call_site (a GNU extension for call site) to callback. Since
-it is not an inlined instance of target function, we have to filter out
-when searching a probe point.
-
-Without this patch, perf probe sets probes on call site address too.This
-can happen on some function which is marked "inlined", but has actual
-symbol. (I'm not sure why GCC mark it "inlined"):
-
-  # perf probe -D vfs_read
-  p:probe/vfs_read _text+2500017
-  p:probe/vfs_read_1 _text+2499468
-  p:probe/vfs_read_2 _text+2499563
-  p:probe/vfs_read_3 _text+2498876
-  p:probe/vfs_read_4 _text+2498512
-  p:probe/vfs_read_5 _text+2498627
-
-With this patch:
-
-Slightly different results, similar tho:
-
-  # perf probe -D vfs_read
-  p:probe/vfs_read _text+2498512
-
-Committer testing:
-
-  # uname -a
-  Linux quaco 5.3.8-200.fc30.x86_64 #1 SMP Tue Oct 29 14:46:22 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
-
-Before:
-
-  # perf probe -D vfs_read
-  p:probe/vfs_read _text+3131557
-  p:probe/vfs_read_1 _text+3130975
-  p:probe/vfs_read_2 _text+3131047
-  p:probe/vfs_read_3 _text+3130380
-  p:probe/vfs_read_4 _text+3130000
-  # uname -a
-  Linux quaco 5.3.8-200.fc30.x86_64 #1 SMP Tue Oct 29 14:46:22 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
-  #
-
-After:
-
-  # perf probe -D vfs_read
-  p:probe/vfs_read _text+3130000
-  #
-
-Fixes: db0d2c6420ee ("perf probe: Search concrete out-of-line instances")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157241937063.32002.11024544873990816590.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 10a13bb40e54 ("libbpf: remove qidconf and better support external bpf programs.")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191107054059.313884-1-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ tools/lib/bpf/xsk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index 0b604f8ab7c88..995607a7b4da2 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -312,18 +312,22 @@ bool die_is_func_def(Dwarf_Die *dw_die)
-  * @dw_die: a DIE
-  *
-  * Ensure that this DIE is an instance (which has an entry address).
-- * This returns true if @dw_die is a function instance. If not, you need to
-- * call die_walk_instances() to find actual instances.
-+ * This returns true if @dw_die is a function instance. If not, the @dw_die
-+ * must be a prototype. You can use die_walk_instances() to find actual
-+ * instances.
-  **/
- bool die_is_func_instance(Dwarf_Die *dw_die)
- {
- 	Dwarf_Addr tmp;
- 	Dwarf_Attribute attr_mem;
-+	int tag = dwarf_tag(dw_die);
- 
--	/* Actually gcc optimizes non-inline as like as inlined */
--	return !dwarf_func_inline(dw_die) &&
--	       (dwarf_entrypc(dw_die, &tmp) == 0 ||
--		dwarf_attr(dw_die, DW_AT_ranges, &attr_mem) != NULL);
-+	if (tag != DW_TAG_subprogram &&
-+	    tag != DW_TAG_inlined_subroutine)
-+		return false;
-+
-+	return dwarf_entrypc(dw_die, &tmp) == 0 ||
-+		dwarf_attr(dw_die, DW_AT_ranges, &attr_mem) != NULL;
- }
- 
- /**
-@@ -602,6 +606,9 @@ static int __die_walk_instances_cb(Dwarf_Die *inst, void *data)
- 	Dwarf_Die *origin;
- 	int tmp;
- 
-+	if (!die_is_func_instance(inst))
-+		return DIE_FIND_CB_CONTINUE;
-+
- 	attr = dwarf_attr(inst, DW_AT_abstract_origin, &attr_mem);
- 	if (attr == NULL)
- 		return DIE_FIND_CB_CONTINUE;
+diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
+index 9d53480862030..a73b79d293337 100644
+--- a/tools/lib/bpf/xsk.c
++++ b/tools/lib/bpf/xsk.c
+@@ -466,6 +466,8 @@ static int xsk_setup_xdp_prog(struct xsk_socket *xsk)
+ 		}
+ 	} else {
+ 		xsk->prog_fd = bpf_prog_get_fd_by_id(prog_id);
++		if (xsk->prog_fd < 0)
++			return -errno;
+ 		err = xsk_lookup_bpf_maps(xsk);
+ 		if (err) {
+ 			close(xsk->prog_fd);
 -- 
 2.20.1
 
