@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11099119D12
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68971119D09
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728893AbfLJWfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:35:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56016 "EHLO mail.kernel.org"
+        id S1730393AbfLJWee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:34:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730370AbfLJWec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:34:32 -0500
+        id S1730380AbfLJWed (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:34:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1A732077B;
-        Tue, 10 Dec 2019 22:34:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2527820828;
+        Tue, 10 Dec 2019 22:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017271;
-        bh=g+6Q1nqTZIyboOk9ybA2T2qqr2ssXMoBmdNKNjbQx3g=;
+        s=default; t=1576017272;
+        bh=KVELWriR2M1QbPsog9zvcEmalOdJbCRZm84jFAznJBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IA7rio29VRkQ+fU5Cl7H0ZZObvU9DJerVsbDOZD5UKfNZGLG2FOp9P757r5q/+GrD
-         lAQvZPQvEQ6huRGfHdJvLCARAjO/CnxUjA+ev2Zej5PB2j4K986y5TXa9sL4PrwTPB
-         IP712Zvq7SwlscivWxdf5HBeOjD0jeVzofHJ19VI=
+        b=0TIcZJN+cVE5+3j9ChNbBsg9P1oialFuC7PGFMwwn79T98eem/YAPox30Y/Kp13b5
+         KROr0Ceo9TP0JvTadfd20CuwEvrkGDQeikLwgYr2I6TUArHesIiFvgLBkQCTPyTByo
+         ofnGpMdur82v6lVd9G7zTu5+++YcAA6RyDQ1sY8o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Omar Sandoval <osandov@fb.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 63/71] btrfs: don't prematurely free work in end_workqueue_fn()
-Date:   Tue, 10 Dec 2019 17:33:08 -0500
-Message-Id: <20191210223316.14988-63-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 64/71] iwlwifi: check kasprintf() return value
+Date:   Tue, 10 Dec 2019 17:33:09 -0500
+Message-Id: <20191210223316.14988-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -44,52 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 9be490f1e15c34193b1aae17da58e14dd9f55a95 ]
+[ Upstream commit 5974fbb5e10b018fdbe3c3b81cb4cc54e1105ab9 ]
 
-Currently, end_workqueue_fn() frees the end_io_wq entry (which embeds
-the work item) and then calls bio_endio(). This is another potential
-instance of the bug in "btrfs: don't prematurely free work in
-run_ordered_work()".
+kasprintf() can fail, we should check the return value.
 
-In particular, the endio call may depend on other work items. For
-example, btrfs_end_dio_bio() can call btrfs_subio_endio_read() ->
-__btrfs_correct_data_nocsum() -> dio_read_error() ->
-submit_dio_repair_bio(), which submits a bio that is also completed
-through a end_workqueue_fn() work item. However,
-__btrfs_correct_data_nocsum() waits for the newly submitted bio to
-complete, thus it depends on another work item.
-
-This example currently usually works because we use different workqueue
-helper functions for BTRFS_WQ_ENDIO_DATA and BTRFS_WQ_ENDIO_DIO_REPAIR.
-However, it may deadlock with stacked filesystems and is fragile
-overall. The proper fix is to free the work item at the very end of the
-work function, so let's do that.
-
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 5ed540aecc2a ("iwlwifi: use mac80211 throughput trigger")
+Fixes: 8ca151b568b6 ("iwlwifi: add the MVM driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/iwlwifi/dvm/led.c | 3 +++
+ drivers/net/wireless/iwlwifi/mvm/led.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 78722aaffecd3..d50fc503f73b8 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1698,8 +1698,8 @@ static void end_workqueue_fn(struct btrfs_work *work)
- 	bio->bi_error = end_io_wq->error;
- 	bio->bi_private = end_io_wq->private;
- 	bio->bi_end_io = end_io_wq->end_io;
--	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
- 	bio_endio(bio);
-+	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
- }
+diff --git a/drivers/net/wireless/iwlwifi/dvm/led.c b/drivers/net/wireless/iwlwifi/dvm/led.c
+index ca4d6692cc4eb..47e5fa70483d1 100644
+--- a/drivers/net/wireless/iwlwifi/dvm/led.c
++++ b/drivers/net/wireless/iwlwifi/dvm/led.c
+@@ -184,6 +184,9 @@ void iwl_leds_init(struct iwl_priv *priv)
  
- static int cleaner_kthread(void *arg)
+ 	priv->led.name = kasprintf(GFP_KERNEL, "%s-led",
+ 				   wiphy_name(priv->hw->wiphy));
++	if (!priv->led.name)
++		return;
++
+ 	priv->led.brightness_set = iwl_led_brightness_set;
+ 	priv->led.blink_set = iwl_led_blink_set;
+ 	priv->led.max_brightness = 1;
+diff --git a/drivers/net/wireless/iwlwifi/mvm/led.c b/drivers/net/wireless/iwlwifi/mvm/led.c
+index e3b3cf4dbd77a..948be43e4d266 100644
+--- a/drivers/net/wireless/iwlwifi/mvm/led.c
++++ b/drivers/net/wireless/iwlwifi/mvm/led.c
+@@ -109,6 +109,9 @@ int iwl_mvm_leds_init(struct iwl_mvm *mvm)
+ 
+ 	mvm->led.name = kasprintf(GFP_KERNEL, "%s-led",
+ 				   wiphy_name(mvm->hw->wiphy));
++	if (!mvm->led.name)
++		return -ENOMEM;
++
+ 	mvm->led.brightness_set = iwl_led_brightness_set;
+ 	mvm->led.max_brightness = 1;
+ 
 -- 
 2.20.1
 
