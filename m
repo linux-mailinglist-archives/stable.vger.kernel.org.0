@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D8011969C
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 052F01196A0
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728506AbfLJVK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:10:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60374 "EHLO mail.kernel.org"
+        id S1726708AbfLJV2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:28:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728501AbfLJVK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:28 -0500
+        id S1728120AbfLJVK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEE47246AF;
-        Tue, 10 Dec 2019 21:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF5C0246B8;
+        Tue, 10 Dec 2019 21:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012227;
-        bh=+mYYtCrQuz5xL26HF/OI5A2kAJzDXj0Jmz2H3hixYGE=;
+        s=default; t=1576012228;
+        bh=EwON0KxD+25ZAhruFvpeWwE6GlempRxfhHmX9ra5pWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyj1w8NPakhctp/OiVS3ixNt6e8soscNjSt1mdkfZzxJkP3V1sJEq8cGtPvp4FNgd
-         XGPb40Mv0kVcwyr3I4kqhwGDr0eBAC3scvUo6N4ZGJwszC02JWhP/xLKY4TQ3LFBkl
-         Ts/KsHg9axAA5+Jcdtr3uSYbV2VKAgtxUM5H2n18=
+        b=GJU40CmfWPJxdwSZQ5j1TIkIdVSCcS4Vkraa6mML2DzsEHrwDkXFD+y7PiGePsX2y
+         iARzH5quwNxd0Ir+qkMVdhtpZjW0nGXTEtaOmUaMmaHio6c/v+XzDtu/TyCwdhccEk
+         Gngx7Qt/jO/WHEwxl92+AekunXdiEtnHob4OqQos=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Fan <peng.fan@nxp.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 177/350] regulator: fixed: add off-on-delay
-Date:   Tue, 10 Dec 2019 16:04:42 -0500
-Message-Id: <20191210210735.9077-138-sashal@kernel.org>
+Cc:     Mao Wenan <maowenan@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 178/350] net: dsa: LAN9303: select REGMAP when LAN9303 enable
+Date:   Tue, 10 Dec 2019 16:04:43 -0500
+Message-Id: <20191210210735.9077-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -42,57 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Mao Wenan <maowenan@huawei.com>
 
-[ Upstream commit f7907e57aea2adcd0b57ebcca410e125412ab680 ]
+[ Upstream commit b6989d248a2d13f02895bae1a9321b3bbccc0283 ]
 
-Depends on board design, the gpio controlling regulator may
-connects with a big capacitance. When need off, it takes some time
-to let the regulator to be truly off. If not add enough delay, the
-regulator might have always been on, so introduce off-on-delay to
-handle such case.
+When NET_DSA_SMSC_LAN9303=y and NET_DSA_SMSC_LAN9303_MDIO=y,
+below errors can be seen:
+drivers/net/dsa/lan9303_mdio.c:87:23: error: REGMAP_ENDIAN_LITTLE
+undeclared here (not in a function)
+  .reg_format_endian = REGMAP_ENDIAN_LITTLE,
+drivers/net/dsa/lan9303_mdio.c:93:3: error: const struct regmap_config
+has no member named reg_read
+  .reg_read = lan9303_mdio_read,
 
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1572311875-22880-3-git-send-email-peng.fan@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+It should select REGMAP in config NET_DSA_SMSC_LAN9303.
+
+Fixes: dc7005831523 ("net: dsa: LAN9303: add MDIO managed mode support")
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/fixed.c       | 2 ++
- include/linux/regulator/fixed.h | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/net/dsa/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/regulator/fixed.c b/drivers/regulator/fixed.c
-index f81533070058e..bc0bbd99e98d0 100644
---- a/drivers/regulator/fixed.c
-+++ b/drivers/regulator/fixed.c
-@@ -123,6 +123,7 @@ of_get_fixed_voltage_config(struct device *dev,
- 		config->enabled_at_boot = true;
- 
- 	of_property_read_u32(np, "startup-delay-us", &config->startup_delay);
-+	of_property_read_u32(np, "off-on-delay-us", &config->off_on_delay);
- 
- 	if (of_find_property(np, "vin-supply", NULL))
- 		config->input_supply = "vin";
-@@ -189,6 +190,7 @@ static int reg_fixed_voltage_probe(struct platform_device *pdev)
- 	}
- 
- 	drvdata->desc.enable_time = config->startup_delay;
-+	drvdata->desc.off_on_delay = config->off_on_delay;
- 
- 	if (config->input_supply) {
- 		drvdata->desc.supply_name = devm_kstrdup(&pdev->dev,
-diff --git a/include/linux/regulator/fixed.h b/include/linux/regulator/fixed.h
-index d44ce5f18a568..55319943fcc58 100644
---- a/include/linux/regulator/fixed.h
-+++ b/include/linux/regulator/fixed.h
-@@ -36,6 +36,7 @@ struct fixed_voltage_config {
- 	const char *input_supply;
- 	int microvolts;
- 	unsigned startup_delay;
-+	unsigned int off_on_delay;
- 	unsigned enabled_at_boot:1;
- 	struct regulator_init_data *init_data;
- };
+diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
+index f6232ce8481fe..685e12b05a7c0 100644
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -77,6 +77,7 @@ config NET_DSA_REALTEK_SMI
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
+ 	select NET_DSA_TAG_LAN9303
++	select REGMAP
+ 	---help---
+ 	  This enables support for the SMSC/Microchip LAN9303 3 port ethernet
+ 	  switch chips.
 -- 
 2.20.1
 
