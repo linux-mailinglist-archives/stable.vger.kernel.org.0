@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE57A119C6D
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:32:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C694119E7B
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726881AbfLJWam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:30:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50386 "EHLO mail.kernel.org"
+        id S1727054AbfLJWan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:30:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726847AbfLJWam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:30:42 -0500
+        id S1726879AbfLJWan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:30:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E0B4207FF;
-        Tue, 10 Dec 2019 22:30:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AE172077B;
+        Tue, 10 Dec 2019 22:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017041;
-        bh=abgahavQ5SwoxyCcLIir3wWNWk56AQB8IQ+J/HqMmSY=;
+        s=default; t=1576017042;
+        bh=k0bLezHudClzSS0PwG+dTRlMojijS+3n9IsiySvKpPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LB8cLeQ49ib8DfzlCsWgf7+74wdETl4klr2tIfWwRe/X6Cx9au7Jqm/xcacGXXy17
-         5/Wt64/OcFiurAW2WuZMytUkx0VXVNvUv2S3fiyHHA7d1DDVUEAsz4b08cxDKZ606R
-         6PMq8G1CBaRzFH6FUXFE2Yn5Hee3GcLNHjM/OTPo=
+        b=snEEsIGqr5/9rf83y0tSMQvKN/9J55li5CjBDWUCFAXb9403yVqcVg5USpOKBAFDD
+         ruCCBXNBglY74jhDMKnleUlk77uj4wspP8UPP6ETiG5vsxHk2q1Vlqh4dtU2phUO8I
+         0VI4qBOzQRWY4w7GxgEuD4VonLqSplJRZ290JVsw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/91] iio: tcs3414: fix iio_triggered_buffer_{pre,post}enable positions
-Date:   Tue, 10 Dec 2019 17:29:08 -0500
-Message-Id: <20191210223035.14270-4-sashal@kernel.org>
+Cc:     Lukasz Majewski <lukma@denx.de>, Mark Brown <broonie@kernel.org>,
+        kbuild test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 05/91] spi: Add call to spi_slave_abort() function when spidev driver is released
+Date:   Tue, 10 Dec 2019 17:29:09 -0500
+Message-Id: <20191210223035.14270-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -43,84 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Lukasz Majewski <lukma@denx.de>
 
-[ Upstream commit 0fe2f2b789190661df24bb8bf62294145729a1fe ]
+[ Upstream commit 9f918a728cf86b2757b6a7025e1f46824bfe3155 ]
 
-The iio_triggered_buffer_{predisable,postenable} functions attach/detach
-the poll functions.
+This change is necessary for spidev devices (e.g. /dev/spidev3.0) working
+in the slave mode (like NXP's dspi driver for Vybrid SoC).
 
-For the predisable hook, the disable code should occur before detaching
-the poll func, and for the postenable hook, the poll func should be
-attached before the enable code.
+When SPI HW works in this mode - the master is responsible for providing
+CS and CLK signals. However, when some fault happens - like for example
+distortion on SPI lines - the SPI Linux driver needs a chance to recover
+from this abnormal situation and prepare itself for next (correct)
+transmission.
 
-The driver was slightly reworked. The preenable hook was moved to the
-postenable, to add some symmetry to the postenable/predisable part.
+This change doesn't pose any threat on drivers working in master mode as
+spi_slave_abort() function checks if SPI slave mode is supported.
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Lukasz Majewski <lukma@denx.de>
+Link: https://lore.kernel.org/r/20190924110547.14770-2-lukma@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20190925091143.15468-2-lukma@denx.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/tcs3414.c | 30 ++++++++++++++++++++----------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ drivers/spi/spidev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iio/light/tcs3414.c b/drivers/iio/light/tcs3414.c
-index a795afb7667bd..b5a35c7b6b7f4 100644
---- a/drivers/iio/light/tcs3414.c
-+++ b/drivers/iio/light/tcs3414.c
-@@ -244,32 +244,42 @@ static const struct iio_info tcs3414_info = {
- 	.driver_module = THIS_MODULE,
- };
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index f4ea286b0121e..a685c6114a8d5 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -663,6 +663,9 @@ static int spidev_release(struct inode *inode, struct file *filp)
+ 		if (dofree)
+ 			kfree(spidev);
+ 	}
++#ifdef CONFIG_SPI_SLAVE
++	spi_slave_abort(spidev->spi);
++#endif
+ 	mutex_unlock(&device_list_lock);
  
--static int tcs3414_buffer_preenable(struct iio_dev *indio_dev)
-+static int tcs3414_buffer_postenable(struct iio_dev *indio_dev)
- {
- 	struct tcs3414_data *data = iio_priv(indio_dev);
-+	int ret;
-+
-+	ret = iio_triggered_buffer_postenable(indio_dev);
-+	if (ret)
-+		return ret;
- 
- 	data->control |= TCS3414_CONTROL_ADC_EN;
--	return i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
-+	ret = i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
- 		data->control);
-+	if (ret)
-+		iio_triggered_buffer_predisable(indio_dev);
-+
-+	return ret;
- }
- 
- static int tcs3414_buffer_predisable(struct iio_dev *indio_dev)
- {
- 	struct tcs3414_data *data = iio_priv(indio_dev);
--	int ret;
--
--	ret = iio_triggered_buffer_predisable(indio_dev);
--	if (ret < 0)
--		return ret;
-+	int ret, ret2;
- 
- 	data->control &= ~TCS3414_CONTROL_ADC_EN;
--	return i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
-+	ret = i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
- 		data->control);
-+
-+	ret2 = iio_triggered_buffer_predisable(indio_dev);
-+	if (!ret)
-+		ret = ret2;
-+
-+	return ret;
- }
- 
- static const struct iio_buffer_setup_ops tcs3414_buffer_setup_ops = {
--	.preenable = tcs3414_buffer_preenable,
--	.postenable = &iio_triggered_buffer_postenable,
-+	.postenable = tcs3414_buffer_postenable,
- 	.predisable = tcs3414_buffer_predisable,
- };
- 
+ 	return 0;
 -- 
 2.20.1
 
