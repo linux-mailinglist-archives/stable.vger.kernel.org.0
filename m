@@ -2,104 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E18011823E
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 09:31:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49558118286
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 09:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726843AbfLJIbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 03:31:07 -0500
-Received: from mail-wr1-f41.google.com ([209.85.221.41]:33912 "EHLO
-        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726841AbfLJIbH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 03:31:07 -0500
-Received: by mail-wr1-f41.google.com with SMTP id t2so19011371wrr.1
-        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 00:31:05 -0800 (PST)
+        id S1726884AbfLJIlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 03:41:06 -0500
+Received: from mail-lj1-f169.google.com ([209.85.208.169]:44000 "EHLO
+        mail-lj1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726847AbfLJIlG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 03:41:06 -0500
+Received: by mail-lj1-f169.google.com with SMTP id a13so18874734ljm.10
+        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 00:41:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0VxVMNnf1EVx7tPn75NuoJGjQGEiytBJ5K1WSzSMgcE=;
-        b=iVOiZFoCLJWeLuLZyCKtDNjle2xs+30o6htp9+niy9Nbkk9YDuZIlLOoEql2nbBFxX
-         VH5gXhiqBIVT0G4IKzDIGX/U059WstIE/j95Mt8h2RP0tKWkgLo1XDRqWL6znqW7Rozm
-         Jtk9tKefwCBKP2P5+/X0bJRUmKpb0Vkds75K/dzLt5FaZ4j39FCCDmofd0w+7ZSXM2Ja
-         Hw/w+9bxMn82lazKrWDn78vzBIApH4vs1pWa8ZOD2/UGquF9zXYaGMctSAqOlf8Hzu3Y
-         V5UO7GLa1H60S5k+HxOHLXL9cbHc97bbGQLEVPlb6j2FL29CpAAs5Rw4LE6DbIsKNG5+
-         S35Q==
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=QKvsreDFhHWMAzvpA64vXSDhZciHLX4vlgMXV8eEb0M=;
+        b=pVikknB1+TkPzc6xunbV4jvw2ERFKcq++OqeSFgPKdB8oT6AxWYEmHDJeKv1lczoWf
+         POVImsncUEuhL7immF42gy0m+IPMhaXbOKU+cpALYSG1V2lIYce+QfQO0Fdh9czmIqnN
+         5HYhR48EjznwYLCu4WDh/XlYaUXz09YrjdnqygYLpSrzWDDZ4huYJFVhaJ/cEAYhQsVp
+         VuPeEpTDq1QGFO0tuaihItY++19h2/aWOAI4id0xCjAp7EMlpoaDpiNktVyDqPapzmxz
+         INY8qysPhV9cQOT93+h9sUMMA7lwKNJ7d4t3MK1OVeP7wVskm8wCSXaS0bi3QgTLG1oA
+         q/8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0VxVMNnf1EVx7tPn75NuoJGjQGEiytBJ5K1WSzSMgcE=;
-        b=o1K/ND1YwE6UU7IOJU/iZAwAWo7hkfzrazf6hzlir9BNSks+HRP1+wH7u3kQPaY35k
-         7tzCZzBJgRoSSqLKhWQTcOp8fHwAMeb3wL61h3OODrGXaIWNdIdAYP18sczJrp1y0EzU
-         /3F2azfrzKWdTlH0X+GN+c2pqE0uJuP+uR/7diT4UylpYXOQ0EvwzvOmp7nw99gjKZcZ
-         PEhHiDJ20k6rviNMi8Xie9Wj3DfhkJRxH0q+ujvRcDPqo9dLbs2JOp+g41EIkL95o2+p
-         EFjW7iUjmqwbJaw/oTsQ8wjOX54pOTt58HD4wg4qkdNOnqdwbNUMEB5x+6uniXXUoR2r
-         hEbg==
-X-Gm-Message-State: APjAAAXGR9CSatjgpXBXbgb8km9ChJau3HKxFYcJOUMj9hVPIoWIf5nO
-        ZYV7fnLL1A5F05MJj8Lnou2wHjX2HBTSKg==
-X-Google-Smtp-Source: APXvYqx/uozfuaPYzjRQJunR072KYRnr7PicoR5NZtSVQU0P5GibEKS4v0XMT6wZi3rnTXvP3oXb+g==
-X-Received: by 2002:a5d:6652:: with SMTP id f18mr195447wrw.246.1575966665074;
-        Tue, 10 Dec 2019 00:31:05 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id p10sm2215229wmi.15.2019.12.10.00.31.04
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Dec 2019 00:31:04 -0800 (PST)
-Message-ID: <5def57c8.1c69fb81.13e3.aa4d@mx.google.com>
-Date:   Tue, 10 Dec 2019 00:31:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=QKvsreDFhHWMAzvpA64vXSDhZciHLX4vlgMXV8eEb0M=;
+        b=NdtHqpUbCa4Py2vqqdgtCKWUz23EkvyAWEJOB2c9gZc5TdfSkALpxsvNJLxlhN+6EE
+         KxNo+RXXav6Bm7/fkKSB/BsXyAXvT9vvbcvmfyGxF1sFfVY6fCpBj7gfiGV+lhYPaQhk
+         6Slux7mai/SF27fg1lz3mM2SWxPEZZ9lKt2R/B3N+0ro7iUix+mmwu18wxPNyJStCRXE
+         aYBlbyoi3KtCuTWcpfRhK8rnlnc1S+Gl95gzpsUH1zX6mZF/O261gr4F6RWNYAUDapcr
+         g+AnBuyCxo83B3v6ocMBSr+TmWSMVXZAucejeVFJaBo9G7Xcm4iwbYOwgISIe/vtPd4X
+         gPsg==
+X-Gm-Message-State: APjAAAUumDDDPYDtpt9fxpj7kxFmbf6jrXjqLGifsdiLmQkBGgBJxPwS
+        qbP4Mj2M+Uc/af46GYte00kxRPzh7Mn/6nEYR2qHEia4xMA=
+X-Google-Smtp-Source: APXvYqyR3q27vKIGIE1J+PF4BpLLsL2ZbVjtAlqCcR07wBWJwYtuDWQMCLiWsoqHdUqvt6pmXDQhqiN7KF+WDqqvXNQ=
+X-Received: by 2002:a2e:9b8f:: with SMTP id z15mr19960744lji.20.1575967263776;
+ Tue, 10 Dec 2019 00:41:03 -0800 (PST)
 MIME-Version: 1.0
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 10 Dec 2019 14:10:52 +0530
+Message-ID: <CA+G9fYvbwWaPHTGwvuUKp6q-GJtfKoMMgtqcefa6MZ1Wqt90DA@mail.gmail.com>
+Subject: linux-stable-rc-4.19.89-rc1
+To:     linux- stable <stable@vger.kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.158-151-g68c5d5aca755
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 109 boots: 0 failed,
- 102 passed with 6 offline, 1 untried/unknown (v4.14.158-151-g68c5d5aca755)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 109 boots: 0 failed, 102 passed with 6 offline=
-, 1 untried/unknown (v4.14.158-151-g68c5d5aca755)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.158-151-g68c5d5aca755/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.158-151-g68c5d5aca755/
+Summary
+------------------------------------------------------------------------
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.158-151-g68c5d5aca755
-Git Commit: 68c5d5aca755b65e2468f09bfb07750e5c3f3d0c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 59 unique boards, 19 SoC families, 15 builds out of 201
+kernel: 4.19.89-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: c0fa90c1d847eb4ef91a4056dced0b10d6291f40
+git describe: v4.19.88-242-gc0fa90c1d847
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.88-242-gc0fa90c1d847
 
-Offline Platforms:
+No regressions (compared to build v4.19.88)
 
-arm:
+No fixes (compared to build v4.19.88)
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
+Ran 20172 total tests in the following environments and test suites.
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
 
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
 
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            mt7623n-bananapi-bpi-r2: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+--=20
+Linaro LKFT
+https://lkft.linaro.org
