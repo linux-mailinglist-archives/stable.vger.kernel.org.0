@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E08AB1193BA
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:14:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 108621196ED
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:30:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728285AbfLJVJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:09:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58688 "EHLO mail.kernel.org"
+        id S1728319AbfLJVJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:09:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728279AbfLJVJq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:09:46 -0500
+        id S1728307AbfLJVJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A10CD2077B;
-        Tue, 10 Dec 2019 21:09:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD4E3246AF;
+        Tue, 10 Dec 2019 21:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012185;
-        bh=OT61r/lgEN89xq2+i6L1MnJ/asTeHRCKn79128Fe61Q=;
+        s=default; t=1576012192;
+        bh=RY7/22cQdS0rro6ZXYKwL+zVZFVFfSfqinoLihuH4yI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RU1z3RWgjYL/0KzvxN8gmMB6RWwyxd1djwSc0jJ46fYDX9vhRMZ60wXt6w0w2ZAT7
-         6jQOSRrVq8q2BJEbd+dTL4hTCGlSkTe5xgf8b2ta+Wo/rtCKHl8RkouYC5yLIu40GT
-         3xIW3MCi1xj5uXV8W5tlak2d0CG7TteCGnW0ia5M=
+        b=W19lcYS8Vr0O4/QJC5SOil5QqDrt1R+xNj27gZgF6ipfOxpF9rSeqXhQoKScw1YuJ
+         jY5EAOOtv4PnbRoiy3cufZbz0C3+sotlGUy3+U/I6EnQ6rbDm9CwPE6WafmNVDeGRR
+         U8BQpGPOlyFPQc89maZJP8zJC2n7fCAGfIClcICA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sebastian Siewior <bigeasy@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 142/350] x86/ioapic: Prevent inconsistent state when moving an interrupt
-Date:   Tue, 10 Dec 2019 16:04:07 -0500
-Message-Id: <20191210210735.9077-103-sashal@kernel.org>
+Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 147/350] media: ov6650: Fix stored frame interval not in sync with hardware
+Date:   Tue, 10 Dec 2019 16:04:12 -0500
+Message-Id: <20191210210735.9077-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -46,79 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit df4393424af3fbdcd5c404077176082a8ce459c4 ]
+[ Upstream commit 57822068dd120386b98891cb151dc20107b63ba7 ]
 
-There is an issue with threaded interrupts which are marked ONESHOT
-and using the fasteoi handler:
+The driver stores a frame interval value supposed to be in line with
+hardware state in a device private structure.  Since the driver initial
+submission, the respective field of the structure has never been
+initialised on device probe.  Moreover, if updated from
+.s_frame_interval(), a new value is stored before it is applied on
+hardware.  If an error occurs during device update, the stored value
+may no longer reflect hardware state and consecutive calls to
+.g_frame_interval() may return incorrect information.
 
-  if (IS_ONESHOT())
-    mask_irq();
-  ....
-  cond_unmask_eoi_irq()
-    chip->irq_eoi();
-      if (setaffinity_pending) {
-         mask_ioapic();
-         ...
-	 move_affinity();
-	 unmask_ioapic();
-      }
+Assuming a failed update of the device means its actual state hasn't
+changed, update the frame interval field of the device private
+structure with a new value only after it is successfully applied on
+hardware so it always reflects actual hardware state to the extent
+possible.  Also, initialise the field with hardware default frame
+interval on device probe.
 
-So if setaffinity is pending the interrupt will be moved and then
-unconditionally unmasked at the ioapic level, which is wrong in two
-aspects:
-
- 1) It should be kept masked up to the point where the threaded handler
-    finished.
-
- 2) The physical chip state and the software masked state are inconsistent
-
-Guard both the mask and the unmask with a check for the software masked
-state. If the line is marked masked then the ioapic line is also masked, so
-both mask_ioapic() and unmask_ioapic() can be skipped safely.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sebastian Siewior <bigeasy@linutronix.de>
-Fixes: 3aa551c9b4c4 ("genirq: add threaded interrupt handler support")
-Link: https://lkml.kernel.org/r/20191017101938.321393687@linutronix.de
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/io_apic.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ov6650.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
-index d6af97fd170a9..f0262cb5657a7 100644
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -1727,9 +1727,10 @@ static bool io_apic_level_ack_pending(struct mp_chip_data *data)
+diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
+index 43c3f1b6e19ac..a5b2448c0abc2 100644
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -130,6 +130,7 @@
+ #define CLKRC_24MHz		0xc0
+ #define CLKRC_DIV_MASK		0x3f
+ #define GET_CLKRC_DIV(x)	(((x) & CLKRC_DIV_MASK) + 1)
++#define DEF_CLKRC		0x00
  
- static inline bool ioapic_irqd_mask(struct irq_data *data)
- {
--	/* If we are moving the irq we need to mask it */
-+	/* If we are moving the IRQ we need to mask it */
- 	if (unlikely(irqd_is_setaffinity_pending(data))) {
--		mask_ioapic_irq(data);
-+		if (!irqd_irq_masked(data))
-+			mask_ioapic_irq(data);
- 		return true;
+ #define COMA_RESET		BIT(7)
+ #define COMA_QCIF		BIT(5)
+@@ -758,19 +759,17 @@ static int ov6650_s_frame_interval(struct v4l2_subdev *sd,
+ 	else if (div > GET_CLKRC_DIV(CLKRC_DIV_MASK))
+ 		div = GET_CLKRC_DIV(CLKRC_DIV_MASK);
+ 
+-	/*
+-	 * Keep result to be used as tpf limit
+-	 * for subsequent clock divider calculations
+-	 */
+-	priv->tpf.numerator = div;
+-	priv->tpf.denominator = FRAME_RATE_MAX;
++	tpf->numerator = div;
++	tpf->denominator = FRAME_RATE_MAX;
+ 
+-	clkrc = to_clkrc(&priv->tpf, priv->pclk_limit, priv->pclk_max);
++	clkrc = to_clkrc(tpf, priv->pclk_limit, priv->pclk_max);
+ 
+ 	ret = ov6650_reg_rmw(client, REG_CLKRC, clkrc, CLKRC_DIV_MASK);
+ 	if (!ret) {
+-		tpf->numerator = GET_CLKRC_DIV(clkrc);
+-		tpf->denominator = FRAME_RATE_MAX;
++		priv->tpf.numerator = GET_CLKRC_DIV(clkrc);
++		priv->tpf.denominator = FRAME_RATE_MAX;
++
++		*tpf = priv->tpf;
  	}
- 	return false;
-@@ -1766,7 +1767,9 @@ static inline void ioapic_irqd_unmask(struct irq_data *data, bool masked)
- 		 */
- 		if (!io_apic_level_ack_pending(data->chip_data))
- 			irq_move_masked_irq(data);
--		unmask_ioapic_irq(data);
-+		/* If the IRQ is masked in the core, leave it: */
-+		if (!irqd_irq_masked(data))
-+			unmask_ioapic_irq(data);
- 	}
- }
- #else
+ 
+ 	return ret;
+@@ -1011,6 +1010,10 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+ 	priv->colorspace  = V4L2_COLORSPACE_JPEG;
+ 
++	/* Hardware default frame interval */
++	priv->tpf.numerator   = GET_CLKRC_DIV(DEF_CLKRC);
++	priv->tpf.denominator = FRAME_RATE_MAX;
++
+ 	priv->subdev.internal_ops = &ov6650_internal_ops;
+ 
+ 	ret = v4l2_async_register_subdev(&priv->subdev);
 -- 
 2.20.1
 
