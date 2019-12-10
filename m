@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F723119733
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:32:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C87119735
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:32:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728162AbfLJVJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:09:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
+        id S1727181AbfLJVbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:31:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728157AbfLJVJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:09:26 -0500
+        id S1728164AbfLJVJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23E67246A9;
-        Tue, 10 Dec 2019 21:09:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68050246B1;
+        Tue, 10 Dec 2019 21:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012166;
-        bh=g4bCn+xYFLaXqyDO1JtEXbFTEVIZV6mXkDG/EmNFlH0=;
+        s=default; t=1576012167;
+        bh=E1tJuxh6B/FdhYCbWIjwtof1EY/rbm/Cp4AzRV0SBi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZnHv878HS79+Zy+2Cesskbxim/UGqcwBIIg8ZAYwwdwOmqWQPJ/OCMyBiJ3tIXfA
-         tSjn4OzLjBT+DSlUqDWgQTESN3nhltObKm3LzOiLWoP/ToOIzMF9AczsgEZsasRzj4
-         tw+DfPxNMMN4rTH7IU/ONcgkTY6H9z+Gzt0CQpmg=
+        b=BC04pFOuUto13FtqjCEYl0KuHsdUDSQLxB3ySIRBqdEIj3lWuUYcYdsrzIXZHVMcY
+         43oPXPYiR3UaK6sFFGlAIkIgyJnvL6Eu1PVIppaWf12gf64CnDmVScAtt8SXZ+MhkH
+         COtcWOlZRCXNVUk4iyVKVe7347Y1EqxcDrH8+eVI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     joseph gravenor <joseph.gravenor@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
+Cc:     Kevin Wang <kevin1.wang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 126/350] drm/amd/display: fix header for RN clk mgr
-Date:   Tue, 10 Dec 2019 16:03:51 -0500
-Message-Id: <20191210210735.9077-87-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 127/350] drm/amdgpu: fix amdgpu trace event print string format error
+Date:   Tue, 10 Dec 2019 16:03:52 -0500
+Message-Id: <20191210210735.9077-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -47,44 +46,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: joseph gravenor <joseph.gravenor@amd.com>
+From: Kevin Wang <kevin1.wang@amd.com>
 
-[ Upstream commit cd83fa1ea9b9431cf1d57ac4179a11bc4393a5b6 ]
+[ Upstream commit 2c2fdb8bca290c439e383cfb6857b0c65e528964 ]
 
-[why]
-Should always MP0_BASE for any register definition from MP per-IP header files.
-I belive the reason the linux version of MP1_BASE works is The 0th element of the 0th table
-of that is identical to the corrisponding value of MP0_BASE in the renoir offset header file.
-The reason we should only use MP0_BASE is There is only one set of per-IP headers MP
-that includes all register definitions related to SMU IP block. This IP includes MP0, MP1, MP2
-and  an ecryption engine that can be used only by MP0. As a result all register definitions from
-MP file should be based only on MP0_BASE data.
+the trace event print string format error.
+(use integer type to handle string)
 
-[How]
-Change MP1_BASE to MP0_BASE
+before:
+amdgpu_test_kev-1556  [002]   138.508781: amdgpu_cs_ioctl:
+sched_job=8, timeline=gfx_0.0.0, context=177, seqno=1,
+ring_name=ffff94d01c207bf0, num_ibs=2
 
-Signed-off-by: joseph gravenor <joseph.gravenor@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Reviewed-by: Roman Li <Roman.Li@amd.com>
+after:
+amdgpu_test_kev-1506  [004]   370.703783: amdgpu_cs_ioctl:
+sched_job=12, timeline=gfx_0.0.0, context=234, seqno=2,
+ring_name=gfx_0.0.0, num_ibs=1
+
+change trace event list:
+1.amdgpu_cs_ioctl
+2.amdgpu_sched_run_job
+3.amdgpu_ib_pipe_sync
+
+Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
-index 50984c1811bb2..468c6bb0e3119 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
-@@ -33,7 +33,7 @@
- #include "mp/mp_12_0_0_sh_mask.h"
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
+index 77674a7b96163..91899d28fa722 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
+@@ -170,7 +170,7 @@ TRACE_EVENT(amdgpu_cs_ioctl,
+ 			     __field(unsigned int, context)
+ 			     __field(unsigned int, seqno)
+ 			     __field(struct dma_fence *, fence)
+-			     __field(char *, ring_name)
++			     __string(ring, to_amdgpu_ring(job->base.sched)->name)
+ 			     __field(u32, num_ibs)
+ 			     ),
  
- #define REG(reg_name) \
--	(MP1_BASE.instance[0].segment[mm ## reg_name ## _BASE_IDX] + mm ## reg_name)
-+	(MP0_BASE.instance[0].segment[mm ## reg_name ## _BASE_IDX] + mm ## reg_name)
+@@ -179,12 +179,12 @@ TRACE_EVENT(amdgpu_cs_ioctl,
+ 			   __assign_str(timeline, AMDGPU_JOB_GET_TIMELINE_NAME(job))
+ 			   __entry->context = job->base.s_fence->finished.context;
+ 			   __entry->seqno = job->base.s_fence->finished.seqno;
+-			   __entry->ring_name = to_amdgpu_ring(job->base.sched)->name;
++			   __assign_str(ring, to_amdgpu_ring(job->base.sched)->name)
+ 			   __entry->num_ibs = job->num_ibs;
+ 			   ),
+ 	    TP_printk("sched_job=%llu, timeline=%s, context=%u, seqno=%u, ring_name=%s, num_ibs=%u",
+ 		      __entry->sched_job_id, __get_str(timeline), __entry->context,
+-		      __entry->seqno, __entry->ring_name, __entry->num_ibs)
++		      __entry->seqno, __get_str(ring), __entry->num_ibs)
+ );
  
- #define FN(reg_name, field) \
- 	FD(reg_name##__##field)
+ TRACE_EVENT(amdgpu_sched_run_job,
+@@ -195,7 +195,7 @@ TRACE_EVENT(amdgpu_sched_run_job,
+ 			     __string(timeline, AMDGPU_JOB_GET_TIMELINE_NAME(job))
+ 			     __field(unsigned int, context)
+ 			     __field(unsigned int, seqno)
+-			     __field(char *, ring_name)
++			     __string(ring, to_amdgpu_ring(job->base.sched)->name)
+ 			     __field(u32, num_ibs)
+ 			     ),
+ 
+@@ -204,12 +204,12 @@ TRACE_EVENT(amdgpu_sched_run_job,
+ 			   __assign_str(timeline, AMDGPU_JOB_GET_TIMELINE_NAME(job))
+ 			   __entry->context = job->base.s_fence->finished.context;
+ 			   __entry->seqno = job->base.s_fence->finished.seqno;
+-			   __entry->ring_name = to_amdgpu_ring(job->base.sched)->name;
++			   __assign_str(ring, to_amdgpu_ring(job->base.sched)->name)
+ 			   __entry->num_ibs = job->num_ibs;
+ 			   ),
+ 	    TP_printk("sched_job=%llu, timeline=%s, context=%u, seqno=%u, ring_name=%s, num_ibs=%u",
+ 		      __entry->sched_job_id, __get_str(timeline), __entry->context,
+-		      __entry->seqno, __entry->ring_name, __entry->num_ibs)
++		      __entry->seqno, __get_str(ring), __entry->num_ibs)
+ );
+ 
+ 
+@@ -468,7 +468,7 @@ TRACE_EVENT(amdgpu_ib_pipe_sync,
+ 	    TP_PROTO(struct amdgpu_job *sched_job, struct dma_fence *fence),
+ 	    TP_ARGS(sched_job, fence),
+ 	    TP_STRUCT__entry(
+-			     __field(const char *,name)
++			     __string(ring, sched_job->base.sched->name);
+ 			     __field(uint64_t, id)
+ 			     __field(struct dma_fence *, fence)
+ 			     __field(uint64_t, ctx)
+@@ -476,14 +476,14 @@ TRACE_EVENT(amdgpu_ib_pipe_sync,
+ 			     ),
+ 
+ 	    TP_fast_assign(
+-			   __entry->name = sched_job->base.sched->name;
++			   __assign_str(ring, sched_job->base.sched->name)
+ 			   __entry->id = sched_job->base.id;
+ 			   __entry->fence = fence;
+ 			   __entry->ctx = fence->context;
+ 			   __entry->seqno = fence->seqno;
+ 			   ),
+ 	    TP_printk("job ring=%s, id=%llu, need pipe sync to fence=%p, context=%llu, seq=%u",
+-		      __entry->name, __entry->id,
++		      __get_str(ring), __entry->id,
+ 		      __entry->fence, __entry->ctx,
+ 		      __entry->seqno)
+ );
 -- 
 2.20.1
 
