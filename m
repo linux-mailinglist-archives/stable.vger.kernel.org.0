@@ -2,110 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6362117D6D
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 03:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55114117D93
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 03:12:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbfLJCAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 21:00:24 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:37101 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726562AbfLJCAY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 21:00:24 -0500
-Received: by mail-wr1-f67.google.com with SMTP id w15so18317204wru.4
-        for <stable@vger.kernel.org>; Mon, 09 Dec 2019 18:00:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7IIGfOZL2Bn5xzx1nguWhrlqvGrNeb19e7cmlmQphjk=;
-        b=VA9nIU5dEMczuwTgW3hk0BC7IM1E066kqMZNbDgAjctPBFpUiS5oB9eTHsFcSMU4+/
-         1FXPSAqbdcnicHVM4bnFwbCWpLeLf+XR7J029QpR6L0WsEf8WyzjrXiui8U79zFZgHFv
-         +115egABFMGuADwYJa5gsqhZZj38dxo1lgMWWiz1v4eJh/5mKu8UZUE3Ex3/PErpnEvs
-         YTRKYHCmqtDjVfbFlmyR1HWk5ATwQja1clE01avTS6y2gY4brIYxKF/Gg0NUN1o9n2jF
-         ZWx5ZFxdkQv3Eh0aGYxGHoQV+gn1fLfJZI8YaFsYT4szL6x/vUYjIC3OLVr2QTfXj+Ai
-         QXAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7IIGfOZL2Bn5xzx1nguWhrlqvGrNeb19e7cmlmQphjk=;
-        b=rSlOGuRAF4FQvePD26qadVEkWTZkwcnuh+u2mxJy1/vfbt7bP2bkP9IyzKViFNc6oq
-         E1MATYpKlZn4xfpDTCWMYmol9EibWnAuqpwRm0KOe7GnCEfRMpFtCFtDPN0Pv/tYnboX
-         E4aOz+6kETL9cWx3IWxLfx6SUsj01BTsl2Q4qKw4Vm78dsi6ytMOU4cqpCSVXo4SUoTj
-         J9JUq7M08t8Xli2+N+cHeNEl9F5OUKNAusszu+PeliwZD5tTItiKTmdW9jx4qx4abXnk
-         I2igrbbrBDYa4lNbfB/rKuWVDun2l3SxqpzQv4oc7ykjlyM9PXblRIz8ZcxY++dWlxDO
-         OaVg==
-X-Gm-Message-State: APjAAAV8BhSLuGkuBmXYbmm4dlzeWKh7KrcM6mc7YfUx+OwKye4nvW8k
-        1+/hoRQTOJJ5+gVBS2YRIKJMX5LunfTpGg==
-X-Google-Smtp-Source: APXvYqwkX2P0zkxNQ8e8WlMs5eVDsWTpHBqq00XV1GjteNl4ud5cQSTSDfKWEhwIpf9R/XduDoUzfw==
-X-Received: by 2002:a5d:5491:: with SMTP id h17mr5320181wrv.374.1575943222394;
-        Mon, 09 Dec 2019 18:00:22 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a20sm1451242wmd.19.2019.12.09.18.00.21
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Dec 2019 18:00:21 -0800 (PST)
-Message-ID: <5deefc35.1c69fb81.dab9a.77f1@mx.google.com>
-Date:   Mon, 09 Dec 2019 18:00:21 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726646AbfLJCM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 21:12:28 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:50371 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726605AbfLJCM2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 21:12:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575943946;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=AqNXb1DdFGH0UEVoh/67mONToQvKGHBSfZkAshMis24=;
+        b=OkWDO0W2Y/Td11zNJQipGS2QyxGSwwGIyTvxtYMLqp5NKx9EiFQ8oQ6iL9xQ3tr7r6XlvD
+        mJzHGWfIeEYv2HzYab/EJZUOQV/+PjNNxU7n0KcU5LMATyAIBu6mucWf8btKW16LP17+In
+        MMG0l9+nEB9Tx8qsQLOwkcfK3N+0izc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-232-YLXilXRBOQ-dHbPintc99A-1; Mon, 09 Dec 2019 21:12:23 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E60FE801E53;
+        Tue, 10 Dec 2019 02:12:21 +0000 (UTC)
+Received: from ming.t460p (ovpn-8-25.pek2.redhat.com [10.72.8.25])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 522541001925;
+        Tue, 10 Dec 2019 02:12:14 +0000 (UTC)
+Date:   Tue, 10 Dec 2019 10:12:10 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Andreas Gruenbacher <agruenba@redhat.com>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Junichi Nomura <j-nomura@ce.jp.nec.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] block: fix "check bi_size overflow before merge"
+Message-ID: <20191210021210.GB25022@ming.t460p>
+References: <20191209191114.17266-1-agruenba@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <20191209191114.17266-1-agruenba@redhat.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-MC-Unique: YLXilXRBOQ-dHbPintc99A-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.206-83-g0c2588d74b73
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 110 boots: 1 failed,
- 103 passed with 5 offline, 1 untried/unknown (v4.9.206-83-g0c2588d74b73)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 110 boots: 1 failed, 103 passed with 5 offline,=
- 1 untried/unknown (v4.9.206-83-g0c2588d74b73)
+On Mon, Dec 09, 2019 at 08:11:14PM +0100, Andreas Gruenbacher wrote:
+> This partially reverts commit e3a5d8e386c3fb973fa75f2403622a8f3640ec06.
+>=20
+> Commit e3a5d8e386c3 ("check bi_size overflow before merge") adds a bio_fu=
+ll
+> check to __bio_try_merge_page.  This will cause __bio_try_merge_page to f=
+ail
+> when the last bi_io_vec has been reached.  Instead, what we want here is =
+only
+> the bi_size overflow check.
+>=20
+> Fixes: e3a5d8e386c3 ("block: check bi_size overflow before merge")
+> Cc: stable@vger.kernel.org # v5.4+
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+> ---
+>  block/bio.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/block/bio.c b/block/bio.c
+> index 9d54aa37ce6c..a5d75f6bf4c7 100644
+> --- a/block/bio.c
+> +++ b/block/bio.c
+> @@ -754,10 +754,12 @@ bool __bio_try_merge_page(struct bio *bio, struct p=
+age *page,
+>  =09if (WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED)))
+>  =09=09return false;
+> =20
+> -=09if (bio->bi_vcnt > 0 && !bio_full(bio, len)) {
+> +=09if (bio->bi_vcnt > 0) {
+>  =09=09struct bio_vec *bv =3D &bio->bi_io_vec[bio->bi_vcnt - 1];
+> =20
+>  =09=09if (page_is_mergeable(bv, page, len, off, same_page)) {
+> +=09=09=09if (bio->bi_iter.bi_size > UINT_MAX - len)
+> +=09=09=09=09return false;
+>  =09=09=09bv->bv_len +=3D len;
+>  =09=09=09bio->bi_iter.bi_size +=3D len;
+>  =09=09=09return true;
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.206-83-g0c2588d74b73/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.206-83-g0c2588d74b73/
+page merging doesn't consume new bvec, so this patch is correct:
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.206-83-g0c2588d74b73
-Git Commit: 0c2588d74b73efea648551507ba3744f94186e50
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 57 unique boards, 19 SoC families, 16 builds out of 197
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
 
-Boot Failure Detected:
+Thanks,
+Ming
 
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
