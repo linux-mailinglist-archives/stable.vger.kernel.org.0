@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0088311844C
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 11:05:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 394B011847F
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 11:10:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727016AbfLJKF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 05:05:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46022 "EHLO mail.kernel.org"
+        id S1727207AbfLJKKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 05:10:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726574AbfLJKF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 05:05:56 -0500
+        id S1727196AbfLJKKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 05:10:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8E2E2077B;
-        Tue, 10 Dec 2019 10:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA3F5207FF;
+        Tue, 10 Dec 2019 10:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575972356;
-        bh=g91JKgA6KPtiyk0j1RmNq3SFrewgJVLqXcitMR+RN2g=;
+        s=default; t=1575972635;
+        bh=BDBpKmqmG7UOXnoGcQSk8Mx8C0Jw2OyrIZRcXPwdvAg=;
         h=Subject:To:From:Date:From;
-        b=kHxVkjJK3Y6o69xlkpWxJj5a1TYq7fTp+7gYPz/r5TrTOt/HWe+Xio+RZtS2IGmDB
-         7SfNwlJM4qMibtwfX1Ca0n4i0PnpC5rBm9F3lL1uMm5QF0w/+XToG+5sfbjIySD5K8
-         XzGsxzGg8kqEd0rxLzja6w+oEIv98XMA/76zupbg=
-Subject: patch "staging: vchiq: call unregister_chrdev_region() when driver" added to staging-linus
-To:     marcgonzalez@google.com, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, nsaenzjulienne@suse.de,
+        b=XK8MggYqmVJmh7yNBSCO9ksJ2NtiKb/fMj7mL6I+eyBk/fTqngLvDxyyNj8e/Kw7X
+         FZmNLI4KOcc8s8sCBIS3oP3PAyDPdJRvtPrMFBilz27CfdCkJYMTZVvGaVsTS/6Np2
+         kVLoxZsy3O+hSL7DxbrNP1eknq2Dd1g8evK3WQo8=
+Subject: patch "staging: gigaset: add endpoint-type sanity check" added to staging-linus
+To:     johan@kernel.org, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Dec 2019 11:05:39 +0100
-Message-ID: <157597233919370@kroah.com>
+Date:   Tue, 10 Dec 2019 11:10:22 +0100
+Message-ID: <1575972622170207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: vchiq: call unregister_chrdev_region() when driver
+    staging: gigaset: add endpoint-type sanity check
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -56,39 +55,54 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d2cdb20507fe2079a146459f9718b45d78cbbe61 Mon Sep 17 00:00:00 2001
-From: Marcelo Diop-Gonzalez <marcgonzalez@google.com>
-Date: Tue, 3 Dec 2019 10:39:21 -0500
-Subject: staging: vchiq: call unregister_chrdev_region() when driver
- registration fails
+From ed9ed5a89acba51b82bdff61144d4e4a4245ec8a Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Mon, 2 Dec 2019 09:56:10 +0100
+Subject: staging: gigaset: add endpoint-type sanity check
 
-This undoes the previous call to alloc_chrdev_region() on failure,
-and is probably what was meant originally given the label name.
+Add missing endpoint-type sanity checks to probe.
 
-Signed-off-by: Marcelo Diop-Gonzalez <marcgonzalez@google.com>
+This specifically prevents a warning in USB core on URB submission when
+fuzzing USB descriptors.
+
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Cc: stable <stable@vger.kernel.org>
-Fixes: 187ac53e590c ("staging: vchiq_arm: rework probe and init functions")
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20191203153921.70540-1-marcgonzalez@google.com
+Link: https://lore.kernel.org/r/20191202085610.12719-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/isdn/gigaset/usb-gigaset.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-index 02148a24818a..4458c1e60fa3 100644
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
-@@ -3309,7 +3309,7 @@ static int __init vchiq_driver_init(void)
- 	return 0;
+diff --git a/drivers/staging/isdn/gigaset/usb-gigaset.c b/drivers/staging/isdn/gigaset/usb-gigaset.c
+index a84722d83bc6..a20c0bfa68f3 100644
+--- a/drivers/staging/isdn/gigaset/usb-gigaset.c
++++ b/drivers/staging/isdn/gigaset/usb-gigaset.c
+@@ -705,6 +705,12 @@ static int gigaset_probe(struct usb_interface *interface,
  
- region_unregister:
--	platform_driver_unregister(&vchiq_driver);
-+	unregister_chrdev_region(vchiq_devid, 1);
+ 	endpoint = &hostif->endpoint[0].desc;
  
- class_destroy:
- 	class_destroy(vchiq_class);
++	if (!usb_endpoint_is_bulk_out(endpoint)) {
++		dev_err(&interface->dev, "missing bulk-out endpoint\n");
++		retval = -ENODEV;
++		goto error;
++	}
++
+ 	buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
+ 	ucs->bulk_out_size = buffer_size;
+ 	ucs->bulk_out_epnum = usb_endpoint_num(endpoint);
+@@ -724,6 +730,12 @@ static int gigaset_probe(struct usb_interface *interface,
+ 
+ 	endpoint = &hostif->endpoint[1].desc;
+ 
++	if (!usb_endpoint_is_int_in(endpoint)) {
++		dev_err(&interface->dev, "missing int-in endpoint\n");
++		retval = -ENODEV;
++		goto error;
++	}
++
+ 	ucs->busy = 0;
+ 
+ 	ucs->read_urb = usb_alloc_urb(0, GFP_KERNEL);
 -- 
 2.24.0
 
