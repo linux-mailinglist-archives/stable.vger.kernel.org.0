@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE607119BA6
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42BF0119ACA
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:10:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730076AbfLJWK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:10:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
+        id S1728554AbfLJWEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:04:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728519AbfLJWEI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:08 -0500
+        id S1728541AbfLJWEJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F93220838;
-        Tue, 10 Dec 2019 22:04:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 284462053B;
+        Tue, 10 Dec 2019 22:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015447;
-        bh=zPctY8+3us3rg4lt69IF2T0GLa/mbYJ8eSz0Agf7hpc=;
+        s=default; t=1576015449;
+        bh=WQUmKw110NB9JpZMyTvISK/CN0wm7Sz1NdrAJ6v6Gvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/dqv1eCnu/kGSxABd3Rvw/DtDD8ISOV3AEe4LeirKAJ2y6DbN6X0GAXULlvIZT9T
-         G/0vZZcfV9nuN+WeIzqcARNoweDd3gObhrxWEziQlsVD039J6yAOrVNBHsjZG2jwUo
-         gQWbn+1waWy/K4jZdpkSHchtPTsVenLWrz02img4=
+        b=0OBmG9hbOVt08noGgj18QIYcEedINQeGaYUgmEewkYqKvJH/A4fcSiHXDnltJVuXW
+         qY67IdXS+SLub79Kw741E9wN/13OKgr2UikldRZF0UiGfWcUo4+EvVd7T+B+5OSUod
+         GxOiN+Rdztm1ioYt0hqA8oFvYJmpDjcZKGqrjbqY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 055/130] iio: pressure: zpa2326: fix iio_triggered_buffer_postenable position
-Date:   Tue, 10 Dec 2019 17:01:46 -0500
-Message-Id: <20191210220301.13262-55-sashal@kernel.org>
+Cc:     Chris Chiu <chiu@endlessm.com>,
+        Jes Sorensen <Jes.Sorensen@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 056/130] rtl8xxxu: fix RTL8723BU connection failure issue after warm reboot
+Date:   Tue, 10 Dec 2019 17:01:47 -0500
+Message-Id: <20191210220301.13262-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -43,74 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Chris Chiu <chiu@endlessm.com>
 
-[ Upstream commit fe2392c67db9730d46f11fc4fadfa7bffa8843fa ]
+[ Upstream commit 0eeb91ade90ce06d2fa1e2fcb55e3316b64c203c ]
 
-The iio_triggered_buffer_{predisable,postenable} functions attach/detach
-the poll functions.
+The RTL8723BU has problems connecting to AP after each warm reboot.
+Sometimes it returns no scan result, and in most cases, it fails
+the authentication for unknown reason. However, it works totally
+fine after cold reboot.
 
-The iio_triggered_buffer_postenable() should be called before (to attach
-the poll func) and then the
+Compare the value of register SYS_CR and SYS_CLK_MAC_CLK_ENABLE
+for cold reboot and warm reboot, the registers imply that the MAC
+is already powered and thus some procedures are skipped during
+driver initialization. Double checked the vendor driver, it reads
+the SYS_CR and SYS_CLK_MAC_CLK_ENABLE also but doesn't skip any
+during initialization based on them. This commit only tells the
+RTL8723BU to do full initialization without checking MAC status.
 
-The iio_triggered_buffer_predisable() function is hooked directly without
-anything, which is probably fine, as the postenable() version seems to also
-do some reset/wake-up of the device.
-This will mean it will be easier when removing it; i.e. it just gets
-removed.
-
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
+Signed-off-by: Jes Sorensen <Jes.Sorensen@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/pressure/zpa2326.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h       | 1 +
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c | 1 +
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 3 +++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/iio/pressure/zpa2326.c b/drivers/iio/pressure/zpa2326.c
-index 91431454eb85d..10bd5e56aacbb 100644
---- a/drivers/iio/pressure/zpa2326.c
-+++ b/drivers/iio/pressure/zpa2326.c
-@@ -1251,6 +1251,11 @@ static int zpa2326_postenable_buffer(struct iio_dev *indio_dev)
- 	const struct zpa2326_private *priv = iio_priv(indio_dev);
- 	int                           err;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+index 95e3993d8a331..a895b6fd6f858 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+@@ -1349,6 +1349,7 @@ struct rtl8xxxu_fileops {
+ 	u8 has_s0s1:1;
+ 	u8 has_tx_report:1;
+ 	u8 gen2_thermal_meter:1;
++	u8 needs_full_init:1;
+ 	u32 adda_1t_init;
+ 	u32 adda_1t_path_on;
+ 	u32 adda_2t_path_on_a;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
+index c4b86a84a721d..27e97df996c73 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
+@@ -1673,6 +1673,7 @@ struct rtl8xxxu_fileops rtl8723bu_fops = {
+ 	.has_s0s1 = 1,
+ 	.has_tx_report = 1,
+ 	.gen2_thermal_meter = 1,
++	.needs_full_init = 1,
+ 	.adda_1t_init = 0x01c00014,
+ 	.adda_1t_path_on = 0x01c00014,
+ 	.adda_2t_path_on_a = 0x01c00014,
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 91b01ca32e752..b58bf8e2cad2f 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -3905,6 +3905,9 @@ static int rtl8xxxu_init_device(struct ieee80211_hw *hw)
+ 	else
+ 		macpower = true;
  
-+	/* Plug our own trigger event handler. */
-+	err = iio_triggered_buffer_postenable(indio_dev);
-+	if (err)
-+		goto err;
++	if (fops->needs_full_init)
++		macpower = false;
 +
- 	if (!priv->waken) {
- 		/*
- 		 * We were already power supplied. Just clear hardware FIFO to
-@@ -1258,7 +1263,7 @@ static int zpa2326_postenable_buffer(struct iio_dev *indio_dev)
- 		 */
- 		err = zpa2326_clear_fifo(indio_dev, 0);
- 		if (err)
--			goto err;
-+			goto err_buffer_predisable;
- 	}
- 
- 	if (!iio_trigger_using_own(indio_dev) && priv->waken) {
-@@ -1268,16 +1273,13 @@ static int zpa2326_postenable_buffer(struct iio_dev *indio_dev)
- 		 */
- 		err = zpa2326_config_oneshot(indio_dev, priv->irq);
- 		if (err)
--			goto err;
-+			goto err_buffer_predisable;
- 	}
- 
--	/* Plug our own trigger event handler. */
--	err = iio_triggered_buffer_postenable(indio_dev);
--	if (err)
--		goto err;
--
- 	return 0;
- 
-+err_buffer_predisable:
-+	iio_triggered_buffer_predisable(indio_dev);
- err:
- 	zpa2326_err(indio_dev, "failed to enable buffering (%d)", err);
- 
+ 	ret = fops->power_on(priv);
+ 	if (ret < 0) {
+ 		dev_warn(dev, "%s: Failed power on\n", __func__);
 -- 
 2.20.1
 
