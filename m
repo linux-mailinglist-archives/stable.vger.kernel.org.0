@@ -2,382 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4281118C5E
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 16:20:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FDE8118C69
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 16:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727407AbfLJPU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 10:20:28 -0500
-Received: from mail-eopbgr1400104.outbound.protection.outlook.com ([40.107.140.104]:11904
-        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727272AbfLJPU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 10:20:28 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=eBKgd+TjRrDMftNtCDSQr+0ecT+Xunt+STdkJKGh58wlsiEJ2+Ebmqi47l2K54cV7Cx/VsQVOqHOVRcs5mXX9WskTtyKhFHGvwQ0ljAAqxmkjAqIf/2J5CfYYUZOOGMDCqUdAf8spT+uLiRbwPMOLbcPZQkpAngQl7VZJgvc09y6nn9roGNZW5lZOMO2WMjy6ol7a2xnPDYKV/lZrPQ81qf+0h8twITPTgy5MTd+aAVG+G2Pscq+lx1gdO4cV+nJsuvZV6PXC8+DLZ9aIWq0a4ZkIMzmvkv1B94/zZ33mEZlvqslOp6Jj7zZ2iHtRKldOpqHSCBTCbwfVPJWBLZlzQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A60XTFIOC6gaKYg2os1dgMGe8UsguPgcrVzDth3MRK0=;
- b=htluuNZGMqI3L+2okSiufNLD4ZEowaUWQlOrYIybGlY2GaqweWI0+by/5w0d+goDhm9FQoZJkX5ieuLG3hF/yc3Vr417DRm587glYTmZGsJAEp4Ddt3UKYDdE2zG28v18kTaYDjU7hxvFyREN3B9uj8v/IugUWY6tZT51kDmoplzILxcSs2MkCvFRw07yetyFDVOCdKs1s+kuEvrU32lMPF6vC98SPwmZaYwJgL2LZ95Imx8gHTSbGq9vS/rTNpn2wqC9iKlQ2mzdWCHN6LTDoOIUWZXAjic8aNnNOtv1BsvvJNClV6dJvOCvgEFW1VMizlCkPSZoNDjaDaXGcAoVQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A60XTFIOC6gaKYg2os1dgMGe8UsguPgcrVzDth3MRK0=;
- b=DAQs/6F+IpV+8aCouHgcJB1jKpz81ScHde+YP72sb6ObpbFtCNTFJNQYQZJOBmlD5iSnSYtB13LGx9ilkwz0u18utAO1ZW0JjwDL8EHtSYy75BG+RM2xHtPrHAtoMPZRepMk7Jk+mxyxL4hS9PQlZlI8IdrrEiX+qXBHFf+vKUg=
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com (52.133.177.145) by
- TYAPR01MB2112.jpnprd01.prod.outlook.com (52.133.176.148) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2516.17; Tue, 10 Dec 2019 15:20:23 +0000
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::5025:20cb:31a2:4be1]) by TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::5025:20cb:31a2:4be1%5]) with mapi id 15.20.2516.018; Tue, 10 Dec 2019
- 15:20:23 +0000
-From:   Chris Paterson <Chris.Paterson2@renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>
-Subject: RE: Linux 4.19.89-rc1 5944fcdd errors
-Thread-Topic: Linux 4.19.89-rc1 5944fcdd errors
-Thread-Index: AdWuq27YYqoiVr7aSmCEQeiV9xd6BQAC8Y6AAAjR8vAAFHfgAAALJekQAAQ6FQAAAMbvMA==
-Date:   Tue, 10 Dec 2019 15:20:22 +0000
-Message-ID: <TYAPR01MB2285433EA1E6DF9EC621E31AB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-References: <TYAPR01MB228505DBC22568339F914C15B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191209173637.GF1290729@kroah.com>
- <TYAPR01MB2285135B15E6A152163E1A1AB7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210073514.GB3077639@kroah.com>
- <TYAPR01MB2285B5834B1FBA71F8DA512BB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210145528.GA4012363@kroah.com>
-In-Reply-To: <20191210145528.GA4012363@kroah.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Chris.Paterson2@renesas.com; 
-x-originating-ip: [193.141.220.21]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 347cff9b-a2f5-4c73-947d-08d77d8479eb
-x-ms-traffictypediagnostic: TYAPR01MB2112:
-x-microsoft-antispam-prvs: <TYAPR01MB2112B4BD2955FDCEA7E853CCB75B0@TYAPR01MB2112.jpnprd01.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:7691;
-x-forefront-prvs: 02475B2A01
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(366004)(376002)(39860400002)(136003)(346002)(396003)(189003)(199004)(2906002)(30864003)(66556008)(966005)(26005)(4326008)(76116006)(64756008)(71200400001)(55016002)(9686003)(66446008)(186003)(81166006)(6506007)(478600001)(7696005)(66476007)(54906003)(33656002)(66946007)(86362001)(8676002)(110136005)(52536014)(316002)(5660300002)(8936002)(81156014);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB2112;H:TYAPR01MB2285.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: renesas.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: UdnaSLOCMv2OWLEX7VlicBb76V/F/BjSDuinDnAEGikVZ6KVZCAX+b+NIHJ4V3fE/gIc6cgL5XeWRS4OkxOQcmkw90dWPxXScClgbr8pvg0UFneT2/oBhSmfRT3mVCVqIRtqmK+CqvWlS6bVXU73JRIzc6ROtPrLYtEUOoPtS1p8EH/s1o0j2wCJzp34tcqYHsDiMOQKdbTUszdQylm7by2Qp3578UXTUVPyT1zCmliqfwMO9Wn6C74Lig5aLIyNzEih2LCAWt2cYBTYgDLYOx41gmDx/cD6Slvxx2JO92JDt5ggI1Ejeu3VaLGNTM4Jl0BdD4N9ZFBbFahG8NwhaiBukAlK2h2SSWArVKsnDlCUJTKoAm6RDpS2KhpvhDz5Ijk2aveRFoyXAxwhsS34Vo4BBGCG081v84KAIBvKRDZ8tgkP5q5MGrDW+keJqOYBZOMuWguL1M1wrpDZPVDMlq9Dz6uhnPEz/bijgdTxW5g=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+        id S1727411AbfLJPY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 10:24:26 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:32195 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727386AbfLJPY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 10:24:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1575991464;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8oxa23NcED0zTyDLJgCkjfcTxGxXpZpp6jAKmdnoFUA=;
+        b=WIYps/rYB9P5+95yB0ppHsJxa0Vw+gyergnd+OML26wwdiFlUv0jcvwowJVTQTjDlBstFW
+        sJRJaXlbnrx7AzVGrK8BFnVg3lvIOsQT+mb0+w0XXxsCewBt/6yh6Hk1ENwnIcqfxDI5ha
+        xnqvdadLK03MthUmPVFRaccSh0vaMcA=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-293-CBeWruLnObu8zo35HpsL4A-1; Tue, 10 Dec 2019 10:24:23 -0500
+Received: by mail-wm1-f72.google.com with SMTP id f11so734125wmh.1
+        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 07:24:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=AYw78AV7R0o8WgrXo6yfKZS9on63QSEXxcw98h9QqoU=;
+        b=Kpm97QZzyDDIww0suVkT7xEM0l8PaxVVG8Pg7SQ8Z2dYV444h0wug/DqcgeYJGyZf/
+         +71jp+ofoy8SK6/5gpAuUBYfB7K5LkmatXO8UGNMX0npNd+C+cyYs1bIbBPMotEK3hs+
+         9tmEt5d+AS3EOC1doNCU4VfWQO1QzVMNC2kOeZFFKwaOsbGhg0rVc0600JJlEqcYld50
+         8HOpUI58wY1zdaBvRv5hnfP2AiNMgOXATEQxSJSmh6U68wQTuIfCVi7LmCnyd0GJgViy
+         yHqmQN/Ex3EcKQmBZmZxKFuBaQpEaXH19zgLv3wKvh33nIm9slrWAiJ+9lxSmgPrlKJJ
+         gsqw==
+X-Gm-Message-State: APjAAAUe+Q4qkWK1wsU59PM33mC3fnqvc0CW54nwRzVuojSpFUeGoyhz
+        KX4+HvBMI9jfo/VQ+UY17d+/jHbIuYmSNj0Sp0wu05TeKVL/pGwDnIkR6IxqBmlFDFix7PuPK7l
+        0oNAFEZRRVCxawV92
+X-Received: by 2002:a7b:cd0d:: with SMTP id f13mr5910697wmj.66.1575991462474;
+        Tue, 10 Dec 2019 07:24:22 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxOpck14fn5cObFBMrpj98BL96trMkM2+U7Z4vqlsbdJty6YcJi3vdk+7tJ+zfXApoap1K2NA==
+X-Received: by 2002:a7b:cd0d:: with SMTP id f13mr5910678wmj.66.1575991462196;
+        Tue, 10 Dec 2019 07:24:22 -0800 (PST)
+Received: from redhat.com (bzq-79-181-48-215.red.bezeqint.net. [79.181.48.215])
+        by smtp.gmail.com with ESMTPSA id n3sm3546213wrs.8.2019.12.10.07.24.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2019 07:24:21 -0800 (PST)
+Date:   Tue, 10 Dec 2019 10:24:17 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Yumei Huang <yuhuang@redhat.com>, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>, Jiang Liu <liuj97@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        virtualization@lists.linux-foundation.org,
+        Igor Mammedov <imammedo@redhat.com>
+Subject: Re: [PATCH v2] virtio-balloon: fix managed page counts when
+ migrating pages between zones
+Message-ID: <20191210102353-mutt-send-email-mst@kernel.org>
+References: <20191205092420.6934-1-david@redhat.com>
+ <13e33ff9-22f2-c02a-811e-2d087e42e1ce@redhat.com>
 MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 347cff9b-a2f5-4c73-947d-08d77d8479eb
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Dec 2019 15:20:22.9012
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: GrlEcgl2LJXNf4RGuAztEajKbDdfdC/jo793Rc79OQBF36q6+mEOpLxt/gl/9oG1NQ0NLywpDPJP5ijwh6NtiAK2arIPOFFGk4FzdMWSfHg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB2112
+In-Reply-To: <13e33ff9-22f2-c02a-811e-2d087e42e1ce@redhat.com>
+X-MC-Unique: CBeWruLnObu8zo35HpsL4A-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
-> Behalf Of Greg Kroah-Hartman
-> Sent: 10 December 2019 14:55
+On Tue, Dec 10, 2019 at 02:44:38PM +0100, David Hildenbrand wrote:
+> On 05.12.19 10:24, David Hildenbrand wrote:
+> > In case we have to migrate a ballon page to a newpage of another zone, =
+the
+> > managed page count of both zones is wrong. Paired with memory offlining
+> > (which will adjust the managed page count), we can trigger kernel crash=
+es
+> > and all kinds of different symptoms.
+> >=20
+> > One way to reproduce:
+> > 1. Start a QEMU guest with 4GB, no NUMA
+> > 2. Hotplug a 1GB DIMM and only the memory to ZONE_NORMAL
 >=20
-> On Tue, Dec 10, 2019 at 02:42:45PM +0000, Chris Paterson wrote:
-> > Hello,
-> >
-> > > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
-> > > Behalf Of Greg Kroah-Hartman
-> > > Sent: 10 December 2019 07:35
-> > >
-> > > On Mon, Dec 09, 2019 at 09:56:29PM +0000, Chris Paterson wrote:
-> > > > > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org>
-> On
-> > > > > Behalf Of Greg Kroah-Hartman
-> > > > > Sent: 09 December 2019 17:37
-> > > > >
-> > > > > On Mon, Dec 09, 2019 at 04:29:22PM +0000, Chris Paterson wrote:
-> > > > > > 3)
-> > > > > > Config: arm shmobile_defconfig
-> > > > > > Link: https://gitlab.com/cip-playground/linux-stable-rc-ci/-
-> > > > > /jobs/373484089#L2249
-> > > > > > Probable culprit: 984d7a8bff57 ("pinctrl: sh-pfc: r8a7792: Fix =
-VIN
-> versioned
-> > > > > groups")
-> > > > > > Issue log:
-> > > > > > 2249 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:38: error: macro
-> > > > > "VIN_DATA_PIN_GROUP" passed 3 arguments, but takes just 2
-> > > > > > 2250   VIN_DATA_PIN_GROUP(vin1_data, 24, _b),
-> > > > > > 2251                                       ^
-> > > > > > 2252 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1750:2: error:
-> > > > > 'VIN_DATA_PIN_GROUP' undeclared here (not in a function); did you
-> mean
-> > > > > 'PIN_MAP_TYPE_MUX_GROUP'?
-> > > > > > 2253   VIN_DATA_PIN_GROUP(vin1_data, 24, _b),
-> > > > > > 2254   ^~~~~~~~~~~~~~~~~~
-> > > > > > 2255   PIN_MAP_TYPE_MUX_GROUP
-> > > > > > 2256 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1751:38: error: macro
-> > > > > "VIN_DATA_PIN_GROUP" passed 3 arguments, but takes just 2
-> > > > > > 2257   VIN_DATA_PIN_GROUP(vin1_data, 20, _b),
-> > > > > > 2258                                       ^
-> > > > > > 2259 drivers/pinctrl/sh-pfc/pfc-r8a7792.c:1753:38: error: macro
-> > > > > "VIN_DATA_PIN_GROUP" passed 3 arguments, but takes just 2
-> > > > > > 2260   VIN_DATA_PIN_GROUP(vin1_data, 16, _b),
-> > > > > > 2261                                       ^
-> > > > >
-> > > > > Now dropped for 4.19, 4.14, and 4.9 (2 patches for 4.19 here.)
-> > > >
-> > > > Latest 4.19 now building, but I'm seeing a number of warnings and e=
-rrors
-> when
-> > > trying to build the arm64 defconfig dtbs.
-> > > > https://gitlab.com/cip-playground/linux-stable-rc-ci/-/jobs/3740924=
-42
-> >
-> > > > arm/juno.dtb
-> > 7150 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /etf@20010000/ports/port@1: graph node unit address error, expected "0"
-> > 7151 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@20040000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7152 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@20040000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7153 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@20040000/ports/port@3: graph node unit address error, expected "2=
-"
-> > 7154 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@220c0000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7155 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@220c0000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7156 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7157 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7158 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@3: graph node unit address error, expected "2=
-"
-> > 7159 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@4: graph node unit address error, expected "3=
-"
-> > 7160 arch/arm64/boot/dts/arm/juno.dtb: Warning (graph_port):
-> /replicator@20120000/ports/port@2: graph node unit address error, expecte=
-d
-> "0"
-> >
-> > > > qcom/apq8016-sbc.dtb
-> > 7173 arch/arm64/boot/dts/qcom/apq8016-sbc.dtb: Warning (graph_port):
-> /soc/funnel@821000/ports/port@8: graph node unit address error, expected
-> "0"
-> > 7174 arch/arm64/boot/dts/qcom/apq8016-sbc.dtb: Warning (graph_port):
-> /soc/replicator@824000/ports/port@2: graph node unit address error,
-> expected "0"
-> > 7175 arch/arm64/boot/dts/qcom/apq8016-sbc.dtb: Warning (graph_port):
-> /soc/etf@825000/ports/port@1: graph node unit address error, expected "0"
-> > 7176 arch/arm64/boot/dts/qcom/apq8016-sbc.dtb: Warning (graph_port):
-> /soc/funnel@841000/ports/port@4: graph node unit address error, expected
-> "0"
-> >
-> > > > arm/juno-r2.dtb
-> > 7181 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /etf@20010000/ports/port@1: graph node unit address error, expected "0"
-> > 7182 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@20040000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7183 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@20040000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7184 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@220c0000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7185 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@220c0000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7186 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7187 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7188 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@3: graph node unit address error, expected "2=
-"
-> > 7189 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@4: graph node unit address error, expected "3=
-"
-> > 7190 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /replicator@20120000/ports/port@2: graph node unit address error, expecte=
-d
-> "0"
-> > 7191 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@20130000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7192 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /etf@20140000/ports/port@1: graph node unit address error, expected "0"
-> > 7193 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@20150000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7194 arch/arm64/boot/dts/arm/juno-r2.dtb: Warning (graph_port):
-> /funnel@20150000/ports/port@2: graph node unit address error, expected "1=
-"
-> >
-> > > > arm/juno-r1.dtb
-> > 7195 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /etf@20010000/ports/port@1: graph node unit address error, expected "0"
-> > 7196 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@20040000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7197 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@20040000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7198 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@220c0000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7199 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@220c0000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7200 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7201 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@2: graph node unit address error, expected "1=
-"
-> > 7202 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@3: graph node unit address error, expected "2=
-"
-> > 7203 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@230c0000/ports/port@4: graph node unit address error, expected "3=
-"
-> > 7204 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /replicator@20120000/ports/port@2: graph node unit address error, expecte=
-d
-> "0"
-> > 7205 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@20130000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7206 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /etf@20140000/ports/port@1: graph node unit address error, expected "0"
-> > 7207 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@20150000/ports/port@1: graph node unit address error, expected "0=
-"
-> > 7208 arch/arm64/boot/dts/arm/juno-r1.dtb: Warning (graph_port):
-> /funnel@20150000/ports/port@2: graph node unit address error, expected "1=
-"
-> >
-> > > > hisilicon/hi6220-hikey.dtb
-> > 7209 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6401000/ports/port@1: graph node unit address error, expecte=
-d
-> "0"
-> > 7210 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/etf@f6402000/ports/port@1: graph node unit address error, expected "=
-0"
-> > 7211 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/replicator/ports/port@1: graph node unit address error, expected "0"
-> > 7212 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/replicator/ports/port@2: graph node unit address error, expected "1"
-> > 7213 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@1: graph node unit address error, expecte=
-d
-> "0"
-> > 7214 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@2: graph node unit address error, expecte=
-d
-> "1"
-> > 7215 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@3: graph node unit address error, expecte=
-d
-> "2"
-> > 7216 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@4: graph node unit address error, expecte=
-d
-> "3"
-> > 7217 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@5: graph node unit address error, expecte=
-d
-> "4"
-> > 7218 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@6: graph node unit address error, expecte=
-d
-> "5"
-> > 7219 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@7: graph node unit address error, expecte=
-d
-> "6"
-> > 7220 arch/arm64/boot/dts/hisilicon/hi6220-hikey.dtb: Warning (graph_por=
-t):
-> /soc/funnel@f6501000/ports/port@8: graph node unit address error, expecte=
-d
-> "7"
-> >
-> > > > allwinner/sun50i-a64-pinebook.dtb
-> > 7248 Error: arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:82.1-=
-7
-> Label or path codec not found
-> > 7249 Error: arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:86.1-=
-14
-> Label or path codec_analog not found
-> > 7250 Error: arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:91.1-=
-5
-> Label or path dai not found
-> > 7251 Error: arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:297.1=
--7
-> Label or path sound not found
-> >
-> > > > qcom/msm8916-mtp.dtb
-> > 7256 arch/arm64/boot/dts/qcom/msm8916-mtp.dtb: Warning (graph_port):
-> /soc/funnel@821000/ports/port@8: graph node unit address error, expected
-> "0"
-> > 7257 arch/arm64/boot/dts/qcom/msm8916-mtp.dtb: Warning (graph_port):
-> /soc/replicator@824000/ports/port@2: graph node unit address error,
-> expected "0"
-> > 7258 arch/arm64/boot/dts/qcom/msm8916-mtp.dtb: Warning (graph_port):
-> /soc/etf@825000/ports/port@1: graph node unit address error, expected "0"
-> > 7259 arch/arm64/boot/dts/qcom/msm8916-mtp.dtb: Warning (graph_port):
-> /soc/funnel@841000/ports/port@4: graph node unit address error, expected
-> "0"
-> >
-> > > > qcom/sdm845-mtp.dtb
-> > 7284 Error: arch/arm64/boot/dts/qcom/sdm845-mtp.dts:26.22-23 syntax
-> error
+> s/only/online/
+>=20
+> as requested by Igor.
+>=20
+> > 3. Inflate the balloon to 1GB
+> > 4. Unplug the DIMM (be quick, otherwise unmovable data ends up on it)
+> > 5. Observe /proc/zoneinfo
+> >   Node 0, zone   Normal
+> >     pages free     16810
+> >           min      24848885473806
+> >           low      18471592959183339
+> >           high     36918337032892872
+> >           spanned  262144
+> >           present  262144
+> >           managed  18446744073709533486
+> > 6. Do anything that requires some memory (e.g., inflate the balloon som=
+e
+> > more). The OOM goes crazy and the system crashes
+> >   [  238.324946] Out of memory: Killed process 537 (login) total-vm:275=
+84kB, anon-rss:860kB, file-rss:0kB, shmem-rss:00
+> >   [  238.338585] systemd invoked oom-killer: gfp_mask=3D0x100cca(GFP_HI=
+GHUSER_MOVABLE), order=3D0, oom_score_adj=3D0
+> >   [  238.339420] CPU: 0 PID: 1 Comm: systemd Tainted: G      D W       =
+  5.4.0-next-20191204+ #75
+> >   [  238.340139] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),=
+ BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
+> >   [  238.341121] Call Trace:
+> >   [  238.341337]  dump_stack+0x8f/0xd0
+> >   [  238.341630]  dump_header+0x61/0x5ea
+> >   [  238.341942]  oom_kill_process.cold+0xb/0x10
+> >   [  238.342299]  out_of_memory+0x24d/0x5a0
+> >   [  238.342625]  __alloc_pages_slowpath+0xd12/0x1020
+> >   [  238.343024]  __alloc_pages_nodemask+0x391/0x410
+> >   [  238.343407]  pagecache_get_page+0xc3/0x3a0
+> >   [  238.343757]  filemap_fault+0x804/0xc30
+> >   [  238.344083]  ? ext4_filemap_fault+0x28/0x42
+> >   [  238.344444]  ext4_filemap_fault+0x30/0x42
+> >   [  238.344789]  __do_fault+0x37/0x1a0
+> >   [  238.345087]  __handle_mm_fault+0x104d/0x1ab0
+> >   [  238.345450]  handle_mm_fault+0x169/0x360
+> >   [  238.345790]  do_user_addr_fault+0x20d/0x490
+> >   [  238.346154]  do_page_fault+0x31/0x210
+> >   [  238.346468]  async_page_fault+0x43/0x50
+> >   [  238.346797] RIP: 0033:0x7f47eba4197e
+> >   [  238.347110] Code: Bad RIP value.
+> >   [  238.347387] RSP: 002b:00007ffd7c0c1890 EFLAGS: 00010293
+> >   [  238.347834] RAX: 0000000000000002 RBX: 000055d196a20a20 RCX: 00007=
+f47eba4197e
+> >   [  238.348437] RDX: 0000000000000033 RSI: 00007ffd7c0c18c0 RDI: 00000=
+00000000004
+> >   [  238.349047] RBP: 00007ffd7c0c1c20 R08: 0000000000000000 R09: 00000=
+00000000033
+> >   [  238.349660] R10: 00000000ffffffff R11: 0000000000000293 R12: 00000=
+00000000001
+> >   [  238.350261] R13: ffffffffffffffff R14: 0000000000000000 R15: 00007=
+ffd7c0c18c0
+> >   [  238.350878] Mem-Info:
+> >   [  238.351085] active_anon:3121 inactive_anon:51 isolated_anon:0
+> >   [  238.351085]  active_file:12 inactive_file:7 isolated_file:0
+> >   [  238.351085]  unevictable:0 dirty:0 writeback:0 unstable:0
+> >   [  238.351085]  slab_reclaimable:5565 slab_unreclaimable:10170
+> >   [  238.351085]  mapped:3 shmem:111 pagetables:155 bounce:0
+> >   [  238.351085]  free:720717 free_pcp:2 free_cma:0
+> >   [  238.353757] Node 0 active_anon:12484kB inactive_anon:204kB active_=
+file:48kB inactive_file:28kB unevictable:0kB iss
+> >   [  238.355979] Node 0 DMA free:11556kB min:36kB low:48kB high:60kB re=
+served_highatomic:0KB active_anon:152kB inactivB
+> >   [  238.358345] lowmem_reserve[]: 0 2955 2884 2884 2884
+> >   [  238.358761] Node 0 DMA32 free:2677864kB min:7004kB low:10028kB hig=
+h:13052kB reserved_highatomic:0KB active_anon:0B
+> >   [  238.361202] lowmem_reserve[]: 0 0 72057594037927865 72057594037927=
+865 72057594037927865
+> >   [  238.361888] Node 0 Normal free:193448kB min:99395541895224kB low:7=
+3886371836733356kB high:147673348131571488kB reB
+> >   [  238.364765] lowmem_reserve[]: 0 0 0 0 0
+> >   [  238.365101] Node 0 DMA: 7*4kB (U) 5*8kB (UE) 6*16kB (UME) 2*32kB (=
+UM) 1*64kB (U) 2*128kB (UE) 3*256kB (UME) 2*512B
+> >   [  238.366379] Node 0 DMA32: 0*4kB 1*8kB (U) 2*16kB (UM) 2*32kB (UM) =
+2*64kB (UM) 1*128kB (U) 1*256kB (U) 1*512kB (U)B
+> >   [  238.367654] Node 0 Normal: 1985*4kB (UME) 1321*8kB (UME) 844*16kB =
+(UME) 524*32kB (UME) 300*64kB (UME) 138*128kB (B
+> >   [  238.369184] Node 0 hugepages_total=3D0 hugepages_free=3D0 hugepage=
+s_surp=3D0 hugepages_size=3D2048kB
+> >   [  238.369915] 130 total pagecache pages
+> >   [  238.370241] 0 pages in swap cache
+> >   [  238.370533] Swap cache stats: add 0, delete 0, find 0/0
+> >   [  238.370981] Free swap  =3D 0kB
+> >   [  238.371239] Total swap =3D 0kB
+> >   [  238.371488] 1048445 pages RAM
+> >   [  238.371756] 0 pages HighMem/MovableOnly
+> >   [  238.372090] 306992 pages reserved
+> >   [  238.372376] 0 pages cma reserved
+> >   [  238.372661] 0 pages hwpoisoned
+> >=20
+> > In another instance (older kernel), I was able to observe this
+> > (negative page count :/):
+> >   [  180.896971] Offlined Pages 32768
+> >   [  182.667462] Offlined Pages 32768
+> >   [  184.408117] Offlined Pages 32768
+> >   [  186.026321] Offlined Pages 32768
+> >   [  187.684861] Offlined Pages 32768
+> >   [  189.227013] Offlined Pages 32768
+> >   [  190.830303] Offlined Pages 32768
+> >   [  190.833071] Built 1 zonelists, mobility grouping on.  Total pages:=
+ -36920272750453009
+> >=20
+> > In another instance (older kernel), I was no longer able to start any
+> > process:
+> >   [root@vm ~]# [  214.348068] Offlined Pages 32768
+> >   [  215.973009] Offlined Pages 32768
+> >   cat /proc/meminfo
+> >   -bash: fork: Cannot allocate memory
+> >   [root@vm ~]# cat /proc/meminfo
+> >   -bash: fork: Cannot allocate memory
+> >=20
+> > Fix it by properly adjusting the managed page count when migrating if
+> > the zone changed. The managed page count of the zones now looks after
+> > unplug of the DIMM (and after deflating the balloon) just like before
+> > inflating the balloon (and plugging+onlining the DIMM).
+> >=20
+> > We'll temporarily modify the totalram page count. If this ever becomes =
+a
+> > problem, we can fine tune by providing helpers that don't touch
+> > the totalram pages (e.g., adjust_zone_managed_page_count()).
+> >=20
+> > Reported-by: Yumei Huang <yuhuang@redhat.com>
+> > Fixes: 3dcc0571cd64 ("mm: correctly update zone->managed_pages")
+> > Cc: <stable@vger.kernel.org> # v3.11+
+> > Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> > Cc: Jason Wang <jasowang@redhat.com>
+> > Cc: Jiang Liu <liuj97@gmail.com>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: virtualization@lists.linux-foundation.org
+> > Signed-off-by: David Hildenbrand <david@redhat.com>
+> > ---
+> >=20
+> > v1 -> v2:
+> > - Adjust count before enquing newpage (and it possibly gets free form t=
+he
+> >   balloon)
+> > - Check if the zone changed
+> >=20
+> > ---
+> >  drivers/virtio/virtio_balloon.c | 7 +++++++
+> >  1 file changed, 7 insertions(+)
+> >=20
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ba=
+lloon.c
+> > index 15b7f1d8c334..3078e1ac2a8f 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -722,6 +722,13 @@ static int virtballoon_migratepage(struct balloon_=
+dev_info *vb_dev_info,
+> > =20
+> >  =09get_page(newpage); /* balloon reference */
+> > =20
+> > +=09/* fixup the managed page count (esp. of the zone) */
+>=20
+> /*
+>  * When we migrate to a different zone, we have to adjust the managed
+>  * page count of both involved zones.
+>  */
+>=20
+> as requested by Michael.
 >=20
 >=20
-> That's a lot, are these all new?
+> @Michael, if there are no further comments, shall I resend?
 
-I've only just started building with this config in our CI setup, but build=
-ing the dtbs locally with v4.19.88 didn't produce these results for me (and=
- building locally with v4.19.89-rc1 does result in the above issues).
+Also, what does it have to do with deflate on oom?
+Why is it true we don't need to do it then?
 
-Regards, Chris
+> --=20
+> Thanks,
+>=20
+> David / dhildenb
 
->=20
-> Sasha, any ideas?
->=20
-> greg k-h
