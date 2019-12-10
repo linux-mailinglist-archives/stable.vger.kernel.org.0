@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0579B1192CC
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E1B1192AA
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727154AbfLJVET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:04:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49172 "EHLO mail.kernel.org"
+        id S1727177AbfLJVEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:04:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727133AbfLJVET (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:19 -0500
+        id S1727151AbfLJVEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB701214AF;
-        Tue, 10 Dec 2019 21:04:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C33872465E;
+        Tue, 10 Dec 2019 21:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011858;
-        bh=Uox/MUlOxAcA9VC8+NstKQ1ozhs/1ymmQvDGzA/Jz60=;
+        s=default; t=1576011859;
+        bh=/vP3knGIB6L6o0fIJa1Dq7PKcH+GaZAfZi5A2YUUak8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AKFx/ejUEw+XR5d6yJH78LcF4TNL00BmvvWR6NfdNoH8sS3cItjq1XhFdygcEvAE8
-         vL2KQR9wVxGWb5ef6fkVIE05rk9QFTYG9hdB6bdTreo4tWf+acPfF69rFtNMLrrXqr
-         sUkiLWxsE4lf4R1Afh0rQjKR/WV2u1K4Z4ncITNg=
+        b=DlyCM3GWoqj65zHSn0fJRwS20FdMQpaXMMENp6y4U/qglclgY2DL6fW8+VYSS2GYr
+         cEvFb1jWApEAffuOD0HHuA4OvDLXDaC4NMlD5sCMymwGsc7dH5qqZvRPx443qecDIb
+         m4p5N5HgKRoA4R6JIy0bseQGyzPosoclip8Wn2HY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Wilczynski <kw@linux.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 012/350] iio: light: bh1750: Resolve compiler warning and make code more readable
-Date:   Tue, 10 Dec 2019 15:58:24 -0500
-Message-Id: <20191210210402.8367-12-sashal@kernel.org>
+Cc:     Jack Zhang <Jack.Zhang1@amd.com>, Feifei Xu <Feifei.Xu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 013/350] drm/amdgpu/sriov: add ring_stop before ring_create in psp v11 code
+Date:   Tue, 10 Dec 2019 15:58:25 -0500
+Message-Id: <20191210210402.8367-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,49 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczynski <kw@linux.com>
+From: Jack Zhang <Jack.Zhang1@amd.com>
 
-[ Upstream commit f552fde983d378e7339f9ea74a25f918563bf0d3 ]
+[ Upstream commit 51c0f58e9f6af3a387d14608033e6796a7ad90ee ]
 
-Separate the declaration of struct bh1750_chip_info from definition
-of bh1750_chip_info_tbl[] in a single statement as it makes the code
-hard to read, and with the extra newline it makes it look as if the
-bh1750_chip_info_tbl[] had no explicit type.
+psp  v11 code missed ring stop in ring create function(VMR)
+while psp v3.1 code had the code. This will cause VM destroy1
+fail and psp ring create fail.
 
-This change also resolves the following compiler warning about the
-unusual position of the static keyword that can be seen when building
-with warnings enabled (W=1):
+For SIOV-VF, ring_stop should not be deleted in ring_create
+function.
 
-drivers/iio/light/bh1750.c:64:1: warning:
-  ‘static’ is not at beginning of declaration [-Wold-style-declaration]
-
-Related to commit 3a11fbb037a1 ("iio: light: add support for ROHM
-BH1710/BH1715/BH1721/BH1750/BH1751 ambient light sensors").
-
-Signed-off-by: Krzysztof Wilczynski <kw@linux.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
+Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/bh1750.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/psp_v11_0.c | 61 ++++++++++++++------------
+ 1 file changed, 34 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/iio/light/bh1750.c b/drivers/iio/light/bh1750.c
-index 28347df78cff6..adb5ab9e34390 100644
---- a/drivers/iio/light/bh1750.c
-+++ b/drivers/iio/light/bh1750.c
-@@ -59,9 +59,9 @@ struct bh1750_chip_info {
+diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
+index 10166104b8a39..d483684db95b7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
+@@ -398,6 +398,34 @@ static bool psp_v11_0_support_vmr_ring(struct psp_context *psp)
+ 	return false;
+ }
  
- 	u16 int_time_low_mask;
- 	u16 int_time_high_mask;
++static int psp_v11_0_ring_stop(struct psp_context *psp,
++			      enum psp_ring_type ring_type)
++{
++	int ret = 0;
++	struct amdgpu_device *adev = psp->adev;
++
++	/* Write the ring destroy command*/
++	if (psp_v11_0_support_vmr_ring(psp))
++		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
++				     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING);
++	else
++		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64,
++				     GFX_CTRL_CMD_ID_DESTROY_RINGS);
++
++	/* there might be handshake issue with hardware which needs delay */
++	mdelay(20);
++
++	/* Wait for response flag (bit 31) */
++	if (psp_v11_0_support_vmr_ring(psp))
++		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_101),
++				   0x80000000, 0x80000000, false);
++	else
++		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
++				   0x80000000, 0x80000000, false);
++
++	return ret;
++}
++
+ static int psp_v11_0_ring_create(struct psp_context *psp,
+ 				enum psp_ring_type ring_type)
+ {
+@@ -407,6 +435,12 @@ static int psp_v11_0_ring_create(struct psp_context *psp,
+ 	struct amdgpu_device *adev = psp->adev;
+ 
+ 	if (psp_v11_0_support_vmr_ring(psp)) {
++		ret = psp_v11_0_ring_stop(psp, ring_type);
++		if (ret) {
++			DRM_ERROR("psp_v11_0_ring_stop_sriov failed!\n");
++			return ret;
++		}
++
+ 		/* Write low address of the ring to C2PMSG_102 */
+ 		psp_ring_reg = lower_32_bits(ring->ring_mem_mc_addr);
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102, psp_ring_reg);
+@@ -451,33 +485,6 @@ static int psp_v11_0_ring_create(struct psp_context *psp,
+ 	return ret;
+ }
+ 
+-static int psp_v11_0_ring_stop(struct psp_context *psp,
+-			      enum psp_ring_type ring_type)
+-{
+-	int ret = 0;
+-	struct amdgpu_device *adev = psp->adev;
+-
+-	/* Write the ring destroy command*/
+-	if (psp_v11_0_support_vmr_ring(psp))
+-		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
+-				     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING);
+-	else
+-		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64,
+-				     GFX_CTRL_CMD_ID_DESTROY_RINGS);
+-
+-	/* there might be handshake issue with hardware which needs delay */
+-	mdelay(20);
+-
+-	/* Wait for response flag (bit 31) */
+-	if (psp_v11_0_support_vmr_ring(psp))
+-		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_101),
+-				   0x80000000, 0x80000000, false);
+-	else
+-		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
+-				   0x80000000, 0x80000000, false);
+-
+-	return ret;
 -}
-+};
  
--static const bh1750_chip_info_tbl[] = {
-+static const struct bh1750_chip_info bh1750_chip_info_tbl[] = {
- 	[BH1710] = { 140, 1022, 300, 400,  250000000, 2, 0x001F, 0x03E0 },
- 	[BH1721] = { 140, 1020, 300, 400,  250000000, 2, 0x0010, 0x03E0 },
- 	[BH1750] = { 31,  254,  69,  1740, 57500000,  1, 0x001F, 0x00E0 },
+ static int psp_v11_0_ring_destroy(struct psp_context *psp,
+ 				 enum psp_ring_type ring_type)
 -- 
 2.20.1
 
