@@ -2,85 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE7611985A
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00238119742
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730024AbfLJVi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:38:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40698 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727391AbfLJVfH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:35:07 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 406FD205C9;
-        Tue, 10 Dec 2019 21:35:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013707;
-        bh=UsFge4YEgym3cSiL3TRhR/2HajMfTQjerqMq7R8bwDs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NToVKoEaKIhFlgNpND6MqWWUlDLWR88hV3/5DMuT+vJXfA7s5EElBNqn5Ce7WUNFf
-         fvfEmWz7UNRnlC/EMbL1h0ShYQmwfLsBYS4tnXPI+9ITf1ETG1YwUxMC7Too348ike
-         OpCyvVb8+Rem7qteKy7lJrwM5LSsttzLlJUu+uyw=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 135/177] spi: pxa2xx: Add missed security checks
-Date:   Tue, 10 Dec 2019 16:31:39 -0500
-Message-Id: <20191210213221.11921-135-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
-References: <20191210213221.11921-1-sashal@kernel.org>
+        id S1727476AbfLJVb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:31:56 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:36631 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727550AbfLJVbx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 16:31:53 -0500
+Received: by mail-pf1-f194.google.com with SMTP id x184so474543pfb.3
+        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 13:31:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GwuPpgMwTPZEM+EqzujwY/bjr0hgFF4x3/rgCEqS8Mc=;
+        b=f5WDsrWQ6ZRIQ/PxW73IwPJ17T1V0msim69wBlYUK+6b9M5fCKCNhn4N1DwWjk6bZ9
+         LN84wH5MPyKwryNyUEjUyNs8d6mFs7KJ+1OIHdzWDQh4c/8/vMyWJqZTcScNH+Y7eSfF
+         4FbDdrjVgmMk2Rp8xodWm7AOtyvz5sWiB/jsWttl39tyCosQcQJ+byG2mBBdoIw9UZF0
+         waRRmF6h2lRTwMrBzjsb5lZ4kf0GdrVAT+eJzN6WY/Z2LAoO4htHd0JAWNn6B4x2oHrg
+         mqV7BibZMhUAQx/BjgYgofyqs+GwBItobtMroXkJ8VotH30Hd/8TEkMNJZYyF3rHSewm
+         Jtyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GwuPpgMwTPZEM+EqzujwY/bjr0hgFF4x3/rgCEqS8Mc=;
+        b=Tn3adTEbNkYex/9t8Lbuf5NaUhgOjvqQbpGpAA/6knZUHi7glvpFghT+z3WvxD+7RB
+         gaIGQoB9Mg5zaEBCuR1iYnSL11O5Q2VShRnhu5h0OVmTVYFnKGuhmMDqzUbjQOILeHP5
+         06l2DudMcmuQdQUgJNk6RIk8J+9wHBKvXrBctqEPblgNBjtflwHn7ZNhF5R6oH4B5IC7
+         2rGYoPSJWD3wgWjz07e+Or6FfxYuogCfKnz9BIjhddR/hHEAJJiP3ixKfOt+S63l3ort
+         7mOMn8oONDcIQOQwTorGmBYJastVxotKPXAad+g+M30Jo4kzRaYcLDwRtOkIBBNQPUH7
+         4K4Q==
+X-Gm-Message-State: APjAAAXCo3e+Ew32EJJbwM15PddpNfwkXcPY1SEnODoxrCEdMH1wQaY0
+        4xGYufTelvGNBOZ76Eu3I9imAkf4nohAnImpicg7CKYiP4+pyw==
+X-Google-Smtp-Source: APXvYqzs9zHaXPpx5/fRmcbjTOsxQRvvH9Qr9I2jE5nXoJrZnej1b37eMSlm1mwwOPgmBS9e5vTq7NGxMlNDfngPnYg=
+X-Received: by 2002:a63:597:: with SMTP id 145mr209239pgf.384.1576013512117;
+ Tue, 10 Dec 2019 13:31:52 -0800 (PST)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20191210212511.11392-1-sashal@kernel.org> <20191210212511.11392-19-sashal@kernel.org>
+In-Reply-To: <20191210212511.11392-19-sashal@kernel.org>
+From:   Brendan Higgins <brendanhiggins@google.com>
+Date:   Tue, 10 Dec 2019 13:31:40 -0800
+Message-ID: <CAFd5g46bujW0XZeTwd1y2O1E2aeK_DayrES8zw_0zBF4Se0HpQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.3 019/292] objtool: add kunit_try_catch_throw to
+ the noreturn list
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+On Tue, Dec 10, 2019 at 1:25 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Brendan Higgins <brendanhiggins@google.com>
+>
+> [ Upstream commit 33adf80f5b52e3f7c55ad66ffcaaff93c6888aaa ]
+>
+> Fix the following warning seen on GCC 7.3:
+>   kunit/test-test.o: warning: objtool: kunit_test_unsuccessful_try() falls through to next function kunit_test_catch()
+>
+> kunit_try_catch_throw is a function added in the following patch in this
+> series; it allows KUnit, a unit testing framework for the kernel, to
+> bail out of a broken test. As a consequence, it is a new __noreturn
+> function that objtool thinks is broken (as seen above). So fix this
+> warning by adding kunit_try_catch_throw to objtool's noreturn list.
+>
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+> Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> Link: https://www.spinics.net/lists/linux-kbuild/msg21708.html
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-[ Upstream commit 5eb263ef08b5014cfc2539a838f39d2fd3531423 ]
+I don't think this change should be backported. This patch is to
+ignore an erroneous warning introduced by KUnit; it serves no purpose
+prior to the KUnit patches being merged.
 
-pxa2xx_spi_init_pdata misses checks for devm_clk_get and
-platform_get_irq.
-Add checks for them to fix the bugs.
+Note: I have the same complaint for this rebase here:
 
-Since ssp->clk and ssp->irq are used in probe, they are mandatory here.
-So we cannot use _optional() for devm_clk_get and platform_get_irq.
+https://lore.kernel.org/stable/CAFd5g45s-cGXp6at4kv+=8v3cuxfbXLPEOKGUfvJ6E+u1caHcA@mail.gmail.com/
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/20191109080943.30428-1-hslester96@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/spi/spi-pxa2xx.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index f41333817c501..525388126e260 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1470,7 +1470,13 @@ pxa2xx_spi_init_pdata(struct platform_device *pdev)
- 	}
- 
- 	ssp->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(ssp->clk))
-+		return NULL;
-+
- 	ssp->irq = platform_get_irq(pdev, 0);
-+	if (ssp->irq < 0)
-+		return NULL;
-+
- 	ssp->type = type;
- 	ssp->pdev = pdev;
- 	ssp->port_id = pxa2xx_spi_get_port_id(adev);
--- 
-2.20.1
-
+> ---
+>  tools/objtool/check.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+> index 176f2f0840609..0c8e17f946cda 100644
+> --- a/tools/objtool/check.c
+> +++ b/tools/objtool/check.c
+> @@ -145,6 +145,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
+>                 "usercopy_abort",
+>                 "machine_real_restart",
+>                 "rewind_stack_do_exit",
+> +               "kunit_try_catch_throw",
+>         };
+>
+>         if (!func)
+> --
+> 2.20.1
+>
