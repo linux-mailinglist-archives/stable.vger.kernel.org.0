@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58628119CF5
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0DCF119CFD
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730448AbfLJWel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:34:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S1729462AbfLJWfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:35:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727727AbfLJWek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:34:40 -0500
+        id S1730441AbfLJWel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:34:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5A352073D;
-        Tue, 10 Dec 2019 22:34:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B230621556;
+        Tue, 10 Dec 2019 22:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017279;
-        bh=izGW3H/teNO9ziuLzLR849STzAz3YLsdtzkmhl+DSww=;
+        s=default; t=1576017280;
+        bh=QsV8U8qwTMqNA+mAFhcYDJs81JqiREYZbKCLRDI00TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1nfTAUtCMwulquoZ6OjNriPUcXD9zAJQJWiS82ou5Rz0S8Zwi788u72ZL+XD3DOz4
-         hzYit89VtAmWgxMa6ZUMRM/uF/Unctgq2s7WrRptL5bVBN34wilsH+RmOzxEFQ+aeB
-         j6hBDDtiWyrDo9MajFAkd2x+zAABZLFJwEzujDNM=
+        b=ExjbpuKbVO19nflmfHoOqRwBOLpXJk0/8HApUOp6PSF50APw/mlU7d7Rf/JuS5a72
+         f6Nn9z+3XK8T1s9UMYtBpZjD5Lzb3a0bPGbyaxIjkjD7vT5MMRtagjNuPan71Ps54z
+         QF5itds6ty/w2BnpBUScDPg9VkeutE3jQ3gVoYK8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
         Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        clang-built-linux@googlegroups.com,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 69/71] perf parse: Fix potential memory leak when handling tracepoint errors
-Date:   Tue, 10 Dec 2019 17:33:14 -0500
-Message-Id: <20191210223316.14988-69-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 70/71] perf intel-bts: Does not support AUX area sampling
+Date:   Tue, 10 Dec 2019 17:33:15 -0500
+Message-Id: <20191210223316.14988-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -52,83 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 4584f084aa9d8033d5911935837dbee7b082d0e9 ]
+[ Upstream commit 32a1ece4bdbde24734ab16484bad7316f03fc42d ]
 
-An error may be in place when tracepoint_error is called, use
-parse_events__handle_error to avoid a memory leak and to capture the
-first and last error. Error detected by LLVM's libFuzzer using the
-following event:
+Add an error message because Intel BTS does not support AUX area
+sampling.
 
-$ perf stat -e 'msr/event/,f:e'
-event syntax error: 'msr/event/,f:e'
-                     \___ can't access trace events
-
-Error:  No permissions to read /sys/kernel/debug/tracing/events/f/e
-Hint:   Try 'sudo mount -o remount,mode=755 /sys/kernel/debug/tracing/'
-
-Initial error:
-event syntax error: 'msr/event/,f:e'
-                                \___ no value assigned for term
-Run 'perf list' for a list of valid events
-
- Usage: perf stat [<options>] [<command>]
-
-    -e, --event <event>   event selector. use 'perf list' to list available events
-
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: clang-built-linux@googlegroups.com
-Link: http://lore.kernel.org/lkml/20191120180925.21787-1-irogers@google.com
+Link: http://lore.kernel.org/lkml/20191115124225.5247-16-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ tools/perf/arch/x86/util/auxtrace.c  | 2 ++
+ tools/perf/arch/x86/util/intel-bts.c | 5 +++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 9351738df7039..004f28a041238 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -398,6 +398,7 @@ int parse_events_add_cache(struct list_head *list, int *idx,
- static void tracepoint_error(struct parse_events_error *e, int err,
- 			     char *sys, char *name)
- {
-+	const char *str;
- 	char help[BUFSIZ];
+diff --git a/tools/perf/arch/x86/util/auxtrace.c b/tools/perf/arch/x86/util/auxtrace.c
+index 7a7805583e3fe..ab641cfc8c2bb 100644
+--- a/tools/perf/arch/x86/util/auxtrace.c
++++ b/tools/perf/arch/x86/util/auxtrace.c
+@@ -35,6 +35,8 @@ struct auxtrace_record *auxtrace_record__init_intel(struct perf_evlist *evlist,
  
- 	if (!e)
-@@ -411,18 +412,18 @@ static void tracepoint_error(struct parse_events_error *e, int err,
+ 	intel_pt_pmu = perf_pmu__find(INTEL_PT_PMU_NAME);
+ 	intel_bts_pmu = perf_pmu__find(INTEL_BTS_PMU_NAME);
++	if (intel_bts_pmu)
++		intel_bts_pmu->auxtrace = true;
  
- 	switch (err) {
- 	case EACCES:
--		e->str = strdup("can't access trace events");
-+		str = "can't access trace events";
- 		break;
- 	case ENOENT:
--		e->str = strdup("unknown tracepoint");
-+		str = "unknown tracepoint";
- 		break;
- 	default:
--		e->str = strdup("failed to add tracepoint");
-+		str = "failed to add tracepoint";
- 		break;
- 	}
+ 	if (evlist) {
+ 		evlist__for_each(evlist, evsel) {
+diff --git a/tools/perf/arch/x86/util/intel-bts.c b/tools/perf/arch/x86/util/intel-bts.c
+index 9b94ce5209170..9d83a7f3496cb 100644
+--- a/tools/perf/arch/x86/util/intel-bts.c
++++ b/tools/perf/arch/x86/util/intel-bts.c
+@@ -119,6 +119,11 @@ static int intel_bts_recording_options(struct auxtrace_record *itr,
+ 	const struct cpu_map *cpus = evlist->cpus;
+ 	bool privileged = geteuid() == 0 || perf_event_paranoid() < 0;
  
- 	tracing_path__strerror_open_tp(err, help, sizeof(help), sys, name);
--	e->help = strdup(help);
-+	parse_events__handle_error(e, 0, strdup(str), strdup(help));
- }
++	if (opts->auxtrace_sample_mode) {
++		pr_err("Intel BTS does not support AUX area sampling\n");
++		return -EINVAL;
++	}
++
+ 	btsr->evlist = evlist;
+ 	btsr->snapshot_mode = opts->auxtrace_snapshot_mode;
  
- static int add_tracepoint(struct list_head *list, int *idx,
 -- 
 2.20.1
 
