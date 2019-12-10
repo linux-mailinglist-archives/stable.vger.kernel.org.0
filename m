@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A26119C88
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B55D119E0C
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728508AbfLJWb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:31:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51526 "EHLO mail.kernel.org"
+        id S1728563AbfLJWbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:31:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728496AbfLJWb2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:31:28 -0500
+        id S1728511AbfLJWb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:31:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE72F20836;
-        Tue, 10 Dec 2019 22:31:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06B45214D8;
+        Tue, 10 Dec 2019 22:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017087;
-        bh=9JZTUZ8XZbtS5hmjle0IXCzfwZyXHuzrQkrAN6BuoOw=;
+        s=default; t=1576017088;
+        bh=/wr7f69ycqZFhinrnrv4t11zWCsbzEx6MAndDAn+BlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7FFyzuAZd5+f7Cu6dT8VinVBzV32tqHoPl+bQphLQ6c/FQPUYrQIomcDaMxxJNrG
-         2XVoR7waO+P1vqRKMyO7vgR1TiUGRIKeuR4vAFLDe6vAXuzq+YYMYsJ7T9S0B9cxpU
-         n9+l4Kk792sduLDOCS7eTHCEz8G8Q7zOHaERfbbs=
+        b=dtAS5RgnUW2aVG6VF98PBNutMj/81dnvzdVT+u9d96ucH6sGEo8Ml6/6FXH1+AJ6O
+         BdWpGh6dj6oluxu3J5czlSAN607naGLG5fliz3EsXb+zLs3PlnkrER40/9iqte7K+c
+         cyYQ1R/4GIm68NNSO0NomTVQKGLNHmtsGYrzmb3I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 43/91] ALSA: hda - Fix pending unsol events at shutdown
-Date:   Tue, 10 Dec 2019 17:29:47 -0500
-Message-Id: <20191210223035.14270-43-sashal@kernel.org>
+Cc:     John Garry <john.garry@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 44/91] libata: Ensure ata_port probe has completed before detach
+Date:   Tue, 10 Dec 2019 17:29:48 -0500
+Message-Id: <20191210223035.14270-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -43,58 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit ca58f55108fee41d87c9123f85ad4863e5de7f45 ]
+[ Upstream commit 130f4caf145c3562108b245a576db30b916199d2 ]
 
-This is an alternative fix attemp for the issue reported in the commit
-caa8422d01e9 ("ALSA: hda: Flush interrupts on disabling") that was
-reverted later due to regressions.  Instead of tweaking the hardware
-disablement order and the enforced irq flushing, do calling
-cancel_work_sync() of the unsol work early enough, and explicitly
-ignore the unsol events during the shutdown by checking the
-bus->shutdown flag.
+With CONFIG_DEBUG_TEST_DRIVER_REMOVE set, we may find the following WARN:
 
-Fixes: caa8422d01e9 ("ALSA: hda: Flush interrupts on disabling")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://lore.kernel.org/r/s5h1ruxt9cz.wl-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[   23.452574] ------------[ cut here ]------------
+[   23.457190] WARNING: CPU: 59 PID: 1 at drivers/ata/libata-core.c:6676 ata_host_detach+0x15c/0x168
+[   23.466047] Modules linked in:
+[   23.469092] CPU: 59 PID: 1 Comm: swapper/0 Not tainted 5.4.0-rc1-00010-g5b83fd27752b-dirty #296
+[   23.477776] Hardware name: Huawei D06 /D06, BIOS Hisilicon D06 UEFI RC0 - V1.16.01 03/15/2019
+[   23.486286] pstate: a0c00009 (NzCv daif +PAN +UAO)
+[   23.491065] pc : ata_host_detach+0x15c/0x168
+[   23.495322] lr : ata_host_detach+0x88/0x168
+[   23.499491] sp : ffff800011cabb50
+[   23.502792] x29: ffff800011cabb50 x28: 0000000000000007
+[   23.508091] x27: ffff80001137f068 x26: ffff8000112c0c28
+[   23.513390] x25: 0000000000003848 x24: ffff0023ea185300
+[   23.518689] x23: 0000000000000001 x22: 00000000000014c0
+[   23.523987] x21: 0000000000013740 x20: ffff0023bdc20000
+[   23.529286] x19: 0000000000000000 x18: 0000000000000004
+[   23.534584] x17: 0000000000000001 x16: 00000000000000f0
+[   23.539883] x15: ffff0023eac13790 x14: ffff0023eb76c408
+[   23.545181] x13: 0000000000000000 x12: ffff0023eac13790
+[   23.550480] x11: ffff0023eb76c228 x10: 0000000000000000
+[   23.555779] x9 : ffff0023eac13798 x8 : 0000000040000000
+[   23.561077] x7 : 0000000000000002 x6 : 0000000000000001
+[   23.566376] x5 : 0000000000000002 x4 : 0000000000000000
+[   23.571674] x3 : ffff0023bf08a0bc x2 : 0000000000000000
+[   23.576972] x1 : 3099674201f72700 x0 : 0000000000400284
+[   23.582272] Call trace:
+[   23.584706]  ata_host_detach+0x15c/0x168
+[   23.588616]  ata_pci_remove_one+0x10/0x18
+[   23.592615]  ahci_remove_one+0x20/0x40
+[   23.596356]  pci_device_remove+0x3c/0xe0
+[   23.600267]  really_probe+0xdc/0x3e0
+[   23.603830]  driver_probe_device+0x58/0x100
+[   23.608000]  device_driver_attach+0x6c/0x90
+[   23.612169]  __driver_attach+0x84/0xc8
+[   23.615908]  bus_for_each_dev+0x74/0xc8
+[   23.619730]  driver_attach+0x20/0x28
+[   23.623292]  bus_add_driver+0x148/0x1f0
+[   23.627115]  driver_register+0x60/0x110
+[   23.630938]  __pci_register_driver+0x40/0x48
+[   23.635199]  ahci_pci_driver_init+0x20/0x28
+[   23.639372]  do_one_initcall+0x5c/0x1b0
+[   23.643199]  kernel_init_freeable+0x1a4/0x24c
+[   23.647546]  kernel_init+0x10/0x108
+[   23.651023]  ret_from_fork+0x10/0x18
+[   23.654590] ---[ end trace 634a14b675b71c13 ]---
+
+With KASAN also enabled, we may also get many use-after-free reports.
+
+The issue is that when CONFIG_DEBUG_TEST_DRIVER_REMOVE is set, we may
+attempt to detach the ata_port before it has been probed.
+
+This is because the ata_ports are async probed, meaning that there is no
+guarantee that the ata_port has probed prior to detach. When the ata_port
+does probe in this scenario, we get all sorts of issues as the detach may
+have already happened.
+
+Fix by ensuring synchronisation with async_synchronize_full(). We could
+alternatively use the cookie returned from the ata_port probe
+async_schedule() call, but that means managing the cookie, so more
+complicated.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_bind.c  | 4 ++++
- sound/pci/hda/hda_intel.c | 3 +++
- 2 files changed, 7 insertions(+)
+ drivers/ata/libata-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/pci/hda/hda_bind.c b/sound/pci/hda/hda_bind.c
-index 7ea201c05e5da..d0d6dfbfcfdf8 100644
---- a/sound/pci/hda/hda_bind.c
-+++ b/sound/pci/hda/hda_bind.c
-@@ -42,6 +42,10 @@ static void hda_codec_unsol_event(struct hdac_device *dev, unsigned int ev)
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index da1a987c622a4..b1582f1611717 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -6550,6 +6550,9 @@ void ata_host_detach(struct ata_host *host)
  {
- 	struct hda_codec *codec = container_of(dev, struct hda_codec, core);
+ 	int i;
  
-+	/* ignore unsol events during shutdown */
-+	if (codec->bus->shutdown)
-+		return;
++	/* Ensure ata_port probe has completed */
++	async_synchronize_full();
 +
- 	if (codec->patch_ops.unsol_event)
- 		codec->patch_ops.unsol_event(codec, ev);
- }
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index f2f1d9fd848c8..3234e9ca02cec 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1275,8 +1275,11 @@ static int azx_free(struct azx *chip)
- static int azx_dev_disconnect(struct snd_device *device)
- {
- 	struct azx *chip = device->device_data;
-+	struct hdac_bus *bus = azx_bus(chip);
- 
- 	chip->bus.shutdown = 1;
-+	cancel_work_sync(&bus->unsol_work);
-+
- 	return 0;
- }
+ 	for (i = 0; i < host->n_ports; i++)
+ 		ata_port_detach(host->ports[i]);
  
 -- 
 2.20.1
