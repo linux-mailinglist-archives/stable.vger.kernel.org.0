@@ -2,42 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A581195B1
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4015A1195A6
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727571AbfLJVWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:22:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34158 "EHLO mail.kernel.org"
+        id S1728768AbfLJVLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:11:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727237AbfLJVL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:11:27 -0500
+        id S1728762AbfLJVLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:11:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ABAA246B5;
-        Tue, 10 Dec 2019 21:11:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F10F246BB;
+        Tue, 10 Dec 2019 21:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012287;
-        bh=I9352z0iCXVXtkWPBa/1Pa0m0mxbqm65/+V+ZPZCkZQ=;
+        s=default; t=1576012289;
+        bh=LBmAcdOL8kkDwBA4GTeeC+fsUOGxuypNFmGvcPP7ELU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l473EK03KUfcAyZL7z1WJiQwruGd02ONuc43tV5lh0h0t3RIWaIN/ikR3h/znoDnR
-         7CtqRKxv1yQqFze4mXW0EP70ijviy3xtCA/cGO/QK2kyUcbXHrTJ7CxpGTwoXZnxgs
-         fKtaflZTpwacSTb8Ms3jcvWUpWMxVk4wUIYf6MRw=
+        b=jbrIdNI6ZmHO+ABshZR8fVt8zPStU4ccMwTTSFsly4dHm59QynTQobnIqSyRD/Ll5
+         0AMt+WuT7TQ9UaYBUQn3H3jcCbkY7ypFijiLrNgxscGe7oRK36B3ZxU3dLp7osfFmz
+         cSCiI8XYPAFfomOkM2gLOP7gBXn1yvlB+eQSWTWs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>,
+Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        John Garry <john.garry@huawei.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
         Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        clang-built-linux@googlegroups.com, netdev@vger.kernel.org,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 228/350] perf tools: Fix cross compile for ARM64
-Date:   Tue, 10 Dec 2019 16:05:33 -0500
-Message-Id: <20191210210735.9077-189-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 229/350] perf tools: Splice events onto evlist even on error
+Date:   Tue, 10 Dec 2019 16:05:34 -0500
+Message-Id: <20191210210735.9077-190-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -50,65 +59,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 71f699078b154fcb1c9162fd0208ada9ce532ffc ]
+[ Upstream commit 8e8714c3d157568b7a769917a5e05573bbaf5af0 ]
 
-Currently when cross compiling perf tool for ARM64 on my x86 machine I
-get this error:
+If event parsing fails the event list is leaked, instead splice the list
+onto the out result and let the caller cleanup.
 
-  arch/arm64/util/sym-handling.c:9:10: fatal error: gelf.h: No such file or directory
-   #include <gelf.h>
+An example input for parse_events found by libFuzzer that reproduces
+this memory leak is 'm{'.
 
-For the build, libelf is reported off:
-
-  Auto-detecting system features:
-  ...
-  ...                        libelf: [ OFF ]
-
-Indeed, test-libelf is not built successfully:
-
-  more ./build/feature/test-libelf.make.output
-  test-libelf.c:2:10: fatal error: libelf.h: No such file or directory
-   #include <libelf.h>
-          ^~~~~~~~~~
-  compilation terminated.
-
-I have no such problems natively compiling on ARM64, and I did not
-previously have this issue for cross compiling. Fix by relocating the
-gelf.h include.
-
-Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lore.kernel.org/lkml/1573045254-39833-1-git-send-email-john.garry@huawei.com
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: clang-built-linux@googlegroups.com
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20191025180827.191916-5-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/arm64/util/sym-handling.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/util/parse-events.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/arch/arm64/util/sym-handling.c b/tools/perf/arch/arm64/util/sym-handling.c
-index 5df7889851305..8dfa3e5229f1b 100644
---- a/tools/perf/arch/arm64/util/sym-handling.c
-+++ b/tools/perf/arch/arm64/util/sym-handling.c
-@@ -6,9 +6,10 @@
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index b5e2adef49de9..d5ea043d3fc4c 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -1927,15 +1927,20 @@ int parse_events(struct evlist *evlist, const char *str,
  
- #include "symbol.h" // for the elf__needs_adjust_symbols() prototype
- #include <stdbool.h>
--#include <gelf.h>
- 
- #ifdef HAVE_LIBELF_SUPPORT
-+#include <gelf.h>
+ 	ret = parse_events__scanner(str, &parse_state, PE_START_EVENTS);
+ 	perf_pmu__parse_cleanup();
 +
- bool elf__needs_adjust_symbols(GElf_Ehdr ehdr)
- {
- 	return ehdr.e_type == ET_EXEC ||
++	if (!ret && list_empty(&parse_state.list)) {
++		WARN_ONCE(true, "WARNING: event parser found nothing\n");
++		return -1;
++	}
++
++	/*
++	 * Add list to the evlist even with errors to allow callers to clean up.
++	 */
++	perf_evlist__splice_list_tail(evlist, &parse_state.list);
++
+ 	if (!ret) {
+ 		struct evsel *last;
+ 
+-		if (list_empty(&parse_state.list)) {
+-			WARN_ONCE(true, "WARNING: event parser found nothing\n");
+-			return -1;
+-		}
+-
+-		perf_evlist__splice_list_tail(evlist, &parse_state.list);
+ 		evlist->nr_groups += parse_state.nr_groups;
+ 		last = evlist__last(evlist);
+ 		last->cmdline_group_boundary = true;
 -- 
 2.20.1
 
