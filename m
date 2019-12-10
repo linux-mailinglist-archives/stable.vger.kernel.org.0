@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C0D11868F
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 12:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75DFA11868C
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 12:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727370AbfLJLhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 06:37:51 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:39901 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727131AbfLJLhv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 06:37:51 -0500
-Received: by mail-lf1-f66.google.com with SMTP id y1so2112150lfb.6;
-        Tue, 10 Dec 2019 03:37:49 -0800 (PST)
+        id S1727306AbfLJLhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 06:37:53 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:37665 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727177AbfLJLhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 06:37:52 -0500
+Received: by mail-lf1-f65.google.com with SMTP id b15so13422351lfc.4;
+        Tue, 10 Dec 2019 03:37:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ZY93hUXgP9MdjxnR094b5yMFKUy+YydKGknr6vwPzSM=;
-        b=ss7kiSP711gFTqT3iMckKzXWfkAlF1673Dcdou2O2mtfrZuvYxjTdzVQsHnwaAOBE2
-         1XteH/vRG8FgqbVHGMkc59Eff18IF6Aa9vO7toaySTYu0eBmZrWIoZixXRUhmP4ehaI+
-         K5YkfDSKYy/gyo0bzXeGuwwCluynVEtYverCYT/cHPAaX8zRDv71av4EjoADPWPI257B
-         WhRfgBhoXf//i3Vbu0hzQIK8nV46hGkSR5vaGW9/U94lMTVhKYQTULLVU9XRg15bkNp4
-         jOTvcJsX+qMXA5NuZLtLoXcKORC2K1El87MwuxVpCEM7f6kr98y8o1ZC3GU62axh1YJo
-         KUeQ==
-X-Gm-Message-State: APjAAAUILQC8W5G6lHq5zPsNxw6OM587jQqL0U2KKSDFAwCFLJj6Sf+c
-        zkcy3iB39BS/XF7PRxO536M=
-X-Google-Smtp-Source: APXvYqzqUPnasg7TcmqZwZCL73CR6bdEW7PtC489KLUT5hWmCeetgNTRr1cvB2nHk0JBXWWB5Qq1tg==
-X-Received: by 2002:a19:6a06:: with SMTP id u6mr14684526lfu.187.1575977868601;
-        Tue, 10 Dec 2019 03:37:48 -0800 (PST)
+        bh=EqNpTSkza+eQj8K2xj20PlaT6wotGOHkK97zIiEKJAQ=;
+        b=KzN0d8GZAC4erZ09TcavQa5ecG7zuCLKWzEsHufEPKzXWEpD7o7OvLVHQNe7kLHzLL
+         TBhcXmxr6P6Uxj5Q8ZycE8uLfFx36xHj3ifYV1OFu7xhbitEi3ojQM0809wA25Jwh0QQ
+         qm7eqUBevtU3etyWPLJgTkVM9VgOjiLRyAvTWu46WFsRr/aNQkjKTQ2KEvzy7+kyypPp
+         Xmf6tCeYQQlDKGr1VZ3qEc2oA4w+RZT2IWsXDoq9tiRupRxg2la4TMVrVJquOXXfAVzB
+         YTgMgqdTwe0lEMplzCmxp29hrfjY3i54mQitDc0kzwLHQzCgsj87AE3WRYOuqaV6CNJw
+         U2fg==
+X-Gm-Message-State: APjAAAU0tx4GejOBDrFzK3stZCy3VQ0sEj+8gcaZjNAhdC6K4eZeuqGN
+        raxKkmIPmv85sVbq/nWY2g/ed4vH
+X-Google-Smtp-Source: APXvYqz3AlE6wPReZrV2ucIUecMHpCKtz7S6dDKY5ME3aa+t3OyIfslalKBvUVIPeddGQ3/bulIcZQ==
+X-Received: by 2002:a19:cc49:: with SMTP id c70mr11667364lfg.73.1575977869953;
+        Tue, 10 Dec 2019 03:37:49 -0800 (PST)
 Received: from xi.terra (c-14b8e655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.184.20])
-        by smtp.gmail.com with ESMTPSA id f24sm1615955ljm.12.2019.12.10.03.37.47
+        by smtp.gmail.com with ESMTPSA id u24sm1569296ljo.77.2019.12.10.03.37.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 10 Dec 2019 03:37:47 -0800 (PST)
 Received: from johan by xi.terra with local (Exim 4.92.3)
         (envelope-from <johan@xi.terra>)
-        id 1iedpt-00013j-QS; Tue, 10 Dec 2019 12:37:49 +0100
+        id 1iedpt-00013n-Tc; Tue, 10 Dec 2019 12:37:49 +0100
 From:   Johan Hovold <johan@kernel.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         stable <stable@vger.kernel.org>,
-        Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH 1/7] Input: pegasus_notetaker: fix endpoint sanity check
-Date:   Tue, 10 Dec 2019 12:37:31 +0100
-Message-Id: <20191210113737.4016-2-johan@kernel.org>
+        Vladis Dronov <vdronov@redhat.com>
+Subject: [PATCH 2/7] Input: aiptek: fix endpoint sanity check
+Date:   Tue, 10 Dec 2019 12:37:32 +0100
+Message-Id: <20191210113737.4016-3-johan@kernel.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191210113737.4016-1-johan@kernel.org>
 References: <20191210113737.4016-1-johan@kernel.org>
@@ -56,31 +56,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The driver was checking the number of endpoints of the first alternate
-setting instead of the current one, something which could be used by a
-malicious device (or USB descriptor fuzzer) to trigger a NULL-pointer
-dereference.
+setting instead of the current one, something which could lead to the
+driver binding to an invalid interface.
 
-Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
-Cc: stable <stable@vger.kernel.org>     # 4.8
-Cc: Martin Kepplinger <martink@posteo.de>
+This in turn could cause the driver to misbehave or trigger a WARN() in
+usb_submit_urb() that kernels with panic_on_warn set would choke on.
+
+Fixes: 8e20cf2bce12 ("Input: aiptek - fix crash on detecting device without endpoints")
+Cc: stable <stable@vger.kernel.org>     # 4.4
+Cc: Vladis Dronov <vdronov@redhat.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/input/tablet/pegasus_notetaker.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/tablet/aiptek.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-index a1f3a0cb197e..38f087404f7a 100644
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -275,7 +275,7 @@ static int pegasus_probe(struct usb_interface *intf,
- 		return -ENODEV;
+diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+index 2ca586fb914f..06d0ffef4a17 100644
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -1802,14 +1802,14 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
  
- 	/* Sanity check that the device has an endpoint */
+ 	/* Verify that a device really has an endpoint */
 -	if (intf->altsetting[0].desc.bNumEndpoints < 1) {
 +	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
- 		dev_err(&intf->dev, "Invalid number of endpoints\n");
- 		return -EINVAL;
+ 		dev_err(&intf->dev,
+ 			"interface has %d endpoints, but must have minimum 1\n",
+-			intf->altsetting[0].desc.bNumEndpoints);
++			intf->cur_altsetting->desc.bNumEndpoints);
+ 		err = -EINVAL;
+ 		goto fail3;
  	}
+-	endpoint = &intf->altsetting[0].endpoint[0].desc;
++	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+ 
+ 	/* Go set up our URB, which is called when the tablet receives
+ 	 * input.
 -- 
 2.24.0
 
