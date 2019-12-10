@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 527D311953D
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:20:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBEE7119561
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728899AbfLJVME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:12:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35424 "EHLO mail.kernel.org"
+        id S1727308AbfLJVUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:20:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728496AbfLJVMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:03 -0500
+        id S1728331AbfLJVME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F2C7246A8;
-        Tue, 10 Dec 2019 21:12:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B162246AA;
+        Tue, 10 Dec 2019 21:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012323;
-        bh=IwXQYZBTdOEeyTpQWl5WVVtM3dvJFv3nmjOMAVyAIzM=;
+        s=default; t=1576012324;
+        bh=aoGwtzeudb6z/V4Ipb9WWzgYaui7dppJKVndwpmTc8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMNoo1dO1X1KMrFP9/nE3j6Dbip6oL4E8OMzTyg7y5Ixifo81t4ErvWJBkaiJMTNq
-         lnmtSIbMojfAYzcsq/6OKXcmSGIacxh93mvKhLEXspLyyGXLyNjwa/jUa/9KqxO4ud
-         c80M4HohDRfyrTrCH8Gj6qGOu4KUhpS9AKqbcmPw=
+        b=JiRA0dx0Ao71Mv7+KEO8fso+6QPqOl0Ip7ZV2PXDTwRao6EMnJXeNOOZF8QOC5VBp
+         tWwbI+GK/9cnKApLyTzhRKJX5DhT1zh1mREPJZlKftI/UXUUJNFJCZHAgyMf5J+uXo
+         0yiWLdfe2/OsZDm0Ry5+6PBAAl7cpqbXErfFrE5Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenzo Bianconi <lorenzo@kernel.org>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 256/350] iio: imu: st_lsm6dsx: fix ODR check in st_lsm6dsx_write_raw
-Date:   Tue, 10 Dec 2019 16:06:01 -0500
-Message-Id: <20191210210735.9077-217-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 257/350] media: si470x-i2c: add missed operations in remove
+Date:   Tue, 10 Dec 2019 16:06:02 -0500
+Message-Id: <20191210210735.9077-218-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -43,52 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit fc3f6ad7f5dc6c899fbda0255865737bac88c2e0 ]
+[ Upstream commit 2df200ab234a86836a8879a05a8007d6b884eb14 ]
 
-Since st_lsm6dsx i2c master controller relies on accel device as trigger
-and slave devices can run at different ODRs we must select an accel_odr >=
-slave_odr. Report real accel ODR in st_lsm6dsx_check_odr() in order to
-properly set sensor frequency in st_lsm6dsx_write_raw and avoid to
-report unsupported frequency
+The driver misses calling v4l2_ctrl_handler_free and
+v4l2_device_unregister in remove like what is done in probe failure.
+Add the calls to fix it.
 
-Fixes: 6ffb55e5009ff ("iio: imu: st_lsm6dsx: introduce ST_LSM6DSX_ID_EXT sensor ids")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/media/radio/si470x/radio-si470x-i2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index fd5ebe1e1594f..28e011b35f21b 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -985,8 +985,7 @@ int st_lsm6dsx_check_odr(struct st_lsm6dsx_sensor *sensor, u16 odr, u8 *val)
- 		return -EINVAL;
+diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
+index 7541698a0be11..f491420d7b538 100644
+--- a/drivers/media/radio/si470x/radio-si470x-i2c.c
++++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
+@@ -482,6 +482,8 @@ static int si470x_i2c_remove(struct i2c_client *client)
+ 	if (radio->gpio_reset)
+ 		gpiod_set_value(radio->gpio_reset, 0);
  
- 	*val = odr_table->odr_avl[i].val;
--
--	return 0;
-+	return odr_table->odr_avl[i].hz;
++	v4l2_ctrl_handler_free(&radio->hdl);
++	v4l2_device_unregister(&radio->v4l2_dev);
+ 	return 0;
  }
  
- static u16 st_lsm6dsx_check_odr_dependency(struct st_lsm6dsx_hw *hw, u16 odr,
-@@ -1149,8 +1148,10 @@ static int st_lsm6dsx_write_raw(struct iio_dev *iio_dev,
- 	case IIO_CHAN_INFO_SAMP_FREQ: {
- 		u8 data;
- 
--		err = st_lsm6dsx_check_odr(sensor, val, &data);
--		if (!err)
-+		val = st_lsm6dsx_check_odr(sensor, val, &data);
-+		if (val < 0)
-+			err = val;
-+		else
- 			sensor->odr = val;
- 		break;
- 	}
 -- 
 2.20.1
 
