@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D22BC119AD4
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:10:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B86BB119B99
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728695AbfLJWET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:04:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35022 "EHLO mail.kernel.org"
+        id S1729064AbfLJWJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:09:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728684AbfLJWES (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:18 -0500
+        id S1728690AbfLJWET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 212CD20838;
-        Tue, 10 Dec 2019 22:04:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 272E5214D8;
+        Tue, 10 Dec 2019 22:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015457;
-        bh=7rK+JIe/KmRszDNh9Cway0FAlgeYkapuIm7N6OuYmjU=;
+        s=default; t=1576015458;
+        bh=qoWIB+0WSAHa/3SwzS6I1z52KR/Wh/ZPFYeXYzN9PqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EPnQJxO0G49d65hxUvOkoy9SihUrPnXsywebu8HYjm/f95+A4bnlnOay6h5kkTWyZ
-         P+721f560RjN3XzUu+VMfKwwuOO0gvvnvZ7IMiYnmCxF/5JzBFVEIg+l66ztldOGrw
-         Ax8TCT2VwoPgEGtWDO/Rf8WrOUXSn7jqGaQsrUVw=
+        b=NmLBShvoinb+vMd+Q72UPwqrAeaXcSk9f1H3SXOK7CZcpr89jrBLeBC1NgOCKPntj
+         vkb0EZf2H02GSAexKDutMOlMa7cjzX6WdRoUhYTfiMyZ5NVYxQb/oWGtlTpN5q8Tz3
+         1qVGYFvoJJskmTAYC9iAaJ36/iLYb8xKeGA6xax8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 064/130] phy: qcom-usb-hs: Fix extcon double register after power cycle
-Date:   Tue, 10 Dec 2019 17:01:55 -0500
-Message-Id: <20191210220301.13262-64-sashal@kernel.org>
+Cc:     Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 065/130] s390/time: ensure get_clock_monotonic() returns monotonic values
+Date:   Tue, 10 Dec 2019 17:01:56 -0500
+Message-Id: <20191210220301.13262-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -43,69 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[ Upstream commit 64f86b9978449ff05bfa6c64b4c5439e21e9c80b ]
+[ Upstream commit 011620688a71f2f1fe9901dbc2479a7c01053196 ]
 
-Commit f0b5c2c96370 ("phy: qcom-usb-hs: Replace the extcon API")
-switched from extcon_register_notifier() to the resource-managed
-API, i.e. devm_extcon_register_notifier().
+The current implementation of get_clock_monotonic() leaves it up to
+the caller to call the function with preemption disabled. The only
+core kernel caller (sched_clock) however does not disable preemption.
 
-This is problematic in this case, because the extcon notifier
-is dynamically registered/unregistered whenever the PHY is powered
-on/off. The resource-managed API does not unregister the notifier
-until the driver is removed, so as soon as the PHY is power cycled,
-attempting to register the notifier again results in:
+In order to make sure that all callers of this function see monotonic
+values handle disabling preemption within the function itself.
 
-	double register detected
-	WARNING: CPU: 1 PID: 182 at kernel/notifier.c:26 notifier_chain_register+0x74/0xa0
-	Call trace:
-	 ...
-	 extcon_register_notifier+0x74/0xb8
-	 devm_extcon_register_notifier+0x54/0xb8
-	 qcom_usb_hs_phy_power_on+0x1fc/0x208
-	 ...
-
-... and USB stops working after plugging the cable out and in
-another time.
-
-The easiest way to fix this is to make a partial revert of
-commit f0b5c2c96370 ("phy: qcom-usb-hs: Replace the extcon API")
-and avoid using the resource-managed API in this case.
-
-Fixes: f0b5c2c96370 ("phy: qcom-usb-hs: Replace the extcon API")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-usb-hs.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/timex.h | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-usb-hs.c b/drivers/phy/qualcomm/phy-qcom-usb-hs.c
-index 2d0c70b5589f4..643934a2a70c3 100644
---- a/drivers/phy/qualcomm/phy-qcom-usb-hs.c
-+++ b/drivers/phy/qualcomm/phy-qcom-usb-hs.c
-@@ -159,8 +159,8 @@ static int qcom_usb_hs_phy_power_on(struct phy *phy)
- 		/* setup initial state */
- 		qcom_usb_hs_phy_vbus_notifier(&uphy->vbus_notify, state,
- 					      uphy->vbus_edev);
--		ret = devm_extcon_register_notifier(&ulpi->dev, uphy->vbus_edev,
--				EXTCON_USB, &uphy->vbus_notify);
-+		ret = extcon_register_notifier(uphy->vbus_edev, EXTCON_USB,
-+					       &uphy->vbus_notify);
- 		if (ret)
- 			goto err_ulpi;
- 	}
-@@ -181,6 +181,9 @@ static int qcom_usb_hs_phy_power_off(struct phy *phy)
- {
- 	struct qcom_usb_hs_phy *uphy = phy_get_drvdata(phy);
+diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
+index 64539c221672b..0f12a3f912820 100644
+--- a/arch/s390/include/asm/timex.h
++++ b/arch/s390/include/asm/timex.h
+@@ -10,8 +10,9 @@
+ #ifndef _ASM_S390_TIMEX_H
+ #define _ASM_S390_TIMEX_H
  
-+	if (uphy->vbus_edev)
-+		extcon_unregister_notifier(uphy->vbus_edev, EXTCON_USB,
-+					   &uphy->vbus_notify);
- 	regulator_disable(uphy->v3p3);
- 	regulator_disable(uphy->v1p8);
- 	clk_disable_unprepare(uphy->sleep_clk);
+-#include <asm/lowcore.h>
++#include <linux/preempt.h>
+ #include <linux/time64.h>
++#include <asm/lowcore.h>
+ 
+ /* The value of the TOD clock for 1.1.1970. */
+ #define TOD_UNIX_EPOCH 0x7d91048bca000000ULL
+@@ -186,15 +187,18 @@ extern unsigned char tod_clock_base[16] __aligned(8);
+ /**
+  * get_clock_monotonic - returns current time in clock rate units
+  *
+- * The caller must ensure that preemption is disabled.
+  * The clock and tod_clock_base get changed via stop_machine.
+- * Therefore preemption must be disabled when calling this
+- * function, otherwise the returned value is not guaranteed to
+- * be monotonic.
++ * Therefore preemption must be disabled, otherwise the returned
++ * value is not guaranteed to be monotonic.
+  */
+ static inline unsigned long long get_tod_clock_monotonic(void)
+ {
+-	return get_tod_clock() - *(unsigned long long *) &tod_clock_base[1];
++	unsigned long long tod;
++
++	preempt_disable();
++	tod = get_tod_clock() - *(unsigned long long *) &tod_clock_base[1];
++	preempt_enable();
++	return tod;
+ }
+ 
+ /**
 -- 
 2.20.1
 
