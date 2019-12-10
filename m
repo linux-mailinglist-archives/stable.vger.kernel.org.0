@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB92119BC2
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6278F119BC6
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728398AbfLJWEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:04:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34532 "EHLO mail.kernel.org"
+        id S1729085AbfLJWLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:11:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728370AbfLJWEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:00 -0500
+        id S1728382AbfLJWEB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAB4D24656;
-        Tue, 10 Dec 2019 22:03:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFB8420838;
+        Tue, 10 Dec 2019 22:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015439;
-        bh=8w8s0yBl1dK+1lrctpEaz0CSbxA6raR3/iLBfgHuj0U=;
+        s=default; t=1576015440;
+        bh=7Lwsdk8FMDxQADLZXYHrz6IWTdOq72axp5dI/yhXioY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3sA1DSFs4r1ekfoUTbSmwcwKTTzDyiR8z6Kr4Z+VXfdZJJU2fqdXzknbHARi33Q5
-         IvqYi8//AndjJqKZnFlslp2R3UnuJYHWQAvd3zeiARcFrGVCTfQBgfwQbTJ3jBScco
-         8qa95ewONPl9q76mH1aECKTh8+YY8peFpPZNo+6g=
+        b=VPEONqC0HhlOBnncs3tQ6s8pJBPna50Qde5tsy6EMGKUAY3uuLVrZNM1pLWz0vxr2
+         DwN2HK9P8t/sm3K3AiD+AyhShnIiI7lcUhPEnR4EobJdc0PLJ/0fjFkMhk1YSP+ynJ
+         tD/R6VGAO63xSgSf01/bvKw7OCirv9ip4GJWQx8I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ingo Rohloff <ingo.rohloff@lauterbach.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 048/130] usb: usbfs: Suppress problematic bind and unbind uevents.
-Date:   Tue, 10 Dec 2019 17:01:39 -0500
-Message-Id: <20191210220301.13262-48-sashal@kernel.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 049/130] iio: adc: max1027: Reset the device at probe time
+Date:   Tue, 10 Dec 2019 17:01:40 -0500
+Message-Id: <20191210220301.13262-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -43,80 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ingo Rohloff <ingo.rohloff@lauterbach.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit abb0b3d96a1f9407dd66831ae33985a386d4200d ]
+[ Upstream commit db033831b4f5589f9fcbadb837614a7c4eac0308 ]
 
-commit 1455cf8dbfd0 ("driver core: emit uevents when device is bound
-to a driver") added bind and unbind uevents when a driver is bound or
-unbound to a physical device.
+All the registers are configured by the driver, let's reset the chip
+at probe time, avoiding any conflict with a possible earlier
+configuration.
 
-For USB devices which are handled via the generic usbfs layer (via
-libusb for example), this is problematic:
-Each time a user space program calls
-   ioctl(usb_fd, USBDEVFS_CLAIMINTERFACE, &usb_intf_nr);
-and then later
-   ioctl(usb_fd, USBDEVFS_RELEASEINTERFACE, &usb_intf_nr);
-The kernel will now produce a bind or unbind event, which does not
-really contain any useful information.
-
-This allows a user space program to run a DoS attack against programs
-which listen to uevents (in particular systemd/eudev/upowerd):
-A malicious user space program just has to call in a tight loop
-
-   ioctl(usb_fd, USBDEVFS_CLAIMINTERFACE, &usb_intf_nr);
-   ioctl(usb_fd, USBDEVFS_RELEASEINTERFACE, &usb_intf_nr);
-
-With this loop the malicious user space program floods the kernel and
-all programs listening to uevents with tons of bind and unbind
-events.
-
-This patch suppresses uevents for ioctls USBDEVFS_CLAIMINTERFACE and
-USBDEVFS_RELEASEINTERFACE.
-
-Signed-off-by: Ingo Rohloff <ingo.rohloff@lauterbach.com>
-Link: https://lore.kernel.org/r/20191011115518.2801-1-ingo.rohloff@lauterbach.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/devio.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/iio/adc/max1027.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-index 62b2a7105f023..4fb4cf8c2f14d 100644
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -755,8 +755,15 @@ static int claimintf(struct usb_dev_state *ps, unsigned int ifnum)
- 	intf = usb_ifnum_to_if(dev, ifnum);
- 	if (!intf)
- 		err = -ENOENT;
--	else
-+	else {
-+		unsigned int old_suppress;
-+
-+		/* suppress uevents while claiming interface */
-+		old_suppress = dev_get_uevent_suppress(&intf->dev);
-+		dev_set_uevent_suppress(&intf->dev, 1);
- 		err = usb_driver_claim_interface(&usbfs_driver, intf, ps);
-+		dev_set_uevent_suppress(&intf->dev, old_suppress);
-+	}
- 	if (err == 0)
- 		set_bit(ifnum, &ps->ifclaimed);
- 	return err;
-@@ -776,7 +783,13 @@ static int releaseintf(struct usb_dev_state *ps, unsigned int ifnum)
- 	if (!intf)
- 		err = -ENOENT;
- 	else if (test_and_clear_bit(ifnum, &ps->ifclaimed)) {
-+		unsigned int old_suppress;
-+
-+		/* suppress uevents while releasing interface */
-+		old_suppress = dev_get_uevent_suppress(&intf->dev);
-+		dev_set_uevent_suppress(&intf->dev, 1);
- 		usb_driver_release_interface(&usbfs_driver, intf);
-+		dev_set_uevent_suppress(&intf->dev, old_suppress);
- 		err = 0;
+diff --git a/drivers/iio/adc/max1027.c b/drivers/iio/adc/max1027.c
+index ebc715927e63b..03af02769370b 100644
+--- a/drivers/iio/adc/max1027.c
++++ b/drivers/iio/adc/max1027.c
+@@ -462,6 +462,14 @@ static int max1027_probe(struct spi_device *spi)
+ 		goto fail_dev_register;
  	}
- 	return err;
+ 
++	/* Internal reset */
++	st->reg = MAX1027_RST_REG;
++	ret = spi_write(st->spi, &st->reg, 1);
++	if (ret < 0) {
++		dev_err(&indio_dev->dev, "Failed to reset the ADC\n");
++		return ret;
++	}
++
+ 	/* Disable averaging */
+ 	st->reg = MAX1027_AVG_REG;
+ 	ret = spi_write(st->spi, &st->reg, 1);
 -- 
 2.20.1
 
