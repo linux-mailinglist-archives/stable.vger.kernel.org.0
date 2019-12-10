@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1490A1199CE
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5CA3119A11
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbfLJVIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:08:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56154 "EHLO mail.kernel.org"
+        id S1728421AbfLJVt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:49:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727722AbfLJVIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:37 -0500
+        id S1727261AbfLJVIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDF2724687;
-        Tue, 10 Dec 2019 21:08:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23EC224699;
+        Tue, 10 Dec 2019 21:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012116;
-        bh=mZZJPkpXGAMnfeH+BanVpCPUZl+DzohFfp6s/AyksWw=;
+        s=default; t=1576012118;
+        bh=CD9pA2/dHQW2yqQUcRti5TU0wbUQTrWO6caMvvxDoPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LuH4l1NwBTyuXAcqHNZ1XIwPH7SWKfSpjyV8QBAdwQE1hoG4Bg0Rb/+CTsJ403njR
-         V5u3Wj8pbWegQO5zZkN7DcHCX8sZmVtw6uP0ZsKO1C+MZXk1N41wAC6Ton9PvK+vfo
-         EsNwV/n26HINonKvdlIIev+e8DsdLkYrWoGLoKRU=
+        b=XoPnCQS/hJKlYRWe0cff61gvSFTHWTAiFS6o4I/RQFv33VFvcPpgjIrE70+f3WSfs
+         Z4RVdjuxNsprnR7mNmUfJfo8XXuogZdg/wqF6/9W6HOIkr9gpp2vkYchg2j3GD3nh/
+         QRHLu4KaXluLxC86BJPCBO2G3AmNh9bv67GuXmK0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 088/350] ASoC: SOF: enable sync_write in hdac_bus
-Date:   Tue, 10 Dec 2019 16:03:13 -0500
-Message-Id: <20191210210735.9077-49-sashal@kernel.org>
+Cc:     Benoit Parrot <bparrot@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 090/350] media: ti-vpe: vpe: fix a v4l2-compliance warning about invalid pixel format
+Date:   Tue, 10 Dec 2019 16:03:15 -0500
+Message-Id: <20191210210735.9077-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,42 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit f3416e7144f5d4ba0fc5dcef6ebfff891266c46a ]
+[ Upstream commit 06bec72b250b2cb3ba96fa45c2b8e0fb83745517 ]
 
-Align SOF HDA implementation with snd-hda-intel driver and enable
-sync_write flag for all supported Intel platforms in SOF. When set,
-a sync is issued after each verb write.
+v4l2-compliance warns with this message:
 
-Sync after write has helped to overcome intermittent delays in
-system resume flow on Intel Coffee Lake systems, and most recently
-probe errors related to the HDMI codec on Ice Lake systems.
+   warn: v4l2-test-formats.cpp(717): \
+ 	TRY_FMT cannot handle an invalid pixelformat.
+   warn: v4l2-test-formats.cpp(718): \
+ 	This may or may not be a problem. For more information see:
+   warn: v4l2-test-formats.cpp(719): \
+ 	http://www.mail-archive.com/linux-media@vger.kernel.org/msg56550.html
+	...
+   test VIDIOC_TRY_FMT: FAIL
 
-Matches the snd-hda-intel driver change done in commit 2756d9143aa5
-("ALSA: hda - Fix intermittent CORB/RIRB stall on Intel chips").
+We need to make sure that the returns a valid pixel format in all
+instance. Based on the v4l2 framework convention drivers must return a
+valid pixel format when the requested pixel format is either invalid or
+not supported.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191008164443.1358-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/ti-vpe/vpe.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 06e84679087bc..5a5163eef2ef4 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -268,6 +268,7 @@ static int hda_init(struct snd_sof_dev *sdev)
+diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
+index 5ba72445584da..328976a529414 100644
+--- a/drivers/media/platform/ti-vpe/vpe.c
++++ b/drivers/media/platform/ti-vpe/vpe.c
+@@ -338,20 +338,25 @@ enum {
+ };
  
- 	bus->use_posbuf = 1;
- 	bus->bdl_pos_adj = 0;
-+	bus->sync_write = 1;
+ /* find our format description corresponding to the passed v4l2_format */
+-static struct vpe_fmt *find_format(struct v4l2_format *f)
++static struct vpe_fmt *__find_format(u32 fourcc)
+ {
+ 	struct vpe_fmt *fmt;
+ 	unsigned int k;
  
- 	mutex_init(&hbus->prepare_mutex);
- 	hbus->pci = pci;
+ 	for (k = 0; k < ARRAY_SIZE(vpe_formats); k++) {
+ 		fmt = &vpe_formats[k];
+-		if (fmt->fourcc == f->fmt.pix.pixelformat)
++		if (fmt->fourcc == fourcc)
+ 			return fmt;
+ 	}
+ 
+ 	return NULL;
+ }
+ 
++static struct vpe_fmt *find_format(struct v4l2_format *f)
++{
++	return __find_format(f->fmt.pix.pixelformat);
++}
++
+ /*
+  * there is one vpe_dev structure in the driver, it is shared by
+  * all instances.
+@@ -1574,9 +1579,9 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
+ 	unsigned int stride = 0;
+ 
+ 	if (!fmt || !(fmt->types & type)) {
+-		vpe_err(ctx->dev, "Fourcc format (0x%08x) invalid.\n",
++		vpe_dbg(ctx->dev, "Fourcc format (0x%08x) invalid.\n",
+ 			pix->pixelformat);
+-		return -EINVAL;
++		fmt = __find_format(V4L2_PIX_FMT_YUYV);
+ 	}
+ 
+ 	if (pix->field != V4L2_FIELD_NONE && pix->field != V4L2_FIELD_ALTERNATE
 -- 
 2.20.1
 
