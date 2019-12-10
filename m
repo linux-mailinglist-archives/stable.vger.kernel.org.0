@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 599A2119BD4
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDAD4119BD3
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728193AbfLJWDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728209AbfLJWDv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 17:03:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34226 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728165AbfLJWDu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:03:50 -0500
+        id S1728179AbfLJWDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:03:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E3AF214AF;
-        Tue, 10 Dec 2019 22:03:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA33D20838;
+        Tue, 10 Dec 2019 22:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015429;
-        bh=SGz8r9eKX9gBJ68+HikN3ji8vq9hVDcvAiYpnhVEZjQ=;
+        s=default; t=1576015430;
+        bh=zb/n2u+msx7BwtU6xjBm5jMJhAaRbBRGOurrxwbXp1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIY4Xr4IKiZFaO8AYc7dyPYIOSM4IYM599z7OCBRJCPGhmXKN4lXsMuJplOpYnHAd
-         PRigRA90Q5r/oqMpdCY6OPkAIrL2RsKz0X0jmvACeU9BGodaj04C1PiPp9FELrLwY9
-         1nq1iZbtC4KCuUgIUqCng9xbpxlmP1sWQ7VPKmzI=
+        b=dWsmZcTKl2k76RFE6ImEdxcjqC+ipYvgpAYAiZ9oNrB68XY/fJJnv6HzR0gm+2zLD
+         Gi0dLUfvaYSd2eeCNkW52l5yBU3S7YFGDEx2esdPWGdoWOvEmS+MtHPDKGAlqLDhM4
+         iipFVXucEtVddN4E+HAgOOsv3/eK1bobjQrEmfkg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benoit Parrot <bparrot@ti.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 040/130] media: ti-vpe: vpe: fix a v4l2-compliance failure about invalid sizeimage
-Date:   Tue, 10 Dec 2019 17:01:31 -0500
-Message-Id: <20191210220301.13262-40-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 041/130] extcon: sm5502: Reset registers during initialization
+Date:   Tue, 10 Dec 2019 17:01:32 -0500
+Message-Id: <20191210220301.13262-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -45,62 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 0bac73adea4df8d34048b38f6ff24dc3e73e90b6 ]
+[ Upstream commit 6942635032cfd3e003e980d2dfa4e6323a3ce145 ]
 
-v4l2-compliance fails with this message:
+On some devices (e.g. Samsung Galaxy A5 (2015)), the bootloader
+seems to keep interrupts enabled for SM5502 when booting Linux.
+Changing the cable state (i.e. plugging in a cable) - until the driver
+is loaded - will therefore produce an interrupt that is never read.
 
-   fail: v4l2-test-formats.cpp(463): !pfmt.sizeimage
-   fail: v4l2-test-formats.cpp(736): \
-	Video Capture Multiplanar is valid, \
-	but TRY_FMT failed to return a format
-   test VIDIOC_TRY_FMT: FAIL
+In this situation, the cable state will be stuck forever on the
+initial state because SM5502 stops sending interrupts.
+This can be avoided by clearing those pending interrupts after
+the driver has been loaded.
 
-This failure is causd by the driver failing to handle out range
-'bytesperline' values from user space applications.
+One way to do this is to reset all registers to default state
+by writing to SM5502_REG_RESET. This ensures that we start from
+a clean state, with all interrupts disabled.
 
-VPDMA hardware is limited to 64k line stride (16 bytes aligned, so 65520
-bytes). So make sure the provided or calculated 'bytesperline' is
-smaller than the maximum value.
-
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Suggested-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/vpdma.h | 1 +
- drivers/media/platform/ti-vpe/vpe.c   | 4 ++++
- 2 files changed, 5 insertions(+)
+ drivers/extcon/extcon-sm5502.c | 4 ++++
+ drivers/extcon/extcon-sm5502.h | 2 ++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/media/platform/ti-vpe/vpdma.h b/drivers/media/platform/ti-vpe/vpdma.h
-index 7e611501c2916..f29074c849155 100644
---- a/drivers/media/platform/ti-vpe/vpdma.h
-+++ b/drivers/media/platform/ti-vpe/vpdma.h
-@@ -60,6 +60,7 @@ struct vpdma_data_format {
- 						 * line stride of source and dest
- 						 * buffers should be 16 byte aligned
- 						 */
-+#define VPDMA_MAX_STRIDE		65520	/* Max line stride 16 byte aligned */
- #define VPDMA_DTD_DESC_SIZE		32	/* 8 words */
- #define VPDMA_CFD_CTD_DESC_SIZE		16	/* 4 words */
+diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
+index 106ef0297b537..1a1ee3db3455f 100644
+--- a/drivers/extcon/extcon-sm5502.c
++++ b/drivers/extcon/extcon-sm5502.c
+@@ -69,6 +69,10 @@ struct sm5502_muic_info {
+ /* Default value of SM5502 register to bring up MUIC device. */
+ static struct reg_data sm5502_reg_data[] = {
+ 	{
++		.reg = SM5502_REG_RESET,
++		.val = SM5502_REG_RESET_MASK,
++		.invert = true,
++	}, {
+ 		.reg = SM5502_REG_CONTROL,
+ 		.val = SM5502_REG_CONTROL_MASK_INT_MASK,
+ 		.invert = false,
+diff --git a/drivers/extcon/extcon-sm5502.h b/drivers/extcon/extcon-sm5502.h
+index 974b53222f568..12f8b01e57538 100644
+--- a/drivers/extcon/extcon-sm5502.h
++++ b/drivers/extcon/extcon-sm5502.h
+@@ -241,6 +241,8 @@ enum sm5502_reg {
+ #define DM_DP_SWITCH_UART			((DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DP_SHIFT) \
+ 						| (DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DM_SHIFT))
  
-diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
-index 7af66fe95a542..2e8970c7e22da 100644
---- a/drivers/media/platform/ti-vpe/vpe.c
-+++ b/drivers/media/platform/ti-vpe/vpe.c
-@@ -1702,6 +1702,10 @@ static int __vpe_try_fmt(struct vpe_ctx *ctx, struct v4l2_format *f,
- 		if (stride > plane_fmt->bytesperline)
- 			plane_fmt->bytesperline = stride;
- 
-+		plane_fmt->bytesperline = clamp_t(u32, plane_fmt->bytesperline,
-+						  stride,
-+						  VPDMA_MAX_STRIDE);
++#define SM5502_REG_RESET_MASK			(0x1)
 +
- 		plane_fmt->bytesperline = ALIGN(plane_fmt->bytesperline,
- 						VPDMA_STRIDE_ALIGN);
- 
+ /* SM5502 Interrupts */
+ enum sm5502_irq {
+ 	/* INT1 */
 -- 
 2.20.1
 
