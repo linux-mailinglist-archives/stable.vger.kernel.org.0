@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D99B2119678
+	by mail.lfdr.de (Postfix) with ESMTP id 69D24119677
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:27:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726841AbfLJV1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727312AbfLJV1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:27:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56214 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729469AbfLJVZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729474AbfLJVZZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Dec 2019 16:25:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CA4521D7D;
-        Tue, 10 Dec 2019 21:25:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B22921556;
+        Tue, 10 Dec 2019 21:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013124;
-        bh=YyPzPT3aJVPf7MSddQdNvkX3fuIxyFCU9WurLQdBgRg=;
+        s=default; t=1576013125;
+        bh=pfweuhzheRT+MBCmUjZdFceQheS50mACzk1KJkOnWKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ims8hFC10XSfU4AOwHQHYXKyDwM/w9zt2fAB0IG8wJ6DuedKit/SKGpXd2NrPNdd3
-         9Xrdi0oUh2gox0abTFIgMxwbrObKYm2E2OmUqzYVhTzunVzl4pQYCbrUEVlWEj5+Wo
-         hesumOoRaQh3+uV3P1WjHHvNrn0lU/T/9v8ms0dc=
+        b=Fj5PVfx7Brg76qVs9O6h6NNhNwU0N+QFbp4+Cke2SHSs670PE2s9rC5XxSjaLJwmR
+         mDa9LoB5Gp+R5viLZPB80/2NniCNiil2Z7H9SeuwWCU3j0cQApS7LM836dhnFV3HRs
+         cxgWff7TQXQ3VIujwbaQzAPNFKHsk0Lu2/14wR5Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Zhang <Jack.Zhang1@amd.com>, Feifei Xu <Feifei.Xu@amd.com>,
+Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Chunming Zhou <david1.zhou@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 010/292] drm/amdgpu/sriov: add ring_stop before ring_create in psp v11 code
-Date:   Tue, 10 Dec 2019 16:20:29 -0500
-Message-Id: <20191210212511.11392-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 011/292] drm/amdgpu: grab the id mgr lock while accessing passid_mapping
+Date:   Tue, 10 Dec 2019 16:20:30 -0500
+Message-Id: <20191210212511.11392-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210212511.11392-1-sashal@kernel.org>
 References: <20191210212511.11392-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,111 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Zhang <Jack.Zhang1@amd.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 51c0f58e9f6af3a387d14608033e6796a7ad90ee ]
+[ Upstream commit 6817bf283b2b851095825ec7f0e9f10398e09125 ]
 
-psp  v11 code missed ring stop in ring create function(VMR)
-while psp v3.1 code had the code. This will cause VM destroy1
-fail and psp ring create fail.
+Need to make sure that we actually dropping the right fence.
+Could be done with RCU as well, but to complicated for a fix.
 
-For SIOV-VF, ring_stop should not be deleted in ring_create
-function.
-
-Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
-Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Chunming Zhou <david1.zhou@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/psp_v11_0.c | 61 ++++++++++++++------------
- 1 file changed, 34 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
-index 41b72588adcf5..68774524e58bb 100644
---- a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
-@@ -373,6 +373,34 @@ static bool psp_v11_0_support_vmr_ring(struct psp_context *psp)
- 	return false;
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+index 24c3c05e2fb7d..4a7b2ffd3bfe3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -1036,10 +1036,8 @@ int amdgpu_vm_flush(struct amdgpu_ring *ring, struct amdgpu_job *job, bool need_
+ 		id->oa_base != job->oa_base ||
+ 		id->oa_size != job->oa_size);
+ 	bool vm_flush_needed = job->vm_needs_flush;
+-	bool pasid_mapping_needed = id->pasid != job->pasid ||
+-		!id->pasid_mapping ||
+-		!dma_fence_is_signaled(id->pasid_mapping);
+ 	struct dma_fence *fence = NULL;
++	bool pasid_mapping_needed;
+ 	unsigned patch_offset = 0;
+ 	int r;
  
-+static int psp_v11_0_ring_stop(struct psp_context *psp,
-+			      enum psp_ring_type ring_type)
-+{
-+	int ret = 0;
-+	struct amdgpu_device *adev = psp->adev;
-+
-+	/* Write the ring destroy command*/
-+	if (psp_v11_0_support_vmr_ring(psp))
-+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
-+				     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING);
-+	else
-+		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64,
-+				     GFX_CTRL_CMD_ID_DESTROY_RINGS);
-+
-+	/* there might be handshake issue with hardware which needs delay */
-+	mdelay(20);
-+
-+	/* Wait for response flag (bit 31) */
-+	if (psp_v11_0_support_vmr_ring(psp))
-+		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_101),
-+				   0x80000000, 0x80000000, false);
-+	else
-+		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
-+				   0x80000000, 0x80000000, false);
-+
-+	return ret;
-+}
-+
- static int psp_v11_0_ring_create(struct psp_context *psp,
- 				enum psp_ring_type ring_type)
- {
-@@ -382,6 +410,12 @@ static int psp_v11_0_ring_create(struct psp_context *psp,
- 	struct amdgpu_device *adev = psp->adev;
+@@ -1049,6 +1047,12 @@ int amdgpu_vm_flush(struct amdgpu_ring *ring, struct amdgpu_job *job, bool need_
+ 		pasid_mapping_needed = true;
+ 	}
  
- 	if (psp_v11_0_support_vmr_ring(psp)) {
-+		ret = psp_v11_0_ring_stop(psp, ring_type);
-+		if (ret) {
-+			DRM_ERROR("psp_v11_0_ring_stop_sriov failed!\n");
-+			return ret;
-+		}
++	mutex_lock(&id_mgr->lock);
++	if (id->pasid != job->pasid || !id->pasid_mapping ||
++	    !dma_fence_is_signaled(id->pasid_mapping))
++		pasid_mapping_needed = true;
++	mutex_unlock(&id_mgr->lock);
 +
- 		/* Write low address of the ring to C2PMSG_102 */
- 		psp_ring_reg = lower_32_bits(ring->ring_mem_mc_addr);
- 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102, psp_ring_reg);
-@@ -426,33 +460,6 @@ static int psp_v11_0_ring_create(struct psp_context *psp,
- 	return ret;
- }
+ 	gds_switch_needed &= !!ring->funcs->emit_gds_switch;
+ 	vm_flush_needed &= !!ring->funcs->emit_vm_flush  &&
+ 			job->vm_pd_addr != AMDGPU_BO_INVALID_OFFSET;
+@@ -1088,9 +1092,11 @@ int amdgpu_vm_flush(struct amdgpu_ring *ring, struct amdgpu_job *job, bool need_
+ 	}
  
--static int psp_v11_0_ring_stop(struct psp_context *psp,
--			      enum psp_ring_type ring_type)
--{
--	int ret = 0;
--	struct amdgpu_device *adev = psp->adev;
--
--	/* Write the ring destroy command*/
--	if (psp_v11_0_support_vmr_ring(psp))
--		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
--				     GFX_CTRL_CMD_ID_DESTROY_GPCOM_RING);
--	else
--		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_64,
--				     GFX_CTRL_CMD_ID_DESTROY_RINGS);
--
--	/* there might be handshake issue with hardware which needs delay */
--	mdelay(20);
--
--	/* Wait for response flag (bit 31) */
--	if (psp_v11_0_support_vmr_ring(psp))
--		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_101),
--				   0x80000000, 0x80000000, false);
--	else
--		ret = psp_wait_for(psp, SOC15_REG_OFFSET(MP0, 0, mmMP0_SMN_C2PMSG_64),
--				   0x80000000, 0x80000000, false);
--
--	return ret;
--}
+ 	if (pasid_mapping_needed) {
++		mutex_lock(&id_mgr->lock);
+ 		id->pasid = job->pasid;
+ 		dma_fence_put(id->pasid_mapping);
+ 		id->pasid_mapping = dma_fence_get(fence);
++		mutex_unlock(&id_mgr->lock);
+ 	}
+ 	dma_fence_put(fence);
  
- static int psp_v11_0_ring_destroy(struct psp_context *psp,
- 				 enum psp_ring_type ring_type)
 -- 
 2.20.1
 
