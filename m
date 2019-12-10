@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1AB511964A
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3542711964F
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729296AbfLJVZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:25:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56994 "EHLO mail.kernel.org"
+        id S1728638AbfLJV0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:26:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727975AbfLJVZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727805AbfLJVZm (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Dec 2019 16:25:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E74D5206D5;
-        Tue, 10 Dec 2019 21:25:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2917020836;
+        Tue, 10 Dec 2019 21:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013140;
-        bh=Q4VBBcVHLUBqiODns1zyQG5zfK8ZHI0uDaGYoWiea0U=;
+        s=default; t=1576013141;
+        bh=pFS7/13JJX6dO6lO1moac4r+EqYfl0x/LCkLPyn44F0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UdEUMuPg9WmufsAXN1hqd8kJYBmRurF2o3kez5RXpv/IEBai9AYIoTCpaTZd0zWKk
-         z8mHWKHUEbFJdTKHDUVwAnPRFoNlNmlO3H35tFD40UAtQJCk4kKBA8pJA8vQzILFlg
-         DZ7aja27mGZOGVm7f53dsZrSjccCvDLQaVBnjegw=
+        b=nwhAXtJa6KWw/XyFMap3oikMC2KgQKdTrFxRvCYKQW9Zw96/KjaSmZiQyEUDU6Cfr
+         AMlHHTupMJeyv+rfHVlDfPzFOAaD77HaaH/bFUXdBmtc7CgYVNT8Cznp+WB37SFShq
+         KqTflBQStgimyKtHwL/pvqvwhbZz1RoUiuM9QlXc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anilkumar Kolli <akolli@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 024/292] ath10k: fix backtrace on coredump
-Date:   Tue, 10 Dec 2019 16:20:43 -0500
-Message-Id: <20191210212511.11392-24-sashal@kernel.org>
+Cc:     Max Gurtovoy <maxg@mellanox.com>, Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 025/292] IB/iser: bound protection_sg size by data_sg size
+Date:   Tue, 10 Dec 2019 16:20:44 -0500
+Message-Id: <20191210212511.11392-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210212511.11392-1-sashal@kernel.org>
 References: <20191210212511.11392-1-sashal@kernel.org>
@@ -44,72 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anilkumar Kolli <akolli@codeaurora.org>
+From: Max Gurtovoy <maxg@mellanox.com>
 
-[ Upstream commit d98ddae85a4a57124f87960047b1b6419312147f ]
+[ Upstream commit 7718cf03c3ce4b6ebd90107643ccd01c952a1fce ]
 
-In a multiradio board with one QCA9984 and one AR9987
-after enabling the crashdump with module parameter
-coredump_mask=7, below backtrace is seen.
+In case we don't set the sg_prot_tablesize, the scsi layer assign the
+default size (65535 entries). We should limit this size since we should
+take into consideration the underlaying device capability. This cap is
+considered when calculating the sg_tablesize. Otherwise, for example,
+we can get that /sys/block/sdb/queue/max_segments is 128 and
+/sys/block/sdb/queue/max_integrity_segments is 65535.
 
-vmalloc: allocation failure: 0 bytes
- kworker/u4:0: page allocation failure: order:0, mode:0x80d2
- CPU: 0 PID: 6 Comm: kworker/u4:0 Not tainted 3.14.77 #130
- Workqueue: ath10k_wq ath10k_core_register_work [ath10k_core]
- (unwind_backtrace) from [<c021abf8>] (show_stack+0x10/0x14)
- (dump_stack+0x80/0xa0)
- (warn_alloc_failed+0xd0/0xfc)
- (__vmalloc_node_range+0x1b4/0x1d8)
- (__vmalloc_node+0x34/0x40)
- (vzalloc+0x24/0x30)
- (ath10k_coredump_register+0x6c/0x88 [ath10k_core])
- (ath10k_core_register_work+0x350/0xb34 [ath10k_core])
- (process_one_work+0x20c/0x32c)
- (worker_thread+0x228/0x360)
-
-This is due to ath10k_hw_mem_layout is not defined for AR9987.
-For coredump undefined hw ramdump_size is 0.
-Check for the ramdump_size before allocation memory.
-
-Tested on: AR9987, QCA9984
-FW version: 10.4-3.9.0.2-00044
-
-Signed-off-by: Anilkumar Kolli <akolli@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1569359027-10987-1-git-send-email-maxg@mellanox.com
+Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/coredump.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/infiniband/ulp/iser/iscsi_iser.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/coredump.c b/drivers/net/wireless/ath/ath10k/coredump.c
-index b6d2932383cf6..1cfe75a2d0c3a 100644
---- a/drivers/net/wireless/ath/ath10k/coredump.c
-+++ b/drivers/net/wireless/ath/ath10k/coredump.c
-@@ -1208,9 +1208,11 @@ static struct ath10k_dump_file_data *ath10k_coredump_build(struct ath10k *ar)
- 		dump_tlv = (struct ath10k_tlv_dump_data *)(buf + sofar);
- 		dump_tlv->type = cpu_to_le32(ATH10K_FW_CRASH_DUMP_RAM_DATA);
- 		dump_tlv->tlv_len = cpu_to_le32(crash_data->ramdump_buf_len);
--		memcpy(dump_tlv->tlv_data, crash_data->ramdump_buf,
--		       crash_data->ramdump_buf_len);
--		sofar += sizeof(*dump_tlv) + crash_data->ramdump_buf_len;
-+		if (crash_data->ramdump_buf_len) {
-+			memcpy(dump_tlv->tlv_data, crash_data->ramdump_buf,
-+			       crash_data->ramdump_buf_len);
-+			sofar += sizeof(*dump_tlv) + crash_data->ramdump_buf_len;
-+		}
- 	}
+diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.c b/drivers/infiniband/ulp/iser/iscsi_iser.c
+index 2e72fc5af1573..c4c015c604465 100644
+--- a/drivers/infiniband/ulp/iser/iscsi_iser.c
++++ b/drivers/infiniband/ulp/iser/iscsi_iser.c
+@@ -646,6 +646,7 @@ iscsi_iser_session_create(struct iscsi_endpoint *ep,
+ 		if (ib_conn->pi_support) {
+ 			u32 sig_caps = ib_dev->attrs.sig_prot_cap;
  
- 	mutex_unlock(&ar->dump_mutex);
-@@ -1257,6 +1259,9 @@ int ath10k_coredump_register(struct ath10k *ar)
- 	if (test_bit(ATH10K_FW_CRASH_DUMP_RAM_DATA, &ath10k_coredump_mask)) {
- 		crash_data->ramdump_buf_len = ath10k_coredump_get_ramdump_size(ar);
- 
-+		if (!crash_data->ramdump_buf_len)
-+			return 0;
-+
- 		crash_data->ramdump_buf = vzalloc(crash_data->ramdump_buf_len);
- 		if (!crash_data->ramdump_buf)
- 			return -ENOMEM;
++			shost->sg_prot_tablesize = shost->sg_tablesize;
+ 			scsi_host_set_prot(shost, iser_dif_prot_caps(sig_caps));
+ 			scsi_host_set_guard(shost, SHOST_DIX_GUARD_IP |
+ 						   SHOST_DIX_GUARD_CRC);
 -- 
 2.20.1
 
