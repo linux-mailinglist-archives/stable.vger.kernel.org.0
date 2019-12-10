@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A25119B76
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67DE3119B03
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727415AbfLJWIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:08:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35888 "EHLO mail.kernel.org"
+        id S1729242AbfLJWEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:04:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729165AbfLJWEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:52 -0500
+        id S1729212AbfLJWEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E237214D8;
-        Tue, 10 Dec 2019 22:04:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FFE621556;
+        Tue, 10 Dec 2019 22:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015491;
-        bh=C42BRbcE2HhRWgby0QRmEf51Q3JUXplnArpzlaXaRTQ=;
+        s=default; t=1576015492;
+        bh=aDx2lZKA/chrucwQ0T4xIN+1Gy40uexmfEBvU8OFL04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUps1SHg0zQDrA02TBzom/dBDgvsnYzn5g+V6EmxiYZZOwKZUHI4Ol7Zm4JG0lVQd
-         b7IzxdqeQZP1DZhbOIGC8H5eo2qSuPWbOQ7JdP4T3QJjoB2+OsnUGZPx7gwLeXVanQ
-         b4jJai/XoP5wfj4pW1RYFgw8NSbptxmICDUAxizM=
+        b=lCTMkDosXS+RnBujbDcelMjav0SbFf6UYHF9cSsmHiiK8EAC6zmPkM/ejPc9ZfaJ1
+         MPU9UvWk8EIA/+15PFrtyYNyODt24jg5wv7Jsi8PLwRSFyRXWbfhH/HhRMJM+8nZln
+         kmlNEKSKQT9606laZDgVzC1DMHoKoXRmNm/eFKK4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Tom Zanussi <tom.zanussi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 092/130] perf probe: Skip overlapped location on searching variables
-Date:   Tue, 10 Dec 2019 17:02:23 -0500
-Message-Id: <20191210220301.13262-92-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 093/130] perf probe: Return a better scope DIE if there is no best scope
+Date:   Tue, 10 Dec 2019 17:02:24 -0500
+Message-Id: <20191210220301.13262-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -47,100 +49,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit dee36a2abb67c175265d49b9a8c7dfa564463d9a ]
+[ Upstream commit c701636aeec4c173208697d68da6e4271125564b ]
 
-Since debuginfo__find_probes() callback function can be called with  the
-location which already passed, the callback function must filter out
-such overlapped locations.
+Make find_best_scope() returns innermost DIE at given address if there
+is no best matched scope DIE. Since Gcc sometimes generates intuitively
+strange line info which is out of inlined function address range, we
+need this fixup.
 
-add_probe_trace_event() has already done it by commit 1a375ae7659a
-("perf probe: Skip same probe address for a given line"), but
-add_available_vars() doesn't. Thus perf probe -v shows same address
-repeatedly as below:
+Without this, sometimes perf probe failed to probe on a line inside an
+inlined function:
 
-  # perf probe -V vfs_read:18
-  Available variables at vfs_read:18
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+226>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
+  # perf probe -D ksys_open:3
+  Failed to find scope of probe point.
+    Error: Failed to add events.
 
-With this fix, perf probe -V shows it correctly:
+With this fix, 'perf probe' can probe it:
 
-  # perf probe -V vfs_read:18
-  Available variables at vfs_read:18
-          @<vfs_read+217>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
-          @<vfs_read+226>
-                  char*   buf
-                  loff_t* pos
-                  ssize_t ret
-                  struct file*    file
+  # perf probe -D ksys_open:3
+  p:probe/ksys_open _text+25707308
+  p:probe/ksys_open_1 _text+25710596
+  p:probe/ksys_open_2 _text+25711114
+  p:probe/ksys_open_3 _text+25711343
+  p:probe/ksys_open_4 _text+25714058
+  p:probe/ksys_open_5 _text+2819653
+  p:probe/ksys_open_6 _text+2819701
 
-Fixes: cf6eb489e5c0 ("perf probe: Show accessible local variables")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157241938927.32002.4026859017790562751.stgit@devnote2
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tom Zanussi <tom.zanussi@linux.intel.com>
+Link: http://lore.kernel.org/lkml/157291300887.19771.14936015360963292236.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ tools/perf/util/probe-finder.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index aa6b357269761..e1d0bbf7735bd 100644
+index e1d0bbf7735bd..30a5e92b67bd3 100644
 --- a/tools/perf/util/probe-finder.c
 +++ b/tools/perf/util/probe-finder.c
-@@ -1417,6 +1417,18 @@ static int collect_variables_cb(Dwarf_Die *die_mem, void *data)
- 	return DIE_FIND_CB_END;
+@@ -767,6 +767,16 @@ static int find_best_scope_cb(Dwarf_Die *fn_die, void *data)
+ 	return 0;
  }
  
-+static bool available_var_finder_overlap(struct available_var_finder *af)
++/* Return innermost DIE */
++static int find_inner_scope_cb(Dwarf_Die *fn_die, void *data)
 +{
-+	int i;
++	struct find_scope_param *fsp = data;
 +
-+	for (i = 0; i < af->nvls; i++) {
-+		if (af->pf.addr == af->vls[i].point.address)
-+			return true;
-+	}
-+	return false;
-+
++	memcpy(fsp->die_mem, fn_die, sizeof(Dwarf_Die));
++	fsp->found = true;
++	return 1;
 +}
 +
- /* Add a found vars into available variables list */
- static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
+ /* Find an appropriate scope fits to given conditions */
+ static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
  {
-@@ -1427,6 +1439,14 @@ static int add_available_vars(Dwarf_Die *sc_die, struct probe_finder *pf)
- 	Dwarf_Die die_mem;
- 	int ret;
+@@ -778,8 +788,13 @@ static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
+ 		.die_mem = die_mem,
+ 		.found = false,
+ 	};
++	int ret;
  
-+	/*
-+	 * For some reason (e.g. different column assigned to same address),
-+	 * this callback can be called with the address which already passed.
-+	 * Ignore it first.
-+	 */
-+	if (available_var_finder_overlap(af))
-+		return 0;
-+
- 	/* Check number of tevs */
- 	if (af->nvls == af->max_vls) {
- 		pr_warning("Too many( > %d) probe point found.\n", af->max_vls);
+-	cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb, &fsp);
++	ret = cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb,
++				   &fsp);
++	if (!ret && !fsp.found)
++		cu_walk_functions_at(&pf->cu_die, pf->addr,
++				     find_inner_scope_cb, &fsp);
+ 
+ 	return fsp.found ? die_mem : NULL;
+ }
 -- 
 2.20.1
 
