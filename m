@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8BB11194CF
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:18:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D72C21194F4
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729143AbfLJVM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:12:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38394 "EHLO mail.kernel.org"
+        id S1727444AbfLJVR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:17:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729132AbfLJVM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:56 -0500
+        id S1729142AbfLJVM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4624A2077B;
-        Tue, 10 Dec 2019 21:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 812FF214AF;
+        Tue, 10 Dec 2019 21:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012375;
-        bh=382nN77ut9kPstxERc2XDKlRsgndfGofG7qKXnLEiIg=;
+        s=default; t=1576012376;
+        bh=fs8JSDLuW2dEyYdyDybBSXTeMzo+5VJFwmn7GzATvqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rqkkq2dNYaYiPyeE0HOAFPu1lGesGDdeBRWScEio8fTVVSt2HLv0XdHJ6UMl66Y5o
-         XqkIT7wk03W1xzcYW/7IOahRBlJoyyYkb4jYRUV7GxKAL74NWARkAnj2rkR8Szswur
-         mVfaeMI9wmS7DDy1RSfWT1NX22qvHwrX7CB5xycA=
+        b=CbusRGHu+PUtmLCTukUgYTsiy6yf65YpE4xd3e+l6J2PpDn50boUi/H693QZF+sOP
+         BNOA2TGbZCLsmkUyFc3KATUSBVrG0KuN/13zWdtfZHzrXHLr/xQ/gngSpyd5MhcpAz
+         Pm0mfV6bDBzQ5nlOjtma3C1QsLoyih2pA2yaAZSg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Omar Sandoval <osandov@fb.com>, Tejun Heo <tj@kernel.org>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 300/350] btrfs: don't prematurely free work in run_ordered_work()
-Date:   Tue, 10 Dec 2019 16:06:45 -0500
-Message-Id: <20191210210735.9077-261-sashal@kernel.org>
+Cc:     Valentin Schneider <valentin.schneider@arm.com>,
+        Qais Yousef <qais.yousef@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar.Eggemann@arm.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        patrick.bellasi@matbug.net, qperret@google.com, surenb@google.com,
+        tj@kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 301/350] sched/uclamp: Fix overzealous type replacement
+Date:   Tue, 10 Dec 2019 16:06:46 -0500
+Message-Id: <20191210210735.9077-262-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,152 +50,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit c495dcd6fbe1dce51811a76bb85b4675f6494938 ]
+[ Upstream commit 7763baace1b738d65efa46d68326c9406311c6bf ]
 
-We hit the following very strange deadlock on a system with Btrfs on a
-loop device backed by another Btrfs filesystem:
+Some uclamp helpers had their return type changed from 'unsigned int' to
+'enum uclamp_id' by commit
 
-1. The top (loop device) filesystem queues an async_cow work item from
-   cow_file_range_async(). We'll call this work X.
-2. Worker thread A starts work X (normal_work_helper()).
-3. Worker thread A executes the ordered work for the top filesystem
-   (run_ordered_work()).
-4. Worker thread A finishes the ordered work for work X and frees X
-   (work->ordered_free()).
-5. Worker thread A executes another ordered work and gets blocked on I/O
-   to the bottom filesystem (still in run_ordered_work()).
-6. Meanwhile, the bottom filesystem allocates and queues an async_cow
-   work item which happens to be the recently-freed X.
-7. The workqueue code sees that X is already being executed by worker
-   thread A, so it schedules X to be executed _after_ worker thread A
-   finishes (see the find_worker_executing_work() call in
-   process_one_work()).
+  0413d7f33e60 ("sched/uclamp: Always use 'enum uclamp_id' for clamp_id values")
 
-Now, the top filesystem is waiting for I/O on the bottom filesystem, but
-the bottom filesystem is waiting for the top filesystem to finish, so we
-deadlock.
+but it happens that some do return a value in the [0, SCHED_CAPACITY_SCALE]
+range, which should really be unsigned int. The affected helpers are
+uclamp_none(), uclamp_rq_max_value() and uclamp_eff_value(). Fix those up.
 
-This happens because we are breaking the workqueue assumption that a
-work item cannot be recycled while it still depends on other work. Fix
-it by waiting to free the work item until we are done with all of the
-related ordered work.
+Note that this doesn't lead to any obj diff using a relatively recent
+aarch64 compiler (8.3-2019.03). The current code of e.g. uclamp_eff_value()
+properly returns an 11 bit value (bits_per(1024)) and doesn't seem to do
+anything funny. I'm still marking this as fixing the above commit to be on
+the safe side.
 
-P.S.:
-
-One might ask why the workqueue code doesn't try to detect a recycled
-work item. It actually does try by checking whether the work item has
-the same work function (find_worker_executing_work()), but in our case
-the function is the same. This is the only key that the workqueue code
-has available to compare, short of adding an additional, layer-violating
-"custom key". Considering that we're the only ones that have ever hit
-this, we should just play by the rules.
-
-Unfortunately, we haven't been able to create a minimal reproducer other
-than our full container setup using a compress-force=zstd filesystem on
-top of another compress-force=zstd filesystem.
-
-Suggested-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Qais Yousef <qais.yousef@arm.com>
+Acked-by: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar.Eggemann@arm.com
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: patrick.bellasi@matbug.net
+Cc: qperret@google.com
+Cc: surenb@google.com
+Cc: tj@kernel.org
+Fixes: 0413d7f33e60 ("sched/uclamp: Always use 'enum uclamp_id' for clamp_id values")
+Link: https://lkml.kernel.org/r/20191115103908.27610-1-valentin.schneider@arm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/async-thread.c | 56 ++++++++++++++++++++++++++++++++---------
- 1 file changed, 44 insertions(+), 12 deletions(-)
+ kernel/sched/core.c  | 6 +++---
+ kernel/sched/sched.h | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/async-thread.c b/fs/btrfs/async-thread.c
-index 2e9e13ffbd082..10a04b99798ae 100644
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -252,16 +252,17 @@ static inline void thresh_exec_hook(struct __btrfs_workqueue *wq)
- 	}
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 44123b4d14e82..8dacda4b03627 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -810,7 +810,7 @@ static inline unsigned int uclamp_bucket_base_value(unsigned int clamp_value)
+ 	return UCLAMP_BUCKET_DELTA * uclamp_bucket_id(clamp_value);
  }
  
--static void run_ordered_work(struct __btrfs_workqueue *wq)
-+static void run_ordered_work(struct __btrfs_workqueue *wq,
-+			     struct btrfs_work *self)
+-static inline enum uclamp_id uclamp_none(enum uclamp_id clamp_id)
++static inline unsigned int uclamp_none(enum uclamp_id clamp_id)
  {
- 	struct list_head *list = &wq->ordered_list;
- 	struct btrfs_work *work;
- 	spinlock_t *lock = &wq->list_lock;
- 	unsigned long flags;
-+	void *wtag;
-+	bool free_self = false;
- 
- 	while (1) {
--		void *wtag;
--
- 		spin_lock_irqsave(lock, flags);
- 		if (list_empty(list))
- 			break;
-@@ -287,16 +288,47 @@ static void run_ordered_work(struct __btrfs_workqueue *wq)
- 		list_del(&work->ordered_list);
- 		spin_unlock_irqrestore(lock, flags);
- 
--		/*
--		 * We don't want to call the ordered free functions with the
--		 * lock held though. Save the work as tag for the trace event,
--		 * because the callback could free the structure.
--		 */
--		wtag = work;
--		work->ordered_free(work);
--		trace_btrfs_all_work_done(wq->fs_info, wtag);
-+		if (work == self) {
-+			/*
-+			 * This is the work item that the worker is currently
-+			 * executing.
-+			 *
-+			 * The kernel workqueue code guarantees non-reentrancy
-+			 * of work items. I.e., if a work item with the same
-+			 * address and work function is queued twice, the second
-+			 * execution is blocked until the first one finishes. A
-+			 * work item may be freed and recycled with the same
-+			 * work function; the workqueue code assumes that the
-+			 * original work item cannot depend on the recycled work
-+			 * item in that case (see find_worker_executing_work()).
-+			 *
-+			 * Note that the work of one Btrfs filesystem may depend
-+			 * on the work of another Btrfs filesystem via, e.g., a
-+			 * loop device. Therefore, we must not allow the current
-+			 * work item to be recycled until we are really done,
-+			 * otherwise we break the above assumption and can
-+			 * deadlock.
-+			 */
-+			free_self = true;
-+		} else {
-+			/*
-+			 * We don't want to call the ordered free functions with
-+			 * the lock held though. Save the work as tag for the
-+			 * trace event, because the callback could free the
-+			 * structure.
-+			 */
-+			wtag = work;
-+			work->ordered_free(work);
-+			trace_btrfs_all_work_done(wq->fs_info, wtag);
-+		}
- 	}
- 	spin_unlock_irqrestore(lock, flags);
-+
-+	if (free_self) {
-+		wtag = self;
-+		self->ordered_free(self);
-+		trace_btrfs_all_work_done(wq->fs_info, wtag);
-+	}
+ 	if (clamp_id == UCLAMP_MIN)
+ 		return 0;
+@@ -853,7 +853,7 @@ static inline void uclamp_idle_reset(struct rq *rq, enum uclamp_id clamp_id,
  }
  
- static void normal_work_helper(struct btrfs_work *work)
-@@ -324,7 +356,7 @@ static void normal_work_helper(struct btrfs_work *work)
- 	work->func(work);
- 	if (need_order) {
- 		set_bit(WORK_DONE_BIT, &work->flags);
--		run_ordered_work(wq);
-+		run_ordered_work(wq, work);
- 	}
- 	if (!need_order)
- 		trace_btrfs_all_work_done(wq->fs_info, wtag);
+ static inline
+-enum uclamp_id uclamp_rq_max_value(struct rq *rq, enum uclamp_id clamp_id,
++unsigned int uclamp_rq_max_value(struct rq *rq, enum uclamp_id clamp_id,
+ 				   unsigned int clamp_value)
+ {
+ 	struct uclamp_bucket *bucket = rq->uclamp[clamp_id].bucket;
+@@ -918,7 +918,7 @@ uclamp_eff_get(struct task_struct *p, enum uclamp_id clamp_id)
+ 	return uc_req;
+ }
+ 
+-enum uclamp_id uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id)
++unsigned int uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id)
+ {
+ 	struct uclamp_se uc_eff;
+ 
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index c8870c5bd7df2..49ed949f850c4 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2309,7 +2309,7 @@ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags) {}
+ #endif /* CONFIG_CPU_FREQ */
+ 
+ #ifdef CONFIG_UCLAMP_TASK
+-enum uclamp_id uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
++unsigned int uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
+ 
+ static __always_inline
+ unsigned int uclamp_util_with(struct rq *rq, unsigned int util,
 -- 
 2.20.1
 
