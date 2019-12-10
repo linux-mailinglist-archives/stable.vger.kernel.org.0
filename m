@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 271D61194C7
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:18:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFF731194FE
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729110AbfLJVMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:12:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37900 "EHLO mail.kernel.org"
+        id S1727359AbfLJVRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:17:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729103AbfLJVMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:48 -0500
+        id S1728807AbfLJVMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0733321D7D;
-        Tue, 10 Dec 2019 21:12:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F332214AF;
+        Tue, 10 Dec 2019 21:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012367;
-        bh=6ZrutHCfZULgWK9SE9TNvRak3OhPphztuTeNSWShhDs=;
+        s=default; t=1576012368;
+        bh=vWM0ZHYxx9xYaIp06F5yfYDOCVuzQvi6mVO4xd9HxW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KbGam5OJsS+KXI8h/v6GW75D13gKPEShJFH8VQiSV6iSt7ieyqIHPZ4PN8paqTPV
-         xRoiqys+Sxwof8UxAO5SQhuLXKSu/Xjhz79BPNm+Y7y/pVDUSqurtWIC0YsyPV780d
-         GFLDEfjxV8MhG1TWeP7mWpag1yAv1iz2FIvgGXu4=
+        b=G7f+mtoHYhcyedw5Xys+fegSrNqx+riavx+Z5M61i4ON7n5NLWXijBEVCTWYra6cg
+         LjPdCgopYUqUJWWMFyDlgiScFL8PwZ8k5lo3+sRPopBRANxvwHDCYyRBRXjcWVI0SS
+         tAeYoHvlOEhOYp2BlHssu5fq2Qon3ofDEmmR64d8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 294/350] spi: tegra20-slink: add missed clk_unprepare
-Date:   Tue, 10 Dec 2019 16:06:39 -0500
-Message-Id: <20191210210735.9077-255-sashal@kernel.org>
+Cc:     Petar Penkov <ppenkov@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 295/350] tun: fix data-race in gro_normal_list()
+Date:   Tue, 10 Dec 2019 16:06:40 -0500
+Message-Id: <20191210210735.9077-256-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,51 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Petar Penkov <ppenkov@google.com>
 
-[ Upstream commit 04358e40ba96d687c0811c21d9dede73f5244a98 ]
+[ Upstream commit c39e342a050a4425348e6fe7f75827c0a1a7ebc5 ]
 
-The driver misses calling clk_unprepare in probe failure and remove.
-Add the calls to fix it.
+There is a race in the TUN driver between napi_busy_loop and
+napi_gro_frags. This commit resolves the race by adding the NAPI struct
+via netif_tx_napi_add, instead of netif_napi_add, which disables polling
+for the NAPI struct.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/20191115083122.12278-1-hslester96@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+KCSAN reported:
+BUG: KCSAN: data-race in gro_normal_list.part.0 / napi_busy_loop
+
+write to 0xffff8880b5d474b0 of 4 bytes by task 11205 on cpu 0:
+ gro_normal_list.part.0+0x77/0xb0 net/core/dev.c:5682
+ gro_normal_list net/core/dev.c:5678 [inline]
+ gro_normal_one net/core/dev.c:5692 [inline]
+ napi_frags_finish net/core/dev.c:5705 [inline]
+ napi_gro_frags+0x625/0x770 net/core/dev.c:5778
+ tun_get_user+0x2150/0x26a0 drivers/net/tun.c:1976
+ tun_chr_write_iter+0x79/0xd0 drivers/net/tun.c:2022
+ call_write_iter include/linux/fs.h:1895 [inline]
+ do_iter_readv_writev+0x487/0x5b0 fs/read_write.c:693
+ do_iter_write fs/read_write.c:970 [inline]
+ do_iter_write+0x13b/0x3c0 fs/read_write.c:951
+ vfs_writev+0x118/0x1c0 fs/read_write.c:1015
+ do_writev+0xe3/0x250 fs/read_write.c:1058
+ __do_sys_writev fs/read_write.c:1131 [inline]
+ __se_sys_writev fs/read_write.c:1128 [inline]
+ __x64_sys_writev+0x4e/0x60 fs/read_write.c:1128
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+read to 0xffff8880b5d474b0 of 4 bytes by task 11168 on cpu 1:
+ gro_normal_list net/core/dev.c:5678 [inline]
+ napi_busy_loop+0xda/0x4f0 net/core/dev.c:6126
+ sk_busy_loop include/net/busy_poll.h:108 [inline]
+ __skb_recv_udp+0x4ad/0x560 net/ipv4/udp.c:1689
+ udpv6_recvmsg+0x29e/0xe90 net/ipv6/udp.c:288
+ inet6_recvmsg+0xbb/0x240 net/ipv6/af_inet6.c:592
+ sock_recvmsg_nosec net/socket.c:871 [inline]
+ sock_recvmsg net/socket.c:889 [inline]
+ sock_recvmsg+0x92/0xb0 net/socket.c:885
+ sock_read_iter+0x15f/0x1e0 net/socket.c:967
+ call_read_iter include/linux/fs.h:1889 [inline]
+ new_sync_read+0x389/0x4f0 fs/read_write.c:414
+ __vfs_read+0xb1/0xc0 fs/read_write.c:427
+ vfs_read fs/read_write.c:461 [inline]
+ vfs_read+0x143/0x2c0 fs/read_write.c:446
+ ksys_read+0xd5/0x1b0 fs/read_write.c:587
+ __do_sys_read fs/read_write.c:597 [inline]
+ __se_sys_read fs/read_write.c:595 [inline]
+ __x64_sys_read+0x4c/0x60 fs/read_write.c:595
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 11168 Comm: syz-executor.0 Not tainted 5.4.0-rc6+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 943170998b20 ("tun: enable NAPI for TUN/TAP driver")
+Signed-off-by: Petar Penkov <ppenkov@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra20-slink.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/tun.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index 111fffc91435c..374a2a32edcd3 100644
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1073,7 +1073,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	ret = clk_enable(tspi->clk);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Clock enable failed %d\n", ret);
--		goto exit_free_master;
-+		goto exit_clk_unprepare;
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index a8d3141582a53..16564ebcde500 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -313,8 +313,8 @@ static void tun_napi_init(struct tun_struct *tun, struct tun_file *tfile,
+ 	tfile->napi_enabled = napi_en;
+ 	tfile->napi_frags_enabled = napi_en && napi_frags;
+ 	if (napi_en) {
+-		netif_napi_add(tun->dev, &tfile->napi, tun_napi_poll,
+-			       NAPI_POLL_WEIGHT);
++		netif_tx_napi_add(tun->dev, &tfile->napi, tun_napi_poll,
++				  NAPI_POLL_WEIGHT);
+ 		napi_enable(&tfile->napi);
  	}
- 
- 	spi_irq = platform_get_irq(pdev, 0);
-@@ -1146,6 +1146,8 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	free_irq(spi_irq, tspi);
- exit_clk_disable:
- 	clk_disable(tspi->clk);
-+exit_clk_unprepare:
-+	clk_unprepare(tspi->clk);
- exit_free_master:
- 	spi_master_put(master);
- 	return ret;
-@@ -1159,6 +1161,7 @@ static int tegra_slink_remove(struct platform_device *pdev)
- 	free_irq(tspi->irq, tspi);
- 
- 	clk_disable(tspi->clk);
-+	clk_unprepare(tspi->clk);
- 
- 	if (tspi->tx_dma_chan)
- 		tegra_slink_deinit_dma_param(tspi, false);
+ }
 -- 
 2.20.1
 
