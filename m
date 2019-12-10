@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A09601199D7
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E696C119A00
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727963AbfLJVIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:08:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56554 "EHLO mail.kernel.org"
+        id S1727500AbfLJVsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:48:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727177AbfLJVIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:50 -0500
+        id S1727969AbfLJVIw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFA1724698;
-        Tue, 10 Dec 2019 21:08:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 173CA2469E;
+        Tue, 10 Dec 2019 21:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012129;
-        bh=08DoADdqRUPWJ+sopBpimPGPenU5rEjxVPErtPZY8oQ=;
+        s=default; t=1576012131;
+        bh=CrsqgKqbDpPyk4bGfqt2NNt8XHhWn1MqKD1zltXJMvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05mzdiJhBJ0isiIRr0V2fOfI8N6D9Zpq0X+WpMWj39YPYhPabfGiHVKDxzkqLRAXG
-         P+Rc146ymxoakk3snwRQpet/7V2Rm9XexFJbzR3+WMq66VJrSrc8XzsAVCrHfaBGbL
-         v+0D6HtIUE7e5AYbHl0z/GuQ+urq1M9spiX3iA9E=
+        b=zsWLL12EKsh7N77OQYNek0I7ktOt/j2Spp/RQ8nA8ujWhGm8sAc2rtbIc+k1AV6vg
+         vSpy9aTWcDTi09pHXSDn2zflZdWowAgP0lprntMMkN1f2YuVtrfe0OPKxjXjzkeeQy
+         REx6AE52MD1gEzGJWu6UFhXEDNTfvLNLlu1l81M8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Prosyak <vitaly.prosyak@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Vitaly Prosyak <Vitaly.Prosyak@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 098/350] drm/amd/display: add new active dongle to existent w/a
-Date:   Tue, 10 Dec 2019 16:03:23 -0500
-Message-Id: <20191210210735.9077-59-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 099/350] syscalls/x86: Use the correct function type in SYSCALL_DEFINE0
+Date:   Tue, 10 Dec 2019 16:03:24 -0500
+Message-Id: <20191210210735.9077-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -47,52 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Prosyak <vitaly.prosyak@amd.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 566b4252fe9da9582dde008c5e9c3eb7c136e348 ]
+[ Upstream commit 8661d769ab77c675b5eb6c3351a372b9fbc1bf40 ]
 
-[Why & How]
-Dongle 0x00E04C power down all internal circuits including
-AUX communication preventing reading DPCD table.
-Encoder will skip DP RX power down on disable output
-to keep receiver powered all the time.
+Although a syscall defined using SYSCALL_DEFINE0 doesn't accept
+parameters, use the correct function type to avoid type mismatches
+with Control-Flow Integrity (CFI) checking.
 
-Signed-off-by: Vitaly Prosyak <vitaly.prosyak@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Acked-by: Vitaly Prosyak <Vitaly.Prosyak@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H . Peter Anvin <hpa@zytor.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20191008224049.115427-2-samitolvanen@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c        | 1 +
- drivers/gpu/drm/amd/display/include/ddc_service_types.h | 2 ++
- 2 files changed, 3 insertions(+)
+ arch/x86/include/asm/syscall_wrapper.h | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index f5742719b5d9b..9e261dbf2e493 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -2691,6 +2691,7 @@ static void dp_wa_power_up_0010FA(struct dc_link *link, uint8_t *dpcd_data,
- 		 * keep receiver powered all the time.*/
- 		case DP_BRANCH_DEVICE_ID_0010FA:
- 		case DP_BRANCH_DEVICE_ID_0080E1:
-+		case DP_BRANCH_DEVICE_ID_00E04C:
- 			link->wa_flags.dp_keep_receiver_powered = true;
- 			break;
+diff --git a/arch/x86/include/asm/syscall_wrapper.h b/arch/x86/include/asm/syscall_wrapper.h
+index e046a405743d8..90eb70df0b18d 100644
+--- a/arch/x86/include/asm/syscall_wrapper.h
++++ b/arch/x86/include/asm/syscall_wrapper.h
+@@ -48,12 +48,13 @@
+  * To keep the naming coherent, re-define SYSCALL_DEFINE0 to create an alias
+  * named __ia32_sys_*()
+  */
+-#define SYSCALL_DEFINE0(sname)					\
+-	SYSCALL_METADATA(_##sname, 0);				\
+-	asmlinkage long __x64_sys_##sname(void);		\
+-	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);	\
+-	SYSCALL_ALIAS(__ia32_sys_##sname, __x64_sys_##sname);	\
+-	asmlinkage long __x64_sys_##sname(void)
++
++#define SYSCALL_DEFINE0(sname)						\
++	SYSCALL_METADATA(_##sname, 0);					\
++	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused);\
++	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);		\
++	SYSCALL_ALIAS(__ia32_sys_##sname, __x64_sys_##sname);		\
++	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused)
  
-diff --git a/drivers/gpu/drm/amd/display/include/ddc_service_types.h b/drivers/gpu/drm/amd/display/include/ddc_service_types.h
-index 18961707db237..9ad49da50a17d 100644
---- a/drivers/gpu/drm/amd/display/include/ddc_service_types.h
-+++ b/drivers/gpu/drm/amd/display/include/ddc_service_types.h
-@@ -31,6 +31,8 @@
- #define DP_BRANCH_DEVICE_ID_0022B9 0x0022B9
- #define DP_BRANCH_DEVICE_ID_00001A 0x00001A
- #define DP_BRANCH_DEVICE_ID_0080E1 0x0080e1
-+#define DP_BRANCH_DEVICE_ID_90CC24 0x90CC24
-+#define DP_BRANCH_DEVICE_ID_00E04C 0x00E04C
+ #define COND_SYSCALL(name)						\
+ 	cond_syscall(__x64_sys_##name);					\
+@@ -181,11 +182,11 @@
+  * macros to work correctly.
+  */
+ #ifndef SYSCALL_DEFINE0
+-#define SYSCALL_DEFINE0(sname)					\
+-	SYSCALL_METADATA(_##sname, 0);				\
+-	asmlinkage long __x64_sys_##sname(void);		\
+-	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);	\
+-	asmlinkage long __x64_sys_##sname(void)
++#define SYSCALL_DEFINE0(sname)						\
++	SYSCALL_METADATA(_##sname, 0);					\
++	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused);\
++	ALLOW_ERROR_INJECTION(__x64_sys_##sname, ERRNO);		\
++	asmlinkage long __x64_sys_##sname(const struct pt_regs *__unused)
+ #endif
  
- enum ddc_result {
- 	DDC_RESULT_UNKNOWN = 0,
+ #ifndef COND_SYSCALL
 -- 
 2.20.1
 
