@@ -2,107 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20446119651
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7AA1196B9
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbfLJV0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:26:08 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:36122 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727749AbfLJV0H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 16:26:07 -0500
-Received: by mail-pg1-f195.google.com with SMTP id k3so8847059pgc.3
-        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 13:26:07 -0800 (PST)
+        id S1726714AbfLJV2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:28:48 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:33993 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728609AbfLJV2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 16:28:39 -0500
+Received: by mail-pf1-f194.google.com with SMTP id n13so477259pff.1
+        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 13:28:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=P3CtzH8AoZNRV0QZPYFHChpbwIUEtjX+HfgVaCPCW0A=;
-        b=Yi+iiwyyrF3IYMCCzCBjiPMce2oqIFmM0Xe7X7HraruPyvvuHKlt27cS/SnnCG2hw5
-         5oMQEsLdEizNsGATmWxJhL17P3CrGayxm5W6xXSUB9EsGKO5L0am6CiDgj66illqeJZA
-         mDtWxaOARAr9pxMLBrmpZpISvGD8xa5dWuokcVoxjObx10YcKt+BDYQhHqE+C2qf5niv
-         Nno9unu53nGCKBKa1MXv8G8TdFv596C1aMr9ssWcEuAq7ilHnxw5AbBy5b+gb7LNfQN0
-         T01Apo8Ke1kZwbHByG6dz+/NN02QV/h33F2cVGpfGCLBXPVAYhXnqgwZ+s8+XwGLaPYv
-         IwsA==
+        d=netronome-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
+         :organization:mime-version:content-transfer-encoding;
+        bh=pIRKF4dHpqchckl72/YpmRs/BI55M7i7L1pucxA2z4E=;
+        b=a093tOG7PusILFWMBFDVZ0S7cjLimPfDS0Zqh5j+gZZf0kucIbzeOm1CZHw/ZFdKMP
+         c5BZhT8yU9LDGIwsJooldnJGpXIUeCdvKvmVTV1/7tGguspn6r67Ymp9MWE3b5ABeEX3
+         MyMvr8rIAhVm4hFS2bpB0VRnNTI9K2aV6dFJnWzCGJ8HOgVy/DnlT2wfZlwVitnqMf1P
+         Izu35iju3ABwkITiAmB6sjvuy0B4D8pxDxbRtihc+tHVaMVUuZKCDNImkk/IPBFMpKcQ
+         ustlUOQPP84kvEv6q34WV3vdg+12dH5JvZzffPU87O63e/lZhpaNqSMeg8mFJh11e3fs
+         c3jA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=P3CtzH8AoZNRV0QZPYFHChpbwIUEtjX+HfgVaCPCW0A=;
-        b=qkasWVldoWyrWWl6seHWIxhogYIfs8c55Kwhp+0ejLyqzWO7/VPXB3Y+CdxGED1xKm
-         1V7gqjfeSe8JUwk4SfPQDFYomaE2eaZMoNfqtXa2YO/gqCuXoBjIj+CQCHOZuqC59qFN
-         zInBgnXAenREcbHkglpBxUrGbmb8fr9s8rTurVoULW4v3V+LXNZbe73UArPbphKJIyLW
-         BXng1kKxI8ob1k19QDej2Sip1kyRPd/pMZouLUT2WWYV0ptIFleA8TGH4OwLzwxNnT6/
-         yZUWlJ+BdL9VaRbL3Z2DdruL1R2gHueBtcB+9qxjxfppidXh1FtPo2p607Ld9LfHsBOz
-         2bqg==
-X-Gm-Message-State: APjAAAWPjvEyA7q/eYyM9IJLYa1zoohCPRQa2t7jK5N6B6EY0LpxqUxY
-        yEgUmn38JbVmBb0YemynhW1XyBB+fo5lbPmSvIqqLA==
-X-Google-Smtp-Source: APXvYqxpquTI2AjFI2FJW7H/UjW477l0ZNP57sYRhalkJYdVRDhwtSnkXMVoH2DkQcUGAGX7ywj1awJ0Yv6fEh5hpRI=
-X-Received: by 2002:a63:480f:: with SMTP id v15mr162738pga.201.1576013166051;
- Tue, 10 Dec 2019 13:26:06 -0800 (PST)
-MIME-Version: 1.0
-References: <20191210210402.8367-1-sashal@kernel.org> <20191210210402.8367-25-sashal@kernel.org>
-In-Reply-To: <20191210210402.8367-25-sashal@kernel.org>
-From:   Brendan Higgins <brendanhiggins@google.com>
-Date:   Tue, 10 Dec 2019 13:25:54 -0800
-Message-ID: <CAFd5g45s-cGXp6at4kv+=8v3cuxfbXLPEOKGUfvJ6E+u1caHcA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.4 025/350] objtool: add kunit_try_catch_throw to
- the noreturn list
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=pIRKF4dHpqchckl72/YpmRs/BI55M7i7L1pucxA2z4E=;
+        b=snHmPNC/TeGlXsXFxTmCHy8Ad05btlejVn9cwYfG0z44ffIu/xcGg7SmnaesLalRU9
+         todBNfMhL9RPQbJTTQZMjs9aeSN6/gELzeJf8dF58/e0ZGqprVQZjb/01O3qgVxZgL8t
+         JUlhrlXJAj2fEW8/fQHAh/K4TILkM4jzWqI5x243SDAJqBNE7GTAasyHk35irwHuEOXz
+         /MT/LmZS5clALFUd56rTyqA69+JCMxUMlSLlFhrcYY/93ayZZ9ajpUmfRlsuSHgw/Vba
+         0vDkOr4UXEB7B4389lueo5M7iv8kpMh1ysjY4MpfOHhW66t1w8LuQt0LLLgoqYJLUKnC
+         38EA==
+X-Gm-Message-State: APjAAAUuXF107FKkQfDFDxQcEVvCAQX56Yz9Y9GEVDwp/VUHWqO8Q+DJ
+        rmDWnLDOqp5yZ78BAxrfpcLadw==
+X-Google-Smtp-Source: APXvYqxRq/2Ns0jfcbuRphOE4p7vfQeBo99PSUxKfImVcOh2PMEHsuUBN+Tqjb4WlMMGrECKyUA6ww==
+X-Received: by 2002:a63:e608:: with SMTP id g8mr190645pgh.448.1576013318350;
+        Tue, 10 Dec 2019 13:28:38 -0800 (PST)
+Received: from cakuba.netronome.com ([66.60.152.14])
+        by smtp.gmail.com with ESMTPSA id k4sm4629761pfk.11.2019.12.10.13.28.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2019 13:28:38 -0800 (PST)
+Date:   Tue, 10 Dec 2019 13:28:34 -0800
+From:   Jakub Kicinski <jakub.kicinski@netronome.com>
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, oss-drivers@netronome.com
+Subject: Re: [oss-drivers] [PATCH AUTOSEL 5.4 326/350] bpf: Switch bpf_map
+ ref counter to atomic64_t so bpf_map_inc() never fails
+Message-ID: <20191210132834.157d5fc5@cakuba.netronome.com>
+In-Reply-To: <20191210210735.9077-287-sashal@kernel.org>
+References: <20191210210735.9077-1-sashal@kernel.org>
+        <20191210210735.9077-287-sashal@kernel.org>
+Organization: Netronome Systems, Ltd.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 1:04 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Brendan Higgins <brendanhiggins@google.com>
->
-> [ Upstream commit 33adf80f5b52e3f7c55ad66ffcaaff93c6888aaa ]
->
-> Fix the following warning seen on GCC 7.3:
->   kunit/test-test.o: warning: objtool: kunit_test_unsuccessful_try() falls through to next function kunit_test_catch()
->
-> kunit_try_catch_throw is a function added in the following patch in this
-> series; it allows KUnit, a unit testing framework for the kernel, to
-> bail out of a broken test. As a consequence, it is a new __noreturn
-> function that objtool thinks is broken (as seen above). So fix this
-> warning by adding kunit_try_catch_throw to objtool's noreturn list.
->
-> Reported-by: kbuild test robot <lkp@intel.com>
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-> Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> Link: https://www.spinics.net/lists/linux-kbuild/msg21708.html
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Tue, 10 Dec 2019 16:07:11 -0500, Sasha Levin wrote:
+> From: Andrii Nakryiko <andriin@fb.com>
+> 
+> [ Upstream commit 1e0bd5a091e5d9e0f1d5b0e6329b87bb1792f784 ]
+> 
+> 92117d8443bc ("bpf: fix refcnt overflow") turned refcounting of bpf_map into
+> potentially failing operation, when refcount reaches BPF_MAX_REFCNT limit
+> (32k). Due to using 32-bit counter, it's possible in practice to overflow
+> refcounter and make it wrap around to 0, causing erroneous map free, while
+> there are still references to it, causing use-after-free problems.
 
-I don't think this change should be backported. This patch is to
-ignore an erroneous warning introduced by KUnit; it serves no purpose
-prior to the KUnit patches being merged.
+I don't think this is a bug fix, the second sentence here is written
+in a quite confusing way, but there is no bug.
 
-> ---
->  tools/objtool/check.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-> index 044c9a3cb2472..543c068096b12 100644
-> --- a/tools/objtool/check.c
-> +++ b/tools/objtool/check.c
-> @@ -144,6 +144,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
->                 "usercopy_abort",
->                 "machine_real_restart",
->                 "rewind_stack_do_exit",
-> +               "kunit_try_catch_throw",
->         };
->
->         if (!func)
-> --
-> 2.20.1
->
+Could you drop? I don't think it's worth the backporting pain since it
+changes bpf_map_inc().
