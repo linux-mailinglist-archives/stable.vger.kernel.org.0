@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 863CD1198AB
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD6D1198B0
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:45:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729887AbfLJVd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729160AbfLJVd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:33:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38528 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729821AbfLJVdx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:33:53 -0500
+        id S1728153AbfLJVdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:33:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BA93208C3;
-        Tue, 10 Dec 2019 21:33:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46CA4214AF;
+        Tue, 10 Dec 2019 21:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013632;
-        bh=8xCK5ejZJw5JqOCLcC9w9ySdHcu669dw0YnPtDHWbv8=;
+        s=default; t=1576013634;
+        bh=1Ybdl3YQkMwccnYHF0UQNi1FGLHTjOF7XaloQgt7bmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KdXUbfHopZYViaG28sBaVpe9eNcmWrLcF7lp6K+jbPfABhjHXlnIvDWiZtvaNNB+
-         xJlud/yf9wX4qB/1VjdXMCa6zA9MunHSZn4odTIe4xe4MrZ5gQ40prISo/zWPowZM0
-         KiCi652TWYZ1zSF05Yg5UNh4StGgGbiE9QSarRxA=
+        b=ZlXIdgoAZj1gfhd2K16NGzokOBSPQUBQvMgmLzalaZZCvQRxE8QPNyQMuPmam8SV5
+         8NubyGnDROdYUx1dMAmE6+R8U6Aq8/cPR5JwySrS4bLpHQKO5cDJQUPW+RYTDPmq76
+         zobJXL5JRZxsCthCyVDz4WrPXc+/iwlzj8U8w13E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 074/177] media: smiapp: Register sensor after enabling runtime PM on the device
-Date:   Tue, 10 Dec 2019 16:30:38 -0500
-Message-Id: <20191210213221.11921-74-sashal@kernel.org>
+Cc:     Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        NeilBrown <neilb@suse.com>, Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 075/177] md/bitmap: avoid race window between md_bitmap_resize and bitmap_file_clear_bit
+Date:   Tue, 10 Dec 2019 16:30:39 -0500
+Message-Id: <20191210213221.11921-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -43,54 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit 90c9e4a4dba9f4de331372e745fb1991c1faa598 ]
+[ Upstream commit fadcbd2901a0f7c8721f3bdb69eac95c272dc8ed ]
 
-Earlier it was possible that the parts of the driver that assumed runtime
-PM was enabled were being called before runtime PM was enabled in the
-driver's probe function. So enable runtime PM before registering the
-sub-device.
+We need to move "spin_lock_irq(&bitmap->counts.lock)" before unmap previous
+storage, otherwise panic like belows could happen as follows.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+[  902.353802] sdl: detected capacity change from 1077936128 to 3221225472
+[  902.616948] general protection fault: 0000 [#1] SMP
+[snip]
+[  902.618588] CPU: 12 PID: 33698 Comm: md0_raid1 Tainted: G           O    4.14.144-1-pserver #4.14.144-1.1~deb10
+[  902.618870] Hardware name: Supermicro SBA-7142G-T4/BHQGE, BIOS 3.00       10/24/2012
+[  902.619120] task: ffff9ae1860fc600 task.stack: ffffb52e4c704000
+[  902.619301] RIP: 0010:bitmap_file_clear_bit+0x90/0xd0 [md_mod]
+[  902.619464] RSP: 0018:ffffb52e4c707d28 EFLAGS: 00010087
+[  902.619626] RAX: ffe8008b0d061000 RBX: ffff9ad078c87300 RCX: 0000000000000000
+[  902.619792] RDX: ffff9ad986341868 RSI: 0000000000000803 RDI: ffff9ad078c87300
+[  902.619986] RBP: ffff9ad0ed7a8000 R08: 0000000000000000 R09: 0000000000000000
+[  902.620154] R10: ffffb52e4c707ec0 R11: ffff9ad987d1ed44 R12: ffff9ad0ed7a8360
+[  902.620320] R13: 0000000000000003 R14: 0000000000060000 R15: 0000000000000800
+[  902.620487] FS:  0000000000000000(0000) GS:ffff9ad987d00000(0000) knlGS:0000000000000000
+[  902.620738] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  902.620901] CR2: 000055ff12aecec0 CR3: 0000001005207000 CR4: 00000000000406e0
+[  902.621068] Call Trace:
+[  902.621256]  bitmap_daemon_work+0x2dd/0x360 [md_mod]
+[  902.621429]  ? find_pers+0x70/0x70 [md_mod]
+[  902.621597]  md_check_recovery+0x51/0x540 [md_mod]
+[  902.621762]  raid1d+0x5c/0xeb0 [raid1]
+[  902.621939]  ? try_to_del_timer_sync+0x4d/0x80
+[  902.622102]  ? del_timer_sync+0x35/0x40
+[  902.622265]  ? schedule_timeout+0x177/0x360
+[  902.622453]  ? call_timer_fn+0x130/0x130
+[  902.622623]  ? find_pers+0x70/0x70 [md_mod]
+[  902.622794]  ? md_thread+0x94/0x150 [md_mod]
+[  902.622959]  md_thread+0x94/0x150 [md_mod]
+[  902.623121]  ? wait_woken+0x80/0x80
+[  902.623280]  kthread+0x119/0x130
+[  902.623437]  ? kthread_create_on_node+0x60/0x60
+[  902.623600]  ret_from_fork+0x22/0x40
+[  902.624225] RIP: bitmap_file_clear_bit+0x90/0xd0 [md_mod] RSP: ffffb52e4c707d28
+
+Because mdadm was running on another cpu to do resize, so bitmap_resize was
+called to replace bitmap as below shows.
+
+PID: 38801  TASK: ffff9ad074a90e00  CPU: 0   COMMAND: "mdadm"
+   [exception RIP: queued_spin_lock_slowpath+56]
+   [snip]
+-- <NMI exception stack> --
+ #5 [ffffb52e60f17c58] queued_spin_lock_slowpath at ffffffff9c0b27b8
+ #6 [ffffb52e60f17c58] bitmap_resize at ffffffffc0399877 [md_mod]
+ #7 [ffffb52e60f17d30] raid1_resize at ffffffffc0285bf9 [raid1]
+ #8 [ffffb52e60f17d50] update_size at ffffffffc038a31a [md_mod]
+ #9 [ffffb52e60f17d70] md_ioctl at ffffffffc0395ca4 [md_mod]
+
+And the procedure to keep resize bitmap safe is allocate new storage
+space, then quiesce, copy bits, replace bitmap, and re-start.
+
+However the daemon (bitmap_daemon_work) could happen even the array is
+quiesced, which means when bitmap_file_clear_bit is triggered by raid1d,
+then it thinks it should be fine to access store->filemap since
+counts->lock is held, but resize could change the storage without the
+protection of the lock.
+
+Cc: Jack Wang <jinpu.wang@cloud.ionos.com>
+Cc: NeilBrown <neilb@suse.com>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/smiapp/smiapp-core.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/md/md-bitmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/smiapp/smiapp-core.c b/drivers/media/i2c/smiapp/smiapp-core.c
-index 1236683da8f75..4731e1c72f960 100644
---- a/drivers/media/i2c/smiapp/smiapp-core.c
-+++ b/drivers/media/i2c/smiapp/smiapp-core.c
-@@ -3108,19 +3108,23 @@ static int smiapp_probe(struct i2c_client *client,
- 	if (rval < 0)
- 		goto out_media_entity_cleanup;
+diff --git a/drivers/md/md-bitmap.c b/drivers/md/md-bitmap.c
+index 2fc8c113977fb..fd8607124bdbb 100644
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -2132,6 +2132,7 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 		memcpy(page_address(store.sb_page),
+ 		       page_address(bitmap->storage.sb_page),
+ 		       sizeof(bitmap_super_t));
++	spin_lock_irq(&bitmap->counts.lock);
+ 	md_bitmap_file_unmap(&bitmap->storage);
+ 	bitmap->storage = store;
  
--	rval = v4l2_async_register_subdev_sensor_common(&sensor->src->sd);
--	if (rval < 0)
--		goto out_media_entity_cleanup;
--
- 	pm_runtime_set_active(&client->dev);
- 	pm_runtime_get_noresume(&client->dev);
- 	pm_runtime_enable(&client->dev);
-+
-+	rval = v4l2_async_register_subdev_sensor_common(&sensor->src->sd);
-+	if (rval < 0)
-+		goto out_disable_runtime_pm;
-+
- 	pm_runtime_set_autosuspend_delay(&client->dev, 1000);
- 	pm_runtime_use_autosuspend(&client->dev);
- 	pm_runtime_put_autosuspend(&client->dev);
+@@ -2147,7 +2148,6 @@ int md_bitmap_resize(struct bitmap *bitmap, sector_t blocks,
+ 	blocks = min(old_counts.chunks << old_counts.chunkshift,
+ 		     chunks << chunkshift);
  
- 	return 0;
- 
-+out_disable_runtime_pm:
-+	pm_runtime_disable(&client->dev);
-+
- out_media_entity_cleanup:
- 	media_entity_cleanup(&sensor->src->sd.entity);
- 
+-	spin_lock_irq(&bitmap->counts.lock);
+ 	/* For cluster raid, need to pre-allocate bitmap */
+ 	if (mddev_is_clustered(bitmap->mddev)) {
+ 		unsigned long page;
 -- 
 2.20.1
 
