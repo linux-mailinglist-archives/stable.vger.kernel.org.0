@@ -2,92 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CBD8119028
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 19:56:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A141119095
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 20:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727619AbfLJS4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 13:56:15 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50841 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727520AbfLJS4P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 13:56:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576004173;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=pKKP6PQdfmPaXtDmvgj9kKM8eTO86wVwsKrvHl8BN6w=;
-        b=hSua+FKxZefdiFtM/VKdVvEUHJdd0JLMK3ClEKSmgEcBT7jcRTI1Gp/n5D6Hn4Mtf8Ngs7
-        cIEbkTdXpky3tY/O02Sk+cmsqGz/msrzycNnq7Hw4dLY6n2tlWo6eSJ/rpiHzA5MZFOsJb
-        XihDfJWyy6mtt57xtVixa/f6mtvNDpw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-407-i3sAJY1kNVaA7JbYMKOm9Q-1; Tue, 10 Dec 2019 13:56:10 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6D7F419057B1;
-        Tue, 10 Dec 2019 18:56:09 +0000 (UTC)
-Received: from cantor.redhat.com (ovpn-117-41.phx2.redhat.com [10.3.117.41])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EE6FF19C6A;
-        Tue, 10 Dec 2019 18:56:08 +0000 (UTC)
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Joerg Roedel <jroedel@suse.de>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        iommu@lists.linux-foundation.org, stable@vger.kernel.org
-Subject: [PATCH] iommu: set group default domain before creating direct mappings
-Date:   Tue, 10 Dec 2019 11:56:06 -0700
-Message-Id: <20191210185606.11329-1-jsnitsel@redhat.com>
+        id S1726613AbfLJT2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 14:28:24 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:40752 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726018AbfLJT2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 14:28:24 -0500
+Received: by mail-lj1-f195.google.com with SMTP id s22so21204036ljs.7;
+        Tue, 10 Dec 2019 11:28:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:newsgroups:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=KzrNKcEOiU1kNGyhfhhVTJTy6mwRVVvr+Rcn9qUurw8=;
+        b=QNz7LqTYmVb9Aun7hEf0jLOYMlUfOiJuHQCLY3kkVkHM+T2cbdU3feFVwNjxfXYTx5
+         6dX859cw10yoxlm375M6kKNRDA9uLd7wNnFtS4T8lQntSzd4PHol+m/6MpAzsAcdl8r3
+         PoAAMrtynBsYvr4Mim7TnoL3Rh5i4MbCW/mXDpv++/UK0O8ojl2cYu1yYmWB0TG5z22R
+         1IX3wuDmLuBYGM3/B5FKAVcK6edYkjGgMGrPXcMOwySXPzMaX3WLhwFKoCXgoVpJbqas
+         ic5l6MR2VHaXdqKIwHDLHhkaLMdhlhqr9UPbISdjXyyiOjE4mGzE619pZ5FPG9eLD+Wb
+         Tfyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:newsgroups:references:from
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=KzrNKcEOiU1kNGyhfhhVTJTy6mwRVVvr+Rcn9qUurw8=;
+        b=VXVYyeflU13aLWEqUyrZ8bYqMxjvmjGdnq0KTdOGngFPn93kCydoSCca4IdexwNR6O
+         +vhd8MLb/PsMnC67z+ijzczpeo7o3aS4mhWios78r2VhttjZUBIvKUPlKb3pjO3Qn/z+
+         F2YzrAsHPkhi2MtKmCRvJXlgq5RBk7rIc5XB7YO0cT9F3gUXpziO+h3MX0+yxGMNr3sb
+         Kho2en5yOiJZB/PT1GG0hjbDsEGqivdrcLZsPoMfCahbtgqZjC0VTR/Tz9quCagVmfop
+         JNi4iaqSvwtrollODf7uLEfgm8DBWahlvnZlReybWuN22049W3k2j51F7TyUVDdVZ/g6
+         5uCg==
+X-Gm-Message-State: APjAAAVtduYfGcha7ztMqsiRNo80wg/lXprj0cYzYNObjaNoGcqzkRwA
+        1BVZbQjWZhb/o1cc5qiXxpcBRVrU
+X-Google-Smtp-Source: APXvYqyGNckK5y5s9f8Jo3dSVgNxZdC7RHTTL3IKb5a7ys0PqCMlBLRFvvJWSZCZJGsvb+557NSYEA==
+X-Received: by 2002:a2e:91c1:: with SMTP id u1mr21608748ljg.181.1576006101841;
+        Tue, 10 Dec 2019 11:28:21 -0800 (PST)
+Received: from [192.168.2.145] (79-139-233-37.dynamic.spd-mgts.ru. [79.139.233.37])
+        by smtp.googlemail.com with ESMTPSA id c9sm2302940ljd.28.2019.12.10.11.28.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Dec 2019 11:28:21 -0800 (PST)
+Subject: Re: [PATCH] ARM: tegra: Fix restoration of PLLM when exiting suspend
+To:     Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org,
+        stable@vger.kernel.org
+Newsgroups: gmane.linux.kernel.stable,gmane.linux.ports.arm.kernel,gmane.linux.ports.tegra
+References: <20191210103708.7023-1-jonathanh@nvidia.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <1f2a4f23-5be5-aa7e-6eb4-2aeb4058481d@gmail.com>
+Date:   Tue, 10 Dec 2019 22:28:20 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: i3sAJY1kNVaA7JbYMKOm9Q-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191210103708.7023-1-jonathanh@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-iommu_group_create_direct_mappings uses group->default_domain, but
-right after it is called, request_default_domain_for_dev calls
-iommu_domain_free for the default domain, and sets the group default
-domain to a different domain. Move the
-iommu_group_create_direct_mappings call to after the group default
-domain is set, so the direct mappings get associated with that domain.
+Hello Jon,
 
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>=20
-Cc: iommu@lists.linux-foundation.org
-Cc: stable@vger.kernel.org
-Fixes: 7423e01741dd ("iommu: Add API to request DMA domain for device")
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
----
- drivers/iommu/iommu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+10.12.2019 13:37, Jon Hunter пишет:
+> The suspend entry and exit code for 32-bit Tegra devices assumes that
+> the PLLM (which is used to provide the clock for external memory)
+> is always enabled on entry to suspend. Hence, the current code always
+> disables the PLLM on entry to suspend and re-enables the PLLM on exit
+> from suspend.
+> 
+> Since the introduction of the Tegra124 EMC driver by commit 73a7f0a90641
+> ("memory: tegra: Add EMC (external memory controller) driver"), which is
+> used to scale the EMC frequency, PLLM may not be the current clock
+> source for the EMC on entry to suspend and hence may not be enabled.
+> Always enabling the PLLM on exit from suspend can cause the actual
+> status on the PLL to be different from that reported by the common clock
+> framework.
+> 
+> On kernels prior to v4.5, the code to set the rate of the PLLM had a
+> test to verify if the PLL was enabled and if the PLL was enabled,
+> setting the rate would fail. Since commit 267b62a96951
+> ("clk: tegra: pll: Update PLLM handling") the test to see if PLLM is
+> enabled was removed.
+> 
+> With these earlier kernels, if the PLLM is disabled on entering suspend
+> and the EMC driver attempts to set the parent of the EMC clock to the
+> PLLM on exiting suspend, then the set rate for the PLLM will fail and in
+> turn cause the resume to fail.
+> 
+> We should not be re-enabling the PLLM on resume from suspend unless it
+> was enabled on entry to suspend. Therefore, fix this by saving the state
+> of PLLM on entry to suspend and only re-enable it, if it was already
+> enabled.
+> 
+> Fixes: 73a7f0a90641 ("memory: tegra: Add EMC (external memory controller) driver")
+> Cc: stable@vger.kernel.org
+> 
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+> ---
+>  arch/arm/mach-tegra/sleep-tegra30.S | 33 +++++++++++++++++++++++------
+>  1 file changed, 27 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/arm/mach-tegra/sleep-tegra30.S b/arch/arm/mach-tegra/sleep-tegra30.S
+> index 3341a12bbb9c..c2f0793a424f 100644
+> --- a/arch/arm/mach-tegra/sleep-tegra30.S
+> +++ b/arch/arm/mach-tegra/sleep-tegra30.S
+> @@ -337,26 +337,42 @@ ENTRY(tegra30_lp1_reset)
+>  	add	r1, r1, #2
+>  	wait_until r1, r7, r3
+>  
+> -	/* enable PLLM via PMC */
+> +	/* restore PLLM state */
+>  	mov32	r2, TEGRA_PMC_BASE
+> +	adr	r7, tegra_pllm_status
+> +	ldr	r1, [r7]
+> +	cmp	r2, #(1 << 12)
+> +	bne	_skip_pllm
+> +
+>  	ldr	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
+>  	orr	r1, r1, #(1 << 12)
+>  	str	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
+>  
+>  	pll_enable r1, r0, CLK_RESET_PLLM_BASE, 0
+> +	pll_locked r1, r0, CLK_RESET_PLLM_BASE
+> +
+> +_skip_pllm:
+>  	pll_enable r1, r0, CLK_RESET_PLLC_BASE, 0
+>  	pll_enable r1, r0, CLK_RESET_PLLX_BASE, 0
+>  
+>  	b	_pll_m_c_x_done
+>  
+>  _no_pll_iddq_exit:
+> -	/* enable PLLM via PMC */
+> +	/* restore PLLM state */
+>  	mov32	r2, TEGRA_PMC_BASE
+> +	adr	r7, tegra_pllm_status
+> +	ldr	r1, [r7]
+> +	cmp	r2, #(1 << 12)
+> +	bne	_skip_pllm_no_iddq
+> +
+>  	ldr	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
+>  	orr	r1, r1, #(1 << 12)
+>  	str	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
+>  
+>  	pll_enable r1, r0, CLK_RESET_PLLM_BASE, CLK_RESET_PLLM_MISC
+> +	pll_locked r1, r0, CLK_RESET_PLLM_BASE
+> +
+> +_skip_pllm_no_iddq:
+>  	pll_enable r1, r0, CLK_RESET_PLLC_BASE, CLK_RESET_PLLC_MISC
+>  	pll_enable r1, r0, CLK_RESET_PLLX_BASE, CLK_RESET_PLLX_MISC
+>  
+> @@ -364,7 +380,6 @@ _pll_m_c_x_done:
+>  	pll_enable r1, r0, CLK_RESET_PLLP_BASE, CLK_RESET_PLLP_MISC
+>  	pll_enable r1, r0, CLK_RESET_PLLA_BASE, CLK_RESET_PLLA_MISC
+>  
+> -	pll_locked r1, r0, CLK_RESET_PLLM_BASE
+>  	pll_locked r1, r0, CLK_RESET_PLLP_BASE
+>  	pll_locked r1, r0, CLK_RESET_PLLA_BASE
+>  	pll_locked r1, r0, CLK_RESET_PLLC_BASE
+> @@ -526,6 +541,8 @@ __no_dual_emc_chanl:
+>  ENDPROC(tegra30_lp1_reset)
+>  
+>  	.align	L1_CACHE_SHIFT
+> +tegra_pllm_status:
+> +	.word	0
+>  tegra30_sdram_pad_address:
+>  	.word	TEGRA_EMC_BASE + EMC_CFG				@0x0
+>  	.word	TEGRA_EMC_BASE + EMC_ZCAL_INTERVAL			@0x4
+> @@ -624,10 +641,14 @@ tegra30_switch_cpu_to_clk32k:
+>  	add	r1, r1, #2
+>  	wait_until r1, r7, r9
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index db7bfd4f2d20..fa908179b80b 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2282,13 +2282,13 @@ request_default_domain_for_dev(struct device *dev, =
-unsigned long type)
- =09=09goto out;
- =09}
-=20
--=09iommu_group_create_direct_mappings(group, dev);
--
- =09/* Make the domain the default for this group */
- =09if (group->default_domain)
- =09=09iommu_domain_free(group->default_domain);
- =09group->default_domain =3D domain;
-=20
-+=09iommu_group_create_direct_mappings(group, dev);
-+
- =09dev_info(dev, "Using iommu %s mapping\n",
- =09=09 type =3D=3D IOMMU_DOMAIN_DMA ? "dma" : "direct");
-=20
---=20
-2.24.0
 
+> -	/* disable PLLM via PMC in LP1 */
+> +	/* disable PLLM, if enabled, via PMC in LP1 */
+> +	adr	r1, tegra_pllm_status
+>  	ldr	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
+> -	bic	r0, r0, #(1 << 12)
+> -	str	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
+> +	and	r2, r0, #(1 << 12)
+> +	str     r2, [r1]
+> +	cmp	r2, #(1 << 12)
+> +	biceq	r0, r0, #(1 << 12)
+> +	streq	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
+>  
+>  	/* disable PLLP, PLLA, PLLC and PLLX */
+>  	ldr	r0, [r5, #CLK_RESET_PLLP_BASE]
+
+PLLM's enable-status could be defined either by PMC or CaR. Thus at
+first you need to check whether PMC overrides CaR's enable and then
+judge the enable state based on PMC or CaR state respectively.
