@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98164119506
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7C1119405
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727617AbfLJVSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:18:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
+        id S1729037AbfLJVMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:12:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729084AbfLJVMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:46 -0500
+        id S1729094AbfLJVMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D99DE2077B;
-        Tue, 10 Dec 2019 21:12:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16E6E24656;
+        Tue, 10 Dec 2019 21:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012365;
-        bh=WYoKBU214UXqNuhST1YXOag12Gny0tgpQVdsw1Xw43c=;
+        s=default; t=1576012366;
+        bh=uGc5dOvIk4aVUvA8p0bFiGv122bgR82WQjrjtSSwxsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jM+AbpDhMAZlyEL7kJH3OKCpX9R+7fX8SRKcq6krtRx3j5lecRuhMYQtRaaYyv0zY
-         Xq4spgOG1GcaPtZJdoqdbkfbJnHtv3nbj2BIFuGNXR6Hky/QzadhxLXMGTdVSPuiSG
-         iYgGMVwUPn5eEZSkpzIDPa3cGwsc0wHbPjsFUvXU=
+        b=UWHf6gT4Zn5kV0vTE7ltW2o/N3qXxwA+eP3a8Ced4RYbbzWjYvYCOjvkySEPU2V94
+         aROAX6isALsH6LRTVn6VejR3bXxjtiYH+4rT+J2fottR8IBpI/YxIFRyEnROiT8+NF
+         LggVo27OXSuGeH0PKTLfQVOIjFCksPom8lgH9xvI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Walle <michael@walle.cc>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 292/350] ASoC: wm8904: fix regcache handling
-Date:   Tue, 10 Dec 2019 16:06:37 -0500
-Message-Id: <20191210210735.9077-253-sashal@kernel.org>
+Cc:     Pascal Paillet <p.paillet@st.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 293/350] regulator: core: Let boot-on regulators be powered off
+Date:   Tue, 10 Dec 2019 16:06:38 -0500
+Message-Id: <20191210210735.9077-254-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -45,39 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Pascal Paillet <p.paillet@st.com>
 
-[ Upstream commit e9149b8c00d25dbaef1aa174fc604bed207e576d ]
+[ Upstream commit 089b3f61ecfc43ca4ea26d595e1d31ead6de3f7b ]
 
-The current code assumes that the power is turned off in
-SND_SOC_BIAS_OFF. If there are no actual regulator the codec isn't
-turned off and the registers are not reset to their default values but
-the regcache is still marked as dirty. Thus a value might not be written
-to the hardware if it is set to the default value. Do a software reset
-before turning off the power to make sure the registers are always reset
-to their default states.
+Boot-on regulators are always kept on because their use_count value
+is now incremented at boot time and never cleaned.
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20191112223629.21867-1-michael@walle.cc
+Only increment count value for alway-on regulators.
+regulator_late_cleanup() is now able to power off boot-on regulators
+when unused.
+
+Fixes: 05f224ca6693 ("regulator: core: Clean enabling always-on regulators + their supplies")
+Signed-off-by: Pascal Paillet <p.paillet@st.com>
+Link: https://lore.kernel.org/r/20191113102737.27831-1-p.paillet@st.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8904.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm8904.c b/sound/soc/codecs/wm8904.c
-index bcb3c9d5abf0c..9e8c564f6e9c4 100644
---- a/sound/soc/codecs/wm8904.c
-+++ b/sound/soc/codecs/wm8904.c
-@@ -1917,6 +1917,7 @@ static int wm8904_set_bias_level(struct snd_soc_component *component,
- 		snd_soc_component_update_bits(component, WM8904_BIAS_CONTROL_0,
- 				    WM8904_BIAS_ENA, 0);
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 51ce280c1ce13..87bc06b386a04 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1403,7 +1403,9 @@ static int set_machine_constraints(struct regulator_dev *rdev,
+ 			rdev_err(rdev, "failed to enable\n");
+ 			return ret;
+ 		}
+-		rdev->use_count++;
++
++		if (rdev->constraints->always_on)
++			rdev->use_count++;
+ 	}
  
-+		snd_soc_component_write(component, WM8904_SW_RESET_AND_ID, 0);
- 		regcache_cache_only(wm8904->regmap, true);
- 		regcache_mark_dirty(wm8904->regmap);
- 
+ 	print_constraints(rdev);
 -- 
 2.20.1
 
