@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B6D119475
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1A111941D
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727947AbfLJVPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:15:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39728 "EHLO mail.kernel.org"
+        id S1728458AbfLJVN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:13:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729318AbfLJVN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:28 -0500
+        id S1729333AbfLJVN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:13:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50EA62464B;
-        Tue, 10 Dec 2019 21:13:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D84D20828;
+        Tue, 10 Dec 2019 21:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012407;
-        bh=OrsNlArhUDbQLwujqWNdMGO0JZWksw/TTZw6A13GCz8=;
+        s=default; t=1576012408;
+        bh=8oN66QYS45+wKwaEuxdVg+6RSs3NE0LIegUGdt3GX5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otvMs7YQcX/KWYcSgtHnMt9d0RFGGGYX8/K68D3eJkQRg6T0GEiK/TMFhQrryAoz+
-         IupzKOItLadOk1abA899gf3uirKN6rJq/Y3Tt0s+E+XKG78gLFdAqN2JsC26zCPmB1
-         gmxi6Jjd4JhoFH3w3cYm+E48RiaGlgRIUTIN6/mM=
+        b=rttWNYHguXZfVMkUXT+U0UJyzyFxmjreNCBrQ8KpfurHbn/sEWw6deygKgYNz3QSX
+         Gyv0dze9o0g5bdIrgaVPzabd9P6PSalnHCkFoY/cN1Ujd55EI33qbSgtVzJMvz9JQK
+         uj2KKYP61WflupGAk6BTHFf/9NECzFv+VqRdb6cc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 325/350] s390/cpumf: Adjust registration of s390 PMU device drivers
-Date:   Tue, 10 Dec 2019 16:07:10 -0500
-Message-Id: <20191210210735.9077-286-sashal@kernel.org>
+Cc:     Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, oss-drivers@netronome.com
+Subject: [PATCH AUTOSEL 5.4 326/350] bpf: Switch bpf_map ref counter to atomic64_t so bpf_map_inc() never fails
+Date:   Tue, 10 Dec 2019 16:07:11 -0500
+Message-Id: <20191210210735.9077-287-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -43,133 +45,373 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit 6a82e23f45fe0aa821e7a935e39d0acb20c275c0 ]
+[ Upstream commit 1e0bd5a091e5d9e0f1d5b0e6329b87bb1792f784 ]
 
-Linux-next commit titled "perf/core: Optimize perf_init_event()"
-changed the semantics of PMU device driver registration.
-It was done to speed up the lookup/handling of PMU device driver
-specific events. It also enforces that only one PMU device
-driver will be registered of type PERF_EVENT_RAW.
+92117d8443bc ("bpf: fix refcnt overflow") turned refcounting of bpf_map into
+potentially failing operation, when refcount reaches BPF_MAX_REFCNT limit
+(32k). Due to using 32-bit counter, it's possible in practice to overflow
+refcounter and make it wrap around to 0, causing erroneous map free, while
+there are still references to it, causing use-after-free problems.
 
-This change added these line in function perf_pmu_register():
+But having a failing refcounting operations are problematic in some cases. One
+example is mmap() interface. After establishing initial memory-mapping, user
+is allowed to arbitrarily map/remap/unmap parts of mapped memory, arbitrarily
+splitting it into multiple non-contiguous regions. All this happening without
+any control from the users of mmap subsystem. Rather mmap subsystem sends
+notifications to original creator of memory mapping through open/close
+callbacks, which are optionally specified during initial memory mapping
+creation. These callbacks are used to maintain accurate refcount for bpf_map
+(see next patch in this series). The problem is that open() callback is not
+supposed to fail, because memory-mapped resource is set up and properly
+referenced. This is posing a problem for using memory-mapping with BPF maps.
 
-  ...
-  +       ret = idr_alloc(&pmu_idr, pmu, max, 0, GFP_KERNEL);
-  +       if (ret < 0)
-                goto free_pdc;
-  +
-  +       WARN_ON(type >= 0 && ret != type);
+One solution to this is to maintain separate refcount for just memory-mappings
+and do single bpf_map_inc/bpf_map_put when it goes from/to zero, respectively.
+There are similar use cases in current work on tcp-bpf, necessitating extra
+counter as well. This seems like a rather unfortunate and ugly solution that
+doesn't scale well to various new use cases.
 
-The warn_on generates a message. We have 3 PMU device drivers,
-each registered as type PERF_TYPE_RAW.
-The cf_diag device driver (arch/s390/kernel/perf_cpumf_cf_diag.c)
-always hits the WARN_ON because it is the second PMU device driver
-(after sampling device driver arch/s390/kernel/perf_cpumf_sf.c)
-which is registered as type 4 (PERF_TYPE_RAW).
-So when the sampling device driver is registered, ret has value 4.
-When cf_diag device driver is registered with type 4,
-ret has value of 5 and WARN_ON fires.
+Another approach to solve this is to use non-failing refcount_t type, which
+uses 32-bit counter internally, but, once reaching overflow state at UINT_MAX,
+stays there. This utlimately causes memory leak, but prevents use after free.
 
-Adjust the PMU device drivers for s390 to support the new
-semantics required by perf_pmu_register().
+But given refcounting is not the most performance-critical operation with BPF
+maps (it's not used from running BPF program code), we can also just switch to
+64-bit counter that can't overflow in practice, potentially disadvantaging
+32-bit platforms a tiny bit. This simplifies semantics and allows above
+described scenarios to not worry about failing refcount increment operation.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+In terms of struct bpf_map size, we are still good and use the same amount of
+space:
+
+BEFORE (3 cache lines, 8 bytes of padding at the end):
+struct bpf_map {
+	const struct bpf_map_ops  * ops __attribute__((__aligned__(64))); /*     0     8 */
+	struct bpf_map *           inner_map_meta;       /*     8     8 */
+	void *                     security;             /*    16     8 */
+	enum bpf_map_type  map_type;                     /*    24     4 */
+	u32                        key_size;             /*    28     4 */
+	u32                        value_size;           /*    32     4 */
+	u32                        max_entries;          /*    36     4 */
+	u32                        map_flags;            /*    40     4 */
+	int                        spin_lock_off;        /*    44     4 */
+	u32                        id;                   /*    48     4 */
+	int                        numa_node;            /*    52     4 */
+	u32                        btf_key_type_id;      /*    56     4 */
+	u32                        btf_value_type_id;    /*    60     4 */
+	/* --- cacheline 1 boundary (64 bytes) --- */
+	struct btf *               btf;                  /*    64     8 */
+	struct bpf_map_memory memory;                    /*    72    16 */
+	bool                       unpriv_array;         /*    88     1 */
+	bool                       frozen;               /*    89     1 */
+
+	/* XXX 38 bytes hole, try to pack */
+
+	/* --- cacheline 2 boundary (128 bytes) --- */
+	atomic_t                   refcnt __attribute__((__aligned__(64))); /*   128     4 */
+	atomic_t                   usercnt;              /*   132     4 */
+	struct work_struct work;                         /*   136    32 */
+	char                       name[16];             /*   168    16 */
+
+	/* size: 192, cachelines: 3, members: 21 */
+	/* sum members: 146, holes: 1, sum holes: 38 */
+	/* padding: 8 */
+	/* forced alignments: 2, forced holes: 1, sum forced holes: 38 */
+} __attribute__((__aligned__(64)));
+
+AFTER (same 3 cache lines, no extra padding now):
+struct bpf_map {
+	const struct bpf_map_ops  * ops __attribute__((__aligned__(64))); /*     0     8 */
+	struct bpf_map *           inner_map_meta;       /*     8     8 */
+	void *                     security;             /*    16     8 */
+	enum bpf_map_type  map_type;                     /*    24     4 */
+	u32                        key_size;             /*    28     4 */
+	u32                        value_size;           /*    32     4 */
+	u32                        max_entries;          /*    36     4 */
+	u32                        map_flags;            /*    40     4 */
+	int                        spin_lock_off;        /*    44     4 */
+	u32                        id;                   /*    48     4 */
+	int                        numa_node;            /*    52     4 */
+	u32                        btf_key_type_id;      /*    56     4 */
+	u32                        btf_value_type_id;    /*    60     4 */
+	/* --- cacheline 1 boundary (64 bytes) --- */
+	struct btf *               btf;                  /*    64     8 */
+	struct bpf_map_memory memory;                    /*    72    16 */
+	bool                       unpriv_array;         /*    88     1 */
+	bool                       frozen;               /*    89     1 */
+
+	/* XXX 38 bytes hole, try to pack */
+
+	/* --- cacheline 2 boundary (128 bytes) --- */
+	atomic64_t                 refcnt __attribute__((__aligned__(64))); /*   128     8 */
+	atomic64_t                 usercnt;              /*   136     8 */
+	struct work_struct work;                         /*   144    32 */
+	char                       name[16];             /*   176    16 */
+
+	/* size: 192, cachelines: 3, members: 21 */
+	/* sum members: 154, holes: 1, sum holes: 38 */
+	/* forced alignments: 2, forced holes: 1, sum forced holes: 38 */
+} __attribute__((__aligned__(64)));
+
+This patch, while modifying all users of bpf_map_inc, also cleans up its
+interface to match bpf_map_put with separate operations for bpf_map_inc and
+bpf_map_inc_with_uref (to match bpf_map_put and bpf_map_put_with_uref,
+respectively). Also, given there are no users of bpf_map_inc_not_zero
+specifying uref=true, remove uref flag and default to uref=false internally.
+
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20191117172806.2195367-2-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_cf.c      | 21 ++++++++++-----------
- arch/s390/kernel/perf_cpum_cf_diag.c | 10 +++++-----
- 2 files changed, 15 insertions(+), 16 deletions(-)
+ .../net/ethernet/netronome/nfp/bpf/offload.c  |  4 +-
+ include/linux/bpf.h                           | 10 ++--
+ kernel/bpf/inode.c                            |  2 +-
+ kernel/bpf/map_in_map.c                       |  2 +-
+ kernel/bpf/syscall.c                          | 51 ++++++++-----------
+ kernel/bpf/verifier.c                         |  6 +--
+ kernel/bpf/xskmap.c                           |  6 +--
+ net/core/bpf_sk_storage.c                     |  2 +-
+ 8 files changed, 34 insertions(+), 49 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index 48d48b6187c0d..0eb1d1cc53a88 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -199,7 +199,7 @@ static const int cpumf_generic_events_user[] = {
- 	[PERF_COUNT_HW_BUS_CYCLES]	    = -1,
+diff --git a/drivers/net/ethernet/netronome/nfp/bpf/offload.c b/drivers/net/ethernet/netronome/nfp/bpf/offload.c
+index 88fab6a82acff..06927ba5a3ae0 100644
+--- a/drivers/net/ethernet/netronome/nfp/bpf/offload.c
++++ b/drivers/net/ethernet/netronome/nfp/bpf/offload.c
+@@ -46,9 +46,7 @@ nfp_map_ptr_record(struct nfp_app_bpf *bpf, struct nfp_prog *nfp_prog,
+ 	/* Grab a single ref to the map for our record.  The prog destroy ndo
+ 	 * happens after free_used_maps().
+ 	 */
+-	map = bpf_map_inc(map, false);
+-	if (IS_ERR(map))
+-		return PTR_ERR(map);
++	bpf_map_inc(map);
+ 
+ 	record = kmalloc(sizeof(*record), GFP_KERNEL);
+ 	if (!record) {
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index 3bf3835d0e866..78d5233b4f8ec 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -99,8 +99,8 @@ struct bpf_map {
+ 	/* The 3rd and 4th cacheline with misc members to avoid false sharing
+ 	 * particularly with refcounting.
+ 	 */
+-	atomic_t refcnt ____cacheline_aligned;
+-	atomic_t usercnt;
++	atomic64_t refcnt ____cacheline_aligned;
++	atomic64_t usercnt;
+ 	struct work_struct work;
+ 	char name[BPF_OBJ_NAME_LEN];
  };
+@@ -649,9 +649,9 @@ void bpf_map_free_id(struct bpf_map *map, bool do_idr_lock);
  
--static int __hw_perf_event_init(struct perf_event *event)
-+static int __hw_perf_event_init(struct perf_event *event, unsigned int type)
+ struct bpf_map *bpf_map_get_with_uref(u32 ufd);
+ struct bpf_map *__bpf_map_get(struct fd f);
+-struct bpf_map * __must_check bpf_map_inc(struct bpf_map *map, bool uref);
+-struct bpf_map * __must_check bpf_map_inc_not_zero(struct bpf_map *map,
+-						   bool uref);
++void bpf_map_inc(struct bpf_map *map);
++void bpf_map_inc_with_uref(struct bpf_map *map);
++struct bpf_map * __must_check bpf_map_inc_not_zero(struct bpf_map *map);
+ void bpf_map_put_with_uref(struct bpf_map *map);
+ void bpf_map_put(struct bpf_map *map);
+ int bpf_map_charge_memlock(struct bpf_map *map, u32 pages);
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index a70f7209cda3f..2f17f24258dc8 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -34,7 +34,7 @@ static void *bpf_any_get(void *raw, enum bpf_type type)
+ 		raw = bpf_prog_inc(raw);
+ 		break;
+ 	case BPF_TYPE_MAP:
+-		raw = bpf_map_inc(raw, true);
++		bpf_map_inc_with_uref(raw);
+ 		break;
+ 	default:
+ 		WARN_ON_ONCE(1);
+diff --git a/kernel/bpf/map_in_map.c b/kernel/bpf/map_in_map.c
+index fab4fb134547d..4cbe987be35b4 100644
+--- a/kernel/bpf/map_in_map.c
++++ b/kernel/bpf/map_in_map.c
+@@ -98,7 +98,7 @@ void *bpf_map_fd_get_ptr(struct bpf_map *map,
+ 		return inner_map;
+ 
+ 	if (bpf_map_meta_equal(map->inner_map_meta, inner_map))
+-		inner_map = bpf_map_inc(inner_map, false);
++		bpf_map_inc(inner_map);
+ 	else
+ 		inner_map = ERR_PTR(-EINVAL);
+ 
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index ace1cfaa24b6b..c8668ac70c982 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -313,7 +313,7 @@ static void bpf_map_free_deferred(struct work_struct *work)
+ 
+ static void bpf_map_put_uref(struct bpf_map *map)
  {
- 	struct perf_event_attr *attr = &event->attr;
- 	struct hw_perf_event *hwc = &event->hw;
-@@ -207,7 +207,7 @@ static int __hw_perf_event_init(struct perf_event *event)
- 	int err = 0;
- 	u64 ev;
- 
--	switch (attr->type) {
-+	switch (type) {
- 	case PERF_TYPE_RAW:
- 		/* Raw events are used to access counters directly,
- 		 * hence do not permit excludes */
-@@ -294,17 +294,16 @@ static int __hw_perf_event_init(struct perf_event *event)
- 
- static int cpumf_pmu_event_init(struct perf_event *event)
- {
-+	unsigned int type = event->attr.type;
- 	int err;
- 
--	switch (event->attr.type) {
--	case PERF_TYPE_HARDWARE:
--	case PERF_TYPE_HW_CACHE:
--	case PERF_TYPE_RAW:
--		err = __hw_perf_event_init(event);
--		break;
--	default:
-+	if (type == PERF_TYPE_HARDWARE || type == PERF_TYPE_RAW)
-+		err = __hw_perf_event_init(event, type);
-+	else if (event->pmu->type == type)
-+		/* Registered as unknown PMU */
-+		err = __hw_perf_event_init(event, PERF_TYPE_RAW);
-+	else
- 		return -ENOENT;
--	}
- 
- 	if (unlikely(err) && event->destroy)
- 		event->destroy(event);
-@@ -553,7 +552,7 @@ static int __init cpumf_pmu_init(void)
- 		return -ENODEV;
- 
- 	cpumf_pmu.attr_groups = cpumf_cf_event_group();
--	rc = perf_pmu_register(&cpumf_pmu, "cpum_cf", PERF_TYPE_RAW);
-+	rc = perf_pmu_register(&cpumf_pmu, "cpum_cf", -1);
- 	if (rc)
- 		pr_err("Registering the cpum_cf PMU failed with rc=%i\n", rc);
- 	return rc;
-diff --git a/arch/s390/kernel/perf_cpum_cf_diag.c b/arch/s390/kernel/perf_cpum_cf_diag.c
-index 2654e348801a1..e949ab832ed75 100644
---- a/arch/s390/kernel/perf_cpum_cf_diag.c
-+++ b/arch/s390/kernel/perf_cpum_cf_diag.c
-@@ -243,13 +243,13 @@ static int cf_diag_event_init(struct perf_event *event)
- 	int err = -ENOENT;
- 
- 	debug_sprintf_event(cf_diag_dbg, 5,
--			    "%s event %p cpu %d config %#llx "
-+			    "%s event %p cpu %d config %#llx type:%u "
- 			    "sample_type %#llx cf_diag_events %d\n", __func__,
--			    event, event->cpu, attr->config, attr->sample_type,
--			    atomic_read(&cf_diag_events));
-+			    event, event->cpu, attr->config, event->pmu->type,
-+			    attr->sample_type, atomic_read(&cf_diag_events));
- 
- 	if (event->attr.config != PERF_EVENT_CPUM_CF_DIAG ||
--	    event->attr.type != PERF_TYPE_RAW)
-+	    event->attr.type != event->pmu->type)
- 		goto out;
- 
- 	/* Raw events are used to access counters directly,
-@@ -693,7 +693,7 @@ static int __init cf_diag_init(void)
+-	if (atomic_dec_and_test(&map->usercnt)) {
++	if (atomic64_dec_and_test(&map->usercnt)) {
+ 		if (map->ops->map_release_uref)
+ 			map->ops->map_release_uref(map);
  	}
- 	debug_register_view(cf_diag_dbg, &debug_sprintf_view);
+@@ -324,7 +324,7 @@ static void bpf_map_put_uref(struct bpf_map *map)
+  */
+ static void __bpf_map_put(struct bpf_map *map, bool do_idr_lock)
+ {
+-	if (atomic_dec_and_test(&map->refcnt)) {
++	if (atomic64_dec_and_test(&map->refcnt)) {
+ 		/* bpf_map_free_id() must be called first */
+ 		bpf_map_free_id(map, do_idr_lock);
+ 		btf_put(map->btf);
+@@ -577,8 +577,8 @@ static int map_create(union bpf_attr *attr)
+ 	if (err)
+ 		goto free_map;
  
--	rc = perf_pmu_register(&cf_diag, "cpum_cf_diag", PERF_TYPE_RAW);
-+	rc = perf_pmu_register(&cf_diag, "cpum_cf_diag", -1);
- 	if (rc) {
- 		debug_unregister_view(cf_diag_dbg, &debug_sprintf_view);
- 		debug_unregister(cf_diag_dbg);
+-	atomic_set(&map->refcnt, 1);
+-	atomic_set(&map->usercnt, 1);
++	atomic64_set(&map->refcnt, 1);
++	atomic64_set(&map->usercnt, 1);
+ 
+ 	if (attr->btf_key_type_id || attr->btf_value_type_id) {
+ 		struct btf *btf;
+@@ -655,21 +655,19 @@ struct bpf_map *__bpf_map_get(struct fd f)
+ 	return f.file->private_data;
+ }
+ 
+-/* prog's and map's refcnt limit */
+-#define BPF_MAX_REFCNT 32768
+-
+-struct bpf_map *bpf_map_inc(struct bpf_map *map, bool uref)
++void bpf_map_inc(struct bpf_map *map)
+ {
+-	if (atomic_inc_return(&map->refcnt) > BPF_MAX_REFCNT) {
+-		atomic_dec(&map->refcnt);
+-		return ERR_PTR(-EBUSY);
+-	}
+-	if (uref)
+-		atomic_inc(&map->usercnt);
+-	return map;
++	atomic64_inc(&map->refcnt);
+ }
+ EXPORT_SYMBOL_GPL(bpf_map_inc);
+ 
++void bpf_map_inc_with_uref(struct bpf_map *map)
++{
++	atomic64_inc(&map->refcnt);
++	atomic64_inc(&map->usercnt);
++}
++EXPORT_SYMBOL_GPL(bpf_map_inc_with_uref);
++
+ struct bpf_map *bpf_map_get_with_uref(u32 ufd)
+ {
+ 	struct fd f = fdget(ufd);
+@@ -679,38 +677,30 @@ struct bpf_map *bpf_map_get_with_uref(u32 ufd)
+ 	if (IS_ERR(map))
+ 		return map;
+ 
+-	map = bpf_map_inc(map, true);
++	bpf_map_inc_with_uref(map);
+ 	fdput(f);
+ 
+ 	return map;
+ }
+ 
+ /* map_idr_lock should have been held */
+-static struct bpf_map *__bpf_map_inc_not_zero(struct bpf_map *map,
+-					      bool uref)
++static struct bpf_map *__bpf_map_inc_not_zero(struct bpf_map *map, bool uref)
+ {
+ 	int refold;
+ 
+-	refold = atomic_fetch_add_unless(&map->refcnt, 1, 0);
+-
+-	if (refold >= BPF_MAX_REFCNT) {
+-		__bpf_map_put(map, false);
+-		return ERR_PTR(-EBUSY);
+-	}
+-
++	refold = atomic64_fetch_add_unless(&map->refcnt, 1, 0);
+ 	if (!refold)
+ 		return ERR_PTR(-ENOENT);
+-
+ 	if (uref)
+-		atomic_inc(&map->usercnt);
++		atomic64_inc(&map->usercnt);
+ 
+ 	return map;
+ }
+ 
+-struct bpf_map *bpf_map_inc_not_zero(struct bpf_map *map, bool uref)
++struct bpf_map *bpf_map_inc_not_zero(struct bpf_map *map)
+ {
+ 	spin_lock_bh(&map_idr_lock);
+-	map = __bpf_map_inc_not_zero(map, uref);
++	map = __bpf_map_inc_not_zero(map, false);
+ 	spin_unlock_bh(&map_idr_lock);
+ 
+ 	return map;
+@@ -1456,6 +1446,9 @@ static struct bpf_prog *____bpf_prog_get(struct fd f)
+ 	return f.file->private_data;
+ }
+ 
++/* prog's refcnt limit */
++#define BPF_MAX_REFCNT 32768
++
+ struct bpf_prog *bpf_prog_add(struct bpf_prog *prog, int i)
+ {
+ 	if (atomic_add_return(i, &prog->aux->refcnt) > BPF_MAX_REFCNT) {
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index ffc3e53f53009..87181cd5bafd7 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -8008,11 +8008,7 @@ static int replace_map_fd_with_map_ptr(struct bpf_verifier_env *env)
+ 			 * will be used by the valid program until it's unloaded
+ 			 * and all maps are released in free_used_maps()
+ 			 */
+-			map = bpf_map_inc(map, false);
+-			if (IS_ERR(map)) {
+-				fdput(f);
+-				return PTR_ERR(map);
+-			}
++			bpf_map_inc(map);
+ 
+ 			aux->map_index = env->used_map_cnt;
+ 			env->used_maps[env->used_map_cnt++] = map;
+diff --git a/kernel/bpf/xskmap.c b/kernel/bpf/xskmap.c
+index 82a1ffe15dfaa..08dccf733991c 100644
+--- a/kernel/bpf/xskmap.c
++++ b/kernel/bpf/xskmap.c
+@@ -18,10 +18,8 @@ struct xsk_map {
+ 
+ int xsk_map_inc(struct xsk_map *map)
+ {
+-	struct bpf_map *m = &map->map;
+-
+-	m = bpf_map_inc(m, false);
+-	return PTR_ERR_OR_ZERO(m);
++	bpf_map_inc(&map->map);
++	return 0;
+ }
+ 
+ void xsk_map_put(struct xsk_map *map)
+diff --git a/net/core/bpf_sk_storage.c b/net/core/bpf_sk_storage.c
+index da5639a5bd3b9..458be6b3eda97 100644
+--- a/net/core/bpf_sk_storage.c
++++ b/net/core/bpf_sk_storage.c
+@@ -798,7 +798,7 @@ int bpf_sk_storage_clone(const struct sock *sk, struct sock *newsk)
+ 		 * Try to grab map refcnt to make sure that it's still
+ 		 * alive and prevent concurrent removal.
+ 		 */
+-		map = bpf_map_inc_not_zero(&smap->map, false);
++		map = bpf_map_inc_not_zero(&smap->map);
+ 		if (IS_ERR(map))
+ 			continue;
+ 
 -- 
 2.20.1
 
