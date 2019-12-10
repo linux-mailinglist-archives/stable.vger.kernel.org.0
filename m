@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84BEC119854
+	by mail.lfdr.de (Postfix) with ESMTP id 1528D119853
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730196AbfLJVfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:35:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
+        id S1727656AbfLJViq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:38:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728844AbfLJVfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:35:10 -0500
+        id S1730199AbfLJVfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:35:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97E422073B;
-        Tue, 10 Dec 2019 21:35:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B431D205C9;
+        Tue, 10 Dec 2019 21:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013710;
-        bh=WPxvOS/kH3aZi2NYePpEzYQQxpdiVSswPQURmT2MVhY=;
+        s=default; t=1576013711;
+        bh=ntkEWq9Az0k28/gTcB607fPXcFBKNmq2wsDSzXmVA3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XaejIitRQy1USJwqAvgtlxewdBc9PKEmn8gQViNgsPaq2hp1NFhaLoSYE9KQGY8Me
-         rlE7sLgytTxRR4w911AHQeGZtjt1yNceETSv6ySnUI24jUc2AlBrvzBJa+Aui26bDy
-         sKWYfd15S0TQ5jHEaUWPA1pVd/quEF3wBVDW41BI=
+        b=MgHPw6sezCp/WWPfJ0JI+rXtO4EnvuzbL20xOSna7LXMNHFAEmlue+wi136Zqq9D7
+         Y6/he9K9o+3Tgr9Q1lTtI2p3z+eWOD1WwzeAPltn/gbHJMGmdKxHQt04RJOEaJ2+ej
+         IUVMfCQnrQX7BVQ8ttk6/k1cohVvdEA8kk1h/iKU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 138/177] ASoC: Intel: kbl_rt5663_rt5514_max98927: Add dmic format constraint
-Date:   Tue, 10 Dec 2019 16:31:42 -0500
-Message-Id: <20191210213221.11921-138-sashal@kernel.org>
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 139/177] s390/disassembler: don't hide instruction addresses
+Date:   Tue, 10 Dec 2019 16:31:43 -0500
+Message-Id: <20191210213221.11921-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -44,38 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit e2db787bdcb4f2722ecf410168f0583764634e45 ]
+[ Upstream commit 544f1d62e3e6c6e6d17a5e56f6139208acb5ff46 ]
 
-On KBL platform, the microphone is attached to external codec(rt5514)
-instead of PCH. However, TDM slot between PCH and codec is 16 bits only.
-In order to avoid setting wrong format, we should add a constraint to
-force to use 16 bits format forever.
+Due to kptr_restrict, JITted BPF code is now displayed like this:
 
-Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190923162940.199580-1-yuhsuan@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+000000000b6ed1b2: ebdff0800024  stmg    %r13,%r15,128(%r15)
+000000004cde2ba0: 41d0f040      la      %r13,64(%r15)
+00000000fbad41b0: a7fbffa0      aghi    %r15,-96
+
+Leaking kernel addresses to dmesg is not a concern in this case, because
+this happens only when JIT debugging is explicitly activated, which only
+root can do.
+
+Use %px in this particular instance, and also to print an instruction
+address in show_code and PCREL (e.g. brasl) arguments in print_insn.
+While at present functionally equivalent to %016lx, %px is recommended
+by Documentation/core-api/printk-formats.rst for such cases.
+
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/kernel/dis.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-index b8a03f58ac8cc..f36e33a147287 100644
---- a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-+++ b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-@@ -423,6 +423,9 @@ static int kabylake_dmic_startup(struct snd_pcm_substream *substream)
- 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
- 			dmic_constraints);
- 
-+	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+	snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
+diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
+index b2c68fbf26346..41925f2206940 100644
+--- a/arch/s390/kernel/dis.c
++++ b/arch/s390/kernel/dis.c
+@@ -462,10 +462,11 @@ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
+ 				ptr += sprintf(ptr, "%%c%i", value);
+ 			else if (operand->flags & OPERAND_VR)
+ 				ptr += sprintf(ptr, "%%v%i", value);
+-			else if (operand->flags & OPERAND_PCREL)
+-				ptr += sprintf(ptr, "%lx", (signed int) value
+-								      + addr);
+-			else if (operand->flags & OPERAND_SIGNED)
++			else if (operand->flags & OPERAND_PCREL) {
++				void *pcrel = (void *)((int)value + addr);
 +
- 	return snd_pcm_hw_constraint_list(substream->runtime, 0,
- 			SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
- }
++				ptr += sprintf(ptr, "%px", pcrel);
++			} else if (operand->flags & OPERAND_SIGNED)
+ 				ptr += sprintf(ptr, "%i", value);
+ 			else
+ 				ptr += sprintf(ptr, "%u", value);
+@@ -537,7 +538,7 @@ void show_code(struct pt_regs *regs)
+ 		else
+ 			*ptr++ = ' ';
+ 		addr = regs->psw.addr + start - 32;
+-		ptr += sprintf(ptr, "%016lx: ", addr);
++		ptr += sprintf(ptr, "%px: ", (void *)addr);
+ 		if (start + opsize >= end)
+ 			break;
+ 		for (i = 0; i < opsize; i++)
+@@ -565,7 +566,7 @@ void print_fn_code(unsigned char *code, unsigned long len)
+ 		opsize = insn_length(*code);
+ 		if (opsize > len)
+ 			break;
+-		ptr += sprintf(ptr, "%p: ", code);
++		ptr += sprintf(ptr, "%px: ", code);
+ 		for (i = 0; i < opsize; i++)
+ 			ptr += sprintf(ptr, "%02x", code[i]);
+ 		*ptr++ = '\t';
 -- 
 2.20.1
 
