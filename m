@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA25C119C59
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:30:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BAA7119C6E
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726589AbfLJWai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:30:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
+        id S1727007AbfLJWan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:30:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726062AbfLJWai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:30:38 -0500
+        id S1726062AbfLJWaj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:30:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CB53206EC;
-        Tue, 10 Dec 2019 22:30:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45D5D20836;
+        Tue, 10 Dec 2019 22:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017037;
-        bh=Iv9R8Ul4w25f2mlnMFnuSz4NUF3fG7WfUuLMlnkLd/E=;
-        h=From:To:Cc:Subject:Date:From;
-        b=O0eQnqm/LIxDxBZqWyJi2r1KSduVHnx+8Zti3ddS08q3HyYibVQQ+0n6EiDrBjIUE
-         LrtUF5s1V/Cv0hOIDW39KtG3lMhoPEo970KlX/xlvvuhp22X7rDXFTWpjVfIDsDYmu
-         wp3QLQNYJeMOqpGnsfXGJevY0V0dmRxGQ0tqVZu8=
+        s=default; t=1576017039;
+        bh=tZzZRAgdTGj0L9tAF36eOBqT3CBQMMRdkVJj31EFvuM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=t4+Bj2HLK6871+jrbMvbcPaXfL/e1XO+cOB+IG/09Xh9Wm4VTMlNhNNfotOeF/Btp
+         r2DGbCg8lwkY3ouj/GX2u0JyNOWzvk7eHl9JV1AC8A9Y6yWEPUS9Jwy+AYiJQdoftf
+         Okt0TwHOdjCX0B5PsbGrS7+Jyrs0a6g2pxNYWpmY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Paul <seanpaul@chromium.org>, Lyude Paul <lyude@redhat.com>,
-        Todd Previte <tprevite@gmail.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 01/91] drm: mst: Fix query_payload ack reply struct
-Date:   Tue, 10 Dec 2019 17:29:05 -0500
-Message-Id: <20191210223035.14270-1-sashal@kernel.org>
+Cc:     Brian Masney <masneyb@onstation.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.9 02/91] drm/bridge: analogix-anx78xx: silence -EPROBE_DEFER warnings
+Date:   Tue, 10 Dec 2019 17:29:06 -0500
+Message-Id: <20191210223035.14270-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
+References: <20191210223035.14270-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,45 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Paul <seanpaul@chromium.org>
+From: Brian Masney <masneyb@onstation.org>
 
-[ Upstream commit 268de6530aa18fe5773062367fd119f0045f6e88 ]
+[ Upstream commit 2708e876272d89bbbff811d12834adbeef85f022 ]
 
-Spec says[1] Allocated_PBN is 16 bits
+Silence two warning messages that occur due to -EPROBE_DEFER errors to
+help cleanup the system boot log.
 
-[1]- DisplayPort 1.2 Spec, Section 2.11.9.8, Table 2-98
-
-Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Todd Previte <tprevite@gmail.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190829165223.129662-1-sean@poorly.run
+Signed-off-by: Brian Masney <masneyb@onstation.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190815004854.19860-4-masneyb@onstation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/drm/drm_dp_mst_helper.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/analogix-anx78xx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/drm/drm_dp_mst_helper.h b/include/drm/drm_dp_mst_helper.h
-index 0032076705970..c0542de64690a 100644
---- a/include/drm/drm_dp_mst_helper.h
-+++ b/include/drm/drm_dp_mst_helper.h
-@@ -312,7 +312,7 @@ struct drm_dp_resource_status_notify {
+diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+index a2a82366a7714..eb97e88a103ca 100644
+--- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
++++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+@@ -725,7 +725,9 @@ static int anx78xx_init_pdata(struct anx78xx *anx78xx)
+ 	/* 1.0V digital core power regulator  */
+ 	pdata->dvdd10 = devm_regulator_get(dev, "dvdd10");
+ 	if (IS_ERR(pdata->dvdd10)) {
+-		DRM_ERROR("DVDD10 regulator not found\n");
++		if (PTR_ERR(pdata->dvdd10) != -EPROBE_DEFER)
++			DRM_ERROR("DVDD10 regulator not found\n");
++
+ 		return PTR_ERR(pdata->dvdd10);
+ 	}
  
- struct drm_dp_query_payload_ack_reply {
- 	u8 port_number;
--	u8 allocated_pbn;
-+	u16 allocated_pbn;
- };
+@@ -1344,7 +1346,9 @@ static int anx78xx_i2c_probe(struct i2c_client *client,
  
- struct drm_dp_sideband_msg_req_body {
+ 	err = anx78xx_init_pdata(anx78xx);
+ 	if (err) {
+-		DRM_ERROR("Failed to initialize pdata: %d\n", err);
++		if (err != -EPROBE_DEFER)
++			DRM_ERROR("Failed to initialize pdata: %d\n", err);
++
+ 		return err;
+ 	}
+ 
 -- 
 2.20.1
 
