@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3E3119456
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7050C119422
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbfLJVPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:15:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40284 "EHLO mail.kernel.org"
+        id S1729417AbfLJVNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:13:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729399AbfLJVNl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:41 -0500
+        id S1729039AbfLJVNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:13:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEF97214D8;
-        Tue, 10 Dec 2019 21:13:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92C0E20828;
+        Tue, 10 Dec 2019 21:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012420;
-        bh=zx5Yrot9OfO0dMKAtw83UUJizqsiN+/QTwHFntvrSVs=;
+        s=default; t=1576012421;
+        bh=Sjk26Xenb9gbjd6XEYt8Eux0fap3BLo0eMdUgQ6sgSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atDT7Oq6RQvklgbpbXk15OXbiUCIKLl1iz5a1HvHM+FWm3EtYn7sndZm7h3LbyVxA
-         Beg309xLcvRH8aMFYjnx1DEFJi3IEtb3dx8R8UW+aSnZYEfE2cFDjvny7ZxgR9rd0O
-         ApnoGTJxZ8WyMC5TjAbV+kFrAXkJIGP+L1qghOS0=
+        b=RlSB+Iav79jcb2mRKhWWJeHfO64A4fduM8LZN/PQjC0el4ePC1rRyNa+YvnHD8Jzh
+         yVii0D3IuJcVrtAjRLnaT1EL9W4adDpIbM5S/0w+pp/PPCWJeEQbX5zt902nsaAidu
+         zHFi+hkPKueEaTofAVZFZenQrCJaCpNLUYdwM2gs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        clang-built-linux@googlegroups.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, Mike Rapoport <rppt@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 335/350] perf parse: Fix potential memory leak when handling tracepoint errors
-Date:   Tue, 10 Dec 2019 16:07:20 -0500
-Message-Id: <20191210210735.9077-296-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 336/350] mips: fix build when "48 bits virtual memory" is enabled
+Date:   Tue, 10 Dec 2019 16:07:21 -0500
+Message-Id: <20191210210735.9077-297-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -52,83 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit 4584f084aa9d8033d5911935837dbee7b082d0e9 ]
+[ Upstream commit 3ed6751bb8fa89c3014399bb0414348499ee202a ]
 
-An error may be in place when tracepoint_error is called, use
-parse_events__handle_error to avoid a memory leak and to capture the
-first and last error. Error detected by LLVM's libFuzzer using the
-following event:
+With CONFIG_MIPS_VA_BITS_48=y the build fails miserably:
 
-$ perf stat -e 'msr/event/,f:e'
-event syntax error: 'msr/event/,f:e'
-                     \___ can't access trace events
+  CC      arch/mips/kernel/asm-offsets.s
+In file included from arch/mips/include/asm/pgtable.h:644,
+                 from include/linux/mm.h:99,
+                 from arch/mips/kernel/asm-offsets.c:15:
+include/asm-generic/pgtable.h:16:2: error: #error CONFIG_PGTABLE_LEVELS is not consistent with __PAGETABLE_{P4D,PUD,PMD}_FOLDED
+ #error CONFIG_PGTABLE_LEVELS is not consistent with __PAGETABLE_{P4D,PUD,PMD}_FOLDED
+  ^~~~~
+include/asm-generic/pgtable.h:390:28: error: unknown type name 'p4d_t'; did you mean 'pmd_t'?
+ static inline int p4d_same(p4d_t p4d_a, p4d_t p4d_b)
+                            ^~~~~
+                            pmd_t
 
-Error:  No permissions to read /sys/kernel/debug/tracing/events/f/e
-Hint:   Try 'sudo mount -o remount,mode=755 /sys/kernel/debug/tracing/'
+[ ... more such errors ... ]
 
-Initial error:
-event syntax error: 'msr/event/,f:e'
-                                \___ no value assigned for term
-Run 'perf list' for a list of valid events
+scripts/Makefile.build:99: recipe for target 'arch/mips/kernel/asm-offsets.s' failed
+make[2]: *** [arch/mips/kernel/asm-offsets.s] Error 1
 
- Usage: perf stat [<options>] [<command>]
+This happens because when CONFIG_MIPS_VA_BITS_48 enables 4th level of the
+page tables, but neither pgtable-nop4d.h nor 5level-fixup.h are included to
+cope with the 5th level.
 
-    -e, --event <event>   event selector. use 'perf list' to list available events
+Replace #ifdef conditions around includes of the pgtable-nop{m,u}d.h with
+explicit CONFIG_PGTABLE_LEVELS and add include of 5level-fixup.h for the
+case when CONFIG_PGTABLE_LEVELS==4
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: clang-built-linux@googlegroups.com
-Link: http://lore.kernel.org/lkml/20191120180925.21787-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: Mike Rapoport <rppt@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/mips/include/asm/pgtable-64.h | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 422ad1888e74f..9a958ec5a096d 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -480,6 +480,7 @@ int parse_events_add_cache(struct list_head *list, int *idx,
- static void tracepoint_error(struct parse_events_error *e, int err,
- 			     const char *sys, const char *name)
- {
-+	const char *str;
- 	char help[BUFSIZ];
+diff --git a/arch/mips/include/asm/pgtable-64.h b/arch/mips/include/asm/pgtable-64.h
+index 93a9dce31f255..813dfe5f45a59 100644
+--- a/arch/mips/include/asm/pgtable-64.h
++++ b/arch/mips/include/asm/pgtable-64.h
+@@ -18,10 +18,12 @@
+ #include <asm/fixmap.h>
  
- 	if (!e)
-@@ -493,18 +494,18 @@ static void tracepoint_error(struct parse_events_error *e, int err,
+ #define __ARCH_USE_5LEVEL_HACK
+-#if defined(CONFIG_PAGE_SIZE_64KB) && !defined(CONFIG_MIPS_VA_BITS_48)
++#if CONFIG_PGTABLE_LEVELS == 2
+ #include <asm-generic/pgtable-nopmd.h>
+-#elif !(defined(CONFIG_PAGE_SIZE_4KB) && defined(CONFIG_MIPS_VA_BITS_48))
++#elif CONFIG_PGTABLE_LEVELS == 3
+ #include <asm-generic/pgtable-nopud.h>
++#else
++#include <asm-generic/5level-fixup.h>
+ #endif
  
- 	switch (err) {
- 	case EACCES:
--		e->str = strdup("can't access trace events");
-+		str = "can't access trace events";
- 		break;
- 	case ENOENT:
--		e->str = strdup("unknown tracepoint");
-+		str = "unknown tracepoint";
- 		break;
- 	default:
--		e->str = strdup("failed to add tracepoint");
-+		str = "failed to add tracepoint";
- 		break;
- 	}
- 
- 	tracing_path__strerror_open_tp(err, help, sizeof(help), sys, name);
--	e->help = strdup(help);
-+	parse_events__handle_error(e, 0, strdup(str), strdup(help));
+ /*
+@@ -216,6 +218,9 @@ static inline unsigned long pgd_page_vaddr(pgd_t pgd)
+ 	return pgd_val(pgd);
  }
  
- static int add_tracepoint(struct list_head *list, int *idx,
++#define pgd_phys(pgd)		virt_to_phys((void *)pgd_val(pgd))
++#define pgd_page(pgd)		(pfn_to_page(pgd_phys(pgd) >> PAGE_SHIFT))
++
+ static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
+ {
+ 	return (pud_t *)pgd_page_vaddr(*pgd) + pud_index(address);
 -- 
 2.20.1
 
