@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F3D4119447
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F44A119429
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728729AbfLJVOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:14:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40688 "EHLO mail.kernel.org"
+        id S1729106AbfLJVNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:13:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728970AbfLJVNu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:50 -0500
+        id S1729462AbfLJVNv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:13:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A205920828;
-        Tue, 10 Dec 2019 21:13:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D82AE214AF;
+        Tue, 10 Dec 2019 21:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012429;
-        bh=puIRiE8buRungqTMnVSyp89+O+XIRVd0ghEbEtscM90=;
+        s=default; t=1576012430;
+        bh=oTyZE3PvvugiXgfACgNDGttm2rPWx87oWQPYoTVhVU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkG3L0EGR5b1KKienflle01k5xU6LM8rE48sMxXMYidwEuqUqRnlRhFa5Gt4tfqng
-         5uT9yhehGku498TcCIagYi4HDsJ4CxxJincctTDYOeOqCeYON8v8l/CzcH1Yf29o+H
-         Gh7+zjH45re3sVnSp8+t1hJ+e34H72Fph6VYBPg4=
+        b=qRII+pLErXEVEWtbRyFYDk59yv7DT7DVb2WMcJbmklEv4YERqYr0hhUxjf8QRSFyd
+         ALA7/Pw9ZevCwzTAyrNHookGe8scrKh5IGdD9G3rI4E8/KV6HWHoGx6zPnDio06dTY
+         PP32RTtIhdfAUn9tluV5xfy2p85xVxpwPv19Suw4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quentin Monnet <quentin.monnet@netronome.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 343/350] tools, bpf: Fix build for 'make -s tools/bpf O=<dir>'
-Date:   Tue, 10 Dec 2019 16:07:28 -0500
-Message-Id: <20191210210735.9077-304-sashal@kernel.org>
+Cc:     Devesh Sharma <devesh.sharma@broadcom.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 344/350] RDMA/bnxt_re: Fix missing le16_to_cpu
+Date:   Tue, 10 Dec 2019 16:07:29 -0500
+Message-Id: <20191210210735.9077-305-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -45,53 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Monnet <quentin.monnet@netronome.com>
+From: Devesh Sharma <devesh.sharma@broadcom.com>
 
-[ Upstream commit a89b2cbf71d64b61e79bbe5cb7ff4664797eeaaf ]
+[ Upstream commit fca5b9dc0986aa49b3f0a7cfe24b6c82422ac1d7 ]
 
-Building selftests with 'make TARGETS=bpf kselftest' was fixed in commit
-55d554f5d140 ("tools: bpf: Use !building_out_of_srctree to determine
-srctree"). However, by updating $(srctree) in tools/bpf/Makefile for
-in-tree builds only, we leave out the case where we pass an output
-directory to build BPF tools, but $(srctree) is not set. This
-typically happens for:
+From sparse:
 
-    $ make -s tools/bpf O=/tmp/foo
-    Makefile:40: /tools/build/Makefile.feature: No such file or directory
+drivers/infiniband/hw/bnxt_re/main.c:1274:18: warning: cast from restricted __le16
+drivers/infiniband/hw/bnxt_re/main.c:1275:18: warning: cast from restricted __le16
+drivers/infiniband/hw/bnxt_re/main.c:1276:18: warning: cast from restricted __le16
+drivers/infiniband/hw/bnxt_re/main.c:1277:21: warning: restricted __le16 degrades to integer
 
-Fix it by updating $(srctree) in the Makefile not only for out-of-tree
-builds, but also if $(srctree) is empty.
-
-Detected with test_bpftool_build.sh.
-
-Fixes: 55d554f5d140 ("tools: bpf: Use !building_out_of_srctree to determine srctree")
-Signed-off-by: Quentin Monnet <quentin.monnet@netronome.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Link: https://lore.kernel.org/bpf/20191119105626.21453-1-quentin.monnet@netronome.com
+Fixes: 2b827ea1926b ("RDMA/bnxt_re: Query HWRM Interface version from FW")
+Link: https://lore.kernel.org/r/1574317343-23300-4-git-send-email-devesh.sharma@broadcom.com
+Signed-off-by: Devesh Sharma <devesh.sharma@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/Makefile | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/infiniband/hw/bnxt_re/main.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/bpf/Makefile b/tools/bpf/Makefile
-index 5d1995fd369c6..5535650800ab2 100644
---- a/tools/bpf/Makefile
-+++ b/tools/bpf/Makefile
-@@ -16,7 +16,13 @@ CFLAGS += -D__EXPORTED_HEADERS__ -I$(srctree)/include/uapi -I$(srctree)/include
- # isn't set and when invoked from selftests build, where srctree
- # is set to ".". building_out_of_srctree is undefined for in srctree
- # builds
-+ifeq ($(srctree),)
-+update_srctree := 1
-+endif
- ifndef building_out_of_srctree
-+update_srctree := 1
-+endif
-+ifeq ($(update_srctree),1)
- srctree := $(patsubst %/,%,$(dir $(CURDIR)))
- srctree := $(patsubst %/,%,$(dir $(srctree)))
- endif
+diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
+index 30a54f8aa42c0..b31e215882004 100644
+--- a/drivers/infiniband/hw/bnxt_re/main.c
++++ b/drivers/infiniband/hw/bnxt_re/main.c
+@@ -1270,10 +1270,10 @@ static void bnxt_re_query_hwrm_intf_version(struct bnxt_re_dev *rdev)
+ 		return;
+ 	}
+ 	rdev->qplib_ctx.hwrm_intf_ver =
+-		(u64)resp.hwrm_intf_major << 48 |
+-		(u64)resp.hwrm_intf_minor << 32 |
+-		(u64)resp.hwrm_intf_build << 16 |
+-		resp.hwrm_intf_patch;
++		(u64)le16_to_cpu(resp.hwrm_intf_major) << 48 |
++		(u64)le16_to_cpu(resp.hwrm_intf_minor) << 32 |
++		(u64)le16_to_cpu(resp.hwrm_intf_build) << 16 |
++		le16_to_cpu(resp.hwrm_intf_patch);
+ }
+ 
+ static void bnxt_re_ib_unreg(struct bnxt_re_dev *rdev)
 -- 
 2.20.1
 
