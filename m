@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BB5119C33
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:19:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08009119AB0
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbfLJWNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:13:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33092 "EHLO mail.kernel.org"
+        id S1727333AbfLJWDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:03:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727317AbfLJWDL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:03:11 -0500
+        id S1727325AbfLJWDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:03:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29F7A208C3;
-        Tue, 10 Dec 2019 22:03:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46ADC2077B;
+        Tue, 10 Dec 2019 22:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015390;
-        bh=UQ5QM151xBNAmKqQ1a68CNfug4nr/qlV+mQ1CC7aVDU=;
+        s=default; t=1576015392;
+        bh=KyTVx21sbG85p0XwRDesop70533ODNvOXCR6/Zzl7Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vbqTkHGCrYGurnJ5vY9W58/a1dIq+gzEJsERk1F3FZRis7gqERrSFYFaFYECsQ+vO
-         N+1zycDPhWujI2TstPcPt5+a78OASQuPk13McRCbCFBgP9iIi1cf9BoHsBA8dS9/L7
-         XNwSCH8mpT5LjCb+BLNWlUz4Iw4+Kt4OTDGK52p4=
+        b=FVIeMempV1ifeAq9JdWMwGXagRcla40BJiei64PpGSUu8ujFV28evwzn71/DGE7Lw
+         tYybOBh+tFWHoogZ6yp1vp4pZjmVtgkpZP+bRFiEpwiG8lXQ9Pt78peNa3XN6ab+pH
+         EItZjJl4nxGVzLWxk62d84QOaTcQnfpkZJeeCp6M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Connor Kuehl <connor.kuehl@canonical.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 007/130] staging: rtl8188eu: fix possible null dereference
-Date:   Tue, 10 Dec 2019 17:00:58 -0500
-Message-Id: <20191210220301.13262-7-sashal@kernel.org>
+Cc:     Brendan Higgins <brendanhiggins@google.com>,
+        kbuild test robot <lkp@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 008/130] objtool: add kunit_try_catch_throw to the noreturn list
+Date:   Tue, 10 Dec 2019 17:00:59 -0500
+Message-Id: <20191210220301.13262-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -44,52 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor Kuehl <connor.kuehl@canonical.com>
+From: Brendan Higgins <brendanhiggins@google.com>
 
-[ Upstream commit 228241944a48113470d3c3b46c88ba7fbe0a274b ]
+[ Upstream commit 33adf80f5b52e3f7c55ad66ffcaaff93c6888aaa ]
 
-Inside a nested 'else' block at the beginning of this function is a
-call that assigns 'psta' to the return value of 'rtw_get_stainfo()'.
-If 'rtw_get_stainfo()' returns NULL and the flow of control reaches
-the 'else if' where 'psta' is dereferenced, then we will dereference
-a NULL pointer.
+Fix the following warning seen on GCC 7.3:
+  kunit/test-test.o: warning: objtool: kunit_test_unsuccessful_try() falls through to next function kunit_test_catch()
 
-Fix this by checking if 'psta' is not NULL before reading its
-'psta->qos_option' data member.
+kunit_try_catch_throw is a function added in the following patch in this
+series; it allows KUnit, a unit testing framework for the kernel, to
+bail out of a broken test. As a consequence, it is a new __noreturn
+function that objtool thinks is broken (as seen above). So fix this
+warning by adding kunit_try_catch_throw to objtool's noreturn list.
 
-Addresses-Coverity: ("Dereference null return value")
-
-Signed-off-by: Connor Kuehl <connor.kuehl@canonical.com>
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
-Link: https://lore.kernel.org/r/20190926150317.5894-1-connor.kuehl@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://www.spinics.net/lists/linux-kbuild/msg21708.html
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8188eu/core/rtw_xmit.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/objtool/check.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/rtl8188eu/core/rtw_xmit.c b/drivers/staging/rtl8188eu/core/rtw_xmit.c
-index 904b988ecc4ee..7c895af1ba31c 100644
---- a/drivers/staging/rtl8188eu/core/rtw_xmit.c
-+++ b/drivers/staging/rtl8188eu/core/rtw_xmit.c
-@@ -805,7 +805,7 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
- 			memcpy(pwlanhdr->addr2, get_bssid(pmlmepriv), ETH_ALEN);
- 			memcpy(pwlanhdr->addr3, pattrib->src, ETH_ALEN);
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 5422543faff85..daf178bc46446 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -167,6 +167,7 @@ static int __dead_end_function(struct objtool_file *file, struct symbol *func,
+ 		"fortify_panic",
+ 		"machine_real_restart",
+ 		"rewind_stack_do_exit",
++		"kunit_try_catch_throw",
+ 	};
  
--			if (psta->qos_option)
-+			if (psta && psta->qos_option)
- 				qos_option = true;
- 		} else if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) ||
- 			   check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)) {
-@@ -813,7 +813,7 @@ s32 rtw_make_wlanhdr(struct adapter *padapter, u8 *hdr, struct pkt_attrib *pattr
- 			memcpy(pwlanhdr->addr2, pattrib->src, ETH_ALEN);
- 			memcpy(pwlanhdr->addr3, get_bssid(pmlmepriv), ETH_ALEN);
- 
--			if (psta->qos_option)
-+			if (psta && psta->qos_option)
- 				qos_option = true;
- 		} else {
- 			RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("fw_state:%x is not allowed to xmit frame\n", get_fwstate(pmlmepriv)));
+ 	if (func->bind == STB_WEAK)
 -- 
 2.20.1
 
