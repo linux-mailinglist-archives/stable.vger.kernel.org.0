@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 534CD119489
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:16:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7864119488
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729220AbfLJVNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:13:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
+        id S1729267AbfLJVNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:13:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729252AbfLJVNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:16 -0500
+        id S1729258AbfLJVNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:13:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3D572077B;
-        Tue, 10 Dec 2019 21:13:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FBCE21556;
+        Tue, 10 Dec 2019 21:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012394;
-        bh=H/ys2Wtv/GALGsCkH/q6pJXQUSuQ1ipluh6D6LxfUFY=;
+        s=default; t=1576012396;
+        bh=AlB50L9uHf+wEk2eppPCYqPzcfDZ+tSlFufi17speCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZ6/Ur8cSRhsp6bWIM3H2IPekdem7g5NAOp3kPkcNtM/dLiY5kXctsDYe83/043E/
-         pwpJTa4KrT4iWNMDmmubq2ltG85ptOr1bFIqRsg+E7wF4ol1f/WI4iNHM5VPJ+Mvd3
-         kxap8XLRpvXdtnq88eljv8L4oKBrPwvRSNhOD/Ow=
+        b=hwckcBTw4TgGY73/NSULq30fifSMIOtbMbg6Zes+QuEwg9VQG88o+HuSvTREtgVAF
+         38TKlC6UBiKB1hQDC7V80775QRvmCiOSCmXQ4P7KYoYlNuhsdRKhF2gh3k4MeDaj2t
+         2Ew2LYkJI+gR0WlXlhQ86zjm9OcTWjjZhojQU34A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 315/350] perf session: Fix decompression of PERF_RECORD_COMPRESSED records
-Date:   Tue, 10 Dec 2019 16:07:00 -0500
-Message-Id: <20191210210735.9077-276-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 316/350] int128: move __uint128_t compiler test to Kconfig
+Date:   Tue, 10 Dec 2019 16:07:01 -0500
+Message-Id: <20191210210735.9077-277-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -48,142 +46,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Budankov <alexey.budankov@linux.intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit bb1835a3b86c73aa534ef6430ad40223728dfbc0 ]
+[ Upstream commit c12d3362a74bf0cd9e1d488918d40607b62a3104 ]
 
-Avoid termination of trace loading in case the last record in the
-decompressed buffer partly resides in the following mmaped
-PERF_RECORD_COMPRESSED record.
+In order to use 128-bit integer arithmetic in C code, the architecture
+needs to have declared support for it by setting ARCH_SUPPORTS_INT128,
+and it requires a version of the toolchain that supports this at build
+time. This is why all existing tests for ARCH_SUPPORTS_INT128 also test
+whether __SIZEOF_INT128__ is defined, since this is only the case for
+compilers that can support 128-bit integers.
 
-In this case NULL value returned by fetch_mmaped_event() means to
-proceed to the next mmaped record then decompress it and load compressed
-events.
+Let's fold this additional test into the Kconfig declaration of
+ARCH_SUPPORTS_INT128 so that we can also use the symbol in Makefiles,
+e.g., to decide whether a certain object needs to be included in the
+first place.
 
-The issue can be reproduced like this:
-
-  $ perf record -z -- some_long_running_workload
-  $ perf report --stdio -vv
-  decomp (B): 44519 to 163000
-  decomp (B): 48119 to 174800
-  decomp (B): 65527 to 131072
-  fetch_mmaped_event: head=0x1ffe0 event->header_size=0x28, mmap_size=0x20000: fuzzed perf.data?
-  Error:
-  failed to process sample
-  ...
-
-Testing:
-
-  71: Zstd perf.data compression/decompression              : Ok
-
-  $ tools/perf/perf report -vv --stdio
-  decomp (B): 59593 to 262160
-  decomp (B): 4438 to 16512
-  decomp (B): 285 to 880
-  Looking at the vmlinux_path (8 entries long)
-  Using vmlinux for symbols
-  decomp (B): 57474 to 261248
-  prefetch_event: head=0x3fc78 event->header_size=0x28, mmap_size=0x3fc80: fuzzed or compressed perf.data?
-  decomp (B): 25 to 32
-  decomp (B): 52 to 120
-  ...
-
-Fixes: 57fc032ad643 ("perf session: Avoid infinite loop when seeing invalid header.size")
-Link: https://marc.info/?l=linux-kernel&m=156580812427554&w=2
-Co-developed-by: Jiri Olsa <jolsa@kernel.org>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/cf782c34-f3f8-2f9f-d6ab-145cee0d5322@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c | 44 ++++++++++++++++++++++++---------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+ arch/arm64/Kconfig | 2 +-
+ arch/riscv/Kconfig | 2 +-
+ arch/x86/Kconfig   | 2 +-
+ crypto/ecc.c       | 2 +-
+ init/Kconfig       | 4 ++++
+ lib/ubsan.c        | 2 +-
+ lib/ubsan.h        | 2 +-
+ 7 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 061bb4d6a3f5a..5c172845fa5ac 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -1954,8 +1954,8 @@ static int __perf_session__process_pipe_events(struct perf_session *session)
- }
- 
- static union perf_event *
--fetch_mmaped_event(struct perf_session *session,
--		   u64 head, size_t mmap_size, char *buf)
-+prefetch_event(char *buf, u64 head, size_t mmap_size,
-+	       bool needs_swap, union perf_event *error)
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 3f047afb982c8..54c38c9cab88a 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -67,7 +67,7 @@ config ARM64
+ 	select ARCH_USE_QUEUED_SPINLOCKS
+ 	select ARCH_SUPPORTS_MEMORY_FAILURE
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+-	select ARCH_SUPPORTS_INT128 if GCC_VERSION >= 50000 || CC_IS_CLANG
++	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128 && (GCC_VERSION >= 50000 || CC_IS_CLANG)
+ 	select ARCH_SUPPORTS_NUMA_BALANCING
+ 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
+ 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 8eebbc8860bbd..75a6c91176221 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -164,7 +164,7 @@ config ARCH_RV32I
+ config ARCH_RV64I
+ 	bool "RV64I"
+ 	select 64BIT
+-	select ARCH_SUPPORTS_INT128 if GCC_VERSION >= 50000
++	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128 && GCC_VERSION >= 50000
+ 	select HAVE_FUNCTION_TRACER
+ 	select HAVE_FUNCTION_GRAPH_TRACER
+ 	select HAVE_FTRACE_MCOUNT_RECORD
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 8ef85139553f5..f2aed8012e9c0 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -24,7 +24,7 @@ config X86_64
+ 	depends on 64BIT
+ 	# Options that are inherently 64-bit kernel only:
+ 	select ARCH_HAS_GIGANTIC_PAGE
+-	select ARCH_SUPPORTS_INT128
++	select ARCH_SUPPORTS_INT128 if CC_HAS_INT128
+ 	select ARCH_USE_CMPXCHG_LOCKREF
+ 	select HAVE_ARCH_SOFT_DIRTY
+ 	select MODULES_USE_ELF_RELA
+diff --git a/crypto/ecc.c b/crypto/ecc.c
+index dfe114bc0c4af..6e6aab6c987c2 100644
+--- a/crypto/ecc.c
++++ b/crypto/ecc.c
+@@ -336,7 +336,7 @@ static u64 vli_usub(u64 *result, const u64 *left, u64 right,
+ static uint128_t mul_64_64(u64 left, u64 right)
  {
- 	union perf_event *event;
+ 	uint128_t result;
+-#if defined(CONFIG_ARCH_SUPPORTS_INT128) && defined(__SIZEOF_INT128__)
++#if defined(CONFIG_ARCH_SUPPORTS_INT128)
+ 	unsigned __int128 m = (unsigned __int128)left * right;
  
-@@ -1967,20 +1967,32 @@ fetch_mmaped_event(struct perf_session *session,
- 		return NULL;
+ 	result.m_low  = m;
+diff --git a/init/Kconfig b/init/Kconfig
+index b4daad2bac233..020526f681c03 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -785,6 +785,10 @@ config ARCH_SUPPORTS_NUMA_BALANCING
+ config ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+ 	bool
  
- 	event = (union perf_event *)(buf + head);
-+	if (needs_swap)
-+		perf_event_header__bswap(&event->header);
- 
--	if (session->header.needs_swap)
-+	if (head + event->header.size <= mmap_size)
-+		return event;
++config CC_HAS_INT128
++	def_bool y
++	depends on !$(cc-option,-D__SIZEOF_INT128__=0)
 +
-+	/* We're not fetching the event so swap back again */
-+	if (needs_swap)
- 		perf_event_header__bswap(&event->header);
+ #
+ # For architectures that know their GCC __int128 support is sound
+ #
+diff --git a/lib/ubsan.c b/lib/ubsan.c
+index 0c4681118fcd2..fc552d524ef77 100644
+--- a/lib/ubsan.c
++++ b/lib/ubsan.c
+@@ -119,7 +119,7 @@ static void val_to_string(char *str, size_t size, struct type_descriptor *type,
+ {
+ 	if (type_is_int(type)) {
+ 		if (type_bit_width(type) == 128) {
+-#if defined(CONFIG_ARCH_SUPPORTS_INT128) && defined(__SIZEOF_INT128__)
++#if defined(CONFIG_ARCH_SUPPORTS_INT128)
+ 			u_max val = get_unsigned_val(type, value);
  
--	if (head + event->header.size > mmap_size) {
--		/* We're not fetching the event so swap back again */
--		if (session->header.needs_swap)
--			perf_event_header__bswap(&event->header);
--		pr_debug("%s: head=%#" PRIx64 " event->header_size=%#x, mmap_size=%#zx: fuzzed perf.data?\n",
--			 __func__, head, event->header.size, mmap_size);
--		return ERR_PTR(-EINVAL);
--	}
-+	pr_debug("%s: head=%#" PRIx64 " event->header_size=%#x, mmap_size=%#zx:"
-+		 " fuzzed or compressed perf.data?\n",__func__, head, event->header.size, mmap_size);
+ 			scnprintf(str, size, "0x%08x%08x%08x%08x",
+diff --git a/lib/ubsan.h b/lib/ubsan.h
+index b8fa83864467f..7b56c09473a98 100644
+--- a/lib/ubsan.h
++++ b/lib/ubsan.h
+@@ -78,7 +78,7 @@ struct invalid_value_data {
+ 	struct type_descriptor *type;
+ };
  
--	return event;
-+	return error;
-+}
-+
-+static union perf_event *
-+fetch_mmaped_event(u64 head, size_t mmap_size, char *buf, bool needs_swap)
-+{
-+	return prefetch_event(buf, head, mmap_size, needs_swap, ERR_PTR(-EINVAL));
-+}
-+
-+static union perf_event *
-+fetch_decomp_event(u64 head, size_t mmap_size, char *buf, bool needs_swap)
-+{
-+	return prefetch_event(buf, head, mmap_size, needs_swap, NULL);
- }
- 
- static int __perf_session__process_decomp_events(struct perf_session *session)
-@@ -1993,10 +2005,8 @@ static int __perf_session__process_decomp_events(struct perf_session *session)
- 		return 0;
- 
- 	while (decomp->head < decomp->size && !session_done()) {
--		union perf_event *event = fetch_mmaped_event(session, decomp->head, decomp->size, decomp->data);
--
--		if (IS_ERR(event))
--			return PTR_ERR(event);
-+		union perf_event *event = fetch_decomp_event(decomp->head, decomp->size, decomp->data,
-+							     session->header.needs_swap);
- 
- 		if (!event)
- 			break;
-@@ -2096,7 +2106,7 @@ reader__process_events(struct reader *rd, struct perf_session *session,
- 	}
- 
- more:
--	event = fetch_mmaped_event(session, head, mmap_size, buf);
-+	event = fetch_mmaped_event(head, mmap_size, buf, session->header.needs_swap);
- 	if (IS_ERR(event))
- 		return PTR_ERR(event);
- 
+-#if defined(CONFIG_ARCH_SUPPORTS_INT128) && defined(__SIZEOF_INT128__)
++#if defined(CONFIG_ARCH_SUPPORTS_INT128)
+ typedef __int128 s_max;
+ typedef unsigned __int128 u_max;
+ #else
 -- 
 2.20.1
 
