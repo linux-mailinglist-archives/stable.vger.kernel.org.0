@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D1DC1192F1
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040951192F6
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727564AbfLJVEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:04:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50134 "EHLO mail.kernel.org"
+        id S1727573AbfLJVEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:04:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727425AbfLJVEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:49 -0500
+        id S1727560AbfLJVEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AE4B2468D;
-        Tue, 10 Dec 2019 21:04:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E48D24681;
+        Tue, 10 Dec 2019 21:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011889;
-        bh=HTOXOZVVDa4aNhC93hQvuBntretGu9CwYuO3o4qqzYI=;
+        s=default; t=1576011890;
+        bh=6Ap/4dLrJtbhgDZjWBk601+fL/rDqhvc0pmlWurQAGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MdKkxVmQ24bTHpEGJnvyYNwxFI9pAYqu5Hsbgk9remG/qIDkqw983O21vmnlolzY
-         IkKcrDpFdGvLcuxJhhPESjCzddL7LhMae3w4h2A1siHsjyrmLN/z3j5kGtG3vuP65g
-         vc/3PtM76jC6WWryL7dePEWdr+Nq2tbdY57r/ED4=
+        b=oOyS89ElagNQGSu42plTzFStjAoaqFVNSjnWNgzXnsPrT1ZHR+zvLcAuU6A3Ppywu
+         iIgXX+HEtO42QoKbf2UuAlZPKUvetg5pUKOr1jRPdUmtX7S6kMxcmD32OT5Zi7VP/0
+         J6GoeS5emywo8MLFNXJAd6KwVoYZEAdSAhA9rPuc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 039/350] media: max2175: Fix build error without CONFIG_REGMAP_I2C
-Date:   Tue, 10 Dec 2019 15:58:51 -0500
-Message-Id: <20191210210402.8367-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 040/350] media: ov6650: Fix control handler not freed on init error
+Date:   Tue, 10 Dec 2019 15:58:52 -0500
+Message-Id: <20191210210402.8367-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
@@ -44,39 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit 36756fbff1e4a31d71d262ae6a04a20b38efa874 ]
+[ Upstream commit c404af950d14b71bfbf574a752b6c29d726baaba ]
 
-If CONFIG_REGMAP_I2C is not set, building fails:
+Since commit afd9690c72c3 ("[media] ov6650: convert to the control
+framework"), if an error occurs during initialization of a control
+handler, resources possibly allocated to the handler are not freed
+before device initialiaton is aborted.  Fix it.
 
-drivers/media/i2c/max2175.o: In function `max2175_probe':
-max2175.c:(.text+0x1404): undefined reference to `__devm_regmap_init_i2c'
-
-Select REGMAP_I2C to fix this.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: b47b79d8a231 ("[media] media: i2c: max2175: Add MAX2175 support")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Fixes: afd9690c72c3 ("[media] ov6650: convert to the control framework")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/i2c/ov6650.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 7eee1812bba36..fcffcc31d168a 100644
---- a/drivers/media/i2c/Kconfig
-+++ b/drivers/media/i2c/Kconfig
-@@ -1113,6 +1113,7 @@ comment "SDR tuner chips"
- config SDR_MAX2175
- 	tristate "Maxim 2175 RF to Bits tuner"
- 	depends on VIDEO_V4L2 && MEDIA_SDR_SUPPORT && I2C
-+	select REGMAP_I2C
- 	help
- 	  Support for Maxim 2175 tuner. It is an advanced analog/digital
- 	  radio receiver with RF-to-Bits front-end designed for SDR solutions.
+diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
+index 5b9af5e5b7f13..68776b0710f98 100644
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -989,8 +989,10 @@ static int ov6650_probe(struct i2c_client *client,
+ 			V4L2_CID_GAMMA, 0, 0xff, 1, 0x12);
+ 
+ 	priv->subdev.ctrl_handler = &priv->hdl;
+-	if (priv->hdl.error)
+-		return priv->hdl.error;
++	if (priv->hdl.error) {
++		ret = priv->hdl.error;
++		goto ectlhdlfree;
++	}
+ 
+ 	v4l2_ctrl_auto_cluster(2, &priv->autogain, 0, true);
+ 	v4l2_ctrl_auto_cluster(3, &priv->autowb, 0, true);
+@@ -1008,8 +1010,10 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->subdev.internal_ops = &ov6650_internal_ops;
+ 
+ 	ret = v4l2_async_register_subdev(&priv->subdev);
+-	if (ret)
+-		v4l2_ctrl_handler_free(&priv->hdl);
++	if (!ret)
++		return 0;
++ectlhdlfree:
++	v4l2_ctrl_handler_free(&priv->hdl);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
