@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCAC119E14
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 703A5119E0A
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728543AbfLJWmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:42:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51608 "EHLO mail.kernel.org"
+        id S1728596AbfLJWbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:31:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728536AbfLJWbb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:31:31 -0500
+        id S1728573AbfLJWbd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:31:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CDEC20828;
-        Tue, 10 Dec 2019 22:31:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F4C52073D;
+        Tue, 10 Dec 2019 22:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017091;
-        bh=ztm9+c7mnXrc+ghtQEh2nXABFn+MTsi79zBf51x//Lk=;
+        s=default; t=1576017092;
+        bh=8YhErTKMnJqEhpGGs61SCekY1JkwzBvm7JgJo6zLk4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJwE5/WZBfdbgpeL2aZhjsd2tQAjn7fgPVY1mmHsZGPVohb93tjPdAVdosLu7sY3w
-         Z5lpE8uyHjL/iureknpiBlDrv9fMC5EtJaLbGZDEi1pyvUWrTVHVzuRPr5nUIxvEdH
-         QGpXyorKFsfkLNaIGef7I+cy5dS+hcxWTHh0TfeQ=
+        b=XWa4Nnaikrmo8JYeNHviEHV98XBMH+n88GpWkL22XWFvOZIl40QS6vM8d/EDZ+7aj
+         T8oNIwtIv9qCrvI/wVbgjOTVkGAXaraf4AxftZ+IJef7k93i5VKGukRk7BLCf+F36Q
+         xV0l6DgKaVdjC9L8U8pDVJcYvIP/kKBbFG4Bwor0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Sasha Levin <sashal@kernel.org>, linux-sh@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 46/91] pinctrl: sh-pfc: sh7734: Fix duplicate TCLK1_B
-Date:   Tue, 10 Dec 2019 17:29:50 -0500
-Message-Id: <20191210223035.14270-46-sashal@kernel.org>
+Cc:     Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 47/91] Bluetooth: Fix advertising duplicated flags
+Date:   Tue, 10 Dec 2019 17:29:51 -0500
+Message-Id: <20191210223035.14270-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -44,62 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 884caadad128efad8e00c1cdc3177bc8912ee8ec ]
+[ Upstream commit 6012b9346d8959194c239fd60a62dfec98d43048 ]
 
-The definitions for bit field [19:18] of the Peripheral Function Select
-Register 3 were accidentally copied from bit field [20], leading to
-duplicates for the TCLK1_B function, and missing TCLK0, CAN_CLK_B, and
-ET0_ETXD4 functions.
+Instances may have flags set as part of its data in which case the code
+should not attempt to add it again otherwise it can cause duplication:
 
-Fix this by adding the missing GPIO_FN_CAN_CLK_B and GPIO_FN_ET0_ETXD4
-enum values, and correcting the functions.
+< HCI Command: LE Set Extended Advertising Data (0x08|0x0037) plen 35
+        Handle: 0x00
+        Operation: Complete extended advertising data (0x03)
+        Fragment preference: Minimize fragmentation (0x01)
+        Data length: 0x06
+        Flags: 0x04
+          BR/EDR Not Supported
+        Flags: 0x06
+          LE General Discoverable Mode
+          BR/EDR Not Supported
 
-Reported-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191024131308.16659-1-geert+renesas@glider.be
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/cpu-sh4/cpu/sh7734.h | 2 +-
- drivers/pinctrl/sh-pfc/pfc-sh7734.c  | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/bluetooth/hci_request.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/sh/include/cpu-sh4/cpu/sh7734.h b/arch/sh/include/cpu-sh4/cpu/sh7734.h
-index 2fb9a7b71b412..a2667c9b5819a 100644
---- a/arch/sh/include/cpu-sh4/cpu/sh7734.h
-+++ b/arch/sh/include/cpu-sh4/cpu/sh7734.h
-@@ -133,7 +133,7 @@ enum {
- 	GPIO_FN_EX_WAIT1, GPIO_FN_SD1_DAT0_A, GPIO_FN_DREQ2, GPIO_FN_CAN1_TX_C,
- 		GPIO_FN_ET0_LINK_C, GPIO_FN_ET0_ETXD5_A,
- 	GPIO_FN_EX_WAIT0, GPIO_FN_TCLK1_B,
--	GPIO_FN_RD_WR, GPIO_FN_TCLK0,
-+	GPIO_FN_RD_WR, GPIO_FN_TCLK0, GPIO_FN_CAN_CLK_B, GPIO_FN_ET0_ETXD4,
- 	GPIO_FN_EX_CS5, GPIO_FN_SD1_CMD_A, GPIO_FN_ATADIR, GPIO_FN_QSSL_B,
- 		GPIO_FN_ET0_ETXD3_A,
- 	GPIO_FN_EX_CS4, GPIO_FN_SD1_WP_A, GPIO_FN_ATAWR, GPIO_FN_QMI_QIO1_B,
-diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7734.c b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-index 33232041ee86d..3eccc9b3ca84a 100644
---- a/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-sh7734.c
-@@ -1453,7 +1453,7 @@ static const struct pinmux_func pinmux_func_gpios[] = {
- 	GPIO_FN(ET0_ETXD2_A),
- 	GPIO_FN(EX_CS5), GPIO_FN(SD1_CMD_A), GPIO_FN(ATADIR), GPIO_FN(QSSL_B),
- 	GPIO_FN(ET0_ETXD3_A),
--	GPIO_FN(RD_WR), GPIO_FN(TCLK1_B),
-+	GPIO_FN(RD_WR), GPIO_FN(TCLK0), GPIO_FN(CAN_CLK_B), GPIO_FN(ET0_ETXD4),
- 	GPIO_FN(EX_WAIT0), GPIO_FN(TCLK1_B),
- 	GPIO_FN(EX_WAIT1), GPIO_FN(SD1_DAT0_A), GPIO_FN(DREQ2),
- 		GPIO_FN(CAN1_TX_C), GPIO_FN(ET0_LINK_C), GPIO_FN(ET0_ETXD5_A),
-@@ -1949,7 +1949,7 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
- 	    /* IP3_20 [1] */
- 		FN_EX_WAIT0, FN_TCLK1_B,
- 	    /* IP3_19_18 [2] */
--		FN_RD_WR, FN_TCLK1_B, 0, 0,
-+		FN_RD_WR, FN_TCLK0, FN_CAN_CLK_B, FN_ET0_ETXD4,
- 	    /* IP3_17_15 [3] */
- 		FN_EX_CS5, FN_SD1_CMD_A, FN_ATADIR, FN_QSSL_B,
- 		FN_ET0_ETXD3_A, 0, 0, 0,
+diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
+index 1015d9c8d97dd..4a89e121d6627 100644
+--- a/net/bluetooth/hci_request.c
++++ b/net/bluetooth/hci_request.c
+@@ -1093,6 +1093,14 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
+ 
+ 	instance_flags = get_adv_instance_flags(hdev, instance);
+ 
++	/* If instance already has the flags set skip adding it once
++	 * again.
++	 */
++	if (adv_instance && eir_get_data(adv_instance->adv_data,
++					 adv_instance->adv_data_len, EIR_FLAGS,
++					 NULL))
++		goto skip_flags;
++
+ 	/* The Add Advertising command allows userspace to set both the general
+ 	 * and limited discoverable flags.
+ 	 */
+@@ -1125,6 +1133,7 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
+ 		}
+ 	}
+ 
++skip_flags:
+ 	if (adv_instance) {
+ 		memcpy(ptr, adv_instance->adv_data,
+ 		       adv_instance->adv_data_len);
 -- 
 2.20.1
 
