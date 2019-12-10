@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9982211931B
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:08:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3D11192D1
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726362AbfLJVGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:06:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49324 "EHLO mail.kernel.org"
+        id S1727223AbfLJVEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:04:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727196AbfLJVEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:23 -0500
+        id S1727213AbfLJVEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 424F7214AF;
-        Tue, 10 Dec 2019 21:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6770624680;
+        Tue, 10 Dec 2019 21:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011863;
-        bh=S3vpO74YFSeyelz9fJZYMGlkUWvZr3I0b5tGoSAXwAA=;
+        s=default; t=1576011864;
+        bh=GnTp5oCIpRDUiQDs4cjtnHdoFdSDGYmEOBxBnUXR4rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmGTRgb541ZIFb869zNJtlcYNS+AC/iFFTcbHjS/QuX/9kAe8vZ7h4pE/1PtZFDuB
-         yzrkE6S/OIKM38SDrTK8NY4UzuO/QejYUhBScKcX39Jz/H2B6l52Qkv3++qMNm1Gi4
-         xq4sLy/O0+1u8M1pZD9g5Mc26URm8Rw957kCwU9U=
+        b=LvChAnzkwESIZLIW1pQauHmMh1ZR360bGvogUWoCWqfqqRvO3uREbFTA8+Qz29tON
+         I5a0C2YiFC876diMq00/y2sCgIrFTDtxsJgsKmGh4GGN4dbmBDJGUe5Q99b41miE7q
+         PYdMB6TnzfNehbd9Jaf4laC7qItUFIQb7Quu6+ms=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikita Lipski <mikita.lipski@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 016/350] drm/amd/display: Rebuild mapped resources after pipe split
-Date:   Tue, 10 Dec 2019 15:58:28 -0500
-Message-Id: <20191210210402.8367-16-sashal@kernel.org>
+Cc:     Wenwen Wang <wenwen@cs.uga.edu>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 017/350] ath10k: add cleanup in ath10k_sta_state()
+Date:   Tue, 10 Dec 2019 15:58:29 -0500
+Message-Id: <20191210210402.8367-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
@@ -44,40 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikita Lipski <mikita.lipski@amd.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 387596ef2859c37d564ce15abddbc9063a132e2c ]
+[ Upstream commit 334f5b61a6f29834e881923b98d1e27e5ce9620d ]
 
-[why]
-The issue is specific for linux, as on timings such as 8K@60
-or 4K@144 DSC should be working in combination with ODM Combine
-in order to ensure that we can run those timings. The validation
-for those timings was passing, but when pipe split was happening
-second pipe wasn't being programmed.
+If 'sta->tdls' is false, no cleanup is executed, leading to memory/resource
+leaks, e.g., 'arsta->tx_stats'. To fix this issue, perform cleanup before
+go to the 'exit' label.
 
-[how]
-Rebuild mapped resources if we split stream for ODM.
-
-Signed-off-by: Mikita Lipski <mikita.lipski@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath10k/mac.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index 3980c7b782599..ebe67c34dabf6 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -2474,6 +2474,7 @@ bool dcn20_fast_validate_bw(
- 							&context->res_ctx, dc->res_pool,
- 							pipe, hsplit_pipe))
- 						goto validate_fail;
-+					dcn20_build_mapped_resource(dc, context, pipe->stream);
- 				} else
- 					dcn20_split_stream_for_mpc(
- 						&context->res_ctx, dc->res_pool,
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index a6d21856b7e7d..40889b79fc70d 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -6549,8 +6549,12 @@ static int ath10k_sta_state(struct ieee80211_hw *hw,
+ 
+ 		spin_unlock_bh(&ar->data_lock);
+ 
+-		if (!sta->tdls)
++		if (!sta->tdls) {
++			ath10k_peer_delete(ar, arvif->vdev_id, sta->addr);
++			ath10k_mac_dec_num_stations(arvif, sta);
++			kfree(arsta->tx_stats);
+ 			goto exit;
++		}
+ 
+ 		ret = ath10k_wmi_update_fw_tdls_state(ar, arvif->vdev_id,
+ 						      WMI_TDLS_ENABLE_ACTIVE);
 -- 
 2.20.1
 
