@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C93F1199A2
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA25B11999D
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:47:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728522AbfLJVr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:47:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35982 "EHLO mail.kernel.org"
+        id S1728706AbfLJVrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:47:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727229AbfLJVc0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:32:26 -0500
+        id S1727541AbfLJVc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:32:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92E1D208C3;
-        Tue, 10 Dec 2019 21:32:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B97A6207FF;
+        Tue, 10 Dec 2019 21:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013546;
-        bh=OQq0SJnACQQXPv+cvqUsF6hu4trKUwzYmaEDPEwK4JM=;
+        s=default; t=1576013547;
+        bh=yIqkzB+gHP2XigPlyjN1hLGGMzXrtEGp3PcIkbDipU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WK9VnRSgxwlLiVclryR5ow1+Qj+w8+Xf7SD8Tk0l0wljfQ0N1GDWq4EWpjUncVyMv
-         PP29TEKwugiBdvkX8rGe8oIuv25FRpDvzPZbGoVd30sdWvG/oCVakVBMOE6KrP0DOC
-         gWALswCxU8u3psksGtMw5s9v8ACOACsr7DAHXS/w=
+        b=NxrkOu4lAwwTmx8syQ+4bRE0tgXYDDunypYu7W5ZYxulbtJkY6my391qTE+fznmfY
+         /jOmeHE39tMM9/dMq+EVYW7dTl2hXD/o5B7sWT/bFSTYC3MELNSap58/yOYrUxF3Jy
+         jMkB7kgYvb2gFmF5PFuUDmFXYm9ynMauA6Cjrfbk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Masney <masneyb@onstation.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 003/177] drm/bridge: analogix-anx78xx: silence -EPROBE_DEFER warnings
-Date:   Tue, 10 Dec 2019 16:29:27 -0500
-Message-Id: <20191210213221.11921-3-sashal@kernel.org>
+Cc:     Krzysztof Wilczynski <kw@linux.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 004/177] iio: light: bh1750: Resolve compiler warning and make code more readable
+Date:   Tue, 10 Dec 2019 16:29:28 -0500
+Message-Id: <20191210213221.11921-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,48 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <masneyb@onstation.org>
+From: Krzysztof Wilczynski <kw@linux.com>
 
-[ Upstream commit 2708e876272d89bbbff811d12834adbeef85f022 ]
+[ Upstream commit f552fde983d378e7339f9ea74a25f918563bf0d3 ]
 
-Silence two warning messages that occur due to -EPROBE_DEFER errors to
-help cleanup the system boot log.
+Separate the declaration of struct bh1750_chip_info from definition
+of bh1750_chip_info_tbl[] in a single statement as it makes the code
+hard to read, and with the extra newline it makes it look as if the
+bh1750_chip_info_tbl[] had no explicit type.
 
-Signed-off-by: Brian Masney <masneyb@onstation.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190815004854.19860-4-masneyb@onstation.org
+This change also resolves the following compiler warning about the
+unusual position of the static keyword that can be seen when building
+with warnings enabled (W=1):
+
+drivers/iio/light/bh1750.c:64:1: warning:
+  ‘static’ is not at beginning of declaration [-Wold-style-declaration]
+
+Related to commit 3a11fbb037a1 ("iio: light: add support for ROHM
+BH1710/BH1715/BH1721/BH1750/BH1751 ambient light sensors").
+
+Signed-off-by: Krzysztof Wilczynski <kw@linux.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/analogix-anx78xx.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/iio/light/bh1750.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-index f8433c93f4634..cc820e9aea1db 100644
---- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-+++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-@@ -725,7 +725,9 @@ static int anx78xx_init_pdata(struct anx78xx *anx78xx)
- 	/* 1.0V digital core power regulator  */
- 	pdata->dvdd10 = devm_regulator_get(dev, "dvdd10");
- 	if (IS_ERR(pdata->dvdd10)) {
--		DRM_ERROR("DVDD10 regulator not found\n");
-+		if (PTR_ERR(pdata->dvdd10) != -EPROBE_DEFER)
-+			DRM_ERROR("DVDD10 regulator not found\n");
-+
- 		return PTR_ERR(pdata->dvdd10);
- 	}
+diff --git a/drivers/iio/light/bh1750.c b/drivers/iio/light/bh1750.c
+index a814828e69f5c..5f5d54ce882b0 100644
+--- a/drivers/iio/light/bh1750.c
++++ b/drivers/iio/light/bh1750.c
+@@ -62,9 +62,9 @@ struct bh1750_chip_info {
  
-@@ -1341,7 +1343,9 @@ static int anx78xx_i2c_probe(struct i2c_client *client,
+ 	u16 int_time_low_mask;
+ 	u16 int_time_high_mask;
+-}
++};
  
- 	err = anx78xx_init_pdata(anx78xx);
- 	if (err) {
--		DRM_ERROR("Failed to initialize pdata: %d\n", err);
-+		if (err != -EPROBE_DEFER)
-+			DRM_ERROR("Failed to initialize pdata: %d\n", err);
-+
- 		return err;
- 	}
- 
+-static const bh1750_chip_info_tbl[] = {
++static const struct bh1750_chip_info bh1750_chip_info_tbl[] = {
+ 	[BH1710] = { 140, 1022, 300, 400,  250000000, 2, 0x001F, 0x03E0 },
+ 	[BH1721] = { 140, 1020, 300, 400,  250000000, 2, 0x0010, 0x03E0 },
+ 	[BH1750] = { 31,  254,  69,  1740, 57500000,  1, 0x001F, 0x00E0 },
 -- 
 2.20.1
 
