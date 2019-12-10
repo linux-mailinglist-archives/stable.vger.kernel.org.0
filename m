@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF09B1193E3
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 668EB1195AD
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:23:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727936AbfLJVLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:11:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34066 "EHLO mail.kernel.org"
+        id S1728438AbfLJVL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:11:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727131AbfLJVLZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:11:25 -0500
+        id S1728019AbfLJVL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:11:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50F8324697;
-        Tue, 10 Dec 2019 21:11:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7366246B9;
+        Tue, 10 Dec 2019 21:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012284;
-        bh=SQNqfs3xX6Ay9KHY/sTpJriYHrOPjc5jnhEYVXUUXV4=;
+        s=default; t=1576012285;
+        bh=WfeIUPb1jcebWN1U5IJAs6nakk29bn4JVC4Z2UolPdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVKS9pJzoTA+Tqfz53pEx5MGX27EchLPnUQv5Lob+du7PQ+6vUf0t+Ffom/6bFtN9
-         9X1kIC0GnAPKqec12sRWB/C4XSaEh2GkxGC8W6bTnilSB97zmqi93qEEOYo/pKo4Xd
-         wDglGNR7LfDR8oe/f5T2lz/vMl6SJXv1shEyxlqs=
+        b=peHIY0j4kCF+uXemIIqPz+q4obUOljTm6Px7EERupjwSljwpOIn1xm1DDA+5BnLE+
+         hJ4zQnZjah/0LaKZvF5w1J90rGOBpBx2ijC8gdmgs0WBrmmyaJZestUs2mldEUSnDT
+         V7jsHSoL9fjJb1Kt2clge+2nBssGHG+rJTr1uMj8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Clark <James.Clark@arm.com>,
-        James Clark <james.clark@arm.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>, nd <nd@arm.com>,
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 226/350] libsubcmd: Use -O0 with DEBUG=1
-Date:   Tue, 10 Dec 2019 16:05:31 -0500
-Message-Id: <20191210210735.9077-187-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 227/350] perf probe: Fix to probe a function which has no entry pc
+Date:   Tue, 10 Dec 2019 16:05:32 -0500
+Message-Id: <20191210210735.9077-188-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -48,44 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Clark <James.Clark@arm.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 22bd8f1b5a1dd168ba4eba27cb17643a11012f5d ]
+[ Upstream commit 5d16dbcc311d91267ddb45c6da4f187be320ecee ]
 
-When a 'make DEBUG=1' build is done, the command parser is still built
-with -O6 and is hard to step through, fix it making it use -O0 in that
-case.
+Fix 'perf probe' to probe a function which has no entry pc or low pc but
+only has ranges attribute.
 
-Signed-off-by: James Clark <james.clark@arm.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+probe_point_search_cb() uses dwarf_entrypc() to get the probe address,
+but that doesn't work for the function DIE which has only ranges
+attribute. Use die_entrypc() instead.
+
+Without this fix:
+
+  # perf probe -k ../build-x86_64/vmlinux -D clear_tasks_mm_cpumask:0
+  Probe point 'clear_tasks_mm_cpumask' not found.
+    Error: Failed to add events.
+
+With this:
+
+  # perf probe -k ../build-x86_64/vmlinux -D clear_tasks_mm_cpumask:0
+  p:probe/clear_tasks_mm_cpumask clear_tasks_mm_cpumask+0
+
+Committer testing:
+
+Before:
+
+  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
+  Probe point 'clear_tasks_mm_cpumask' not found.
+    Error: Failed to add events.
+  [root@quaco ~]#
+
+After:
+
+  [root@quaco ~]# perf probe clear_tasks_mm_cpumask:0
+  Added new event:
+    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe:clear_tasks_mm_cpumask -aR sleep 1
+
+  [root@quaco ~]#
+
+Using it with 'perf trace':
+
+  [root@quaco ~]# perf trace -e probe:clear_tasks_mm_cpumask
+
+Doesn't seem to be used in x86_64:
+
+  $ find . -name "*.c" | xargs grep clear_tasks_mm_cpumask
+  ./kernel/cpu.c: * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
+  ./kernel/cpu.c:void clear_tasks_mm_cpumask(int cpu)
+  ./arch/xtensa/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/csky/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/sh/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/arm/kernel/smp.c:	clear_tasks_mm_cpumask(cpu);
+  ./arch/powerpc/mm/nohash/mmu_context.c:	clear_tasks_mm_cpumask(cpu);
+  $ find . -name "*.h" | xargs grep clear_tasks_mm_cpumask
+  ./include/linux/cpu.h:void clear_tasks_mm_cpumask(int cpu);
+  $ find . -name "*.S" | xargs grep clear_tasks_mm_cpumask
+  $
+
+Fixes: e1ecbbc3fa83 ("perf probe: Fix to handle optimized not-inlined functions")
+Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: nd <nd@arm.com>
-Link: http://lore.kernel.org/lkml/20191028113340.4282-1-james.clark@arm.com
-[ split from a larger patch ]
+Link: http://lore.kernel.org/lkml/157199319438.8075.4695576954550638618.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/subcmd/Makefile | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/util/probe-finder.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/subcmd/Makefile b/tools/lib/subcmd/Makefile
-index 5b2cd5e58df09..5dbb0dde208c4 100644
---- a/tools/lib/subcmd/Makefile
-+++ b/tools/lib/subcmd/Makefile
-@@ -28,7 +28,9 @@ ifeq ($(DEBUG),0)
-   endif
- endif
- 
--ifeq ($(CC_NO_CLANG), 0)
-+ifeq ($(DEBUG),1)
-+  CFLAGS += -O0
-+else ifeq ($(CC_NO_CLANG), 0)
-   CFLAGS += -O3
- else
-   CFLAGS += -O6
+diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
+index 7857ae7a10b73..4079ed617f53c 100644
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -994,7 +994,7 @@ static int probe_point_search_cb(Dwarf_Die *sp_die, void *data)
+ 		param->retval = find_probe_point_by_line(pf);
+ 	} else if (die_is_func_instance(sp_die)) {
+ 		/* Instances always have the entry address */
+-		dwarf_entrypc(sp_die, &pf->addr);
++		die_entrypc(sp_die, &pf->addr);
+ 		/* But in some case the entry address is 0 */
+ 		if (pf->addr == 0) {
+ 			pr_debug("%s has no entry PC. Skipped\n",
 -- 
 2.20.1
 
