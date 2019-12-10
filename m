@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B83119BBE
+	by mail.lfdr.de (Postfix) with ESMTP id 44D7D119BBD
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728215AbfLJWLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:11:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34564 "EHLO mail.kernel.org"
+        id S1728716AbfLJWK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:10:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728416AbfLJWEC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:02 -0500
+        id S1728446AbfLJWED (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02C7B2053B;
-        Tue, 10 Dec 2019 22:04:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0830C208C3;
+        Tue, 10 Dec 2019 22:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015441;
-        bh=26sIAPxWOxDTt0sfmsLSrbEC8BEZn+0RTlIRcTTz9hw=;
+        s=default; t=1576015442;
+        bh=mN3wsluKVT5Rsnu1k6zRRJHpubasb33Quq6TKKfdouw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPmmzOc0uuDmWi19MH7ia72Gn1pr0eKqftdsPy5GziFhURvBPaCy/W4SUoMUl2v+q
-         aObI5z228LWTS+9AKv76vUIkdwbxUnPatXXc92R+8Db3HTsdGWCHaWDGP5tctiA3kD
-         a0V2yCo4N9VTNze8gD4ttfpMpkGvSJZN7nkD/0lA=
+        b=fuhUi8aSRBPf+LZep3Bm+u+d7l9BhMP4lYesXu6PaQiWPAbWtzdBImavPWn8L2rb/
+         Fc/vXlgTBZ2BxvhejZ+aR65Tdu5KUGHAdQrlBBCnkHCp3WbdEnq92cHfPFfd02S5W2
+         0JsuCE4SzcQuyb1bsBrnbJpt9pv65pdnX6N68644=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 050/130] iio: dac: ad7303: replace mlock with own lock
-Date:   Tue, 10 Dec 2019 17:01:41 -0500
-Message-Id: <20191210220301.13262-50-sashal@kernel.org>
+Cc:     "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 051/130] Bluetooth: missed cpu_to_le16 conversion in hci_init4_req
+Date:   Tue, 10 Dec 2019 17:01:42 -0500
+Message-Id: <20191210220301.13262-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -43,85 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>
 
-[ Upstream commit c991bf9b650f39481cf3c1137092d4754a2c75de ]
+[ Upstream commit 727ea61a5028f8ac96f75ab34cb1b56e63fd9227 ]
 
-This change replaces indio_dev's mlock with the driver's own lock. The lock
-is mostly needed to protect state when changing the `dac_cache` info.
-The lock has been extended to `ad7303_read_raw()`, to make sure that the
-cache is updated if an SPI-write is already in progress.
+It looks like in hci_init4_req() the request is being
+initialised from cpu-endian data but the packet is specified
+to be little-endian. This causes an warning from sparse due
+to __le16 to u16 conversion.
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fix this by using cpu_to_le16() on the two fields in the packet.
+
+net/bluetooth/hci_core.c:845:27: warning: incorrect type in assignment (different base types)
+net/bluetooth/hci_core.c:845:27:    expected restricted __le16 [usertype] tx_len
+net/bluetooth/hci_core.c:845:27:    got unsigned short [usertype] le_max_tx_len
+net/bluetooth/hci_core.c:846:28: warning: incorrect type in assignment (different base types)
+net/bluetooth/hci_core.c:846:28:    expected restricted __le16 [usertype] tx_time
+net/bluetooth/hci_core.c:846:28:    got unsigned short [usertype] le_max_tx_time
+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad7303.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/bluetooth/hci_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/dac/ad7303.c b/drivers/iio/dac/ad7303.c
-index 4b0f942b89145..2e5e753ab7066 100644
---- a/drivers/iio/dac/ad7303.c
-+++ b/drivers/iio/dac/ad7303.c
-@@ -42,6 +42,7 @@ struct ad7303_state {
- 	struct regulator *vdd_reg;
- 	struct regulator *vref_reg;
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 6bc679cd34818..d6d7364838f47 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -802,8 +802,8 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
+ 	if (hdev->le_features[0] & HCI_LE_DATA_LEN_EXT) {
+ 		struct hci_cp_le_write_def_data_len cp;
  
-+	struct mutex lock;
- 	/*
- 	 * DMA (thus cache coherency maintenance) requires the
- 	 * transfer buffers to live in their own cache lines.
-@@ -80,7 +81,7 @@ static ssize_t ad7303_write_dac_powerdown(struct iio_dev *indio_dev,
- 	if (ret)
- 		return ret;
+-		cp.tx_len = hdev->le_max_tx_len;
+-		cp.tx_time = hdev->le_max_tx_time;
++		cp.tx_len = cpu_to_le16(hdev->le_max_tx_len);
++		cp.tx_time = cpu_to_le16(hdev->le_max_tx_time);
+ 		hci_req_add(req, HCI_OP_LE_WRITE_DEF_DATA_LEN, sizeof(cp), &cp);
+ 	}
  
--	mutex_lock(&indio_dev->mlock);
-+	mutex_lock(&st->lock);
- 
- 	if (pwr_down)
- 		st->config |= AD7303_CFG_POWER_DOWN(chan->channel);
-@@ -91,7 +92,7 @@ static ssize_t ad7303_write_dac_powerdown(struct iio_dev *indio_dev,
- 	 * mode, so just write one of the DAC channels again */
- 	ad7303_write(st, chan->channel, st->dac_cache[chan->channel]);
- 
--	mutex_unlock(&indio_dev->mlock);
-+	mutex_unlock(&st->lock);
- 	return len;
- }
- 
-@@ -117,7 +118,9 @@ static int ad7303_read_raw(struct iio_dev *indio_dev,
- 
- 	switch (info) {
- 	case IIO_CHAN_INFO_RAW:
-+		mutex_lock(&st->lock);
- 		*val = st->dac_cache[chan->channel];
-+		mutex_unlock(&st->lock);
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_SCALE:
- 		vref_uv = ad7303_get_vref(st, chan);
-@@ -145,11 +148,11 @@ static int ad7303_write_raw(struct iio_dev *indio_dev,
- 		if (val >= (1 << chan->scan_type.realbits) || val < 0)
- 			return -EINVAL;
- 
--		mutex_lock(&indio_dev->mlock);
-+		mutex_lock(&st->lock);
- 		ret = ad7303_write(st, chan->address, val);
- 		if (ret == 0)
- 			st->dac_cache[chan->channel] = val;
--		mutex_unlock(&indio_dev->mlock);
-+		mutex_unlock(&st->lock);
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -213,6 +216,8 @@ static int ad7303_probe(struct spi_device *spi)
- 
- 	st->spi = spi;
- 
-+	mutex_init(&st->lock);
-+
- 	st->vdd_reg = devm_regulator_get(&spi->dev, "Vdd");
- 	if (IS_ERR(st->vdd_reg))
- 		return PTR_ERR(st->vdd_reg);
 -- 
 2.20.1
 
