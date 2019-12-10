@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E561192FF
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C69C51192EE
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727269AbfLJVFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:05:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50040 "EHLO mail.kernel.org"
+        id S1727403AbfLJVEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:04:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727509AbfLJVEq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:46 -0500
+        id S1727527AbfLJVEr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1BE42465C;
-        Tue, 10 Dec 2019 21:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10A702468B;
+        Tue, 10 Dec 2019 21:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011885;
-        bh=pG19F23Ng3dfKisEuzyv6YuvWsbpkjojpMZZsXuxVgE=;
+        s=default; t=1576011886;
+        bh=rNb+H5LSxb9ktazmFlQfBcK/babKnR1gKD6EbEEnGtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIqtHUdlII9Y/GsydmjFZ3jHMBNmyE4VauZTwryC/QOVjcPnkKSXK+c2AEx32AsLQ
-         nv4E9RaeZ+njYZ5q7EZzckEi8osVgS6Z4k5kLaE1YKQStOWfrB1IRk3G9Gp/QR1H5z
-         6NvhjaqDv2+tutv1IpdqOtMCr5WfoueR83lzzQl8=
+        b=iYoxRUfaUbDmURu4ByP++vhPEaZshmOiIhBnVT9pJ9Is3dnmcPxZFavPr8Mqlwzq5
+         I+fETX5pukwO0yBYBV2kZ3FJHbxDJwmGv9FSvFJSsVEeNI4ITzH+17KDSuDsGH5BTI
+         HIsFPETqK0m/cArr0SRby2RvB95FDGP/yi3sNyiI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Jernej Skrabec <jernej.skrabec@siol.net>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 036/350] media: seco-cec: Add a missing 'release_region()' in an error handling path
-Date:   Tue, 10 Dec 2019 15:58:48 -0500
-Message-Id: <20191210210402.8367-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 037/350] media: vim2m: Fix abort issue
+Date:   Tue, 10 Dec 2019 15:58:49 -0500
+Message-Id: <20191210210402.8367-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
@@ -44,39 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit a9cc4cbcdfd378b65fd4e398800cfa14e3855042 ]
+[ Upstream commit c362f77a243bfd1daec21b6c36491c061ee2f31b ]
 
-At the beginning of the probe function, we have a call to
-'request_muxed_region(BRA_SMB_BASE_ADDR, 7, "CEC00001")()'
+Currently, if start streaming -> stop streaming -> start streaming
+sequence is executed, driver will end job prematurely, if ctx->translen
+is higher than 1, because "aborting" flag is still set from previous
+stop streaming command.
 
-A corresponding 'release_region()' is performed in the remove function but
-is lacking in the error handling path.
+Fix that by clearing "aborting" flag in start streaming handler.
 
-Add it.
-
-Fixes: b03c2fb97adc ("media: add SECO cec driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 96d8eab5d0a1 ("V4L/DVB: [v5,2/2] v4l: Add a mem-to-mem videobuf framework test device")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/seco-cec/seco-cec.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/vim2m.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/seco-cec/seco-cec.c b/drivers/media/platform/seco-cec/seco-cec.c
-index 9cd60fe1867c9..a86b6e8f91969 100644
---- a/drivers/media/platform/seco-cec/seco-cec.c
-+++ b/drivers/media/platform/seco-cec/seco-cec.c
-@@ -675,6 +675,7 @@ err_notifier:
- err_delete_adapter:
- 	cec_delete_adapter(secocec->cec_adap);
- err:
-+	release_region(BRA_SMB_BASE_ADDR, 7);
- 	dev_err(dev, "%s device probe failed\n", dev_name(dev));
+diff --git a/drivers/media/platform/vim2m.c b/drivers/media/platform/vim2m.c
+index acd3bd48c7e21..2d79cdc130c58 100644
+--- a/drivers/media/platform/vim2m.c
++++ b/drivers/media/platform/vim2m.c
+@@ -1073,6 +1073,9 @@ static int vim2m_start_streaming(struct vb2_queue *q, unsigned int count)
+ 	if (!q_data)
+ 		return -EINVAL;
  
- 	return ret;
++	if (V4L2_TYPE_IS_OUTPUT(q->type))
++		ctx->aborting = 0;
++
+ 	q_data->sequence = 0;
+ 	return 0;
+ }
 -- 
 2.20.1
 
