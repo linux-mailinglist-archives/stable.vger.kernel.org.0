@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E8A119B92
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43635119AE2
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728130AbfLJWJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:09:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35272 "EHLO mail.kernel.org"
+        id S1728804AbfLJWE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:04:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728775AbfLJWE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:26 -0500
+        id S1728799AbfLJWE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B478C2073B;
-        Tue, 10 Dec 2019 22:04:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA1642077B;
+        Tue, 10 Dec 2019 22:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015465;
-        bh=0q2ZS5XWFRQBLJiC/t0ud3YAaQaPf8ZUZp8Sad2KK40=;
+        s=default; t=1576015466;
+        bh=iW6TLmpx7HmLQxCAY8JyfPKnD48fcWu02dpX9UrUyyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WV1EQpaaM1n3/T/e/NpeClFV1KKgyvywqyv/2d9qhntmIhb1YFEKr5v2XkBQSExWI
-         JHlCyyqY9v2tOoj2jsItsa98wxmY856TQ0mchCB1bCfKhDF9V2/swJ/huMk9HiYYss
-         WhmSE07NyN+fMZigh5gy0Rr8rfV3cqn8g5UfDeGs=
+        b=MsNBPMfUAGwV2hsUCfrgKkmnGZKAUR4uSqNSnJZCxgghn52heC/IU6PkC0vPOvXga
+         /ydyCGRKR3ocI6K7WuIPLYrE0ggHYNEuf9dVzP5o+WP5lAQiDqG0J3KCu4CROIQ3Z7
+         MqA9Cw2NG7pT/bi7TSzISR2eKJT8Xu1H6iuIqFsk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 071/130] iio: dln2-adc: fix iio_triggered_buffer_postenable() position
-Date:   Tue, 10 Dec 2019 17:02:02 -0500
-Message-Id: <20191210220301.13262-71-sashal@kernel.org>
+Cc:     Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 072/130] Bluetooth: Fix advertising duplicated flags
+Date:   Tue, 10 Dec 2019 17:02:03 -0500
+Message-Id: <20191210220301.13262-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -43,93 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit a7bddfe2dfce1d8859422124abe1964e0ecd386e ]
+[ Upstream commit 6012b9346d8959194c239fd60a62dfec98d43048 ]
 
-The iio_triggered_buffer_postenable() hook should be called first to
-attach the poll function. The iio_triggered_buffer_predisable() hook is
-called last (as is it should).
+Instances may have flags set as part of its data in which case the code
+should not attempt to add it again otherwise it can cause duplication:
 
-This change moves iio_triggered_buffer_postenable() to be called first. It
-adds iio_triggered_buffer_predisable() on the error paths of the postenable
-hook.
-For the predisable hook, some code-paths have been changed to make sure
-that the iio_triggered_buffer_predisable() hook gets called in case there
-is an error before it.
+< HCI Command: LE Set Extended Advertising Data (0x08|0x0037) plen 35
+        Handle: 0x00
+        Operation: Complete extended advertising data (0x03)
+        Fragment preference: Minimize fragmentation (0x01)
+        Data length: 0x06
+        Flags: 0x04
+          BR/EDR Not Supported
+        Flags: 0x06
+          LE General Discoverable Mode
+          BR/EDR Not Supported
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/dln2-adc.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ net/bluetooth/hci_request.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/iio/adc/dln2-adc.c b/drivers/iio/adc/dln2-adc.c
-index ab8d6aed5085e..2a299bbd6acf3 100644
---- a/drivers/iio/adc/dln2-adc.c
-+++ b/drivers/iio/adc/dln2-adc.c
-@@ -528,6 +528,10 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
- 	u16 conflict;
- 	unsigned int trigger_chan;
+diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
+index b73ac149de34f..759329bec399c 100644
+--- a/net/bluetooth/hci_request.c
++++ b/net/bluetooth/hci_request.c
+@@ -1095,6 +1095,14 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
  
-+	ret = iio_triggered_buffer_postenable(indio_dev);
-+	if (ret)
-+		return ret;
+ 	instance_flags = get_adv_instance_flags(hdev, instance);
+ 
++	/* If instance already has the flags set skip adding it once
++	 * again.
++	 */
++	if (adv_instance && eir_get_data(adv_instance->adv_data,
++					 adv_instance->adv_data_len, EIR_FLAGS,
++					 NULL))
++		goto skip_flags;
 +
- 	mutex_lock(&dln2->mutex);
- 
- 	/* Enable ADC */
-@@ -541,6 +545,7 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
- 				(int)conflict);
- 			ret = -EBUSY;
+ 	/* The Add Advertising command allows userspace to set both the general
+ 	 * and limited discoverable flags.
+ 	 */
+@@ -1127,6 +1135,7 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
  		}
-+		iio_triggered_buffer_predisable(indio_dev);
- 		return ret;
  	}
  
-@@ -554,6 +559,7 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
- 		mutex_unlock(&dln2->mutex);
- 		if (ret < 0) {
- 			dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
-+			iio_triggered_buffer_predisable(indio_dev);
- 			return ret;
- 		}
- 	} else {
-@@ -561,12 +567,12 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
- 		mutex_unlock(&dln2->mutex);
- 	}
- 
--	return iio_triggered_buffer_postenable(indio_dev);
-+	return 0;
- }
- 
- static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
- {
--	int ret;
-+	int ret, ret2;
- 	struct dln2_adc *dln2 = iio_priv(indio_dev);
- 
- 	mutex_lock(&dln2->mutex);
-@@ -581,12 +587,14 @@ static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
- 	ret = dln2_adc_set_port_enabled(dln2, false, NULL);
- 
- 	mutex_unlock(&dln2->mutex);
--	if (ret < 0) {
-+	if (ret < 0)
- 		dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
--		return ret;
--	}
- 
--	return iio_triggered_buffer_predisable(indio_dev);
-+	ret2 = iio_triggered_buffer_predisable(indio_dev);
-+	if (ret == 0)
-+		ret = ret2;
-+
-+	return ret;
- }
- 
- static const struct iio_buffer_setup_ops dln2_adc_buffer_setup_ops = {
++skip_flags:
+ 	if (adv_instance) {
+ 		memcpy(ptr, adv_instance->adv_data,
+ 		       adv_instance->adv_data_len);
 -- 
 2.20.1
 
