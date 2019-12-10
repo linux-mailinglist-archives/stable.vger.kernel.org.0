@@ -2,132 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49558118286
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 09:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8B3D1182B3
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 09:48:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726884AbfLJIlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 03:41:06 -0500
-Received: from mail-lj1-f169.google.com ([209.85.208.169]:44000 "EHLO
-        mail-lj1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726847AbfLJIlG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 03:41:06 -0500
-Received: by mail-lj1-f169.google.com with SMTP id a13so18874734ljm.10
-        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 00:41:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=QKvsreDFhHWMAzvpA64vXSDhZciHLX4vlgMXV8eEb0M=;
-        b=pVikknB1+TkPzc6xunbV4jvw2ERFKcq++OqeSFgPKdB8oT6AxWYEmHDJeKv1lczoWf
-         POVImsncUEuhL7immF42gy0m+IPMhaXbOKU+cpALYSG1V2lIYce+QfQO0Fdh9czmIqnN
-         5HYhR48EjznwYLCu4WDh/XlYaUXz09YrjdnqygYLpSrzWDDZ4huYJFVhaJ/cEAYhQsVp
-         VuPeEpTDq1QGFO0tuaihItY++19h2/aWOAI4id0xCjAp7EMlpoaDpiNktVyDqPapzmxz
-         INY8qysPhV9cQOT93+h9sUMMA7lwKNJ7d4t3MK1OVeP7wVskm8wCSXaS0bi3QgTLG1oA
-         q/8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=QKvsreDFhHWMAzvpA64vXSDhZciHLX4vlgMXV8eEb0M=;
-        b=NdtHqpUbCa4Py2vqqdgtCKWUz23EkvyAWEJOB2c9gZc5TdfSkALpxsvNJLxlhN+6EE
-         KxNo+RXXav6Bm7/fkKSB/BsXyAXvT9vvbcvmfyGxF1sFfVY6fCpBj7gfiGV+lhYPaQhk
-         6Slux7mai/SF27fg1lz3mM2SWxPEZZ9lKt2R/B3N+0ro7iUix+mmwu18wxPNyJStCRXE
-         aYBlbyoi3KtCuTWcpfRhK8rnlnc1S+Gl95gzpsUH1zX6mZF/O261gr4F6RWNYAUDapcr
-         g+AnBuyCxo83B3v6ocMBSr+TmWSMVXZAucejeVFJaBo9G7Xcm4iwbYOwgISIe/vtPd4X
-         gPsg==
-X-Gm-Message-State: APjAAAUumDDDPYDtpt9fxpj7kxFmbf6jrXjqLGifsdiLmQkBGgBJxPwS
-        qbP4Mj2M+Uc/af46GYte00kxRPzh7Mn/6nEYR2qHEia4xMA=
-X-Google-Smtp-Source: APXvYqyR3q27vKIGIE1J+PF4BpLLsL2ZbVjtAlqCcR07wBWJwYtuDWQMCLiWsoqHdUqvt6pmXDQhqiN7KF+WDqqvXNQ=
-X-Received: by 2002:a2e:9b8f:: with SMTP id z15mr19960744lji.20.1575967263776;
- Tue, 10 Dec 2019 00:41:03 -0800 (PST)
-MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 10 Dec 2019 14:10:52 +0530
-Message-ID: <CA+G9fYvbwWaPHTGwvuUKp6q-GJtfKoMMgtqcefa6MZ1Wqt90DA@mail.gmail.com>
-Subject: linux-stable-rc-4.19.89-rc1
-To:     linux- stable <stable@vger.kernel.org>
+        id S1726881AbfLJIr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 03:47:59 -0500
+Received: from pegase1.c-s.fr ([93.17.236.30]:36433 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726843AbfLJIr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 03:47:59 -0500
+Received: from localhost (mailhub1-ext [192.168.12.233])
+        by localhost (Postfix) with ESMTP id 47XDGj1VPZz9tyW7;
+        Tue, 10 Dec 2019 09:47:57 +0100 (CET)
+Authentication-Results: localhost; dkim=pass
+        reason="1024-bit key; insecure key"
+        header.d=c-s.fr header.i=@c-s.fr header.b=C3bR0m/s; dkim-adsp=pass;
+        dkim-atps=neutral
+X-Virus-Scanned: Debian amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
+        with ESMTP id Fd8oBSUCPelI; Tue, 10 Dec 2019 09:47:57 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 47XDGj0Pbxz9tyW5;
+        Tue, 10 Dec 2019 09:47:57 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=c-s.fr; s=mail;
+        t=1575967677; bh=zENznlhMrznRJGWMWUM1fyRyx1+XPUaBYHrlB+Jwl+w=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=C3bR0m/sd7ui2ylcf/4sLqze9kSUVlsC2nH2GGy/7SAQFUiOrwszHGjmiCVMWRuNS
+         0g10ccnkDpQFCCACb5AWLTX+LeG0BrGxFkEeZxDfHb3z6cIDTkzX5m2n3LOxmiqQzF
+         r4AECHp94sRL+vM2fY+m2h96iFux0v/dJA7GHmMc=
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 1060E8B805;
+        Tue, 10 Dec 2019 09:47:58 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id jVkK5NT9l2oC; Tue, 10 Dec 2019 09:47:58 +0100 (CET)
+Received: from po16098vm.idsi0.si.c-s.fr (unknown [192.168.4.90])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 425408B754;
+        Tue, 10 Dec 2019 09:47:57 +0100 (CET)
+Subject: Re: [PATCH] sh: kgdb: Mark expected switch fall-throughs
+To:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Andrew Morton <akpm@linux-foundation.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Will Deacon <will@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Paul Burton <paul.burton@mips.com>, linux-sh@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <87o8wgy3ra.wl-kuninori.morimoto.gx@renesas.com>
+ <87muc0y3q4.wl-kuninori.morimoto.gx@renesas.com>
+From:   Christophe Leroy <christophe.leroy@c-s.fr>
+Message-ID: <1009e85d-882a-d43b-8936-a0b4de596aa3@c-s.fr>
+Date:   Tue, 10 Dec 2019 08:47:56 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.7.0
+MIME-Version: 1.0
+In-Reply-To: <87muc0y3q4.wl-kuninori.morimoto.gx@renesas.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
 
-Summary
-------------------------------------------------------------------------
 
-kernel: 4.19.89-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: c0fa90c1d847eb4ef91a4056dced0b10d6291f40
-git describe: v4.19.88-242-gc0fa90c1d847
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.88-242-gc0fa90c1d847
+On 12/10/2019 08:39 AM, Kuninori Morimoto wrote:
+> 
+> From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+> 
+> Mark switch cases where we are expecting to fall through.
+> 
+> This patch fixes the following error:
+> 
+> LINUX/arch/sh/kernel/kgdb.c: In function 'kgdb_arch_handle_exception':
+> LINUX/arch/sh/kernel/kgdb.c:267:6: error: this statement may fall through [-Werror=implicit-fallthrough=]
+> if (kgdb_hex2long(&ptr, &addr))
+> ^
+> LINUX/arch/sh/kernel/kgdb.c:269:2: note: here
+> case 'D':
+> ^~~~
+> 
+> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+> Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 
-No regressions (compared to build v4.19.88)
+I guess you should also add:
 
-No fixes (compared to build v4.19.88)
+Fixes: ab6e570ba33d ("sh: Generic kgdb stub support.")
+Cc: stable@vger.kernel.org
 
-Ran 20172 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Christophe
