@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA2731196B2
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7FB1196B1
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727325AbfLJV20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727508AbfLJV20 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:28:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60306 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728484AbfLJVK0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:26 -0500
+        id S1727835AbfLJVK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B60172077B;
-        Tue, 10 Dec 2019 21:10:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFC95246A8;
+        Tue, 10 Dec 2019 21:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012225;
-        bh=pDb99hDHnLaIQT5+IsVMp+MuY1aORJ5mKqZBYwYdPOI=;
+        s=default; t=1576012226;
+        bh=GOXWFvh7GoXw9UjuaXvqLHGd8pSf1Cch+DSQANsyhzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tK+H1tzd2f6QJYRM10FV0BQOWxIdCa7PcB1bzzSFEpmYwTSfc6axC4OM95bUezzQK
-         fyqFwGIfavKx+e9C2OIFh0IPoL50INauhb3uCtmI2q3YapMpZm6NUQmmKl5iE4D8Ya
-         zEpCDpthwRU/np4F62og/ObXsb4at2Q2WGC9egA0=
+        b=wd4a7PhbH/7lS7uioVYJKiwPhSyx4KhkQm1CVuIYG1MDsyLqb9mdCwEtAxyFbQhND
+         6+cTCdzfl2tHfAyLskBmlmu8haeUeXrfzDU8WMsINfu3owFFDmVyPeHcBOSjEMALqu
+         wQlMVchVV3xj3TQ9Qj/Isv1xNlwayTjHZ6q5opTA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adham Abozaeid <adham.abozaeid@microchip.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.4 175/350] staging: wilc1000: check if device is initialzied before changing vif
-Date:   Tue, 10 Dec 2019 16:04:40 -0500
-Message-Id: <20191210210735.9077-136-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 176/350] gpu: host1x: Allocate gather copy for host1x
+Date:   Tue, 10 Dec 2019 16:04:41 -0500
+Message-Id: <20191210210735.9077-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,66 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adham Abozaeid <adham.abozaeid@microchip.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 6df6f3849bb8f317bf2d52711aacea4292237ede ]
+[ Upstream commit b78e70c04c149299bd210759d7c7af7c86b89ca8 ]
 
-When killing hostapd, the interface is closed which deinitializes the
-device, then change virtual interface is called.
-This change checks if the device is initialized before sending the
-interface change command to the device
+Currently when the gather buffers are copied, they are copied to a
+buffer that is allocated for the host1x client that wants to execute the
+command streams in the buffers. However, the gather buffers will be read
+by the host1x device, which causes SMMU faults if the DMA API is backed
+by an IOMMU.
 
-Signed-off-by: Adham Abozaeid <adham.abozaeid@microchip.com>
-Link: https://lore.kernel.org/r/20191028184019.31194-1-adham.abozaeid@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by allocating the gather buffer copy for the host1x device,
+which makes sure that it will be mapped into the host1x's IOVA space if
+the DMA API is backed by an IOMMU.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/wilc1000/wilc_wfi_cfgoperations.c  | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/gpu/host1x/job.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c b/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
-index 22f21831649bd..c3cd6f389a989 100644
---- a/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
-+++ b/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c
-@@ -1419,8 +1419,10 @@ static int change_virtual_intf(struct wiphy *wiphy, struct net_device *dev,
- 		if (vif->iftype == WILC_AP_MODE || vif->iftype == WILC_GO_MODE)
- 			wilc_wfi_deinit_mon_interface(wl, true);
- 		vif->iftype = WILC_STATION_MODE;
--		wilc_set_operation_mode(vif, wilc_get_vif_idx(vif),
--					WILC_STATION_MODE, vif->idx);
-+
-+		if (wl->initialized)
-+			wilc_set_operation_mode(vif, wilc_get_vif_idx(vif),
-+						WILC_STATION_MODE, vif->idx);
+diff --git a/drivers/gpu/host1x/job.c b/drivers/gpu/host1x/job.c
+index eaa5c3352c134..22559670faeef 100644
+--- a/drivers/gpu/host1x/job.c
++++ b/drivers/gpu/host1x/job.c
+@@ -436,7 +436,8 @@ static int validate(struct host1x_firewall *fw, struct host1x_job_gather *g)
+ 	return err;
+ }
  
- 		memset(priv->assoc_stainfo.sta_associated_bss, 0,
- 		       WILC_MAX_NUM_STA * ETH_ALEN);
-@@ -1432,8 +1434,10 @@ static int change_virtual_intf(struct wiphy *wiphy, struct net_device *dev,
- 		priv->wdev.iftype = type;
- 		vif->monitor_flag = 0;
- 		vif->iftype = WILC_CLIENT_MODE;
--		wilc_set_operation_mode(vif, wilc_get_vif_idx(vif),
--					WILC_STATION_MODE, vif->idx);
-+
-+		if (wl->initialized)
-+			wilc_set_operation_mode(vif, wilc_get_vif_idx(vif),
-+						WILC_STATION_MODE, vif->idx);
- 		break;
+-static inline int copy_gathers(struct host1x_job *job, struct device *dev)
++static inline int copy_gathers(struct device *host, struct host1x_job *job,
++			       struct device *dev)
+ {
+ 	struct host1x_firewall fw;
+ 	size_t size = 0;
+@@ -459,12 +460,12 @@ static inline int copy_gathers(struct host1x_job *job, struct device *dev)
+ 	 * Try a non-blocking allocation from a higher priority pools first,
+ 	 * as awaiting for the allocation here is a major performance hit.
+ 	 */
+-	job->gather_copy_mapped = dma_alloc_wc(dev, size, &job->gather_copy,
++	job->gather_copy_mapped = dma_alloc_wc(host, size, &job->gather_copy,
+ 					       GFP_NOWAIT);
  
- 	case NL80211_IFTYPE_AP:
-@@ -1450,8 +1454,10 @@ static int change_virtual_intf(struct wiphy *wiphy, struct net_device *dev,
- 		dev->ieee80211_ptr->iftype = type;
- 		priv->wdev.iftype = type;
- 		vif->iftype = WILC_GO_MODE;
--		wilc_set_operation_mode(vif, wilc_get_vif_idx(vif),
--					WILC_AP_MODE, vif->idx);
-+
-+		if (wl->initialized)
-+			wilc_set_operation_mode(vif, wilc_get_vif_idx(vif),
-+						WILC_AP_MODE, vif->idx);
- 		break;
+ 	/* the higher priority allocation failed, try the generic-blocking */
+ 	if (!job->gather_copy_mapped)
+-		job->gather_copy_mapped = dma_alloc_wc(dev, size,
++		job->gather_copy_mapped = dma_alloc_wc(host, size,
+ 						       &job->gather_copy,
+ 						       GFP_KERNEL);
+ 	if (!job->gather_copy_mapped)
+@@ -512,7 +513,7 @@ int host1x_job_pin(struct host1x_job *job, struct device *dev)
+ 		goto out;
  
- 	default:
+ 	if (IS_ENABLED(CONFIG_TEGRA_HOST1X_FIREWALL)) {
+-		err = copy_gathers(job, dev);
++		err = copy_gathers(host->dev, job, dev);
+ 		if (err)
+ 			goto out;
+ 	}
+@@ -573,7 +574,7 @@ void host1x_job_unpin(struct host1x_job *job)
+ 	job->num_unpins = 0;
+ 
+ 	if (job->gather_copy_size)
+-		dma_free_wc(job->channel->dev, job->gather_copy_size,
++		dma_free_wc(host->dev, job->gather_copy_size,
+ 			    job->gather_copy_mapped, job->gather_copy);
+ }
+ EXPORT_SYMBOL(host1x_job_unpin);
 -- 
 2.20.1
 
