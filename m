@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45C1F119C91
+	by mail.lfdr.de (Postfix) with ESMTP id B5630119C92
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:33:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728731AbfLJWbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:31:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51756 "EHLO mail.kernel.org"
+        id S1728812AbfLJWbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:31:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728797AbfLJWbl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:31:41 -0500
+        id S1728718AbfLJWbm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:31:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DF6E20828;
-        Tue, 10 Dec 2019 22:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50744206EC;
+        Tue, 10 Dec 2019 22:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017100;
-        bh=Geg8BiCNfOFyx6ld/4oc3DXwvMx5hL/gRn80R9OOjR4=;
+        s=default; t=1576017102;
+        bh=C59vvmn3u1NNO1Husra5EcioyrVhN5Os7GBBy2aKSW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2se46PULOuIAsEvrBXB/7uWYp4YYlLYATqWXDDRXXr5c/RxRYyn6+PWZAEH8Cg7OO
-         ihp5bggDJGX6OomKiZogOXM5YG9VDoo0TfN4x4oBR4VCUl8WJe5zFsswgPvB0z1SQM
-         RBXU3mQihY8+t6+nM2u/rMd7MTyySYQWP1T1TerU=
+        b=d2sDdiS84NTUHeL7A8nrucPmS0ESl8wXVHRdbWWshznjCKyFvLvzy2k82dA4ht19X
+         CHi+AczlxSGjWOf58puPS8QxFAhEv2dBPm1gkXFM0DSLz7PjojPjrTu/hoKjPhWk0U
+         MH+tD03JeMKFV3nQ8elIdB7oOH5qoGO+55A65NaA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
@@ -30,9 +30,9 @@ Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 55/91] perf probe: Fix to probe an inline function which has no entry pc
-Date:   Tue, 10 Dec 2019 17:29:59 -0500
-Message-Id: <20191210223035.14270-55-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 56/91] perf probe: Fix to show ranges of variables in functions without entry_pc
+Date:   Tue, 10 Dec 2019 17:30:00 -0500
+Message-Id: <20191210223035.14270-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -47,68 +47,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit eb6933b29d20bf2c3053883d409a53f462c1a3ac ]
+[ Upstream commit af04dd2f8ebaa8fbd46f698714acbf43da14da45 ]
 
-Fix perf probe to probe an inlne function which has no entry pc
-or low pc but only has ranges attribute.
+Fix to show ranges of variables (--range and --vars option) in functions
+which DIE has only ranges but no entry_pc attribute.
 
-This seems very rare case, but I could find a few examples, as
-same as probe_point_search_cb(), use die_entrypc() to get the
-entry address in probe_point_inline_cb() too.
+Without this fix:
 
-Without this patch:
+  # perf probe --range -V clear_tasks_mm_cpumask
+  Available variables at clear_tasks_mm_cpumask
+  	@<clear_tasks_mm_cpumask+0>
+  		(No matched variables)
 
-  # perf probe -D __amd_put_nb_event_constraints
-  Failed to get entry address of __amd_put_nb_event_constraints.
-  Probe point '__amd_put_nb_event_constraints' not found.
-    Error: Failed to add events.
+With this fix:
 
-With this patch:
-
-  # perf probe -D __amd_put_nb_event_constraints
-  p:probe/__amd_put_nb_event_constraints amd_put_event_constraints+43
+  # perf probe --range -V clear_tasks_mm_cpumask
+  Available variables at clear_tasks_mm_cpumask
+	@<clear_tasks_mm_cpumask+0>
+		[VAL]	int	cpu	@<clear_tasks_mm_cpumask+[0-35,317-317,2052-2059]>
 
 Committer testing:
 
 Before:
 
-  [root@quaco ~]# perf probe -D __amd_put_nb_event_constraints
-  Failed to get entry address of __amd_put_nb_event_constraints.
-  Probe point '__amd_put_nb_event_constraints' not found.
-    Error: Failed to add events.
+  [root@quaco ~]# perf probe --range -V clear_tasks_mm_cpumask
+  Available variables at clear_tasks_mm_cpumask
+          @<clear_tasks_mm_cpumask+0>
+                  (No matched variables)
   [root@quaco ~]#
 
 After:
 
-  [root@quaco ~]# perf probe -D __amd_put_nb_event_constraints
-  p:probe/__amd_put_nb_event_constraints _text+33789
+  [root@quaco ~]# perf probe --range -V clear_tasks_mm_cpumask
+  Available variables at clear_tasks_mm_cpumask
+          @<clear_tasks_mm_cpumask+0>
+                  [VAL]   int     cpu     @<clear_tasks_mm_cpumask+[0-23,23-105,105-106,106-106,1843-1850,1850-1862]>
   [root@quaco ~]#
 
-Fixes: 4ea42b181434 ("perf: Add perf probe subcommand, a kprobe-event setup helper")
+Using it:
+
+  [root@quaco ~]# perf probe clear_tasks_mm_cpumask cpu
+  Added new event:
+    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask with cpu)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe:clear_tasks_mm_cpumask -aR sleep 1
+
+  [root@quaco ~]# perf probe -l
+    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@kernel/cpu.c with cpu)
+  [root@quaco ~]#
+  [root@quaco ~]# perf trace -e probe:*cpumask
+  ^C[root@quaco ~]#
+
+Fixes: 349e8d261131 ("perf probe: Add --range option to show a variable's location range")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157199320336.8075.16189530425277588587.stgit@devnote2
+Link: http://lore.kernel.org/lkml/157199323018.8075.8179744380479673672.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/dwarf-aux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 248d3ff7e3454..9fc6fedcfa1aa 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -950,7 +950,7 @@ static int probe_point_inline_cb(Dwarf_Die *in_die, void *data)
- 		ret = find_probe_point_lazy(in_die, pf);
- 	else {
- 		/* Get probe address */
--		if (dwarf_entrypc(in_die, &addr) != 0) {
-+		if (die_entrypc(in_die, &addr) != 0) {
- 			pr_warning("Failed to get entry address of %s.\n",
- 				   dwarf_diename(in_die));
- 			return -ENOENT;
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index 7e7e572083230..574ba3ac4fbad 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -1007,7 +1007,7 @@ static int die_get_var_innermost_scope(Dwarf_Die *sp_die, Dwarf_Die *vr_die,
+ 	bool first = true;
+ 	const char *name;
+ 
+-	ret = dwarf_entrypc(sp_die, &entry);
++	ret = die_entrypc(sp_die, &entry);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1070,7 +1070,7 @@ int die_get_var_range(Dwarf_Die *sp_die, Dwarf_Die *vr_die, struct strbuf *buf)
+ 	bool first = true;
+ 	const char *name;
+ 
+-	ret = dwarf_entrypc(sp_die, &entry);
++	ret = die_entrypc(sp_die, &entry);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.20.1
 
