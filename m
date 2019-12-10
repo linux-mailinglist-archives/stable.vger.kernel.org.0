@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E6F119DDE
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:41:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 952CA119DDD
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:40:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729088AbfLJWcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:32:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52228 "EHLO mail.kernel.org"
+        id S1729113AbfLJWcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:32:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728797AbfLJWcA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:32:00 -0500
+        id S1728415AbfLJWcB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:32:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8D4D20838;
-        Tue, 10 Dec 2019 22:31:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CB420828;
+        Tue, 10 Dec 2019 22:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017119;
-        bh=auRZ5QfWznazAKqb2mbTCEo6RCXwY8RBv0aBt1ZAd9w=;
+        s=default; t=1576017120;
+        bh=x3aG7lm2+c8CM6MgbuvFVGF/tQTmsmjJE5Xxk9vXbg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzIR2ErsNh9G/nB7A4X1GY5myocGxLm2vLAX70tgpGRAHyDoNR9a0SOwOuwUgxGnK
-         D6eOm9OHkUJgo8+mMvtdmf/XxZaiokD5Q2j8RjnL9mC5UhGMyMc7zQNKy2zgYAHTRT
-         F+nuUR5GwkyEHaqLvPckcr2rYWCdjezVJDymLhL8=
+        b=uOe66+B6kEKgo5sLFtCC+bq6fjBimDLmWWFXcYiDbJCxvevm3EB/v4ojI3AKm/+mh
+         dH046yFgHsndzDrS6F0shMl/YNQqOGd76ITczYtFiEDI8wMld8jNMfHAh/C+MQ2Fxf
+         oskfupvH198Tc8DKUiFVQDW6Dn+LZJwk7j4o1z64=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Wahren <wahrenst@gmx.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 71/91] net: bcmgenet: Add RGMII_RXID support
-Date:   Tue, 10 Dec 2019 17:30:15 -0500
-Message-Id: <20191210223035.14270-71-sashal@kernel.org>
+Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 72/91] parport: load lowlevel driver if ports not found
+Date:   Tue, 10 Dec 2019 17:30:16 -0500
+Message-Id: <20191210223035.14270-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -45,37 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <wahrenst@gmx.net>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-[ Upstream commit da38802211cc3fd294211a642932edb09e3af632 ]
+[ Upstream commit 231ec2f24dad18d021b361045bbd618ba62a274e ]
 
-This adds the missing support for the PHY mode RGMII_RXID.
-It's necessary for the Raspberry Pi 4.
+Usually all the distro will load the parport low level driver as part
+of their initialization. But we can get into a situation where all the
+parallel port drivers are built as module and we unload all the modules
+at a later time. Then if we just do "modprobe parport" it will only
+load the parport module and will not load the low level driver which
+will actually register the ports. So, check the bus if there is any
+parport registered, if not, load the low level driver.
 
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+We can get into the above situation with all distro but only Suse has
+setup the alias for "parport_lowlevel" and so it only works in Suse.
+Users of Debian based distro will need to load the lowlevel module
+manually.
+
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Link: https://lore.kernel.org/r/20191016144540.18810-3-sudipm.mukherjee@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmmii.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/parport/share.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmmii.c b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-index b0b9feeb173b3..254d603eae53a 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -318,6 +318,11 @@ int bcmgenet_mii_config(struct net_device *dev)
- 		bcmgenet_sys_writel(priv,
- 				    PORT_MODE_EXT_GPHY, SYS_PORT_CTRL);
- 		break;
+diff --git a/drivers/parport/share.c b/drivers/parport/share.c
+index daa2eb3050df3..a7ceed7182acb 100644
+--- a/drivers/parport/share.c
++++ b/drivers/parport/share.c
+@@ -230,6 +230,18 @@ static int port_check(struct device *dev, void *dev_drv)
+ 	return 0;
+ }
+ 
++/*
++ * Iterates through all the devices connected to the bus and return 1
++ * if the device is a parallel port.
++ */
 +
-+	case PHY_INTERFACE_MODE_RGMII_RXID:
-+		phy_name = "external RGMII (RX delay)";
-+		port_ctrl = PORT_MODE_EXT_GPHY;
-+		break;
- 	default:
- 		dev_err(kdev, "unknown phy mode: %d\n", priv->phy_interface);
- 		return -EINVAL;
++static int port_detect(struct device *dev, void *dev_drv)
++{
++	if (is_parport(dev))
++		return 1;
++	return 0;
++}
++
+ /**
+  *	parport_register_driver - register a parallel port device driver
+  *	@drv: structure describing the driver
+@@ -282,6 +294,15 @@ int __parport_register_driver(struct parport_driver *drv, struct module *owner,
+ 		if (ret)
+ 			return ret;
+ 
++		/*
++		 * check if bus has any parallel port registered, if
++		 * none is found then load the lowlevel driver.
++		 */
++		ret = bus_for_each_dev(&parport_bus_type, NULL, NULL,
++				       port_detect);
++		if (!ret)
++			get_lowlevel_driver();
++
+ 		mutex_lock(&registration_lock);
+ 		if (drv->match_port)
+ 			bus_for_each_dev(&parport_bus_type, NULL, drv,
 -- 
 2.20.1
 
