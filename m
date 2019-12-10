@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F0D1197EB
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:38:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 314BF1197EF
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:38:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730291AbfLJVfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:35:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
+        id S1730300AbfLJVfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:35:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730287AbfLJVfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:35:32 -0500
+        id S1729663AbfLJVfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:35:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4016324655;
-        Tue, 10 Dec 2019 21:35:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58AFD2465C;
+        Tue, 10 Dec 2019 21:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013732;
-        bh=WNhs5eh30x01ZvJF/JCaVXVbrAOKud9wgOP34Dw0jIA=;
+        s=default; t=1576013733;
+        bh=npsU3Tkq9ypAkx+NT03DyFG5s5xVAbtLqZD9rw+f7yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBjNed3zGu0vSjZ3u8KH29S4qXypZB2evlRpRhb/qYkkX4hOYJvX9IG+OwlgR3X1T
-         YQL1u19ahm+o73+NlwwYlHd0A+emYv24iMVBd8hILPuWVQZ3RJmlU1XMrwZyh/b+bc
-         JjvlNishw0/K42ERxmCTOLlxuwOHH98Hij11DJ7g=
+        b=xpSGs1JTn11/EcJ8fczwXl92yrCq+ibPC0kTA7glVtZKUHQfpSY9yGs1mlPMWGNq2
+         UiOf6kXsEIcyruL1UIngT/rj9FqvJse2nqSPrHgSVmcaZ/Ed8sgG08By4aB+TdES5l
+         eU7Cv5TdEa5tjCMgw0OOwS9ATkYoKYTv927t/3mw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Omar Sandoval <osandov@fb.com>,
+Cc:     Omar Sandoval <osandov@fb.com>, Tejun Heo <tj@kernel.org>,
         Johannes Thumshirn <jthumshirn@suse.de>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 156/177] btrfs: don't prematurely free work in end_workqueue_fn()
-Date:   Tue, 10 Dec 2019 16:32:00 -0500
-Message-Id: <20191210213221.11921-156-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 157/177] btrfs: don't prematurely free work in run_ordered_work()
+Date:   Tue, 10 Dec 2019 16:32:01 -0500
+Message-Id: <20191210213221.11921-157-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -46,50 +46,150 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit 9be490f1e15c34193b1aae17da58e14dd9f55a95 ]
+[ Upstream commit c495dcd6fbe1dce51811a76bb85b4675f6494938 ]
 
-Currently, end_workqueue_fn() frees the end_io_wq entry (which embeds
-the work item) and then calls bio_endio(). This is another potential
-instance of the bug in "btrfs: don't prematurely free work in
-run_ordered_work()".
+We hit the following very strange deadlock on a system with Btrfs on a
+loop device backed by another Btrfs filesystem:
 
-In particular, the endio call may depend on other work items. For
-example, btrfs_end_dio_bio() can call btrfs_subio_endio_read() ->
-__btrfs_correct_data_nocsum() -> dio_read_error() ->
-submit_dio_repair_bio(), which submits a bio that is also completed
-through a end_workqueue_fn() work item. However,
-__btrfs_correct_data_nocsum() waits for the newly submitted bio to
-complete, thus it depends on another work item.
+1. The top (loop device) filesystem queues an async_cow work item from
+   cow_file_range_async(). We'll call this work X.
+2. Worker thread A starts work X (normal_work_helper()).
+3. Worker thread A executes the ordered work for the top filesystem
+   (run_ordered_work()).
+4. Worker thread A finishes the ordered work for work X and frees X
+   (work->ordered_free()).
+5. Worker thread A executes another ordered work and gets blocked on I/O
+   to the bottom filesystem (still in run_ordered_work()).
+6. Meanwhile, the bottom filesystem allocates and queues an async_cow
+   work item which happens to be the recently-freed X.
+7. The workqueue code sees that X is already being executed by worker
+   thread A, so it schedules X to be executed _after_ worker thread A
+   finishes (see the find_worker_executing_work() call in
+   process_one_work()).
 
-This example currently usually works because we use different workqueue
-helper functions for BTRFS_WQ_ENDIO_DATA and BTRFS_WQ_ENDIO_DIO_REPAIR.
-However, it may deadlock with stacked filesystems and is fragile
-overall. The proper fix is to free the work item at the very end of the
-work function, so let's do that.
+Now, the top filesystem is waiting for I/O on the bottom filesystem, but
+the bottom filesystem is waiting for the top filesystem to finish, so we
+deadlock.
 
+This happens because we are breaking the workqueue assumption that a
+work item cannot be recycled while it still depends on other work. Fix
+it by waiting to free the work item until we are done with all of the
+related ordered work.
+
+P.S.:
+
+One might ask why the workqueue code doesn't try to detect a recycled
+work item. It actually does try by checking whether the work item has
+the same work function (find_worker_executing_work()), but in our case
+the function is the same. This is the only key that the workqueue code
+has available to compare, short of adding an additional, layer-violating
+"custom key". Considering that we're the only ones that have ever hit
+this, we should just play by the rules.
+
+Unfortunately, we haven't been able to create a minimal reproducer other
+than our full container setup using a compress-force=zstd filesystem on
+top of another compress-force=zstd filesystem.
+
+Suggested-by: Tejun Heo <tj@kernel.org>
 Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
 Signed-off-by: Omar Sandoval <osandov@fb.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/async-thread.c | 56 ++++++++++++++++++++++++++++++++---------
+ 1 file changed, 44 insertions(+), 12 deletions(-)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 96296dc7d2ea4..e12c37f457e05 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1660,8 +1660,8 @@ static void end_workqueue_fn(struct btrfs_work *work)
- 	bio->bi_status = end_io_wq->status;
- 	bio->bi_private = end_io_wq->private;
- 	bio->bi_end_io = end_io_wq->end_io;
--	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
- 	bio_endio(bio);
-+	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
+diff --git a/fs/btrfs/async-thread.c b/fs/btrfs/async-thread.c
+index d522494698fa4..02e4e903dfe9f 100644
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -252,16 +252,17 @@ static inline void thresh_exec_hook(struct __btrfs_workqueue *wq)
+ 	}
  }
  
- static int cleaner_kthread(void *arg)
+-static void run_ordered_work(struct __btrfs_workqueue *wq)
++static void run_ordered_work(struct __btrfs_workqueue *wq,
++			     struct btrfs_work *self)
+ {
+ 	struct list_head *list = &wq->ordered_list;
+ 	struct btrfs_work *work;
+ 	spinlock_t *lock = &wq->list_lock;
+ 	unsigned long flags;
++	void *wtag;
++	bool free_self = false;
+ 
+ 	while (1) {
+-		void *wtag;
+-
+ 		spin_lock_irqsave(lock, flags);
+ 		if (list_empty(list))
+ 			break;
+@@ -287,16 +288,47 @@ static void run_ordered_work(struct __btrfs_workqueue *wq)
+ 		list_del(&work->ordered_list);
+ 		spin_unlock_irqrestore(lock, flags);
+ 
+-		/*
+-		 * We don't want to call the ordered free functions with the
+-		 * lock held though. Save the work as tag for the trace event,
+-		 * because the callback could free the structure.
+-		 */
+-		wtag = work;
+-		work->ordered_free(work);
+-		trace_btrfs_all_work_done(wq->fs_info, wtag);
++		if (work == self) {
++			/*
++			 * This is the work item that the worker is currently
++			 * executing.
++			 *
++			 * The kernel workqueue code guarantees non-reentrancy
++			 * of work items. I.e., if a work item with the same
++			 * address and work function is queued twice, the second
++			 * execution is blocked until the first one finishes. A
++			 * work item may be freed and recycled with the same
++			 * work function; the workqueue code assumes that the
++			 * original work item cannot depend on the recycled work
++			 * item in that case (see find_worker_executing_work()).
++			 *
++			 * Note that the work of one Btrfs filesystem may depend
++			 * on the work of another Btrfs filesystem via, e.g., a
++			 * loop device. Therefore, we must not allow the current
++			 * work item to be recycled until we are really done,
++			 * otherwise we break the above assumption and can
++			 * deadlock.
++			 */
++			free_self = true;
++		} else {
++			/*
++			 * We don't want to call the ordered free functions with
++			 * the lock held though. Save the work as tag for the
++			 * trace event, because the callback could free the
++			 * structure.
++			 */
++			wtag = work;
++			work->ordered_free(work);
++			trace_btrfs_all_work_done(wq->fs_info, wtag);
++		}
+ 	}
+ 	spin_unlock_irqrestore(lock, flags);
++
++	if (free_self) {
++		wtag = self;
++		self->ordered_free(self);
++		trace_btrfs_all_work_done(wq->fs_info, wtag);
++	}
+ }
+ 
+ static void normal_work_helper(struct btrfs_work *work)
+@@ -324,7 +356,7 @@ static void normal_work_helper(struct btrfs_work *work)
+ 	work->func(work);
+ 	if (need_order) {
+ 		set_bit(WORK_DONE_BIT, &work->flags);
+-		run_ordered_work(wq);
++		run_ordered_work(wq, work);
+ 	}
+ 	if (!need_order)
+ 		trace_btrfs_all_work_done(wq->fs_info, wtag);
 -- 
 2.20.1
 
