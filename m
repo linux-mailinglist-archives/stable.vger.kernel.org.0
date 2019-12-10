@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1241F119BCE
+	by mail.lfdr.de (Postfix) with ESMTP id 82062119BCF
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728967AbfLJWLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728272AbfLJWLj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 17:11:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34390 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728255AbfLJWDz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:03:55 -0500
+        id S1728264AbfLJWD4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:03:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB5AF20637;
-        Tue, 10 Dec 2019 22:03:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5BF2214D8;
+        Tue, 10 Dec 2019 22:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015434;
-        bh=CqcmmDdjuJ6RXhSdZZKilbhpEHoMGJnpGpaXaNnE4fc=;
+        s=default; t=1576015435;
+        bh=8wh+p64T8rURgFickUOAnFGXBpIYAInJHAGKYcjtebI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0sT1XPE30ls32mm18ksFel65j2K6lly1IfFIf43Gu7QiVcFMtf80FvDh5ZKV16l+X
-         H4nQ6qCO/O8xKaH71WgV080EHkIuuLZhBG2ZJC4+QSpWdVt3y2LwQLJd7fo3sgkO9J
-         zW0B9uh36ur+yFXI+Nd1ncz/+F05ysUHS6plDBhY=
+        b=zCqUaXp51m/sbwqaA1mh0kNdQch+Ax//VmPI4fLKVzuWPlOYXRgOrEc5dKUxsM/tQ
+         fRBoORCy3sXrr4jpwuxLo+dBbL+bJruMSK50az0eXAqkng7uhMOvM1JuJH10OcZ+Gy
+         fnA4FQG8eot2wyjiTg6ND0iQKB3qZ9mydgpdmYzQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Kurtz <djkurtz@chromium.org>,
-        Cheng-Yi Chiang <cychiang@chromium.org>,
-        Yakir Yang <ykk@rock-chips.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 044/130] drm/bridge: dw-hdmi: Restore audio when setting a mode
-Date:   Tue, 10 Dec 2019 17:01:35 -0500
-Message-Id: <20191210220301.13262-44-sashal@kernel.org>
+Cc:     Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 045/130] perf test: Report failure for mmap events
+Date:   Tue, 10 Dec 2019 17:01:36 -0500
+Message-Id: <20191210220301.13262-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -46,45 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Kurtz <djkurtz@chromium.org>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit fadfee3f9d8f114435a8a3e9f83a227600d89de7 ]
+[ Upstream commit 6add129c5d9210ada25217abc130df0b7096ee02 ]
 
-When setting a new display mode, dw_hdmi_setup() calls
-dw_hdmi_enable_video_path(), which disables all hdmi clocks, including
-the audio clock.
+When fail to mmap events in task exit case, it misses to set 'err' to
+-1; thus the testing will not report failure for it.
 
-We should only (re-)enable the audio clock if audio was already enabled
-when setting the new mode.
+This patch sets 'err' to -1 when fails to mmap events, thus Perf tool
+can report correct result.
 
-Without this patch, on RK3288, there will be HDMI audio on some monitors
-if i2s was played to headphone when the monitor was plugged.
-ACER H277HU and ASUS PB278 are two of the monitors showing this issue.
-
-Signed-off-by: Cheng-Yi Chiang <cychiang@chromium.org>
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Signed-off-by: Yakir Yang <ykk@rock-chips.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191008102145.55134-1-cychiang@chromium.org
+Fixes: d723a55096b8 ("perf test: Add test case for checking number of EXIT events")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/20191011091942.29841-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/tests/task-exit.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-index 0febaafb8d895..cc1094f901255 100644
---- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-+++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
-@@ -1743,7 +1743,7 @@ static int dw_hdmi_setup(struct dw_hdmi *hdmi, struct drm_display_mode *mode)
- 
- 		/* HDMI Initialization Step E - Configure audio */
- 		hdmi_clk_regenerator_update_pixel_clock(hdmi);
--		hdmi_enable_audio_clk(hdmi, true);
-+		hdmi_enable_audio_clk(hdmi, hdmi->audio_enable);
+diff --git a/tools/perf/tests/task-exit.c b/tools/perf/tests/task-exit.c
+index 89c8e1604ca73..94fe5464bc6f3 100644
+--- a/tools/perf/tests/task-exit.c
++++ b/tools/perf/tests/task-exit.c
+@@ -104,6 +104,7 @@ int test__task_exit(struct test *test __maybe_unused, int subtest __maybe_unused
+ 	if (perf_evlist__mmap(evlist, 128, true) < 0) {
+ 		pr_debug("failed to mmap events: %d (%s)\n", errno,
+ 			 str_error_r(errno, sbuf, sizeof(sbuf)));
++		err = -1;
+ 		goto out_delete_evlist;
  	}
  
- 	/* not for DVI mode */
 -- 
 2.20.1
 
