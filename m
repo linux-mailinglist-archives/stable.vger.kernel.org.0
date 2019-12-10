@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDE7119514
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC21D119511
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728056AbfLJVSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:18:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37360 "EHLO mail.kernel.org"
+        id S1727357AbfLJVSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:18:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729049AbfLJVMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:39 -0500
+        id S1729059AbfLJVMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC51020838;
-        Tue, 10 Dec 2019 21:12:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D94682464B;
+        Tue, 10 Dec 2019 21:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012359;
-        bh=spq33mRE4jswIY1k+EL5yI+NvlUv7m8qp/o3HldSGQo=;
+        s=default; t=1576012361;
+        bh=nrKFeK8ZfpA0LOttrffsxHf9XaNKRKS8gtS1ILBWzz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kcy28pLZN2sP6e+DM96JtSbO3DAC/K7WrtpVBU3G1kFm65Eyy/7IXqsAWHkqcDCEN
-         BqJL+ouVZX0MphwheRynTITiNQn8+ZlO3FzFKjqwv8kw+6WgVjOCOPI3KOYHo52KAW
-         Y63HjCDW0E9m2RRnRrz0qoHCTcarUMfgMz+ow3fs=
+        b=E4O4kVDTPfBp933OWfwDW+Rj692YBkJeJvKNQfrc5jZ5VY+Qgbs7Aeuz35vkpYkkG
+         RYEz+jcPbNEc6+3k4fBoBbSb7gKKILzGlDH3K0mqfTL19pNRALNLD9aVk7oms3/hcx
+         XmG+zw6AFWqTAQputvb0IdAfvBPkt2ovO7nNZP4I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuming Han <yuming.han@unisoc.com>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 287/350] tracing: use kvcalloc for tgid_map array allocation
-Date:   Tue, 10 Dec 2019 16:06:32 -0500
-Message-Id: <20191210210735.9077-248-sashal@kernel.org>
+Cc:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>, ralf@linux-mips.org,
+        jhogan@kernel.org, john@phrozen.org, NeilBrown <neil@brown.name>,
+        linux-mips@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 288/350] MIPS: ralink: enable PCI support only if driver for mt7621 SoC is selected
+Date:   Tue, 10 Dec 2019 16:06:33 -0500
+Message-Id: <20191210210735.9077-249-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,57 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuming Han <yuming.han@unisoc.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit 6ee40511cb838f9ced002dff7131bca87e3ccbdd ]
+[ Upstream commit 3b2fa0c92686562ac0b8cf00c0326a45814f8e18 ]
 
-Fail to allocate memory for tgid_map, because it requires order-6 page.
-detail as:
+Some versions of SoC MT7621 have three PCI express hosts. Some boards
+make use of those PCI through the staging driver mt7621-pci. Recently
+PCI support has been removed from MT7621 Soc kernel configuration due
+to a build error. This makes imposible to compile staging driver and
+produces a regression for gnubee based boards. Enable support for PCI
+again but enable it only if staging mt7621-pci driver is selected.
 
-c3 sh: page allocation failure: order:6,
-   mode:0x140c0c0(GFP_KERNEL), nodemask=(null)
-c3 sh cpuset=/ mems_allowed=0
-c3 CPU: 3 PID: 5632 Comm: sh Tainted: G        W  O    4.14.133+ #10
-c3 Hardware name: Generic DT based system
-c3 Backtrace:
-c3 [<c010bdbc>] (dump_backtrace) from [<c010c08c>](show_stack+0x18/0x1c)
-c3 [<c010c074>] (show_stack) from [<c0993c54>](dump_stack+0x84/0xa4)
-c3 [<c0993bd0>] (dump_stack) from [<c0229858>](warn_alloc+0xc4/0x19c)
-c3 [<c0229798>] (warn_alloc) from [<c022a6e4>](__alloc_pages_nodemask+0xd18/0xf28)
-c3 [<c02299cc>] (__alloc_pages_nodemask) from [<c0248344>](kmalloc_order+0x20/0x38)
-c3 [<c0248324>] (kmalloc_order) from [<c0248380>](kmalloc_order_trace+0x24/0x108)
-c3 [<c024835c>] (kmalloc_order_trace) from [<c01e6078>](set_tracer_flag+0xb0/0x158)
-c3 [<c01e5fc8>] (set_tracer_flag) from [<c01e6404>](trace_options_core_write+0x7c/0xcc)
-c3 [<c01e6388>] (trace_options_core_write) from [<c0278b1c>](__vfs_write+0x40/0x14c)
-c3 [<c0278adc>] (__vfs_write) from [<c0278e10>](vfs_write+0xc4/0x198)
-c3 [<c0278d4c>] (vfs_write) from [<c027906c>](SyS_write+0x6c/0xd0)
-c3 [<c0279000>] (SyS_write) from [<c01079a0>](ret_fast_syscall+0x0/0x54)
-
-Switch to use kvcalloc to avoid unexpected allocation failures.
-
-Link: http://lkml.kernel.org/r/1571888070-24425-1-git-send-email-chunyan.zhang@unisoc.com
-
-Signed-off-by: Yuming Han <yuming.han@unisoc.com>
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: c4d48cf5e2f0 ("MIPS: ralink: deactivate PCI support for SOC_MT7621")
+Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: ralf@linux-mips.org
+Cc: jhogan@kernel.org
+Cc: john@phrozen.org
+Cc: NeilBrown <neil@brown.name>
+Cc: linux-mips@vger.kernel.org
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20191019081233.7337-1-sergio.paracuellos@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/ralink/Kconfig           | 1 +
+ drivers/staging/mt7621-pci/Kconfig | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 6a0ee91783656..2fa72419bbd79 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -4609,7 +4609,7 @@ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
+diff --git a/arch/mips/ralink/Kconfig b/arch/mips/ralink/Kconfig
+index 1434fa60f3db1..94e9ce9944944 100644
+--- a/arch/mips/ralink/Kconfig
++++ b/arch/mips/ralink/Kconfig
+@@ -51,6 +51,7 @@ choice
+ 		select MIPS_GIC
+ 		select COMMON_CLK
+ 		select CLKSRC_MIPS_GIC
++		select HAVE_PCI if PCI_MT7621
+ endchoice
  
- 	if (mask == TRACE_ITER_RECORD_TGID) {
- 		if (!tgid_map)
--			tgid_map = kcalloc(PID_MAX_DEFAULT + 1,
-+			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
- 					   sizeof(*tgid_map),
- 					   GFP_KERNEL);
- 		if (!tgid_map) {
+ choice
+diff --git a/drivers/staging/mt7621-pci/Kconfig b/drivers/staging/mt7621-pci/Kconfig
+index af928b75a9403..ce58042f2f211 100644
+--- a/drivers/staging/mt7621-pci/Kconfig
++++ b/drivers/staging/mt7621-pci/Kconfig
+@@ -2,7 +2,6 @@
+ config PCI_MT7621
+ 	tristate "MediaTek MT7621 PCI Controller"
+ 	depends on RALINK
+-	depends on PCI
+ 	select PCI_DRIVERS_GENERIC
+ 	help
+ 	  This selects a driver for the MediaTek MT7621 PCI Controller.
 -- 
 2.20.1
 
