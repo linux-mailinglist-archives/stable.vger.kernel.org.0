@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C24D211944F
+	by mail.lfdr.de (Postfix) with ESMTP id 52DF611944E
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729430AbfLJVNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:13:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40526 "EHLO mail.kernel.org"
+        id S1729440AbfLJVNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:13:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729423AbfLJVNp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:45 -0500
+        id S1729432AbfLJVNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:13:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F209214D8;
-        Tue, 10 Dec 2019 21:13:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 880B8214AF;
+        Tue, 10 Dec 2019 21:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012425;
-        bh=E7+lbFqFUYF8+yzcyNj2J5LN1HbMM0cafsvQ6ohnLvU=;
+        s=default; t=1576012426;
+        bh=m0ZVFx74lL3sNP67KLXPEw059uoX/SbE893gU5EVbEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abMuJ8j5G0/xOf8M70DbY+x+25ZyGcZjHW5wFoBJAGk7cyNNkgcjiDw60vLw/26v0
-         DUy/SngWjuyhBKT85c7cTJfxr+uFkh3FHyVEGkZgBMsElbnkHfWyd9UIuIAav2QjeV
-         hhcQ8ZuHvRQ5Cw87o0jejQeZ1PGiSOKCnzbzugOQ=
+        b=1763J2gupb5iQBYxYJoFbTSdg82uncBg2pIeio4QyfavLoKlIfy8YQcGUDLmwGaYO
+         BKCBDlHd5Z0/5taLC3FuTJ539dr3BrH1TcW/KG9G1N21MxWIhOOOQp9ZDLHlAeqwaY
+         pK7BLvtLchjjESGV4cvX4e/2qKn/eEo0NC0bPOQs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brett Creeley <brett.creeley@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 339/350] ice: Fix setting coalesce to handle DCB configuration
-Date:   Tue, 10 Dec 2019 16:07:24 -0500
-Message-Id: <20191210210735.9077-300-sashal@kernel.org>
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 340/350] perf intel-bts: Does not support AUX area sampling
+Date:   Tue, 10 Dec 2019 16:07:25 -0500
+Message-Id: <20191210210735.9077-301-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -45,49 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit e25f9152bc07de534b2b590ce6c052ea25dd8900 ]
+[ Upstream commit 32a1ece4bdbde24734ab16484bad7316f03fc42d ]
 
-Currently there can be a case where a DCB map is applied and there are
-more interrupt vectors (vsi->num_q_vectors) than Rx queues (vsi->num_rxq)
-and Tx queues (vsi->num_txq). If we try to set coalesce settings in this
-case it will report a false failure. Fix this by checking if vector index
-is valid with respect to the number of Tx and Rx queues configured.
+Add an error message because Intel BTS does not support AUX area
+sampling.
 
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Link: http://lore.kernel.org/lkml/20191115124225.5247-16-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ tools/perf/arch/x86/util/auxtrace.c  | 2 ++
+ tools/perf/arch/x86/util/intel-bts.c | 5 +++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 7e23034df955c..1fe9f6050635d 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -3368,10 +3368,17 @@ __ice_set_coalesce(struct net_device *netdev, struct ethtool_coalesce *ec,
- 	struct ice_vsi *vsi = np->vsi;
+diff --git a/tools/perf/arch/x86/util/auxtrace.c b/tools/perf/arch/x86/util/auxtrace.c
+index 96f4a2c118937..61042114a5cc8 100644
+--- a/tools/perf/arch/x86/util/auxtrace.c
++++ b/tools/perf/arch/x86/util/auxtrace.c
+@@ -27,6 +27,8 @@ struct auxtrace_record *auxtrace_record__init_intel(struct evlist *evlist,
  
- 	if (q_num < 0) {
--		int i;
-+		int v_idx;
+ 	intel_pt_pmu = perf_pmu__find(INTEL_PT_PMU_NAME);
+ 	intel_bts_pmu = perf_pmu__find(INTEL_BTS_PMU_NAME);
++	if (intel_bts_pmu)
++		intel_bts_pmu->auxtrace = true;
+ 
+ 	evlist__for_each_entry(evlist, evsel) {
+ 		if (intel_pt_pmu && evsel->core.attr.type == intel_pt_pmu->type)
+diff --git a/tools/perf/arch/x86/util/intel-bts.c b/tools/perf/arch/x86/util/intel-bts.c
+index f7f68a50a5cd5..27d9e214d0680 100644
+--- a/tools/perf/arch/x86/util/intel-bts.c
++++ b/tools/perf/arch/x86/util/intel-bts.c
+@@ -113,6 +113,11 @@ static int intel_bts_recording_options(struct auxtrace_record *itr,
+ 	const struct perf_cpu_map *cpus = evlist->core.cpus;
+ 	bool privileged = perf_event_paranoid_check(-1);
+ 
++	if (opts->auxtrace_sample_mode) {
++		pr_err("Intel BTS does not support AUX area sampling\n");
++		return -EINVAL;
++	}
 +
-+		ice_for_each_q_vector(vsi, v_idx) {
-+			/* In some cases if DCB is configured the num_[rx|tx]q
-+			 * can be less than vsi->num_q_vectors. This check
-+			 * accounts for that so we don't report a false failure
-+			 */
-+			if (v_idx >= vsi->num_rxq && v_idx >= vsi->num_txq)
-+				goto set_complete;
+ 	btsr->evlist = evlist;
+ 	btsr->snapshot_mode = opts->auxtrace_snapshot_mode;
  
--		ice_for_each_q_vector(vsi, i) {
--			if (ice_set_q_coalesce(vsi, ec, i))
-+			if (ice_set_q_coalesce(vsi, ec, v_idx))
- 				return -EINVAL;
- 		}
- 		goto set_complete;
 -- 
 2.20.1
 
