@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D733111975A
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:33:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C93F1199A2
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:47:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728489AbfLJVc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:32:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35930 "EHLO mail.kernel.org"
+        id S1728522AbfLJVr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:47:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728484AbfLJVcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:32:25 -0500
+        id S1727229AbfLJVc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:32:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F16F2073B;
-        Tue, 10 Dec 2019 21:32:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92E1D208C3;
+        Tue, 10 Dec 2019 21:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013545;
-        bh=kk3/+6go7qsIY4UkBEPYHWNWVbXKrCIUUdRKgsr68gE=;
+        s=default; t=1576013546;
+        bh=OQq0SJnACQQXPv+cvqUsF6hu4trKUwzYmaEDPEwK4JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpgpHsWHXOHdKXLbZklQ/tfMhQzM1g1Piufgi3f9ppNxT9J7CKqzWttw377lR7OeX
-         UAyVMAlnsZWcumRtKy0stdaWBQXVTjWacXpE2ABfd6rLJbcaNA6vKqFLMXZq8Nv22T
-         GHiHLzTNo7FL/OPiqFbaku2tJyAra8oouIXdnBzM=
+        b=WK9VnRSgxwlLiVclryR5ow1+Qj+w8+Xf7SD8Tk0l0wljfQ0N1GDWq4EWpjUncVyMv
+         PP29TEKwugiBdvkX8rGe8oIuv25FRpDvzPZbGoVd30sdWvG/oCVakVBMOE6KrP0DOC
+         gWALswCxU8u3psksGtMw5s9v8ACOACsr7DAHXS/w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+Cc:     Brian Masney <masneyb@onstation.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 002/177] drm/panel: Add missing drm_panel_init() in panel drivers
-Date:   Tue, 10 Dec 2019 16:29:26 -0500
-Message-Id: <20191210213221.11921-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 003/177] drm/bridge: analogix-anx78xx: silence -EPROBE_DEFER warnings
+Date:   Tue, 10 Dec 2019 16:29:27 -0500
+Message-Id: <20191210213221.11921-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -44,46 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Brian Masney <masneyb@onstation.org>
 
-[ Upstream commit 65abbda8ed7ca48c8807d6b04a77431b438fa659 ]
+[ Upstream commit 2708e876272d89bbbff811d12834adbeef85f022 ]
 
-Panels must be initialised with drm_panel_init(). Add the missing
-function call in the panel-raspberrypi-touchscreen.c and
-panel-sitronix-st7789v.c drivers.
+Silence two warning messages that occur due to -EPROBE_DEFER errors to
+help cleanup the system boot log.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190823193245.23876-2-laurent.pinchart@ideasonboard.com
+Signed-off-by: Brian Masney <masneyb@onstation.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190815004854.19860-4-masneyb@onstation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 1 +
- drivers/gpu/drm/panel/panel-sitronix-st7789v.c        | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/gpu/drm/bridge/analogix-anx78xx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-index 9a2cb8aeab3a4..aab6a70ece7f0 100644
---- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-+++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-@@ -427,6 +427,7 @@ static int rpi_touchscreen_probe(struct i2c_client *i2c,
- 		return PTR_ERR(ts->dsi);
+diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+index f8433c93f4634..cc820e9aea1db 100644
+--- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
++++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+@@ -725,7 +725,9 @@ static int anx78xx_init_pdata(struct anx78xx *anx78xx)
+ 	/* 1.0V digital core power regulator  */
+ 	pdata->dvdd10 = devm_regulator_get(dev, "dvdd10");
+ 	if (IS_ERR(pdata->dvdd10)) {
+-		DRM_ERROR("DVDD10 regulator not found\n");
++		if (PTR_ERR(pdata->dvdd10) != -EPROBE_DEFER)
++			DRM_ERROR("DVDD10 regulator not found\n");
++
+ 		return PTR_ERR(pdata->dvdd10);
  	}
  
-+	drm_panel_init(&ts->base);
- 	ts->base.dev = dev;
- 	ts->base.funcs = &rpi_touchscreen_funcs;
+@@ -1341,7 +1343,9 @@ static int anx78xx_i2c_probe(struct i2c_client *client,
  
-diff --git a/drivers/gpu/drm/panel/panel-sitronix-st7789v.c b/drivers/gpu/drm/panel/panel-sitronix-st7789v.c
-index 74284e5afc5d9..89fa17877b336 100644
---- a/drivers/gpu/drm/panel/panel-sitronix-st7789v.c
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7789v.c
-@@ -380,6 +380,7 @@ static int st7789v_probe(struct spi_device *spi)
- 	spi_set_drvdata(spi, ctx);
- 	ctx->spi = spi;
- 
-+	drm_panel_init(&ctx->panel);
- 	ctx->panel.dev = &spi->dev;
- 	ctx->panel.funcs = &st7789v_drm_funcs;
+ 	err = anx78xx_init_pdata(anx78xx);
+ 	if (err) {
+-		DRM_ERROR("Failed to initialize pdata: %d\n", err);
++		if (err != -EPROBE_DEFER)
++			DRM_ERROR("Failed to initialize pdata: %d\n", err);
++
+ 		return err;
+ 	}
  
 -- 
 2.20.1
