@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A05119D7B
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:38:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A16119CD9
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728584AbfLJWiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:38:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
+        id S1726826AbfLJWdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:33:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729892AbfLJWdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:33:38 -0500
+        id S1729911AbfLJWdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:33:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E808207FF;
-        Tue, 10 Dec 2019 22:33:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 954C520828;
+        Tue, 10 Dec 2019 22:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017218;
-        bh=6OwSiFHVFBJ2hQEfQteFIY5JAWa7jJXo4H35uupQ+BQ=;
+        s=default; t=1576017219;
+        bh=/ionkiJBoIZVekyJOvcY7uYabENd7yYeZVVoTNntnLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=peVMYjSRGFBI5hM/2GLuaa3BbmgZhltD2754hZqytl+SV1E3GcT8qfaXW0zRYRV87
-         IfveN66gwHDf7w3jMJ7mqf+yvIRF8zaaIGXsJQBWEjhQVeZ7EHXo8ocIJ7DB1LZZJZ
-         aLZ7E2TnQqDyDnmHzfXgM93VKGFU7zmZANncP7mY=
+        b=z+u6qyD3YjwwhTtPJnVVuQlYfpLmAUDLxtiKVdWUQyG9vv6HHxory1KCcFdrfenh1
+         CeAY7O378YF8uhVF5x0WHFwLKgfVO1norvvtg8caT/1dDHZfh7JsS2BEx1UpAtmA/V
+         0WZXKWVNjuCMu2H17+kekA8HD3FaMbYdhoMcSppo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 18/71] iio: proximity: sx9500: fix iio_triggered_buffer_{predisable,postenable} positions
-Date:   Tue, 10 Dec 2019 17:32:23 -0500
-Message-Id: <20191210223316.14988-18-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Ganapathi Bhat <gbhat@marvell.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 19/71] mwifiex: pcie: Fix memory leak in mwifiex_pcie_init_evt_ring
+Date:   Tue, 10 Dec 2019 17:32:24 -0500
+Message-Id: <20191210223316.14988-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -43,82 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 3cfd6464fe23deb45bb688df66184b3f32fefc16 ]
+[ Upstream commit d10dcb615c8e29d403a24d35f8310a7a53e3050c ]
 
-The iio_triggered_buffer_predisable() should be called last, to detach the
-poll func after the devices has been suspended.
+In mwifiex_pcie_init_evt_ring, a new skb is allocated which should be
+released if mwifiex_map_pci_memory() fails. The release for skb and
+card->evtbd_ring_vbase is added.
 
-This change re-organizes things a bit so that the postenable & predisable
-are symmetrical. It also converts the preenable() to a postenable().
-
-Not stable material as there is no known problem with the current
-code, it's just not consistent with the form we would like all the
-IIO drivers to adopt so as to allow subsystem wide changes.
-
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 0732484b47b5 ("mwifiex: separate ring initialization and ring creation routines")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Acked-by: Ganapathi Bhat <gbhat@marvell.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/proximity/sx9500.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/net/wireless/mwifiex/pcie.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/proximity/sx9500.c b/drivers/iio/proximity/sx9500.c
-index 66cd09a18786a..f7cfb4f0dbc86 100644
---- a/drivers/iio/proximity/sx9500.c
-+++ b/drivers/iio/proximity/sx9500.c
-@@ -679,11 +679,15 @@ static irqreturn_t sx9500_trigger_handler(int irq, void *private)
- 	return IRQ_HANDLED;
- }
+diff --git a/drivers/net/wireless/mwifiex/pcie.c b/drivers/net/wireless/mwifiex/pcie.c
+index 268e50ba88a51..4c0a656928996 100644
+--- a/drivers/net/wireless/mwifiex/pcie.c
++++ b/drivers/net/wireless/mwifiex/pcie.c
+@@ -577,8 +577,11 @@ static int mwifiex_pcie_init_evt_ring(struct mwifiex_adapter *adapter)
+ 		skb_put(skb, MAX_EVENT_SIZE);
  
--static int sx9500_buffer_preenable(struct iio_dev *indio_dev)
-+static int sx9500_buffer_postenable(struct iio_dev *indio_dev)
- {
- 	struct sx9500_data *data = iio_priv(indio_dev);
- 	int ret = 0, i;
+ 		if (mwifiex_map_pci_memory(adapter, skb, MAX_EVENT_SIZE,
+-					   PCI_DMA_FROMDEVICE))
++					   PCI_DMA_FROMDEVICE)) {
++			kfree_skb(skb);
++			kfree(card->evtbd_ring_vbase);
+ 			return -1;
++		}
  
-+	ret = iio_triggered_buffer_postenable(indio_dev);
-+	if (ret)
-+		return ret;
-+
- 	mutex_lock(&data->mutex);
- 
- 	for (i = 0; i < SX9500_NUM_CHANNELS; i++)
-@@ -700,6 +704,9 @@ static int sx9500_buffer_preenable(struct iio_dev *indio_dev)
- 
- 	mutex_unlock(&data->mutex);
- 
-+	if (ret)
-+		iio_triggered_buffer_predisable(indio_dev);
-+
- 	return ret;
- }
- 
-@@ -708,8 +715,6 @@ static int sx9500_buffer_predisable(struct iio_dev *indio_dev)
- 	struct sx9500_data *data = iio_priv(indio_dev);
- 	int ret = 0, i;
- 
--	iio_triggered_buffer_predisable(indio_dev);
--
- 	mutex_lock(&data->mutex);
- 
- 	for (i = 0; i < SX9500_NUM_CHANNELS; i++)
-@@ -726,12 +731,13 @@ static int sx9500_buffer_predisable(struct iio_dev *indio_dev)
- 
- 	mutex_unlock(&data->mutex);
- 
-+	iio_triggered_buffer_predisable(indio_dev);
-+
- 	return ret;
- }
- 
- static const struct iio_buffer_setup_ops sx9500_buffer_setup_ops = {
--	.preenable = sx9500_buffer_preenable,
--	.postenable = iio_triggered_buffer_postenable,
-+	.postenable = sx9500_buffer_postenable,
- 	.predisable = sx9500_buffer_predisable,
- };
+ 		buf_pa = MWIFIEX_SKB_DMA_ADDR(skb);
  
 -- 
 2.20.1
