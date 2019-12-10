@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A79119D9C
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5048F119D91
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:39:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728659AbfLJWjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:39:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54330 "EHLO mail.kernel.org"
+        id S1729815AbfLJWdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:33:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729776AbfLJWd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:33:29 -0500
+        id S1729083AbfLJWdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:33:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F8DE20828;
-        Tue, 10 Dec 2019 22:33:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 554E821556;
+        Tue, 10 Dec 2019 22:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017208;
-        bh=XxvBREQPuGGdyhqoXoacx7lXj4cVXXd21T7m0AxWGng=;
+        s=default; t=1576017210;
+        bh=iXrNNQ+iLcuxDivbefHTA17DGz9vPsw1x9aknKSRrxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x0jgYTTdCxruMJfPSv6S5xh4TbHLRcWAaVQSKysGcu2wCZ2tZ/kcqZ3R6c/NQkdaC
-         yN/4xFb2DCy96TS8R9v10zXPsL7NnQSMt/OAznXmMDN03k5gKkpBqPaF8Se5iO90fR
-         lOWKjVVtTLB5oo+TbTTbnOcAb28xnvqGAVuoO13I=
+        b=eaoDdMB3QoahxGAp0KiSYUBUFdQtEkzipnV8nrs7BZgk0g7vIzijAbnSrUaTGhvIp
+         /nUKgXMG/s5xlyN8KCTZCzKuLWIUoh1TIUPz2eWppw+xSo8yIwlZ5m3I8QL5Yh/nKA
+         vny17QR5FormFNF/Vv7a9jEj5YXCik7+Uv9vrwOk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benoit Parrot <bparrot@ti.com>,
+Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 10/71] media: i2c: ov2659: Fix missing 720p register config
-Date:   Tue, 10 Dec 2019 17:32:15 -0500
-Message-Id: <20191210223316.14988-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 11/71] media: ov6650: Fix stored frame format not in sync with hardware
+Date:   Tue, 10 Dec 2019 17:32:16 -0500
+Message-Id: <20191210223316.14988-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -44,45 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-[ Upstream commit 9d669fbfca20e6035ead814e55d9ef1a6b500540 ]
+[ Upstream commit 3143b459de4cdcce67b36827476c966e93c1cf01 ]
 
-The initial registers sequence is only loaded at probe
-time. Afterward only the resolution and format specific
-register are modified. Care must be taken to make sure
-registers modified by one resolution setting are reverted
-back when another resolution is programmed.
+The driver stores frame format settings supposed to be in line with
+hardware state in a device private structure.  Since the driver initial
+submission, those settings are updated before they are actually applied
+on hardware.  If an error occurs on device update, the stored settings
+my not reflect hardware state anymore and consecutive calls to
+.get_fmt() may return incorrect information.  That in turn may affect
+ability of a bridge device to use correct DMA transfer settings if such
+incorrect informmation on active frame format returned by .get_fmt() is
+used.
 
-This was not done properly for the 720p case.
+Assuming a failed device update means its state hasn't changed, update
+frame format related settings stored in the device private structure
+only after they are successfully applied so the stored values always
+reflect hardware state as closely as possible.
 
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov2659.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/i2c/soc_camera/ov6650.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
-index 4f43e8c43950e..6eefb8bbb5b54 100644
---- a/drivers/media/i2c/ov2659.c
-+++ b/drivers/media/i2c/ov2659.c
-@@ -419,10 +419,14 @@ static struct sensor_register ov2659_720p[] = {
- 	{ REG_TIMING_YINC, 0x11 },
- 	{ REG_TIMING_VERT_FORMAT, 0x80 },
- 	{ REG_TIMING_HORIZ_FORMAT, 0x00 },
-+	{ 0x370a, 0x12 },
- 	{ 0x3a03, 0xe8 },
- 	{ 0x3a09, 0x6f },
- 	{ 0x3a0b, 0x5d },
- 	{ 0x3a15, 0x9a },
-+	{ REG_VFIFO_READ_START_H, 0x00 },
-+	{ REG_VFIFO_READ_START_L, 0x80 },
-+	{ REG_ISP_CTRL02, 0x00 },
- 	{ REG_NULL, 0x00 },
- };
+diff --git a/drivers/media/i2c/soc_camera/ov6650.c b/drivers/media/i2c/soc_camera/ov6650.c
+index 4e19f5e5d8cf7..bb55ddfbf7337 100644
+--- a/drivers/media/i2c/soc_camera/ov6650.c
++++ b/drivers/media/i2c/soc_camera/ov6650.c
+@@ -611,7 +611,6 @@ static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
+ 		dev_err(&client->dev, "Pixel format not handled: 0x%x\n", code);
+ 		return -EINVAL;
+ 	}
+-	priv->code = code;
  
+ 	if (code == MEDIA_BUS_FMT_Y8_1X8 ||
+ 			code == MEDIA_BUS_FMT_SBGGR8_1X8) {
+@@ -637,7 +636,6 @@ static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
+ 		dev_dbg(&client->dev, "max resolution: CIF\n");
+ 		coma_mask |= COMA_QCIF;
+ 	}
+-	priv->half_scale = half_scale;
+ 
+ 	if (sense) {
+ 		if (sense->master_clock == 8000000) {
+@@ -677,8 +675,13 @@ static int ov6650_s_fmt(struct v4l2_subdev *sd, struct v4l2_mbus_framefmt *mf)
+ 		ret = ov6650_reg_rmw(client, REG_COMA, coma_set, coma_mask);
+ 	if (!ret)
+ 		ret = ov6650_reg_write(client, REG_CLKRC, clkrc);
+-	if (!ret)
++	if (!ret) {
++		priv->half_scale = half_scale;
++
+ 		ret = ov6650_reg_rmw(client, REG_COML, coml_set, coml_mask);
++	}
++	if (!ret)
++		priv->code = code;
+ 
+ 	if (!ret) {
+ 		mf->colorspace	= priv->colorspace;
 -- 
 2.20.1
 
