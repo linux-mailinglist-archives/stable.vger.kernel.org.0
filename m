@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97D07119597
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D44119594
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:21:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726685AbfLJVVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:21:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34704 "EHLO mail.kernel.org"
+        id S1728819AbfLJVLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:11:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728806AbfLJVLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:11:41 -0500
+        id S1726362AbfLJVLm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:11:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E065A24697;
-        Tue, 10 Dec 2019 21:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8EB0246C1;
+        Tue, 10 Dec 2019 21:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012300;
-        bh=UgTjlc2QNNj2DJv7LAYQwFyJq4Ea+Eu9pXIlImpn1AU=;
+        s=default; t=1576012301;
+        bh=E0qgeFxZxqKUFnBfvaw7RnzgxM0tS1Pc/6AZP0kcofA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtO/imSFlzEA9o+w+Zg2MZtaOdUhFAJLD834gOKmg3Oa93KBg8/Kva+MPJ5ff5lsa
-         5mLLBcKCGZwAJWdJCAr5VLeNNuNZY8CoEXiPRGhoQs/Sa/685XoNF9id+5vzBaRm3H
-         Isu5m6DD9tL64sRY1HxgGGSdpbMbiQ8xIrKtW+tc=
+        b=FhxmxZxj74O8WZKccgyrJh0lXlNqgEn1eaRu+FbMrw07VgrEVw2S3bWNtqWMN5VpL
+         BlRptmnyTD6vtCYIwVe+d2mQvURLccHlPH6a71UeTlVJJ/k+6O8yK2DXFqMukApoFg
+         I/xMUZTPbM0KMZ2ANho66Gz/Ego1GCcjEkNPnDSE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 237/350] net: avoid potential false sharing in neighbor related code
-Date:   Tue, 10 Dec 2019 16:05:42 -0500
-Message-Id: <20191210210735.9077-198-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Tom Zanussi <tom.zanussi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 238/350] perf probe: Return a better scope DIE if there is no best scope
+Date:   Tue, 10 Dec 2019 16:05:43 -0500
+Message-Id: <20191210210735.9077-199-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -43,99 +47,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 25c7a6d1f90e208ec27ca854b1381ed39842ec57 ]
+[ Upstream commit c701636aeec4c173208697d68da6e4271125564b ]
 
-There are common instances of the following construct :
+Make find_best_scope() returns innermost DIE at given address if there
+is no best matched scope DIE. Since Gcc sometimes generates intuitively
+strange line info which is out of inlined function address range, we
+need this fixup.
 
-	if (n->confirmed != now)
-		n->confirmed = now;
+Without this, sometimes perf probe failed to probe on a line inside an
+inlined function:
 
-A C compiler could legally remove the conditional.
+  # perf probe -D ksys_open:3
+  Failed to find scope of probe point.
+    Error: Failed to add events.
 
-Use READ_ONCE()/WRITE_ONCE() to avoid this problem.
+With this fix, 'perf probe' can probe it:
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  # perf probe -D ksys_open:3
+  p:probe/ksys_open _text+25707308
+  p:probe/ksys_open_1 _text+25710596
+  p:probe/ksys_open_2 _text+25711114
+  p:probe/ksys_open_3 _text+25711343
+  p:probe/ksys_open_4 _text+25714058
+  p:probe/ksys_open_5 _text+2819653
+  p:probe/ksys_open_6 _text+2819701
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tom Zanussi <tom.zanussi@linux.intel.com>
+Link: http://lore.kernel.org/lkml/157291300887.19771.14936015360963292236.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/arp.h   |  4 ++--
- include/net/ndisc.h |  8 ++++----
- include/net/sock.h  | 12 ++++++------
- 3 files changed, 12 insertions(+), 12 deletions(-)
+ tools/perf/util/probe-finder.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/arp.h b/include/net/arp.h
-index c8f580a0e6b1f..4950191f6b2bf 100644
---- a/include/net/arp.h
-+++ b/include/net/arp.h
-@@ -57,8 +57,8 @@ static inline void __ipv4_confirm_neigh(struct net_device *dev, u32 key)
- 		unsigned long now = jiffies;
- 
- 		/* avoid dirtying neighbour */
--		if (n->confirmed != now)
--			n->confirmed = now;
-+		if (READ_ONCE(n->confirmed) != now)
-+			WRITE_ONCE(n->confirmed, now);
- 	}
- 	rcu_read_unlock_bh();
+diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
+index e4ef8f4935b2a..08cccd86447c5 100644
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -756,6 +756,16 @@ static int find_best_scope_cb(Dwarf_Die *fn_die, void *data)
+ 	return 0;
  }
-diff --git a/include/net/ndisc.h b/include/net/ndisc.h
-index b2f715ca05672..b5ebeb3b0de0e 100644
---- a/include/net/ndisc.h
-+++ b/include/net/ndisc.h
-@@ -414,8 +414,8 @@ static inline void __ipv6_confirm_neigh(struct net_device *dev,
- 		unsigned long now = jiffies;
  
- 		/* avoid dirtying neighbour */
--		if (n->confirmed != now)
--			n->confirmed = now;
-+		if (READ_ONCE(n->confirmed) != now)
-+			WRITE_ONCE(n->confirmed, now);
- 	}
- 	rcu_read_unlock_bh();
- }
-@@ -431,8 +431,8 @@ static inline void __ipv6_confirm_neigh_stub(struct net_device *dev,
- 		unsigned long now = jiffies;
- 
- 		/* avoid dirtying neighbour */
--		if (n->confirmed != now)
--			n->confirmed = now;
-+		if (READ_ONCE(n->confirmed) != now)
-+			WRITE_ONCE(n->confirmed, now);
- 	}
- 	rcu_read_unlock_bh();
- }
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 718e62fbe869d..013396e50b91f 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1940,8 +1940,8 @@ struct dst_entry *sk_dst_check(struct sock *sk, u32 cookie);
- 
- static inline void sk_dst_confirm(struct sock *sk)
++/* Return innermost DIE */
++static int find_inner_scope_cb(Dwarf_Die *fn_die, void *data)
++{
++	struct find_scope_param *fsp = data;
++
++	memcpy(fsp->die_mem, fn_die, sizeof(Dwarf_Die));
++	fsp->found = true;
++	return 1;
++}
++
+ /* Find an appropriate scope fits to given conditions */
+ static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
  {
--	if (!sk->sk_dst_pending_confirm)
--		sk->sk_dst_pending_confirm = 1;
-+	if (!READ_ONCE(sk->sk_dst_pending_confirm))
-+		WRITE_ONCE(sk->sk_dst_pending_confirm, 1);
+@@ -767,8 +777,13 @@ static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
+ 		.die_mem = die_mem,
+ 		.found = false,
+ 	};
++	int ret;
+ 
+-	cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb, &fsp);
++	ret = cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb,
++				   &fsp);
++	if (!ret && !fsp.found)
++		cu_walk_functions_at(&pf->cu_die, pf->addr,
++				     find_inner_scope_cb, &fsp);
+ 
+ 	return fsp.found ? die_mem : NULL;
  }
- 
- static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)
-@@ -1951,10 +1951,10 @@ static inline void sock_confirm_neigh(struct sk_buff *skb, struct neighbour *n)
- 		unsigned long now = jiffies;
- 
- 		/* avoid dirtying neighbour */
--		if (n->confirmed != now)
--			n->confirmed = now;
--		if (sk && sk->sk_dst_pending_confirm)
--			sk->sk_dst_pending_confirm = 0;
-+		if (READ_ONCE(n->confirmed) != now)
-+			WRITE_ONCE(n->confirmed, now);
-+		if (sk && READ_ONCE(sk->sk_dst_pending_confirm))
-+			WRITE_ONCE(sk->sk_dst_pending_confirm, 0);
- 	}
- }
- 
 -- 
 2.20.1
 
