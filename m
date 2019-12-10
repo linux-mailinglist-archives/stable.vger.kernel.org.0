@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0297119A32
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B0C1199CA
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728497AbfLJVuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:50:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
+        id S1727842AbfLJVIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:08:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727383AbfLJVIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:21 -0500
+        id S1727113AbfLJVIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10DD924684;
-        Tue, 10 Dec 2019 21:08:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67CFF24697;
+        Tue, 10 Dec 2019 21:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012101;
-        bh=LboDk7qejJ73KZ6hyiJlV7BfnObNJdQAPw/MXwz8OqU=;
+        s=default; t=1576012102;
+        bh=5RDcdL9nP4ljtIUpcSkmNi+8pSen4AGvp7wTQ7l28bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaWeVrEPfCDzyirTxetvoyMnjZIXFfEJgVG2AJp73hn69SwHKeA83SMgIaOLhxPqt
-         OstZfYQvmjcmZBLfazufT1/QpGP8K/RiQU87A87fMWOFjKiu2SSGRAYQClbri3Vql/
-         neA5G6HKpE9UwnNzC4Dt4ZJKCvh9FpB2x0UHkrvg=
+        b=L9Mnw09RG5K2zAwYTuUund79gwKyOgr/oToDiBmptS+3Fu2djfutIISLyiffs3++D
+         n+EMFiBkwI1PdFzgVOacbxLjdjW/Tjx/zntZV2FsFZUwvXJFhl4Bi00j89bdAjqx02
+         jhPNB/kgsCJfOxr0KcKoVgoG0f1f+go7Pzruu2qM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Burton <paul.burton@mips.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.4 076/350] staging/octeon: Use stubs for MIPS && !CAVIUM_OCTEON_SOC
-Date:   Tue, 10 Dec 2019 16:03:01 -0500
-Message-Id: <20191210210735.9077-37-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Ganapathi Bhat <gbhat@marvell.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 077/350] mwifiex: pcie: Fix memory leak in mwifiex_pcie_init_evt_ring
+Date:   Tue, 10 Dec 2019 16:03:02 -0500
+Message-Id: <20191210210735.9077-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -46,73 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paul.burton@mips.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 17a29fea086ba18b000d28439bd5cb4f2b0a527b ]
+[ Upstream commit d10dcb615c8e29d403a24d35f8310a7a53e3050c ]
 
-When building for a non-Cavium MIPS system with COMPILE_TEST=y, the
-Octeon ethernet driver hits a number of issues due to use of macros
-provided only for CONFIG_CAVIUM_OCTEON_SOC=y configurations. For
-example:
+In mwifiex_pcie_init_evt_ring, a new skb is allocated which should be
+released if mwifiex_map_pci_memory() fails. The release for skb and
+card->evtbd_ring_vbase is added.
 
-  drivers/staging/octeon/ethernet-rx.c:190:6: error:
-    'CONFIG_CAVIUM_OCTEON_CVMSEG_SIZE' undeclared (first use in this function)
-  drivers/staging/octeon/ethernet-rx.c:472:25: error:
-    'OCTEON_IRQ_WORKQ0' undeclared (first use in this function)
-
-These come from various asm/ headers that a non-Octeon build will be
-using a non-Octeon version of.
-
-Fix this by using the octeon-stubs.h header for non-Cavium MIPS builds,
-and only using the real asm/octeon/ headers when building a Cavium
-Octeon kernel configuration.
-
-This requires that octeon-stubs.h doesn't redefine XKPHYS_TO_PHYS, which
-is defined for MIPS by asm/addrspace.h which is pulled in by many other
-common asm/ headers.
-
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-URL: https://lore.kernel.org/linux-mips/CAMuHMdXvu+BppwzsU9imNWVKea_hoLcRt9N+a29Q-QsjW=ip2g@mail.gmail.com/
-Fixes: 171a9bae68c7 ("staging/octeon: Allow test build on !MIPS")
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: David S. Miller <davem@davemloft.net>
-
-Link: https://lore.kernel.org/r/20191007231741.2012860-1-paul.burton@mips.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0732484b47b5 ("mwifiex: separate ring initialization and ring creation routines")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Acked-by: Ganapathi Bhat <gbhat@marvell.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/octeon/octeon-ethernet.h | 2 +-
- drivers/staging/octeon/octeon-stubs.h    | 5 ++++-
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/pcie.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/octeon/octeon-ethernet.h b/drivers/staging/octeon/octeon-ethernet.h
-index a8a864b409135..042220d86d33d 100644
---- a/drivers/staging/octeon/octeon-ethernet.h
-+++ b/drivers/staging/octeon/octeon-ethernet.h
-@@ -14,7 +14,7 @@
- #include <linux/of.h>
- #include <linux/phy.h>
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index eff06d59e9dfc..096334e941a1a 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -687,8 +687,11 @@ static int mwifiex_pcie_init_evt_ring(struct mwifiex_adapter *adapter)
+ 		skb_put(skb, MAX_EVENT_SIZE);
  
--#ifdef CONFIG_MIPS
-+#ifdef CONFIG_CAVIUM_OCTEON_SOC
+ 		if (mwifiex_map_pci_memory(adapter, skb, MAX_EVENT_SIZE,
+-					   PCI_DMA_FROMDEVICE))
++					   PCI_DMA_FROMDEVICE)) {
++			kfree_skb(skb);
++			kfree(card->evtbd_ring_vbase);
+ 			return -1;
++		}
  
- #include <asm/octeon/octeon.h>
+ 		buf_pa = MWIFIEX_SKB_DMA_ADDR(skb);
  
-diff --git a/drivers/staging/octeon/octeon-stubs.h b/drivers/staging/octeon/octeon-stubs.h
-index b78ce9eaab85d..ae014265064af 100644
---- a/drivers/staging/octeon/octeon-stubs.h
-+++ b/drivers/staging/octeon/octeon-stubs.h
-@@ -1,5 +1,8 @@
- #define CONFIG_CAVIUM_OCTEON_CVMSEG_SIZE	512
--#define XKPHYS_TO_PHYS(p)			(p)
-+
-+#ifndef XKPHYS_TO_PHYS
-+# define XKPHYS_TO_PHYS(p)			(p)
-+#endif
- 
- #define OCTEON_IRQ_WORKQ0 0
- #define OCTEON_IRQ_RML 0
 -- 
 2.20.1
 
