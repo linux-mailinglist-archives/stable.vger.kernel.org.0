@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B6F119C28
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F84119C0A
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbfLJWNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:13:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33486 "EHLO mail.kernel.org"
+        id S1727695AbfLJWDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:03:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727631AbfLJWDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:03:24 -0500
+        id S1727666AbfLJWDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:03:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE84720828;
-        Tue, 10 Dec 2019 22:03:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7DF320637;
+        Tue, 10 Dec 2019 22:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015403;
-        bh=llBBnJ3P3pa6zL/Mt18ioHegHYSz5Sae7jjVQ7Lw7aI=;
+        s=default; t=1576015404;
+        bh=7Dc4axMlf7o0Iscg6wxMmGHMCOp0oY38gUotoCDzxbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00zn+CZnbUUpsPihA386qLxperAQaPjX64eOJCIN6Kd0kVjoDXSq/z24FzV217uaQ
-         ARCO+UH9+ToioieDV05umaWJiu/WRuiL6PsJ749iE9weWEVhB39Benjn2RaAUSRDwn
-         iDT6Ciubxn0HX+qddkX+XvZSMYYHm04AIM22gOvI=
+        b=HZs9bmrbARVB1iEmsyXNPGL/SK8/fQAi/1I/pk9W92QCHvoUeK5tgCn8URK2h9HFV
+         OoL7R74Lrrs9L3ot9t8bhs2E/xDySh7HxziZX+3Qn6iDdQCS34vubKk05YYrvKCBgl
+         C1wagIfogQuWKdbhp+78z8tcQ19C9Uz8UtjmnOk4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 018/130] tools/power/cpupower: Fix initializer override in hsw_ext_cstates
-Date:   Tue, 10 Dec 2019 17:01:09 -0500
-Message-Id: <20191210220301.13262-18-sashal@kernel.org>
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 019/130] media: venus: core: Fix msm8996 frequency table
+Date:   Tue, 10 Dec 2019 17:01:10 -0500
+Message-Id: <20191210220301.13262-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -44,61 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 7e5705c635ecfccde559ebbbe1eaf05b5cc60529 ]
+[ Upstream commit c690435ed07901737e5c007a65ec59f53b33eb71 ]
 
-When building cpupower with clang, the following warning appears:
+In downstream driver, there are two frequency tables defined,
+one for the encoder and one for the decoder:
 
- utils/idle_monitor/hsw_ext_idle.c:42:16: warning: initializer overrides
- prior initialization of this subobject [-Winitializer-overrides]
-                 .desc                   = N_("Processor Package C2"),
-                                              ^~~~~~~~~~~~~~~~~~~~~~
- ./utils/helpers/helpers.h:25:33: note: expanded from macro 'N_'
- #define N_(String) gettext_noop(String)
-                                 ^~~~~~
- ./utils/helpers/helpers.h:23:30: note: expanded from macro
- 'gettext_noop'
- #define gettext_noop(String) String
-                              ^~~~~~
- utils/idle_monitor/hsw_ext_idle.c:41:16: note: previous initialization
- is here
-                 .desc                   = N_("Processor Package C9"),
-                                              ^~~~~~~~~~~~~~~~~~~~~~
- ./utils/helpers/helpers.h:25:33: note: expanded from macro 'N_'
- #define N_(String) gettext_noop(String)
-                                 ^~~~~~
- ./utils/helpers/helpers.h:23:30: note: expanded from macro
- 'gettext_noop'
- #define gettext_noop(String) String
-                             ^~~~~~
- 1 warning generated.
+/* Encoders /
+<972000 490000000 0x55555555>, / 4k UHD @ 30 /
+<489600 320000000 0x55555555>, / 1080p @ 60 /
+<244800 150000000 0x55555555>, / 1080p @ 30 /
+<108000 75000000 0x55555555>, / 720p @ 30 */
 
-This appears to be a copy and paste or merge mistake because the name
-and id fields both have PC9 in them, not PC2. Remove the second
-assignment to fix the warning.
+/* Decoders /
+<1944000 490000000 0xffffffff>, / 4k UHD @ 60 /
+< 972000 320000000 0xffffffff>, / 4k UHD @ 30 /
+< 489600 150000000 0xffffffff>, / 1080p @ 60 /
+< 244800 75000000 0xffffffff>; / 1080p @ 30 */
 
-Fixes: 7ee767b69b68 ("cpupower: Add Haswell family 0x45 specific idle monitor to show PC8,9,10 states")
-Link: https://github.com/ClangBuiltLinux/linux/issues/718
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+It shows that encoder always needs a higher clock than decoder.
+
+In current venus driver, the unified frequency table is aligned
+with the downstream decoder table which causes performance issues
+in encoding scenarios. Fix that by aligning frequency table on
+worst case (encoding).
+
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/platform/qcom/venus/core.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c b/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
-index f794d6bbb7e9f..3e4ff4a1cdf4b 100644
---- a/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
-+++ b/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
-@@ -40,7 +40,6 @@ static cstate_t hsw_ext_cstates[HSW_EXT_CSTATE_COUNT] = {
- 	{
- 		.name			= "PC9",
- 		.desc			= N_("Processor Package C9"),
--		.desc			= N_("Processor Package C2"),
- 		.id			= PC9,
- 		.range			= RANGE_PACKAGE,
- 		.get_count_percent	= hsw_ext_get_count_percent,
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index 769e9e68562df..9360b36b82cd8 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -345,10 +345,11 @@ static const struct venus_resources msm8916_res = {
+ };
+ 
+ static const struct freq_tbl msm8996_freq_table[] = {
+-	{ 1944000, 490000000 },	/* 4k UHD @ 60 */
+-	{  972000, 320000000 },	/* 4k UHD @ 30 */
+-	{  489600, 150000000 },	/* 1080p @ 60 */
+-	{  244800,  75000000 },	/* 1080p @ 30 */
++	{ 1944000, 520000000 },	/* 4k UHD @ 60 (decode only) */
++	{  972000, 520000000 },	/* 4k UHD @ 30 */
++	{  489600, 346666667 },	/* 1080p @ 60 */
++	{  244800, 150000000 },	/* 1080p @ 30 */
++	{  108000,  75000000 },	/* 720p @ 30 */
+ };
+ 
+ static const struct reg_val msm8996_reg_preset[] = {
 -- 
 2.20.1
 
