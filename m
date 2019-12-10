@@ -2,198 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A141119095
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 20:28:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 008E411910B
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 20:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726613AbfLJT2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 14:28:24 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:40752 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726018AbfLJT2Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 14:28:24 -0500
-Received: by mail-lj1-f195.google.com with SMTP id s22so21204036ljs.7;
-        Tue, 10 Dec 2019 11:28:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:newsgroups:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=KzrNKcEOiU1kNGyhfhhVTJTy6mwRVVvr+Rcn9qUurw8=;
-        b=QNz7LqTYmVb9Aun7hEf0jLOYMlUfOiJuHQCLY3kkVkHM+T2cbdU3feFVwNjxfXYTx5
-         6dX859cw10yoxlm375M6kKNRDA9uLd7wNnFtS4T8lQntSzd4PHol+m/6MpAzsAcdl8r3
-         PoAAMrtynBsYvr4Mim7TnoL3Rh5i4MbCW/mXDpv++/UK0O8ojl2cYu1yYmWB0TG5z22R
-         1IX3wuDmLuBYGM3/B5FKAVcK6edYkjGgMGrPXcMOwySXPzMaX3WLhwFKoCXgoVpJbqas
-         ic5l6MR2VHaXdqKIwHDLHhkaLMdhlhqr9UPbISdjXyyiOjE4mGzE619pZ5FPG9eLD+Wb
-         Tfyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:newsgroups:references:from
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=KzrNKcEOiU1kNGyhfhhVTJTy6mwRVVvr+Rcn9qUurw8=;
-        b=VXVYyeflU13aLWEqUyrZ8bYqMxjvmjGdnq0KTdOGngFPn93kCydoSCca4IdexwNR6O
-         +vhd8MLb/PsMnC67z+ijzczpeo7o3aS4mhWios78r2VhttjZUBIvKUPlKb3pjO3Qn/z+
-         F2YzrAsHPkhi2MtKmCRvJXlgq5RBk7rIc5XB7YO0cT9F3gUXpziO+h3MX0+yxGMNr3sb
-         Kho2en5yOiJZB/PT1GG0hjbDsEGqivdrcLZsPoMfCahbtgqZjC0VTR/Tz9quCagVmfop
-         JNi4iaqSvwtrollODf7uLEfgm8DBWahlvnZlReybWuN22049W3k2j51F7TyUVDdVZ/g6
-         5uCg==
-X-Gm-Message-State: APjAAAVtduYfGcha7ztMqsiRNo80wg/lXprj0cYzYNObjaNoGcqzkRwA
-        1BVZbQjWZhb/o1cc5qiXxpcBRVrU
-X-Google-Smtp-Source: APXvYqyGNckK5y5s9f8Jo3dSVgNxZdC7RHTTL3IKb5a7ys0PqCMlBLRFvvJWSZCZJGsvb+557NSYEA==
-X-Received: by 2002:a2e:91c1:: with SMTP id u1mr21608748ljg.181.1576006101841;
-        Tue, 10 Dec 2019 11:28:21 -0800 (PST)
-Received: from [192.168.2.145] (79-139-233-37.dynamic.spd-mgts.ru. [79.139.233.37])
-        by smtp.googlemail.com with ESMTPSA id c9sm2302940ljd.28.2019.12.10.11.28.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Dec 2019 11:28:21 -0800 (PST)
-Subject: Re: [PATCH] ARM: tegra: Fix restoration of PLLM when exiting suspend
-To:     Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <thierry.reding@gmail.com>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org,
-        stable@vger.kernel.org
-Newsgroups: gmane.linux.kernel.stable,gmane.linux.ports.arm.kernel,gmane.linux.ports.tegra
-References: <20191210103708.7023-1-jonathanh@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <1f2a4f23-5be5-aa7e-6eb4-2aeb4058481d@gmail.com>
-Date:   Tue, 10 Dec 2019 22:28:20 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        id S1726062AbfLJTw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 14:52:59 -0500
+Received: from mout.kundenserver.de ([212.227.17.24]:48441 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726018AbfLJTw6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 14:52:58 -0500
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue106 [212.227.15.145]) with ESMTPA (Nemesis) id
+ 1MTikV-1iAh0D2xMz-00U0Gz; Tue, 10 Dec 2019 20:52:04 +0100
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Sekhar Nori <nsekhar@ti.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        David Lechner <david@lechnology.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ARM: davinci: select CONFIG_RESET_CONTROLLER
+Date:   Tue, 10 Dec 2019 20:51:44 +0100
+Message-Id: <20191210195202.622734-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
-In-Reply-To: <20191210103708.7023-1-jonathanh@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:yzlNRh3NNg4yi3/+SOu84vzqxuE3ALqmc8SzWN8n/eF/oFv9jH3
+ pXUf0p+Robr0Mvi0Z5VXk60Q11HWX/ycX9tpw5EN7RlgBnPljnqSjSd+u2UdlVBpdR1xPG3
+ dsLC+Dw5cG2sUwDhXndzdJRu2JJhpkp2uOJxSdmuxVZZFUoKZGazSdi525M5KidPgSPCFvi
+ QIV4ktU1sNBtL7IVARytA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:nkkoiZh+DM8=:HiMiLl6p7f68ae705iW+WW
+ /+K5vhIuXifxSPnLe8u2pTUoZL61HepdIzROtYD+VGqOK16vjoxCRfLOyjD8/UWskFA6N4DDC
+ cBTKWyP0TLZoZohKUcjDF1uj07cGjE88fDdmdA9G8N5Vfg5iQUU2OcDbTeZRmZ4cj6Q2kXRVu
+ CG91KwO/mNFaIZrcFGhI+MsL8lrciilwEzX/ayTAf9jx3aR8QO0CgSnL4OhygxjN6ZXIXvIhv
+ ZZ5gfXPk14E3wZQ5iQ/Lw+ocrbT3WaUwT2uX5QrgyNLk5bbacd89kD0ap6l/nW956g7lmMbx0
+ OmYZWnDp/f3aKJzs8AHAK46+0v6KqR8rxScuD2y/yACg71oLqzKH8JYJZmIQZuBzvmFuadkW6
+ aivmTH6ZYsOxGmjGDcgrKDQJUnAbxsTz1vcpiPpVHQVm89R4FFXqiQ1G7FBnrEDSKTeps3dgN
+ Bnlhf4DXGlLI3/VNjHgmOA2+WrQ5vUZdctWq45f1sguM1SUAEIXWBK2RM6MNmJziV6VFVsVFe
+ +CctwO6vX8nzbpbMtFP4/MnUs8Vz5oB8qeJqpJ5StboXEdRJEO7h1+JQjGx3HImT6RT+7TUOF
+ bxG/5/2mmE0sPCiE1UP7rC6ZJT2rDjXHBKmlrYISXKFneXcuwzKbU+RC5Y6PyZNVjaBh7W0SN
+ xQRKPNsEnGnhZwOx0SdF0v7d/pmr848lP1StNa+YAc3ycQtWPdmY5b/Kxi/kIqMFR6OuhEbRn
+ J4wqUtJOz9KKy5YcL57Z+d/WTlubpqhCfHNXt4yiyX2eqBFNX8L2xJZkWhYD+lIZwU8B5iQ6v
+ 5HsJ3qdXA5htkt8CD1+rh02KI9u30r7CXPQMXFCHLL4KaKl3/zQIJvJ7NLrxfhyEF0FYbnQJw
+ q+ACtPYVeVTWNIx4eAdQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Jon,
+Selecting RESET_CONTROLLER is actually required, otherwise we
+can get a link failure in the clock driver:
 
-10.12.2019 13:37, Jon Hunter пишет:
-> The suspend entry and exit code for 32-bit Tegra devices assumes that
-> the PLLM (which is used to provide the clock for external memory)
-> is always enabled on entry to suspend. Hence, the current code always
-> disables the PLLM on entry to suspend and re-enables the PLLM on exit
-> from suspend.
-> 
-> Since the introduction of the Tegra124 EMC driver by commit 73a7f0a90641
-> ("memory: tegra: Add EMC (external memory controller) driver"), which is
-> used to scale the EMC frequency, PLLM may not be the current clock
-> source for the EMC on entry to suspend and hence may not be enabled.
-> Always enabling the PLLM on exit from suspend can cause the actual
-> status on the PLL to be different from that reported by the common clock
-> framework.
-> 
-> On kernels prior to v4.5, the code to set the rate of the PLLM had a
-> test to verify if the PLL was enabled and if the PLL was enabled,
-> setting the rate would fail. Since commit 267b62a96951
-> ("clk: tegra: pll: Update PLLM handling") the test to see if PLLM is
-> enabled was removed.
-> 
-> With these earlier kernels, if the PLLM is disabled on entering suspend
-> and the EMC driver attempts to set the parent of the EMC clock to the
-> PLLM on exiting suspend, then the set rate for the PLLM will fail and in
-> turn cause the resume to fail.
-> 
-> We should not be re-enabling the PLLM on resume from suspend unless it
-> was enabled on entry to suspend. Therefore, fix this by saving the state
-> of PLLM on entry to suspend and only re-enable it, if it was already
-> enabled.
-> 
-> Fixes: 73a7f0a90641 ("memory: tegra: Add EMC (external memory controller) driver")
-> Cc: stable@vger.kernel.org
-> 
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-> ---
->  arch/arm/mach-tegra/sleep-tegra30.S | 33 +++++++++++++++++++++++------
->  1 file changed, 27 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/arm/mach-tegra/sleep-tegra30.S b/arch/arm/mach-tegra/sleep-tegra30.S
-> index 3341a12bbb9c..c2f0793a424f 100644
-> --- a/arch/arm/mach-tegra/sleep-tegra30.S
-> +++ b/arch/arm/mach-tegra/sleep-tegra30.S
-> @@ -337,26 +337,42 @@ ENTRY(tegra30_lp1_reset)
->  	add	r1, r1, #2
->  	wait_until r1, r7, r3
->  
-> -	/* enable PLLM via PMC */
-> +	/* restore PLLM state */
->  	mov32	r2, TEGRA_PMC_BASE
-> +	adr	r7, tegra_pllm_status
-> +	ldr	r1, [r7]
-> +	cmp	r2, #(1 << 12)
-> +	bne	_skip_pllm
-> +
->  	ldr	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
->  	orr	r1, r1, #(1 << 12)
->  	str	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
->  
->  	pll_enable r1, r0, CLK_RESET_PLLM_BASE, 0
-> +	pll_locked r1, r0, CLK_RESET_PLLM_BASE
-> +
-> +_skip_pllm:
->  	pll_enable r1, r0, CLK_RESET_PLLC_BASE, 0
->  	pll_enable r1, r0, CLK_RESET_PLLX_BASE, 0
->  
->  	b	_pll_m_c_x_done
->  
->  _no_pll_iddq_exit:
-> -	/* enable PLLM via PMC */
-> +	/* restore PLLM state */
->  	mov32	r2, TEGRA_PMC_BASE
-> +	adr	r7, tegra_pllm_status
-> +	ldr	r1, [r7]
-> +	cmp	r2, #(1 << 12)
-> +	bne	_skip_pllm_no_iddq
-> +
->  	ldr	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
->  	orr	r1, r1, #(1 << 12)
->  	str	r1, [r2, #PMC_PLLP_WB0_OVERRIDE]
->  
->  	pll_enable r1, r0, CLK_RESET_PLLM_BASE, CLK_RESET_PLLM_MISC
-> +	pll_locked r1, r0, CLK_RESET_PLLM_BASE
-> +
-> +_skip_pllm_no_iddq:
->  	pll_enable r1, r0, CLK_RESET_PLLC_BASE, CLK_RESET_PLLC_MISC
->  	pll_enable r1, r0, CLK_RESET_PLLX_BASE, CLK_RESET_PLLX_MISC
->  
-> @@ -364,7 +380,6 @@ _pll_m_c_x_done:
->  	pll_enable r1, r0, CLK_RESET_PLLP_BASE, CLK_RESET_PLLP_MISC
->  	pll_enable r1, r0, CLK_RESET_PLLA_BASE, CLK_RESET_PLLA_MISC
->  
-> -	pll_locked r1, r0, CLK_RESET_PLLM_BASE
->  	pll_locked r1, r0, CLK_RESET_PLLP_BASE
->  	pll_locked r1, r0, CLK_RESET_PLLA_BASE
->  	pll_locked r1, r0, CLK_RESET_PLLC_BASE
-> @@ -526,6 +541,8 @@ __no_dual_emc_chanl:
->  ENDPROC(tegra30_lp1_reset)
->  
->  	.align	L1_CACHE_SHIFT
-> +tegra_pllm_status:
-> +	.word	0
->  tegra30_sdram_pad_address:
->  	.word	TEGRA_EMC_BASE + EMC_CFG				@0x0
->  	.word	TEGRA_EMC_BASE + EMC_ZCAL_INTERVAL			@0x4
-> @@ -624,10 +641,14 @@ tegra30_switch_cpu_to_clk32k:
->  	add	r1, r1, #2
->  	wait_until r1, r7, r9
+drivers/clk/davinci/psc.o: In function `__davinci_psc_register_clocks':
+psc.c:(.text+0x9a0): undefined reference to `devm_reset_controller_register'
+drivers/clk/davinci/psc-da850.o: In function `da850_psc0_init':
+psc-da850.c:(.text+0x24): undefined reference to `reset_controller_add_lookup'
 
+Fixes: f962396ce292 ("ARM: davinci: support multiplatform build for ARM v5")
+Cc: <stable@vger.kernel.org> # v5.4
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/arm/mach-davinci/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-> -	/* disable PLLM via PMC in LP1 */
-> +	/* disable PLLM, if enabled, via PMC in LP1 */
-> +	adr	r1, tegra_pllm_status
->  	ldr	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
-> -	bic	r0, r0, #(1 << 12)
-> -	str	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
-> +	and	r2, r0, #(1 << 12)
-> +	str     r2, [r1]
-> +	cmp	r2, #(1 << 12)
-> +	biceq	r0, r0, #(1 << 12)
-> +	streq	r0, [r4, #PMC_PLLP_WB0_OVERRIDE]
->  
->  	/* disable PLLP, PLLA, PLLC and PLLX */
->  	ldr	r0, [r5, #CLK_RESET_PLLP_BASE]
+diff --git a/arch/arm/mach-davinci/Kconfig b/arch/arm/mach-davinci/Kconfig
+index dd427bd2768c..02b180ad7245 100644
+--- a/arch/arm/mach-davinci/Kconfig
++++ b/arch/arm/mach-davinci/Kconfig
+@@ -9,6 +9,7 @@ menuconfig ARCH_DAVINCI
+ 	select PM_GENERIC_DOMAINS if PM
+ 	select PM_GENERIC_DOMAINS_OF if PM && OF
+ 	select REGMAP_MMIO
++	select RESET_CONTROLLER
+ 	select HAVE_IDE
+ 	select PINCTRL_SINGLE
+ 
+-- 
+2.20.0
 
-PLLM's enable-status could be defined either by PMC or CaR. Thus at
-first you need to check whether PMC overrides CaR's enable and then
-judge the enable state based on PMC or CaR state respectively.
