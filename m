@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3708119CA1
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:33:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD03119CBE
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:33:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729383AbfLJWcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:32:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
+        id S1728724AbfLJWdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:33:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729374AbfLJWcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:32:19 -0500
+        id S1729385AbfLJWcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:32:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6D1820836;
-        Tue, 10 Dec 2019 22:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E2D4214AF;
+        Tue, 10 Dec 2019 22:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017138;
-        bh=gMQJx5a47q9tzmeWMH+Nyl5/xW+psyxad65AY41C2fs=;
+        s=default; t=1576017139;
+        bh=J6B8HlLUigPcN0DeWky0J2jLohY05gbyBwu7gCAHV64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tC6Vmngqi8XukPvafQZOtICp3YSLLDukT7epa3btixpHu9BgERP0rIYKIcVngvPhO
-         qksylpDxh72dXc3qEEduX2xOzGeH40ys5i5Pn6GuCsz4vBTKr6VcP/TQ/ZbCf6LDfu
-         C94qC6+78BdTZc4aLPFbpYMB8SmsA1NBSbKHdBTE=
+        b=F+lDwatyxlyuhE24UM1hM4ro2TFYr5nam2xqXPqsGaeRCYEAcFgl0TlQoUa9uHGp/
+         nJs/1CL9NBY3uac4e0lHsCPZMIL9k9XXmMOBnnStG5rx1vAyq693wOlK1pEyhdBJRY
+         jMWFNiP6oGj5MiHMg+sadGmLcSXcl6fzKInUuJYo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Corentin Labbe <clabbe.montjoie@gmail.com>,
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 86/91] crypto: sun4i-ss - Fix 64-bit size_t warnings on sun4i-ss-hash.c
-Date:   Tue, 10 Dec 2019 17:30:30 -0500
-Message-Id: <20191210223035.14270-86-sashal@kernel.org>
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 87/91] crypto: vmx - Avoid weird build failures
+Date:   Tue, 10 Dec 2019 17:30:31 -0500
+Message-Id: <20191210223035.14270-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -44,59 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe.montjoie@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit a7126603d46fe8f01aeedf589e071c6aaa6c6c39 ]
+[ Upstream commit 4ee812f6143d78d8ba1399671d78c8d78bf2817c ]
 
-If you try to compile this driver on a 64-bit platform then you
-will get warnings because it mixes size_t with unsigned int which
-only works on 32-bit.
+In the vmx crypto Makefile we assign to a variable called TARGET and
+pass that to the aesp8-ppc.pl and ghashp8-ppc.pl scripts.
 
-This patch fixes all of the warnings on sun4i-ss-hash.c.
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+The variable is meant to describe what flavour of powerpc we're
+building for, eg. either 32 or 64-bit, and big or little endian.
+
+Unfortunately TARGET is a fairly common name for a make variable, and
+if it happens that TARGET is specified as a command line parameter to
+make, the value specified on the command line will override our value.
+
+In particular this can happen if the kernel Makefile is driven by an
+external Makefile that uses TARGET for something.
+
+This leads to weird build failures, eg:
+  nonsense  at /build/linux/drivers/crypto/vmx/ghashp8-ppc.pl line 45.
+  /linux/drivers/crypto/vmx/Makefile:20: recipe for target 'drivers/crypto/vmx/ghashp8-ppc.S' failed
+
+Which shows that we passed an empty value for $(TARGET) to the perl
+script, confirmed with make V=1:
+
+  perl /linux/drivers/crypto/vmx/ghashp8-ppc.pl  > drivers/crypto/vmx/ghashp8-ppc.S
+
+We can avoid this confusion by using override, to tell make that we
+don't want anything to override our variable, even a value specified
+on the command line. We can also use a less common name, given the
+script calls it "flavour", let's use that.
+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-hash.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/crypto/vmx/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-index ec16ec2e284d0..b2e6837135393 100644
---- a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-@@ -286,8 +286,8 @@ static int sun4i_hash(struct ahash_request *areq)
- 			 */
- 			while (op->len < 64 && i < end) {
- 				/* how many bytes we can read from current SG */
--				in_r = min3(mi.length - in_i, end - i,
--					    64 - op->len);
-+				in_r = min(end - i, 64 - op->len);
-+				in_r = min_t(size_t, mi.length - in_i, in_r);
- 				memcpy(op->buf + op->len, mi.addr + in_i, in_r);
- 				op->len += in_r;
- 				i += in_r;
-@@ -307,8 +307,8 @@ static int sun4i_hash(struct ahash_request *areq)
- 		}
- 		if (mi.length - in_i > 3 && i < end) {
- 			/* how many bytes we can read from current SG */
--			in_r = min3(mi.length - in_i, areq->nbytes - i,
--				    ((mi.length - in_i) / 4) * 4);
-+			in_r = min_t(size_t, mi.length - in_i, areq->nbytes - i);
-+			in_r = min_t(size_t, ((mi.length - in_i) / 4) * 4, in_r);
- 			/* how many bytes we can write in the device*/
- 			todo = min3((u32)(end - i) / 4, rx_cnt, (u32)in_r / 4);
- 			writesl(ss->base + SS_RXFIFO, mi.addr + in_i, todo);
-@@ -334,8 +334,8 @@ static int sun4i_hash(struct ahash_request *areq)
- 	if ((areq->nbytes - i) < 64) {
- 		while (i < areq->nbytes && in_i < mi.length && op->len < 64) {
- 			/* how many bytes we can read from current SG */
--			in_r = min3(mi.length - in_i, areq->nbytes - i,
--				    64 - op->len);
-+			in_r = min(areq->nbytes - i, 64 - op->len);
-+			in_r = min_t(size_t, mi.length - in_i, in_r);
- 			memcpy(op->buf + op->len, mi.addr + in_i, in_r);
- 			op->len += in_r;
- 			i += in_r;
+diff --git a/drivers/crypto/vmx/Makefile b/drivers/crypto/vmx/Makefile
+index de6e241b08666..957377c309a91 100644
+--- a/drivers/crypto/vmx/Makefile
++++ b/drivers/crypto/vmx/Makefile
+@@ -2,13 +2,13 @@ obj-$(CONFIG_CRYPTO_DEV_VMX_ENCRYPT) += vmx-crypto.o
+ vmx-crypto-objs := vmx.o aesp8-ppc.o ghashp8-ppc.o aes.o aes_cbc.o aes_ctr.o aes_xts.o ghash.o
+ 
+ ifeq ($(CONFIG_CPU_LITTLE_ENDIAN),y)
+-TARGET := linux-ppc64le
++override flavour := linux-ppc64le
+ else
+-TARGET := linux-ppc64
++override flavour := linux-ppc64
+ endif
+ 
+ quiet_cmd_perl = PERL $@
+-      cmd_perl = $(PERL) $(<) $(TARGET) > $(@)
++      cmd_perl = $(PERL) $(<) $(flavour) > $(@)
+ 
+ $(src)/aesp8-ppc.S: $(src)/aesp8-ppc.pl
+ 	$(call cmd,perl)
 -- 
 2.20.1
 
