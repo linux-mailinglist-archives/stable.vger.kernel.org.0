@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B251F119ACB
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:10:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 673CD119BA1
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728592AbfLJWEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:04:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34870 "EHLO mail.kernel.org"
+        id S1727946AbfLJWKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:10:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728571AbfLJWEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:11 -0500
+        id S1728605AbfLJWEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97C212465E;
-        Tue, 10 Dec 2019 22:04:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B88062053B;
+        Tue, 10 Dec 2019 22:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015451;
-        bh=W1rixHlRglZalpJ3fSvD2qz0lSsb15o4abLzRwMrYYo=;
+        s=default; t=1576015452;
+        bh=C4iqK5lGqkGKIphoCmrLRwzWutfxjbIEpyXJyE2sRuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Km/cCl626oqYcOS2RGhSNtWspd0BGhZspE7efBonyRMwKSz3PH6QjM+cnIawbyB5
-         c00Ju4YbS0T1eu6RBdTtSqmPjEF5HgopasFKvCZD0Q7Pfq8QadtVUfzevXcTQQMIQ9
-         kdRrmIIqjpHnKoW39hvtCRmNKrfSPQnYgancTYDw=
+        b=g2WFckODDlszZu7l3Q4q3Az92lj0W1ojz1hGVBtfy5Mf8dk63+NGydnezcnVPBq5y
+         44giKnLOZRAXkpdjUdnnniVU7thqluweff5d7c+ZfIatb4Q7cvtmUYVByi4ROVJAvE
+         hc+zeWniLbdlDG+M4Eh7BMTca1tBcQ0NG6sfxxeg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunfeng Ye <yeyunfeng@huawei.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 058/130] arm64: psci: Reduce the waiting time for cpu_psci_cpu_kill()
-Date:   Tue, 10 Dec 2019 17:01:49 -0500
-Message-Id: <20191210220301.13262-58-sashal@kernel.org>
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 059/130] net: phy: dp83867: enable robust auto-mdix
+Date:   Tue, 10 Dec 2019 17:01:50 -0500
+Message-Id: <20191210220301.13262-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -45,71 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit bfcef4ab1d7ee8921bc322109b1692036cc6cbe0 ]
+[ Upstream commit 5a7f08c2abb0efc9d17aff2fc75d6d3b85e622e4 ]
 
-In cases like suspend-to-disk and suspend-to-ram, a large number of CPU
-cores need to be shut down. At present, the CPU hotplug operation is
-serialised, and the CPU cores can only be shut down one by one. In this
-process, if PSCI affinity_info() does not return LEVEL_OFF quickly,
-cpu_psci_cpu_kill() needs to wait for 10ms. If hundreds of CPU cores
-need to be shut down, it will take a long time.
+The link detection timeouts can be observed (or link might not be detected
+at all) when dp83867 PHY is configured in manual mode (speed/duplex).
 
-Normally, there is no need to wait 10ms in cpu_psci_cpu_kill(). So
-change the wait interval from 10 ms to max 1 ms and use usleep_range()
-instead of msleep() for more accurate timer.
+CFG3[9] Robust Auto-MDIX option allows to significantly improve link detection
+in case dp83867 is configured in manual mode and reduce link detection
+time.
+As per DM: "If link partners are configured to operational modes that are
+not supported by normal Auto MDI/MDIX mode (like Auto-Neg versus Force
+100Base-TX or Force 100Base-TX versus Force 100Base-TX), this Robust Auto
+MDI/MDIX mode allows MDI/MDIX resolution and prevents deadlock."
 
-In addition, reducing the time interval will increase the messages
-output, so remove the "Retry ..." message, instead, track time and
-output to the the sucessful message.
+Hence, enable this option by default as there are no known reasons
+not to do so.
 
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/psci.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/phy/dp83867.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
-index e8edbf13302aa..3856d51c645b5 100644
---- a/arch/arm64/kernel/psci.c
-+++ b/arch/arm64/kernel/psci.c
-@@ -84,7 +84,8 @@ static void cpu_psci_cpu_die(unsigned int cpu)
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index e03e91d5f1b1b..0cbcced0870e6 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -84,6 +84,10 @@
+ #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MAX	0x0
+ #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN	0x1f
  
- static int cpu_psci_cpu_kill(unsigned int cpu)
- {
--	int err, i;
-+	int err;
-+	unsigned long start, end;
++/* CFG3 bits */
++#define DP83867_CFG3_INT_OE			BIT(7)
++#define DP83867_CFG3_ROBUST_AUTO_MDIX		BIT(9)
++
+ /* CFG4 bits */
+ #define DP83867_CFG4_PORT_MIRROR_EN              BIT(0)
  
- 	if (!psci_ops.affinity_info)
- 		return 0;
-@@ -94,16 +95,18 @@ static int cpu_psci_cpu_kill(unsigned int cpu)
- 	 * while it is dying. So, try again a few times.
- 	 */
+@@ -320,12 +324,13 @@ static int dp83867_config_init(struct phy_device *phydev)
+ 			return ret;
+ 	}
  
--	for (i = 0; i < 10; i++) {
-+	start = jiffies;
-+	end = start + msecs_to_jiffies(100);
-+	do {
- 		err = psci_ops.affinity_info(cpu_logical_map(cpu), 0);
- 		if (err == PSCI_0_2_AFFINITY_LEVEL_OFF) {
--			pr_info("CPU%d killed.\n", cpu);
-+			pr_info("CPU%d killed (polled %d ms)\n", cpu,
-+				jiffies_to_msecs(jiffies - start));
- 			return 0;
- 		}
- 
--		msleep(10);
--		pr_info("Retrying again to check for CPU kill\n");
++	val = phy_read(phydev, DP83867_CFG3);
+ 	/* Enable Interrupt output INT_OE in CFG3 register */
+-	if (phy_interrupt_is_valid(phydev)) {
+-		val = phy_read(phydev, DP83867_CFG3);
+-		val |= BIT(7);
+-		phy_write(phydev, DP83867_CFG3, val);
 -	}
-+		usleep_range(100, 1000);
-+	} while (time_before(jiffies, end));
++	if (phy_interrupt_is_valid(phydev))
++		val |= DP83867_CFG3_INT_OE;
++
++	val |= DP83867_CFG3_ROBUST_AUTO_MDIX;
++	phy_write(phydev, DP83867_CFG3, val);
  
- 	pr_warn("CPU%d may not have shut down cleanly (AFFINITY_INFO reports %d)\n",
- 			cpu, err);
+ 	if (dp83867->port_mirroring != DP83867_PORT_MIRROING_KEEP)
+ 		dp83867_config_port_mirroring(phydev);
 -- 
 2.20.1
 
