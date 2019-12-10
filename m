@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B44151199E0
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BAFF1199F7
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728011AbfLJVJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:09:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56966 "EHLO mail.kernel.org"
+        id S1727096AbfLJVsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:48:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728008AbfLJVJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:09:00 -0500
+        id S1727211AbfLJVJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10086246A7;
-        Tue, 10 Dec 2019 21:08:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FCD0246A0;
+        Tue, 10 Dec 2019 21:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012139;
-        bh=PX5vOMAe3WelCDyOsnCu/L2YTS9HO4Ui6SNmnp+WoH4=;
+        s=default; t=1576012141;
+        bh=n8jM/pM/933dPhgHxARs3z0hJiHmUnRkMko2CIIqKa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/QIvS2BK0N9r/embhaJ/eJbZxF1mLkDhIQ3fSsyhWtIckoV892rIQYKDaAKXBgCe
-         z+ZdNMJ23e9lIGTBKDKtCfsf0MxidnWDjywOYr/EzNyRBX5jBGyMawlkaTcICB/3S8
-         GNaRZyMGzeYrmt+9p0L8UCoiAyKK1wJQO5P6riN0=
+        b=pZztRpgRNHJyx6AJqFdRafcyMWrQZzL5k1TJ6G71HTU0d6Ek9EkI10TlcxYMVPoLI
+         XMwrTIlpiLgn2g4znViceRu2YlgFGBGVdafkjvfFXwV+m0Meunu71D2AOjN3TUEbom
+         oO7G9MYk8j4Z1E9JMIq2ETQ+q9b/7dg6225YpE5U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 105/350] iio: chemical: atlas-ph-sensor: fix iio_triggered_buffer_predisable() position
-Date:   Tue, 10 Dec 2019 16:03:30 -0500
-Message-Id: <20191210210735.9077-66-sashal@kernel.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 106/350] ath10k: Correct error handling of dma_map_single()
+Date:   Tue, 10 Dec 2019 16:03:31 -0500
+Message-Id: <20191210210735.9077-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,56 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 0c8a6e72f3c04bfe92a64e5e0791bfe006aabe08 ]
+[ Upstream commit d43810b2c1808ac865aa1a2a2c291644bf95345c ]
 
-The iio_triggered_buffer_{predisable,postenable} functions attach/detach
-the poll functions.
+The return value of dma_map_single() should be checked for errors using
+dma_mapping_error() and the skb has been dequeued so it needs to be
+freed.
 
-The iio_triggered_buffer_predisable() should be called last, to detach the
-poll func after the devices has been suspended.
+This was found when enabling CONFIG_DMA_API_DEBUG and it warned about the
+missing dma_mapping_error() call.
 
-The position of iio_triggered_buffer_postenable() is correct.
-
-Note this is not stable material. It's a fix in the logical
-model rather fixing an actual bug.  These are being tidied up
-throughout the subsystem to allow more substantial rework that
-was blocked by variations in how things were done.
-
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
+Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/chemical/atlas-ph-sensor.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/chemical/atlas-ph-sensor.c b/drivers/iio/chemical/atlas-ph-sensor.c
-index 3a20cb5d9bffc..6c175eb1c7a7f 100644
---- a/drivers/iio/chemical/atlas-ph-sensor.c
-+++ b/drivers/iio/chemical/atlas-ph-sensor.c
-@@ -323,16 +323,16 @@ static int atlas_buffer_predisable(struct iio_dev *indio_dev)
- 	struct atlas_data *data = iio_priv(indio_dev);
- 	int ret;
- 
--	ret = iio_triggered_buffer_predisable(indio_dev);
-+	ret = atlas_set_interrupt(data, false);
- 	if (ret)
- 		return ret;
- 
--	ret = atlas_set_interrupt(data, false);
-+	pm_runtime_mark_last_busy(&data->client->dev);
-+	ret = pm_runtime_put_autosuspend(&data->client->dev);
- 	if (ret)
- 		return ret;
- 
--	pm_runtime_mark_last_busy(&data->client->dev);
--	return pm_runtime_put_autosuspend(&data->client->dev);
-+	return iio_triggered_buffer_predisable(indio_dev);
- }
- 
- static const struct iio_trigger_ops atlas_interrupt_trigger_ops = {
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index a40e1a998f4cd..2b53ea6ca2057 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -3903,8 +3903,10 @@ void ath10k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 			     ar->running_fw->fw_file.fw_features)) {
+ 			paddr = dma_map_single(ar->dev, skb->data,
+ 					       skb->len, DMA_TO_DEVICE);
+-			if (!paddr)
++			if (dma_mapping_error(ar->dev, paddr)) {
++				ieee80211_free_txskb(ar->hw, skb);
+ 				continue;
++			}
+ 			ret = ath10k_wmi_mgmt_tx_send(ar, skb, paddr);
+ 			if (ret) {
+ 				ath10k_warn(ar, "failed to transmit management frame by ref via WMI: %d\n",
 -- 
 2.20.1
 
