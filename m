@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 435A2119920
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E2011991D
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:46:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbfLJVnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:43:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38350 "EHLO mail.kernel.org"
+        id S1728582AbfLJVm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:42:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727310AbfLJVdq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:33:46 -0500
+        id S1728845AbfLJVds (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:33:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FDCD2465B;
-        Tue, 10 Dec 2019 21:33:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 882DF24654;
+        Tue, 10 Dec 2019 21:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013626;
-        bh=M0d+gOqWSOd0I8oIkrNJWdjHyP0Kdwz5xGK+Eo5egks=;
+        s=default; t=1576013627;
+        bh=SSBYEbquRj9NbwGFeERAqPbVG2wmC9tiqZXRafhrFxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzmL8pSJBLVmR+G1BRIoNDvIZIK/W1fVO0xGwn+Twgs0dRkqV3RM965JEtIZ8lnkH
-         Tb6S6rbpW/gpzxOFvziuO6y+dBvumV6ecCoSHNhqBRIifl+KjFv7b5TDJFNn2KptvN
-         gkt6pTRMThkGF3fb03zVhBY8OUh3nrJQ2wr5rdKM=
+        b=L54AQextqEA6mt7KXBxbZwPN9UawyJMsYd03M96JCGN6GQVwqZQPr65Jn1jHMqqO9
+         babLsws/veF0O+f4yQ/iPZQEYkWYyLdoYaAlum/7x8//sXQPmVzACZtWKQlcWVSQvy
+         42UMZwCaZ57YLgcdagkRlWXiWFituQHxOhx+ee5I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Wahren <wahrenst@gmx.net>,
-        Marcel Holtmann <marcel@holtmann.org>,
+Cc:     Kangjie Lu <kjlu@umn.edu>, Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 068/177] Bluetooth: hci_bcm: Fix RTS handling during startup
-Date:   Tue, 10 Dec 2019 16:30:32 -0500
-Message-Id: <20191210213221.11921-68-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 069/177] drm/gma500: fix memory disclosures due to uninitialized bytes
+Date:   Tue, 10 Dec 2019 16:30:33 -0500
+Message-Id: <20191210213221.11921-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -44,39 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <wahrenst@gmx.net>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 3347a80965b38f096b1d6f995c00c9c9e53d4b8b ]
+[ Upstream commit ec3b7b6eb8c90b52f61adff11b6db7a8db34de19 ]
 
-The RPi 4 uses the hardware handshake lines for CYW43455, but the chip
-doesn't react to HCI requests during DT probe. The reason is the inproper
-handling of the RTS line during startup. According to the startup
-signaling sequence in the CYW43455 datasheet, the hosts RTS line must
-be driven after BT_REG_ON and BT_HOST_WAKE.
+"clock" may be copied to "best_clock". Initializing best_clock
+is not sufficient. The fix initializes clock as well to avoid
+memory disclosures and informaiton leaks.
 
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191018044150.1899-1-kjlu@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_bcm.c | 2 ++
+ drivers/gpu/drm/gma500/oaktrail_crtc.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-index 59e5fc5eec8f8..b88cb7bf7f8ab 100644
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -414,9 +414,11 @@ static int bcm_open(struct hci_uart *hu)
+diff --git a/drivers/gpu/drm/gma500/oaktrail_crtc.c b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+index 1b7fd6a9d8a51..f73a02a2a5b39 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_crtc.c
++++ b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+@@ -139,6 +139,7 @@ static bool mrst_sdvo_find_best_pll(const struct gma_limit_t *limit,
+ 	s32 freq_error, min_error = 100000;
  
- out:
- 	if (bcm->dev) {
-+		hci_uart_set_flow_control(hu, true);
- 		hu->init_speed = bcm->dev->init_speed;
- 		hu->oper_speed = bcm->dev->oper_speed;
- 		err = bcm_gpio_set_power(bcm->dev, true);
-+		hci_uart_set_flow_control(hu, false);
- 		if (err)
- 			goto err_unset_hu;
- 	}
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.n = limit->n.min; clock.n <= limit->n.max;
+@@ -195,6 +196,7 @@ static bool mrst_lvds_find_best_pll(const struct gma_limit_t *limit,
+ 	int err = target;
+ 
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.p1 = limit->p1.min; clock.p1 <= limit->p1.max;
 -- 
 2.20.1
 
