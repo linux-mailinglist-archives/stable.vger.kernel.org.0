@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A08119613
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:25:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0EEC1193D2
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728377AbfLJVYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:24:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32830 "EHLO mail.kernel.org"
+        id S1728621AbfLJVKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:10:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728614AbfLJVKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:49 -0500
+        id S1728292AbfLJVKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5AC324697;
-        Tue, 10 Dec 2019 21:10:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5C0D246AE;
+        Tue, 10 Dec 2019 21:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012248;
-        bh=WvEFyyi/O+WRj6bp4PbOSJv1s0e0tDsQyd8Jf5h5W+U=;
+        s=default; t=1576012249;
+        bh=stqJirSBigCjUNifC1OoMutB1fJmmXeU1I9ydq6AYUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fp0Cif0+NghVk0j7oUceQblI5x8D5PtUkMAbeRgUCKujqBWKqA8MrmekmNSQy03Rc
-         GSN2bxJ9tcBwv9QKquSW63BoLHSChdj0+BJ3Nr+b6gWeZfuop0Y4Gid9SZ8Kl/knUd
-         qttN/RIORF9g3T+4OdPGf6cL7jiuvju/PEDtG//g=
+        b=dlbFKKgn2thnft8UuIIwlYj0GXTEJh2YQtSYCnf+aKbhjhyW9qagx12qytufVjgOD
+         VkMg/oCjnsM+sW+3nYq9VxNqjzswS2vyUi9QQHJJeG6PuHZeHrPNMnxeJv+bq9lesl
+         Jde12IFb8TKLFNHQkNw78PYreD3oqSM+rwjSs/rA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 196/350] spi: sifive: disable clk when probe fails and remove
-Date:   Tue, 10 Dec 2019 16:05:01 -0500
-Message-Id: <20191210210735.9077-157-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 197/350] ASoC: SOF: imx: fix reverse CONFIG_SND_SOC_SOF_OF dependency
+Date:   Tue, 10 Dec 2019 16:05:02 -0500
+Message-Id: <20191210210735.9077-158-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -45,76 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit a725272bda77e61c1b4de85c7b0c875b2ea639b6 ]
+[ Upstream commit f9ad75468453b019b92c5296e6a04bf7c37f49e4 ]
 
-The driver forgets to disable and unprepare clk when probe fails and
-remove.
-Add the calls to fix the problem.
+updated solution to the problem reported with randconfig:
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Palmer Dabbelt <palmer@dabbelt.com>
-Link: https://lore.kernel.org/r/20191101121745.13413-1-hslester96@gmail.com
+CONFIG_SND_SOC_SOF_IMX depends on CONFIG_SND_SOC_SOF, but is in
+turn referenced by the sof-of-dev driver. This creates a reverse
+dependency that manifests in a link error when CONFIG_SND_SOC_SOF_OF
+is built-in but CONFIG_SND_SOC_SOF_IMX=m:
+
+sound/soc/sof/sof-of-dev.o:(.data+0x118): undefined reference to `sof_imx8_ops'
+
+use def_trisate to propagate the right settings without select.
+
+Fixes: f4df4e4042b0 ("ASoC: SOF: imx8: Fix COMPILE_TEST error")
+Fixes: 202acc565a1f ("ASoC: SOF: imx: Add i.MX8 HW support")
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191101173045.27099-6-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-sifive.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ sound/soc/sof/imx/Kconfig | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-sifive.c b/drivers/spi/spi-sifive.c
-index 35254bdc42c48..f7c1e20432e07 100644
---- a/drivers/spi/spi-sifive.c
-+++ b/drivers/spi/spi-sifive.c
-@@ -357,14 +357,14 @@ static int sifive_spi_probe(struct platform_device *pdev)
- 	if (!cs_bits) {
- 		dev_err(&pdev->dev, "Could not auto probe CS lines\n");
- 		ret = -EINVAL;
--		goto put_master;
-+		goto disable_clk;
- 	}
+diff --git a/sound/soc/sof/imx/Kconfig b/sound/soc/sof/imx/Kconfig
+index 5acae75f5750d..71f318bc2c74f 100644
+--- a/sound/soc/sof/imx/Kconfig
++++ b/sound/soc/sof/imx/Kconfig
+@@ -11,8 +11,8 @@ config SND_SOC_SOF_IMX_TOPLEVEL
  
- 	num_cs = ilog2(cs_bits) + 1;
- 	if (num_cs > SIFIVE_SPI_MAX_CS) {
- 		dev_err(&pdev->dev, "Invalid number of spi slaves\n");
- 		ret = -EINVAL;
--		goto put_master;
-+		goto disable_clk;
- 	}
+ if SND_SOC_SOF_IMX_TOPLEVEL
  
- 	/* Define our master */
-@@ -393,7 +393,7 @@ static int sifive_spi_probe(struct platform_device *pdev)
- 			       dev_name(&pdev->dev), spi);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Unable to bind to interrupt\n");
--		goto put_master;
-+		goto disable_clk;
- 	}
+-config SND_SOC_SOF_IMX8
+-	tristate "SOF support for i.MX8"
++config SND_SOC_SOF_IMX8_SUPPORT
++	bool "SOF support for i.MX8"
+ 	depends on IMX_SCU
+ 	depends on IMX_DSP
+ 	help
+@@ -20,4 +20,8 @@ config SND_SOC_SOF_IMX8
+           Say Y if you have such a device.
+           If unsure select "N".
  
- 	dev_info(&pdev->dev, "mapped; irq=%d, cs=%d\n",
-@@ -402,11 +402,13 @@ static int sifive_spi_probe(struct platform_device *pdev)
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "spi_register_master failed\n");
--		goto put_master;
-+		goto disable_clk;
- 	}
- 
- 	return 0;
- 
-+disable_clk:
-+	clk_disable_unprepare(spi->clk);
- put_master:
- 	spi_master_put(master);
- 
-@@ -420,6 +422,7 @@ static int sifive_spi_remove(struct platform_device *pdev)
- 
- 	/* Disable all the interrupts just in case */
- 	sifive_spi_write(spi, SIFIVE_SPI_REG_IE, 0);
-+	clk_disable_unprepare(spi->clk);
- 
- 	return 0;
- }
++config SND_SOC_SOF_IMX8
++	def_tristate SND_SOC_SOF_OF
++	depends on SND_SOC_SOF_IMX8_SUPPORT
++
+ endif ## SND_SOC_SOF_IMX_IMX_TOPLEVEL
 -- 
 2.20.1
 
