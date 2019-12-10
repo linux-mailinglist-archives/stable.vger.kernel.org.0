@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0437E1199DA
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BDFF1199DD
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727983AbfLJVI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:08:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
+        id S1727992AbfLJVI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:08:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727555AbfLJVIz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:55 -0500
+        id S1727224AbfLJVI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 411A7246A1;
-        Tue, 10 Dec 2019 21:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D0C124696;
+        Tue, 10 Dec 2019 21:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012135;
-        bh=otZ2XpBNGM9vqKhgPacAje6pQSlojqxZHAUN4DW+jHQ=;
+        s=default; t=1576012136;
+        bh=1v2f9OzowKvsAcPt3xiAl0XheqU8VLy9Ih7zqj7w4YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLB9382rjLw457Ctuz8+2DPtIZpNT1hDMPQH5av7/G+qeM7X6rAezo+muJVFNHJqQ
-         rZforpA+4CW3uHwbRhf+cpg42ztYCUtLcEFbyfFQFfDqamKlrocbBd6FiDriU7Mdq6
-         3GU2J1I8lRFzsA+jk8gE6wOBgTLk4ssx953AuKP0=
+        b=E8XcJ8o9qrQcqZZPxzg2Zb/1QwzM1hp6cKJZBLL5srh4fgn6hhrn9fWkr+H5XSBD8
+         sRwaOzJ59k7BqKDd6VBTboh9tvI1WLPMAnwoWZEAGl2+/AxFQ5JC9zaaLjhMdUxTVF
+         jO6R/WRxF0sQkyOI8s0I8LqRH7k7QS6v2iAC9jJ4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Parkin <julian.parkin@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 102/350] drm/amd/display: Program DWB watermarks from correct state
-Date:   Tue, 10 Dec 2019 16:03:27 -0500
-Message-Id: <20191210210735.9077-63-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 103/350] syscalls/x86: Use COMPAT_SYSCALL_DEFINE0 for IA32 (rt_)sigreturn
+Date:   Tue, 10 Dec 2019 16:03:28 -0500
+Message-Id: <20191210210735.9077-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -46,91 +49,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Parkin <julian.parkin@amd.com>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit edb922b022c0c94805c4ffad202b3edff83d76f0 ]
+[ Upstream commit 00198a6eaf66609de5e4de9163bb42c7ca9dd7b7 ]
 
-[Why]
-When diags adds a DWB via a stream update, we calculate MMHUBBUB
-paramaters, but dc->current_state has not yet been updated
-when the DWB programming happens. This leads to overflow on
-high bandwidth tests since the incorrect MMHUBBUB arbitration
-parameters are programmed.
+Use COMPAT_SYSCALL_DEFINE0 to define (rt_)sigreturn() syscalls to
+replace sys32_sigreturn() and sys32_rt_sigreturn(). This fixes indirect
+call mismatches with Control-Flow Integrity (CFI) checking.
 
-[How]
-Pass the updated context down to the (enable|update)_writeback functions
-so that they can use the correct watermarks when programming MMHUBBUB.
-
-Signed-off-by: Julian Parkin <julian.parkin@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H . Peter Anvin <hpa@zytor.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20191008224049.115427-4-samitolvanen@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_stream.c    | 4 ++--
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 5 +++--
- drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h  | 6 ++++--
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ arch/x86/entry/syscalls/syscall_32.tbl | 4 ++--
+ arch/x86/ia32/ia32_signal.c            | 5 +++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-index bf1d7bb90e0f9..bb09243758fe3 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-@@ -423,10 +423,10 @@ bool dc_stream_add_writeback(struct dc *dc,
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 3fe02546aed35..2de75fda1d208 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -130,7 +130,7 @@
+ 116	i386	sysinfo			sys_sysinfo			__ia32_compat_sys_sysinfo
+ 117	i386	ipc			sys_ipc				__ia32_compat_sys_ipc
+ 118	i386	fsync			sys_fsync			__ia32_sys_fsync
+-119	i386	sigreturn		sys_sigreturn			sys32_sigreturn
++119	i386	sigreturn		sys_sigreturn			__ia32_compat_sys_sigreturn
+ 120	i386	clone			sys_clone			__ia32_compat_sys_x86_clone
+ 121	i386	setdomainname		sys_setdomainname		__ia32_sys_setdomainname
+ 122	i386	uname			sys_newuname			__ia32_sys_newuname
+@@ -184,7 +184,7 @@
+ 170	i386	setresgid		sys_setresgid16			__ia32_sys_setresgid16
+ 171	i386	getresgid		sys_getresgid16			__ia32_sys_getresgid16
+ 172	i386	prctl			sys_prctl			__ia32_sys_prctl
+-173	i386	rt_sigreturn		sys_rt_sigreturn		sys32_rt_sigreturn
++173	i386	rt_sigreturn		sys_rt_sigreturn		__ia32_compat_sys_rt_sigreturn
+ 174	i386	rt_sigaction		sys_rt_sigaction		__ia32_compat_sys_rt_sigaction
+ 175	i386	rt_sigprocmask		sys_rt_sigprocmask		__ia32_compat_sys_rt_sigprocmask
+ 176	i386	rt_sigpending		sys_rt_sigpending		__ia32_compat_sys_rt_sigpending
+diff --git a/arch/x86/ia32/ia32_signal.c b/arch/x86/ia32/ia32_signal.c
+index 1cee10091b9fb..30416d7f19d4f 100644
+--- a/arch/x86/ia32/ia32_signal.c
++++ b/arch/x86/ia32/ia32_signal.c
+@@ -21,6 +21,7 @@
+ #include <linux/personality.h>
+ #include <linux/compat.h>
+ #include <linux/binfmts.h>
++#include <linux/syscalls.h>
+ #include <asm/ucontext.h>
+ #include <linux/uaccess.h>
+ #include <asm/fpu/internal.h>
+@@ -118,7 +119,7 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 	return err;
+ }
  
- 		if (dwb->funcs->is_enabled(dwb)) {
- 			/* writeback pipe already enabled, only need to update */
--			dc->hwss.update_writeback(dc, stream_status, wb_info);
-+			dc->hwss.update_writeback(dc, stream_status, wb_info, dc->current_state);
- 		} else {
- 			/* Enable writeback pipe from scratch*/
--			dc->hwss.enable_writeback(dc, stream_status, wb_info);
-+			dc->hwss.enable_writeback(dc, stream_status, wb_info, dc->current_state);
- 		}
- 	}
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 1212da12c4144..9108240d3c1b2 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1337,7 +1337,8 @@ bool dcn20_update_bandwidth(
- static void dcn20_enable_writeback(
- 		struct dc *dc,
- 		const struct dc_stream_status *stream_status,
--		struct dc_writeback_info *wb_info)
-+		struct dc_writeback_info *wb_info,
-+		struct dc_state *context)
+-asmlinkage long sys32_sigreturn(void)
++COMPAT_SYSCALL_DEFINE0(sigreturn)
  {
- 	struct dwbc *dwb;
- 	struct mcif_wb *mcif_wb;
-@@ -1354,7 +1355,7 @@ static void dcn20_enable_writeback(
- 	optc->funcs->set_dwb_source(optc, wb_info->dwb_pipe_inst);
- 	/* set MCIF_WB buffer and arbitration configuration */
- 	mcif_wb->funcs->config_mcif_buf(mcif_wb, &wb_info->mcif_buf_params, wb_info->dwb_params.dest_height);
--	mcif_wb->funcs->config_mcif_arb(mcif_wb, &dc->current_state->bw_ctx.bw.dcn.bw_writeback.mcif_wb_arb[wb_info->dwb_pipe_inst]);
-+	mcif_wb->funcs->config_mcif_arb(mcif_wb, &context->bw_ctx.bw.dcn.bw_writeback.mcif_wb_arb[wb_info->dwb_pipe_inst]);
- 	/* Enable MCIF_WB */
- 	mcif_wb->funcs->enable_mcif(mcif_wb);
- 	/* Enable DWB */
-diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h b/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
-index 3a938cd414ea4..f6cc2d6f576d2 100644
---- a/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
-+++ b/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
-@@ -321,10 +321,12 @@ struct hw_sequencer_funcs {
- 			struct dc_state *context);
- 	void (*update_writeback)(struct dc *dc,
- 			const struct dc_stream_status *stream_status,
--			struct dc_writeback_info *wb_info);
-+			struct dc_writeback_info *wb_info,
-+			struct dc_state *context);
- 	void (*enable_writeback)(struct dc *dc,
- 			const struct dc_stream_status *stream_status,
--			struct dc_writeback_info *wb_info);
-+			struct dc_writeback_info *wb_info,
-+			struct dc_state *context);
- 	void (*disable_writeback)(struct dc *dc,
- 			unsigned int dwb_pipe_inst);
- #endif
+ 	struct pt_regs *regs = current_pt_regs();
+ 	struct sigframe_ia32 __user *frame = (struct sigframe_ia32 __user *)(regs->sp-8);
+@@ -144,7 +145,7 @@ asmlinkage long sys32_sigreturn(void)
+ 	return 0;
+ }
+ 
+-asmlinkage long sys32_rt_sigreturn(void)
++COMPAT_SYSCALL_DEFINE0(rt_sigreturn)
+ {
+ 	struct pt_regs *regs = current_pt_regs();
+ 	struct rt_sigframe_ia32 __user *frame;
 -- 
 2.20.1
 
