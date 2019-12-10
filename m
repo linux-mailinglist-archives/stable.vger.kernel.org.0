@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78823119B27
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:11:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F953119B54
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729508AbfLJWFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:05:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
+        id S1727732AbfLJWGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:06:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727902AbfLJWFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727283AbfLJWFV (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Dec 2019 17:05:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D5FD20637;
-        Tue, 10 Dec 2019 22:05:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F5D321556;
+        Tue, 10 Dec 2019 22:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015520;
-        bh=FddczVbEPZFyPlYwAop3cpsA8/nERmcz1hoKMZX0Be8=;
+        s=default; t=1576015521;
+        bh=CFeG6hHCIUTpfpt8mweoDzuL837g4k5/WJx5IMGwZiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WidQ1Ezi36lFFy0FJBWf3CYb/p7tvNmneOW/jjHkIJyPw8pVnpD6y/VgFAKqeX9h
-         nGtUTMui5/UfZdMucCYW5pjm5ZVrO+sJArU+vD7UO9Qw6UCXBWllo2U+uUyCZMIHr1
-         z+x6aQ0CdEevsDY0I2P44J6DgiTJNxZnYHx44Rts=
+        b=DbG1uf0Az2LlEc6JxV2IioXF9AJXXgZxifHS2sXk/1wiAo9Euod37LwocM5/4nu/s
+         XLjFLi9bGtJMta9maJs4MmRmB04JhWzw8hvKmizjoLy5sH+gy0wl01uCrutTftIW7P
+         EWtmD/lq+EnuZKvXk1ef0bmUYl4OfvV5T9xV2eRM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Omar Sandoval <osandov@fb.com>, Tejun Heo <tj@kernel.org>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 116/130] btrfs: don't prematurely free work in run_ordered_work()
-Date:   Tue, 10 Dec 2019 17:02:47 -0500
-Message-Id: <20191210220301.13262-116-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 117/130] spi: st-ssc4: add missed pm_runtime_disable
+Date:   Tue, 10 Dec 2019 17:02:48 -0500
+Message-Id: <20191210220301.13262-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -44,152 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit c495dcd6fbe1dce51811a76bb85b4675f6494938 ]
+[ Upstream commit cd050abeba2a95fe5374eec28ad2244617bcbab6 ]
 
-We hit the following very strange deadlock on a system with Btrfs on a
-loop device backed by another Btrfs filesystem:
+The driver forgets to call pm_runtime_disable in probe failure
+and remove.
+Add the missed calls to fix it.
 
-1. The top (loop device) filesystem queues an async_cow work item from
-   cow_file_range_async(). We'll call this work X.
-2. Worker thread A starts work X (normal_work_helper()).
-3. Worker thread A executes the ordered work for the top filesystem
-   (run_ordered_work()).
-4. Worker thread A finishes the ordered work for work X and frees X
-   (work->ordered_free()).
-5. Worker thread A executes another ordered work and gets blocked on I/O
-   to the bottom filesystem (still in run_ordered_work()).
-6. Meanwhile, the bottom filesystem allocates and queues an async_cow
-   work item which happens to be the recently-freed X.
-7. The workqueue code sees that X is already being executed by worker
-   thread A, so it schedules X to be executed _after_ worker thread A
-   finishes (see the find_worker_executing_work() call in
-   process_one_work()).
-
-Now, the top filesystem is waiting for I/O on the bottom filesystem, but
-the bottom filesystem is waiting for the top filesystem to finish, so we
-deadlock.
-
-This happens because we are breaking the workqueue assumption that a
-work item cannot be recycled while it still depends on other work. Fix
-it by waiting to free the work item until we are done with all of the
-related ordered work.
-
-P.S.:
-
-One might ask why the workqueue code doesn't try to detect a recycled
-work item. It actually does try by checking whether the work item has
-the same work function (find_worker_executing_work()), but in our case
-the function is the same. This is the only key that the workqueue code
-has available to compare, short of adding an additional, layer-violating
-"custom key". Considering that we're the only ones that have ever hit
-this, we should just play by the rules.
-
-Unfortunately, we haven't been able to create a minimal reproducer other
-than our full container setup using a compress-force=zstd filesystem on
-top of another compress-force=zstd filesystem.
-
-Suggested-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Link: https://lore.kernel.org/r/20191118024848.21645-1-hslester96@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/async-thread.c | 56 ++++++++++++++++++++++++++++++++---------
- 1 file changed, 44 insertions(+), 12 deletions(-)
+ drivers/spi/spi-st-ssc4.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/btrfs/async-thread.c b/fs/btrfs/async-thread.c
-index e00c8a9fd5bbc..72d7589072f52 100644
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -265,16 +265,17 @@ static inline void thresh_exec_hook(struct __btrfs_workqueue *wq)
- 	}
- }
+diff --git a/drivers/spi/spi-st-ssc4.c b/drivers/spi/spi-st-ssc4.c
+index a4e43fc19ece5..5df01ffdef468 100644
+--- a/drivers/spi/spi-st-ssc4.c
++++ b/drivers/spi/spi-st-ssc4.c
+@@ -385,6 +385,7 @@ static int spi_st_probe(struct platform_device *pdev)
+ 	return 0;
  
--static void run_ordered_work(struct __btrfs_workqueue *wq)
-+static void run_ordered_work(struct __btrfs_workqueue *wq,
-+			     struct btrfs_work *self)
- {
- 	struct list_head *list = &wq->ordered_list;
- 	struct btrfs_work *work;
- 	spinlock_t *lock = &wq->list_lock;
- 	unsigned long flags;
-+	void *wtag;
-+	bool free_self = false;
+ clk_disable:
++	pm_runtime_disable(&pdev->dev);
+ 	clk_disable_unprepare(spi_st->clk);
+ put_master:
+ 	spi_master_put(master);
+@@ -396,6 +397,8 @@ static int spi_st_remove(struct platform_device *pdev)
+ 	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct spi_st *spi_st = spi_master_get_devdata(master);
  
- 	while (1) {
--		void *wtag;
--
- 		spin_lock_irqsave(lock, flags);
- 		if (list_empty(list))
- 			break;
-@@ -300,16 +301,47 @@ static void run_ordered_work(struct __btrfs_workqueue *wq)
- 		list_del(&work->ordered_list);
- 		spin_unlock_irqrestore(lock, flags);
- 
--		/*
--		 * We don't want to call the ordered free functions with the
--		 * lock held though. Save the work as tag for the trace event,
--		 * because the callback could free the structure.
--		 */
--		wtag = work;
--		work->ordered_free(work);
--		trace_btrfs_all_work_done(wq->fs_info, wtag);
-+		if (work == self) {
-+			/*
-+			 * This is the work item that the worker is currently
-+			 * executing.
-+			 *
-+			 * The kernel workqueue code guarantees non-reentrancy
-+			 * of work items. I.e., if a work item with the same
-+			 * address and work function is queued twice, the second
-+			 * execution is blocked until the first one finishes. A
-+			 * work item may be freed and recycled with the same
-+			 * work function; the workqueue code assumes that the
-+			 * original work item cannot depend on the recycled work
-+			 * item in that case (see find_worker_executing_work()).
-+			 *
-+			 * Note that the work of one Btrfs filesystem may depend
-+			 * on the work of another Btrfs filesystem via, e.g., a
-+			 * loop device. Therefore, we must not allow the current
-+			 * work item to be recycled until we are really done,
-+			 * otherwise we break the above assumption and can
-+			 * deadlock.
-+			 */
-+			free_self = true;
-+		} else {
-+			/*
-+			 * We don't want to call the ordered free functions with
-+			 * the lock held though. Save the work as tag for the
-+			 * trace event, because the callback could free the
-+			 * structure.
-+			 */
-+			wtag = work;
-+			work->ordered_free(work);
-+			trace_btrfs_all_work_done(wq->fs_info, wtag);
-+		}
- 	}
- 	spin_unlock_irqrestore(lock, flags);
++	pm_runtime_disable(&pdev->dev);
 +
-+	if (free_self) {
-+		wtag = self;
-+		self->ordered_free(self);
-+		trace_btrfs_all_work_done(wq->fs_info, wtag);
-+	}
- }
+ 	clk_disable_unprepare(spi_st->clk);
  
- static void normal_work_helper(struct btrfs_work *work)
-@@ -337,7 +369,7 @@ static void normal_work_helper(struct btrfs_work *work)
- 	work->func(work);
- 	if (need_order) {
- 		set_bit(WORK_DONE_BIT, &work->flags);
--		run_ordered_work(wq);
-+		run_ordered_work(wq, work);
- 	}
- 	if (!need_order)
- 		trace_btrfs_all_work_done(wq->fs_info, wtag);
+ 	pinctrl_pm_select_sleep_state(&pdev->dev);
 -- 
 2.20.1
 
