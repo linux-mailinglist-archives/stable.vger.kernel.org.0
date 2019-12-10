@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD99211977A
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53CD1119938
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727895AbfLJVdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:33:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37620 "EHLO mail.kernel.org"
+        id S1727142AbfLJVo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:44:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727918AbfLJVdX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:33:23 -0500
+        id S1729696AbfLJVdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:33:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A21CF20836;
-        Tue, 10 Dec 2019 21:33:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F8DF214AF;
+        Tue, 10 Dec 2019 21:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013602;
-        bh=sQt0LJRwP8l7u0XzmMH3gzuiwAxNcY5FoECOg9RzGNU=;
+        s=default; t=1576013603;
+        bh=U9BNCHPmYuZnrtHrBx88BCeEEwo02lL9ebLIPtJWHCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXttTS0dO9PbsKFJxwxiUcZWmPbGZ23B5KbkBWCZG6dqQqGgAhyMaI31to8tFqYYV
-         KN49y0GqnlLQMaBP3lILTU9tYRA36K2511Fu+1LhX8BhJTuL6UigfewIpkdNVdeFPC
-         /M0ElkPFhrztTykyTmBWdpZ69BUjrz8qlwjyAjCs=
+        b=LQKFC5MLfjx1WJma+/avB765Z9pz/hZCzgeAUDZZUub7jMseWfqYBj70dSZx6LMA+
+         f0Xar9TV99N90YfJTvfOJBVLclIhxTv1h/Yb9T/OdRGwPhpR34ipzslHBlM6chCl6U
+         ElHW5IMLhT26AYeINJm77ptCMRsn1skXvbGc6mfA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 050/177] extcon: sm5502: Reset registers during initialization
-Date:   Tue, 10 Dec 2019 16:30:14 -0500
-Message-Id: <20191210213221.11921-50-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 051/177] syscalls/x86: Use COMPAT_SYSCALL_DEFINE0 for IA32 (rt_)sigreturn
+Date:   Tue, 10 Dec 2019 16:30:15 -0500
+Message-Id: <20191210213221.11921-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -43,61 +49,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 6942635032cfd3e003e980d2dfa4e6323a3ce145 ]
+[ Upstream commit 00198a6eaf66609de5e4de9163bb42c7ca9dd7b7 ]
 
-On some devices (e.g. Samsung Galaxy A5 (2015)), the bootloader
-seems to keep interrupts enabled for SM5502 when booting Linux.
-Changing the cable state (i.e. plugging in a cable) - until the driver
-is loaded - will therefore produce an interrupt that is never read.
+Use COMPAT_SYSCALL_DEFINE0 to define (rt_)sigreturn() syscalls to
+replace sys32_sigreturn() and sys32_rt_sigreturn(). This fixes indirect
+call mismatches with Control-Flow Integrity (CFI) checking.
 
-In this situation, the cable state will be stuck forever on the
-initial state because SM5502 stops sending interrupts.
-This can be avoided by clearing those pending interrupts after
-the driver has been loaded.
-
-One way to do this is to reset all registers to default state
-by writing to SM5502_REG_RESET. This ensures that we start from
-a clean state, with all interrupts disabled.
-
-Suggested-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H . Peter Anvin <hpa@zytor.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20191008224049.115427-4-samitolvanen@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-sm5502.c | 4 ++++
- drivers/extcon/extcon-sm5502.h | 2 ++
- 2 files changed, 6 insertions(+)
+ arch/x86/entry/syscalls/syscall_32.tbl | 4 ++--
+ arch/x86/ia32/ia32_signal.c            | 5 +++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
-index 0cfb5a3efdf65..2efcd94f74fc6 100644
---- a/drivers/extcon/extcon-sm5502.c
-+++ b/drivers/extcon/extcon-sm5502.c
-@@ -69,6 +69,10 @@ struct sm5502_muic_info {
- /* Default value of SM5502 register to bring up MUIC device. */
- static struct reg_data sm5502_reg_data[] = {
- 	{
-+		.reg = SM5502_REG_RESET,
-+		.val = SM5502_REG_RESET_MASK,
-+		.invert = true,
-+	}, {
- 		.reg = SM5502_REG_CONTROL,
- 		.val = SM5502_REG_CONTROL_MASK_INT_MASK,
- 		.invert = false,
-diff --git a/drivers/extcon/extcon-sm5502.h b/drivers/extcon/extcon-sm5502.h
-index 974b53222f568..12f8b01e57538 100644
---- a/drivers/extcon/extcon-sm5502.h
-+++ b/drivers/extcon/extcon-sm5502.h
-@@ -241,6 +241,8 @@ enum sm5502_reg {
- #define DM_DP_SWITCH_UART			((DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DP_SHIFT) \
- 						| (DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DM_SHIFT))
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 3cf7b533b3d13..273e99c0b9110 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -130,7 +130,7 @@
+ 116	i386	sysinfo			sys_sysinfo			__ia32_compat_sys_sysinfo
+ 117	i386	ipc			sys_ipc				__ia32_compat_sys_ipc
+ 118	i386	fsync			sys_fsync			__ia32_sys_fsync
+-119	i386	sigreturn		sys_sigreturn			sys32_sigreturn
++119	i386	sigreturn		sys_sigreturn			__ia32_compat_sys_sigreturn
+ 120	i386	clone			sys_clone			__ia32_compat_sys_x86_clone
+ 121	i386	setdomainname		sys_setdomainname		__ia32_sys_setdomainname
+ 122	i386	uname			sys_newuname			__ia32_sys_newuname
+@@ -184,7 +184,7 @@
+ 170	i386	setresgid		sys_setresgid16			__ia32_sys_setresgid16
+ 171	i386	getresgid		sys_getresgid16			__ia32_sys_getresgid16
+ 172	i386	prctl			sys_prctl			__ia32_sys_prctl
+-173	i386	rt_sigreturn		sys_rt_sigreturn		sys32_rt_sigreturn
++173	i386	rt_sigreturn		sys_rt_sigreturn		__ia32_compat_sys_rt_sigreturn
+ 174	i386	rt_sigaction		sys_rt_sigaction		__ia32_compat_sys_rt_sigaction
+ 175	i386	rt_sigprocmask		sys_rt_sigprocmask		__ia32_sys_rt_sigprocmask
+ 176	i386	rt_sigpending		sys_rt_sigpending		__ia32_compat_sys_rt_sigpending
+diff --git a/arch/x86/ia32/ia32_signal.c b/arch/x86/ia32/ia32_signal.c
+index 513ba49c204fe..35ddf2c9848c6 100644
+--- a/arch/x86/ia32/ia32_signal.c
++++ b/arch/x86/ia32/ia32_signal.c
+@@ -21,6 +21,7 @@
+ #include <linux/personality.h>
+ #include <linux/compat.h>
+ #include <linux/binfmts.h>
++#include <linux/syscalls.h>
+ #include <asm/ucontext.h>
+ #include <linux/uaccess.h>
+ #include <asm/fpu/internal.h>
+@@ -118,7 +119,7 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 	return err;
+ }
  
-+#define SM5502_REG_RESET_MASK			(0x1)
-+
- /* SM5502 Interrupts */
- enum sm5502_irq {
- 	/* INT1 */
+-asmlinkage long sys32_sigreturn(void)
++COMPAT_SYSCALL_DEFINE0(sigreturn)
+ {
+ 	struct pt_regs *regs = current_pt_regs();
+ 	struct sigframe_ia32 __user *frame = (struct sigframe_ia32 __user *)(regs->sp-8);
+@@ -144,7 +145,7 @@ asmlinkage long sys32_sigreturn(void)
+ 	return 0;
+ }
+ 
+-asmlinkage long sys32_rt_sigreturn(void)
++COMPAT_SYSCALL_DEFINE0(rt_sigreturn)
+ {
+ 	struct pt_regs *regs = current_pt_regs();
+ 	struct rt_sigframe_ia32 __user *frame;
 -- 
 2.20.1
 
