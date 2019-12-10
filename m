@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D82119A66
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A47A5119A61
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727349AbfLJVHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:07:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54174 "EHLO mail.kernel.org"
+        id S1727434AbfLJVHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:07:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727312AbfLJVHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:07:44 -0500
+        id S1727385AbfLJVHp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:07:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5CA524687;
-        Tue, 10 Dec 2019 21:07:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3A9224688;
+        Tue, 10 Dec 2019 21:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012063;
-        bh=uqHLQvzm+xZtTxEjJWFZKxJIQ3F3G+GRncOmGj48G7g=;
+        s=default; t=1576012064;
+        bh=Q+0BDaIJv0ZuVDo4ps/CNbx5BGyhxxCvpLyMQygSQNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/XIRrXgOh/bO8GJyWEhRZ4hZxEC/59XYDexXMRhesOrAP8BCxD9BCL+yVrr4BaOR
-         vt5W0qBsuc4m/TKTKVo3CsBBMKe1WkGm2+KPYZvIxNJN1f2dFKfC0enLIf0jMY95nm
-         6lGZU9NP17VDiQV6a3UeCrES31UPh3xnrGVVnjCE=
+        b=ua3SBWmz7wRC5U7wUFgJlZSBY8tVjFxQ7RJH0X1/rwxVvZJSAonpnm/ihLNohhgjh
+         a6VQsd+n8MBWmp1hybObi9mVbBVm538QhGmpcnd/aG2e6ck3frAl00/cQxEZOByep4
+         zD8xKHaSZ0ddk0mBjAGmFbyR4ujCTpyB88MS2aFY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 045/350] media: ov6650: Fix stored crop rectangle not in sync with hardware
-Date:   Tue, 10 Dec 2019 16:02:30 -0500
-Message-Id: <20191210210735.9077-6-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.4 046/350] tools/power/cpupower: Fix initializer override in hsw_ext_cstates
+Date:   Tue, 10 Dec 2019 16:02:31 -0500
+Message-Id: <20191210210735.9077-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,56 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 1463b371aff0682c70141f7521db13cc4bbf3016 ]
+[ Upstream commit 7e5705c635ecfccde559ebbbe1eaf05b5cc60529 ]
 
-The driver stores crop rectangle settings supposed to be in line with
-hardware state in a device private structure.  Since the driver initial
-submission, crop rectangle width and height settings are not updated
-correctly when rectangle offset settings are applied on hardware.  If
-an error occurs while the device is updated, the stored settings my no
-longer reflect hardware state and consecutive calls to .get_selection()
-as well as .get/set_fmt() may return incorrect information.  That in
-turn may affect ability of a bridge device to use correct DMA transfer
-settings if such incorrect informamtion on active frame format returned
-by .get/set_fmt() is used.
+When building cpupower with clang, the following warning appears:
 
-Assuming a failed update of the device means its actual settings haven't
-changed, update crop rectangle width and height settings stored in the
-device private structure correctly while the rectangle offset is
-successfully applied on hardware so the stored values always reflect
-actual hardware state to the extent possible.
+ utils/idle_monitor/hsw_ext_idle.c:42:16: warning: initializer overrides
+ prior initialization of this subobject [-Winitializer-overrides]
+                 .desc                   = N_("Processor Package C2"),
+                                              ^~~~~~~~~~~~~~~~~~~~~~
+ ./utils/helpers/helpers.h:25:33: note: expanded from macro 'N_'
+ #define N_(String) gettext_noop(String)
+                                 ^~~~~~
+ ./utils/helpers/helpers.h:23:30: note: expanded from macro
+ 'gettext_noop'
+ #define gettext_noop(String) String
+                              ^~~~~~
+ utils/idle_monitor/hsw_ext_idle.c:41:16: note: previous initialization
+ is here
+                 .desc                   = N_("Processor Package C9"),
+                                              ^~~~~~~~~~~~~~~~~~~~~~
+ ./utils/helpers/helpers.h:25:33: note: expanded from macro 'N_'
+ #define N_(String) gettext_noop(String)
+                                 ^~~~~~
+ ./utils/helpers/helpers.h:23:30: note: expanded from macro
+ 'gettext_noop'
+ #define gettext_noop(String) String
+                             ^~~~~~
+ 1 warning generated.
 
-Fixes: 2f6e2404799a ("[media] SoC Camera: add driver for OV6650 sensor")
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+This appears to be a copy and paste or merge mistake because the name
+and id fields both have PC9 in them, not PC2. Remove the second
+assignment to fix the warning.
+
+Fixes: 7ee767b69b68 ("cpupower: Add Haswell family 0x45 specific idle monitor to show PC8,9,10 states")
+Link: https://github.com/ClangBuiltLinux/linux/issues/718
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov6650.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
-index 5426fed2574ec..43c3f1b6e19ac 100644
---- a/drivers/media/i2c/ov6650.c
-+++ b/drivers/media/i2c/ov6650.c
-@@ -481,6 +481,7 @@ static int ov6650_set_selection(struct v4l2_subdev *sd,
- 
- 	ret = ov6650_reg_write(client, REG_HSTRT, sel->r.left >> 1);
- 	if (!ret) {
-+		priv->rect.width += priv->rect.left - sel->r.left;
- 		priv->rect.left = sel->r.left;
- 		ret = ov6650_reg_write(client, REG_HSTOP,
- 				       (sel->r.left + sel->r.width) >> 1);
-@@ -490,6 +491,7 @@ static int ov6650_set_selection(struct v4l2_subdev *sd,
- 		ret = ov6650_reg_write(client, REG_VSTRT, sel->r.top >> 1);
- 	}
- 	if (!ret) {
-+		priv->rect.height += priv->rect.top - sel->r.top;
- 		priv->rect.top = sel->r.top;
- 		ret = ov6650_reg_write(client, REG_VSTOP,
- 				       (sel->r.top + sel->r.height) >> 1);
+diff --git a/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c b/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
+index 7c7451d3f494f..58dbdfd4fa13d 100644
+--- a/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
++++ b/tools/power/cpupower/utils/idle_monitor/hsw_ext_idle.c
+@@ -39,7 +39,6 @@ static cstate_t hsw_ext_cstates[HSW_EXT_CSTATE_COUNT] = {
+ 	{
+ 		.name			= "PC9",
+ 		.desc			= N_("Processor Package C9"),
+-		.desc			= N_("Processor Package C2"),
+ 		.id			= PC9,
+ 		.range			= RANGE_PACKAGE,
+ 		.get_count_percent	= hsw_ext_get_count_percent,
 -- 
 2.20.1
 
