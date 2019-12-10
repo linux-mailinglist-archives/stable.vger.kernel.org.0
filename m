@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 454971196D7
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:29:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8931196D9
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:29:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbfLJVKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:10:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59532 "EHLO mail.kernel.org"
+        id S1728375AbfLJVKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:10:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728362AbfLJVKG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:06 -0500
+        id S1728371AbfLJVKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAB46246AF;
-        Tue, 10 Dec 2019 21:10:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B93D246A3;
+        Tue, 10 Dec 2019 21:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012205;
-        bh=2tdQh7owUxDkjvY4hUjByt01ydM67WLZgxcr2v+lDv4=;
+        s=default; t=1576012207;
+        bh=c74UdZb99u9Y/Wf02n29njus4/faLy6Lp6Z1/C21cDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xBaV3pOuqihgkQoVr8vAYosgj7S0R6L/SarkJnjcmldRLkfBmUupzjDK+tQUDsIyw
-         a76z0EQTq7VVE93dpm/1vLbrMSKnGZRs9UFhq73kTi39Dd+10B0TwDIDim8YPGSVRO
-         0FfkMb0K3l9VtI/Uk/Ky1QGe+48Klsqxhk2gRYUw=
+        b=bACOWw5mlh7aVsHPPvZJGwkFHHeCp7AR5HRZ/wUjBDOV/Wj69Eigxt+aAZiEzKwm3
+         eWxxKPDYfa4fJWkmmguqxowav74J65QA5jmRX0kSjCpRi7i7HcE2rzis4fI+h676bV
+         kMS0mN4piAc6jr5ww1fvdxRmJofOeYX45PmHO0nY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Robert Richter <rrichter@marvell.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 158/350] EDAC/amd64: Set grain per DIMM
-Date:   Tue, 10 Dec 2019 16:04:23 -0500
-Message-Id: <20191210210735.9077-119-sashal@kernel.org>
+Cc:     Yunfeng Ye <yeyunfeng@huawei.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 159/350] arm64: psci: Reduce the waiting time for cpu_psci_cpu_kill()
+Date:   Tue, 10 Dec 2019 16:04:24 -0500
+Message-Id: <20191210210735.9077-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -48,55 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 466503d6b1b33be46ab87c6090f0ade6c6011cbc ]
+[ Upstream commit bfcef4ab1d7ee8921bc322109b1692036cc6cbe0 ]
 
-The following commit introduced a warning on error reports without a
-non-zero grain value.
+In cases like suspend-to-disk and suspend-to-ram, a large number of CPU
+cores need to be shut down. At present, the CPU hotplug operation is
+serialised, and the CPU cores can only be shut down one by one. In this
+process, if PSCI affinity_info() does not return LEVEL_OFF quickly,
+cpu_psci_cpu_kill() needs to wait for 10ms. If hundreds of CPU cores
+need to be shut down, it will take a long time.
 
-  3724ace582d9 ("EDAC/mc: Fix grain_bits calculation")
+Normally, there is no need to wait 10ms in cpu_psci_cpu_kill(). So
+change the wait interval from 10 ms to max 1 ms and use usleep_range()
+instead of msleep() for more accurate timer.
 
-The amd64_edac_mod module does not provide a value, so the warning will
-be given on the first reported memory error.
+In addition, reducing the time interval will increase the messages
+output, so remove the "Retry ..." message, instead, track time and
+output to the the sucessful message.
 
-Set the grain per DIMM to cacheline size (64 bytes). This is the current
-recommendation.
-
-Fixes: 3724ace582d9 ("EDAC/mc: Fix grain_bits calculation")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Robert Richter <rrichter@marvell.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20191022203448.13962-7-Yazen.Ghannam@amd.com
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/amd64_edac.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kernel/psci.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index c1d4536ae466e..cc5e56d752c8d 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -2936,6 +2936,7 @@ static int init_csrows_df(struct mem_ctl_info *mci)
- 			dimm->mtype = pvt->dram_type;
- 			dimm->edac_mode = edac_mode;
- 			dimm->dtype = dev_type;
-+			dimm->grain = 64;
- 		}
- 	}
+diff --git a/arch/arm64/kernel/psci.c b/arch/arm64/kernel/psci.c
+index c9f72b2665f1c..43ae4e0c968f6 100644
+--- a/arch/arm64/kernel/psci.c
++++ b/arch/arm64/kernel/psci.c
+@@ -81,7 +81,8 @@ static void cpu_psci_cpu_die(unsigned int cpu)
  
-@@ -3012,6 +3013,7 @@ static int init_csrows(struct mem_ctl_info *mci)
- 			dimm = csrow->channels[j]->dimm;
- 			dimm->mtype = pvt->dram_type;
- 			dimm->edac_mode = edac_mode;
-+			dimm->grain = 64;
- 		}
- 	}
+ static int cpu_psci_cpu_kill(unsigned int cpu)
+ {
+-	int err, i;
++	int err;
++	unsigned long start, end;
  
+ 	if (!psci_ops.affinity_info)
+ 		return 0;
+@@ -91,16 +92,18 @@ static int cpu_psci_cpu_kill(unsigned int cpu)
+ 	 * while it is dying. So, try again a few times.
+ 	 */
+ 
+-	for (i = 0; i < 10; i++) {
++	start = jiffies;
++	end = start + msecs_to_jiffies(100);
++	do {
+ 		err = psci_ops.affinity_info(cpu_logical_map(cpu), 0);
+ 		if (err == PSCI_0_2_AFFINITY_LEVEL_OFF) {
+-			pr_info("CPU%d killed.\n", cpu);
++			pr_info("CPU%d killed (polled %d ms)\n", cpu,
++				jiffies_to_msecs(jiffies - start));
+ 			return 0;
+ 		}
+ 
+-		msleep(10);
+-		pr_info("Retrying again to check for CPU kill\n");
+-	}
++		usleep_range(100, 1000);
++	} while (time_before(jiffies, end));
+ 
+ 	pr_warn("CPU%d may not have shut down cleanly (AFFINITY_INFO reports %d)\n",
+ 			cpu, err);
 -- 
 2.20.1
 
