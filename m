@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 512F81198E1
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:46:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F6F1198DD
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:46:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729403AbfLJVkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:40:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
+        id S1728890AbfLJVkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:40:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730033AbfLJVe1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:34:27 -0500
+        id S1729614AbfLJVe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:34:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 786A720836;
-        Tue, 10 Dec 2019 21:34:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ED962073B;
+        Tue, 10 Dec 2019 21:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013667;
-        bh=bIebrVl7IHM/MUvJl7NghNeNTaUizKJzc2WnziHpRHQ=;
+        s=default; t=1576013668;
+        bh=RTb71w6JQiLTCar9gcPlOjum+qxLqkUUOFM4ZXT1ok8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDm/vy/JWYbjONKTPlTIbHKK4pcsQZDJRZupdwiprepvq2cE0uGN2xyEjaLcSlhw+
-         jQ7AjnAu5B8nZYBC/CALwNXku8b5bnL+Y4YjbhWhmc1cJVMhXMDCJZrN4o0Aawrf/4
-         s9KLF6PfgsLCft7Feo/W5rqAv86kDreAFBhe+UPQ=
+        b=so1xB12AvBt9Ay5yUsAE/1AXTQ6LNq4mehVf2SSx561WJ1J9iHEyyC2a5qhMANrR1
+         3ZhegeAQW7C3fOe6zJG1dK6MmBJz7lgkfZ9UqHenz4O+VvVP/hlsACchGOlaRVfWe8
+         96GyOW+s8nKLJUywmXQ9O6okr07rFj7ma8Pv+Gts=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manish Chopra <manishc@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 104/177] bnx2x: Fix PF-VF communication over multi-cos queues.
-Date:   Tue, 10 Dec 2019 16:31:08 -0500
-Message-Id: <20191210213221.11921-104-sashal@kernel.org>
+Cc:     Pan Bian <bianpan2016@163.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 105/177] spi: img-spfi: fix potential double release
+Date:   Tue, 10 Dec 2019 16:31:09 -0500
+Message-Id: <20191210213221.11921-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -43,52 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit dc5a3d79c345871439ffe72550b604fcde9770e1 ]
+[ Upstream commit e9a8ba9769a0e354341bc6cc01b98aadcea1dfe9 ]
 
-PF driver doesn't enable tx-switching for all cos queues/clients,
-which causes packets drop from PF to VF. Fix this by enabling
-tx-switching on all cos queues/clients.
+The channels spfi->tx_ch and spfi->rx_ch are not set to NULL after they
+are released. As a result, they will be released again, either on the
+error handling branch in the same function or in the corresponding
+remove function, i.e. img_spfi_remove(). This patch fixes the bug by
+setting the two members to NULL.
 
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/1573007769-20131-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/broadcom/bnx2x/bnx2x_sriov.c    | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/spi/spi-img-spfi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-index 62da465377340..ab60f4f9cc246 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
-@@ -2394,15 +2394,21 @@ static int bnx2x_set_pf_tx_switching(struct bnx2x *bp, bool enable)
- 	/* send the ramrod on all the queues of the PF */
- 	for_each_eth_queue(bp, i) {
- 		struct bnx2x_fastpath *fp = &bp->fp[i];
-+		int tx_idx;
- 
- 		/* Set the appropriate Queue object */
- 		q_params.q_obj = &bnx2x_sp_obj(bp, fp).q_obj;
- 
--		/* Update the Queue state */
--		rc = bnx2x_queue_state_change(bp, &q_params);
--		if (rc) {
--			BNX2X_ERR("Failed to configure Tx switching\n");
--			return rc;
-+		for (tx_idx = FIRST_TX_COS_INDEX;
-+		     tx_idx < fp->max_cos; tx_idx++) {
-+			q_params.params.update.cid_index = tx_idx;
-+
-+			/* Update the Queue state */
-+			rc = bnx2x_queue_state_change(bp, &q_params);
-+			if (rc) {
-+				BNX2X_ERR("Failed to configure Tx switching\n");
-+				return rc;
-+			}
- 		}
- 	}
- 
+diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
+index e6eb979f1b8a0..e4b31d6e6e33e 100644
+--- a/drivers/spi/spi-img-spfi.c
++++ b/drivers/spi/spi-img-spfi.c
+@@ -676,6 +676,8 @@ static int img_spfi_probe(struct platform_device *pdev)
+ 			dma_release_channel(spfi->tx_ch);
+ 		if (spfi->rx_ch)
+ 			dma_release_channel(spfi->rx_ch);
++		spfi->tx_ch = NULL;
++		spfi->rx_ch = NULL;
+ 		dev_warn(spfi->dev, "Failed to get DMA channels, falling back to PIO mode\n");
+ 	} else {
+ 		master->dma_tx = spfi->tx_ch;
 -- 
 2.20.1
 
