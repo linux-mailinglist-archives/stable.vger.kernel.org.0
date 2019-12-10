@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3C12119732
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:32:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F723119733
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728154AbfLJVJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:09:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57884 "EHLO mail.kernel.org"
+        id S1728162AbfLJVJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:09:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726913AbfLJVJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:09:25 -0500
+        id S1728157AbfLJVJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D915824699;
-        Tue, 10 Dec 2019 21:09:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23E67246A9;
+        Tue, 10 Dec 2019 21:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012164;
-        bh=yS2KDEXb1mtqkGjsdBPg69ZkH+a+Qekok3ngQXZ45Jc=;
+        s=default; t=1576012166;
+        bh=g4bCn+xYFLaXqyDO1JtEXbFTEVIZV6mXkDG/EmNFlH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBOMGUX+vuZ2Ifb1HTSH9xfKyc6fTsWNsWvTyOrj4GnZ3RIZX+4Hvspq7kgmVsPVR
-         CKjV2dudYXM4AXWEJDJ4zp5GgrK450tnk315R3MTXv7yGiBnFKjaXfZ1ZTRdSWaTIo
-         Rr/QfXkWxNaaHS3H51cD6WkWPH21B9eVY4dv4CkE=
+        b=2ZnHv878HS79+Zy+2Cesskbxim/UGqcwBIIg8ZAYwwdwOmqWQPJ/OCMyBiJ3tIXfA
+         tSjn4OzLjBT+DSlUqDWgQTESN3nhltObKm3LzOiLWoP/ToOIzMF9AczsgEZsasRzj4
+         tw+DfPxNMMN4rTH7IU/ONcgkTY6H9z+Gzt0CQpmg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+Cc:     joseph gravenor <joseph.gravenor@amd.com>,
         Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
         Roman Li <Roman.Li@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 125/350] drm/amd/display: enable hostvm based on roimmu active for dcn2.1
-Date:   Tue, 10 Dec 2019 16:03:50 -0500
-Message-Id: <20191210210735.9077-86-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 126/350] drm/amd/display: fix header for RN clk mgr
+Date:   Tue, 10 Dec 2019 16:03:51 -0500
+Message-Id: <20191210210735.9077-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,90 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: joseph gravenor <joseph.gravenor@amd.com>
 
-[ Upstream commit 48d92e8eda3d9b61978377e7539bfc5958e850cf ]
+[ Upstream commit cd83fa1ea9b9431cf1d57ac4179a11bc4393a5b6 ]
 
-Enabling hostvm when ROIMMU is not active seems to break GPUVM.
-This fixes the issue by not enabling hostvm if ROIMMU is not
-activated.
+[why]
+Should always MP0_BASE for any register definition from MP per-IP header files.
+I belive the reason the linux version of MP1_BASE works is The 0th element of the 0th table
+of that is identical to the corrisponding value of MP0_BASE in the renoir offset header file.
+The reason we should only use MP0_BASE is There is only one set of per-IP headers MP
+that includes all register definitions related to SMU IP block. This IP includes MP0, MP1, MP2
+and  an ecryption engine that can be used only by MP0. As a result all register definitions from
+MP file should be based only on MP0_BASE data.
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+[How]
+Change MP1_BASE to MP0_BASE
+
+Signed-off-by: joseph gravenor <joseph.gravenor@amd.com>
 Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
 Reviewed-by: Roman Li <Roman.Li@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn21/dcn21_hubbub.c   | 40 ++++++++++++-------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+ .../gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c
-index d1266741763b9..f5f6b4a0f0aa4 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubbub.c
-@@ -22,6 +22,7 @@
-  * Authors: AMD
-  *
-  */
-+#include <linux/delay.h>
- #include "dm_services.h"
- #include "dcn20/dcn20_hubbub.h"
- #include "dcn21_hubbub.h"
-@@ -71,30 +72,39 @@ static uint32_t convert_and_clamp(
- void dcn21_dchvm_init(struct hubbub *hubbub)
- {
- 	struct dcn20_hubbub *hubbub1 = TO_DCN20_HUBBUB(hubbub);
-+	uint32_t riommu_active;
-+	int i;
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
+index 50984c1811bb2..468c6bb0e3119 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr_vbios_smu.c
+@@ -33,7 +33,7 @@
+ #include "mp/mp_12_0_0_sh_mask.h"
  
- 	//Init DCHVM block
- 	REG_UPDATE(DCHVM_CTRL0, HOSTVM_INIT_REQ, 1);
+ #define REG(reg_name) \
+-	(MP1_BASE.instance[0].segment[mm ## reg_name ## _BASE_IDX] + mm ## reg_name)
++	(MP0_BASE.instance[0].segment[mm ## reg_name ## _BASE_IDX] + mm ## reg_name)
  
- 	//Poll until RIOMMU_ACTIVE = 1
--	//TODO: Figure out interval us and retry count
--	REG_WAIT(DCHVM_RIOMMU_STAT0, RIOMMU_ACTIVE, 1, 5, 100);
-+	for (i = 0; i < 100; i++) {
-+		REG_GET(DCHVM_RIOMMU_STAT0, RIOMMU_ACTIVE, &riommu_active);
- 
--	//Reflect the power status of DCHUBBUB
--	REG_UPDATE(DCHVM_RIOMMU_CTRL0, HOSTVM_POWERSTATUS, 1);
-+		if (riommu_active)
-+			break;
-+		else
-+			udelay(5);
-+	}
-+
-+	if (riommu_active) {
-+		//Reflect the power status of DCHUBBUB
-+		REG_UPDATE(DCHVM_RIOMMU_CTRL0, HOSTVM_POWERSTATUS, 1);
- 
--	//Start rIOMMU prefetching
--	REG_UPDATE(DCHVM_RIOMMU_CTRL0, HOSTVM_PREFETCH_REQ, 1);
-+		//Start rIOMMU prefetching
-+		REG_UPDATE(DCHVM_RIOMMU_CTRL0, HOSTVM_PREFETCH_REQ, 1);
- 
--	// Enable dynamic clock gating
--	REG_UPDATE_4(DCHVM_CLK_CTRL,
--					HVM_DISPCLK_R_GATE_DIS, 0,
--					HVM_DISPCLK_G_GATE_DIS, 0,
--					HVM_DCFCLK_R_GATE_DIS, 0,
--					HVM_DCFCLK_G_GATE_DIS, 0);
-+		// Enable dynamic clock gating
-+		REG_UPDATE_4(DCHVM_CLK_CTRL,
-+						HVM_DISPCLK_R_GATE_DIS, 0,
-+						HVM_DISPCLK_G_GATE_DIS, 0,
-+						HVM_DCFCLK_R_GATE_DIS, 0,
-+						HVM_DCFCLK_G_GATE_DIS, 0);
- 
--	//Poll until HOSTVM_PREFETCH_DONE = 1
--	//TODO: Figure out interval us and retry count
--	REG_WAIT(DCHVM_RIOMMU_STAT0, HOSTVM_PREFETCH_DONE, 1, 5, 100);
-+		//Poll until HOSTVM_PREFETCH_DONE = 1
-+		REG_WAIT(DCHVM_RIOMMU_STAT0, HOSTVM_PREFETCH_DONE, 1, 5, 100);
-+	}
- }
- 
- static int hubbub21_init_dchub(struct hubbub *hubbub,
+ #define FN(reg_name, field) \
+ 	FD(reg_name##__##field)
 -- 
 2.20.1
 
