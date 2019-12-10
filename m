@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F5B119D62
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:38:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C64F4119D66
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729976AbfLJWdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:33:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
+        id S1729512AbfLJWds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:33:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729240AbfLJWdq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:33:46 -0500
+        id S1729170AbfLJWdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:33:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DEB420836;
-        Tue, 10 Dec 2019 22:33:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D3ED208C3;
+        Tue, 10 Dec 2019 22:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017225;
-        bh=5bmSyDc+fPXrUgMVtYHzT3GVLLN1Sajj5eSGI2QVhdE=;
+        s=default; t=1576017227;
+        bh=z6VNPAjdlwsXZf+UURspqWnK3HBDctgIcTjbgHC1vMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFZm1pmNvZ/ehRQZaSHWe7U4zeXiCGjZKwarc9BAMME06WlrC20/OGhjWcj/VzE88
-         s3iXi0fY7vuMYi/2HHs9ihWIb/1PpMn4cY06vI+6HyYlRZlKi+eHjjj2dZCjgZsFUs
-         SbrXEMvHH5iW7ZLAd99LpgfuCoucFkhPh0xI4/8g=
+        b=JV4TWomsTuezmxRHAo4wFizyDEos0VGnvslx1gKxnQOsWactQc3ctL+WxVMFXhF9H
+         t8WUAYojR7s7pORiKC1SGFjXghhEWjPGvz9sA/UHkzBLGflqJH1EDOtuNvrVIY8LiL
+         ZQXO8gSGAEnidt7r2irftxqYQ6r4yQIZdGfu/PGQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Jin Yao <yao.jin@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 24/71] x86/mm: Use the correct function type for native_set_fixmap()
-Date:   Tue, 10 Dec 2019 17:32:29 -0500
-Message-Id: <20191210223316.14988-24-sashal@kernel.org>
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 25/71] perf report: Add warning when libunwind not compiled in
+Date:   Tue, 10 Dec 2019 17:32:30 -0500
+Message-Id: <20191210223316.14988-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -51,63 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-[ Upstream commit f53e2cd0b8ab7d9e390414470bdbd830f660133f ]
+[ Upstream commit 800d3f561659b5436f8c57e7c26dd1f6928b5615 ]
 
-We call native_set_fixmap indirectly through the function pointer
-struct pv_mmu_ops::set_fixmap, which expects the first parameter to be
-'unsigned' instead of 'enum fixed_addresses'. This patch changes the
-function type for native_set_fixmap to match the pointer, which fixes
-indirect call mismatches with Control-Flow Integrity (CFI) checking.
+We received a user report that call-graph DWARF mode was enabled in
+'perf record' but 'perf report' didn't unwind the callstack correctly.
+The reason was, libunwind was not compiled in.
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H . Peter Anvin <hpa@zytor.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+We can use 'perf -vv' to check the compiled libraries but it would be
+valuable to report a warning to user directly (especially valuable for
+a perf newbie).
+
+The warning is:
+
+Warning:
+Please install libunwind development packages during the perf build.
+
+Both TUI and stdio are supported.
+
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190913211402.193018-1-samitolvanen@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: http://lore.kernel.org/lkml/20191011022122.26369-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fixmap.h | 2 +-
- arch/x86/mm/pgtable.c         | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/builtin-report.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/x86/include/asm/fixmap.h b/arch/x86/include/asm/fixmap.h
-index f80d70009ff87..d0e39f54feee3 100644
---- a/arch/x86/include/asm/fixmap.h
-+++ b/arch/x86/include/asm/fixmap.h
-@@ -147,7 +147,7 @@ extern pgprot_t kmap_prot;
- extern pte_t *pkmap_page_table;
+diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
+index f256fac1e7225..0f7ebac1846b5 100644
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -285,6 +285,13 @@ static int report__setup_sample_type(struct report *rep)
+ 				PERF_SAMPLE_BRANCH_ANY))
+ 		rep->nonany_branch_mode = true;
  
- void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
--void native_set_fixmap(enum fixed_addresses idx,
-+void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
- 		       phys_addr_t phys, pgprot_t flags);
- 
- #ifndef CONFIG_PARAVIRT
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index 50f75768aadd1..3ed4753280aaf 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -567,8 +567,8 @@ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte)
- 	fixmaps_set++;
++#ifndef HAVE_LIBUNWIND_SUPPORT
++	if (dwarf_callchain_users) {
++		ui__warning("Please install libunwind development packages "
++			    "during the perf build.\n");
++	}
++#endif
++
+ 	return 0;
  }
  
--void native_set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
--		       pgprot_t flags)
-+void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
-+		       phys_addr_t phys, pgprot_t flags)
- {
- 	__native_set_fixmap(idx, pfn_pte(phys >> PAGE_SHIFT, flags));
- }
 -- 
 2.20.1
 
