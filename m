@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2031192AC
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F3D11931D
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:08:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727183AbfLJVEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:04:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
+        id S1726685AbfLJVGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:06:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727168AbfLJVEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:21 -0500
+        id S1727193AbfLJVEW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD0E82467D;
-        Tue, 10 Dec 2019 21:04:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31E1724679;
+        Tue, 10 Dec 2019 21:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011860;
-        bh=AvGb7raIirwstg8kfXjUJzU+w5LDXx1ttWLfV2/55zg=;
+        s=default; t=1576011861;
+        bh=G3pxgIYne46zikRD4f0dDWJlvjJHvRooIorjQRkUWwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+pOQ5kvJOM45DLs07Rc5gu9c/rTzWP5P8mFrKVTiahTbrA23ZxKb3b0UGFi4CENp
-         9jWPRJAXotSNIDY3eRei2C2HzOHMvVD8Wq2A+j4b8aM4u2u8+Zgg4as5t049qZfXwQ
-         O4UrGT8u2GJv+E6CDcjOv9/j2V3UJywae46vu9BQ=
+        b=1CyRwNEC0MH3udFRIzaIsCPy/bmeyAgnQYwENOJ68DWc+b9pYcsHXPgdP2n4pKOiJ
+         2iMRld30xxreONK4bbXhnDnzvCuq8BWxEqrCqdK/kY5sqZdMZKt/MsNmJs/9WKQYeF
+         MmcQkTSd25X4xJddrzxX0Hvy2yikMiopuXlMsHjc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Chunming Zhou <david1.zhou@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 014/350] drm/amdgpu: grab the id mgr lock while accessing passid_mapping
-Date:   Tue, 10 Dec 2019 15:58:26 -0500
-Message-Id: <20191210210402.8367-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 015/350] drm/ttm: return -EBUSY on pipelining with no_gpu_wait (v2)
+Date:   Tue, 10 Dec 2019 15:58:27 -0500
+Message-Id: <20191210210402.8367-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
@@ -48,60 +48,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 6817bf283b2b851095825ec7f0e9f10398e09125 ]
+[ Upstream commit 3084cf46cf8110826a42de8c8ef30e8fa48974c2 ]
 
-Need to make sure that we actually dropping the right fence.
-Could be done with RCU as well, but to complicated for a fix.
+Setting the no_gpu_wait flag means that the allocate BO must be available
+immediately and we can't wait for any GPU operation to finish.
+
+v2: squash in mem leak fix, rebase
 
 Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Chunming Zhou <david1.zhou@amd.com>
+Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo.c | 44 +++++++++++++++++++++---------------
+ 1 file changed, 26 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index 5251352f59228..7700c32dd7430 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -1034,10 +1034,8 @@ int amdgpu_vm_flush(struct amdgpu_ring *ring, struct amdgpu_job *job, bool need_
- 		id->oa_base != job->oa_base ||
- 		id->oa_size != job->oa_size);
- 	bool vm_flush_needed = job->vm_needs_flush;
--	bool pasid_mapping_needed = id->pasid != job->pasid ||
--		!id->pasid_mapping ||
--		!dma_fence_is_signaled(id->pasid_mapping);
- 	struct dma_fence *fence = NULL;
-+	bool pasid_mapping_needed;
- 	unsigned patch_offset = 0;
- 	int r;
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 98819462f025f..f078036998092 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -926,7 +926,8 @@ EXPORT_SYMBOL(ttm_bo_mem_put);
+  */
+ static int ttm_bo_add_move_fence(struct ttm_buffer_object *bo,
+ 				 struct ttm_mem_type_manager *man,
+-				 struct ttm_mem_reg *mem)
++				 struct ttm_mem_reg *mem,
++				 bool no_wait_gpu)
+ {
+ 	struct dma_fence *fence;
+ 	int ret;
+@@ -935,19 +936,22 @@ static int ttm_bo_add_move_fence(struct ttm_buffer_object *bo,
+ 	fence = dma_fence_get(man->move);
+ 	spin_unlock(&man->move_lock);
  
-@@ -1047,6 +1045,12 @@ int amdgpu_vm_flush(struct amdgpu_ring *ring, struct amdgpu_job *job, bool need_
- 		pasid_mapping_needed = true;
- 	}
+-	if (fence) {
+-		dma_resv_add_shared_fence(bo->base.resv, fence);
++	if (!fence)
++		return 0;
  
-+	mutex_lock(&id_mgr->lock);
-+	if (id->pasid != job->pasid || !id->pasid_mapping ||
-+	    !dma_fence_is_signaled(id->pasid_mapping))
-+		pasid_mapping_needed = true;
-+	mutex_unlock(&id_mgr->lock);
+-		ret = dma_resv_reserve_shared(bo->base.resv, 1);
+-		if (unlikely(ret)) {
+-			dma_fence_put(fence);
+-			return ret;
+-		}
++	if (no_wait_gpu)
++		return -EBUSY;
 +
- 	gds_switch_needed &= !!ring->funcs->emit_gds_switch;
- 	vm_flush_needed &= !!ring->funcs->emit_vm_flush  &&
- 			job->vm_pd_addr != AMDGPU_BO_INVALID_OFFSET;
-@@ -1086,9 +1090,11 @@ int amdgpu_vm_flush(struct amdgpu_ring *ring, struct amdgpu_job *job, bool need_
++	dma_resv_add_shared_fence(bo->base.resv, fence);
+ 
+-		dma_fence_put(bo->moving);
+-		bo->moving = fence;
++	ret = dma_resv_reserve_shared(bo->base.resv, 1);
++	if (unlikely(ret)) {
++		dma_fence_put(fence);
++		return ret;
  	}
  
- 	if (pasid_mapping_needed) {
-+		mutex_lock(&id_mgr->lock);
- 		id->pasid = job->pasid;
- 		dma_fence_put(id->pasid_mapping);
- 		id->pasid_mapping = dma_fence_get(fence);
-+		mutex_unlock(&id_mgr->lock);
- 	}
- 	dma_fence_put(fence);
++	dma_fence_put(bo->moving);
++	bo->moving = fence;
+ 	return 0;
+ }
  
+@@ -978,7 +982,7 @@ static int ttm_bo_mem_force_space(struct ttm_buffer_object *bo,
+ 			return ret;
+ 	} while (1);
+ 
+-	return ttm_bo_add_move_fence(bo, man, mem);
++	return ttm_bo_add_move_fence(bo, man, mem, ctx->no_wait_gpu);
+ }
+ 
+ static uint32_t ttm_bo_select_caching(struct ttm_mem_type_manager *man,
+@@ -1120,14 +1124,18 @@ int ttm_bo_mem_space(struct ttm_buffer_object *bo,
+ 		if (unlikely(ret))
+ 			goto error;
+ 
+-		if (mem->mm_node) {
+-			ret = ttm_bo_add_move_fence(bo, man, mem);
+-			if (unlikely(ret)) {
+-				(*man->func->put_node)(man, mem);
+-				goto error;
+-			}
+-			return 0;
++		if (!mem->mm_node)
++			continue;
++
++		ret = ttm_bo_add_move_fence(bo, man, mem, ctx->no_wait_gpu);
++		if (unlikely(ret)) {
++			(*man->func->put_node)(man, mem);
++			if (ret == -EBUSY)
++				continue;
++
++			goto error;
+ 		}
++		return 0;
+ 	}
+ 
+ 	for (i = 0; i < placement->num_busy_placement; ++i) {
 -- 
 2.20.1
 
