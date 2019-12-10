@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 663211196C4
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:29:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0751196BA
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726953AbfLJV24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:28:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60024 "EHLO mail.kernel.org"
+        id S1727565AbfLJV2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:28:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbfLJVKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:18 -0500
+        id S1728448AbfLJVKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35FAC246AF;
-        Tue, 10 Dec 2019 21:10:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F738246A2;
+        Tue, 10 Dec 2019 21:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012217;
-        bh=kag2uqw+ZN2yuHEHw/hWmnMaEuLq0RtILM6As/BgrTo=;
+        s=default; t=1576012219;
+        bh=+3+DcNCmeecA0awtD4KHhH6/OrTIbugSArTDpBZiXKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGvDLPDJSb9A5Zr6IpxZMa9HXAcNJXrRlb4KIZh9i/24GM2oVGYJCBa5BVs+IoM4g
-         hEGdcS4JzVy0/OcqObOd2SHmcydyuQDDICec503OxnNdy2X/56rtSzXMmOjzFJ9yMo
-         RdOnFharZ6AYTG4bKflRlIoXHNNVXm2ezJ24vn4c=
+        b=0hhgNchk2u08P/ah/8TYCbrgLg8uA9HPJ3/Blf2CmNjE6Ns+Smt8wRMYs+CiLADCW
+         NKb3yNt3y5ENXM9QDj12vlpAYk1eseO5BFvYH/GjO8o91k2t8gWGRZ5lZ95RJM/giK
+         Q3ebuyHvOnaN+RCg6viBCgpepvoPuOwSkmJ7ta0A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lingling Xu <ling_ling.xu@unisoc.com>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 168/350] spi: sprd: adi: Add missing lock protection when rebooting
-Date:   Tue, 10 Dec 2019 16:04:33 -0500
-Message-Id: <20191210210735.9077-129-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 169/350] ACPI: button: Add DMI quirk for Medion Akoya E2215T
+Date:   Tue, 10 Dec 2019 16:04:34 -0500
+Message-Id: <20191210210735.9077-130-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,37 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lingling Xu <ling_ling.xu@unisoc.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 91ea1d70607e374b014b4b9bea771ce661f9f64b ]
+[ Upstream commit 932e1ba486117de2fcea3df27ad8218ad6c11470 ]
 
-When rebooting the system, we should lock the watchdog after
-configuration to make sure the watchdog can reboot the system
-successfully.
+The Medion Akoya E2215T's ACPI _LID implementation is quite broken:
 
-Signed-off-by: Lingling Xu <ling_ling.xu@unisoc.com>
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Link: https://lore.kernel.org/r/7b04711127434555e3a1a86bc6be99860cd86668.1572257085.git.baolin.wang@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ 1. For notifications it uses an ActiveLow Edge GpioInt, rather then
+    an ActiveBoth one, meaning that the device is only notified when the
+    lid is closed, not when it is opened.
+
+2. Matching with this its _LID method simply always returns 0 (closed)
+
+  In order for the Linux LID code to work properly with this implementation,
+  the lid_init_state selection needs to be set to ACPI_BUTTON_LID_INIT_OPEN.
+
+This commit adds a DMI quirk for this.
+
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-sprd-adi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/acpi/button.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/spi/spi-sprd-adi.c b/drivers/spi/spi-sprd-adi.c
-index 9a051286f1207..9613cfe3c0a25 100644
---- a/drivers/spi/spi-sprd-adi.c
-+++ b/drivers/spi/spi-sprd-adi.c
-@@ -393,6 +393,9 @@ static int sprd_adi_restart_handler(struct notifier_block *this,
- 	val |= BIT_WDG_RUN | BIT_WDG_RST;
- 	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_CTRL, val);
+diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+index 4a2cde2c536a2..ce93a355bd1c8 100644
+--- a/drivers/acpi/button.c
++++ b/drivers/acpi/button.c
+@@ -78,6 +78,17 @@ static const struct dmi_system_id lid_blacklst[] = {
+ 			DMI_MATCH(DMI_BIOS_VERSION, "BYT70A.YNCHENG.WIN.007"),
+ 		},
+ 	},
++	{
++		/*
++		 * Medion Akoya E2215T, notification of the LID device only
++		 * happens on close, not on open and _LID always returns closed.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T MD60198"),
++		},
++		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
++	},
+ 	{}
+ };
  
-+	/* Lock the watchdog */
-+	sprd_adi_write(sadi, sadi->slave_pbase + REG_WDG_LOCK, ~WDG_UNLOCK_KEY);
-+
- 	mdelay(1000);
- 
- 	dev_emerg(sadi->dev, "Unable to restart system\n");
 -- 
 2.20.1
 
