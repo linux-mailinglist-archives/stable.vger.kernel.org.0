@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10391119301
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:08:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94EB71192E7
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727054AbfLJVFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:05:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49940 "EHLO mail.kernel.org"
+        id S1727498AbfLJVEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:04:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727484AbfLJVEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:42 -0500
+        id S1727492AbfLJVEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81F4724681;
-        Tue, 10 Dec 2019 21:04:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84C0224687;
+        Tue, 10 Dec 2019 21:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011882;
-        bh=Y2JRJHPlGVcW5GHbu2M7B2/vxdr5zJexIYc5v03m0Iw=;
+        s=default; t=1576011883;
+        bh=q3Jfz1RtubPcWyu/C4vJU54FE8I+tD4vNOt4IhKgsGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJPkRZAy2qCbrdqE740mWP/9FD2SXSD739cfs3MselFVl2WEBUTrJIRxuZCFrCqGE
-         TVkRQQ9FdnW8X25YFid+EXWbbBaHvNJTpo6SAAWE94MR1Grg532dB82bO/qu9ZpbE7
-         Tj7f2HEMCeibzexHMYXG07ewsSbBxjit4rFVFcXM=
+        b=IHkWyjI1aG8VblCtNMX/rFh4qTIrQTnUl4RgY8OHP5FYd05+AkIfesKFncnPkf3et
+         IJ9yByhI+zsra50nQ11GWsJnFJukt1WTEjfl4yjg4BeTY9ILlcd/WQqE+dAZPCsphg
+         pl/jgsUw2a0gtVixAlFMRPIBI/Tf5lk9pzChw+wI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 033/350] spi: gpio: prevent memory leak in spi_gpio_probe
-Date:   Tue, 10 Dec 2019 15:58:45 -0500
-Message-Id: <20191210210402.8367-33-sashal@kernel.org>
+Cc:     Benoit Parrot <bparrot@ti.com>,
+        Lad Prabhakar <prabhakar.csengg@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 034/350] media: am437x-vpfe: Setting STD to current value is not an error
+Date:   Tue, 10 Dec 2019 15:58:46 -0500
+Message-Id: <20191210210402.8367-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
@@ -43,40 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit d3b0ffa1d75d5305ebe34735598993afbb8a869d ]
+[ Upstream commit 13aa21cfe92ce9ebb51824029d89f19c33f81419 ]
 
-In spi_gpio_probe an SPI master is allocated via spi_alloc_master, but
-this controller should be released if devm_add_action_or_reset fails,
-otherwise memory leaks. In order to avoid leak spi_contriller_put must
-be called in case of failure for devm_add_action_or_reset.
+VIDIOC_S_STD should not return an error if the value is identical
+to the current one.
+This error was highlighted by the v4l2-compliance test.
 
-Fixes: 8b797490b4db ("spi: gpio: Make sure spi_master_put() is called in every error path")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Link: https://lore.kernel.org/r/20190930205241.5483-1-navid.emamdoost@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-gpio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/am437x/am437x-vpfe.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/spi/spi-gpio.c b/drivers/spi/spi-gpio.c
-index 1d3e23ec20a61..f9c5bbb747142 100644
---- a/drivers/spi/spi-gpio.c
-+++ b/drivers/spi/spi-gpio.c
-@@ -371,8 +371,10 @@ static int spi_gpio_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+diff --git a/drivers/media/platform/am437x/am437x-vpfe.c b/drivers/media/platform/am437x/am437x-vpfe.c
+index 2b42ba1f59494..e13dbf27a9c24 100644
+--- a/drivers/media/platform/am437x/am437x-vpfe.c
++++ b/drivers/media/platform/am437x/am437x-vpfe.c
+@@ -1830,6 +1830,10 @@ static int vpfe_s_std(struct file *file, void *priv, v4l2_std_id std_id)
+ 	if (!(sdinfo->inputs[0].capabilities & V4L2_IN_CAP_STD))
+ 		return -ENODATA;
  
- 	status = devm_add_action_or_reset(&pdev->dev, spi_gpio_put, master);
--	if (status)
-+	if (status) {
-+		spi_master_put(master);
- 		return status;
-+	}
- 
- 	if (of_id)
- 		status = spi_gpio_probe_dt(pdev, master);
++	/* if trying to set the same std then nothing to do */
++	if (vpfe_standards[vpfe->std_index].std_id == std_id)
++		return 0;
++
+ 	/* If streaming is started, return error */
+ 	if (vb2_is_busy(&vpfe->buffer_queue)) {
+ 		vpfe_err(vpfe, "%s device busy\n", __func__);
 -- 
 2.20.1
 
