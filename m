@@ -2,93 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35AD91188AB
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 13:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAC91188E5
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 13:52:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727300AbfLJMno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 07:43:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53576 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727242AbfLJMno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 07:43:44 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A68F6207FF;
-        Tue, 10 Dec 2019 12:43:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575981824;
-        bh=1VSfOqovaCpWhw8aXhUEI9cyREB1iUPXdTdJeAHabYM=;
-        h=Subject:To:From:Date:From;
-        b=m5j8N0cT2GQ4K2ELzFRod1RkQHMggRj2SsvhYue3iVDMDSLCEytPDPeR4XP2NyFyX
-         rxhdwDA9lJL0WH93VAtg1NYQJaUQJrK3mtCYgBZMkMWfLUaOI5j/y9vrsZsc5hBIJm
-         HO7DaxWPBbnJUQc1cSGtzP00Vs6UhAbz1RDALtBA=
-Subject: patch "staging: rtl8712: fix interface sanity check" added to staging-linus
-To:     johan@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Dec 2019 13:43:33 +0100
-Message-ID: <1575981813132139@kroah.com>
+        id S1727527AbfLJMwj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 07:52:39 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:45595 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727131AbfLJMwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 07:52:38 -0500
+Received: by mail-lf1-f68.google.com with SMTP id 203so13569090lfa.12;
+        Tue, 10 Dec 2019 04:52:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version;
+        bh=11UaFwrHfBxR4VmejSkI+P2hNy7cLkOsHvj3YmzzITk=;
+        b=S5C/VJJScB2LEJiC/XQgc5RPmVOlqTmdOnlt+WltPzuZAZ3r/SuxvI795SLmvWcd2S
+         wVkYoCQbWhfdt2gfaV92jSUIleizBDO0d00Fn76BO80nIxNnYKY0wV+mZWvb5o09sdCn
+         EShU3YyP/ttbe4DAVTgx47RLl+cB9WZVjYI111I9NYdKoRRXwNeAuKKo6Y8JbGMITxh9
+         +1tFjziK5J33mHefo4XzxtnRLTZcJreIvXh7X6dzxL9TawFNceY4nDY5/Zmy8P9T58Rh
+         m/COqz/vCRuNiGS7Fi52+SJ5Y8sTxPt0M9w4mdGLyhojz3v50N5K1k09Rglr9BboVrHV
+         Gbaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:in-reply-to:references
+         :date:message-id:mime-version;
+        bh=11UaFwrHfBxR4VmejSkI+P2hNy7cLkOsHvj3YmzzITk=;
+        b=oQA4oYeR+xnSyxxwviQ/Bx1Q/kehMd9ZaArpkT26gOe1jZJmFZOOt4uXIr8NT5Qv2N
+         y06tzoGpVDeI+bWNJ38CJMgJ1hy0k/O9cbHB51VHw63C2H8T0N5fpD+zAlvQ1aavCRN0
+         FXJiWzwIi4SCtVrElL+dX7qC1NnxlSF8AK9t/8Cm98lqIxBHb2MgI5p3hQpOl61PKkAh
+         2LDjJVdn0Uc3Tb0hZr96Jo4KxtYy0+5fbHY6NEG0LqG0y/p6c/hnSXgO9oiL//5rGsJo
+         QjN/HpB+hRD0wraNZ3ioWSsg5OKnGP+DjlAG8Vqfak8TMohqajqVQ0FNOm8eWksXdJcY
+         Mfzg==
+X-Gm-Message-State: APjAAAUvPqoYzND2WT5/YsKE6W4gnjmliOPJUGpXgRCaQsqMbH46d1NW
+        4+hdNhncORcsEY68Swj48R3pbFpx3r/gBw==
+X-Google-Smtp-Source: APXvYqzzI+4OeMeScvMefnCEK2izwgK4Om0C9FFpINZSG4PKKLUvQb0UDx1j2JXPTDNuBMOv4v3kiw==
+X-Received: by 2002:ac2:5503:: with SMTP id j3mr3846606lfk.104.1575982356327;
+        Tue, 10 Dec 2019 04:52:36 -0800 (PST)
+Received: from saruman (88-113-215-33.elisa-laajakaista.fi. [88.113.215.33])
+        by smtp.gmail.com with ESMTPSA id b14sm1497204lff.68.2019.12.10.04.52.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2019 04:52:35 -0800 (PST)
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
+In-Reply-To: <f8af9e4b892a8d005f0ae3d42401fee532f44a27.1574938826.git.hminas@synopsys.com>
+References: <f8af9e4b892a8d005f0ae3d42401fee532f44a27.1574938826.git.hminas@synopsys.com>
+Date:   Tue, 10 Dec 2019 14:53:23 +0200
+Message-ID: <8736dsl4u4.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    staging: rtl8712: fix interface sanity check
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
-From c724f776f048538ecfdf53a52b7a522309f5c504 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Tue, 10 Dec 2019 12:47:51 +0100
-Subject: staging: rtl8712: fix interface sanity check
+Hi,
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+Minas Harutyunyan <Minas.Harutyunyan@synopsys.com> writes:
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+> SET/CLEAR_FEATURE for Remote Wakeup allowance not handled correctly.
+> GET_STATUS handling provided not correct data on DATA Stage.
+> Issue seen when gadget's dr_mode set to "otg" mode and connected
+> to MacOS.
+> Both are fixed and tested using USBCV Ch.9 tests.
+>
+> Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
 
-Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
-Cc: stable <stable@vger.kernel.org>     # 2.6.37
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210114751.5119-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/rtl8712/usb_intf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+do you want to add a Fixes tag here?
 
-diff --git a/drivers/staging/rtl8712/usb_intf.c b/drivers/staging/rtl8712/usb_intf.c
-index ba1288297ee4..a87562f632a7 100644
---- a/drivers/staging/rtl8712/usb_intf.c
-+++ b/drivers/staging/rtl8712/usb_intf.c
-@@ -247,7 +247,7 @@ static uint r8712_usb_dvobj_init(struct _adapter *padapter)
- 
- 	pdvobjpriv->padapter = padapter;
- 	padapter->eeprom_address_size = 6;
--	phost_iface = &pintf->altsetting[0];
-+	phost_iface = pintf->cur_altsetting;
- 	piface_desc = &phost_iface->desc;
- 	pdvobjpriv->nr_endpoint = piface_desc->bNumEndpoints;
- 	if (pusbd->speed == USB_SPEED_HIGH) {
--- 
-2.24.0
+=2D-=20
+balbi
 
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl3vlUMACgkQzL64meEa
+mQYByw/9HWPfvaKdOzHIfsGeER+5WTWkVsu78JVr7uxZ9yqO3kEBpf+ZdDDDNWVi
+1X5pHUQ+7shHjh9acj6oViLAtC/CVWXTjn1s7xVSQ8mOg6AqTM16Av/hGw7JhoNF
+ceUOahRIl5XerPntLQgmEDDDV+HO3GDwStnxpnnku6XDc8LPBGObJc7C924g1kaJ
+uomMzXNL4T3YEbsMHzLu/804tDgqQ/TQ7URhVmwmsSLtRj+z3TzJl95U4DxzN2Qi
+Kq+M3Zn5jZqPAaKlDTrOthIwTDhzkLehzjzJFc/KX9hIgt43czBiwmbwNxKhSmwq
+RucDRfqqMIPPgOXLmrmrTmE5EoWHBJtfsjTaRMkst6oJCHfqLbV8Ri2+m5ZubdDm
+D8/xj6huukqGTqPoJn5oFEkghqidKl+nPbFdC+75rwm63SQE5O0etGehkT/gZJG1
+wP2Dgadj5bExPVMbyui9aHtDITUrCsN84Z1y8iRw9BLavUnb8XgUj6jkC+bc86Ha
+qUrEdKPa2qt5Sl75xqjrXdB4DuKOH3xNJIDZkSqaluF2VIx1jJipFOYMywSddrFf
+gtH24FFk6y9ZqumJprFBe6x5IZvxkfvNFWKjltWuxETvqpyUwOQ/Se48dG63CEnJ
+FYMa/BbezrG3LjKGvjDSU6lDo8BfAL88qkqp2O6S5+qphMlLfew=
+=6wKo
+-----END PGP SIGNATURE-----
+--=-=-=--
