@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB5A11971D
+	by mail.lfdr.de (Postfix) with ESMTP id 04D5111971C
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728188AbfLJVJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728191AbfLJVJd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:09:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58088 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727809AbfLJVJa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:09:30 -0500
+        id S1727075AbfLJVJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39F7E246A2;
-        Tue, 10 Dec 2019 21:09:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E43A246B6;
+        Tue, 10 Dec 2019 21:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012170;
-        bh=Uu84qpMnEvTek01jYaB5sD7m/AD+QkDsg73IgbTZqkI=;
+        s=default; t=1576012171;
+        bh=ZkQNR1TZKmTtQmGs/IMX1SC2ZreDZnDVq2Ta/ZZTK8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11qm0ncgsqu23jJFRvuEqlC0ws4zA0Z6/B2X4w9CeCU2bbK2wr25yp+cdxEpWqhON
-         QYJo/DbyeU4OQ4JZsqTVWGu/Kv9CNTWg80/cjysNgFnUD6yidHWidl498AUv4KRaFF
-         7xow5Hbq74eW71JphrqwENmUhRgaXWklx2hMIAS4=
+        b=H4xCL4TiTIpvs4gkvK5qWXoIMYF7IAO2RsNHv+LR8wvTfVMSd8pEo2QlIaPJLBedk
+         5Zlo8L1woZYpxL4fsgZTpd3FTK1TyGSsEaKBS6cg0+xSEDxAHByqVmtLAMkFjK57NF
+         cNMor3WHzt3yqoQ559Q+owcfLv6pcihKZ8p4EvGk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.4 129/350] staging: iio: ad9834: add a check for devm_clk_get
-Date:   Tue, 10 Dec 2019 16:03:54 -0500
-Message-Id: <20191210210735.9077-90-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 130/350] power: supply: cpcap-battery: Check voltage before orderly_poweroff
+Date:   Tue, 10 Dec 2019 16:03:55 -0500
+Message-Id: <20191210210735.9077-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -46,37 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit a96de139301385e5992768c0f60240ddfbb33325 ]
+[ Upstream commit 639c1524da3b273d20c42ff2387d08eb4b12e903 ]
 
-ad9834_probe misses a check for devm_clk_get and may cause problems.
-Add a check like what ad9832 does to fix it.
+We can get the low voltage interrupt trigger sometimes way too early,
+maybe because of CPU load spikes. This causes orderly_poweroff() be
+called too easily.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Let's check the voltage before orderly_poweroff in case it was not
+yet a permanent condition. We will be getting more interrupts anyways
+if the condition persists.
+
+Let's also show the measured voltages for low battery and battery
+empty warnings since we have them.
+
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/iio/frequency/ad9834.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/power/supply/cpcap-battery.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/iio/frequency/ad9834.c b/drivers/staging/iio/frequency/ad9834.c
-index 038d6732c3fdb..23026978a5a5f 100644
---- a/drivers/staging/iio/frequency/ad9834.c
-+++ b/drivers/staging/iio/frequency/ad9834.c
-@@ -417,6 +417,10 @@ static int ad9834_probe(struct spi_device *spi)
- 	st = iio_priv(indio_dev);
- 	mutex_init(&st->lock);
- 	st->mclk = devm_clk_get(&spi->dev, NULL);
-+	if (IS_ERR(st->mclk)) {
-+		ret = PTR_ERR(st->mclk);
-+		goto error_disable_reg;
-+	}
- 
- 	ret = clk_prepare_enable(st->mclk);
- 	if (ret) {
+diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
+index 61d6447d1966f..00a96e4a1cdc3 100644
+--- a/drivers/power/supply/cpcap-battery.c
++++ b/drivers/power/supply/cpcap-battery.c
+@@ -562,12 +562,14 @@ static irqreturn_t cpcap_battery_irq_thread(int irq, void *data)
+ 	switch (d->action) {
+ 	case CPCAP_BATTERY_IRQ_ACTION_BATTERY_LOW:
+ 		if (latest->current_ua >= 0)
+-			dev_warn(ddata->dev, "Battery low at 3.3V!\n");
++			dev_warn(ddata->dev, "Battery low at %imV!\n",
++				latest->voltage / 1000);
+ 		break;
+ 	case CPCAP_BATTERY_IRQ_ACTION_POWEROFF:
+-		if (latest->current_ua >= 0) {
++		if (latest->current_ua >= 0 && latest->voltage <= 3200000) {
+ 			dev_emerg(ddata->dev,
+-				  "Battery empty at 3.1V, powering off\n");
++				  "Battery empty at %imV, powering off\n",
++				  latest->voltage / 1000);
+ 			orderly_poweroff(true);
+ 		}
+ 		break;
 -- 
 2.20.1
 
