@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 860A21196BC
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81B171196A9
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727161AbfLJV2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:28:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60178 "EHLO mail.kernel.org"
+        id S1727192AbfLJVKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:10:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727133AbfLJVKV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:21 -0500
+        id S1728389AbfLJVKW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F492246B9;
-        Tue, 10 Dec 2019 21:10:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 991C6246A2;
+        Tue, 10 Dec 2019 21:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012221;
-        bh=Oc1rvpKcL/soWIEgvtuIxcfNqfE9BSdj64ReTl1woj8=;
+        s=default; t=1576012222;
+        bh=aAj3r6xUGwA2FINnoCCGc93gGYj8y6FveUN6IWYk78I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NiTA/tWT8cidZwA1JaFL8U/k7VlmI3BG1HJYtGl7dAFy3YEBacwuKOrw31rbyqLCK
-         bvSJh5o+lRblTWqFGbxsaKo7BKaJGOf3hUC/qDwvc1f4E3rbs5hZhC8fK8FWCe8KZA
-         /wWettS/K9xCVjcrJoQDNCSv1jGfCpMPe0KKfQLQ=
+        b=egTTdvliojQlTfDrefP9oJ66IBji/6VZmMcKtVY5ycI0P4qhEs945tjx6+5GVGGWo
+         bHDNZH52k/MCOUrV/Pxg6kEj0pwiYxTXadRuhmQqup1oDoEZOpHg1ltJpBGS/296x7
+         5LEYXztLhRjIyNcfoU9uPPUsNkvIW6t4L3ALb0DM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michal Kalderon <michal.kalderon@marvell.com>,
-        Ariel Elior <ariel.elior@marvell.com>,
+Cc:     Colin Ian King <colin.king@canonical.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 171/350] RDMA/qedr: Fix memory leak in user qp and mr
-Date:   Tue, 10 Dec 2019 16:04:36 -0500
-Message-Id: <20191210210735.9077-132-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 172/350] RDMA/hns: Fix memory leak on 'context' on error return path
+Date:   Tue, 10 Dec 2019 16:04:37 -0500
+Message-Id: <20191210210735.9077-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,53 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Kalderon <michal.kalderon@marvell.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 24e412c1e00ebfe73619e6b88cbc26c2c7d41b85 ]
+[ Upstream commit 994195e1537074f56df216a9309f6e366cb35b67 ]
 
-User QPs pbl's weren't freed properly.
-MR pbls weren't freed properly.
+Currently, the error return path when the call to function
+dev->dfx->query_cqc_info fails will leak object 'context'. Fix this by
+making the error return path via 'err' return return codes rather than
+-EMSGSIZE, set ret appropriately for all error return paths and for the
+memory leak now return via 'err' rather than just returning without
+freeing context.
 
-Fixes: e0290cce6ac0 ("qedr: Add support for memory registeration verbs")
-Link: https://lore.kernel.org/r/20191027200451.28187-5-michal.kalderon@marvell.com
-Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Link: https://lore.kernel.org/r/20191024131034.19989-1-colin.king@canonical.com
+Addresses-Coverity: ("Resource leak")
+Fixes: e1c9a0dc2939 ("RDMA/hns: Dump detailed driver-specific CQ")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/verbs.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_restrack.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
-index 6f3ce86019b73..a7ccca3c4f894 100644
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -1577,6 +1577,14 @@ static void qedr_cleanup_user(struct qedr_dev *dev, struct qedr_qp *qp)
+diff --git a/drivers/infiniband/hw/hns/hns_roce_restrack.c b/drivers/infiniband/hw/hns/hns_roce_restrack.c
+index 0a31d0a3d657c..06871731ac43a 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_restrack.c
++++ b/drivers/infiniband/hw/hns/hns_roce_restrack.c
+@@ -98,11 +98,15 @@ static int hns_roce_fill_res_cq_entry(struct sk_buff *msg,
+ 		goto err;
  
- 	ib_umem_release(qp->urq.umem);
- 	qp->urq.umem = NULL;
-+
-+	if (rdma_protocol_roce(&dev->ibdev, 1)) {
-+		qedr_free_pbl(dev, &qp->usq.pbl_info, qp->usq.pbl_tbl);
-+		qedr_free_pbl(dev, &qp->urq.pbl_info, qp->urq.pbl_tbl);
-+	} else {
-+		kfree(qp->usq.pbl_tbl);
-+		kfree(qp->urq.pbl_tbl);
+ 	table_attr = nla_nest_start(msg, RDMA_NLDEV_ATTR_DRIVER);
+-	if (!table_attr)
++	if (!table_attr) {
++		ret = -EMSGSIZE;
+ 		goto err;
 +	}
+ 
+-	if (hns_roce_fill_cq(msg, context))
++	if (hns_roce_fill_cq(msg, context)) {
++		ret = -EMSGSIZE;
+ 		goto err_cancel_table;
++	}
+ 
+ 	nla_nest_end(msg, table_attr);
+ 	kfree(context);
+@@ -113,7 +117,7 @@ static int hns_roce_fill_res_cq_entry(struct sk_buff *msg,
+ 	nla_nest_cancel(msg, table_attr);
+ err:
+ 	kfree(context);
+-	return -EMSGSIZE;
++	return ret;
  }
  
- static int qedr_create_user_qp(struct qedr_dev *dev,
-@@ -2673,8 +2681,8 @@ int qedr_dereg_mr(struct ib_mr *ib_mr, struct ib_udata *udata)
- 
- 	dev->ops->rdma_free_tid(dev->rdma_ctx, mr->hw_mr.itid);
- 
--	if ((mr->type != QEDR_MR_DMA) && (mr->type != QEDR_MR_FRMR))
--		qedr_free_pbl(dev, &mr->info.pbl_info, mr->info.pbl_table);
-+	if (mr->type != QEDR_MR_DMA)
-+		free_mr_info(dev, &mr->info);
- 
- 	/* it could be user registered memory. */
- 	ib_umem_release(mr->umem);
+ int hns_roce_fill_res_entry(struct sk_buff *msg,
 -- 
 2.20.1
 
