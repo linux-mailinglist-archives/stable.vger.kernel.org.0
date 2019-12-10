@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8111B1192E9
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E561192FF
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:08:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727506AbfLJVEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:04:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49992 "EHLO mail.kernel.org"
+        id S1727269AbfLJVFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:05:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727499AbfLJVEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:45 -0500
+        id S1727509AbfLJVEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B29532468A;
-        Tue, 10 Dec 2019 21:04:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1BE42465C;
+        Tue, 10 Dec 2019 21:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011884;
-        bh=OnbJqA0+frurLx+b+snX4US2vZhw+RxCrJhg7CIcF2M=;
+        s=default; t=1576011885;
+        bh=pG19F23Ng3dfKisEuzyv6YuvWsbpkjojpMZZsXuxVgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGH0r0roU+BMV17w7ah5yIiDmRVV9xNK+w4oijGgHq7Y8mHrArMTa/0Lhu8jmBS7q
-         SGewc1MyO3+uEK3fxY+IZT427yjDOW4lOTB9a792FrytVhe6FcKPJQNK4WiK1lDnwh
-         0GgLWl9kNpuFudWxd8M9lx2tenggMJskmi8Y43qs=
+        b=HIqtHUdlII9Y/GsydmjFZ3jHMBNmyE4VauZTwryC/QOVjcPnkKSXK+c2AEx32AsLQ
+         nv4E9RaeZ+njYZ5q7EZzckEi8osVgS6Z4k5kLaE1YKQStOWfrB1IRk3G9Gp/QR1H5z
+         6NvhjaqDv2+tutv1IpdqOtMCr5WfoueR83lzzQl8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        devel@driverdev.osuosl.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 035/350] media: cedrus: fill in bus_info for media device
-Date:   Tue, 10 Dec 2019 15:58:47 -0500
-Message-Id: <20191210210402.8367-35-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 036/350] media: seco-cec: Add a missing 'release_region()' in an error handling path
+Date:   Tue, 10 Dec 2019 15:58:48 -0500
+Message-Id: <20191210210402.8367-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
@@ -45,51 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit ae0688f659adb17ae6ae5710c886b20b5406e5c4 ]
+[ Upstream commit a9cc4cbcdfd378b65fd4e398800cfa14e3855042 ]
 
-Fixes this compliance warning:
+At the beginning of the probe function, we have a call to
+'request_muxed_region(BRA_SMB_BASE_ADDR, 7, "CEC00001")()'
 
-$ v4l2-compliance -m0
-v4l2-compliance SHA: b514d615166bdc0901a4c71261b87db31e89f464, 32 bits
+A corresponding 'release_region()' is performed in the remove function but
+is lacking in the error handling path.
 
-Compliance test for cedrus device /dev/media0:
+Add it.
 
-Media Driver Info:
-        Driver name      : cedrus
-        Model            : cedrus
-        Serial           :
-        Bus info         :
-        Media version    : 5.3.0
-        Hardware revision: 0x00000000 (0)
-        Driver version   : 5.3.0
-
-Required ioctls:
-                warn: v4l2-test-media.cpp(51): empty bus_info
-        test MEDIA_IOC_DEVICE_INFO: OK
-
+Fixes: b03c2fb97adc ("media: add SECO cec driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/sunxi/cedrus/cedrus.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/seco-cec/seco-cec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/media/sunxi/cedrus/cedrus.c b/drivers/staging/media/sunxi/cedrus/cedrus.c
-index 2d3ea8b74dfdc..3439f6ad63380 100644
---- a/drivers/staging/media/sunxi/cedrus/cedrus.c
-+++ b/drivers/staging/media/sunxi/cedrus/cedrus.c
-@@ -357,6 +357,8 @@ static int cedrus_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/seco-cec/seco-cec.c b/drivers/media/platform/seco-cec/seco-cec.c
+index 9cd60fe1867c9..a86b6e8f91969 100644
+--- a/drivers/media/platform/seco-cec/seco-cec.c
++++ b/drivers/media/platform/seco-cec/seco-cec.c
+@@ -675,6 +675,7 @@ err_notifier:
+ err_delete_adapter:
+ 	cec_delete_adapter(secocec->cec_adap);
+ err:
++	release_region(BRA_SMB_BASE_ADDR, 7);
+ 	dev_err(dev, "%s device probe failed\n", dev_name(dev));
  
- 	dev->mdev.dev = &pdev->dev;
- 	strscpy(dev->mdev.model, CEDRUS_NAME, sizeof(dev->mdev.model));
-+	strscpy(dev->mdev.bus_info, "platform:" CEDRUS_NAME,
-+		sizeof(dev->mdev.bus_info));
- 
- 	media_device_init(&dev->mdev);
- 	dev->mdev.ops = &cedrus_m2m_media_ops;
+ 	return ret;
 -- 
 2.20.1
 
