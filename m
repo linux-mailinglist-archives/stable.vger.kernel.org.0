@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F15FC119BD1
+	by mail.lfdr.de (Postfix) with ESMTP id 1241F119BCE
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728248AbfLJWDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:03:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34350 "EHLO mail.kernel.org"
+        id S1728967AbfLJWLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:11:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728240AbfLJWDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:03:53 -0500
+        id S1728255AbfLJWDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:03:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96829208C3;
-        Tue, 10 Dec 2019 22:03:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB5AF20637;
+        Tue, 10 Dec 2019 22:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015433;
-        bh=B1QIwygrLOhokb6wIsVKv19GcVnKSWWMr+sjIqDHfZY=;
+        s=default; t=1576015434;
+        bh=CqcmmDdjuJ6RXhSdZZKilbhpEHoMGJnpGpaXaNnE4fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mi+vNacjjsjUOqhSLpjjjsKfFEvkxhsgzXeZhlhQjQ6Qon3rAtXnEjskg69d9QUkN
-         Ed+cwdSpxFLg25Ot5d30w7RiAQl3ivlhWAb9P7uG5xNeW12zqxCnJ16v3g9JGF6uH3
-         oTF7B6xIcA8zyIZbRs5eRSnhkoVAfHZBNgI7me8M=
+        b=0sT1XPE30ls32mm18ksFel65j2K6lly1IfFIf43Gu7QiVcFMtf80FvDh5ZKV16l+X
+         H4nQ6qCO/O8xKaH71WgV080EHkIuuLZhBG2ZJC4+QSpWdVt3y2LwQLJd7fo3sgkO9J
+         zW0B9uh36ur+yFXI+Nd1ncz/+F05ysUHS6plDBhY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 043/130] iio: chemical: atlas-ph-sensor: fix iio_triggered_buffer_predisable() position
-Date:   Tue, 10 Dec 2019 17:01:34 -0500
-Message-Id: <20191210220301.13262-43-sashal@kernel.org>
+Cc:     Daniel Kurtz <djkurtz@chromium.org>,
+        Cheng-Yi Chiang <cychiang@chromium.org>,
+        Yakir Yang <ykk@rock-chips.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 044/130] drm/bridge: dw-hdmi: Restore audio when setting a mode
+Date:   Tue, 10 Dec 2019 17:01:35 -0500
+Message-Id: <20191210220301.13262-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -44,56 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
 
-[ Upstream commit 0c8a6e72f3c04bfe92a64e5e0791bfe006aabe08 ]
+[ Upstream commit fadfee3f9d8f114435a8a3e9f83a227600d89de7 ]
 
-The iio_triggered_buffer_{predisable,postenable} functions attach/detach
-the poll functions.
+When setting a new display mode, dw_hdmi_setup() calls
+dw_hdmi_enable_video_path(), which disables all hdmi clocks, including
+the audio clock.
 
-The iio_triggered_buffer_predisable() should be called last, to detach the
-poll func after the devices has been suspended.
+We should only (re-)enable the audio clock if audio was already enabled
+when setting the new mode.
 
-The position of iio_triggered_buffer_postenable() is correct.
+Without this patch, on RK3288, there will be HDMI audio on some monitors
+if i2s was played to headphone when the monitor was plugged.
+ACER H277HU and ASUS PB278 are two of the monitors showing this issue.
 
-Note this is not stable material. It's a fix in the logical
-model rather fixing an actual bug.  These are being tidied up
-throughout the subsystem to allow more substantial rework that
-was blocked by variations in how things were done.
-
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Cheng-Yi Chiang <cychiang@chromium.org>
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Signed-off-by: Yakir Yang <ykk@rock-chips.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191008102145.55134-1-cychiang@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/chemical/atlas-ph-sensor.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/chemical/atlas-ph-sensor.c b/drivers/iio/chemical/atlas-ph-sensor.c
-index dad2a8be68308..f5859c118a44a 100644
---- a/drivers/iio/chemical/atlas-ph-sensor.c
-+++ b/drivers/iio/chemical/atlas-ph-sensor.c
-@@ -331,16 +331,16 @@ static int atlas_buffer_predisable(struct iio_dev *indio_dev)
- 	struct atlas_data *data = iio_priv(indio_dev);
- 	int ret;
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+index 0febaafb8d895..cc1094f901255 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+@@ -1743,7 +1743,7 @@ static int dw_hdmi_setup(struct dw_hdmi *hdmi, struct drm_display_mode *mode)
  
--	ret = iio_triggered_buffer_predisable(indio_dev);
-+	ret = atlas_set_interrupt(data, false);
- 	if (ret)
- 		return ret;
+ 		/* HDMI Initialization Step E - Configure audio */
+ 		hdmi_clk_regenerator_update_pixel_clock(hdmi);
+-		hdmi_enable_audio_clk(hdmi, true);
++		hdmi_enable_audio_clk(hdmi, hdmi->audio_enable);
+ 	}
  
--	ret = atlas_set_interrupt(data, false);
-+	pm_runtime_mark_last_busy(&data->client->dev);
-+	ret = pm_runtime_put_autosuspend(&data->client->dev);
- 	if (ret)
- 		return ret;
- 
--	pm_runtime_mark_last_busy(&data->client->dev);
--	return pm_runtime_put_autosuspend(&data->client->dev);
-+	return iio_triggered_buffer_predisable(indio_dev);
- }
- 
- static const struct iio_trigger_ops atlas_interrupt_trigger_ops = {
+ 	/* not for DVI mode */
 -- 
 2.20.1
 
