@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 244D21197E1
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8451F1197C3
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730240AbfLJVfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730242AbfLJVfX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:35:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40978 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730228AbfLJVfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730234AbfLJVfU (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Dec 2019 16:35:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48F92214AF;
-        Tue, 10 Dec 2019 21:35:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8460C2073B;
+        Tue, 10 Dec 2019 21:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013719;
-        bh=l21FHSd8GPHC4IagFr+tkgZpvOS6I667FH0fdL1bliU=;
+        s=default; t=1576013720;
+        bh=HmliciBZzqsRqRN7RPFZjJ+IVzmrgEi6yiabt3TzylU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gfo+kuqWwYMIFgdF59zks+uFNNfkqdFpkrbuUz4URYiQXaSaJpdh/X3YwS2i2YzqQ
-         dtQsxa1gbIkSBw1KFipLQA1rXbTLqVUoW+V592ejQa5isn3smZ0Lxuxeq4X7uTW3v4
-         FE+cIdzvY8bcx8FV2+VQHzV26iPrWz+ZzzoEqRxY=
+        b=PHm0m5BIDR0oqO/xhh0DsGlRLHLZTZMh5JhnjCOsKqBGzOSIxl5QUq+D8Qp0pOq/r
+         qemjxr6pe9iCA3cC99WqW0S23wA51pfU4OcKU7cCp1Za6wtH7MYVv1jkiI7ijWCxow
+         YhJjr1uX4HPvog/+bMCPbeR8OWH33y1XH0+vH6aU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lianbo Jiang <lijiang@redhat.com>,
-        kbuild test robot <lkp@intel.com>,
-        Borislav Petkov <bp@suse.de>, bhe@redhat.com,
-        d.hatayama@fujitsu.com, dhowells@redhat.com, dyoung@redhat.com,
-        ebiederm@xmission.com, horms@verge.net.au,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        =?UTF-8?q?J=C3=BCrgen=20Gross?= <jgross@suse.com>,
-        kexec@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>, vgoyal@redhat.com,
-        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 145/177] x86/crash: Add a forward declaration of struct kimage
-Date:   Tue, 10 Dec 2019 16:31:49 -0500
-Message-Id: <20191210213221.11921-145-sashal@kernel.org>
+Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 146/177] RDMA/qib: Validate ->show()/store() callbacks before calling them
+Date:   Tue, 10 Dec 2019 16:31:50 -0500
+Message-Id: <20191210213221.11921-146-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,67 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lianbo Jiang <lijiang@redhat.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 112eee5d06007dae561f14458bde7f2a4879ef4e ]
+[ Upstream commit 7ee23491b39259ae83899dd93b2a29ef0f22f0a7 ]
 
-Add a forward declaration of struct kimage to the crash.h header because
-future changes will invoke a crash-specific function from the realmode
-init path and the compiler will complain otherwise like this:
+The permissions of the read-only or write-only sysfs files can be
+changed (as root) and the user can then try to read a write-only file or
+write to a read-only file which will lead to kernel crash here.
 
-  In file included from arch/x86/realmode/init.c:11:
-  ./arch/x86/include/asm/crash.h:5:32: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      5 | int crash_load_segments(struct kimage *image);
-        |                                ^~~~~~
-  ./arch/x86/include/asm/crash.h:6:37: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      6 | int crash_copy_backup_region(struct kimage *image);
-        |                                     ^~~~~~
-  ./arch/x86/include/asm/crash.h:7:39: warning: ‘struct kimage’ declared inside\
-   parameter list will not be visible outside of this definition or declaration
-      7 | int crash_setup_memmap_entries(struct kimage *image,
-        |
+Protect against that by always validating the show/store callbacks.
 
- [ bp: Rewrite the commit message. ]
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: bhe@redhat.com
-Cc: d.hatayama@fujitsu.com
-Cc: dhowells@redhat.com
-Cc: dyoung@redhat.com
-Cc: ebiederm@xmission.com
-Cc: horms@verge.net.au
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jürgen Gross <jgross@suse.com>
-Cc: kexec@lists.infradead.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: vgoyal@redhat.com
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191108090027.11082-4-lijiang@redhat.com
-Link: https://lkml.kernel.org/r/201910310233.EJRtTMWP%25lkp@intel.com
+Link: https://lore.kernel.org/r/d45cc26361a174ae12dbb86c994ef334d257924b.1573096807.git.viresh.kumar@linaro.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/crash.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/qib/qib_sysfs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/x86/include/asm/crash.h b/arch/x86/include/asm/crash.h
-index a7adb2bfbf0b8..6b8ad6fa3979a 100644
---- a/arch/x86/include/asm/crash.h
-+++ b/arch/x86/include/asm/crash.h
-@@ -2,6 +2,8 @@
- #ifndef _ASM_X86_CRASH_H
- #define _ASM_X86_CRASH_H
+diff --git a/drivers/infiniband/hw/qib/qib_sysfs.c b/drivers/infiniband/hw/qib/qib_sysfs.c
+index ca2638d8f35ef..d831f3e61ae8f 100644
+--- a/drivers/infiniband/hw/qib/qib_sysfs.c
++++ b/drivers/infiniband/hw/qib/qib_sysfs.c
+@@ -301,6 +301,9 @@ static ssize_t qib_portattr_show(struct kobject *kobj,
+ 	struct qib_pportdata *ppd =
+ 		container_of(kobj, struct qib_pportdata, pport_kobj);
  
-+struct kimage;
++	if (!pattr->show)
++		return -EIO;
 +
- int crash_load_segments(struct kimage *image);
- int crash_copy_backup_region(struct kimage *image);
- int crash_setup_memmap_entries(struct kimage *image,
+ 	return pattr->show(ppd, buf);
+ }
+ 
+@@ -312,6 +315,9 @@ static ssize_t qib_portattr_store(struct kobject *kobj,
+ 	struct qib_pportdata *ppd =
+ 		container_of(kobj, struct qib_pportdata, pport_kobj);
+ 
++	if (!pattr->store)
++		return -EIO;
++
+ 	return pattr->store(ppd, buf, len);
+ }
+ 
 -- 
 2.20.1
 
