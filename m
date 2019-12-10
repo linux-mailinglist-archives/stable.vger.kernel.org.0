@@ -2,102 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54928119C3E
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA25C119C59
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726646AbfLJWTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:19:49 -0500
-Received: from userp2130.oracle.com ([156.151.31.86]:56372 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726608AbfLJWTs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 17:19:48 -0500
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xBAME8aK137834;
-        Tue, 10 Dec 2019 22:19:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2019-08-05;
- bh=V7NOZM87Hjo3aH85Tq0UMYJwfwxR0GULXsdxgUGpUIg=;
- b=iS3GKONzKGMUa3EaM0O0NhvcAW/iG7hEk43Pi/ciGvg5J2j6uemEbhNIYdyZcCUV6Gnl
- IF1zKbNQ+cW9QoyaOp4Bj+Mh3gv87Zdzbi599PzAXTQ5sCuGtrCSm0CqsZkqAJY/dTF4
- 8T01Nh/C9dbkCkqZBAGZMagCMrkjM+TZ/XLAVw+odnDtoKOOLNdTNElSduSGasvTQTXy
- +lIHRrXiRwBTOM6/TG4DajAGjnKLetFKXe4JaygKnhbxSN+TQXvyiO030SMahQgViKsO
- 5GOLZcNtEQL5Fyt+uO+L1TIIc8B8GiNiRsksrHXf6bv+U5SoK2igY+vOMjpy3i2Hh7vT Mw== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 2wrw4n5y9p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Dec 2019 22:19:33 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xBAMJ8g3075501;
-        Tue, 10 Dec 2019 22:19:33 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 2wte9asq7m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Dec 2019 22:19:29 +0000
-Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id xBAMI5ZW018162;
-        Tue, 10 Dec 2019 22:18:05 GMT
-Received: from ca-dmjordan1.us.oracle.com (/10.211.9.48)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 10 Dec 2019 14:18:04 -0800
-Date:   Tue, 10 Dec 2019 17:18:14 -0500
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Pavel Tatashin <pasha.tatashin@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Steven Sistare <steven.sistare@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Bob Picco <bob.picco@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>
-Subject: Re: [PATCH v1 1/3] mm: fix uninitialized memmaps on a partially
- populated last section
-Message-ID: <20191210221814.bdgd4rw55paowhpv@ca-dmjordan1.us.oracle.com>
-References: <20191209174836.11063-1-david@redhat.com>
- <20191209174836.11063-2-david@redhat.com>
- <20191209211502.zhbvzv2qwbvcperm@ca-dmjordan1.us.oracle.com>
- <c0733e11-bf06-8813-11de-019cdbddef34@redhat.com>
+        id S1726589AbfLJWai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:30:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726062AbfLJWai (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:30:38 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CB53206EC;
+        Tue, 10 Dec 2019 22:30:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576017037;
+        bh=Iv9R8Ul4w25f2mlnMFnuSz4NUF3fG7WfUuLMlnkLd/E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=O0eQnqm/LIxDxBZqWyJi2r1KSduVHnx+8Zti3ddS08q3HyYibVQQ+0n6EiDrBjIUE
+         LrtUF5s1V/Cv0hOIDW39KtG3lMhoPEo970KlX/xlvvuhp22X7rDXFTWpjVfIDsDYmu
+         wp3QLQNYJeMOqpGnsfXGJevY0V0dmRxGQ0tqVZu8=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Sean Paul <seanpaul@chromium.org>, Lyude Paul <lyude@redhat.com>,
+        Todd Previte <tprevite@gmail.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 01/91] drm: mst: Fix query_payload ack reply struct
+Date:   Tue, 10 Dec 2019 17:29:05 -0500
+Message-Id: <20191210223035.14270-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c0733e11-bf06-8813-11de-019cdbddef34@redhat.com>
-User-Agent: NeoMutt/20180716
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9467 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1912100183
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9467 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
- definitions=main-1912100183
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 11:11:03AM +0100, David Hildenbrand wrote:
-> Some things that might be relevant from my config.
-> 
-> # CONFIG_PAGE_POISONING is not set
-> CONFIG_DEFERRED_STRUCT_PAGE_INIT=y
-> CONFIG_SPARSEMEM_EXTREME=y
-> CONFIG_SPARSEMEM_VMEMMAP_ENABLE=y
-> CONFIG_SPARSEMEM_VMEMMAP=y
-> CONFIG_HAVE_MEMBLOCK_NODE_MAP=y
-> CONFIG_MEMORY_HOTPLUG=y
-> CONFIG_MEMORY_HOTPLUG_SPARSE=y
-> CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE=y
+From: Sean Paul <seanpaul@chromium.org>
 
-Thanks for all that.  After some poking around, turns out enabling DEBUG_VM
-with its page poisoning let me hit it right away, which makes me wonder how
-often someone would see this without it.
+[ Upstream commit 268de6530aa18fe5773062367fd119f0045f6e88 ]
 
-Anyway, fix looks good to me.
+Spec says[1] Allocated_PBN is 16 bits
 
-Tested-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+[1]- DisplayPort 1.2 Spec, Section 2.11.9.8, Table 2-98
+
+Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Todd Previte <tprevite@gmail.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190829165223.129662-1-sean@poorly.run
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/drm/drm_dp_mst_helper.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/drm/drm_dp_mst_helper.h b/include/drm/drm_dp_mst_helper.h
+index 0032076705970..c0542de64690a 100644
+--- a/include/drm/drm_dp_mst_helper.h
++++ b/include/drm/drm_dp_mst_helper.h
+@@ -312,7 +312,7 @@ struct drm_dp_resource_status_notify {
+ 
+ struct drm_dp_query_payload_ack_reply {
+ 	u8 port_number;
+-	u8 allocated_pbn;
++	u16 allocated_pbn;
+ };
+ 
+ struct drm_dp_sideband_msg_req_body {
+-- 
+2.20.1
+
