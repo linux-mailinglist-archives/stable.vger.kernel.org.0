@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C140D11940C
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF371194D3
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:18:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728532AbfLJVND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:13:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38698 "EHLO mail.kernel.org"
+        id S1729181AbfLJVNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:13:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728617AbfLJVND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:03 -0500
+        id S1728879AbfLJVNE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:13:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C60832465B;
-        Tue, 10 Dec 2019 21:13:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E7482465A;
+        Tue, 10 Dec 2019 21:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012382;
-        bh=W4y7qxt9zncxLFVbblXwIze/qP8OdDiCDJPyJRUsryA=;
+        s=default; t=1576012383;
+        bh=ZwC9R2gwg7CqpsLyXbIovA1NDpp7Eh9h2N7McZ70buQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+Srg/kam+97uMeVdyrOa77SUXunhtAKtWaAdmiOdiU14ooLKckT28aVq2bGe7P1j
-         lHHmgWe13L/tq9b7VHgcJ2QyMl8WezjGhiCczQgVL3shVevVtLZ0yf+zZis38Tvn1W
-         NfEnCztCTqpFRdSg2bqARl23vVwIUFLXjaDWabcI=
+        b=UuiCd/JIEFCz+zOL8fscWigdlxYLXd8lIZOU6tAvzReyRVk1wmm6RXfzMFTRJNdvj
+         kC1IxYnGItOuNepiPXlrZOm1DlP3+t+dxWtlsxk/YFF7641rDPwTZG9Ememdfla9WY
+         CqxSjo7nv7Hu8oHMp+BGwXOlxyMxTp7byooQdQyE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 305/350] perf/core: Fix the mlock accounting, again
-Date:   Tue, 10 Dec 2019 16:06:50 -0500
-Message-Id: <20191210210735.9077-266-sashal@kernel.org>
+Cc:     Jiri Benc <jbenc@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Willem de Bruijn <willemb@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 306/350] selftests, bpf: Fix test_tc_tunnel hanging
+Date:   Tue, 10 Dec 2019 16:06:51 -0500
+Message-Id: <20191210210735.9077-267-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -52,67 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Jiri Benc <jbenc@redhat.com>
 
-[ Upstream commit 36b3db03b4741b8935b68fffc7e69951d8d70a89 ]
+[ Upstream commit 3b054b7133b4ad93671c82e8d6185258e3f1a7a5 ]
 
-Commit:
+When run_kselftests.sh is run, it hangs after test_tc_tunnel.sh. The reason
+is test_tc_tunnel.sh ensures the server ('nc -l') is run all the time,
+starting it again every time it is expected to terminate. The exception is
+the final client_connect: the server is not started anymore, which ensures
+no process is kept running after the test is finished.
 
-  5e6c3c7b1ec2 ("perf/aux: Fix tracking of auxiliary trace buffer allocation")
+For a sit test, though, the script is terminated prematurely without the
+final client_connect and the 'nc' process keeps running. This in turn causes
+the run_one function in kselftest/runner.sh to hang forever, waiting for the
+runaway process to finish.
 
-tried to guess the correct combination of arithmetic operations that would
-undo the AUX buffer's mlock accounting, and failed, leaking the bottom part
-when an allocation needs to be charged partially to both user->locked_vm
-and mm->pinned_vm, eventually leaving the user with no locked bonus:
+Ensure a remaining server is terminated on cleanup.
 
-  $ perf record -e intel_pt//u -m1,128 uname
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.061 MB perf.data ]
-
-  $ perf record -e intel_pt//u -m1,128 uname
-  Permission error mapping pages.
-  Consider increasing /proc/sys/kernel/perf_event_mlock_kb,
-  or try again with a smaller value of -m/--mmap_pages.
-  (current value: 1,128)
-
-Fix this by subtracting both locked and pinned counts when AUX buffer is
-unmapped.
-
-Reported-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: f6ad6accaa99 ("selftests/bpf: expand test_tc_tunnel with SIT encap")
+Signed-off-by: Jiri Benc <jbenc@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/bpf/60919291657a9ee89c708d8aababc28ebe1420be.1573821780.git.jbenc@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/testing/selftests/bpf/test_tc_tunnel.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 00a014670ed02..8f66a4833dedd 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5607,10 +5607,8 @@ static void perf_mmap_close(struct vm_area_struct *vma)
- 		perf_pmu_output_stop(event);
+diff --git a/tools/testing/selftests/bpf/test_tc_tunnel.sh b/tools/testing/selftests/bpf/test_tc_tunnel.sh
+index ff0d31d38061f..7c76b841b17bb 100755
+--- a/tools/testing/selftests/bpf/test_tc_tunnel.sh
++++ b/tools/testing/selftests/bpf/test_tc_tunnel.sh
+@@ -62,6 +62,10 @@ cleanup() {
+ 	if [[ -f "${infile}" ]]; then
+ 		rm "${infile}"
+ 	fi
++
++	if [[ -n $server_pid ]]; then
++		kill $server_pid 2> /dev/null
++	fi
+ }
  
- 		/* now it's safe to free the pages */
--		if (!rb->aux_mmap_locked)
--			atomic_long_sub(rb->aux_nr_pages, &mmap_user->locked_vm);
--		else
--			atomic64_sub(rb->aux_mmap_locked, &vma->vm_mm->pinned_vm);
-+		atomic_long_sub(rb->aux_nr_pages - rb->aux_mmap_locked, &mmap_user->locked_vm);
-+		atomic64_sub(rb->aux_mmap_locked, &vma->vm_mm->pinned_vm);
+ server_listen() {
+@@ -77,6 +81,7 @@ client_connect() {
  
- 		/* this has to be the last one */
- 		rb_free_aux(rb);
+ verify_data() {
+ 	wait "${server_pid}"
++	server_pid=
+ 	# sha1sum returns two fields [sha1] [filepath]
+ 	# convert to bash array and access first elem
+ 	insum=($(sha1sum ${infile}))
 -- 
 2.20.1
 
