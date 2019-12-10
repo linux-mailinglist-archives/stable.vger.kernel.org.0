@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 052F01196A0
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4E611969E
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726708AbfLJV2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:28:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60432 "EHLO mail.kernel.org"
+        id S1728521AbfLJVKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:10:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728120AbfLJVK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:10:29 -0500
+        id S1728513AbfLJVKa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:10:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF5C0246B8;
-        Tue, 10 Dec 2019 21:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBFF02077B;
+        Tue, 10 Dec 2019 21:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012228;
-        bh=EwON0KxD+25ZAhruFvpeWwE6GlempRxfhHmX9ra5pWM=;
+        s=default; t=1576012229;
+        bh=cXHoFaCPOcdNxCGH5Nh0rBLLYZyaMEeDTY7yKhcYT/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJU40CmfWPJxdwSZQ5j1TIkIdVSCcS4Vkraa6mML2DzsEHrwDkXFD+y7PiGePsX2y
-         iARzH5quwNxd0Ir+qkMVdhtpZjW0nGXTEtaOmUaMmaHio6c/v+XzDtu/TyCwdhccEk
-         Gngx7Qt/jO/WHEwxl92+AekunXdiEtnHob4OqQos=
+        b=wwYUKEwKYIk8arMW1TyelSgMlRX8JeLwMhD6cUFnkNRb7w9Fpv6BVxhw5Xe47Bcnw
+         amkAETaNDxE52qqDJ3tN66UNaXDjLA4VH0MjnL445ChlRBPzq9gbi77Hjr/QdnOHPa
+         JwdimdJx9G2VQgbWHJcRPfyTnNaKWfM3fPBmxp6E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mao Wenan <maowenan@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 178/350] net: dsa: LAN9303: select REGMAP when LAN9303 enable
-Date:   Tue, 10 Dec 2019 16:04:43 -0500
-Message-Id: <20191210210735.9077-139-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 179/350] ALSA: hda/hdmi - implement mst_no_extra_pcms flag
+Date:   Tue, 10 Dec 2019 16:04:44 -0500
+Message-Id: <20191210210735.9077-140-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -43,41 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <maowenan@huawei.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit b6989d248a2d13f02895bae1a9321b3bbccc0283 ]
+[ Upstream commit 2a2edfbbfee47947dd05f5860c66c0e80ee5e09d ]
 
-When NET_DSA_SMSC_LAN9303=y and NET_DSA_SMSC_LAN9303_MDIO=y,
-below errors can be seen:
-drivers/net/dsa/lan9303_mdio.c:87:23: error: REGMAP_ENDIAN_LITTLE
-undeclared here (not in a function)
-  .reg_format_endian = REGMAP_ENDIAN_LITTLE,
-drivers/net/dsa/lan9303_mdio.c:93:3: error: const struct regmap_config
-has no member named reg_read
-  .reg_read = lan9303_mdio_read,
+To support the DP-MST multiple streams via single connector feature,
+the HDMI driver was extended with the concept of backup PCMs. See
+commit 9152085defb6 ("ALSA: hda - add DP MST audio support").
 
-It should select REGMAP in config NET_DSA_SMSC_LAN9303.
+This implementation works fine with snd_hda_intel.c as PCM topology
+is fully managed within the single driver.
 
-Fixes: dc7005831523 ("net: dsa: LAN9303: add MDIO managed mode support")
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When the HDA codec driver is used from ASoC components, the concept
+of backup PCMs no longer fits. For ASoC topologies, the physical
+HDMI converters are presented as backend DAIs and these should match
+with hardware capabilities. The ASoC topology may define arbitrary
+PCMs (i.e. frontend DAIs) and have processing elements before eventual
+routing to the HDMI BE DAIs. With backup PCMs, the link between
+FE and BE DAIs would become dynamic and change when monitors are
+(un)plugged. This would lead to modifying the topology every time
+hotplug events happen, which is not currently possible in ASoC and
+there does not seem to be any obvious benefits from this design.
+
+To overcome above problems and enable the HDMI driver to be used
+from ASoC, this patch adds a new mode (mst_no_extra_pcms flags) to
+patch_hdmi.c. In this mode, the codec driver does not assume
+the backup PCMs to be created.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191029134017.18901-2-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ include/sound/hda_codec.h  |  1 +
+ sound/pci/hda/patch_hdmi.c | 19 ++++++++++++++-----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
-index f6232ce8481fe..685e12b05a7c0 100644
---- a/drivers/net/dsa/Kconfig
-+++ b/drivers/net/dsa/Kconfig
-@@ -77,6 +77,7 @@ config NET_DSA_REALTEK_SMI
- config NET_DSA_SMSC_LAN9303
- 	tristate
- 	select NET_DSA_TAG_LAN9303
-+	select REGMAP
- 	---help---
- 	  This enables support for the SMSC/Microchip LAN9303 3 port ethernet
- 	  switch chips.
+diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
+index 9a0393cf024c2..ac18f428eda6c 100644
+--- a/include/sound/hda_codec.h
++++ b/include/sound/hda_codec.h
+@@ -254,6 +254,7 @@ struct hda_codec {
+ 	unsigned int force_pin_prefix:1; /* Add location prefix */
+ 	unsigned int link_down_at_suspend:1; /* link down at runtime suspend */
+ 	unsigned int relaxed_resume:1;	/* don't resume forcibly for jack */
++	unsigned int mst_no_extra_pcms:1; /* no backup PCMs for DP-MST */
+ 
+ #ifdef CONFIG_PM
+ 	unsigned long power_on_acct;
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index d14f6684737d0..b8579cd218098 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2075,15 +2075,24 @@ static bool is_hdmi_pcm_attached(struct hdac_device *hdac, int pcm_idx)
+ static int generic_hdmi_build_pcms(struct hda_codec *codec)
+ {
+ 	struct hdmi_spec *spec = codec->spec;
+-	int idx;
++	int idx, pcm_num;
+ 
+ 	/*
+ 	 * for non-mst mode, pcm number is the same as before
+-	 * for DP MST mode, pcm number is (nid number + dev_num - 1)
+-	 *  dev_num is the device entry number in a pin
+-	 *
++	 * for DP MST mode without extra PCM, pcm number is same
++	 * for DP MST mode with extra PCMs, pcm number is
++	 *  (nid number + dev_num - 1)
++	 * dev_num is the device entry number in a pin
+ 	 */
+-	for (idx = 0; idx < spec->num_nids + spec->dev_num - 1; idx++) {
++
++	if (codec->mst_no_extra_pcms)
++		pcm_num = spec->num_nids;
++	else
++		pcm_num = spec->num_nids + spec->dev_num - 1;
++
++	codec_dbg(codec, "hdmi: pcm_num set to %d\n", pcm_num);
++
++	for (idx = 0; idx < pcm_num; idx++) {
+ 		struct hda_pcm *info;
+ 		struct hda_pcm_stream *pstr;
+ 
 -- 
 2.20.1
 
