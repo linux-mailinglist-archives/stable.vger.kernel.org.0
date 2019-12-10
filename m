@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 285B9119D6B
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C92119CE0
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729685AbfLJWhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:37:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54936 "EHLO mail.kernel.org"
+        id S1730040AbfLJWdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:33:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729427AbfLJWdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:33:52 -0500
+        id S1730036AbfLJWdx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:33:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3B37208C3;
-        Tue, 10 Dec 2019 22:33:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D288221556;
+        Tue, 10 Dec 2019 22:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017231;
-        bh=nbQdTNtfSD5DbSFqvV0bw5QYGDq9+muh2sSkV1tjNjM=;
+        s=default; t=1576017232;
+        bh=56vqzIiw9gnw4/jZSv4Jg8hafDat+7TSpFTgWOQNGh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjevCIrIaGgNxnRQVJsOW6oAkrnrGkAaBenL1Z29YzTY4tlMzYW/qjWbHszqTtH/F
-         cxtDy2PXfiTG/jpQzKFBlslh9E79ehHfjA++y9SRH0UmVM0ziCdZn7dBH65nJXANbh
-         nZPoADVDA4OJaxC27sgIcViKXfkrTM4ZuxgQOOqA=
+        b=IoKz/GvMIVCcVRcnUFJMFttJ50TTT5qqsSFP3maw0cGk9fnxLD6ssb8aGKvjim39l
+         +D0I4+SGjhVK0NCv/xsW6AF1StrIlv1033MPd7gZudKLlKLTASmq7lKNJMStoILztV
+         5xOJ9YS6CnmVvq/1mUaUOnKStcdvWSh4VnkZHq6M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+Cc:     Kangjie Lu <kjlu@umn.edu>, Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 29/71] Bluetooth: hci_core: fix init for HCI_USER_CHANNEL
-Date:   Tue, 10 Dec 2019 17:32:34 -0500
-Message-Id: <20191210223316.14988-29-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.4 30/71] drm/gma500: fix memory disclosures due to uninitialized bytes
+Date:   Tue, 10 Dec 2019 17:32:35 -0500
+Message-Id: <20191210223316.14988-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -44,50 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit eb8c101e28496888a0dcfe16ab86a1bee369e820 ]
+[ Upstream commit ec3b7b6eb8c90b52f61adff11b6db7a8db34de19 ]
 
-During the setup() stage, HCI device drivers expect the chip to
-acknowledge its setup() completion via vendor specific frames.
+"clock" may be copied to "best_clock". Initializing best_clock
+is not sufficient. The fix initializes clock as well to avoid
+memory disclosures and informaiton leaks.
 
-If userspace opens() such HCI device in HCI_USER_CHANNEL [1] mode,
-the vendor specific frames are never tranmitted to the driver, as
-they are filtered in hci_rx_work().
-
-Allow HCI devices which operate in HCI_USER_CHANNEL mode to receive
-frames if the HCI device is is HCI_INIT state.
-
-[1] https://www.spinics.net/lists/linux-bluetooth/msg37345.html
-
-Fixes: 23500189d7e0 ("Bluetooth: Introduce new HCI socket channel for user operation")
-Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191018044150.1899-1-kjlu@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/gma500/oaktrail_crtc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 5d0b1358c7547..4bce3ef2c392a 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -4459,7 +4459,14 @@ static void hci_rx_work(struct work_struct *work)
- 			hci_send_to_sock(hdev, skb);
- 		}
+diff --git a/drivers/gpu/drm/gma500/oaktrail_crtc.c b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+index 1048f0c7c6ce7..31e0899035f98 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_crtc.c
++++ b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+@@ -139,6 +139,7 @@ static bool mrst_sdvo_find_best_pll(const struct gma_limit_t *limit,
+ 	s32 freq_error, min_error = 100000;
  
--		if (hci_dev_test_flag(hdev, HCI_USER_CHANNEL)) {
-+		/* If the device has been opened in HCI_USER_CHANNEL,
-+		 * the userspace has exclusive access to device.
-+		 * When device is HCI_INIT, we still need to process
-+		 * the data packets to the driver in order
-+		 * to complete its setup().
-+		 */
-+		if (hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-+		    !test_bit(HCI_INIT, &hdev->flags)) {
- 			kfree_skb(skb);
- 			continue;
- 		}
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.n = limit->n.min; clock.n <= limit->n.max;
+@@ -195,6 +196,7 @@ static bool mrst_lvds_find_best_pll(const struct gma_limit_t *limit,
+ 	int err = target;
+ 
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.p1 = limit->p1.min; clock.p1 <= limit->p1.max;
 -- 
 2.20.1
 
