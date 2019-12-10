@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C694119E7B
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:45:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B94F119C70
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727054AbfLJWan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:30:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50400 "EHLO mail.kernel.org"
+        id S1727177AbfLJWao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:30:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726879AbfLJWan (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:30:43 -0500
+        id S1727069AbfLJWao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:30:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AE172077B;
-        Tue, 10 Dec 2019 22:30:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2B7F20836;
+        Tue, 10 Dec 2019 22:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017042;
-        bh=k0bLezHudClzSS0PwG+dTRlMojijS+3n9IsiySvKpPM=;
+        s=default; t=1576017043;
+        bh=z8PnKVK74ENGpfBY08cvdPkDCNbeMO4HpQLF8Ybtr40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snEEsIGqr5/9rf83y0tSMQvKN/9J55li5CjBDWUCFAXb9403yVqcVg5USpOKBAFDD
-         ruCCBXNBglY74jhDMKnleUlk77uj4wspP8UPP6ETiG5vsxHk2q1Vlqh4dtU2phUO8I
-         0VI4qBOzQRWY4w7GxgEuD4VonLqSplJRZ290JVsw=
+        b=XPHUYa5M5itUNCq4kTwW5LAUQVvNRaDyntRrTgxt2L4JS53a+uUv1O/9YMWG2xYdz
+         cZ6cHHHR0Si2c6W10F06vvZSPsDfUefAVtoA3Gzae47krZOtPe9T+WdG2Y5pOyQ6wW
+         f7RCR3cLy4peM4MwD4iH/3gmOkQnjNo/uwTqaPTI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukasz Majewski <lukma@denx.de>, Mark Brown <broonie@kernel.org>,
-        kbuild test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/91] spi: Add call to spi_slave_abort() function when spidev driver is released
-Date:   Tue, 10 Dec 2019 17:29:09 -0500
-Message-Id: <20191210223035.14270-5-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.9 06/91] staging: rtl8192u: fix multiple memory leaks on error path
+Date:   Tue, 10 Dec 2019 17:29:10 -0500
+Message-Id: <20191210223035.14270-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -43,47 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Majewski <lukma@denx.de>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 9f918a728cf86b2757b6a7025e1f46824bfe3155 ]
+[ Upstream commit ca312438cf176a16d4b89350cade8789ba8d7133 ]
 
-This change is necessary for spidev devices (e.g. /dev/spidev3.0) working
-in the slave mode (like NXP's dspi driver for Vybrid SoC).
+In rtl8192_tx on error handling path allocated urbs and also skb should
+be released.
 
-When SPI HW works in this mode - the master is responsible for providing
-CS and CLK signals. However, when some fault happens - like for example
-distortion on SPI lines - the SPI Linux driver needs a chance to recover
-from this abnormal situation and prepare itself for next (correct)
-transmission.
-
-This change doesn't pose any threat on drivers working in master mode as
-spi_slave_abort() function checks if SPI slave mode is supported.
-
-Signed-off-by: Lukasz Majewski <lukma@denx.de>
-Link: https://lore.kernel.org/r/20190924110547.14770-2-lukma@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20190925091143.15468-2-lukma@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Link: https://lore.kernel.org/r/20190920025137.29407-1-navid.emamdoost@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/rtl8192u/r8192U_core.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index f4ea286b0121e..a685c6114a8d5 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -663,6 +663,9 @@ static int spidev_release(struct inode *inode, struct file *filp)
- 		if (dofree)
- 			kfree(spidev);
- 	}
-+#ifdef CONFIG_SPI_SLAVE
-+	spi_slave_abort(spidev->spi);
-+#endif
- 	mutex_unlock(&device_list_lock);
+diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
+index 5fe95937d8113..6ec3790566504 100644
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -1509,7 +1509,7 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
+ 		(tx_fwinfo_819x_usb *)(skb->data + USB_HWDESC_HEADER_LEN);
+ 	struct usb_device *udev = priv->udev;
+ 	int pend;
+-	int status;
++	int status, rt = -1;
+ 	struct urb *tx_urb = NULL, *tx_urb_zero = NULL;
+ 	unsigned int idx_pipe;
  
- 	return 0;
+@@ -1653,8 +1653,10 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
+ 		}
+ 		if (bSend0Byte) {
+ 			tx_urb_zero = usb_alloc_urb(0, GFP_ATOMIC);
+-			if (!tx_urb_zero)
+-				return -ENOMEM;
++			if (!tx_urb_zero) {
++				rt = -ENOMEM;
++				goto error;
++			}
+ 			usb_fill_bulk_urb(tx_urb_zero, udev,
+ 					  usb_sndbulkpipe(udev, idx_pipe),
+ 					  &zero, 0, tx_zero_isr, dev);
+@@ -1664,7 +1666,7 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
+ 					 "Error TX URB for zero byte %d, error %d",
+ 					 atomic_read(&priv->tx_pending[tcb_desc->queue_index]),
+ 					 status);
+-				return -1;
++				goto error;
+ 			}
+ 		}
+ 		netif_trans_update(dev);
+@@ -1675,7 +1677,12 @@ short rtl8192_tx(struct net_device *dev, struct sk_buff *skb)
+ 	RT_TRACE(COMP_ERR, "Error TX URB %d, error %d",
+ 		 atomic_read(&priv->tx_pending[tcb_desc->queue_index]),
+ 		 status);
+-	return -1;
++
++error:
++	dev_kfree_skb_any(skb);
++	usb_free_urb(tx_urb);
++	usb_free_urb(tx_urb_zero);
++	return rt;
+ }
+ 
+ static short rtl8192_usb_initendpoints(struct net_device *dev)
 -- 
 2.20.1
 
