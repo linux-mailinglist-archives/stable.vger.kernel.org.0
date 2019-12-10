@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2431196FC
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 649A31196F8
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:30:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727328AbfLJVaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:30:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58918 "EHLO mail.kernel.org"
+        id S1728315AbfLJVJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:09:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728286AbfLJVJw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:09:52 -0500
+        id S1728310AbfLJVJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39661246A7;
-        Tue, 10 Dec 2019 21:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB29C2077B;
+        Tue, 10 Dec 2019 21:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012191;
-        bh=vKrGV+U6ZIYLfVQT/UY7pRLhv6t2/3JYD+SUqMl5pp4=;
+        s=default; t=1576012193;
+        bh=P0/PbYyyDZsUZPAxA/S55Zz6WtpgAvbR5ywx9JD0LyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0YOxCbqNYbhfJnJUZ9NGh/p/B2uTi+BQce4EYQRuM4tau3f7zjHuuvabtdgK4UtRh
-         SvGyKFqvyul1qPbXa8CxW6UkE1i1Ok6nTt1H8Ay5niUadZZbLqN1Up/ySAokVEN6Am
-         O4FkzyXfvrs9bomE699ax5nZhXbQnm0XnF58OQfU=
+        b=CIYBjoFHcAE2uhzaoxdt512OiD88B9Gr1mJW5GkXN9TXIFyNtFx2ZmDRBqs98194X
+         qHemsVnTRbm6e1C3PwNvYwDd4UqjYEKn7FGMedhYVuw0me4E7Yot3x7s9vU1sj1+se
+         7FxPeC0/vMK9drEopVLKMFKxX2AEWEYNYaY7dOcc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lyude Paul <lyude@redhat.com>, Juston Li <juston.li@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Harry Wentland <hwentlan@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Ben Skeggs <bskeggs@redhat.com>, Sean Paul <sean@poorly.run>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 146/350] drm/nouveau: Don't grab runtime PM refs for HPD IRQs
-Date:   Tue, 10 Dec 2019 16:04:11 -0500
-Message-Id: <20191210210735.9077-107-sashal@kernel.org>
+Cc:     Ricardo Ribalda Delgado <ribalda@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 148/350] media: ad5820: Define entity function
+Date:   Tue, 10 Dec 2019 16:04:13 -0500
+Message-Id: <20191210210735.9077-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,91 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Ricardo Ribalda Delgado <ribalda@kernel.org>
 
-[ Upstream commit 09e530657e1c982d3dbc5e4302bf9207950c3d0a ]
+[ Upstream commit 801ef7c4919efba6b96b5aed1e72844ca69e26d3 ]
 
-In order for suspend/resume reprobing to work, we need to be able to
-perform sideband communications during suspend/resume, along with
-runtime PM suspend/resume. In order to do so, we also need to make sure
-that nouveau doesn't bother grabbing a runtime PM reference to do so,
-since otherwise we'll start deadlocking runtime PM again.
+Without this patch, media_device_register_entity throws a warning:
 
-Note that we weren't able to do this before, because of the DP MST
-helpers processing UP requests from topologies in the same context as
-drm_dp_mst_hpd_irq() which would have caused us to open ourselves up to
-receiving hotplug events and deadlocking with runtime suspend/resume.
-Now that those requests are handled asynchronously, this change should
-be completely safe.
+dev_warn(mdev->dev,
+	 "Entity type for entity %s was not initialized!\n",
+	 entity->name);
 
-Cc: Juston Li <juston.li@intel.com>
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Harry Wentland <hwentlan@amd.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Sean Paul <sean@poorly.run>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191022023641.8026-10-lyude@redhat.com
+Signed-off-by: Ricardo Ribalda Delgado <ribalda@kernel.org>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_connector.c | 33 +++++++++++----------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+ drivers/media/i2c/ad5820.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
-index 94dfa2e5a9abe..a442a955f98cb 100644
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -1131,6 +1131,16 @@ nouveau_connector_hotplug(struct nvif_notify *notify)
- 	const char *name = connector->name;
- 	struct nouveau_encoder *nv_encoder;
- 	int ret;
-+	bool plugged = (rep->mask != NVIF_NOTIFY_CONN_V0_UNPLUG);
-+
-+	if (rep->mask & NVIF_NOTIFY_CONN_V0_IRQ) {
-+		NV_DEBUG(drm, "service %s\n", name);
-+		drm_dp_cec_irq(&nv_connector->aux);
-+		if ((nv_encoder = find_encoder(connector, DCB_OUTPUT_DP)))
-+			nv50_mstm_service(nv_encoder->dp.mstm);
-+
-+		return NVIF_NOTIFY_KEEP;
-+	}
+diff --git a/drivers/media/i2c/ad5820.c b/drivers/media/i2c/ad5820.c
+index 925c171e77976..7a49651f4d1f2 100644
+--- a/drivers/media/i2c/ad5820.c
++++ b/drivers/media/i2c/ad5820.c
+@@ -309,6 +309,7 @@ static int ad5820_probe(struct i2c_client *client,
+ 	v4l2_i2c_subdev_init(&coil->subdev, client, &ad5820_ops);
+ 	coil->subdev.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
+ 	coil->subdev.internal_ops = &ad5820_internal_ops;
++	coil->subdev.entity.function = MEDIA_ENT_F_LENS;
+ 	strscpy(coil->subdev.name, "ad5820 focus", sizeof(coil->subdev.name));
  
- 	ret = pm_runtime_get(drm->dev->dev);
- 	if (ret == 0) {
-@@ -1151,25 +1161,16 @@ nouveau_connector_hotplug(struct nvif_notify *notify)
- 		return NVIF_NOTIFY_DROP;
- 	}
- 
--	if (rep->mask & NVIF_NOTIFY_CONN_V0_IRQ) {
--		NV_DEBUG(drm, "service %s\n", name);
--		drm_dp_cec_irq(&nv_connector->aux);
--		if ((nv_encoder = find_encoder(connector, DCB_OUTPUT_DP)))
--			nv50_mstm_service(nv_encoder->dp.mstm);
--	} else {
--		bool plugged = (rep->mask != NVIF_NOTIFY_CONN_V0_UNPLUG);
--
-+	if (!plugged)
-+		drm_dp_cec_unset_edid(&nv_connector->aux);
-+	NV_DEBUG(drm, "%splugged %s\n", plugged ? "" : "un", name);
-+	if ((nv_encoder = find_encoder(connector, DCB_OUTPUT_DP))) {
- 		if (!plugged)
--			drm_dp_cec_unset_edid(&nv_connector->aux);
--		NV_DEBUG(drm, "%splugged %s\n", plugged ? "" : "un", name);
--		if ((nv_encoder = find_encoder(connector, DCB_OUTPUT_DP))) {
--			if (!plugged)
--				nv50_mstm_remove(nv_encoder->dp.mstm);
--		}
--
--		drm_helper_hpd_irq_event(connector->dev);
-+			nv50_mstm_remove(nv_encoder->dp.mstm);
- 	}
- 
-+	drm_helper_hpd_irq_event(connector->dev);
-+
- 	pm_runtime_mark_last_busy(drm->dev->dev);
- 	pm_runtime_put_autosuspend(drm->dev->dev);
- 	return NVIF_NOTIFY_KEEP;
+ 	ret = media_entity_pads_init(&coil->subdev.entity, 0, NULL);
 -- 
 2.20.1
 
