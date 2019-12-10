@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC8C119D0F
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11099119D12
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbfLJWfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728893AbfLJWfg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 17:35:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730355AbfLJWeb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:34:31 -0500
+        id S1730370AbfLJWec (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:34:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4EA020836;
-        Tue, 10 Dec 2019 22:34:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1A732077B;
+        Tue, 10 Dec 2019 22:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017270;
-        bh=+d/EPeAnK08Y492IrzqNRX5zak9fQNfVoHVoWmvBVg4=;
+        s=default; t=1576017271;
+        bh=g+6Q1nqTZIyboOk9ybA2T2qqr2ssXMoBmdNKNjbQx3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0oLChbAuun1I9TXPFZph03frXeUfffTR9K5tgir+VyjR7VddfL9n47Gig6kgynPW
-         e/dJZilTuMJfuXfo8A7bIIX0pekvSDeEmwFY7rJYNuPuFkuyl65qUxmb5+OyjM1wQV
-         tBx+dN1ap6908J78O5bNRgeaXrQGPeangrFXtcPo=
+        b=IA7rio29VRkQ+fU5Cl7H0ZZObvU9DJerVsbDOZD5UKfNZGLG2FOp9P757r5q/+GrD
+         lAQvZPQvEQ6huRGfHdJvLCARAjO/CnxUjA+ev2Zej5PB2j4K986y5TXa9sL4PrwTPB
+         IP712Zvq7SwlscivWxdf5HBeOjD0jeVzofHJ19VI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 62/71] spi: tegra20-slink: add missed clk_unprepare
-Date:   Tue, 10 Dec 2019 17:33:07 -0500
-Message-Id: <20191210223316.14988-62-sashal@kernel.org>
+Cc:     Omar Sandoval <osandov@fb.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 63/71] btrfs: don't prematurely free work in end_workqueue_fn()
+Date:   Tue, 10 Dec 2019 17:33:08 -0500
+Message-Id: <20191210223316.14988-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -44,51 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Omar Sandoval <osandov@fb.com>
 
-[ Upstream commit 04358e40ba96d687c0811c21d9dede73f5244a98 ]
+[ Upstream commit 9be490f1e15c34193b1aae17da58e14dd9f55a95 ]
 
-The driver misses calling clk_unprepare in probe failure and remove.
-Add the calls to fix it.
+Currently, end_workqueue_fn() frees the end_io_wq entry (which embeds
+the work item) and then calls bio_endio(). This is another potential
+instance of the bug in "btrfs: don't prematurely free work in
+run_ordered_work()".
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/20191115083122.12278-1-hslester96@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+In particular, the endio call may depend on other work items. For
+example, btrfs_end_dio_bio() can call btrfs_subio_endio_read() ->
+__btrfs_correct_data_nocsum() -> dio_read_error() ->
+submit_dio_repair_bio(), which submits a bio that is also completed
+through a end_workqueue_fn() work item. However,
+__btrfs_correct_data_nocsum() waits for the newly submitted bio to
+complete, thus it depends on another work item.
+
+This example currently usually works because we use different workqueue
+helper functions for BTRFS_WQ_ENDIO_DATA and BTRFS_WQ_ENDIO_DIO_REPAIR.
+However, it may deadlock with stacked filesystems and is fragile
+overall. The proper fix is to free the work item at the very end of the
+work function, so let's do that.
+
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Omar Sandoval <osandov@fb.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra20-slink.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/btrfs/disk-io.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index af2880d0c1126..cf2a329fd8958 100644
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1078,7 +1078,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	ret = clk_enable(tspi->clk);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Clock enable failed %d\n", ret);
--		goto exit_free_master;
-+		goto exit_clk_unprepare;
- 	}
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 78722aaffecd3..d50fc503f73b8 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1698,8 +1698,8 @@ static void end_workqueue_fn(struct btrfs_work *work)
+ 	bio->bi_error = end_io_wq->error;
+ 	bio->bi_private = end_io_wq->private;
+ 	bio->bi_end_io = end_io_wq->end_io;
+-	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
+ 	bio_endio(bio);
++	kmem_cache_free(btrfs_end_io_wq_cache, end_io_wq);
+ }
  
- 	spi_irq = platform_get_irq(pdev, 0);
-@@ -1151,6 +1151,8 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	free_irq(spi_irq, tspi);
- exit_clk_disable:
- 	clk_disable(tspi->clk);
-+exit_clk_unprepare:
-+	clk_unprepare(tspi->clk);
- exit_free_master:
- 	spi_master_put(master);
- 	return ret;
-@@ -1164,6 +1166,7 @@ static int tegra_slink_remove(struct platform_device *pdev)
- 	free_irq(tspi->irq, tspi);
- 
- 	clk_disable(tspi->clk);
-+	clk_unprepare(tspi->clk);
- 
- 	if (tspi->tx_dma_chan)
- 		tegra_slink_deinit_dma_param(tspi, false);
+ static int cleaner_kthread(void *arg)
 -- 
 2.20.1
 
