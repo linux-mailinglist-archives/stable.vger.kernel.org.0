@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B82119A50
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7331F1199B7
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727868AbfLJVvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:51:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54806 "EHLO mail.kernel.org"
+        id S1727731AbfLJVH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:07:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727380AbfLJVH6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:07:58 -0500
+        id S1727715AbfLJVH7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:07:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 332032468F;
-        Tue, 10 Dec 2019 21:07:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C6E924694;
+        Tue, 10 Dec 2019 21:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012077;
-        bh=PrODbBkMcThbXTtclDbkpaI0D3MEkIjDDfJdQn04QRw=;
+        s=default; t=1576012078;
+        bh=V3NMAt+omCTVjSk53UEi96imoDQOtv61nKXbJATRS7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HePooKbNgEInkJpvnHnfaW4mXdevm2TZXwgq3QE/OP0Cv6/GhPF+eXgikaRgWdOr5
-         6MuDDymS3SPKKPnP5U9SWp14cUyi4A1HHlhwq2myX774XJwPphXkXb00jAssxscR9v
-         OpUaXgVt7nfCXDu1wx5tQHswMvJ7V9dPkwerO7qI=
+        b=ueK6jd0HevmxcspWx1/fAKBnMBFq5WUyBDINS8keGQZkaQinIszn4L6lFeqkahI95
+         qOd0fHZonbDJSBBtIf8XUKDButI79azcrgZJrnXSS725kqGDlVd+u9dV/ZOWRlJBQD
+         lTkDiyXfAQPFH6rKFc2IIVPrFFyLjvFejYALW52k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 056/350] selftests/bpf: Correct path to include msg + path
-Date:   Tue, 10 Dec 2019 16:02:41 -0500
-Message-Id: <20191210210735.9077-17-sashal@kernel.org>
+Cc:     Anthony Koo <Anthony.Koo@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 057/350] drm/amd/display: set minimum abm backlight level
+Date:   Tue, 10 Dec 2019 16:02:42 -0500
+Message-Id: <20191210210735.9077-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,66 +45,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
+From: Anthony Koo <Anthony.Koo@amd.com>
 
-[ Upstream commit c588146378962786ddeec817f7736a53298a7b01 ]
+[ Upstream commit 2ad0cdf9e2e9e079af34af681863fa638f2ee212 ]
 
-The "path" buf is supposed to contain path + printf msg up to 24 bytes.
-It will be cut anyway, but compiler generates truncation warns like:
+[Why]
+A lot of the time, the backlight characteristic curve maps min backlight
+to a non-zero value.
+But there are cases where we want the curve to intersect at 0.
+In this scenario even if OS never asks to set 0% backlight, the ABM
+reduction can result in backlight being lowered close to 0.
+This particularly can cause problems in some LED drivers, and in
+general just looks like backlight is completely off.
 
-"
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c: In
-function ‘setup_cgroup_environment’:
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:52:34:
-warning: ‘/cgroup.controllers’ directive output may be truncated
-writing 19 bytes into a region of size between 1 and 4097
-[-Wformat-truncation=]
-snprintf(path, sizeof(path), "%s/cgroup.controllers", cgroup_path);
-				  ^~~~~~~~~~~~~~~~~~~
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:52:2:
-note: ‘snprintf’ output between 20 and 4116 bytes into a destination
-of size 4097
-snprintf(path, sizeof(path), "%s/cgroup.controllers", cgroup_path);
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:72:34:
-warning: ‘/cgroup.subtree_control’ directive output may be truncated
-writing 23 bytes into a region of size between 1 and 4097
-[-Wformat-truncation=]
-snprintf(path, sizeof(path), "%s/cgroup.subtree_control",
-				  ^~~~~~~~~~~~~~~~~~~~~~~
-cgroup_path);
-samples/bpf/../../tools/testing/selftests/bpf/cgroup_helpers.c:72:2:
-note: ‘snprintf’ output between 24 and 4120 bytes into a destination
-of size 4097
-snprintf(path, sizeof(path), "%s/cgroup.subtree_control",
-cgroup_path);
-"
+[How]
+Add default cap to disallow backlight from dropping below 1%
+even after ABM reduction is applied.
 
-In order to avoid warns, lets decrease buf size for cgroup workdir on
-24 bytes with assumption to include also "/cgroup.subtree_control" to
-the address. The cut will never happen anyway.
-
-Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20191002120404.26962-3-ivan.khoronzhuk@linaro.org
+Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/cgroup_helpers.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  5 ++
+ .../amd/display/modules/power/power_helpers.c | 77 +++++++++++--------
+ .../amd/display/modules/power/power_helpers.h |  1 +
+ 3 files changed, 49 insertions(+), 34 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/cgroup_helpers.c b/tools/testing/selftests/bpf/cgroup_helpers.c
-index e95c33e333a40..b29a73fe64dbc 100644
---- a/tools/testing/selftests/bpf/cgroup_helpers.c
-+++ b/tools/testing/selftests/bpf/cgroup_helpers.c
-@@ -98,7 +98,7 @@ int enable_all_controllers(char *cgroup_path)
-  */
- int setup_cgroup_environment(void)
- {
--	char cgroup_workdir[PATH_MAX + 1];
-+	char cgroup_workdir[PATH_MAX - 24];
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 4139f129eafb4..4e9c15c409bac 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -940,6 +940,11 @@ static int dm_late_init(void *handle)
+ 	params.backlight_lut_array_size = 16;
+ 	params.backlight_lut_array = linear_lut;
  
- 	format_cgroup_path(cgroup_workdir, "");
++	/* Min backlight level after ABM reduction,  Don't allow below 1%
++	 * 0xFFFF x 0.01 = 0x28F
++	 */
++	params.min_abm_backlight = 0x28F;
++
+ 	/* todo will enable for navi10 */
+ 	if (adev->asic_type <= CHIP_RAVEN) {
+ 		ret = dmcu_load_iram(dmcu, params);
+diff --git a/drivers/gpu/drm/amd/display/modules/power/power_helpers.c b/drivers/gpu/drm/amd/display/modules/power/power_helpers.c
+index 05e2be856037e..ba1aafe40512e 100644
+--- a/drivers/gpu/drm/amd/display/modules/power/power_helpers.c
++++ b/drivers/gpu/drm/amd/display/modules/power/power_helpers.c
+@@ -115,7 +115,7 @@ static const struct abm_parameters * const abm_settings[] = {
+ /* NOTE: iRAM is 256B in size */
+ struct iram_table_v_2 {
+ 	/* flags                      */
+-	uint16_t flags;							/* 0x00 U16  */
++	uint16_t min_abm_backlight;					/* 0x00 U16  */
+ 
+ 	/* parameters for ABM2.0 algorithm */
+ 	uint8_t min_reduction[NUM_AMBI_LEVEL][NUM_AGGR_LEVEL];		/* 0x02 U0.8 */
+@@ -140,10 +140,10 @@ struct iram_table_v_2 {
+ 
+ 	/* For reading PSR State directly from IRAM */
+ 	uint8_t psr_state;						/* 0xf0       */
+-	uint8_t dmcu_mcp_interface_version;							/* 0xf1       */
+-	uint8_t dmcu_abm_feature_version;							/* 0xf2       */
+-	uint8_t dmcu_psr_feature_version;							/* 0xf3       */
+-	uint16_t dmcu_version;										/* 0xf4       */
++	uint8_t dmcu_mcp_interface_version;				/* 0xf1       */
++	uint8_t dmcu_abm_feature_version;				/* 0xf2       */
++	uint8_t dmcu_psr_feature_version;				/* 0xf3       */
++	uint16_t dmcu_version;						/* 0xf4       */
+ 	uint8_t dmcu_state;						/* 0xf6       */
+ 
+ 	uint16_t blRampReduction;					/* 0xf7       */
+@@ -164,42 +164,43 @@ struct iram_table_v_2_2 {
+ 	uint8_t max_reduction[NUM_AMBI_LEVEL][NUM_AGGR_LEVEL];		/* 0x16 U0.8 */
+ 	uint8_t bright_pos_gain[NUM_AMBI_LEVEL][NUM_AGGR_LEVEL];	/* 0x2a U2.6 */
+ 	uint8_t dark_pos_gain[NUM_AMBI_LEVEL][NUM_AGGR_LEVEL];		/* 0x3e U2.6 */
+-	uint8_t hybrid_factor[NUM_AGGR_LEVEL];						/* 0x52 U0.8 */
+-	uint8_t contrast_factor[NUM_AGGR_LEVEL];					/* 0x56 U0.8 */
+-	uint8_t deviation_gain[NUM_AGGR_LEVEL];						/* 0x5a U0.8 */
+-	uint8_t iir_curve[NUM_AMBI_LEVEL];							/* 0x5e U0.8 */
+-	uint8_t min_knee[NUM_AGGR_LEVEL];							/* 0x63 U0.8 */
+-	uint8_t max_knee[NUM_AGGR_LEVEL];							/* 0x67 U0.8 */
+-	uint8_t pad[21];											/* 0x6b U0.8 */
++	uint8_t hybrid_factor[NUM_AGGR_LEVEL];				/* 0x52 U0.8 */
++	uint8_t contrast_factor[NUM_AGGR_LEVEL];			/* 0x56 U0.8 */
++	uint8_t deviation_gain[NUM_AGGR_LEVEL];				/* 0x5a U0.8 */
++	uint8_t iir_curve[NUM_AMBI_LEVEL];				/* 0x5e U0.8 */
++	uint8_t min_knee[NUM_AGGR_LEVEL];				/* 0x63 U0.8 */
++	uint8_t max_knee[NUM_AGGR_LEVEL];				/* 0x67 U0.8 */
++	uint16_t min_abm_backlight;					/* 0x6b U16  */
++	uint8_t pad[19];						/* 0x6d U0.8 */
+ 
+ 	/* parameters for crgb conversion */
+-	uint16_t crgb_thresh[NUM_POWER_FN_SEGS];					/* 0x80 U3.13 */
+-	uint16_t crgb_offset[NUM_POWER_FN_SEGS];					/* 0x90 U1.15 */
+-	uint16_t crgb_slope[NUM_POWER_FN_SEGS];						/* 0xa0 U4.12 */
++	uint16_t crgb_thresh[NUM_POWER_FN_SEGS];			/* 0x80 U3.13 */
++	uint16_t crgb_offset[NUM_POWER_FN_SEGS];			/* 0x90 U1.15 */
++	uint16_t crgb_slope[NUM_POWER_FN_SEGS];				/* 0xa0 U4.12 */
+ 
+ 	/* parameters for custom curve */
+ 	/* thresholds for brightness --> backlight */
+-	uint16_t backlight_thresholds[NUM_BL_CURVE_SEGS];			/* 0xb0 U16.0 */
++	uint16_t backlight_thresholds[NUM_BL_CURVE_SEGS];		/* 0xb0 U16.0 */
+ 	/* offsets for brightness --> backlight */
+-	uint16_t backlight_offsets[NUM_BL_CURVE_SEGS];				/* 0xd0 U16.0 */
++	uint16_t backlight_offsets[NUM_BL_CURVE_SEGS];			/* 0xd0 U16.0 */
+ 
+ 	/* For reading PSR State directly from IRAM */
+-	uint8_t psr_state;											/* 0xf0       */
+-	uint8_t dmcu_mcp_interface_version;							/* 0xf1       */
+-	uint8_t dmcu_abm_feature_version;							/* 0xf2       */
+-	uint8_t dmcu_psr_feature_version;							/* 0xf3       */
+-	uint16_t dmcu_version;										/* 0xf4       */
+-	uint8_t dmcu_state;											/* 0xf6       */
+-
+-	uint8_t dummy1;												/* 0xf7       */
+-	uint8_t dummy2;												/* 0xf8       */
+-	uint8_t dummy3;												/* 0xf9       */
+-	uint8_t dummy4;												/* 0xfa       */
+-	uint8_t dummy5;												/* 0xfb       */
+-	uint8_t dummy6;												/* 0xfc       */
+-	uint8_t dummy7;												/* 0xfd       */
+-	uint8_t dummy8;												/* 0xfe       */
+-	uint8_t dummy9;												/* 0xff       */
++	uint8_t psr_state;						/* 0xf0       */
++	uint8_t dmcu_mcp_interface_version;				/* 0xf1       */
++	uint8_t dmcu_abm_feature_version;				/* 0xf2       */
++	uint8_t dmcu_psr_feature_version;				/* 0xf3       */
++	uint16_t dmcu_version;						/* 0xf4       */
++	uint8_t dmcu_state;						/* 0xf6       */
++
++	uint8_t dummy1;							/* 0xf7       */
++	uint8_t dummy2;							/* 0xf8       */
++	uint8_t dummy3;							/* 0xf9       */
++	uint8_t dummy4;							/* 0xfa       */
++	uint8_t dummy5;							/* 0xfb       */
++	uint8_t dummy6;							/* 0xfc       */
++	uint8_t dummy7;							/* 0xfd       */
++	uint8_t dummy8;							/* 0xfe       */
++	uint8_t dummy9;							/* 0xff       */
+ };
+ #pragma pack(pop)
+ 
+@@ -271,7 +272,8 @@ void fill_iram_v_2(struct iram_table_v_2 *ram_table, struct dmcu_iram_parameters
+ {
+ 	unsigned int set = params.set;
+ 
+-	ram_table->flags = 0x0;
++	ram_table->min_abm_backlight =
++			cpu_to_be16(params.min_abm_backlight);
+ 	ram_table->deviation_gain = 0xb3;
+ 
+ 	ram_table->blRampReduction =
+@@ -445,6 +447,9 @@ void fill_iram_v_2_2(struct iram_table_v_2_2 *ram_table, struct dmcu_iram_parame
+ 
+ 	ram_table->flags = 0x0;
+ 
++	ram_table->min_abm_backlight =
++			cpu_to_be16(params.min_abm_backlight);
++
+ 	ram_table->deviation_gain[0] = 0xb3;
+ 	ram_table->deviation_gain[1] = 0xa8;
+ 	ram_table->deviation_gain[2] = 0x98;
+@@ -588,6 +593,10 @@ void fill_iram_v_2_3(struct iram_table_v_2_2 *ram_table, struct dmcu_iram_parame
+ 	unsigned int set = params.set;
+ 
+ 	ram_table->flags = 0x0;
++
++	ram_table->min_abm_backlight =
++			cpu_to_be16(params.min_abm_backlight);
++
+ 	for (i = 0; i < NUM_AGGR_LEVEL; i++) {
+ 		ram_table->hybrid_factor[i] = abm_settings[set][i].brightness_gain;
+ 		ram_table->contrast_factor[i] = abm_settings[set][i].contrast_factor;
+diff --git a/drivers/gpu/drm/amd/display/modules/power/power_helpers.h b/drivers/gpu/drm/amd/display/modules/power/power_helpers.h
+index da5df00fedced..e541570263308 100644
+--- a/drivers/gpu/drm/amd/display/modules/power/power_helpers.h
++++ b/drivers/gpu/drm/amd/display/modules/power/power_helpers.h
+@@ -38,6 +38,7 @@ struct dmcu_iram_parameters {
+ 	unsigned int backlight_lut_array_size;
+ 	unsigned int backlight_ramping_reduction;
+ 	unsigned int backlight_ramping_start;
++	unsigned int min_abm_backlight;
+ 	unsigned int set;
+ };
  
 -- 
 2.20.1
