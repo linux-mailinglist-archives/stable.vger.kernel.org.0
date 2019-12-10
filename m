@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 569EB119E24
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9DB119C85
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728360AbfLJWbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:31:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51334 "EHLO mail.kernel.org"
+        id S1728372AbfLJWbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:31:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728308AbfLJWbV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:31:21 -0500
+        id S1728298AbfLJWbW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:31:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40E5A24653;
-        Tue, 10 Dec 2019 22:31:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10A9C2077B;
+        Tue, 10 Dec 2019 22:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017080;
-        bh=jM5M41eLThGmjjSeUOOPEKb7rEhNaBrdBPMfbYzqH3Y=;
+        s=default; t=1576017081;
+        bh=gYXfXuxRY9mg/QgwO8RreWgUOh9JEFtJ4kuEz0sHxng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgiZ8/mSygeYG5huXtwqNkldAc9nGi8byz4vG3xXwpGalNG9xHJkTR9ohO2maI5S1
-         ejuo9Dwd4NVxHxpV5ZXM8GLdBoadcHusUZ0kTY9QMLwOGqMsBrT2AzZJnno7l7vsbY
-         DOpWYLw2jJ0NR3GHcUr1JD7byCFWQAAoqS+Dnrq0=
+        b=ghNbuEkXpFmnCRa3WVCFk/sB8bZjR3OY+Gfrw8TKyF/CtnLCN7hAROClrM/VX7nrn
+         LfvcRyMwmRAMF5ZghzCyFJGtCH64bwz4/r5KS4BJIgI4R27GFYLpazKesjBVcf2W9Y
+         YyZWyw4XkB9aVpQQdLsuENT2OUxlAom2fIHcK5jY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Berg <bberg@redhat.com>, Borislav Petkov <bp@suse.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Christian Kellner <ckellner@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 37/91] x86/mce: Lower throttling MCE messages' priority to warning
-Date:   Tue, 10 Dec 2019 17:29:41 -0500
-Message-Id: <20191210223035.14270-37-sashal@kernel.org>
+Cc:     Kangjie Lu <kjlu@umn.edu>, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.9 38/91] drm/gma500: fix memory disclosures due to uninitialized bytes
+Date:   Tue, 10 Dec 2019 17:29:42 -0500
+Message-Id: <20191210223035.14270-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
@@ -50,65 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Berg <bberg@redhat.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 9c3bafaa1fd88e4dd2dba3735a1f1abb0f2c7bb7 ]
+[ Upstream commit ec3b7b6eb8c90b52f61adff11b6db7a8db34de19 ]
 
-On modern CPUs it is quite normal that the temperature limits are
-reached and the CPU is throttled. In fact, often the thermal design is
-not sufficient to cool the CPU at full load and limits can quickly be
-reached when a burst in load happens. This will even happen with
-technologies like RAPL limitting the long term power consumption of
-the package.
+"clock" may be copied to "best_clock". Initializing best_clock
+is not sufficient. The fix initializes clock as well to avoid
+memory disclosures and informaiton leaks.
 
-Also, these limits are "softer", as Srinivas explains:
-
-"CPU temperature doesn't have to hit max(TjMax) to get these warnings.
-OEMs ha[ve] an ability to program a threshold where a thermal interrupt
-can be generated. In some systems the offset is 20C+ (Read only value).
-
-In recent systems, there is another offset on top of it which can be
-programmed by OS, once some agent can adjust power limits dynamically.
-By default this is set to low by the firmware, which I guess the
-prime motivation of Benjamin to submit the patch."
-
-So these messages do not usually indicate a hardware issue (e.g.
-insufficient cooling). Log them as warnings to avoid confusion about
-their severity.
-
- [ bp: Massage commit mesage. ]
-
-Signed-off-by: Benjamin Berg <bberg@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Christian Kellner <ckellner@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20191009155424.249277-1-bberg@redhat.com
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191018044150.1899-1-kjlu@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/therm_throt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/gma500/oaktrail_crtc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/therm_throt.c b/arch/x86/kernel/cpu/mcheck/therm_throt.c
-index c460c91d0c8fd..be2439592b0ec 100644
---- a/arch/x86/kernel/cpu/mcheck/therm_throt.c
-+++ b/arch/x86/kernel/cpu/mcheck/therm_throt.c
-@@ -190,7 +190,7 @@ static int therm_throt_process(bool new_event, int event, int level)
- 	/* if we just entered the thermal event */
- 	if (new_event) {
- 		if (event == THERMAL_THROTTLING_EVENT)
--			pr_crit("CPU%d: %s temperature above threshold, cpu clock throttled (total events = %lu)\n",
-+			pr_warn("CPU%d: %s temperature above threshold, cpu clock throttled (total events = %lu)\n",
- 				this_cpu,
- 				level == CORE_LEVEL ? "Core" : "Package",
- 				state->count);
+diff --git a/drivers/gpu/drm/gma500/oaktrail_crtc.c b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+index da9fd34b95505..caa6da02206aa 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_crtc.c
++++ b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+@@ -139,6 +139,7 @@ static bool mrst_sdvo_find_best_pll(const struct gma_limit_t *limit,
+ 	s32 freq_error, min_error = 100000;
+ 
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.n = limit->n.min; clock.n <= limit->n.max;
+@@ -195,6 +196,7 @@ static bool mrst_lvds_find_best_pll(const struct gma_limit_t *limit,
+ 	int err = target;
+ 
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.p1 = limit->p1.min; clock.p1 <= limit->p1.max;
 -- 
 2.20.1
 
