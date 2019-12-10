@@ -2,101 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99717118582
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 11:51:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A621185BF
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 12:03:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726915AbfLJKvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 05:51:13 -0500
-Received: from mga01.intel.com ([192.55.52.88]:4952 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726574AbfLJKvN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 05:51:13 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Dec 2019 02:51:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,299,1571727600"; 
-   d="scan'208";a="215533286"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by orsmga003.jf.intel.com with ESMTP; 10 Dec 2019 02:51:10 -0800
-From:   Alexander Shishkin <alexander.shishkin@linux.intel.com>
-To:     Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Vitaly Slobodskoy <vitaly.slobodskoy@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] perf/x86/intel: Fix PT PMI handling
-Date:   Tue, 10 Dec 2019 12:51:01 +0200
-Message-Id: <20191210105101.77210-1-alexander.shishkin@linux.intel.com>
-X-Mailer: git-send-email 2.24.0
+        id S1727238AbfLJLDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 06:03:18 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:46487 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727207AbfLJLDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 06:03:18 -0500
+Received: by mail-lf1-f67.google.com with SMTP id f15so12525032lfl.13
+        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 03:03:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=8JxHqFH5t4cpg678LNV/W1e4iU7ybt9If64FElJ9r6M=;
+        b=m4H+rYbZ6XAVCmuz/ZEi7KUEpxFMvzJsZ5Jr6L0HMgMdxWvJsIuC6/IGq1+b8WabzY
+         FVjb5ND8HayQmvLtrSYWi5Yqdva0qft2QuMNsDiv5URY57ifF07jqp0T3WDYIgUBOwIM
+         qK32VEpVtXlkW++5d8MinTOiGHOd5UZDb5yAY5J5I+RolE+CgNncPm2ar11mlg82fuZX
+         Q8Ee845WpvFmjUKgYOJ1Ff/oXTOXSullxjyBfi6X19HaStgBaio6c8LNH8lFNl4KnGBF
+         M8sQXpssDZn04laahAl96+KdxItmkAzx8QcQ/M7qK9fp8lN2wEfMjr5nXFRZV8VOXUCx
+         aIAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=8JxHqFH5t4cpg678LNV/W1e4iU7ybt9If64FElJ9r6M=;
+        b=B/LDMaMuiYU/R9e/G4xBYc18tszQtKVtNLUpbSOzUBI9VN0rjlYtbIdSHLV61sNlGP
+         ED9zcaeS6tyeeziNVpmJ+YpqyCxY0aHvGxVq22GwXkcw3slJIfwW9v+iTWHDyn75mhXi
+         /ebg73w8mITtkteOsMMXnRxTihtofspDH2WB63J5jYCHK/iYpUFyYMJ3OrTAfqiM+bh7
+         ZENQfk+Hum2Agx9gaDB43MDtENV2KpNkGAJmCDPpgpFpk1MXcDSPpDHxo7p9lxSIDn5z
+         eIwivls7Onf9ApNH8Jn3PS7CvTt+IB9k+tpbxEDhF8ewEzfkRnVNN4Ymt7Rye1wJ+Xl3
+         9UoA==
+X-Gm-Message-State: APjAAAV9qfxa7mAuBDT8wRhnEWUv2LtYjkKbvAmLTOG0CApZm34zauii
+        yZgr5p2cUuuSfNrBrShObTbWWE54NZG8CRYTEt8=
+X-Google-Smtp-Source: APXvYqyW6paKZXh64t7GRHEOqBfSWJt6bdRMRrVlt1h+V2/b8QJyOFSZHIjAQIFOQ6IHKbLAEMK7lJN/U6CVGk6D4aA=
+X-Received: by 2002:a19:4208:: with SMTP id p8mr17953633lfa.160.1575975796133;
+ Tue, 10 Dec 2019 03:03:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:ab3:5a03:0:0:0:0:0 with HTTP; Tue, 10 Dec 2019 03:03:15
+ -0800 (PST)
+Reply-To: kelvin.neil1992@gmail.com
+From:   ".kelvin.neil.," <muhammadabdul3096@gmail.com>
+Date:   Tue, 10 Dec 2019 03:03:15 -0800
+Message-ID: <CAAHP-cyrPNELmUC1gwdDFV7WURm8BaAg7pq7WJP41TVEunnQ6Q@mail.gmail.com>
+Subject: HELLO DEAR FRIEND,THIS IS URGENT PLEASE
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit:
+HELLO DEAR FRIEND,THIS IS URGENT PLEASE
 
-  ccbebba4c6bf ("perf/x86/intel/pt: Bypass PT vs. LBR exclusivity if the core supports it")
+  My name is Mr. kelvin.Neil. I have decided to seek a confidential
+  co-operation  with you in the execution of the deal described
+  here-under for our both  mutual benefit and I hope you will keep it a
+  top secret because of the nature  of the transaction, During the
+  course of our bank year auditing, I discovered  an unclaimed/abandoned
+  fund, sum total of {US$10.5 Million United State  Dollars} in the bank
+  account that belongs to a Saudi Arabia businessman Who unfortunately
+  lost his life and entire family in a Motor Accident.
 
-skips the PT/LBR exclusivity check on CPUs where PT and LBRs coexist, but
-also inadvertently skips the active_events bump for PT in that case, which
-is a bug. If there aren't any hardware events at the same time as PT, the
-PMI handler will ignore PT PMIs, as active_events reads zero in that case,
-resulting in the "Uhhuh" spurious NMI warning and PT data loss.
+  Now our bank has been waiting for any of the relatives to come-up for
+  the claim but nobody has done that. I personally has been unsuccessful
+  in locating any of the relatives, now, I sincerely seek your consent
+  to present you as the next of kin / Will Beneficiary to the deceased
+  so that the proceeds of this account valued at {US$10.5 Million United
+  State Dollars} can be paid to you, which we will share in these
+  percentages ratio, 60% to me and 40% to you. All I request is your
+  utmost sincere co-operation; trust and maximum confidentiality to
+  achieve this project successfully. I have carefully mapped out the
+  moralities for execution of this transaction under a legitimate
+  arrangement to protect you from any breach of the law both in your
+  country and here in Burkina Faso when the fund is being transferred to
+  your bank account.
 
-Fix this by always increasing active_events for PT events.
+  I will have to provide all the relevant document that will be
+  requested to indicate that you are the rightful beneficiary of this
+  legacy and our bank will release the fund to you without any further
+  delay, upon your consideration and acceptance of this offer, please
+  send me the following information as stated below so we can proceed
+  and get this fund transferred to your designated bank account
+  immediately.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: ccbebba4c6bf ("perf/x86/intel/pt: Bypass PT vs. LBR exclusivity if the core supports it")
-Reported-by: Vitaly Slobodskoy <vitaly.slobodskoy@intel.com>
-Cc: stable@vger.kernel.org # v4.7
----
- arch/x86/events/core.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+  -Your Full Name:
+  -Your Contact Address:
+  -Your direct Mobile telephone Number:
+  -Your Date of Birth:
+  -Your occupation:
 
-diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index 6e3f0c18908e..5a736197dfa4 100644
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -375,7 +375,7 @@ int x86_add_exclusive(unsigned int what)
- 	 * LBR and BTS are still mutually exclusive.
- 	 */
- 	if (x86_pmu.lbr_pt_coexist && what == x86_lbr_exclusive_pt)
--		return 0;
-+		goto out;
- 
- 	if (!atomic_inc_not_zero(&x86_pmu.lbr_exclusive[what])) {
- 		mutex_lock(&pmc_reserve_mutex);
-@@ -387,6 +387,7 @@ int x86_add_exclusive(unsigned int what)
- 		mutex_unlock(&pmc_reserve_mutex);
- 	}
- 
-+out:
- 	atomic_inc(&active_events);
- 	return 0;
- 
-@@ -397,11 +398,15 @@ int x86_add_exclusive(unsigned int what)
- 
- void x86_del_exclusive(unsigned int what)
- {
-+	atomic_dec(&active_events);
-+
-+	/*
-+	 * See the comment in x86_add_exclusive().
-+	 */
- 	if (x86_pmu.lbr_pt_coexist && what == x86_lbr_exclusive_pt)
- 		return;
- 
- 	atomic_dec(&x86_pmu.lbr_exclusive[what]);
--	atomic_dec(&active_events);
- }
- 
- int x86_setup_perfctr(struct perf_event *event)
--- 
-2.24.0
+  I await your swift response.
 
+  Best regards,
+  Mr. kelvin.Neil
