@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14762119716
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BCB7119710
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728236AbfLJVJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:09:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
+        id S1728069AbfLJVbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:31:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728228AbfLJVJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:09:37 -0500
+        id S1728247AbfLJVJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC99424697;
-        Tue, 10 Dec 2019 21:09:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CD5A24696;
+        Tue, 10 Dec 2019 21:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012176;
-        bh=FdNJn6LTR+IH5OsSPDJhEfyujLXBrv5DPRzcv0HIc0Y=;
+        s=default; t=1576012178;
+        bh=RjW3nAfjJen7ymY+pr2pcyJdsQqV3ckNW602UmKrxCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHS2OdH1p1zidBEfxNXcqqFYc19RMMMPuShIDZQFZ7J9Iv5THmYyONLcsO/lSEflh
-         8/4oN6tc/JN+s17l04pRiFgiz9RXmhpe6V0HNR/a6JGNAm99HArtwzJ+OxOl6FV9P8
-         /crVGcl27/fAxD3O3j5l+bXikFon0RPQBrMc5sK0=
+        b=pIDXTCk2hUED0aRBXT+nw9GZuzeishEMZROwO7p3LxkRd/192pgQ7UxrclSnkT9QI
+         wU7NX2xclnxRrBdaQ9uaJmtCYs0qR+pHXF2OYp/V8IozWuw/DfaFR3ul/Tk1fUNfn2
+         63M81QABE4SPcYrpokAWvT0mfOp7GtwSLLMBzzhk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jian Shen <shenjian15@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 134/350] net: hns3: log and clear hardware error after reset complete
-Date:   Tue, 10 Dec 2019 16:03:59 -0500
-Message-Id: <20191210210735.9077-95-sashal@kernel.org>
+Cc:     Kangjie Lu <kjlu@umn.edu>, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 136/350] drm/gma500: fix memory disclosures due to uninitialized bytes
+Date:   Tue, 10 Dec 2019 16:04:01 -0500
+Message-Id: <20191210210735.9077-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,37 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 4fdd0bca6152aa201898454e63cbb255a18ae6e9 ]
+[ Upstream commit ec3b7b6eb8c90b52f61adff11b6db7a8db34de19 ]
 
-When device is resetting, the CMDQ service may be stopped until
-reset completed. If a new RAS error occurs at this moment, it
-will no be able to clear the RAS source. This patch fixes it
-by clear the RAS source after reset complete.
+"clock" may be copied to "best_clock". Initializing best_clock
+is not sufficient. The fix initializes clock as well to avoid
+memory disclosures and informaiton leaks.
 
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191018044150.1899-1-kjlu@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/gma500/oaktrail_crtc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index c052bb33b3d34..162881005a6df 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -9443,6 +9443,9 @@ static int hclge_reset_ae_dev(struct hnae3_ae_dev *ae_dev)
- 		return ret;
- 	}
+diff --git a/drivers/gpu/drm/gma500/oaktrail_crtc.c b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+index 167c10767dd42..900e5499249d5 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_crtc.c
++++ b/drivers/gpu/drm/gma500/oaktrail_crtc.c
+@@ -129,6 +129,7 @@ static bool mrst_sdvo_find_best_pll(const struct gma_limit_t *limit,
+ 	s32 freq_error, min_error = 100000;
  
-+	/* Log and clear the hw errors those already occurred */
-+	hclge_handle_all_hns_hw_errors(ae_dev);
-+
- 	/* Re-enable the hw error interrupts because
- 	 * the interrupts get disabled on global reset.
- 	 */
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.n = limit->n.min; clock.n <= limit->n.max;
+@@ -185,6 +186,7 @@ static bool mrst_lvds_find_best_pll(const struct gma_limit_t *limit,
+ 	int err = target;
+ 
+ 	memset(best_clock, 0, sizeof(*best_clock));
++	memset(&clock, 0, sizeof(clock));
+ 
+ 	for (clock.m = limit->m.min; clock.m <= limit->m.max; clock.m++) {
+ 		for (clock.p1 = limit->p1.min; clock.p1 <= limit->p1.max;
 -- 
 2.20.1
 
