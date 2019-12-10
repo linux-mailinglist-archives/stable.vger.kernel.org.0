@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5C911951C
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54EB1119519
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729026AbfLJVMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:12:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37196 "EHLO mail.kernel.org"
+        id S1727823AbfLJVSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:18:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727145AbfLJVMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:36 -0500
+        id S1729022AbfLJVMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 601682073D;
-        Tue, 10 Dec 2019 21:12:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81B782077B;
+        Tue, 10 Dec 2019 21:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012356;
-        bh=t4qaAVhrByK3X7sketG15UMMUfKrub3CkV0rdYVJWzE=;
+        s=default; t=1576012357;
+        bh=vDRPh9wTYaDAmoixDIR+6bx0yktkFQddfVJ1Qt6o5IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsgXqwolKRFzZ1P9HoAsD+gzzqFmcupfgABvGx2SH8BExsMpva8aes38UpRtJKGhw
-         iuixVJgZVV5PgaXRnZwAcaqjroEtsl0eAIeoYYpLUUpHdlC2h2U5JL0Kiy8jhmlZQi
-         5w1EWaXL0rVHE+sXQiC2JpaKCdM0Gkm4Z1yhT8fM=
+        b=lmoW985C65a7prL1bKpjNANPlFSgaJEb5wuYQx5xH63OYG3khzToolieidCZFf0nx
+         j3UGkbt9m5PCkwIJFsqYRRFwlopjLik4sFEpRGzoFHPoWaTFD/VwVR2/xRibirEohx
+         jYkpp52gd7JYB2/ugYKsY3q5drQnp9wTNZkaD0zA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 284/350] qtnfmac: fix using skb after free
-Date:   Tue, 10 Dec 2019 16:06:29 -0500
-Message-Id: <20191210210735.9077-245-sashal@kernel.org>
+Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 285/350] RDMA/qib: Validate ->show()/store() callbacks before calling them
+Date:   Tue, 10 Dec 2019 16:06:30 -0500
+Message-Id: <20191210210735.9077-246-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,58 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 4a33f21cef84b1b933958c99ed5dac1726214b35 ]
+[ Upstream commit 7ee23491b39259ae83899dd93b2a29ef0f22f0a7 ]
 
-KASAN reported use-after-free error:
+The permissions of the read-only or write-only sysfs files can be
+changed (as root) and the user can then try to read a write-only file or
+write to a read-only file which will lead to kernel crash here.
 
-[  995.220767] BUG: KASAN: use-after-free in qtnf_cmd_send_with_reply+0x169/0x3e0 [qtnfmac]
-[  995.221098] Read of size 2 at addr ffff888213d1ded0 by task kworker/1:1/71
+Protect against that by always validating the show/store callbacks.
 
-The issue in qtnf_cmd_send_with_reply impacts all the commands that do
-not need response other then return code. For such commands, consume_skb
-is used for response skb and right after that return code in response
-skb is accessed.
-
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/d45cc26361a174ae12dbb86c994ef334d257924b.1573096807.git.viresh.kumar@linaro.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/quantenna/qtnfmac/commands.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/qib/qib_sysfs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/commands.c b/drivers/net/wireless/quantenna/qtnfmac/commands.c
-index dc0c7244b60e3..c0c32805fb8de 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/commands.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/commands.c
-@@ -83,6 +83,7 @@ static int qtnf_cmd_send_with_reply(struct qtnf_bus *bus,
- 	struct qlink_cmd *cmd;
- 	struct qlink_resp *resp = NULL;
- 	struct sk_buff *resp_skb = NULL;
-+	int resp_res = 0;
- 	u16 cmd_id;
- 	u8 mac_id;
- 	u8 vif_id;
-@@ -113,6 +114,7 @@ static int qtnf_cmd_send_with_reply(struct qtnf_bus *bus,
- 	}
+diff --git a/drivers/infiniband/hw/qib/qib_sysfs.c b/drivers/infiniband/hw/qib/qib_sysfs.c
+index 3926be78036ee..568b21eb6ea15 100644
+--- a/drivers/infiniband/hw/qib/qib_sysfs.c
++++ b/drivers/infiniband/hw/qib/qib_sysfs.c
+@@ -301,6 +301,9 @@ static ssize_t qib_portattr_show(struct kobject *kobj,
+ 	struct qib_pportdata *ppd =
+ 		container_of(kobj, struct qib_pportdata, pport_kobj);
  
- 	resp = (struct qlink_resp *)resp_skb->data;
-+	resp_res = le16_to_cpu(resp->result);
- 	ret = qtnf_cmd_check_reply_header(resp, cmd_id, mac_id, vif_id,
- 					  const_resp_size);
- 	if (ret)
-@@ -128,8 +130,8 @@ static int qtnf_cmd_send_with_reply(struct qtnf_bus *bus,
- 	else
- 		consume_skb(resp_skb);
++	if (!pattr->show)
++		return -EIO;
++
+ 	return pattr->show(ppd, buf);
+ }
  
--	if (!ret && resp)
--		return qtnf_cmd_resp_result_decode(le16_to_cpu(resp->result));
-+	if (!ret)
-+		return qtnf_cmd_resp_result_decode(resp_res);
+@@ -312,6 +315,9 @@ static ssize_t qib_portattr_store(struct kobject *kobj,
+ 	struct qib_pportdata *ppd =
+ 		container_of(kobj, struct qib_pportdata, pport_kobj);
  
- 	pr_warn("VIF%u.%u: cmd 0x%.4X failed: %d\n",
- 		mac_id, vif_id, cmd_id, ret);
++	if (!pattr->store)
++		return -EIO;
++
+ 	return pattr->store(ppd, buf, len);
+ }
+ 
 -- 
 2.20.1
 
