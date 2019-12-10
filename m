@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04768119AD0
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:10:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3AFA119B9B
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728672AbfLJWER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:04:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34980 "EHLO mail.kernel.org"
+        id S1728690AbfLJWJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:09:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728154AbfLJWEQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:16 -0500
+        id S1728655AbfLJWER (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:04:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CC8C20828;
-        Tue, 10 Dec 2019 22:04:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F1F32077B;
+        Tue, 10 Dec 2019 22:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015455;
-        bh=W8FjvEdZ1OetBhrZBLdVen2FG3URZ0YyYFeokNVLBf0=;
+        s=default; t=1576015456;
+        bh=RH86EwFY+c3SOiBIeLT5AgSyzZEzysIAmh6RryWoEnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8ikRw058sZ9Qc9dPDhTG2IRJrMsHhOCzRedZUljP60hOOq09q0JYjv6sco8MsKO3
-         86INyizZn9OQk3BoV2n2DPnxJlU0RE4QEcbYcmvUwkG4Jr4eXRgVS36wRnuhlhsFKu
-         AHyqJX4nC40Jl3g6TZPMLdOU45ifcCGct9D7RNbg=
+        b=RRBNdVfmrUodDM11nmVVPsrH+NS36RJBYO0Kg5KwZt+49P0u1j68gfxZfA0aYQARj
+         fu7SRGX/bM7DrE98PC6sBzfP7bfRQQA5pItV5bNGS1II/Ab1PmKE0lpHdONgKKxfqK
+         kEtnm6yHGI23nH8pV9TdNRADhkwbIxSjLbIIPj9U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 062/130] gpu: host1x: Allocate gather copy for host1x
-Date:   Tue, 10 Dec 2019 17:01:53 -0500
-Message-Id: <20191210220301.13262-62-sashal@kernel.org>
+Cc:     Mao Wenan <maowenan@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 063/130] net: dsa: LAN9303: select REGMAP when LAN9303 enable
+Date:   Tue, 10 Dec 2019 17:01:54 -0500
+Message-Id: <20191210220301.13262-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -43,73 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Mao Wenan <maowenan@huawei.com>
 
-[ Upstream commit b78e70c04c149299bd210759d7c7af7c86b89ca8 ]
+[ Upstream commit b6989d248a2d13f02895bae1a9321b3bbccc0283 ]
 
-Currently when the gather buffers are copied, they are copied to a
-buffer that is allocated for the host1x client that wants to execute the
-command streams in the buffers. However, the gather buffers will be read
-by the host1x device, which causes SMMU faults if the DMA API is backed
-by an IOMMU.
+When NET_DSA_SMSC_LAN9303=y and NET_DSA_SMSC_LAN9303_MDIO=y,
+below errors can be seen:
+drivers/net/dsa/lan9303_mdio.c:87:23: error: REGMAP_ENDIAN_LITTLE
+undeclared here (not in a function)
+  .reg_format_endian = REGMAP_ENDIAN_LITTLE,
+drivers/net/dsa/lan9303_mdio.c:93:3: error: const struct regmap_config
+has no member named reg_read
+  .reg_read = lan9303_mdio_read,
 
-Fix this by allocating the gather buffer copy for the host1x device,
-which makes sure that it will be mapped into the host1x's IOVA space if
-the DMA API is backed by an IOMMU.
+It should select REGMAP in config NET_DSA_SMSC_LAN9303.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: dc7005831523 ("net: dsa: LAN9303: add MDIO managed mode support")
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/job.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/dsa/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/host1x/job.c b/drivers/gpu/host1x/job.c
-index acd99783bbca1..67f3c050c4cfc 100644
---- a/drivers/gpu/host1x/job.c
-+++ b/drivers/gpu/host1x/job.c
-@@ -545,7 +545,8 @@ static int validate(struct host1x_firewall *fw, struct host1x_job_gather *g)
- 	return err;
- }
- 
--static inline int copy_gathers(struct host1x_job *job, struct device *dev)
-+static inline int copy_gathers(struct device *host, struct host1x_job *job,
-+			       struct device *dev)
- {
- 	struct host1x_firewall fw;
- 	size_t size = 0;
-@@ -570,12 +571,12 @@ static inline int copy_gathers(struct host1x_job *job, struct device *dev)
- 	 * Try a non-blocking allocation from a higher priority pools first,
- 	 * as awaiting for the allocation here is a major performance hit.
- 	 */
--	job->gather_copy_mapped = dma_alloc_wc(dev, size, &job->gather_copy,
-+	job->gather_copy_mapped = dma_alloc_wc(host, size, &job->gather_copy,
- 					       GFP_NOWAIT);
- 
- 	/* the higher priority allocation failed, try the generic-blocking */
- 	if (!job->gather_copy_mapped)
--		job->gather_copy_mapped = dma_alloc_wc(dev, size,
-+		job->gather_copy_mapped = dma_alloc_wc(host, size,
- 						       &job->gather_copy,
- 						       GFP_KERNEL);
- 	if (!job->gather_copy_mapped)
-@@ -636,7 +637,7 @@ int host1x_job_pin(struct host1x_job *job, struct device *dev)
- 		goto out;
- 
- 	if (IS_ENABLED(CONFIG_TEGRA_HOST1X_FIREWALL)) {
--		err = copy_gathers(job, dev);
-+		err = copy_gathers(host->dev, job, dev);
- 		if (err)
- 			goto out;
- 	}
-@@ -701,7 +702,7 @@ void host1x_job_unpin(struct host1x_job *job)
- 	job->num_unpins = 0;
- 
- 	if (job->gather_copy_size)
--		dma_free_wc(job->channel->dev, job->gather_copy_size,
-+		dma_free_wc(host->dev, job->gather_copy_size,
- 			    job->gather_copy_mapped, job->gather_copy);
- }
- EXPORT_SYMBOL(host1x_job_unpin);
+diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
+index 83a9bc892a3be..6ae13f2419e37 100644
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -55,6 +55,7 @@ config NET_DSA_QCA8K
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
+ 	select NET_DSA_TAG_LAN9303
++	select REGMAP
+ 	---help---
+ 	  This enables support for the SMSC/Microchip LAN9303 3 port ethernet
+ 	  switch chips.
 -- 
 2.20.1
 
