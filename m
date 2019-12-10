@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99AFB119D5B
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:37:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 285B9119D6B
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730024AbfLJWdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:33:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54890 "EHLO mail.kernel.org"
+        id S1729685AbfLJWhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:37:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730012AbfLJWdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:33:51 -0500
+        id S1729427AbfLJWdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:33:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB551207FF;
-        Tue, 10 Dec 2019 22:33:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3B37208C3;
+        Tue, 10 Dec 2019 22:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017230;
-        bh=26sIAPxWOxDTt0sfmsLSrbEC8BEZn+0RTlIRcTTz9hw=;
+        s=default; t=1576017231;
+        bh=nbQdTNtfSD5DbSFqvV0bw5QYGDq9+muh2sSkV1tjNjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XKQ5NrOQ2IqRObfdRSLkGttOt0WWeXhqhwkw80MN+cmrxriq/OUFM3zQdj+Lu8oek
-         q6vbLIYu9cFY5+ezfAwL6AUDVMOvjEwL7pElu20KrRmXHrX8jCgUlXNZUU2H4FvA45
-         1Wu+Aykl0LT6lE3v3y29zB6js6n033VkBh4wun3M=
+        b=tjevCIrIaGgNxnRQVJsOW6oAkrnrGkAaBenL1Z29YzTY4tlMzYW/qjWbHszqTtH/F
+         cxtDy2PXfiTG/jpQzKFBlslh9E79ehHfjA++y9SRH0UmVM0ziCdZn7dBH65nJXANbh
+         nZPoADVDA4OJaxC27sgIcViKXfkrTM4ZuxgQOOqA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 28/71] iio: dac: ad7303: replace mlock with own lock
-Date:   Tue, 10 Dec 2019 17:32:33 -0500
-Message-Id: <20191210223316.14988-28-sashal@kernel.org>
+Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 29/71] Bluetooth: hci_core: fix init for HCI_USER_CHANNEL
+Date:   Tue, 10 Dec 2019 17:32:34 -0500
+Message-Id: <20191210223316.14988-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -43,85 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Mattijs Korpershoek <mkorpershoek@baylibre.com>
 
-[ Upstream commit c991bf9b650f39481cf3c1137092d4754a2c75de ]
+[ Upstream commit eb8c101e28496888a0dcfe16ab86a1bee369e820 ]
 
-This change replaces indio_dev's mlock with the driver's own lock. The lock
-is mostly needed to protect state when changing the `dac_cache` info.
-The lock has been extended to `ad7303_read_raw()`, to make sure that the
-cache is updated if an SPI-write is already in progress.
+During the setup() stage, HCI device drivers expect the chip to
+acknowledge its setup() completion via vendor specific frames.
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+If userspace opens() such HCI device in HCI_USER_CHANNEL [1] mode,
+the vendor specific frames are never tranmitted to the driver, as
+they are filtered in hci_rx_work().
+
+Allow HCI devices which operate in HCI_USER_CHANNEL mode to receive
+frames if the HCI device is is HCI_INIT state.
+
+[1] https://www.spinics.net/lists/linux-bluetooth/msg37345.html
+
+Fixes: 23500189d7e0 ("Bluetooth: Introduce new HCI socket channel for user operation")
+Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad7303.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/bluetooth/hci_core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/dac/ad7303.c b/drivers/iio/dac/ad7303.c
-index 4b0f942b89145..2e5e753ab7066 100644
---- a/drivers/iio/dac/ad7303.c
-+++ b/drivers/iio/dac/ad7303.c
-@@ -42,6 +42,7 @@ struct ad7303_state {
- 	struct regulator *vdd_reg;
- 	struct regulator *vref_reg;
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 5d0b1358c7547..4bce3ef2c392a 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -4459,7 +4459,14 @@ static void hci_rx_work(struct work_struct *work)
+ 			hci_send_to_sock(hdev, skb);
+ 		}
  
-+	struct mutex lock;
- 	/*
- 	 * DMA (thus cache coherency maintenance) requires the
- 	 * transfer buffers to live in their own cache lines.
-@@ -80,7 +81,7 @@ static ssize_t ad7303_write_dac_powerdown(struct iio_dev *indio_dev,
- 	if (ret)
- 		return ret;
- 
--	mutex_lock(&indio_dev->mlock);
-+	mutex_lock(&st->lock);
- 
- 	if (pwr_down)
- 		st->config |= AD7303_CFG_POWER_DOWN(chan->channel);
-@@ -91,7 +92,7 @@ static ssize_t ad7303_write_dac_powerdown(struct iio_dev *indio_dev,
- 	 * mode, so just write one of the DAC channels again */
- 	ad7303_write(st, chan->channel, st->dac_cache[chan->channel]);
- 
--	mutex_unlock(&indio_dev->mlock);
-+	mutex_unlock(&st->lock);
- 	return len;
- }
- 
-@@ -117,7 +118,9 @@ static int ad7303_read_raw(struct iio_dev *indio_dev,
- 
- 	switch (info) {
- 	case IIO_CHAN_INFO_RAW:
-+		mutex_lock(&st->lock);
- 		*val = st->dac_cache[chan->channel];
-+		mutex_unlock(&st->lock);
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_SCALE:
- 		vref_uv = ad7303_get_vref(st, chan);
-@@ -145,11 +148,11 @@ static int ad7303_write_raw(struct iio_dev *indio_dev,
- 		if (val >= (1 << chan->scan_type.realbits) || val < 0)
- 			return -EINVAL;
- 
--		mutex_lock(&indio_dev->mlock);
-+		mutex_lock(&st->lock);
- 		ret = ad7303_write(st, chan->address, val);
- 		if (ret == 0)
- 			st->dac_cache[chan->channel] = val;
--		mutex_unlock(&indio_dev->mlock);
-+		mutex_unlock(&st->lock);
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -213,6 +216,8 @@ static int ad7303_probe(struct spi_device *spi)
- 
- 	st->spi = spi;
- 
-+	mutex_init(&st->lock);
-+
- 	st->vdd_reg = devm_regulator_get(&spi->dev, "Vdd");
- 	if (IS_ERR(st->vdd_reg))
- 		return PTR_ERR(st->vdd_reg);
+-		if (hci_dev_test_flag(hdev, HCI_USER_CHANNEL)) {
++		/* If the device has been opened in HCI_USER_CHANNEL,
++		 * the userspace has exclusive access to device.
++		 * When device is HCI_INIT, we still need to process
++		 * the data packets to the driver in order
++		 * to complete its setup().
++		 */
++		if (hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
++		    !test_bit(HCI_INIT, &hdev->flags)) {
+ 			kfree_skb(skb);
+ 			continue;
+ 		}
 -- 
 2.20.1
 
