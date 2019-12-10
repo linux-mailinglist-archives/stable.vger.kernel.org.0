@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB413119633
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:25:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3352D11966C
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:27:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729470AbfLJVZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:25:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56108 "EHLO mail.kernel.org"
+        id S1729437AbfLJVZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:25:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729466AbfLJVZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:25:22 -0500
+        id S1727426AbfLJVZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:25:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30135214AF;
-        Tue, 10 Dec 2019 21:25:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 312DD24655;
+        Tue, 10 Dec 2019 21:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013121;
-        bh=tkOpwSDV7vgPsGvpRYsdLPmzvmcFNmPQMjROjg37NxM=;
+        s=default; t=1576013122;
+        bh=Uox/MUlOxAcA9VC8+NstKQ1ozhs/1ymmQvDGzA/Jz60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfMzogzpHHFnAlDSkWsxik+dq+vflGj96EXBRuy+K8dXYFWDOm8CPKWbt24llueLU
-         NQIxV5O/PTeSZQ9CNYNnw3dqX9JyokdOC2RIWN+ZZONbxtnNgsaDRwTqNnZNALtEzn
-         ZJIp+Pbkkq2asw0VIpbaio0Y21KY6dkb8S4Ad5fE=
+        b=gIgKs5/tAyf6RUbPbIzszs9oul2wL/xPIf26jFtwUM3A/0yDiRk8AKV730kR2lp7r
+         bD39vAtRbwUeLmB01B+CsBfAGlo4HwwLwJUz8PzO3m2vZwIVqr2lfntqCNPL/6vWei
+         5a6GBqOlL3g4itC9dXQyu39Jv39a4RTuLoo6yt7s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Merello <andrea.merello@gmail.com>,
+Cc:     Krzysztof Wilczynski <kw@linux.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 008/292] iio: max31856: add missing of_node and parent references to iio_dev
-Date:   Tue, 10 Dec 2019 16:20:27 -0500
-Message-Id: <20191210212511.11392-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 009/292] iio: light: bh1750: Resolve compiler warning and make code more readable
+Date:   Tue, 10 Dec 2019 16:20:28 -0500
+Message-Id: <20191210212511.11392-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210212511.11392-1-sashal@kernel.org>
 References: <20191210212511.11392-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,34 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Merello <andrea.merello@gmail.com>
+From: Krzysztof Wilczynski <kw@linux.com>
 
-[ Upstream commit 505ea3ada665c466d0064b11b6e611b7f995517d ]
+[ Upstream commit f552fde983d378e7339f9ea74a25f918563bf0d3 ]
 
-Adding missing indio_dev->dev.of_node references so that, in case multiple
-max31856 are present, users can get some clues to being able to distinguish
-each of them. While at it, add also the missing parent reference.
+Separate the declaration of struct bh1750_chip_info from definition
+of bh1750_chip_info_tbl[] in a single statement as it makes the code
+hard to read, and with the extra newline it makes it look as if the
+bh1750_chip_info_tbl[] had no explicit type.
 
-Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
+This change also resolves the following compiler warning about the
+unusual position of the static keyword that can be seen when building
+with warnings enabled (W=1):
+
+drivers/iio/light/bh1750.c:64:1: warning:
+  ‘static’ is not at beginning of declaration [-Wold-style-declaration]
+
+Related to commit 3a11fbb037a1 ("iio: light: add support for ROHM
+BH1710/BH1715/BH1721/BH1750/BH1751 ambient light sensors").
+
+Signed-off-by: Krzysztof Wilczynski <kw@linux.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/temperature/max31856.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/light/bh1750.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/temperature/max31856.c b/drivers/iio/temperature/max31856.c
-index f184ba5601d94..73ed550e3fc95 100644
---- a/drivers/iio/temperature/max31856.c
-+++ b/drivers/iio/temperature/max31856.c
-@@ -284,6 +284,8 @@ static int max31856_probe(struct spi_device *spi)
- 	spi_set_drvdata(spi, indio_dev);
+diff --git a/drivers/iio/light/bh1750.c b/drivers/iio/light/bh1750.c
+index 28347df78cff6..adb5ab9e34390 100644
+--- a/drivers/iio/light/bh1750.c
++++ b/drivers/iio/light/bh1750.c
+@@ -59,9 +59,9 @@ struct bh1750_chip_info {
  
- 	indio_dev->info = &max31856_info;
-+	indio_dev->dev.parent = &spi->dev;
-+	indio_dev->dev.of_node = spi->dev.of_node;
- 	indio_dev->name = id->name;
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 	indio_dev->channels = max31856_channels;
+ 	u16 int_time_low_mask;
+ 	u16 int_time_high_mask;
+-}
++};
+ 
+-static const bh1750_chip_info_tbl[] = {
++static const struct bh1750_chip_info bh1750_chip_info_tbl[] = {
+ 	[BH1710] = { 140, 1022, 300, 400,  250000000, 2, 0x001F, 0x03E0 },
+ 	[BH1721] = { 140, 1020, 300, 400,  250000000, 2, 0x0010, 0x03E0 },
+ 	[BH1750] = { 31,  254,  69,  1740, 57500000,  1, 0x001F, 0x00E0 },
 -- 
 2.20.1
 
