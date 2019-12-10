@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF895119322
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:08:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8879C1192C3
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:07:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726877AbfLJVG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:06:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49002 "EHLO mail.kernel.org"
+        id S1726717AbfLJVEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:04:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727035AbfLJVEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:04:13 -0500
+        id S1727063AbfLJVEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:04:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6801221D7D;
-        Tue, 10 Dec 2019 21:04:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DDDB22464;
+        Tue, 10 Dec 2019 21:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576011852;
-        bh=ceteDlM2gzudgpK7lNIbnJYzwn+zR/DJXRfsggSRc00=;
+        s=default; t=1576011853;
+        bh=OVm9mkPVQwdIdrLxA4tL02QJ6UnFpGy52HqcT+4xRO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWZLDrdgdmxqvSiASswsIDBFiLH6jJIT7+masRpXwKfUip0Bpe44enKWZwftOMnH6
-         Xgi/nAiSZa4oG5/NNZYE8QftEGp0OugucXwWPc7v4niwQ6E+JveTvD5zfKRU5nehJK
-         lDxex0ew0pRBUmI64CMLZdUB8tZmzH6kzNu8CuJc=
+        b=F8C/2FyGrRupP1ZCky/gMWzgKn0VA9NrcPh+HYyP8ThhKwX0PNbBRrN9CCZjufjRa
+         wVLrAYuuYIV5RXBszu5b+GpvLJyJXO5StvvnUUUVxaot5Sw2CzPe8aJ9PyuduS1Eiy
+         HwY5QAEW4K3QiwAEBI5bxDgn/8To7XP4TfP4rRO8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Sean Paul <sean@poorly.run>,
+Cc:     Jing Zhou <Jing.Zhou@amd.com>, Wenjing Liu <Wenjing.Liu@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Andres Rodriguez <andresx7@gmail.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 007/350] drm: Use EOPNOTSUPP, not ENOTSUPP
-Date:   Tue, 10 Dec 2019 15:58:19 -0500
-Message-Id: <20191210210402.8367-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 008/350] drm/amd/display: verify stream link before link test
+Date:   Tue, 10 Dec 2019 15:58:20 -0500
+Message-Id: <20191210210402.8367-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 References: <20191210210402.8367-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -52,118 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Jing Zhou <Jing.Zhou@amd.com>
 
-[ Upstream commit c7581a414d28413c1dd6d116d44859b5a52e0950 ]
+[ Upstream commit b131932215c993ea5adf8192d1de2e8d6b23048d ]
 
-- it's what we recommend in our docs:
+[Why]
+DP1.2 LL CTS test failure.
 
-https://dri.freedesktop.org/docs/drm/gpu/drm-uapi.html#recommended-ioctl-return-values
+[How]
+The failure is caused by not verify stream link is equal
+to link, only check stream and link is not null.
 
-- it's the overwhelmingly used error code for "operation not
-  supported", at least in drm core (slightly less so in drivers):
-
-$ git grep EOPNOTSUPP -- drivers/gpu/drm/*c | wc -l
-83
-$ git grep ENOTSUPP -- drivers/gpu/drm/*c | wc -l
-5
-
-- include/linux/errno.h makes it fairly clear that these are for nfsv3
-  (plus they also have error codes above 512, which is the block with
-  some special behaviour ...)
-
-/* Defined for the NFSv3 protocol */
-
-If the above isn't reflecting current practice, then I guess we should
-at least update the docs.
-
-Noralf commented:
-
-Ben Hutchings made this comment[1] in a thread about use of ENOTSUPP in
-drivers:
-
-  glibc's strerror() returns these strings for ENOTSUPP and EOPNOTSUPP
-  respectively:
-
-  "Unknown error 524"
-  "Operation not supported"
-
-So at least for errors returned to userspace EOPNOTSUPP makes sense.
-
-José asked:
-
-> Hopefully this will not break any userspace
-
-None of the functions in drm_edid.c affected by this reach userspace,
-it's all driver internal.
-
-Same for the mipi function, that error code should be handled by
-drivers. Drivers are supposed to remap "the hw is on fire" to EIO when
-reporting up to userspace, but I think if a driver sees this it would
-be a driver bug.
-v2: Augment commit message with comments from Noralf and José
-
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Andres Rodriguez <andresx7@gmail.com>
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190904143942.31756-1-daniel.vetter@ffwll.ch
+Signed-off-by: Jing Zhou <Jing.Zhou@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c     | 6 +++---
- drivers/gpu/drm/drm_mipi_dbi.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 6b0177112e18d..3f50b8865db4c 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -3722,7 +3722,7 @@ cea_db_offsets(const u8 *cea, int *start, int *end)
- 		if (*end < 4 || *end > 127)
- 			return -ERANGE;
- 	} else {
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
+index 79438c4f1e20b..a519dbc5ecb65 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
+@@ -277,7 +277,8 @@ void dp_retrain_link_dp_test(struct dc_link *link,
+ 		if (pipes[i].stream != NULL &&
+ 			!pipes[i].top_pipe && !pipes[i].prev_odm_pipe &&
+ 			pipes[i].stream->link != NULL &&
+-			pipes[i].stream_res.stream_enc != NULL) {
++			pipes[i].stream_res.stream_enc != NULL &&
++			pipes[i].stream->link == link) {
+ 			udelay(100);
  
- 	return 0;
-@@ -4191,7 +4191,7 @@ int drm_edid_to_sad(struct edid *edid, struct cea_sad **sads)
- 
- 	if (cea_revision(cea) < 3) {
- 		DRM_DEBUG_KMS("SAD: wrong CEA revision\n");
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 	}
- 
- 	if (cea_db_offsets(cea, &start, &end)) {
-@@ -4252,7 +4252,7 @@ int drm_edid_to_speaker_allocation(struct edid *edid, u8 **sadb)
- 
- 	if (cea_revision(cea) < 3) {
- 		DRM_DEBUG_KMS("SAD: wrong CEA revision\n");
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 	}
- 
- 	if (cea_db_offsets(cea, &start, &end)) {
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index c4ee2709a6f32..f8154316a3b0d 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -955,7 +955,7 @@ static int mipi_dbi_typec1_command(struct mipi_dbi *dbi, u8 *cmd,
- 	int ret;
- 
- 	if (mipi_dbi_command_is_read(dbi, *cmd))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	MIPI_DBI_DEBUG_COMMAND(*cmd, parameters, num);
- 
+ 			pipes[i].stream_res.stream_enc->funcs->dp_blank(
 -- 
 2.20.1
 
