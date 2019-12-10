@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3ABE1195DC
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD3A119616
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:25:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727949AbfLJVKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:10:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32782 "EHLO mail.kernel.org"
+        id S1728532AbfLJVYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:24:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728190AbfLJVKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728282AbfLJVKr (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Dec 2019 16:10:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9ECC246C0;
-        Tue, 10 Dec 2019 21:10:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C691324680;
+        Tue, 10 Dec 2019 21:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012246;
-        bh=njjDUTgh+3uYkyHWL/u2VaDdv36+V/DkVM3Km0gjKtA=;
+        s=default; t=1576012247;
+        bh=rwRuxKl4wtv89HyUaQghbveRZ1eF/vZ80lSEysd1yrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtU5ozbZJmkaTzYJLVzRFNqogG0e2/Pelwh74w7DMpwQNxWjmkRnlP2UnUJfR6RcM
-         l53YaatE1A0dOxOJqSybfH+Nrtv0vo1ymSshuJAiolP7/IMU9jjlu7fRmTZf3MU8O5
-         nDbqfeEy2CInAk/BQ1RQD6UaS49f+YiRN/WlUG68=
+        b=nyASVQNiWzYQc+Ng6KrcidsG7svF0H+iMDxF+pxT8UhWFzrkBjxZWYDGDXwjjKhbR
+         h03NvsvUdVPfHDqcAxNWIA2pqmb24ZibGjWZfbymA/uYQC27yfWQ8CTcx6WjQjqbq6
+         XasLOGciwaDyG14SjFtg23kCalV8DNtS7y8aslLM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 194/350] Bluetooth: Fix advertising duplicated flags
-Date:   Tue, 10 Dec 2019 16:04:59 -0500
-Message-Id: <20191210210735.9077-155-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 195/350] ALSA: pcm: Fix missing check of the new non-cached buffer type
+Date:   Tue, 10 Dec 2019 16:05:00 -0500
+Message-Id: <20191210210735.9077-156-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,58 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6012b9346d8959194c239fd60a62dfec98d43048 ]
+[ Upstream commit 6111fd2370eecae9f11bfdc08ba097e0b51fcfd3 ]
 
-Instances may have flags set as part of its data in which case the code
-should not attempt to add it again otherwise it can cause duplication:
+The check for the mmap support via hw_support_mmap() function misses
+the case where the device is with SNDRV_DMA_TYPE_DEV_UC, which should
+have been treated equally as SNDRV_DMA_TYPE_DEV.  Let's fix it.
 
-< HCI Command: LE Set Extended Advertising Data (0x08|0x0037) plen 35
-        Handle: 0x00
-        Operation: Complete extended advertising data (0x03)
-        Fragment preference: Minimize fragmentation (0x01)
-        Data length: 0x06
-        Flags: 0x04
-          BR/EDR Not Supported
-        Flags: 0x06
-          LE General Discoverable Mode
-          BR/EDR Not Supported
+Note that this bug doesn't hit any practical problem, because
+SNDRV_DMA_TYPE_DEV_UC is used only for x86-specific drivers
+(snd-hda-intel and snd-intel8x0) for the specific platforms that need
+the non-cached buffers.  And, on such platforms, hw_support_mmap()
+already returns true in anyway.  That's the reason I didn't put
+Cc-to-stable mark here.  This is only for any theoretical future
+extension.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Fixes: 425da159707b ("ALSA: pcm: use dma_can_mmap() to check if a device supports dma_mmap_*")
+Fixes: 42e748a0b325 ("ALSA: memalloc: Add non-cached buffer type")
+Link: https://lore.kernel.org/r/20191104101115.27311-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_request.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/core/pcm_native.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
-index 7f6a581b5b7e1..3d25dbf10b26f 100644
---- a/net/bluetooth/hci_request.c
-+++ b/net/bluetooth/hci_request.c
-@@ -1273,6 +1273,14 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index 91c6ad58729fe..c3a139436ac26 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -222,7 +222,8 @@ static bool hw_support_mmap(struct snd_pcm_substream *substream)
+ 		return false;
  
- 	instance_flags = get_adv_instance_flags(hdev, instance);
+ 	if (substream->ops->mmap ||
+-	    substream->dma_buffer.dev.type != SNDRV_DMA_TYPE_DEV)
++	    (substream->dma_buffer.dev.type != SNDRV_DMA_TYPE_DEV &&
++	     substream->dma_buffer.dev.type != SNDRV_DMA_TYPE_DEV_UC))
+ 		return true;
  
-+	/* If instance already has the flags set skip adding it once
-+	 * again.
-+	 */
-+	if (adv_instance && eir_get_data(adv_instance->adv_data,
-+					 adv_instance->adv_data_len, EIR_FLAGS,
-+					 NULL))
-+		goto skip_flags;
-+
- 	/* The Add Advertising command allows userspace to set both the general
- 	 * and limited discoverable flags.
- 	 */
-@@ -1305,6 +1313,7 @@ static u8 create_instance_adv_data(struct hci_dev *hdev, u8 instance, u8 *ptr)
- 		}
- 	}
- 
-+skip_flags:
- 	if (adv_instance) {
- 		memcpy(ptr, adv_instance->adv_data,
- 		       adv_instance->adv_data_len);
+ 	return dma_can_mmap(substream->dma_buffer.dev.dev);
 -- 
 2.20.1
 
