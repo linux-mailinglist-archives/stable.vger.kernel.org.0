@@ -2,111 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00238119742
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:32:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0556119857
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:39:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727476AbfLJVb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:31:56 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:36631 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727550AbfLJVbx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 16:31:53 -0500
-Received: by mail-pf1-f194.google.com with SMTP id x184so474543pfb.3
-        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 13:31:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=GwuPpgMwTPZEM+EqzujwY/bjr0hgFF4x3/rgCEqS8Mc=;
-        b=f5WDsrWQ6ZRIQ/PxW73IwPJ17T1V0msim69wBlYUK+6b9M5fCKCNhn4N1DwWjk6bZ9
-         LN84wH5MPyKwryNyUEjUyNs8d6mFs7KJ+1OIHdzWDQh4c/8/vMyWJqZTcScNH+Y7eSfF
-         4FbDdrjVgmMk2Rp8xodWm7AOtyvz5sWiB/jsWttl39tyCosQcQJ+byG2mBBdoIw9UZF0
-         waRRmF6h2lRTwMrBzjsb5lZ4kf0GdrVAT+eJzN6WY/Z2LAoO4htHd0JAWNn6B4x2oHrg
-         mqV7BibZMhUAQx/BjgYgofyqs+GwBItobtMroXkJ8VotH30Hd/8TEkMNJZYyF3rHSewm
-         Jtyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=GwuPpgMwTPZEM+EqzujwY/bjr0hgFF4x3/rgCEqS8Mc=;
-        b=Tn3adTEbNkYex/9t8Lbuf5NaUhgOjvqQbpGpAA/6knZUHi7glvpFghT+z3WvxD+7RB
-         gaIGQoB9Mg5zaEBCuR1iYnSL11O5Q2VShRnhu5h0OVmTVYFnKGuhmMDqzUbjQOILeHP5
-         06l2DudMcmuQdQUgJNk6RIk8J+9wHBKvXrBctqEPblgNBjtflwHn7ZNhF5R6oH4B5IC7
-         2rGYoPSJWD3wgWjz07e+Or6FfxYuogCfKnz9BIjhddR/hHEAJJiP3ixKfOt+S63l3ort
-         7mOMn8oONDcIQOQwTorGmBYJastVxotKPXAad+g+M30Jo4kzRaYcLDwRtOkIBBNQPUH7
-         4K4Q==
-X-Gm-Message-State: APjAAAXCo3e+Ew32EJJbwM15PddpNfwkXcPY1SEnODoxrCEdMH1wQaY0
-        4xGYufTelvGNBOZ76Eu3I9imAkf4nohAnImpicg7CKYiP4+pyw==
-X-Google-Smtp-Source: APXvYqzs9zHaXPpx5/fRmcbjTOsxQRvvH9Qr9I2jE5nXoJrZnej1b37eMSlm1mwwOPgmBS9e5vTq7NGxMlNDfngPnYg=
-X-Received: by 2002:a63:597:: with SMTP id 145mr209239pgf.384.1576013512117;
- Tue, 10 Dec 2019 13:31:52 -0800 (PST)
+        id S1728616AbfLJVi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:38:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728649AbfLJVfI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:35:08 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B359207FF;
+        Tue, 10 Dec 2019 21:35:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576013708;
+        bh=isGUJdIOGE9rwr6MFbpmzrzksWibOsueY0hUYQWQnr0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=fwbWG6IVwUK69pKz/wCdXXnyixZ/nLRAb6+8kJVK8+vpwuxh/GceZmmgNL/l3Ashv
+         Y9gVG6hhseBN5kW5Exe3sTAshIy5mR10EL3LAmn3wmYJcTVMCALUXonwBgPgVjU0m3
+         gpIRk3Mp86r0fHNXX69b8jyaaSBv5TeYdIXVUCDw=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Ben Zhang <benzh@chromium.org>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 136/177] ASoC: rt5677: Mark reg RT5677_PWR_ANLG2 as volatile
+Date:   Tue, 10 Dec 2019 16:31:40 -0500
+Message-Id: <20191210213221.11921-136-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
+References: <20191210213221.11921-1-sashal@kernel.org>
 MIME-Version: 1.0
-References: <20191210212511.11392-1-sashal@kernel.org> <20191210212511.11392-19-sashal@kernel.org>
-In-Reply-To: <20191210212511.11392-19-sashal@kernel.org>
-From:   Brendan Higgins <brendanhiggins@google.com>
-Date:   Tue, 10 Dec 2019 13:31:40 -0800
-Message-ID: <CAFd5g46bujW0XZeTwd1y2O1E2aeK_DayrES8zw_0zBF4Se0HpQ@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.3 019/292] objtool: add kunit_try_catch_throw to
- the noreturn list
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 1:25 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Brendan Higgins <brendanhiggins@google.com>
->
-> [ Upstream commit 33adf80f5b52e3f7c55ad66ffcaaff93c6888aaa ]
->
-> Fix the following warning seen on GCC 7.3:
->   kunit/test-test.o: warning: objtool: kunit_test_unsuccessful_try() falls through to next function kunit_test_catch()
->
-> kunit_try_catch_throw is a function added in the following patch in this
-> series; it allows KUnit, a unit testing framework for the kernel, to
-> bail out of a broken test. As a consequence, it is a new __noreturn
-> function that objtool thinks is broken (as seen above). So fix this
-> warning by adding kunit_try_catch_throw to objtool's noreturn list.
->
-> Reported-by: kbuild test robot <lkp@intel.com>
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-> Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> Link: https://www.spinics.net/lists/linux-kbuild/msg21708.html
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+From: Ben Zhang <benzh@chromium.org>
 
-I don't think this change should be backported. This patch is to
-ignore an erroneous warning introduced by KUnit; it serves no purpose
-prior to the KUnit patches being merged.
+[ Upstream commit eabf424f7b60246c76dcb0ea6f1e83ef9abbeaa6 ]
 
-Note: I have the same complaint for this rebase here:
+The codec dies when RT5677_PWR_ANLG2(MX-64h) is set to 0xACE1
+while it's streaming audio over SPI. The DSP firmware turns
+on PLL2 (MX-64 bit 8) when SPI streaming starts.  However regmap
+does not believe that register can change by itself. When
+BST1 (bit 15) is turned on with regmap_update_bits(), it doesn't
+read the register first before write, so PLL2 power bit is
+cleared by accident.
 
-https://lore.kernel.org/stable/CAFd5g45s-cGXp6at4kv+=8v3cuxfbXLPEOKGUfvJ6E+u1caHcA@mail.gmail.com/
+Marking MX-64h as volatile in regmap solved the issue.
 
-> ---
->  tools/objtool/check.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-> index 176f2f0840609..0c8e17f946cda 100644
-> --- a/tools/objtool/check.c
-> +++ b/tools/objtool/check.c
-> @@ -145,6 +145,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
->                 "usercopy_abort",
->                 "machine_real_restart",
->                 "rewind_stack_do_exit",
-> +               "kunit_try_catch_throw",
->         };
->
->         if (!func)
-> --
-> 2.20.1
->
+Signed-off-by: Ben Zhang <benzh@chromium.org>
+Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
+Link: https://lore.kernel.org/r/20191106011335.223061-6-cujomalainey@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ sound/soc/codecs/rt5677.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sound/soc/codecs/rt5677.c b/sound/soc/codecs/rt5677.c
+index 9b7a1833d3316..71b7b881df396 100644
+--- a/sound/soc/codecs/rt5677.c
++++ b/sound/soc/codecs/rt5677.c
+@@ -297,6 +297,7 @@ static bool rt5677_volatile_register(struct device *dev, unsigned int reg)
+ 	case RT5677_I2C_MASTER_CTRL7:
+ 	case RT5677_I2C_MASTER_CTRL8:
+ 	case RT5677_HAP_GENE_CTRL2:
++	case RT5677_PWR_ANLG2: /* Modified by DSP firmware */
+ 	case RT5677_PWR_DSP_ST:
+ 	case RT5677_PRIV_DATA:
+ 	case RT5677_ASRC_22:
+-- 
+2.20.1
+
