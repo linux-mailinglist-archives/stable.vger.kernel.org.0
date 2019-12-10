@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54EB1119519
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0FE21194C0
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727823AbfLJVSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:18:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
+        id S1729042AbfLJVMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:12:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729022AbfLJVMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:37 -0500
+        id S1729037AbfLJVMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81B782077B;
-        Tue, 10 Dec 2019 21:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99A3D208C3;
+        Tue, 10 Dec 2019 21:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012357;
-        bh=vDRPh9wTYaDAmoixDIR+6bx0yktkFQddfVJ1Qt6o5IM=;
+        s=default; t=1576012358;
+        bh=TRwGKMpNMAvDMTxkNkuhEWzAfg0IAMCbSfX9dgiBUaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmoW985C65a7prL1bKpjNANPlFSgaJEb5wuYQx5xH63OYG3khzToolieidCZFf0nx
-         j3UGkbt9m5PCkwIJFsqYRRFwlopjLik4sFEpRGzoFHPoWaTFD/VwVR2/xRibirEohx
-         jYkpp52gd7JYB2/ugYKsY3q5drQnp9wTNZkaD0zA=
+        b=IsY0KZh1JFaZUWBabwhX1b9egKpM+hW6a+UeGCr71ww1JIhK7A3T6HLWhWlpE9+gf
+         avfYq07ptdPuqNkfRFMHZaf7PAItraq4W0pO5mNhvnzVdMqC5kmbhVOP0XZsKAVIJR
+         Lwqr0diP0Qq1NK2jSMbLsz/2VHmaLjJka5oKMeYc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Gal Pressman <galpress@amazon.com>,
+        Daniel Kranzdorf <dkkranzd@amazon.com>,
+        Firas JahJah <firasj@amazon.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 285/350] RDMA/qib: Validate ->show()/store() callbacks before calling them
-Date:   Tue, 10 Dec 2019 16:06:30 -0500
-Message-Id: <20191210210735.9077-246-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 286/350] RDMA/efa: Clear the admin command buffer prior to its submission
+Date:   Tue, 10 Dec 2019 16:06:31 -0500
+Message-Id: <20191210210735.9077-247-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,49 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Gal Pressman <galpress@amazon.com>
 
-[ Upstream commit 7ee23491b39259ae83899dd93b2a29ef0f22f0a7 ]
+[ Upstream commit 64c264872b8879e2ab9017eefe9514d4c045c60e ]
 
-The permissions of the read-only or write-only sysfs files can be
-changed (as root) and the user can then try to read a write-only file or
-write to a read-only file which will lead to kernel crash here.
+We cannot rely on the entry memcpy as we only copy the actual size of the
+command, the rest of the bytes must be memset to zero.
 
-Protect against that by always validating the show/store callbacks.
+Currently providing non-zero memory will not have any user visible impact.
+However, since admin commands are extendable (in a backwards compatible
+way) everything beyond the size of the command must be cleared to prevent
+issues in the future.
 
-Link: https://lore.kernel.org/r/d45cc26361a174ae12dbb86c994ef334d257924b.1573096807.git.viresh.kumar@linaro.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0420e542569b ("RDMA/efa: Implement functions that submit and complete admin commands")
+Link: https://lore.kernel.org/r/20191112092608.46964-1-galpress@amazon.com
+Reviewed-by: Daniel Kranzdorf <dkkranzd@amazon.com>
+Reviewed-by: Firas JahJah <firasj@amazon.com>
+Signed-off-by: Gal Pressman <galpress@amazon.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qib/qib_sysfs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/infiniband/hw/efa/efa_com.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/qib/qib_sysfs.c b/drivers/infiniband/hw/qib/qib_sysfs.c
-index 3926be78036ee..568b21eb6ea15 100644
---- a/drivers/infiniband/hw/qib/qib_sysfs.c
-+++ b/drivers/infiniband/hw/qib/qib_sysfs.c
-@@ -301,6 +301,9 @@ static ssize_t qib_portattr_show(struct kobject *kobj,
- 	struct qib_pportdata *ppd =
- 		container_of(kobj, struct qib_pportdata, pport_kobj);
+diff --git a/drivers/infiniband/hw/efa/efa_com.c b/drivers/infiniband/hw/efa/efa_com.c
+index 3c412bc5b94f1..0778f4f7dccd7 100644
+--- a/drivers/infiniband/hw/efa/efa_com.c
++++ b/drivers/infiniband/hw/efa/efa_com.c
+@@ -317,6 +317,7 @@ static struct efa_comp_ctx *__efa_com_submit_admin_cmd(struct efa_com_admin_queu
+ 						       struct efa_admin_acq_entry *comp,
+ 						       size_t comp_size_in_bytes)
+ {
++	struct efa_admin_aq_entry *aqe;
+ 	struct efa_comp_ctx *comp_ctx;
+ 	u16 queue_size_mask;
+ 	u16 cmd_id;
+@@ -350,7 +351,9 @@ static struct efa_comp_ctx *__efa_com_submit_admin_cmd(struct efa_com_admin_queu
  
-+	if (!pattr->show)
-+		return -EIO;
-+
- 	return pattr->show(ppd, buf);
- }
+ 	reinit_completion(&comp_ctx->wait_event);
  
-@@ -312,6 +315,9 @@ static ssize_t qib_portattr_store(struct kobject *kobj,
- 	struct qib_pportdata *ppd =
- 		container_of(kobj, struct qib_pportdata, pport_kobj);
+-	memcpy(&aq->sq.entries[pi], cmd, cmd_size_in_bytes);
++	aqe = &aq->sq.entries[pi];
++	memset(aqe, 0, sizeof(*aqe));
++	memcpy(aqe, cmd, cmd_size_in_bytes);
  
-+	if (!pattr->store)
-+		return -EIO;
-+
- 	return pattr->store(ppd, buf, len);
- }
- 
+ 	aq->sq.pc++;
+ 	atomic64_inc(&aq->stats.submitted_cmd);
 -- 
 2.20.1
 
