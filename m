@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7FB7119542
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:20:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF88311954F
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:20:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728921AbfLJVMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:12:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35932 "EHLO mail.kernel.org"
+        id S1729121AbfLJVT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:19:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728745AbfLJVMQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:12:16 -0500
+        id S1727716AbfLJVMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:12:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0EAE24697;
-        Tue, 10 Dec 2019 21:12:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AA252077B;
+        Tue, 10 Dec 2019 21:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012335;
-        bh=Jqioyw8RE0uZ1wbjjFkGDn2AqzNGFoGlgpOFosiAVI0=;
+        s=default; t=1576012337;
+        bh=M7edHdUXeEqsFb3sSdr70nwnlRnnGnrxPsKmnYo39Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkWtwiQOBgJTH2iKwRqp7FlT3oP7Dalb1/7yGCr4K3IWcnHG1J0ePIrgIMv17egTU
-         NwGLNbidTruYBv1DMIEO7Dhe867CK0/A8X6ZrPSw0eSgPFNq+wjjyS3Bx8UQgpagdJ
-         TxgTFvj9Y9NUlG1hGuNwthlwO2MV7ksYLkoAMeQo=
+        b=d+rKjqggQT7J4/u/a4o+QYE80iVbXC1waG6SPvRqAjQkHODV2YWnRr/A415OQSMo/
+         Rgzz6JrsPCJkAfa5KU92mEA7SwnDZrlqBsawW6huGFuI+4OzhTBfEpUrVE7StVG35A
+         NzWtt/ySYdIybbacLgePHaAu4cIGyI70QfvbsIkk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yonghong Song <yhs@fb.com>, Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 267/350] bpf, testing: Workaround a verifier failure for test_progs
-Date:   Tue, 10 Dec 2019 16:06:12 -0500
-Message-Id: <20191210210735.9077-228-sashal@kernel.org>
+Cc:     =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 268/350] iio: adis16480: Fix scales factors
+Date:   Tue, 10 Dec 2019 16:06:13 -0500
+Message-Id: <20191210210735.9077-229-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,116 +45,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit b7a0d65d80a0c5034b366392624397a0915b7556 ]
+[ Upstream commit 49549cb23a2926eba70bb634e361daea0f319794 ]
 
-With latest llvm compiler, running test_progs will have the following
-verifier failure for test_sysctl_loop1.o:
+This patch fixes the scales for the gyroscope, accelerometer and
+barometer. The pressure scale was just wrong. For the others, the scale
+factors were not taking into account that a 32bit word is being read
+from the device.
 
-  libbpf: load bpf program failed: Permission denied
-  libbpf: -- BEGIN DUMP LOG ---
-  libbpf:
-  invalid indirect read from stack var_off (0x0; 0xff)+196 size 7
-  ...
-  libbpf: -- END LOG --
-  libbpf: failed to load program 'cgroup/sysctl'
-  libbpf: failed to load object 'test_sysctl_loop1.o'
-
-The related bytecode looks as below:
-
-  0000000000000308 LBB0_8:
-      97:       r4 = r10
-      98:       r4 += -288
-      99:       r4 += r7
-     100:       w8 &= 255
-     101:       r1 = r10
-     102:       r1 += -488
-     103:       r1 += r8
-     104:       r2 = 7
-     105:       r3 = 0
-     106:       call 106
-     107:       w1 = w0
-     108:       w1 += -1
-     109:       if w1 > 6 goto -24 <LBB0_5>
-     110:       w0 += w8
-     111:       r7 += 8
-     112:       w8 = w0
-     113:       if r7 != 224 goto -17 <LBB0_8>
-
-And source code:
-
-     for (i = 0; i < ARRAY_SIZE(tcp_mem); ++i) {
-             ret = bpf_strtoul(value + off, MAX_ULONG_STR_LEN, 0,
-                               tcp_mem + i);
-             if (ret <= 0 || ret > MAX_ULONG_STR_LEN)
-                     return 0;
-             off += ret & MAX_ULONG_STR_LEN;
-     }
-
-Current verifier is not able to conclude that register w0 before '+'
-at insn 110 has a range of 1 to 7 and thinks it is from 0 - 255. This
-leads to more conservative range for w8 at insn 112, and later verifier
-complaint.
-
-Let us workaround this issue until we found a compiler and/or verifier
-solution. The workaround in this patch is to make variable 'ret' volatile,
-which will force a reload and then '&' operation to ensure better value
-range. With this patch, I got the below byte code for the loop:
-
-  0000000000000328 LBB0_9:
-     101:       r4 = r10
-     102:       r4 += -288
-     103:       r4 += r7
-     104:       w8 &= 255
-     105:       r1 = r10
-     106:       r1 += -488
-     107:       r1 += r8
-     108:       r2 = 7
-     109:       r3 = 0
-     110:       call 106
-     111:       *(u32 *)(r10 - 64) = r0
-     112:       r1 = *(u32 *)(r10 - 64)
-     113:       if w1 s< 1 goto -28 <LBB0_5>
-     114:       r1 = *(u32 *)(r10 - 64)
-     115:       if w1 s> 7 goto -30 <LBB0_5>
-     116:       r1 = *(u32 *)(r10 - 64)
-     117:       w1 &= 7
-     118:       w1 += w8
-     119:       r7 += 8
-     120:       w8 = w1
-     121:       if r7 != 224 goto -21 <LBB0_9>
-
-Insn 117 did the '&' operation and we got more precise value range
-for 'w8' at insn 120. The test is happy then:
-
-  #3/17 test_sysctl_loop1.o:OK
-
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20191107170045.2503480-1-yhs@fb.com
+Fixes: 7abad1063deb ("iio: adis16480: Fix scale factors")
+Fixes: 82e7a1b25017 ("iio: imu: adis16480: Add support for ADIS1649x family of devices")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/test_sysctl_loop1.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iio/imu/adis16480.c | 77 ++++++++++++++++++++-----------------
+ 1 file changed, 41 insertions(+), 36 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
-index 608a06871572d..d22e438198cf7 100644
---- a/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
-+++ b/tools/testing/selftests/bpf/progs/test_sysctl_loop1.c
-@@ -44,7 +44,10 @@ int sysctl_tcp_mem(struct bpf_sysctl *ctx)
- 	unsigned long tcp_mem[TCP_MEM_LOOPS] = {};
- 	char value[MAX_VALUE_STR_LEN];
- 	unsigned char i, off = 0;
--	int ret;
-+	/* a workaround to prevent compiler from generating
-+	 * codes verifier cannot handle yet.
-+	 */
-+	volatile int ret;
- 
- 	if (ctx->write)
- 		return 0;
+diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
+index 8743b2f376e27..050652b8fee7b 100644
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -623,9 +623,13 @@ static int adis16480_read_raw(struct iio_dev *indio_dev,
+ 			*val2 = (st->chip_info->temp_scale % 1000) * 1000;
+ 			return IIO_VAL_INT_PLUS_MICRO;
+ 		case IIO_PRESSURE:
+-			*val = 0;
+-			*val2 = 4000; /* 40ubar = 0.004 kPa */
+-			return IIO_VAL_INT_PLUS_MICRO;
++			/*
++			 * max scale is 1310 mbar
++			 * max raw value is 32767 shifted for 32bits
++			 */
++			*val = 131; /* 1310mbar = 131 kPa */
++			*val2 = 32767 << 16;
++			return IIO_VAL_FRACTIONAL;
+ 		default:
+ 			return -EINVAL;
+ 		}
+@@ -786,13 +790,14 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+ 		/*
+-		 * storing the value in rad/degree and the scale in degree
+-		 * gives us the result in rad and better precession than
+-		 * storing the scale directly in rad.
++		 * Typically we do IIO_RAD_TO_DEGREE in the denominator, which
++		 * is exactly the same as IIO_DEGREE_TO_RAD in numerator, since
++		 * it gives better approximation. However, in this case we
++		 * cannot do it since it would not fit in a 32bit variable.
+ 		 */
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22887),
+-		.gyro_max_scale = 300,
+-		.accel_max_val = IIO_M_S_2_TO_G(21973),
++		.gyro_max_val = 22887 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(300),
++		.accel_max_val = IIO_M_S_2_TO_G(21973 << 16),
+ 		.accel_max_scale = 18,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -802,9 +807,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16480] = {
+ 		.channels = adis16480_channels,
+ 		.num_channels = ARRAY_SIZE(adis16480_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22500),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(12500),
++		.gyro_max_val = 22500 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(12500 << 16),
+ 		.accel_max_scale = 10,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -814,9 +819,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16485] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22500),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(20000),
++		.gyro_max_val = 22500 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(20000 << 16),
+ 		.accel_max_scale = 5,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -826,9 +831,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16488] = {
+ 		.channels = adis16480_channels,
+ 		.num_channels = ARRAY_SIZE(adis16480_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22500),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(22500),
++		.gyro_max_val = 22500 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(22500 << 16),
+ 		.accel_max_scale = 18,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -838,9 +843,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16495_1] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 125,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(125),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 8,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -851,9 +856,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16495_2] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(18000),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 18000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 8,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -864,9 +869,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16495_3] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 2000,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(2000),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 8,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -877,9 +882,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16497_1] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 125,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(125),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 40,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -890,9 +895,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16497_2] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(18000),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 18000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 40,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -903,9 +908,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16497_3] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 2000,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(2000),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 40,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
 -- 
 2.20.1
 
