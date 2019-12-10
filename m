@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E3E11978A
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:34:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C891198AA
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729850AbfLJVdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:33:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38426 "EHLO mail.kernel.org"
+        id S1729860AbfLJVdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:33:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729821AbfLJVdu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:33:50 -0500
+        id S1728428AbfLJVdv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:33:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A32672073B;
-        Tue, 10 Dec 2019 21:33:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF0AA24654;
+        Tue, 10 Dec 2019 21:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013629;
-        bh=JhYi2KZDJ9AA/X4JXMH8Rg32nlQBKHerwFPfUaK+wtU=;
+        s=default; t=1576013630;
+        bh=tVWIOcwtsUD+cqMK4L1fGArHlYXqP6Xo+X7a3GHCS1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHlxfLTanMVJRXtufXh+B8UQOdwi/I4trakPegktaJrnz2LHxm6koK9JoVAjydaih
-         PWfb06H74x9Cw6WvZl0snkQuAZq2D015Igyt7AqpJ9NexsymCw0g48k9qNa8s13cvi
-         ySdr9l4++S2N0fvHdE+h+QCPchSlyu3UD8hm9pMk=
+        b=N93cUA3dn281JwfQJ9nsZYPKGo3gkGNAxNKO/A9PjIVz7DJBfa8397TFAKCraC3Pu
+         x//QB31phQaUvY4sX/emynML4CQXwvF3BE0Kdh3brTk8BcynPUsUUF6MVTMSXC/DE0
+         6T7qxhPd5kj94GPgcPmiRWM5W/AR6c/Y+V8D3+Bs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Chiu <chiu@endlessm.com>,
-        Jes Sorensen <Jes.Sorensen@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Corey Minyard <cminyard@mvista.com>,
+        tony camuso <tcamuso@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 071/177] rtl8xxxu: fix RTL8723BU connection failure issue after warm reboot
-Date:   Tue, 10 Dec 2019 16:30:35 -0500
-Message-Id: <20191210213221.11921-71-sashal@kernel.org>
+        openipmi-developer@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 072/177] ipmi: Don't allow device module unload when in use
+Date:   Tue, 10 Dec 2019 16:30:36 -0500
+Message-Id: <20191210213221.11921-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -45,71 +44,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit 0eeb91ade90ce06d2fa1e2fcb55e3316b64c203c ]
+[ Upstream commit cbb79863fc3175ed5ac506465948b02a893a8235 ]
 
-The RTL8723BU has problems connecting to AP after each warm reboot.
-Sometimes it returns no scan result, and in most cases, it fails
-the authentication for unknown reason. However, it works totally
-fine after cold reboot.
+If something has the IPMI driver open, don't allow the device
+module to be unloaded.  Before it would unload and the user would
+get errors on use.
 
-Compare the value of register SYS_CR and SYS_CLK_MAC_CLK_ENABLE
-for cold reboot and warm reboot, the registers imply that the MAC
-is already powered and thus some procedures are skipped during
-driver initialization. Double checked the vendor driver, it reads
-the SYS_CR and SYS_CLK_MAC_CLK_ENABLE also but doesn't skip any
-during initialization based on them. This commit only tells the
-RTL8723BU to do full initialization without checking MAC status.
+This change is made on user request, and it makes it consistent
+with the I2C driver, which has the same behavior.
 
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Jes Sorensen <Jes.Sorensen@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+It does change things a little bit with respect to kernel users.
+If the ACPI or IPMI watchdog (or any other kernel user) has
+created a user, then the device module cannot be unloaded.  Before
+it could be unloaded,
+
+This does not affect hot-plug.  If the device goes away (it's on
+something removable that is removed or is hot-removed via sysfs)
+then it still behaves as it did before.
+
+Reported-by: tony camuso <tcamuso@redhat.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Tested-by: tony camuso <tcamuso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h       | 1 +
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c | 1 +
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  | 3 +++
- 3 files changed, 5 insertions(+)
+ drivers/char/ipmi/ipmi_msghandler.c | 23 ++++++++++++++++-------
+ include/linux/ipmi_smi.h            | 12 ++++++++----
+ 2 files changed, 24 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-index 8828baf26e7b8..47c2bfe06d030 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-@@ -1349,6 +1349,7 @@ struct rtl8xxxu_fileops {
- 	u8 has_s0s1:1;
- 	u8 has_tx_report:1;
- 	u8 gen2_thermal_meter:1;
-+	u8 needs_full_init:1;
- 	u32 adda_1t_init;
- 	u32 adda_1t_path_on;
- 	u32 adda_2t_path_on_a;
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
-index 26b674aca1258..14e207f2466ca 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8723b.c
-@@ -1673,6 +1673,7 @@ struct rtl8xxxu_fileops rtl8723bu_fops = {
- 	.has_s0s1 = 1,
- 	.has_tx_report = 1,
- 	.gen2_thermal_meter = 1,
-+	.needs_full_init = 1,
- 	.adda_1t_init = 0x01c00014,
- 	.adda_1t_path_on = 0x01c00014,
- 	.adda_2t_path_on_a = 0x01c00014,
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 2b4fcdf4ec5bb..66c6ee70f00aa 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -3905,6 +3905,9 @@ static int rtl8xxxu_init_device(struct ieee80211_hw *hw)
- 	else
- 		macpower = true;
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index 84c17f936c09c..91f2d92194892 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -447,6 +447,8 @@ enum ipmi_stat_indexes {
  
-+	if (fops->needs_full_init)
-+		macpower = false;
+ #define IPMI_IPMB_NUM_SEQ	64
+ struct ipmi_smi {
++	struct module *owner;
 +
- 	ret = fops->power_on(priv);
- 	if (ret < 0) {
- 		dev_warn(dev, "%s: Failed power on\n", __func__);
+ 	/* What interface number are we? */
+ 	int intf_num;
+ 
+@@ -1139,6 +1141,11 @@ int ipmi_create_user(unsigned int          if_num,
+ 	if (rv)
+ 		goto out_kfree;
+ 
++	if (!try_module_get(intf->owner)) {
++		rv = -ENODEV;
++		goto out_kfree;
++	}
++
+ 	/* Note that each existing user holds a refcount to the interface. */
+ 	kref_get(&intf->refcount);
+ 
+@@ -1269,6 +1276,7 @@ static void _ipmi_destroy_user(struct ipmi_user *user)
+ 	}
+ 
+ 	kref_put(&intf->refcount, intf_free);
++	module_put(intf->owner);
+ }
+ 
+ int ipmi_destroy_user(struct ipmi_user *user)
+@@ -2384,7 +2392,7 @@ static int __get_device_id(struct ipmi_smi *intf, struct bmc_device *bmc)
+  * been recently fetched, this will just use the cached data.  Otherwise
+  * it will run a new fetch.
+  *
+- * Except for the first time this is called (in ipmi_register_smi()),
++ * Except for the first time this is called (in ipmi_add_smi()),
+  * this will always return good data;
+  */
+ static int __bmc_get_device_id(struct ipmi_smi *intf, struct bmc_device *bmc,
+@@ -3304,10 +3312,11 @@ static void redo_bmc_reg(struct work_struct *work)
+ 	kref_put(&intf->refcount, intf_free);
+ }
+ 
+-int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+-		      void		       *send_info,
+-		      struct device            *si_dev,
+-		      unsigned char            slave_addr)
++int ipmi_add_smi(struct module         *owner,
++		 const struct ipmi_smi_handlers *handlers,
++		 void		       *send_info,
++		 struct device         *si_dev,
++		 unsigned char         slave_addr)
+ {
+ 	int              i, j;
+ 	int              rv;
+@@ -3333,7 +3342,7 @@ int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+ 		return rv;
+ 	}
+ 
+-
++	intf->owner = owner;
+ 	intf->bmc = &intf->tmp_bmc;
+ 	INIT_LIST_HEAD(&intf->bmc->intfs);
+ 	mutex_init(&intf->bmc->dyn_mutex);
+@@ -3440,7 +3449,7 @@ int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+ 
+ 	return rv;
+ }
+-EXPORT_SYMBOL(ipmi_register_smi);
++EXPORT_SYMBOL(ipmi_add_smi);
+ 
+ static void deliver_smi_err_response(struct ipmi_smi *intf,
+ 				     struct ipmi_smi_msg *msg,
+diff --git a/include/linux/ipmi_smi.h b/include/linux/ipmi_smi.h
+index 7d5fd38d5282a..1995ce1467890 100644
+--- a/include/linux/ipmi_smi.h
++++ b/include/linux/ipmi_smi.h
+@@ -211,10 +211,14 @@ static inline int ipmi_demangle_device_id(uint8_t netfn, uint8_t cmd,
+  * is called, and the lower layer must get the interface from that
+  * call.
+  */
+-int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+-		      void                     *send_info,
+-		      struct device            *dev,
+-		      unsigned char            slave_addr);
++int ipmi_add_smi(struct module            *owner,
++		 const struct ipmi_smi_handlers *handlers,
++		 void                     *send_info,
++		 struct device            *dev,
++		 unsigned char            slave_addr);
++
++#define ipmi_register_smi(handlers, send_info, dev, slave_addr) \
++	ipmi_add_smi(THIS_MODULE, handlers, send_info, dev, slave_addr)
+ 
+ /*
+  * Remove a low-level interface from the IPMI driver.  This will
 -- 
 2.20.1
 
