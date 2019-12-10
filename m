@@ -2,104 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 083F0118389
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 10:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A30118438
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 10:56:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727302AbfLJJ2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 04:28:11 -0500
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:35020 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726574AbfLJJ2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 04:28:10 -0500
-Received: by mail-wr1-f45.google.com with SMTP id g17so19190677wro.2
-        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 01:28:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=X51lPZDN4EEiyFL6dCsogL4shqW4vwCDIZXAzP0EPG4=;
-        b=kk6gT+9Rle/rNPBigWzbT55bvQaK5ZLg9iuLG1P6WXCbFOTKj82Zv1XTyzlUQXbVew
-         GztL5BVpwVZkyzzkpzoqroKOZTkkrFIfWuEVPEYsRy9bap/Vy9iP+d4KodZJmQvmcqVL
-         ijHYpoEjNVjdhSTuk2m6F23M6Elz8a4IQbCLEHqE1lEsiLviM2jj5gkiGUMA7YPcFvW+
-         ARX1jk4Ld3p999PfnrSVLBnXJEhy51eM4YfnkOlc6R8WkOkmWmtqKjB2EJC0sNx6g3Ku
-         scEk6AImtNFC2mpvwcN3W6qdJLhf7Z07YrvL89VXkgdvaxHuZkFf+YbBtVeNKsDrROX3
-         Z1YQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=X51lPZDN4EEiyFL6dCsogL4shqW4vwCDIZXAzP0EPG4=;
-        b=IviFf8+8Dl98hF3/sjSAXTvF+qq9mGxfcuZVFmHRkSnmq1XTfWymdewDZr/pII2SE/
-         g/OVHZ6HE2BUo5t1grHubDC2ZTV34NB6ZawslypUAErJqC9UMABeVY9/F38D4dhAOVlB
-         PAaa8DPtP+u6wNNSklF/NaTUlt5RbmwvqHnhuNvlK3oxnFdWSSirOu28Nonnuwvg+ARm
-         mVAYiaaZp2/as1aXpfowSlAx3EZBkrpb2mwILZxoo6r+i8UuoElHOe41q8vP48oWvm6q
-         FZ+REbwY6m7WzhS+87+tqz+o7IX+yt2apeyxYsWYbpWIkDUzVXZjkpIrS2ICTwCWicWf
-         QbbQ==
-X-Gm-Message-State: APjAAAUVSxhRLa+KCATzEMVVlJa9Gc3LCGITMvrv9yzecA2sgXRHILFG
-        jy36TDrfotl0A/u6PTna8Hz8OA1vOllPaA==
-X-Google-Smtp-Source: APXvYqwpi80P703Q9uEHPGbOcMUorQSYAUwmwn0xK3qfhVwojNZoEzL0DcFL91UJ+34mUHwpq97pBw==
-X-Received: by 2002:adf:fc08:: with SMTP id i8mr2162719wrr.82.1575970088724;
-        Tue, 10 Dec 2019 01:28:08 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id l7sm2529744wrq.61.2019.12.10.01.28.08
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Dec 2019 01:28:08 -0800 (PST)
-Message-ID: <5def6528.1c69fb81.80a2d.c935@mx.google.com>
-Date:   Tue, 10 Dec 2019 01:28:08 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727016AbfLJJ4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 04:56:54 -0500
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:14214 "EHLO
+        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727003AbfLJJ4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 04:56:53 -0500
+X-Greylist: delayed 901 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Dec 2019 04:56:52 EST
+Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
+ EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
+ 15.0.1156.6; Tue, 10 Dec 2019 01:41:49 -0800
+Received: from akaher-lnx-dev.eng.vmware.com (unknown [10.110.19.203])
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 3C2F6404C3;
+        Tue, 10 Dec 2019 01:41:48 -0800 (PST)
+From:   Ajay Kaher <akaher@vmware.com>
+To:     <linux-kernel-review@vmware.com>, <stable@vger.kernel.org>
+CC:     <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
+        <amakhalov@vmware.com>, <srinidhir@vmware.com>,
+        <bvikas@vmware.com>, <anishs@vmware.com>, <vsirnapalli@vmware.com>,
+        <akaher@vmware.com>
+Subject: [PATCH v3 8/8] x86, mm, gup: prevent get_page() race with munmap in paravirt guest
+Date:   Tue, 10 Dec 2019 23:12:53 +0530
+Message-ID: <1575999773-4628-9-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1575999773-4628-1-git-send-email-akaher@vmware.com>
+References: <1575999773-4628-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.88-242-gc0fa90c1d847
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 109 boots: 0 failed,
- 102 passed with 6 offline, 1 untried/unknown (v4.19.88-242-gc0fa90c1d847)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-002.vmware.com: akaher@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 109 boots: 0 failed, 102 passed with 6 offline=
-, 1 untried/unknown (v4.19.88-242-gc0fa90c1d847)
+From: Vlastimil Babka <vbabka@suse.cz>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.88-242-gc0fa90c1d847/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.88-242-gc0fa90c1d847/
+The x86 version of get_user_pages_fast() relies on disabled interrupts to
+synchronize gup_pte_range() between gup_get_pte(ptep); and get_page() against
+a parallel munmap. The munmap side nulls the pte, then flushes TLBs, then
+releases the page. As TLB flush is done synchronously via IPI disabling
+interrupts blocks the page release, and get_page(), which assumes existing
+reference on page, is thus safe.
+However when TLB flush is done by a hypercall, e.g. in a Xen PV guest, there is
+no blocking thanks to disabled interrupts, and get_page() can succeed on a page
+that was already freed or even reused.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.88-242-gc0fa90c1d847
-Git Commit: c0fa90c1d847eb4ef91a4056dced0b10d6291f40
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 58 unique boards, 20 SoC families, 17 builds out of 206
+We have recently seen this happen with our 4.4 and 4.12 based kernels, with
+userspace (java) that exits a thread, where mm_release() performs a futex_wake()
+on tsk->clear_child_tid, and another thread in parallel unmaps the page where
+tsk->clear_child_tid points to. The spurious get_page() succeeds, but futex code
+immediately releases the page again, while it's already on a freelist. Symptoms
+include a bad page state warning, general protection faults acessing a poisoned
+list prev/next pointer in the freelist, or free page pcplists of two cpus joined
+together in a single list. Oscar has also reproduced this scenario, with a
+patch inserting delays before the get_page() to make the race window larger.
 
-Offline Platforms:
+Fix this by removing the dependency on TLB flush interrupts the same way as the
+generic get_user_pages_fast() code by using page_cache_add_speculative() and
+revalidating the PTE contents after pinning the page. Mainline is safe since
+4.13 where the x86 gup code was removed in favor of the common code. Accessing
+the page table itself safely also relies on disabled interrupts and TLB flush
+IPIs that don't happen with hypercalls, which was acknowledged in commit
+9e52fc2b50de ("x86/mm: Enable RCU based page table freeing
+(CONFIG_HAVE_RCU_TABLE_FREE=y)"). That commit with follups should also be
+backported for full safety, although our reproducer didn't hit a problem
+without that backport.
 
-arm:
+Reproduced-by: Oscar Salvador <osalvador@suse.de>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            mt7623n-bananapi-bpi-r2: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 ---
-For more info write to <info@kernelci.org>
+ arch/x86/mm/gup.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
+index 6612d532e42e..6379a4883c0a 100644
+--- a/arch/x86/mm/gup.c
++++ b/arch/x86/mm/gup.c
+@@ -9,6 +9,7 @@
+ #include <linux/vmstat.h>
+ #include <linux/highmem.h>
+ #include <linux/swap.h>
++#include <linux/pagemap.h>
+ 
+ #include <asm/pgtable.h>
+ 
+@@ -95,10 +96,23 @@ static noinline int gup_pte_range(pmd_t pmd, unsigned long addr,
+ 		}
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+-		if (unlikely(!try_get_page(page))) {
++
++		if (WARN_ON_ONCE(page_ref_count(page) < 0)) {
++			pte_unmap(ptep);
++			return 0;
++		}
++
++		if (!page_cache_get_speculative(page)) {
+ 			pte_unmap(ptep);
+ 			return 0;
+ 		}
++
++		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
++			put_page(page);
++			pte_unmap(ptep);
++			return 0;
++		}
++
+ 		SetPageReferenced(page);
+ 		pages[*nr] = page;
+ 		(*nr)++;
+-- 
+2.23.0
