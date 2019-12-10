@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D458F119871
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:39:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFEED119873
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730127AbfLJVey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:34:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40366 "EHLO mail.kernel.org"
+        id S1726673AbfLJVjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:39:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729710AbfLJVex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:34:53 -0500
+        id S1729092AbfLJVey (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:34:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FDF924653;
-        Tue, 10 Dec 2019 21:34:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56CF92465C;
+        Tue, 10 Dec 2019 21:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013693;
-        bh=cey8MJGys7XVXz1kGP7JOB4MTJ4YXwDtcLbEjTG4YKA=;
+        s=default; t=1576013694;
+        bh=p8Lb8J17jPSSly24dzmzStasviv9sGOI60j8idwLeY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyiGAD2KaUHSUcWS2lhisXoAwEj+rMOS9xKMHp/GI1KL2RQtrQpt9vvAZH5EqvSb4
-         WxM2gVR3z0OxgVD+bNJN1eenga6KyXn1fSOffHTWrMkb4emGt/+l7oYv8mkLc29LjB
-         yuWIYGFikqj5FlNA59y76Z5Z8vGK64xYa6Qvr3Xc=
+        b=e6bjay9Lv9JdSkPaPdJOSl0ZmNnRh719ozig3Xhia2q++emS6ghYaQsYLuq+s1FCd
+         SjSwV07vDqRLmEcI8N/ziDqg7MiFVmeTDz7NrJ/8UK5jdRqXvKQLDwrWCqo9N1K/ea
+         1ee/1EHFM+PTBzRM8DoLhqTlVL9W+1+c0V+Vj4RM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Tom Zanussi <tom.zanussi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 123/177] perf probe: Return a better scope DIE if there is no best scope
-Date:   Tue, 10 Dec 2019 16:31:27 -0500
-Message-Id: <20191210213221.11921-123-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 124/177] perf probe: Fix to show calling lines of inlined functions
+Date:   Tue, 10 Dec 2019 16:31:28 -0500
+Message-Id: <20191210213221.11921-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -49,80 +47,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit c701636aeec4c173208697d68da6e4271125564b ]
+[ Upstream commit 86c0bf8539e7f46d91bd105e55eda96e0064caef ]
 
-Make find_best_scope() returns innermost DIE at given address if there
-is no best matched scope DIE. Since Gcc sometimes generates intuitively
-strange line info which is out of inlined function address range, we
-need this fixup.
+Fix to show calling lines of inlined functions (where an inline function
+is called).
 
-Without this, sometimes perf probe failed to probe on a line inside an
-inlined function:
+die_walk_lines() filtered out the lines inside inlined functions based
+on the address. However this also filtered out the lines which call
+those inlined functions from the target function.
 
-  # perf probe -D ksys_open:3
-  Failed to find scope of probe point.
-    Error: Failed to add events.
+To solve this issue, check the call_file and call_line attributes and do
+not filter out if it matches to the line information.
 
-With this fix, 'perf probe' can probe it:
+Without this fix, perf probe -L doesn't show some lines correctly.
+(don't see the lines after 17)
 
-  # perf probe -D ksys_open:3
-  p:probe/ksys_open _text+25707308
-  p:probe/ksys_open_1 _text+25710596
-  p:probe/ksys_open_2 _text+25711114
-  p:probe/ksys_open_3 _text+25711343
-  p:probe/ksys_open_4 _text+25714058
-  p:probe/ksys_open_5 _text+2819653
-  p:probe/ksys_open_6 _text+2819701
+  # perf probe -L vfs_read
+  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
+        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
+        1  {
+        2         ssize_t ret;
 
+        4         if (!(file->f_mode & FMODE_READ))
+                          return -EBADF;
+        6         if (!(file->f_mode & FMODE_CAN_READ))
+                          return -EINVAL;
+        8         if (unlikely(!access_ok(buf, count)))
+                          return -EFAULT;
+
+       11         ret = rw_verify_area(READ, file, pos, count);
+       12         if (!ret) {
+       13                 if (count > MAX_RW_COUNT)
+                                  count =  MAX_RW_COUNT;
+       15                 ret = __vfs_read(file, buf, count, pos);
+       16                 if (ret > 0) {
+                                  fsnotify_access(file);
+                                  add_rchar(current, ret);
+                          }
+
+With this fix:
+
+  # perf probe -L vfs_read
+  <vfs_read@/home/mhiramat/ksrc/linux/fs/read_write.c:0>
+        0  ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
+        1  {
+        2         ssize_t ret;
+
+        4         if (!(file->f_mode & FMODE_READ))
+                          return -EBADF;
+        6         if (!(file->f_mode & FMODE_CAN_READ))
+                          return -EINVAL;
+        8         if (unlikely(!access_ok(buf, count)))
+                          return -EFAULT;
+
+       11         ret = rw_verify_area(READ, file, pos, count);
+       12         if (!ret) {
+       13                 if (count > MAX_RW_COUNT)
+                                  count =  MAX_RW_COUNT;
+       15                 ret = __vfs_read(file, buf, count, pos);
+       16                 if (ret > 0) {
+       17                         fsnotify_access(file);
+       18                         add_rchar(current, ret);
+                          }
+       20                 inc_syscr(current);
+                  }
+
+Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Tom Zanussi <tom.zanussi@linux.intel.com>
-Link: http://lore.kernel.org/lkml/157291300887.19771.14936015360963292236.stgit@devnote2
+Link: http://lore.kernel.org/lkml/157241937995.32002.17899884017011512577.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-finder.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ tools/perf/util/dwarf-aux.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 946b027b45e8a..7ccabb891e5a3 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -764,6 +764,16 @@ static int find_best_scope_cb(Dwarf_Die *fn_die, void *data)
- 	return 0;
- }
- 
-+/* Return innermost DIE */
-+static int find_inner_scope_cb(Dwarf_Die *fn_die, void *data)
-+{
-+	struct find_scope_param *fsp = data;
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index fc3f3573332d9..7ae3106b4e5e0 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -768,7 +768,7 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
+ 	Dwarf_Lines *lines;
+ 	Dwarf_Line *line;
+ 	Dwarf_Addr addr;
+-	const char *fname, *decf = NULL;
++	const char *fname, *decf = NULL, *inf = NULL;
+ 	int lineno, ret = 0;
+ 	int decl = 0, inl;
+ 	Dwarf_Die die_mem, *cu_die;
+@@ -812,13 +812,21 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
+ 			 */
+ 			if (!dwarf_haspc(rt_die, addr))
+ 				continue;
 +
-+	memcpy(fsp->die_mem, fn_die, sizeof(Dwarf_Die));
-+	fsp->found = true;
-+	return 1;
-+}
+ 			if (die_find_inlinefunc(rt_die, addr, &die_mem)) {
++				/* Call-site check */
++				inf = die_get_call_file(&die_mem);
++				if ((inf && !strcmp(inf, decf)) &&
++				    die_get_call_lineno(&die_mem) == lineno)
++					goto found;
 +
- /* Find an appropriate scope fits to given conditions */
- static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
- {
-@@ -775,8 +785,13 @@ static Dwarf_Die *find_best_scope(struct probe_finder *pf, Dwarf_Die *die_mem)
- 		.die_mem = die_mem,
- 		.found = false,
- 	};
-+	int ret;
+ 				dwarf_decl_line(&die_mem, &inl);
+ 				if (inl != decl ||
+ 				    decf != dwarf_decl_file(&die_mem))
+ 					continue;
+ 			}
+ 		}
++found:
+ 		/* Get source line */
+ 		fname = dwarf_linesrc(line, NULL, NULL);
  
--	cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb, &fsp);
-+	ret = cu_walk_functions_at(&pf->cu_die, pf->addr, find_best_scope_cb,
-+				   &fsp);
-+	if (!ret && !fsp.found)
-+		cu_walk_functions_at(&pf->cu_die, pf->addr,
-+				     find_inner_scope_cb, &fsp);
- 
- 	return fsp.found ? die_mem : NULL;
- }
 -- 
 2.20.1
 
