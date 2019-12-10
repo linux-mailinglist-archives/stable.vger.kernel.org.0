@@ -2,81 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51ECF1194F5
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54329119501
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728591AbfLJVR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:17:27 -0500
-Received: from mail-pg1-f174.google.com ([209.85.215.174]:37929 "EHLO
-        mail-pg1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729141AbfLJVM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 16:12:57 -0500
-Received: by mail-pg1-f174.google.com with SMTP id a33so9263972pgm.5
-        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 13:12:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=RVHzytoFKmxp71fLK8zwWumSvcrUcgiercZQ4sj+tQs=;
-        b=Y4KqN8Z1+G+DQ6I91zdwl1tThKHZXbN9IHG/kHPpbi0qD92ARIlURi3zrreR0AwTsD
-         rsS4Jmih+9ruNqRgghQd0c/2BhPfQtvrEjbCCoNPEvqiHiXl3nCOI/eihg80yv1VnHSV
-         JmAnVICy1mOltAk5W2ESvsPdlbr69KcnAuvDaQ17hTMQxeAH7C6IBe9WdwJsgVe2KTPD
-         9Or8XaQ6nOAMMhSy+uHid04DnkDizHdFsnulLf4BU6fjbxCzoF5i4SNxMRMCeVyI+V1P
-         bBi0BwQaG+34AfPgmWEFeXSC/I4GNBZcddxqm8/bPUQmqDSa+7p10Ieyz8bzxEENVTQH
-         j+1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RVHzytoFKmxp71fLK8zwWumSvcrUcgiercZQ4sj+tQs=;
-        b=POjBVF0mYnt5U4xZNI0e+S7drZKzQ5S0rSGensaGlPtnbx4plDE4FELqHw9KcO58N/
-         wkyMb7E5Ip7mZeVLt9SHLBI9EPBR1hxu0mMBRjgh2I/namQT7lX0cXzvbgljwKN8L+Vw
-         3EWTA7jrpb7DjKt5jAYTkfx/a/nH/3Q7WlWyXoi4LCPlVfv7293812AhVj3BCzfPwhYH
-         edV3Fsk/ctPLkU6ayRFLj17v6Zxf02IMdXUTEoHhQKSrhpzcMaEKcOxkvpT/aeoWn7VX
-         6Wu474O1SPYppGHGbWToQu9Hb6Ra1eW3jQR4s0C96ZHipHOL0Lq5jfE4fTMbeqETbqdI
-         gorA==
-X-Gm-Message-State: APjAAAUjRTv1lz9Wr5BsP2aaJBRpcdTf05aOjlFo4eMWDIa8g6yZSl9Z
-        nYdGuU9jIhrKVCnbJ0fcpUQf2w==
-X-Google-Smtp-Source: APXvYqyjzdzfwzhpwgSViB4SArfQ8GAco9voKZJjasYu5IC6XOdvTr7bF/yg/61DwxdTvHIWA6+4DQ==
-X-Received: by 2002:a62:1548:: with SMTP id 69mr37952583pfv.239.1576012376620;
-        Tue, 10 Dec 2019 13:12:56 -0800 (PST)
-Received: from ?IPv6:2620:10d:c081:1131::1215? ([2620:10d:c090:180::4a7a])
-        by smtp.gmail.com with ESMTPSA id b16sm4394227pfo.64.2019.12.10.13.12.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Dec 2019 13:12:55 -0800 (PST)
-Subject: Re: [PATCH 01/11] io_uring: allow unbreakable links
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        =?UTF-8?B?5p2O6YCa5rSy?= <carter.li@eoitek.com>
-References: <20191210155742.5844-1-axboe@kernel.dk>
- <20191210155742.5844-2-axboe@kernel.dk>
- <e562048a-b81d-cd6f-eb59-879003641be3@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <15eb9647-8a71-fba7-6726-082c6a398298@kernel.dk>
-Date:   Tue, 10 Dec 2019 14:12:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1727848AbfLJVRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:17:51 -0500
+Received: from mga01.intel.com ([192.55.52.88]:58566 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727528AbfLJVRv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:17:51 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Dec 2019 13:17:50 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,300,1571727600"; 
+   d="scan'208";a="210505395"
+Received: from tstruk-mobl1.jf.intel.com (HELO [127.0.1.1]) ([10.7.196.67])
+  by fmsmga007.fm.intel.com with ESMTP; 10 Dec 2019 13:17:50 -0800
+Subject: [PATCH] tpm: fix WARNING: lock held when returning to user space
+From:   Tadeusz Struk <tadeusz.struk@intel.com>
+To:     jarkko.sakkinen@linux.intel.com
+Cc:     tadeusz.struk@intel.com, peterz@infradead.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org, jgg@ziepe.ca,
+        mingo@redhat.com, jeffrin@rajagiritech.edu.in,
+        linux-integrity@vger.kernel.org, will@kernel.org, peterhuewe@gmx.de
+Date:   Tue, 10 Dec 2019 13:17:51 -0800
+Message-ID: <157601267151.12904.7408818232910113434.stgit@tstruk-mobl1>
+In-Reply-To: <34e5340f-de75-f20e-7898-6142eac45c13@intel.com>
+References: <34e5340f-de75-f20e-7898-6142eac45c13@intel.com>
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-In-Reply-To: <e562048a-b81d-cd6f-eb59-879003641be3@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/10/19 2:10 PM, Pavel Begunkov wrote:
-> Apart from debug code (see comments below) io_uring part of
-> the patchset looks good.
+When an application sends TPM commands in NONBLOCKING mode
+the driver holds chip->tpm_mutex returning from write(),
+which triggers WARNING: lock held when returning to user space!
+To silence this warning the driver needs to release the mutex
+and acquire it again in tpm_dev_async_work() before sending
+the command.
 
-Hah, oops!
+Cc: stable@vger.kernel.org
+Fixes: 9e1b74a63f776 (tpm: add support for nonblocking operation)
+Signed-off-by: Tadeusz Struk <tadeusz.struk@intel.com>
+---
+ drivers/char/tpm/tpm-dev-common.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-> Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-
-Thanks
-
--- 
-Jens Axboe
+diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
+index 2ec47a69a2a6..b23b0b999232 100644
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -61,6 +61,12 @@ static void tpm_dev_async_work(struct work_struct *work)
+ 
+ 	mutex_lock(&priv->buffer_mutex);
+ 	priv->command_enqueued = false;
++	ret = tpm_try_get_ops(priv->chip);
++	if (ret) {
++		priv->response_length = ret;
++		goto out;
++	}
++
+ 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
+ 			       sizeof(priv->data_buffer));
+ 	tpm_put_ops(priv->chip);
+@@ -68,6 +74,7 @@ static void tpm_dev_async_work(struct work_struct *work)
+ 		priv->response_length = ret;
+ 		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
+ 	}
++out:
+ 	mutex_unlock(&priv->buffer_mutex);
+ 	wake_up_interruptible(&priv->async_wait);
+ }
+@@ -204,6 +211,7 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
+ 	if (file->f_flags & O_NONBLOCK) {
+ 		priv->command_enqueued = true;
+ 		queue_work(tpm_dev_wq, &priv->async_work);
++		tpm_put_ops(priv->chip);
+ 		mutex_unlock(&priv->buffer_mutex);
+ 		return size;
+ 	}
 
