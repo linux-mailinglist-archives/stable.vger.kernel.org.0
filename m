@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82062119BCF
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE1F119BC8
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:12:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728272AbfLJWLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:11:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34422 "EHLO mail.kernel.org"
+        id S1727045AbfLJWLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:11:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728264AbfLJWD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:03:56 -0500
+        id S1728212AbfLJWD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:03:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5BF2214D8;
-        Tue, 10 Dec 2019 22:03:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34921222C4;
+        Tue, 10 Dec 2019 22:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015435;
-        bh=8wh+p64T8rURgFickUOAnFGXBpIYAInJHAGKYcjtebI=;
+        s=default; t=1576015437;
+        bh=69rBNEWLoUE/xJcs82+iZ5ye4Ly8cGjyGI5sglYoHnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCqUaXp51m/sbwqaA1mh0kNdQch+Ax//VmPI4fLKVzuWPlOYXRgOrEc5dKUxsM/tQ
-         fRBoORCy3sXrr4jpwuxLo+dBbL+bJruMSK50az0eXAqkng7uhMOvM1JuJH10OcZ+Gy
-         fnA4FQG8eot2wyjiTg6ND0iQKB3qZ9mydgpdmYzQ=
+        b=MrIrfayxCQaXm3ssMzwSIsl5OxNzxuZoLwKsoyqdcQyEBtLfM//iqiDHK+jVP+uTL
+         T5CIRFXS1/i1HDhn3iUczm2OqnoTCHV500cnDfmERGPk+5jH+SxPjCILRw8d/ondCe
+         3YlTddVKMXtDMToqluXJ5O5IkYjkfxVKAGUDsfsQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Yan <leo.yan@linaro.org>,
+Cc:     Jin Yao <yao.jin@linux.intel.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 045/130] perf test: Report failure for mmap events
-Date:   Tue, 10 Dec 2019 17:01:36 -0500
-Message-Id: <20191210220301.13262-45-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 046/130] perf report: Add warning when libunwind not compiled in
+Date:   Tue, 10 Dec 2019 17:01:37 -0500
+Message-Id: <20191210220301.13262-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -47,40 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-[ Upstream commit 6add129c5d9210ada25217abc130df0b7096ee02 ]
+[ Upstream commit 800d3f561659b5436f8c57e7c26dd1f6928b5615 ]
 
-When fail to mmap events in task exit case, it misses to set 'err' to
--1; thus the testing will not report failure for it.
+We received a user report that call-graph DWARF mode was enabled in
+'perf record' but 'perf report' didn't unwind the callstack correctly.
+The reason was, libunwind was not compiled in.
 
-This patch sets 'err' to -1 when fails to mmap events, thus Perf tool
-can report correct result.
+We can use 'perf -vv' to check the compiled libraries but it would be
+valuable to report a warning to user directly (especially valuable for
+a perf newbie).
 
-Fixes: d723a55096b8 ("perf test: Add test case for checking number of EXIT events")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
+The warning is:
+
+Warning:
+Please install libunwind development packages during the perf build.
+
+Both TUI and stdio are supported.
+
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/20191011091942.29841-1-leo.yan@linaro.org
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20191011022122.26369-1-yao.jin@linux.intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/task-exit.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/builtin-report.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/perf/tests/task-exit.c b/tools/perf/tests/task-exit.c
-index 89c8e1604ca73..94fe5464bc6f3 100644
---- a/tools/perf/tests/task-exit.c
-+++ b/tools/perf/tests/task-exit.c
-@@ -104,6 +104,7 @@ int test__task_exit(struct test *test __maybe_unused, int subtest __maybe_unused
- 	if (perf_evlist__mmap(evlist, 128, true) < 0) {
- 		pr_debug("failed to mmap events: %d (%s)\n", errno,
- 			 str_error_r(errno, sbuf, sizeof(sbuf)));
-+		err = -1;
- 		goto out_delete_evlist;
- 	}
+diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
+index 4ddb0726eebcb..fd4dd12b8f9d6 100644
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -342,6 +342,13 @@ static int report__setup_sample_type(struct report *rep)
+ 				PERF_SAMPLE_BRANCH_ANY))
+ 		rep->nonany_branch_mode = true;
+ 
++#ifndef HAVE_LIBUNWIND_SUPPORT
++	if (dwarf_callchain_users) {
++		ui__warning("Please install libunwind development packages "
++			    "during the perf build.\n");
++	}
++#endif
++
+ 	return 0;
+ }
  
 -- 
 2.20.1
