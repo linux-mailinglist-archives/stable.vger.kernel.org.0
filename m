@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F4D11945F
+	by mail.lfdr.de (Postfix) with ESMTP id 1265511945D
 	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:16:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729381AbfLJVNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:13:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40128 "EHLO mail.kernel.org"
+        id S1728814AbfLJVPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:15:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728771AbfLJVNg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:36 -0500
+        id S1729307AbfLJVNh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:13:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 526662077B;
-        Tue, 10 Dec 2019 21:13:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 812B222464;
+        Tue, 10 Dec 2019 21:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012416;
-        bh=+YSyb2QmbD3Aue6El/+OQIogkyDtkEzEmidpgoS5ErI=;
+        s=default; t=1576012417;
+        bh=pEEjz3Ac7oHki0v/6nYWxfjSb4k9VlXfoHypBWSLk2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhswmEETVFyEfYPseSksGgGs6YWUqcx+BKDAY863+UJIitZsEUjuKpFFX+p2pMr00
-         NhFgkGArsmkQMFOFFnNXvJvDGTz4g2UI+kjIxOYQkD7Ove0mW++J6c7nUn26cJvG7G
-         hVx2C/hcn4sPMi/HymacqEoZ0naI6WfnKPV25gTM=
+        b=yUJXmGHq2Ue/EwC8f+oDfg9JckVdrDUJDOGeGQKtMufjCXS4qktCofR04MBmHXwHd
+         s6KAm1VZ+YztltygrMrE6Af1VeczM7euMehXPTA7V1HgejYvrrpZqtsz+bXW34h5zW
+         lCpdkyRkIoQdcrgTv9Q6W1pY/GYSJOqVP4WiZXNM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Pedersen <thomas@adapt-ip.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 332/350] mac80211: consider QoS Null frames for STA_NULLFUNC_ACKED
-Date:   Tue, 10 Dec 2019 16:07:17 -0500
-Message-Id: <20191210210735.9077-293-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 333/350] crypto: vmx - Avoid weird build failures
+Date:   Tue, 10 Dec 2019 16:07:18 -0500
+Message-Id: <20191210210735.9077-294-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -44,48 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pedersen <thomas@adapt-ip.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 08a5bdde3812993cb8eb7aa9124703df0de28e4b ]
+[ Upstream commit 4ee812f6143d78d8ba1399671d78c8d78bf2817c ]
 
-Commit 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing")
-let STAs send QoS Null frames as PS triggers if the AP was
-a QoS STA.  However, the mac80211 PS stack relies on an
-interface flag IEEE80211_STA_NULLFUNC_ACKED for
-determining trigger frame ACK, which was not being set for
-acked non-QoS Null frames. The effect is an inability to
-trigger hardware sleep via IEEE80211_CONF_PS since the QoS
-Null frame was seemingly never acked.
+In the vmx crypto Makefile we assign to a variable called TARGET and
+pass that to the aesp8-ppc.pl and ghashp8-ppc.pl scripts.
 
-This bug only applies to drivers which set both
-IEEE80211_HW_REPORTS_TX_ACK_STATUS and
-IEEE80211_HW_PS_NULLFUNC_STACK.
+The variable is meant to describe what flavour of powerpc we're
+building for, eg. either 32 or 64-bit, and big or little endian.
 
-Detect the acked QoS Null frame to restore STA power save.
+Unfortunately TARGET is a fairly common name for a make variable, and
+if it happens that TARGET is specified as a command line parameter to
+make, the value specified on the command line will override our value.
 
-Fixes: 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing")
-Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
-Link: https://lore.kernel.org/r/20191119053538.25979-4-thomas@adapt-ip.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+In particular this can happen if the kernel Makefile is driven by an
+external Makefile that uses TARGET for something.
+
+This leads to weird build failures, eg:
+  nonsense  at /build/linux/drivers/crypto/vmx/ghashp8-ppc.pl line 45.
+  /linux/drivers/crypto/vmx/Makefile:20: recipe for target 'drivers/crypto/vmx/ghashp8-ppc.S' failed
+
+Which shows that we passed an empty value for $(TARGET) to the perl
+script, confirmed with make V=1:
+
+  perl /linux/drivers/crypto/vmx/ghashp8-ppc.pl  > drivers/crypto/vmx/ghashp8-ppc.S
+
+We can avoid this confusion by using override, to tell make that we
+don't want anything to override our variable, even a value specified
+on the command line. We can also use a less common name, given the
+script calls it "flavour", let's use that.
+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/status.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/vmx/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/mac80211/status.c b/net/mac80211/status.c
-index ab8ba5835ca09..5a3d645fe1bc2 100644
---- a/net/mac80211/status.c
-+++ b/net/mac80211/status.c
-@@ -1030,7 +1030,8 @@ static void __ieee80211_tx_status(struct ieee80211_hw *hw,
- 			I802_DEBUG_INC(local->dot11FailedCount);
- 	}
+diff --git a/drivers/crypto/vmx/Makefile b/drivers/crypto/vmx/Makefile
+index cab32cfec9c45..709670d2b553a 100644
+--- a/drivers/crypto/vmx/Makefile
++++ b/drivers/crypto/vmx/Makefile
+@@ -3,13 +3,13 @@ obj-$(CONFIG_CRYPTO_DEV_VMX_ENCRYPT) += vmx-crypto.o
+ vmx-crypto-objs := vmx.o aesp8-ppc.o ghashp8-ppc.o aes.o aes_cbc.o aes_ctr.o aes_xts.o ghash.o
  
--	if (ieee80211_is_nullfunc(fc) && ieee80211_has_pm(fc) &&
-+	if ((ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc)) &&
-+	    ieee80211_has_pm(fc) &&
- 	    ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS) &&
- 	    !(info->flags & IEEE80211_TX_CTL_INJECTED) &&
- 	    local->ps_sdata && !(local->scanning)) {
+ ifeq ($(CONFIG_CPU_LITTLE_ENDIAN),y)
+-TARGET := linux-ppc64le
++override flavour := linux-ppc64le
+ else
+-TARGET := linux-ppc64
++override flavour := linux-ppc64
+ endif
+ 
+ quiet_cmd_perl = PERL $@
+-      cmd_perl = $(PERL) $(<) $(TARGET) > $(@)
++      cmd_perl = $(PERL) $(<) $(flavour) > $(@)
+ 
+ targets += aesp8-ppc.S ghashp8-ppc.S
+ 
 -- 
 2.20.1
 
