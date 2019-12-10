@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F136E119E4E
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD7D119E55
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:44:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727704AbfLJWa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:30:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50802 "EHLO mail.kernel.org"
+        id S1729140AbfLJWnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:43:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727678AbfLJWa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727684AbfLJWa7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 10 Dec 2019 17:30:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41332077B;
-        Tue, 10 Dec 2019 22:30:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5ECA820838;
+        Tue, 10 Dec 2019 22:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017057;
-        bh=wcFbWOkMfUYvWT1xFdFjskMwASESJIhFheQC/bZDhyg=;
+        s=default; t=1576017058;
+        bh=segSYNU2H8acp/n/MBBOQclzFKA4g5CaqMyJouyK0MY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TLJcDqU8tUALT5iBIWbXM5GBYuBnhUeOnGrIFNnWshh6E9zRaeUqopYGmVLXnGXy4
-         Ik4WFrjZ4qJyMnHfQS8OxG442hutNCxOhNgF9UpvzRnPltKtJvVWBcLe2ll/oY9xC8
-         IkeBeW2tWMXB8Fd7Z2bG9XNEskDwHxOP3SX5dCK0=
+        b=hbmB0tVe836Et/JCHUM+1awPJ5okcE5HGRcXr65IpRTyEQf5Fk0ksvF/EuN57bzQ0
+         iLuCURmifTP+oL8WkWyP7yaVY7glcBlRfIT582LF+376xYg2WKxzNX6V1nP/+Kx6yW
+         vGTwKBWxAnnokStC/biP/7WWW/cCeTn7K6D85hjY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Adam Ford <aford173@gmail.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tero Kristo <t-kristo@ti.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 18/91] hwrng: omap3-rom - Call clk_disable_unprepare() on exit only if not idled
-Date:   Tue, 10 Dec 2019 17:29:22 -0500
-Message-Id: <20191210223035.14270-18-sashal@kernel.org>
+Cc:     Yizhuo <yzhai003@ucr.edu>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 19/91] regulator: max8907: Fix the usage of uninitialized variable in max8907_regulator_probe()
+Date:   Tue, 10 Dec 2019 17:29:23 -0500
+Message-Id: <20191210223035.14270-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
 References: <20191210223035.14270-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,44 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Yizhuo <yzhai003@ucr.edu>
 
-[ Upstream commit eaecce12f5f0d2c35d278e41e1bc4522393861ab ]
+[ Upstream commit 472b39c3d1bba0616eb0e9a8fa3ad0f56927c7d7 ]
 
-When unloading omap3-rom-rng, we'll get the following:
+Inside function max8907_regulator_probe(), variable val could
+be uninitialized if regmap_read() fails. However, val is used
+later in the if statement to decide the content written to
+"pmic", which is potentially unsafe.
 
-WARNING: CPU: 0 PID: 100 at drivers/clk/clk.c:948 clk_core_disable
-
-This is because the clock may be already disabled by omap3_rom_rng_idle().
-Let's fix the issue by checking for rng_idle on exit.
-
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Adam Ford <aford173@gmail.com>
-Cc: Pali Rohár <pali.rohar@gmail.com>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Tero Kristo <t-kristo@ti.com>
-Fixes: 1c6b7c2108bd ("hwrng: OMAP3 ROM Random Number Generator support")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
+Link: https://lore.kernel.org/r/20191003175813.16415-1-yzhai003@ucr.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/omap3-rom-rng.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/max8907-regulator.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/hw_random/omap3-rom-rng.c b/drivers/char/hw_random/omap3-rom-rng.c
-index 37a58d78aab31..3324a7f4bee37 100644
---- a/drivers/char/hw_random/omap3-rom-rng.c
-+++ b/drivers/char/hw_random/omap3-rom-rng.c
-@@ -114,7 +114,8 @@ static int omap3_rom_rng_remove(struct platform_device *pdev)
- {
- 	cancel_delayed_work_sync(&idle_work);
- 	hwrng_unregister(&omap3_rom_rng_ops);
--	clk_disable_unprepare(rng_clk);
-+	if (!rng_idle)
-+		clk_disable_unprepare(rng_clk);
- 	return 0;
- }
+diff --git a/drivers/regulator/max8907-regulator.c b/drivers/regulator/max8907-regulator.c
+index 5e941db5ccafb..c7e70cfb581fe 100644
+--- a/drivers/regulator/max8907-regulator.c
++++ b/drivers/regulator/max8907-regulator.c
+@@ -299,7 +299,10 @@ static int max8907_regulator_probe(struct platform_device *pdev)
+ 	memcpy(pmic->desc, max8907_regulators, sizeof(pmic->desc));
  
+ 	/* Backwards compatibility with MAX8907B; SD1 uses different voltages */
+-	regmap_read(max8907->regmap_gen, MAX8907_REG_II2RR, &val);
++	ret = regmap_read(max8907->regmap_gen, MAX8907_REG_II2RR, &val);
++	if (ret)
++		return ret;
++
+ 	if ((val & MAX8907_II2RR_VERSION_MASK) ==
+ 	    MAX8907_II2RR_VERSION_REV_B) {
+ 		pmic->desc[MAX8907_SD1].min_uV = 637500;
+@@ -336,14 +339,20 @@ static int max8907_regulator_probe(struct platform_device *pdev)
+ 		}
+ 
+ 		if (pmic->desc[i].ops == &max8907_ldo_ops) {
+-			regmap_read(config.regmap, pmic->desc[i].enable_reg,
++			ret = regmap_read(config.regmap, pmic->desc[i].enable_reg,
+ 				    &val);
++			if (ret)
++				return ret;
++
+ 			if ((val & MAX8907_MASK_LDO_SEQ) !=
+ 			    MAX8907_MASK_LDO_SEQ)
+ 				pmic->desc[i].ops = &max8907_ldo_hwctl_ops;
+ 		} else if (pmic->desc[i].ops == &max8907_out5v_ops) {
+-			regmap_read(config.regmap, pmic->desc[i].enable_reg,
++			ret = regmap_read(config.regmap, pmic->desc[i].enable_reg,
+ 				    &val);
++			if (ret)
++				return ret;
++
+ 			if ((val & (MAX8907_MASK_OUT5V_VINEN |
+ 						MAX8907_MASK_OUT5V_ENSRC)) !=
+ 			    MAX8907_MASK_OUT5V_ENSRC)
 -- 
 2.20.1
 
