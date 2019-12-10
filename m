@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EAB119968
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:47:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4B3119964
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:47:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728750AbfLJVqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:46:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36610 "EHLO mail.kernel.org"
+        id S1728185AbfLJVp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:45:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729498AbfLJVcv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:32:51 -0500
+        id S1728171AbfLJVcw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:32:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDFC7207FF;
-        Tue, 10 Dec 2019 21:32:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 190262465A;
+        Tue, 10 Dec 2019 21:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013570;
-        bh=RbX6+Z4jCo6nzQ+Vy1qb12MbVoi1m5ZYQ4/pNJpUm9o=;
+        s=default; t=1576013571;
+        bh=SBUx8yMp2GaWVuXdQGHugz9n6zPokEyvWLzJ9x4GqU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8h4SHkzpaB0jqrCSnFLfA5cBZWHc3Lc/Ysr0CFcRNPPaz4UrgY/fJxtO2qwii5yb
-         wQBqxPdtzRadXX5RcYOjpwmWQxD4+rNeCHTXrgOCdbPGL2NyQTqM8IQ946fyXQausl
-         yHZjuIfhs0yO1S6zIIBHxmvAXtWDhcZxHpg2WfTE=
+        b=QPDF2lSv0z90GZ9oU13EWOciTmNVtvXFjiHP+aa8x+mzWQxzEIHVS2aWt4k/RbMhY
+         T8KqdnKnlgCSJjQt+VM/Oyir1HPSL3nLQGc3ZTLqSQ5mR8EluuZKZZkSQOiwnwee9C
+         okcAUPszue+HoPechpoMOALYyUzvx5fmD2ZlEdyw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Elena Petrova <lenaptr@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 024/177] pinctrl: devicetree: Avoid taking direct reference to device name string
-Date:   Tue, 10 Dec 2019 16:29:48 -0500
-Message-Id: <20191210213221.11921-24-sashal@kernel.org>
+Cc:     Allen Pais <allen.pais@oracle.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 025/177] drm/amdkfd: fix a potential NULL pointer dereference (v2)
+Date:   Tue, 10 Dec 2019 16:29:49 -0500
+Message-Id: <20191210213221.11921-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -44,109 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Allen Pais <allen.pais@oracle.com>
 
-[ Upstream commit be4c60b563edee3712d392aaeb0943a768df7023 ]
+[ Upstream commit 81de29d842ccb776c0f77aa3e2b11b07fff0c0e2 ]
 
-When populating the pinctrl mapping table entries for a device, the
-'dev_name' field for each entry is initialised to point directly at the
-string returned by 'dev_name()' for the device and subsequently used by
-'create_pinctrl()' when looking up the mappings for the device being
-probed.
+alloc_workqueue is not checked for errors and as a result,
+a potential NULL dereference could occur.
 
-This is unreliable in the presence of calls to 'dev_set_name()', which may
-reallocate the device name string leaving the pinctrl mappings with a
-dangling reference. This then leads to a use-after-free every time the
-name is dereferenced by a device probe:
+v2 (Felix Kuehling):
+* Fix compile error (kfifo_free instead of fifo_free)
+* Return proper error code
 
-  | BUG: KASAN: invalid-access in strcmp+0x20/0x64
-  | Read of size 1 at addr 13ffffc153494b00 by task modprobe/590
-  | Pointer tag: [13], memory tag: [fe]
-  |
-  | Call trace:
-  |  __kasan_report+0x16c/0x1dc
-  |  kasan_report+0x10/0x18
-  |  check_memory_region
-  |  __hwasan_load1_noabort+0x4c/0x54
-  |  strcmp+0x20/0x64
-  |  create_pinctrl+0x18c/0x7f4
-  |  pinctrl_get+0x90/0x114
-  |  devm_pinctrl_get+0x44/0x98
-  |  pinctrl_bind_pins+0x5c/0x450
-  |  really_probe+0x1c8/0x9a4
-  |  driver_probe_device+0x120/0x1d8
-
-Follow the example of sysfs, and duplicate the device name string before
-stashing it away in the pinctrl mapping entries.
-
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Reported-by: Elena Petrova <lenaptr@google.com>
-Tested-by: Elena Petrova <lenaptr@google.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191002124206.22928-1-will@kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Allen Pais <allen.pais@oracle.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/devicetree.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_interrupt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/pinctrl/devicetree.c b/drivers/pinctrl/devicetree.c
-index 2969ff3162c35..177ee1136e349 100644
---- a/drivers/pinctrl/devicetree.c
-+++ b/drivers/pinctrl/devicetree.c
-@@ -40,6 +40,13 @@ struct pinctrl_dt_map {
- static void dt_free_map(struct pinctrl_dev *pctldev,
- 		     struct pinctrl_map *map, unsigned num_maps)
- {
-+	int i;
-+
-+	for (i = 0; i < num_maps; ++i) {
-+		kfree_const(map[i].dev_name);
-+		map[i].dev_name = NULL;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_interrupt.c b/drivers/gpu/drm/amd/amdkfd/kfd_interrupt.c
+index c56ac47cd3189..bc47f6a444564 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_interrupt.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_interrupt.c
+@@ -62,6 +62,11 @@ int kfd_interrupt_init(struct kfd_dev *kfd)
+ 	}
+ 
+ 	kfd->ih_wq = alloc_workqueue("KFD IH", WQ_HIGHPRI, 1);
++	if (unlikely(!kfd->ih_wq)) {
++		kfifo_free(&kfd->ih_fifo);
++		dev_err(kfd_chardev(), "Failed to allocate KFD IH workqueue\n");
++		return -ENOMEM;
 +	}
-+
- 	if (pctldev) {
- 		const struct pinctrl_ops *ops = pctldev->desc->pctlops;
- 		if (ops->dt_free_map)
-@@ -74,7 +81,13 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename,
+ 	spin_lock_init(&kfd->interrupt_lock);
  
- 	/* Initialize common mapping table entry fields */
- 	for (i = 0; i < num_maps; i++) {
--		map[i].dev_name = dev_name(p->dev);
-+		const char *devname;
-+
-+		devname = kstrdup_const(dev_name(p->dev), GFP_KERNEL);
-+		if (!devname)
-+			goto err_free_map;
-+
-+		map[i].dev_name = devname;
- 		map[i].name = statename;
- 		if (pctldev)
- 			map[i].ctrl_dev_name = dev_name(pctldev->dev);
-@@ -82,10 +95,8 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename,
- 
- 	/* Remember the converted mapping table entries */
- 	dt_map = kzalloc(sizeof(*dt_map), GFP_KERNEL);
--	if (!dt_map) {
--		dt_free_map(pctldev, map, num_maps);
--		return -ENOMEM;
--	}
-+	if (!dt_map)
-+		goto err_free_map;
- 
- 	dt_map->pctldev = pctldev;
- 	dt_map->map = map;
-@@ -93,6 +104,10 @@ static int dt_remember_or_free_map(struct pinctrl *p, const char *statename,
- 	list_add_tail(&dt_map->node, &p->dt_maps);
- 
- 	return pinctrl_register_map(map, num_maps, false);
-+
-+err_free_map:
-+	dt_free_map(pctldev, map, num_maps);
-+	return -ENOMEM;
- }
- 
- struct pinctrl_dev *of_pinctrl_get(struct device_node *np)
+ 	INIT_WORK(&kfd->interrupt_work, interrupt_wq);
 -- 
 2.20.1
 
