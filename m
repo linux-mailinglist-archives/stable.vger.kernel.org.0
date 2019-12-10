@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6F71199D3
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7828F119A0A
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbfLJVIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:08:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56286 "EHLO mail.kernel.org"
+        id S1727888AbfLJVtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:49:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727573AbfLJVIk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:40 -0500
+        id S1727560AbfLJVIm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5792A24680;
-        Tue, 10 Dec 2019 21:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8846F24696;
+        Tue, 10 Dec 2019 21:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012120;
-        bh=C8pkPNteKe4v3Hogd5f/wzVbWZbO5QD6AhnNQUR05OM=;
+        s=default; t=1576012121;
+        bh=beiWJNS4QYxxYoJmAldP87bt8Aot7L9TlkcNwav9MAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpxT6YUaaTH2lZVcV2wP4P1H+iG+xZLcDBJsWF7ez69s9xvQ7iw7P4vnwe5L0P4Ic
-         +oFflLBj/rF89VGzkCSk1x974bfuATFBcMuJ16Xht1BBm3vdrVX/2qA6QWgySP1K6J
-         BidFK6bbFiK7heg1pLS8GuTncfHYTx3fcbQ63bzo=
+        b=SYnlwgU9VabiFGf9wv7+WiLRgg17lWaqqqTCaTzIxhES+dQ8+pZr4tTlKLr570r3y
+         dNOrXoltpOjQED5SXLMRzYd1elYMvrEVtOhsH2Ch/V46KG2MPj5VsYsraQOJ4xEetc
+         c9cZZrLxo6kMgSetpdGF9BYKu8ypQaVcgKajwsLU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Benoit Parrot <bparrot@ti.com>,
@@ -30,9 +30,9 @@ Cc:     Benoit Parrot <bparrot@ti.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 091/350] media: ti-vpe: vpe: fix a v4l2-compliance failure about frame sequence number
-Date:   Tue, 10 Dec 2019 16:03:16 -0500
-Message-Id: <20191210210735.9077-52-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 092/350] media: ti-vpe: vpe: Make sure YUYV is set as default format
+Date:   Tue, 10 Dec 2019 16:03:17 -0500
+Message-Id: <20191210210735.9077-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -47,46 +47,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit 2444846c0dbfa4ead21b621e4300ec32c90fbf38 ]
+[ Upstream commit e20b248051ca0f90d84b4d9378e4780bc31f16c6 ]
 
 v4l2-compliance fails with this message:
 
-   fail: v4l2-test-buffers.cpp(294): \
-	(int)g_sequence() < seq.last_seq + 1
-   fail: v4l2-test-buffers.cpp(740): \
-	buf.check(m2m_q, last_m2m_seq)
-   fail: v4l2-test-buffers.cpp(974): \
-	captureBufs(node, q, m2m_q, frame_count, true)
-   test MMAP: FAIL
+   fail: v4l2-test-formats.cpp(672): \
+	Video Capture Multiplanar: TRY_FMT(G_FMT) != G_FMT
+   fail: v4l2-test-formats.cpp(672): \
+	Video Output Multiplanar: TRY_FMT(G_FMT) != G_FMT
+	...
+   test VIDIOC_TRY_FMT: FAIL
 
-The driver is failing to update the source frame sequence number in the
-vb2 buffer object. Only the destination frame sequence was being
-updated.
+The default pixel format was setup as pointing to a specific offset in
+the vpe_formats table assuming it was pointing to the V4L2_PIX_FMT_YUYV
+entry. This became false after the addition on the NV21 format (see
+above commid-id)
 
-This is only a reporting issue if the user space app actually cares
-about the frame sequence number. But it is fixed nonetheless.
+So instead of hard-coding an offset which might change over time we need
+to use a lookup helper instead so we know the default will always be what
+we intended.
 
 Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Fixes: 40cc823f7005 ("media: ti-vpe: Add support for NV21 format")
 Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/vpe.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/ti-vpe/vpe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
-index 328976a529414..e44299008a7b5 100644
+index e44299008a7b5..2b731c8f54593 100644
 --- a/drivers/media/platform/ti-vpe/vpe.c
 +++ b/drivers/media/platform/ti-vpe/vpe.c
-@@ -1417,6 +1417,7 @@ static irqreturn_t vpe_irq(int irq_vpe, void *data)
- 		d_vb->timecode = s_vb->timecode;
+@@ -2288,7 +2288,7 @@ static int vpe_open(struct file *file)
+ 	v4l2_ctrl_handler_setup(hdl);
  
- 	d_vb->sequence = ctx->sequence;
-+	s_vb->sequence = ctx->sequence;
- 
- 	d_q_data = &ctx->q_data[Q_DATA_DST];
- 	if (d_q_data->flags & Q_IS_INTERLACED) {
+ 	s_q_data = &ctx->q_data[Q_DATA_SRC];
+-	s_q_data->fmt = &vpe_formats[2];
++	s_q_data->fmt = __find_format(V4L2_PIX_FMT_YUYV);
+ 	s_q_data->width = 1920;
+ 	s_q_data->height = 1080;
+ 	s_q_data->nplanes = 1;
 -- 
 2.20.1
 
