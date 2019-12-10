@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B1EA1199C1
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 164B81199C3
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbfLJVIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:08:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55252 "EHLO mail.kernel.org"
+        id S1727742AbfLJVIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:08:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727800AbfLJVIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:10 -0500
+        id S1727811AbfLJVIN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B18E2077B;
-        Tue, 10 Dec 2019 21:08:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8DD52468F;
+        Tue, 10 Dec 2019 21:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012089;
-        bh=PQnaO16yEfIOBCWFcGEaFc+ZV6bUgyC5DyPZ8fTgcfM=;
+        s=default; t=1576012092;
+        bh=aC9SQ5EkNhTjwOn53SQkNmPSz9YG183WcWTkmu/cwfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFrJKVEvdiJ3K9JbraLlGUq0+7ChPznXv4gl0M4jr1GDKSItGLST9oYtnllCDhhpO
-         O/AV7vPk9pEdNPWvas1YaiB+74jLBn3cA6aBaiOufrVrjksvDYgKMNuPBRfqE907tO
-         j/RVrCWeo+PXEABA94DKmJ0MnwRaK0+IknKk33qU=
+        b=x+L9EZGjAJ6v74Rw/yNgRuZYKMpEFwQquYNBXX4BoiTBNL6Z1PRQpFfdbSUs305pj
+         MF4StD7jQmeCrb2VEDrY2A08ifxo+khp5K3AaFt8Cv5gDaCgfurEQ06OypG96L/zqd
+         Qk6QNFWziXo2Fzagm0Mbgopo6qLoCg3VJ9fCGK1E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 067/350] media: cec-funcs.h: add status_req checks
-Date:   Tue, 10 Dec 2019 16:02:52 -0500
-Message-Id: <20191210210735.9077-28-sashal@kernel.org>
+Cc:     Matthias Kaehlcke <mka@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sean Paul <sean@poorly.run>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 069/350] drm/bridge: dw-hdmi: Refuse DDC/CI transfers on the internal I2C controller
+Date:   Tue, 10 Dec 2019 16:02:54 -0500
+Message-Id: <20191210210735.9077-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -43,52 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit 9b211f9c5a0b67afc435b86f75d78273b97db1c5 ]
+[ Upstream commit bee447e224b2645911c5d06e35dc90d8433fcef6 ]
 
-The CEC_MSG_GIVE_DECK_STATUS and CEC_MSG_GIVE_TUNER_DEVICE_STATUS commands
-both have a status_req argument: ON, OFF, ONCE. If ON or ONCE, then the
-follower will reply with a STATUS message. Either once or whenever the
-status changes (status_req == ON).
+The DDC/CI protocol involves sending a multi-byte request to the
+display via I2C, which is typically followed by a multi-byte
+response. The internal I2C controller only allows single byte
+reads/writes or reads of 8 sequential bytes, hence DDC/CI is not
+supported when the internal I2C controller is used. The I2C
+transfers complete without errors, however the data in the response
+is garbage. Abort transfers to/from slave address 0x37 (DDC) with
+-EOPNOTSUPP, to make it evident that the communication is failing.
 
-If status_req == OFF, then it will stop sending continuous status updates,
-but the follower will *not* send a STATUS message in that case.
-
-This means that if status_req == OFF, then msg->reply should be 0 as well
-since no reply is expected in that case.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Sean Paul <sean@poorly.run>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191002124354.v2.1.I709dfec496f5f0b44a7b61dcd4937924da8d8382@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/cec-funcs.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/include/uapi/linux/cec-funcs.h b/include/uapi/linux/cec-funcs.h
-index 8997d5068c085..4511b85c84dfc 100644
---- a/include/uapi/linux/cec-funcs.h
-+++ b/include/uapi/linux/cec-funcs.h
-@@ -923,7 +923,8 @@ static inline void cec_msg_give_deck_status(struct cec_msg *msg,
- 	msg->len = 3;
- 	msg->msg[1] = CEC_MSG_GIVE_DECK_STATUS;
- 	msg->msg[2] = status_req;
--	msg->reply = reply ? CEC_MSG_DECK_STATUS : 0;
-+	msg->reply = (reply && status_req != CEC_OP_STATUS_REQ_OFF) ?
-+				CEC_MSG_DECK_STATUS : 0;
- }
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+index 521d689413c8c..3e82d604201ee 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+@@ -36,6 +36,7 @@
+ #include "dw-hdmi-cec.h"
+ #include "dw-hdmi.h"
  
- static inline void cec_ops_give_deck_status(const struct cec_msg *msg,
-@@ -1027,7 +1028,8 @@ static inline void cec_msg_give_tuner_device_status(struct cec_msg *msg,
- 	msg->len = 3;
- 	msg->msg[1] = CEC_MSG_GIVE_TUNER_DEVICE_STATUS;
- 	msg->msg[2] = status_req;
--	msg->reply = reply ? CEC_MSG_TUNER_DEVICE_STATUS : 0;
-+	msg->reply = (reply && status_req != CEC_OP_STATUS_REQ_OFF) ?
-+				CEC_MSG_TUNER_DEVICE_STATUS : 0;
- }
++#define DDC_CI_ADDR		0x37
+ #define DDC_SEGMENT_ADDR	0x30
  
- static inline void cec_ops_give_tuner_device_status(const struct cec_msg *msg,
+ #define HDMI_EDID_LEN		512
+@@ -398,6 +399,15 @@ static int dw_hdmi_i2c_xfer(struct i2c_adapter *adap,
+ 	u8 addr = msgs[0].addr;
+ 	int i, ret = 0;
+ 
++	if (addr == DDC_CI_ADDR)
++		/*
++		 * The internal I2C controller does not support the multi-byte
++		 * read and write operations needed for DDC/CI.
++		 * TOFIX: Blacklist the DDC/CI address until we filter out
++		 * unsupported I2C operations.
++		 */
++		return -EOPNOTSUPP;
++
+ 	dev_dbg(hdmi->dev, "xfer: num: %d, addr: %#x\n", num, addr);
+ 
+ 	for (i = 0; i < num; i++) {
 -- 
 2.20.1
 
