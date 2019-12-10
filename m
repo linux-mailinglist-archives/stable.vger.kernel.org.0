@@ -2,51 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B151198CC
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A16B1197B0
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:34:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730086AbfLJVeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730089AbfLJVeq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:34:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40068 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730081AbfLJVep (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:34:45 -0500
+        id S1728071AbfLJVeq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:34:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12E26205C9;
-        Tue, 10 Dec 2019 21:34:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A34A2467A;
+        Tue, 10 Dec 2019 21:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013684;
-        bh=j1JzUEkNvWLm0dfGDd2FcKBDO+nYUmAafwxR5bAkVss=;
+        s=default; t=1576013685;
+        bh=3aXqtGp4o4Le56Dewifenxf3B2S3PUiUAh1FVSDurHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JTw3sVGAHQrHEkH2QsSOXvXcTpaI9isMcJO90wuzA6F/ygaGkJ+CxPzn5ljJiApTe
-         io4bWdPiEwfxl00JxqcactF2LHPKtZtq8La2wlfs82xa+6Vi2p0W6zrdzfhrji0p61
-         yHy8tjYODmpKU/+f+dTrjwWvXoU2TIr2mMcHw65U=
+        b=OqYO9qYVFzHhYPHa71qLTVvxoDSbMXp7XCG7SaoG1HxaPGlAK8szYtzyKa0avCqc9
+         ynQcUz7ZJJxUvVd8lSDIZLfJnZo2dibHK0FqTcGKHOxDOJIH+C5SymbC79qnnBGVpL
+         ldFronwIsbUAmH61ewkqXZZZYllxfCh42PkYK7t0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        John Garry <john.garry@huawei.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
-        clang-built-linux@googlegroups.com, netdev@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 117/177] perf tools: Splice events onto evlist even on error
-Date:   Tue, 10 Dec 2019 16:31:21 -0500
-Message-Id: <20191210213221.11921-117-sashal@kernel.org>
+Cc:     Hawking Zhang <Hawking.Zhang@amd.com>,
+        Candice Li <Candice.Li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 118/177] drm/amdgpu: disallow direct upload save restore list from gfx driver
+Date:   Tue, 10 Dec 2019 16:31:22 -0500
+Message-Id: <20191210213221.11921-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -59,74 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Hawking Zhang <Hawking.Zhang@amd.com>
 
-[ Upstream commit 8e8714c3d157568b7a769917a5e05573bbaf5af0 ]
+[ Upstream commit 58f46d4b65021083ef4b4d49c6e2c58e5783f626 ]
 
-If event parsing fails the event list is leaked, instead splice the list
-onto the out result and let the caller cleanup.
+Direct uploading save/restore list via mmio register writes breaks the security
+policy. Instead, the driver should pass s&r list to psp.
 
-An example input for parse_events found by libFuzzer that reproduces
-this memory leak is 'm{'.
+For all the ASICs that use rlc v2_1 headers, the driver actually upload s&r list
+twice, in non-psp ucode front door loading phase and gfx pg initialization phase.
+The latter is not allowed.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: bpf@vger.kernel.org
-Cc: clang-built-linux@googlegroups.com
-Cc: netdev@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20191025180827.191916-5-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+VG12 is the only exception where the driver still keeps legacy approach for S&R
+list uploading. In theory, this can be elimnated if we have valid srcntl ucode
+for VG12.
+
+Signed-off-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Candice Li <Candice.Li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 1a7c76d2baa80..7ea1a230e89d0 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1843,15 +1843,20 @@ int parse_events(struct perf_evlist *evlist, const char *str,
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 7824116498169..28794b1b15c10 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -2187,7 +2187,8 @@ static void gfx_v9_0_init_pg(struct amdgpu_device *adev)
+ 	 * And it's needed by gfxoff feature.
+ 	 */
+ 	if (adev->gfx.rlc.is_rlc_v2_1) {
+-		gfx_v9_1_init_rlc_save_restore_list(adev);
++		if (adev->asic_type == CHIP_VEGA12)
++			gfx_v9_1_init_rlc_save_restore_list(adev);
+ 		gfx_v9_0_enable_save_restore_machine(adev);
+ 	}
  
- 	ret = parse_events__scanner(str, &parse_state, PE_START_EVENTS);
- 	perf_pmu__parse_cleanup();
-+
-+	if (!ret && list_empty(&parse_state.list)) {
-+		WARN_ONCE(true, "WARNING: event parser found nothing\n");
-+		return -1;
-+	}
-+
-+	/*
-+	 * Add list to the evlist even with errors to allow callers to clean up.
-+	 */
-+	perf_evlist__splice_list_tail(evlist, &parse_state.list);
-+
- 	if (!ret) {
- 		struct perf_evsel *last;
- 
--		if (list_empty(&parse_state.list)) {
--			WARN_ONCE(true, "WARNING: event parser found nothing\n");
--			return -1;
--		}
--
--		perf_evlist__splice_list_tail(evlist, &parse_state.list);
- 		evlist->nr_groups += parse_state.nr_groups;
- 		last = perf_evlist__last(evlist);
- 		last->cmdline_group_boundary = true;
 -- 
 2.20.1
 
