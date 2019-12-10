@@ -2,264 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B6D118A19
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 14:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 452AE118AA5
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 15:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727305AbfLJNoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 08:44:54 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:49200 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727061AbfLJNox (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 08:44:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575985492;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=qZRftvwkHIToEw0UmAjHzdaxfkbvBsE3MuY4WTmXwwk=;
-        b=KF16Cv/wa5tSQQBIzWZeDLks2OiVgKtjy/CwkXq2S14s8Qeu1X0whEVdhtBWoBlnl5K2/7
-        6iz1Wrdzfcs8mGjJ0cJ09npei1vzYb/WUvyyuurxyonTPEqfpdaz2ceaFNz8bBNbudOCDi
-        b8hyfxXeau1GevaUhEvf8PxjJFsNVBc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-422-ylpqTWCfO-KcAPTKJJFxag-1; Tue, 10 Dec 2019 08:44:49 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727345AbfLJOTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 09:19:14 -0500
+Received: from us03-smtprelay2.synopsys.com ([149.117.87.133]:44700 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727007AbfLJOTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 09:19:14 -0500
+Received: from mailhost.synopsys.com (badc-mailhost1.synopsys.com [10.192.0.17])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B9E34802B60;
-        Tue, 10 Dec 2019 13:44:47 +0000 (UTC)
-Received: from [10.36.117.222] (ovpn-117-222.ams2.redhat.com [10.36.117.222])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5E80A261A7;
-        Tue, 10 Dec 2019 13:44:39 +0000 (UTC)
-Subject: Re: [PATCH v2] virtio-balloon: fix managed page counts when migrating
- pages between zones
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, Yumei Huang <yuhuang@redhat.com>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, Jiang Liu <liuj97@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        virtualization@lists.linux-foundation.org,
-        Igor Mammedov <imammedo@redhat.com>
-References: <20191205092420.6934-1-david@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Red Hat GmbH
-Message-ID: <13e33ff9-22f2-c02a-811e-2d087e42e1ce@redhat.com>
-Date:   Tue, 10 Dec 2019 14:44:38 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
-MIME-Version: 1.0
-In-Reply-To: <20191205092420.6934-1-david@redhat.com>
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 2217EC00AD;
+        Tue, 10 Dec 2019 14:19:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1575987553; bh=SbBLH1O3WO1Hi7WxJDeeAfjQjj8jnRxQKWW7Mty4l+4=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+        b=f4MGwqf62+Oz5cgssbGAH90kjGIWPZfIOaZCoUE2rD7sxck0spL9pUpAas0UxoAWM
+         RxdO2zGDeDDi3giBB/Hmu9UAO1T+yyweWtfTzw+NhhJlWkwV9VYjA949I7DKqgxxcx
+         ibr0VkDkU2/KcWf51XNC2PCNV4pOsm7K7g/N1A1EpR361bADJc9iY/WlRuy1w4hEpW
+         nTyNuCawWEKWzFJDzZKVV5tD88C2sC+ZoihoEzQpYb/h4iY2reUaT8Kzc7OSC72V+P
+         rg3REzVTheaGV2r5cASUkbH78DhQ/o8+N3FQ1fq1n/LgSBAaIvkXIu6tECDABQzG5S
+         91Dhy5vjr4OiQ==
+Received: from US01WEHTC3.internal.synopsys.com (us01wehtc3.internal.synopsys.com [10.15.84.232])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPS id 75D8FA008A;
+        Tue, 10 Dec 2019 14:19:12 +0000 (UTC)
+Received: from US01HYBRID2.internal.synopsys.com (10.15.246.24) by
+ US01WEHTC3.internal.synopsys.com (10.15.84.232) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Tue, 10 Dec 2019 06:19:12 -0800
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (10.202.3.67) by
+ mrs.synopsys.com (10.15.246.24) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Tue, 10 Dec 2019 06:19:12 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=iN6Zd3pAFGLZzKB9lcNPcAS/PQtkxpnaMOjFVtwMFn5TIYsLgIy9DQnEhylPKZJ4Gv69yHUxG3ZHByB8qkbXu2jxey9xPjg6PUi7zT8cUNhUimMC8qZH5dcbECrPhgmKRiBGcsP3n1IPbFSiZgDakNNgeOOx0hCBQNPxEw0j75iks2w3YBQ7l5pLMjofMB9t5UuVUjyjhuH20u+vInAgRFEQrS7tmARyA97gu307mnU7yolDv0QXBnfX7WFfmZSu3KzExlujY36wjytabDofEWSn3hgHIAb6j+PrbzVNg7+grMG+RiGprIx04+rHe4KTcgz8JvegZ212TPDTaJPkOw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SbBLH1O3WO1Hi7WxJDeeAfjQjj8jnRxQKWW7Mty4l+4=;
+ b=X+34MmBUknGSpK39oixr1xYTk7/xFgzSkmmvtZMPxE9eDeg18lI+BHTwAkPQ4b25JtJgIK/vqBxn/NsEVKDhiJ56z0XJC0LrLiYXs9GfoG+MumMFnLOaXKSz9ak3gjXsINySssvzRwEZSzP0yuhRjG9b2WUwYkwghHk8Wh7l+C1NktgDUC/LcJZJHlzKiXiPRZsVOJ/rWU96zmYmIuTNQHR8spFmQJfGodaKgL8zz43nHAjtIxiA9dmRPeP2Wu6C0ofetzJ997b4/TE7wfaXV+Tzz1Y0virMGYCHwphagu7k5A7PX7ofCVNZoRiZtHv//GfLa3/foraucc6ZcRUoZw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
+ dkim=pass header.d=synopsys.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=synopsys.onmicrosoft.com; s=selector2-synopsys-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SbBLH1O3WO1Hi7WxJDeeAfjQjj8jnRxQKWW7Mty4l+4=;
+ b=U71+FnOEEivyIyx4Pzh7MZe7SSGuOXyEVAs4d0RO7KcVAT+kdumfNpQnh0iyxh3/e/Rk4HjB6MtCwU4r1GG6e1rHb4HzZfv4eV/D4AHktI1mIEfUfE5ZMKH9HzgV1g0HPSNTP4tB9Nre6Lo/8NUvtjtEjaoTEG4NS1sjXGgqQ9s=
+Received: from MN2PR12MB4093.namprd12.prod.outlook.com (52.135.51.203) by
+ MN2PR12MB4095.namprd12.prod.outlook.com (52.135.48.11) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2516.13; Tue, 10 Dec 2019 14:19:10 +0000
+Received: from MN2PR12MB4093.namprd12.prod.outlook.com
+ ([fe80::d0e:7272:4a88:ffeb]) by MN2PR12MB4093.namprd12.prod.outlook.com
+ ([fe80::d0e:7272:4a88:ffeb%5]) with mapi id 15.20.2516.018; Tue, 10 Dec 2019
+ 14:19:10 +0000
+From:   Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+To:     Felipe Balbi <balbi@kernel.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+CC:     John Youn <John.Youn@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
+Thread-Topic: [PATCH] usb: dwc2: Fix SET/CLEAR_FEATURE and GET_STATUS flows
+Thread-Index: AQHVpd4S46cbjx1MuUy0bLcfyWi1rqezZeCAgAAX+AA=
+Date:   Tue, 10 Dec 2019 14:19:10 +0000
+Message-ID: <e314d265-6d87-eb7a-997e-52d77ccdb725@synopsys.com>
+References: <f8af9e4b892a8d005f0ae3d42401fee532f44a27.1574938826.git.hminas@synopsys.com>
+ <8736dsl4u4.fsf@gmail.com>
+In-Reply-To: <8736dsl4u4.fsf@gmail.com>
+Accept-Language: en-US
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: ylpqTWCfO-KcAPTKJJFxag-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=hminas@synopsys.com; 
+x-originating-ip: [46.162.196.54]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 39b5e110-0ce5-407b-a142-08d77d7bed1e
+x-ms-traffictypediagnostic: MN2PR12MB4095:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <MN2PR12MB409579378C17DF98A7814A60A75B0@MN2PR12MB4095.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1265;
+x-forefront-prvs: 02475B2A01
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(136003)(346002)(376002)(39860400002)(396003)(366004)(189003)(199004)(54906003)(2616005)(186003)(6486002)(4326008)(478600001)(86362001)(2906002)(6512007)(26005)(76116006)(31696002)(53546011)(6506007)(31686004)(71200400001)(4744005)(91956017)(81166006)(110136005)(36756003)(66446008)(64756008)(66476007)(66946007)(8936002)(5660300002)(8676002)(66556008)(81156014)(316002);DIR:OUT;SFP:1102;SCL:1;SRVR:MN2PR12MB4095;H:MN2PR12MB4093.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: synopsys.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: mlu2uqYO6Q8D8lpheLJphxtJOQO8uciCJQvsbJMx2e9uLY07LowOlQlUyXpuE+P2ILmTL4uX0L9kLmlasBW1xac+S2wCMz1k8VSoy5VYBJbMzt/I6i4M5B4Qyg80btTdsCNWAODegL2PrlUzAcnV8DvSznnBjdMt5pCjGLMnZlW9TIpIVpmh3/jy27JgjqOW1fCL6c7bZcb4Qsri4evD6TRDHF/lkiqtEBF4uGHD3ISIDiPuGnPaZztpOcGXgr89lVnL/ntPpe99ANn8A1tj2l9o1GPAJzsbAshakoPJDzs84fF/Qc3sLsYRFLeA5fYyfmL67YL5bitDxSn7fIBHWvDP9y6nReCKLnCfdF6pIkSXFYIhQJCwIfqxxQ8sQ4G/9Ctf1fgFvJcKsUqUBhaUlgETePZ/YXG7SHbPo3wuMtqZAEMl2B3VBRH5XRnfYuVr
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <E1E1219AD2E6A742948B07C7D8254CAA@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-Network-Message-Id: 39b5e110-0ce5-407b-a142-08d77d7bed1e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Dec 2019 14:19:10.7447
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 9GFbEnEGgrU7jUC5CTbb3JSUOm2HRLWjqJ6OfKo3iIo/xgGUMphEt8uNrqbVqC1GSVDUq3W4YGH8K3EKcnB1BQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4095
+X-OriginatorOrg: synopsys.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05.12.19 10:24, David Hildenbrand wrote:
-> In case we have to migrate a ballon page to a newpage of another zone, the
-> managed page count of both zones is wrong. Paired with memory offlining
-> (which will adjust the managed page count), we can trigger kernel crashes
-> and all kinds of different symptoms.
-> 
-> One way to reproduce:
-> 1. Start a QEMU guest with 4GB, no NUMA
-> 2. Hotplug a 1GB DIMM and only the memory to ZONE_NORMAL
-
-s/only/online/
-
-as requested by Igor.
-
-> 3. Inflate the balloon to 1GB
-> 4. Unplug the DIMM (be quick, otherwise unmovable data ends up on it)
-> 5. Observe /proc/zoneinfo
->   Node 0, zone   Normal
->     pages free     16810
->           min      24848885473806
->           low      18471592959183339
->           high     36918337032892872
->           spanned  262144
->           present  262144
->           managed  18446744073709533486
-> 6. Do anything that requires some memory (e.g., inflate the balloon some
-> more). The OOM goes crazy and the system crashes
->   [  238.324946] Out of memory: Killed process 537 (login) total-vm:27584kB, anon-rss:860kB, file-rss:0kB, shmem-rss:00
->   [  238.338585] systemd invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
->   [  238.339420] CPU: 0 PID: 1 Comm: systemd Tainted: G      D W         5.4.0-next-20191204+ #75
->   [  238.340139] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
->   [  238.341121] Call Trace:
->   [  238.341337]  dump_stack+0x8f/0xd0
->   [  238.341630]  dump_header+0x61/0x5ea
->   [  238.341942]  oom_kill_process.cold+0xb/0x10
->   [  238.342299]  out_of_memory+0x24d/0x5a0
->   [  238.342625]  __alloc_pages_slowpath+0xd12/0x1020
->   [  238.343024]  __alloc_pages_nodemask+0x391/0x410
->   [  238.343407]  pagecache_get_page+0xc3/0x3a0
->   [  238.343757]  filemap_fault+0x804/0xc30
->   [  238.344083]  ? ext4_filemap_fault+0x28/0x42
->   [  238.344444]  ext4_filemap_fault+0x30/0x42
->   [  238.344789]  __do_fault+0x37/0x1a0
->   [  238.345087]  __handle_mm_fault+0x104d/0x1ab0
->   [  238.345450]  handle_mm_fault+0x169/0x360
->   [  238.345790]  do_user_addr_fault+0x20d/0x490
->   [  238.346154]  do_page_fault+0x31/0x210
->   [  238.346468]  async_page_fault+0x43/0x50
->   [  238.346797] RIP: 0033:0x7f47eba4197e
->   [  238.347110] Code: Bad RIP value.
->   [  238.347387] RSP: 002b:00007ffd7c0c1890 EFLAGS: 00010293
->   [  238.347834] RAX: 0000000000000002 RBX: 000055d196a20a20 RCX: 00007f47eba4197e
->   [  238.348437] RDX: 0000000000000033 RSI: 00007ffd7c0c18c0 RDI: 0000000000000004
->   [  238.349047] RBP: 00007ffd7c0c1c20 R08: 0000000000000000 R09: 0000000000000033
->   [  238.349660] R10: 00000000ffffffff R11: 0000000000000293 R12: 0000000000000001
->   [  238.350261] R13: ffffffffffffffff R14: 0000000000000000 R15: 00007ffd7c0c18c0
->   [  238.350878] Mem-Info:
->   [  238.351085] active_anon:3121 inactive_anon:51 isolated_anon:0
->   [  238.351085]  active_file:12 inactive_file:7 isolated_file:0
->   [  238.351085]  unevictable:0 dirty:0 writeback:0 unstable:0
->   [  238.351085]  slab_reclaimable:5565 slab_unreclaimable:10170
->   [  238.351085]  mapped:3 shmem:111 pagetables:155 bounce:0
->   [  238.351085]  free:720717 free_pcp:2 free_cma:0
->   [  238.353757] Node 0 active_anon:12484kB inactive_anon:204kB active_file:48kB inactive_file:28kB unevictable:0kB iss
->   [  238.355979] Node 0 DMA free:11556kB min:36kB low:48kB high:60kB reserved_highatomic:0KB active_anon:152kB inactivB
->   [  238.358345] lowmem_reserve[]: 0 2955 2884 2884 2884
->   [  238.358761] Node 0 DMA32 free:2677864kB min:7004kB low:10028kB high:13052kB reserved_highatomic:0KB active_anon:0B
->   [  238.361202] lowmem_reserve[]: 0 0 72057594037927865 72057594037927865 72057594037927865
->   [  238.361888] Node 0 Normal free:193448kB min:99395541895224kB low:73886371836733356kB high:147673348131571488kB reB
->   [  238.364765] lowmem_reserve[]: 0 0 0 0 0
->   [  238.365101] Node 0 DMA: 7*4kB (U) 5*8kB (UE) 6*16kB (UME) 2*32kB (UM) 1*64kB (U) 2*128kB (UE) 3*256kB (UME) 2*512B
->   [  238.366379] Node 0 DMA32: 0*4kB 1*8kB (U) 2*16kB (UM) 2*32kB (UM) 2*64kB (UM) 1*128kB (U) 1*256kB (U) 1*512kB (U)B
->   [  238.367654] Node 0 Normal: 1985*4kB (UME) 1321*8kB (UME) 844*16kB (UME) 524*32kB (UME) 300*64kB (UME) 138*128kB (B
->   [  238.369184] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
->   [  238.369915] 130 total pagecache pages
->   [  238.370241] 0 pages in swap cache
->   [  238.370533] Swap cache stats: add 0, delete 0, find 0/0
->   [  238.370981] Free swap  = 0kB
->   [  238.371239] Total swap = 0kB
->   [  238.371488] 1048445 pages RAM
->   [  238.371756] 0 pages HighMem/MovableOnly
->   [  238.372090] 306992 pages reserved
->   [  238.372376] 0 pages cma reserved
->   [  238.372661] 0 pages hwpoisoned
-> 
-> In another instance (older kernel), I was able to observe this
-> (negative page count :/):
->   [  180.896971] Offlined Pages 32768
->   [  182.667462] Offlined Pages 32768
->   [  184.408117] Offlined Pages 32768
->   [  186.026321] Offlined Pages 32768
->   [  187.684861] Offlined Pages 32768
->   [  189.227013] Offlined Pages 32768
->   [  190.830303] Offlined Pages 32768
->   [  190.833071] Built 1 zonelists, mobility grouping on.  Total pages: -36920272750453009
-> 
-> In another instance (older kernel), I was no longer able to start any
-> process:
->   [root@vm ~]# [  214.348068] Offlined Pages 32768
->   [  215.973009] Offlined Pages 32768
->   cat /proc/meminfo
->   -bash: fork: Cannot allocate memory
->   [root@vm ~]# cat /proc/meminfo
->   -bash: fork: Cannot allocate memory
-> 
-> Fix it by properly adjusting the managed page count when migrating if
-> the zone changed. The managed page count of the zones now looks after
-> unplug of the DIMM (and after deflating the balloon) just like before
-> inflating the balloon (and plugging+onlining the DIMM).
-> 
-> We'll temporarily modify the totalram page count. If this ever becomes a
-> problem, we can fine tune by providing helpers that don't touch
-> the totalram pages (e.g., adjust_zone_managed_page_count()).
-> 
-> Reported-by: Yumei Huang <yuhuang@redhat.com>
-> Fixes: 3dcc0571cd64 ("mm: correctly update zone->managed_pages")
-> Cc: <stable@vger.kernel.org> # v3.11+
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Jiang Liu <liuj97@gmail.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
-> 
-> v1 -> v2:
-> - Adjust count before enquing newpage (and it possibly gets free form the
->   balloon)
-> - Check if the zone changed
-> 
-> ---
->  drivers/virtio/virtio_balloon.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 15b7f1d8c334..3078e1ac2a8f 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -722,6 +722,13 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
->  
->  	get_page(newpage); /* balloon reference */
->  
-> +	/* fixup the managed page count (esp. of the zone) */
-
-/*
- * When we migrate to a different zone, we have to adjust the managed
- * page count of both involved zones.
- */
-
-as requested by Michael.
-
-
-@Michael, if there are no further comments, shall I resend?
-
--- 
-Thanks,
-
-David / dhildenb
-
+SGkgRmVsaXBlLA0KDQpPbiAxMi8xMC8yMDE5IDQ6NTMgUE0sIEZlbGlwZSBCYWxiaSB3cm90ZToN
+Cj4gDQo+IEhpLA0KPiANCj4gTWluYXMgSGFydXR5dW55YW4gPE1pbmFzLkhhcnV0eXVueWFuQHN5
+bm9wc3lzLmNvbT4gd3JpdGVzOg0KPiANCj4+IFNFVC9DTEVBUl9GRUFUVVJFIGZvciBSZW1vdGUg
+V2FrZXVwIGFsbG93YW5jZSBub3QgaGFuZGxlZCBjb3JyZWN0bHkuDQo+PiBHRVRfU1RBVFVTIGhh
+bmRsaW5nIHByb3ZpZGVkIG5vdCBjb3JyZWN0IGRhdGEgb24gREFUQSBTdGFnZS4NCj4+IElzc3Vl
+IHNlZW4gd2hlbiBnYWRnZXQncyBkcl9tb2RlIHNldCB0byAib3RnIiBtb2RlIGFuZCBjb25uZWN0
+ZWQNCj4+IHRvIE1hY09TLg0KPj4gQm90aCBhcmUgZml4ZWQgYW5kIHRlc3RlZCB1c2luZyBVU0JD
+ViBDaC45IHRlc3RzLg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IE1pbmFzIEhhcnV0eXVueWFuIDxo
+bWluYXNAc3lub3BzeXMuY29tPg0KPiANCj4gZG8geW91IHdhbnQgdG8gYWRkIGEgRml4ZXMgdGFn
+IGhlcmU/DQoNCkZpeGVzOiBmYTM4OWE2ZDc3MjYgKCJ1c2I6IGR3YzI6IGdhZGdldDogQWRkIHJl
+bW90ZV93YWtldXBfYWxsb3dlZCBmbGFnIikNCg0KVGhhbmtzLA0KTWluYXMNCg0KPiANCg==
