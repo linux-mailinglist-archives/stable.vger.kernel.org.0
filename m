@@ -2,178 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 647C8117D0E
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 02:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42F1C117D5A
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 02:48:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727438AbfLJBQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Dec 2019 20:16:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49192 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726743AbfLJBQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 9 Dec 2019 20:16:57 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63969208C3;
-        Tue, 10 Dec 2019 01:16:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575940616;
-        bh=HzHHllQJuC8snN9xZMXrFfs4xjoHAoylV5TJAJ2ih8Y=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=d++/EeXYHvj0qa0K6drZjxkE3WFGyk33iMyyToVhr0YyiKxt2fCxtGnKHFeVLPSf3
-         COaCkkhkLLvvnxLHThXPtHAg9qml/MWbCJvG7acyeqK3rDBxbf45/tBlxe/Hvi8Jw8
-         4v32bTQrktnrhi9cbOXkMl0/zKIEvHEqDHlSU8iI=
-Date:   Mon, 09 Dec 2019 17:16:53 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     airlied@linux.ie, alex.williamson@redhat.com,
-        aneesh.kumar@linux.ibm.com, axboe@kernel.dk,
-        benh@kernel.crashing.org, bjorn.topel@intel.com, corbet@lwn.net,
-        dan.j.williams@intel.com, daniel.vetter@ffwll.ch, daniel@ffwll.ch,
-        davem@davemloft.net, david@fromorbit.com, hch@lst.de,
-        hverkuil-cisco@xs4all.nl, ira.weiny@intel.com, jack@suse.cz,
-        jgg@mellanox.com, jgg@ziepe.ca, jglisse@redhat.com,
-        jhubbard@nvidia.com, kirill.shutemov@linux.intel.com,
-        leonro@mellanox.com, magnus.karlsson@intel.com, mchehab@kernel.org,
-        mhocko@suse.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, mpe@ellerman.id.au, paulus@samba.org,
-        rppt@linux.ibm.com, shuah@kernel.org, stable@vger.kernel.org,
-        vbabka@suse.cz, viro@zeniv.linux.org.uk
-Subject:  +
- media-v4l2-core-set-pages-dirty-upon-releasing-dma-buffers.patch added to
- -mm tree
-Message-ID: <20191210011653.DlmE2wgea%akpm@linux-foundation.org>
-In-Reply-To: <20191206170123.cb3ad1f76af2b48505fabb33@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726674AbfLJBsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Dec 2019 20:48:35 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:45091 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726502AbfLJBsf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Dec 2019 20:48:35 -0500
+Received: by mail-wr1-f65.google.com with SMTP id j42so18173727wrj.12
+        for <stable@vger.kernel.org>; Mon, 09 Dec 2019 17:48:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xwV3Ta+3XFqgpAYPko15SLJfnAcYtTuARdT/QirVv/0=;
+        b=em4f7H5vj8uhMpJGo8IBkuDm9187FuOiFrsTpis4IqeH7BivzdGpFDDHZ27hsFH+Zw
+         vv/g/PAGvwwOmAwM7ha2Bkwh7sM57mr+RdWHG1kRBDahFk+G1Di6j/ZgwSC4qWdb6jte
+         zjp1OCcM7VukLDVYrw+Xk0nids0LDXGxNMvQhu8MRvs2TndDR/iBzBfYMSq1SfS3kl6N
+         Q4hEEO4t67Joc67DFMrLl5y+sL9CXuq0lLSCAJt/JqKavuO2NI9Pks8uuNSyCYIh791Y
+         ARdKHp9MobqkPKGAPAn2Dmp+5C8md5Jobtq5ocCtrpN3hAHF1z8pMP2vrqX6hbnW1NjS
+         RkYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xwV3Ta+3XFqgpAYPko15SLJfnAcYtTuARdT/QirVv/0=;
+        b=Mxrv6lqBNDreS+bBzecIdI91/oLg+OuXKnhlhVCBIqrktKSafTbSyRGlWV4t4qJCnv
+         OjwY0a0wbc2t2+dW+HK0yacdU9WFcPkFoxxx0L214NNIqGpB1G28krsX9e313wKP69D3
+         2Ic+tJr6RyZWNqdBOH1EuVF94zKF9Axoi3T+PEzEBDNUp4OXUMRHT1/Xd4t1raHFWysj
+         rcMsJci4yZbVljYUO+V4aw0lBg1DoMmuPxmip0txjKQJKC1QnG3S/qF0BbQYVW06wzhX
+         /zrfTJjFoCN+ETYksQQpQmybPCA5vqRIjzdbmkWseIe2716IOX4akUishGnLUDKO2zqC
+         zVwg==
+X-Gm-Message-State: APjAAAXr+hf9WE1T8+BVsK4Mj2VlPHe+caevUtqXB/4xwoWcVoSzVGB8
+        RK1pGCxeg3T7Dh/3h0GeK4sb+BsAzdt1/A==
+X-Google-Smtp-Source: APXvYqw4nRz/dqSNvuL6l84fQNRovEzEdULmXljlR+2CdKKC0MO7NPM/5OjYLrGqRH03R3VfpduVvw==
+X-Received: by 2002:a5d:4d06:: with SMTP id z6mr4925513wrt.339.1575942512591;
+        Mon, 09 Dec 2019 17:48:32 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id 2sm1499249wrq.31.2019.12.09.17.48.32
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Dec 2019 17:48:32 -0800 (PST)
+Message-ID: <5deef970.1c69fb81.e7148.7d9f@mx.google.com>
+Date:   Mon, 09 Dec 2019 17:48:32 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.15-72-g90b45f59bef1
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.3.y
+Subject: stable-rc/linux-5.3.y boot: 154 boots: 2 failed,
+ 145 passed with 6 offline, 1 untried/unknown (v5.3.15-72-g90b45f59bef1)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.3.y boot: 154 boots: 2 failed, 145 passed with 6 offline,=
+ 1 untried/unknown (v5.3.15-72-g90b45f59bef1)
 
-The patch titled
-     Subject: media/v4l2-core: set pages dirty upon releasing DMA buffers
-has been added to the -mm tree.  Its filename is
-     media-v4l2-core-set-pages-dirty-upon-releasing-dma-buffers.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.15-72-g90b45f59bef1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.15-72-g90b45f59bef1/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/media-v4l2-core-set-pages-dirt=
-y-upon-releasing-dma-buffers.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/media-v4l2-core-set-pages-dirt=
-y-upon-releasing-dma-buffers.patch
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.15-72-g90b45f59bef1
+Git Commit: 90b45f59bef1f72284a49994a4d2c4c3445f352c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 91 unique boards, 25 SoC families, 19 builds out of 207
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Failures Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing=
- your code ***
+arm64:
+    defconfig:
+        gcc-8:
+            meson-g12a-x96-max: 1 failed lab
+            meson-gxl-s905x-khadas-vim: 1 failed lab
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Offline Platforms:
 
-------------------------------------------------------
-=46rom: John Hubbard <jhubbard@nvidia.com>
-Subject: media/v4l2-core: set pages dirty upon releasing DMA buffers
+arm:
 
-After DMA is complete, and the device and CPU caches are synchronized,
-it's still required to mark the CPU pages as dirty, if the data was coming
-from the device.  However, this driver was just issuing a bare put_page()
-call, without any set_page_dirty*() call.
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-Fix the problem, by calling set_page_dirty_lock() if the CPU pages were
-potentially receiving data from the device.
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-Link: http://lkml.kernel.org/r/20191209225344.99740-18-jhubbard@nvidia.com
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Bj=C3=B6rn T=C3=B6pel <bjorn.topel@intel.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Dave Chinner <david@fromorbit.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: "David S . Miller" <davem@davemloft.net>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Leon Romanovsky <leonro@mellanox.com>
-Cc: Magnus Karlsson <magnus.karlsson@intel.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
-
- drivers/media/v4l2-core/videobuf-dma-sg.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
---- a/drivers/media/v4l2-core/videobuf-dma-sg.c~media-v4l2-core-set-pages-d=
-irty-upon-releasing-dma-buffers
-+++ a/drivers/media/v4l2-core/videobuf-dma-sg.c
-@@ -349,8 +349,11 @@ int videobuf_dma_free(struct videobuf_dm
- 	BUG_ON(dma->sglen);
-=20
- 	if (dma->pages) {
--		for (i =3D 0; i < dma->nr_pages; i++)
-+		for (i =3D 0; i < dma->nr_pages; i++) {
-+			if (dma->direction =3D=3D DMA_FROM_DEVICE)
-+				set_page_dirty_lock(dma->pages[i]);
- 			put_page(dma->pages[i]);
-+		}
- 		kfree(dma->pages);
- 		dma->pages =3D NULL;
- 	}
-_
-
-Patches currently in -mm which might be from jhubbard@nvidia.com are
-
-mm-gup-factor-out-duplicate-code-from-four-routines.patch
-mm-gup-move-try_get_compound_head-to-top-fix-minor-issues.patch
-mm-devmap-refactor-1-based-refcounting-for-zone_device-pages.patch
-goldish_pipe-rename-local-pin_user_pages-routine.patch
-mm-fix-get_user_pages_remotes-handling-of-foll_longterm.patch
-vfio-fix-foll_longterm-use-simplify-get_user_pages_remote-call.patch
-mm-gup-allow-foll_force-for-get_user_pages_fast.patch
-ib-umem-use-get_user_pages_fast-to-pin-dma-pages.patch
-mm-gup-introduce-pin_user_pages-and-foll_pin.patch
-goldish_pipe-convert-to-pin_user_pages-and-put_user_page.patch
-ib-corehwumem-set-foll_pin-via-pin_user_pages-fix-up-odp.patch
-mm-process_vm_access-set-foll_pin-via-pin_user_pages_remote.patch
-drm-via-set-foll_pin-via-pin_user_pages_fast.patch
-fs-io_uring-set-foll_pin-via-pin_user_pages.patch
-net-xdp-set-foll_pin-via-pin_user_pages.patch
-media-v4l2-core-set-pages-dirty-upon-releasing-dma-buffers.patch
-media-v4l2-core-pin_user_pages-foll_pin-and-put_user_page-conversion.patch
-vfio-mm-pin_user_pages-foll_pin-and-put_user_page-conversion.patch
-powerpc-book3s64-convert-to-pin_user_pages-and-put_user_page.patch
-powerpc-book3s64-convert-to-pin_user_pages-and-put_user_page-fix.patch
-mm-gup_benchmark-use-proper-foll_write-flags-instead-of-hard-coding-1.patch
-mm-tree-wide-rename-put_user_page-to-unpin_user_page.patch
-mm-gup-pass-flags-arg-to-__gup_device_-functions.patch
-mm-gup-track-foll_pin-pages.patch
-mm-gup_benchmark-support-pin_user_pages-and-related-calls.patch
-selftests-vm-run_vmtests-invoke-gup_benchmark-with-basic-foll_pin-coverage.=
-patch
-
+For more info write to <info@kernelci.org>
