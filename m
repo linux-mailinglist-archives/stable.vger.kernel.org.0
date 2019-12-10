@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E0011998F
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:47:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09EA511998B
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:47:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728332AbfLJVq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:46:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36176 "EHLO mail.kernel.org"
+        id S1728945AbfLJVcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:32:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728853AbfLJVce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:32:34 -0500
+        id S1727865AbfLJVcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:32:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5851020836;
-        Tue, 10 Dec 2019 21:32:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 854FA207FF;
+        Tue, 10 Dec 2019 21:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013554;
-        bh=xPgGuolIKBBRLmnIyzp9EhLsKOvFYf4peESXy1Y6SXw=;
+        s=default; t=1576013555;
+        bh=cYhdYbZ2C62QFsCV3vUPORDRy2TMMCi6obS4+mAyaXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Jf7nJ3tiLkwiICGYsKyY0Loafb9KtJKSAF21TCFvheac4gSBn/2KUYwIRpS09nTm
-         /W7xw+F2eNJxGEKZ1QsIBjfAv4ob/rnpOJUkIFbqZJYO2bfsN4NrO5q1CZpJjUUXLU
-         Guqwv5GWS9Tsuv+JSh7lchpBdckEyg3m6BncX7Fs=
+        b=X6Uxk2m6LE3ARTcRyUIGE/JDp7McbXwd7MnfgwWoFFqeDWJRviSn9ZtciPO/16kQX
+         WN7q9P/gFTU6SqSD+Nd82IVNXJVygEb3zYGOTH+JGD15jVy9m3gSuchQ4+DbnCigod
+         6d0MZYZeosom3ZvQoO+3bk2T80iPrjPAvyycZByo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brendan Higgins <brendanhiggins@google.com>,
-        kbuild test robot <lkp@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 010/177] objtool: add kunit_try_catch_throw to the noreturn list
-Date:   Tue, 10 Dec 2019 16:29:34 -0500
-Message-Id: <20191210213221.11921-10-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 011/177] rtlwifi: prevent memory leak in rtl_usb_probe
+Date:   Tue, 10 Dec 2019 16:29:35 -0500
+Message-Id: <20191210213221.11921-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
@@ -46,42 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Higgins <brendanhiggins@google.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 33adf80f5b52e3f7c55ad66ffcaaff93c6888aaa ]
+[ Upstream commit 3f93616951138a598d930dcaec40f2bfd9ce43bb ]
 
-Fix the following warning seen on GCC 7.3:
-  kunit/test-test.o: warning: objtool: kunit_test_unsuccessful_try() falls through to next function kunit_test_catch()
+In rtl_usb_probe if allocation for usb_data fails the allocated hw
+should be released. In addition the allocated rtlpriv->usb_data should
+be released on error handling path.
 
-kunit_try_catch_throw is a function added in the following patch in this
-series; it allows KUnit, a unit testing framework for the kernel, to
-bail out of a broken test. As a consequence, it is a new __noreturn
-function that objtool thinks is broken (as seen above). So fix this
-warning by adding kunit_try_catch_throw to objtool's noreturn list.
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://www.spinics.net/lists/linux-kbuild/msg21708.html
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index ecf5fc77f50b5..89a1a34fffb10 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -168,6 +168,7 @@ static int __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		"usercopy_abort",
- 		"machine_real_restart",
- 		"rewind_stack_do_exit",
-+		"kunit_try_catch_throw",
- 	};
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index 5adb939afee88..1181b725f5033 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -1050,8 +1050,10 @@ int rtl_usb_probe(struct usb_interface *intf,
+ 	rtlpriv->hw = hw;
+ 	rtlpriv->usb_data = kcalloc(RTL_USB_MAX_RX_COUNT, sizeof(u32),
+ 				    GFP_KERNEL);
+-	if (!rtlpriv->usb_data)
++	if (!rtlpriv->usb_data) {
++		ieee80211_free_hw(hw);
+ 		return -ENOMEM;
++	}
  
- 	if (func->bind == STB_WEAK)
+ 	/* this spin lock must be initialized early */
+ 	spin_lock_init(&rtlpriv->locks.usb_lock);
+@@ -1112,6 +1114,7 @@ int rtl_usb_probe(struct usb_interface *intf,
+ 	_rtl_usb_io_handler_release(hw);
+ 	usb_put_dev(udev);
+ 	complete(&rtlpriv->firmware_loading_complete);
++	kfree(rtlpriv->usb_data);
+ 	return -ENODEV;
+ }
+ EXPORT_SYMBOL(rtl_usb_probe);
 -- 
 2.20.1
 
