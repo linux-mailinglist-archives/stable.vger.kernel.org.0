@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64236119870
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:39:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0489D11986D
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:39:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727719AbfLJVje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726930AbfLJVje (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Dec 2019 16:39:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40414 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730129AbfLJVe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:34:56 -0500
+        id S1730136AbfLJVe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:34:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71AD6222C4;
-        Tue, 10 Dec 2019 21:34:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A2C3205C9;
+        Tue, 10 Dec 2019 21:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576013695;
-        bh=zAS+cc7KCgoyUXo1k9Up3xQic5HuxMmJoLtXTT5NtGw=;
+        s=default; t=1576013696;
+        bh=2eDlXtX3WBn6Bcur3PKL2GDuBPxlLS0q1n6EY8Q/PnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jqzbMd07r1Hf+yn+GzCczPVLpNN9gcqpsIVjjE6XT06AdOeCxF/B6ATnQEBbSb+BT
-         VwMgkAtdj55PMQY2NNswCiLtPoJLUIgedAU9BfQQGLTLF9TiQbFJXxa4ciLDTaFeHq
-         3nvSdXSsnO67pf02fKAyZuWpViZYXNlNxgKLTEXQ=
+        b=Zagw2gzEC3kVKZDxC7V6dh3j3B9jEsgYlt+p827HgNtJsq3urcc2qRkdEGxYrPBiU
+         6y7mEg9RRd3utrjRdH4clLkUTjSlc1tlFGkOnqO48wX09je+ySBWSTJgSEw1MF9Je9
+         BxNcoz/kgywi8Qt/ZEugw2H7xr2B7SLtSBsCOCVE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
@@ -30,14 +30,13 @@ Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 125/177] perf probe: Skip end-of-sequence and non statement lines
-Date:   Tue, 10 Dec 2019 16:31:29 -0500
-Message-Id: <20191210213221.11921-125-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 126/177] perf probe: Filter out instances except for inlined subroutine and subprogram
+Date:   Tue, 10 Dec 2019 16:31:30 -0500
+Message-Id: <20191210213221.11921-126-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210213221.11921-1-sashal@kernel.org>
 References: <20191210213221.11921-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,138 +47,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit f4d99bdfd124823a81878b44b5e8750b97f73902 ]
+[ Upstream commit da6cb952a89efe24bb76c4971370d485737a2d85 ]
 
-Skip end-of-sequence and non-statement lines while walking through lines
-list.
+Filter out instances except for inlined_subroutine and subprogram DIE in
+die_walk_instances() and die_is_func_instance().
 
-The "end-of-sequence" line information means:
+This fixes an issue that perf probe sets some probes on calling address
+instead of a target function itself.
 
- "the current address is that of the first byte after the
-  end of a sequence of target machine instructions."
- (DWARF version 4 spec 6.2.2)
+When perf probe walks on instances of an abstruct origin (a kind of
+function prototype of inlined function), die_walk_instances() can also
+pass a GNU_call_site (a GNU extension for call site) to callback. Since
+it is not an inlined instance of target function, we have to filter out
+when searching a probe point.
 
-This actually means out of scope and we can not probe on it.
+Without this patch, perf probe sets probes on call site address too.This
+can happen on some function which is marked "inlined", but has actual
+symbol. (I'm not sure why GCC mark it "inlined"):
 
-On the other hand, the statement lines (is_stmt) means:
-
- "the current instruction is a recommended breakpoint location.
-  A recommended breakpoint location is intended to “represent”
-  a line, a statement and/or a semantically distinct subpart
-  of a statement."
-
- (DWARF version 4 spec 6.2.2)
-
-So, non-statement line info also should be skipped.
-
-These can reduce unneeded probe points and also avoid an error.
-
-E.g. without this patch:
-
-  # perf probe -a "clear_tasks_mm_cpumask:1"
-  Added new events:
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask:1)
-    probe:clear_tasks_mm_cpumask_1 (on clear_tasks_mm_cpumask:1)
-    probe:clear_tasks_mm_cpumask_2 (on clear_tasks_mm_cpumask:1)
-    probe:clear_tasks_mm_cpumask_3 (on clear_tasks_mm_cpumask:1)
-    probe:clear_tasks_mm_cpumask_4 (on clear_tasks_mm_cpumask:1)
-
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe:clear_tasks_mm_cpumask_4 -aR sleep 1
-
-  #
-
-This puts 5 probes on one line, but acutally it's not inlined function.
-This is because there are many non statement instructions at the
-function prologue.
+  # perf probe -D vfs_read
+  p:probe/vfs_read _text+2500017
+  p:probe/vfs_read_1 _text+2499468
+  p:probe/vfs_read_2 _text+2499563
+  p:probe/vfs_read_3 _text+2498876
+  p:probe/vfs_read_4 _text+2498512
+  p:probe/vfs_read_5 _text+2498627
 
 With this patch:
 
-  # perf probe -a "clear_tasks_mm_cpumask:1"
-  Added new event:
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask:1)
+Slightly different results, similar tho:
 
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe:clear_tasks_mm_cpumask -aR sleep 1
-
-  #
-
-Now perf-probe skips unneeded addresses.
+  # perf probe -D vfs_read
+  p:probe/vfs_read _text+2498512
 
 Committer testing:
 
-Slightly different results, but similar:
+  # uname -a
+  Linux quaco 5.3.8-200.fc30.x86_64 #1 SMP Tue Oct 29 14:46:22 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
 
 Before:
 
+  # perf probe -D vfs_read
+  p:probe/vfs_read _text+3131557
+  p:probe/vfs_read_1 _text+3130975
+  p:probe/vfs_read_2 _text+3131047
+  p:probe/vfs_read_3 _text+3130380
+  p:probe/vfs_read_4 _text+3130000
   # uname -a
   Linux quaco 5.3.8-200.fc30.x86_64 #1 SMP Tue Oct 29 14:46:22 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
-  #
-  # perf probe -a "clear_tasks_mm_cpumask:1"
-  Added new events:
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask:1)
-    probe:clear_tasks_mm_cpumask_1 (on clear_tasks_mm_cpumask:1)
-    probe:clear_tasks_mm_cpumask_2 (on clear_tasks_mm_cpumask:1)
-
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe:clear_tasks_mm_cpumask_2 -aR sleep 1
-
   #
 
 After:
 
-  # perf probe -a "clear_tasks_mm_cpumask:1"
-  Added new event:
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask:1)
-
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe:clear_tasks_mm_cpumask -aR sleep 1
-
-  # perf probe -l
-    probe:clear_tasks_mm_cpumask (on clear_tasks_mm_cpumask@kernel/cpu.c)
+  # perf probe -D vfs_read
+  p:probe/vfs_read _text+3130000
   #
 
-Fixes: 4cc9cec636e7 ("perf probe: Introduce lines walker interface")
+Fixes: db0d2c6420ee ("perf probe: Search concrete out-of-line instances")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/157241936090.32002.12156347518596111660.stgit@devnote2
+Link: http://lore.kernel.org/lkml/157241937063.32002.11024544873990816590.stgit@devnote2
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/perf/util/dwarf-aux.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
 diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index 7ae3106b4e5e0..65a782864bb8f 100644
+index 65a782864bb8f..dc50fb1d5a189 100644
 --- a/tools/perf/util/dwarf-aux.c
 +++ b/tools/perf/util/dwarf-aux.c
-@@ -773,6 +773,7 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
- 	int decl = 0, inl;
- 	Dwarf_Die die_mem, *cu_die;
- 	size_t nlines, i;
-+	bool flag;
+@@ -325,18 +325,22 @@ bool die_is_func_def(Dwarf_Die *dw_die)
+  * @dw_die: a DIE
+  *
+  * Ensure that this DIE is an instance (which has an entry address).
+- * This returns true if @dw_die is a function instance. If not, you need to
+- * call die_walk_instances() to find actual instances.
++ * This returns true if @dw_die is a function instance. If not, the @dw_die
++ * must be a prototype. You can use die_walk_instances() to find actual
++ * instances.
+  **/
+ bool die_is_func_instance(Dwarf_Die *dw_die)
+ {
+ 	Dwarf_Addr tmp;
+ 	Dwarf_Attribute attr_mem;
++	int tag = dwarf_tag(dw_die);
  
- 	/* Get the CU die */
- 	if (dwarf_tag(rt_die) != DW_TAG_compile_unit) {
-@@ -803,6 +804,12 @@ int die_walk_lines(Dwarf_Die *rt_die, line_walk_callback_t callback, void *data)
- 				  "Possible error in debuginfo.\n");
- 			continue;
- 		}
-+		/* Skip end-of-sequence */
-+		if (dwarf_lineendsequence(line, &flag) != 0 || flag)
-+			continue;
-+		/* Skip Non statement line-info */
-+		if (dwarf_linebeginstatement(line, &flag) != 0 || !flag)
-+			continue;
- 		/* Filter lines based on address */
- 		if (rt_die != cu_die) {
- 			/*
+-	/* Actually gcc optimizes non-inline as like as inlined */
+-	return !dwarf_func_inline(dw_die) &&
+-	       (dwarf_entrypc(dw_die, &tmp) == 0 ||
+-		dwarf_attr(dw_die, DW_AT_ranges, &attr_mem) != NULL);
++	if (tag != DW_TAG_subprogram &&
++	    tag != DW_TAG_inlined_subroutine)
++		return false;
++
++	return dwarf_entrypc(dw_die, &tmp) == 0 ||
++		dwarf_attr(dw_die, DW_AT_ranges, &attr_mem) != NULL;
+ }
+ 
+ /**
+@@ -615,6 +619,9 @@ static int __die_walk_instances_cb(Dwarf_Die *inst, void *data)
+ 	Dwarf_Die *origin;
+ 	int tmp;
+ 
++	if (!die_is_func_instance(inst))
++		return DIE_FIND_CB_CONTINUE;
++
+ 	attr = dwarf_attr(inst, DW_AT_abstract_origin, &attr_mem);
+ 	if (attr == NULL)
+ 		return DIE_FIND_CB_CONTINUE;
 -- 
 2.20.1
 
