@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55887119B62
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 982CA119B18
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728369AbfLJWHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:07:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36344 "EHLO mail.kernel.org"
+        id S1727949AbfLJWFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:05:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729378AbfLJWFI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:05:08 -0500
+        id S1727659AbfLJWFK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:05:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C00C520637;
-        Tue, 10 Dec 2019 22:05:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2095208C3;
+        Tue, 10 Dec 2019 22:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576015508;
-        bh=/vREOKb9jodj8o9mPrlJrZrDr+M2BGghOsruvxTRfek=;
+        s=default; t=1576015509;
+        bh=ckVPPKvp4QuzvK5hx8lDOR5XHSzzstdV/oyUR08ezrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBs/swIlsTILNPOTnxcDfYdbpNgjWY7fD0zkf3XsjE8vyQDRgCWwaUIdzsAU1hyPp
-         QX3lfOT/gzYjje+t5cEfpBDAfjL/39y6bWXrOBuLWwbPU4GsnLq4O6oGoyO0IrLUqj
-         iSuWLXHSmh9GGgmECueB9tuDu++cQOYQPDUx5r2E=
+        b=A1XjJOw6RakFEUnPMmZI4pxWLUkAYuvI+vDBUNaqBdu0uFIxuhJRSGkP/YpbdOh2S
+         YRBHHdlKniH3LwnBKMx7AfPxJAnck7WLyvuMuupGgcqSRHAhUBsXXDOGsGd/6yaNk1
+         8fd4lDkMNl3/nEUAyMtE6+vnzadn2XD2dNLLL7Vk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 107/130] parport: load lowlevel driver if ports not found
-Date:   Tue, 10 Dec 2019 17:02:38 -0500
-Message-Id: <20191210220301.13262-107-sashal@kernel.org>
+Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 108/130] cpufreq: Register drivers only after CPU devices have been registered
+Date:   Tue, 10 Dec 2019 17:02:39 -0500
+Message-Id: <20191210220301.13262-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
 References: <20191210220301.13262-1-sashal@kernel.org>
@@ -43,70 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 231ec2f24dad18d021b361045bbd618ba62a274e ]
+[ Upstream commit 46770be0cf94149ca48be87719bda1d951066644 ]
 
-Usually all the distro will load the parport low level driver as part
-of their initialization. But we can get into a situation where all the
-parallel port drivers are built as module and we unload all the modules
-at a later time. Then if we just do "modprobe parport" it will only
-load the parport module and will not load the low level driver which
-will actually register the ports. So, check the bus if there is any
-parport registered, if not, load the low level driver.
+The cpufreq core heavily depends on the availability of the struct
+device for CPUs and if they aren't available at the time cpufreq driver
+is registered, we will never succeed in making cpufreq work.
 
-We can get into the above situation with all distro but only Suse has
-setup the alias for "parport_lowlevel" and so it only works in Suse.
-Users of Debian based distro will need to load the lowlevel module
-manually.
+This happens due to following sequence of events:
 
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Link: https://lore.kernel.org/r/20191016144540.18810-3-sudipm.mukherjee@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+- cpufreq_register_driver()
+  - subsys_interface_register()
+  - return 0; //successful registration of driver
+
+... at a later point of time
+
+- register_cpu();
+  - device_register();
+    - bus_probe_device();
+      - sif->add_dev();
+	- cpufreq_add_dev();
+	  - get_cpu_device(); //FAILS
+  - per_cpu(cpu_sys_devices, num) = &cpu->dev; //used by get_cpu_device()
+  - return 0; //CPU registered successfully
+
+Because the per-cpu variable cpu_sys_devices is set only after the CPU
+device is regsitered, cpufreq will never be able to get it when
+cpufreq_add_dev() is called.
+
+This patch avoids this failure by making sure device structure of at
+least CPU0 is available when the cpufreq driver is registered, else
+return -EPROBE_DEFER.
+
+Reported-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Co-developed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/share.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/cpufreq/cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/parport/share.c b/drivers/parport/share.c
-index 7b4ee33c19354..15c81cffd2de2 100644
---- a/drivers/parport/share.c
-+++ b/drivers/parport/share.c
-@@ -230,6 +230,18 @@ static int port_check(struct device *dev, void *dev_drv)
- 	return 0;
- }
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 480e8c13567c8..c798a1233e6a0 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2475,6 +2475,13 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
+ 	if (cpufreq_disabled())
+ 		return -ENODEV;
  
-+/*
-+ * Iterates through all the devices connected to the bus and return 1
-+ * if the device is a parallel port.
-+ */
++	/*
++	 * The cpufreq core depends heavily on the availability of device
++	 * structure, make sure they are available before proceeding further.
++	 */
++	if (!get_cpu_device(0))
++		return -EPROBE_DEFER;
 +
-+static int port_detect(struct device *dev, void *dev_drv)
-+{
-+	if (is_parport(dev))
-+		return 1;
-+	return 0;
-+}
-+
- /**
-  *	parport_register_driver - register a parallel port device driver
-  *	@drv: structure describing the driver
-@@ -282,6 +294,15 @@ int __parport_register_driver(struct parport_driver *drv, struct module *owner,
- 		if (ret)
- 			return ret;
- 
-+		/*
-+		 * check if bus has any parallel port registered, if
-+		 * none is found then load the lowlevel driver.
-+		 */
-+		ret = bus_for_each_dev(&parport_bus_type, NULL, NULL,
-+				       port_detect);
-+		if (!ret)
-+			get_lowlevel_driver();
-+
- 		mutex_lock(&registration_lock);
- 		if (drv->match_port)
- 			bus_for_each_dev(&parport_bus_type, NULL, drv,
+ 	if (!driver_data || !driver_data->verify || !driver_data->init ||
+ 	    !(driver_data->setpolicy || driver_data->target_index ||
+ 		    driver_data->target) ||
 -- 
 2.20.1
 
