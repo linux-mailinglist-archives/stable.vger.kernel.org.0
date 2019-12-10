@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D80DF119CDC
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:35:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F5B119D62
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 23:38:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729963AbfLJWdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 17:33:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54748 "EHLO mail.kernel.org"
+        id S1729976AbfLJWdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 17:33:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729911AbfLJWdo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:33:44 -0500
+        id S1729240AbfLJWdq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 17:33:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FEDC20828;
-        Tue, 10 Dec 2019 22:33:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DEB420836;
+        Tue, 10 Dec 2019 22:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576017224;
-        bh=85SNdO0g+gS4xz618KlNuVdGL1HF3gO4Htp/GNp8z1M=;
+        s=default; t=1576017225;
+        bh=5bmSyDc+fPXrUgMVtYHzT3GVLLN1Sajj5eSGI2QVhdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUECkqUhE3nvXdRiRD1jRFNmFnodUiYSQOWO8P3ilOdKlvwr0uQb/+nDuV4NxyuYG
-         cb8vCNLnQuIHeibuPf12Q1V2rrmAX8Pb8VsX5WCaVsoXx4PNOgGyJs07pnhJUIfSPE
-         iHPu/1OevdXnNymRSyOuvqk89z3+oQX1Cl/YzXMA=
+        b=qFZm1pmNvZ/ehRQZaSHWe7U4zeXiCGjZKwarc9BAMME06WlrC20/OGhjWcj/VzE88
+         s3iXi0fY7vuMYi/2HHs9ihWIb/1PpMn4cY06vI+6HyYlRZlKi+eHjjj2dZCjgZsFUs
+         SbrXEMvHH5iW7ZLAd99LpgfuCoucFkhPh0xI4/8g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 23/71] extcon: sm5502: Reset registers during initialization
-Date:   Tue, 10 Dec 2019 17:32:28 -0500
-Message-Id: <20191210223316.14988-23-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 24/71] x86/mm: Use the correct function type for native_set_fixmap()
+Date:   Tue, 10 Dec 2019 17:32:29 -0500
+Message-Id: <20191210223316.14988-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210223316.14988-1-sashal@kernel.org>
 References: <20191210223316.14988-1-sashal@kernel.org>
@@ -43,61 +51,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 6942635032cfd3e003e980d2dfa4e6323a3ce145 ]
+[ Upstream commit f53e2cd0b8ab7d9e390414470bdbd830f660133f ]
 
-On some devices (e.g. Samsung Galaxy A5 (2015)), the bootloader
-seems to keep interrupts enabled for SM5502 when booting Linux.
-Changing the cable state (i.e. plugging in a cable) - until the driver
-is loaded - will therefore produce an interrupt that is never read.
+We call native_set_fixmap indirectly through the function pointer
+struct pv_mmu_ops::set_fixmap, which expects the first parameter to be
+'unsigned' instead of 'enum fixed_addresses'. This patch changes the
+function type for native_set_fixmap to match the pointer, which fixes
+indirect call mismatches with Control-Flow Integrity (CFI) checking.
 
-In this situation, the cable state will be stuck forever on the
-initial state because SM5502 stops sending interrupts.
-This can be avoided by clearing those pending interrupts after
-the driver has been loaded.
-
-One way to do this is to reset all registers to default state
-by writing to SM5502_REG_RESET. This ensures that we start from
-a clean state, with all interrupts disabled.
-
-Suggested-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H . Peter Anvin <hpa@zytor.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190913211402.193018-1-samitolvanen@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-sm5502.c | 4 ++++
- drivers/extcon/extcon-sm5502.h | 2 ++
- 2 files changed, 6 insertions(+)
+ arch/x86/include/asm/fixmap.h | 2 +-
+ arch/x86/mm/pgtable.c         | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
-index 7aac3cc7efd79..f63f9961ac122 100644
---- a/drivers/extcon/extcon-sm5502.c
-+++ b/drivers/extcon/extcon-sm5502.c
-@@ -69,6 +69,10 @@ struct sm5502_muic_info {
- /* Default value of SM5502 register to bring up MUIC device. */
- static struct reg_data sm5502_reg_data[] = {
- 	{
-+		.reg = SM5502_REG_RESET,
-+		.val = SM5502_REG_RESET_MASK,
-+		.invert = true,
-+	}, {
- 		.reg = SM5502_REG_CONTROL,
- 		.val = SM5502_REG_CONTROL_MASK_INT_MASK,
- 		.invert = false,
-diff --git a/drivers/extcon/extcon-sm5502.h b/drivers/extcon/extcon-sm5502.h
-index 974b53222f568..12f8b01e57538 100644
---- a/drivers/extcon/extcon-sm5502.h
-+++ b/drivers/extcon/extcon-sm5502.h
-@@ -241,6 +241,8 @@ enum sm5502_reg {
- #define DM_DP_SWITCH_UART			((DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DP_SHIFT) \
- 						| (DM_DP_CON_SWITCH_UART <<SM5502_REG_MANUAL_SW1_DM_SHIFT))
+diff --git a/arch/x86/include/asm/fixmap.h b/arch/x86/include/asm/fixmap.h
+index f80d70009ff87..d0e39f54feee3 100644
+--- a/arch/x86/include/asm/fixmap.h
++++ b/arch/x86/include/asm/fixmap.h
+@@ -147,7 +147,7 @@ extern pgprot_t kmap_prot;
+ extern pte_t *pkmap_page_table;
  
-+#define SM5502_REG_RESET_MASK			(0x1)
-+
- /* SM5502 Interrupts */
- enum sm5502_irq {
- 	/* INT1 */
+ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
+-void native_set_fixmap(enum fixed_addresses idx,
++void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
+ 		       phys_addr_t phys, pgprot_t flags);
+ 
+ #ifndef CONFIG_PARAVIRT
+diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
+index 50f75768aadd1..3ed4753280aaf 100644
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -567,8 +567,8 @@ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte)
+ 	fixmaps_set++;
+ }
+ 
+-void native_set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
+-		       pgprot_t flags)
++void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
++		       phys_addr_t phys, pgprot_t flags)
+ {
+ 	__native_set_fixmap(idx, pfn_pte(phys >> PAGE_SHIFT, flags));
+ }
 -- 
 2.20.1
 
