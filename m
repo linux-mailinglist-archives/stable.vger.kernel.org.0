@@ -2,362 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF27118493
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 11:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D081184A2
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 11:15:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727032AbfLJKNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 05:13:39 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:36380 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726574AbfLJKNj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 05:13:39 -0500
-Received: by mail-lj1-f194.google.com with SMTP id r19so19229781ljg.3;
-        Tue, 10 Dec 2019 02:13:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=PPe44hHVIxXv4+QoO+QZ+TXcOHth0YNv9p4+BEd89Vg=;
-        b=tv+e41fqoM+nrsyzJuW94srqYkDYUlbxb5VxmilxImo62W2zNchCMj+NI6LlLlm/Ty
-         5/zeItz+WbOzJURBHtu4XTS9uSSSNnvwsIEgaaBhZMbj58l1hljUBiyeyc791V1EvYit
-         386hlgOFXlhO8Vr14K830zw6Q2UYKyAzjD37lI/f3WdGtmfSroQ7PRlnNqgOpAGR/Oms
-         x9L/DiaQoMgrC/FS+uLD8h5IcpVjBGN5142TmG888JbPtno2nd4v45DO8q/IDfXCoaUU
-         utpbj9qcps5nn9v0Kaf19lGGwaPaYCxToXzp2XOa2W6acj35ByDvujpK1nS1NqUeH+/+
-         SEfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=PPe44hHVIxXv4+QoO+QZ+TXcOHth0YNv9p4+BEd89Vg=;
-        b=U6n5/IXqFq11QKq2XWGBkEZbYbme9LQu5jvqdsMZXp8Nco+c13ouPHqWRSdDgNaOEU
-         iNdrohswQrIyR2axucZ66wJND/i8K1vYgJrAcUOx7OO5Mgo3ITwJQ+rVkTpK8iUl1+D6
-         NbGLP2KUMv626Mv0WUbOscSVFiegFWJoMLFPCyDseRAtC9yAheKKOSfJNPcDLMpBGAXr
-         BqGE5s+arenoOee7Xaf0DW5OxN1okMH2wFR/i9N1zxEfJAWNFurLc3kiAHi7tgsWlwLI
-         5Zjn+F96B4dw/0bRcjXBj6lHcZHsO2ZCjYSfnSiHg8X/DY1KjJmVeg6LlF6UMz4vx/4m
-         DgSw==
-X-Gm-Message-State: APjAAAVpSSmDjjAkUk2lhw8xenoU/ujOBPI8kSbq93wWzt356D0CPuq0
-        ZFHdNamLRevYuiHFRgSmXgk=
-X-Google-Smtp-Source: APXvYqzQEyvzKxcsfdj+ivnnxi3WtHtyHexmTIHokgc1Cha1l8gdajAOmsv5lVPkxTssuiEOSVKy2Q==
-X-Received: by 2002:a2e:810d:: with SMTP id d13mr17472366ljg.113.1575972816509;
-        Tue, 10 Dec 2019 02:13:36 -0800 (PST)
-Received: from [172.31.190.83] ([86.57.146.226])
-        by smtp.gmail.com with ESMTPSA id q27sm1477464ljm.25.2019.12.10.02.13.35
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 10 Dec 2019 02:13:36 -0800 (PST)
-Subject: Re: [PATCH 1/4] io_uring: allow unbreakable links
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        =?UTF-8?B?5p2O6YCa5rSy?= <carter.li@eoitek.com>
-References: <20191209231854.3767-1-axboe@kernel.dk>
- <20191209231854.3767-2-axboe@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <809147c7-58b2-6e21-66ab-edf09e1757b9@gmail.com>
-Date:   Tue, 10 Dec 2019 13:13:33 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+        id S1727063AbfLJKPl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 05:15:41 -0500
+Received: from mx0a-0014ca01.pphosted.com ([208.84.65.235]:48392 "EHLO
+        mx0a-0014ca01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727016AbfLJKPl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 05:15:41 -0500
+Received: from pps.filterd (m0042385.ppops.net [127.0.0.1])
+        by mx0a-0014ca01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBAADLOY025730;
+        Tue, 10 Dec 2019 02:15:35 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=proofpoint;
+ bh=hiRhBKQUbf+Gwxh5i0A9uYD615q9LAgbZGEwmtMTSJo=;
+ b=sGXhH7/Lb4KMmd+gSQtdSO18KNRCiR/iiae49kxpiqjddqX+IOPtsjjrCihbs+U0CWqb
+ GxTatQ86U5kNfvq+WuhDuV/vuwRzGOWn1hcM+lPWllURhdQGoMcmYeT7Oq0jCoLJM1MI
+ 4ifd/vxQQI2voV4haU7jDTsvJTXHH7F3cDd+DMd2wE5Sd864JkGm2hXD2j4rlBMh5aOj
+ 9jU12k8/3b59BkhFzuZooozazMctcnaNT11Tm45ZOql0F8W6LREIeZx2/t6tP7OOngzb
+ egCfV6tE49QStkEj7MXS+R3VABZP+ajOe0aneGfcXFg1tBQrzyc9W+2BI+fKb3NRjzLB gw== 
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2049.outbound.protection.outlook.com [104.47.66.49])
+        by mx0a-0014ca01.pphosted.com with ESMTP id 2wra709bmn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 Dec 2019 02:15:35 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gZJk05LDOQILTBYZGsi8f+F6InSXIy1rVU8j8BtaTljnWHlvo+x8aMwQAYOhpG5qCVdMoWoX4Owmad1UR1UgZkouLuESUDTacdkuMBL+iNRQjzyoEOeFRgFwOi/jG8bPhKDczXRNlH4rzBc8vZu9nzQ7Y0kX/+2UsGbSHoyfoUUj/XXlp1B5TKiOqZwlZ6p82bU7Vk7Ur0BY/nCerh7R1TbGxJLbiIGDfkWaIFmYtaFcWXALX+d/me3fkYqfzPC7WCDX8AZrvSFUag3YrE7pOqFIDGIa1AGWI+xnqhbXNZxnUsA+4aJPxZsv4V9zzS7Dhk/H3L11DVG1KAVCHGQeCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hiRhBKQUbf+Gwxh5i0A9uYD615q9LAgbZGEwmtMTSJo=;
+ b=CDb4Afj5CPgC8qzWe892pRUEaw2hhyhMrnbGijkJKBBsumQnaW0XiUiMMhvxRUqle2oOYucY5xXu6EFRIGsfvBKUbuBeJzSJKuPFpxAPlAG16V2oWo0MJYTUt2psR3/q33aBnrTHlQAbkWFUGyCFdRApfalSG1kgaCK95jdUj5NRKPR8+XTJKiDzUcGBxef4XsUC+8ziQkmM/YIe0FLWA2ALZrsgQw6HewzWB46inzkAaF7sz6a0ue1KZjyLeVKxtr0k3BQcOg3hEE0J5vhevLf9dv0sTAlFd3C4XNYW9TC/74vCwvUZpzE9YSo2eRo4gBmS9upPq2MRtUNZReWqTg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 158.140.1.28) smtp.rcpttodomain=lists.infradead.org
+ smtp.mailfrom=cadence.com; dmarc=pass (p=none sp=none pct=100) action=none
+ header.from=cadence.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hiRhBKQUbf+Gwxh5i0A9uYD615q9LAgbZGEwmtMTSJo=;
+ b=VxLIdOTVbOmaocyagjHba2pM7a4MtWg5QAq840g9zQPEMs8WTY1BQf9R1YBRZE87mbbyfmxOypRIZQq5+kZITw6HlJ3zgK2lgiEYNIdgo/vjk7LW+ywd98Ey6ZSvDUUzDnEJuI+tUIu0GnKsBWtGjluMVOhXFHEt9vzjw3IRBlg=
+Received: from MN2PR07CA0002.namprd07.prod.outlook.com (2603:10b6:208:1a0::12)
+ by SN2PR07MB2686.namprd07.prod.outlook.com (2603:10b6:804:a::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2516.17; Tue, 10 Dec
+ 2019 10:15:33 +0000
+Received: from DM6NAM12FT031.eop-nam12.prod.protection.outlook.com
+ (2a01:111:f400:fe59::208) by MN2PR07CA0002.outlook.office365.com
+ (2603:10b6:208:1a0::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2516.13 via Frontend
+ Transport; Tue, 10 Dec 2019 10:15:33 +0000
+Received-SPF: Pass (protection.outlook.com: domain of cadence.com designates
+ 158.140.1.28 as permitted sender) receiver=protection.outlook.com;
+ client-ip=158.140.1.28; helo=sjmaillnx2.cadence.com;
+Received: from sjmaillnx2.cadence.com (158.140.1.28) by
+ DM6NAM12FT031.mail.protection.outlook.com (10.13.179.19) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2495.18 via Frontend Transport; Tue, 10 Dec 2019 10:15:32 +0000
+Received: from maileu3.global.cadence.com (maileu3.cadence.com [10.160.88.99])
+        by sjmaillnx2.cadence.com (8.14.4/8.14.4) with ESMTP id xBAAFTmU004194
+        (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=OK);
+        Tue, 10 Dec 2019 02:15:31 -0800
+X-CrossPremisesHeadersFilteredBySendConnector: maileu3.global.cadence.com
+Received: from maileu3.global.cadence.com (10.160.88.99) by
+ maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
+ 15.0.1367.3; Tue, 10 Dec 2019 11:15:29 +0100
+Received: from vleu-orange.cadence.com (10.160.88.83) by
+ maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
+ 15.0.1367.3 via Frontend Transport; Tue, 10 Dec 2019 11:15:29 +0100
+Received: from vleu-orange.cadence.com (localhost.localdomain [127.0.0.1])
+        by vleu-orange.cadence.com (8.14.4/8.14.4) with ESMTP id xBAAFTtc009284;
+        Tue, 10 Dec 2019 11:15:29 +0100
+Received: (from pgaj@localhost)
+        by vleu-orange.cadence.com (8.14.4/8.14.4/Submit) id xBAAFSgx009251;
+        Tue, 10 Dec 2019 11:15:28 +0100
+From:   =?UTF-8?q?Przemys=C5=82aw=20Gaj?= <pgaj@cadence.com>
+To:     <bbrezillon@kernel.org>
+CC:     <linux-i3c@lists.infradead.org>, <vitor.soares@synopsys.com>,
+        <rafalc@cadence.com>, <stable@vger.kernel.org>,
+        Przemyslaw Gaj <pgaj@cadence.com>
+Subject: [PATCH v4 1/6] i3c: master: make sure ->boardinfo is initialized in add_i3c_dev_locked()
+Date:   Tue, 10 Dec 2019 11:14:57 +0100
+Message-ID: <20191210101502.8401-2-pgaj@cadence.com>
+X-Mailer: git-send-email 2.14.0
+In-Reply-To: <20191210101502.8401-1-pgaj@cadence.com>
+References: <20191210101502.8401-1-pgaj@cadence.com>
 MIME-Version: 1.0
-In-Reply-To: <20191209231854.3767-2-axboe@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-OrganizationHeadersPreserved: maileu3.global.cadence.com
+X-EOPAttributedMessage: 0
+X-Forefront-Antispam-Report: CIP:158.140.1.28;IPV:CAL;SCL:-1;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(4636009)(396003)(136003)(376002)(39860400002)(346002)(189003)(199004)(36092001)(246002)(4326008)(2616005)(42186006)(107886003)(8936002)(26826003)(6916009)(478600001)(86362001)(316002)(36756003)(26005)(54906003)(76130400001)(186003)(1076003)(6666004)(336012)(426003)(356004)(5660300002)(70206006)(70586007)(2906002)(8676002)(7636002)(70780200001);DIR:OUT;SFP:1101;SCL:1;SRVR:SN2PR07MB2686;H:sjmaillnx2.cadence.com;FPR:;SPF:Pass;LANG:en;PTR:corp.cadence.com;MX:1;A:1;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 548aa5de-52ef-4f81-01bd-08d77d59e423
+X-MS-TrafficTypeDiagnostic: SN2PR07MB2686:
+X-Microsoft-Antispam-PRVS: <SN2PR07MB2686DAC5F8494A9407731B1DC25B0@SN2PR07MB2686.namprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2089;
+X-Forefront-PRVS: 02475B2A01
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: p+PgVZDGQe5FMjFpxzIum+dJqntE9Qbt5TLSuh0kqDeucgelNW24LqlcmHplcqkl3nBguVzWImuSHP4NtPwHI5/jC+JqZ+soqpVNC8WkuLadQ0gYoNDMfVp686yAVIa9wppMVB1vX+l0X8j3Vo/Ulm01Nym+SdB6tZCMbItOV5ByxVnzZcqSKVkdt8EUuQpRQ46QbgBsLxlfmMWH+whckQnVKnG+IY1DEAT/DazNc0rjSVNhtUR+Ae9Seuk2Tnx0iRfmR6APciwoeSCabshAX1Nc68rXkVnRBTFkLAxn/yiiGWdgQCCvcejEtQyRwo3clnD0SyiA7AHI3SgZG4/Bs+2JctWh3oVAUKyK/9BrUDX4TagEFb83qrXyCuUX1YPiKzcTXXsV/Qv9dUz8UA0FwZC5gOy6sp2QbC46H+yiBonCsApccFbHWv1VpeOqo/i/tT7+9Ao6A9jIlhygwgOxVLl4G2UzGEjkxJuSWY/zvv0p75N2xz1tMGzsDj+k7W51faDzgMdRe4u+pIPXj1/eSA==
+X-OriginatorOrg: cadence.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Dec 2019 10:15:32.8214
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 548aa5de-52ef-4f81-01bd-08d77d59e423
+X-MS-Exchange-CrossTenant-Id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d36035c5-6ce6-4662-a3dc-e762e61ae4c9;Ip=[158.140.1.28];Helo=[sjmaillnx2.cadence.com]
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN2PR07MB2686
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
+ definitions=2019-12-10_01:2019-12-10,2019-12-10 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 mlxlogscore=999
+ suspectscore=1 malwarescore=0 phishscore=0 lowpriorityscore=0
+ impostorscore=0 mlxscore=0 bulkscore=0 priorityscore=1501 adultscore=0
+ clxscore=1011 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1910280000 definitions=main-1912100090
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/10/2019 2:18 AM, Jens Axboe wrote:
-> Some commands will invariably end in a failure in the sense that the
-> completion result will be less than zero. One such example is timeouts
-> that don't have a completion count set, they will always complete with
-> -ETIME unless cancelled.
-> 
-> For linked commands, we sever links and fail the rest of the chain if
-> the result is less than zero. Since we have commands where we know that
-> will happen, add IOSQE_IO_HARDLINK as a stronger link that doesn't sever
-> regardless of the completion result. Note that the link will still sever
-> if we fail submitting the parent request, hard links are only resilient
-> in the presence of completion results for requests that did submit
-> correctly.
-> 
-> Cc: stable@vger.kernel.org # v5.4
-> Reported-by: 李通洲 <carter.li@eoitek.com>
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> ---
->  fs/io_uring.c                 | 54 +++++++++++++++++++++--------------
->  include/uapi/linux/io_uring.h |  1 +
->  2 files changed, 33 insertions(+), 22 deletions(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 405be10da73d..662404854571 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -377,6 +377,7 @@ struct io_kiocb {
->  #define REQ_F_TIMEOUT_NOSEQ	8192	/* no timeout sequence */
->  #define REQ_F_INFLIGHT		16384	/* on inflight list */
->  #define REQ_F_COMP_LOCKED	32768	/* completion under lock */
-> +#define REQ_F_HARDLINK		65536	/* doesn't sever on completion < 0 */
->  	u64			user_data;
->  	u32			result;
->  	u32			sequence;
-> @@ -941,7 +942,7 @@ static void io_req_link_next(struct io_kiocb *req, struct io_kiocb **nxtptr)
->  
->  		list_del_init(&req->link_list);
->  		if (!list_empty(&nxt->link_list))
-> -			nxt->flags |= REQ_F_LINK;
-> +			nxt->flags |= req->flags & (REQ_F_LINK|REQ_F_HARDLINK);
+From: Vitor Soares <vitor.soares@synopsys.com>
 
-I'm not sure we want to unconditionally propagate REQ_F_HARDLINK further.
+The newdev->boardinfo assignment was missing in
+i3c_master_add_i3c_dev_locked() and hence the ->of_node info isn't
+propagated to i3c_dev_desc.
 
-E.g. timeout|REQ_F_HARDLINK -> read -> write
-REQ_F_HARDLINK will be set to the following read and its fail won't
-cancel the write, that seems strange. If users want such behaviour, they
-can set REQ_F_HARDLINK when needed by hand.
+Fix this by trying to initialize device i3c_dev_boardinfo if available.
 
+Cc: <stable@vger.kernel.org>
+Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+Signed-off-by: Przemyslaw Gaj <pgaj@cadence.com>
+---
+Change in v4:
+  - Remove addrstatus check, this will be sent as a separate patch
 
->  		*nxtptr = nxt;
->  		break;
->  	}
-> @@ -1292,6 +1293,11 @@ static void kiocb_end_write(struct io_kiocb *req)
->  	file_end_write(req->file);
->  }
->  
-> +static inline bool req_fail_links(struct io_kiocb *req)
-> +{
-> +	return (req->flags & (REQ_F_LINK | REQ_F_HARDLINK)) == REQ_F_LINK;
-> +}
-> +
+Change in v3:
+  - None
 
-req_fail_links() sounds like it not only do checking, but actually fails
-links. How about as follows?
+Changes in v2:
+  - Change commit message
+  - Change i3c_master_search_i3c_boardinfo(newdev) to i3c_master_init_i3c_dev_boardinfo(newdev)
+  - Add fixes, stable tags
+---
+ drivers/i3c/master.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ mode change 100644 => 100755 drivers/i3c/master.c
 
-+static inline void req_set_fail_links(struct io_kiocb *req)
+diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+index 043691656245..5c06c41e6660
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -1774,6 +1774,22 @@ i3c_master_search_i3c_dev_duplicate(struct i3c_dev_desc *refdev)
+ 	return NULL;
+ }
+ 
++static void i3c_master_init_i3c_dev_boardinfo(struct i3c_dev_desc *dev)
 +{
-+	if (req->flags & (REQ_F_LINK | REQ_F_HARDLINK)) == REQ_F_LINK)
-+		req->flags |= REQ_F_FAIL_LINK;
++	struct i3c_master_controller *master = i3c_dev_get_master(dev);
++	struct i3c_dev_boardinfo *boardinfo;
++
++	if (dev->boardinfo)
++		return;
++
++	list_for_each_entry(boardinfo, &master->boardinfo.i3c, node) {
++		if (dev->info.pid == boardinfo->pid) {
++			dev->boardinfo = boardinfo;
++			return;
++		}
++	}
 +}
-
-And it would be less code below
-
-
->  static void io_complete_rw_common(struct kiocb *kiocb, long res)
->  {
->  	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw);
-> @@ -1299,7 +1305,7 @@ static void io_complete_rw_common(struct kiocb *kiocb, long res)
->  	if (kiocb->ki_flags & IOCB_WRITE)
->  		kiocb_end_write(req);
->  
-> -	if ((req->flags & REQ_F_LINK) && res != req->result)
-> +	if (res != req->result && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_cqring_add_event(req, res);
->  }
-> @@ -1330,7 +1336,7 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
->  	if (kiocb->ki_flags & IOCB_WRITE)
->  		kiocb_end_write(req);
->  
-> -	if ((req->flags & REQ_F_LINK) && res != req->result)
-> +	if (res != req->result && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	req->result = res;
->  	if (res != -EAGAIN)
-> @@ -1956,7 +1962,7 @@ static int io_fsync(struct io_kiocb *req, const struct io_uring_sqe *sqe,
->  				end > 0 ? end : LLONG_MAX,
->  				fsync_flags & IORING_FSYNC_DATASYNC);
->  
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_cqring_add_event(req, ret);
->  	io_put_req_find_next(req, nxt);
-> @@ -2003,7 +2009,7 @@ static int io_sync_file_range(struct io_kiocb *req,
->  
->  	ret = sync_file_range(req->rw.ki_filp, sqe_off, sqe_len, flags);
->  
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_cqring_add_event(req, ret);
->  	io_put_req_find_next(req, nxt);
-> @@ -2079,7 +2085,7 @@ static int io_sendmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
->  
->  out:
->  	io_cqring_add_event(req, ret);
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_put_req_find_next(req, nxt);
->  	return 0;
-> @@ -2161,7 +2167,7 @@ static int io_recvmsg(struct io_kiocb *req, const struct io_uring_sqe *sqe,
->  
->  out:
->  	io_cqring_add_event(req, ret);
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_put_req_find_next(req, nxt);
->  	return 0;
-> @@ -2196,7 +2202,7 @@ static int io_accept(struct io_kiocb *req, const struct io_uring_sqe *sqe,
->  	}
->  	if (ret == -ERESTARTSYS)
->  		ret = -EINTR;
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_cqring_add_event(req, ret);
->  	io_put_req_find_next(req, nxt);
-> @@ -2263,7 +2269,7 @@ static int io_connect(struct io_kiocb *req, const struct io_uring_sqe *sqe,
->  	if (ret == -ERESTARTSYS)
->  		ret = -EINTR;
->  out:
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_cqring_add_event(req, ret);
->  	io_put_req_find_next(req, nxt);
-> @@ -2340,7 +2346,7 @@ static int io_poll_remove(struct io_kiocb *req, const struct io_uring_sqe *sqe)
->  	spin_unlock_irq(&ctx->completion_lock);
->  
->  	io_cqring_add_event(req, ret);
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_put_req(req);
->  	return 0;
-> @@ -2399,7 +2405,7 @@ static void io_poll_complete_work(struct io_wq_work **workptr)
->  
->  	io_cqring_ev_posted(ctx);
->  
-> -	if (ret < 0 && req->flags & REQ_F_LINK)
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_put_req_find_next(req, &nxt);
->  	if (nxt)
-> @@ -2582,7 +2588,7 @@ static enum hrtimer_restart io_timeout_fn(struct hrtimer *timer)
->  	spin_unlock_irqrestore(&ctx->completion_lock, flags);
->  
->  	io_cqring_ev_posted(ctx);
-> -	if (req->flags & REQ_F_LINK)
-> +	if (req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;>  	io_put_req(req);
->  	return HRTIMER_NORESTART;
-> @@ -2608,7 +2614,7 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
->  	if (ret == -1)
->  		return -EALREADY;
->  
-> -	if (req->flags & REQ_F_LINK)
-> +	if (req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_cqring_fill_event(req, -ECANCELED);
->  	io_put_req(req);
-> @@ -2640,7 +2646,7 @@ static int io_timeout_remove(struct io_kiocb *req,
->  	io_commit_cqring(ctx);
->  	spin_unlock_irq(&ctx->completion_lock);
->  	io_cqring_ev_posted(ctx);
-> -	if (ret < 0 && req->flags & REQ_F_LINK)
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_put_req(req);
->  	return 0;
-> @@ -2822,7 +2828,7 @@ static void io_async_find_and_cancel(struct io_ring_ctx *ctx,
->  	spin_unlock_irqrestore(&ctx->completion_lock, flags);
->  	io_cqring_ev_posted(ctx);
->  
-> -	if (ret < 0 && (req->flags & REQ_F_LINK))
-> +	if (ret < 0 && req_fail_links(req))
->  		req->flags |= REQ_F_FAIL_LINK;
->  	io_put_req_find_next(req, nxt);
->  }
-> @@ -3044,7 +3050,7 @@ static void io_wq_submit_work(struct io_wq_work **workptr)
->  	io_put_req(req);
->  
->  	if (ret) {
-> -		if (req->flags & REQ_F_LINK)
-> +		if (req_fail_links(req))
->  			req->flags |= REQ_F_FAIL_LINK;
->  		io_cqring_add_event(req, ret);
->  		io_put_req(req);
-> @@ -3179,7 +3185,7 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
->  	spin_unlock_irqrestore(&ctx->completion_lock, flags);
->  
->  	if (prev) {
-> -		if (prev->flags & REQ_F_LINK)
-> +		if (req_fail_links(prev))
->  			prev->flags |= REQ_F_FAIL_LINK;
->  		io_async_find_and_cancel(ctx, req, prev->user_data, NULL,
->  						-ETIME);
-> @@ -3273,7 +3279,7 @@ static void __io_queue_sqe(struct io_kiocb *req)
->  	/* and drop final reference, if we failed */
->  	if (ret) {
->  		io_cqring_add_event(req, ret);
-> -		if (req->flags & REQ_F_LINK)
-> +		if (req_fail_links(req))
->  			req->flags |= REQ_F_FAIL_LINK;
->  		io_put_req(req);
->  	}
-> @@ -3293,7 +3299,7 @@ static void io_queue_sqe(struct io_kiocb *req)
->  	if (ret) {
->  		if (ret != -EIOCBQUEUED) {
->  			io_cqring_add_event(req, ret);
-> -			if (req->flags & REQ_F_LINK)
-> +			if (req_fail_links(req))
->  				req->flags |= REQ_F_FAIL_LINK;
->  			io_double_put_req(req);
->  		}
-> @@ -3311,7 +3317,8 @@ static inline void io_queue_link_head(struct io_kiocb *req)
->  }
->  
->  
-> -#define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK)
-> +#define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
-> +				IOSQE_IO_HARDLINK)
->  
->  static bool io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
->  			  struct io_kiocb **link)
-> @@ -3358,13 +3365,16 @@ static bool io_submit_sqe(struct io_kiocb *req, struct io_submit_state *state,
->  		ret = io_req_defer_prep(req, io);
->  		if (ret) {
->  			kfree(io);
-> +			/* fail even hard links since we don't submit */
->  			prev->flags |= REQ_F_FAIL_LINK;
->  			goto err_req;
->  		}
->  		trace_io_uring_link(ctx, req, prev);
->  		list_add_tail(&req->link_list, &prev->link_list);
-> -	} else if (req->sqe->flags & IOSQE_IO_LINK) {
-> +	} else if (req->sqe->flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK)) {
->  		req->flags |= REQ_F_LINK;
-> +		if (req->sqe->flags & IOSQE_IO_HARDLINK)
-> +			req->flags |= REQ_F_HARDLINK;
->  
->  		INIT_LIST_HEAD(&req->link_list);
->  		*link = req;
-> @@ -3518,7 +3528,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
->  		 * If previous wasn't linked and we have a linked command,
->  		 * that's the end of the chain. Submit the previous link.
->  		 */
-> -		if (!(sqe_flags & IOSQE_IO_LINK) && link) {
-> +		if (!(sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK)) && link) {
-
-IMHO, requests shouldn't have IOSQE_IO_HARDLINK without IOSQE_IO_LINK,
-the same is in the code. Then, it's sufficient check only IOSQE_IO_LINK.
-
->  			io_queue_link_head(link);
->  			link = NULL;
->  		}
-> diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-> index eabccb46edd1..f296a5e77661 100644
-> --- a/include/uapi/linux/io_uring.h
-> +++ b/include/uapi/linux/io_uring.h
-> @@ -48,6 +48,7 @@ struct io_uring_sqe {
->  #define IOSQE_FIXED_FILE	(1U << 0)	/* use fixed fileset */
->  #define IOSQE_IO_DRAIN		(1U << 1)	/* issue after inflight IO */
->  #define IOSQE_IO_LINK		(1U << 2)	/* links next sqe */
-> +#define IOSQE_IO_HARDLINK	(1U << 3)	/* link LINK, but stronger */
->  
->  /*
->   * io_uring_setup() flags
-> 
-
++
+ /**
+  * i3c_master_add_i3c_dev_locked() - add an I3C slave to the bus
+  * @master: master used to send frames on the bus
+@@ -1854,6 +1870,8 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+ 	if (ret)
+ 		goto err_detach_dev;
+ 
++	i3c_master_init_i3c_dev_boardinfo(newdev);
++
+ 	/*
+ 	 * Depending on our previous state, the expected dynamic address might
+ 	 * differ:
 -- 
-Pavel Begunkov
+2.14.0
+
