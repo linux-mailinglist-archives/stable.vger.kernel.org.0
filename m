@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A5B81199F8
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B44151199E0
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:52:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729853AbfLJVsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:48:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56900 "EHLO mail.kernel.org"
+        id S1728011AbfLJVJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:09:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727998AbfLJVI7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:59 -0500
+        id S1728008AbfLJVJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:09:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D87C246A2;
-        Tue, 10 Dec 2019 21:08:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10086246A7;
+        Tue, 10 Dec 2019 21:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012138;
-        bh=IPISsr+p/bORCfOnSV6jSyXFJaecA7DIzkirlm7ZsDQ=;
+        s=default; t=1576012139;
+        bh=PX5vOMAe3WelCDyOsnCu/L2YTS9HO4Ui6SNmnp+WoH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLkCpXKLgb5t0yQS4Es2w/Pv22eroYASe9g3BVee9Pthdc/65HQNT90x88LcyooaZ
-         FRnbaVSy9gtzsP82ttbE9zMFbzWpDGCBV4vsxP3oPY1kAO64Kl9Nu7o3xvr3KV3w+X
-         uVgKXarCVjS72JL8NjE4Z2DWv+5K/GzArhH2EjMI=
+        b=I/QIvS2BK0N9r/embhaJ/eJbZxF1mLkDhIQ3fSsyhWtIckoV892rIQYKDaAKXBgCe
+         z+ZdNMJ23e9lIGTBKDKtCfsf0MxidnWDjywOYr/EzNyRBX5jBGyMawlkaTcICB/3S8
+         GNaRZyMGzeYrmt+9p0L8UCoiAyKK1wJQO5P6riN0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 104/350] x86/mm: Use the correct function type for native_set_fixmap()
-Date:   Tue, 10 Dec 2019 16:03:29 -0500
-Message-Id: <20191210210735.9077-65-sashal@kernel.org>
+Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Matt Ranostay <matt.ranostay@konsulko.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 105/350] iio: chemical: atlas-ph-sensor: fix iio_triggered_buffer_predisable() position
+Date:   Tue, 10 Dec 2019 16:03:30 -0500
+Message-Id: <20191210210735.9077-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -51,63 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-[ Upstream commit f53e2cd0b8ab7d9e390414470bdbd830f660133f ]
+[ Upstream commit 0c8a6e72f3c04bfe92a64e5e0791bfe006aabe08 ]
 
-We call native_set_fixmap indirectly through the function pointer
-struct pv_mmu_ops::set_fixmap, which expects the first parameter to be
-'unsigned' instead of 'enum fixed_addresses'. This patch changes the
-function type for native_set_fixmap to match the pointer, which fixes
-indirect call mismatches with Control-Flow Integrity (CFI) checking.
+The iio_triggered_buffer_{predisable,postenable} functions attach/detach
+the poll functions.
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H . Peter Anvin <hpa@zytor.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190913211402.193018-1-samitolvanen@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+The iio_triggered_buffer_predisable() should be called last, to detach the
+poll func after the devices has been suspended.
+
+The position of iio_triggered_buffer_postenable() is correct.
+
+Note this is not stable material. It's a fix in the logical
+model rather fixing an actual bug.  These are being tidied up
+throughout the subsystem to allow more substantial rework that
+was blocked by variations in how things were done.
+
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fixmap.h | 2 +-
- arch/x86/mm/pgtable.c         | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/chemical/atlas-ph-sensor.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/fixmap.h b/arch/x86/include/asm/fixmap.h
-index 0c47aa82e2e22..28183ee3cc42a 100644
---- a/arch/x86/include/asm/fixmap.h
-+++ b/arch/x86/include/asm/fixmap.h
-@@ -156,7 +156,7 @@ extern pte_t *kmap_pte;
- extern pte_t *pkmap_page_table;
+diff --git a/drivers/iio/chemical/atlas-ph-sensor.c b/drivers/iio/chemical/atlas-ph-sensor.c
+index 3a20cb5d9bffc..6c175eb1c7a7f 100644
+--- a/drivers/iio/chemical/atlas-ph-sensor.c
++++ b/drivers/iio/chemical/atlas-ph-sensor.c
+@@ -323,16 +323,16 @@ static int atlas_buffer_predisable(struct iio_dev *indio_dev)
+ 	struct atlas_data *data = iio_priv(indio_dev);
+ 	int ret;
  
- void __native_set_fixmap(enum fixed_addresses idx, pte_t pte);
--void native_set_fixmap(enum fixed_addresses idx,
-+void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
- 		       phys_addr_t phys, pgprot_t flags);
+-	ret = iio_triggered_buffer_predisable(indio_dev);
++	ret = atlas_set_interrupt(data, false);
+ 	if (ret)
+ 		return ret;
  
- #ifndef CONFIG_PARAVIRT_XXL
-diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-index 3e4b9035bb9a8..7bd2c3a52297f 100644
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -643,8 +643,8 @@ void __native_set_fixmap(enum fixed_addresses idx, pte_t pte)
- 	fixmaps_set++;
+-	ret = atlas_set_interrupt(data, false);
++	pm_runtime_mark_last_busy(&data->client->dev);
++	ret = pm_runtime_put_autosuspend(&data->client->dev);
+ 	if (ret)
+ 		return ret;
+ 
+-	pm_runtime_mark_last_busy(&data->client->dev);
+-	return pm_runtime_put_autosuspend(&data->client->dev);
++	return iio_triggered_buffer_predisable(indio_dev);
  }
  
--void native_set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
--		       pgprot_t flags)
-+void native_set_fixmap(unsigned /* enum fixed_addresses */ idx,
-+		       phys_addr_t phys, pgprot_t flags)
- {
- 	/* Sanitize 'prot' against any unsupported bits: */
- 	pgprot_val(flags) &= __default_kernel_pte_mask;
+ static const struct iio_trigger_ops atlas_interrupt_trigger_ops = {
 -- 
 2.20.1
 
