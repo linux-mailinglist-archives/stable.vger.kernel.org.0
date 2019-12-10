@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21ED711939F
-	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:14:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 223301193A1
+	for <lists+stable@lfdr.de>; Tue, 10 Dec 2019 22:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727504AbfLJVIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 16:08:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
+        id S1727564AbfLJVIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 16:08:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727893AbfLJVIe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:34 -0500
+        id S1727495AbfLJVIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 218A024698;
-        Tue, 10 Dec 2019 21:08:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC9B224698;
+        Tue, 10 Dec 2019 21:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576012114;
-        bh=z88IOY+YMC7QchWuaCMq11vzPMHWIBYHvXtSH+ltZno=;
+        s=default; t=1576012117;
+        bh=+aw5AlMCprmp1PNUlgU/M4imj/nUQPaFM81sKtS9l7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lgs/TjuJkw6n0n0QB9Vc0UakrsCZ0SF2PrXqV1YygnPg3ngDNUTlCw93rdCp2JWHO
-         +VuSmyLTQHuV3b/07gjeE3pSyXaYvisEbgpRYR3S2X2cu7H1vP+DMSZYFGSQBTym36
-         SjT7hOeYJ3rFdvuiZjeeyQvn6K9HfMNugC63AGFs=
+        b=bXo+udF8RyB0zB5I7jfgEYIxTE/l7A6SBVcbupHdLTSrRy7gSMGBbf4mbYsAjL9iv
+         TBHy2FnVtJohvUy+ZiryIHi7DDokZny3UeJAu1GnCbomzk471R/Q20Oc7FHudYXPOT
+         6d1autPC9m7XxWspUgBeXC7H50nlCXZK1Gz6hZsA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        ci_notify@linaro.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 086/350] crypto: aegis128/simd - build 32-bit ARM for v8 architecture explicitly
-Date:   Tue, 10 Dec 2019 16:03:11 -0500
-Message-Id: <20191210210735.9077-47-sashal@kernel.org>
+Cc:     Benoit Parrot <bparrot@ti.com>,
+        Nikhil Devshatwar <nikhil.nd@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 089/350] media: ti-vpe: vpe: Fix Motion Vector vpdma stride
+Date:   Tue, 10 Dec 2019 16:03:14 -0500
+Message-Id: <20191210210735.9077-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 References: <20191210210735.9077-1-sashal@kernel.org>
@@ -46,47 +45,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit 830536770f968ab33ece123b317e252c269098db ]
+[ Upstream commit 102af9b9922f658f705a4b0deaccabac409131bf ]
 
-Now that the Clang compiler has taken it upon itself to police the
-compiler command line, and reject combinations for arguments it views
-as incompatible, the AEGIS128 no longer builds correctly, and errors
-out like this:
+commit 3dc2046ca78b ("[media] media: ti-vpe: vpe: allow use of user
+specified stride") and commit da4414eaed15 ("[media] media: ti-vpe: vpdma:
+add support for user specified stride") resulted in the Motion Vector
+stride to be the same as the image stride.
 
-  clang-10: warning: ignoring extension 'crypto' because the 'armv7-a'
-  architecture does not support it [-Winvalid-command-line-argument]
+This caused memory corruption in the output image as mentioned in
+commit 00db969964c8 ("[media] media: ti-vpe: vpe: Fix line stride
+for output motion vector").
 
-So let's switch to armv8-a instead, which matches the crypto-neon-fp-armv8
-FPU profile we specify. Since neither were actually supported by GCC
-versions before 4.8, let's tighten the Kconfig dependencies as well so
-we won't run into errors when building with an ancient compiler.
-
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: <ci_notify@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 3dc2046ca78b ("[media] media: ti-vpe: vpe: allow use of user specified stride")
+Fixes: da4414eaed15 ("[media] media: ti-vpe: vpdma: add support for user specified stride")
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Acked-by: Nikhil Devshatwar <nikhil.nd@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/ti-vpe/vpe.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 9e524044d3128..29472fb795f34 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -309,6 +309,7 @@ config CRYPTO_AEGIS128
- config CRYPTO_AEGIS128_SIMD
- 	bool "Support SIMD acceleration for AEGIS-128"
- 	depends on CRYPTO_AEGIS128 && ((ARM || ARM64) && KERNEL_MODE_NEON)
-+	depends on !ARM || CC_IS_CLANG || GCC_VERSION >= 40800
- 	default y
+diff --git a/drivers/media/platform/ti-vpe/vpe.c b/drivers/media/platform/ti-vpe/vpe.c
+index 60b575bb44c46..5ba72445584da 100644
+--- a/drivers/media/platform/ti-vpe/vpe.c
++++ b/drivers/media/platform/ti-vpe/vpe.c
+@@ -1013,11 +1013,14 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
+ 	dma_addr_t dma_addr;
+ 	u32 flags = 0;
+ 	u32 offset = 0;
++	u32 stride;
  
- config CRYPTO_AEGIS128_AESNI_SSE2
+ 	if (port == VPE_PORT_MV_OUT) {
+ 		vpdma_fmt = &vpdma_misc_fmts[VPDMA_DATA_FMT_MV];
+ 		dma_addr = ctx->mv_buf_dma[mv_buf_selector];
+ 		q_data = &ctx->q_data[Q_DATA_SRC];
++		stride = ALIGN((q_data->width * vpdma_fmt->depth) >> 3,
++			       VPDMA_STRIDE_ALIGN);
+ 	} else {
+ 		/* to incorporate interleaved formats */
+ 		int plane = fmt->coplanar ? p_data->vb_part : 0;
+@@ -1044,6 +1047,7 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
+ 		}
+ 		/* Apply the offset */
+ 		dma_addr += offset;
++		stride = q_data->bytesperline[VPE_LUMA];
+ 	}
+ 
+ 	if (q_data->flags & Q_DATA_FRAME_1D)
+@@ -1055,7 +1059,7 @@ static void add_out_dtd(struct vpe_ctx *ctx, int port)
+ 			   MAX_W, MAX_H);
+ 
+ 	vpdma_add_out_dtd(&ctx->desc_list, q_data->width,
+-			  q_data->bytesperline[VPE_LUMA], &q_data->c_rect,
++			  stride, &q_data->c_rect,
+ 			  vpdma_fmt, dma_addr, MAX_OUT_WIDTH_REG1,
+ 			  MAX_OUT_HEIGHT_REG1, p_data->channel, flags);
+ }
+@@ -1074,10 +1078,13 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
+ 	dma_addr_t dma_addr;
+ 	u32 flags = 0;
+ 	u32 offset = 0;
++	u32 stride;
+ 
+ 	if (port == VPE_PORT_MV_IN) {
+ 		vpdma_fmt = &vpdma_misc_fmts[VPDMA_DATA_FMT_MV];
+ 		dma_addr = ctx->mv_buf_dma[mv_buf_selector];
++		stride = ALIGN((q_data->width * vpdma_fmt->depth) >> 3,
++			       VPDMA_STRIDE_ALIGN);
+ 	} else {
+ 		/* to incorporate interleaved formats */
+ 		int plane = fmt->coplanar ? p_data->vb_part : 0;
+@@ -1104,6 +1111,7 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
+ 		}
+ 		/* Apply the offset */
+ 		dma_addr += offset;
++		stride = q_data->bytesperline[VPE_LUMA];
+ 
+ 		if (q_data->flags & Q_DATA_INTERLACED_SEQ_TB) {
+ 			/*
+@@ -1139,10 +1147,10 @@ static void add_in_dtd(struct vpe_ctx *ctx, int port)
+ 	if (p_data->vb_part && fmt->fourcc == V4L2_PIX_FMT_NV12)
+ 		frame_height /= 2;
+ 
+-	vpdma_add_in_dtd(&ctx->desc_list, q_data->width,
+-			 q_data->bytesperline[VPE_LUMA], &q_data->c_rect,
+-		vpdma_fmt, dma_addr, p_data->channel, field, flags, frame_width,
+-		frame_height, 0, 0);
++	vpdma_add_in_dtd(&ctx->desc_list, q_data->width, stride,
++			 &q_data->c_rect, vpdma_fmt, dma_addr,
++			 p_data->channel, field, flags, frame_width,
++			 frame_height, 0, 0);
+ }
+ 
+ /*
 -- 
 2.20.1
 
