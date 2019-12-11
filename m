@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B24911B4B8
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:50:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FE3F11B489
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:49:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732311AbfLKPtj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:49:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55946 "EHLO mail.kernel.org"
+        id S1732866AbfLKPYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:24:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732853AbfLKPYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:24:36 -0500
+        id S1732870AbfLKPYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:24:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 832C9208C3;
-        Wed, 11 Dec 2019 15:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 840052465A;
+        Wed, 11 Dec 2019 15:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077876;
-        bh=TxFF3dCzgNZSD/LydwsZgVZni2PRmnqkI8Is8MlGsmM=;
+        s=default; t=1576077881;
+        bh=keoRuJZDtPV9Cj0nbieyCEu76X/Jj26sIem2+X/AXJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUtDKExSN/43UmRVDiq6LkF0GspToMs6L8+5yJ+4fo2sRKqxUOXJaTR7H+c8p/c/0
-         +Fq1DLbel73Yi/TxosPe0Odpo+bD9bdfdF8wR+fjAENL+J2lDsyOb85tgH5/oW9SZS
-         5iqAclKyHzW/2k94IQjt/VFapLQ1nEeDIpN0Ej04=
+        b=uzpvCTx9LjCoBNQ0A8rnw22qpWzrpLyeEkQ3DtVzKFXM3QjbgfXKuOKStha1LkzMg
+         Xjefbq4ZTLqqHL9u+rX5sFsBRwLq7jZcwc/UNU+yP22L40pGdkPqbUx1dxnvhRq2MZ
+         cx6lIk/I/lI2qLCk+amAgALdyNmMqMHAB+UBXFwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 205/243] Input: synaptics-rmi4 - re-enable IRQs in f34v7_do_reflash
-Date:   Wed, 11 Dec 2019 16:06:07 +0100
-Message-Id: <20191211150353.022799599@linuxfoundation.org>
+Subject: [PATCH 4.19 207/243] Input: goodix - add upside-down quirk for Teclast X89 tablet
+Date:   Wed, 11 Dec 2019 16:06:09 +0100
+Message-Id: <20191211150353.155465383@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -43,41 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 86bcd3a12999447faad60ec59c2d64d18d8e61ac upstream.
+commit df5b5e555b356662a5e4a23c6774fdfce8547d54 upstream.
 
-F34 is a bit special as it reinitializes the device and related driver
-structs during the firmware update. This clears the fn_irq_mask which
-will then prevent F34 from receiving further interrupts, leading to
-timeouts during the firmware update. Make sure to reinitialize the
-IRQ enables at the appropriate times.
+The touchscreen on the Teclast X89 is mounted upside down in relation to
+the display orientation (the touchscreen itself is mounted upright, but the
+display is mounted upside-down). Add a quirk for this so that we send
+coordinates which match the display orientation.
 
-The issue is in F34 code, but the commit in the fixes tag exposed the
-issue, as before this commit things would work by accident.
-
-Fixes: 363c53875aef (Input: synaptics-rmi4 - avoid processing unknown IRQs)
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Link: https://lore.kernel.org/r/20191129133514.23224-1-l.stach@pengutronix.de
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
+Link: https://lore.kernel.org/r/20191202085636.6650-1-hdegoede@redhat.com
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/rmi4/rmi_f34v7.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/touchscreen/goodix.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/input/rmi4/rmi_f34v7.c
-+++ b/drivers/input/rmi4/rmi_f34v7.c
-@@ -1192,6 +1192,9 @@ int rmi_f34v7_do_reflash(struct f34_data
- {
- 	int ret;
- 
-+	f34->fn->rmi_dev->driver->set_irq_bits(f34->fn->rmi_dev,
-+					       f34->fn->irq_mask);
-+
- 	rmi_f34v7_read_queries_bl_version(f34);
- 
- 	f34->v7.image = fw->data;
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -128,6 +128,15 @@ static const unsigned long goodix_irq_fl
+ static const struct dmi_system_id rotated_screen[] = {
+ #if defined(CONFIG_DMI) && defined(CONFIG_X86)
+ 	{
++		.ident = "Teclast X89",
++		.matches = {
++			/* tPAD is too generic, also match on bios date */
++			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
++			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
++		},
++	},
++	{
+ 		.ident = "WinBook TW100",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
 
 
