@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 665D511AD08
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF8A811AD09
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:06:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729513AbfLKOGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 09:06:22 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:46309 "EHLO
+        id S1729522AbfLKOGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 09:06:39 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:53759 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727851AbfLKOGW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 09:06:22 -0500
+        by vger.kernel.org with ESMTP id S1727851AbfLKOGj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 09:06:39 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 20A3834F;
-        Wed, 11 Dec 2019 09:06:21 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 11 Dec 2019 09:06:21 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 2626AA1E;
+        Wed, 11 Dec 2019 09:06:38 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 11 Dec 2019 09:06:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zJK+dv
-        f3zqJegwyC17tcPrey9nLflYtVOcmQItEjh0A=; b=BjAQcjVe9sTBFBXiM8E2CM
-        GMEJPvxAxk+B2+BJUptzRmyrjiyt+UlQLMO/4S2Sdu1oa7hrgsi1WqE3SBxm3Y4l
-        hAix9609s2rs0ah7V1HGCjU4QCBLP5l5OIiKKTuS2wkTq5SjcJktk8w974kMWRg0
-        jVnAiz67lSbUd/t+ykJyR2X+89qmg7pMhteaK5icgRerm36vdDBtJzR9P8+5Uzmi
-        b27grciohWUTDSpkITXQ8fs9H3RET66aba0fJCmNOEcinQOKiu/pA4EbdfNuTHF1
-        NTucullbnCd0i7J1sPZm7Efc1RroKMN2XatodIBnccMqUziqOASl4yu5xjw4yQrA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=UbSXAY
+        Y2k6WJU3fAqkpbYOFEcspu5WP2eJ0Ie6B9cDA=; b=uP42Q1luvB8xYhw4et1RIW
+        AQTHTHeQRptJCEPlmCXjJ0+l7jTVPO9XRKzcn0ur3a0MjHRQGqUeFM6YU/SCwcH6
+        BUFrpjWSIBr8otXv3gRGaqGA2RenI+JBn7URROC4LyF5GCIqujtp+3CuELKD8KAJ
+        tjhTtAfJeCrj9emJ93qoRDrL/7K8iOq1PJynKllmzDSkVZ5QRNSJlPdBwUH+ZKBS
+        7TwcsEW5EIyB1KeWtSi8wK5hKZoaNMapeFGagi2+g297gUGkEvTlXNh2rLMwdcf7
+        DBhh2r9PDSir/FxzhQha3sMGtYBCFZrg5A6Skz9ne4NrXWFK0d5AaO1WLesphqjw
         ==
-X-ME-Sender: <xms:3PfwXTTqMCgnZUYspKylzBl380MTy4k5UUvcVjGTiwGJ3wjjBioB5Q>
+X-ME-Sender: <xms:7ffwXWfb0t5YtvyjloVp7DOCuqM4ik-jQW5o3uApeQLZX1iMj8NRKg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudelhedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:3PfwXWz3mg6hwa961MKJJGtcAIYCjXeaf7w-ie8QG9U6HBeSFrPbew>
-    <xmx:3PfwXdIVEeQsrsCDm54RG0HLqM29iAdRKKfQMkDY6Y_1kSrksoWmjQ>
-    <xmx:3PfwXbMSXdCoh1nO4LJW7uTYcNPsAHwOcmvnno-R6wE4nuo3nR9iwQ>
-    <xmx:3PfwXbzx5cfxpJkCBkQDeAufdOBpP8JNjvWfvu_hgycDUjxdgzxuNw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:7ffwXbm0oqBuBUcIlAvIo_xLzV-YvDwo0nnRkGHWN45EDMMi5j1f2Q>
+    <xmx:7ffwXa_a3jtb057zAcc7YnxHgdgWBt-tEttdjinyJF7BwMuoZ2xszg>
+    <xmx:7ffwXfsFQjPq0HsEl8DMCyfke--vcT2lijpq9pjGLH3p87apHj3XYQ>
+    <xmx:7ffwXdmoYq5AD2gqYVpHYPAn0_BzWPlEnYqg0U1UjFYONtCN4w7KnA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D717C30600AB;
-        Wed, 11 Dec 2019 09:06:19 -0500 (EST)
-Subject: WTF: patch "[PATCH] Documentation: dt: wireless: update wl1251 for sdio" was seriously submitted to be applied to the 5.4-stable tree?
-To:     hns@goldelico.com, kvalo@codeaurora.org, robh@kernel.org,
-        stable@vger.kernel.org, ulf.hansson@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 358108005B;
+        Wed, 11 Dec 2019 09:06:37 -0500 (EST)
+Subject: WTF: patch "[PATCH] net: wireless: ti: wl1251 add device tree support" was seriously submitted to be applied to the 5.4-stable tree?
+To:     hns@goldelico.com, kvalo@codeaurora.org, stable@vger.kernel.org,
+        ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 11 Dec 2019 15:06:18 +0100
-Message-ID: <1576073178146235@kroah.com>
+Date:   Wed, 11 Dec 2019 15:06:33 +0100
+Message-ID: <1576073193178125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -72,53 +72,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 69167ae5a511560e6ae4181364da274b535a743f Mon Sep 17 00:00:00 2001
+From 9b8d7072d6552ee5c57e5765f211f267041f9557 Mon Sep 17 00:00:00 2001
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Date: Thu, 7 Nov 2019 11:30:34 +0100
-Subject: [PATCH] Documentation: dt: wireless: update wl1251 for sdio
+Date: Thu, 7 Nov 2019 11:30:35 +0100
+Subject: [PATCH] net: wireless: ti: wl1251 add device tree support
 
-The standard method for sdio devices connected to
-an sdio interface is to define them as a child node
-like we can see with wlcore.
+We will have the wl1251 defined as a child node of the mmc interface
+and can read setup for gpios, interrupts and the ti,use-eeprom
+property from there instead of pdata to be provided by pdata-quirks.
 
+Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 Acked-by: Kalle Valo <kvalo@codeaurora.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
 Cc: <stable@vger.kernel.org> # v4.7+
+[Ulf: Fixed up some complaints from checkpatch]
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-diff --git a/Documentation/devicetree/bindings/net/wireless/ti,wl1251.txt b/Documentation/devicetree/bindings/net/wireless/ti,wl1251.txt
-index bb2fcde6f7ff..f38950560982 100644
---- a/Documentation/devicetree/bindings/net/wireless/ti,wl1251.txt
-+++ b/Documentation/devicetree/bindings/net/wireless/ti,wl1251.txt
-@@ -35,3 +35,29 @@ Examples:
- 		ti,power-gpio = <&gpio3 23 GPIO_ACTIVE_HIGH>; /* 87 */
- 	};
- };
+diff --git a/drivers/net/wireless/ti/wl1251/sdio.c b/drivers/net/wireless/ti/wl1251/sdio.c
+index 677f1146ccf0..f1224b948f83 100644
+--- a/drivers/net/wireless/ti/wl1251/sdio.c
++++ b/drivers/net/wireless/ti/wl1251/sdio.c
+@@ -16,6 +16,9 @@
+ #include <linux/irq.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/gpio.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
++#include <linux/of_irq.h>
+ 
+ #include "wl1251.h"
+ 
+@@ -217,6 +220,7 @@ static int wl1251_sdio_probe(struct sdio_func *func,
+ 	struct ieee80211_hw *hw;
+ 	struct wl1251_sdio *wl_sdio;
+ 	const struct wl1251_platform_data *wl1251_board_data;
++	struct device_node *np = func->dev.of_node;
+ 
+ 	hw = wl1251_alloc_hw();
+ 	if (IS_ERR(hw))
+@@ -248,6 +252,17 @@ static int wl1251_sdio_probe(struct sdio_func *func,
+ 		wl->power_gpio = wl1251_board_data->power_gpio;
+ 		wl->irq = wl1251_board_data->irq;
+ 		wl->use_eeprom = wl1251_board_data->use_eeprom;
++	} else if (np) {
++		wl->use_eeprom = of_property_read_bool(np,
++						       "ti,wl1251-has-eeprom");
++		wl->power_gpio = of_get_named_gpio(np, "ti,power-gpio", 0);
++		wl->irq = of_irq_get(np, 0);
 +
-+&mmc3 {
-+	vmmc-supply = <&wlan_en>;
-+
-+	bus-width = <4>;
-+	non-removable;
-+	ti,non-removable;
-+	cap-power-off-card;
-+
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&mmc3_pins>;
-+
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
-+	wlan: wifi@1 {
-+		compatible = "ti,wl1251";
-+
-+		reg = <1>;
-+
-+		interrupt-parent = <&gpio1>;
-+		interrupts = <21 IRQ_TYPE_LEVEL_HIGH>;	/* GPIO_21 */
-+
-+		ti,wl1251-has-eeprom;
-+	};
-+};
++		if (wl->power_gpio == -EPROBE_DEFER ||
++		    wl->irq == -EPROBE_DEFER) {
++			ret = -EPROBE_DEFER;
++			goto disable;
++		}
+ 	}
+ 
+ 	if (gpio_is_valid(wl->power_gpio)) {
 
