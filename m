@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0D911B736
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF32111B725
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388808AbfLKQGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:06:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34846 "EHLO mail.kernel.org"
+        id S1731219AbfLKPMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:12:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbfLKPMm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:42 -0500
+        id S1731213AbfLKPMn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05E9C24658;
-        Wed, 11 Dec 2019 15:12:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21B1F20663;
+        Wed, 11 Dec 2019 15:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077161;
-        bh=KS6VUkeiLZVUdxVjXvdPqHK0GZE6p9leWn2xQwg0U8A=;
+        s=default; t=1576077162;
+        bh=91iWh5fmI1a06yBOSNjXj8il8TOi4Ro8Y8i/EzjO7lA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GJiFAYbpabvHyb5ZoWTaFOAglsFgtNL2M9Hux5G+BB2g/O6L9D6+jqYgn2cIowDr
-         gCxwvqibcU3bZshjqT3Lcd7fnQZNeY8rFrNxJQPTQhHARLwHvEuAgueaZzM1y3OqGb
-         y/Ip9f6F/4A14H+zFSpI1qj9zWJv3xydmAi6g8Rw=
+        b=gGGrDo5FbnSvVdMGO+eIOgRqfeXtjkOfJ+A0dAokOogkQzrn3FX70zpJgI+YqsWen
+         E8DfihFU/JzbHJr3itsBYgTPBEQDckJ3H+ns11GvtjR/yY0cay5wjBQVkdpWYLXefd
+         fAdDxhdX6WNsnt6qRiDG3Zr7g98YfK7Zb9oE+5Ds=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Eric Biggers <ebiggers@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 047/134] f2fs: fix to update dir's i_pino during cross_rename
-Date:   Wed, 11 Dec 2019 10:10:23 -0500
-Message-Id: <20191211151150.19073-47-sashal@kernel.org>
+Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 048/134] clk: qcom: smd: Add missing pnoc clock
+Date:   Wed, 11 Dec 2019 10:10:24 -0500
+Message-Id: <20191211151150.19073-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -44,92 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 
-[ Upstream commit 2a60637f06ac94869b2e630eaf837110d39bf291 ]
+[ Upstream commit ba1d366de261981c0dd04fac44d2ce3a5eba2eaa ]
 
-As Eric reported:
+When MSM8998 support was added, and analysis was done to determine what
+clocks would be consumed.  That analysis had a flaw, which caused the
+pnoc to be skipped.  The pnoc clock needs to be on to access the uart
+for the console.  The clock is on from boot, but has no consumer votes
+in the RPM.  When we attempt to boot the modem, it causes the RPM to
+turn off pnoc, which kills our access to the console and causes CPU hangs.
 
-RENAME_EXCHANGE support was just added to fsstress in xfstests:
+We need pnoc to be defined, so that clk_smd_rpm_handoff() will put in
+an implicit vote for linux and prevent issues when booting modem.
+Hopefully pnoc can be consumed by the interconnect framework in future
+so that Linux can rely on explicit votes.
 
-	commit 65dfd40a97b6bbbd2a22538977bab355c5bc0f06
-	Author: kaixuxia <xiakaixu1987@gmail.com>
-	Date:   Thu Oct 31 14:41:48 2019 +0800
-
-	    fsstress: add EXCHANGE renameat2 support
-
-This is causing xfstest generic/579 to fail due to fsck.f2fs reporting errors.
-I'm not sure what the problem is, but it still happens even with all the
-fs-verity stuff in the test commented out, so that the test just runs fsstress.
-
-generic/579 23s ... 	[10:02:25]
-[    7.745370] run fstests generic/579 at 2019-11-04 10:02:25
-_check_generic_filesystem: filesystem on /dev/vdc is inconsistent
-(see /results/f2fs/results-default/generic/579.full for details)
- [10:02:47]
-Ran: generic/579
-Failures: generic/579
-Failed 1 of 1 tests
-Xunit report: /results/f2fs/results-default/result.xml
-
-Here's the contents of 579.full:
-
-_check_generic_filesystem: filesystem on /dev/vdc is inconsistent
-*** fsck.f2fs output ***
-[ASSERT] (__chk_dots_dentries:1378)  --> Bad inode number[0x24] for '..', parent parent ino is [0xd10]
-
-The root cause is that we forgot to update directory's i_pino during
-cross_rename, fix it.
-
-Fixes: 32f9bc25cbda0 ("f2fs: support ->rename2()")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Tested-by: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 6131dc81211c ("clk: qcom: smd: Add support for MSM8998 rpm clocks")
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Link: https://lkml.kernel.org/r/20191107190615.5656-1-jeffrey.l.hugo@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/namei.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/clk/qcom/clk-smd-rpm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index 4faf06e8bf899..a1c507b0b4ac4 100644
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -981,7 +981,8 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	if (!old_dir_entry || whiteout)
- 		file_lost_pino(old_inode);
- 	else
--		F2FS_I(old_inode)->i_pino = new_dir->i_ino;
-+		/* adjust dir's i_pino to pass fsck check */
-+		f2fs_i_pino_write(old_inode, new_dir->i_ino);
- 	up_write(&F2FS_I(old_inode)->i_sem);
+diff --git a/drivers/clk/qcom/clk-smd-rpm.c b/drivers/clk/qcom/clk-smd-rpm.c
+index fef5e81570614..930fa4a4c52a8 100644
+--- a/drivers/clk/qcom/clk-smd-rpm.c
++++ b/drivers/clk/qcom/clk-smd-rpm.c
+@@ -648,6 +648,7 @@ static const struct rpm_smd_clk_desc rpm_clk_qcs404 = {
+ };
  
- 	old_inode->i_ctime = current_time(old_inode);
-@@ -1141,7 +1142,11 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	f2fs_set_link(old_dir, old_entry, old_page, new_inode);
- 
- 	down_write(&F2FS_I(old_inode)->i_sem);
--	file_lost_pino(old_inode);
-+	if (!old_dir_entry)
-+		file_lost_pino(old_inode);
-+	else
-+		/* adjust dir's i_pino to pass fsck check */
-+		f2fs_i_pino_write(old_inode, new_dir->i_ino);
- 	up_write(&F2FS_I(old_inode)->i_sem);
- 
- 	old_dir->i_ctime = current_time(old_dir);
-@@ -1156,7 +1161,11 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	f2fs_set_link(new_dir, new_entry, new_page, old_inode);
- 
- 	down_write(&F2FS_I(new_inode)->i_sem);
--	file_lost_pino(new_inode);
-+	if (!new_dir_entry)
-+		file_lost_pino(new_inode);
-+	else
-+		/* adjust dir's i_pino to pass fsck check */
-+		f2fs_i_pino_write(new_inode, old_dir->i_ino);
- 	up_write(&F2FS_I(new_inode)->i_sem);
- 
- 	new_dir->i_ctime = current_time(new_dir);
+ /* msm8998 */
++DEFINE_CLK_SMD_RPM(msm8998, pcnoc_clk, pcnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 0);
+ DEFINE_CLK_SMD_RPM(msm8998, snoc_clk, snoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 1);
+ DEFINE_CLK_SMD_RPM(msm8998, cnoc_clk, cnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 2);
+ DEFINE_CLK_SMD_RPM(msm8998, ce1_clk, ce1_a_clk, QCOM_SMD_RPM_CE_CLK, 0);
+@@ -670,6 +671,8 @@ DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk2_pin, rf_clk2_a_pin, 5);
+ DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, rf_clk3, rf_clk3_a, 6);
+ DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk3_pin, rf_clk3_a_pin, 6);
+ static struct clk_smd_rpm *msm8998_clks[] = {
++	[RPM_SMD_PCNOC_CLK] = &msm8998_pcnoc_clk,
++	[RPM_SMD_PCNOC_A_CLK] = &msm8998_pcnoc_a_clk,
+ 	[RPM_SMD_SNOC_CLK] = &msm8998_snoc_clk,
+ 	[RPM_SMD_SNOC_A_CLK] = &msm8998_snoc_a_clk,
+ 	[RPM_SMD_CNOC_CLK] = &msm8998_cnoc_clk,
 -- 
 2.20.1
 
