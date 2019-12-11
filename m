@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C5A11B60D
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:58:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80A8311B60B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:58:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731628AbfLKP6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:58:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39636 "EHLO mail.kernel.org"
+        id S1731576AbfLKP6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:58:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730883AbfLKPOV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:14:21 -0500
+        id S1731622AbfLKPOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0471E24654;
-        Wed, 11 Dec 2019 15:14:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8412024658;
+        Wed, 11 Dec 2019 15:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077260;
-        bh=QZ0cs6rH6n1Q7qsmq1TmRkgiIWevSyuM7/uNSv/U0Bs=;
+        s=default; t=1576077262;
+        bh=+cME4i6w/HOFktWu1TlD6KxQeCzpussbdm5Do3MnTqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDxN7ZUqFzBmETaiY8/fjm5B1f3YkVBpG7T1k68iin3FYP7bCMuFlOEhJ3IazxosQ
-         yqqMsNZTXERdexZ+49+6AJRZS9FXYTtSctsaFwUWDMVNSqhH797LmXlJN7r8Jeew8c
-         yuhAXXpJnWRrXYvcihayyhDsFe84odeYP4h2cR48=
+        b=Tyl9MfwXBvpxg1V4YzqTuVdHcIxuW4mC0nwXdh62WGasmg6TJYfS6iV2sxhzRiG6/
+         awFKwLXYoe9+KUT+i4h34fbGRoBxf1J0doICI7wAGQdHU1p9+p7lz1OX6HKXvB8fut
+         YldzVThHE5IGct7L2AGj4gC5M4lXFNtHwoDDs380=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
         =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Greg Kurz <groug@kaod.org>, Lijun Pan <ljp@linux.ibm.com>,
         Paul Mackerras <paulus@ozlabs.org>
-Subject: [PATCH 5.3 076/105] KVM: PPC: Book3S HV: XIVE: Free previous EQ page when setting up a new one
-Date:   Wed, 11 Dec 2019 16:06:05 +0100
-Message-Id: <20191211150255.164740236@linuxfoundation.org>
+Subject: [PATCH 5.3 077/105] KVM: PPC: Book3S HV: XIVE: Fix potential page leak on error path
+Date:   Wed, 11 Dec 2019 16:06:06 +0100
+Message-Id: <20191211150256.520751612@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
 References: <20191211150221.153659747@linuxfoundation.org>
@@ -48,104 +46,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kurz <groug@kaod.org>
 
-commit 31a88c82b466d2f31a44e21c479f45b4732ccfd0 upstream.
+commit 30486e72093ea2e594f44876b7a445c219449bce upstream.
 
-The EQ page is allocated by the guest and then passed to the hypervisor
-with the H_INT_SET_QUEUE_CONFIG hcall. A reference is taken on the page
-before handing it over to the HW. This reference is dropped either when
-the guest issues the H_INT_RESET hcall or when the KVM device is released.
-But, the guest can legitimately call H_INT_SET_QUEUE_CONFIG several times,
-either to reset the EQ (vCPU hot unplug) or to set a new EQ (guest reboot).
-In both cases the existing EQ page reference is leaked because we simply
-overwrite it in the XIVE queue structure without calling put_page().
+We need to check the host page size is big enough to accomodate the
+EQ. Let's do this before taking a reference on the EQ page to avoid
+a potential leak if the check fails.
 
-This is especially visible when the guest memory is backed with huge pages:
-start a VM up to the guest userspace, either reboot it or unplug a vCPU,
-quit QEMU. The leak is observed by comparing the value of HugePages_Free in
-/proc/meminfo before and after the VM is run.
-
-Ideally we'd want the XIVE code to handle the EQ page de-allocation at the
-platform level. This isn't the case right now because the various XIVE
-drivers have different allocation needs. It could maybe worth introducing
-hooks for this purpose instead of exposing XIVE internals to the drivers,
-but this is certainly a huge work to be done later.
-
-In the meantime, for easier backport, fix both vCPU unplug and guest reboot
-leaks by introducing a wrapper around xive_native_configure_queue() that
-does the necessary cleanup.
-
-Reported-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
 Cc: stable@vger.kernel.org # v5.2
 Fixes: 13ce3297c576 ("KVM: PPC: Book3S HV: XIVE: Add controls for the EQ configuration")
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
 Signed-off-by: Greg Kurz <groug@kaod.org>
-Tested-by: Lijun Pan <ljp@linux.ibm.com>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
 Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_xive_native.c |   31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ arch/powerpc/kvm/book3s_xive_native.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 --- a/arch/powerpc/kvm/book3s_xive_native.c
 +++ b/arch/powerpc/kvm/book3s_xive_native.c
-@@ -50,6 +50,24 @@ static void kvmppc_xive_native_cleanup_q
- 	}
- }
+@@ -637,12 +637,6 @@ static int kvmppc_xive_native_set_queue_
  
-+static int kvmppc_xive_native_configure_queue(u32 vp_id, struct xive_q *q,
-+					      u8 prio, __be32 *qpage,
-+					      u32 order, bool can_escalate)
-+{
-+	int rc;
-+	__be32 *qpage_prev = q->qpage;
-+
-+	rc = xive_native_configure_queue(vp_id, q, prio, qpage, order,
-+					 can_escalate);
-+	if (rc)
-+		return rc;
-+
-+	if (qpage_prev)
-+		put_page(virt_to_page(qpage_prev));
-+
-+	return rc;
-+}
-+
- void kvmppc_xive_native_cleanup_vcpu(struct kvm_vcpu *vcpu)
- {
- 	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
-@@ -582,19 +600,14 @@ static int kvmppc_xive_native_set_queue_
- 		q->guest_qaddr  = 0;
- 		q->guest_qshift = 0;
+ 	srcu_idx = srcu_read_lock(&kvm->srcu);
+ 	gfn = gpa_to_gfn(kvm_eq.qaddr);
+-	page = gfn_to_page(kvm, gfn);
+-	if (is_error_page(page)) {
+-		srcu_read_unlock(&kvm->srcu, srcu_idx);
+-		pr_err("Couldn't get queue page %llx!\n", kvm_eq.qaddr);
+-		return -EINVAL;
+-	}
  
--		rc = xive_native_configure_queue(xc->vp_id, q, priority,
--						 NULL, 0, true);
-+		rc = kvmppc_xive_native_configure_queue(xc->vp_id, q, priority,
-+							NULL, 0, true);
- 		if (rc) {
- 			pr_err("Failed to reset queue %d for VCPU %d: %d\n",
- 			       priority, xc->server_num, rc);
- 			return rc;
- 		}
- 
--		if (q->qpage) {
--			put_page(virt_to_page(q->qpage));
--			q->qpage = NULL;
--		}
--
- 		return 0;
+ 	page_size = kvm_host_page_size(kvm, gfn);
+ 	if (1ull << kvm_eq.qshift > page_size) {
+@@ -651,6 +645,13 @@ static int kvmppc_xive_native_set_queue_
+ 		return -EINVAL;
  	}
  
-@@ -653,8 +666,8 @@ static int kvmppc_xive_native_set_queue_
- 	  * OPAL level because the use of END ESBs is not supported by
- 	  * Linux.
- 	  */
--	rc = xive_native_configure_queue(xc->vp_id, q, priority,
--					 (__be32 *) qaddr, kvm_eq.qshift, true);
-+	rc = kvmppc_xive_native_configure_queue(xc->vp_id, q, priority,
-+					(__be32 *) qaddr, kvm_eq.qshift, true);
- 	if (rc) {
- 		pr_err("Failed to configure queue %d for VCPU %d: %d\n",
- 		       priority, xc->server_num, rc);
++	page = gfn_to_page(kvm, gfn);
++	if (is_error_page(page)) {
++		srcu_read_unlock(&kvm->srcu, srcu_idx);
++		pr_err("Couldn't get queue page %llx!\n", kvm_eq.qaddr);
++		return -EINVAL;
++	}
++
+ 	qaddr = page_to_virt(page) + (kvm_eq.qaddr & ~PAGE_MASK);
+ 	srcu_read_unlock(&kvm->srcu, srcu_idx);
+ 
 
 
