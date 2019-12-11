@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9F3611B56C
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D48A11B569
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731893AbfLKPSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:18:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46878 "EHLO mail.kernel.org"
+        id S1732732AbfLKPxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:53:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731852AbfLKPSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:18:43 -0500
+        id S1732156AbfLKPSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:18:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 175BF2465C;
-        Wed, 11 Dec 2019 15:18:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF859208C3;
+        Wed, 11 Dec 2019 15:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077521;
-        bh=zVD3PMl7eTpIEw1qbbF8rndFpadGWkrOfpETKL+kGXM=;
+        s=default; t=1576077526;
+        bh=M+PwNQzuveidtj1eQr2mJ7oxxe8QVAPPPn7zHYICVf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8tLeGskMdJT10aJfKfEN2GkQYepVBJLVs3dy/VBU4m5g1FYGx7rbN0I2zSRysNP4
-         R6mCvM0RDJ9Mi0I4LDfpZaRBxQqjCQ7VFsKaNbqZeUKCyNg1uu8apBqPtWrM+RJVGv
-         Hfot99dV0gM7h+lJAj+WxNbeG/Z8HpwIN2CHIohk=
+        b=No1X3xm0cdRPmeqr9ofu6ZHrZy9JNky6B9mekYmGi5MKqbn9bJcXUyY6pdttQIE4o
+         8PsMyuLf6MBZNQLp3bSVammFHVJDnM+JuTOqi6CYu5n2gTnvQiZ4/Y4jk322BrLPhC
+         VWsPC5ZKo1R6VKkayneIxIwY3KEfC14e1Q2XvW3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Guy Briggs <rgb@redhat.com>,
-        Jan Kara <jack@suse.cz>, Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/243] audit: Embed key into chunk
-Date:   Wed, 11 Dec 2019 16:03:15 +0100
-Message-Id: <20191211150341.508849666@linuxfoundation.org>
+Subject: [PATCH 4.19 035/243] ARC: IOC: panic if kernel was started with previously enabled IOC
+Date:   Wed, 11 Dec 2019 16:03:17 +0100
+Message-Id: <20191211150341.613335129@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -44,141 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-[ Upstream commit 8d20d6e9301d7b3777d66d47dd5b89acd645cd39 ]
+[ Upstream commit 3624379d90ad2b65f9dbb30d7f7ce5498d2fe322 ]
 
-Currently chunk hash key (which is in fact pointer to the inode) is
-derived as chunk->mark.conn->obj. It is tricky to make this dereference
-reliable for hash table lookups only under RCU as mark can get detached
-from the connector and connector gets freed independently of the
-running lookup. Thus there is a possible use after free / NULL ptr
-dereference issue:
+If IOC was already enabled (due to bootloader) it technically needs to
+be reconfigured with aperture base,size corresponding to Linux memory map
+which will certainly be different than uboot's. But disabling and
+reenabling IOC when DMA might be potentially active is tricky business.
+To avoid random memory issues later, just panic here and ask user to
+upgrade bootloader to one which doesn't enable IOC
 
-CPU1					CPU2
-					untag_chunk()
-					  ...
-audit_tree_lookup()
-  list_for_each_entry_rcu(p, list, hash) {
-					  list_del_rcu(&chunk->hash);
-					  fsnotify_destroy_mark(entry);
-					  fsnotify_put_mark(entry)
-    chunk_to_key(p)
-      if (!chunk->mark.connector)
-					    ...
-					    hlist_del_init_rcu(&mark->obj_list);
-					    if (hlist_empty(&conn->list)) {
-					      inode = fsnotify_detach_connector_from_object(conn);
-					    mark->connector = NULL;
-					    ...
-					    frees connector from workqueue
-      chunk->mark.connector->obj
+This was actually seen as issue on some of the HSDK board with a version
+of uboot which enabled IOC. There were random issues later with starting
+of X or peripherals etc.
 
-This race is probably impossible to hit in practice as the race window
-on CPU1 is very narrow and CPU2 has a lot of code to execute. Still it's
-better to have this fixed. Since the inode the chunk is attached to is
-constant during chunk's lifetime it is easy to cache the key in the
-chunk itself and thus avoid these issues.
+Also while I'm at it, replace hardcoded bits in ARC_REG_IO_COH_PARTIAL
+and ARC_REG_IO_COH_ENABLE registers by definitions.
 
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Inspired by: https://lkml.org/lkml/2018/1/19/557
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit_tree.c | 27 ++++++++-------------------
- 1 file changed, 8 insertions(+), 19 deletions(-)
+ arch/arc/include/asm/cache.h |  2 ++
+ arch/arc/mm/cache.c          | 20 +++++++++++++++++---
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/audit_tree.c b/kernel/audit_tree.c
-index ea43181cde4a2..04f59dfd3e71f 100644
---- a/kernel/audit_tree.c
-+++ b/kernel/audit_tree.c
-@@ -24,6 +24,7 @@ struct audit_tree {
+diff --git a/arch/arc/include/asm/cache.h b/arch/arc/include/asm/cache.h
+index db681cf4959c8..2ad77fb43639c 100644
+--- a/arch/arc/include/asm/cache.h
++++ b/arch/arc/include/asm/cache.h
+@@ -124,7 +124,9 @@ extern unsigned long perip_base, perip_end;
  
- struct audit_chunk {
- 	struct list_head hash;
-+	unsigned long key;
- 	struct fsnotify_mark mark;
- 	struct list_head trees;		/* with root here */
- 	int dead;
-@@ -172,21 +173,6 @@ static unsigned long inode_to_key(const struct inode *inode)
- 	return (unsigned long)&inode->i_fsnotify_marks;
- }
+ /* IO coherency related Auxiliary registers */
+ #define ARC_REG_IO_COH_ENABLE	0x500
++#define ARC_IO_COH_ENABLE_BIT	BIT(0)
+ #define ARC_REG_IO_COH_PARTIAL	0x501
++#define ARC_IO_COH_PARTIAL_BIT	BIT(0)
+ #define ARC_REG_IO_COH_AP0_BASE	0x508
+ #define ARC_REG_IO_COH_AP0_SIZE	0x509
  
--/*
-- * Function to return search key in our hash from chunk. Key 0 is special and
-- * should never be present in the hash.
-- */
--static unsigned long chunk_to_key(struct audit_chunk *chunk)
--{
--	/*
--	 * We have a reference to the mark so it should be attached to a
--	 * connector.
--	 */
--	if (WARN_ON_ONCE(!chunk->mark.connector))
--		return 0;
--	return (unsigned long)chunk->mark.connector->obj;
--}
--
- static inline struct list_head *chunk_hash(unsigned long key)
+diff --git a/arch/arc/mm/cache.c b/arch/arc/mm/cache.c
+index f2701c13a66b2..cf9619d4efb4f 100644
+--- a/arch/arc/mm/cache.c
++++ b/arch/arc/mm/cache.c
+@@ -1144,6 +1144,20 @@ noinline void __init arc_ioc_setup(void)
  {
- 	unsigned long n = key / L1_CACHE_BYTES;
-@@ -196,12 +182,12 @@ static inline struct list_head *chunk_hash(unsigned long key)
- /* hash_lock & entry->lock is held by caller */
- static void insert_hash(struct audit_chunk *chunk)
- {
--	unsigned long key = chunk_to_key(chunk);
- 	struct list_head *list;
+ 	unsigned int ioc_base, mem_sz;
  
- 	if (!(chunk->mark.flags & FSNOTIFY_MARK_FLAG_ATTACHED))
- 		return;
--	list = chunk_hash(key);
-+	WARN_ON_ONCE(!chunk->key);
-+	list = chunk_hash(chunk->key);
- 	list_add_rcu(&chunk->hash, list);
- }
++	/*
++	 * If IOC was already enabled (due to bootloader) it technically needs to
++	 * be reconfigured with aperture base,size corresponding to Linux memory map
++	 * which will certainly be different than uboot's. But disabling and
++	 * reenabling IOC when DMA might be potentially active is tricky business.
++	 * To avoid random memory issues later, just panic here and ask user to
++	 * upgrade bootloader to one which doesn't enable IOC
++	 */
++	if (read_aux_reg(ARC_REG_IO_COH_ENABLE) & ARC_IO_COH_ENABLE_BIT)
++		panic("IOC already enabled, please upgrade bootloader!\n");
++
++	if (!ioc_enable)
++		return;
++
+ 	/*
+ 	 * As for today we don't support both IOC and ZONE_HIGHMEM enabled
+ 	 * simultaneously. This happens because as of today IOC aperture covers
+@@ -1187,8 +1201,8 @@ noinline void __init arc_ioc_setup(void)
+ 		panic("IOC Aperture start must be aligned to the size of the aperture");
  
-@@ -213,7 +199,7 @@ struct audit_chunk *audit_tree_lookup(const struct inode *inode)
- 	struct audit_chunk *p;
+ 	write_aux_reg(ARC_REG_IO_COH_AP0_BASE, ioc_base >> 12);
+-	write_aux_reg(ARC_REG_IO_COH_PARTIAL, 1);
+-	write_aux_reg(ARC_REG_IO_COH_ENABLE, 1);
++	write_aux_reg(ARC_REG_IO_COH_PARTIAL, ARC_IO_COH_PARTIAL_BIT);
++	write_aux_reg(ARC_REG_IO_COH_ENABLE, ARC_IO_COH_ENABLE_BIT);
  
- 	list_for_each_entry_rcu(p, list, hash) {
--		if (chunk_to_key(p) == key) {
-+		if (p->key == key) {
- 			atomic_long_inc(&p->refs);
- 			return p;
- 		}
-@@ -297,6 +283,7 @@ static void untag_chunk(struct node *p)
+ 	/* Re-enable L1 dcache */
+ 	__dc_enable();
+@@ -1265,7 +1279,7 @@ void __init arc_cache_init_master(void)
+ 	if (is_isa_arcv2() && l2_line_sz && !slc_enable)
+ 		arc_slc_disable();
  
- 	chunk->dead = 1;
- 	spin_lock(&hash_lock);
-+	new->key = chunk->key;
- 	list_replace_init(&chunk->trees, &new->trees);
- 	if (owner->root == chunk) {
- 		list_del_init(&owner->same_root);
-@@ -378,6 +365,7 @@ static int create_chunk(struct inode *inode, struct audit_tree *tree)
- 		tree->root = chunk;
- 		list_add(&tree->same_root, &chunk->trees);
- 	}
-+	chunk->key = inode_to_key(inode);
- 	insert_hash(chunk);
- 	spin_unlock(&hash_lock);
- 	spin_unlock(&entry->lock);
-@@ -462,6 +450,7 @@ static int tag_chunk(struct inode *inode, struct audit_tree *tree)
- 		fsnotify_put_mark(old_entry);
- 		return 0;
- 	}
-+	chunk->key = old->key;
- 	list_replace_init(&old->trees, &chunk->trees);
- 	for (n = 0, p = chunk->owners; n < old->count; n++, p++) {
- 		struct audit_tree *s = old->owners[n].owner;
-@@ -661,7 +650,7 @@ void audit_trim_trees(void)
- 			/* this could be NULL if the watch is dying else where... */
- 			node->index |= 1U<<31;
- 			if (iterate_mounts(compare_root,
--					   (void *)chunk_to_key(chunk),
-+					   (void *)(chunk->key),
- 					   root_mnt))
- 				node->index &= ~(1U<<31);
- 		}
+-	if (is_isa_arcv2() && ioc_enable)
++	if (is_isa_arcv2() && ioc_exists)
+ 		arc_ioc_setup();
+ 
+ 	if (is_isa_arcv2() && l2_line_sz && slc_enable) {
 -- 
 2.20.1
 
