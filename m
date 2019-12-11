@@ -2,151 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FC0B11AD3A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:19:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15AAD11AD2E
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729761AbfLKOTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 09:19:23 -0500
-Received: from mo4-p00-ob.smtp.rzone.de ([85.215.255.24]:16868 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727554AbfLKOTX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 09:19:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576073961;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=GrzTM+TsO29atSE6ztAgl6moUiJhEJ0A3bogXQ5BowQ=;
-        b=rWrtYFxdYtuIIwwVVEAxNnixwAL6TzFgtG3cbPDeslOdMr0GQEM9HTKOt423Q19sdX
-        6xBmT5bEdasPnrwgboUdMi3N7+KNHKyqNosSll4AXGZFGvHhDWKMo8fF1I1AktcMgmli
-        1vNH/A0b2w+BJ4puME0KzTE/ShJGx46NLL2qlECEpajJamNix7T8cRbUBLYGkNjgTTQZ
-        M7Wyq8WyGVu69sYDpcevfQHa9/KJMP3nUjt+7WtRsW/Ix3I6JEs3DV0y2izUhR4M9620
-        QVWtfmZnJj3KSzNNLZ8sLBDOEwqiOFMFU15PYPGFz1XAXeqn2SGqX9bpCwu94eauLbRx
-        90SQ==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGHPrvwDOutHk="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-        by smtp.strato.de (RZmta 46.0.2 DYNA|AUTH)
-        with ESMTPSA id j03ffcvBBEJKYEl
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-        Wed, 11 Dec 2019 15:19:20 +0100 (CET)
-Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: WTF: patch "[PATCH] net: wireless: ti: wl1251 add device tree support" was seriously submitted to be applied to the 5.4-stable tree?
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <1576073193178125@kroah.com>
-Date:   Wed, 11 Dec 2019 15:19:19 +0100
-Cc:     kvalo@codeaurora.org, stable@vger.kernel.org,
-        ulf.hansson@linaro.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <8B77E722-80C2-4607-8519-AC36CC42519C@goldelico.com>
-References: <1576073193178125@kroah.com>
-To:     gregkh@linuxfoundation.org
-X-Mailer: Apple Mail (2.3124)
+        id S1729671AbfLKOS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 09:18:26 -0500
+Received: from mga07.intel.com ([134.134.136.100]:52849 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727554AbfLKOS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 09:18:26 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Dec 2019 06:18:25 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,301,1571727600"; 
+   d="scan'208";a="414868191"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by fmsmga006.fm.intel.com with ESMTP; 11 Dec 2019 06:18:22 -0800
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 1/6] xhci: Fix memory leak in xhci_add_in_port()
+Date:   Wed, 11 Dec 2019 16:20:02 +0200
+Message-Id: <20191211142007.8847-2-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20191211142007.8847-1-mathias.nyman@linux.intel.com>
+References: <20191211142007.8847-1-mathias.nyman@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-I have checked with Documentation/process/stable-kernel-rules.rst but =
-not found out
-what is failing.
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Basically this belongs to a series to fix a bug
+When xHCI is part of Alpine or Titan Ridge Thunderbolt controller and
+the xHCI device is hot-removed as a result of unplugging a dock for
+example, the driver leaks memory it allocates for xhci->usb3_rhub.psi
+and xhci->usb2_rhub.psi in xhci_add_in_port() as reported by kmemleak:
 
-81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting =
-DMA channel")
+unreferenced object 0xffff922c24ef42f0 (size 16):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 16 bytes):
+    21 00 0c 00 12 00 dc 05 23 00 e0 01 00 00 00 00  !.......#.......
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+unreferenced object 0xffff922c24ef3318 (size 8):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 8 bytes):
+    34 01 05 00 35 41 0a 00                          4...5A..
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
 
-that exists since v4.7 and has been hidden by patches which came into =
-the kernel over
-the time.
+Fix this by calling kfree() for the both psi objects in
+xhci_mem_cleanup().
 
-BR and thanks,
-Nikolaus Schaller
+Cc: <stable@vger.kernel.org> # 4.4+
+Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci-mem.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> Am 11.12.2019 um 15:06 schrieb <gregkh@linuxfoundation.org> =
-<gregkh@linuxfoundation.org>:
->=20
-> The patch below was submitted to be applied to the 5.4-stable tree.
->=20
-> I fail to see how this patch meets the stable kernel rules as found at
-> Documentation/process/stable-kernel-rules.rst.
->=20
-> I could be totally wrong, and if so, please respond to=20
-> <stable@vger.kernel.org> and let me know why this patch should be
-> applied.  Otherwise, it is now dropped from my patch queues, never to =
-be
-> seen again.
->=20
-> thanks,
->=20
-> greg k-h
->=20
-> ------------------ original commit in Linus's tree ------------------
->=20
-> =46rom 9b8d7072d6552ee5c57e5765f211f267041f9557 Mon Sep 17 00:00:00 =
-2001
-> From: "H. Nikolaus Schaller" <hns@goldelico.com>
-> Date: Thu, 7 Nov 2019 11:30:35 +0100
-> Subject: [PATCH] net: wireless: ti: wl1251 add device tree support
->=20
-> We will have the wl1251 defined as a child node of the mmc interface
-> and can read setup for gpios, interrupts and the ti,use-eeprom
-> property from there instead of pdata to be provided by pdata-quirks.
->=20
-> Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for =
-requesting DMA channel")
-> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-> Acked-by: Kalle Valo <kvalo@codeaurora.org>
-> Cc: <stable@vger.kernel.org> # v4.7+
-> [Ulf: Fixed up some complaints from checkpatch]
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
->=20
-> diff --git a/drivers/net/wireless/ti/wl1251/sdio.c =
-b/drivers/net/wireless/ti/wl1251/sdio.c
-> index 677f1146ccf0..f1224b948f83 100644
-> --- a/drivers/net/wireless/ti/wl1251/sdio.c
-> +++ b/drivers/net/wireless/ti/wl1251/sdio.c
-> @@ -16,6 +16,9 @@
-> #include <linux/irq.h>
-> #include <linux/pm_runtime.h>
-> #include <linux/gpio.h>
-> +#include <linux/of.h>
-> +#include <linux/of_gpio.h>
-> +#include <linux/of_irq.h>
->=20
-> #include "wl1251.h"
->=20
-> @@ -217,6 +220,7 @@ static int wl1251_sdio_probe(struct sdio_func =
-*func,
-> 	struct ieee80211_hw *hw;
-> 	struct wl1251_sdio *wl_sdio;
-> 	const struct wl1251_platform_data *wl1251_board_data;
-> +	struct device_node *np =3D func->dev.of_node;
->=20
-> 	hw =3D wl1251_alloc_hw();
-> 	if (IS_ERR(hw))
-> @@ -248,6 +252,17 @@ static int wl1251_sdio_probe(struct sdio_func =
-*func,
-> 		wl->power_gpio =3D wl1251_board_data->power_gpio;
-> 		wl->irq =3D wl1251_board_data->irq;
-> 		wl->use_eeprom =3D wl1251_board_data->use_eeprom;
-> +	} else if (np) {
-> +		wl->use_eeprom =3D of_property_read_bool(np,
-> +						       =
-"ti,wl1251-has-eeprom");
-> +		wl->power_gpio =3D of_get_named_gpio(np, =
-"ti,power-gpio", 0);
-> +		wl->irq =3D of_irq_get(np, 0);
-> +
-> +		if (wl->power_gpio =3D=3D -EPROBE_DEFER ||
-> +		    wl->irq =3D=3D -EPROBE_DEFER) {
-> +			ret =3D -EPROBE_DEFER;
-> +			goto disable;
-> +		}
-> 	}
->=20
-> 	if (gpio_is_valid(wl->power_gpio)) {
->=20
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index e16eda6e2b8b..3b1388fa2f36 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1909,13 +1909,17 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
+ 	xhci->usb3_rhub.num_ports = 0;
+ 	xhci->num_active_eps = 0;
+ 	kfree(xhci->usb2_rhub.ports);
++	kfree(xhci->usb2_rhub.psi);
+ 	kfree(xhci->usb3_rhub.ports);
++	kfree(xhci->usb3_rhub.psi);
+ 	kfree(xhci->hw_ports);
+ 	kfree(xhci->rh_bw);
+ 	kfree(xhci->ext_caps);
+ 
+ 	xhci->usb2_rhub.ports = NULL;
++	xhci->usb2_rhub.psi = NULL;
+ 	xhci->usb3_rhub.ports = NULL;
++	xhci->usb3_rhub.psi = NULL;
+ 	xhci->hw_ports = NULL;
+ 	xhci->rh_bw = NULL;
+ 	xhci->ext_caps = NULL;
+-- 
+2.17.1
 
