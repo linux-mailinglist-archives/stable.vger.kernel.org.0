@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84B4E11AF40
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D84B11AEC2
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:08:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730318AbfLKPMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:12:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33018 "EHLO mail.kernel.org"
+        id S1730191AbfLKPH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:07:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731048AbfLKPMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:06 -0500
+        id S1730170AbfLKPH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:07:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD5D1222C4;
-        Wed, 11 Dec 2019 15:12:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5700922B48;
+        Wed, 11 Dec 2019 15:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077126;
-        bh=VPD4dyWy+JKVBUwjhXVuIu5XtWvfaTIKqFTi8EFeecE=;
+        s=default; t=1576076876;
+        bh=dXQVMFhSGEw7T+9WILp/lPQV9hSx1Pd5Ln5VX+6r5XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLyllEteWQVMePWLqSLFXyFDdevUZUqH1ubY4A1AVEPo+6wEymTLFuQDTXlcNqrv2
-         T4dSRrCkijgrZWtwSM0coSyx2mfZS8UvTOB1D95PvTG2xTJ9qYaQX4IyRaLdWjJQM3
-         F++68EvOL8SOxa3fYhHSeSDSiLjY6795fTmf35Ew=
+        b=QjzPlwOgADRY47BA3qb4pwfALONBfw4gpApi9BnTcPPrYOcGxJ0MDpCB2xkLbQKqP
+         EXI6/MVOTa6h1vN2L1KUZwjG1iqcaBCMCTDX2FFSr2Mvaxx3kprvDkv5R9JTKDQbaF
+         4IaLhkQMsOvd4jUefQNC19mIo0w1WjjODsLV8e9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaodong Xu <stid.smth@gmail.com>,
-        Bo Chen <chenborfc@163.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 026/105] xfrm: release device reference for invalid state
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.4 24/92] fuse: verify write return
 Date:   Wed, 11 Dec 2019 16:05:15 +0100
-Message-Id: <20191211150229.289266937@linuxfoundation.org>
+Message-Id: <20191211150229.716710056@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +42,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaodong Xu <stid.smth@gmail.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 4944a4b1077f74d89073624bd286219d2fcbfce3 ]
+commit 8aab336b14c115c6bf1d4baeb9247e41ed9ce6de upstream.
 
-An ESP packet could be decrypted in async mode if the input handler for
-this packet returns -EINPROGRESS in xfrm_input(). At this moment the device
-reference in skb is held. Later xfrm_input() will be invoked again to
-resume the processing.
-If the transform state is still valid it would continue to release the
-device reference and there won't be a problem; however if the transform
-state is not valid when async resumption happens, the packet will be
-dropped while the device reference is still being held.
-When the device is deleted for some reason and the reference to this
-device is not properly released, the kernel will keep logging like:
+Make sure filesystem is not returning a bogus number of bytes written.
 
-unregister_netdevice: waiting for ppp2 to become free. Usage count = 1
+Fixes: ea9b9907b82a ("fuse: implement perform_write")
+Cc: <stable@vger.kernel.org> # v2.6.26
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The issue is observed when running IPsec traffic over a PPPoE device based
-on a bridge interface. By terminating the PPPoE connection on the server
-end for multiple times, the PPPoE device on the client side will eventually
-get stuck on the above warning message.
-
-This patch will check the async mode first and continue to release device
-reference in async resumption, before it is dropped due to invalid state.
-
-v2: Do not assign address family from outer_mode in the transform if the
-state is invalid
-
-v3: Release device reference in the error path instead of jumping to resume
-
-Fixes: 4ce3dbe397d7b ("xfrm: Fix xfrm_input() to verify state is valid when (encap_type < 0)")
-Signed-off-by: Xiaodong Xu <stid.smth@gmail.com>
-Reported-by: Bo Chen <chenborfc@163.com>
-Tested-by: Bo Chen <chenborfc@163.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_input.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/fuse/file.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 6088bc2dc11e3..fcd4b1f36e669 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -480,6 +480,9 @@ int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
- 			else
- 				XFRM_INC_STATS(net,
- 					       LINUX_MIB_XFRMINSTATEINVALID);
-+
-+			if (encap_type == -1)
-+				dev_put(skb->dev);
- 			goto drop;
- 		}
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1098,6 +1098,8 @@ static ssize_t fuse_send_write_pages(str
+ 	ia->write.in.flags = fuse_write_flags(iocb);
  
--- 
-2.20.1
-
+ 	err = fuse_simple_request(fc, &ap->args);
++	if (!err && ia->write.out.size > count)
++		err = -EIO;
+ 
+ 	offset = ap->descs[0].offset;
+ 	count = ia->write.out.size;
 
 
