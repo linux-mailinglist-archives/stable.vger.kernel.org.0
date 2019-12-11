@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9477C11B348
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:41:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C915211B237
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:35:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388452AbfLKPlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:41:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33800 "EHLO mail.kernel.org"
+        id S2387525AbfLKP2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:28:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733179AbfLKP1y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:54 -0500
+        id S2387512AbfLKP17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2FCD24671;
-        Wed, 11 Dec 2019 15:27:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4A602467A;
+        Wed, 11 Dec 2019 15:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078074;
-        bh=Lmchv2zluPAuLaPCeDYi0HgXg3aUPCYzmqEYwJ2OVE4=;
+        s=default; t=1576078077;
+        bh=R7eY9aHdrcCt7uzhurYIB7GJmkTeGmIKSQ3WZRcxiD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsQJRAz15todzXEE5S3XaKSByKQnwZJuJwxFKl/u2r/2edKKB2c9FnFb97sBpAT1g
-         CyCzss3oX6TaQLtgDR+SPHr1Qw1F/Jv7DwdTMAFe/y/cIIv3oPhfOWRAIaYW5EYFh9
-         tXOG3zRUGFMIwd/5xwwnkWQ3SgEZdGLyaCenQc+A=
+        b=jG4YodmOpIcc9B00/nc0VJmISlUsjA11KjiA7XA4I3QZ4Quw0CYbuCOy44XXPU8nN
+         rVfawpCrhuCtQXet3/meivWsrFlNkDezgonZ+K3CYBxXw2qsvhi9GCkuUV+PGxW3kz
+         jo11BuL+rThxDIQ1X9FuSK4AufZeISKeZR4haM80=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 65/79] scripts/kallsyms: fix definitely-lost memory leak
-Date:   Wed, 11 Dec 2019 10:26:29 -0500
-Message-Id: <20191211152643.23056-65-sashal@kernel.org>
+Cc:     Erhard Furtner <erhard_f@mailbox.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 68/79] of: unittest: fix memory leak in attach_node_and_children
+Date:   Wed, 11 Dec 2019 10:26:32 -0500
+Message-Id: <20191211152643.23056-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -42,46 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Erhard Furtner <erhard_f@mailbox.org>
 
-[ Upstream commit 21915eca088dc271c970e8351290e83d938114ac ]
+[ Upstream commit 2aacace6dbbb6b6ce4e177e6c7ea901f389c0472 ]
 
-build_initial_tok_table() overwrites unused sym_entry to shrink the
-table size. Before the entry is overwritten, table[i].sym must be freed
-since it is malloc'ed data.
+In attach_node_and_children memory is allocated for full_name via
+kasprintf. If the condition of the 1st if is not met the function
+returns early without freeing the memory. Add a kfree() to fix that.
 
-This fixes the 'definitely lost' report from valgrind. I ran valgrind
-against x86_64_defconfig of v5.4-rc8 kernel, and here is the summary:
+This has been detected with kmemleak:
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=205327
 
-[Before the fix]
+It looks like the leak was introduced by this commit:
+Fixes: 5babefb7f7ab ("of: unittest: allow base devicetree to have symbol metadata")
 
-  LEAK SUMMARY:
-     definitely lost: 53,184 bytes in 2,874 blocks
-
-[After the fix]
-
-  LEAK SUMMARY:
-     definitely lost: 0 bytes in 0 blocks
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Erhard Furtner <erhard_f@mailbox.org>
+Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kallsyms.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/of/unittest.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
-index 31ed7f3f0e157..4b2711c23f4ed 100644
---- a/scripts/kallsyms.c
-+++ b/scripts/kallsyms.c
-@@ -491,6 +491,8 @@ static void build_initial_tok_table(void)
- 				table[pos] = table[i];
- 			learn_symbol(table[pos].sym, table[pos].len);
- 			pos++;
-+		} else {
-+			free(table[i].sym);
- 		}
- 	}
- 	table_cnt = pos;
+diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
+index 68f52966bbc04..808571f7f6ef9 100644
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -1133,8 +1133,10 @@ static void attach_node_and_children(struct device_node *np)
+ 	full_name = kasprintf(GFP_KERNEL, "%pOF", np);
+ 
+ 	if (!strcmp(full_name, "/__local_fixups__") ||
+-	    !strcmp(full_name, "/__fixups__"))
++	    !strcmp(full_name, "/__fixups__")) {
++		kfree(full_name);
+ 		return;
++	}
+ 
+ 	dup = of_find_node_by_path(full_name);
+ 	kfree(full_name);
 -- 
 2.20.1
 
