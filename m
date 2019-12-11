@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D59B11B806
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D5011B65B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730754AbfLKPK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:10:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58646 "EHLO mail.kernel.org"
+        id S1731498AbfLKPNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:13:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730729AbfLKPKW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:10:22 -0500
+        id S1730448AbfLKPNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 160A520663;
-        Wed, 11 Dec 2019 15:10:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3FF32465C;
+        Wed, 11 Dec 2019 15:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077021;
-        bh=m2FDG6Fw3Fq/ydclieVj27dDUEt6I8X68OhLjNVJiCI=;
+        s=default; t=1576077223;
+        bh=34+cUa3MGnMCqTQUnF3QD+tWh95FD6XBhUFLhlsOcnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqvXFEzYJCDPqkbHcNaq14DOQ/z3BoKk/JnZFzexGyKVQPfOVytmNdIjq8jj0cODD
-         Zc2yEX+wT84BgeBY1rx71WHFD7xcT6IjQtNC8kMoPg9NMdg+4h+ZzecjkjXytFv2sd
-         9BTO0RxGh7wgrfCb4oVufG8RhksyrLhgDwxKqUSQ=
+        b=h89My+4L9ZLVxs/M7LD77g2LZfPn0dfqlN1+L/XovrI1q68sjF271fH9Z+wSgl6Pp
+         31H3py0Va+XPcDCG8Ak/e9UsjGV9WlcSGkjR1GoPS2ylWVk7KtZDJLzYHTmvpLE46M
+         BIL3EO8bDZlpH4ZWM2n3caz8YXzjAHCqR9r19XJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.4 43/92] media: rc: mark input device as pointing stick
-Date:   Wed, 11 Dec 2019 16:05:34 +0100
-Message-Id: <20191211150241.052128348@linuxfoundation.org>
+        stable@vger.kernel.org, Arijit Banerjee <arijit@rubrik.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.3 046/105] fuse: verify attributes
+Date:   Wed, 11 Dec 2019 16:05:35 +0100
+Message-Id: <20191211150240.151473315@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
-References: <20191211150221.977775294@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit ce819649b03d932dc19b0cb6be513779bf64fad3 upstream.
+commit eb59bd17d2fa6e5e84fba61a5ebdea984222e6d5 upstream.
 
-libinput refuses pointer movement from rc-core, since it believes it's not
-a pointer-type device:
+If a filesystem returns negative inode sizes, future reads on the file were
+causing the cpu to spin on truncate_pagecache.
 
-libinput error: event17 - Media Center Ed. eHome Infrared Remote Transceiver (1784:0008): libinput bug: REL_X/Y from a non-pointer device
+Create a helper to validate the attributes.  This now does two things:
 
-Fixes: 158bc148a31e ("media: rc: mce_kbd: input events via rc-core's input device")
-Fixes: 0ac5a603a732 ("media: rc: imon: report mouse events using rc-core's input device")
-Cc: stable@vger.kernel.org # 4.20+
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+ - check the file mode
+ - check if the file size fits in i_size without overflowing
+
+Reported-by: Arijit Banerjee <arijit@rubrik.com>
+Fixes: d8a5ba45457e ("[PATCH] FUSE - core")
+Cc: <stable@vger.kernel.org> # v2.6.14
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/rc-main.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/fuse/dir.c     |   22 ++++++++++++++++------
+ fs/fuse/fuse_i.h  |    2 ++
+ fs/fuse/readdir.c |    2 +-
+ 3 files changed, 19 insertions(+), 7 deletions(-)
 
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -1773,6 +1773,7 @@ static int rc_prepare_rx_device(struct r
- 	set_bit(MSC_SCAN, dev->input_dev->mscbit);
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -214,7 +214,8 @@ static int fuse_dentry_revalidate(struct
+ 		kfree(forget);
+ 		if (ret == -ENOMEM)
+ 			goto out;
+-		if (ret || (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
++		if (ret || fuse_invalid_attr(&outarg.attr) ||
++		    (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
+ 			goto invalid;
  
- 	/* Pointer/mouse events */
-+	set_bit(INPUT_PROP_POINTING_STICK, dev->input_dev->propbit);
- 	set_bit(EV_REL, dev->input_dev->evbit);
- 	set_bit(REL_X, dev->input_dev->relbit);
- 	set_bit(REL_Y, dev->input_dev->relbit);
+ 		forget_all_cached_acls(inode);
+@@ -272,6 +273,12 @@ int fuse_valid_type(int m)
+ 		S_ISBLK(m) || S_ISFIFO(m) || S_ISSOCK(m);
+ }
+ 
++bool fuse_invalid_attr(struct fuse_attr *attr)
++{
++	return !fuse_valid_type(attr->mode) ||
++		attr->size > LLONG_MAX;
++}
++
+ int fuse_lookup_name(struct super_block *sb, u64 nodeid, const struct qstr *name,
+ 		     struct fuse_entry_out *outarg, struct inode **inode)
+ {
+@@ -303,7 +310,7 @@ int fuse_lookup_name(struct super_block
+ 	err = -EIO;
+ 	if (!outarg->nodeid)
+ 		goto out_put_forget;
+-	if (!fuse_valid_type(outarg->attr.mode))
++	if (fuse_invalid_attr(&outarg->attr))
+ 		goto out_put_forget;
+ 
+ 	*inode = fuse_iget(sb, outarg->nodeid, outarg->generation,
+@@ -427,7 +434,8 @@ static int fuse_create_open(struct inode
+ 		goto out_free_ff;
+ 
+ 	err = -EIO;
+-	if (!S_ISREG(outentry.attr.mode) || invalid_nodeid(outentry.nodeid))
++	if (!S_ISREG(outentry.attr.mode) || invalid_nodeid(outentry.nodeid) ||
++	    fuse_invalid_attr(&outentry.attr))
+ 		goto out_free_ff;
+ 
+ 	ff->fh = outopen.fh;
+@@ -535,7 +543,7 @@ static int create_new_entry(struct fuse_
+ 		goto out_put_forget_req;
+ 
+ 	err = -EIO;
+-	if (invalid_nodeid(outarg.nodeid))
++	if (invalid_nodeid(outarg.nodeid) || fuse_invalid_attr(&outarg.attr))
+ 		goto out_put_forget_req;
+ 
+ 	if ((outarg.attr.mode ^ mode) & S_IFMT)
+@@ -895,7 +903,8 @@ static int fuse_do_getattr(struct inode
+ 	args.out.args[0].value = &outarg;
+ 	err = fuse_simple_request(fc, &args);
+ 	if (!err) {
+-		if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
++		if (fuse_invalid_attr(&outarg.attr) ||
++		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+ 			make_bad_inode(inode);
+ 			err = -EIO;
+ 		} else {
+@@ -1518,7 +1527,8 @@ int fuse_do_setattr(struct dentry *dentr
+ 		goto error;
+ 	}
+ 
+-	if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
++	if (fuse_invalid_attr(&outarg.attr) ||
++	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+ 		make_bad_inode(inode);
+ 		err = -EIO;
+ 		goto error;
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -1008,6 +1008,8 @@ void fuse_ctl_remove_conn(struct fuse_co
+  */
+ int fuse_valid_type(int m);
+ 
++bool fuse_invalid_attr(struct fuse_attr *attr);
++
+ /**
+  * Is current process allowed to perform filesystem operation?
+  */
+--- a/fs/fuse/readdir.c
++++ b/fs/fuse/readdir.c
+@@ -184,7 +184,7 @@ static int fuse_direntplus_link(struct f
+ 
+ 	if (invalid_nodeid(o->nodeid))
+ 		return -EIO;
+-	if (!fuse_valid_type(o->attr.mode))
++	if (fuse_invalid_attr(&o->attr))
+ 		return -EIO;
+ 
+ 	fc = get_fuse_conn(dir);
 
 
