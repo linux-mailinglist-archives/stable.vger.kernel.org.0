@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8903D11B10E
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBFB11B11C
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:28:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387468AbfLKP2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:28:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34116 "EHLO mail.kernel.org"
+        id S1733129AbfLKP2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:28:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387551AbfLKP2H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:28:07 -0500
+        id S2387709AbfLKP2p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:28:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B06B22527;
-        Wed, 11 Dec 2019 15:28:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E43352467D;
+        Wed, 11 Dec 2019 15:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078086;
-        bh=d/gDSFdYWlKq0/tr8QHvlZWvEWLb7k65q8nmPY7IaDI=;
+        s=default; t=1576078124;
+        bh=IveGYPqIBGxxO9HI6PWVQ5k5rY4SGIjnoNOe06r8UVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zo7ZnxFQqk+1XBjV+wPU3owLlowNe3iOqovaenYnlak6Ha+EeCxJay5TvujBrrTwN
-         LdvdTTfvfyWjvMIhkMdN250omilq3JVn6AJ/j7rtACI6lBTV1Z9rOcaji6DU6pkSH1
-         dP8aV0Q9Z655zAgqFvkyOyzWWAXVPBv2m8+fNajI=
+        b=T0JpO51Q/RcS5akT7kdo3pbya0q1kMqNDus9XMwLPzaOOHwDJcVe7GeNFPctjw4a9
+         jvDpHhcW8g64RmbLXSz7ibWjOryF2kO/5FPYWqFdsoZjN+sSLZcC75OXCUERKUXERD
+         BklBP5XygVn+0sP6vm17ururQoZrVlv0PrMkBnX0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ding Xiang <dingxiang@cmss.chinamobile.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 4.19 76/79] ocfs2: fix passing zero to 'PTR_ERR' warning
-Date:   Wed, 11 Dec 2019 10:26:40 -0500
-Message-Id: <20191211152643.23056-76-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 12/58] dma-debug: add a schedule point in debug_dma_dump_mappings()
+Date:   Wed, 11 Dec 2019 10:27:45 -0500
+Message-Id: <20191211152831.23507-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
-References: <20191211152643.23056-1-sashal@kernel.org>
+In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
+References: <20191211152831.23507-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -50,46 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Xiang <dingxiang@cmss.chinamobile.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 188c523e1c271d537f3c9f55b6b65bf4476de32f ]
+[ Upstream commit 9ff6aa027dbb98755f0265695354f2dd07c0d1ce ]
 
-Fix a static code checker warning:
-fs/ocfs2/acl.c:331
-	ocfs2_acl_chmod() warn: passing zero to 'PTR_ERR'
+debug_dma_dump_mappings() can take a lot of cpu cycles :
 
-Link: http://lkml.kernel.org/r/1dee278b-6c96-eec2-ce76-fe6e07c6e20f@linux.alibaba.com
-Fixes: 5ee0fbd50fd ("ocfs2: revert using ocfs2_acl_chmod to avoid inode cluster lock hang")
-Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+lpk43:/# time wc -l /sys/kernel/debug/dma-api/dump
+163435 /sys/kernel/debug/dma-api/dump
+
+real	0m0.463s
+user	0m0.003s
+sys	0m0.459s
+
+Let's add a cond_resched() to avoid holding cpu for too long.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Corentin Labbe <clabbe@baylibre.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/acl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/dma-debug.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ocfs2/acl.c b/fs/ocfs2/acl.c
-index 917fadca8a7bc..b73b78771915d 100644
---- a/fs/ocfs2/acl.c
-+++ b/fs/ocfs2/acl.c
-@@ -335,8 +335,8 @@ int ocfs2_acl_chmod(struct inode *inode, struct buffer_head *bh)
- 	down_read(&OCFS2_I(inode)->ip_xattr_sem);
- 	acl = ocfs2_get_acl_nolock(inode, ACL_TYPE_ACCESS, bh);
- 	up_read(&OCFS2_I(inode)->ip_xattr_sem);
--	if (IS_ERR(acl) || !acl)
--		return PTR_ERR(acl);
-+	if (IS_ERR_OR_NULL(acl))
-+		return PTR_ERR_OR_ZERO(acl);
- 	ret = __posix_acl_chmod(&acl, GFP_KERNEL, inode->i_mode);
- 	if (ret)
- 		return ret;
+diff --git a/lib/dma-debug.c b/lib/dma-debug.c
+index ea4cc3dde4f1b..61e7240947f54 100644
+--- a/lib/dma-debug.c
++++ b/lib/dma-debug.c
+@@ -437,6 +437,7 @@ void debug_dma_dump_mappings(struct device *dev)
+ 		}
+ 
+ 		spin_unlock_irqrestore(&bucket->lock, flags);
++		cond_resched();
+ 	}
+ }
+ EXPORT_SYMBOL(debug_dma_dump_mappings);
 -- 
 2.20.1
 
