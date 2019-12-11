@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F6F311BE58
+	by mail.lfdr.de (Postfix) with ESMTP id AE1A011BE59
 	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:49:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727123AbfLKUsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 15:48:24 -0500
-Received: from mail-qv1-f74.google.com ([209.85.219.74]:56526 "EHLO
-        mail-qv1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727114AbfLKUsX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:48:23 -0500
-Received: by mail-qv1-f74.google.com with SMTP id q17so9903758qvo.23
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:48:22 -0800 (PST)
+        id S1726901AbfLKUsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 15:48:31 -0500
+Received: from mail-ua1-f73.google.com ([209.85.222.73]:53323 "EHLO
+        mail-ua1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727115AbfLKUsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:48:31 -0500
+Received: by mail-ua1-f73.google.com with SMTP id 14so6550127uar.20
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:48:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=U1oRaOu4UKf7viNh4ANM8AYZUjuVHiI8DgaphOB3TV4=;
-        b=ICYTPZ7c3Ur5ji8A/GJ8r6Yn1LPj2qOZ9iFVliX5y5EvvrQPEtD5bKeM/hIMzjzCdK
-         9C7fqVZq5Dodo44qG4g3RI5a3sa9BWGW4OF6fXSYHtZClT+iMYX/X7zQKDgdGl5FTZkD
-         VuZu07R6o/rPbJPedX7bDEBazLxwFoDm24MpXgvIBQCPXX+zjyDwOiwiKP7NdG7Y8ssE
-         iFJNFPbtO5ZxdEojvVvyHPe94c+j7EC7ZLrgvsLPknHsYHF2CixJ3hzKeK60f4Z4F/aZ
-         BGyVsAd4TsviSx5CLpkcieupXvevViyqB0BurofDUPCmizeEZDllBrv/MNt6YYaQr4Hx
-         bbTw==
+        bh=jlDyQ8V1A4E8vFOmfZoIbJ2QXkEwRCCLJLwBmOJe29A=;
+        b=jjExR/ypQVqELVfmZroUTsrHDq+Kyle0r7cM6GRFHucL2QDpMuZu3CdhmxcEj1+Ggx
+         T8So24lxdlDrhk+RuF27Un0DG77dq2CZ9HeYsLpV5QlMy2HtKC55VRqIb8qE+dHH0ITg
+         GSleJ9N1oeFDK3s2487N+mFccVTnmHlEbx7WcAxgELvTZjNngusHfdOSkg/QcdlZ1riq
+         qSeHd362e8Pu/ZhX+hsgtZ0jZ0iw8suFK6xgpZ2TVTpBplBECiph61eND0JBp2AbBmpq
+         y8snT3db8QYHtMiqkIYkCXFjwa9j8jV//DXickQMzbWZWaBg5Lf9mVwD5Hf2mz9W0kIa
+         v82A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=U1oRaOu4UKf7viNh4ANM8AYZUjuVHiI8DgaphOB3TV4=;
-        b=IE2VpaMeCOzh0qdC4PUH66lgOzD6xvJmn1YGFNqEk9ZJqp08pqLh2yoExcvgpXFdtH
-         KaN0LY+tpBTgCOw75njueFz0jP9HTjO6vKHULc7RLiTbJ0vcltQo/KFRA+YZVmayaDGr
-         O9YFTi0XWym9JDLAAMMFXeLgeBeVuY6cIL+Zl4lXub2h12TP+Dh7CaaRplA6ijBdH+Zb
-         8u/pwLk2DgSKGLRgxvxNIWosRdt4+YMlqonNVKvFguCGvZ9hpBWgRgxtIKnTBEkvlxhZ
-         zAKzeiHxD7SKfg7cQINE4F0bu5YnTn0i5cwV4likG/1Q/Q6VafAEQzz6AcwXmVPDtyG4
-         7szA==
-X-Gm-Message-State: APjAAAWNtJHX6wi3X2a4yqAqmgwxQ7Jj7x2/8dExfFwYC32YRafYA/gO
-        HzvPk+hhhAxnZE3C8Aq4yQTv4BzqzlrQ
-X-Google-Smtp-Source: APXvYqwORnaDd0KerPCPPUjx9L0EkYqP+ngKokQFztfluoaxHnjP5honJKrXV1BllWzCwrUlPRfMnV7hPMj/
-X-Received: by 2002:a37:9ace:: with SMTP id c197mr4955885qke.482.1576097302014;
- Wed, 11 Dec 2019 12:48:22 -0800 (PST)
-Date:   Wed, 11 Dec 2019 12:47:41 -0800
+        bh=jlDyQ8V1A4E8vFOmfZoIbJ2QXkEwRCCLJLwBmOJe29A=;
+        b=foqQwjzIwJYgxPiWB1w/Tk+8BS8+uJKX/fsOqwz/CvkStEKsYIMJGxmJT69ZC6+1Y/
+         +JTp8w3aREOKoCwxy2tLx0qfB6cikTYHkzodi/hJewQQ6dNrOw6UJNlGDFZk/waIZrGn
+         xAsj0BCBMZAvHx38cVyYgo9Q//2s2Uixc8pHB63fsl7jYdIfQp2QGsSfNRPCh5tiQR7R
+         1/vRs8cnlCwyMZe1ykW3gMOshXEBSKJJ9aL7ONhpSDX9t0BfPV7eowttrvDY1301J5OG
+         H8ejj7YV5Q7bUx+8Zix/8CGfQb1WDa2q9hT9FSySlszadXwuYtF2llQ3VjfupST9hBF0
+         kcqg==
+X-Gm-Message-State: APjAAAUtA6+v+ut/ohOXsOrnJWm/5KI4ldtRUe6sO713Yu1sObLoP4Py
+        tnU/6fpG12g6ykb4Sxs4grKWhiAFfNfU
+X-Google-Smtp-Source: APXvYqyq+7rLt1Mbo63AO66IU/V2FHwB6iU0oZSlIduHJY1TtnmF475NNmuDKCUH1XyAbf89tAosu/+ebq+e
+X-Received: by 2002:a1f:ac57:: with SMTP id v84mr5636546vke.90.1576097310120;
+ Wed, 11 Dec 2019 12:48:30 -0800 (PST)
+Date:   Wed, 11 Dec 2019 12:47:42 -0800
 In-Reply-To: <20191211204753.242298-1-pomonis@google.com>
-Message-Id: <20191211204753.242298-2-pomonis@google.com>
+Message-Id: <20191211204753.242298-3-pomonis@google.com>
 Mime-Version: 1.0
 References: <20191211204753.242298-1-pomonis@google.com>
 X-Mailer: git-send-email 2.24.0.525.g8f36a354ae-goog
-Subject: [PATCH v2 01/13] KVM: x86: Protect x86_decode_insn from
- Spectre-v1/L1TF attacks
+Subject: [PATCH v2 02/13] KVM: x86: Protect kvm_hv_msr_[get|set]_crash_data()
+ from Spectre-v1/L1TF attacks
 From:   Marios Pomonis <pomonis@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, rkrcmar@redhat.com,
         Sean Christopherson <sean.j.christopherson@intel.com>,
@@ -67,43 +67,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes a Spectre-v1/L1TF vulnerability in x86_decode_insn().
-kvm_emulate_instruction() (an ancestor of x86_decode_insn()) is an exported
-symbol, so KVM should treat it conservatively from a security perspective.
+This fixes Spectre-v1/L1TF vulnerabilities in kvm_hv_msr_get_crash_data()
+and kvm_hv_msr_set_crash_data().
+These functions contain index computations that use the
+(attacker-controlled) MSR number.
 
-Fixes: commit 045a282ca415 ("KVM: emulator: implement fninit, fnstsw, fnstcw")
+Fixes: commit e7d9513b60e8 ("kvm/x86: added hyper-v crash msrs into kvm hyperv context")
 
 Signed-off-by: Nick Finco <nifi@google.com>
 Signed-off-by: Marios Pomonis <pomonis@google.com>
 Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
 ---
- arch/x86/kvm/emulate.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/kvm/hyperv.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index 952d1a4f4d7e..fcf7cdb21d60 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5303,10 +5303,15 @@ int x86_decode_insn(struct x86_emulate_ctxt *ctxt, void *insn, int insn_len)
- 			}
- 			break;
- 		case Escape:
--			if (ctxt->modrm > 0xbf)
--				opcode = opcode.u.esc->high[ctxt->modrm - 0xc0];
--			else
-+			if (ctxt->modrm > 0xbf) {
-+				size_t size = ARRAY_SIZE(opcode.u.esc->high);
-+				u32 index = array_index_nospec(
-+					ctxt->modrm - 0xc0, size);
-+
-+				opcode = opcode.u.esc->high[index];
-+			} else {
- 				opcode = opcode.u.esc->op[(ctxt->modrm >> 3) & 7];
-+			}
- 			break;
- 		case InstrDual:
- 			if ((ctxt->modrm >> 6) == 3)
+diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+index 23ff65504d7e..26408434b9bc 100644
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -809,11 +809,12 @@ static int kvm_hv_msr_get_crash_data(struct kvm_vcpu *vcpu,
+ 				     u32 index, u64 *pdata)
+ {
+ 	struct kvm_hv *hv = &vcpu->kvm->arch.hyperv;
++	size_t size = ARRAY_SIZE(hv->hv_crash_param);
+ 
+-	if (WARN_ON_ONCE(index >= ARRAY_SIZE(hv->hv_crash_param)))
++	if (WARN_ON_ONCE(index >= size))
+ 		return -EINVAL;
+ 
+-	*pdata = hv->hv_crash_param[index];
++	*pdata = hv->hv_crash_param[array_index_nospec(index, size)];
+ 	return 0;
+ }
+ 
+@@ -852,11 +853,12 @@ static int kvm_hv_msr_set_crash_data(struct kvm_vcpu *vcpu,
+ 				     u32 index, u64 data)
+ {
+ 	struct kvm_hv *hv = &vcpu->kvm->arch.hyperv;
++	size_t size = ARRAY_SIZE(hv->hv_crash_param);
+ 
+-	if (WARN_ON_ONCE(index >= ARRAY_SIZE(hv->hv_crash_param)))
++	if (WARN_ON_ONCE(index >= size))
+ 		return -EINVAL;
+ 
+-	hv->hv_crash_param[index] = data;
++	hv->hv_crash_param[array_index_nospec(index, size)] = data;
+ 	return 0;
+ }
+ 
 -- 
 2.24.0.525.g8f36a354ae-goog
 
