@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26FC111B23E
+	by mail.lfdr.de (Postfix) with ESMTP id 969FD11B23F
 	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733228AbfLKP2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:28:09 -0500
+        id S2387478AbfLKP2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:28:11 -0500
 Received: from mail.kernel.org ([198.145.29.99]:34116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733223AbfLKP2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:28:08 -0500
+        id S1732704AbfLKP2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:28:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8F4F24671;
-        Wed, 11 Dec 2019 15:28:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 114E224679;
+        Wed, 11 Dec 2019 15:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078087;
-        bh=GfUuw8DLwyBIzcEY8jsOSEHTl1jTlKc9d8XTA1qgxW0=;
+        s=default; t=1576078089;
+        bh=vvWS3qoUQuDi/xgwjMJGFXIYcuOJi6WlpF6XIGYhKGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2NRmnCYK/+ush1S65DWlbiEYqa6LMMiCqijdC39n0U23csdl2RYlKCTyFJFtUDbV
-         9CDX6hX/QWI2St0jv6cfLSwrZrC2Or+tuUqSQ7rf1mGaARChIPF53yRrs/gy4c4psW
-         3OUM6fWPKXsV3PkvoVYs1GtXlSYfklYBfdJJeAjw=
+        b=ejgWvBagZ9bgEzrE7vyB7aUCOpFtyp0dWxhMC/+o/dWgClUPLI/57LcE70dmIpNxd
+         9rswYCBx7l723almCZKJV+EmJdlnn8ASUe6gC8Rua6UjwOpDlTbzVK8h7i0UQA5FcX
+         9O7ywoXrWXu5vDwFD+uFzO6IBY1yBZr3WuIzWbYk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Richard Zhu <hongxing.zhu@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+Cc:     Johannes Weiner <hannes@cmpxchg.org>,
+        Chris Down <chris@chrisdown.name>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 77/79] mailbox: imx: Fix Tx doorbell shutdown path
-Date:   Wed, 11 Dec 2019 10:26:41 -0500
-Message-Id: <20191211152643.23056-77-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 78/79] kernel: sysctl: make drop_caches write-only
+Date:   Wed, 11 Dec 2019 10:26:42 -0500
+Message-Id: <20191211152643.23056-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -46,77 +49,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Baluta <daniel.baluta@nxp.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-[ Upstream commit bf159d151a0b844be28882f39e316b5800acaa2b ]
+[ Upstream commit 204cb79ad42f015312a5bbd7012d09c93d9b46fb ]
 
-Tx doorbell is handled by txdb_tasklet and doesn't
-have an associated IRQ.
+Currently, the drop_caches proc file and sysctl read back the last value
+written, suggesting this is somehow a stateful setting instead of a
+one-time command.  Make it write-only, like e.g.  compact_memory.
 
-Anyhow, imx_mu_shutdown ignores this and tries to
-free an IRQ that wasn't requested for Tx DB resulting
-in the following warning:
+While mitigating a VM problem at scale in our fleet, there was confusion
+about whether writing to this file will permanently switch the kernel into
+a non-caching mode.  This influences the decision making in a tense
+situation, where tens of people are trying to fix tens of thousands of
+affected machines: Do we need a rollback strategy?  What are the
+performance implications of operating in a non-caching state for several
+days?  It also caused confusion when the kernel team said we may need to
+write the file several times to make sure it's effective ("But it already
+reads back 3?").
 
-[    1.967644] Trying to free already-free IRQ 26
-[    1.972108] WARNING: CPU: 2 PID: 157 at kernel/irq/manage.c:1708 __free_irq+0xc0/0x358
-[    1.980024] Modules linked in:
-[    1.983088] CPU: 2 PID: 157 Comm: kworker/2:1 Tainted: G
-[    1.993524] Hardware name: Freescale i.MX8QXP MEK (DT)
-[    1.998668] Workqueue: events deferred_probe_work_func
-[    2.003812] pstate: 60000085 (nZCv daIf -PAN -UAO)
-[    2.008607] pc : __free_irq+0xc0/0x358
-[    2.012364] lr : __free_irq+0xc0/0x358
-[    2.016111] sp : ffff00001179b7e0
-[    2.019422] x29: ffff00001179b7e0 x28: 0000000000000018
-[    2.024736] x27: ffff000011233000 x26: 0000000000000004
-[    2.030053] x25: 000000000000001a x24: ffff80083bec74d4
-[    2.035369] x23: 0000000000000000 x22: ffff80083bec7588
-[    2.040686] x21: ffff80083b1fe8d8 x20: ffff80083bec7400
-[    2.046003] x19: 0000000000000000 x18: ffffffffffffffff
-[    2.051320] x17: 0000000000000000 x16: 0000000000000000
-[    2.056637] x15: ffff0000111296c8 x14: ffff00009179b517
-[    2.061953] x13: ffff00001179b525 x12: ffff000011142000
-[    2.067270] x11: ffff000011129f20 x10: ffff0000105da970
-[    2.072587] x9 : 00000000ffffffd0 x8 : 0000000000000194
-[    2.077903] x7 : 612065657266206f x6 : ffff0000111e7b09
-[    2.083220] x5 : 0000000000000003 x4 : 0000000000000000
-[    2.088537] x3 : 0000000000000000 x2 : 00000000ffffffff
-[    2.093854] x1 : 28b70f0a2b60a500 x0 : 0000000000000000
-[    2.099173] Call trace:
-[    2.101618]  __free_irq+0xc0/0x358
-[    2.105021]  free_irq+0x38/0x98
-[    2.108170]  imx_mu_shutdown+0x90/0xb0
-[    2.111921]  mbox_free_channel.part.2+0x24/0xb8
-[    2.116453]  mbox_free_channel+0x18/0x28
-
-This bug is present from the beginning of times.
-
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Signed-off-by: Richard Zhu <hongxing.zhu@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: http://lkml.kernel.org/r/20191031221602.9375-1-hannes@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/imx-mailbox.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sysctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mailbox/imx-mailbox.c b/drivers/mailbox/imx-mailbox.c
-index 363d35d5e49dc..2f47023cab2b2 100644
---- a/drivers/mailbox/imx-mailbox.c
-+++ b/drivers/mailbox/imx-mailbox.c
-@@ -214,8 +214,10 @@ static void imx_mu_shutdown(struct mbox_chan *chan)
- 	struct imx_mu_priv *priv = to_imx_mu_priv(chan->mbox);
- 	struct imx_mu_con_priv *cp = chan->con_priv;
- 
--	if (cp->type == IMX_MU_TYPE_TXDB)
-+	if (cp->type == IMX_MU_TYPE_TXDB) {
- 		tasklet_kill(&cp->txdb_tasklet);
-+		return;
-+	}
- 
- 	imx_mu_xcr_rmw(priv, 0,
- 		   IMX_MU_xCR_TIEn(cp->idx) | IMX_MU_xCR_RIEn(cp->idx));
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index f8576509c7bef..4c4fd4339d330 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1411,7 +1411,7 @@ static struct ctl_table vm_table[] = {
+ 		.procname	= "drop_caches",
+ 		.data		= &sysctl_drop_caches,
+ 		.maxlen		= sizeof(int),
+-		.mode		= 0644,
++		.mode		= 0200,
+ 		.proc_handler	= drop_caches_sysctl_handler,
+ 		.extra1		= &one,
+ 		.extra2		= &four,
 -- 
 2.20.1
 
