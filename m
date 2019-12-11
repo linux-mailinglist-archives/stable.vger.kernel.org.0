@@ -2,114 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7819B11A1A6
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 03:51:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C129A11A23B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 03:55:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727230AbfLKCvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 21:51:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35646 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726619AbfLKCvN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 10 Dec 2019 21:51:13 -0500
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4BFB20836
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 02:51:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576032673;
-        bh=v5s7xAB1ZKTwliMLIUXoJpyhVphhX3gSE8MDBuTMA78=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=vQx+Hkh833J9WaiPR09qwOuGhSOuakMBRcAsI9O6IjjU6it8P5jmns742yQWsRLxS
-         u7lMySWNFp0tE0zfFMuH+rxYKjxAovLbBEL/x8BhDF/vMyPzIFTr2ZkvUZw6k9ILyC
-         J0dx7x0xLADIaC3VodnRWm83R9w6Lh0lSkzPV7H8=
-Received: by mail-wm1-f49.google.com with SMTP id p9so5376505wmc.2
-        for <stable@vger.kernel.org>; Tue, 10 Dec 2019 18:51:12 -0800 (PST)
-X-Gm-Message-State: APjAAAUXDLD3ptb9fjc8WlCoqYsElwZK8zMLGL4a5zzd/IH1dtN1ooqy
-        NnSPFXKWX0J5BPTgbI+xyb9Vvm858//ZQSFzoPY=
-X-Google-Smtp-Source: APXvYqzyeno9avB5eyNLaWnBKy0vxS3qWvZ71vI00GdLWAzo6k4Ns3PJVNcu8Bi31eE4I5cdt7B+RbKLUaLAkm8NUBg=
-X-Received: by 2002:a1c:9e0d:: with SMTP id h13mr600718wme.110.1576032671360;
- Tue, 10 Dec 2019 18:51:11 -0800 (PST)
+        id S1728268AbfLKCzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 21:55:33 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:2168 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727939AbfLKCxf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 21:53:35 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5df05a270000>; Tue, 10 Dec 2019 18:53:27 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 10 Dec 2019 18:53:33 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 10 Dec 2019 18:53:33 -0800
+Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 11 Dec
+ 2019 02:53:33 +0000
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 11 Dec
+ 2019 02:53:32 +0000
+Received: from rnnvemgw01.nvidia.com (10.128.109.123) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 11 Dec 2019 02:53:32 +0000
+Received: from blueforge.nvidia.com (Not Verified[10.110.48.28]) by rnnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5df05a2b0000>; Tue, 10 Dec 2019 18:53:31 -0800
+From:   John Hubbard <jhubbard@nvidia.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     Al Viro <viro@zeniv.linux.org.uk>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Chinner <david@fromorbit.com>,
+        David Airlie <airlied@linux.ie>,
+        "David S . Miller" <davem@davemloft.net>,
+        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        "Mauro Carvalho Chehab" <mchehab@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        "Paul Mackerras" <paulus@samba.org>, Shuah Khan <shuah@kernel.org>,
+        Vlastimil Babka <vbabka@suse.cz>, <bpf@vger.kernel.org>,
+        <dri-devel@lists.freedesktop.org>, <kvm@vger.kernel.org>,
+        <linux-block@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+        <linux-media@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
+        <linuxppc-dev@lists.ozlabs.org>, <netdev@vger.kernel.org>,
+        <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "Christoph Hellwig" <hch@lst.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v9 17/25] media/v4l2-core: set pages dirty upon releasing DMA buffers
+Date:   Tue, 10 Dec 2019 18:53:10 -0800
+Message-ID: <20191211025318.457113-18-jhubbard@nvidia.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191211025318.457113-1-jhubbard@nvidia.com>
+References: <20191211025318.457113-1-jhubbard@nvidia.com>
 MIME-Version: 1.0
-References: <20191210225743.GA4443@roeck-us.net> <20191211002102.mr3re4rks2nmdkyf@toshiba.co.jp>
-In-Reply-To: <20191211002102.mr3re4rks2nmdkyf@toshiba.co.jp>
-From:   Chen-Yu Tsai <wens@kernel.org>
-Date:   Wed, 11 Dec 2019 10:51:00 +0800
-X-Gmail-Original-Message-ID: <CAGb2v66cAr63ikiBhO6h0c5cZufwcceY+52d9w71RbNScxyORg@mail.gmail.com>
-Message-ID: <CAGb2v66cAr63ikiBhO6h0c5cZufwcceY+52d9w71RbNScxyORg@mail.gmail.com>
-Subject: Re: stable RC build breakages (4.14.y, 4.19.y)
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     Guenter Roeck <linux@roeck-us.net>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-NVConfidentiality: public
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1576032807; bh=icmjko9fP8b/hMTtebs5M97o7j6aV8LjauIhhN3vqys=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
+         Content-Transfer-Encoding:Content-Type;
+        b=cifVc1Ww4iMHcwPZFE17sJkuzTCfp1LhU8i4d3cBz4KRFEJDZqU7mnJCHIto9hKg/
+         tjEh2XyuB9+xQvrp2gfY1X7qjh+jU9CIdrQZIiDX2uVSSfEpACfDf2Gm+bkzRfZVhy
+         k0U4Nf2NcRHMnLRrQVncPgND+y6OpPcFP+imoirF54bXSodOiPmtcNb1k8xQ54u82S
+         6OWt8xeU1iSMHi6IAdXXCeXkJGheQnoY+aOD5D+o6JJsuRip4Wo1cXWXByGs0Cr5OW
+         mT3bWjEVZiQHiPsrsiimn5rAmW2tUKFXhuDTx73N+6j3RQANaqbBZ7WdyIXmlY15N/
+         ygtMBw09poh8A==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 8:21 AM Nobuhiro Iwamatsu
-<nobuhiro1.iwamatsu@toshiba.co.jp> wrote:
->
-> Hi,
->
-> On Tue, Dec 10, 2019 at 02:57:43PM -0800, Guenter Roeck wrote:
-> > v4.14.y:
-> >
-> > arm64:defconfig:
-> >
-> > arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts:5:10: fatal error:
-> >       dt-bindings/input/gpio-keys.h: No such file or directory
-> >
->
-> The include/dt-bindings/input/gpio-keys.h is not provided.
-> We need to revert commit 9b7f85596a7c799d3715729188ea8f0f0f4b3c54(arm64:
-> tegra: Fix power key interrupt type on Jetson TX2).
->
->
-> > i386:allyesconfig:
-> >
-> > drivers/crypto/geode-aes.c:174:2: error:
-> >       implicit declaration of function 'crypto_sync_skcipher_clear_flags
-> >
-> > and several similar errors.
->
->
-> crypto_sync_skcipher_clear_flags() was provided from 4.19. So we need to
-> fix the patch.
->
-> >
-> >
-> > ---
-> > v4.19.y:
-> >
-> > arm64:defconfig:
-> >
-> > arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:82.1-7 Label or path codec not found
-> > arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:86.1-14 Label or path codec_analog not found
-> > arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:91.1-5 Label or path dai not found
-> > arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:297.1-7 Label or path sound not found
->
-> I think we need to pick commit ec4a95409d5c28962e0097e8291aa7048f8b262a.
-> But I have not examined it in detail.
+After DMA is complete, and the device and CPU caches are synchronized,
+it's still required to mark the CPU pages as dirty, if the data was
+coming from the device. However, this driver was just issuing a
+bare put_page() call, without any set_page_dirty*() call.
 
-Yes that looks like the right patch.
+Fix the problem, by calling set_page_dirty_lock() if the CPU pages
+were potentially receiving data from the device.
 
-Alternatively, you could just ask for
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+---
+ drivers/media/v4l2-core/videobuf-dma-sg.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-  ea03518a3123 arm64: dts: allwinner: a64: enable sound on Pinebook
+diff --git a/drivers/media/v4l2-core/videobuf-dma-sg.c b/drivers/media/v4l2=
+-core/videobuf-dma-sg.c
+index 66a6c6c236a7..28262190c3ab 100644
+--- a/drivers/media/v4l2-core/videobuf-dma-sg.c
++++ b/drivers/media/v4l2-core/videobuf-dma-sg.c
+@@ -349,8 +349,11 @@ int videobuf_dma_free(struct videobuf_dmabuf *dma)
+ 	BUG_ON(dma->sglen);
+=20
+ 	if (dma->pages) {
+-		for (i =3D 0; i < dma->nr_pages; i++)
++		for (i =3D 0; i < dma->nr_pages; i++) {
++			if (dma->direction =3D=3D DMA_FROM_DEVICE)
++				set_page_dirty_lock(dma->pages[i]);
+ 			put_page(dma->pages[i]);
++		}
+ 		kfree(dma->pages);
+ 		dma->pages =3D NULL;
+ 	}
+--=20
+2.24.0
 
-to be dropped, since the related driver changes aren't in stable either,
-there's no way this works.
-
-
-ChenYu
-
-> >
-> > i386:allyesconfig:
-> >
-> > Same as v4.14.y.
-> >
-> > Guenter
-> >
->
-> Best regards,
->   Nobuhiro
