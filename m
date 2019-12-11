@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57CB911B26B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 385E011B271
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:36:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388252AbfLKPfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:35:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45216 "EHLO mail.kernel.org"
+        id S2387483AbfLKPgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:36:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388248AbfLKPfy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:35:54 -0500
+        id S2388218AbfLKPfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:35:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 897C12467A;
-        Wed, 11 Dec 2019 15:35:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A28C2173E;
+        Wed, 11 Dec 2019 15:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078553;
-        bh=YVUZ/vc6IgD6/Q26ftSCQsbJ+vLqmFJ2jTNAXrSTNDU=;
+        s=default; t=1576078554;
+        bh=jsUOy/Ww3zxSFrCUkc87CLEdi6aKuAioDsOPD5sOsdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBwJHwSRgLJy69gVIVwZ4kbL4nYD5NZiRVa2hRm79107sA1YrrF9ZWFkFhkjCjtmZ
-         E+CeShI53VgNln7NizWztinctv+FA2J+D1wEn9vnOB7pWChm2Icswh8xdZp4ezsAyR
-         GwCqER1Iw+UkkyiNlP0SRKGyz6PIeQ1Qceq9clG4=
+        b=AqsJKIyVaFRHNlbnLJX/M72MIw/ScBEjglQ5STMiWOQjhTS78MixqyOwDLVkRaICe
+         JVmuNjneLS8D0qJ7+2z4okarfaDj5qa9SYsXpl4hDWMPjU0Ri+aAmfIEdwro65FmOT
+         Om6GiWdnjinmfpjr9mXUfO56I1fwG7w8IgnzMXX8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 40/42] s390/cpum_sf: Check for SDBT and SDB consistency
-Date:   Wed, 11 Dec 2019 10:35:08 -0500
-Message-Id: <20191211153510.23861-40-sashal@kernel.org>
+Cc:     Ding Xiang <dingxiang@cmss.chinamobile.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 4.9 41/42] ocfs2: fix passing zero to 'PTR_ERR' warning
+Date:   Wed, 11 Dec 2019 10:35:09 -0500
+Message-Id: <20191211153510.23861-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153510.23861-1-sashal@kernel.org>
 References: <20191211153510.23861-1-sashal@kernel.org>
@@ -43,105 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Ding Xiang <dingxiang@cmss.chinamobile.com>
 
-[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
+[ Upstream commit 188c523e1c271d537f3c9f55b6b65bf4476de32f ]
 
-Each SBDT is located at a 4KB page and contains 512 entries.
-Each entry of a SDBT points to a SDB, a 4KB page containing
-sampled data. The last entry is a link to another SDBT page.
+Fix a static code checker warning:
+fs/ocfs2/acl.c:331
+	ocfs2_acl_chmod() warn: passing zero to 'PTR_ERR'
 
-When an event is created the function sequence executed is:
-
-  __hw_perf_event_init()
-  +--> allocate_buffers()
-       +--> realloc_sampling_buffers()
-	    +---> alloc_sample_data_block()
-
-Both functions realloc_sampling_buffers() and
-alloc_sample_data_block() allocate pages and the allocation
-can fail. This is handled correctly and all allocated
-pages are freed and error -ENOMEM is returned to the
-top calling function. Finally the event is not created.
-
-Once the event has been created, the amount of initially
-allocated SDBT and SDB can be too low. This is detected
-during measurement interrupt handling, where the amount
-of lost samples is calculated. If the number of lost samples
-is too high considering sampling frequency and already allocated
-SBDs, the number of SDBs is enlarged during the next execution
-of cpumsf_pmu_enable().
-
-If more SBDs need to be allocated, functions
-
-       realloc_sampling_buffers()
-       +---> alloc-sample_data_block()
-
-are called to allocate more pages. Page allocation may fail
-and the returned error is ignored. A SDBT and SDB setup
-already exists.
-
-However the modified SDBTs and SDBs might end up in a situation
-where the first entry of an SDBT does not point to an SDB,
-but another SDBT, basicly an SBDT without payload.
-This can not be handled by the interrupt handler, where an SDBT
-must have at least one entry pointing to an SBD.
-
-Add a check to avoid SDBTs with out payload (SDBs) when enlarging
-the buffer setup.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lkml.kernel.org/r/1dee278b-6c96-eec2-ce76-fe6e07c6e20f@linux.alibaba.com
+Fixes: 5ee0fbd50fd ("ocfs2: revert using ocfs2_acl_chmod to avoid inode cluster lock hang")
+Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ fs/ocfs2/acl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index f46e5c0cb6d95..02476d2333df3 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -185,7 +185,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 				   unsigned long num_sdb, gfp_t gfp_flags)
- {
- 	int i, rc;
--	unsigned long *new, *tail;
-+	unsigned long *new, *tail, *tail_prev = NULL;
- 
- 	if (!sfb->sdbt || !sfb->tail)
- 		return -EINVAL;
-@@ -224,6 +224,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 			sfb->num_sdbt++;
- 			/* Link current page to tail of chain */
- 			*tail = (unsigned long)(void *) new + 1;
-+			tail_prev = tail;
- 			tail = new;
- 		}
- 
-@@ -233,10 +234,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 		 * issue, a new realloc call (if required) might succeed.
- 		 */
- 		rc = alloc_sample_data_block(tail, gfp_flags);
--		if (rc)
-+		if (rc) {
-+			/* Undo last SDBT. An SDBT with no SDB at its first
-+			 * entry but with an SDBT entry instead can not be
-+			 * handled by the interrupt handler code.
-+			 * Avoid this situation.
-+			 */
-+			if (tail_prev) {
-+				sfb->num_sdbt--;
-+				free_page((unsigned long) new);
-+				tail = tail_prev;
-+			}
- 			break;
-+		}
- 		sfb->num_sdb++;
- 		tail++;
-+		tail_prev = new = NULL;	/* Allocated at least one SBD */
- 	}
- 
- 	/* Link sampling buffer to its origin */
+diff --git a/fs/ocfs2/acl.c b/fs/ocfs2/acl.c
+index ee8dbbae78b6a..6dc714a56c37a 100644
+--- a/fs/ocfs2/acl.c
++++ b/fs/ocfs2/acl.c
+@@ -338,8 +338,8 @@ int ocfs2_acl_chmod(struct inode *inode, struct buffer_head *bh)
+ 	down_read(&OCFS2_I(inode)->ip_xattr_sem);
+ 	acl = ocfs2_get_acl_nolock(inode, ACL_TYPE_ACCESS, bh);
+ 	up_read(&OCFS2_I(inode)->ip_xattr_sem);
+-	if (IS_ERR(acl) || !acl)
+-		return PTR_ERR(acl);
++	if (IS_ERR_OR_NULL(acl))
++		return PTR_ERR_OR_ZERO(acl);
+ 	ret = __posix_acl_chmod(&acl, GFP_KERNEL, inode->i_mode);
+ 	if (ret)
+ 		return ret;
 -- 
 2.20.1
 
