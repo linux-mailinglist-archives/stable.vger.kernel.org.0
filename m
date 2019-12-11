@@ -2,88 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE30B11BE8D
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F6F311BE58
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:49:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727154AbfLKUu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 15:50:28 -0500
-Received: from mout.kundenserver.de ([217.72.192.74]:35685 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727140AbfLKUu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:50:27 -0500
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue108 [212.227.15.145]) with ESMTPA (Nemesis) id
- 1MRCBm-1iK9Wr1CTc-00N6b3; Wed, 11 Dec 2019 21:45:01 +0100
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     Jens Axboe <axboe@kernel.dk>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jens Axboe <axboe@fb.com>
-Cc:     linux-kernel@vger.kernel.org, y2038@lists.linaro.org,
-        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org
-Subject: [PATCH 06/24] compat_ioctl: block: handle Persistent Reservations
-Date:   Wed, 11 Dec 2019 21:42:40 +0100
-Message-Id: <20191211204306.1207817-7-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
-In-Reply-To: <20191211204306.1207817-1-arnd@arndb.de>
-References: <20191211204306.1207817-1-arnd@arndb.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:MERO8zqQm/hzGxvh7HZnjW9vQ1ZkuwnxVUEsPHkICjTXF72YTAX
- GzMR0NQXrHDUH1Ymk9up4NF0oLy5R2DPdiNH0cZ5VKqru27Xw4DQslx1eJSQWf06CCL1CNf
- jgBrKB7/+0fQuGpKbgn+ah/UhrVsIriUPnvb9s0qeTnOjN0sopsSOo5nNWQRPuh8beEa46x
- CqJxhbbw4iH1L6KK+ABTw==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:cgHM/oukC3A=:Wr9cjDcJN40wTgqwfOa2OY
- IeB4iEnKqfNoRtRGuXIwtlpmRnDA+FXs7+eBPsV3Jtcv7d5IVtBbcJmfIW5Jq2GTuk4rqxiZG
- upmoAj6LgLqs/Xga9Dvv3jZwEz4E6KHff+Z7KEjINDweoqJV7C8SkI1177LjWSxknHaesB0Q5
- BjXEId+7YKOx03fWONcPFlB411QY5y32LND3+HeBcQM1FO1iVA+d15fICtU5rAtUwdg/J18SA
- k8eCOqXrWszndNXc+gnRwLq6O32FMoXeBONlMKkSOBAeEJOMyO7DqM/BxKRhRKAqZ2wgI1qfP
- TkPb+PfBTqlvfXQrJaYNahGpIVImte/G46I83l43XRdEBp9PvtxdWZ4haYTdngDQKN5yX3oXO
- uXgi0/BXVLT1gKvLnz4kRLfePf0H3qBBY6Ex30UinIn5gLxRDlDqZApaVwkU8wy7aKFt1jUb9
- ihFLXWJ6uxSKiB7bzLHfHZksBhL7Mvc/eLbS2/zJwZp/vchOB/uAD8bmhwn4AtsXP+sOkHikd
- t2HrJqmN2rMiGWFSIB4OVqIQkaoHABPCZOjowivoRLnLO4SQBSJNAbfzF/SOtoY9wlCfC2kSr
- wENXIPN6oQLrNRvceFj+PrbKDiDFQE/2+dFF+qQJlbH+VnzeBpVgAqV7i8IpNy0LfMzGuXEq/
- N90+kCpIPtN+R2PGwv1Jv08WFACU+uGWXH3WMib15C4h1o3sA7kUEBrIp3qsAbR3+O14ebLQo
- b0m349+vlPkY7mdXIAqMELR9ztbqWPLSAkLrziNrgq2KP+J/t/0Q2Y7+x+RtBamThBy8hkYiQ
- rg02cnlfarh5rkL6HtGaqMnHHoW7tbUaNsiJYR/5Za2agv6fEKGSLJ+o6uCXNcdnFHxoaYFTO
- 26SDlJk8ZBEKbCH6Zjyg==
+        id S1727123AbfLKUsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 15:48:24 -0500
+Received: from mail-qv1-f74.google.com ([209.85.219.74]:56526 "EHLO
+        mail-qv1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727114AbfLKUsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:48:23 -0500
+Received: by mail-qv1-f74.google.com with SMTP id q17so9903758qvo.23
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:48:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=U1oRaOu4UKf7viNh4ANM8AYZUjuVHiI8DgaphOB3TV4=;
+        b=ICYTPZ7c3Ur5ji8A/GJ8r6Yn1LPj2qOZ9iFVliX5y5EvvrQPEtD5bKeM/hIMzjzCdK
+         9C7fqVZq5Dodo44qG4g3RI5a3sa9BWGW4OF6fXSYHtZClT+iMYX/X7zQKDgdGl5FTZkD
+         VuZu07R6o/rPbJPedX7bDEBazLxwFoDm24MpXgvIBQCPXX+zjyDwOiwiKP7NdG7Y8ssE
+         iFJNFPbtO5ZxdEojvVvyHPe94c+j7EC7ZLrgvsLPknHsYHF2CixJ3hzKeK60f4Z4F/aZ
+         BGyVsAd4TsviSx5CLpkcieupXvevViyqB0BurofDUPCmizeEZDllBrv/MNt6YYaQr4Hx
+         bbTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=U1oRaOu4UKf7viNh4ANM8AYZUjuVHiI8DgaphOB3TV4=;
+        b=IE2VpaMeCOzh0qdC4PUH66lgOzD6xvJmn1YGFNqEk9ZJqp08pqLh2yoExcvgpXFdtH
+         KaN0LY+tpBTgCOw75njueFz0jP9HTjO6vKHULc7RLiTbJ0vcltQo/KFRA+YZVmayaDGr
+         O9YFTi0XWym9JDLAAMMFXeLgeBeVuY6cIL+Zl4lXub2h12TP+Dh7CaaRplA6ijBdH+Zb
+         8u/pwLk2DgSKGLRgxvxNIWosRdt4+YMlqonNVKvFguCGvZ9hpBWgRgxtIKnTBEkvlxhZ
+         zAKzeiHxD7SKfg7cQINE4F0bu5YnTn0i5cwV4likG/1Q/Q6VafAEQzz6AcwXmVPDtyG4
+         7szA==
+X-Gm-Message-State: APjAAAWNtJHX6wi3X2a4yqAqmgwxQ7Jj7x2/8dExfFwYC32YRafYA/gO
+        HzvPk+hhhAxnZE3C8Aq4yQTv4BzqzlrQ
+X-Google-Smtp-Source: APXvYqwORnaDd0KerPCPPUjx9L0EkYqP+ngKokQFztfluoaxHnjP5honJKrXV1BllWzCwrUlPRfMnV7hPMj/
+X-Received: by 2002:a37:9ace:: with SMTP id c197mr4955885qke.482.1576097302014;
+ Wed, 11 Dec 2019 12:48:22 -0800 (PST)
+Date:   Wed, 11 Dec 2019 12:47:41 -0800
+In-Reply-To: <20191211204753.242298-1-pomonis@google.com>
+Message-Id: <20191211204753.242298-2-pomonis@google.com>
+Mime-Version: 1.0
+References: <20191211204753.242298-1-pomonis@google.com>
+X-Mailer: git-send-email 2.24.0.525.g8f36a354ae-goog
+Subject: [PATCH v2 01/13] KVM: x86: Protect x86_decode_insn from
+ Spectre-v1/L1TF attacks
+From:   Marios Pomonis <pomonis@google.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>, rkrcmar@redhat.com,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Nick Finco <nifi@google.com>, Andrew Honig <ahonig@google.com>,
+        Marios Pomonis <pomonis@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These were added to blkdev_ioctl() in linux-5.5 but not
-blkdev_compat_ioctl, so add them now.
+This fixes a Spectre-v1/L1TF vulnerability in x86_decode_insn().
+kvm_emulate_instruction() (an ancestor of x86_decode_insn()) is an exported
+symbol, so KVM should treat it conservatively from a security perspective.
 
-Cc: <stable@vger.kernel.org> # v4.4+
-Fixes: bbd3e064362e ("block: add an API for Persistent Reservations")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: commit 045a282ca415 ("KVM: emulator: implement fninit, fnstsw, fnstcw")
+
+Signed-off-by: Nick Finco <nifi@google.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
+Reviewed-by: Andrew Honig <ahonig@google.com>
+Cc: stable@vger.kernel.org
 ---
- block/compat_ioctl.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/kvm/emulate.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/block/compat_ioctl.c b/block/compat_ioctl.c
-index 5b13e344229c..f16ae92065d7 100644
---- a/block/compat_ioctl.c
-+++ b/block/compat_ioctl.c
-@@ -408,6 +408,14 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 	case BLKTRACETEARDOWN: /* compatible */
- 		ret = blk_trace_ioctl(bdev, cmd, compat_ptr(arg));
- 		return ret;
-+	case IOC_PR_REGISTER:
-+	case IOC_PR_RESERVE:
-+	case IOC_PR_RELEASE:
-+	case IOC_PR_PREEMPT:
-+	case IOC_PR_PREEMPT_ABORT:
-+	case IOC_PR_CLEAR:
-+		return blkdev_ioctl(bdev, mode, cmd,
-+				(unsigned long)compat_ptr(arg));
- 	default:
- 		if (disk->fops->compat_ioctl)
- 			ret = disk->fops->compat_ioctl(bdev, mode, cmd, arg);
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 952d1a4f4d7e..fcf7cdb21d60 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -5303,10 +5303,15 @@ int x86_decode_insn(struct x86_emulate_ctxt *ctxt, void *insn, int insn_len)
+ 			}
+ 			break;
+ 		case Escape:
+-			if (ctxt->modrm > 0xbf)
+-				opcode = opcode.u.esc->high[ctxt->modrm - 0xc0];
+-			else
++			if (ctxt->modrm > 0xbf) {
++				size_t size = ARRAY_SIZE(opcode.u.esc->high);
++				u32 index = array_index_nospec(
++					ctxt->modrm - 0xc0, size);
++
++				opcode = opcode.u.esc->high[index];
++			} else {
+ 				opcode = opcode.u.esc->op[(ctxt->modrm >> 3) & 7];
++			}
+ 			break;
+ 		case InstrDual:
+ 			if ((ctxt->modrm >> 6) == 3)
 -- 
-2.20.0
+2.24.0.525.g8f36a354ae-goog
 
