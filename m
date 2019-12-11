@@ -2,43 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7D0911B664
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F72511B65D
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731599AbfLKQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:00:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37686 "EHLO mail.kernel.org"
+        id S1732226AbfLKQAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:00:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731491AbfLKPNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:43 -0500
+        id S1730981AbfLKPNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD0FA22B48;
-        Wed, 11 Dec 2019 15:13:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B28822B48;
+        Wed, 11 Dec 2019 15:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077223;
-        bh=8zBpuO12cXO1RswKC2eHP1PylRrkm7I8FK3/Ol9du+Y=;
+        s=default; t=1576077227;
+        bh=XVLFkUxvPr4SxI4Dxl0LIajKkAizRQoeefyUhnfbFRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAv92Awg4cnD9QVFQYQuamn8ZKsVeXLJfzCEOclD373kPrpHtsN31zctQx9BXN1B5
-         Fp4xXHeZABY0myq16KHDHMXpD3cDkdeVRlN9voOA+m/27J8a0vDvRv+ocLiwXhCHvZ
-         iOD+uehO9hPlb2/x6O+gNCT5TBtOTWI4IE76o6LI=
+        b=Yd/Vh+eFNp1LT7KiLPAf0cTZDtR3XOXwpuVXHW0CdmckMdG8RhBw4tnGVe02AQ8we
+         DekCnV2SuQ4JyHcFtm4BGsmefl4N/C+8D81yrRX8pqFKQ2LMhJHnuuFD7PB83l3EIb
+         lEYhbqY6g00X2UMsfaOoeQAnBzSiuBPx6WZ/FEc4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gayatri Kammela <gayatri.kammela@intel.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kan Liang <kan.liang@intel.com>,
-        "David E . Box" <david.e.box@intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 102/134] platform/x86: intel_pmc_core: Fix the SoC naming inconsistency
-Date:   Wed, 11 Dec 2019 10:11:18 -0500
-Message-Id: <20191211151150.19073-102-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 106/134] tools/power/x86/intel-speed-select: Ignore missing config level
+Date:   Wed, 11 Dec 2019 10:11:22 -0500
+Message-Id: <20191211151150.19073-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -51,92 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gayatri Kammela <gayatri.kammela@intel.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 43e82d8aa92503d264309fb648b251b2d85caf1a ]
+[ Upstream commit 20183ccd3e4d01d23b0a01fe9f3ee73fbae312fa ]
 
-Intel's SoCs follow a naming convention which spells out the SoC name as
-two words instead of one word (E.g: Cannon Lake vs Cannonlake). Thus fix
-the naming inconsistency across the intel_pmc_core driver, so future
-SoCs can follow the naming consistency as below.
+It is possible that certain config levels are not available, even
+if the max level includes the level. There can be missing levels in
+some platforms. So ignore the level when called for information dump
+for all levels and fail if specifically ask for the missing level.
 
-Cometlake -> Comet Lake
-Tigerlake -> Tiger Lake
-Elkhartlake -> Elkhart Lake
+Here the changes is to continue reading information about other levels
+even if we fail to get information for the current level. But use the
+"processed" flag to indicate the failure. When the "processed" flag is
+not set, don't dump information about that level.
 
-Cc: Mario Limonciello <mario.limonciello@dell.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Kan Liang <kan.liang@intel.com>
-Cc: David E. Box <david.e.box@intel.com>
-Cc: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_core.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/power/x86/intel-speed-select/isst-core.c    | 8 ++++----
+ tools/power/x86/intel-speed-select/isst-display.c | 3 ++-
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
-index 94a008efb09b8..6b6edc30f8359 100644
---- a/drivers/platform/x86/intel_pmc_core.c
-+++ b/drivers/platform/x86/intel_pmc_core.c
-@@ -158,7 +158,7 @@ static const struct pmc_reg_map spt_reg_map = {
- 	.pm_vric1_offset = SPT_PMC_VRIC1_OFFSET,
- };
+diff --git a/tools/power/x86/intel-speed-select/isst-core.c b/tools/power/x86/intel-speed-select/isst-core.c
+index 6dee5332c9d37..fde3f9cefc6db 100644
+--- a/tools/power/x86/intel-speed-select/isst-core.c
++++ b/tools/power/x86/intel-speed-select/isst-core.c
+@@ -553,7 +553,6 @@ int isst_get_process_ctdp(int cpu, int tdp_level, struct isst_pkg_ctdp *pkg_dev)
+ 			     i);
+ 		ctdp_level = &pkg_dev->ctdp_level[i];
  
--/* Cannonlake: PGD PFET Enable Ack Status Register(s) bitmap */
-+/* Cannon Lake: PGD PFET Enable Ack Status Register(s) bitmap */
- static const struct pmc_bit_map cnp_pfear_map[] = {
- 	{"PMC",                 BIT(0)},
- 	{"OPI-DMI",             BIT(1)},
-@@ -185,7 +185,7 @@ static const struct pmc_bit_map cnp_pfear_map[] = {
- 	{"SDX",                 BIT(4)},
- 	{"SPE",                 BIT(5)},
- 	{"Fuse",                BIT(6)},
--	/* Reserved for Cannonlake but valid for Icelake */
-+	/* Reserved for Cannon Lake but valid for Ice Lake */
- 	{"SBR8",		BIT(7)},
+-		ctdp_level->processed = 1;
+ 		ctdp_level->level = i;
+ 		ctdp_level->control_cpu = cpu;
+ 		ctdp_level->pkg_id = get_physical_package_id(cpu);
+@@ -561,7 +560,10 @@ int isst_get_process_ctdp(int cpu, int tdp_level, struct isst_pkg_ctdp *pkg_dev)
  
- 	{"CSME_FSC",            BIT(0)},
-@@ -229,12 +229,12 @@ static const struct pmc_bit_map cnp_pfear_map[] = {
- 	{"HDA_PGD4",            BIT(2)},
- 	{"HDA_PGD5",            BIT(3)},
- 	{"HDA_PGD6",            BIT(4)},
--	/* Reserved for Cannonlake but valid for Icelake */
-+	/* Reserved for Cannon Lake but valid for Ice Lake */
- 	{"PSF6",		BIT(5)},
- 	{"PSF7",		BIT(6)},
- 	{"PSF8",		BIT(7)},
+ 		ret = isst_get_ctdp_control(cpu, i, ctdp_level);
+ 		if (ret)
+-			return ret;
++			continue;
++
++		pkg_dev->processed = 1;
++		ctdp_level->processed = 1;
  
--	/* Icelake generation onwards only */
-+	/* Ice Lake generation onwards only */
- 	{"RES_65",		BIT(0)},
- 	{"RES_66",		BIT(1)},
- 	{"RES_67",		BIT(2)},
-@@ -324,7 +324,7 @@ static const struct pmc_bit_map cnp_ltr_show_map[] = {
- 	{"ISH",			CNP_PMC_LTR_ISH},
- 	{"UFSX2",		CNP_PMC_LTR_UFSX2},
- 	{"EMMC",		CNP_PMC_LTR_EMMC},
--	/* Reserved for Cannonlake but valid for Icelake */
-+	/* Reserved for Cannon Lake but valid for Ice Lake */
- 	{"WIGIG",		ICL_PMC_LTR_WIGIG},
- 	/* Below two cannot be used for LTR_IGNORE */
- 	{"CURRENT_PLATFORM",	CNP_PMC_LTR_CUR_PLT},
-@@ -871,8 +871,8 @@ static int pmc_core_probe(struct platform_device *pdev)
- 	pmcdev->map = (struct pmc_reg_map *)cpu_id->driver_data;
+ 		ret = isst_get_tdp_info(cpu, i, ctdp_level);
+ 		if (ret)
+@@ -614,8 +616,6 @@ int isst_get_process_ctdp(int cpu, int tdp_level, struct isst_pkg_ctdp *pkg_dev)
+ 		}
+ 	}
  
- 	/*
--	 * Coffeelake has CPU ID of Kabylake and Cannonlake PCH. So here
--	 * Sunrisepoint PCH regmap can't be used. Use Cannonlake PCH regmap
-+	 * Coffee Lake has CPU ID of Kaby Lake and Cannon Lake PCH. So here
-+	 * Sunrisepoint PCH regmap can't be used. Use Cannon Lake PCH regmap
- 	 * in this case.
- 	 */
- 	if (pmcdev->map == &spt_reg_map && !pci_dev_present(pmc_pci_ids))
+-	pkg_dev->processed = 1;
+-
+ 	return 0;
+ }
+ 
+diff --git a/tools/power/x86/intel-speed-select/isst-display.c b/tools/power/x86/intel-speed-select/isst-display.c
+index 40346d534f789..b11575c3e8864 100644
+--- a/tools/power/x86/intel-speed-select/isst-display.c
++++ b/tools/power/x86/intel-speed-select/isst-display.c
+@@ -314,7 +314,8 @@ void isst_ctdp_display_information(int cpu, FILE *outf, int tdp_level,
+ 	char value[256];
+ 	int i, base_level = 1;
+ 
+-	print_package_info(cpu, outf);
++	if (pkg_dev->processed)
++		print_package_info(cpu, outf);
+ 
+ 	for (i = 0; i <= pkg_dev->levels; ++i) {
+ 		struct isst_pkg_ctdp_level_info *ctdp_level;
 -- 
 2.20.1
 
