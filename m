@@ -2,185 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F78F11A59A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 09:09:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 698AA11A61A
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 09:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727829AbfLKIJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 03:09:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60318 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726543AbfLKIJW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 03:09:22 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 320802077B;
-        Wed, 11 Dec 2019 08:09:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576051761;
-        bh=zEeUurU1aSr6ZYP5oj+6Efgka5tRAnGhEEVsMu0bnL0=;
-        h=Subject:To:From:Date:From;
-        b=0oUyvo38cob1vzycY3MH9MjlrqZQOTg8Hp5j3B3ARbx7Eu1tZGDE4122xObWv7xD4
-         WWj6IeY40NaLn49c9EhLtsNVB+LA87v0KpItRrP4sm0eKYKzoLKifBX1/Pbe/YO6Ae
-         uhIZJ9AICrjkOoLPbQ3uBLm45wVi2YkPS01yh9BM=
-Subject: patch "USB: Fix incorrect DMA allocations for local memory pool drivers" added to usb-linus
-To:     noring@nocrew.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 11 Dec 2019 09:09:18 +0100
-Message-ID: <1576051758171126@kroah.com>
+        id S1726845AbfLKImX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 03:42:23 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:54647 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727253AbfLKImW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 03:42:22 -0500
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1iexZa-0003QL-Cz; Wed, 11 Dec 2019 09:42:18 +0100
+Received: from [IPv6:2a03:f580:87bc:d400:4009:4a02:9726:d32a] (unknown [IPv6:2a03:f580:87bc:d400:4009:4a02:9726:d32a])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits)
+         client-signature RSA-PSS (4096 bits))
+        (Client CN "mkl@blackshift.org", Issuer "StartCom Class 1 Client CA" (not verified))
+        (Authenticated sender: mkl@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 883A448D8D5;
+        Wed, 11 Dec 2019 08:42:17 +0000 (UTC)
+Subject: Re: [PATCH v3 1/2] can: m_can: tcan4x5x: put the device out of
+ standby before register access
+To:     Sean Nyekjaer <sean@geanix.com>, dmurphy@ti.com,
+        linux-can@vger.kernel.org
+Cc:     martin@geanix.com, stable@vger.kernel.org
+References: <20191211064208.84656-1-sean@geanix.com>
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+Openpgp: preference=signencrypt
+Autocrypt: addr=mkl@pengutronix.de; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <8b1682ad-c291-252e-c768-63a7a4801aff@pengutronix.de>
+Date:   Wed, 11 Dec 2019 09:42:13 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191211064208.84656-1-sean@geanix.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="e6vz8528PE2mMsHSDAv42MmP46Kr29LHk"
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--e6vz8528PE2mMsHSDAv42MmP46Kr29LHk
+Content-Type: multipart/mixed; boundary="InbDMWiVVpm24VjPoua8Ud02RL7xL9V8F";
+ protected-headers="v1"
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+To: Sean Nyekjaer <sean@geanix.com>, dmurphy@ti.com, linux-can@vger.kernel.org
+Cc: martin@geanix.com, stable@vger.kernel.org
+Message-ID: <8b1682ad-c291-252e-c768-63a7a4801aff@pengutronix.de>
+Subject: Re: [PATCH v3 1/2] can: m_can: tcan4x5x: put the device out of
+ standby before register access
+References: <20191211064208.84656-1-sean@geanix.com>
+In-Reply-To: <20191211064208.84656-1-sean@geanix.com>
 
-This is a note to let you know that I've just added the patch titled
+--InbDMWiVVpm24VjPoua8Ud02RL7xL9V8F
+Content-Type: text/plain; charset=utf-8
+Content-Language: de-DE
+Content-Transfer-Encoding: quoted-printable
 
-    USB: Fix incorrect DMA allocations for local memory pool drivers
+On 12/11/19 7:42 AM, Sean Nyekjaer wrote:
+> The m_can tries to detect if Non ISO Operation is available while in st=
+andby,
+> this function results in the following error:
+>=20
+> tcan4x5x spi2.0 (unnamed net_device) (uninitialized): Failed to init mo=
+dule
+> tcan4x5x spi2.0: m_can device registered (irq=3D84, version=3D32)
+> tcan4x5x spi2.0 can2: TCAN4X5X successfully initialized.
+>=20
+> When the tcan device comes out of reset it comes out in standby mode.
+> The m_can driver tries to access the control register but fails due to
+> the device is in standby mode.
+> So this patch will put the tcan device in normal mode before the m_can
+> driver does the initialization.
+>=20
+> Fixes: a229abeed7f7 ("can: tcan4x5x: Turn on the power before parsing t=
+he config")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sean Nyekjaer <sean@geanix.com>
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Applied both to linux-can.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Tnx,
+Marc
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From f8c63edfd78905320e86b6b2be2b7a5ac768fa4e Mon Sep 17 00:00:00 2001
-From: Fredrik Noring <noring@nocrew.org>
-Date: Tue, 10 Dec 2019 18:29:05 +0100
-Subject: USB: Fix incorrect DMA allocations for local memory pool drivers
-
-Fix commit 7b81cb6bddd2 ("usb: add a HCD_DMA flag instead of
-guestimating DMA capabilities") where local memory USB drivers
-erroneously allocate DMA memory instead of pool memory, causing
-
-	OHCI Unrecoverable Error, disabled
-	HC died; cleaning up
-
-The order between hcd_uses_dma() and hcd->localmem_pool is now
-arranged as in hcd_buffer_alloc() and hcd_buffer_free(), with the
-test for hcd->localmem_pool placed first.
-
-As an alternative, one might consider adjusting hcd_uses_dma() with
-
- static inline bool hcd_uses_dma(struct usb_hcd *hcd)
- {
--	return IS_ENABLED(CONFIG_HAS_DMA) && (hcd->driver->flags & HCD_DMA);
-+	return IS_ENABLED(CONFIG_HAS_DMA) &&
-+		(hcd->driver->flags & HCD_DMA) &&
-+		(hcd->localmem_pool == NULL);
- }
-
-One can also consider unsetting HCD_DMA for local memory pool drivers.
-
-Fixes: 7b81cb6bddd2 ("usb: add a HCD_DMA flag instead of guestimating DMA capabilities")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Fredrik Noring <noring@nocrew.org>
-Link: https://lore.kernel.org/r/20191210172905.GA52526@sx9
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/hcd.c         | 42 +++++++++++++++++-----------------
- drivers/usb/storage/scsiglue.c |  3 ++-
- 2 files changed, 23 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
-index 281568d464f9..aa45840d8273 100644
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1409,7 +1409,17 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
- 	if (usb_endpoint_xfer_control(&urb->ep->desc)) {
- 		if (hcd->self.uses_pio_for_control)
- 			return ret;
--		if (hcd_uses_dma(hcd)) {
-+		if (hcd->localmem_pool) {
-+			ret = hcd_alloc_coherent(
-+					urb->dev->bus, mem_flags,
-+					&urb->setup_dma,
-+					(void **)&urb->setup_packet,
-+					sizeof(struct usb_ctrlrequest),
-+					DMA_TO_DEVICE);
-+			if (ret)
-+				return ret;
-+			urb->transfer_flags |= URB_SETUP_MAP_LOCAL;
-+		} else if (hcd_uses_dma(hcd)) {
- 			if (object_is_on_stack(urb->setup_packet)) {
- 				WARN_ONCE(1, "setup packet is on stack\n");
- 				return -EAGAIN;
-@@ -1424,23 +1434,22 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
- 						urb->setup_dma))
- 				return -EAGAIN;
- 			urb->transfer_flags |= URB_SETUP_MAP_SINGLE;
--		} else if (hcd->localmem_pool) {
--			ret = hcd_alloc_coherent(
--					urb->dev->bus, mem_flags,
--					&urb->setup_dma,
--					(void **)&urb->setup_packet,
--					sizeof(struct usb_ctrlrequest),
--					DMA_TO_DEVICE);
--			if (ret)
--				return ret;
--			urb->transfer_flags |= URB_SETUP_MAP_LOCAL;
- 		}
- 	}
- 
- 	dir = usb_urb_dir_in(urb) ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
- 	if (urb->transfer_buffer_length != 0
- 	    && !(urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP)) {
--		if (hcd_uses_dma(hcd)) {
-+		if (hcd->localmem_pool) {
-+			ret = hcd_alloc_coherent(
-+					urb->dev->bus, mem_flags,
-+					&urb->transfer_dma,
-+					&urb->transfer_buffer,
-+					urb->transfer_buffer_length,
-+					dir);
-+			if (ret == 0)
-+				urb->transfer_flags |= URB_MAP_LOCAL;
-+		} else if (hcd_uses_dma(hcd)) {
- 			if (urb->num_sgs) {
- 				int n;
- 
-@@ -1491,15 +1500,6 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
- 				else
- 					urb->transfer_flags |= URB_DMA_MAP_SINGLE;
- 			}
--		} else if (hcd->localmem_pool) {
--			ret = hcd_alloc_coherent(
--					urb->dev->bus, mem_flags,
--					&urb->transfer_dma,
--					&urb->transfer_buffer,
--					urb->transfer_buffer_length,
--					dir);
--			if (ret == 0)
--				urb->transfer_flags |= URB_MAP_LOCAL;
- 		}
- 		if (ret && (urb->transfer_flags & (URB_SETUP_MAP_SINGLE |
- 				URB_SETUP_MAP_LOCAL)))
-diff --git a/drivers/usb/storage/scsiglue.c b/drivers/usb/storage/scsiglue.c
-index 66a4dcbbb1fc..f4c2359abb1b 100644
---- a/drivers/usb/storage/scsiglue.c
-+++ b/drivers/usb/storage/scsiglue.c
-@@ -135,7 +135,8 @@ static int slave_configure(struct scsi_device *sdev)
- 	 * For such controllers we need to make sure the block layer sets
- 	 * up bounce buffers in addressable memory.
- 	 */
--	if (!hcd_uses_dma(bus_to_hcd(us->pusb_dev->bus)))
-+	if (!hcd_uses_dma(bus_to_hcd(us->pusb_dev->bus)) ||
-+			(bus_to_hcd(us->pusb_dev->bus)->localmem_pool != NULL))
- 		blk_queue_bounce_limit(sdev->request_queue, BLK_BOUNCE_HIGH);
- 
- 	/*
--- 
-2.24.0
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
 
 
+--InbDMWiVVpm24VjPoua8Ud02RL7xL9V8F--
+
+--e6vz8528PE2mMsHSDAv42MmP46Kr29LHk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEmvEkXzgOfc881GuFWsYho5HknSAFAl3wq+UACgkQWsYho5Hk
+nSCxcwf+ODt3N+sCojcpPqcPXwWN8xD94PmPUHZlmwDmh1xki6jwINyiBAYKg3rb
+0OuXuPoGjBC4wF5LDb7uIvfB4cRoUTX8EUIKImUcsUhlY3R27oVQYjyIpVNaAecE
+wvll5UDlBhX+CObprWY+F7elMIABicoZzIgDnCAehaxfGtD5tEdmmoN4rosv1ody
+0IAmdt2e1DBBj7+pWhVLEG1cgQhGHuqSKk1qYJg1N7QrB9hlc2+peVq3x+jKjZDX
+KA3fqv42CsJlaM2Y6PYPsUaVCG+X7bV6O5NoGuGni+E8EuVvkxTyb8NH4Yt/0rxC
+8pHppsWPzBozh9tNSvdFobm2aHZwvw==
+=GkFP
+-----END PGP SIGNATURE-----
+
+--e6vz8528PE2mMsHSDAv42MmP46Kr29LHk--
