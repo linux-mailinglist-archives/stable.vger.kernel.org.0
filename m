@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E3AC11B7B2
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71DBC11B7B4
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731017AbfLKPL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:11:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60832 "EHLO mail.kernel.org"
+        id S1731020AbfLKPL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:11:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731012AbfLKPL6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:11:58 -0500
+        id S1729513AbfLKPL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:11:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A86AB2173E;
-        Wed, 11 Dec 2019 15:11:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B332D20663;
+        Wed, 11 Dec 2019 15:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077117;
-        bh=XebHkKGdyvyJe9x4eWTtKYtITQBxEm2abSNYs2wk4TQ=;
+        s=default; t=1576077118;
+        bh=Lw/7K344nPqJmhUu7zRAQPfP9oBF4Zhz7FkPv0BldDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcAB0e/CbI8YBwYoehpJzcMMFVSJPlxthIpWlIb3ITPx+a2Tq5j2G4L/Vb03IY/BK
-         uOeT37i8wuZBPoLb2EPNMu5evyRJ1QuYPSv/ts5OuXA5fVOivSCB/funX9BkxPu/Vq
-         XCWSglvn6f+fJtDDx57aIGAQp1a4N4eM+StGtKt0=
+        b=v/ghKvYIg7mrHjUwCu8w1GJdTFsWfZpLSNkn9i6j1eZ4ZsJSz1BRqOVsMLNYXqbBc
+         nNCbyTzN9GQyhH2vZrUnuilz+7Or6mAGTTWertQSChxcwdJAf29mqOll/zAMcoAeKM
+         SgocMiRSGTRDMICJoz3Sv8Cf1BAg81QV7fuWE1AQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <Anson.Huang@nxp.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 006/134] gpio: mxc: Only get the second IRQ when there is more than one IRQ
-Date:   Wed, 11 Dec 2019 10:09:42 -0500
-Message-Id: <20191211151150.19073-6-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 007/134] scsi: lpfc: Fix list corruption in lpfc_sli_get_iocbq
+Date:   Wed, 11 Dec 2019 10:09:43 -0500
+Message-Id: <20191211151150.19073-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -43,61 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit c8f3d144004dd3f471ffd414690d15a005e4acd6 ]
+[ Upstream commit 15498dc1a55b7aaea4b51ff03e3ff0f662e73f44 ]
 
-On some of i.MX SoCs like i.MX8QXP, there is ONLY one IRQ for each
-GPIO bank, so it is better to check the IRQ count before getting
-second IRQ to avoid below error message during probe:
+After study, it was determined there was a double free of a CT iocb during
+execution of lpfc_offline_prep and lpfc_offline.  The prep routine issued
+an abort for some CT iocbs, but the aborts did not complete fast enough for
+a subsequent routine that waits for completion. Thus the driver proceeded
+to lpfc_offline, which releases any pending iocbs. Unfortunately, the
+completions for the aborts were then received which re-released the ct
+iocbs.
 
-[    1.070908] gpio-mxc 5d080000.gpio: IRQ index 1 not found
-[    1.077420] gpio-mxc 5d090000.gpio: IRQ index 1 not found
-[    1.083766] gpio-mxc 5d0a0000.gpio: IRQ index 1 not found
-[    1.090122] gpio-mxc 5d0b0000.gpio: IRQ index 1 not found
-[    1.096470] gpio-mxc 5d0c0000.gpio: IRQ index 1 not found
-[    1.102804] gpio-mxc 5d0d0000.gpio: IRQ index 1 not found
-[    1.109144] gpio-mxc 5d0e0000.gpio: IRQ index 1 not found
-[    1.115475] gpio-mxc 5d0f0000.gpio: IRQ index 1 not found
+Turns out the issue for why the aborts didn't complete fast enough was not
+their time on the wire/in the adapter. It was the lpfc_work_done routine,
+which requires the adapter state to be UP before it calls
+lpfc_sli_handle_slow_ring_event() to process the completions. The issue is
+the prep routine takes the link down as part of it's processing.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To fix, the following was performed:
+
+ - Prevent the offline routine from releasing iocbs that have had aborts
+   issued on them. Defer to the abort completions. Also means the driver
+   fully waits for the completions.  Given this change, the recognition of
+   "driver-generated" status which then releases the iocb is no longer
+   valid. As such, the change made in the commit 296012285c90 is reverted.
+   As recognition of "driver-generated" status is no longer valid, this
+   patch reverts the changes made in
+   commit 296012285c90 ("scsi: lpfc: Fix leak of ELS completions on adapter reset")
+
+ - Modify lpfc_work_done to allow slow path completions so that the abort
+   completions aren't ignored.
+
+ - Updated the fdmi path to recognize a CT request that fails due to the
+   port being unusable. This stops FDMI retries. FDMI will be restarted on
+   next link up.
+
+Link: https://lore.kernel.org/r/20190922035906.10977-14-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-mxc.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_ct.c      | 6 ++++++
+ drivers/scsi/lpfc/lpfc_els.c     | 3 +++
+ drivers/scsi/lpfc/lpfc_hbadisc.c | 5 ++++-
+ drivers/scsi/lpfc/lpfc_sli.c     | 3 ---
+ 4 files changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
-index 7907a87558662..c77d474185f31 100644
---- a/drivers/gpio/gpio-mxc.c
-+++ b/drivers/gpio/gpio-mxc.c
-@@ -411,6 +411,7 @@ static int mxc_gpio_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	struct mxc_gpio_port *port;
-+	int irq_count;
- 	int irq_base;
- 	int err;
+diff --git a/drivers/scsi/lpfc/lpfc_ct.c b/drivers/scsi/lpfc/lpfc_ct.c
+index 25e86706e2072..f883fac2d2b1d 100644
+--- a/drivers/scsi/lpfc/lpfc_ct.c
++++ b/drivers/scsi/lpfc/lpfc_ct.c
+@@ -1868,6 +1868,12 @@ lpfc_cmpl_ct_disc_fdmi(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 		if (irsp->ulpStatus == IOSTAT_LOCAL_REJECT) {
+ 			switch ((irsp->un.ulpWord[4] & IOERR_PARAM_MASK)) {
+ 			case IOERR_SLI_ABORTED:
++			case IOERR_SLI_DOWN:
++				/* Driver aborted this IO.  No retry as error
++				 * is likely Offline->Online or some adapter
++				 * error.  Recovery will try again.
++				 */
++				break;
+ 			case IOERR_ABORT_IN_PROGRESS:
+ 			case IOERR_SEQUENCE_TIMEOUT:
+ 			case IOERR_ILLEGAL_FRAME:
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 0052b341587d9..f293b48616ae9 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -8016,6 +8016,9 @@ lpfc_els_flush_cmd(struct lpfc_vport *vport)
+ 		if (piocb->vport != vport)
+ 			continue;
  
-@@ -426,9 +427,15 @@ static int mxc_gpio_probe(struct platform_device *pdev)
- 	if (IS_ERR(port->base))
- 		return PTR_ERR(port->base);
- 
--	port->irq_high = platform_get_irq(pdev, 1);
--	if (port->irq_high < 0)
--		port->irq_high = 0;
-+	irq_count = platform_irq_count(pdev);
-+	if (irq_count < 0)
-+		return irq_count;
++		if (piocb->iocb_flag & LPFC_DRIVER_ABORTED)
++			continue;
 +
-+	if (irq_count > 1) {
-+		port->irq_high = platform_get_irq(pdev, 1);
-+		if (port->irq_high < 0)
-+			port->irq_high = 0;
-+	}
+ 		/* On the ELS ring we can have ELS_REQUESTs or
+ 		 * GEN_REQUESTs waiting for a response.
+ 		 */
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index f7c205e1da485..1286c658ba34f 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -700,7 +700,10 @@ lpfc_work_done(struct lpfc_hba *phba)
+ 			if (!(phba->hba_flag & HBA_SP_QUEUE_EVT))
+ 				set_bit(LPFC_DATA_READY, &phba->data_flags);
+ 		} else {
+-			if (phba->link_state >= LPFC_LINK_UP ||
++			/* Driver could have abort request completed in queue
++			 * when link goes down.  Allow for this transition.
++			 */
++			if (phba->link_state >= LPFC_LINK_DOWN ||
+ 			    phba->link_flag & LS_MDS_LOOPBACK) {
+ 				pring->flag &= ~LPFC_DEFERRED_RING_EVENT;
+ 				lpfc_sli_handle_slow_ring_event(phba, pring,
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index e5413d52e49a2..995a2b56a35ee 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -11050,9 +11050,6 @@ lpfc_sli_abort_els_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 				irsp->ulpStatus, irsp->un.ulpWord[4]);
  
- 	port->irq = platform_get_irq(pdev, 0);
- 	if (port->irq < 0)
+ 		spin_unlock_irq(&phba->hbalock);
+-		if (irsp->ulpStatus == IOSTAT_LOCAL_REJECT &&
+-		    irsp->un.ulpWord[4] == IOERR_SLI_ABORTED)
+-			lpfc_sli_release_iocbq(phba, abort_iocb);
+ 	}
+ release_iocb:
+ 	lpfc_sli_release_iocbq(phba, cmdiocb);
 -- 
 2.20.1
 
