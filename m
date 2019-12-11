@@ -2,71 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B879511A55C
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 08:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5F411A561
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 08:49:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbfLKHsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 02:48:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
+        id S1727888AbfLKHtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 02:49:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726983AbfLKHsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 02:48:43 -0500
+        id S1726451AbfLKHtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 02:49:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8893420637;
-        Wed, 11 Dec 2019 07:48:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F90920637;
+        Wed, 11 Dec 2019 07:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576050523;
-        bh=4JZ8e8dgIBsEwHJUXH82+M2U3AS11Z7JV21zGuOxey4=;
+        s=default; t=1576050591;
+        bh=R8xb3t+ArVEuYoNcm/ebZJ5NkWgaEDaTMVvtwQ3VB7k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WvN9ujTG/rkSPBA5i7NrgPvxm87aTaJM2wrtcgGLTFab2somSSD3B4Z+GZU8Ms6QA
-         zOQO35JhqqwFaL/g+IQb5DBi6vgBbtOlvQPR97Ec+9DRQta/7N8go6pYKwjnu4M+mz
-         xRVtBveDUoLfGaCLOGRA5d2h0eCuUQDA74LOjyYI=
-Date:   Wed, 11 Dec 2019 08:48:40 +0100
+        b=FQPBSYz0tfrWCsMCI3R4kbcFXipoNuDau3/mxRHInAWMzpGNxyXTbAfqaDFI+Y1Il
+         aG2mQZQWi6MXwGNxpLu35fM4lPdMB5izeuL9TpntIGBZGj6Ps4ZL2Yk7GTjPRGSIlD
+         R3LqUjIpFdyUiCQ+19vMaqm6QzhHOA+mZk8oRTuI=
+Date:   Wed, 11 Dec 2019 08:49:49 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Marcel Holtmann <marcel@holtmann.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.14 077/130] rfkill: allocate static minor
-Message-ID: <20191211074840.GH398293@kroah.com>
-References: <20191210220301.13262-1-sashal@kernel.org>
- <20191210220301.13262-77-sashal@kernel.org>
+        Kusanagi Kouichi <slash@ac.auone-net.jp>
+Subject: Re: [PATCH AUTOSEL 5.4 328/350] debugfs: Fix !DEBUG_FS
+ debugfs_create_automount
+Message-ID: <20191211074949.GI398293@kroah.com>
+References: <20191210210735.9077-1-sashal@kernel.org>
+ <20191210210735.9077-289-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191210220301.13262-77-sashal@kernel.org>
+In-Reply-To: <20191210210735.9077-289-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 05:02:08PM -0500, Sasha Levin wrote:
-> From: Marcel Holtmann <marcel@holtmann.org>
+On Tue, Dec 10, 2019 at 04:07:13PM -0500, Sasha Levin wrote:
+> From: Kusanagi Kouichi <slash@ac.auone-net.jp>
 > 
-> [ Upstream commit 8670b2b8b029a6650d133486be9d2ace146fd29a ]
+> [ Upstream commit 4250b047039d324e0ff65267c8beb5bad5052a86 ]
 > 
-> udev has a feature of creating /dev/<node> device-nodes if it finds
-> a devnode:<node> modalias. This allows for auto-loading of modules that
-> provide the node. This requires to use a statically allocated minor
-> number for misc character devices.
+> If DEBUG_FS=n, compile fails with the following error:
 > 
-> However, rfkill uses dynamic minor numbers and prevents auto-loading
-> of the module. So allocate the next static misc minor number and use
-> it for rfkill.
+> kernel/trace/trace.c: In function 'tracing_init_dentry':
+> kernel/trace/trace.c:8658:9: error: passing argument 3 of 'debugfs_create_automount' from incompatible pointer type [-Werror=incompatible-pointer-types]
+>  8658 |         trace_automount, NULL);
+>       |         ^~~~~~~~~~~~~~~
+>       |         |
+>       |         struct vfsmount * (*)(struct dentry *, void *)
+> In file included from kernel/trace/trace.c:24:
+> ./include/linux/debugfs.h:206:25: note: expected 'struct vfsmount * (*)(void *)' but argument is of type 'struct vfsmount * (*)(struct dentry *, void *)'
+>   206 |      struct vfsmount *(*f)(void *),
+>       |      ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
 > 
-> Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-> Link: https://lore.kernel.org/r/20191024174042.19851-1-marcel@holtmann.org
+> Signed-off-by: Kusanagi Kouichi <slash@ac.auone-net.jp>
+> Link: https://lore.kernel.org/r/20191121102021787.MLMY.25002.ppp.dion.ne.jp@dmta0003.auone-net.jp
 > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  include/linux/miscdevice.h | 1 +
->  net/rfkill/core.c          | 9 +++++++--
->  2 files changed, 8 insertions(+), 2 deletions(-)
+>  include/linux/debugfs.h | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 
-This is not needed in older kernels, please do not backport it unless
-the networking developers _REALLY_ think it is necessary.
+
+Not needed here either, this is a 5.5-rc1 only issue.
 
 thanks,
 
