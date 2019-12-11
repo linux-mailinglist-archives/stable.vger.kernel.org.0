@@ -2,71 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF43E11AC50
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 14:44:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB8411AC5B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 14:45:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728370AbfLKNoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 08:44:09 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35866 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727554AbfLKNoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 08:44:08 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z3so24121449wru.3
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 05:44:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Zew0qCBOJ0VmXHsuwJP1AiZ1Z2i9wTSReno/oQHxpVs=;
-        b=QlGgrpgdtHhJXhP/BHknqr6L0oY5Y329EnUi1ull7yUNqd66L5mmPIs5F54BhM2wSG
-         DNdL5J75qPMOgQxfGslJLFBil+BAuHyRz0ieiuDieU67zUK+wUmkSFal+rux8EbKI53k
-         KANXRHTAgNT4Ai4xvq3GFsOa3zvdtdyTPgHLoanTQNco77FAigrdL5UdpaVHlcfL+d8L
-         TCNdrX8C25qG3r1/6QJxCFLmFQILKIwLn5YGA1uOF7kUo2lJIW4oCumnGpQ5WZxWalkL
-         lPEJD16T3621ibG3DgHJ/Cu0H3cawWiru+tk3VxcobebLXQmDGiuyPk5cp9X56yl9xOX
-         oULA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Zew0qCBOJ0VmXHsuwJP1AiZ1Z2i9wTSReno/oQHxpVs=;
-        b=QNUjUOCXvjFWp4lnyRamfzNCWMYFQBTs5bQK6dO6y+5vOfNGqHeu7YmWPbyvxsn957
-         4wFhyu52Vn60RnQjbbBppBPL2r6Tba4KKq8BMCUYwpkHmCEFzarfrxgGlxJ+HQgwLQ0R
-         ouQAultc0/wWhhy6CjzjlYRHe1WDXnb14EVm54p1jX7CPqkBuVPA9mufT5/4sGX3qhJA
-         aAt53YpAxTOHvSg0ASyix7rZROQfU0W6XzqtY8j935bH65a65LXu15aCtAONeg2UWRUP
-         Z1SXkHHZVB6Y+Lm7AlOKpdQDsLkqVYvaAzycCsa6O2yb6ZW8ErzXl8KJQyzfX0bWbkLp
-         TiQg==
-X-Gm-Message-State: APjAAAUciwtYiZjyfuY1hjOKsPks3l1yUNbDjJ41FvBZ/dPBmxXqBoU6
-        NqF/tf6ODX3shcbBo476QagB06eny3oN67x/gZc=
-X-Google-Smtp-Source: APXvYqyLRiBCae64FD11rzHz0WTZ8c9Zo8fYJNkcDDaLTkEYhzTMj4tTNOLfagOct8EV5a22x3TYkwKe7gjipC74e/I=
-X-Received: by 2002:a5d:6284:: with SMTP id k4mr3872271wru.398.1576071847114;
- Wed, 11 Dec 2019 05:44:07 -0800 (PST)
+        id S1729540AbfLKNpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 08:45:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41748 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729370AbfLKNps (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 08:45:48 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F29A20836;
+        Wed, 11 Dec 2019 13:45:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576071948;
+        bh=K1F/pJRPoNVbq//HvKp71lAz0yCIPfAtNYx36dfyV9M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ScFH4KDs4Ndkp5VeXJEGtMO6YtYe4fWw7wl2QXvhcrSRD1hNBudn6KqfyE8kVy54M
+         DTgvowg669aVcP5fTmVSYhw6bg97Bggza1vYXL5RnJkQ+bNbY1AgTyAqFyGk6J7+P8
+         ukNJAtZSkRD5zVaLmGvqQjybpARjHa0rtnQw9KT8=
+Date:   Wed, 11 Dec 2019 14:45:45 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chris Paterson <Chris.Paterson2@renesas.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>
+Subject: Re: Linux 4.19.89-rc1 5944fcdd errors
+Message-ID: <20191211134545.GC523125@kroah.com>
+References: <TYAPR01MB228505DBC22568339F914C15B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191209173637.GF1290729@kroah.com>
+ <TYAPR01MB2285135B15E6A152163E1A1AB7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191210073514.GB3077639@kroah.com>
+ <TYAPR01MB2285B5834B1FBA71F8DA512BB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191210145528.GA4012363@kroah.com>
+ <TYAPR01MB2285433EA1E6DF9EC621E31AB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191210205951.GA4081499@kroah.com>
+ <TYAPR01MB22852454802BAB486871D944B75A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-Received: by 2002:a05:600c:215a:0:0:0:0 with HTTP; Wed, 11 Dec 2019 05:44:06
- -0800 (PST)
-Reply-To: salln63007@gmail.com
-From:   "Mr.sallm Salif," <aishaghaddafi1001@gmail.com>
-Date:   Wed, 11 Dec 2019 14:44:06 +0100
-Message-ID: <CANEPcjKVfi68gpHU0xiMw_ewG0FQFdjVnCGHzaqqOCsmGZ=Z6Q@mail.gmail.com>
-Subject: .sallm .,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <TYAPR01MB22852454802BAB486871D944B75A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Day
+On Wed, Dec 11, 2019 at 10:52:44AM +0000, Chris Paterson wrote:
+> Hello Greg,
+> 
+> [...]
+> 
+> > > > That's a lot, are these all new?
+> > >
+> > > I've only just started building with this config in our CI setup, but
+> > > building the dtbs locally with v4.19.88 didn't produce these results
+> > > for me (and building locally with v4.19.89-rc1 does result in the
+> > > above issues).
+> > 
+> > Any chance you can run 'git bisect' to track down the offending patch?
+> 
+> The two dtbs that fail to build are fixed by reverting by the patches below:
+> 
+> > allwinner/sun50i-a64-pinebook.dtb
+> ea03518a3123 ("arm64: dts: allwinner: a64: enable sound on Pinebook")
 
-I am Mr.sallm Salif, a regional managing director (CORIS BANK
-INTERNATIONAL) Ouagadougou Burkina Faso, in my department we have
-US$9,500.0000 million united state dollars, to transfer into your
-account as a dormant fund.If you are interested to use this fund to
-help the orphans around the world contact and send me your personal
-information for more details:
-Your full names..........
-Your country of origin..........
-Your occupation..........
-Your Age..........
-Your Mobile Number..........
+Now dropped.
 
-Best Regards
-Mr.sallm Salif,
+> > qcom/sdm845-mtp.dtb
+> d0a925e2060d ("arm64: dts: qcom: sdm845-mtp: Mark protected gcc clocks")
+
+Now dropped.
+
+> The rest of the dtbs just had warnings, all produced by the patch below:
+> 
+> > arm/juno.dtb
+> > qcom/apq8016-sbc.dtb
+> > arm/juno-r2.dtb
+> > arm/juno-r1.dtb
+> > hisilicon/hi6220-hikey.dtb
+> > qcom/msm8916-mtp.dtb
+> > qcom/msm8916-mtp.dtb
+> 3fa6a276a4bd ("kbuild: Enable dtc graph_port warning by default")
+
+Now dropped as well.
+
+I'll push out new kernels in a bit, thanks for this info.
+
+greg k-h
