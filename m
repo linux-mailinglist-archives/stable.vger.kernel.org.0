@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B397511B3A1
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE28011B3C4
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388380AbfLKPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732809AbfLKPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 11 Dec 2019 10:43:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33224 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387434AbfLKP1d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:33 -0500
+        id S1732851AbfLKP1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8CAA2173E;
-        Wed, 11 Dec 2019 15:27:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B756422527;
+        Wed, 11 Dec 2019 15:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078052;
-        bh=GBIrAr1l8C2ZPdGvo6eDiObM3EIARTztlICo/05jRaY=;
+        s=default; t=1576078053;
+        bh=U84ZNHixRNIXDS9D0nb/oECrd87iSqTnflwQv0O7Tb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=voI0bA+oSuNpfs9pBAdNs6jAZ19LvJyLMhp6SK5OEDJzZH5PVhIAx3CTacXkP6Z74
-         h8qmkvcqjqu5G5WIBpWIzFrGJ8KPxvxexmjbE+7zYAxQWBrnc8Yw66UvVh8YELm9bS
-         B2Y1mx2sUFcXDoHtH6i3dCZvzOJpEcoxHyDADgQY=
+        b=GrTeXSFQRc+OTom7wiBkp3ARvYS9V3LJVf7kgDyBLiirOxxPPUprIrN2Pkuq9uRQE
+         SsL4bFhIZFryF7M+YPliVFdKHSCUO7aSZLjvypQ5AN5AfDXYFGJDB0XOF6rrD2vTu9
+         ZlU1SQIC57rmP543l1cDtIs1xy4REo18DuPUerKE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robert Jarzmik <robert.jarzmik@free.fr>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 45/79] clk: pxa: fix one of the pxa RTC clocks
-Date:   Wed, 11 Dec 2019 10:26:09 -0500
-Message-Id: <20191211152643.23056-45-sashal@kernel.org>
+Cc:     Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org,
+        linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 46/79] bcache: at least try to shrink 1 node in bch_mca_scan()
+Date:   Wed, 11 Dec 2019 10:26:10 -0500
+Message-Id: <20191211152643.23056-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -43,37 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Jarzmik <robert.jarzmik@free.fr>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit 46acbcb4849b2ca2e6e975e7c8130c1d61c8fd0c ]
+[ Upstream commit 9fcc34b1a6dd4b8e5337e2b6ef45e428897eca6b ]
 
-The pxa27x platforms have a single IP with 2 drivers, sa1100-rtc and
-rtc-pxa drivers.
+In bch_mca_scan(), the number of shrinking btree node is calculated
+by code like this,
+	unsigned long nr = sc->nr_to_scan;
 
-A previous patch fixed the sa1100-rtc case, but the pxa-rtc wasn't
-fixed. This patch completes the previous one.
+        nr /= c->btree_pages;
+        nr = min_t(unsigned long, nr, mca_can_free(c));
+variable sc->nr_to_scan is number of objects (here is bcache B+tree
+nodes' number) to shrink, and pointer variable sc is sent from memory
+management code as parametr of a callback.
 
-Fixes: 8b6d10345e16 ("clk: pxa: add missing pxa27x clocks for Irda and sa1100-rtc")
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Link: https://lkml.kernel.org/r/20191026194420.11918-1-robert.jarzmik@free.fr
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+If sc->nr_to_scan is smaller than c->btree_pages, after the above
+calculation, variable 'nr' will be 0 and nothing will be shrunk. It is
+frequeently observed that only 1 or 2 is set to sc->nr_to_scan and make
+nr to be zero. Then bch_mca_scan() will do nothing more then acquiring
+and releasing mutex c->bucket_lock.
+
+This patch checkes whether nr is 0 after the above calculation, if 0
+is the result then set 1 to variable 'n'. Then at least bch_mca_scan()
+will try to shrink a single B+tree node.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/pxa/clk-pxa27x.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/bcache/btree.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/pxa/clk-pxa27x.c b/drivers/clk/pxa/clk-pxa27x.c
-index d40b63e7bbce9..b44c4cf8011a3 100644
---- a/drivers/clk/pxa/clk-pxa27x.c
-+++ b/drivers/clk/pxa/clk-pxa27x.c
-@@ -463,6 +463,7 @@ struct dummy_clk {
- };
- static struct dummy_clk dummy_clks[] __initdata = {
- 	DUMMY_CLK(NULL, "pxa27x-gpio", "osc_32_768khz"),
-+	DUMMY_CLK(NULL, "pxa-rtc", "osc_32_768khz"),
- 	DUMMY_CLK(NULL, "sa1100-rtc", "osc_32_768khz"),
- 	DUMMY_CLK("UARTCLK", "pxa2xx-ir", "STUART"),
- };
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 45f684689c357..bb40bd66a10e4 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -713,6 +713,8 @@ static unsigned long bch_mca_scan(struct shrinker *shrink,
+ 	 * IO can always make forward progress:
+ 	 */
+ 	nr /= c->btree_pages;
++	if (nr == 0)
++		nr = 1;
+ 	nr = min_t(unsigned long, nr, mca_can_free(c));
+ 
+ 	i = 0;
 -- 
 2.20.1
 
