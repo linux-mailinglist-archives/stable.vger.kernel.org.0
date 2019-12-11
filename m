@@ -2,85 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A896711C025
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 23:51:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1289311C033
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 23:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726743AbfLKWvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 17:51:35 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:58440 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726345AbfLKWvf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 17:51:35 -0500
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1ifApR-00013j-Lz; Wed, 11 Dec 2019 22:51:33 +0000
-Received: from ben by deadeye with local (Exim 4.93-RC7)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1ifApR-0000iN-30; Wed, 11 Dec 2019 22:51:33 +0000
-Message-ID: <f2a2e4711db1903b927c9477cfb7703ca566317c.camel@decadent.org.uk>
-Subject: [stable] net: qrtr: fix memort leak in qrtr_tun_write_iter
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1726313AbfLKW7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 17:59:49 -0500
+Received: from mo-csw1116.securemx.jp ([210.130.202.158]:53884 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726141AbfLKW7t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 17:59:49 -0500
+Received: by mo-csw.securemx.jp (mx-mo-csw1116) id xBBMxe4F029592; Thu, 12 Dec 2019 07:59:40 +0900
+X-Iguazu-Qid: 2wGr1LCjibUcg58Ctk
+X-Iguazu-QSIG: v=2; s=0; t=1576105180; q=2wGr1LCjibUcg58Ctk; m=gbsfNuz+KBYcNC2h7vb+QMTGEz6U3KO65Z9ucjT1Me4=
+Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
+        by relay.securemx.jp (mx-mr1112) id xBBMxd2a004770;
+        Thu, 12 Dec 2019 07:59:39 +0900
+Received: from enc02.toshiba.co.jp ([61.202.160.51])
+        by imx12.toshiba.co.jp  with ESMTP id xBBMxcXf021742;
+        Thu, 12 Dec 2019 07:59:38 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id xBBMxcMj000808;
+        Thu, 12 Dec 2019 07:59:38 +0900
+Date:   Thu, 12 Dec 2019 07:59:37 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Nguyen Viet Dung <dung.nguyen.aj@renesas.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Navid Emamdoost <navid.emamdoost@gmail.com>
-Date:   Wed, 11 Dec 2019 22:51:32 +0000
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-Tnk8cHMhy6I7Mn9EqK03"
-User-Agent: Evolution 3.30.5-1.1 
+Subject: Re: [PATCH 4.19 121/243] ASoC: rsnd: tidyup registering method for
+ rsnd_kctrl_new()
+X-TSB-HOP: ON
+Message-ID: <20191211225937.nnu6kvvbyexfrahr@toshiba.co.jp>
+References: <20191211150339.185439726@linuxfoundation.org>
+ <20191211150347.300543701@linuxfoundation.org>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191211150347.300543701@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
---=-Tnk8cHMhy6I7Mn9EqK03
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Wed, Dec 11, 2019 at 04:04:43PM +0100, Greg Kroah-Hartman wrote:
+> From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+> 
+> [ Upstream commit 9c698e8481a15237a5b1db5f8391dd66d59e42a4 ]
+> 
+> Current rsnd dvc.c is using flags to avoid duplicating register for
+> MIXer case. OTOH, commit e894efef9ac7 ("ASoC: core: add support to card
+> rebind") allows to rebind sound card without rebinding all drivers.
+> 
+> Because of above patch and dvc.c flags, it can't re-register kctrl if
+> only sound card was rebinded, because dvc is keeping old flags.
+> (Of course it will be no problem if rsnd driver also be rebinded,
+> but it is not purpose of above patch).
+> 
+> This patch checks current card registered kctrl when registering.
+> In MIXer case, it can avoid duplicate register if card already has same
+> kctrl. In rebind case, it can re-register kctrl because card registered
+> kctl had been removed when unbinding.
+> 
+> This patch is updated version of commit b918f1bc7f1ce ("ASoC: rsnd: DVC
+> kctrl sets once")
+> 
+> Reported-by: Nguyen Viet Dung <dung.nguyen.aj@renesas.com>
+> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+> Tested-by: Nguyen Viet Dung <dung.nguyen.aj@renesas.com>
+> Cc: Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Please pick this commit for 4.19 only (newer branches already have it;
-older branches don't include this protocol):
+This commit also requires the following commit:
 
-commit a21b7f0cff1906a93a0130b74713b15a0b36481d
-Author: Navid Emamdoost <navid.emamdoost@gmail.com>
-Date:   Wed Sep 11 10:09:02 2019 -0500
+commit 7aea8a9d71d54f449f49e20324df06341cc18395
+Author: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Date:   Fri Feb 1 16:49:30 2019 +0900
 
-    net: qrtr: fix memort leak in qrtr_tun_write_iter
+    ASoC: rsnd: fixup MIX kctrl registration
 
-Ben.
+    Renesas sound device has many IPs and many situations.
+    If platform/board uses MIXer, situation will be more complex.
+    To avoid duplicate DVC kctrl registration when MIXer was used,
+    it had original flags.
+    But it was issue when sound card was re-binded, because
+    no one can't cleanup this flags then.
 
---=20
-Ben Hutchings
-The generation of random numbers is too important to be left to chance.
-                                                       - Robert Coveyou
+    To solve this issue, commit 9c698e8481a15237a ("ASoC: rsnd: tidyup
+    registering method for rsnd_kctrl_new()") checks registered
+    card->controls, because if card was re-binded, these were cleanuped
+    automatically. This patch could solve re-binding issue.
+    But, it start to avoid MIX kctrl.
+
+    To solve these issues, we need below.
+    To avoid card re-binding issue: check registered card->controls
+    To avoid duplicate DVC registration: check registered rsnd_kctrl_cfg
+    To allow multiple MIX registration: check registered rsnd_kctrl_cfg
+    This patch do it.
+
+    Fixes: 9c698e8481a15237a ("ASoC: rsnd: tidyup registering method for rsnd_kctrl_new()")
+    Reported-by: Jiada Wang <jiada_wang@mentor.com>
+    Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+    Tested-By: Jiada Wang <jiada_wang@mentor.com>
+    Signed-off-by: Mark Brown <broonie@kernel.org>
 
 
+Please apply this to 4.19.y and 4.14.y.
 
---=-Tnk8cHMhy6I7Mn9EqK03
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl3xcvQACgkQ57/I7JWG
-EQlJ9xAAoLZ26QWA/curYphKuOn9a3iw5uTJ4hnNrZKFDhVDee62TKipw3J/Nv9P
-3bZecldm0T4BtbeMsm9AMhAeG3nyNV6cvC0C6u/hJKTh9ia5tVaTT4h6jbeyYlbt
-hmzYMZPL+Z5hRPJpijif6RZ2AAhphvMGObYzOyDMRqGnr7qyqdfiNfQp2kDRYrEs
-xVONsMPeoblhMnzfPOxUriNPt1B2TMqfTqOOEGaDUNaj6cSF27EVdqgjtv/yr0fp
-IG12DPvqBWrzmt5jaPywmJDearB9sTtDEyqjJqhnAFvB2DmBwC1jEs9nvMzBrIO1
-6wiGDJTOZe+Mr9S7zuyfGuh4aOAA2FO3wt27h1LIUiXvbMTCWo5QiC6Ew+d4x9IN
-KNyUSjmHWxLcLEn5i2jiviOFD9rZGicuVnJ6Jq4swx0gb23df4NKvcwYC+gYGt7f
-qcjRz1s2/yUf6aeB+5hQ6oVDmZAYliKT0QMXsMrEhDVWdeml2lCtZg95t68JzpDP
-Ogpte44ocAKddSmnA159+Ftzo97Fb6AGPZtGwRKtCVmCJq+x8RJcDF3N4Z16qdjP
-I1JVjc/3o9kDCLz+pCMsYdJoXeHXCeg+k++TOyPbKu8ltovqpN6Rekl2SNHwMWlu
-DxaQBGYCfpC4grqC9WFozV2lZwl0SA5gXodPGW6dbdJUqXrkAoU=
-=4DYP
------END PGP SIGNATURE-----
-
---=-Tnk8cHMhy6I7Mn9EqK03--
+Best regards,
+  Nobuhiro
