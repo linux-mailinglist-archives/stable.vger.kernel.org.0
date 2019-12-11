@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C327711B7C4
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68BD911B7B6
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726242AbfLKQKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:10:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32788 "EHLO mail.kernel.org"
+        id S1731035AbfLKPMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:12:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730701AbfLKPMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:01 -0500
+        id S1731031AbfLKPMC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8CAA24654;
-        Wed, 11 Dec 2019 15:11:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E30CC2467F;
+        Wed, 11 Dec 2019 15:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077120;
-        bh=JFe0CvYvNH9NhMvkbtbi+KVjCwqrazzQlnR7wVfT8Ec=;
+        s=default; t=1576077121;
+        bh=rjnKi9c9bSp4W5HmEkgKIOW16NgRTdaQnTGDcA+RRW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpN/04BOBrL0mifeHJQbwbkXa4mls4a+cR9pPsoCtD2TrJkYCzX+HgENMhbXVaBRu
-         gWhIMIelgRZNBKtBhW4dMvhSmOh8ISElYmTdmyeH4An0WebyQrABdxfK66mJ0/3g74
-         ORwl6554vSFHiOVgYN9p83kFUau86u/DOpxmDnkU=
+        b=kK2N/LTxjaBNjmMbOrWFKp44u7rlRa1B7OHk3hbnKHhuCbOKO+h9IoqLAtNid1oNG
+         j13bJ29wpAyEuxYW2eGjSZq91dnYnMzor2+zL8tDHi+WXj5pcuQ/5aDbJhgdc3MthO
+         V51wEEuiWa/iif2n5hsSPAAVDTcUTObdHIwszfBE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 009/134] f2fs: fix to update time in lazytime mode
-Date:   Wed, 11 Dec 2019 10:09:45 -0500
-Message-Id: <20191211151150.19073-9-sashal@kernel.org>
+Cc:     Vaibhav Jain <vaibhav@linux.ibm.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 010/134] powerpc/papr_scm: Fix an off-by-one check in papr_scm_meta_{get, set}
+Date:   Wed, 11 Dec 2019 10:09:46 -0500
+Message-Id: <20191211151150.19073-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -43,102 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit fe1897eaa6646f5a64a4cee0e6473ed9887d324b ]
+[ Upstream commit 612ee81b9461475b5a5612c2e8d71559dd3c7920 ]
 
-generic/018 reports an inconsistent status of atime, the
-testcase is as below:
-- open file with O_SYNC
-- write file to construct fraged space
-- calc md5 of file
-- record {a,c,m}time
-- defrag file --- do nothing
-- umount & mount
-- check {a,c,m}time
+A validation check to prevent out of bounds read/write inside
+functions papr_scm_meta_{get,set}() is off-by-one that prevent reads
+and writes to the last byte of the label area.
 
-The root cause is, as f2fs enables lazytime by default, atime
-update will dirty vfs inode, rather than dirtying f2fs inode (by set
-with FI_DIRTY_INODE), so later f2fs_write_inode() called from VFS will
-fail to update inode page due to our skip:
+This bug manifests as a failure to probe a dimm when libnvdimm is
+unable to read the entire config-area as advertised by
+ND_CMD_GET_CONFIG_SIZE. This usually happens when there are large
+number of namespaces created in the region backed by the dimm and the
+label-index spans max possible config-area. An error of the form below
+usually reported in the kernel logs:
 
-f2fs_write_inode()
-	if (is_inode_flag_set(inode, FI_DIRTY_INODE))
-		return 0;
+[  255.293912] nvdimm: probe of nmem0 failed with error -22
 
-So eventually, after evict(), we lose last atime for ever.
+The patch fixes these validation checks there by letting libnvdimm
+access the entire config-area.
 
-To fix this issue, we need to check whether {a,c,m,cr}time is
-consistent in between inode cache and inode page, and only skip
-f2fs_update_inode() if f2fs inode is not dirty and time is
-consistent as well.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 53e80bd042773('powerpc/nvdimm: Add support for multibyte read/write for metadata')
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190927062002.3169-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h  | 23 +++++++++++++++--------
- fs/f2fs/inode.c |  6 +++++-
- 2 files changed, 20 insertions(+), 9 deletions(-)
+ arch/powerpc/platforms/pseries/papr_scm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 4024790028aab..f078cd20dab88 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2704,6 +2704,20 @@ static inline void clear_file(struct inode *inode, int type)
- 	f2fs_mark_inode_dirty_sync(inode, true);
- }
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index 61883291defc3..ee07d0718bf1a 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -152,7 +152,7 @@ static int papr_scm_meta_get(struct papr_scm_priv *p,
+ 	int len, read;
+ 	int64_t ret;
  
-+static inline bool f2fs_is_time_consistent(struct inode *inode)
-+{
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time, &inode->i_atime))
-+		return false;
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 1, &inode->i_ctime))
-+		return false;
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 2, &inode->i_mtime))
-+		return false;
-+	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 3,
-+						&F2FS_I(inode)->i_crtime))
-+		return false;
-+	return true;
-+}
-+
- static inline bool f2fs_skip_inode_update(struct inode *inode, int dsync)
- {
- 	bool ret;
-@@ -2721,14 +2735,7 @@ static inline bool f2fs_skip_inode_update(struct inode *inode, int dsync)
- 			i_size_read(inode) & ~PAGE_MASK)
- 		return false;
+-	if ((hdr->in_offset + hdr->in_length) >= p->metadata_size)
++	if ((hdr->in_offset + hdr->in_length) > p->metadata_size)
+ 		return -EINVAL;
  
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time, &inode->i_atime))
--		return false;
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 1, &inode->i_ctime))
--		return false;
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 2, &inode->i_mtime))
--		return false;
--	if (!timespec64_equal(F2FS_I(inode)->i_disk_time + 3,
--						&F2FS_I(inode)->i_crtime))
-+	if (!f2fs_is_time_consistent(inode))
- 		return false;
+ 	for (len = hdr->in_length; len; len -= read) {
+@@ -206,7 +206,7 @@ static int papr_scm_meta_set(struct papr_scm_priv *p,
+ 	__be64 data_be;
+ 	int64_t ret;
  
- 	down_read(&F2FS_I(inode)->i_sem);
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index db4fec30c30df..386ad54c13c3a 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -615,7 +615,11 @@ int f2fs_write_inode(struct inode *inode, struct writeback_control *wbc)
- 			inode->i_ino == F2FS_META_INO(sbi))
- 		return 0;
+-	if ((hdr->in_offset + hdr->in_length) >= p->metadata_size)
++	if ((hdr->in_offset + hdr->in_length) > p->metadata_size)
+ 		return -EINVAL;
  
--	if (!is_inode_flag_set(inode, FI_DIRTY_INODE))
-+	/*
-+	 * atime could be updated without dirtying f2fs inode in lazytime mode
-+	 */
-+	if (f2fs_is_time_consistent(inode) &&
-+		!is_inode_flag_set(inode, FI_DIRTY_INODE))
- 		return 0;
- 
- 	if (!f2fs_is_checkpoint_ready(sbi))
+ 	for (len = hdr->in_length; len; len -= wrote) {
 -- 
 2.20.1
 
