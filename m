@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E8C11B336
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 187A311B2A1
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388100AbfLKPlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:41:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44074 "EHLO mail.kernel.org"
+        id S2388107AbfLKPfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:35:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733014AbfLKPfS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:35:18 -0500
+        id S2388094AbfLKPfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:35:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B24BE22B48;
-        Wed, 11 Dec 2019 15:35:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4CF624656;
+        Wed, 11 Dec 2019 15:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078517;
-        bh=4bJhGQXtqrfpaZR8jFrBGqtOoMr990NBGyFdV/V2GEc=;
+        s=default; t=1576078518;
+        bh=PUapq7A9/OUb4u2QU0C4bn2vpupibtTpKF043A5SH50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alDdxvSU+k6HrEVa0QNojrKT/JUmZdns/XxWWlzf0JKE6SLJTJmyPoUSwEbnTz6Zt
-         YyQ6Y8q0EsRut08hJSKGT4/Q6z2LC7anwANyKVHGPUnn48eD92KKKI8nWt/O3f7I2M
-         xHeZlZDEM2QuxOtoZjrpAFSEYK5DtkRVmRpRqcR8=
+        b=eZMGsYjfVIKaAT5FMsH59Vgm9C6U2nIOeOFfgzzXADZwDTiZ3pJPjlt+Lpk2gBECI
+         eLX4rdVtXvpR4h7pcbkVEtcgApSdFlLuldrrYjDKRQH5f3NdQJ5C5UNDjLO5YvVpEQ
+         pRPIi07u8BxeGUNRqHsbIDDuZs+k9A04Nx7dTu5w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 06/42] scsi: lpfc: Fix SLI3 hba in loop mode not discovering devices
-Date:   Wed, 11 Dec 2019 10:34:34 -0500
-Message-Id: <20191211153510.23861-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 07/42] scsi: csiostor: Don't enable IRQs too early
+Date:   Wed, 11 Dec 2019 10:34:35 -0500
+Message-Id: <20191211153510.23861-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153510.23861-1-sashal@kernel.org>
 References: <20191211153510.23861-1-sashal@kernel.org>
@@ -44,43 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit feff8b3d84d3d9570f893b4d83e5eab6693d6a52 ]
+[ Upstream commit d6c9b31ac3064fbedf8961f120a4c117daa59932 ]
 
-When operating in private loop mode, PLOGI exchanges are racing and the
-driver tries to abort it's PLOGI. But the PLOGI abort ends up terminating
-the login with the other end causing the other end to abort its PLOGI as
-well. Discovery never fully completes.
+These are called with IRQs disabled from csio_mgmt_tmo_handler() so we
+can't call spin_unlock_irq() or it will enable IRQs prematurely.
 
-Fix by disabling the PLOGI abort when private loop and letting the state
-machine play out.
-
-Link: https://lore.kernel.org/r/20191018211832.7917-5-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Fixes: a3667aaed569 ("[SCSI] csiostor: Chelsio FCoE offload driver")
+Link: https://lore.kernel.org/r/20191019085913.GA14245@mwanda
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nportdisc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/csiostor/csio_lnode.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index 21ec7b5b6c85c..fefef2884d590 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -454,8 +454,10 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 	 * single discovery thread, this will cause a huge delay in
- 	 * discovery. Also this will cause multiple state machines
- 	 * running in parallel for this node.
-+	 * This only applies to a fabric environment.
- 	 */
--	if (ndlp->nlp_state == NLP_STE_PLOGI_ISSUE) {
-+	if ((ndlp->nlp_state == NLP_STE_PLOGI_ISSUE) &&
-+	    (vport->fc_flag & FC_FABRIC)) {
- 		/* software abort outstanding PLOGI */
- 		lpfc_els_abort(phba, ndlp);
+diff --git a/drivers/scsi/csiostor/csio_lnode.c b/drivers/scsi/csiostor/csio_lnode.c
+index be5ee2d378155..957767d383610 100644
+--- a/drivers/scsi/csiostor/csio_lnode.c
++++ b/drivers/scsi/csiostor/csio_lnode.c
+@@ -301,6 +301,7 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	struct fc_fdmi_port_name *port_name;
+ 	uint8_t buf[64];
+ 	uint8_t *fc4_type;
++	unsigned long flags;
+ 
+ 	if (fdmi_req->wr_status != FW_SUCCESS) {
+ 		csio_ln_dbg(ln, "WR error:%x in processing fdmi rhba cmd\n",
+@@ -377,13 +378,13 @@ csio_ln_fdmi_rhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	len = (uint32_t)(pld - (uint8_t *)cmd);
+ 
+ 	/* Submit FDMI RPA request */
+-	spin_lock_irq(&hw->lock);
++	spin_lock_irqsave(&hw->lock, flags);
+ 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_done,
+ 				FCOE_CT, &fdmi_req->dma_buf, len)) {
+ 		CSIO_INC_STATS(ln, n_fdmi_err);
+ 		csio_ln_dbg(ln, "Failed to issue fdmi rpa req\n");
  	}
+-	spin_unlock_irq(&hw->lock);
++	spin_unlock_irqrestore(&hw->lock, flags);
+ }
+ 
+ /*
+@@ -404,6 +405,7 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	struct fc_fdmi_rpl *reg_pl;
+ 	struct fs_fdmi_attrs *attrib_blk;
+ 	uint8_t buf[64];
++	unsigned long flags;
+ 
+ 	if (fdmi_req->wr_status != FW_SUCCESS) {
+ 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dprt cmd\n",
+@@ -483,13 +485,13 @@ csio_ln_fdmi_dprt_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	attrib_blk->numattrs = htonl(numattrs);
+ 
+ 	/* Submit FDMI RHBA request */
+-	spin_lock_irq(&hw->lock);
++	spin_lock_irqsave(&hw->lock, flags);
+ 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_rhba_cbfn,
+ 				FCOE_CT, &fdmi_req->dma_buf, len)) {
+ 		CSIO_INC_STATS(ln, n_fdmi_err);
+ 		csio_ln_dbg(ln, "Failed to issue fdmi rhba req\n");
+ 	}
+-	spin_unlock_irq(&hw->lock);
++	spin_unlock_irqrestore(&hw->lock, flags);
+ }
+ 
+ /*
+@@ -504,6 +506,7 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	void *cmd;
+ 	struct fc_fdmi_port_name *port_name;
+ 	uint32_t len;
++	unsigned long flags;
+ 
+ 	if (fdmi_req->wr_status != FW_SUCCESS) {
+ 		csio_ln_dbg(ln, "WR error:%x in processing fdmi dhba cmd\n",
+@@ -534,13 +537,13 @@ csio_ln_fdmi_dhba_cbfn(struct csio_hw *hw, struct csio_ioreq *fdmi_req)
+ 	len += sizeof(*port_name);
+ 
+ 	/* Submit FDMI request */
+-	spin_lock_irq(&hw->lock);
++	spin_lock_irqsave(&hw->lock, flags);
+ 	if (csio_ln_mgmt_submit_req(fdmi_req, csio_ln_fdmi_dprt_cbfn,
+ 				FCOE_CT, &fdmi_req->dma_buf, len)) {
+ 		CSIO_INC_STATS(ln, n_fdmi_err);
+ 		csio_ln_dbg(ln, "Failed to issue fdmi dprt req\n");
+ 	}
+-	spin_unlock_irq(&hw->lock);
++	spin_unlock_irqrestore(&hw->lock, flags);
+ }
+ 
+ /**
 -- 
 2.20.1
 
