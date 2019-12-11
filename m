@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6471511B217
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:34:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9505611B1C8
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:33:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387701AbfLKPd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:33:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35000 "EHLO mail.kernel.org"
+        id S2387708AbfLKP2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:28:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733142AbfLKP2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:28:43 -0500
+        id S2387704AbfLKP2o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:28:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DFF024658;
-        Wed, 11 Dec 2019 15:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A9F72465B;
+        Wed, 11 Dec 2019 15:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078122;
-        bh=GEf9l6NPALOEA7KMmCeDaavbtjXHUbNziyfRQtrk9E8=;
+        s=default; t=1576078123;
+        bh=Dkvv5C2yuzz6i9OHp8E4g3HqdPqGabSxN/nzvOCSarg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TpmlT7TcPN3XhaNHjxBN5UhJ+VKh0Pkf8uYFcbw/5jWHvslW9exQT826EdWCZEIg6
-         TISPk3gdvAeRgz+a1AfVbu/cRanQuYiCwA9KOaxmSvjP4FW25KVuV+GEdr/j4I3sbd
-         lDzbZW1rzbP/Sl0Y0rvXcTyshzRX12OGkxfaYZs4=
+        b=IAqb0sbDu+3Kq9kXbSn333sGwubd0qGQutwLTKnvmjTuFsgxyZJY0j0afCVt/lAWI
+         Ps9S8KlXpiQV0GrD1Z3L5StQOo0AkdWhew9wsWGfUlIHUe5GqxArgKb408CZGYYsth
+         Mdnd+1/Hx9SRzCb+VT9D7xBpjYF1KO757MS0vSd0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 10/58] powerpc/pseries: Don't fail hash page table insert for bolted mapping
-Date:   Wed, 11 Dec 2019 10:27:43 -0500
-Message-Id: <20191211152831.23507-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 11/58] powerpc/tools: Don't quote $objdump in scripts
+Date:   Wed, 11 Dec 2019 10:27:44 -0500
+Message-Id: <20191211152831.23507-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
 References: <20191211152831.23507-1-sashal@kernel.org>
@@ -43,65 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 75838a3290cd4ebbd1f567f310ba04b6ef017ce4 ]
+[ Upstream commit e44ff9ea8f4c8a90c82f7b85bd4f5e497c841960 ]
 
-If the hypervisor returned H_PTEG_FULL for H_ENTER hcall, retry a hash page table
-insert by removing a random entry from the group.
+Some of our scripts are passed $objdump and then call it as
+"$objdump". This doesn't work if it contains spaces because we're
+using ccache, for example you get errors such as:
 
-After some runtime, it is very well possible to find all the 8 hash page table
-entry slot in the hpte group used for mapping. Don't fail a bolted entry insert
-in that case. With Storage class memory a user can find this error easily since
-a namespace enable/disable is equivalent to memory add/remove.
+  ./arch/powerpc/tools/relocs_check.sh: line 48: ccache ppc64le-objdump: No such file or directory
+  ./arch/powerpc/tools/unrel_branch_check.sh: line 26: ccache ppc64le-objdump: No such file or directory
 
-This results in failures as reported below:
+Fix it by not quoting the string when we expand it, allowing the shell
+to do the right thing for us.
 
-$ ndctl create-namespace -r region1 -t pmem -m devdax -a 65536 -s 100M
-libndctl: ndctl_dax_enable: dax1.3: failed to enable
-  Error: namespace1.2: failed to enable
-
-failed to create namespace: No such device or address
-
-In kernel log we find the details as below:
-
-Unable to create mapping for hot added memory 0xc000042006000000..0xc00004200d000000: -1
-dax_pmem: probe of dax1.3 failed with error -14
-
-This indicates that we failed to create a bolted hash table entry for direct-map
-address backing the namespace.
-
-We also observe failures such that not all namespaces will be enabled with
-ndctl enable-namespace all command.
-
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Fixes: a71aa05e1416 ("powerpc: Convert relocs_check to a shell script using grep")
+Fixes: 4ea80652dc75 ("powerpc/64s: Tool to flag direct branches from unrelocated interrupt vectors")
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191024093542.29777-2-aneesh.kumar@linux.ibm.com
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191024004730.32135-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/hash_utils_64.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/powerpc/tools/relocs_check.sh       | 2 +-
+ arch/powerpc/tools/unrel_branch_check.sh | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
-index 58c14749bb0c1..cf1d76e036359 100644
---- a/arch/powerpc/mm/hash_utils_64.c
-+++ b/arch/powerpc/mm/hash_utils_64.c
-@@ -292,7 +292,14 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
- 		ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
- 					       HPTE_V_BOLTED, psize, psize,
- 					       ssize);
--
-+		if (ret == -1) {
-+			/* Try to remove a non bolted entry */
-+			ret = mmu_hash_ops.hpte_remove(hpteg);
-+			if (ret != -1)
-+				ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
-+							       HPTE_V_BOLTED, psize, psize,
-+							       ssize);
-+		}
- 		if (ret < 0)
- 			break;
+diff --git a/arch/powerpc/tools/relocs_check.sh b/arch/powerpc/tools/relocs_check.sh
+index ec2d5c835170a..d6c16e7faa387 100755
+--- a/arch/powerpc/tools/relocs_check.sh
++++ b/arch/powerpc/tools/relocs_check.sh
+@@ -23,7 +23,7 @@ objdump="$1"
+ vmlinux="$2"
  
+ bad_relocs=$(
+-"$objdump" -R "$vmlinux" |
++$objdump -R "$vmlinux" |
+ 	# Only look at relocation lines.
+ 	grep -E '\<R_' |
+ 	# These relocations are okay
+diff --git a/arch/powerpc/tools/unrel_branch_check.sh b/arch/powerpc/tools/unrel_branch_check.sh
+index 1e972df3107ee..77114755dc6f2 100755
+--- a/arch/powerpc/tools/unrel_branch_check.sh
++++ b/arch/powerpc/tools/unrel_branch_check.sh
+@@ -18,14 +18,14 @@ vmlinux="$2"
+ #__end_interrupts should be located within the first 64K
+ 
+ end_intr=0x$(
+-"$objdump" -R "$vmlinux" -d --start-address=0xc000000000000000		\
++$objdump -R "$vmlinux" -d --start-address=0xc000000000000000           \
+ 		 --stop-address=0xc000000000010000 |
+ grep '\<__end_interrupts>:' |
+ awk '{print $1}'
+ )
+ 
+ BRANCHES=$(
+-"$objdump" -R "$vmlinux" -D --start-address=0xc000000000000000		\
++$objdump -R "$vmlinux" -D --start-address=0xc000000000000000           \
+ 		--stop-address=${end_intr} |
+ grep -e "^c[0-9a-f]*:[[:space:]]*\([0-9a-f][0-9a-f][[:space:]]\)\{4\}[[:space:]]*b" |
+ grep -v '\<__start_initialization_multiplatform>' |
 -- 
 2.20.1
 
