@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF34E11B740
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:06:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8827E11B735
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:06:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730980AbfLKQGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34698 "EHLO mail.kernel.org"
+        id S1731204AbfLKPMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:12:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731191AbfLKPMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:39 -0500
+        id S1730815AbfLKPMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85BEB222C4;
-        Wed, 11 Dec 2019 15:12:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6E262465E;
+        Wed, 11 Dec 2019 15:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077158;
-        bh=/smzVxQI60i2p8rqZW5npyc1NOFErmUZYkcaCGjFXQs=;
+        s=default; t=1576077159;
+        bh=KhsJlt8mJmKhtd62rZZlnvygPNnMkacTIfjNnVH+Zqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMOBACORzF9Ks30ssMWhXKoictxxvu8jke8gy13f5CoNcA3qHgn13UYZkG78xYL/z
-         YL/YlX0ViqyCwM5YJZAHsON4QYktaWlG5THORW1WI+3cftPB+Z5lwZJxv8i1JNJJES
-         6wcbCeZbT04VnJjRiuDrJf3SJna06GlDUrEcqOyQ=
+        b=L/eth3NzEXp8Jn9p5ESnx1AYIKTLibV02Y4/2RkzRIyX8OJ19Y/wAzq9q04z7p6Ak
+         kEytisqzA3/5MUgNxiOUZqQgE25mZx5yRlK05NF7D/aGm7KRgFVPMwaQiSPrQ0PGFE
+         bmfZDM3cpIFBMIKuZQUVJR/RbUl2qJT+mWjYyu1c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 044/134] scsi: tracing: Fix handling of TRANSFER LENGTH == 0 for READ(6) and WRITE(6)
-Date:   Wed, 11 Dec 2019 10:10:20 -0500
-Message-Id: <20191211151150.19073-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 045/134] scsi: lpfc: Fix unexpected error messages during RSCN handling
+Date:   Wed, 11 Dec 2019 10:10:21 -0500
+Message-Id: <20191211151150.19073-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -46,52 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit f6b8540f40201bff91062dd64db8e29e4ddaaa9d ]
+[ Upstream commit 2332e6e475b016e2026763f51333f84e2e6c57a3 ]
 
-According to SBC-2 a TRANSFER LENGTH field of zero means that 256 logical
-blocks must be transferred. Make the SCSI tracing code follow SBC-2.
+During heavy RCN activity and log_verbose = 0 we see these messages:
 
-Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Douglas Gilbert <dgilbert@interlog.com>
-Link: https://lore.kernel.org/r/20191105215553.185018-1-bvanassche@acm.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+  2754 PRLI failure DID:521245 Status:x9/xb2c00, data: x0
+  0231 RSCN timeout Data: x0 x3
+  0230 Unexpected timeout, hba link state x5
+
+This is due to delayed RSCN activity.
+
+Correct by avoiding the timeout thus the messages by restarting the
+discovery timeout whenever an rscn is received.
+
+Filter PRLI responses such that severity depends on whether expected for
+the configuration or not. For example, PRLI errors on a fabric will be
+informational (they are expected), but Point-to-Point errors are not
+necessarily expected so they are raised to an error level.
+
+Link: https://lore.kernel.org/r/20191105005708.7399-5-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_trace.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_trace.c b/drivers/scsi/scsi_trace.c
-index 0f17e7dac1b08..07a2425ffa2c2 100644
---- a/drivers/scsi/scsi_trace.c
-+++ b/drivers/scsi/scsi_trace.c
-@@ -18,15 +18,18 @@ static const char *
- scsi_trace_rw6(struct trace_seq *p, unsigned char *cdb, int len)
- {
- 	const char *ret = trace_seq_buffer_ptr(p);
--	sector_t lba = 0, txlen = 0;
-+	u32 lba = 0, txlen;
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index f293b48616ae9..4794a58deaf3c 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -2236,6 +2236,7 @@ lpfc_cmpl_els_prli(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 	struct Scsi_Host  *shost = lpfc_shost_from_vport(vport);
+ 	IOCB_t *irsp;
+ 	struct lpfc_nodelist *ndlp;
++	char *mode;
  
- 	lba |= ((cdb[1] & 0x1F) << 16);
- 	lba |=  (cdb[2] << 8);
- 	lba |=   cdb[3];
--	txlen = cdb[4];
-+	/*
-+	 * From SBC-2: a TRANSFER LENGTH field set to zero specifies that 256
-+	 * logical blocks shall be read (READ(6)) or written (WRITE(6)).
-+	 */
-+	txlen = cdb[4] ? cdb[4] : 256;
+ 	/* we pass cmdiocb to state machine which needs rspiocb as well */
+ 	cmdiocb->context_un.rsp_iocb = rspiocb;
+@@ -2273,8 +2274,17 @@ lpfc_cmpl_els_prli(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
+ 			goto out;
+ 		}
  
--	trace_seq_printf(p, "lba=%llu txlen=%llu",
--			 (unsigned long long)lba, (unsigned long long)txlen);
-+	trace_seq_printf(p, "lba=%u txlen=%u", lba, txlen);
- 	trace_seq_putc(p, 0);
++		/* If we don't send GFT_ID to Fabric, a PRLI error
++		 * could be expected.
++		 */
++		if ((vport->fc_flag & FC_FABRIC) ||
++		    (vport->cfg_enable_fc4_type != LPFC_ENABLE_BOTH))
++			mode = KERN_ERR;
++		else
++			mode = KERN_INFO;
++
+ 		/* PRLI failed */
+-		lpfc_printf_vlog(vport, KERN_ERR, LOG_ELS,
++		lpfc_printf_vlog(vport, mode, LOG_ELS,
+ 				 "2754 PRLI failure DID:%06X Status:x%x/x%x, "
+ 				 "data: x%x\n",
+ 				 ndlp->nlp_DID, irsp->ulpStatus,
+@@ -6455,7 +6465,7 @@ lpfc_els_rcv_rscn(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
+ 	uint32_t payload_len, length, nportid, *cmd;
+ 	int rscn_cnt;
+ 	int rscn_id = 0, hba_id = 0;
+-	int i;
++	int i, tmo;
  
- 	return ret;
+ 	pcmd = (struct lpfc_dmabuf *) cmdiocb->context2;
+ 	lp = (uint32_t *) pcmd->virt;
+@@ -6561,6 +6571,13 @@ lpfc_els_rcv_rscn(struct lpfc_vport *vport, struct lpfc_iocbq *cmdiocb,
+ 
+ 		spin_lock_irq(shost->host_lock);
+ 		vport->fc_flag |= FC_RSCN_DEFERRED;
++
++		/* Restart disctmo if its already running */
++		if (vport->fc_flag & FC_DISC_TMO) {
++			tmo = ((phba->fc_ratov * 3) + 3);
++			mod_timer(&vport->fc_disctmo,
++				  jiffies + msecs_to_jiffies(1000 * tmo));
++		}
+ 		if ((rscn_cnt < FC_MAX_HOLD_RSCN) &&
+ 		    !(vport->fc_flag & FC_RSCN_DISCOVERY)) {
+ 			vport->fc_flag |= FC_RSCN_MODE;
 -- 
 2.20.1
 
