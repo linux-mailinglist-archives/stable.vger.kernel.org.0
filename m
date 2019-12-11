@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3646611B699
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAED511B698
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730749AbfLKPNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731404AbfLKPNW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 11 Dec 2019 10:13:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36590 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731393AbfLKPNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:21 -0500
+        id S1731400AbfLKPNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C54812464B;
-        Wed, 11 Dec 2019 15:13:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D566F2467D;
+        Wed, 11 Dec 2019 15:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077200;
-        bh=aHg8pTeJxTgKJijpf2cEEJRvzMiodnvZkagbclORluA=;
+        s=default; t=1576077201;
+        bh=7RziOHfJeJsaaiPT85Sftb0DFf3AWIRTO8IXVor0O+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFz2LROsV3KCaQ8m/N3RoFs4KbNVHCiHb5/UgtrPSJ6dk72HWdQZ9iCpSsTpD+Qwp
-         M5kXne7UUmAMnccZpGQDrJECR5uZUFtYAJOQ/XLohv5I2rcryemngZ3R5hpnMvQBkW
-         ISU+/W1OWRTr5T4QitVQ9lS85bfZss2HaERJ+nOk=
+        b=ok0nBNmOxTh7hbpEum4hrkCbFcct66D4jI55DzHJraIPBbrKt3B8ssqKR3mZI8Npo
+         FQEZiKILDr7RSKk5ArnC3nqSV85M2KIMmVkjaXxcQBpM4NNT8lpDF9voQz01SZBcmN
+         V9AohPg/csBifP0QOZhQNB7NtNbP/oPOpng4ZrVY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Duggan <aduggan@synaptics.com>,
-        Federico Cerutti <federico@ceres-c.it>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 083/134] HID: rmi: Check that the RMI_STARTED bit is set before unregistering the RMI transport device
-Date:   Wed, 11 Dec 2019 10:10:59 -0500
-Message-Id: <20191211151150.19073-83-sashal@kernel.org>
+Cc:     Fabio Estevam <festevam@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 084/134] watchdog: imx7ulp: Fix reboot hang
+Date:   Wed, 11 Dec 2019 10:11:00 -0500
+Message-Id: <20191211151150.19073-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -44,44 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Duggan <aduggan@synaptics.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 8725aa4fa7ded30211ebd28bb1c9bae806eb3841 ]
+[ Upstream commit 6083ab7b2f3f25022e2e8f4c42f14a8521f47873 ]
 
-In the event that the RMI device is unreachable, the calls to rmi_set_mode() or
-rmi_set_page() will fail before registering the RMI transport device. When the
-device is removed, rmi_remove() will call rmi_unregister_transport_device()
-which will attempt to access the rmi_dev pointer which was not set.
-This patch adds a check of the RMI_STARTED bit before calling
-rmi_unregister_transport_device().  The RMI_STARTED bit is only set
-after rmi_register_transport_device() completes successfully.
+The following hang is observed when a 'reboot' command is issued:
 
-The kernel oops was reported in this message:
-https://www.spinics.net/lists/linux-input/msg58433.html
+# reboot
+# Stopping network: OK
+Stopping klogd: OK
+Stopping syslogd: OK
+umount: devtmpfs busy - remounted read-only
+[    8.612079] EXT4-fs (mmcblk0p2): re-mounted. Opts: (null)
+The system is going down NOW!
+Sent SIGTERM to all processes
+Sent SIGKILL to all processes
+Requesting system reboot
+[   10.694753] reboot: Restarting system
+[   11.699008] Reboot failed -- System halted
 
-[jkosina@suse.cz: reworded changelog as agreed with Andrew]
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Reported-by: Federico Cerutti <federico@ceres-c.it>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fix this problem by adding a .restart ops member.
+
+Fixes: 41b630f41bf7 ("watchdog: Add i.MX7ULP watchdog support")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20191029174037.25381-1-festevam@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-rmi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/watchdog/imx7ulp_wdt.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 7c6abd7e09797..9ce22acdfaca2 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -744,7 +744,8 @@ static void rmi_remove(struct hid_device *hdev)
- {
- 	struct rmi_data *hdata = hid_get_drvdata(hdev);
+diff --git a/drivers/watchdog/imx7ulp_wdt.c b/drivers/watchdog/imx7ulp_wdt.c
+index 5ce51026989a4..ba5d535a6db2e 100644
+--- a/drivers/watchdog/imx7ulp_wdt.c
++++ b/drivers/watchdog/imx7ulp_wdt.c
+@@ -106,12 +106,28 @@ static int imx7ulp_wdt_set_timeout(struct watchdog_device *wdog,
+ 	return 0;
+ }
  
--	if (hdata->device_flags & RMI_DEVICE) {
-+	if ((hdata->device_flags & RMI_DEVICE)
-+	    && test_bit(RMI_STARTED, &hdata->flags)) {
- 		clear_bit(RMI_STARTED, &hdata->flags);
- 		cancel_work_sync(&hdata->reset_work);
- 		rmi_unregister_transport_device(&hdata->xport);
++static int imx7ulp_wdt_restart(struct watchdog_device *wdog,
++			       unsigned long action, void *data)
++{
++	struct imx7ulp_wdt_device *wdt = watchdog_get_drvdata(wdog);
++
++	imx7ulp_wdt_enable(wdt->base, true);
++	imx7ulp_wdt_set_timeout(&wdt->wdd, 1);
++
++	/* wait for wdog to fire */
++	while (true)
++		;
++
++	return NOTIFY_DONE;
++}
++
+ static const struct watchdog_ops imx7ulp_wdt_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start = imx7ulp_wdt_start,
+ 	.stop  = imx7ulp_wdt_stop,
+ 	.ping  = imx7ulp_wdt_ping,
+ 	.set_timeout = imx7ulp_wdt_set_timeout,
++	.restart = imx7ulp_wdt_restart,
+ };
+ 
+ static const struct watchdog_info imx7ulp_wdt_info = {
 -- 
 2.20.1
 
