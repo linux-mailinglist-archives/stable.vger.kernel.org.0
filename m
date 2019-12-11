@@ -2,94 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7663111C084
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3C4411C08E
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:29:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726928AbfLKX0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 18:26:37 -0500
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:42314 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726589AbfLKX0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:26:37 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id xBBNQGx9023348; Thu, 12 Dec 2019 08:26:16 +0900
-X-Iguazu-Qid: 34tMdwKSzMOQZNctuq
-X-Iguazu-QSIG: v=2; s=0; t=1576106776; q=34tMdwKSzMOQZNctuq; m=kiQa5XRS9qAOPHWASNRbe18DoY7epzfGCCQxMfHhxyc=
-Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
-        by relay.securemx.jp (mx-mr1510) id xBBNQE0K001920;
-        Thu, 12 Dec 2019 08:26:15 +0900
-Received: from enc02.toshiba.co.jp ([61.202.160.51])
-        by imx12.toshiba.co.jp  with ESMTP id xBBNQEC0000183;
-        Thu, 12 Dec 2019 08:26:14 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id xBBNQEUg014415;
-        Thu, 12 Dec 2019 08:26:14 +0900
-Date:   Thu, 12 Dec 2019 08:26:13 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        id S1726911AbfLKX33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 18:29:29 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:37905 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727043AbfLKX32 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:29:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576106967;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0i+XMsJFtYhtxBhdu2EW4dCVP37dPVo6eqPpiyrg98k=;
+        b=BouRC/jHsteusw2io5wc66DlcC9AqHRW+kJh6bPt3K032eX5b5k/rks/AsrogYhr+MsYy1
+        54NTsXuuh5ClpJ5J+O92K0gNTOHcwgq/4WXRWRHY5kMyJ/74PhWC4ZdtjoD8bM0jDY1XXn
+        SAx+YvqOFI3EkCPgZCnFq90u9AykgKs=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-125-qhTPL4hQN32UY6HJaBa8dg-1; Wed, 11 Dec 2019 18:29:24 -0500
+X-MC-Unique: qhTPL4hQN32UY6HJaBa8dg-1
+Received: by mail-wr1-f71.google.com with SMTP id l20so243866wrc.13
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 15:29:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to;
+        bh=0i+XMsJFtYhtxBhdu2EW4dCVP37dPVo6eqPpiyrg98k=;
+        b=et7SOr7Is5o0YjqxQi+8kvQfvTgxfzODFJW3zFGh4zPX2zODSzKcHhTr/7b5hSaRnM
+         SktbBNe3hsW/L9Nmyi79NW1Prk/yQOlKVNm6dwjrwqOdDR/YcLS6eEtEUF/88OMv7hzQ
+         WclXa3PSpsNgSthMwmenE99CKcfBvqeozLLUHU7dNFcba955kKnrz2TEYJCgmspWNF/x
+         1g4WgubIx9dcxBft8G4KJ6xtoN+v3CheW5pY0jnfPkHXkHD++3yQMiZSt542pu3w4OBR
+         MV9joR5wjg0TyvJewbJnDEtudUnNsRzXPQggKwkPYMBLAgYmFAoqDGecELqhshQ0Vxxt
+         wV6g==
+X-Gm-Message-State: APjAAAUys7Zz8hAy+QVp8W+bdQVoOU5ISwZGUAvJayfbU4rqoMbdetfE
+        f5QDDSRbIVDvEgk0ucvKk7B+5q1evx0KMp2pK8yM1C/rli7bdFbB+6aAe02cwz1dsKc7KS+0q5x
+        65iTgpObcqWkHF57z
+X-Received: by 2002:a5d:6211:: with SMTP id y17mr2558145wru.344.1576106963228;
+        Wed, 11 Dec 2019 15:29:23 -0800 (PST)
+X-Google-Smtp-Source: APXvYqwWsS0ih/51rSFF4d2cx4Nne4F6h3CdAazWfe5DQSNs6ci9a4+0zjXdvxKXHpznuY+jl5AzGg==
+X-Received: by 2002:a5d:6211:: with SMTP id y17mr2558129wru.344.1576106963002;
+        Wed, 11 Dec 2019 15:29:23 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9? ([2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9])
+        by smtp.gmail.com with ESMTPSA id h17sm4035818wrs.18.2019.12.11.15.29.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 Dec 2019 15:29:22 -0800 (PST)
+Subject: Re: [stable] KVM: x86: fix out-of-bounds write in
+ KVM_GET_EMULATED_CPUID (CVE-2019-19332)
+To:     Ben Hutchings <ben@decadent.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 070/243] xfs: extent shifting doesnt fully
- invalidate page cache
-X-TSB-HOP: ON
-Message-ID: <20191211232613.pxegji52vf4gd3eh@toshiba.co.jp>
-References: <20191211150339.185439726@linuxfoundation.org>
- <20191211150343.827226097@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>
+References: <6be50392b6128f7cd654c342dc6157a97ccb3d8d.camel@decadent.org.uk>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <cc8b829f-ca2d-5b8c-c880-567bab77a1c2@redhat.com>
+Date:   Thu, 12 Dec 2019 00:29:19 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191211150343.827226097@linuxfoundation.org>
+In-Reply-To: <6be50392b6128f7cd654c342dc6157a97ccb3d8d.camel@decadent.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 04:03:52PM +0100, Greg Kroah-Hartman wrote:
-> From: Dave Chinner <dchinner@redhat.com>
-> 
-> [ Upstream commit 7f9f71be84bcab368e58020a42f6d0dd97adf0ce ]
-> 
-> The extent shifting code uses a flush and invalidate mechainsm prior
-> to shifting extents around. This is similar to what
-> xfs_free_file_space() does, but it doesn't take into account things
-> like page cache vs block size differences, and it will fail if there
-> is a page that it currently busy.
-> 
-> xfs_flush_unmap_range() handles all of these cases, so just convert
-> xfs_prepare_shift() to us that mechanism rather than having it's own
-> special sauce.
-> 
-> Signed-off-by: Dave Chinner <dchinner@redhat.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8
+Content-Type: multipart/mixed; boundary="opaPoe1iK5casvymZME4iwND7FjTTHJzq"
+
+--opaPoe1iK5casvymZME4iwND7FjTTHJzq
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 11/12/19 23:25, Ben Hutchings wrote:
+> Please pick:
+>=20
+> commit 433f4ba1904100da65a311033f17a9bf586b287e
+> Author: Paolo Bonzini <pbonzini@redhat.com>
+> Date:   Wed Dec 4 10:28:54 2019 +0100
+>=20
+>     KVM: x86: fix out-of-bounds write in KVM_GET_EMULATED_CPUID (CVE-20=
+19-19332)
+>=20
+> for all stable branches.
+>=20
+> Ben.
+>=20
+
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
 
-This commit also required following commit:
+--opaPoe1iK5casvymZME4iwND7FjTTHJzq--
 
-commit 1749d1ea89bdf3181328b7d846e609d5a0e53e50
-Author: Brian Foster <bfoster@redhat.com>
-Date:   Fri Apr 26 07:30:24 2019 -0700
+--ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-    xfs: add missing error check in xfs_prepare_shift()
+-----BEGIN PGP SIGNATURE-----
 
-    xfs_prepare_shift() fails to check the error return from
-    xfs_flush_unmap_range(). If the latter fails, that could lead to an
-    insert/collapse range operation over a delalloc range, which is not
-    supported.
+iQEzBAEBCAAdFiEE8TM4V0tmI4mGbHaCv/vSX3jHroMFAl3xe9IACgkQv/vSX3jH
+roOH3gf/ZRP3PefDkLnn4I7lp/CGvLTUBxgZw8XNNTwGOkoLRUMQXL9RGgseGeAb
+ypzqGlYB2/ojE3X1p5vRhEqD51jiE+7Syb+6zVIocRKI9GyvQYGPpNZJPVOcTgfY
+OcibLg4WCuVDYKUU7GQvK1tZpUphvSc0hcEmwIN/HeBoOk7DqqtMJeFoeZUn4Sac
+ecNvx5RZiYPx23Qc1sCwIjb2nzfhexu5uOiabV3peGw6mEmjknKhqf44Rkgu8BZK
+hfB5Zc6vSGwiDa/ch7qzOYOGSaZGrHwW/UAhUaS1fAm+Dth8Vol6ioGBJ5TPPvD+
+zq+tI8oSVVD6K18os7/Q6bCJBmSTmw==
+=udyk
+-----END PGP SIGNATURE-----
 
-    Add an error check and return appropriately. This is reproduced
-    rarely by generic/475.
+--ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8--
 
-    Fixes: 7f9f71be84bc ("xfs: extent shifting doesn't fully invalidate page cache")
-    Signed-off-by: Brian Foster <bfoster@redhat.com>
-    Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-    Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-    Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-    Reviewed-by: Dave Chinner <dchinner@redhat.com>
-
-Best regards,
-  Nobuhirio
