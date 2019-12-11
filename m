@@ -2,84 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EE011A4A6
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 07:42:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C50611A4D0
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 08:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727837AbfLKGm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 01:42:26 -0500
-Received: from first.geanix.com ([116.203.34.67]:40034 "EHLO first.geanix.com"
+        id S1727945AbfLKHHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 02:07:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727187AbfLKGmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 01:42:25 -0500
-Received: from zen.localdomain (unknown [85.184.140.241])
-        by first.geanix.com (Postfix) with ESMTPSA id 96541449;
-        Wed, 11 Dec 2019 06:41:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1576046516; bh=Ka8yEehAlw/RVnhn/75S7P8BwdY+uy2v7ymYZjfA5f0=;
-        h=From:To:Cc:Subject:Date;
-        b=GaPzrwuXn6SdYVaI6PllYmKoGQl4hufXYDqc7A5/MAQcgbtYweBZ0+d24CSs8Y57n
-         BEk6fb3jGAavkdp4oMZjPh07j1vaFcHg+L2VuKGwzHKp7oh59zLLW/Nuj+mhhkl+nh
-         jwYwA3f5ID4esGy5hP13G62psP1l30Bx0D50m29ZcXT4g4PlNQWdcu3K2ksXTQ+alR
-         CwPTy8Cy+4MJ/dZjDC4bXjPDHF5l+WjfGeI7wCcUWfYKR12liqI/pm9iwIwNG+Kp+c
-         QiGc4oPaPD3eh+z1Q7l4VTAPJ/CnL03MbE12jad4UWKK0+Sbp9mBCUxWqF8GdysT+o
-         sh/IOYutmugYw==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     mkl@pengutronix.de, dmurphy@ti.com, linux-can@vger.kernel.org
-Cc:     Sean Nyekjaer <sean@geanix.com>, martin@geanix.com,
-        stable@vger.kernel.org
-Subject: [PATCH v3 1/2] can: m_can: tcan4x5x: put the device out of standby before register access
-Date:   Wed, 11 Dec 2019 07:42:07 +0100
-Message-Id: <20191211064208.84656-1-sean@geanix.com>
-X-Mailer: git-send-email 2.24.0
+        id S1725800AbfLKHHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 02:07:53 -0500
+Received: from dragon (98.142.130.235.16clouds.com [98.142.130.235])
+        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23CA520836;
+        Wed, 11 Dec 2019 07:07:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576048073;
+        bh=8msHcIRu3PefYDklXS+Yt8ZWDv8UpIyQUU1KePcXvUw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=I6qcpZab4oL1uW14v+yRpdRAmH74HJX44/xxYLcSVUaU32XzcNP4JLGJBnNmveSFV
+         MmDkfr/0zyM16WKOx7IBoLVqAnppDSdic4/Gy8TTKhNPvwZhbdT5BHxUZD9xkBq1XH
+         rW0BSLiJ6z5+LOmelSd8ur+Vfj/c7gjpBRnM+27U=
+Date:   Wed, 11 Dec 2019 15:07:40 +0800
+From:   Shawn Guo <shawnguo@kernel.org>
+To:     Peng Fan <peng.fan@nxp.com>
+Cc:     "sboyd@kernel.org" <sboyd@kernel.org>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        Abel Vesa <abel.vesa@nxp.com>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        Aisheng Dong <aisheng.dong@nxp.com>,
+        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH V2] clk: imx: pll14xx: fix clk_pll14xx_wait_lock
+Message-ID: <20191211070739.GL15858@dragon>
+References: <1575879445-15386-1-git-send-email-peng.fan@nxp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=4.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,UNPARSEABLE_RELAY,URIBL_BLOCKED
-        autolearn=disabled version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on 8b5b6f358cc9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1575879445-15386-1-git-send-email-peng.fan@nxp.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The m_can tries to detect if Non ISO Operation is available while in standby,
-this function results in the following error:
+On Mon, Dec 09, 2019 at 08:19:55AM +0000, Peng Fan wrote:
+> From: Peng Fan <peng.fan@nxp.com>
+> 
+> The usage of readl_poll_timeout is wrong, the 3rd parameter(cond)
+> should be "val & LOCK_STATUS" not "val & LOCK_TIMEOUT_US",
+> It is not check whether the pll locked, LOCK_STATUS reflects the mask,
+> not LOCK_TIMEOUT_US.
+> 
+> Fixes: 8646d4dcc7fb ("clk: imx: Add PLLs driver for imx8mm soc")
+> Cc: <stable@vger.kernel.org>
+> Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+> Signed-off-by: Peng Fan <peng.fan@nxp.com>
 
-tcan4x5x spi2.0 (unnamed net_device) (uninitialized): Failed to init module
-tcan4x5x spi2.0: m_can device registered (irq=84, version=32)
-tcan4x5x spi2.0 can2: TCAN4X5X successfully initialized.
-
-When the tcan device comes out of reset it comes out in standby mode.
-The m_can driver tries to access the control register but fails due to
-the device is in standby mode.
-So this patch will put the tcan device in normal mode before the m_can
-driver does the initialization.
-
-Fixes: a229abeed7f7 ("can: tcan4x5x: Turn on the power before parsing the config")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
----
-Changes since v2:
- - added error handling for tcan4x5x_init call
-
- drivers/net/can/m_can/tcan4x5x.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
-index b6b2feca9e8f..1f04fec7723d 100644
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -460,6 +460,10 @@ static int tcan4x5x_can_probe(struct spi_device *spi)
- 	if (ret)
- 		goto out_power;
- 
-+	ret = tcan4x5x_init(mcan_class);
-+	if (ret)
-+		goto out_power;
-+
- 	ret = m_can_class_register(mcan_class);
- 	if (ret)
- 		goto out_power;
--- 
-2.24.0
-
+Applied, thanks.
