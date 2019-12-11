@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F5011B106
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:28:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B260911B108
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:28:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387510AbfLKP15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:27:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33810 "EHLO mail.kernel.org"
+        id S2387515AbfLKP16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:27:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387503AbfLKP14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:56 -0500
+        id S2387509AbfLKP15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4F952173E;
-        Wed, 11 Dec 2019 15:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C31632465B;
+        Wed, 11 Dec 2019 15:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078075;
-        bh=n1S0LjUj2n6CfaBB+gcus2gpB7g/FfRC3iTuuai5Ovo=;
+        s=default; t=1576078076;
+        bh=/u13mj4dQXc8/OvMb5WuTa4PoenXQs6Y8XQYTXC0M2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qi2tn0LqDH/9PQ6xLZn7incBxPCmYMAOTOOjrLFvdy2+OWTqOUUWWeu50dQMs/JMM
-         2eM4VQ3nu4ASTzWQsdHK3bcJttP4VTm7zbYin2/nYbtTLGzxl8q0KmFc9t+640P0tR
-         Xw5PpmGMGLhNlKdbL9NLoL1yeE7uC4W+NqX+V0tE=
+        b=mTXkhJe9yhAiJ+BQqNIT17zyvW6aCgSVkBs182PzoWFZWf1NYHtAIitZha7IoZo2r
+         DRZSybdmugKuTzNp/eoH/0dNFgLq8lodibnm4y7BcNfvSYofA2ukminRoqPdMRiE1N
+         F8KvmolJIVTYiYT4FHys0N0KjApV7YOvPdmLqZSw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 66/79] powerpc: Don't add -mabi= flags when building with Clang
-Date:   Wed, 11 Dec 2019 10:26:30 -0500
-Message-Id: <20191211152643.23056-66-sashal@kernel.org>
+Cc:     Chengguang Xu <cgxu519@mykernel.net>, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 67/79] f2fs: choose hardlimit when softlimit is larger than hardlimit in f2fs_statfs_project()
+Date:   Wed, 11 Dec 2019 10:26:31 -0500
+Message-Id: <20191211152643.23056-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -44,95 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-[ Upstream commit 465bfd9c44dea6b55962b5788a23ac87a467c923 ]
+[ Upstream commit 909110c060f22e65756659ec6fa957ae75777e00 ]
 
-When building pseries_defconfig, building vdso32 errors out:
+Setting softlimit larger than hardlimit seems meaningless
+for disk quota but currently it is allowed. In this case,
+there may be a bit of comfusion for users when they run
+df comamnd to directory which has project quota.
 
-  error: unknown target ABI 'elfv1'
+For example, we set 20M softlimit and 10M hardlimit of
+block usage limit for project quota of test_dir(project id 123).
 
-This happens because -m32 in clang changes the target to 32-bit,
-which does not allow the ABI to be changed.
+[root@hades f2fs]# repquota -P -a
+*** Report for project quotas on device /dev/nvme0n1p8
+Block grace time: 7days; Inode grace time: 7days
+Block limits File limits
+Project used soft hard grace used soft hard grace
+----------------------------------------------------------------------
+0 -- 4 0 0 1 0 0
+123 +- 10248 20480 10240 2 0 0
 
-Commit 4dc831aa8813 ("powerpc: Fix compiling a BE kernel with a
-powerpc64le toolchain") added these flags to fix building big endian
-kernels with a little endian GCC.
+The result of df command as below:
 
-Clang doesn't need -mabi because the target triple controls the
-default value. -mlittle-endian and -mbig-endian manipulate the triple
-into either powerpc64-* or powerpc64le-*, which properly sets the
-default ABI.
+[root@hades f2fs]# df -h /mnt/f2fs/test
+Filesystem Size Used Avail Use% Mounted on
+/dev/nvme0n1p8 20M 11M 10M 51% /mnt/f2fs
 
-Adding a debug print out in the PPC64TargetInfo constructor after line
-383 above shows this:
+Even though it looks like there is another 10M free space to use,
+if we write new data to diretory test(inherit project id),
+the write will fail with errno(-EDQUOT).
 
-  $ echo | ./clang -E --target=powerpc64-linux -mbig-endian -o /dev/null -
-  Default ABI: elfv1
+After this patch, the df result looks like below.
 
-  $ echo | ./clang -E --target=powerpc64-linux -mlittle-endian -o /dev/null -
-  Default ABI: elfv2
+[root@hades f2fs]# df -h /mnt/f2fs/test
+Filesystem Size Used Avail Use% Mounted on
+/dev/nvme0n1p8 10M 10M 0 100% /mnt/f2fs
 
-  $ echo | ./clang -E --target=powerpc64le-linux -mbig-endian -o /dev/null -
-  Default ABI: elfv1
-
-  $ echo | ./clang -E --target=powerpc64le-linux -mlittle-endian -o /dev/null -
-  Default ABI: elfv2
-
-Don't specify -mabi when building with clang to avoid the build error
-with -m32 and not change any code generation.
-
--mcall-aixdesc is not an implemented flag in clang so it can be safely
-excluded as well, see commit 238abecde8ad ("powerpc: Don't use gcc
-specific options on clang").
-
-pseries_defconfig successfully builds after this patch and
-powernv_defconfig and ppc44x_defconfig don't regress.
-
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-[mpe: Trim clang links in change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191119045712.39633-2-natechancellor@gmail.com
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/f2fs/super.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index dfcb698ec8f3b..e43321f46a3be 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -90,11 +90,13 @@ MULTIPLEWORD	:= -mmultiple
- endif
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 7a9cc64f5ca37..662c7de58b990 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1148,9 +1148,13 @@ static int f2fs_statfs_project(struct super_block *sb,
+ 		return PTR_ERR(dquot);
+ 	spin_lock(&dquot->dq_dqb_lock);
  
- ifdef CONFIG_PPC64
-+ifndef CONFIG_CC_IS_CLANG
- cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
- cflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mcall-aixdesc)
- aflags-$(CONFIG_CPU_BIG_ENDIAN)		+= $(call cc-option,-mabi=elfv1)
- aflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mabi=elfv2
- endif
-+endif
+-	limit = (dquot->dq_dqb.dqb_bsoftlimit ?
+-		 dquot->dq_dqb.dqb_bsoftlimit :
+-		 dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
++	limit = 0;
++	if (dquot->dq_dqb.dqb_bsoftlimit)
++		limit = dquot->dq_dqb.dqb_bsoftlimit;
++	if (dquot->dq_dqb.dqb_bhardlimit &&
++			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
++		limit = dquot->dq_dqb.dqb_bhardlimit;
++
+ 	if (limit && buf->f_blocks > limit) {
+ 		curblock = dquot->dq_dqb.dqb_curspace >> sb->s_blocksize_bits;
+ 		buf->f_blocks = limit;
+@@ -1159,9 +1163,13 @@ static int f2fs_statfs_project(struct super_block *sb,
+ 			 (buf->f_blocks - curblock) : 0;
+ 	}
  
- ifneq ($(cc-name),clang)
-   cflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mno-strict-align
-@@ -134,6 +136,7 @@ endif
- endif
- 
- CFLAGS-$(CONFIG_PPC64)	:= $(call cc-option,-mtraceback=no)
-+ifndef CONFIG_CC_IS_CLANG
- ifdef CONFIG_CPU_LITTLE_ENDIAN
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2,$(call cc-option,-mcall-aixdesc))
- AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv2)
-@@ -142,6 +145,7 @@ CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcall-aixdesc)
- AFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mabi=elfv1)
- endif
-+endif
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mcmodel=medium,$(call cc-option,-mminimal-toc))
- CFLAGS-$(CONFIG_PPC64)	+= $(call cc-option,-mno-pointers-to-nested-functions)
- 
+-	limit = dquot->dq_dqb.dqb_isoftlimit ?
+-		dquot->dq_dqb.dqb_isoftlimit :
+-		dquot->dq_dqb.dqb_ihardlimit;
++	limit = 0;
++	if (dquot->dq_dqb.dqb_isoftlimit)
++		limit = dquot->dq_dqb.dqb_isoftlimit;
++	if (dquot->dq_dqb.dqb_ihardlimit &&
++			(!limit || dquot->dq_dqb.dqb_ihardlimit < limit))
++		limit = dquot->dq_dqb.dqb_ihardlimit;
++
+ 	if (limit && buf->f_files > limit) {
+ 		buf->f_files = limit;
+ 		buf->f_ffree =
 -- 
 2.20.1
 
