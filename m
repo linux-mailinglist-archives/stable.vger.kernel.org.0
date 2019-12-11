@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E687111B68A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:01:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA0A111B68C
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:01:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731420AbfLKPN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
+        id S1731417AbfLKPN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:13:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730678AbfLKPN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730946AbfLKPN0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 11 Dec 2019 10:13:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 660152467F;
-        Wed, 11 Dec 2019 15:13:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70C2A24654;
+        Wed, 11 Dec 2019 15:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077205;
-        bh=OHo9ncK+CLB/vJGJ8UD7swl610a3dWF1qfdgxN4Izl0=;
+        s=default; t=1576077206;
+        bh=onphT6hWMhVqKOAGzifvr2680zpCjO97OmfasZTzAAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuK+fGeKXX4IJ0/K93oObZBKBuks49vD3A6LqYap/hOFyyaeEAkpf9rKKtPaEtRaA
-         +X2kaTeFwlnwat81SXdTUgNqpvddIKn3kChPVjA32wO5KPDsIHwYbFHI5lESAymV/7
-         OrZx5TETs1oGGu5rzGQcFYWSdQXRTAtN8Nueot6I=
+        b=ZpLrs4WPYFTgNcdc+bcUBnPmyYsUSH4KYWuOmuLkSxFkwJeC0ekqvIjqUEjx4Ak9u
+         W6jxLWUOGvJn6UI3NH9zLiogXGBZ9llq58R3/EvrAiIdaR0nzvh8Oupot4jvF0C+Gf
+         wNk1m7V/vtBSa0gs+Y8bPH61L5WJn5hBNyBE4hcE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kevin Hao <haokexin@gmail.com>, Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 087/134] watchdog: Fix the race between the release of watchdog_core_data and cdev
-Date:   Wed, 11 Dec 2019 10:11:03 -0500
-Message-Id: <20191211151150.19073-87-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 088/134] powerpc/fixmap: Use __fix_to_virt() instead of fix_to_virt()
+Date:   Wed, 11 Dec 2019 10:11:04 -0500
+Message-Id: <20191211151150.19073-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,286 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 72139dfa2464e43957d330266994740bb7be2535 ]
+[ Upstream commit 77693a5fb57be4606a6024ec8e3076f9499b906b ]
 
-The struct cdev is embedded in the struct watchdog_core_data. In the
-current code, we manage the watchdog_core_data with a kref, but the
-cdev is manged by a kobject. There is no any relationship between
-this kref and kobject. So it is possible that the watchdog_core_data is
-freed before the cdev is entirely released. We can easily get the
-following call trace with CONFIG_DEBUG_KOBJECT_RELEASE and
-CONFIG_DEBUG_OBJECTS_TIMERS enabled.
-  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x38
-  WARNING: CPU: 23 PID: 1028 at lib/debugobjects.c:481 debug_print_object+0xb0/0xf0
-  Modules linked in: softdog(-) deflate ctr twofish_generic twofish_common camellia_generic serpent_generic blowfish_generic blowfish_common cast5_generic cast_common cmac xcbc af_key sch_fq_codel openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4
-  CPU: 23 PID: 1028 Comm: modprobe Not tainted 5.3.0-next-20190924-yoctodev-standard+ #180
-  Hardware name: Marvell OcteonTX CN96XX board (DT)
-  pstate: 00400009 (nzcv daif +PAN -UAO)
-  pc : debug_print_object+0xb0/0xf0
-  lr : debug_print_object+0xb0/0xf0
-  sp : ffff80001cbcfc70
-  x29: ffff80001cbcfc70 x28: ffff800010ea2128
-  x27: ffff800010bad000 x26: 0000000000000000
-  x25: ffff80001103c640 x24: ffff80001107b268
-  x23: ffff800010bad9e8 x22: ffff800010ea2128
-  x21: ffff000bc2c62af8 x20: ffff80001103c600
-  x19: ffff800010e867d8 x18: 0000000000000060
-  x17: 0000000000000000 x16: 0000000000000000
-  x15: ffff000bd7240470 x14: 6e6968207473696c
-  x13: 5f72656d6974203a x12: 6570797420746365
-  x11: 6a626f2029302065 x10: 7461747320657669
-  x9 : 7463612820657669 x8 : 3378302f3078302b
-  x7 : 0000000000001d7a x6 : ffff800010fd5889
-  x5 : 0000000000000000 x4 : 0000000000000000
-  x3 : 0000000000000000 x2 : ffff000bff948548
-  x1 : 276a1c9e1edc2300 x0 : 0000000000000000
-  Call trace:
-   debug_print_object+0xb0/0xf0
-   debug_check_no_obj_freed+0x1e8/0x210
-   kfree+0x1b8/0x368
-   watchdog_cdev_unregister+0x88/0xc8
-   watchdog_dev_unregister+0x38/0x48
-   watchdog_unregister_device+0xa8/0x100
-   softdog_exit+0x18/0xfec4 [softdog]
-   __arm64_sys_delete_module+0x174/0x200
-   el0_svc_handler+0xd0/0x1c8
-   el0_svc+0x8/0xc
+Modify back __set_fixmap() to using __fix_to_virt() instead
+of fix_to_virt() otherwise the following happens because it
+seems GCC doesn't see idx as a builtin const.
 
-This is a common issue when using cdev embedded in a struct.
-Fortunately, we already have a mechanism to solve this kind of issue.
-Please see commit 233ed09d7fda ("chardev: add helper function to
-register char devs with a struct device") for more detail.
+  CC      mm/early_ioremap.o
+In file included from ./include/linux/kernel.h:11:0,
+                 from mm/early_ioremap.c:11:
+In function ‘fix_to_virt’,
+    inlined from ‘__set_fixmap’ at ./arch/powerpc/include/asm/fixmap.h:87:2,
+    inlined from ‘__early_ioremap’ at mm/early_ioremap.c:156:4:
+./include/linux/compiler.h:350:38: error: call to ‘__compiletime_assert_32’ declared with attribute error: BUILD_BUG_ON failed: idx >= __end_of_fixed_addresses
+  _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+                                      ^
+./include/linux/compiler.h:331:4: note: in definition of macro ‘__compiletime_assert’
+    prefix ## suffix();    \
+    ^
+./include/linux/compiler.h:350:2: note: in expansion of macro ‘_compiletime_assert’
+  _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+  ^
+./include/linux/build_bug.h:39:37: note: in expansion of macro ‘compiletime_assert’
+ #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+                                     ^
+./include/linux/build_bug.h:50:2: note: in expansion of macro ‘BUILD_BUG_ON_MSG’
+  BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+  ^
+./include/asm-generic/fixmap.h:32:2: note: in expansion of macro ‘BUILD_BUG_ON’
+  BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
+  ^
 
-In this patch, we choose to embed the struct device into the
-watchdog_core_data, and use the API provided by the commit 233ed09d7fda
-to make sure that the release of watchdog_core_data and cdev are
-in sequence.
-
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20191008112934.29669-1-haokexin@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4cfac2f9c7f1 ("powerpc/mm: Simplify __set_fixmap()")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/f4984c615f90caa3277775a68849afeea846850d.1568295907.git.christophe.leroy@c-s.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/watchdog_dev.c | 70 +++++++++++++++------------------
- 1 file changed, 32 insertions(+), 38 deletions(-)
+ arch/powerpc/include/asm/fixmap.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index d3acc0a7256ca..62483a99105c0 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -34,7 +34,6 @@
- #include <linux/init.h>		/* For __init/__exit/... */
- #include <linux/hrtimer.h>	/* For hrtimers */
- #include <linux/kernel.h>	/* For printk/panic/... */
--#include <linux/kref.h>		/* For data references */
- #include <linux/kthread.h>	/* For kthread_work */
- #include <linux/miscdevice.h>	/* For handling misc devices */
- #include <linux/module.h>	/* For module stuff/... */
-@@ -52,14 +51,14 @@
- 
- /*
-  * struct watchdog_core_data - watchdog core internal data
-- * @kref:	Reference count.
-+ * @dev:	The watchdog's internal device
-  * @cdev:	The watchdog's Character device.
-  * @wdd:	Pointer to watchdog device.
-  * @lock:	Lock for watchdog core.
-  * @status:	Watchdog core internal status bits.
-  */
- struct watchdog_core_data {
--	struct kref kref;
-+	struct device dev;
- 	struct cdev cdev;
- 	struct watchdog_device *wdd;
- 	struct mutex lock;
-@@ -840,7 +839,7 @@ static int watchdog_open(struct inode *inode, struct file *file)
- 	file->private_data = wd_data;
- 
- 	if (!hw_running)
--		kref_get(&wd_data->kref);
-+		get_device(&wd_data->dev);
- 
- 	/*
- 	 * open_timeout only applies for the first open from
-@@ -861,11 +860,11 @@ out_clear:
- 	return err;
- }
- 
--static void watchdog_core_data_release(struct kref *kref)
-+static void watchdog_core_data_release(struct device *dev)
+diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
+index 0cfc365d814ba..722289a1d000e 100644
+--- a/arch/powerpc/include/asm/fixmap.h
++++ b/arch/powerpc/include/asm/fixmap.h
+@@ -77,7 +77,12 @@ enum fixed_addresses {
+ static inline void __set_fixmap(enum fixed_addresses idx,
+ 				phys_addr_t phys, pgprot_t flags)
  {
- 	struct watchdog_core_data *wd_data;
- 
--	wd_data = container_of(kref, struct watchdog_core_data, kref);
-+	wd_data = container_of(dev, struct watchdog_core_data, dev);
- 
- 	kfree(wd_data);
- }
-@@ -925,7 +924,7 @@ done:
- 	 */
- 	if (!running) {
- 		module_put(wd_data->cdev.owner);
--		kref_put(&wd_data->kref, watchdog_core_data_release);
-+		put_device(&wd_data->dev);
- 	}
- 	return 0;
- }
-@@ -944,17 +943,22 @@ static struct miscdevice watchdog_miscdev = {
- 	.fops		= &watchdog_fops,
- };
- 
-+static struct class watchdog_class = {
-+	.name =		"watchdog",
-+	.owner =	THIS_MODULE,
-+	.dev_groups =	wdt_groups,
-+};
+-	map_kernel_page(fix_to_virt(idx), phys, flags);
++	if (__builtin_constant_p(idx))
++		BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
++	else if (WARN_ON(idx >= __end_of_fixed_addresses))
++		return;
 +
- /*
-  *	watchdog_cdev_register: register watchdog character device
-  *	@wdd: watchdog device
-- *	@devno: character device number
-  *
-  *	Register a watchdog character device including handling the legacy
-  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
-  *	thus we set it up like that.
-  */
- 
--static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
-+static int watchdog_cdev_register(struct watchdog_device *wdd)
- {
- 	struct watchdog_core_data *wd_data;
- 	int err;
-@@ -962,7 +966,6 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 	wd_data = kzalloc(sizeof(struct watchdog_core_data), GFP_KERNEL);
- 	if (!wd_data)
- 		return -ENOMEM;
--	kref_init(&wd_data->kref);
- 	mutex_init(&wd_data->lock);
- 
- 	wd_data->wdd = wdd;
-@@ -991,23 +994,33 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 		}
- 	}
- 
-+	device_initialize(&wd_data->dev);
-+	wd_data->dev.devt = MKDEV(MAJOR(watchdog_devt), wdd->id);
-+	wd_data->dev.class = &watchdog_class;
-+	wd_data->dev.parent = wdd->parent;
-+	wd_data->dev.groups = wdd->groups;
-+	wd_data->dev.release = watchdog_core_data_release;
-+	dev_set_drvdata(&wd_data->dev, wdd);
-+	dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
-+
- 	/* Fill in the data structures */
- 	cdev_init(&wd_data->cdev, &watchdog_fops);
--	wd_data->cdev.owner = wdd->ops->owner;
- 
- 	/* Add the device */
--	err = cdev_add(&wd_data->cdev, devno, 1);
-+	err = cdev_device_add(&wd_data->cdev, &wd_data->dev);
- 	if (err) {
- 		pr_err("watchdog%d unable to add device %d:%d\n",
- 			wdd->id,  MAJOR(watchdog_devt), wdd->id);
- 		if (wdd->id == 0) {
- 			misc_deregister(&watchdog_miscdev);
- 			old_wd_data = NULL;
--			kref_put(&wd_data->kref, watchdog_core_data_release);
-+			put_device(&wd_data->dev);
- 		}
- 		return err;
- 	}
- 
-+	wd_data->cdev.owner = wdd->ops->owner;
-+
- 	/* Record time of most recent heartbeat as 'just before now'. */
- 	wd_data->last_hw_keepalive = ktime_sub(ktime_get(), 1);
- 	watchdog_set_open_deadline(wd_data);
-@@ -1018,7 +1031,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
- 	 */
- 	if (watchdog_hw_running(wdd)) {
- 		__module_get(wdd->ops->owner);
--		kref_get(&wd_data->kref);
-+		get_device(&wd_data->dev);
- 		if (handle_boot_enabled)
- 			hrtimer_start(&wd_data->timer, 0,
- 				      HRTIMER_MODE_REL_HARD);
-@@ -1042,7 +1055,7 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
- {
- 	struct watchdog_core_data *wd_data = wdd->wd_data;
- 
--	cdev_del(&wd_data->cdev);
-+	cdev_device_del(&wd_data->cdev, &wd_data->dev);
- 	if (wdd->id == 0) {
- 		misc_deregister(&watchdog_miscdev);
- 		old_wd_data = NULL;
-@@ -1061,15 +1074,9 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
- 	hrtimer_cancel(&wd_data->timer);
- 	kthread_cancel_work_sync(&wd_data->work);
- 
--	kref_put(&wd_data->kref, watchdog_core_data_release);
-+	put_device(&wd_data->dev);
++	map_kernel_page(__fix_to_virt(idx), phys, flags);
  }
  
--static struct class watchdog_class = {
--	.name =		"watchdog",
--	.owner =	THIS_MODULE,
--	.dev_groups =	wdt_groups,
--};
--
- static int watchdog_reboot_notifier(struct notifier_block *nb,
- 				    unsigned long code, void *data)
- {
-@@ -1100,27 +1107,14 @@ static int watchdog_reboot_notifier(struct notifier_block *nb,
- 
- int watchdog_dev_register(struct watchdog_device *wdd)
- {
--	struct device *dev;
--	dev_t devno;
- 	int ret;
- 
--	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
--
--	ret = watchdog_cdev_register(wdd, devno);
-+	ret = watchdog_cdev_register(wdd);
- 	if (ret)
- 		return ret;
- 
--	dev = device_create_with_groups(&watchdog_class, wdd->parent,
--					devno, wdd, wdd->groups,
--					"watchdog%d", wdd->id);
--	if (IS_ERR(dev)) {
--		watchdog_cdev_unregister(wdd);
--		return PTR_ERR(dev);
--	}
--
- 	ret = watchdog_register_pretimeout(wdd);
- 	if (ret) {
--		device_destroy(&watchdog_class, devno);
- 		watchdog_cdev_unregister(wdd);
- 		return ret;
- 	}
-@@ -1128,7 +1122,8 @@ int watchdog_dev_register(struct watchdog_device *wdd)
- 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
- 		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
- 
--		ret = devm_register_reboot_notifier(dev, &wdd->reboot_nb);
-+		ret = devm_register_reboot_notifier(&wdd->wd_data->dev,
-+						    &wdd->reboot_nb);
- 		if (ret) {
- 			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
- 			       wdd->id, ret);
-@@ -1150,7 +1145,6 @@ int watchdog_dev_register(struct watchdog_device *wdd)
- void watchdog_dev_unregister(struct watchdog_device *wdd)
- {
- 	watchdog_unregister_pretimeout(wdd);
--	device_destroy(&watchdog_class, wdd->wd_data->cdev.dev);
- 	watchdog_cdev_unregister(wdd);
- }
- 
+ #endif /* !__ASSEMBLY__ */
 -- 
 2.20.1
 
