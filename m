@@ -2,94 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C3F11BF11
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 22:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AEFC11BF33
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 22:27:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726368AbfLKVXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 16:23:15 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:34862 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726313AbfLKVXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 16:23:15 -0500
-Received: by mail-pg1-f195.google.com with SMTP id l24so11360995pgk.2
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 13:23:15 -0800 (PST)
+        id S1726368AbfLKV1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 16:27:25 -0500
+Received: from mail-wm1-f50.google.com ([209.85.128.50]:51000 "EHLO
+        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726313AbfLKV1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 16:27:25 -0500
+Received: by mail-wm1-f50.google.com with SMTP id a5so3058267wmb.0
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 13:27:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=PiR4x9CoXnfWfCbQNTlgRP9ROMJUyaR0E0re5tOFBZ8=;
-        b=ic5e0TCqEoJNzj9fGsZQ5N9SAW1l1zgvcZjd56LeFf5mo1wulGCYmSTCjH4ILs0YEe
-         l0mfUZXXjf3ooPnzRT1O5RQkCzKRkw3aqkN6c2aPB9HdsQAWkzDvP0cx/iGQbWP2t3pu
-         OlFJpnzJ8dCIZifbJ784hdGKIMOGG7yVROYcG8TJl58+nHOnsMoJJT25BopTVvv3IMg0
-         S30euSGIGuRb5eKE8njTHIQT51IW4VwwnkkUIrzA4M5bZFNYAkPcWIKJKhk5HR8BLGEx
-         OdYbcmbLDNTSUSpgsSTjJLijaP52w2E5/t0+bLYB1g51M7v/881bd8pQZo7cFN8SWmSx
-         F1cQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KsGGYXI9YvY/DEUqOklrQZJBdA+IA2sP0+LuBKNozcY=;
+        b=MSAJ7QiuIkWY/sCatdFr/W1bWYD5qY5rI4hjD3hxOPfaatQxEBS7CvhGgQqbujUv1+
+         ZidFDgc96h56RFaiPZBz2wmj+8a5Uowkpjq4YCqJHducS/HWH/D2COrY0i14llhh63Zn
+         Qq9Us+ykZsWsXlX74HLT3hLIyI0C08V/U3/HQHseReaIBo3wfe1parIbYeWf2WJpGZ0Z
+         8zJbL840v6qVkL9H7bNjRt3JcCbK62SCCJ5TBfSYTvcIWt7hC6sWTD1Ft06KchNJSc7a
+         QLuGEvDMJmnyS26uRQeogrcd3wMf1AJ3IIL+5OAvpK6SsKDbtMMWt9lsaVG/Z/n8odrh
+         TKEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PiR4x9CoXnfWfCbQNTlgRP9ROMJUyaR0E0re5tOFBZ8=;
-        b=ECRUrlWU23PgkV3+SwYhtGHdVyoKepMeD4Z8wGFcJDk2qezP5KppW74mcO/CFs0f4D
-         KnYy11sbdW1zqodXY8Q1+XIjJ6gLxWrpUwcB0Q81CE4vwNaOgWx58RezdRvJC1eG0/r1
-         Onebnpw3ZON0syiCkHIYyphs8piyW5f21cVU6UzXX0CPH7Wzb5lw2hPueFJg8PKuLeyg
-         BuK5CHMmLjuIq2bMd34oAkYpCpr8Bzo/c8i700hziTMayJYBoztVSLJ/daEHrMNlXIB/
-         7vbFb6vMIRdPaS8E8xujtYDDcK5ppFeeRB6/qHHK3e2TQXNWb1d43T8aJOx6S28orkUs
-         +Nfw==
-X-Gm-Message-State: APjAAAX8UQVCu51D8FjceGS02YSDQr/5gNfGqIvVedIVhtUsmyn4xFvE
-        cmhb/+SKN0uerBctU1CoA9eHLQ==
-X-Google-Smtp-Source: APXvYqwrFaHj1syZQej9q7UGHjSQjK/MJs091CunWjBi0pCJ3ZbBj0eGGn30dTwTAbwGEIu9ylCCTQ==
-X-Received: by 2002:a65:5cc2:: with SMTP id b2mr6457132pgt.171.1576099394769;
-        Wed, 11 Dec 2019 13:23:14 -0800 (PST)
-Received: from debian ([122.164.82.31])
-        by smtp.gmail.com with ESMTPSA id i3sm4270815pfg.94.2019.12.11.13.23.09
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KsGGYXI9YvY/DEUqOklrQZJBdA+IA2sP0+LuBKNozcY=;
+        b=RxVOvi73G0QRQVve/1sS65cs83GNc6AOn5OThD6JrvJrpNkH5xriVlSwMfQOWSWDsj
+         w4ywuTqGszPZmWgz4o1LXHd/MBnfpEbgvikGzd/LhX9UwZl6pwsBK7V6fTzp8swPyyKq
+         DWIENPnDwaO+vGq3Ke2kDtaw57TP3W09l+1JsMUejoxh6ZgvLrfuWxKps8237F4grrEc
+         X8nJfSPbe4pfOHawEtKWIREda4qh1lCbE8GASUPgOTYmy1tSbx4aBqO3kIF9AUsfE1NE
+         iNfj8MOHUxnlyqVjLT1e/LTROC6BC3SGto2ZBTB0RRMBctisPMl6P8fm0LpVHS0qyomL
+         m8jw==
+X-Gm-Message-State: APjAAAUltr32AHWViuF/hxrLYkjtCZFrOVLxV6l429UjSVY2jYHnz2kn
+        GV/Uhcd/1Jt9l8t2nXgw6DRgz6k2ecTS1A==
+X-Google-Smtp-Source: APXvYqyU1wldT8XreF5BbJIVxihGaWXTIrb/ESrIhfv9+BY1rgoCifyZ4j26yNcZUTttank2tEHWfA==
+X-Received: by 2002:a1c:6884:: with SMTP id d126mr2163593wmc.135.1576099642911;
+        Wed, 11 Dec 2019 13:27:22 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id v8sm3639667wrw.2.2019.12.11.13.27.21
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Dec 2019 13:23:13 -0800 (PST)
-Date:   Thu, 12 Dec 2019 02:53:05 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.3 000/105] 5.3.16-stable review
-Message-ID: <20191211212305.GA2676@debian>
-References: <20191211150221.153659747@linuxfoundation.org>
- <20191211161605.GA4849@debian>
- <20191211182852.GA715826@kroah.com>
- <20191211192232.GA14178@debian>
+        Wed, 11 Dec 2019 13:27:22 -0800 (PST)
+Message-ID: <5df15f3a.1c69fb81.e20e8.2d8b@mx.google.com>
+Date:   Wed, 11 Dec 2019 13:27:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191211192232.GA14178@debian>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.206-71-g9e88c306dad6
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 54 boots: 0 failed,
+ 53 passed with 1 untried/unknown (v4.4.206-71-g9e88c306dad6)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 12, 2019 at 12:52:32AM +0530, Jeffrin Jose wrote:
-> On Wed, Dec 11, 2019 at 07:28:52PM +0100, Greg Kroah-Hartman wrote:
-> > that's really odd.  How are you building this, from the git tree, or the
-> > tarball generated?
-> git tree
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> 
-> 
-> > And I still see that file in the 5.3 tree, what do you mean it was
-> > deleted?
-> 
-> may be during "git checkout linux-5.3.y" or may be i did "git pull" inside that branch
-> 
-> that was a git status which showed "D" at the start of a few lines
-> and one of that lines showed that file.
-> i also checked that path locally and found it was not there
->
+stable-rc/linux-4.4.y boot: 54 boots: 0 failed, 53 passed with 1 untried/un=
+known (v4.4.206-71-g9e88c306dad6)
 
-i downloaded the tree to another directory.
-i compiled the kernel and it was a success
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.206-71-g9e88c306dad6/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.206-71-g9e88c306dad6/
 
---
-soffware engineer
-rajagiri school of engineering and technology
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.206-71-g9e88c306dad6
+Git Commit: 9e88c306dad62fbf851b965d9728a902587ba5de
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 26 unique boards, 9 SoC families, 9 builds out of 190
 
+---
+For more info write to <info@kernelci.org>
