@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E4511B2C2
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:40:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8840911B2A2
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733114AbfLKPiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:38:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44200 "EHLO mail.kernel.org"
+        id S2388125AbfLKPfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:35:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388117AbfLKPfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:35:20 -0500
+        id S2388121AbfLKPfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:35:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A899F2173E;
-        Wed, 11 Dec 2019 15:35:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2CE324656;
+        Wed, 11 Dec 2019 15:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078520;
-        bh=fEqdX+7S7tkDo7Pq70+Qc8Hu7erKpC+qHRMyteevV7A=;
+        s=default; t=1576078521;
+        bh=szGZa6xdAAZUKRQe07yyEdszF/EljzEkg2z0kvziHNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZsL0gyIy5sS/PKABW9Kx+5OtrBnNbKTpN93BCCsoODR11d8HmY1E0yyFZ4XLb8H7F
-         cVyRILI85DdF/LEjw6VfXkaRxu9dM8dXN2j19Kt/w4GiAK+HX+8Lv/0FlX0f+9r4il
-         LxbZ33Tt9ELNQtexKJM/H50mB6NOo3dvTsOD+Zuo=
+        b=bO8GBJ4udQ9HrzoCA5CAXNCBVxm/ZQGYQIJYvRNJ1YRScNS/1hghYTKBAQUwOm7Yl
+         20MA5VZUy/x7SmZzVLNFgoRa/ZDAWvT3tOXJWp2M9eG6+Xoo/A7nOqLEwfs+LWz8KE
+         y4ejzTRk8xswfFB1d41RXGkb0ob8BUHFyeO7+KQc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 09/42] powerpc/pseries: Don't fail hash page table insert for bolted mapping
-Date:   Wed, 11 Dec 2019 10:34:37 -0500
-Message-Id: <20191211153510.23861-9-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/42] dma-debug: add a schedule point in debug_dma_dump_mappings()
+Date:   Wed, 11 Dec 2019 10:34:38 -0500
+Message-Id: <20191211153510.23861-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153510.23861-1-sashal@kernel.org>
 References: <20191211153510.23861-1-sashal@kernel.org>
@@ -43,65 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 75838a3290cd4ebbd1f567f310ba04b6ef017ce4 ]
+[ Upstream commit 9ff6aa027dbb98755f0265695354f2dd07c0d1ce ]
 
-If the hypervisor returned H_PTEG_FULL for H_ENTER hcall, retry a hash page table
-insert by removing a random entry from the group.
+debug_dma_dump_mappings() can take a lot of cpu cycles :
 
-After some runtime, it is very well possible to find all the 8 hash page table
-entry slot in the hpte group used for mapping. Don't fail a bolted entry insert
-in that case. With Storage class memory a user can find this error easily since
-a namespace enable/disable is equivalent to memory add/remove.
+lpk43:/# time wc -l /sys/kernel/debug/dma-api/dump
+163435 /sys/kernel/debug/dma-api/dump
 
-This results in failures as reported below:
+real	0m0.463s
+user	0m0.003s
+sys	0m0.459s
 
-$ ndctl create-namespace -r region1 -t pmem -m devdax -a 65536 -s 100M
-libndctl: ndctl_dax_enable: dax1.3: failed to enable
-  Error: namespace1.2: failed to enable
+Let's add a cond_resched() to avoid holding cpu for too long.
 
-failed to create namespace: No such device or address
-
-In kernel log we find the details as below:
-
-Unable to create mapping for hot added memory 0xc000042006000000..0xc00004200d000000: -1
-dax_pmem: probe of dax1.3 failed with error -14
-
-This indicates that we failed to create a bolted hash table entry for direct-map
-address backing the namespace.
-
-We also observe failures such that not all namespaces will be enabled with
-ndctl enable-namespace all command.
-
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191024093542.29777-2-aneesh.kumar@linux.ibm.com
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Corentin Labbe <clabbe@baylibre.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/hash_utils_64.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ lib/dma-debug.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
-index bd666287c5eda..de1d8cdd29915 100644
---- a/arch/powerpc/mm/hash_utils_64.c
-+++ b/arch/powerpc/mm/hash_utils_64.c
-@@ -289,7 +289,14 @@ int htab_bolt_mapping(unsigned long vstart, unsigned long vend,
- 		ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
- 					       HPTE_V_BOLTED, psize, psize,
- 					       ssize);
--
-+		if (ret == -1) {
-+			/* Try to remove a non bolted entry */
-+			ret = mmu_hash_ops.hpte_remove(hpteg);
-+			if (ret != -1)
-+				ret = mmu_hash_ops.hpte_insert(hpteg, vpn, paddr, tprot,
-+							       HPTE_V_BOLTED, psize, psize,
-+							       ssize);
-+		}
- 		if (ret < 0)
- 			break;
+diff --git a/lib/dma-debug.c b/lib/dma-debug.c
+index 8971370bfb161..4435bec55fb59 100644
+--- a/lib/dma-debug.c
++++ b/lib/dma-debug.c
+@@ -435,6 +435,7 @@ void debug_dma_dump_mappings(struct device *dev)
+ 		}
  
+ 		spin_unlock_irqrestore(&bucket->lock, flags);
++		cond_resched();
+ 	}
+ }
+ EXPORT_SYMBOL(debug_dma_dump_mappings);
 -- 
 2.20.1
 
