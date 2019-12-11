@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C56B11B817
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D80D11B66F
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:01:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730613AbfLKPJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:09:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57588 "EHLO mail.kernel.org"
+        id S1731480AbfLKPNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:13:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730065AbfLKPJc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:09:32 -0500
+        id S1730621AbfLKPNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E4C824656;
-        Wed, 11 Dec 2019 15:09:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD7F924654;
+        Wed, 11 Dec 2019 15:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576076971;
-        bh=+cME4i6w/HOFktWu1TlD6KxQeCzpussbdm5Do3MnTqU=;
+        s=default; t=1576077218;
+        bh=cics5kjVSYpYnPvKQuCF/mMDXQpUxK2EhuST2U+tfd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2Y40fXB/fV1mI8ybxaPctGPEHXVngRH6bjZfp6XHCEtYYiM3vX5ZC+BbZpXaok0l
-         AWPEoaz1MytPoSwHkTou2Y+qa+0nlVcEyJtRTkzrN/NrI6sB6uIWPYGG6/ZOz8XKW3
-         SiTEAkcN1aSYico0I2KZEScA7CEubHE4I+QxVnOw=
+        b=jyQUmKIEChNWI/nzcaTRaSajjTC6bs99MUxAgH6cWN6XWzY3lriZWmMFnWQrP7bvb
+         RNbrvddKq0dDWo/IJXFtNJZKo6DSTiFcm1mCAzohvbrWHucDtcX7304MB+HS+eUD3l
+         V0k7fZIZwojzWE/Yh5dKJE0tc27t+kXj6gVIsCEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Paul Mackerras <paulus@ozlabs.org>
-Subject: [PATCH 5.4 60/92] KVM: PPC: Book3S HV: XIVE: Fix potential page leak on error path
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Joerg Roedel <jroedel@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, hpa@zytor.com,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.3 062/105] x86/mm/32: Sync only to VMALLOC_END in vmalloc_sync_all()
 Date:   Wed, 11 Dec 2019 16:05:51 +0100
-Message-Id: <20191211150249.277334111@linuxfoundation.org>
+Message-Id: <20191211150246.703073844@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
-References: <20191211150221.977775294@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +51,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kurz <groug@kaod.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 30486e72093ea2e594f44876b7a445c219449bce upstream.
+commit 9a62d20027da3164a22244d9f022c0c987261687 upstream.
 
-We need to check the host page size is big enough to accomodate the
-EQ. Let's do this before taking a reference on the EQ page to avoid
-a potential leak if the check fails.
+The job of vmalloc_sync_all() is to help the lazy freeing of vmalloc()
+ranges: before such vmap ranges are reused we make sure that they are
+unmapped from every task's page tables.
 
-Cc: stable@vger.kernel.org # v5.2
-Fixes: 13ce3297c576 ("KVM: PPC: Book3S HV: XIVE: Add controls for the EQ configuration")
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+This is really easy on pagetable setups where the kernel page tables
+are shared between all tasks - this is the case on 32-bit kernels
+with SHARED_KERNEL_PMD = 1.
+
+But on !SHARED_KERNEL_PMD 32-bit kernels this involves iterating
+over the pgd_list and clearing all pmd entries in the pgds that
+are cleared in the init_mm.pgd, which is the reference pagetable
+that the vmalloc() code uses.
+
+In that context the current practice of vmalloc_sync_all() iterating
+until FIX_ADDR_TOP is buggy:
+
+        for (address = VMALLOC_START & PMD_MASK;
+             address >= TASK_SIZE_MAX && address < FIXADDR_TOP;
+             address += PMD_SIZE) {
+                struct page *page;
+
+Because iterating up to FIXADDR_TOP will involve a lot of non-vmalloc
+address ranges:
+
+	VMALLOC -> PKMAP -> LDT -> CPU_ENTRY_AREA -> FIX_ADDR
+
+This is mostly harmless for the FIX_ADDR and CPU_ENTRY_AREA ranges
+that don't clear their pmds, but it's lethal for the LDT range,
+which relies on having different mappings in different processes,
+and 'synchronizing' them in the vmalloc sense corrupts those
+pagetable entries (clearing them).
+
+This got particularly prominent with PTI, which turns SHARED_KERNEL_PMD
+off and makes this the dominant mapping mode on 32-bit.
+
+To make LDT working again vmalloc_sync_all() must only iterate over
+the volatile parts of the kernel address range that are identical
+between all processes.
+
+So the correct check in vmalloc_sync_all() is "address < VMALLOC_END"
+to make sure the VMALLOC areas are synchronized and the LDT
+mapping is not falsely overwritten.
+
+The CPU_ENTRY_AREA and the FIXMAP area are no longer synced either,
+but this is not really a proplem since their PMDs get established
+during bootup and never change.
+
+This change fixes the ldt_gdt selftest in my setup.
+
+[ mingo: Fixed up the changelog to explain the logic and modified the
+         copying to only happen up until VMALLOC_END. ]
+
+Reported-by: Borislav Petkov <bp@suse.de>
+Tested-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: <stable@vger.kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: hpa@zytor.com
+Fixes: 7757d607c6b3: ("x86/pti: Allow CONFIG_PAGE_TABLE_ISOLATION for x86_32")
+Link: https://lkml.kernel.org/r/20191126111119.GA110513@gmail.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_xive_native.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/x86/mm/fault.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_xive_native.c
-+++ b/arch/powerpc/kvm/book3s_xive_native.c
-@@ -637,12 +637,6 @@ static int kvmppc_xive_native_set_queue_
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -197,7 +197,7 @@ void vmalloc_sync_all(void)
+ 		return;
  
- 	srcu_idx = srcu_read_lock(&kvm->srcu);
- 	gfn = gpa_to_gfn(kvm_eq.qaddr);
--	page = gfn_to_page(kvm, gfn);
--	if (is_error_page(page)) {
--		srcu_read_unlock(&kvm->srcu, srcu_idx);
--		pr_err("Couldn't get queue page %llx!\n", kvm_eq.qaddr);
--		return -EINVAL;
--	}
- 
- 	page_size = kvm_host_page_size(kvm, gfn);
- 	if (1ull << kvm_eq.qshift > page_size) {
-@@ -651,6 +645,13 @@ static int kvmppc_xive_native_set_queue_
- 		return -EINVAL;
- 	}
- 
-+	page = gfn_to_page(kvm, gfn);
-+	if (is_error_page(page)) {
-+		srcu_read_unlock(&kvm->srcu, srcu_idx);
-+		pr_err("Couldn't get queue page %llx!\n", kvm_eq.qaddr);
-+		return -EINVAL;
-+	}
-+
- 	qaddr = page_to_virt(page) + (kvm_eq.qaddr & ~PAGE_MASK);
- 	srcu_read_unlock(&kvm->srcu, srcu_idx);
+ 	for (address = VMALLOC_START & PMD_MASK;
+-	     address >= TASK_SIZE_MAX && address < FIXADDR_TOP;
++	     address >= TASK_SIZE_MAX && address < VMALLOC_END;
+ 	     address += PMD_SIZE) {
+ 		struct page *page;
  
 
 
