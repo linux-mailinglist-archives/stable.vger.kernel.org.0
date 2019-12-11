@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B09D811B24A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:35:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26FC111B23E
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387742AbfLKPe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:34:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
+        id S1733228AbfLKP2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:28:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732913AbfLKP2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1733223AbfLKP2I (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 11 Dec 2019 10:28:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42330222C4;
-        Wed, 11 Dec 2019 15:28:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8F4F24671;
+        Wed, 11 Dec 2019 15:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078084;
-        bh=nOm+tV4ZUwxfkY1cs2BzzyQcL1QNwQg1T6MXmVbtODE=;
+        s=default; t=1576078087;
+        bh=GfUuw8DLwyBIzcEY8jsOSEHTl1jTlKc9d8XTA1qgxW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pENIiWEFF7s0zb+vXLey5+M7hJV/axRsEbOP32w2LngFIjclW8ImWWysAJhR0YQWP
-         HZv1cXDwZkl8P7TMCMA6de5D47IeHx6ChI4vN2B5Cr6YjBZ9fdQFdtjMFApHajehXC
-         oYXYTUgIrXQoBWj6zss2og1BViY5SyGLVh/lQMR4=
+        b=q2NRmnCYK/+ush1S65DWlbiEYqa6LMMiCqijdC39n0U23csdl2RYlKCTyFJFtUDbV
+         9CDX6hX/QWI2St0jv6cfLSwrZrC2Or+tuUqSQ7rf1mGaARChIPF53yRrs/gy4c4psW
+         3OUM6fWPKXsV3PkvoVYs1GtXlSYfklYBfdJJeAjw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 74/79] libfdt: define INT32_MAX and UINT32_MAX in libfdt_env.h
-Date:   Wed, 11 Dec 2019 10:26:38 -0500
-Message-Id: <20191211152643.23056-74-sashal@kernel.org>
+Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Richard Zhu <hongxing.zhu@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 77/79] mailbox: imx: Fix Tx doorbell shutdown path
+Date:   Wed, 11 Dec 2019 10:26:41 -0500
+Message-Id: <20191211152643.23056-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -43,82 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Daniel Baluta <daniel.baluta@nxp.com>
 
-[ Upstream commit a8de1304b7df30e3a14f2a8b9709bb4ff31a0385 ]
+[ Upstream commit bf159d151a0b844be28882f39e316b5800acaa2b ]
 
-The DTC v1.5.1 added references to (U)INT32_MAX.
+Tx doorbell is handled by txdb_tasklet and doesn't
+have an associated IRQ.
 
-This is no problem for user-space programs since <stdint.h> defines
-(U)INT32_MAX along with (u)int32_t.
+Anyhow, imx_mu_shutdown ignores this and tries to
+free an IRQ that wasn't requested for Tx DB resulting
+in the following warning:
 
-For the kernel space, libfdt_env.h needs to be adjusted before we
-pull in the changes.
+[    1.967644] Trying to free already-free IRQ 26
+[    1.972108] WARNING: CPU: 2 PID: 157 at kernel/irq/manage.c:1708 __free_irq+0xc0/0x358
+[    1.980024] Modules linked in:
+[    1.983088] CPU: 2 PID: 157 Comm: kworker/2:1 Tainted: G
+[    1.993524] Hardware name: Freescale i.MX8QXP MEK (DT)
+[    1.998668] Workqueue: events deferred_probe_work_func
+[    2.003812] pstate: 60000085 (nZCv daIf -PAN -UAO)
+[    2.008607] pc : __free_irq+0xc0/0x358
+[    2.012364] lr : __free_irq+0xc0/0x358
+[    2.016111] sp : ffff00001179b7e0
+[    2.019422] x29: ffff00001179b7e0 x28: 0000000000000018
+[    2.024736] x27: ffff000011233000 x26: 0000000000000004
+[    2.030053] x25: 000000000000001a x24: ffff80083bec74d4
+[    2.035369] x23: 0000000000000000 x22: ffff80083bec7588
+[    2.040686] x21: ffff80083b1fe8d8 x20: ffff80083bec7400
+[    2.046003] x19: 0000000000000000 x18: ffffffffffffffff
+[    2.051320] x17: 0000000000000000 x16: 0000000000000000
+[    2.056637] x15: ffff0000111296c8 x14: ffff00009179b517
+[    2.061953] x13: ffff00001179b525 x12: ffff000011142000
+[    2.067270] x11: ffff000011129f20 x10: ffff0000105da970
+[    2.072587] x9 : 00000000ffffffd0 x8 : 0000000000000194
+[    2.077903] x7 : 612065657266206f x6 : ffff0000111e7b09
+[    2.083220] x5 : 0000000000000003 x4 : 0000000000000000
+[    2.088537] x3 : 0000000000000000 x2 : 00000000ffffffff
+[    2.093854] x1 : 28b70f0a2b60a500 x0 : 0000000000000000
+[    2.099173] Call trace:
+[    2.101618]  __free_irq+0xc0/0x358
+[    2.105021]  free_irq+0x38/0x98
+[    2.108170]  imx_mu_shutdown+0x90/0xb0
+[    2.111921]  mbox_free_channel.part.2+0x24/0xb8
+[    2.116453]  mbox_free_channel+0x18/0x28
 
-In the kernel, we usually use s/u32 instead of (u)int32_t for the
-fixed-width types.
+This bug is present from the beginning of times.
 
-Accordingly, we already have S/U32_MAX for their max values.
-So, we should not add (U)INT32_MAX to <linux/limits.h> any more.
-
-Instead, add them to the in-kernel libfdt_env.h to compile the
-latest libfdt.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Signed-off-by: Richard Zhu <hongxing.zhu@nxp.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/libfdt_env.h | 4 +++-
- arch/powerpc/boot/libfdt_env.h        | 2 ++
- include/linux/libfdt_env.h            | 3 +++
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/mailbox/imx-mailbox.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
-index b36c0289a308e..6a0f1f524466e 100644
---- a/arch/arm/boot/compressed/libfdt_env.h
-+++ b/arch/arm/boot/compressed/libfdt_env.h
-@@ -2,11 +2,13 @@
- #ifndef _ARM_LIBFDT_ENV_H
- #define _ARM_LIBFDT_ENV_H
+diff --git a/drivers/mailbox/imx-mailbox.c b/drivers/mailbox/imx-mailbox.c
+index 363d35d5e49dc..2f47023cab2b2 100644
+--- a/drivers/mailbox/imx-mailbox.c
++++ b/drivers/mailbox/imx-mailbox.c
+@@ -214,8 +214,10 @@ static void imx_mu_shutdown(struct mbox_chan *chan)
+ 	struct imx_mu_priv *priv = to_imx_mu_priv(chan->mbox);
+ 	struct imx_mu_con_priv *cp = chan->con_priv;
  
-+#include <linux/limits.h>
- #include <linux/types.h>
- #include <linux/string.h>
- #include <asm/byteorder.h>
+-	if (cp->type == IMX_MU_TYPE_TXDB)
++	if (cp->type == IMX_MU_TYPE_TXDB) {
+ 		tasklet_kill(&cp->txdb_tasklet);
++		return;
++	}
  
--#define INT_MAX			((int)(~0U>>1))
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
- 
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
-diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
-index 2abc8e83b95e9..9757d4f6331e7 100644
---- a/arch/powerpc/boot/libfdt_env.h
-+++ b/arch/powerpc/boot/libfdt_env.h
-@@ -6,6 +6,8 @@
- #include <string.h>
- 
- #define INT_MAX			((int)(~0U>>1))
-+#define UINT32_MAX		((u32)~0U)
-+#define INT32_MAX		((s32)(UINT32_MAX >> 1))
- 
- #include "of.h"
- 
-diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
-index edb0f0c309044..1adf54aad2df1 100644
---- a/include/linux/libfdt_env.h
-+++ b/include/linux/libfdt_env.h
-@@ -7,6 +7,9 @@
- 
- #include <asm/byteorder.h>
- 
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
-+
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
- typedef __be64 fdt64_t;
+ 	imx_mu_xcr_rmw(priv, 0,
+ 		   IMX_MU_xCR_TIEn(cp->idx) | IMX_MU_xCR_RIEn(cp->idx));
 -- 
 2.20.1
 
