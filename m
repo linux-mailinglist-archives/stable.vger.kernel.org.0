@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B79111B185
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:31:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA3411B16B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:30:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387473AbfLKPbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:31:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36156 "EHLO mail.kernel.org"
+        id S1733107AbfLKP3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:29:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387862AbfLKP3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:29:22 -0500
+        id S2387866AbfLKP3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:29:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43E732467A;
-        Wed, 11 Dec 2019 15:29:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3968C222C4;
+        Wed, 11 Dec 2019 15:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078161;
-        bh=Sqt1QQ5TgmAeKM99E7qB9AJtymygBlvwZg1hB0TiU7c=;
+        s=default; t=1576078162;
+        bh=GCz9esUbUwzSBgT2gpkimtUv73By8glepztBxqriKvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dK9jmo//HBK8wrVT8FYjF/93CIIXhmRMpT7UWJGLE5poP9a7HPp9AAQu0ESS3dOmj
-         mFR9b0TWS6Yokvt4OMSu964H+wxhtjEnHH7T8KnyW+v8dNwe2W9M8S9cwQLZV+qWdT
-         9MoZUGD2Xo+1iflM/fJQZgxZ6682VmDfF8jT0DfQ=
+        b=dvnIil53gzdIEOh6Jl4JXAfRW27BWr9ocRv4KBzKc11ZpQsmkrxOP2uwT5Dj5kK3v
+         2hKp6m3dyGAiaGR/AvW80IObBHv4nR4sbYTYNxAeMeEtkXjj8EwvlJOwJ3OgeQeeJk
+         xs3PunjYiOnygn7GtgTYvhrXH7PW89NExDQPU+KU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 46/58] apparmor: fix unsigned len comparison with less than zero
-Date:   Wed, 11 Dec 2019 10:28:19 -0500
-Message-Id: <20191211152831.23507-46-sashal@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 47/58] scripts/kallsyms: fix definitely-lost memory leak
+Date:   Wed, 11 Dec 2019 10:28:20 -0500
+Message-Id: <20191211152831.23507-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
 References: <20191211152831.23507-1-sashal@kernel.org>
@@ -44,57 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 00e0590dbaec6f1bcaa36a85467d7e3497ced522 ]
+[ Upstream commit 21915eca088dc271c970e8351290e83d938114ac ]
 
-The sanity check in macro update_for_len checks to see if len
-is less than zero, however, len is a size_t so it can never be
-less than zero, so this sanity check is a no-op.  Fix this by
-making len a ssize_t so the comparison will work and add ulen
-that is a size_t copy of len so that the min() macro won't
-throw warnings about comparing different types.
+build_initial_tok_table() overwrites unused sym_entry to shrink the
+table size. Before the entry is overwritten, table[i].sym must be freed
+since it is malloc'ed data.
 
-Addresses-Coverity: ("Macro compares unsigned to 0")
-Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+This fixes the 'definitely lost' report from valgrind. I ran valgrind
+against x86_64_defconfig of v5.4-rc8 kernel, and here is the summary:
+
+[Before the fix]
+
+  LEAK SUMMARY:
+     definitely lost: 53,184 bytes in 2,874 blocks
+
+[After the fix]
+
+  LEAK SUMMARY:
+     definitely lost: 0 bytes in 0 blocks
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/label.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ scripts/kallsyms.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/apparmor/label.c b/security/apparmor/label.c
-index c5b99b954580c..ea63710442ae5 100644
---- a/security/apparmor/label.c
-+++ b/security/apparmor/label.c
-@@ -1463,11 +1463,13 @@ static inline bool use_label_hname(struct aa_ns *ns, struct aa_label *label,
- /* helper macro for snprint routines */
- #define update_for_len(total, len, size, str)	\
- do {					\
-+	size_t ulen = len;		\
-+					\
- 	AA_BUG(len < 0);		\
--	total += len;			\
--	len = min(len, size);		\
--	size -= len;			\
--	str += len;			\
-+	total += ulen;			\
-+	ulen = min(ulen, size);		\
-+	size -= ulen;			\
-+	str += ulen;			\
- } while (0)
- 
- /**
-@@ -1602,7 +1604,7 @@ int aa_label_snxprint(char *str, size_t size, struct aa_ns *ns,
- 	struct aa_ns *prev_ns = NULL;
- 	struct label_it i;
- 	int count = 0, total = 0;
--	size_t len;
-+	ssize_t len;
- 
- 	AA_BUG(!str && size != 0);
- 	AA_BUG(!label);
+diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
+index b471022c81624..b43531899648a 100644
+--- a/scripts/kallsyms.c
++++ b/scripts/kallsyms.c
+@@ -510,6 +510,8 @@ static void build_initial_tok_table(void)
+ 				table[pos] = table[i];
+ 			learn_symbol(table[pos].sym, table[pos].len);
+ 			pos++;
++		} else {
++			free(table[i].sym);
+ 		}
+ 	}
+ 	table_cnt = pos;
 -- 
 2.20.1
 
