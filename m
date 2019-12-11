@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EEC711B5C7
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:56:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB7B211B46B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731709AbfLKP4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:56:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41954 "EHLO mail.kernel.org"
+        id S1733126AbfLKP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:26:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731810AbfLKPPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:15:35 -0500
+        id S1732983AbfLKP00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:26:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F66320663;
-        Wed, 11 Dec 2019 15:15:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C895E208C3;
+        Wed, 11 Dec 2019 15:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077334;
-        bh=9zpLNPI5XZRFD6601chy04kpn9vCfjMzRQc3/zkWmVo=;
+        s=default; t=1576077986;
+        bh=bxchu0qrYflqAmDF3wnDWrczTqaHYpynd2lndRqnIO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUCuCDmT0fgzRvZ3wnTRBIbP9ytenK+NxA6Gg7pAsGhFsvSdGK6p4YF36fvf7Fuj5
-         rqZseSo88KQ7n0+9F7CMHFU8vCMidYOK1c4i2+FLR5QknkI7L8ePl+ShawJ66cbeBz
-         A4X2i6Pj1g15aTTikKfxNOgtvXs++q9g/Q/utNCc=
+        b=b4YT1Qk7gbUndX5Id9+xBPlhmRYT49nTECXPvUmBO99XmSrNc2+1EjTHTWm0q+apB
+         V0UJpW6DhmrIsH6QzMmFjxTO6oITPWMJChzvmXatCruzjHyq4nus+y7/wJzgMYJtZ8
+         RWjyGD+HhE6bxDBCzO1XRfu8LVmqYm7oo0P+x/zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.3 105/105] binder: Handle start==NULL in binder_update_page_range()
-Date:   Wed, 11 Dec 2019 16:06:34 +0100
-Message-Id: <20191211150306.382349788@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 233/243] crypto: ecdh - fix big endian bug in ECC library
+Date:   Wed, 11 Dec 2019 16:06:35 +0100
+Message-Id: <20191211150355.060433734@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 2a9edd056ed4fbf9d2e797c3fc06335af35bccc4 upstream.
+commit f398243e9fd6a3a059c1ea7b380c40628dbf0c61 upstream.
 
-The old loop wouldn't stop when reaching `start` if `start==NULL`, instead
-continuing backwards to index -1 and crashing.
+The elliptic curve arithmetic library used by the EC-DH KPP implementation
+assumes big endian byte order, and unconditionally reverses the byte
+and word order of multi-limb quantities. On big endian systems, the byte
+reordering is not necessary, while the word ordering needs to be retained.
 
-Luckily you need to be highly privileged to map things at NULL, so it's not
-a big problem.
+So replace the __swab64() invocation with a call to be64_to_cpu() which
+should do the right thing for both little and big endian builds.
 
-Fix it by adjusting the loop so that the loop variable is always in bounds.
-
-This patch is deliberately minimal to simplify backporting, but IMO this
-function could use a refactor. The jump labels in the second loop body are
-horrible (the error gotos should be jumping to free_range instead), and
-both loops would look nicer if they just iterated upwards through indices.
-And the up_read()+mmput() shouldn't be duplicated like that.
-
-Cc: stable@vger.kernel.org
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/20191018205631.248274-3-jannh@google.com
+Fixes: 3c4b23901a0c ("crypto: ecdh - Add ECDH software support")
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder_alloc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ crypto/ecc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -277,8 +277,7 @@ static int binder_update_page_range(stru
- 	return 0;
+--- a/crypto/ecc.c
++++ b/crypto/ecc.c
+@@ -906,10 +906,11 @@ static void ecc_point_mult(struct ecc_po
+ static inline void ecc_swap_digits(const u64 *in, u64 *out,
+ 				   unsigned int ndigits)
+ {
++	const __be64 *src = (__force __be64 *)in;
+ 	int i;
  
- free_range:
--	for (page_addr = end - PAGE_SIZE; page_addr >= start;
--	     page_addr -= PAGE_SIZE) {
-+	for (page_addr = end - PAGE_SIZE; 1; page_addr -= PAGE_SIZE) {
- 		bool ret;
- 		size_t index;
+ 	for (i = 0; i < ndigits; i++)
+-		out[i] = __swab64(in[ndigits - 1 - i]);
++		out[i] = be64_to_cpu(src[ndigits - 1 - i]);
+ }
  
-@@ -291,6 +290,8 @@ free_range:
- 		WARN_ON(!ret);
- 
- 		trace_binder_free_lru_end(alloc, index);
-+		if (page_addr == start)
-+			break;
- 		continue;
- 
- err_vm_insert_page_failed:
-@@ -298,7 +299,8 @@ err_vm_insert_page_failed:
- 		page->page_ptr = NULL;
- err_alloc_page_failed:
- err_page_ptr_cleared:
--		;
-+		if (page_addr == start)
-+			break;
- 	}
- err_no_vma:
- 	if (mm) {
+ static int __ecc_is_key_valid(const struct ecc_curve *curve,
 
 
