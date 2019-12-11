@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E72F811B397
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1023911B376
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387440AbfLKP1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:27:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
+        id S2388364AbfLKPmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:42:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733014AbfLKP1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:37 -0500
+        id S2387444AbfLKP1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02A5B2465A;
-        Wed, 11 Dec 2019 15:27:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B8962173E;
+        Wed, 11 Dec 2019 15:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078056;
-        bh=5EHeF8nKpfLFxkSGUDx6Y6uvznGVE0AbgWXgCNXt4Bg=;
+        s=default; t=1576078058;
+        bh=FVo9RzpRNbSQ5+JdfVLkPWd3hzdsy+4GQz+nCCrexhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VV557MW15tkQHXgn2UCGV0dabXSWreTzktGvB0uiNqz++gP/bAv+K9iXx/iLBo2ZS
-         6eDNbjlrfbgEy3iLzJyrGIwqWNSMfh42nj98qVAuW15O2wXcpkJHXfoFqLO3Vp/kky
-         QiQeupPDCOXHZCDNsQMYWloxuUtivB2uSQtsnJp0=
+        b=JV6p8JDJtrRkL9XQ2tts2JxsE5P2wEDwG4+LGKlLKHtMM7jkp0ls13RLKO40BDOMQ
+         KJgxLnV/7C4j7yrrqiQTIhb+Lt/wX3k+PPTj5mFvV23M5gRE+6NlaN3BfRDf56TQmb
+         s6HE+Qy88Jv+An/jWrrVi526QkYDzNZKoC7hpps0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 49/79] HID: logitech-hidpp: Silence intermittent get_battery_capacity errors
-Date:   Wed, 11 Dec 2019 10:26:13 -0500
-Message-Id: <20191211152643.23056-49-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
+Subject: [PATCH AUTOSEL 4.19 51/79] libnvdimm/btt: fix variable 'rc' set but not used
+Date:   Wed, 11 Dec 2019 10:26:15 -0500
+Message-Id: <20191211152643.23056-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -42,44 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 61005d65b6c7dcf61c19516e6ebe5acc02d2cdda ]
+[ Upstream commit 4e24e37d5313edca8b4ab86f240c046c731e28d6 ]
 
-My Logitech M185 (PID:4038) 2.4 GHz wireless HID++ mouse is causing
-intermittent errors like these in the log:
+drivers/nvdimm/btt.c: In function 'btt_read_pg':
+drivers/nvdimm/btt.c:1264:8: warning: variable 'rc' set but not used
+[-Wunused-but-set-variable]
+    int rc;
+        ^~
 
-[11091.034857] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
-[12388.031260] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
-[16613.718543] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
-[23529.938728] logitech-hidpp-device 0003:046D:4038.0006: hidpp20_batterylevel_get_battery_capacity: received protocol error 0x09
+Add a ratelimited message in case a storm of errors is encountered.
 
-We are already silencing error-code 0x09 (HIDPP_ERROR_RESOURCE_ERROR)
-errors in other places, lets do the same in
-hidpp20_batterylevel_get_battery_capacity to remove these harmless,
-but scary looking errors from the dmesg output.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/1572530719-32161-1-git-send-email-cai@lca.pw
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/nvdimm/btt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 034c883e57fa2..504e8917b06f3 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -978,6 +978,9 @@ static int hidpp20_batterylevel_get_battery_capacity(struct hidpp_device *hidpp,
- 	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
- 					  CMD_BATTERY_LEVEL_STATUS_GET_BATTERY_LEVEL_STATUS,
- 					  NULL, 0, &response);
-+	/* Ignore these intermittent errors */
-+	if (ret == HIDPP_ERROR_RESOURCE_ERROR)
-+		return -EIO;
- 	if (ret > 0) {
- 		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
- 			__func__, ret);
+diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+index 0360c015f6580..75ae2c508a044 100644
+--- a/drivers/nvdimm/btt.c
++++ b/drivers/nvdimm/btt.c
+@@ -1260,11 +1260,11 @@ static int btt_read_pg(struct btt *btt, struct bio_integrity_payload *bip,
+ 
+ 		ret = btt_data_read(arena, page, off, postmap, cur_len);
+ 		if (ret) {
+-			int rc;
+-
+ 			/* Media error - set the e_flag */
+-			rc = btt_map_write(arena, premap, postmap, 0, 1,
+-				NVDIMM_IO_ATOMIC);
++			if (btt_map_write(arena, premap, postmap, 0, 1, NVDIMM_IO_ATOMIC))
++				dev_warn_ratelimited(to_dev(arena),
++					"Error persistently tracking bad blocks at %#x\n",
++					premap);
+ 			goto out_rtt;
+ 		}
+ 
 -- 
 2.20.1
 
