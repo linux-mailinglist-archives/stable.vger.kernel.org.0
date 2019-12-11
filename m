@@ -2,116 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F72511B65D
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ACBD11B854
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:17:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732226AbfLKQAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:00:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730981AbfLKPNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:48 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B28822B48;
-        Wed, 11 Dec 2019 15:13:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077227;
-        bh=XVLFkUxvPr4SxI4Dxl0LIajKkAizRQoeefyUhnfbFRU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yd/Vh+eFNp1LT7KiLPAf0cTZDtR3XOXwpuVXHW0CdmckMdG8RhBw4tnGVe02AQ8we
-         DekCnV2SuQ4JyHcFtm4BGsmefl4N/C+8D81yrRX8pqFKQ2LMhJHnuuFD7PB83l3EIb
-         lEYhbqY6g00X2UMsfaOoeQAnBzSiuBPx6WZ/FEc4=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 106/134] tools/power/x86/intel-speed-select: Ignore missing config level
-Date:   Wed, 11 Dec 2019 10:11:22 -0500
-Message-Id: <20191211151150.19073-106-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
-References: <20191211151150.19073-1-sashal@kernel.org>
+        id S1729854AbfLKQQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:16:13 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:35818 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729296AbfLKQQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 11:16:13 -0500
+Received: by mail-pl1-f194.google.com with SMTP id s10so1609435plp.2
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 08:16:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=MXCmGsW8itYCIi8NQSaIAK7ukbEUBNXl9j1T5nEaHGg=;
+        b=QYbpSDQ2ua8NL7xqSA7Yua4lzs3qw0Y2LRv5eR4tKEHeqN4y2AIh0DfI3n32mq5Lyk
+         K2YcwlgVgXBFIbPN8iKzh6/Av3Tna25NpPxtMXC7tFDJw721dCygn/iS61q3djNkZyni
+         mVLji0Q3kWK/tmec/FYAzpUJV4jMCgqQKzUjvlrBvHRJ552N/SWr8lHgG66PyrzCeOjm
+         /eAiijUF1AbL6iuzYqF3CxklerZ6ab6pOzFcoHrxQ9UbftOLwmG7VOydxcUMOHJCJgD4
+         eZnpEwsESIiZ8RL15o28nzn2cnOzaexYax0e8z8aChBRgec7Cn0PR+351Bh94kFEKvzg
+         yh5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MXCmGsW8itYCIi8NQSaIAK7ukbEUBNXl9j1T5nEaHGg=;
+        b=AHuQ6zIYc/0ypL9W3utF1y6DZQ+e5/ENICS5IRgCKWgvaO3bMlAA+wh6Rz4eIyQJdi
+         vDAPXodjzkC0EnJhg5f7okQ8rGqEcszoXz9X4gMtlyGEopEI2uym4o+gJ7hEcxfwcNyx
+         NDShxgeZfTXsDqAYfiqOyQzna4Or7attyNPR2wPA1QxUBNExOGolfEsdi8TXSZfq90RA
+         j8ubGhPP49Qz4vUAO+oeFXOYcZg2wTG1I704bFBkJUDClPodhtfk3bnT7qjvy22DW5vI
+         kjJHazVELWJqrIA6eog93veKQVAR/mgicoGWbpw3CI0J3T2pOfWslOvYA88mumeC9IE7
+         Zevg==
+X-Gm-Message-State: APjAAAXArAsBNcDG3wYG+iRWFX4C02Hv3SNwetUUeMtjA7l2tapUbE5B
+        oYBKxcNPvNtUhN3P2QgRD6f9jg==
+X-Google-Smtp-Source: APXvYqzPX/v+hnR4/KASF/sKEAiVdz7cVmusLRs3j8+NqWPNeiSzXGfmWsd+4qjgjod4f3I2HjMdqw==
+X-Received: by 2002:a17:902:64:: with SMTP id 91mr4134443pla.307.1576080972467;
+        Wed, 11 Dec 2019 08:16:12 -0800 (PST)
+Received: from debian ([122.164.82.31])
+        by smtp.gmail.com with ESMTPSA id c19sm3829604pfc.144.2019.12.11.08.16.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2019 08:16:11 -0800 (PST)
+Date:   Wed, 11 Dec 2019 21:46:05 +0530
+From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        jeffrin@rajagiritech.edu.in
+Subject: Re: [PATCH 5.3 000/105] 5.3.16-stable review
+Message-ID: <20191211161605.GA4849@debian>
+References: <20191211150221.153659747@linuxfoundation.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+On Wed, Dec 11, 2019 at 04:04:49PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.3.16 release.
+> There are 105 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-[ Upstream commit 20183ccd3e4d01d23b0a01fe9f3ee73fbae312fa ]
+i get the following when i try to compile...
 
-It is possible that certain config levels are not available, even
-if the max level includes the level. There can be missing levels in
-some platforms. So ignore the level when called for information dump
-for all levels and fail if specifically ask for the missing level.
+-------------------x--------------------x--------------------x--------------
+$sudo make -j4
+  DESCEND  objtool
+make[4]: *** No rule to make target 'arch/x86/lib/x86-opcode-map.txt', needed by '/home/jeffrin/UP/linux-stable-rc/tools/objtool/arch/x86/lib/inat-tables.c'.  Stop.
+make[3]: *** [/home/jeffrin/UP/linux-stable-rc/tools/build/Makefile.build:139: arch/x86] Error 2
+make[2]: *** [Makefile:50: /home/jeffrin/UP/linux-stable-rc/tools/objtool/objtool-in.o] Error 2
+make[1]: *** [Makefile:67: objtool] Error 2
+make: *** [Makefile:1752: tools/objtool] Error 2
+make: *** Waiting for unfinished jobs.
+------------------x-------------------------x----------------x-----------
 
-Here the changes is to continue reading information about other levels
-even if we fail to get information for the current level. But use the
-"processed" flag to indicate the failure. When the "processed" flag is
-not set, don't dump information about that level.
+the file "x86-opcode-map.txt" has been deleted upstream.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- tools/power/x86/intel-speed-select/isst-core.c    | 8 ++++----
- tools/power/x86/intel-speed-select/isst-display.c | 3 ++-
- 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/tools/power/x86/intel-speed-select/isst-core.c b/tools/power/x86/intel-speed-select/isst-core.c
-index 6dee5332c9d37..fde3f9cefc6db 100644
---- a/tools/power/x86/intel-speed-select/isst-core.c
-+++ b/tools/power/x86/intel-speed-select/isst-core.c
-@@ -553,7 +553,6 @@ int isst_get_process_ctdp(int cpu, int tdp_level, struct isst_pkg_ctdp *pkg_dev)
- 			     i);
- 		ctdp_level = &pkg_dev->ctdp_level[i];
- 
--		ctdp_level->processed = 1;
- 		ctdp_level->level = i;
- 		ctdp_level->control_cpu = cpu;
- 		ctdp_level->pkg_id = get_physical_package_id(cpu);
-@@ -561,7 +560,10 @@ int isst_get_process_ctdp(int cpu, int tdp_level, struct isst_pkg_ctdp *pkg_dev)
- 
- 		ret = isst_get_ctdp_control(cpu, i, ctdp_level);
- 		if (ret)
--			return ret;
-+			continue;
-+
-+		pkg_dev->processed = 1;
-+		ctdp_level->processed = 1;
- 
- 		ret = isst_get_tdp_info(cpu, i, ctdp_level);
- 		if (ret)
-@@ -614,8 +616,6 @@ int isst_get_process_ctdp(int cpu, int tdp_level, struct isst_pkg_ctdp *pkg_dev)
- 		}
- 	}
- 
--	pkg_dev->processed = 1;
--
- 	return 0;
- }
- 
-diff --git a/tools/power/x86/intel-speed-select/isst-display.c b/tools/power/x86/intel-speed-select/isst-display.c
-index 40346d534f789..b11575c3e8864 100644
---- a/tools/power/x86/intel-speed-select/isst-display.c
-+++ b/tools/power/x86/intel-speed-select/isst-display.c
-@@ -314,7 +314,8 @@ void isst_ctdp_display_information(int cpu, FILE *outf, int tdp_level,
- 	char value[256];
- 	int i, base_level = 1;
- 
--	print_package_info(cpu, outf);
-+	if (pkg_dev->processed)
-+		print_package_info(cpu, outf);
- 
- 	for (i = 0; i <= pkg_dev->levels; ++i) {
- 		struct isst_pkg_ctdp_level_info *ctdp_level;
--- 
-2.20.1
+--
+software engineer
+rajagiri school of engineering and technology
 
