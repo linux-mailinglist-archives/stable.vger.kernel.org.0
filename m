@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 639F111B0EF
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:27:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C004F11B0F3
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:27:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387412AbfLKP1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:27:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32992 "EHLO mail.kernel.org"
+        id S2387422AbfLKP11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:27:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733063AbfLKP1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:23 -0500
+        id S2387416AbfLKP10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21EB224671;
-        Wed, 11 Dec 2019 15:27:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DC4D2468F;
+        Wed, 11 Dec 2019 15:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078042;
-        bh=UNiTk+f8fE9Yz8lhsQdrFBLP5bg3jUY8qkUscn+BsVg=;
+        s=default; t=1576078045;
+        bh=VBqmgu+/fTCK3LmeGT4lLrSBpbjP6+bqqfjkjkKKYmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=byX56x9yKEvGMaPN82OMwHr52hwGn3bwCJqFi4JBE1rPoupLDp4p3clHcZZ6tgRbx
-         BytbWSDZu/+pIkltDbkZ+B7aTdDZsmHwo7jLIQ+o0tgJK8f6WRy5d2sW/PDkq7Tztw
-         ypw0VwrmTrH1pAgtMI65mGXEfUyJuF80MOn6n6vA=
+        b=1S+7xJ2ME5sk0GDe59c/VuD6VfC2vokWTFnBcGUqhG/t8LtX+AhC18akEZDmkFomQ
+         OVbit9vWZJ7tCrNW2Ic16hD5RvhkahGPphJwxQg/kKHkABM+GkUhpBtBgoHTy22AzO
+         mGyvLU9v/yXGJuau9BKaVPz3gJSDBSOZg/s9uNQU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kars de Jong <jongk@linux-m68k.org>,
-        Finn Thain <fthain@telegraphics.com.au>,
+Cc:     Bean Huo <beanhuo@micron.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 36/79] scsi: zorro_esp: Limit DMA transfers to 65536 bytes (except on Fastlane)
-Date:   Wed, 11 Dec 2019 10:26:00 -0500
-Message-Id: <20191211152643.23056-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 38/79] scsi: ufs: fix potential bug which ends in system hang
+Date:   Wed, 11 Dec 2019 10:26:02 -0500
+Message-Id: <20191211152643.23056-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -44,67 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kars de Jong <jongk@linux-m68k.org>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit 02f7e9f351a9de95577eafdc3bd413ed1c3b589f ]
+[ Upstream commit cfcbae3895b86c390ede57b2a8f601dd5972b47b ]
 
-When using this driver on a Blizzard 1260, there were failures whenever DMA
-transfers from the SCSI bus to memory of 65535 bytes were followed by a DMA
-transfer of 1 byte. This caused the byte at offset 65535 to be overwritten
-with 0xff. The Blizzard hardware can't handle single byte DMA transfers.
+In function __ufshcd_query_descriptor(), in the event of an error
+happening, we directly goto out_unlock and forget to invaliate
+hba->dev_cmd.query.descriptor pointer. This results in this pointer still
+valid in ufshcd_copy_query_response() for other query requests which go
+through ufshcd_exec_raw_upiu_cmd(). This will cause __memcpy() crash and
+system hangs. Log as shown below:
 
-Besides this issue, limiting the DMA length to something that is not a
-multiple of the page size is very inefficient on most file systems.
+Unable to handle kernel paging request at virtual address
+ffff000012233c40
+Mem abort info:
+   ESR = 0x96000047
+   Exception class = DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+Data abort info:
+   ISV = 0, ISS = 0x00000047
+   CM = 0, WnR = 1
+swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000028cc735c
+[ffff000012233c40] pgd=00000000bffff003, pud=00000000bfffe003,
+pmd=00000000ba8b8003, pte=0000000000000000
+ Internal error: Oops: 96000047 [#2] PREEMPT SMP
+ ...
+ Call trace:
+  __memcpy+0x74/0x180
+  ufshcd_issue_devman_upiu_cmd+0x250/0x3c0
+  ufshcd_exec_raw_upiu_cmd+0xfc/0x1a8
+  ufs_bsg_request+0x178/0x3b0
+  bsg_queue_rq+0xc0/0x118
+  blk_mq_dispatch_rq_list+0xb0/0x538
+  blk_mq_sched_dispatch_requests+0x18c/0x1d8
+  __blk_mq_run_hw_queue+0xb4/0x118
+  blk_mq_run_work_fn+0x28/0x38
+  process_one_work+0x1ec/0x470
+  worker_thread+0x48/0x458
+  kthread+0x130/0x138
+  ret_from_fork+0x10/0x1c
+ Code: 540000ab a8c12027 a88120c7 a8c12027 (a88120c7)
+ ---[ end trace 793e1eb5dff69f2d ]---
+ note: kworker/0:2H[2054] exited with preempt_count 1
 
-It seems this limit was chosen because the DMA transfer counter of the ESP
-by default is 16 bits wide, thus limiting the length to 65535 bytes.
-However, the value 0 means 65536 bytes, which is handled by the ESP and the
-Blizzard just fine. It is also the default maximum used by esp_scsi when
-drivers don't provide their own dma_length_limit() function.
+This patch is to move "descriptor = NULL" down to below the label
+"out_unlock".
 
-The limit of 65536 bytes can be used by all boards except the Fastlane. The
-old driver used a limit of 65532 bytes (0xfffc), which is reintroduced in
-this patch.
-
-Fixes: b7ded0e8b0d1 ("scsi: zorro_esp: Limit DMA transfers to 65535 bytes")
-Link: https://lore.kernel.org/r/20191112175523.23145-1-jongk@linux-m68k.org
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
-Reviewed-by: Finn Thain <fthain@telegraphics.com.au>
+Fixes: d44a5f98bb49b2(ufs: query descriptor API)
+Link: https://lore.kernel.org/r/20191112223436.27449-3-huobean@gmail.com
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/zorro_esp.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/zorro_esp.c b/drivers/scsi/zorro_esp.c
-index be79127db5946..6a5b547eae590 100644
---- a/drivers/scsi/zorro_esp.c
-+++ b/drivers/scsi/zorro_esp.c
-@@ -245,7 +245,14 @@ static int fastlane_esp_irq_pending(struct esp *esp)
- static u32 zorro_esp_dma_length_limit(struct esp *esp, u32 dma_addr,
- 					u32 dma_len)
- {
--	return dma_len > 0xFFFF ? 0xFFFF : dma_len;
-+	return dma_len > (1U << 16) ? (1U << 16) : dma_len;
-+}
-+
-+static u32 fastlane_esp_dma_length_limit(struct esp *esp, u32 dma_addr,
-+					u32 dma_len)
-+{
-+	/* The old driver used 0xfffc as limit, so do that here too */
-+	return dma_len > 0xfffc ? 0xfffc : dma_len;
- }
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 8bce755e0f5bc..7510d8328d4dd 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -3011,10 +3011,10 @@ static int __ufshcd_query_descriptor(struct ufs_hba *hba,
+ 		goto out_unlock;
+ 	}
  
- static void zorro_esp_reset_dma(struct esp *esp)
-@@ -818,7 +825,7 @@ static const struct esp_driver_ops fastlane_esp_ops = {
- 	.unmap_single		= zorro_esp_unmap_single,
- 	.unmap_sg		= zorro_esp_unmap_sg,
- 	.irq_pending		= fastlane_esp_irq_pending,
--	.dma_length_limit	= zorro_esp_dma_length_limit,
-+	.dma_length_limit	= fastlane_esp_dma_length_limit,
- 	.reset_dma		= zorro_esp_reset_dma,
- 	.dma_drain		= zorro_esp_dma_drain,
- 	.dma_invalidate		= fastlane_esp_dma_invalidate,
+-	hba->dev_cmd.query.descriptor = NULL;
+ 	*buf_len = be16_to_cpu(response->upiu_res.length);
+ 
+ out_unlock:
++	hba->dev_cmd.query.descriptor = NULL;
+ 	mutex_unlock(&hba->dev_cmd.lock);
+ out:
+ 	ufshcd_release(hba);
 -- 
 2.20.1
 
