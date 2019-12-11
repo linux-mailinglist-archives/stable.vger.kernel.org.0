@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 342A711B5AE
+	by mail.lfdr.de (Postfix) with ESMTP id A46EF11B5AF
 	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:56:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731917AbfLKPQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:16:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43776 "EHLO mail.kernel.org"
+        id S1731920AbfLKPQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:16:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731711AbfLKPQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:16:34 -0500
+        id S1731919AbfLKPQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:16:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FE312465C;
-        Wed, 11 Dec 2019 15:16:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31A622465B;
+        Wed, 11 Dec 2019 15:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077394;
-        bh=Mpu/ReJMOFNKMRYs/AEeNTxpA1xP5T5VDaCkFifPux0=;
+        s=default; t=1576077396;
+        bh=sujIkRHrGw4eY/KTasIs6iMCrU8CKRJ35rDad+eWp1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QaJLqgXtJQS2eSxmkmYA5t4LQNAgsXCQCicfbfo1UHAiw15B77gLxgMcSpio4OlRL
-         7FnBtJTkvfzb2blCC2EP1Ln0mIqqlvUHTLqprhIwcqoZ9uMnPPJ7g5QoBvgnIlqpjU
-         K7dMg3lIxlZIrBvLU5R6cZkdCbJCSdUpOeCImGjo=
+        b=up//WdcJkiTIsnKL+OABL6l822FIeCm7C8dVl5P7+/Op4MP74yZXPKHDAJ1i01ExY
+         2lIjtFh0LsG2kN7f3viKG9zzr/m0Hr/fgCBTa0ZzgYZwIk/qgxWr5jqDd7bn4TFsL3
+         N3GlE/AKP/SWwLoQ9v0qPGb0NY7LtZ7rsC/tW0Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunhao Tian <t123yh@outlook.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 022/243] drm/sun4i: tcon: Set min division of TCON0_DCLK to 1.
-Date:   Wed, 11 Dec 2019 16:03:04 +0100
-Message-Id: <20191211150340.448717735@linuxfoundation.org>
+Subject: [PATCH 4.19 023/243] selftests: kvm: fix build with glibc >= 2.30
+Date:   Wed, 11 Dec 2019 16:03:05 +0100
+Message-Id: <20191211150340.502096048@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -44,42 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunhao Tian <t123yh@outlook.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 0b8e7bbde5e7e2c419567e1ee29587dae3b78ee3 ]
+[ Upstream commit e37f9f139f62deddff90c7298ae3a85026a71067 ]
 
-The datasheet of V3s (and various other chips) wrote
-that TCON0_DCLK_DIV can be >= 1 if only dclk is used,
-and must >= 6 if dclk1 or dclk2 is used. As currently
-neither dclk1 nor dclk2 is used (no writes to these
-bits), let's set minimal division to 1.
+Glibc-2.30 gained gettid() wrapper, selftests fail to compile:
 
-If this minimal division is 6, some common dot clock
-frequencies can't be produced (e.g. 30MHz will not be
-possible and will fallback to 25MHz), which is
-obviously not an expected behaviour.
+lib/assert.c:58:14: error: static declaration of ‘gettid’ follows non-static declaration
+   58 | static pid_t gettid(void)
+      |              ^~~~~~
+In file included from /usr/include/unistd.h:1170,
+                 from include/test_util.h:18,
+                 from lib/assert.c:10:
+/usr/include/bits/unistd_ext.h:34:16: note: previous declaration of ‘gettid’ was here
+   34 | extern __pid_t gettid (void) __THROW;
+      |                ^~~~~~
 
-Signed-off-by: Yunhao Tian <t123yh@outlook.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/linux-arm-kernel/MN2PR08MB57905AD8A00C08DA219377C989760@MN2PR08MB5790.namprd08.prod.outlook.com/
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_tcon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/kvm/lib/assert.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.c b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-index 8c31c9ab06f8b..fda1ae12069a7 100644
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-@@ -423,7 +423,7 @@ static void sun4i_tcon0_mode_set_rgb(struct sun4i_tcon *tcon,
+diff --git a/tools/testing/selftests/kvm/lib/assert.c b/tools/testing/selftests/kvm/lib/assert.c
+index cd01144d27c8d..d306677065699 100644
+--- a/tools/testing/selftests/kvm/lib/assert.c
++++ b/tools/testing/selftests/kvm/lib/assert.c
+@@ -56,7 +56,7 @@ static void test_dump_stack(void)
+ #pragma GCC diagnostic pop
+ }
  
- 	WARN_ON(!tcon->quirks->has_channel_0);
- 
--	tcon->dclk_min_div = 6;
-+	tcon->dclk_min_div = 1;
- 	tcon->dclk_max_div = 127;
- 	sun4i_tcon0_mode_set_common(tcon, mode);
- 
+-static pid_t gettid(void)
++static pid_t _gettid(void)
+ {
+ 	return syscall(SYS_gettid);
+ }
+@@ -73,7 +73,7 @@ test_assert(bool exp, const char *exp_str,
+ 		fprintf(stderr, "==== Test Assertion Failure ====\n"
+ 			"  %s:%u: %s\n"
+ 			"  pid=%d tid=%d - %s\n",
+-			file, line, exp_str, getpid(), gettid(),
++			file, line, exp_str, getpid(), _gettid(),
+ 			strerror(errno));
+ 		test_dump_stack();
+ 		if (fmt) {
 -- 
 2.20.1
 
