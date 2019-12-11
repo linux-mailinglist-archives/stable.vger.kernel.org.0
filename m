@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15DC811B3F1
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1560C11B3F3
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:45:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733288AbfLKP1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:27:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32842 "EHLO mail.kernel.org"
+        id S1733296AbfLKP1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:27:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733284AbfLKP1Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:16 -0500
+        id S1733291AbfLKP1R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8695024654;
-        Wed, 11 Dec 2019 15:27:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9911724679;
+        Wed, 11 Dec 2019 15:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078036;
-        bh=WqdzLOw1svIJXrp3BQkqyAvYYG4c3ZCv1Ywl8zqVggc=;
+        s=default; t=1576078037;
+        bh=ZBos1J9OQFgPA5I/g81+Wf/VkXLzniPpEScE/pGKg0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGVXSZD8tWn0M1iTy/JWEQeXx7HJY7wAQ2Jv3jsID2EAXrNc+vkbzPWbg6/DCiU/t
-         pNaQKa9SCE03/96lRCeW1rhjuIZ5zP2lzPLIE3VbKqZsnVlZ60CdGKqNhTnpAGcsgU
-         V5XclImLsrNY90MGY/ej7FC1kuM1p0yopoOGmWHU=
+        b=LDC0pxC5h4Hax49+zqI77Jk3cT5t9ixDVYj2xxF+9CVOZVzVGwErjsWr8+UUxvZ8e
+         o0mcspxPd6oG/5dtIZU39ELln9O3oINjxCxL+b53tojqgHK73fG4Z1CFgk+7ykWx1w
+         urjv0X1kvClA4LBLT0KqtYAodyrdlwAjIrxLvRgg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Hennerich <michael.hennerich@analog.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 30/79] clk: clk-gpio: propagate rate change to parent
-Date:   Wed, 11 Dec 2019 10:25:54 -0500
-Message-Id: <20191211152643.23056-30-sashal@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-mips@linux-mips.org
+Subject: [PATCH AUTOSEL 4.19 31/79] irqchip/irq-bcm7038-l1: Enable parent IRQ if necessary
+Date:   Wed, 11 Dec 2019 10:25:55 -0500
+Message-Id: <20191211152643.23056-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -44,46 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit fc59462c5ce60da119568fac325c92fc6b7c6175 ]
+[ Upstream commit 27eebb60357ed5aa6659442f92907c0f7368d6ae ]
 
-For an external clock source, which is gated via a GPIO, the
-rate change should typically be propagated to the parent clock.
+If the 'brcm,irq-can-wake' property is specified, make sure we also
+enable the corresponding parent interrupt we are attached to.
 
-The situation where we are requiring this propagation, is when an
-external clock is connected to override an internal clock (which typically
-has a fixed rate). The external clock can have a different rate than the
-internal one, and may also be variable, thus requiring the rate
-propagation.
-
-This rate change wasn't propagated until now, and it's unclear about cases
-where this shouldn't be propagated. Thus, it's unclear whether this is
-fixing a bug, or extending the current driver behavior. Also, it's unsure
-about whether this may break any existing setups; in the case that it does,
-a device-tree property may be added to disable this flag.
-
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Link: https://lkml.kernel.org/r/20191108071718.17985-1-alexandru.ardelean@analog.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20191024201415.23454-4-f.fainelli@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-gpio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-bcm7038-l1.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/clk/clk-gpio.c b/drivers/clk/clk-gpio.c
-index 40af4fbab4d23..af9cc00d2d920 100644
---- a/drivers/clk/clk-gpio.c
-+++ b/drivers/clk/clk-gpio.c
-@@ -248,7 +248,7 @@ static int gpio_clk_driver_probe(struct platform_device *pdev)
- 	else
- 		clk = clk_register_gpio_gate(&pdev->dev, node->name,
- 				parent_names ?  parent_names[0] : NULL, gpiod,
--				0);
-+				CLK_SET_RATE_PARENT);
- 	if (IS_ERR(clk))
- 		return PTR_ERR(clk);
+diff --git a/drivers/irqchip/irq-bcm7038-l1.c b/drivers/irqchip/irq-bcm7038-l1.c
+index 0f6e30e9009da..f53dfc5aa7c56 100644
+--- a/drivers/irqchip/irq-bcm7038-l1.c
++++ b/drivers/irqchip/irq-bcm7038-l1.c
+@@ -284,6 +284,10 @@ static int __init bcm7038_l1_init_one(struct device_node *dn,
+ 		pr_err("failed to map parent interrupt %d\n", parent_irq);
+ 		return -EINVAL;
+ 	}
++
++	if (of_property_read_bool(dn, "brcm,irq-can-wake"))
++		enable_irq_wake(parent_irq);
++
+ 	irq_set_chained_handler_and_data(parent_irq, bcm7038_l1_irq_handle,
+ 					 intc);
  
 -- 
 2.20.1
