@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF81F11B575
+	by mail.lfdr.de (Postfix) with ESMTP id 7639111B574
 	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:54:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730406AbfLKPSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:18:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
+        id S1731828AbfLKPS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:18:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731384AbfLKPSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:18:15 -0500
+        id S1731836AbfLKPSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:18:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 476C422527;
-        Wed, 11 Dec 2019 15:18:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9489F2073D;
+        Wed, 11 Dec 2019 15:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077494;
-        bh=4I0T3q26ZC/IpmhFP0sZA/I+ERS2Sv7601iexpXWXBM=;
+        s=default; t=1576077503;
+        bh=5EaPEyrukBMg3O+QebSDf5gJFnoIyQFT0LBomUN5WwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hl26FWTmNAeTOTb/frj+mO8Vr0Vo8uf5zPXT6eDuaGBHZIlv/3etlia52bex1vPJ/
-         P/WWs7fC+b2JMhwlR4CLTusVUvovig4PH1E9GWtO8nTdomzTUVXbBq4xc1XWwTGyhw
-         sJ+34ZV8Yd7aPsRmIb2F1/SOasNBQ1/M2cQC4d2E=
+        b=UXJAkLWXf9a1NyRlXXRtIFixfzBrUaHG/OHBMCPRfuVj+goOVFDcFJcWU6DcG3y8l
+         v2t0+eqyr4bDBN2hwqOYFTcf9f9rmtVCwRfoI1bjnOri1c9jeVllG3Z/Zim+iJDg9J
+         cvVcR1T//KZPrTi0f/eMtBtL1x1gzKeDYsrtPeNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Shreeya Patel <shreeya.patel23498@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/243] crypto: bcm - fix normal/non key hash algorithm failure
-Date:   Wed, 11 Dec 2019 16:03:41 +0100
-Message-Id: <20191211150343.084850526@linuxfoundation.org>
+Subject: [PATCH 4.19 062/243] Staging: iio: adt7316: Fix i2c data reading, set the data field
+Date:   Wed, 11 Dec 2019 16:03:44 +0100
+Message-Id: <20191211150343.286588810@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -45,43 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+From: Shreeya Patel <shreeya.patel23498@gmail.com>
 
-[ Upstream commit 4f0129d13e69bad0363fd75553fb22897b32c379 ]
+[ Upstream commit 688cd642ba0c393344c802647848da5f0d925d0e ]
 
-Remove setkey() callback handler for normal/non key
-hash algorithms and keep it for AES-CBC/CMAC which needs key.
+adt7316_i2c_read function nowhere sets the data field.
+It is necessary to have an appropriate value for it.
+Hence, assign the value stored in 'ret' variable to data field.
 
-Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
-Signed-off-by: Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This is an ancient bug, and as no one seems to have noticed,
+probably no sense in applying it to stable.
+
+Signed-off-by: Shreeya Patel <shreeya.patel23498@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/bcm/cipher.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/staging/iio/addac/adt7316-i2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
-index cd464637b0cb6..49c0097fa4749 100644
---- a/drivers/crypto/bcm/cipher.c
-+++ b/drivers/crypto/bcm/cipher.c
-@@ -4634,12 +4634,16 @@ static int spu_register_ahash(struct iproc_alg_s *driver_alg)
- 	hash->halg.statesize = sizeof(struct spu_hash_export_s);
+diff --git a/drivers/staging/iio/addac/adt7316-i2c.c b/drivers/staging/iio/addac/adt7316-i2c.c
+index f66dd3ebbab1f..856bcfa60c6c4 100644
+--- a/drivers/staging/iio/addac/adt7316-i2c.c
++++ b/drivers/staging/iio/addac/adt7316-i2c.c
+@@ -35,6 +35,8 @@ static int adt7316_i2c_read(void *client, u8 reg, u8 *data)
+ 		return ret;
+ 	}
  
- 	if (driver_alg->auth_info.mode != HASH_MODE_HMAC) {
--		hash->setkey = ahash_setkey;
- 		hash->init = ahash_init;
- 		hash->update = ahash_update;
- 		hash->final = ahash_final;
- 		hash->finup = ahash_finup;
- 		hash->digest = ahash_digest;
-+		if ((driver_alg->auth_info.alg == HASH_ALG_AES) &&
-+		    ((driver_alg->auth_info.mode == HASH_MODE_XCBC) ||
-+		    (driver_alg->auth_info.mode == HASH_MODE_CMAC))) {
-+			hash->setkey = ahash_setkey;
-+		}
- 	} else {
- 		hash->setkey = ahash_hmac_setkey;
- 		hash->init = ahash_hmac_init;
++	*data = ret;
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
