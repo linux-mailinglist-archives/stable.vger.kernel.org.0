@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C98E4119FD4
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 01:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 836E811A042
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 01:55:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726925AbfLKAV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Dec 2019 19:21:27 -0500
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:60844 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726913AbfLKAV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Dec 2019 19:21:27 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id xBB0L4lK009055; Wed, 11 Dec 2019 09:21:04 +0900
-X-Iguazu-Qid: 34tKSOWc8Axu5wzLP9
-X-Iguazu-QSIG: v=2; s=0; t=1576023664; q=34tKSOWc8Axu5wzLP9; m=KRvqLVtASM80eGQOphXM0WNlrloDfUUJ7MA+x3CcXas=
-Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
-        by relay.securemx.jp (mx-mr1513) id xBB0L3lO031772;
-        Wed, 11 Dec 2019 09:21:04 +0900
-Received: from enc01.localdomain ([106.186.93.100])
-        by imx2.toshiba.co.jp  with ESMTP id xBB0L3CA025069;
-        Wed, 11 Dec 2019 09:21:03 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.localdomain  with ESMTP id xBB0L3u7015966;
-        Wed, 11 Dec 2019 09:21:03 +0900
-Date:   Wed, 11 Dec 2019 09:21:02 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: stable RC build breakages (4.14.y, 4.19.y)
-X-TSB-HOP: ON
-Message-ID: <20191211002102.mr3re4rks2nmdkyf@toshiba.co.jp>
-References: <20191210225743.GA4443@roeck-us.net>
+        id S1726362AbfLKAzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Dec 2019 19:55:08 -0500
+Received: from mga05.intel.com ([192.55.52.43]:28187 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725999AbfLKAzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 10 Dec 2019 19:55:08 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Dec 2019 16:55:07 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,301,1571727600"; 
+   d="scan'208";a="225336040"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.136]) ([10.239.159.136])
+  by orsmga002.jf.intel.com with ESMTP; 10 Dec 2019 16:55:05 -0800
+Cc:     baolu.lu@linux.intel.com, Joerg Roedel <jroedel@suse.de>,
+        iommu@lists.linux-foundation.org, stable@vger.kernel.org
+Subject: Re: [PATCH] iommu: set group default domain before creating direct
+ mappings
+To:     Jerry Snitselaar <jsnitsel@redhat.com>,
+        linux-kernel@vger.kernel.org
+References: <20191210185606.11329-1-jsnitsel@redhat.com>
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <49bca506-1f6a-ab2d-fac0-302073737af7@linux.intel.com>
+Date:   Wed, 11 Dec 2019 08:54:21 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191210225743.GA4443@roeck-us.net>
+In-Reply-To: <20191210185606.11329-1-jsnitsel@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -42,53 +44,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi,
 
-On Tue, Dec 10, 2019 at 02:57:43PM -0800, Guenter Roeck wrote:
-> v4.14.y:
+On 12/11/19 2:56 AM, Jerry Snitselaar wrote:
+> iommu_group_create_direct_mappings uses group->default_domain, but
+> right after it is called, request_default_domain_for_dev calls
+> iommu_domain_free for the default domain, and sets the group default
+> domain to a different domain. Move the
+> iommu_group_create_direct_mappings call to after the group default
+> domain is set, so the direct mappings get associated with that domain.
 > 
-> arm64:defconfig:
-> 
-> arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts:5:10: fatal error:
-> 	dt-bindings/input/gpio-keys.h: No such file or directory
-> 
+> Cc: Joerg Roedel <jroedel@suse.de>
+> Cc: Lu Baolu <baolu.lu@linux.intel.com>
 
-The include/dt-bindings/input/gpio-keys.h is not provided.
-We need to revert commit 9b7f85596a7c799d3715729188ea8f0f0f4b3c54(arm64:
-tegra: Fix power key interrupt type on Jetson TX2).
+This fix looks good to me.
 
-
-> i386:allyesconfig:
-> 
-> drivers/crypto/geode-aes.c:174:2: error:
-> 	implicit declaration of function 'crypto_sync_skcipher_clear_flags
-> 
-> and several similar errors.
-
-
-crypto_sync_skcipher_clear_flags() was provided from 4.19. So we need to
-fix the patch.
-
-> 
-> 
-> ---
-> v4.19.y:
-> 
-> arm64:defconfig:
-> 
-> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:82.1-7 Label or path codec not found
-> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:86.1-14 Label or path codec_analog not found
-> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:91.1-5 Label or path dai not found
-> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:297.1-7 Label or path sound not found
-
-I think we need to pick commit ec4a95409d5c28962e0097e8291aa7048f8b262a. 
-But I have not examined it in detail.
-
-> 
-> i386:allyesconfig:
-> 
-> Same as v4.14.y.
-> 
-> Guenter
-> 
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
 Best regards,
-  Nobuhiro
+baolu
+
+> Cc: iommu@lists.linux-foundation.org
+> Cc: stable@vger.kernel.org
+> Fixes: 7423e01741dd ("iommu: Add API to request DMA domain for device")
+> Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> ---
+>   drivers/iommu/iommu.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index db7bfd4f2d20..fa908179b80b 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -2282,13 +2282,13 @@ request_default_domain_for_dev(struct device *dev, unsigned long type)
+>   		goto out;
+>   	}
+>   
+> -	iommu_group_create_direct_mappings(group, dev);
+> -
+>   	/* Make the domain the default for this group */
+>   	if (group->default_domain)
+>   		iommu_domain_free(group->default_domain);
+>   	group->default_domain = domain;
+>   
+> +	iommu_group_create_direct_mappings(group, dev);
+> +
+>   	dev_info(dev, "Using iommu %s mapping\n",
+>   		 type == IOMMU_DOMAIN_DMA ? "dma" : "direct");
+>   
+> 
