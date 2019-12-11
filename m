@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F8911B4C0
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:50:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC27211B4DC
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:51:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732537AbfLKPYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:24:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55406 "EHLO mail.kernel.org"
+        id S1732456AbfLKPWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:22:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732648AbfLKPYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:24:10 -0500
+        id S1732615AbfLKPWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:22:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 143182077B;
-        Wed, 11 Dec 2019 15:24:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA4FC2073D;
+        Wed, 11 Dec 2019 15:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077849;
-        bh=Dq0fNFRV/9xFsNZdstNwHE220HFU4gDryd/VbmIWB/M=;
+        s=default; t=1576077755;
+        bh=Z5AqVrIC8GjWQ/SiK2JLzDiahAB4oiEWSlkGKafYMJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxCOO1CubyJPeeyEyqihxxGSIYCx3Z0ifRekKv3gjEYdMvaUwLr6ArPItQ6fKbqc+
-         7PCQMmdHRwwnxhkcOPtxMtWtusd8b7v2ssk/uFrX5btrLqok3sbblvIu57u5/UsKLL
-         NIqUkVAeba3xX5hhgdTdh4gqscapehbd3KcrZHe8=
+        b=tDU8+U3GoVuWK2wSiTZhbvqehhnj2avQLSNBRYdp12anOCjDcm1iArSbQkyl/YB42
+         dVnuUDqbRnS8yjIy4tHLYOc9ybrkgJLVZgb8sxNAHc8ZNneD/yl0a42Gi4oXmV2vn6
+         Aaw44Y93WA/+HdhWUrpxCUbNLTHEouHmOj5j/BxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 157/243] tcp: fix SNMP TCP timeout under-estimation
-Date:   Wed, 11 Dec 2019 16:05:19 +0100
-Message-Id: <20191211150349.766066209@linuxfoundation.org>
+Subject: [PATCH 4.19 159/243] kbuild: fix single target build for external module
+Date:   Wed, 11 Dec 2019 16:05:21 +0100
+Message-Id: <20191211150349.899539555@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -46,60 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchung Cheng <ycheng@google.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit e1561fe2dd69dc5dddd69bd73aa65355bdfb048b ]
+[ Upstream commit e07db28eea38ed4e332b3a89f3995c86b713cb5b ]
 
-Previously the SNMP TCPTIMEOUTS counter has inconsistent accounting:
-1. It counts all SYN and SYN-ACK timeouts
-2. It counts timeouts in other states except recurring timeouts and
-   timeouts after fast recovery or disorder state.
+Building a single target in an external module fails due to missing
+.tmp_versions directory.
 
-Such selective accounting makes analysis difficult and complicated. For
-example the monitoring system needs to collect many other SNMP counters
-to infer the total amount of timeout events. This patch makes TCPTIMEOUTS
-counter simply counts all the retransmit timeout (SYN or data or FIN).
+For example,
 
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  $ make -C /lib/modules/$(uname -r)/build M=$PWD foo.o
+
+will fail in the following way:
+
+  CC [M]  /home/masahiro/foo/foo.o
+/bin/sh: 1: cannot create /home/masahiro/foo/.tmp_versions/foo.mod: Directory nonexistent
+
+This is because $(cmd_crmodverdir) is executed only before building
+/, %/, %.ko single targets of external modules. Create .tmp_versions
+in the 'prepare' target.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_timer.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Makefile | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index 50b15e1c633b4..681882a409686 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -482,11 +482,12 @@ void tcp_retransmit_timer(struct sock *sk)
- 		goto out_reset_timer;
- 	}
+diff --git a/Makefile b/Makefile
+index f9ebb74e8e43f..471acfc74998b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1507,9 +1507,6 @@ else # KBUILD_EXTMOD
  
-+	__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPTIMEOUTS);
- 	if (tcp_write_timeout(sk))
- 		goto out;
+ # We are always building modules
+ KBUILD_MODULES := 1
+-PHONY += crmodverdir
+-crmodverdir:
+-	$(cmd_crmodverdir)
  
- 	if (icsk->icsk_retransmits == 0) {
--		int mib_idx;
-+		int mib_idx = 0;
+ PHONY += $(objtree)/Module.symvers
+ $(objtree)/Module.symvers:
+@@ -1521,7 +1518,7 @@ $(objtree)/Module.symvers:
  
- 		if (icsk->icsk_ca_state == TCP_CA_Recovery) {
- 			if (tcp_is_sack(tp))
-@@ -501,10 +502,9 @@ void tcp_retransmit_timer(struct sock *sk)
- 				mib_idx = LINUX_MIB_TCPSACKFAILURES;
- 			else
- 				mib_idx = LINUX_MIB_TCPRENOFAILURES;
--		} else {
--			mib_idx = LINUX_MIB_TCPTIMEOUTS;
- 		}
--		__NET_INC_STATS(sock_net(sk), mib_idx);
-+		if (mib_idx)
-+			__NET_INC_STATS(sock_net(sk), mib_idx);
- 	}
+ module-dirs := $(addprefix _module_,$(KBUILD_EXTMOD))
+ PHONY += $(module-dirs) modules
+-$(module-dirs): crmodverdir $(objtree)/Module.symvers
++$(module-dirs): prepare $(objtree)/Module.symvers
+ 	$(Q)$(MAKE) $(build)=$(patsubst _module_%,%,$@)
  
- 	tcp_enter_loss(sk);
+ modules: $(module-dirs)
+@@ -1562,7 +1559,8 @@ help:
+ 
+ # Dummies...
+ PHONY += prepare scripts
+-prepare: ;
++prepare:
++	$(cmd_crmodverdir)
+ scripts: ;
+ endif # KBUILD_EXTMOD
+ 
+@@ -1689,17 +1687,14 @@ endif
+ 
+ # Modules
+ /: prepare scripts FORCE
+-	$(cmd_crmodverdir)
+ 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) \
+ 	$(build)=$(build-dir)
+ # Make sure the latest headers are built for Documentation
+ Documentation/ samples/: headers_install
+ %/: prepare scripts FORCE
+-	$(cmd_crmodverdir)
+ 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1) \
+ 	$(build)=$(build-dir)
+ %.ko: prepare scripts FORCE
+-	$(cmd_crmodverdir)
+ 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
+ 	$(build)=$(build-dir) $(@:.ko=.o)
+ 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
 -- 
 2.20.1
 
