@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3D5011B65B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E730F11B807
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731498AbfLKPNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37712 "EHLO mail.kernel.org"
+        id S1729809AbfLKPK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:10:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730448AbfLKPNo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:44 -0500
+        id S1730742AbfLKPKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:10:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3FF32465C;
-        Wed, 11 Dec 2019 15:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A289320663;
+        Wed, 11 Dec 2019 15:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077223;
-        bh=34+cUa3MGnMCqTQUnF3QD+tWh95FD6XBhUFLhlsOcnQ=;
+        s=default; t=1576077024;
+        bh=cics5kjVSYpYnPvKQuCF/mMDXQpUxK2EhuST2U+tfd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h89My+4L9ZLVxs/M7LD77g2LZfPn0dfqlN1+L/XovrI1q68sjF271fH9Z+wSgl6Pp
-         31H3py0Va+XPcDCG8Ak/e9UsjGV9WlcSGkjR1GoPS2ylWVk7KtZDJLzYHTmvpLE46M
-         BIL3EO8bDZlpH4ZWM2n3caz8YXzjAHCqR9r19XJc=
+        b=hRPm8EOXR0u9S7Z30lZkOp8fn/A3scex2ACGQKgJv6g3wFSC+DfWCYk7vtwWmFf1H
+         jV4SqZGBgcEqnzdQlmRV4xxf08Goc0lmvfyZnd9GP/ZXnc7X6tC3eh2z4BvUPzsVSo
+         E3G+MM5yLAwryGiF0JutuUYy1ryAjcfAJhcwAXp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arijit Banerjee <arijit@rubrik.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.3 046/105] fuse: verify attributes
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Joerg Roedel <jroedel@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, hpa@zytor.com,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.4 44/92] x86/mm/32: Sync only to VMALLOC_END in vmalloc_sync_all()
 Date:   Wed, 11 Dec 2019 16:05:35 +0100
-Message-Id: <20191211150240.151473315@linuxfoundation.org>
+Message-Id: <20191211150242.020012504@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,124 +51,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit eb59bd17d2fa6e5e84fba61a5ebdea984222e6d5 upstream.
+commit 9a62d20027da3164a22244d9f022c0c987261687 upstream.
 
-If a filesystem returns negative inode sizes, future reads on the file were
-causing the cpu to spin on truncate_pagecache.
+The job of vmalloc_sync_all() is to help the lazy freeing of vmalloc()
+ranges: before such vmap ranges are reused we make sure that they are
+unmapped from every task's page tables.
 
-Create a helper to validate the attributes.  This now does two things:
+This is really easy on pagetable setups where the kernel page tables
+are shared between all tasks - this is the case on 32-bit kernels
+with SHARED_KERNEL_PMD = 1.
 
- - check the file mode
- - check if the file size fits in i_size without overflowing
+But on !SHARED_KERNEL_PMD 32-bit kernels this involves iterating
+over the pgd_list and clearing all pmd entries in the pgds that
+are cleared in the init_mm.pgd, which is the reference pagetable
+that the vmalloc() code uses.
 
-Reported-by: Arijit Banerjee <arijit@rubrik.com>
-Fixes: d8a5ba45457e ("[PATCH] FUSE - core")
-Cc: <stable@vger.kernel.org> # v2.6.14
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+In that context the current practice of vmalloc_sync_all() iterating
+until FIX_ADDR_TOP is buggy:
+
+        for (address = VMALLOC_START & PMD_MASK;
+             address >= TASK_SIZE_MAX && address < FIXADDR_TOP;
+             address += PMD_SIZE) {
+                struct page *page;
+
+Because iterating up to FIXADDR_TOP will involve a lot of non-vmalloc
+address ranges:
+
+	VMALLOC -> PKMAP -> LDT -> CPU_ENTRY_AREA -> FIX_ADDR
+
+This is mostly harmless for the FIX_ADDR and CPU_ENTRY_AREA ranges
+that don't clear their pmds, but it's lethal for the LDT range,
+which relies on having different mappings in different processes,
+and 'synchronizing' them in the vmalloc sense corrupts those
+pagetable entries (clearing them).
+
+This got particularly prominent with PTI, which turns SHARED_KERNEL_PMD
+off and makes this the dominant mapping mode on 32-bit.
+
+To make LDT working again vmalloc_sync_all() must only iterate over
+the volatile parts of the kernel address range that are identical
+between all processes.
+
+So the correct check in vmalloc_sync_all() is "address < VMALLOC_END"
+to make sure the VMALLOC areas are synchronized and the LDT
+mapping is not falsely overwritten.
+
+The CPU_ENTRY_AREA and the FIXMAP area are no longer synced either,
+but this is not really a proplem since their PMDs get established
+during bootup and never change.
+
+This change fixes the ldt_gdt selftest in my setup.
+
+[ mingo: Fixed up the changelog to explain the logic and modified the
+         copying to only happen up until VMALLOC_END. ]
+
+Reported-by: Borislav Petkov <bp@suse.de>
+Tested-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: <stable@vger.kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: hpa@zytor.com
+Fixes: 7757d607c6b3: ("x86/pti: Allow CONFIG_PAGE_TABLE_ISOLATION for x86_32")
+Link: https://lkml.kernel.org/r/20191126111119.GA110513@gmail.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/dir.c     |   22 ++++++++++++++++------
- fs/fuse/fuse_i.h  |    2 ++
- fs/fuse/readdir.c |    2 +-
- 3 files changed, 19 insertions(+), 7 deletions(-)
+ arch/x86/mm/fault.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -214,7 +214,8 @@ static int fuse_dentry_revalidate(struct
- 		kfree(forget);
- 		if (ret == -ENOMEM)
- 			goto out;
--		if (ret || (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
-+		if (ret || fuse_invalid_attr(&outarg.attr) ||
-+		    (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
- 			goto invalid;
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -197,7 +197,7 @@ void vmalloc_sync_all(void)
+ 		return;
  
- 		forget_all_cached_acls(inode);
-@@ -272,6 +273,12 @@ int fuse_valid_type(int m)
- 		S_ISBLK(m) || S_ISFIFO(m) || S_ISSOCK(m);
- }
+ 	for (address = VMALLOC_START & PMD_MASK;
+-	     address >= TASK_SIZE_MAX && address < FIXADDR_TOP;
++	     address >= TASK_SIZE_MAX && address < VMALLOC_END;
+ 	     address += PMD_SIZE) {
+ 		struct page *page;
  
-+bool fuse_invalid_attr(struct fuse_attr *attr)
-+{
-+	return !fuse_valid_type(attr->mode) ||
-+		attr->size > LLONG_MAX;
-+}
-+
- int fuse_lookup_name(struct super_block *sb, u64 nodeid, const struct qstr *name,
- 		     struct fuse_entry_out *outarg, struct inode **inode)
- {
-@@ -303,7 +310,7 @@ int fuse_lookup_name(struct super_block
- 	err = -EIO;
- 	if (!outarg->nodeid)
- 		goto out_put_forget;
--	if (!fuse_valid_type(outarg->attr.mode))
-+	if (fuse_invalid_attr(&outarg->attr))
- 		goto out_put_forget;
- 
- 	*inode = fuse_iget(sb, outarg->nodeid, outarg->generation,
-@@ -427,7 +434,8 @@ static int fuse_create_open(struct inode
- 		goto out_free_ff;
- 
- 	err = -EIO;
--	if (!S_ISREG(outentry.attr.mode) || invalid_nodeid(outentry.nodeid))
-+	if (!S_ISREG(outentry.attr.mode) || invalid_nodeid(outentry.nodeid) ||
-+	    fuse_invalid_attr(&outentry.attr))
- 		goto out_free_ff;
- 
- 	ff->fh = outopen.fh;
-@@ -535,7 +543,7 @@ static int create_new_entry(struct fuse_
- 		goto out_put_forget_req;
- 
- 	err = -EIO;
--	if (invalid_nodeid(outarg.nodeid))
-+	if (invalid_nodeid(outarg.nodeid) || fuse_invalid_attr(&outarg.attr))
- 		goto out_put_forget_req;
- 
- 	if ((outarg.attr.mode ^ mode) & S_IFMT)
-@@ -895,7 +903,8 @@ static int fuse_do_getattr(struct inode
- 	args.out.args[0].value = &outarg;
- 	err = fuse_simple_request(fc, &args);
- 	if (!err) {
--		if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-+		if (fuse_invalid_attr(&outarg.attr) ||
-+		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
- 			make_bad_inode(inode);
- 			err = -EIO;
- 		} else {
-@@ -1518,7 +1527,8 @@ int fuse_do_setattr(struct dentry *dentr
- 		goto error;
- 	}
- 
--	if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-+	if (fuse_invalid_attr(&outarg.attr) ||
-+	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
- 		make_bad_inode(inode);
- 		err = -EIO;
- 		goto error;
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -1008,6 +1008,8 @@ void fuse_ctl_remove_conn(struct fuse_co
-  */
- int fuse_valid_type(int m);
- 
-+bool fuse_invalid_attr(struct fuse_attr *attr);
-+
- /**
-  * Is current process allowed to perform filesystem operation?
-  */
---- a/fs/fuse/readdir.c
-+++ b/fs/fuse/readdir.c
-@@ -184,7 +184,7 @@ static int fuse_direntplus_link(struct f
- 
- 	if (invalid_nodeid(o->nodeid))
- 		return -EIO;
--	if (!fuse_valid_type(o->attr.mode))
-+	if (fuse_invalid_attr(&o->attr))
- 		return -EIO;
- 
- 	fc = get_fuse_conn(dir);
 
 
