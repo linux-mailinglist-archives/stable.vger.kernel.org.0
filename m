@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33BE111B062
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:22:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE2811B061
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:22:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732309AbfLKPWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731121AbfLKPWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 11 Dec 2019 10:22:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52792 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732285AbfLKPWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:22:12 -0500
+        id S1730966AbfLKPWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:22:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EC012073D;
-        Wed, 11 Dec 2019 15:22:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E5FA2073D;
+        Wed, 11 Dec 2019 15:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077731;
-        bh=4YMkOe683UOMZtkpg1G3VQoM/kKp2ul1XEn7gRyO554=;
+        s=default; t=1576077734;
+        bh=949T9tLkSNjCVzRRQfSWDz2Usy0hw8a+9XTNs6p5Ulw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bEnurgXQsNGTRv8G7rnr2vFAAAvvti8r0ZFqCfhJwtcAbq9KwLCeDuwfV0p7rQoRH
-         OFdyncR7iHgwIFvPz5KY8okbT0RoUA40SXqG716o5kj7AYDoRYs2q+N/X/pltuIjSI
-         /CSYuz7WV6jfI0bFCR+gMuru8wREhrE4lXsfc7yw=
+        b=EMU+jmuMZUSaz9BC05sewB8m/Vp8poNPTlXz+afScCfh62KJklPJ3j3Bt9D0bnWL5
+         pmd6hngbje6Y/rEN8NiPYbrvGUoHj5iTwR9TSppSM2Vd7E5AZuGgnSOkWHUmqwGR1O
+         PWjWax0JYlvSh0vH4QlmAIuknib1dILITrD/vKF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/243] slimbus: ngd: Fix build error on x86
-Date:   Wed, 11 Dec 2019 16:04:34 +0100
-Message-Id: <20191211150346.691630639@linuxfoundation.org>
+Subject: [PATCH 4.19 113/243] altera-stapl: check for a null key before strcasecmping it
+Date:   Wed, 11 Dec 2019 16:04:35 +0100
+Message-Id: <20191211150346.760317343@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -44,41 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 458a445deb9c9fb13cec46fe9b179a84d2ff514f ]
+[ Upstream commit 9ccb645683ef46e3c52c12c088a368baa58447d4 ]
 
-on non DT platforms like x86 of_match_node is set to NULL, dereferencing
-directly would throw an error.
-Fix this by doing this in two steps, get the match then the data.
+Currently the null check on key is occurring after the strcasecmp on
+the key, hence there is a potential null pointer dereference on key.
+Fix this by checking if key is null first. Also replace the == 0
+check on strcasecmp with just the ! operator.
 
-Reported-by: Greg KH <gregkh@linuxfoundation.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Detected by CoverityScan, CID#1248787 ("Dereference before null check")
+
+Fixes: fa766c9be58b ("[media] Altera FPGA firmware download module")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/misc/altera-stapl/altera.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index d72f8eed2e8b7..9221ba7b78637 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1326,11 +1326,12 @@ static int of_qcom_slim_ngd_register(struct device *parent,
- {
- 	const struct ngd_reg_offset_data *data;
- 	struct qcom_slim_ngd *ngd;
-+	const struct of_device_id *match;
- 	struct device_node *node;
- 	u32 id;
+diff --git a/drivers/misc/altera-stapl/altera.c b/drivers/misc/altera-stapl/altera.c
+index ef83a9078646f..d2ed3b9728b7c 100644
+--- a/drivers/misc/altera-stapl/altera.c
++++ b/drivers/misc/altera-stapl/altera.c
+@@ -2176,8 +2176,7 @@ static int altera_get_note(u8 *p, s32 program_size,
+ 			key_ptr = &p[note_strings +
+ 					get_unaligned_be32(
+ 					&p[note_table + (8 * i)])];
+-			if ((strncasecmp(key, key_ptr, strlen(key_ptr)) == 0) &&
+-						(key != NULL)) {
++			if (key && !strncasecmp(key, key_ptr, strlen(key_ptr))) {
+ 				status = 0;
  
--	data = of_match_node(qcom_slim_ngd_dt_match, parent->of_node)->data;
--
-+	match = of_match_node(qcom_slim_ngd_dt_match, parent->of_node);
-+	data = match->data;
- 	for_each_available_child_of_node(parent->of_node, node) {
- 		if (of_property_read_u32(node, "reg", &id))
- 			continue;
+ 				value_ptr = &p[note_strings +
 -- 
 2.20.1
 
