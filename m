@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 969AE11B193
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:32:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D62A011B16F
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732791AbfLKPbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:31:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
+        id S2387817AbfLKP3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:29:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387809AbfLKP3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:29:09 -0500
+        id S2387814AbfLKP3L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:29:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 610E82467F;
-        Wed, 11 Dec 2019 15:29:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67D5722B48;
+        Wed, 11 Dec 2019 15:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078149;
-        bh=8um5EV3hcfb7Fzh9/6MZe6go/D4mpY0bz8x4S4AOiwo=;
+        s=default; t=1576078151;
+        bh=3UrjpHRQoSZmVLtaegrGsjNkfqQ564PJ6o7FAiDIfIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XwPQAiETPH3diLv/iZmyAwd6flLO1j6CbCeuBwSv/sfkq9kpBQW8cMoSuqp3dFUn3
-         WgOUUiGQNVGrf8D7ZalwBEHcaxwIIPLhx7Q47LtQ7oTQ0DYeW6jpOcy5IMLwQljVKE
-         ZH4hdhi0SLLXliBGANgzDo5h0mF1dLVGWfIPBDMo=
+        b=f0Rk+S6E2O03wr1hFt9z1TUkqPYAOdRyypIRXxO8uIH9YT4GPAN5SUBH+L0teTyF/
+         zk0ZQYThyDl/S+7KMhHbR2VtoH+tPePpdg/uueYtpnhGUQE+mBMWRK9eFLJuKWI3cN
+         flhR3tZRA2P6u40mwEKX3NRP6rz/24NL5qt7gzyY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 4.14 35/58] libnvdimm/btt: fix variable 'rc' set but not used
-Date:   Wed, 11 Dec 2019 10:28:08 -0500
-Message-Id: <20191211152831.23507-35-sashal@kernel.org>
+Cc:     Joel Stanley <joel@jms.id.au>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 37/58] watchdog: aspeed: Fix clock behaviour for ast2600
+Date:   Wed, 11 Dec 2019 10:28:10 -0500
+Message-Id: <20191211152831.23507-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
 References: <20191211152831.23507-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,48 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 4e24e37d5313edca8b4ab86f240c046c731e28d6 ]
+[ Upstream commit c04571251b3d842096f1597f5d4badb508be016d ]
 
-drivers/nvdimm/btt.c: In function 'btt_read_pg':
-drivers/nvdimm/btt.c:1264:8: warning: variable 'rc' set but not used
-[-Wunused-but-set-variable]
-    int rc;
-        ^~
+The ast2600 no longer uses bit 4 in the control register to indicate a
+1MHz clock (It now controls whether this watchdog is reset by a SOC
+reset). This means we do not want to set it. It also does not need to be
+set for the ast2500, as it is read-only on that SoC.
 
-Add a ratelimited message in case a storm of errors is encountered.
+The comment next to the clock rate selection wandered away from where it
+was set, so put it back next to the register setting it's describing.
 
-Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/1572530719-32161-1-git-send-email-cai@lca.pw
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: b3528b487448 ("watchdog: aspeed: Add support for AST2600")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20191108032905.22463-1-joel@jms.id.au
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/btt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/watchdog/aspeed_wdt.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
-index b2feda35966b1..471498469d0aa 100644
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -1259,11 +1259,11 @@ static int btt_read_pg(struct btt *btt, struct bio_integrity_payload *bip,
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index cee7334b2a000..f5835cbd5d415 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -204,11 +204,6 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 	if (IS_ERR(wdt->base))
+ 		return PTR_ERR(wdt->base);
  
- 		ret = btt_data_read(arena, page, off, postmap, cur_len);
- 		if (ret) {
--			int rc;
--
- 			/* Media error - set the e_flag */
--			rc = btt_map_write(arena, premap, postmap, 0, 1,
--				NVDIMM_IO_ATOMIC);
-+			if (btt_map_write(arena, premap, postmap, 0, 1, NVDIMM_IO_ATOMIC))
-+				dev_warn_ratelimited(to_dev(arena),
-+					"Error persistently tracking bad blocks at %#x\n",
-+					premap);
- 			goto out_rtt;
- 		}
+-	/*
+-	 * The ast2400 wdt can run at PCLK, or 1MHz. The ast2500 only
+-	 * runs at 1MHz. We chose to always run at 1MHz, as there's no
+-	 * good reason to have a faster watchdog counter.
+-	 */
+ 	wdt->wdd.info = &aspeed_wdt_info;
+ 	wdt->wdd.ops = &aspeed_wdt_ops;
+ 	wdt->wdd.max_hw_heartbeat_ms = WDT_MAX_TIMEOUT_MS;
+@@ -224,7 +219,16 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	config = ofdid->data;
  
+-	wdt->ctrl = WDT_CTRL_1MHZ_CLK;
++	/*
++	 * On clock rates:
++	 *  - ast2400 wdt can run at PCLK, or 1MHz
++	 *  - ast2500 only runs at 1MHz, hard coding bit 4 to 1
++	 *  - ast2600 always runs at 1MHz
++	 *
++	 * Set the ast2400 to run at 1MHz as it simplifies the driver.
++	 */
++	if (of_device_is_compatible(np, "aspeed,ast2400-wdt"))
++		wdt->ctrl = WDT_CTRL_1MHZ_CLK;
+ 
+ 	/*
+ 	 * Control reset on a per-device basis to ensure the
 -- 
 2.20.1
 
