@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBEE511AF9C
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:14:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E61DB11B07C
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730934AbfLKPON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:14:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39130 "EHLO mail.kernel.org"
+        id S1732686AbfLKPXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:23:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731598AbfLKPOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:14:12 -0500
+        id S1732695AbfLKPXS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:23:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D561524682;
-        Wed, 11 Dec 2019 15:14:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2989C208C3;
+        Wed, 11 Dec 2019 15:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077252;
-        bh=2j01xrxU82dvx7hc0Z9HeqJbY1k1vJAGGnbMsKIBhaE=;
+        s=default; t=1576077797;
+        bh=iBaeBTi4gm6B265A0WfKfXom3ys8x5RM8gWVd8rslJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B9PnWj4+dPe787OHLrW3zogRQ0fFNCdvXN1dPXGvfKu3gJbJpgczJ35UHhPMAwKNA
-         0wEJ471Ak1gRUbONMJimr2tKCbOW3RHYPVbit9ItyXFoizqO9Pwq8cImrTmAE2OnML
-         OvAnK/H6do5W7bUlSHhYYeoPwtHTWc8vQnqHxe9k=
+        b=wY2NG67Aiz+leRq1bFtNeChr9wI9m9i3VjBscAOuJzawVEPWFWYdNlb4+rSx5By3v
+         F8KM/mhqIfb1pvysBRAMEl6qW/b/Xw+UG5aPhaMfDiO9E7EBL5vq7QRFMOcsMcWi4l
+         OK4iKmJkx46zQN+Boprhx0KFPG7qzedlQ3fRxrfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andres Freund <andres@anarazel.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.3 047/105] io_uring: ensure req->submit is copied when req is deferred
+        stable@vger.kernel.org, zhengbin <zhengbin13@huawei.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 174/243] nfsd: Return EPERM, not EACCES, in some SETATTR cases
 Date:   Wed, 11 Dec 2019 16:05:36 +0100
-Message-Id: <20191211150240.986496848@linuxfoundation.org>
+Message-Id: <20191211150350.922075473@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: zhengbin <zhengbin13@huawei.com>
 
-There's an issue with deferred requests through drain, where if we do
-need to defer, we're not copying over the sqe_submit state correctly.
-This can result in using uninitialized data when we then later go and
-submit the deferred request, like this check in __io_submit_sqe():
+[ Upstream commit 255fbca65137e25b12bced18ec9a014dc77ecda0 ]
 
-         if (unlikely(s->index >= ctx->sq_entries))
-                 return -EINVAL;
+As the man(2) page for utime/utimes states, EPERM is returned when the
+second parameter of utime or utimes is not NULL, the caller's effective UID
+does not match the owner of the file, and the caller is not privileged.
 
-with 's' being uninitialized, we can randomly fail this check. Fix this
-by copying sqe_submit state when we defer a request.
+However, in a NFS directory mounted from knfsd, it will return EACCES
+(from nfsd_setattr-> fh_verify->nfsd_permission).  This patch fixes
+that.
 
-Because it was fixed as part of a cleanup series in mainline, before
-anyone realized we had this issue. That removed the separate states
-of ->index vs ->submit.sqe. That series is not something I was
-comfortable putting into stable, hence the much simpler addition.
-Here's the patch in the series that fixes the same issue:
-
-commit cf6fd4bd559ee61a4454b161863c8de6f30f8dca
-Author: Pavel Begunkov <asml.silence@gmail.com>
-Date:   Mon Nov 25 23:14:39 2019 +0300
-
-    io_uring: inline struct sqe_submit
-
-Reported-by: Andres Freund <andres@anarazel.de>
-Reported-by: Tomáš Chaloupka
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/nfsd/vfs.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1787,7 +1787,7 @@ static int io_poll_add(struct io_kiocb *
- }
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+index b53e76391e525..4fe8db3149506 100644
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -396,10 +396,23 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
+ 	bool		get_write_count;
+ 	bool		size_change = (iap->ia_valid & ATTR_SIZE);
  
- static int io_req_defer(struct io_ring_ctx *ctx, struct io_kiocb *req,
--			const struct io_uring_sqe *sqe)
-+			struct sqe_submit *s)
- {
- 	struct io_uring_sqe *sqe_copy;
+-	if (iap->ia_valid & (ATTR_ATIME | ATTR_MTIME | ATTR_SIZE))
++	if (iap->ia_valid & ATTR_SIZE) {
+ 		accmode |= NFSD_MAY_WRITE|NFSD_MAY_OWNER_OVERRIDE;
+-	if (iap->ia_valid & ATTR_SIZE)
+ 		ftype = S_IFREG;
++	}
++
++	/*
++	 * If utimes(2) and friends are called with times not NULL, we should
++	 * not set NFSD_MAY_WRITE bit. Otherwise fh_verify->nfsd_permission
++	 * will return EACCESS, when the caller's effective UID does not match
++	 * the owner of the file, and the caller is not privileged. In this
++	 * situation, we should return EPERM(notify_change will return this).
++	 */
++	if (iap->ia_valid & (ATTR_ATIME | ATTR_MTIME)) {
++		accmode |= NFSD_MAY_OWNER_OVERRIDE;
++		if (!(iap->ia_valid & (ATTR_ATIME_SET | ATTR_MTIME_SET)))
++			accmode |= NFSD_MAY_WRITE;
++	}
  
-@@ -1805,7 +1805,8 @@ static int io_req_defer(struct io_ring_c
- 		return 0;
- 	}
- 
--	memcpy(sqe_copy, sqe, sizeof(*sqe_copy));
-+	memcpy(&req->submit, s, sizeof(*s));
-+	memcpy(sqe_copy, s->sqe, sizeof(*sqe_copy));
- 	req->submit.sqe = sqe_copy;
- 
- 	INIT_WORK(&req->work, io_sq_wq_submit_work);
-@@ -2114,7 +2115,7 @@ static int io_queue_sqe(struct io_ring_c
- {
- 	int ret;
- 
--	ret = io_req_defer(ctx, req, s->sqe);
-+	ret = io_req_defer(ctx, req, s);
- 	if (ret) {
- 		if (ret != -EIOCBQUEUED) {
- 			io_free_req(req);
+ 	/* Callers that do fh_verify should do the fh_want_write: */
+ 	get_write_count = !fhp->fh_dentry;
+-- 
+2.20.1
+
 
 
