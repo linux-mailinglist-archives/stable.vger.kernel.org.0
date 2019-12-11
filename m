@@ -2,92 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB8411AC5B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 14:45:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0451F11AC6C
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 14:50:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729540AbfLKNpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 08:45:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41748 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729370AbfLKNps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 08:45:48 -0500
+        id S1727554AbfLKNuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 08:50:37 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:56733 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727851AbfLKNug (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 08:50:36 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 0B733B3A;
+        Wed, 11 Dec 2019 08:50:35 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 11 Dec 2019 08:50:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=rWLtRqeFbvNV5oTNjf4B8+fKTqU
+        R124KCB7bd0p5ttE=; b=Amze7L2b0Jo4z56/hk/TJ5ojY4XfzJq7IuwzZ8r9md0
+        hIR1kKOQnowcSRsqHPSGgRX/6vhmHAq8eb7q5uhwxH044LqDfNe9jNUw0Z69x98W
+        ZCe883WpcE7tVn0ddeBqZTfpOlT8xWq+q/NqhKQAqeQd8OQ4gcRWpYHzSufzT8jK
+        8ZfxWyolxj5EOZ9IpsZi6J1XFPnKeRQKaghSF9E8teM7vBC7fwctmsiBMpDJk8eN
+        V3p4AkVX8iyiLaF1Wv79JoBL8QVvTzOqQ1gSsB5avaQKypjIH3oIGEUAAYQkISqh
+        MV2FTC9jHbTZZN4UwUQRIpNP+paos3qyPkuwCwfW/PA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=rWLtRq
+        eFbvNV5oTNjf4B8+fKTqUR124KCB7bd0p5ttE=; b=sLzOu3ue4oPcsCdENOHiEV
+        u5ChKnauxXOJ0AQuOxn8D05FJanVLyE4KnzDrnjXNtNvguBYC5a1sPq1pIveVKO2
+        eBYu/6OGqqfFKhHhEHq3q2Tx8TPgoNdYIRqG5csNGjKvJnBzGginDP0gu+GxJIaY
+        JDnT8JhOnukZH6vQstBYjR6LVwXfGlgcSoc9owGEJ5qyEW51cahgcA9LDKfm+pgU
+        q/EObFhLVtollZ2kDnBDhEn9EpM+Zneho3UcT0EOxQcshB1ibnlKDryZQmc5EiTE
+        B/xZ1SjT7u19ABW7NBg2DWdjuRekHfyESIM8jrHVWQGVJckjb5UAJ5biht/jiO6g
+        ==
+X-ME-Sender: <xms:K_TwXehJi9h_-BcHXfagW8tYtXGonF38KjnZEAVjfWKqll6ygYzkYg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudelhedghedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujgesthdtre
+    dttddtvdenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheq
+    necukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepgh
+    hrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:K_TwXbBxh9aaEvcdu2r5gIZ37Kj7--2zChkfFizpNA25c6mAnBCkgA>
+    <xmx:K_TwXYtLw5ZRwTzsAhmEPck2dHWhU1kGxbJbtEXRupkHDGA2mk4n-A>
+    <xmx:K_TwXVfUawZgcZjbXeN8_G4_sm4AZ28lnXMgS8l7DomDKvPFQO3U6g>
+    <xmx:K_TwXQ8J1NlCPdZY24KmABJbVhd5bONT2xUhAIkltENhvh40Uwz2qw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F29A20836;
-        Wed, 11 Dec 2019 13:45:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576071948;
-        bh=K1F/pJRPoNVbq//HvKp71lAz0yCIPfAtNYx36dfyV9M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ScFH4KDs4Ndkp5VeXJEGtMO6YtYe4fWw7wl2QXvhcrSRD1hNBudn6KqfyE8kVy54M
-         DTgvowg669aVcP5fTmVSYhw6bg97Bggza1vYXL5RnJkQ+bNbY1AgTyAqFyGk6J7+P8
-         ukNJAtZSkRD5zVaLmGvqQjybpARjHa0rtnQw9KT8=
-Date:   Wed, 11 Dec 2019 14:45:45 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chris Paterson <Chris.Paterson2@renesas.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>
-Subject: Re: Linux 4.19.89-rc1 5944fcdd errors
-Message-ID: <20191211134545.GC523125@kroah.com>
-References: <TYAPR01MB228505DBC22568339F914C15B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191209173637.GF1290729@kroah.com>
- <TYAPR01MB2285135B15E6A152163E1A1AB7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210073514.GB3077639@kroah.com>
- <TYAPR01MB2285B5834B1FBA71F8DA512BB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210145528.GA4012363@kroah.com>
- <TYAPR01MB2285433EA1E6DF9EC621E31AB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210205951.GA4081499@kroah.com>
- <TYAPR01MB22852454802BAB486871D944B75A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 353E23060134;
+        Wed, 11 Dec 2019 08:50:35 -0500 (EST)
+Date:   Wed, 11 Dec 2019 14:50:32 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org
+Subject: Re: stable RC build breakages (4.14.y, 4.19.y)
+Message-ID: <20191211135032.GD523125@kroah.com>
+References: <20191210225743.GA4443@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <TYAPR01MB22852454802BAB486871D944B75A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+In-Reply-To: <20191210225743.GA4443@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 10:52:44AM +0000, Chris Paterson wrote:
-> Hello Greg,
+On Tue, Dec 10, 2019 at 02:57:43PM -0800, Guenter Roeck wrote:
+> v4.14.y:
 > 
-> [...]
+> arm64:defconfig:
 > 
-> > > > That's a lot, are these all new?
-> > >
-> > > I've only just started building with this config in our CI setup, but
-> > > building the dtbs locally with v4.19.88 didn't produce these results
-> > > for me (and building locally with v4.19.89-rc1 does result in the
-> > > above issues).
-> > 
-> > Any chance you can run 'git bisect' to track down the offending patch?
+> arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts:5:10: fatal error:
+> 	dt-bindings/input/gpio-keys.h: No such file or directory
 > 
-> The two dtbs that fail to build are fixed by reverting by the patches below:
+> i386:allyesconfig:
 > 
-> > allwinner/sun50i-a64-pinebook.dtb
-> ea03518a3123 ("arm64: dts: allwinner: a64: enable sound on Pinebook")
-
-Now dropped.
-
-> > qcom/sdm845-mtp.dtb
-> d0a925e2060d ("arm64: dts: qcom: sdm845-mtp: Mark protected gcc clocks")
-
-Now dropped.
-
-> The rest of the dtbs just had warnings, all produced by the patch below:
+> drivers/crypto/geode-aes.c:174:2: error:
+> 	implicit declaration of function 'crypto_sync_skcipher_clear_flags
 > 
-> > arm/juno.dtb
-> > qcom/apq8016-sbc.dtb
-> > arm/juno-r2.dtb
-> > arm/juno-r1.dtb
-> > hisilicon/hi6220-hikey.dtb
-> > qcom/msm8916-mtp.dtb
-> > qcom/msm8916-mtp.dtb
-> 3fa6a276a4bd ("kbuild: Enable dtc graph_port warning by default")
+> and several similar errors.
+> 
+> 
+> ---
+> v4.19.y:
+> 
+> arm64:defconfig:
+> 
+> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:82.1-7 Label or path codec not found
+> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:86.1-14 Label or path codec_analog not found
+> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:91.1-5 Label or path dai not found
+> arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts:297.1-7 Label or path sound not found
+> 
+> i386:allyesconfig:
+> 
+> Same as v4.14.y.
 
-Now dropped as well.
+Thanks for the info, I think I should now have this all fixed and will
+push out new trees to the linux-stable-rc repo.
 
-I'll push out new kernels in a bit, thanks for this info.
+thanks,
 
 greg k-h
