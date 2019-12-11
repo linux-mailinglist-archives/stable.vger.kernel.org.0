@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 957C911AEC6
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B8C11B06A
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730245AbfLKPIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:08:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55472 "EHLO mail.kernel.org"
+        id S1732273AbfLKPWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:22:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730209AbfLKPIF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:08:05 -0500
+        id S1732177AbfLKPWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:22:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83A2822527;
-        Wed, 11 Dec 2019 15:08:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 569E9214AF;
+        Wed, 11 Dec 2019 15:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576076885;
-        bh=tbvVXASyep4qZkQz8fvqos3iAOlx2UlpqiDrH02qsu4=;
+        s=default; t=1576077752;
+        bh=ClgqZHzhsPuOhhKHmA7iAkuNWjv/c05qXLW7ILvQ8LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odN7gTqVPjiEZhy87bgNFV6aUgKXTOPaaMGN6TqbexOcChaiMa6u1quT9EiNyt766
-         sgUOg+siKPBHnMMNRbMvqX6VJUGpqEI+0Dz5hY2oLR716Hi8BPJv3vBlDNdvr14tCD
-         /IVz5CiSHIDIjLeOHNwGxmyLdrIVRQ2VU+6slRUU=
+        b=ntFZF0Lj5Q03D8ohrp7nOjKxv2l+BcqwXlaKCtD4e9gConwX6jaFvWX56fRtU/mhf
+         xhdvbFjn/N9zZqTu43VHdEQ0qCRQraReZ3OERBf0FTETrB/HaJC0zSzPjOynSa3sEk
+         cfHwKcx3XyT+iW3NPcuEYBt9jjQU4K/DoB2ZyDXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andres Freund <andres@anarazel.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 27/92] io_uring: ensure req->submit is copied when req is deferred
-Date:   Wed, 11 Dec 2019 16:05:18 +0100
-Message-Id: <20191211150231.942529314@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>,
+        Paul Walmsley <paul@pwsan.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 158/243] modpost: skip ELF local symbols during section mismatch check
+Date:   Wed, 11 Dec 2019 16:05:20 +0100
+Message-Id: <20191211150349.832644988@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
-References: <20191211150221.977775294@linuxfoundation.org>
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Paul Walmsley <paul.walmsley@sifive.com>
 
-There's an issue with deferred requests through drain, where if we do
-need to defer, we're not copying over the sqe_submit state correctly.
-This can result in using uninitialized data when we then later go and
-submit the deferred request, like this check in __io_submit_sqe():
+[ Upstream commit a4d26f1a0958bb1c2b60c6f1e67c6f5d43e2647b ]
 
-         if (unlikely(s->index >= ctx->sq_entries))
-                 return -EINVAL;
+During development of a serial console driver with a gcc 8.2.0
+toolchain for RISC-V, the following modpost warning appeared:
 
-with 's' being uninitialized, we can randomly fail this check. Fix this
-by copying sqe_submit state when we defer a request.
+----
+WARNING: vmlinux.o(.data+0x19b10): Section mismatch in reference from the variable .LANCHOR1 to the function .init.text:sifive_serial_console_setup()
+The variable .LANCHOR1 references
+the function __init sifive_serial_console_setup()
+If the reference is valid then annotate the
+variable with __init* or __refdata (see linux/init.h) or name the variable:
+*_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+----
 
-Because it was fixed as part of a cleanup series in mainline, before
-anyone realized we had this issue. That removed the separate states
-of ->index vs ->submit.sqe. That series is not something I was
-comfortable putting into stable, hence the much simpler addition.
-Here's the patch in the series that fixes the same issue:
+".LANCHOR1" is an ELF local symbol, automatically created by gcc's section
+anchor generation code:
 
-commit cf6fd4bd559ee61a4454b161863c8de6f30f8dca
-Author: Pavel Begunkov <asml.silence@gmail.com>
-Date:   Mon Nov 25 23:14:39 2019 +0300
+https://gcc.gnu.org/onlinedocs/gccint/Anchored-Addresses.html
 
-    io_uring: inline struct sqe_submit
+https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=gcc/varasm.c;h=cd9591a45617464946dcf9a126dde277d9de9804;hb=9fb89fa845c1b2e0a18d85ada0b077c84508ab78#l7473
 
-Reported-by: Andres Freund <andres@anarazel.de>
-Reported-by: Tomáš Chaloupka
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was verified by compiling the kernel with -fno-section-anchors
+and observing that the ".LANCHOR1" ELF local symbol disappeared, and
+modpost no longer warned about the section mismatch.  The serial
+driver code idiom triggering the warning is standard Linux serial
+driver practice that has a specific whitelist inclusion in modpost.c.
 
+I'm neither a modpost nor an ELF expert, but naively, it doesn't seem
+useful for modpost to report section mismatch warnings caused by ELF
+local symbols by default.  Local symbols have compiler-generated
+names, and thus bypass modpost's whitelisting algorithm, which relies
+on the presence of a non-autogenerated symbol name.  This increases
+the likelihood that false positive warnings will be generated (as in
+the above case).
+
+Thus, disable section mismatch reporting on ELF local symbols.  The
+rationale here is similar to that of commit 2e3a10a1551d ("ARM: avoid
+ARM binutils leaking ELF local symbols") and of similar code already
+present in modpost.c:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/scripts/mod/modpost.c?h=v4.19-rc4&id=7876320f88802b22d4e2daf7eb027dd14175a0f8#n1256
+
+This third version of the patch implements a suggestion from Masahiro
+Yamada <yamada.masahiro@socionext.com> to restructure the code as an
+additional pattern matching step inside secref_whitelist(), and
+further improves the patch description.
+
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ scripts/mod/modpost.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2039,7 +2039,7 @@ add:
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index 858cbe56b1006..91a80036c05d5 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1163,6 +1163,14 @@ static const struct sectioncheck *section_mismatch(
+  *   fromsec = text section
+  *   refsymname = *.constprop.*
+  *
++ * Pattern 6:
++ *   Hide section mismatch warnings for ELF local symbols.  The goal
++ *   is to eliminate false positive modpost warnings caused by
++ *   compiler-generated ELF local symbol names such as ".LANCHOR1".
++ *   Autogenerated symbol names bypass modpost's "Pattern 2"
++ *   whitelisting, which relies on pattern-matching against symbol
++ *   names to work.  (One situation where gcc can autogenerate ELF
++ *   local symbols is when "-fsection-anchors" is used.)
+  **/
+ static int secref_whitelist(const struct sectioncheck *mismatch,
+ 			    const char *fromsec, const char *fromsym,
+@@ -1201,6 +1209,10 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
+ 	    match(fromsym, optim_symbols))
+ 		return 0;
+ 
++	/* Check for pattern 6 */
++	if (strstarts(fromsym, ".L"))
++		return 0;
++
+ 	return 1;
  }
  
- static int io_req_defer(struct io_ring_ctx *ctx, struct io_kiocb *req,
--			const struct io_uring_sqe *sqe)
-+			struct sqe_submit *s)
- {
- 	struct io_uring_sqe *sqe_copy;
- 
-@@ -2057,7 +2057,8 @@ static int io_req_defer(struct io_ring_c
- 		return 0;
- 	}
- 
--	memcpy(sqe_copy, sqe, sizeof(*sqe_copy));
-+	memcpy(&req->submit, s, sizeof(*s));
-+	memcpy(sqe_copy, s->sqe, sizeof(*sqe_copy));
- 	req->submit.sqe = sqe_copy;
- 
- 	INIT_WORK(&req->work, io_sq_wq_submit_work);
-@@ -2425,7 +2426,7 @@ static int io_queue_sqe(struct io_ring_c
- {
- 	int ret;
- 
--	ret = io_req_defer(ctx, req, s->sqe);
-+	ret = io_req_defer(ctx, req, s);
- 	if (ret) {
- 		if (ret != -EIOCBQUEUED) {
- 			io_free_req(req);
-@@ -2452,7 +2453,7 @@ static int io_queue_link_head(struct io_
- 	 * list.
- 	 */
- 	req->flags |= REQ_F_IO_DRAIN;
--	ret = io_req_defer(ctx, req, s->sqe);
-+	ret = io_req_defer(ctx, req, s);
- 	if (ret) {
- 		if (ret != -EIOCBQUEUED) {
- 			io_free_req(req);
+-- 
+2.20.1
+
 
 
