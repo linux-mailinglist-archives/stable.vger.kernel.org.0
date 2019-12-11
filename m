@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C31B11AF9B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:14:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE9A11B098
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731596AbfLKPOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:14:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38998 "EHLO mail.kernel.org"
+        id S1732554AbfLKPYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:24:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731589AbfLKPOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:14:10 -0500
+        id S1732824AbfLKPYW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:24:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6605320663;
-        Wed, 11 Dec 2019 15:14:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8586E2173E;
+        Wed, 11 Dec 2019 15:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077249;
-        bh=vkqTVeoP7Gmqtk/Duna3R/OH1Tk748TwIhp/xbYauV8=;
+        s=default; t=1576077862;
+        bh=+RVT294GfV3zOhipHZpslrwPFzsbEJZ38KMDY4LXNwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rD6kgdcr9+zaA1vtS7VS+3o/efZdD+d1oPj53uGKkUgBBOE2PEzDJFK6CAqoeBG0O
-         YAevbIdJ7OkeWpP9lw1P4CWSIlFMVVJOPFqh4Pl54p8Op20y1zT3TGOjn6TzRBxf65
-         Fejw9VMsXyZqA90watdFTg4wP3qrl1gC2Yd1BoSQ=
+        b=tOgPSKVQpKl46t5MvxFArVMvqsM2xwzzxBDyDhIxsy7O0+WG5zHK7cEhfoGefy/w1
+         qRDw4+H6wpTDqmnOjYmhL76Euy3VRMA2vaqQTsZEDaGozWaBOy6ewuHvfiB5yIFYxv
+         cX3Xh82FNctaaQtm0EIG4XD+vKF3S8pAslPiwlqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
-        Deepak Rawat <drawat@vmware.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Thomas Hellstrom <thellstrom@vmware.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Sean Paul <seanpaul@chromium.org>
-Subject: [PATCH 5.3 073/105] drm: damage_helper: Fix race checking plane->state->fb
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 200/243] ALSA: hda/realtek - Enable the headset-mic on a Xiaomis laptop
 Date:   Wed, 11 Dec 2019 16:06:02 +0100
-Message-Id: <20191211150252.259403546@linuxfoundation.org>
+Message-Id: <20191211150352.683457247@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,58 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Paul <seanpaul@chromium.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 354c2d310082d1c384213ba76c3757dd3cd8755d upstream.
+commit 695d1ec3994f9de2cefae80ee2087c95d2e5a2f3 upstream.
 
-Since the dirtyfb ioctl doesn't give us any hints as to which plane is
-scanning out the fb it's marking as damaged, we need to loop through
-planes to find it.
+The headset on this machine is not defined, after applying the quirk
+ALC256_FIXUP_ASUS_HEADSET_MIC, the headset-mic works well
 
-Currently we just reach into plane state and check, but that can race
-with another commit changing the fb out from under us. This patch locks
-the plane before checking the fb and will release the lock if the plane
-is not displaying the dirty fb.
-
-Fixes: b9fc5e01d1ce ("drm: Add helper to implement legacy dirtyfb")
-Cc: Rob Clark <robdclark@gmail.com>
-Cc: Deepak Rawat <drawat@vmware.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Thomas Hellstrom <thellstrom@vmware.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.0+
-Reported-by: Daniel Vetter <daniel@ffwll.ch>
-Reviewed-by: Daniel Vetter <daniel@ffwll.ch>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190904202938.110207-1-sean@poorly.run
+BugLink: https://bugs.launchpad.net/bugs/1846148
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20191121025427.8856-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_damage_helper.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/drm_damage_helper.c
-+++ b/drivers/gpu/drm/drm_damage_helper.c
-@@ -212,8 +212,14 @@ retry:
- 	drm_for_each_plane(plane, fb->dev) {
- 		struct drm_plane_state *plane_state;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7038,6 +7038,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
+ 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MBXP", ALC256_FIXUP_HUAWEI_MBXP_PINS),
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
++	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
  
--		if (plane->state->fb != fb)
-+		ret = drm_modeset_lock(&plane->mutex, state->acquire_ctx);
-+		if (ret)
-+			goto out;
-+
-+		if (plane->state->fb != fb) {
-+			drm_modeset_unlock(&plane->mutex);
- 			continue;
-+		}
- 
- 		plane_state = drm_atomic_get_plane_state(state, plane);
- 		if (IS_ERR(plane_state)) {
+ #if 0
 
 
