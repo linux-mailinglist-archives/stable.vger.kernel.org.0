@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A034D11B627
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:59:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4BA511B625
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732755AbfLKP7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:59:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38798 "EHLO mail.kernel.org"
+        id S1730392AbfLKP7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:59:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730879AbfLKPOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:14:06 -0500
+        id S1731581AbfLKPOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A88C24689;
-        Wed, 11 Dec 2019 15:14:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25A6820663;
+        Wed, 11 Dec 2019 15:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077245;
-        bh=vLqYYTM82HamJTGPmHpMKZKqv/I8O2HIM359ltwtoC0=;
+        s=default; t=1576077247;
+        bh=hVUHMLLYDV08S/pPSYP9EoFOQBwimzdIpsxjLTyyhlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aFIes3V1m0hsc6rxzr5F0cxLJfqenTegtc/vPbzJQGxOGjFhZnnx9vMGRMvOlbD61
-         fq3F+o2RotE/mbt7zvktwDz9S4WZUgsZm8yIkZwQNq824d+W0wAoUI6R2DH8IlMZ4t
-         dCJnyUWEbm9NkokXgUtfIcP0AIMCckwC91unNq8M=
+        b=Wbl/3VANT2bVujlMQqMWshzdoteEZzHLZSiB8ewAztzbL3h3l+AKGEQ3yms5dh1bE
+         KSzEdGlPdvifbD8aXzBByhKRuF7T+E2UtYnbsVLTk5FmiyczwLTfGDSml85U2A9uv6
+         GCfU3ICn9gOly/7cBeZbOrwzSWMFJotl3K5Q4ghE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 123/134] s390/zcrypt: handle new reply code FILTERED_BY_HYPERVISOR
-Date:   Wed, 11 Dec 2019 10:11:39 -0500
-Message-Id: <20191211151150.19073-123-sashal@kernel.org>
+Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Richard Zhu <hongxing.zhu@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 124/134] mailbox: imx: Clear the right interrupts at shutdown
+Date:   Wed, 11 Dec 2019 10:11:40 -0500
+Message-Id: <20191211151150.19073-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -43,49 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Daniel Baluta <daniel.baluta@nxp.com>
 
-[ Upstream commit 6733775a92eacd612ac88afa0fd922e4ffeb2bc7 ]
+[ Upstream commit 5f0af07e89199ac51cdd4f25bc303bdc703f4e9c ]
 
-This patch introduces support for a new architectured reply
-code 0x8B indicating that a hypervisor layer (if any) has
-rejected an ap message.
+Make sure to only clear enabled interrupts keeping count
+of the connection type.
 
-Linux may run as a guest on top of a hypervisor like zVM
-or KVM. So the crypto hardware seen by the ap bus may be
-restricted by the hypervisor for example only a subset like
-only clear key crypto requests may be supported. Other
-requests will be filtered out - rejected by the hypervisor.
-The new reply code 0x8B will appear in such cases and needs
-to get recognized by the ap bus and zcrypt device driver zoo.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Suggested-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Signed-off-by: Richard Zhu <hongxing.zhu@nxp.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/zcrypt_error.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mailbox/imx-mailbox.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_error.h b/drivers/s390/crypto/zcrypt_error.h
-index f34ee41cbed88..4f4dd9d727c9e 100644
---- a/drivers/s390/crypto/zcrypt_error.h
-+++ b/drivers/s390/crypto/zcrypt_error.h
-@@ -61,6 +61,7 @@ struct error_hdr {
- #define REP82_ERROR_EVEN_MOD_IN_OPND	    0x85
- #define REP82_ERROR_RESERVED_FIELD	    0x88
- #define REP82_ERROR_INVALID_DOMAIN_PENDING  0x8A
-+#define REP82_ERROR_FILTERED_BY_HYPERVISOR  0x8B
- #define REP82_ERROR_TRANSPORT_FAIL	    0x90
- #define REP82_ERROR_PACKET_TRUNCATED	    0xA0
- #define REP82_ERROR_ZERO_BUFFER_LEN	    0xB0
-@@ -91,6 +92,7 @@ static inline int convert_error(struct zcrypt_queue *zq,
- 	case REP82_ERROR_INVALID_DOMAIN_PRECHECK:
- 	case REP82_ERROR_INVALID_DOMAIN_PENDING:
- 	case REP82_ERROR_INVALID_SPECIAL_CMD:
-+	case REP82_ERROR_FILTERED_BY_HYPERVISOR:
- 	//   REP88_ERROR_INVALID_KEY		// '82' CEX2A
- 	//   REP88_ERROR_OPERAND		// '84' CEX2A
- 	//   REP88_ERROR_OPERAND_EVEN_MOD	// '85' CEX2A
+diff --git a/drivers/mailbox/imx-mailbox.c b/drivers/mailbox/imx-mailbox.c
+index 9f74dee1a58c7..d28bbd47ff882 100644
+--- a/drivers/mailbox/imx-mailbox.c
++++ b/drivers/mailbox/imx-mailbox.c
+@@ -217,8 +217,19 @@ static void imx_mu_shutdown(struct mbox_chan *chan)
+ 	if (cp->type == IMX_MU_TYPE_TXDB)
+ 		tasklet_kill(&cp->txdb_tasklet);
+ 
+-	imx_mu_xcr_rmw(priv, 0, IMX_MU_xCR_TIEn(cp->idx) |
+-		       IMX_MU_xCR_RIEn(cp->idx) | IMX_MU_xCR_GIEn(cp->idx));
++	switch (cp->type) {
++	case IMX_MU_TYPE_TX:
++		imx_mu_xcr_rmw(priv, 0, IMX_MU_xCR_TIEn(cp->idx));
++		break;
++	case IMX_MU_TYPE_RX:
++		imx_mu_xcr_rmw(priv, 0, IMX_MU_xCR_RIEn(cp->idx));
++		break;
++	case IMX_MU_TYPE_RXDB:
++		imx_mu_xcr_rmw(priv, 0, IMX_MU_xCR_GIEn(cp->idx));
++		break;
++	default:
++		break;
++	}
+ 
+ 	free_irq(priv->irq, chan);
+ }
 -- 
 2.20.1
 
