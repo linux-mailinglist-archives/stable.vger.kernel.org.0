@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D921B11AF92
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:14:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8869411B0BD
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:26:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731516AbfLKPNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38030 "EHLO mail.kernel.org"
+        id S1733043AbfLKPZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:25:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730846AbfLKPNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:52 -0500
+        id S1732734AbfLKPZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:25:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CC012465C;
-        Wed, 11 Dec 2019 15:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA213208C3;
+        Wed, 11 Dec 2019 15:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077231;
-        bh=B3UhKAqWVlq8iHx8Xvx/hiWVPkC7YtwfvTyR+6T9d2A=;
+        s=default; t=1576077947;
+        bh=BBUTOnmzbk679WZo0LdMjfkFx6maVge5rDaTs4qGywU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P85hZykymzssl2QlXHYKxB1aC0s/E/DPxHKFmahCNuB/uPsKWlEMBDe3HBAg9CArV
-         qCY7YMJm9KniX8+uShXa6JV0y/OsIr2EP+4KBrJ2tFrk29xSAyoELmBvPH3ts0VDGo
-         xVJJ3bEFltz/dtVKLRnUmLjI5+nYElh9ycl/fITI=
+        b=cex+7JipgkkLZq2lmh0kW58r75noTOTc/N9KtMxCLrwZvvxi+jJsRa3q+o6zGN9un
+         LOcYYBGmQrGNPdbgk2tZDzyXraPynL3AZ69ukx+QpgdI2uHoExGa8IB4as+/0vr+1v
+         RvN/fAxiFL5I8XK0r+YNV1rdP7t+3QRXYOiJnzK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.3 066/105] tty: vt: keyboard: reject invalid keycodes
-Date:   Wed, 11 Dec 2019 16:05:55 +0100
-Message-Id: <20191211150247.684002354@linuxfoundation.org>
+        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 194/243] media: vimc: fix start stream when link is disabled
+Date:   Wed, 11 Dec 2019 16:05:56 +0100
+Message-Id: <20191211150352.274427125@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Helen Fornazier <helen.koike@collabora.com>
 
-commit b2b2dd71e0859436d4e05b2f61f86140250ed3f8 upstream.
+[ Upstream commit e159b6074c82fe31b79aad672e02fa204dbbc6d8 ]
 
-Do not try to handle keycodes that are too big, otherwise we risk doing
-out-of-bounds writes:
+If link is disabled, media_entity_remote_pad returns NULL, causing a
+NULL pointer deference.
+Ignore links that are not enabled instead.
 
-BUG: KASAN: global-out-of-bounds in clear_bit include/asm-generic/bitops-instrumented.h:56 [inline]
-BUG: KASAN: global-out-of-bounds in kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
-BUG: KASAN: global-out-of-bounds in kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
-Write of size 8 at addr ffffffff89a1b2d8 by task syz-executor108/1722
-...
- kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
- kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
- input_to_handler+0x3b6/0x4c0 drivers/input/input.c:118
- input_pass_values.part.0+0x2e3/0x720 drivers/input/input.c:145
- input_pass_values drivers/input/input.c:949 [inline]
- input_set_keycode+0x290/0x320 drivers/input/input.c:954
- evdev_handle_set_keycode_v2+0xc4/0x120 drivers/input/evdev.c:882
- evdev_do_ioctl drivers/input/evdev.c:1150 [inline]
-
-In this case we were dealing with a fuzzed HID device that declared over
-12K buttons, and while HID layer should not be reporting to us such big
-keycodes, we should also be defensive and reject invalid data ourselves as
-well.
-
-Reported-by: syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191122204220.GA129459@dtor-ws
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/keyboard.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/vimc/vimc-common.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -1491,7 +1491,7 @@ static void kbd_event(struct input_handl
+diff --git a/drivers/media/platform/vimc/vimc-common.c b/drivers/media/platform/vimc/vimc-common.c
+index 204aa6f554e4d..fa8435ac2b1ae 100644
+--- a/drivers/media/platform/vimc/vimc-common.c
++++ b/drivers/media/platform/vimc/vimc-common.c
+@@ -241,6 +241,8 @@ int vimc_pipeline_s_stream(struct media_entity *ent, int enable)
  
- 	if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev))
- 		kbd_rawcode(value);
--	if (event_type == EV_KEY)
-+	if (event_type == EV_KEY && event_code <= KEY_MAX)
- 		kbd_keycode(event_code, value, HW_RAW(handle->dev));
+ 		/* Start the stream in the subdevice direct connected */
+ 		pad = media_entity_remote_pad(&ent->pads[i]);
++		if (!pad)
++			continue;
  
- 	spin_unlock(&kbd_event_lock);
+ 		if (!is_media_entity_v4l2_subdev(pad->entity))
+ 			return -EINVAL;
+-- 
+2.20.1
+
 
 
