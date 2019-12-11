@@ -2,49 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0106911B0C0
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:26:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1F611AEF9
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:09:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732746AbfLKPZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:25:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58524 "EHLO mail.kernel.org"
+        id S1730107AbfLKPJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:09:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732885AbfLKPZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:25:53 -0500
+        id S1730144AbfLKPJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:09:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9EE7208C3;
-        Wed, 11 Dec 2019 15:25:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3019A20663;
+        Wed, 11 Dec 2019 15:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077952;
-        bh=IHw4jTrj90jwghLdygQZLnHQsF6pcR9FAhOyEfCP6es=;
+        s=default; t=1576076990;
+        bh=r8OnRhrZrO0rkWsOkCTHv81pDLBzk258kfToqCeMcnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZC1sdaS2zNqaMlkJGEyqp3D+pBpmgdYpNC0ivgZYt5E5I7yeoFQmRamGVvx0QAB56
-         Xd2SIEUKtTvcB9gmohSDjfHyF0s6LXqgYChVA9sr4fKTclutqEIBUqCbiMFH4JxilG
-         3vXMO0MncN0AB/oSBkPHZBCfpY79l2QG2PFqedys=
+        b=fwoCRMgwFs6xzF5pN50fHH1nmZ/p6WdjTQ52oy7pEcQ23OmsJ872IfTzbp72FYAA/
+         nPel/Raiqoft9+MZdJbeXMol3jUHNhacu6eg3wypiZsqsJcA2eSqgwLJdGhOU9VJ5+
+         QwQ6/ToREE1rmETAZ/7qZC2uEH0jgX913Rk4Km/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
-        Xuewei Zhang <xueweiz@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ben Segall <bsegall@google.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.19 196/243] sched/fair: Scale bandwidth quota and period without losing quota/period ratio precision
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 67/92] KVM: x86: Grab KVMs srcu lock when setting nested state
 Date:   Wed, 11 Dec 2019 16:05:58 +0100
-Message-Id: <20191211150352.410946163@linuxfoundation.org>
+Message-Id: <20191211150253.981289150@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuewei Zhang <xueweiz@google.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 4929a4e6faa0f13289a67cae98139e727f0d4a97 upstream.
+commit ad5996d9a0e8019c3ae5151e687939369acfe044 upstream.
 
-The quota/period ratio is used to ensure a child task group won't get
-more bandwidth than the parent task group, and is calculated as:
+Acquire kvm->srcu for the duration of ->set_nested_state() to fix a bug
+where nVMX derefences ->memslots without holding ->srcu or ->slots_lock.
 
-  normalized_cfs_quota() = [(quota_us << 20) / period_us]
+The other half of nested migration, ->get_nested_state(), does not need
+to acquire ->srcu as it is a purely a dump of internal KVM (and CPU)
+state to userspace.
 
-If the quota/period ratio was changed during this scaling due to
-precision loss, it will cause inconsistency between parent and child
-task groups.
+Detected as an RCU lockdep splat that is 100% reproducible by running
+KVM's state_test selftest with CONFIG_PROVE_LOCKING=y.  Note that the
+failing function, kvm_is_visible_gfn(), is only checking the validity of
+a gfn, it's not actually accessing guest memory (which is more or less
+unsupported during vmx_set_nested_state() due to incorrect MMU state),
+i.e. vmx_set_nested_state() itself isn't fundamentally broken.  In any
+case, setting nested state isn't a fast path so there's no reason to go
+out of our way to avoid taking ->srcu.
 
-See below example:
+  =============================
+  WARNING: suspicious RCU usage
+  5.4.0-rc7+ #94 Not tainted
+  -----------------------------
+  include/linux/kvm_host.h:626 suspicious rcu_dereference_check() usage!
 
-A userspace container manager (kubelet) does three operations:
+               other info that might help us debug this:
 
- 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
- 2) Create a few children cgroups.
- 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
+  rcu_scheduler_active = 2, debug_locks = 1
+  1 lock held by evmcs_test/10939:
+   #0: ffff88826ffcb800 (&vcpu->mutex){+.+.}, at: kvm_vcpu_ioctl+0x85/0x630 [kvm]
 
-These operations are expected to succeed. However, if the scaling of
-147/128 happens before step 3, quota and period of the parent cgroup
-will be changed:
+  stack backtrace:
+  CPU: 1 PID: 10939 Comm: evmcs_test Not tainted 5.4.0-rc7+ #94
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  Call Trace:
+   dump_stack+0x68/0x9b
+   kvm_is_visible_gfn+0x179/0x180 [kvm]
+   mmu_check_root+0x11/0x30 [kvm]
+   fast_cr3_switch+0x40/0x120 [kvm]
+   kvm_mmu_new_cr3+0x34/0x60 [kvm]
+   nested_vmx_load_cr3+0xbd/0x1f0 [kvm_intel]
+   nested_vmx_enter_non_root_mode+0xab8/0x1d60 [kvm_intel]
+   vmx_set_nested_state+0x256/0x340 [kvm_intel]
+   kvm_arch_vcpu_ioctl+0x491/0x11a0 [kvm]
+   kvm_vcpu_ioctl+0xde/0x630 [kvm]
+   do_vfs_ioctl+0xa2/0x6c0
+   ksys_ioctl+0x66/0x70
+   __x64_sys_ioctl+0x16/0x20
+   do_syscall_64+0x54/0x200
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  RIP: 0033:0x7f59a2b95f47
 
-  new_quota: 1148437ns,   1148us
- new_period: 11484375ns, 11484us
-
-And when step 3 comes in, the ratio of the child cgroup will be
-104857, which will be larger than the parent cgroup ratio (104821),
-and will fail.
-
-Scaling them by a factor of 2 will fix the problem.
-
-Tested-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Xuewei Zhang <xueweiz@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Phil Auld <pauld@redhat.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-Link: https://lkml.kernel.org/r/20191004001243.140897-1-xueweiz@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 8fcc4b5923af5 ("kvm: nVMX: Introduce KVM_CAP_NESTED_STATE")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- kernel/sched/fair.c |   34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ arch/x86/kvm/x86.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4868,20 +4868,28 @@ static enum hrtimer_restart sched_cfs_pe
- 		if (++count > 3) {
- 			u64 new, old = ktime_to_ns(cfs_b->period);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -4427,6 +4427,7 @@ long kvm_arch_vcpu_ioctl(struct file *fi
+ 	case KVM_SET_NESTED_STATE: {
+ 		struct kvm_nested_state __user *user_kvm_nested_state = argp;
+ 		struct kvm_nested_state kvm_state;
++		int idx;
  
--			new = (old * 147) / 128; /* ~115% */
--			new = min(new, max_cfs_quota_period);
-+			/*
-+			 * Grow period by a factor of 2 to avoid losing precision.
-+			 * Precision loss in the quota/period ratio can cause __cfs_schedulable
-+			 * to fail.
-+			 */
-+			new = old * 2;
-+			if (new < max_cfs_quota_period) {
-+				cfs_b->period = ns_to_ktime(new);
-+				cfs_b->quota *= 2;
+ 		r = -EINVAL;
+ 		if (!kvm_x86_ops->set_nested_state)
+@@ -4450,7 +4451,9 @@ long kvm_arch_vcpu_ioctl(struct file *fi
+ 		    && !(kvm_state.flags & KVM_STATE_NESTED_GUEST_MODE))
+ 			break;
  
--			cfs_b->period = ns_to_ktime(new);
--
--			/* since max is 1s, this is limited to 1e9^2, which fits in u64 */
--			cfs_b->quota *= new;
--			cfs_b->quota = div64_u64(cfs_b->quota, old);
--
--			pr_warn_ratelimited(
--        "cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
--	                        smp_processor_id(),
--	                        div_u64(new, NSEC_PER_USEC),
--                                div_u64(cfs_b->quota, NSEC_PER_USEC));
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(new, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			} else {
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, but cannot scale up without losing precision (cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(old, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			}
- 
- 			/* reset count so we don't come right back in here */
- 			count = 0;
++		idx = srcu_read_lock(&vcpu->kvm->srcu);
+ 		r = kvm_x86_ops->set_nested_state(vcpu, user_kvm_nested_state, &kvm_state);
++		srcu_read_unlock(&vcpu->kvm->srcu, idx);
+ 		break;
+ 	}
+ 	case KVM_GET_SUPPORTED_HV_CPUID: {
 
 
