@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08C9011B5E9
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BA111B47D
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:48:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730503AbfLKP5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:57:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41012 "EHLO mail.kernel.org"
+        id S1732841AbfLKPZc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:25:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730128AbfLKPPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:15:08 -0500
+        id S1732782AbfLKPZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:25:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 670A524654;
-        Wed, 11 Dec 2019 15:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78D26208C3;
+        Wed, 11 Dec 2019 15:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077307;
-        bh=SbZl23O28K/WEd7J07V6G4jr5a1oOdJEfXTkhq256uA=;
+        s=default; t=1576077930;
+        bh=8E4J7fMbM6LkudO+9F/RC+PJKcsy8gwUCsIbxesTyQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XfBQIA3gQ0bwXF3zyG5MAb3Nt41st2SxXxXHk2H1N1pxonTBKs2kOCDigMvTOqLKq
-         149AFeNo4FuO4HQIF6AsZ3AMS6CEbN63587gLt4nlM1k93cDmfhe1Hgwy+Niwt/I7I
-         f+8/jjt5cK/7KCffey7Rrfou74vHnBnTapR1YHqA=
+        b=RFb2k0vmyz09vCqUo4gd/tD+9uRb7n5sBuUm66mP6Kdsx/kItO2o41CYMNF/spmln
+         UzpE0jk1U654vvXaYMuWyJTcp4kDmOup9n/PN33cM7iZO1yKP9pTjgiJeZLiD0nfwm
+         0iZc7xrssxMGGtB2FWvMLSQS7nRdf6/9VU7cOUn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.3 096/105] spi: Fix SPI_CS_HIGH setting when using native and GPIO CS
-Date:   Wed, 11 Dec 2019 16:06:25 +0100
-Message-Id: <20191211150302.227105872@linuxfoundation.org>
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.19 224/243] arm64: dts: exynos: Revert "Remove unneeded address space mapping for soc node"
+Date:   Wed, 11 Dec 2019 16:06:26 +0100
+Message-Id: <20191211150354.452202223@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit 3e5ec1db8bfee845d9f8560d1c64aeaccd586398 upstream.
+commit bed903167ae5b5532eda5d7db26de451bd232da5 upstream.
 
-When improving the CS GPIO support at core level, the SPI_CS_HIGH
-has been enabled for all the CS lines used for a given SPI controller.
+Commit ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space
+mapping for soc node") changed the address and size cells in root node from
+2 to 1, but /memory nodes for the affected boards were not updated. This
+went unnoticed on Exynos5433-based TM2(e) boards, because they use u-boot,
+which updates /memory node to the correct values. On the other hand, the
+mentioned commit broke boot on Exynos7-based Espresso board, which
+bootloader doesn't touch /memory node at all.
 
-However, the SPI framework allows to have on the same controller native
-CS and GPIO CS. The native CS may not support the SPI_CS_HIGH, so they
-should not be setup automatically.
+This patch reverts commit ef72171b3621 ("arm64: dts: exynos: Remove
+unneeded address space mapping for soc node"), so Exynos5433 and Exynos7
+SoCs again matches other ARM64 platforms with 64bit mappings in root
+node.
 
-With this patch the setting is done only for the CS that will use a
-GPIO as CS
-
-Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20191018152929.3287-1-gregory.clement@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space mapping for soc node")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: <stable@vger.kernel.org> # 5.3.x: 72ddcf6aa224 arm64: dts: exynos: Move GPU under /soc node for Exynos5433
+Cc: <stable@vger.kernel.org> # 5.3.x: ede87c3a2bdb arm64: dts: exynos: Move GPU under /soc node for Exynos7
+Cc: <stable@vger.kernel.org> # 4.18.x
+Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/exynos/exynos5433.dtsi |    6 +++---
+ arch/arm64/boot/dts/exynos/exynos7.dtsi    |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1710,15 +1710,7 @@ static int of_spi_parse_dt(struct spi_co
- 		spi->mode |= SPI_3WIRE;
- 	if (of_property_read_bool(nc, "spi-lsb-first"))
- 		spi->mode |= SPI_LSB_FIRST;
--
--	/*
--	 * For descriptors associated with the device, polarity inversion is
--	 * handled in the gpiolib, so all chip selects are "active high" in
--	 * the logical sense, the gpiolib will invert the line if need be.
--	 */
--	if (ctlr->use_gpio_descriptors)
--		spi->mode |= SPI_CS_HIGH;
--	else if (of_property_read_bool(nc, "spi-cs-high"))
-+	if (of_property_read_bool(nc, "spi-cs-high"))
- 		spi->mode |= SPI_CS_HIGH;
+--- a/arch/arm64/boot/dts/exynos/exynos5433.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos5433.dtsi
+@@ -18,8 +18,8 @@
  
- 	/* Device DUAL/QUAD mode */
-@@ -1782,6 +1774,14 @@ static int of_spi_parse_dt(struct spi_co
- 	}
- 	spi->chip_select = value;
+ / {
+ 	compatible = "samsung,exynos5433";
+-	#address-cells = <1>;
+-	#size-cells = <1>;
++	#address-cells = <2>;
++	#size-cells = <2>;
  
-+	/*
-+	 * For descriptors associated with the device, polarity inversion is
-+	 * handled in the gpiolib, so all gpio chip selects are "active high"
-+	 * in the logical sense, the gpiolib will invert the line if need be.
-+	 */
-+	if ((ctlr->use_gpio_descriptors) && ctlr->cs_gpiods[spi->chip_select])
-+		spi->mode |= SPI_CS_HIGH;
-+
- 	/* Device speed */
- 	rc = of_property_read_u32(nc, "spi-max-frequency", &value);
- 	if (rc) {
+ 	interrupt-parent = <&gic>;
+ 
+@@ -235,7 +235,7 @@
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		ranges;
++		ranges = <0x0 0x0 0x0 0x18000000>;
+ 
+ 		arm_a53_pmu {
+ 			compatible = "arm,cortex-a53-pmu", "arm,armv8-pmuv3";
+--- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+@@ -12,8 +12,8 @@
+ / {
+ 	compatible = "samsung,exynos7";
+ 	interrupt-parent = <&gic>;
+-	#address-cells = <1>;
+-	#size-cells = <1>;
++	#address-cells = <2>;
++	#size-cells = <2>;
+ 
+ 	aliases {
+ 		pinctrl0 = &pinctrl_alive;
+@@ -70,7 +70,7 @@
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		ranges;
++		ranges = <0 0 0 0x18000000>;
+ 
+ 		chipid@10000000 {
+ 			compatible = "samsung,exynos4210-chipid";
 
 
