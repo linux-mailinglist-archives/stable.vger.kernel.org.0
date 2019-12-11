@@ -2,111 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFA711AD8B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:33:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E39C11AE10
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:44:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729879AbfLKOdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 09:33:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729858AbfLKOdY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 09:33:24 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA3F20836;
-        Wed, 11 Dec 2019 14:33:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576074804;
-        bh=Jac2Nl1IQ5Dv3qbwCDowRavPWjG01jXiGy6kyzYEjR8=;
-        h=Subject:To:From:Date:From;
-        b=hFQc6F0heUsDmH9kWrwCDMRzlUAG47heS0jU/9zcR8I8QYmp2v/EPtdx6QeIIR0zc
-         6/M5YqqbTQ5/Ummyi/DSp/RaY4dDIdb7Us80+wZ6jQPBnzFOYp+V0AvF4Tzq40RJD9
-         2KW/w1nyC+YrN9mywyU/OKr7HdqhIt30gR94YP9s=
-Subject: patch "xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default" added to usb-linus
-To:     mathias.nyman@linux.intel.com, ardb@kernel.org,
-        eli.billauer@gmail.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 11 Dec 2019 15:33:11 +0100
-Message-ID: <1576074791125224@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1729810AbfLKOoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 09:44:14 -0500
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.162]:10215 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727554AbfLKOoO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 09:44:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576075452;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=aAEdKVGDi6t7TbiIGPCbqihfDuomUSlzL1Pc5B3mhFU=;
+        b=KcvpQaHJiFuVky0ZWMu+L5s+OjvytQWqTwSoBJ6RelkHsNjWyebAzL/szUpXsquXl8
+        4pquekWysrbAB5+squ1rjoAtxjoh8NOqaQvZqk/zYHYjZXiqTeDAsrhmDs6/jKhpUFW0
+        72WT9eOZmTp/2LtErNYDnuD4Mcy+odJwAnCrzPU/Fi0gNRP0HabczU4dNsp+A5ezknQR
+        h43OI456SIEzRg+jbTYuvltsNxAq9IWewskPMXOZg5+/KGYGfe9CnJNuTS1kCY16v81I
+        mICY/h6/JsVlUdLl4QWhknPqMoa7hlPv/0+MJX5Jiw3U7ugxjQUPkOtZS6nnJENw1mrM
+        u28w==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGHPrvwDOutHk="
+X-RZG-CLASS-ID: mo00
+Received: from imac.fritz.box
+        by smtp.strato.de (RZmta 46.0.4 DYNA|AUTH)
+        with ESMTPSA id Q0b574vBBEiB04V
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+        (Client did not present a certificate);
+        Wed, 11 Dec 2019 15:44:11 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Subject: Re: WTF: patch "[PATCH] net: wireless: ti: wl1251 add device tree support" was seriously submitted to be applied to the 5.4-stable tree?
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <20191211142448.GA605616@kroah.com>
+Date:   Wed, 11 Dec 2019 15:44:11 +0100
+Cc:     kvalo@codeaurora.org, stable@vger.kernel.org,
+        ulf.hansson@linaro.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <4B4FDCC1-F8D1-4DA9-8A6F-8E2B1DF27E93@goldelico.com>
+References: <1576073193178125@kroah.com> <8B77E722-80C2-4607-8519-AC36CC42519C@goldelico.com> <20191211142448.GA605616@kroah.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+X-Mailer: Apple Mail (2.3124)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+> Am 11.12.2019 um 15:24 schrieb Greg KH <gregkh@linuxfoundation.org>:
+>=20
+> On Wed, Dec 11, 2019 at 03:19:19PM +0100, H. Nikolaus Schaller wrote:
+>> Hi Greg,
+>> I have checked with Documentation/process/stable-kernel-rules.rst but =
+not found out
+>> what is failing.
+>>=20
+>> Basically this belongs to a series to fix a bug
+>>=20
+>> 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting =
+DMA channel")
+>>=20
+>> that exists since v4.7 and has been hidden by patches which came into =
+the kernel over
+>> the time.
+>=20
+> I do not understand at all.
+>=20
+> What does tagging all of these random wifi driver commits with cc:
+> stable have to do with an old mmc commit from 4.7-rc1?
 
-    xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default
+v4.7 received the commit ("mmc: omap_hsmmc: Use dma_request_chan() for =
+requesting DMA channel").
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+This commit itself is not bad but has a bad side-effect that it breaks =
+the device tree
+and platform quirks of the wl1251 connected to mmc3 port of the =
+OpenPandora.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+The reason turned out to be because it now requires a device tree record =
+for the mmc port
+while the v4.7 status was to have a mmc port created by a platform quirk =
+- without scanning
+the DT.
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+To be able to fix that we have to
+* modify the device tree
+* remove the platform quirk for pandora and replace by DT based =
+instantiation of the mmc port
+* make sure that what the platform quirk does is still done in the mmc =
+subsystem
+* fix some assumptions introduced by later patches which make the device =
+non-detectable
 
-If you have any questions about this process, please let me know.
+The only alternative I can imagine would be to revert "mmc: omap_hsmmc: =
+Use dma_request_chan() for requesting DMA channel".
 
+This would fix WiFi for OpenPandora. But - besides you can't simply git =
+revert any more - it
+would require fixing much more subsystems than omap_hsmmc + mmc + wl1251 =
++ Pandora device tree.
 
-From 7ff11162808cc2ec66353fc012c58bb449c892c3 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Wed, 11 Dec 2019 16:20:06 +0200
-Subject: xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default
- behaviour.
+Yes, it is unfortunate that nobody did care about this bug (although =
+known) before I
+recently did a git bisect to identify this commit. So it got buried =
+under a thick layer
+of kernel patches so that getting back a working solution touches areas =
+outside the omap_hsmmc
+driver.
 
-xhci driver claims it needs XHCI_TRUST_TX_LENGTH quirk for both
-Broadcom/Cavium and a Renesas xHC controllers.
+Does this better explain what the rationale is?
 
-The quirk was inteded for handling false "success" complete event for
-transfers that had data left untransferred.
-These transfers should complete with "short packet" events instead.
-
-In these two new cases the false "success" completion is reported
-after a "short packet" if the TD consists of several TRBs.
-xHCI specs 4.10.1.1.2 say remaining TRBs should report "short packet"
-as well after the first short packet in a TD, but this issue seems so
-common it doesn't make sense to add the quirk for all vendors.
-
-Turn these events into short packets automatically instead.
-
-This gets rid of the  "The WARN Successful completion on short TX for
-slot 1 ep 1: needs XHCI_TRUST_TX_LENGTH quirk" warning in many cases.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Eli Billauer <eli.billauer@gmail.com>
-Reported-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Eli Billauer <eli.billauer@gmail.com>
-Tested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-6-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-ring.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 9ebaa8e132a9..d23f7408c81f 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -2381,7 +2381,8 @@ static int handle_tx_event(struct xhci_hcd *xhci,
- 	case COMP_SUCCESS:
- 		if (EVENT_TRB_LEN(le32_to_cpu(event->transfer_len)) == 0)
- 			break;
--		if (xhci->quirks & XHCI_TRUST_TX_LENGTH)
-+		if (xhci->quirks & XHCI_TRUST_TX_LENGTH ||
-+		    ep_ring->last_td_was_short)
- 			trb_comp_code = COMP_SHORT_PACKET;
- 		else
- 			xhci_warn_ratelimited(xhci,
--- 
-2.24.1
-
-
+BR and thanks,
+Nikolaus Schaller=
