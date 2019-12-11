@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5F511B4EB
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:51:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E562F11B5FC
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:58:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732137AbfLKPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:23:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54542 "EHLO mail.kernel.org"
+        id S1731669AbfLKPOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:14:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732442AbfLKPXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:23:30 -0500
+        id S1731361AbfLKPOw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F3862077B;
-        Wed, 11 Dec 2019 15:23:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5B7224654;
+        Wed, 11 Dec 2019 15:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077810;
-        bh=9HIukwdJ6Blfu5phf9vcWxH++CWcCuidXrY1XXmWsFQ=;
+        s=default; t=1576077292;
+        bh=YOOKKu7KZKalCYc9fcrbvluf+Q6hWobR9h7/kUaryYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hjQ2BfpeGHI0WVwGN1kwheUL8AhvDKNTt2L/OjtjrqxMvtgKI/S2gAADu4k6pXGfp
-         O/b6XX/TAEzddItI46k8FW1w8TxxWsiQN1KbLRIB8OVOYdKy9diab76fFJ6UH2gJRZ
-         9CgeE0K+TYS0LKn7xJkCb8IiN7saTTak+6G1juXA=
+        b=o+3jEwiwdJ2g0AyOfNiD/Mms1tYw6G1+y8ubosNd1c0Y8fokbNVW86/7/85zfO/un
+         0aO7ESl2yTE5V4F6J7D+DXOR5OwZH/+BrURFyLYhj7tScRL1AMuSXvSXzkBvv0I8Oy
+         5z7nZ79by/0y53250TBXGpnnTl8KNs+RLnyeLw8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Dmitry Safonov <dima@arista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 178/243] tty: Dont block on IO when ldisc change is pending
-Date:   Wed, 11 Dec 2019 16:05:40 +0100
-Message-Id: <20191211150351.188475500@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.3 052/105] ALSA: pcm: oss: Avoid potential buffer overflows
+Date:   Wed, 11 Dec 2019 16:05:41 +0100
+Message-Id: <20191211150242.347949603@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,161 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Safonov <dima@arista.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c96cf923a98d1b094df9f0cf97a83e118817e31b ]
+commit 4cc8d6505ab82db3357613d36e6c58a297f57f7c upstream.
 
-There might be situations where tty_ldisc_lock() has blocked, but there
-is already IO on tty and it prevents line discipline changes.
-It might theoretically turn into dead-lock.
+syzkaller reported an invalid access in PCM OSS read, and this seems
+to be an overflow of the internal buffer allocated for a plugin.
+Since the rate plugin adjusts its transfer size dynamically, the
+calculation for the chained plugin might be bigger than the given
+buffer size in some extreme cases, which lead to such an buffer
+overflow as caught by KASAN.
 
-Basically, provide more priority to pending tty_ldisc_lock() than to
-servicing reads/writes over tty.
+Fix it by limiting the max transfer size properly by checking against
+the destination size in each plugin transfer callback.
 
-User-visible issue was reported by Mikulas where on pa-risc with
-Debian 5 reboot took either 80 seconds, 3 minutes or 3:25 after proper
-locking in tty_reopen().
-
-Cc: Jiri Slaby <jslaby@suse.com>
-Reported-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Dmitry Safonov <dima@arista.com>
+Reported-by: syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191204144824.17801-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/tty/n_hdlc.c    | 4 ++--
- drivers/tty/n_r3964.c   | 2 +-
- drivers/tty/n_tty.c     | 8 ++++----
- drivers/tty/tty_ldisc.c | 7 +++++++
- include/linux/tty.h     | 7 +++++++
- 5 files changed, 21 insertions(+), 7 deletions(-)
+ sound/core/oss/linear.c |    2 ++
+ sound/core/oss/mulaw.c  |    2 ++
+ sound/core/oss/route.c  |    2 ++
+ 3 files changed, 6 insertions(+)
 
-diff --git a/drivers/tty/n_hdlc.c b/drivers/tty/n_hdlc.c
-index c943716c019e4..0636e10c76c7f 100644
---- a/drivers/tty/n_hdlc.c
-+++ b/drivers/tty/n_hdlc.c
-@@ -613,7 +613,7 @@ static ssize_t n_hdlc_tty_read(struct tty_struct *tty, struct file *file,
+--- a/sound/core/oss/linear.c
++++ b/sound/core/oss/linear.c
+@@ -107,6 +107,8 @@ static snd_pcm_sframes_t linear_transfer
  		}
- 			
- 		/* no data */
--		if (file->f_flags & O_NONBLOCK) {
-+		if (tty_io_nonblock(tty, file)) {
- 			ret = -EAGAIN;
- 			break;
- 		}
-@@ -680,7 +680,7 @@ static ssize_t n_hdlc_tty_write(struct tty_struct *tty, struct file *file,
- 		if (tbuf)
- 			break;
- 
--		if (file->f_flags & O_NONBLOCK) {
-+		if (tty_io_nonblock(tty, file)) {
- 			error = -EAGAIN;
- 			break;
- 		}
-diff --git a/drivers/tty/n_r3964.c b/drivers/tty/n_r3964.c
-index dbf1ab36758eb..a3969b773cbe4 100644
---- a/drivers/tty/n_r3964.c
-+++ b/drivers/tty/n_r3964.c
-@@ -1078,7 +1078,7 @@ static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
- 		pMsg = remove_msg(pInfo, pClient);
- 		if (pMsg == NULL) {
- 			/* no messages available. */
--			if (file->f_flags & O_NONBLOCK) {
-+			if (tty_io_nonblock(tty, file)) {
- 				ret = -EAGAIN;
- 				goto unlock;
- 			}
-diff --git a/drivers/tty/n_tty.c b/drivers/tty/n_tty.c
-index 3ad460219fd62..5dc9686697cfa 100644
---- a/drivers/tty/n_tty.c
-+++ b/drivers/tty/n_tty.c
-@@ -1702,7 +1702,7 @@ n_tty_receive_buf_common(struct tty_struct *tty, const unsigned char *cp,
- 
- 	down_read(&tty->termios_rwsem);
- 
--	while (1) {
-+	do {
- 		/*
- 		 * When PARMRK is set, each input char may take up to 3 chars
- 		 * in the read buf; reduce the buffer space avail by 3x
-@@ -1744,7 +1744,7 @@ n_tty_receive_buf_common(struct tty_struct *tty, const unsigned char *cp,
- 			fp += n;
- 		count -= n;
- 		rcvd += n;
--	}
-+	} while (!test_bit(TTY_LDISC_CHANGING, &tty->flags));
- 
- 	tty->receive_room = room;
- 
-@@ -2211,7 +2211,7 @@ static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
- 					break;
- 				if (!timeout)
- 					break;
--				if (file->f_flags & O_NONBLOCK) {
-+				if (tty_io_nonblock(tty, file)) {
- 					retval = -EAGAIN;
- 					break;
- 				}
-@@ -2365,7 +2365,7 @@ static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
- 		}
- 		if (!nr)
- 			break;
--		if (file->f_flags & O_NONBLOCK) {
-+		if (tty_io_nonblock(tty, file)) {
- 			retval = -EAGAIN;
- 			break;
- 		}
-diff --git a/drivers/tty/tty_ldisc.c b/drivers/tty/tty_ldisc.c
-index 53bb6d4e9e8d9..245c9a51c2de2 100644
---- a/drivers/tty/tty_ldisc.c
-+++ b/drivers/tty/tty_ldisc.c
-@@ -336,6 +336,11 @@ int tty_ldisc_lock(struct tty_struct *tty, unsigned long timeout)
- {
- 	int ret;
- 
-+	/* Kindly asking blocked readers to release the read side */
-+	set_bit(TTY_LDISC_CHANGING, &tty->flags);
-+	wake_up_interruptible_all(&tty->read_wait);
-+	wake_up_interruptible_all(&tty->write_wait);
-+
- 	ret = __tty_ldisc_lock(tty, timeout);
- 	if (!ret)
- 		return -EBUSY;
-@@ -346,6 +351,8 @@ int tty_ldisc_lock(struct tty_struct *tty, unsigned long timeout)
- void tty_ldisc_unlock(struct tty_struct *tty)
- {
- 	clear_bit(TTY_LDISC_HALTED, &tty->flags);
-+	/* Can be cleared here - ldisc_unlock will wake up writers firstly */
-+	clear_bit(TTY_LDISC_CHANGING, &tty->flags);
- 	__tty_ldisc_unlock(tty);
+ 	}
+ #endif
++	if (frames > dst_channels[0].frames)
++		frames = dst_channels[0].frames;
+ 	convert(plugin, src_channels, dst_channels, frames);
+ 	return frames;
  }
+--- a/sound/core/oss/mulaw.c
++++ b/sound/core/oss/mulaw.c
+@@ -269,6 +269,8 @@ static snd_pcm_sframes_t mulaw_transfer(
+ 		}
+ 	}
+ #endif
++	if (frames > dst_channels[0].frames)
++		frames = dst_channels[0].frames;
+ 	data = (struct mulaw_priv *)plugin->extra_data;
+ 	data->func(plugin, src_channels, dst_channels, frames);
+ 	return frames;
+--- a/sound/core/oss/route.c
++++ b/sound/core/oss/route.c
+@@ -57,6 +57,8 @@ static snd_pcm_sframes_t route_transfer(
+ 		return -ENXIO;
+ 	if (frames == 0)
+ 		return 0;
++	if (frames > dst_channels[0].frames)
++		frames = dst_channels[0].frames;
  
-diff --git a/include/linux/tty.h b/include/linux/tty.h
-index 808fbfe86f858..76db046f09ab6 100644
---- a/include/linux/tty.h
-+++ b/include/linux/tty.h
-@@ -366,6 +366,7 @@ struct tty_file_private {
- #define TTY_NO_WRITE_SPLIT 	17	/* Preserve write boundaries to driver */
- #define TTY_HUPPED 		18	/* Post driver->hangup() */
- #define TTY_HUPPING		19	/* Hangup in progress */
-+#define TTY_LDISC_CHANGING	20	/* Change pending - non-block IO */
- #define TTY_LDISC_HALTED	22	/* Line discipline is halted */
- 
- /* Values for tty->flow_change */
-@@ -383,6 +384,12 @@ static inline void tty_set_flow_change(struct tty_struct *tty, int val)
- 	smp_mb();
- }
- 
-+static inline bool tty_io_nonblock(struct tty_struct *tty, struct file *file)
-+{
-+	return file->f_flags & O_NONBLOCK ||
-+		test_bit(TTY_LDISC_CHANGING, &tty->flags);
-+}
-+
- static inline bool tty_io_error(struct tty_struct *tty)
- {
- 	return test_bit(TTY_IO_ERROR, &tty->flags);
--- 
-2.20.1
-
+ 	nsrcs = plugin->src_format.channels;
+ 	ndsts = plugin->dst_format.channels;
 
 
