@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2F811AD84
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:33:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7533F11AD87
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729654AbfLKOdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 09:33:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37900 "EHLO mail.kernel.org"
+        id S1729989AbfLKOdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 09:33:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729946AbfLKOdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 09:33:12 -0500
+        id S1727851AbfLKOdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 09:33:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDBA320836;
-        Wed, 11 Dec 2019 14:33:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA7C920836;
+        Wed, 11 Dec 2019 14:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576074791;
-        bh=bMkm96cL8+17T1D2/H5bpogXZcJwtTkj+AXR/3mYx/o=;
+        s=default; t=1576074794;
+        bh=NzFql8PyY+qR0bBq9TRdX4nqkutKHQwajKyxLo0Wbc8=;
         h=Subject:To:From:Date:From;
-        b=Qw+tpPFqIfn4fTK5QtQZF2coHRKL7OABu//6xIWUp2Bq1ngC3sY7nFFjKSIn3kKfy
-         E/easiII18zg5quwdNOvs43x/W4I92rEaRq4RiGeKI0iNsrbET0ggLO570xUjzvrEX
-         iAalHEgOiBsVlbcE+qNz5fRSZSxDy/dU80iHNxaM=
-Subject: patch "xhci: Fix memory leak in xhci_add_in_port()" added to usb-linus
-To:     mika.westerberg@linux.intel.com, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, stable@vger.kernel.org
+        b=LpZ9mn35K4juQsrVshh/lAD03OfzX9nn20M0WUJmJ/imi/7dUAHXU1qHK+IO0rQsL
+         rGbUXrQ3aW48I1grPadtrILQihnY+DaP8uGVYJi8Y38iU9sc7MW8aBxd7VpsFvHR4y
+         EH14q+qJLcCRhZ1pJb9jf4/6sTHB6Sdkf4uOQPr8=
+Subject: patch "xhci: fix USB3 device initiated resume race with roothub autosuspend" added to usb-linus
+To:     mathias.nyman@linux.intel.com, chiasheng.lee@intel.com,
+        gregkh@linuxfoundation.org, hou-hsun.lee@intel.com,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 11 Dec 2019 15:33:09 +0100
-Message-ID: <1576074789155251@kroah.com>
+Message-ID: <157607478979203@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    xhci: Fix memory leak in xhci_add_in_port()
+    xhci: fix USB3 device initiated resume race with roothub autosuspend
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,94 +56,120 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From ce91f1a43b37463f517155bdfbd525eb43adbd1a Mon Sep 17 00:00:00 2001
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Date: Wed, 11 Dec 2019 16:20:02 +0200
-Subject: xhci: Fix memory leak in xhci_add_in_port()
+From 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 Mon Sep 17 00:00:00 2001
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
+Date: Wed, 11 Dec 2019 16:20:03 +0200
+Subject: xhci: fix USB3 device initiated resume race with roothub autosuspend
 
-When xHCI is part of Alpine or Titan Ridge Thunderbolt controller and
-the xHCI device is hot-removed as a result of unplugging a dock for
-example, the driver leaks memory it allocates for xhci->usb3_rhub.psi
-and xhci->usb2_rhub.psi in xhci_add_in_port() as reported by kmemleak:
+A race in xhci USB3 remote wake handling may force device back to suspend
+after it initiated resume siganaling, causing a missed resume event or warm
+reset of device.
 
-unreferenced object 0xffff922c24ef42f0 (size 16):
-  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
-  hex dump (first 16 bytes):
-    21 00 0c 00 12 00 dc 05 23 00 e0 01 00 00 00 00  !.......#.......
-  backtrace:
-    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
-    [<0000000001b6d775>] xhci_init+0x7c/0x160
-    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
-    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
-    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
-    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
-    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
-    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
-    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
-    [<0000000070241068>] really_probe+0xf5/0x3c0
-    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
-    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
-    [<000000009ce45f69>] __device_attach+0xda/0x160
-    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
-    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
-    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
-unreferenced object 0xffff922c24ef3318 (size 8):
-  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
-  hex dump (first 8 bytes):
-    34 01 05 00 35 41 0a 00                          4...5A..
-  backtrace:
-    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
-    [<0000000001b6d775>] xhci_init+0x7c/0x160
-    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
-    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
-    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
-    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
-    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
-    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
-    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
-    [<0000000070241068>] really_probe+0xf5/0x3c0
-    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
-    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
-    [<000000009ce45f69>] __device_attach+0xda/0x160
-    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
-    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
-    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+When a USB3 link completes resume signaling and goes to enabled (UO)
+state a interrupt is issued and the interrupt handler will clear the
+bus_state->port_remote_wakeup resume flag, allowing bus suspend.
 
-Fix this by calling kfree() for the both psi objects in
-xhci_mem_cleanup().
+If the USB3 roothub thread just finished reading port status before
+the interrupt, finding ports still in suspended (U3) state, but hasn't
+yet started suspending the hub, then the xhci interrupt handler will clear
+the flag that prevented roothub suspend and allow bus to suspend, forcing
+all port links back to suspended (U3) state.
 
-Cc: <stable@vger.kernel.org> # 4.4+
-Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Example case:
+usb_runtime_suspend() # because all ports still show suspended U3
+  usb_suspend_both()
+    hub_suspend();   # successful as hub->wakeup_bits not set yet
+==> INTERRUPT
+xhci_irq()
+  handle_port_status()
+    clear bus_state->port_remote_wakeup
+    usb_wakeup_notification()
+      sets hub->wakeup_bits;
+        kick_hub_wq()
+<== END INTERRUPT
+      hcd_bus_suspend()
+        xhci_bus_suspend() # success as port_remote_wakeup bits cleared
+
+Fix this by increasing roothub usage count during port resume to prevent
+roothub autosuspend, and by making sure bus_state->port_remote_wakeup
+flag is only cleared after resume completion is visible, i.e.
+after xhci roothub returned U0 or other non-U3 link state link on a
+get port status request.
+
+Issue rootcaused by Chiasheng Lee
+
+Cc: <stable@vger.kernel.org>
+Cc: Lee, Hou-hsun <hou-hsun.lee@intel.com>
+Reported-by: Lee, Chiasheng <chiasheng.lee@intel.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-2-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20191211142007.8847-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mem.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/xhci-hub.c  | 10 ++++++++++
+ drivers/usb/host/xhci-ring.c |  3 +--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index e16eda6e2b8b..3b1388fa2f36 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -1909,13 +1909,17 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
- 	xhci->usb3_rhub.num_ports = 0;
- 	xhci->num_active_eps = 0;
- 	kfree(xhci->usb2_rhub.ports);
-+	kfree(xhci->usb2_rhub.psi);
- 	kfree(xhci->usb3_rhub.ports);
-+	kfree(xhci->usb3_rhub.psi);
- 	kfree(xhci->hw_ports);
- 	kfree(xhci->rh_bw);
- 	kfree(xhci->ext_caps);
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index b7d23c438756..4b870cd6c575 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -920,11 +920,13 @@ static void xhci_get_usb3_port_status(struct xhci_port *port, u32 *status,
+ {
+ 	struct xhci_bus_state *bus_state;
+ 	struct xhci_hcd	*xhci;
++	struct usb_hcd *hcd;
+ 	u32 link_state;
+ 	u32 portnum;
  
- 	xhci->usb2_rhub.ports = NULL;
-+	xhci->usb2_rhub.psi = NULL;
- 	xhci->usb3_rhub.ports = NULL;
-+	xhci->usb3_rhub.psi = NULL;
- 	xhci->hw_ports = NULL;
- 	xhci->rh_bw = NULL;
- 	xhci->ext_caps = NULL;
+ 	bus_state = &port->rhub->bus_state;
+ 	xhci = hcd_to_xhci(port->rhub->hcd);
++	hcd = port->rhub->hcd;
+ 	link_state = portsc & PORT_PLS_MASK;
+ 	portnum = port->hcd_portnum;
+ 
+@@ -952,6 +954,14 @@ static void xhci_get_usb3_port_status(struct xhci_port *port, u32 *status,
+ 			bus_state->suspended_ports &= ~(1 << portnum);
+ 	}
+ 
++	/* remote wake resume signaling complete */
++	if (bus_state->port_remote_wakeup & (1 << portnum) &&
++	    link_state != XDEV_RESUME &&
++	    link_state != XDEV_RECOVERY) {
++		bus_state->port_remote_wakeup &= ~(1 << portnum);
++		usb_hcd_end_port_resume(&hcd->self, portnum);
++	}
++
+ 	xhci_hub_report_usb3_link_state(xhci, status, portsc);
+ 	xhci_del_comp_mod_timer(xhci, portsc, portnum);
+ }
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 6475c3d3b43b..9ebaa8e132a9 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1628,7 +1628,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
+ 		slot_id = xhci_find_slot_id_by_port(hcd, xhci, hcd_portnum + 1);
+ 		if (slot_id && xhci->devs[slot_id])
+ 			xhci->devs[slot_id]->flags |= VDEV_PORT_ERROR;
+-		bus_state->port_remote_wakeup &= ~(1 << hcd_portnum);
+ 	}
+ 
+ 	if ((portsc & PORT_PLC) && (portsc & PORT_PLS_MASK) == XDEV_RESUME) {
+@@ -1648,6 +1647,7 @@ static void handle_port_status(struct xhci_hcd *xhci,
+ 			 */
+ 			bus_state->port_remote_wakeup |= 1 << hcd_portnum;
+ 			xhci_test_and_clear_bit(xhci, port, PORT_PLC);
++			usb_hcd_start_port_resume(&hcd->self, hcd_portnum);
+ 			xhci_set_link_state(xhci, port, XDEV_U0);
+ 			/* Need to wait until the next link state change
+ 			 * indicates the device is actually in U0.
+@@ -1688,7 +1688,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
+ 		if (slot_id && xhci->devs[slot_id])
+ 			xhci_ring_device(xhci, slot_id);
+ 		if (bus_state->port_remote_wakeup & (1 << hcd_portnum)) {
+-			bus_state->port_remote_wakeup &= ~(1 << hcd_portnum);
+ 			xhci_test_and_clear_bit(xhci, port, PORT_PLC);
+ 			usb_wakeup_notification(hcd->self.root_hub,
+ 					hcd_portnum + 1);
 -- 
 2.24.1
 
