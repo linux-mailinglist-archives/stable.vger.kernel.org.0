@@ -2,117 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1289311C033
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 23:59:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BAC411C03F
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726313AbfLKW7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 17:59:49 -0500
-Received: from mo-csw1116.securemx.jp ([210.130.202.158]:53884 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726141AbfLKW7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 17:59:49 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1116) id xBBMxe4F029592; Thu, 12 Dec 2019 07:59:40 +0900
-X-Iguazu-Qid: 2wGr1LCjibUcg58Ctk
-X-Iguazu-QSIG: v=2; s=0; t=1576105180; q=2wGr1LCjibUcg58Ctk; m=gbsfNuz+KBYcNC2h7vb+QMTGEz6U3KO65Z9ucjT1Me4=
-Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
-        by relay.securemx.jp (mx-mr1112) id xBBMxd2a004770;
-        Thu, 12 Dec 2019 07:59:39 +0900
-Received: from enc02.toshiba.co.jp ([61.202.160.51])
-        by imx12.toshiba.co.jp  with ESMTP id xBBMxcXf021742;
-        Thu, 12 Dec 2019 07:59:38 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id xBBMxcMj000808;
-        Thu, 12 Dec 2019 07:59:38 +0900
-Date:   Thu, 12 Dec 2019 07:59:37 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nguyen Viet Dung <dung.nguyen.aj@renesas.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 121/243] ASoC: rsnd: tidyup registering method for
- rsnd_kctrl_new()
-X-TSB-HOP: ON
-Message-ID: <20191211225937.nnu6kvvbyexfrahr@toshiba.co.jp>
-References: <20191211150339.185439726@linuxfoundation.org>
- <20191211150347.300543701@linuxfoundation.org>
+        id S1726411AbfLKXDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 18:03:45 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:44994 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726313AbfLKXDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:03:45 -0500
+Received: by mail-wr1-f67.google.com with SMTP id q10so469816wrm.11
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 15:03:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MSgszJssCJATLN8LywwxEi1kVqClfvjNbHCO+OmX0Yc=;
+        b=uhlnfGZ02E+nUBW74bYWhkyhw8M1Mc+sjQ3UmXIplM77DZkAmTb5EO9e+kxVCTiEjL
+         Ry4p0RVDQ3MeaGhtv4C//DiNRTsxowyO2d9nXEAUG3nBSUHCp4FsddDZtfgvCdQxq0GY
+         i+N/1nk0TQECtd405oGd4pOInYv/V8EDQqM/uL/0hmixiYkve7dE75gwTMjxQs1JV7eG
+         8zIR63Uw48UTt49RY65bETjR5sKLKwjrQ5+/1yyz3wcnq+89gwHeY1J0OsXyRqVttpMw
+         O6zPzeFOJv1J4+f+yDY/O3zFSzjZ/LbD3Z5xFetWkr07U+EqnkiR7W0lHAn2CMQz4msL
+         /S+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MSgszJssCJATLN8LywwxEi1kVqClfvjNbHCO+OmX0Yc=;
+        b=XLr3u9ePzwMP2sdEHqJARJjnGQ1a56T7j4ybVetvuRG3cKbqMBXEqC2y8SOquDGFLX
+         gS/AMR2lzxBeXuDeL1wuydkqWIZr74VKy3Ov6AAjN4uB/tPc138mDSjd0iFF3FzGyAb0
+         w4pwmHJ3g17goesI+1nHLdPTKHkPS6MBtTAEHsiD37ErUBNpQ/zvYnRK3kLLNHGEKhrI
+         cabiWCr8eoB0dy8sN2GvhWTDL0Dko/xqwO56sD4uPDQa5gW1hC1EnIvGALNuboz0mjRZ
+         KDUrA3QTYCJrjy6UJpiyHeYN/3zLbuJ88i7Ybk7FMTIPsvbAicxVa5R3Dv0+gHdsCQBq
+         ffRg==
+X-Gm-Message-State: APjAAAVlVd885+C0xIm2NIA2nhyIcFPQwJb0oQg4d1UAyUOGEo5a6zEW
+        taGVDG5W2oQ+2jpKYcGduWUJBTX4ODeDTQ==
+X-Google-Smtp-Source: APXvYqyUH/9OufeWfmlwKEakdev+Crgwqt2Bo+n88WqiVDyoATYCJLwhlgZqxv8AlUCGHvhUqNDE2A==
+X-Received: by 2002:adf:db84:: with SMTP id u4mr2466085wri.317.1576105422571;
+        Wed, 11 Dec 2019 15:03:42 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a84sm4019618wme.44.2019.12.11.15.03.41
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2019 15:03:41 -0800 (PST)
+Message-ID: <5df175cd.1c69fb81.27c3e.4ac6@mx.google.com>
+Date:   Wed, 11 Dec 2019 15:03:41 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191211150347.300543701@linuxfoundation.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.15-106-g0b6bd9e91738
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.3.y
+Subject: stable-rc/linux-5.3.y boot: 144 boots: 1 failed,
+ 134 passed with 5 offline, 3 untried/unknown,
+ 1 conflict (v5.3.15-106-g0b6bd9e91738)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-5.3.y boot: 144 boots: 1 failed, 134 passed with 5 offline,=
+ 3 untried/unknown, 1 conflict (v5.3.15-106-g0b6bd9e91738)
 
-On Wed, Dec 11, 2019 at 04:04:43PM +0100, Greg Kroah-Hartman wrote:
-> From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-> 
-> [ Upstream commit 9c698e8481a15237a5b1db5f8391dd66d59e42a4 ]
-> 
-> Current rsnd dvc.c is using flags to avoid duplicating register for
-> MIXer case. OTOH, commit e894efef9ac7 ("ASoC: core: add support to card
-> rebind") allows to rebind sound card without rebinding all drivers.
-> 
-> Because of above patch and dvc.c flags, it can't re-register kctrl if
-> only sound card was rebinded, because dvc is keeping old flags.
-> (Of course it will be no problem if rsnd driver also be rebinded,
-> but it is not purpose of above patch).
-> 
-> This patch checks current card registered kctrl when registering.
-> In MIXer case, it can avoid duplicate register if card already has same
-> kctrl. In rebind case, it can re-register kctrl because card registered
-> kctl had been removed when unbinding.
-> 
-> This patch is updated version of commit b918f1bc7f1ce ("ASoC: rsnd: DVC
-> kctrl sets once")
-> 
-> Reported-by: Nguyen Viet Dung <dung.nguyen.aj@renesas.com>
-> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-> Tested-by: Nguyen Viet Dung <dung.nguyen.aj@renesas.com>
-> Cc: Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.15-106-g0b6bd9e91738/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.15-106-g0b6bd9e91738/
 
-This commit also requires the following commit:
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.15-106-g0b6bd9e91738
+Git Commit: 0b6bd9e917380a84aa7cc28de11f897e121cd092
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 85 unique boards, 25 SoC families, 19 builds out of 208
 
-commit 7aea8a9d71d54f449f49e20324df06341cc18395
-Author: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Date:   Fri Feb 1 16:49:30 2019 +0900
+Boot Failure Detected:
 
-    ASoC: rsnd: fixup MIX kctrl registration
+arm64:
+    defconfig:
+        gcc-8:
+            meson-g12a-sei510: 1 failed lab
 
-    Renesas sound device has many IPs and many situations.
-    If platform/board uses MIXer, situation will be more complex.
-    To avoid duplicate DVC kctrl registration when MIXer was used,
-    it had original flags.
-    But it was issue when sound card was re-binded, because
-    no one can't cleanup this flags then.
+Offline Platforms:
 
-    To solve this issue, commit 9c698e8481a15237a ("ASoC: rsnd: tidyup
-    registering method for rsnd_kctrl_new()") checks registered
-    card->controls, because if card was re-binded, these were cleanuped
-    automatically. This patch could solve re-binding issue.
-    But, it start to avoid MIX kctrl.
+arm:
 
-    To solve these issues, we need below.
-    To avoid card re-binding issue: check registered card->controls
-    To avoid duplicate DVC registration: check registered rsnd_kctrl_cfg
-    To allow multiple MIX registration: check registered rsnd_kctrl_cfg
-    This patch do it.
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-    Fixes: 9c698e8481a15237a ("ASoC: rsnd: tidyup registering method for rsnd_kctrl_new()")
-    Reported-by: Jiada Wang <jiada_wang@mentor.com>
-    Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-    Tested-By: Jiada Wang <jiada_wang@mentor.com>
-    Signed-off-by: Mark Brown <broonie@kernel.org>
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
-Please apply this to 4.19.y and 4.14.y.
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-Best regards,
-  Nobuhiro
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm64:
+    defconfig:
+        meson-gxm-q200:
+            lab-baylibre: PASS (gcc-8)
+            lab-baylibre-seattle: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
