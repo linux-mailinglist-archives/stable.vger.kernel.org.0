@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BFF611B64E
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1A311B640
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731446AbfLKQAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:00:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38154 "EHLO mail.kernel.org"
+        id S1731534AbfLKPN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:13:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731518AbfLKPNy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:54 -0500
+        id S1731529AbfLKPN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05D3C24671;
-        Wed, 11 Dec 2019 15:13:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F8824658;
+        Wed, 11 Dec 2019 15:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077233;
-        bh=YZDLaGpkkxhtgpLhTYujEHIkbxT4G+SnPCF1vw6ijWs=;
+        s=default; t=1576077236;
+        bh=h5BqO0kEAfb6H6DsIZdtIPBAb14QrKDF4MSEnkQtzaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZVxuWjeMQzGUfHsytUkCgN8io5okDIN0x0xutV6PVFDO2T2KYg+KHbEryGJ2ZUxB
-         +3JRr64eavq3ZUlCI6EXK6Ob70MJY+Eq6VLJRgQYtCCXT5t1UXC+17keEFKdJBugwg
-         nX/SdeVA0lUoYIuej8jvM8S2b69LNOc/kRcvcvW8=
+        b=oFZ3/jopD77B03NPpCDy7pqJ0SAUEGSqB3tAf8AaOP51+PDzHCKfZnCAQK9UQ5EAK
+         nk9pWlLjCvSYA9GkDaTaousui3qcFHJzas1v+YYwtdkwUnALH6fTkGG/mXy9Bks8Sa
+         QiAlr7JEKMBZDMWA9JU95fD7mYzMMel5F2pXyRxU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@mykernel.net>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 112/134] f2fs: choose hardlimit when softlimit is larger than hardlimit in f2fs_statfs_project()
-Date:   Wed, 11 Dec 2019 10:11:28 -0500
-Message-Id: <20191211151150.19073-112-sashal@kernel.org>
+        user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 114/134] um: virtio: Keep reading on -EAGAIN
+Date:   Wed, 11 Dec 2019 10:11:30 -0500
+Message-Id: <20191211151150.19073-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -44,89 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 909110c060f22e65756659ec6fa957ae75777e00 ]
+[ Upstream commit 7e60746005573a06149cdee7acedf428906f3a59 ]
 
-Setting softlimit larger than hardlimit seems meaningless
-for disk quota but currently it is allowed. In this case,
-there may be a bit of comfusion for users when they run
-df comamnd to directory which has project quota.
+When we get an interrupt from the socket getting readable,
+and start reading, there's a possibility for a race. This
+depends on the implementation of the device, but e.g. with
+qemu's libvhost-user, we can see:
 
-For example, we set 20M softlimit and 10M hardlimit of
-block usage limit for project quota of test_dir(project id 123).
+ device                 virtio_uml
+---------------------------------------
+  write header
+                         get interrupt
+                         read header
+                         read body -> returns -EAGAIN
+  write body
 
-[root@hades f2fs]# repquota -P -a
-*** Report for project quotas on device /dev/nvme0n1p8
-Block grace time: 7days; Inode grace time: 7days
-Block limits File limits
-Project used soft hard grace used soft hard grace
-----------------------------------------------------------------------
-0 -- 4 0 0 1 0 0
-123 +- 10248 20480 10240 2 0 0
+The -EAGAIN return is because the socket is non-blocking,
+and then this leads us to abandon this message.
 
-The result of df command as below:
+In fact, we've already read the header, so when the get
+another signal/interrupt for the body, we again read it
+as though it's a new message header, and also abandon it
+for the same reason (wrong size etc.)
 
-[root@hades f2fs]# df -h /mnt/f2fs/test
-Filesystem Size Used Avail Use% Mounted on
-/dev/nvme0n1p8 20M 11M 10M 51% /mnt/f2fs
+This essentially breaks things, and if that message was
+one that required a response, it leads to a deadlock as
+the device is waiting for the response but we'll never
+reply.
 
-Even though it looks like there is another 10M free space to use,
-if we write new data to diretory test(inherit project id),
-the write will fail with errno(-EDQUOT).
+Fix this by spinning on -EAGAIN as well when we read the
+message body. We need to handle -EAGAIN as "no message"
+while reading the header, since we share an interrupt.
 
-After this patch, the df result looks like below.
+Note that this situation is highly unlikely to occur in
+normal usage, since there will be very few messages and
+only in the startup phase. With the inband call feature
+this does tend to happen (eventually) though.
 
-[root@hades f2fs]# df -h /mnt/f2fs/test
-Filesystem Size Used Avail Use% Mounted on
-/dev/nvme0n1p8 10M 10M 0 100% /mnt/f2fs
-
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ arch/um/drivers/virtio_uml.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 1443cee158633..a2af155567b80 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1213,9 +1213,13 @@ static int f2fs_statfs_project(struct super_block *sb,
- 		return PTR_ERR(dquot);
- 	spin_lock(&dquot->dq_dqb_lock);
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index fc8c52cff5aa8..c5643a59a8c76 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -83,7 +83,7 @@ static int full_sendmsg_fds(int fd, const void *buf, unsigned int len,
+ 	return 0;
+ }
  
--	limit = (dquot->dq_dqb.dqb_bsoftlimit ?
--		 dquot->dq_dqb.dqb_bsoftlimit :
--		 dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
-+	limit = 0;
-+	if (dquot->dq_dqb.dqb_bsoftlimit)
-+		limit = dquot->dq_dqb.dqb_bsoftlimit;
-+	if (dquot->dq_dqb.dqb_bhardlimit &&
-+			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
-+		limit = dquot->dq_dqb.dqb_bhardlimit;
-+
- 	if (limit && buf->f_blocks > limit) {
- 		curblock = dquot->dq_dqb.dqb_curspace >> sb->s_blocksize_bits;
- 		buf->f_blocks = limit;
-@@ -1224,9 +1228,13 @@ static int f2fs_statfs_project(struct super_block *sb,
- 			 (buf->f_blocks - curblock) : 0;
- 	}
+-static int full_read(int fd, void *buf, int len)
++static int full_read(int fd, void *buf, int len, bool abortable)
+ {
+ 	int rc;
  
--	limit = dquot->dq_dqb.dqb_isoftlimit ?
--		dquot->dq_dqb.dqb_isoftlimit :
--		dquot->dq_dqb.dqb_ihardlimit;
-+	limit = 0;
-+	if (dquot->dq_dqb.dqb_isoftlimit)
-+		limit = dquot->dq_dqb.dqb_isoftlimit;
-+	if (dquot->dq_dqb.dqb_ihardlimit &&
-+			(!limit || dquot->dq_dqb.dqb_ihardlimit < limit))
-+		limit = dquot->dq_dqb.dqb_ihardlimit;
-+
- 	if (limit && buf->f_files > limit) {
- 		buf->f_files = limit;
- 		buf->f_ffree =
+@@ -93,7 +93,7 @@ static int full_read(int fd, void *buf, int len)
+ 			buf += rc;
+ 			len -= rc;
+ 		}
+-	} while (len && (rc > 0 || rc == -EINTR));
++	} while (len && (rc > 0 || rc == -EINTR || (!abortable && rc == -EAGAIN)));
+ 
+ 	if (rc < 0)
+ 		return rc;
+@@ -104,7 +104,7 @@ static int full_read(int fd, void *buf, int len)
+ 
+ static int vhost_user_recv_header(int fd, struct vhost_user_msg *msg)
+ {
+-	return full_read(fd, msg, sizeof(msg->header));
++	return full_read(fd, msg, sizeof(msg->header), true);
+ }
+ 
+ static int vhost_user_recv(int fd, struct vhost_user_msg *msg,
+@@ -118,7 +118,7 @@ static int vhost_user_recv(int fd, struct vhost_user_msg *msg,
+ 	size = msg->header.size;
+ 	if (size > max_payload_size)
+ 		return -EPROTO;
+-	return full_read(fd, &msg->payload, size);
++	return full_read(fd, &msg->payload, size, false);
+ }
+ 
+ static int vhost_user_recv_resp(struct virtio_uml_device *vu_dev,
 -- 
 2.20.1
 
