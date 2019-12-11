@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E3D811B083
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:23:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C563C11AEE4
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732550AbfLKPXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:23:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54606 "EHLO mail.kernel.org"
+        id S1730511AbfLKPJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:09:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732729AbfLKPXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:23:33 -0500
+        id S1730523AbfLKPJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:09:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3E382073D;
-        Wed, 11 Dec 2019 15:23:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF92020663;
+        Wed, 11 Dec 2019 15:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077813;
-        bh=yrCqURBF1LS8Yk5NB9S0YYrG5mdalSXhXTNPvL/2Jew=;
+        s=default; t=1576076945;
+        bh=q3+oq0gWtFQMHwt+DBTLKJgXUEWmzfD4e1SdBz1EtXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ud+4YPcf0yUUf70YR3lG3ugiFczwk1vCDdfS/itV45PGcCeOwZG8iYUnHwBMFLfht
-         iJAKp4ziBPSeOuDrZq9W5vvZEBzEcjCw8VFJ+TrvYQar7Poilgw8YODschpcll7n43
-         WchR4r5l3vwG4EKaVdbpEluRi6kdaOyQwEFyV9AM=
+        b=XthJ9HhbJR9x0INTHu8Q5KSs7l/nnP2jnEPofPXupss0gBG2gl57dLgxTVnAbGo/f
+         62XAP/g59fyOmR8rlaZx3B2sAQMibZYRfBLVI3DJF68PnxCeFxYyKTt/xF1ieH/eYo
+         6udQFsQ0UdjrMLSrcEUzk2zapJXwy3+fljTQ0a6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Pape <ap@ca-pape.de>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 179/243] media: stkwebcam: Bugfix for wrong return values
-Date:   Wed, 11 Dec 2019 16:05:41 +0100
-Message-Id: <20191211150351.254659809@linuxfoundation.org>
+        stable@vger.kernel.org, Trond Myklebust <trondmy@gmail.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 5.4 51/92] nfsd: restore NFSv3 ACL support
+Date:   Wed, 11 Dec 2019 16:05:42 +0100
+Message-Id: <20191211150243.409641576@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Pape <ap@ca-pape.de>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 3c28b91380dd1183347d32d87d820818031ebecf ]
+commit 7c149057d044c52ed1e1d4ee50cf412c8d0f7295 upstream.
 
-usb_control_msg returns in case of a successfully sent message the number
-of sent bytes as a positive number. Don't use this value as a return value
-for stk_camera_read_reg, as a non-zero return value is used as an error
-condition in some cases when stk_camera_read_reg is called.
+An error in e333f3bbefe3 left the nfsd_acl_program->pg_vers array empty,
+which effectively turned off the server's support for NFSv3 ACLs.
 
-Signed-off-by: Andreas Pape <ap@ca-pape.de>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e333f3bbefe3 "nfsd: Allow containers to set supported nfs versions"
+Cc: stable@vger.kernel.org
+Cc: Trond Myklebust <trondmy@gmail.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/nfsd/nfssvc.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/stkwebcam/stk-webcam.c b/drivers/media/usb/stkwebcam/stk-webcam.c
-index 6e3f234e790b8..e33fa78ef98dd 100644
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -164,7 +164,11 @@ int stk_camera_read_reg(struct stk_camera *dev, u16 index, u8 *value)
- 		*value = *buf;
+--- a/fs/nfsd/nfssvc.c
++++ b/fs/nfsd/nfssvc.c
+@@ -95,12 +95,11 @@ static const struct svc_version *nfsd_ac
  
- 	kfree(buf);
--	return ret;
-+
-+	if (ret < 0)
-+		return ret;
-+	else
-+		return 0;
- }
+ #define NFSD_ACL_MINVERS            2
+ #define NFSD_ACL_NRVERS		ARRAY_SIZE(nfsd_acl_version)
+-static const struct svc_version *nfsd_acl_versions[NFSD_ACL_NRVERS];
  
- static int stk_start_stream(struct stk_camera *dev)
--- 
-2.20.1
-
+ static struct svc_program	nfsd_acl_program = {
+ 	.pg_prog		= NFS_ACL_PROGRAM,
+ 	.pg_nvers		= NFSD_ACL_NRVERS,
+-	.pg_vers		= nfsd_acl_versions,
++	.pg_vers		= nfsd_acl_version,
+ 	.pg_name		= "nfsacl",
+ 	.pg_class		= "nfsd",
+ 	.pg_stats		= &nfsd_acl_svcstats,
 
 
