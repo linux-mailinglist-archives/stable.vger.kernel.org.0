@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF8211AFFC
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8CB11AFFF
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:18:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731966AbfLKPSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:18:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46488 "EHLO mail.kernel.org"
+        id S1732134AbfLKPSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:18:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731859AbfLKPS2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:18:28 -0500
+        id S1732127AbfLKPSd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:18:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A7E422527;
-        Wed, 11 Dec 2019 15:18:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 718462073D;
+        Wed, 11 Dec 2019 15:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077508;
-        bh=oi0NwHz/0+UXCaZM5CXMYdplOMcRs9ZrS4m8zdYsDv0=;
+        s=default; t=1576077512;
+        bh=5LheclpOGsgHwvenYPaZGCTGNZTsutQjVMbV3lFliA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YG8pZxX478TdQet0bxu6/vhNQeQjJd7J2einetm+YtO68+/tKut9A0WqVOKZ1DLGa
-         dip1NQ1JPYj5JzAMA0FpLcYdu7FxVxoJDxsxRhdM+l7INhgMGA7HkzGTJxSSVDpBWK
-         YrLtCCaVzBjYJ6SUPZ9NU7rLX5a/N4Rq4QEIvBws=
+        b=A21pFT+3NthvgJwC/WVZzIi0jS8D2orEseMhF1yjaCszKsxXz4Zo+4Owi7OaCzHav
+         YWQbMHhPkoGyUigZVoQacA5HfDxnn2UJ1hsXqJRQBlyb9TcpD4c0QgjcgIwEfFvVy5
+         xkOwF1AT9AJsuapkCvZhq/leiT2W+6KhAhPbYeWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janne Huttunen <janne.huttunen@nokia.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Katsuhiro Suzuki <katsuhiro@katsuster.net>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 064/243] mm/vmstat.c: fix NUMA statistics updates
-Date:   Wed, 11 Dec 2019 16:03:46 +0100
-Message-Id: <20191211150343.419011891@linuxfoundation.org>
+Subject: [PATCH 4.19 066/243] clk: rockchip: fix ID of 8ch clock of I2S1 for rk3328
+Date:   Wed, 11 Dec 2019 16:03:48 +0100
+Message-Id: <20191211150343.554548784@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -46,53 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janne Huttunen <janne.huttunen@nokia.com>
+From: Katsuhiro Suzuki <katsuhiro@katsuster.net>
 
-[ Upstream commit 13c9aaf7fa01cc7600c61981609feadeef3354ec ]
+[ Upstream commit df7b1f2e0a4ae0fceff261e29cde63dafcf2360f ]
 
-Scan through the whole array to see if an update is needed.  While we're
-at it, use sizeof() to be safe against any possible type changes in the
-future.
+This patch fixes mistakes in HCLK_I2S1_8CH for running I2S1
+successfully.
 
-The bug here is that we wouldn't sync per-cpu counters into global ones
-if there was an update of numa_stats for higher cpus.  Highly
-theoretical one though because it is much more probable that zone_stats
-are updated so we would refresh anyway.  So I wouldn't bother to mark
-this for stable, yet something nice to fix.
-
-[mhocko@suse.com: changelog enhancement]
-Link: http://lkml.kernel.org/r/1541601517-17282-1-git-send-email-janne.huttunen@nokia.com
-Fixes: 1d90ca897cb0 ("mm: update NUMA counter threshold size")
-Signed-off-by: Janne Huttunen <janne.huttunen@nokia.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Katsuhiro Suzuki <katsuhiro@katsuster.net>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/vmstat.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ include/dt-bindings/clock/rk3328-cru.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index a2b2ea786c9b2..ce81b0a7d0186 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -1826,12 +1826,13 @@ static bool need_update(int cpu)
- 
- 		/*
- 		 * The fast way of checking if there are any vmstat diffs.
--		 * This works because the diffs are byte sized items.
- 		 */
--		if (memchr_inv(p->vm_stat_diff, 0, NR_VM_ZONE_STAT_ITEMS))
-+		if (memchr_inv(p->vm_stat_diff, 0, NR_VM_ZONE_STAT_ITEMS *
-+			       sizeof(p->vm_stat_diff[0])))
- 			return true;
- #ifdef CONFIG_NUMA
--		if (memchr_inv(p->vm_numa_stat_diff, 0, NR_VM_NUMA_STAT_ITEMS))
-+		if (memchr_inv(p->vm_numa_stat_diff, 0, NR_VM_NUMA_STAT_ITEMS *
-+			       sizeof(p->vm_numa_stat_diff[0])))
- 			return true;
- #endif
- 	}
+diff --git a/include/dt-bindings/clock/rk3328-cru.h b/include/dt-bindings/clock/rk3328-cru.h
+index a82a0109faffe..9d5f799469eee 100644
+--- a/include/dt-bindings/clock/rk3328-cru.h
++++ b/include/dt-bindings/clock/rk3328-cru.h
+@@ -178,7 +178,7 @@
+ #define HCLK_TSP		309
+ #define HCLK_GMAC		310
+ #define HCLK_I2S0_8CH		311
+-#define HCLK_I2S1_8CH		313
++#define HCLK_I2S1_8CH		312
+ #define HCLK_I2S2_2CH		313
+ #define HCLK_SPDIF_8CH		314
+ #define HCLK_VOP		315
 -- 
 2.20.1
 
