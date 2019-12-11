@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A2711B0CB
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C80111B0CD
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732959AbfLKP0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:26:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
+        id S1732793AbfLKP0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:26:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733086AbfLKP0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:26:13 -0500
+        id S1732801AbfLKP0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:26:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C50702077B;
-        Wed, 11 Dec 2019 15:26:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E595122527;
+        Wed, 11 Dec 2019 15:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077973;
-        bh=0cOWgBEJE46qjR9ep9p3bmW4dApd6hg4u3c71hbanV4=;
+        s=default; t=1576077976;
+        bh=yKYyV8WCc8qaM7E40q6OGjSrK/U8pEFIfTyF9vhkoGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XrDgccvuNzSyBmJAHoreAjkDRAlrV5e7oC4sjT9TJPJRXt9nbarpalV3BxAln9bnl
-         W8rCca3R22fgcuHKt9UbnAYFMemfK/00tP79tUCgHcmQi9L2zeXUUjeBsr9GB7oWdL
-         HUkpmhMk5cW+D67ZXxEvzI04aWLAaCiblE5XlBJw=
+        b=Pq+m8OxVp9cmy0WGvCmLoP/oOTJpL9J9icDjaTiHJLEeTJpPetIGSJIbWBSBfN1Uu
+         Wrek7ZjmTy+TOMqQnapHASv7NSU6/81uQLwpiY+ZSLn+KNgy2cKCgq2GCIHICPADOM
+         y0E3HYtFVPVLuVr9hNVVtx/ZSDhSK+28WSI5X4KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jann Horn <jannh@google.com>,
         Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 4.19 242/243] binder: Fix race between mmap() and binder_alloc_print_pages()
-Date:   Wed, 11 Dec 2019 16:06:44 +0100
-Message-Id: <20191211150355.674743562@linuxfoundation.org>
+Subject: [PATCH 4.19 243/243] binder: Handle start==NULL in binder_update_page_range()
+Date:   Wed, 11 Dec 2019 16:06:45 +0100
+Message-Id: <20191211150355.743952632@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -45,61 +45,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jann Horn <jannh@google.com>
 
-commit 8eb52a1ee37aafd9b796713aa0b3ab9cbc455be3 upstream.
+commit 2a9edd056ed4fbf9d2e797c3fc06335af35bccc4 upstream.
 
-binder_alloc_print_pages() iterates over
-alloc->pages[0..alloc->buffer_size-1] under alloc->mutex.
-binder_alloc_mmap_handler() writes alloc->pages and alloc->buffer_size
-without holding that lock, and even writes them before the last bailout
-point.
+The old loop wouldn't stop when reaching `start` if `start==NULL`, instead
+continuing backwards to index -1 and crashing.
 
-Unfortunately we can't take the alloc->mutex in the ->mmap() handler
-because mmap_sem can be taken while alloc->mutex is held.
-So instead, we have to locklessly check whether the binder_alloc has been
-fully initialized with binder_alloc_get_vma(), like in
-binder_alloc_new_buf_locked().
+Luckily you need to be highly privileged to map things at NULL, so it's not
+a big problem.
 
-Fixes: 8ef4665aa129 ("android: binder: Add page usage in binder stats")
+Fix it by adjusting the loop so that the loop variable is always in bounds.
+
+This patch is deliberately minimal to simplify backporting, but IMO this
+function could use a refactor. The jump labels in the second loop body are
+horrible (the error gotos should be jumping to free_range instead), and
+both loops would look nicer if they just iterated upwards through indices.
+And the up_read()+mmput() shouldn't be duplicated like that.
+
 Cc: stable@vger.kernel.org
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
 Signed-off-by: Jann Horn <jannh@google.com>
 Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/20191018205631.248274-1-jannh@google.com
+Link: https://lore.kernel.org/r/20191018205631.248274-3-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder_alloc.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/android/binder_alloc.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 --- a/drivers/android/binder_alloc.c
 +++ b/drivers/android/binder_alloc.c
-@@ -880,14 +880,20 @@ void binder_alloc_print_pages(struct seq
- 	int free = 0;
+@@ -295,8 +295,7 @@ static int binder_update_page_range(stru
+ 	return 0;
  
- 	mutex_lock(&alloc->mutex);
--	for (i = 0; i < alloc->buffer_size / PAGE_SIZE; i++) {
--		page = &alloc->pages[i];
--		if (!page->page_ptr)
--			free++;
--		else if (list_empty(&page->lru))
--			active++;
--		else
--			lru++;
-+	/*
-+	 * Make sure the binder_alloc is fully initialized, otherwise we might
-+	 * read inconsistent state.
-+	 */
-+	if (binder_alloc_get_vma(alloc) != NULL) {
-+		for (i = 0; i < alloc->buffer_size / PAGE_SIZE; i++) {
-+			page = &alloc->pages[i];
-+			if (!page->page_ptr)
-+				free++;
-+			else if (list_empty(&page->lru))
-+				active++;
-+			else
-+				lru++;
-+		}
+ free_range:
+-	for (page_addr = end - PAGE_SIZE; page_addr >= start;
+-	     page_addr -= PAGE_SIZE) {
++	for (page_addr = end - PAGE_SIZE; 1; page_addr -= PAGE_SIZE) {
+ 		bool ret;
+ 		size_t index;
+ 
+@@ -309,6 +308,8 @@ free_range:
+ 		WARN_ON(!ret);
+ 
+ 		trace_binder_free_lru_end(alloc, index);
++		if (page_addr == start)
++			break;
+ 		continue;
+ 
+ err_vm_insert_page_failed:
+@@ -318,7 +319,8 @@ err_map_kernel_failed:
+ 		page->page_ptr = NULL;
+ err_alloc_page_failed:
+ err_page_ptr_cleared:
+-		;
++		if (page_addr == start)
++			break;
  	}
- 	mutex_unlock(&alloc->mutex);
- 	seq_printf(m, "  pages: %d:%d:%d\n", active, lru, free);
+ err_no_vma:
+ 	if (mm) {
 
 
