@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AF511B769
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:07:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3956B11B75F
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:07:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731233AbfLKQHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:07:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
+        id S1729857AbfLKPM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:12:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730779AbfLKPM0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:26 -0500
+        id S1731131AbfLKPM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D16472173E;
-        Wed, 11 Dec 2019 15:12:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAFE92465E;
+        Wed, 11 Dec 2019 15:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077145;
-        bh=augGkbXHJw6P2iLfo2wzGVeVGt69JYF7/I1eVjsO2S0=;
+        s=default; t=1576077147;
+        bh=z63DRufKh+HaVrDTfZRb6x5UHAIAw5yQ6olP9JxInJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maAnRy/f9Z/h47H+PvCAjReHyVQNPyjk+d5JUnKvRkCYxeF2YZ1tHmcgnPwKi0nOK
-         5EuFpwTxkNdoCD2DuPk2xguZAfvFoZ5vBoQ6QBU8ELw01NY3v6qixPC9QB9uuIsdIY
-         ELJJhQ3Ucgq5cI+osN8kPCui7wflTILAOVxO3LkI=
+        b=GyuUH5uZuZcPgRHmyjAjWChBuxNxz+Nu7x24uH4sFi1/P2lpm5L0qkzJYdwHSu/k2
+         AG+v69wgMmAkStvQBLd0jxMC8srJiJgK3yFT09CPDyrsvgYe/mMREb5m4Ns4Tt9QxN
+         9nPDR8BGU+t02s2Rzk0bO5ddI8M1FSQwqlElA8QA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Pavel Machek <pavel@ucw.cz>, Dan Murphy <dmurphy@ti.com>,
+Cc:     Martin Schiller <ms@dev.tdt.de>, Pavel Machek <pavel@ucw.cz>,
         Sasha Levin <sashal@kernel.org>, linux-leds@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 032/134] leds: lm3692x: Handle failure to probe the regulator
-Date:   Wed, 11 Dec 2019 10:10:08 -0500
-Message-Id: <20191211151150.19073-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 034/134] leds: trigger: netdev: fix handling on interface rename
+Date:   Wed, 11 Dec 2019 10:10:10 -0500
+Message-Id: <20191211151150.19073-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,47 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guido Günther <agx@sigxcpu.org>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit 396128d2ffcba6e1954cfdc9a89293ff79cbfd7c ]
+[ Upstream commit 5f820ed52371b4f5d8c43c93f03408d0dbc01e5b ]
 
-Instead use devm_regulator_get_optional since the regulator
-is optional and check for errors.
+The NETDEV_CHANGENAME code is not "unneeded" like it is stated in commit
+4cb6560514fa ("leds: trigger: netdev: fix refcnt leak on interface
+rename").
 
-Signed-off-by: Guido Günther <agx@sigxcpu.org>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Reviewed-by: Dan Murphy <dmurphy@ti.com>
+The event was accidentally misinterpreted equivalent to
+NETDEV_UNREGISTER, but should be equivalent to NETDEV_REGISTER.
+
+This was the case in the original code from the openwrt project.
+
+Otherwise, you are unable to set netdev led triggers for (non-existent)
+netdevices, which has to be renamed. This is the case, for example, for
+ppp interfaces in openwrt.
+
+Fixes: 06f502f57d0d ("leds: trigger: Introduce a NETDEV trigger")
+Fixes: 4cb6560514fa ("leds: trigger: netdev: fix refcnt leak on interface rename")
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-lm3692x.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/leds/trigger/ledtrig-netdev.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/leds/leds-lm3692x.c b/drivers/leds/leds-lm3692x.c
-index 3d381f2f73d04..1ac9a44570eed 100644
---- a/drivers/leds/leds-lm3692x.c
-+++ b/drivers/leds/leds-lm3692x.c
-@@ -334,9 +334,18 @@ static int lm3692x_probe_dt(struct lm3692x_led *led)
- 		return ret;
- 	}
+diff --git a/drivers/leds/trigger/ledtrig-netdev.c b/drivers/leds/trigger/ledtrig-netdev.c
+index 136f86a1627d1..d5e774d830215 100644
+--- a/drivers/leds/trigger/ledtrig-netdev.c
++++ b/drivers/leds/trigger/ledtrig-netdev.c
+@@ -302,10 +302,12 @@ static int netdev_trig_notify(struct notifier_block *nb,
+ 		container_of(nb, struct led_netdev_data, notifier);
  
--	led->regulator = devm_regulator_get(&led->client->dev, "vled");
--	if (IS_ERR(led->regulator))
-+	led->regulator = devm_regulator_get_optional(&led->client->dev, "vled");
-+	if (IS_ERR(led->regulator)) {
-+		ret = PTR_ERR(led->regulator);
-+		if (ret != -ENODEV) {
-+			if (ret != -EPROBE_DEFER)
-+				dev_err(&led->client->dev,
-+					"Failed to get vled regulator: %d\n",
-+					ret);
-+			return ret;
-+		}
- 		led->regulator = NULL;
-+	}
+ 	if (evt != NETDEV_UP && evt != NETDEV_DOWN && evt != NETDEV_CHANGE
+-	    && evt != NETDEV_REGISTER && evt != NETDEV_UNREGISTER)
++	    && evt != NETDEV_REGISTER && evt != NETDEV_UNREGISTER
++	    && evt != NETDEV_CHANGENAME)
+ 		return NOTIFY_DONE;
  
- 	child = device_get_next_child_node(&led->client->dev, child);
- 	if (!child) {
+ 	if (!(dev == trigger_data->net_dev ||
++	      (evt == NETDEV_CHANGENAME && !strcmp(dev->name, trigger_data->device_name)) ||
+ 	      (evt == NETDEV_REGISTER && !strcmp(dev->name, trigger_data->device_name))))
+ 		return NOTIFY_DONE;
+ 
+@@ -315,6 +317,7 @@ static int netdev_trig_notify(struct notifier_block *nb,
+ 
+ 	clear_bit(NETDEV_LED_MODE_LINKUP, &trigger_data->mode);
+ 	switch (evt) {
++	case NETDEV_CHANGENAME:
+ 	case NETDEV_REGISTER:
+ 		if (trigger_data->net_dev)
+ 			dev_put(trigger_data->net_dev);
 -- 
 2.20.1
 
