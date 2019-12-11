@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B65B11B641
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3EF11B649
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731540AbfLKPN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38340 "EHLO mail.kernel.org"
+        id S1730773AbfLKP7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:59:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731407AbfLKPN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:57 -0500
+        id S1731544AbfLKPN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67FF72467F;
-        Wed, 11 Dec 2019 15:13:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 664BA24689;
+        Wed, 11 Dec 2019 15:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077237;
-        bh=MQ8u2nAzTaS09fIn+NYPYndpuXCzEbpCAK/92eCdwzw=;
+        s=default; t=1576077238;
+        bh=IMKUB3WFZG/+SvJTD6DakkLU6JGoz3fFgZ4SomQZJQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EioR8lnP1qTW4sTmBmU0JIbFw0J+8sawt04IzY/9hMKSN//e0FPAM4jM3+QI0MUee
-         YVO4bMlAsjhcBWTMzzzobei497LMS8h5A+8bsvgL7QRoaWFOSX4kCyxNxHcOK/HsAo
-         RcoSxnnchouAt6HLaCuIZbio4DpuHkZOfa3w0zEQ=
+        b=is+9F5t0XtX/Z6al/ApsVcyz/eaIp+3c6AEzjNYwEB9L+nQG5W9csovDxjqtrTEeV
+         nXMNEywUWT/1CSiEQaZufwW1lGkZn05oBP0SG9/SS0IEdj++qDZ3j3F/IDL5VS6/w9
+         oqKg+ULuN0MeZmwe9ORfrvL9yh6BXADFCYhQiK6o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 115/134] io_uring: io_allocate_scq_urings() should return a sane state
-Date:   Wed, 11 Dec 2019 10:11:31 -0500
-Message-Id: <20191211151150.19073-115-sashal@kernel.org>
+Cc:     Erhard Furtner <erhard_f@mailbox.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 116/134] of: unittest: fix memory leak in attach_node_and_children
+Date:   Wed, 11 Dec 2019 10:11:32 -0500
+Message-Id: <20191211151150.19073-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -43,49 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Erhard Furtner <erhard_f@mailbox.org>
 
-[ Upstream commit eb065d301e8c83643367bdb0898becc364046bda ]
+[ Upstream commit 2aacace6dbbb6b6ce4e177e6c7ea901f389c0472 ]
 
-We currently rely on the ring destroy on cleaning things up in case of
-failure, but io_allocate_scq_urings() can leave things half initialized
-if only parts of it fails.
+In attach_node_and_children memory is allocated for full_name via
+kasprintf. If the condition of the 1st if is not met the function
+returns early without freeing the memory. Add a kfree() to fix that.
 
-Be nice and return with either everything setup in success, or return an
-error with things nicely cleaned up.
+This has been detected with kmemleak:
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=205327
 
-Reported-by: syzbot+0d818c0d39399188f393@syzkaller.appspotmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+It looks like the leak was introduced by this commit:
+Fixes: 5babefb7f7ab ("of: unittest: allow base devicetree to have symbol metadata")
+
+Signed-off-by: Erhard Furtner <erhard_f@mailbox.org>
+Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/of/unittest.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index cbe8dabb6479c..7e900bfd24718 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3756,12 +3756,18 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
- 	ctx->cq_entries = rings->cq_ring_entries;
+diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
+index 92e895d864584..ca7823eef2b40 100644
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -1146,8 +1146,10 @@ static void attach_node_and_children(struct device_node *np)
+ 	full_name = kasprintf(GFP_KERNEL, "%pOF", np);
  
- 	size = array_size(sizeof(struct io_uring_sqe), p->sq_entries);
--	if (size == SIZE_MAX)
-+	if (size == SIZE_MAX) {
-+		io_mem_free(ctx->rings);
-+		ctx->rings = NULL;
- 		return -EOVERFLOW;
+ 	if (!strcmp(full_name, "/__local_fixups__") ||
+-	    !strcmp(full_name, "/__fixups__"))
++	    !strcmp(full_name, "/__fixups__")) {
++		kfree(full_name);
+ 		return;
 +	}
  
- 	ctx->sq_sqes = io_mem_alloc(size);
--	if (!ctx->sq_sqes)
-+	if (!ctx->sq_sqes) {
-+		io_mem_free(ctx->rings);
-+		ctx->rings = NULL;
- 		return -ENOMEM;
-+	}
- 
- 	return 0;
- }
+ 	dup = of_find_node_by_path(full_name);
+ 	kfree(full_name);
 -- 
 2.20.1
 
