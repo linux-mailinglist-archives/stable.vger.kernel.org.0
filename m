@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B1C11B47B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B66D11B63E
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732946AbfLKPsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:48:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58212 "EHLO mail.kernel.org"
+        id S1731523AbfLKPNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:13:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732708AbfLKPZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:25:45 -0500
+        id S1729609AbfLKPNy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64479222C4;
-        Wed, 11 Dec 2019 15:25:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0E0024656;
+        Wed, 11 Dec 2019 15:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077944;
-        bh=DmWcfohSP5XuUcgyaV8I3EcWyxysVv3CmIaRpnEl+SI=;
+        s=default; t=1576077234;
+        bh=ZR19IDXpPk3hAdCKhmbkx3xf7pwKHMAIoGz17JSoSRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTZfNTvIr9B+m2jcSwjvnPdMru+ATIrDOnJyCU654P/Rf0qLZsLzyepRae+7xc0cr
-         oDNuEcgsSn+O1fLcgDAMwYHkh1Btl3itSgr7C7wBG1xf031Yiozm+721KeUhZtzMqQ
-         zXnZn5K5XeAFRRpmbPlbP82VZtejevuAF6W+heIc=
+        b=tQIUOi2x0k3nsiEF62uSST/ZXTW92tA7P84c/adRryitB3J1+B4XBC3BevYu3BmUA
+         Ly0v+0t0olW2dip6So/cunjE8m7lvM9YojSMjqC8wVshN/T58y9AxJxanHjG3pNul7
+         clE7eaK7CHvzbpTiNuFkU5Cub7CTG27RrVS9T/AY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Brack <fb@ltec.ch>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 193/243] ARM: dts: am335x-pdu001: Fix polarity of card detection input
-Date:   Wed, 11 Dec 2019 16:05:55 +0100
-Message-Id: <20191211150352.200993376@linuxfoundation.org>
+        stable@vger.kernel.org, Wolfgang Grandegger <wg@grandegger.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        David Miller <davem@davemloft.net>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 5.3 067/105] can: slcan: Fix use-after-free Read in slcan_open
+Date:   Wed, 11 Dec 2019 16:05:56 +0100
+Message-Id: <20191211150248.307148093@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Brack <fb@ltec.ch>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-[ Upstream commit 5760367298a37c459ef0b1364463d70fd9a1f972 ]
+commit 9ebd796e24008f33f06ebea5a5e6aceb68b51794 upstream.
 
-When a micro SD card is inserted in the PDU001 card cage, the card
-detection switch is opened and the corresponding GPIO input is driven
-by a pull-up. Hence change the active level of the card detection
-input from low to high.
+Slcan_open doesn't clean-up device which registration failed from the
+slcan_devs device list. On next open this list is iterated and freed
+device is accessed. Fix this by calling slc_free_netdev in error path.
 
-Signed-off-by: Felix Brack <fb@ltec.ch>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Driver/net/can/slcan.c is derived from slip.c. Use-after-free error was
+identified in slip_open by syzboz. Same bug is in slcan.c. Here is the
+trace from the Syzbot slip report:
+
+__dump_stack lib/dump_stack.c:77 [inline]
+dump_stack+0x197/0x210 lib/dump_stack.c:118
+print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+__kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
+kasan_report+0x12/0x20 mm/kasan/common.c:634
+__asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:132
+sl_sync drivers/net/slip/slip.c:725 [inline]
+slip_open+0xecd/0x11b7 drivers/net/slip/slip.c:801
+tty_ldisc_open.isra.0+0xa3/0x110 drivers/tty/tty_ldisc.c:469
+tty_set_ldisc+0x30e/0x6b0 drivers/tty/tty_ldisc.c:596
+tiocsetd drivers/tty/tty_io.c:2334 [inline]
+tty_ioctl+0xe8d/0x14f0 drivers/tty/tty_io.c:2594
+vfs_ioctl fs/ioctl.c:46 [inline]
+file_ioctl fs/ioctl.c:509 [inline]
+do_vfs_ioctl+0xdb6/0x13e0 fs/ioctl.c:696
+ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+__do_sys_ioctl fs/ioctl.c:720 [inline]
+__se_sys_ioctl fs/ioctl.c:718 [inline]
+__x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: ed50e1600b44 ("slcan: Fix memory leak in error path")
+Cc: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: David Miller <davem@davemloft.net>
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.4
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/am335x-pdu001.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/slcan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/am335x-pdu001.dts b/arch/arm/boot/dts/am335x-pdu001.dts
-index 34fb63ef420f5..f56798efddff3 100644
---- a/arch/arm/boot/dts/am335x-pdu001.dts
-+++ b/arch/arm/boot/dts/am335x-pdu001.dts
-@@ -577,7 +577,7 @@
- 	bus-width = <4>;
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&mmc2_pins>;
--	cd-gpios = <&gpio2 2 GPIO_ACTIVE_LOW>;
-+	cd-gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
- };
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -613,6 +613,7 @@ err_free_chan:
+ 	sl->tty = NULL;
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
++	slc_free_netdev(sl->dev);
+ 	free_netdev(sl->dev);
  
- &sham {
--- 
-2.20.1
-
+ err_exit:
 
 
