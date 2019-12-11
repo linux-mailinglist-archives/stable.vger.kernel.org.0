@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B6D11B479
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B1C11B47B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732719AbfLKPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:25:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58120 "EHLO mail.kernel.org"
+        id S1732946AbfLKPsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:48:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732716AbfLKPZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:25:43 -0500
+        id S1732708AbfLKPZp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:25:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0F4F2173E;
-        Wed, 11 Dec 2019 15:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64479222C4;
+        Wed, 11 Dec 2019 15:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077942;
-        bh=cZpitACy2KXnabzudAg8l5hYZuEEYB2y4ZV+QDVz0gA=;
+        s=default; t=1576077944;
+        bh=DmWcfohSP5XuUcgyaV8I3EcWyxysVv3CmIaRpnEl+SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vbDz181FPXVf5MmuIYp78hG7wE2KThSdBwpCL7lzStdMVLXXUm0pdNVn+VJHxQb94
-         ObtdIvf5xTf9NT+LX8T2DPFwMdADNkT0pdKYeQZChf6VXAEHtfA50ZZZ5wCLyzFGwd
-         aHCmg1z6QvMWhDGqKXVqrsTt8k17VTm4lbgw3YVo=
+        b=RTZfNTvIr9B+m2jcSwjvnPdMru+ATIrDOnJyCU654P/Rf0qLZsLzyepRae+7xc0cr
+         oDNuEcgsSn+O1fLcgDAMwYHkh1Btl3itSgr7C7wBG1xf031Yiozm+721KeUhZtzMqQ
+         zXnZn5K5XeAFRRpmbPlbP82VZtejevuAF6W+heIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh@kernel.org>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Felix Brack <fb@ltec.ch>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 192/243] ARM: dts: sunxi: Fix PMU compatible strings
-Date:   Wed, 11 Dec 2019 16:05:54 +0100
-Message-Id: <20191211150352.132077034@linuxfoundation.org>
+Subject: [PATCH 4.19 193/243] ARM: dts: am335x-pdu001: Fix polarity of card detection input
+Date:   Wed, 11 Dec 2019 16:05:55 +0100
+Message-Id: <20191211150352.200993376@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -45,50 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Felix Brack <fb@ltec.ch>
 
-[ Upstream commit 5719ac19fc32d892434939c1756c2f9a8322e6ef ]
+[ Upstream commit 5760367298a37c459ef0b1364463d70fd9a1f972 ]
 
-"arm,cortex-a15-pmu" is not a valid fallback compatible string for an
-Cortex-A7 PMU, so drop it.
+When a micro SD card is inserted in the PDU001 card cage, the card
+detection switch is opened and the corresponding GPIO input is driven
+by a pull-up. Hence change the active level of the card detection
+input from low to high.
 
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Felix Brack <fb@ltec.ch>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun6i-a31.dtsi | 2 +-
- arch/arm/boot/dts/sun7i-a20.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/am335x-pdu001.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sun6i-a31.dtsi b/arch/arm/boot/dts/sun6i-a31.dtsi
-index debc0bf22ea3b..76924fa42bbc3 100644
---- a/arch/arm/boot/dts/sun6i-a31.dtsi
-+++ b/arch/arm/boot/dts/sun6i-a31.dtsi
-@@ -201,7 +201,7 @@
- 	};
+diff --git a/arch/arm/boot/dts/am335x-pdu001.dts b/arch/arm/boot/dts/am335x-pdu001.dts
+index 34fb63ef420f5..f56798efddff3 100644
+--- a/arch/arm/boot/dts/am335x-pdu001.dts
++++ b/arch/arm/boot/dts/am335x-pdu001.dts
+@@ -577,7 +577,7 @@
+ 	bus-width = <4>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc2_pins>;
+-	cd-gpios = <&gpio2 2 GPIO_ACTIVE_LOW>;
++	cd-gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
+ };
  
- 	pmu {
--		compatible = "arm,cortex-a7-pmu", "arm,cortex-a15-pmu";
-+		compatible = "arm,cortex-a7-pmu";
- 		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
-diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-index 73e789a133de1..355619dce7994 100644
---- a/arch/arm/boot/dts/sun7i-a20.dtsi
-+++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -183,7 +183,7 @@
- 	};
- 
- 	pmu {
--		compatible = "arm,cortex-a7-pmu", "arm,cortex-a15-pmu";
-+		compatible = "arm,cortex-a7-pmu";
- 		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>;
- 	};
+ &sham {
 -- 
 2.20.1
 
