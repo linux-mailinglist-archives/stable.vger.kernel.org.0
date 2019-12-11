@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C0A11AFE9
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C2A411AFEB
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731750AbfLKPRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:17:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45330 "EHLO mail.kernel.org"
+        id S1731467AbfLKPRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:17:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731758AbfLKPRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:17:48 -0500
+        id S1731235AbfLKPRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:17:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 772BD22527;
-        Wed, 11 Dec 2019 15:17:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF2022465B;
+        Wed, 11 Dec 2019 15:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077467;
-        bh=wTOKYoN1hkwRLsnXsfoUdKsY9axvXnpmtkXwjRKK4/A=;
+        s=default; t=1576077470;
+        bh=eBUsIrn8tyS2GcBir4hCADm6iOSPJDT7OZQUrpse4Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahjN4SJE6xmL6x8p9g6iejhbGHnp33PF+Mc56QGqQjKqJHVCjlFKwgibhX+HYGiZS
-         ozZHLc6TO+ZGZYCTjFsTe/G1vYQdyGa1Bu8v8qH/tdprkOt7TEf1nB4vGPfN6B5Qlh
-         vVvGFZf8tqCDE3h+HoCcq64LnxZy+5J7vpWJ20ds=
+        b=u4EPu2MuqidahLF65DExqTCIu07l2B0eTsif9xzVOXuWdbSUPwzSuSQ+7FmWHZia/
+         GlUYCURJM2qhNpcpgd6Vif5D+29rv50kjAY45z/R7ucRBl3waDiEqC8vzJGGst6iFm
+         Bv6/kOFpf959kcVilzy00+bEbRktKWv2BzvRgqRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/243] dlm: fix missing idr_destroy for recover_idr
-Date:   Wed, 11 Dec 2019 16:03:32 +0100
-Message-Id: <20191211150342.474126697@linuxfoundation.org>
+Subject: [PATCH 4.19 051/243] MIPS: SiByte: Enable ZONE_DMA32 for LittleSur
+Date:   Wed, 11 Dec 2019 16:03:33 +0100
+Message-Id: <20191211150342.539207592@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -43,30 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Teigland <teigland@redhat.com>
+From: Maciej W. Rozycki <macro@linux-mips.org>
 
-[ Upstream commit 8fc6ed9a3508a0435b9270c313600799d210d319 ]
+[ Upstream commit 756d6d836dbfb04a5a486bc2ec89397aa4533737 ]
 
-Which would leak memory for the idr internals.
+The LittleSur board is marked for high memory support and therefore
+clearly must provide a way to have enough memory installed for some to
+be present outside the low 4GiB physical address range.  With the memory
+map of the BCM1250 SOC it has been built around it means over 1GiB of
+actual DRAM, as only the first 1GiB is mapped in the low 4GiB physical
+address range[1].
 
-Signed-off-by: David Teigland <teigland@redhat.com>
+Complement commit cce335ae47e2 ("[MIPS] 64-bit Sibyte kernels need
+DMA32.") then and also enable ZONE_DMA32 for LittleSur.
+
+
+[1] "BCM1250/BCM1125/BCM1125H User Manual", Revision 1250_1125-UM100-R,
+    Broadcom Corporation, 21 Oct 2002, Section 3: "System Overview",
+    "Memory Map", pp. 34-38
+
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Patchwork: https://patchwork.linux-mips.org/patch/21107/
+Fixes: cce335ae47e2 ("[MIPS] 64-bit Sibyte kernels need DMA32.")
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-mips@linux-mips.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lockspace.c | 1 +
+ arch/mips/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
-index 6a1529e478f3d..f1261fa0af8a1 100644
---- a/fs/dlm/lockspace.c
-+++ b/fs/dlm/lockspace.c
-@@ -807,6 +807,7 @@ static int release_lockspace(struct dlm_ls *ls, int force)
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 201caf226b47b..a830a9701e501 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -806,6 +806,7 @@ config SIBYTE_LITTLESUR
+ 	select SYS_SUPPORTS_BIG_ENDIAN
+ 	select SYS_SUPPORTS_HIGHMEM
+ 	select SYS_SUPPORTS_LITTLE_ENDIAN
++	select ZONE_DMA32 if 64BIT
  
- 	dlm_delete_debug_file(ls);
- 
-+	idr_destroy(&ls->ls_recover_idr);
- 	kfree(ls->ls_recover_buf);
- 
- 	/*
+ config SIBYTE_SENTOSA
+ 	bool "Sibyte BCM91250E-Sentosa"
 -- 
 2.20.1
 
