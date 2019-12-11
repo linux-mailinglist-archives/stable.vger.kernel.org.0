@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB29411B525
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:52:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E361311B4D6
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:51:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732436AbfLKPVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:21:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
+        id S1732380AbfLKPWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:22:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732433AbfLKPVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:21:14 -0500
+        id S1732573AbfLKPWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:22:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 461982073D;
-        Wed, 11 Dec 2019 15:21:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B10CA2073D;
+        Wed, 11 Dec 2019 15:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077673;
-        bh=beiUjmyuBgp35NQy+gRPHb1sOJ7HQPGyZw4jEV+9fjA=;
+        s=default; t=1576077737;
+        bh=YqjW69vwErr91/xZdqliXDP/8OWoPj/I6tAL6NlEC/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=epu5EwdQ/z0gor9VZGg2MrJaQjgtrr+RcN7dSVyphuU+/Jk9pW59/Jt1x+NNp9oDx
-         hkBkjwHrfpxGrWhmRKFt/DqxFo3T45WnBOOAdYfNs5f+GjO3EqyB9SEJTLWOMulsvT
-         Xz7u+BEPdJkc8yRQvBZTB/jrhWhpjl9CR9C604KM=
+        b=WUueRgJ4M/Wu1yHkMVZ5kZJjxj1TGPAIUq8scS6mOg0zoJKFuGtKCSKE5TGT7G+Z+
+         3BrD4aZBwIUZaFGabKrC2HOuSih6+CMm8uyBCGsBsvcFXkeO8vkmiD95BkF5r6udKn
+         GbFkB8jd96wV6k3t85p8AL14SG+PHROHcP6zMD8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Busch <keith.busch@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/243] nvme: Free ctrl device name on init failure
-Date:   Wed, 11 Dec 2019 16:04:32 +0100
-Message-Id: <20191211150346.558585307@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 114/243] serial: imx: fix error handling in console_setup
+Date:   Wed, 11 Dec 2019 16:04:36 +0100
+Message-Id: <20191211150346.829357354@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -43,34 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <keith.busch@intel.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit d6a2b9535d1e52bea269c138614c4801469d10e1 ]
+[ Upstream commit 63fd4b94b948c14eeb27a3bbf50ea0f7f0593bad ]
 
-Free the kobject name that was allocated for the controller device on
-failure rather than its parent.
+The ipg clock only needs to be unprepared in case preparing
+per clock fails. The ipg clock has already disabled at the point.
 
-Fixes: d22524a4782a9 ("nvme: switch controller refcounting to use struct device")
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 1cf93e0d5488 ("serial: imx: remove the uart_console() check")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 2 +-
+ drivers/tty/serial/imx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index c4ff4f079448e..b2d9bd564960a 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3652,7 +3652,7 @@ int nvme_init_ctrl(struct nvme_ctrl *ctrl, struct device *dev,
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 105de92b0b3bf..989ca7d662f3f 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -2071,7 +2071,7 @@ imx_uart_console_setup(struct console *co, char *options)
  
- 	return 0;
- out_free_name:
--	kfree_const(dev->kobj.name);
-+	kfree_const(ctrl->device->kobj.name);
- out_release_instance:
- 	ida_simple_remove(&nvme_instance_ida, ctrl->instance);
- out:
+ 	retval = clk_prepare(sport->clk_per);
+ 	if (retval)
+-		clk_disable_unprepare(sport->clk_ipg);
++		clk_unprepare(sport->clk_ipg);
+ 
+ error_console:
+ 	return retval;
 -- 
 2.20.1
 
