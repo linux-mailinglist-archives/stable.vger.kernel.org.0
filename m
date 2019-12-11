@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AAFC11B611
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:58:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3EB11B600
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731622AbfLKP6h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:58:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39390 "EHLO mail.kernel.org"
+        id S1730871AbfLKPOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:14:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731068AbfLKPOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:14:17 -0500
+        id S1731121AbfLKPOS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55F082468F;
-        Wed, 11 Dec 2019 15:14:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 884DB24658;
+        Wed, 11 Dec 2019 15:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077256;
-        bh=uoThELQ/DKhuovqEU3HxwbjI98SblmxIV9ZGX2S5Wz0=;
+        s=default; t=1576077257;
+        bh=nqhmLgTvDrwYf+dN7astYkWp9WvFzdgSm3SH0Mprv9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQZnJS8yRZpPahhr+zzQ1LveMXtCgA6XmWQmDcKw2/v3jzqBjTRxYvumjAt7oWx46
-         4etkHiH5wPc/MgqyGGPslxuA0SRfHsgW1LbC+Er06OhCt+UtB9ue9Dr5SinFMsz8bB
-         N75fuCmmRT1OkHXoLiAWlnYxqhlxa4XtFED0ZHlo=
+        b=h39cdc81oeJDvV394IwbXN+Mg6GxE1mstkjtd2pU545y8U+IfgvxyUsBZBUXtTqXu
+         pyvQhLpxCoWGoYqeQTZ1s4gpoUIrtOILBvzCv3Zli0/sSyS12+KLxobrKF2ZayD9to
+         O92cXmdQDYhvugDZixbn4EEC8mZVNKz3PWjpoG0E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Chengguang Xu <cgxu519@mykernel.net>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+Cc:     Johannes Weiner <hannes@cmpxchg.org>,
+        Chris Down <chris@chrisdown.name>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 132/134] mm/hugetlbfs: fix error handling when setting up mounts
-Date:   Wed, 11 Dec 2019 10:11:48 -0500
-Message-Id: <20191211151150.19073-132-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 133/134] kernel: sysctl: make drop_caches write-only
+Date:   Wed, 11 Dec 2019 10:11:49 -0500
+Message-Id: <20191211151150.19073-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -47,90 +49,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-[ Upstream commit 8fc312b32b25c6b0a8b46fab4df8c68df5af1223 ]
+[ Upstream commit 204cb79ad42f015312a5bbd7012d09c93d9b46fb ]
 
-It is assumed that the hugetlbfs_vfsmount[] array will contain either a
-valid vfsmount pointer or NULL for each hstate after initialization.
-Changes made while converting to use fs_context broke this assumption.
+Currently, the drop_caches proc file and sysctl read back the last value
+written, suggesting this is somehow a stateful setting instead of a
+one-time command.  Make it write-only, like e.g.  compact_memory.
 
-While fixing the hugetlbfs_vfsmount issue, it was discovered that
-init_hugetlbfs_fs never did correctly clean up when encountering a vfs
-mount error.
+While mitigating a VM problem at scale in our fleet, there was confusion
+about whether writing to this file will permanently switch the kernel into
+a non-caching mode.  This influences the decision making in a tense
+situation, where tens of people are trying to fix tens of thousands of
+affected machines: Do we need a rollback strategy?  What are the
+performance implications of operating in a non-caching state for several
+days?  It also caused confusion when the kernel team said we may need to
+write the file several times to make sure it's effective ("But it already
+reads back 3?").
 
-It was found during code inspection.  A small memory allocation failure
-would be the most likely cause of taking a error path with the bug.
-This is unlikely to happen as this is early init code.
-
-Link: http://lkml.kernel.org/r/94b6244d-2c24-e269-b12c-e3ba694b242d@oracle.com
-Reported-by: Chengguang Xu <cgxu519@mykernel.net>
-Fixes: 32021982a324 ("hugetlbfs: Convert to fs_context")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: http://lkml.kernel.org/r/20191031221602.9375-1-hannes@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Alexey Dobriyan <adobriyan@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ kernel/sysctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index a478df0356517..26e3906c18fe9 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -1461,28 +1461,41 @@ static int __init init_hugetlbfs_fs(void)
- 					sizeof(struct hugetlbfs_inode_info),
- 					0, SLAB_ACCOUNT, init_once);
- 	if (hugetlbfs_inode_cachep == NULL)
--		goto out2;
-+		goto out;
- 
- 	error = register_filesystem(&hugetlbfs_fs_type);
- 	if (error)
--		goto out;
-+		goto out_free;
- 
-+	/* default hstate mount is required */
-+	mnt = mount_one_hugetlbfs(&hstates[default_hstate_idx]);
-+	if (IS_ERR(mnt)) {
-+		error = PTR_ERR(mnt);
-+		goto out_unreg;
-+	}
-+	hugetlbfs_vfsmount[default_hstate_idx] = mnt;
-+
-+	/* other hstates are optional */
- 	i = 0;
- 	for_each_hstate(h) {
-+		if (i == default_hstate_idx)
-+			continue;
-+
- 		mnt = mount_one_hugetlbfs(h);
--		if (IS_ERR(mnt) && i == 0) {
--			error = PTR_ERR(mnt);
--			goto out;
--		}
--		hugetlbfs_vfsmount[i] = mnt;
-+		if (IS_ERR(mnt))
-+			hugetlbfs_vfsmount[i] = NULL;
-+		else
-+			hugetlbfs_vfsmount[i] = mnt;
- 		i++;
- 	}
- 
- 	return 0;
- 
-- out:
-+ out_unreg:
-+	(void)unregister_filesystem(&hugetlbfs_fs_type);
-+ out_free:
- 	kmem_cache_destroy(hugetlbfs_inode_cachep);
-- out2:
-+ out:
- 	return error;
- }
- fs_initcall(init_hugetlbfs_fs)
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index b6f2f35d0bcf5..70665934d53e2 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1466,7 +1466,7 @@ static struct ctl_table vm_table[] = {
+ 		.procname	= "drop_caches",
+ 		.data		= &sysctl_drop_caches,
+ 		.maxlen		= sizeof(int),
+-		.mode		= 0644,
++		.mode		= 0200,
+ 		.proc_handler	= drop_caches_sysctl_handler,
+ 		.extra1		= SYSCTL_ONE,
+ 		.extra2		= &four,
 -- 
 2.20.1
 
