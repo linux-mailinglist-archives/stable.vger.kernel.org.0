@@ -2,187 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CD011BDB4
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:16:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1407D11BDD1
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:26:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726589AbfLKUQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 15:16:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60610 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726568AbfLKUQK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 15:16:10 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E245C20836;
-        Wed, 11 Dec 2019 20:16:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576095368;
-        bh=CIexezNt3qu4GZLQCVNSoMp4ZxeVAmJi4/ufaSjs5Mo=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=qvvrlodS6Ox9k4kaUof1F1I5wCYaCAlzMYi13eKYnEvs7xYhyJa+ldEzXwcRR2iZw
-         BAbf6Uud7CZefuIGGQizqEpPPNqKIJNkwcP0YgFJVL/LRXTbziOtJs1spbxE1Fcsim
-         V2jKECzp5PAJUnoUbNFiV76ImbzBpQOfenmow9SI=
-Date:   Wed, 11 Dec 2019 12:16:07 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     arnd@arndb.de, catalin.marinas@arm.com, dave@stgolabs.net,
-        herton@redhat.com, ioanna-maria.alifieraki@canonical.com,
-        jay.vosburgh@canonical.com, joel@joelfernandes.org,
-        malat@debian.org, manfred@colorfullife.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  +
- revert-ipcsem-remove-uneeded-sem_undo_list-lock-usage-in-exit_sem.patch
- added to -mm tree
-Message-ID: <20191211201607.J56LNocc_%akpm@linux-foundation.org>
-In-Reply-To: <20191206170123.cb3ad1f76af2b48505fabb33@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726913AbfLKU0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 15:26:34 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:45269 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726242AbfLKU0d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:26:33 -0500
+Received: by mail-wr1-f67.google.com with SMTP id j42so57703wrj.12
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:26:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=T3G4wwqLhz14IErYUj1JZYR1SfKWFgtovCQeQtfkwFM=;
+        b=t6lePDwICk2ydUuXwcmSEGU1lzRq8Qw1tKX61AecDN5fSKKPc5DDh12f2EiIWqMcyB
+         8xlBbm9KchMEx1EebtG0iwFUav0PJT+daloM/Lva5ALiknJkNoaqUom/2kjccqQBHIvy
+         xLV+wavpqNMvW+lY2GW0wp1MgyBDO5SO8kzQdLqqaKk137QeOxVq8JTtLaUfcvtKjLGz
+         joepuRGtvqr9FD+ZhZJ7xpRqvQl7fiwuj5f4ftQySRwsLqwT1lTnCuhSbWsjVOR00lzw
+         l2LVuBqqNcGUiRaDsqs5qaiXyvzFOZIUUloNmroHBSvTzfSffonodCklHz6VfnbMxp4x
+         zn5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=T3G4wwqLhz14IErYUj1JZYR1SfKWFgtovCQeQtfkwFM=;
+        b=jD0MubhiwBUJoY2No5m45TinQCflvyanxGfSf6Ov+WittZhoa08P58r3B9zEKaRq52
+         iJi9UlfaznCaN1cp9XXo6pke4f+bF0YJPzl70n1bE2RMsH6jyLY1NQWVRSil3yNP7i3z
+         V4ps9NiS0miOR1nJRANHxAPRfLM+TlU1Ob0dhDJyn1yG6dR/NAQ7YauBS3mBbPiAGY/X
+         dSjcSPjrIg/36Kg6R/fTk4/nmjG5i45i67aZxRfnbb4DeKr7tsstr7G92g8M0QUlk+NJ
+         6qJ779fDu9WY4b7uD895ugnaFCtDRepCjSUBGBlcrjwp1ZvUWfD4oL1iFFhJw77h+Byd
+         DliQ==
+X-Gm-Message-State: APjAAAXeYD4cW5c6AL/oHpwvJuOL7CqTXlDICb6CD0qDNN2SvBVCHYrd
+        Shrjdwpy1TAi2sSnReSnwqI7eHPbXK/s2w==
+X-Google-Smtp-Source: APXvYqyrNZDPq+whchaMsoSQjxpci7r9uMlAZq9DUCSQe1u0LEXfpUtknzGcvEeEMxsIT8R1StTbpw==
+X-Received: by 2002:adf:ea05:: with SMTP id q5mr1876250wrm.48.1576095991929;
+        Wed, 11 Dec 2019 12:26:31 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id z83sm3774456wmg.2.2019.12.11.12.26.31
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2019 12:26:31 -0800 (PST)
+Message-ID: <5df150f7.1c69fb81.e3e08.3842@mx.google.com>
+Date:   Wed, 11 Dec 2019 12:26:31 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.15-100-g365e7b9094d3
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.3.y
+Subject: stable-rc/linux-5.3.y boot: 151 boots: 1 failed,
+ 142 passed with 6 offline, 1 untried/unknown,
+ 1 conflict (v5.3.15-100-g365e7b9094d3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.3.y boot: 151 boots: 1 failed, 142 passed with 6 offline,=
+ 1 untried/unknown, 1 conflict (v5.3.15-100-g365e7b9094d3)
 
-The patch titled
-     Subject: Revert "ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()"
-has been added to the -mm tree.  Its filename is
-     revert-ipcsem-remove-uneeded-sem_undo_list-lock-usage-in-exit_sem.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.15-100-g365e7b9094d3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.15-100-g365e7b9094d3/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/revert-ipcsem-remove-uneeded-sem_undo_list-lock-usage-in-exit_sem.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/revert-ipcsem-remove-uneeded-sem_undo_list-lock-usage-in-exit_sem.patch
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.15-100-g365e7b9094d3
+Git Commit: 365e7b9094d353d3c85a1ef427b75774368af535
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 88 unique boards, 25 SoC families, 19 builds out of 208
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Failure Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s805x-libretech-ac: 1 failed lab
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Offline Platforms:
 
-------------------------------------------------------
-From: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
-Subject: Revert "ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()"
+arm:
 
-This reverts commit a97955844807e327df11aa33869009d14d6b7de0.
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-Commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage in
-exit_sem()") removes a lock that is needed.  This leads to a process
-looping infinitely in exit_sem() and can also lead to a crash.  There is a
-reproducer available in [1] and with the commit reverted the issue does
-not reproduce anymore.
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-Using the reproducer found in [1] is fairly easy to reach a point where
-one of the child processes is looping infinitely in exit_sem between
-for(;;) and if (semid == -1) block, while it's trying to free its last
-sem_undo structure which has already been freed by freeary().
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
-Each sem_undo struct is on two lists: one per semaphore set (list_id) and
-one per process (list_proc).  The list_id list tracks undos by semaphore
-set, and the list_proc by process.
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-Undo structures are removed either by freeary() or by exit_sem().  The
-freeary function is invoked when the user invokes a syscall to remove a
-semaphore set.  During this operation freeary() traverses the list_id
-associated with the semaphore set and removes the undo structures from
-both the list_id and list_proc lists.
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
-For this case, exit_sem() is called at process exit.  Each process
-contains a struct sem_undo_list (referred to as "ulp") which contains the
-head for the list_proc list.  When the process exits, exit_sem() traverses
-this list to remove each sem_undo struct.  As in freeary(), whenever a
-sem_undo struct is removed from list_proc, it is also removed from the
-list_id list.
+arm64:
+    defconfig:
+        meson-gxm-q200:
+            lab-baylibre: PASS (gcc-8)
+            lab-baylibre-seattle: FAIL (gcc-8)
 
-Removing elements from list_id is safe for both exit_sem() and freeary()
-due to sem_lock().  Removing elements from list_proc is not safe;
-freeary() locks &un->ulp->lock when it performs
-list_del_rcu(&un->list_proc) but exit_sem() does not (locking was removed
-by commit a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage
-in exit_sem()").
-
-This can result in the following situation while executing the reproducer
-[1] : Consider a child process in exit_sem() and the parent in freeary()
-(because of semctl(sid[i], NSEM, IPC_RMID)).  The list_proc for the child
-contains the last two undo structs A and B (the rest have been removed
-either by exit_sem() or freeary()).  The semid for A is 1 and semid for B
-is 2.  exit_sem() removes A and at the same time freeary() removes B. 
-Since A and B have different semid sem_lock() will acquire different locks
-for each process and both can proceed.  The bug is that they remove A and
-B from the same list_proc at the same time because only freeary() acquires
-the ulp lock.  When exit_sem() removes A it makes ulp->list_proc.next to
-point at B and at the same time freeary() removes B setting B->semid=-1. 
-At the next iteration of for(;;) loop exit_sem() will try to remove B. 
-The only way to break from for(;;) is for (&un->list_proc ==
-&ulp->list_proc) to be true which is not.  Then exit_sem() will check if
-B->semid=-1 which is and will continue looping in for(;;) until the memory
-for B is reallocated and the value at B->semid is changed.  At that point,
-exit_sem() will crash attempting to unlink B from the lists (this can be
-easily triggered by running the reproducer [1] a second time).
-
-To prove this scenario instrumentation was added to keep information about
-each sem_undo (un) struct that is removed per process and per semaphore
-set (sma).
-
-        CPU0                                CPU1
-[caller holds sem_lock(sma for A)]      ...
-freeary()                               exit_sem()
-...                                     ...
-...                                     sem_lock(sma for B)
-spin_lock(A->ulp->lock)                 ...
-list_del_rcu(un_A->list_proc)           list_del_rcu(un_B->list_proc)
-
-Undo structures A and B have different semid and sem_lock() operations
-proceed.  However they belong to the same list_proc list and they are
-removed at the same time.  This results into ulp->list_proc.next pointing
-to the address of B which is already removed.
-
-After reverting commit a97955844807 ("ipc,sem: remove uneeded
-sem_undo_list lock usage in exit_sem()") the issue was no longer
-reproducible.
-
-[1] https://bugzilla.redhat.com/show_bug.cgi?id=1694779
-
-Link: http://lkml.kernel.org/r/20191211191318.11860-1-ioanna-maria.alifieraki@canonical.com
-Fixes: a97955844807 ("ipc,sem: remove uneeded sem_undo_list lock usage in exit_sem()")
-Signed-off-by: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: Herton Krzesinski <herton@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: <malat@debian.org>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- ipc/sem.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
---- a/ipc/sem.c~revert-ipcsem-remove-uneeded-sem_undo_list-lock-usage-in-exit_sem
-+++ a/ipc/sem.c
-@@ -2368,11 +2368,9 @@ void exit_sem(struct task_struct *tsk)
- 		ipc_assert_locked_object(&sma->sem_perm);
- 		list_del(&un->list_id);
- 
--		/* we are the last process using this ulp, acquiring ulp->lock
--		 * isn't required. Besides that, we are also protected against
--		 * IPC_RMID as we hold sma->sem_perm lock now
--		 */
-+		spin_lock(&ulp->lock);
- 		list_del_rcu(&un->list_proc);
-+		spin_unlock(&ulp->lock);
- 
- 		/* perform adjustments registered in un */
- 		for (i = 0; i < sma->sem_nsems; i++) {
-_
-
-Patches currently in -mm which might be from ioanna-maria.alifieraki@canonical.com are
-
-revert-ipcsem-remove-uneeded-sem_undo_list-lock-usage-in-exit_sem.patch
-
+For more info write to <info@kernelci.org>
