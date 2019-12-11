@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B8C11B06A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C466A11AEC9
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:08:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732273AbfLKPWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:22:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
+        id S1730278AbfLKPIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:08:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732177AbfLKPWd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:22:33 -0500
+        id S1729513AbfLKPIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:08:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 569E9214AF;
-        Wed, 11 Dec 2019 15:22:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E48624654;
+        Wed, 11 Dec 2019 15:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077752;
-        bh=ClgqZHzhsPuOhhKHmA7iAkuNWjv/c05qXLW7ILvQ8LE=;
+        s=default; t=1576076890;
+        bh=tr+1e9o/dxv8AaZA9vfOB+7WeDev9gn5MoZi7rZXbX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntFZF0Lj5Q03D8ohrp7nOjKxv2l+BcqwXlaKCtD4e9gConwX6jaFvWX56fRtU/mhf
-         xhdvbFjn/N9zZqTu43VHdEQ0qCRQraReZ3OERBf0FTETrB/HaJC0zSzPjOynSa3sEk
-         cfHwKcx3XyT+iW3NPcuEYBt9jjQU4K/DoB2ZyDXg=
+        b=k2ftVIMd5/FYXH7LT5wpeEYccrlXAs6S6sG6R0WRvVohFrnIeQVeB+xxbQY6q2zJm
+         Yin+lqJvP1zUjYv5prPI70nkZeMenRNm0YCNw2RS+o1JdsCHOJKQF3j3encc6cDIA9
+         sImmEFknkvjdfu5D4mO29oYqhSR95lO0ebFpePGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>,
-        Paul Walmsley <paul@pwsan.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 158/243] modpost: skip ELF local symbols during section mismatch check
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 29/92] ALSA: hda/realtek - Enable internal speaker of ASUS UX431FLC
 Date:   Wed, 11 Dec 2019 16:05:20 +0100
-Message-Id: <20191211150349.832644988@linuxfoundation.org>
+Message-Id: <20191211150232.944154973@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Walmsley <paul.walmsley@sifive.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-[ Upstream commit a4d26f1a0958bb1c2b60c6f1e67c6f5d43e2647b ]
+commit 436e25505f3458cc92c7f3c985e9cbc198a98209 upstream.
 
-During development of a serial console driver with a gcc 8.2.0
-toolchain for RISC-V, the following modpost warning appeared:
+Laptops like ASUS UX431FLC and UX431FL can share the same audio quirks.
+But UX431FLC needs one more step to enable the internal speaker: Pull
+the GPIO from CODEC to initialize the AMP.
 
-----
-WARNING: vmlinux.o(.data+0x19b10): Section mismatch in reference from the variable .LANCHOR1 to the function .init.text:sifive_serial_console_setup()
-The variable .LANCHOR1 references
-the function __init sifive_serial_console_setup()
-If the reference is valid then annotate the
-variable with __init* or __refdata (see linux/init.h) or name the variable:
-*_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
-----
+Fixes: 60083f9e94b2 ("ALSA: hda/realtek - Enable internal speaker & headset mic of ASUS UX431FL")
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191125093405.5702-1-jian-hong@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-".LANCHOR1" is an ELF local symbol, automatically created by gcc's section
-anchor generation code:
-
-https://gcc.gnu.org/onlinedocs/gccint/Anchored-Addresses.html
-
-https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=gcc/varasm.c;h=cd9591a45617464946dcf9a126dde277d9de9804;hb=9fb89fa845c1b2e0a18d85ada0b077c84508ab78#l7473
-
-This was verified by compiling the kernel with -fno-section-anchors
-and observing that the ".LANCHOR1" ELF local symbol disappeared, and
-modpost no longer warned about the section mismatch.  The serial
-driver code idiom triggering the warning is standard Linux serial
-driver practice that has a specific whitelist inclusion in modpost.c.
-
-I'm neither a modpost nor an ELF expert, but naively, it doesn't seem
-useful for modpost to report section mismatch warnings caused by ELF
-local symbols by default.  Local symbols have compiler-generated
-names, and thus bypass modpost's whitelisting algorithm, which relies
-on the presence of a non-autogenerated symbol name.  This increases
-the likelihood that false positive warnings will be generated (as in
-the above case).
-
-Thus, disable section mismatch reporting on ELF local symbols.  The
-rationale here is similar to that of commit 2e3a10a1551d ("ARM: avoid
-ARM binutils leaking ELF local symbols") and of similar code already
-present in modpost.c:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/scripts/mod/modpost.c?h=v4.19-rc4&id=7876320f88802b22d4e2daf7eb027dd14175a0f8#n1256
-
-This third version of the patch implements a suggestion from Masahiro
-Yamada <yamada.masahiro@socionext.com> to restructure the code as an
-additional pattern matching step inside secref_whitelist(), and
-further improves the patch description.
-
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
-Signed-off-by: Paul Walmsley <paul@pwsan.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mod/modpost.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/pci/hda/patch_realtek.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index 858cbe56b1006..91a80036c05d5 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -1163,6 +1163,14 @@ static const struct sectioncheck *section_mismatch(
-  *   fromsec = text section
-  *   refsymname = *.constprop.*
-  *
-+ * Pattern 6:
-+ *   Hide section mismatch warnings for ELF local symbols.  The goal
-+ *   is to eliminate false positive modpost warnings caused by
-+ *   compiler-generated ELF local symbol names such as ".LANCHOR1".
-+ *   Autogenerated symbol names bypass modpost's "Pattern 2"
-+ *   whitelisting, which relies on pattern-matching against symbol
-+ *   names to work.  (One situation where gcc can autogenerate ELF
-+ *   local symbols is when "-fsection-anchors" is used.)
-  **/
- static int secref_whitelist(const struct sectioncheck *mismatch,
- 			    const char *fromsec, const char *fromsym,
-@@ -1201,6 +1209,10 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
- 	    match(fromsym, optim_symbols))
- 		return 0;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5892,6 +5892,7 @@ enum {
+ 	ALC299_FIXUP_PREDATOR_SPK,
+ 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
+ 	ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE,
++	ALC294_FIXUP_ASUS_INTSPK_GPIO,
+ };
  
-+	/* Check for pattern 6 */
-+	if (strstarts(fromsym, ".L"))
-+		return 0;
-+
- 	return 1;
- }
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -6982,6 +6983,13 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
+ 	},
++	[ALC294_FIXUP_ASUS_INTSPK_GPIO] = {
++		.type = HDA_FIXUP_FUNC,
++		/* The GPIO must be pulled to initialize the AMP */
++		.v.func = alc_fixup_gpio4,
++		.chained = true,
++		.chain_id = ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC
++	},
+ };
  
--- 
-2.20.1
-
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7141,7 +7149,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
+ 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
+ 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
+-	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_GPIO),
+ 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
+ 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
 
 
