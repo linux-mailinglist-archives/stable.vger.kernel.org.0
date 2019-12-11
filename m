@@ -2,82 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE67B11BED6
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 22:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABEEB11BEE8
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 22:13:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726368AbfLKVGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 16:06:46 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:51949 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726141AbfLKVGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 16:06:46 -0500
-Received: by mail-wm1-f65.google.com with SMTP id d73so5500050wmd.1
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 13:06:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=caTv96LdPSNNo4SPqYplZ0U6ONFv2YrV8MGDYMMwvXk=;
-        b=BGDD7UdVFcTR9BWfp3ucCZHaKDCJEhBZEyIk62r/UxDYCgHZadqTqih3QjAFT2vG9a
-         9YEHvoo9QHfMYapnp8cwtnGu/f4o7A5IG/Sp+1KFC+Xh2ktyXCBzOvMl084bKDoOA8li
-         H4qbP5Y/a2INxruBj8uDGBCNeQIEKPZxv2ylf+3MbeKMQhIBmgwpAYCHaNc/YrpxtnT4
-         27W/lao2ciZX9cEGwWsSEimZ19+925KYhMEw6jvZTzT9xhGNscT53U55u0murUi3TiNr
-         jNXcyaCkAlGO0mFGI3EhoA8Cyebws8WxuAWe7JqKE9+Ad1SUOVC+enKB0m4SOKQX8Xct
-         zC8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=caTv96LdPSNNo4SPqYplZ0U6ONFv2YrV8MGDYMMwvXk=;
-        b=Tiroh0ouFaofcgdJkQ8/CULPG1GPAZyaOnWoZS71DEgUSGwwi7OV5I4MMkQrRCWvz9
-         5vxnGZFheW6p4QjcM8ea9+9H6N+C+gu8R71hh1LdBSfIPnvbMBb9GHVAKa+YSVIlycDG
-         xGKnsZY91X/BXYpncsxjzcbygXEWW7jU6d1c3fhqTLT9rUBq5RStzhpVQThNoyoXRd0a
-         RPgsui+/d4XIBqshlmNT0LQgG5qZc8JCYm9RGkj1fGgWxyQkzX+Vq4i+bURFl/Q1QaKN
-         4K1DYL3RdffOjOr77GJ3k+2M7X+mMkxWVnD3NAIIoJIOS45U5HhYMw/+anVuhYGtV5Kb
-         xbrw==
-X-Gm-Message-State: APjAAAWmJ09XnvqzGMlZpOQQso5jG4Hiz3crtDY3eWWShE2+Xe0lk7SO
-        Uy1AYcFv6et30JQRd0dMr83vZ8+AZ7A9IA==
-X-Google-Smtp-Source: APXvYqyBBYzAwrpzw6fDBKtzjt/SFtqCEehjZfAlbhGInO8YdXEiys4bqV112iFGKlxA+lQOOsIUDQ==
-X-Received: by 2002:a1c:a9c2:: with SMTP id s185mr2017574wme.119.1576098404278;
-        Wed, 11 Dec 2019 13:06:44 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id v8sm3586469wrw.2.2019.12.11.13.06.43
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Dec 2019 13:06:43 -0800 (PST)
-Message-ID: <5df15a63.1c69fb81.e20e8.296f@mx.google.com>
-Date:   Wed, 11 Dec 2019 13:06:43 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726646AbfLKVNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 16:13:12 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:19938 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726313AbfLKVNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 16:13:11 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5df15be00000>; Wed, 11 Dec 2019 13:13:04 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 11 Dec 2019 13:13:10 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 11 Dec 2019 13:13:10 -0800
+Received: from [10.26.11.206] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 11 Dec
+ 2019 21:13:08 +0000
+Subject: Re: [PATCH 5.3 000/105] 5.3.16-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191211150221.153659747@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <f753b0b9-dbed-c4f9-f530-a57c88b08634@nvidia.com>
+Date:   Wed, 11 Dec 2019 21:13:06 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.88-244-g62dbca0959b3
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 84 boots: 0 failed,
- 83 passed with 1 untried/unknown (v4.19.88-244-g62dbca0959b3)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1576098784; bh=SnJ6dGCwNBixxYD7F2AWlViCN4UKsI4JLnc3pR2yGBA=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=plUMPIPBFBz9fZoiKKytmUkwB/jNpPpoQ80O1Ru2vfb5HsVj0iITbAJ+GuERM4fL7
+         2ptJ2/+ay/wKritRp4m+Dv8YEGi88+YwepEtUjtrZdqj+aUYwYU3+ghy2wwH6HcCUX
+         5zhY7WtloI9S7mn8ejyJSHVMXRIn/RTtqSopxRBkekQYo4+2W2eExk/cKoz+S1jPnz
+         dSPWLMUYZDubcZEROg5HqOf7XLtQK4Aup2dl2pMCwog4D9iYCFrFElJQMUyyvYuWcF
+         8kIPuMAzBQGY8mUp0t3hL0jMIbp+EPic4Fw851aPBhDPvSTrxl44v8YdLC0rWcH2B2
+         FKD0+aAHe09Zw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 84 boots: 0 failed, 83 passed with 1 untried/u=
-nknown (v4.19.88-244-g62dbca0959b3)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.88-244-g62dbca0959b3/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.88-244-g62dbca0959b3/
+On 11/12/2019 15:04, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.3.16 release.
+> There are 105 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.16-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.88-244-g62dbca0959b3
-Git Commit: 62dbca0959b37287a49ac6a949578849d490df83
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 48 unique boards, 15 SoC families, 14 builds out of 206
+All tests are passing for Tegra ...
 
----
-For more info write to <info@kernelci.org>
+Test results for stable-v5.3:
+    13 builds:	13 pass, 0 fail
+    22 boots:	22 pass, 0 fail
+    38 tests:	38 pass, 0 fail
+
+Linux version:	5.3.16-rc1-g0b6bd9e91738
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
