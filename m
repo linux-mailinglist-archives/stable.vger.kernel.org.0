@@ -2,120 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3C4411C08E
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:29:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6135611C095
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:30:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726911AbfLKX33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 18:29:29 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:37905 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727043AbfLKX32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:29:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576106967;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0i+XMsJFtYhtxBhdu2EW4dCVP37dPVo6eqPpiyrg98k=;
-        b=BouRC/jHsteusw2io5wc66DlcC9AqHRW+kJh6bPt3K032eX5b5k/rks/AsrogYhr+MsYy1
-        54NTsXuuh5ClpJ5J+O92K0gNTOHcwgq/4WXRWRHY5kMyJ/74PhWC4ZdtjoD8bM0jDY1XXn
-        SAx+YvqOFI3EkCPgZCnFq90u9AykgKs=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-125-qhTPL4hQN32UY6HJaBa8dg-1; Wed, 11 Dec 2019 18:29:24 -0500
-X-MC-Unique: qhTPL4hQN32UY6HJaBa8dg-1
-Received: by mail-wr1-f71.google.com with SMTP id l20so243866wrc.13
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 15:29:24 -0800 (PST)
+        id S1727118AbfLKXax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 18:30:53 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:43098 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726890AbfLKXaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:30:52 -0500
+Received: by mail-oi1-f195.google.com with SMTP id x14so314280oic.10
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 15:30:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=u5EYBeY7DMUFDYGcRwf5OFQhhNuQnK3tgQ7xtLF/bL0=;
+        b=ijN0BBiifrHOQUvBafavzPiAtfcjrHqSWNBtq7gCsmBw3lOMLU5xy2mEy+NAB2WCfZ
+         QXMTvO+d2I6Tcn3VJk+x6SfqhAhnBHDF0hbU1WxTxKaOpnL+xUkp+jVe4Bvz+uoiHxH1
+         auO0DvWjcmNwkom7gtlF7YZKxpBsil4zLgi+1bFXkDujDluhddarjR4cXvvLKBBq5W/j
+         pB6KrFffB7ThG5i27LLkqbIzqGa04oovBm2zbwEOJR1eB4LFjCOD6hpRwf3+laE8R+eb
+         AclMiFO+ekBDEy9Sarhe4JUZurtOoikzqnoJmc15XLfkfVRRvsumrut/YJ3t4O38ubix
+         mmSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to;
-        bh=0i+XMsJFtYhtxBhdu2EW4dCVP37dPVo6eqPpiyrg98k=;
-        b=et7SOr7Is5o0YjqxQi+8kvQfvTgxfzODFJW3zFGh4zPX2zODSzKcHhTr/7b5hSaRnM
-         SktbBNe3hsW/L9Nmyi79NW1Prk/yQOlKVNm6dwjrwqOdDR/YcLS6eEtEUF/88OMv7hzQ
-         WclXa3PSpsNgSthMwmenE99CKcfBvqeozLLUHU7dNFcba955kKnrz2TEYJCgmspWNF/x
-         1g4WgubIx9dcxBft8G4KJ6xtoN+v3CheW5pY0jnfPkHXkHD++3yQMiZSt542pu3w4OBR
-         MV9joR5wjg0TyvJewbJnDEtudUnNsRzXPQggKwkPYMBLAgYmFAoqDGecELqhshQ0Vxxt
-         wV6g==
-X-Gm-Message-State: APjAAAUys7Zz8hAy+QVp8W+bdQVoOU5ISwZGUAvJayfbU4rqoMbdetfE
-        f5QDDSRbIVDvEgk0ucvKk7B+5q1evx0KMp2pK8yM1C/rli7bdFbB+6aAe02cwz1dsKc7KS+0q5x
-        65iTgpObcqWkHF57z
-X-Received: by 2002:a5d:6211:: with SMTP id y17mr2558145wru.344.1576106963228;
-        Wed, 11 Dec 2019 15:29:23 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwWsS0ih/51rSFF4d2cx4Nne4F6h3CdAazWfe5DQSNs6ci9a4+0zjXdvxKXHpznuY+jl5AzGg==
-X-Received: by 2002:a5d:6211:: with SMTP id y17mr2558129wru.344.1576106963002;
-        Wed, 11 Dec 2019 15:29:23 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9? ([2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9])
-        by smtp.gmail.com with ESMTPSA id h17sm4035818wrs.18.2019.12.11.15.29.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Dec 2019 15:29:22 -0800 (PST)
-Subject: Re: [stable] KVM: x86: fix out-of-bounds write in
- KVM_GET_EMULATED_CPUID (CVE-2019-19332)
-To:     Ben Hutchings <ben@decadent.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable <stable@vger.kernel.org>
-References: <6be50392b6128f7cd654c342dc6157a97ccb3d8d.camel@decadent.org.uk>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <cc8b829f-ca2d-5b8c-c880-567bab77a1c2@redhat.com>
-Date:   Thu, 12 Dec 2019 00:29:19 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=u5EYBeY7DMUFDYGcRwf5OFQhhNuQnK3tgQ7xtLF/bL0=;
+        b=E1RHnhhJ3XE122um3auo4ffr3cYsrszOun1ZYVORX9UdFHYnoeVi6DJ8uTEfGaPuGd
+         R44zYQrYVrp23Ocnm7AJZcXT3TcoPNyG814fsIzw/3DKTngioX85qu/y4+vV+X+IiZCo
+         Hwz7RB1Xl6jr9FYKoOcy73IkW3VOfv4RAcdb5K47ZypWtmSmBYNdTZfCqy3sBA1mIpFS
+         ghKUq9KdSgHWLlADtih3t3pMI29sRE9oyIM8ZtPM2GAEMYXv8bvL7tfSg2Ww65KFV79C
+         k5IwWV9nBjMehHbEE0xVHfzOWkZOrMSb15BSYqQHI6LPESSIWjCmpN1UKZ8vU2rdDYeI
+         B1ew==
+X-Gm-Message-State: APjAAAUQr1CYzVLbBuUJ1sjGd6nCPTNhkfVMXeNc/cF6lnD1AWYyJJJ7
+        bNvOknGN9JdcOajMS1C9+EmuR2uNc+Sy4KKTefOTAw==
+X-Google-Smtp-Source: APXvYqyLZkYhBOvDF9PkIrrn7AL6acOwV56SY7wGTAM47hWUspRcfbKnDMcStIbXUHhF5Dvhm19L5lJjHK5XdwPeG34=
+X-Received: by 2002:a05:6808:7da:: with SMTP id f26mr4285646oij.73.1576107051733;
+ Wed, 11 Dec 2019 15:30:51 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <6be50392b6128f7cd654c342dc6157a97ccb3d8d.camel@decadent.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8"
+References: <20191211231758.22263-1-jsnitsel@redhat.com> <20191211232612.miaizaxxikhlgvfj@cantor>
+In-Reply-To: <20191211232612.miaizaxxikhlgvfj@cantor>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 11 Dec 2019 15:30:40 -0800
+Message-ID: <CAPcyv4iwJoX6tVVBUc0dSwHUwsu2duoUFayOnAhDEd5SjYug8g@mail.gmail.com>
+Subject: Re: [PATCH] tpm_tis: reserve chip for duration of tpm_tis_core_init
+To:     Jerry Snitselaar <jsnitsel@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Christian Bundy <christianbundy@fraction.io>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>, linux-integrity@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8
-Content-Type: multipart/mixed; boundary="opaPoe1iK5casvymZME4iwND7FjTTHJzq"
+On Wed, Dec 11, 2019 at 3:27 PM Jerry Snitselaar <jsnitsel@redhat.com> wrote:
+>
+> On Wed Dec 11 19, Jerry Snitselaar wrote:
+> >Instead of repeatedly calling tpm_chip_start/tpm_chip_stop when
+> >issuing commands to the tpm during initialization, just reserve the
+> >chip after wait_startup, and release it when we are ready to call
+> >tpm_chip_register.
+> >
+> >Cc: Christian Bundy <christianbundy@fraction.io>
+> >Cc: Dan Williams <dan.j.williams@intel.com>
+> >Cc: Peter Huewe <peterhuewe@gmx.de>
+> >Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> >Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> >Cc: Stefan Berger <stefanb@linux.vnet.ibm.com>
+> >Cc: stable@vger.kernel.org
+> >Cc: linux-intergrity@vger.kernel.org
+>
+> Typo on the list address, do you want me to resend Jarkko?
+>
+> >Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
+> >Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> >---
+>
+> I did some initial testing with both a 1.2 device and a 2.0 device here.
+> Christian, can you verify that this still solves your timeouts problem
+> you were seeing? Dan, can you try this on the internal system with
+> the interrupt issues? I will see if I can get the t490s owner to run
+> it as well.
 
---opaPoe1iK5casvymZME4iwND7FjTTHJzq
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-On 11/12/19 23:25, Ben Hutchings wrote:
-> Please pick:
->=20
-> commit 433f4ba1904100da65a311033f17a9bf586b287e
-> Author: Paolo Bonzini <pbonzini@redhat.com>
-> Date:   Wed Dec 4 10:28:54 2019 +0100
->=20
->     KVM: x86: fix out-of-bounds write in KVM_GET_EMULATED_CPUID (CVE-20=
-19-19332)
->=20
-> for all stable branches.
->=20
-> Ben.
->=20
-
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-
-
---opaPoe1iK5casvymZME4iwND7FjTTHJzq--
-
---ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEE8TM4V0tmI4mGbHaCv/vSX3jHroMFAl3xe9IACgkQv/vSX3jH
-roOH3gf/ZRP3PefDkLnn4I7lp/CGvLTUBxgZw8XNNTwGOkoLRUMQXL9RGgseGeAb
-ypzqGlYB2/ojE3X1p5vRhEqD51jiE+7Syb+6zVIocRKI9GyvQYGPpNZJPVOcTgfY
-OcibLg4WCuVDYKUU7GQvK1tZpUphvSc0hcEmwIN/HeBoOk7DqqtMJeFoeZUn4Sac
-ecNvx5RZiYPx23Qc1sCwIjb2nzfhexu5uOiabV3peGw6mEmjknKhqf44Rkgu8BZK
-hfB5Zc6vSGwiDa/ch7qzOYOGSaZGrHwW/UAhUaS1fAm+Dth8Vol6ioGBJ5TPPvD+
-zq+tI8oSVVD6K18os7/Q6bCJBmSTmw==
-=udyk
------END PGP SIGNATURE-----
-
---ID0R9n6MbZGJxdq42gtEF88feYLCpVBb8--
-
+Will do. I assume you'd also want to add 'Fixes: 5b359c7c4372
+("tpm_tis_core: Turn on the TPM before probing IRQ's")' if it works?
