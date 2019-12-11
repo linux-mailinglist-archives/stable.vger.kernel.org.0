@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5F511AF3D
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:12:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB57311AEDC
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:08:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730605AbfLKPME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:12:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32890 "EHLO mail.kernel.org"
+        id S1729260AbfLKPIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:08:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730468AbfLKPME (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:04 -0500
+        id S1730468AbfLKPIt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:08:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3293B22B48;
-        Wed, 11 Dec 2019 15:12:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83BCA222C4;
+        Wed, 11 Dec 2019 15:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077123;
-        bh=y8mpjC+u8Jx70mOl50vaZHKS1XoR4ZEnZ1BHSjzhT8U=;
+        s=default; t=1576076929;
+        bh=uDFUA9JX959zDWtIDmfvG05ifKToXnSxeZF2PdDumeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWWKtOCWdE3TNWQkve3adnG2xOYrLHbWmQXEPfkvzyGRyy5MVQAzu1RP2ZlpYInV0
-         O6ywEscbJCsed6y+bUQG3CYl9NQ5eK0nVg89TL0IKxowDlGIalJr6/BrZP3f9l7B6b
-         1Vy+GdPPOweSK4liub+bWTYPmCa7sxAOJfLs+S+0=
+        b=RAmm5Qj2cFxxuX4kvV5sYrLn7BcG7vSTwXadHtwUoPEsFN0dlNwcURL1VIJNuj5Qm
+         sC3vPBi+a3sM6KKrdh3IdQMQkA2F4EW928eGgVJPHnuT9B3NURhLnissMup0ykmq2c
+         OJDRnpw9mlRV14sNkDeYUrrmPETPnAhWVhPO4Ruk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: [PATCH 5.3 008/105] tty: serial: fsl_lpuart: use the sg count from dma_map_sg
-Date:   Wed, 11 Dec 2019 16:04:57 +0100
-Message-Id: <20191211150223.274323449@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.4 08/92] mailbox: tegra: Fix superfluous IRQ error message
+Date:   Wed, 11 Dec 2019 16:04:59 +0100
+Message-Id: <20191211150223.724847486@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-commit 487ee861de176090b055eba5b252b56a3b9973d6 upstream.
+commit c745da8d4320c49e54662c0a8f7cb6b8204f44c4 upstream.
 
-The dmaengine_prep_slave_sg needs to use sg count returned
-by dma_map_sg, not use sport->dma_tx_nents, because the return
-value of dma_map_sg is not always same with "nents".
+Commit 7723f4c5ecdb ("driver core: platform: Add an error message to
+platform_get_irq*()") added an error message to avoid drivers having
+to print an error message when IRQ lookup fails. However, there are
+some cases where IRQs are optional and so new optional versions of
+the platform_get_irq*() APIs have been added for these cases.
 
-When enabling iommu for lpuart + edma, iommu framework may concatenate
-two sgs into one.
+The IRQs for Tegra HSP module are optional because not all instances
+of the module have the doorbell and all of the shared interrupts.
+Hence, since the above commit was applied the following error messages
+are now seen on Tegra194 ...
 
-Fixes: 6250cc30c4c4e ("tty: serial: fsl_lpuart: Use scatter/gather DMA for Tx")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1572932977-17866-1-git-send-email-peng.fan@nxp.com
+ ERR KERN tegra-hsp c150000.hsp: IRQ doorbell not found
+ ERR KERN tegra-hsp c150000.hsp: IRQ shared0 not found
+
+The Tegra HSP driver deliberately does not fail if these are not found
+and so fix the above errors by updating the Tegra HSP driver to use
+the platform_get_irq_byname_optional() API.
+
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20191011083459.11551-1-jonathanh@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/fsl_lpuart.c |    4 ++--
+ drivers/mailbox/tegra-hsp.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -436,8 +436,8 @@ static void lpuart_dma_tx(struct lpuart_
- 	}
+--- a/drivers/mailbox/tegra-hsp.c
++++ b/drivers/mailbox/tegra-hsp.c
+@@ -657,7 +657,7 @@ static int tegra_hsp_probe(struct platfo
+ 	hsp->num_db = (value >> HSP_nDB_SHIFT) & HSP_nINT_MASK;
+ 	hsp->num_si = (value >> HSP_nSI_SHIFT) & HSP_nINT_MASK;
  
- 	sport->dma_tx_desc = dmaengine_prep_slave_sg(sport->dma_tx_chan, sgl,
--					sport->dma_tx_nents,
--					DMA_MEM_TO_DEV, DMA_PREP_INTERRUPT);
-+					ret, DMA_MEM_TO_DEV,
-+					DMA_PREP_INTERRUPT);
- 	if (!sport->dma_tx_desc) {
- 		dma_unmap_sg(dev, sgl, sport->dma_tx_nents, DMA_TO_DEVICE);
- 		dev_err(dev, "Cannot prepare TX slave DMA!\n");
+-	err = platform_get_irq_byname(pdev, "doorbell");
++	err = platform_get_irq_byname_optional(pdev, "doorbell");
+ 	if (err >= 0)
+ 		hsp->doorbell_irq = err;
+ 
+@@ -677,7 +677,7 @@ static int tegra_hsp_probe(struct platfo
+ 			if (!name)
+ 				return -ENOMEM;
+ 
+-			err = platform_get_irq_byname(pdev, name);
++			err = platform_get_irq_byname_optional(pdev, name);
+ 			if (err >= 0) {
+ 				hsp->shared_irqs[i] = err;
+ 				count++;
 
 
