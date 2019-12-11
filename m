@@ -2,93 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6135611C095
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:30:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A51DB11C0C2
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727118AbfLKXax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 18:30:53 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:43098 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726890AbfLKXaw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:30:52 -0500
-Received: by mail-oi1-f195.google.com with SMTP id x14so314280oic.10
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 15:30:52 -0800 (PST)
+        id S1726673AbfLKXsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 18:48:47 -0500
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:34197 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726631AbfLKXsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:48:47 -0500
+Received: by mail-pj1-f65.google.com with SMTP id j11so227616pjs.1;
+        Wed, 11 Dec 2019 15:48:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=u5EYBeY7DMUFDYGcRwf5OFQhhNuQnK3tgQ7xtLF/bL0=;
-        b=ijN0BBiifrHOQUvBafavzPiAtfcjrHqSWNBtq7gCsmBw3lOMLU5xy2mEy+NAB2WCfZ
-         QXMTvO+d2I6Tcn3VJk+x6SfqhAhnBHDF0hbU1WxTxKaOpnL+xUkp+jVe4Bvz+uoiHxH1
-         auO0DvWjcmNwkom7gtlF7YZKxpBsil4zLgi+1bFXkDujDluhddarjR4cXvvLKBBq5W/j
-         pB6KrFffB7ThG5i27LLkqbIzqGa04oovBm2zbwEOJR1eB4LFjCOD6hpRwf3+laE8R+eb
-         AclMiFO+ekBDEy9Sarhe4JUZurtOoikzqnoJmc15XLfkfVRRvsumrut/YJ3t4O38ubix
-         mmSQ==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=0gDghqppbyjz+43tzAq1YgtN2CX9ITE/3fXeQwGT4sE=;
+        b=QPpFqlSrNdDgZnIvJjcgQD6ZBX/AKaRZFiwnCHu4a2a3lk4rLIOd85HL1M9FsmzN+2
+         Yti58LZY1PdPnFFLbNCDa5Bf7mYfDoWbtafqfP008rvlkNnDOGl9Bk0TvMrby5u1gF7K
+         xH4eXE7gkf1Aww/HgqX2rUaKpP1SiqHNVjCE0JfcwaQLhUyKUP5e7goJymvopAUsfDqG
+         G/pabeXrT84lb1PKtuCz09oUUD2jUcrDw5MtV2mF9hPnNeyhlFPQDyLZrO1NiPTI7mim
+         kbSGCF1CRyoWWAtNWIADiDGLRAmLajvQnXKr2iwZyseZLAuMem953GKRBM20U0vTP9m+
+         rmoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=u5EYBeY7DMUFDYGcRwf5OFQhhNuQnK3tgQ7xtLF/bL0=;
-        b=E1RHnhhJ3XE122um3auo4ffr3cYsrszOun1ZYVORX9UdFHYnoeVi6DJ8uTEfGaPuGd
-         R44zYQrYVrp23Ocnm7AJZcXT3TcoPNyG814fsIzw/3DKTngioX85qu/y4+vV+X+IiZCo
-         Hwz7RB1Xl6jr9FYKoOcy73IkW3VOfv4RAcdb5K47ZypWtmSmBYNdTZfCqy3sBA1mIpFS
-         ghKUq9KdSgHWLlADtih3t3pMI29sRE9oyIM8ZtPM2GAEMYXv8bvL7tfSg2Ww65KFV79C
-         k5IwWV9nBjMehHbEE0xVHfzOWkZOrMSb15BSYqQHI6LPESSIWjCmpN1UKZ8vU2rdDYeI
-         B1ew==
-X-Gm-Message-State: APjAAAUQr1CYzVLbBuUJ1sjGd6nCPTNhkfVMXeNc/cF6lnD1AWYyJJJ7
-        bNvOknGN9JdcOajMS1C9+EmuR2uNc+Sy4KKTefOTAw==
-X-Google-Smtp-Source: APXvYqyLZkYhBOvDF9PkIrrn7AL6acOwV56SY7wGTAM47hWUspRcfbKnDMcStIbXUHhF5Dvhm19L5lJjHK5XdwPeG34=
-X-Received: by 2002:a05:6808:7da:: with SMTP id f26mr4285646oij.73.1576107051733;
- Wed, 11 Dec 2019 15:30:51 -0800 (PST)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=0gDghqppbyjz+43tzAq1YgtN2CX9ITE/3fXeQwGT4sE=;
+        b=SEB0VsNMgJh/7oQKMVa2PZuGaZ/mnK6mETjBwiL98mJkXc3VF9VcjvQHn6em/SQ8Jl
+         cW68gUtuDraQxtfVNrhZEAbjFbdpYTwFFa2hxTZYtOeUVv17vJp0e+Jkf3/OV+HvHKr/
+         B3OjmhXKlA8BEDElEiCm6U4Db8K3WulSDDsQdVGLy57KIOItTeWFaosS2QacZoElOsHn
+         F9hS/+7V6g4uS9LwMnLYk5fDCPbkKm92CBFYbjs64jB8jFwgPd4k4aZIjfWZWEcqB/+P
+         LQL9dgPS7PWxYbbkd5ktFnXNvhF0fT1eaCEGeP+gg9wAtgN5GQgjFNdjgKx/adEwsw7r
+         JTcQ==
+X-Gm-Message-State: APjAAAXMwcrx92vPx38RwzIppbwT6DKPXz4u7Yn4e+8mzrtw1KludPye
+        kqDD6Qg4mkCbCN/hwekF7t+WEtgL
+X-Google-Smtp-Source: APXvYqwIywNExRJeiqWLpl1Oj8ZqxEbFHFVUbm+N/8RWzhT2YSAMSK5ssXG42pHgfMXUmvpYEo2uBw==
+X-Received: by 2002:a17:902:8bc5:: with SMTP id r5mr6428292plo.189.1576108126324;
+        Wed, 11 Dec 2019 15:48:46 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a15sm4478138pfh.169.2019.12.11.15.48.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 Dec 2019 15:48:45 -0800 (PST)
+Subject: Re: [PATCH 4.19 000/243] 4.19.89-stable review
+To:     Jon Hunter <jonathanh@nvidia.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191211150339.185439726@linuxfoundation.org>
+ <7b43a504-160f-e793-99b2-bcb79d331b6a@nvidia.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <1c0a27c1-1c98-347f-fcd4-9ec057e1e362@roeck-us.net>
+Date:   Wed, 11 Dec 2019 15:48:43 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-References: <20191211231758.22263-1-jsnitsel@redhat.com> <20191211232612.miaizaxxikhlgvfj@cantor>
-In-Reply-To: <20191211232612.miaizaxxikhlgvfj@cantor>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Wed, 11 Dec 2019 15:30:40 -0800
-Message-ID: <CAPcyv4iwJoX6tVVBUc0dSwHUwsu2duoUFayOnAhDEd5SjYug8g@mail.gmail.com>
-Subject: Re: [PATCH] tpm_tis: reserve chip for duration of tpm_tis_core_init
-To:     Jerry Snitselaar <jsnitsel@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Christian Bundy <christianbundy@fraction.io>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>, linux-integrity@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <7b43a504-160f-e793-99b2-bcb79d331b6a@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 3:27 PM Jerry Snitselaar <jsnitsel@redhat.com> wrote:
->
-> On Wed Dec 11 19, Jerry Snitselaar wrote:
-> >Instead of repeatedly calling tpm_chip_start/tpm_chip_stop when
-> >issuing commands to the tpm during initialization, just reserve the
-> >chip after wait_startup, and release it when we are ready to call
-> >tpm_chip_register.
-> >
-> >Cc: Christian Bundy <christianbundy@fraction.io>
-> >Cc: Dan Williams <dan.j.williams@intel.com>
-> >Cc: Peter Huewe <peterhuewe@gmx.de>
-> >Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> >Cc: Jason Gunthorpe <jgg@ziepe.ca>
-> >Cc: Stefan Berger <stefanb@linux.vnet.ibm.com>
-> >Cc: stable@vger.kernel.org
-> >Cc: linux-intergrity@vger.kernel.org
->
-> Typo on the list address, do you want me to resend Jarkko?
->
-> >Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
-> >Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
-> >---
->
-> I did some initial testing with both a 1.2 device and a 2.0 device here.
-> Christian, can you verify that this still solves your timeouts problem
-> you were seeing? Dan, can you try this on the internal system with
-> the interrupt issues? I will see if I can get the t490s owner to run
-> it as well.
+On 12/11/19 1:36 PM, Jon Hunter wrote:
+> 
+> On 11/12/2019 15:02, Greg Kroah-Hartman wrote:
+>> This is the start of the stable review cycle for the 4.19.89 release.
+>> There are 243 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.89-rc1.gz
+>> or in the git tree and branch at:
+>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+>> and the diffstat can be found below.
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+>> -------------
+>> Pseudo-Shortlog of commits:
+> 
+> ...
+> 
+>> Linus Walleij <linus.walleij@linaro.org>
+>>      gpio: OF: Parse MMC-specific CD and WP properties
+> 
+> The above change is causing intermittent failures on Tegra30 eMMC.
+> Reverting this change on top of the 4.19.89-rc1 fixes the problem.
+> 
 
-Will do. I assume you'd also want to add 'Fixes: 5b359c7c4372
-("tpm_tis_core: Turn on the TPM before probing IRQ's")' if it works?
+Thanks for tracking that down. I see boot failures for arm:vexpress-a9
+when trying to boot from mmc.
+
+I dimly recall that I have seen this before. Ah yes ... commit 89a5e15bcba8
+("gpio/mmc/of: Respect polarity in the device tree") fixes the above commit.
+Can you give it a try ?
+
+One may wonder though why the parsing code was backported in the first place.
+It doesn't look like a bug fix to me.
+
+Thanks,
+Guenter
