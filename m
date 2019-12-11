@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 723BB11B49B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:49:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E38411B5BE
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:56:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732636AbfLKPZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:25:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57284 "EHLO mail.kernel.org"
+        id S1732120AbfLKPzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:55:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732662AbfLKPZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:25:21 -0500
+        id S1730771AbfLKPPy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:15:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6168D208C3;
-        Wed, 11 Dec 2019 15:25:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B0A42465B;
+        Wed, 11 Dec 2019 15:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077920;
-        bh=rOdz90QaNrmcTU1JSwFDpea1oaCw02rQheFZW9Px3q8=;
+        s=default; t=1576077352;
+        bh=WY4vBWzloZIFoF9RuCdF85ivO+hMUaBPhoaIRVUSlMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JXms+b8NzeIcKBeso/hOfpETaCPEqX7Z1suq0XOcByYA3XJ9PPc2aVnaehrdY+5b
-         x7Fb7XWxNuOZLA/+9Ldivwpl3daHQGOLIwisAEehHbUWMYdX05MeJjWcxqvAM08tJo
-         GBwuEEl2AGHStfCOAj8DAThZXxn+UprkilApJ/bI=
+        b=aVvv36irae304vRYGpot9I+WBnFCqbXMFN6YjrSI544+nFKEU9vmLMvDIvtOfgInk
+         /h8hrk6NUS/F8UmxYox5Wg1bd08klllVSsnB00YndLCd4NHVIBapwoj5usJgYD3vVI
+         orX3BPdF9htieXglgY/q0fwEbFtDynKcUSv9irHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH 4.19 220/243] kernfs: fix ino wrap-around detection
+        stable@vger.kernel.org,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Han Xu <han.xu@nxp.com>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.3 093/105] spi: spi-fsl-qspi: Clear TDH bits in FLSHCR register
 Date:   Wed, 11 Dec 2019 16:06:22 +0100
-Message-Id: <20191211150354.181459010@linuxfoundation.org>
+Message-Id: <20191211150301.615112837@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +44,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-commit e23f568aa63f64cd6b355094224cc9356c0f696b upstream.
+commit f6910679e17ad4915f008bd2c614d38052426f7c upstream.
 
-When the 32bit ino wraps around, kernfs increments the generation
-number to distinguish reused ino instances.  The wrap-around detection
-tests whether the allocated ino is lower than what the cursor but the
-cursor is pointing to the next ino to allocate so the condition never
-triggers.
+Later versions of the QSPI controller (e.g. in i.MX6UL/ULL and i.MX7)
+seem to have an additional TDH setting in the FLSHCR register, that
+needs to be set in accordance with the access mode that is used (DDR
+or SDR).
 
-Fix it by remembering the last ino and comparing against that.
+Previous bootstages such as BootROM or bootloader might have used the
+DDR mode to access the flash. As we currently only use SDR mode, we
+need to make sure the TDH bits are cleared upon initialization.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Fixes: 4a3ef68acacf ("kernfs: implement i_generation")
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: stable@vger.kernel.org # v4.14+
+Fixes: 84d043185dbe ("spi: Add a driver for the Freescale/NXP QuadSPI controller")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Acked-by: Han Xu <han.xu@nxp.com>
+Link: https://lore.kernel.org/r/20191007071933.26786-1-frieder.schrempf@kontron.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/kernfs/dir.c        |    5 ++---
- include/linux/kernfs.h |    1 +
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/spi/spi-fsl-qspi.c |   38 +++++++++++++++++++++++++++++++++-----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
 
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -624,7 +624,6 @@ static struct kernfs_node *__kernfs_new_
- {
- 	struct kernfs_node *kn;
- 	u32 gen;
--	int cursor;
- 	int ret;
+--- a/drivers/spi/spi-fsl-qspi.c
++++ b/drivers/spi/spi-fsl-qspi.c
+@@ -63,6 +63,11 @@
+ #define QUADSPI_IPCR			0x08
+ #define QUADSPI_IPCR_SEQID(x)		((x) << 24)
  
- 	name = kstrdup_const(name, GFP_KERNEL);
-@@ -637,11 +636,11 @@ static struct kernfs_node *__kernfs_new_
++#define QUADSPI_FLSHCR			0x0c
++#define QUADSPI_FLSHCR_TCSS_MASK	GENMASK(3, 0)
++#define QUADSPI_FLSHCR_TCSH_MASK	GENMASK(11, 8)
++#define QUADSPI_FLSHCR_TDH_MASK		GENMASK(17, 16)
++
+ #define QUADSPI_BUF3CR			0x1c
+ #define QUADSPI_BUF3CR_ALLMST_MASK	BIT(31)
+ #define QUADSPI_BUF3CR_ADATSZ(x)	((x) << 8)
+@@ -95,6 +100,9 @@
+ #define QUADSPI_FR			0x160
+ #define QUADSPI_FR_TFF_MASK		BIT(0)
  
- 	idr_preload(GFP_KERNEL);
- 	spin_lock(&kernfs_idr_lock);
--	cursor = idr_get_cursor(&root->ino_idr);
- 	ret = idr_alloc_cyclic(&root->ino_idr, kn, 1, 0, GFP_ATOMIC);
--	if (ret >= 0 && ret < cursor)
-+	if (ret >= 0 && ret < root->last_ino)
- 		root->next_generation++;
- 	gen = root->next_generation;
-+	root->last_ino = ret;
- 	spin_unlock(&kernfs_idr_lock);
- 	idr_preload_end();
- 	if (ret < 0)
---- a/include/linux/kernfs.h
-+++ b/include/linux/kernfs.h
-@@ -186,6 +186,7 @@ struct kernfs_root {
++#define QUADSPI_RSER			0x164
++#define QUADSPI_RSER_TFIE		BIT(0)
++
+ #define QUADSPI_SPTRCLR			0x16c
+ #define QUADSPI_SPTRCLR_IPPTRC		BIT(8)
+ #define QUADSPI_SPTRCLR_BFPTRC		BIT(0)
+@@ -112,9 +120,6 @@
+ #define QUADSPI_LCKER_LOCK		BIT(0)
+ #define QUADSPI_LCKER_UNLOCK		BIT(1)
  
- 	/* private fields, do not use outside kernfs proper */
- 	struct idr		ino_idr;
-+	u32			last_ino;
- 	u32			next_generation;
- 	struct kernfs_syscall_ops *syscall_ops;
+-#define QUADSPI_RSER			0x164
+-#define QUADSPI_RSER_TFIE		BIT(0)
+-
+ #define QUADSPI_LUT_BASE		0x310
+ #define QUADSPI_LUT_OFFSET		(SEQID_LUT * 4 * 4)
+ #define QUADSPI_LUT_REG(idx) \
+@@ -181,6 +186,12 @@
+  */
+ #define QUADSPI_QUIRK_BASE_INTERNAL	BIT(4)
  
++/*
++ * Controller uses TDH bits in register QUADSPI_FLSHCR.
++ * They need to be set in accordance with the DDR/SDR mode.
++ */
++#define QUADSPI_QUIRK_USE_TDH_SETTING	BIT(5)
++
+ struct fsl_qspi_devtype_data {
+ 	unsigned int rxfifo;
+ 	unsigned int txfifo;
+@@ -209,7 +220,8 @@ static const struct fsl_qspi_devtype_dat
+ 	.rxfifo = SZ_128,
+ 	.txfifo = SZ_512,
+ 	.ahb_buf_size = SZ_1K,
+-	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK,
++	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK |
++		  QUADSPI_QUIRK_USE_TDH_SETTING,
+ 	.little_endian = true,
+ };
+ 
+@@ -217,7 +229,8 @@ static const struct fsl_qspi_devtype_dat
+ 	.rxfifo = SZ_128,
+ 	.txfifo = SZ_512,
+ 	.ahb_buf_size = SZ_1K,
+-	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK,
++	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK |
++		  QUADSPI_QUIRK_USE_TDH_SETTING,
+ 	.little_endian = true,
+ };
+ 
+@@ -275,6 +288,11 @@ static inline int needs_amba_base_offset
+ 	return !(q->devtype_data->quirks & QUADSPI_QUIRK_BASE_INTERNAL);
+ }
+ 
++static inline int needs_tdh_setting(struct fsl_qspi *q)
++{
++	return q->devtype_data->quirks & QUADSPI_QUIRK_USE_TDH_SETTING;
++}
++
+ /*
+  * An IC bug makes it necessary to rearrange the 32-bit data.
+  * Later chips, such as IMX6SLX, have fixed this bug.
+@@ -710,6 +728,16 @@ static int fsl_qspi_default_setup(struct
+ 	qspi_writel(q, QUADSPI_MCR_MDIS_MASK | QUADSPI_MCR_RESERVED_MASK,
+ 		    base + QUADSPI_MCR);
+ 
++	/*
++	 * Previous boot stages (BootROM, bootloader) might have used DDR
++	 * mode and did not clear the TDH bits. As we currently use SDR mode
++	 * only, clear the TDH bits if necessary.
++	 */
++	if (needs_tdh_setting(q))
++		qspi_writel(q, qspi_readl(q, base + QUADSPI_FLSHCR) &
++			    ~QUADSPI_FLSHCR_TDH_MASK,
++			    base + QUADSPI_FLSHCR);
++
+ 	reg = qspi_readl(q, base + QUADSPI_SMPR);
+ 	qspi_writel(q, reg & ~(QUADSPI_SMPR_FSDLY_MASK
+ 			| QUADSPI_SMPR_FSPHS_MASK
 
 
