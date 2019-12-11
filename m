@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0325811B71A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:05:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC62111B718
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388786AbfLKQF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:05:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35136 "EHLO mail.kernel.org"
+        id S1731252AbfLKQFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:05:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731231AbfLKPMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:48 -0500
+        id S1730431AbfLKPMv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 895E424680;
-        Wed, 11 Dec 2019 15:12:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 928702465B;
+        Wed, 11 Dec 2019 15:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077168;
-        bh=Mq3SGusfebHCfJl9Dcu8BiE07V5/LWMYiVw7kO22oiU=;
+        s=default; t=1576077171;
+        bh=6E00oAINu4WSQ2OxBCVSoVj7KPtNBMXJcbpbuz32U0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYn2jmZGrt3esF5ECOasaICEbfqwMEd8uUdwNiSJ6IAwyG4pSv7T+G6IDXorjWj99
-         49jMn3W1vOWDns/B0QokUC085YtxFd7MU4DmV9HOaFagfsKkFXnthiv/2pF8g4TKrK
-         +hc754F9E6rYJ1sABCHIKKziEgtoAj7oWFCJg69U=
+        b=rPTVhdIvg9m/dXJEjlWA5RBhEFdFcJ41zXcT2lnd9pw/yIebuIB/hwbADYkma5dBM
+         zUBzk8Qvw/rCxztElHyVvRyQuDhoNIAa4ie1NO4VtcyTZvr2LLoimrVsfdrZUct6q2
+         og4hr6WdA2tuQsXPAgOONF+GxSFi6Lk0OqyVhqdA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Cercueil <paul@crapouillou.net>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 053/134] irqchip: ingenic: Error out if IRQ domain creation failed
-Date:   Wed, 11 Dec 2019 10:10:29 -0500
-Message-Id: <20191211151150.19073-53-sashal@kernel.org>
+Cc:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 056/134] fs/quota: handle overflows of sysctl fs.quota.* and report as unsigned long
+Date:   Wed, 11 Dec 2019 10:10:32 -0500
+Message-Id: <20191211151150.19073-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -42,57 +42,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit 52ecc87642f273a599c9913b29fd179c13de457b ]
+[ Upstream commit 6fcbcec9cfc7b3c6a2c1f1a23ebacedff7073e0a ]
 
-If we cannot create the IRQ domain, the driver should fail to probe
-instead of succeeding with just a warning message.
+Quota statistics counted as 64-bit per-cpu counter. Reading sums per-cpu
+fractions as signed 64-bit int, filters negative values and then reports
+lower half as signed 32-bit int.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/1570015525-27018-3-git-send-email-zhouyanjie@zoho.com
+Result may looks like:
+
+fs.quota.allocated_dquots = 22327
+fs.quota.cache_hits = -489852115
+fs.quota.drops = -487288718
+fs.quota.free_dquots = 22083
+fs.quota.lookups = -486883485
+fs.quota.reads = 22327
+fs.quota.syncs = 335064
+fs.quota.writes = 3088689
+
+Values bigger than 2^31-1 reported as negative.
+
+All counters except "allocated_dquots" and "free_dquots" are monotonic,
+thus they should be reported as is without filtering negative values.
+
+Kernel doesn't have generic helper for 64-bit sysctl yet,
+let's use at least unsigned long.
+
+Link: https://lore.kernel.org/r/157337934693.2078.9842146413181153727.stgit@buzz
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-ingenic.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ fs/quota/dquot.c      | 29 +++++++++++++++++------------
+ include/linux/quota.h |  2 +-
+ 2 files changed, 18 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
-index f126255b3260c..dda512dfe2c17 100644
---- a/drivers/irqchip/irq-ingenic.c
-+++ b/drivers/irqchip/irq-ingenic.c
-@@ -108,6 +108,14 @@ static int __init ingenic_intc_of_init(struct device_node *node,
- 		goto out_unmap_irq;
- 	}
- 
-+	domain = irq_domain_add_legacy(node, num_chips * 32,
-+				       JZ4740_IRQ_BASE, 0,
-+				       &irq_domain_simple_ops, NULL);
-+	if (!domain) {
-+		err = -ENOMEM;
-+		goto out_unmap_base;
-+	}
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index 6e826b454082c..fa6ec4f96791d 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -2860,68 +2860,73 @@ EXPORT_SYMBOL(dquot_quotactl_sysfile_ops);
+ static int do_proc_dqstats(struct ctl_table *table, int write,
+ 		     void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+-	unsigned int type = (int *)table->data - dqstats.stat;
++	unsigned int type = (unsigned long *)table->data - dqstats.stat;
++	s64 value = percpu_counter_sum(&dqstats.counter[type]);
 +
- 	for (i = 0; i < num_chips; i++) {
- 		/* Mask all irqs */
- 		writel(0xffffffff, intc->base + (i * CHIP_SIZE) +
-@@ -134,14 +142,11 @@ static int __init ingenic_intc_of_init(struct device_node *node,
- 				       IRQ_NOPROBE | IRQ_LEVEL);
- 	}
++	/* Filter negative values for non-monotonic counters */
++	if (value < 0 && (type == DQST_ALLOC_DQUOTS ||
++			  type == DQST_FREE_DQUOTS))
++		value = 0;
  
--	domain = irq_domain_add_legacy(node, num_chips * 32, JZ4740_IRQ_BASE, 0,
--				       &irq_domain_simple_ops, NULL);
--	if (!domain)
--		pr_warn("unable to register IRQ domain\n");
--
- 	setup_irq(parent_irq, &intc_cascade_action);
- 	return 0;
+ 	/* Update global table */
+-	dqstats.stat[type] =
+-			percpu_counter_sum_positive(&dqstats.counter[type]);
+-	return proc_dointvec(table, write, buffer, lenp, ppos);
++	dqstats.stat[type] = value;
++	return proc_doulongvec_minmax(table, write, buffer, lenp, ppos);
+ }
  
-+out_unmap_base:
-+	iounmap(intc->base);
- out_unmap_irq:
- 	irq_dispose_mapping(parent_irq);
- out_free:
+ static struct ctl_table fs_dqstats_table[] = {
+ 	{
+ 		.procname	= "lookups",
+ 		.data		= &dqstats.stat[DQST_LOOKUPS],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+ 	{
+ 		.procname	= "drops",
+ 		.data		= &dqstats.stat[DQST_DROPS],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+ 	{
+ 		.procname	= "reads",
+ 		.data		= &dqstats.stat[DQST_READS],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+ 	{
+ 		.procname	= "writes",
+ 		.data		= &dqstats.stat[DQST_WRITES],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+ 	{
+ 		.procname	= "cache_hits",
+ 		.data		= &dqstats.stat[DQST_CACHE_HITS],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+ 	{
+ 		.procname	= "allocated_dquots",
+ 		.data		= &dqstats.stat[DQST_ALLOC_DQUOTS],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+ 	{
+ 		.procname	= "free_dquots",
+ 		.data		= &dqstats.stat[DQST_FREE_DQUOTS],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+ 	{
+ 		.procname	= "syncs",
+ 		.data		= &dqstats.stat[DQST_SYNCS],
+-		.maxlen		= sizeof(int),
++		.maxlen		= sizeof(unsigned long),
+ 		.mode		= 0444,
+ 		.proc_handler	= do_proc_dqstats,
+ 	},
+diff --git a/include/linux/quota.h b/include/linux/quota.h
+index f32dd270b8e3f..27aab84fcbaac 100644
+--- a/include/linux/quota.h
++++ b/include/linux/quota.h
+@@ -263,7 +263,7 @@ enum {
+ };
+ 
+ struct dqstats {
+-	int stat[_DQST_DQSTAT_LAST];
++	unsigned long stat[_DQST_DQSTAT_LAST];
+ 	struct percpu_counter counter[_DQST_DQSTAT_LAST];
+ };
+ 
 -- 
 2.20.1
 
