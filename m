@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3245D11B528
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:52:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5E711B523
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732300AbfLKPVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:21:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
+        id S1732433AbfLKPVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:21:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732167AbfLKPVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:21:11 -0500
+        id S1732446AbfLKPVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:21:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 030732073D;
-        Wed, 11 Dec 2019 15:21:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CADFB214AF;
+        Wed, 11 Dec 2019 15:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077670;
-        bh=5Sp5yUHgoMyXmrbW9X9JdEoez6QcUp6xJ50vpCzx0b0=;
+        s=default; t=1576077676;
+        bh=NQvIw2rVgnv+jiI8qw5LiO95gjHWJcKOs0BHIyA9hSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hk1qsV43cV4abeYPFzmDHZz17e4IVyNGUWz67mOxqDBj373Y3dKvcTOQC5AEr9HBT
-         2/AmZA2hhmw17zHgtybEd0beckBsoygSuv5Pg9Um1flBBhuZsZ67NoywAHUT0R4MLo
-         8OQb1g9GTMOjnVYn+1OTDYqi46AtAkWKtUGuEnz4=
+        b=MpXkj9xFh13XkRX+LC5Gfxfxt3i0zWAaDYO+jNiHT2AE/W/yBMNN+9/0V+xypc8Ta
+         /1wAzeLbXwoYGqzQ0GSOeHx0+qmFNWiJJDiyejIJWoaf5i+iCxAqXP/Gi3eVf5soW7
+         BncW8+Q43BkdezIqfPIXPtz1G725y0lDrGBbYVNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
         Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 127/243] ARM: dts: sun8i: a23/a33: Fix OPP DTC warnings
-Date:   Wed, 11 Dec 2019 16:04:49 +0100
-Message-Id: <20191211150347.699074067@linuxfoundation.org>
+Subject: [PATCH 4.19 128/243] ARM: dts: sun8i: v3s: Change pinctrl nodes to avoid warning
+Date:   Wed, 11 Dec 2019 16:04:50 +0100
+Message-Id: <20191211150347.770109278@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -45,69 +45,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxime Ripard <maxime.ripard@bootlin.com>
 
-[ Upstream commit a858f569b80a69076c521532a289097af905cf1e ]
+[ Upstream commit 438a44ce7e51ce571f942433c6c7cb87c4c0effd ]
 
-DTC will emit a warning on our OPPs nodes for the common DTSI between the
-A23 and A33 since those nodes use the frequency as unit addresses, but
-don't have a matching reg property.
+All our pinctrl nodes were using a node name convention with a unit-address
+to differentiate the different muxing options. However, since those nodes
+didn't have a reg property, they were generating warnings in DTC.
 
-Fix this by moving the frequency to the node name instead.
+In order to accomodate for this, convert the old nodes to the syntax we've
+been using for the new SoCs, including removing the letter suffix of the
+node labels to the bank of those pins to make things more readable.
 
 Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Acked-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-h3.dtsi              | 6 +++---
- arch/arm/boot/dts/sun8i-r16-bananapi-m2m.dts | 4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts |  4 ++--
+ arch/arm/boot/dts/sun8i-v3s.dtsi              | 10 +++++-----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
-index f0096074a4678..97de6ad133dc2 100644
---- a/arch/arm/boot/dts/sun8i-h3.dtsi
-+++ b/arch/arm/boot/dts/sun8i-h3.dtsi
-@@ -47,19 +47,19 @@
- 		compatible = "operating-points-v2";
- 		opp-shared;
- 
--		opp@648000000 {
-+		opp-648000000 {
- 			opp-hz = /bits/ 64 <648000000>;
- 			opp-microvolt = <1040000 1040000 1300000>;
- 			clock-latency-ns = <244144>; /* 8 32k periods */
- 		};
- 
--		opp@816000000 {
-+		opp-816000000 {
- 			opp-hz = /bits/ 64 <816000000>;
- 			opp-microvolt = <1100000 1100000 1300000>;
- 			clock-latency-ns = <244144>; /* 8 32k periods */
- 		};
- 
--		opp@1008000000 {
-+		opp-1008000000 {
- 			opp-hz = /bits/ 64 <1008000000>;
- 			opp-microvolt = <1200000 1200000 1300000>;
- 			clock-latency-ns = <244144>; /* 8 32k periods */
-diff --git a/arch/arm/boot/dts/sun8i-r16-bananapi-m2m.dts b/arch/arm/boot/dts/sun8i-r16-bananapi-m2m.dts
-index 0dbdb29a8fff9..ee7ce3752581b 100644
---- a/arch/arm/boot/dts/sun8i-r16-bananapi-m2m.dts
-+++ b/arch/arm/boot/dts/sun8i-r16-bananapi-m2m.dts
-@@ -103,13 +103,13 @@
+diff --git a/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts b/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts
+index 387fc2aa546d6..333df90e8037c 100644
+--- a/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts
++++ b/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts
+@@ -78,7 +78,7 @@
  };
  
- &cpu0_opp_table {
--	opp@1104000000 {
-+	opp-1104000000 {
- 		opp-hz = /bits/ 64 <1104000000>;
- 		opp-microvolt = <1320000>;
- 		clock-latency-ns = <244144>; /* 8 32k periods */
- 	};
+ &mmc0 {
+-	pinctrl-0 = <&mmc0_pins_a>;
++	pinctrl-0 = <&mmc0_pins>;
+ 	pinctrl-names = "default";
+ 	broken-cd;
+ 	bus-width = <4>;
+@@ -87,7 +87,7 @@
+ };
  
--	opp@1200000000 {
-+	opp-1200000000 {
- 		opp-hz = /bits/ 64 <1200000000>;
- 		opp-microvolt = <1320000>;
- 		clock-latency-ns = <244144>; /* 8 32k periods */
+ &uart0 {
+-	pinctrl-0 = <&uart0_pins_a>;
++	pinctrl-0 = <&uart0_pb_pins>;
+ 	pinctrl-names = "default";
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/sun8i-v3s.dtsi b/arch/arm/boot/dts/sun8i-v3s.dtsi
+index 443b083c6adc9..92fcb756a08a9 100644
+--- a/arch/arm/boot/dts/sun8i-v3s.dtsi
++++ b/arch/arm/boot/dts/sun8i-v3s.dtsi
+@@ -292,17 +292,17 @@
+ 			interrupt-controller;
+ 			#interrupt-cells = <3>;
+ 
+-			i2c0_pins: i2c0 {
++			i2c0_pins: i2c0-pins {
+ 				pins = "PB6", "PB7";
+ 				function = "i2c0";
+ 			};
+ 
+-			uart0_pins_a: uart0@0 {
++			uart0_pb_pins: uart0-pb-pins {
+ 				pins = "PB8", "PB9";
+ 				function = "uart0";
+ 			};
+ 
+-			mmc0_pins_a: mmc0@0 {
++			mmc0_pins: mmc0-pins {
+ 				pins = "PF0", "PF1", "PF2", "PF3",
+ 				       "PF4", "PF5";
+ 				function = "mmc0";
+@@ -310,7 +310,7 @@
+ 				bias-pull-up;
+ 			};
+ 
+-			mmc1_pins: mmc1 {
++			mmc1_pins: mmc1-pins {
+ 				pins = "PG0", "PG1", "PG2", "PG3",
+ 				       "PG4", "PG5";
+ 				function = "mmc1";
+@@ -318,7 +318,7 @@
+ 				bias-pull-up;
+ 			};
+ 
+-			spi0_pins: spi0 {
++			spi0_pins: spi0-pins {
+ 				pins = "PC0", "PC1", "PC2", "PC3";
+ 				function = "spi0";
+ 			};
 -- 
 2.20.1
 
