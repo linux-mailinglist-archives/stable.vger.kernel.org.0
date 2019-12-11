@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B260911B108
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DFAD11B10C
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:28:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387515AbfLKP16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:27:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33828 "EHLO mail.kernel.org"
+        id S2387550AbfLKP2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:28:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387509AbfLKP15 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:57 -0500
+        id S2387531AbfLKP2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:28:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C31632465B;
-        Wed, 11 Dec 2019 15:27:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2748F24683;
+        Wed, 11 Dec 2019 15:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078076;
-        bh=/u13mj4dQXc8/OvMb5WuTa4PoenXQs6Y8XQYTXC0M2c=;
+        s=default; t=1576078081;
+        bh=mfmoXPuMt+SWZYJCXaqac2QCsXVW2eA1HBiLmL+s3J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTXkhJe9yhAiJ+BQqNIT17zyvW6aCgSVkBs182PzoWFZWf1NYHtAIitZha7IoZo2r
-         DRZSybdmugKuTzNp/eoH/0dNFgLq8lodibnm4y7BcNfvSYofA2ukminRoqPdMRiE1N
-         F8KvmolJIVTYiYT4FHys0N0KjApV7YOvPdmLqZSw=
+        b=0tO2DmMCBpkz/i4ZSdkr6fnRya07ftT0Ze2+kBf2mGwbJ9DOyzmRiKBZEUfFV/kBn
+         wAqXbcgRAagZHrORGnm/i0//1IvrHwoYxdYxtRr2KCDxLAHCVsWvj5OQzy0H8fNDmu
+         +wzYk9gSE8hwX1W2gopZ/P9PDg2QyWRJC9vff8MQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@mykernel.net>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 67/79] f2fs: choose hardlimit when softlimit is larger than hardlimit in f2fs_statfs_project()
-Date:   Wed, 11 Dec 2019 10:26:31 -0500
-Message-Id: <20191211152643.23056-67-sashal@kernel.org>
+Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 72/79] perf regs: Make perf_reg_name() return "unknown" instead of NULL
+Date:   Wed, 11 Dec 2019 10:26:36 -0500
+Message-Id: <20191211152643.23056-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -44,89 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 909110c060f22e65756659ec6fa957ae75777e00 ]
+[ Upstream commit 5b596e0ff0e1852197d4c82d3314db5e43126bf7 ]
 
-Setting softlimit larger than hardlimit seems meaningless
-for disk quota but currently it is allowed. In this case,
-there may be a bit of comfusion for users when they run
-df comamnd to directory which has project quota.
+To avoid breaking the build on arches where this is not wired up, at
+least all the other features should be made available and when using
+this specific routine, the "unknown" should point the user/developer to
+the need to wire this up on this particular hardware architecture.
 
-For example, we set 20M softlimit and 10M hardlimit of
-block usage limit for project quota of test_dir(project id 123).
+Detected in a container mipsel debian cross build environment, where it
+shows up as:
 
-[root@hades f2fs]# repquota -P -a
-*** Report for project quotas on device /dev/nvme0n1p8
-Block grace time: 7days; Inode grace time: 7days
-Block limits File limits
-Project used soft hard grace used soft hard grace
-----------------------------------------------------------------------
-0 -- 4 0 0 1 0 0
-123 +- 10248 20480 10240 2 0 0
+  In file included from /usr/mipsel-linux-gnu/include/stdio.h:867,
+                   from /git/linux/tools/perf/lib/include/perf/cpumap.h:6,
+                   from util/session.c:13:
+  In function 'printf',
+      inlined from 'regs_dump__printf' at util/session.c:1103:3,
+      inlined from 'regs__printf' at util/session.c:1131:2:
+  /usr/mipsel-linux-gnu/include/bits/stdio2.h:107:10: error: '%-5s' directive argument is null [-Werror=format-overflow=]
+    107 |   return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The result of df command as below:
+cross compiler details:
 
-[root@hades f2fs]# df -h /mnt/f2fs/test
-Filesystem Size Used Avail Use% Mounted on
-/dev/nvme0n1p8 20M 11M 10M 51% /mnt/f2fs
+  mipsel-linux-gnu-gcc (Debian 9.2.1-8) 9.2.1 20190909
 
-Even though it looks like there is another 10M free space to use,
-if we write new data to diretory test(inherit project id),
-the write will fail with errno(-EDQUOT).
+Also on mips64:
 
-After this patch, the df result looks like below.
+  In file included from /usr/mips64-linux-gnuabi64/include/stdio.h:867,
+                   from /git/linux/tools/perf/lib/include/perf/cpumap.h:6,
+                   from util/session.c:13:
+  In function 'printf',
+      inlined from 'regs_dump__printf' at util/session.c:1103:3,
+      inlined from 'regs__printf' at util/session.c:1131:2,
+      inlined from 'regs_user__printf' at util/session.c:1139:3,
+      inlined from 'dump_sample' at util/session.c:1246:3,
+      inlined from 'machines__deliver_event' at util/session.c:1421:3:
+  /usr/mips64-linux-gnuabi64/include/bits/stdio2.h:107:10: error: '%-5s' directive argument is null [-Werror=format-overflow=]
+    107 |   return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  In function 'printf',
+      inlined from 'regs_dump__printf' at util/session.c:1103:3,
+      inlined from 'regs__printf' at util/session.c:1131:2,
+      inlined from 'regs_intr__printf' at util/session.c:1147:3,
+      inlined from 'dump_sample' at util/session.c:1249:3,
+      inlined from 'machines__deliver_event' at util/session.c:1421:3:
+  /usr/mips64-linux-gnuabi64/include/bits/stdio2.h:107:10: error: '%-5s' directive argument is null [-Werror=format-overflow=]
+    107 |   return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[root@hades f2fs]# df -h /mnt/f2fs/test
-Filesystem Size Used Avail Use% Mounted on
-/dev/nvme0n1p8 10M 10M 0 100% /mnt/f2fs
+cross compiler details:
 
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+  mips64-linux-gnuabi64-gcc (Debian 9.2.1-8) 9.2.1 20190909
+
+Fixes: 2bcd355b71da ("perf tools: Add interface to arch registers sets")
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-95wjyv4o65nuaeweq31t7l1s@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ tools/perf/util/perf_regs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 7a9cc64f5ca37..662c7de58b990 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1148,9 +1148,13 @@ static int f2fs_statfs_project(struct super_block *sb,
- 		return PTR_ERR(dquot);
- 	spin_lock(&dquot->dq_dqb_lock);
+diff --git a/tools/perf/util/perf_regs.h b/tools/perf/util/perf_regs.h
+index c9319f8d17a6a..f732e3af2bd47 100644
+--- a/tools/perf/util/perf_regs.h
++++ b/tools/perf/util/perf_regs.h
+@@ -34,7 +34,7 @@ int perf_reg_value(u64 *valp, struct regs_dump *regs, int id);
  
--	limit = (dquot->dq_dqb.dqb_bsoftlimit ?
--		 dquot->dq_dqb.dqb_bsoftlimit :
--		 dquot->dq_dqb.dqb_bhardlimit) >> sb->s_blocksize_bits;
-+	limit = 0;
-+	if (dquot->dq_dqb.dqb_bsoftlimit)
-+		limit = dquot->dq_dqb.dqb_bsoftlimit;
-+	if (dquot->dq_dqb.dqb_bhardlimit &&
-+			(!limit || dquot->dq_dqb.dqb_bhardlimit < limit))
-+		limit = dquot->dq_dqb.dqb_bhardlimit;
-+
- 	if (limit && buf->f_blocks > limit) {
- 		curblock = dquot->dq_dqb.dqb_curspace >> sb->s_blocksize_bits;
- 		buf->f_blocks = limit;
-@@ -1159,9 +1163,13 @@ static int f2fs_statfs_project(struct super_block *sb,
- 			 (buf->f_blocks - curblock) : 0;
- 	}
+ static inline const char *perf_reg_name(int id __maybe_unused)
+ {
+-	return NULL;
++	return "unknown";
+ }
  
--	limit = dquot->dq_dqb.dqb_isoftlimit ?
--		dquot->dq_dqb.dqb_isoftlimit :
--		dquot->dq_dqb.dqb_ihardlimit;
-+	limit = 0;
-+	if (dquot->dq_dqb.dqb_isoftlimit)
-+		limit = dquot->dq_dqb.dqb_isoftlimit;
-+	if (dquot->dq_dqb.dqb_ihardlimit &&
-+			(!limit || dquot->dq_dqb.dqb_ihardlimit < limit))
-+		limit = dquot->dq_dqb.dqb_ihardlimit;
-+
- 	if (limit && buf->f_files > limit) {
- 		buf->f_files = limit;
- 		buf->f_ffree =
+ static inline int perf_reg_value(u64 *valp __maybe_unused,
 -- 
 2.20.1
 
