@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E64B211B08F
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B4E11AF40
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:12:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732487AbfLKPX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:23:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55136 "EHLO mail.kernel.org"
+        id S1730318AbfLKPMI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:12:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732420AbfLKPX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:23:56 -0500
+        id S1731048AbfLKPMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D73A42077B;
-        Wed, 11 Dec 2019 15:23:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD5D1222C4;
+        Wed, 11 Dec 2019 15:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077836;
-        bh=03Nh+NVS2P8g7+6KLFx/BlAGRm0adVFqyvzFBF/ZCaM=;
+        s=default; t=1576077126;
+        bh=VPD4dyWy+JKVBUwjhXVuIu5XtWvfaTIKqFTi8EFeecE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnoiHWbIuHOwfO2HdaER92CO44znXNosQZdYuqWg2UWwnc3W1W4W+8dAz/iCAsP6Y
-         JdUY/btaN7URUeu9ybEDOvJ/o3e1qt0rw50Z2QyRg0ar2/d6VOcqZcOOfiyLzB8siY
-         VBWPISwzMcexe05x1EY1mP5vMrvJVgmo4UZipqXI=
+        b=BLyllEteWQVMePWLqSLFXyFDdevUZUqH1ubY4A1AVEPo+6wEymTLFuQDTXlcNqrv2
+         T4dSRrCkijgrZWtwSM0coSyx2mfZS8UvTOB1D95PvTG2xTJ9qYaQX4IyRaLdWjJQM3
+         F++68EvOL8SOxa3fYhHSeSDSiLjY6795fTmf35Ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean-Louis Dupond <jean-louis@dupond.be>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Xiaodong Xu <stid.smth@gmail.com>,
+        Bo Chen <chenborfc@163.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/243] tcp: make tcp_space() aware of socket backlog
-Date:   Wed, 11 Dec 2019 16:05:14 +0100
-Message-Id: <20191211150349.433232970@linuxfoundation.org>
+Subject: [PATCH 5.3 026/105] xfrm: release device reference for invalid state
+Date:   Wed, 11 Dec 2019 16:05:15 +0100
+Message-Id: <20191211150229.289266937@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Xiaodong Xu <stid.smth@gmail.com>
 
-[ Upstream commit 85bdf7db5b53cdcc7a901db12bcb3d0063e3866d ]
+[ Upstream commit 4944a4b1077f74d89073624bd286219d2fcbfce3 ]
 
-Jean-Louis Dupond reported poor iscsi TCP receive performance
-that we tracked to backlog drops.
+An ESP packet could be decrypted in async mode if the input handler for
+this packet returns -EINPROGRESS in xfrm_input(). At this moment the device
+reference in skb is held. Later xfrm_input() will be invoked again to
+resume the processing.
+If the transform state is still valid it would continue to release the
+device reference and there won't be a problem; however if the transform
+state is not valid when async resumption happens, the packet will be
+dropped while the device reference is still being held.
+When the device is deleted for some reason and the reference to this
+device is not properly released, the kernel will keep logging like:
 
-Apparently we fail to send window updates reflecting the
-fact that we are under stress.
+unregister_netdevice: waiting for ppp2 to become free. Usage count = 1
 
-Note that we might lack a proper window increase when
-backlog is fully processed, since __release_sock() clears
-sk->sk_backlog.len _after_ all skbs have been processed.
+The issue is observed when running IPsec traffic over a PPPoE device based
+on a bridge interface. By terminating the PPPoE connection on the server
+end for multiple times, the PPPoE device on the client side will eventually
+get stuck on the above warning message.
 
-This should not matter in practice. If we had a significant
-load through socket backlog, we are in a dangerous
-situation.
+This patch will check the async mode first and continue to release device
+reference in async resumption, before it is dropped due to invalid state.
 
-Reported-by: Jean-Louis Dupond <jean-louis@dupond.be>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Tested-by: Jean-Louis Dupond<jean-louis@dupond.be>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+v2: Do not assign address family from outer_mode in the transform if the
+state is invalid
+
+v3: Release device reference in the error path instead of jumping to resume
+
+Fixes: 4ce3dbe397d7b ("xfrm: Fix xfrm_input() to verify state is valid when (encap_type < 0)")
+Signed-off-by: Xiaodong Xu <stid.smth@gmail.com>
+Reported-by: Bo Chen <chenborfc@163.com>
+Tested-by: Bo Chen <chenborfc@163.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_input.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index abcf53a6db045..3f4223a550d92 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -1353,7 +1353,7 @@ static inline int tcp_win_from_space(const struct sock *sk, int space)
- /* Note: caller must be prepared to deal with negative returns */
- static inline int tcp_space(const struct sock *sk)
- {
--	return tcp_win_from_space(sk, sk->sk_rcvbuf -
-+	return tcp_win_from_space(sk, sk->sk_rcvbuf - sk->sk_backlog.len -
- 				  atomic_read(&sk->sk_rmem_alloc));
- }
+diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
+index 6088bc2dc11e3..fcd4b1f36e669 100644
+--- a/net/xfrm/xfrm_input.c
++++ b/net/xfrm/xfrm_input.c
+@@ -480,6 +480,9 @@ int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
+ 			else
+ 				XFRM_INC_STATS(net,
+ 					       LINUX_MIB_XFRMINSTATEINVALID);
++
++			if (encap_type == -1)
++				dev_put(skb->dev);
+ 			goto drop;
+ 		}
  
 -- 
 2.20.1
