@@ -2,115 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E39C11AE10
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:44:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1C211AFD5
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:16:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729810AbfLKOoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 09:44:14 -0500
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.162]:10215 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727554AbfLKOoO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 09:44:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576075452;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=aAEdKVGDi6t7TbiIGPCbqihfDuomUSlzL1Pc5B3mhFU=;
-        b=KcvpQaHJiFuVky0ZWMu+L5s+OjvytQWqTwSoBJ6RelkHsNjWyebAzL/szUpXsquXl8
-        4pquekWysrbAB5+squ1rjoAtxjoh8NOqaQvZqk/zYHYjZXiqTeDAsrhmDs6/jKhpUFW0
-        72WT9eOZmTp/2LtErNYDnuD4Mcy+odJwAnCrzPU/Fi0gNRP0HabczU4dNsp+A5ezknQR
-        h43OI456SIEzRg+jbTYuvltsNxAq9IWewskPMXOZg5+/KGYGfe9CnJNuTS1kCY16v81I
-        mICY/h6/JsVlUdLl4QWhknPqMoa7hlPv/0+MJX5Jiw3U7ugxjQUPkOtZS6nnJENw1mrM
-        u28w==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGHPrvwDOutHk="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-        by smtp.strato.de (RZmta 46.0.4 DYNA|AUTH)
-        with ESMTPSA id Q0b574vBBEiB04V
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-        Wed, 11 Dec 2019 15:44:11 +0100 (CET)
-Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: WTF: patch "[PATCH] net: wireless: ti: wl1251 add device tree support" was seriously submitted to be applied to the 5.4-stable tree?
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <20191211142448.GA605616@kroah.com>
-Date:   Wed, 11 Dec 2019 15:44:11 +0100
-Cc:     kvalo@codeaurora.org, stable@vger.kernel.org,
-        ulf.hansson@linaro.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <4B4FDCC1-F8D1-4DA9-8A6F-8E2B1DF27E93@goldelico.com>
-References: <1576073193178125@kroah.com> <8B77E722-80C2-4607-8519-AC36CC42519C@goldelico.com> <20191211142448.GA605616@kroah.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-X-Mailer: Apple Mail (2.3124)
+        id S1731050AbfLKPQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:16:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44156 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731565AbfLKPQx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:16:53 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 209D320663;
+        Wed, 11 Dec 2019 15:16:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576077412;
+        bh=Orn8VfWLBuTpWgne0Qxq93LqFLsUbv5C7WvmQvNYOcs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nQB/YUPjD3OSJ7L4bNVyY4QknLVTiDuS+zNf40wBG+YSYGqNySAPAOHEdeMuQLiXF
+         r9kJHJzZ02Vrl6SLRtDrglmWWLXDf3w0YtW04+kEysPXBXgSZbpNqBk40lTbSFPX7t
+         NGjKjqSnARJXipMetY1HI7DGCE+daJM41HEi3CYU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Ladislav Michl <ladis@linux-mips.org>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 4.19 005/243] usb: gadget: u_serial: add missing port entry locking
+Date:   Wed, 11 Dec 2019 16:02:47 +0100
+Message-Id: <20191211150339.527661587@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
+User-Agent: quilt/0.66
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-> Am 11.12.2019 um 15:24 schrieb Greg KH <gregkh@linuxfoundation.org>:
->=20
-> On Wed, Dec 11, 2019 at 03:19:19PM +0100, H. Nikolaus Schaller wrote:
->> Hi Greg,
->> I have checked with Documentation/process/stable-kernel-rules.rst but =
-not found out
->> what is failing.
->>=20
->> Basically this belongs to a series to fix a bug
->>=20
->> 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting =
-DMA channel")
->>=20
->> that exists since v4.7 and has been hidden by patches which came into =
-the kernel over
->> the time.
->=20
-> I do not understand at all.
->=20
-> What does tagging all of these random wifi driver commits with cc:
-> stable have to do with an old mmc commit from 4.7-rc1?
+commit daf82bd24e308c5a83758047aff1bd81edda4f11 upstream.
 
-v4.7 received the commit ("mmc: omap_hsmmc: Use dma_request_chan() for =
-requesting DMA channel").
+gserial_alloc_line() misses locking (for a release barrier) while
+resetting port entry on TTY allocation failure. Fix this.
 
-This commit itself is not bad but has a bad side-effect that it breaks =
-the device tree
-and platform quirks of the wl1251 connected to mmc3 port of the =
-OpenPandora.
+Cc: stable@vger.kernel.org
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Ladislav Michl <ladis@linux-mips.org>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The reason turned out to be because it now requires a device tree record =
-for the mmc port
-while the v4.7 status was to have a mmc port created by a platform quirk =
-- without scanning
-the DT.
+---
+ drivers/usb/gadget/function/u_serial.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-To be able to fix that we have to
-* modify the device tree
-* remove the platform quirk for pandora and replace by DT based =
-instantiation of the mmc port
-* make sure that what the platform quirk does is still done in the mmc =
-subsystem
-* fix some assumptions introduced by later patches which make the device =
-non-detectable
+--- a/drivers/usb/gadget/function/u_serial.c
++++ b/drivers/usb/gadget/function/u_serial.c
+@@ -1246,8 +1246,10 @@ int gserial_alloc_line(unsigned char *li
+ 				__func__, port_num, PTR_ERR(tty_dev));
+ 
+ 		ret = PTR_ERR(tty_dev);
++		mutex_lock(&ports[port_num].lock);
+ 		port = ports[port_num].port;
+ 		ports[port_num].port = NULL;
++		mutex_unlock(&ports[port_num].lock);
+ 		gserial_free_port(port);
+ 		goto err;
+ 	}
 
-The only alternative I can imagine would be to revert "mmc: omap_hsmmc: =
-Use dma_request_chan() for requesting DMA channel".
 
-This would fix WiFi for OpenPandora. But - besides you can't simply git =
-revert any more - it
-would require fixing much more subsystems than omap_hsmmc + mmc + wl1251 =
-+ Pandora device tree.
-
-Yes, it is unfortunate that nobody did care about this bug (although =
-known) before I
-recently did a git bisect to identify this commit. So it got buried =
-under a thick layer
-of kernel patches so that getting back a working solution touches areas =
-outside the omap_hsmmc
-driver.
-
-Does this better explain what the rationale is?
-
-BR and thanks,
-Nikolaus Schaller=
