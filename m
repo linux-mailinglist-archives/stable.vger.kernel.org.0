@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E89ED11B2D2
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:40:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F65911B2D5
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:40:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388504AbfLKPiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:38:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49556 "EHLO mail.kernel.org"
+        id S2388494AbfLKPix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:38:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388497AbfLKPiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:38:51 -0500
+        id S2388501AbfLKPiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:38:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71B342467F;
-        Wed, 11 Dec 2019 15:38:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85C352464B;
+        Wed, 11 Dec 2019 15:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078730;
-        bh=IG9kGKLljauydAeaT7R+w9w3rEQaS3pDBysxhkF6U/4=;
+        s=default; t=1576078731;
+        bh=F6/qD3qQ3TPzFSsBZxOB423TixJO/UBcfKX5aUM8GYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h9x1n5q2tbIyxwxJ0z3JcbN1K1sXNlj5HyieaMbWqex5TfE8cbOu2P1492f/Ibhth
-         YfR/12TM5Ru+qoj2OnYwKdx6S4myIsAs1mlJQFFma3Sfpp/X4Vg2p4HCNmts/bubpD
-         Kw97iab3a8H/4VxeFT6Mi5/J2vA8NaC0gCGXHxSI=
+        b=dGQxOpesVFwF2pGeq0YnRkx6C/avBjHzaxCMTV2jbBU3LIz5GmcUUzBjLSYn5Qikk
+         KyrjPr0JuSBtJvYSSRJd62gX4Vc1SEeRajP8WkjmIZFQHeIoSy74VrQODvXHfi6g8d
+         2HE7xIiOWfJtfP71kY/1ytZjr8xZZ1F63+13oqQg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 34/37] libfdt: define INT32_MAX and UINT32_MAX in libfdt_env.h
-Date:   Wed, 11 Dec 2019 10:38:10 -0500
-Message-Id: <20191211153813.24126-34-sashal@kernel.org>
+Cc:     Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 35/37] s390/cpum_sf: Check for SDBT and SDB consistency
+Date:   Wed, 11 Dec 2019 10:38:11 -0500
+Message-Id: <20191211153813.24126-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153813.24126-1-sashal@kernel.org>
 References: <20191211153813.24126-1-sashal@kernel.org>
@@ -43,82 +43,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit a8de1304b7df30e3a14f2a8b9709bb4ff31a0385 ]
+[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
 
-The DTC v1.5.1 added references to (U)INT32_MAX.
+Each SBDT is located at a 4KB page and contains 512 entries.
+Each entry of a SDBT points to a SDB, a 4KB page containing
+sampled data. The last entry is a link to another SDBT page.
 
-This is no problem for user-space programs since <stdint.h> defines
-(U)INT32_MAX along with (u)int32_t.
+When an event is created the function sequence executed is:
 
-For the kernel space, libfdt_env.h needs to be adjusted before we
-pull in the changes.
+  __hw_perf_event_init()
+  +--> allocate_buffers()
+       +--> realloc_sampling_buffers()
+	    +---> alloc_sample_data_block()
 
-In the kernel, we usually use s/u32 instead of (u)int32_t for the
-fixed-width types.
+Both functions realloc_sampling_buffers() and
+alloc_sample_data_block() allocate pages and the allocation
+can fail. This is handled correctly and all allocated
+pages are freed and error -ENOMEM is returned to the
+top calling function. Finally the event is not created.
 
-Accordingly, we already have S/U32_MAX for their max values.
-So, we should not add (U)INT32_MAX to <linux/limits.h> any more.
+Once the event has been created, the amount of initially
+allocated SDBT and SDB can be too low. This is detected
+during measurement interrupt handling, where the amount
+of lost samples is calculated. If the number of lost samples
+is too high considering sampling frequency and already allocated
+SBDs, the number of SDBs is enlarged during the next execution
+of cpumsf_pmu_enable().
 
-Instead, add them to the in-kernel libfdt_env.h to compile the
-latest libfdt.
+If more SBDs need to be allocated, functions
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
+       realloc_sampling_buffers()
+       +---> alloc-sample_data_block()
+
+are called to allocate more pages. Page allocation may fail
+and the returned error is ignored. A SDBT and SDB setup
+already exists.
+
+However the modified SDBTs and SDBs might end up in a situation
+where the first entry of an SDBT does not point to an SDB,
+but another SDBT, basicly an SBDT without payload.
+This can not be handled by the interrupt handler, where an SDBT
+must have at least one entry pointing to an SBD.
+
+Add a check to avoid SDBTs with out payload (SDBs) when enlarging
+the buffer setup.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/libfdt_env.h | 4 +++-
- arch/powerpc/boot/libfdt_env.h        | 2 ++
- include/linux/libfdt_env.h            | 3 +++
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
-index 005bf4ff1b4cb..f3ddd4f599e3e 100644
---- a/arch/arm/boot/compressed/libfdt_env.h
-+++ b/arch/arm/boot/compressed/libfdt_env.h
-@@ -1,11 +1,13 @@
- #ifndef _ARM_LIBFDT_ENV_H
- #define _ARM_LIBFDT_ENV_H
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 874762a51c546..7490c52b27153 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -185,7 +185,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 				   unsigned long num_sdb, gfp_t gfp_flags)
+ {
+ 	int i, rc;
+-	unsigned long *new, *tail;
++	unsigned long *new, *tail, *tail_prev = NULL;
  
-+#include <linux/limits.h>
- #include <linux/types.h>
- #include <linux/string.h>
- #include <asm/byteorder.h>
+ 	if (!sfb->sdbt || !sfb->tail)
+ 		return -EINVAL;
+@@ -224,6 +224,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 			sfb->num_sdbt++;
+ 			/* Link current page to tail of chain */
+ 			*tail = (unsigned long)(void *) new + 1;
++			tail_prev = tail;
+ 			tail = new;
+ 		}
  
--#define INT_MAX			((int)(~0U>>1))
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
+@@ -233,10 +234,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 		 * issue, a new realloc call (if required) might succeed.
+ 		 */
+ 		rc = alloc_sample_data_block(tail, gfp_flags);
+-		if (rc)
++		if (rc) {
++			/* Undo last SDBT. An SDBT with no SDB at its first
++			 * entry but with an SDBT entry instead can not be
++			 * handled by the interrupt handler code.
++			 * Avoid this situation.
++			 */
++			if (tail_prev) {
++				sfb->num_sdbt--;
++				free_page((unsigned long) new);
++				tail = tail_prev;
++			}
+ 			break;
++		}
+ 		sfb->num_sdb++;
+ 		tail++;
++		tail_prev = new = NULL;	/* Allocated at least one SBD */
+ 	}
  
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
-diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
-index 0b3db6322c793..5f2cb1c53e151 100644
---- a/arch/powerpc/boot/libfdt_env.h
-+++ b/arch/powerpc/boot/libfdt_env.h
-@@ -5,6 +5,8 @@
- #include <string.h>
- 
- #define INT_MAX			((int)(~0U>>1))
-+#define UINT32_MAX		((u32)~0U)
-+#define INT32_MAX		((s32)(UINT32_MAX >> 1))
- 
- #include "of.h"
- 
-diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
-index 8850e243c9406..bd0a55821177a 100644
---- a/include/linux/libfdt_env.h
-+++ b/include/linux/libfdt_env.h
-@@ -6,6 +6,9 @@
- 
- #include <asm/byteorder.h>
- 
-+#define INT32_MAX	S32_MAX
-+#define UINT32_MAX	U32_MAX
-+
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
- typedef __be64 fdt64_t;
+ 	/* Link sampling buffer to its origin */
 -- 
 2.20.1
 
