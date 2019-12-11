@@ -2,95 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A62111AA9A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 13:19:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5610911AB02
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 13:34:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727477AbfLKMTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 07:19:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34874 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727365AbfLKMTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 07:19:49 -0500
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE25D214D8
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:19:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576066789;
-        bh=iUFhXuJqEXdM7iMJ99jebuqjwRWrpm8Pifh/3QOj3oI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=kIzbyf3uNEgulvHWgMgDZSqPh5E4M8BK/2o+pKdQOyDPu1wEjTU7Xdm6j0zA+8kmG
-         r/JRgzw8peiWcDNNdOWKNHH5lFXDshsLd/j0SApQQ/Htj1TgOik5TwF89q4wi1+640
-         yArBNVyQ8bwKcKenB+Qw9wRnEcLNsfSatFqi/FCc=
-Received: by mail-wr1-f49.google.com with SMTP id y11so23778817wrt.6
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 04:19:48 -0800 (PST)
-X-Gm-Message-State: APjAAAVZdDZSeII1OuUr2i7C/0Xj0sld+VBrW1DDgHKfr4WQ1qs3468d
-        RCOoRTbKntP0ive3zDCI+IkTL5rIo9gIg/PXNMA=
-X-Google-Smtp-Source: APXvYqzXWQULa8j7GpBaBpQ7Cd20aMHoijBM0inYfLAQUL5euAAxcU7Nom7R8iIrqJjmZpbOtAvwcflT4+BuWtH6cPw=
-X-Received: by 2002:adf:cf12:: with SMTP id o18mr3572428wrj.361.1576066786247;
- Wed, 11 Dec 2019 04:19:46 -0800 (PST)
+        id S1729132AbfLKMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 07:34:47 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:7217 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729131AbfLKMer (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 07:34:47 -0500
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 57E5FB965D7FD45D06AF;
+        Wed, 11 Dec 2019 20:34:42 +0800 (CST)
+Received: from localhost.localdomain.localdomain (10.175.113.25) by
+ DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
+ 14.3.439.0; Wed, 11 Dec 2019 20:34:36 +0800
+From:   Mao Wenan <maowenan@huawei.com>
+To:     <kernel.openeuler@huawei.com>
+CC:     Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>,
+        <syzbot+863724e7128e14b26732@syzkaller.appspotmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Mao Wenan <maowenan@huawei.com>
+Subject: [PATCH rh7.3 02/11] can: peak_usb: fix slab info leak
+Date:   Wed, 11 Dec 2019 20:31:45 +0800
+Message-ID: <20191211123154.141040-3-maowenan@huawei.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191211123154.141040-1-maowenan@huawei.com>
+References: <20191211123154.141040-1-maowenan@huawei.com>
 MIME-Version: 1.0
-References: <TYAPR01MB228505DBC22568339F914C15B7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191209173637.GF1290729@kroah.com> <TYAPR01MB2285135B15E6A152163E1A1AB7580@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210073514.GB3077639@kroah.com> <TYAPR01MB2285B5834B1FBA71F8DA512BB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210145528.GA4012363@kroah.com> <TYAPR01MB2285433EA1E6DF9EC621E31AB75B0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191210205951.GA4081499@kroah.com> <TYAPR01MB22852454802BAB486871D944B75A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-In-Reply-To: <TYAPR01MB22852454802BAB486871D944B75A0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-From:   Chen-Yu Tsai <wens@kernel.org>
-Date:   Wed, 11 Dec 2019 20:19:36 +0800
-X-Gmail-Original-Message-ID: <CAGb2v66mXBtyypam9iPbT_=cpm-ZYSpFqDBA9f3mxM9ME8q-ug@mail.gmail.com>
-Message-ID: <CAGb2v66mXBtyypam9iPbT_=cpm-ZYSpFqDBA9f3mxM9ME8q-ug@mail.gmail.com>
-Subject: Re: Linux 4.19.89-rc1 5944fcdd errors
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Chris Paterson <Chris.Paterson2@renesas.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.113.25]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 6:52 PM Chris Paterson
-<Chris.Paterson2@renesas.com> wrote:
->
-> Hello Greg,
->
-> [...]
->
-> > > > That's a lot, are these all new?
-> > >
-> > > I've only just started building with this config in our CI setup, but
-> > > building the dtbs locally with v4.19.88 didn't produce these results
-> > > for me (and building locally with v4.19.89-rc1 does result in the
-> > > above issues).
-> >
-> > Any chance you can run 'git bisect' to track down the offending patch?
->
-> The two dtbs that fail to build are fixed by reverting by the patches below:
->
-> > allwinner/sun50i-a64-pinebook.dtb
-> ea03518a3123 ("arm64: dts: allwinner: a64: enable sound on Pinebook")
+From: Johan Hovold <johan@kernel.org>
 
-I suggest dropping this if possible. It depends on another dtsi patch,
+mainline inclusion
+from mainline-5.4
+commit f7a1337f0d29b98733c8824e165fca3371d7d4fd
+category: bugfix
+bugzilla: NA
+DTS: NA
+CVE: CVE-2019-19534
 
-    ec4a95409d5c arm64: dts: allwinner: a64: add nodes necessary for
-analog sound support
+-------------------------------------------------
 
-and multiple driver patches
+Fix a small slab info leak due to a failure to clear the command buffer
+at allocation.
 
-    55b407f6468c ASoC: sun8i-codec-analog: split regmap code into
-separate driver
-    42371f327df0 ASoC: sunxi: Add new driver for Allwinner A64 codec's
-analog path controls
-    7e95aac96b55 ASoC: sunxi: allow the sun8i-codec driver to be built on ARM64
-    66ecce332538 ASoC: sun4i-i2s: Add compatibility with A64 codec I2S
-    ... (there quite a few more)
+The first 16 bytes of the command buffer are always sent to the device
+in pcan_usb_send_cmd() even though only the first two may have been
+initialised in case no argument payload is provided (e.g. when waiting
+for a response).
 
-to actually work. Quite sure those aren't backportable since one is over
-four hundred lines.
+Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
+Cc: stable <stable@vger.kernel.org>     # 3.4
+Reported-by: syzbot+863724e7128e14b26732@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+---
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Regards
-ChenYu
+diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+index b9df329577a7..8320937a9fd1 100644
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -731,7 +731,7 @@ static int peak_usb_create_dev(struct peak_usb_adapter *peak_usb_adapter,
+ 	dev = netdev_priv(netdev);
+ 
+ 	/* allocate a buffer large enough to send commands */
+-	dev->cmd_buf = kmalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
++	dev->cmd_buf = kzalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
+ 	if (!dev->cmd_buf) {
+ 		err = -ENOMEM;
+ 		goto lbl_free_candev;
+-- 
+2.20.1
+
