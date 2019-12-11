@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFCA11AF0C
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB46111AF0E
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730774AbfLKPKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:10:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58846 "EHLO mail.kernel.org"
+        id S1730399AbfLKPKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:10:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730742AbfLKPKc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:10:32 -0500
+        id S1730423AbfLKPKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:10:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24EB92465A;
-        Wed, 11 Dec 2019 15:10:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FD8320663;
+        Wed, 11 Dec 2019 15:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077031;
-        bh=yNEKqnYFfGAB5VCK7Vas/fD9z/qwhU9RBGBWkm0MGc4=;
+        s=default; t=1576077034;
+        bh=B3UhKAqWVlq8iHx8Xvx/hiWVPkC7YtwfvTyR+6T9d2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qlwPnirUse6CJShR5USW1ZNidFcwluPf+4lfoPbYUKB5G4QG2+oOwducn+CxxbUs4
-         F3Aiq7XlE6ZPyWMyJeCGdQlRr2kcOWUIFLpUIzfwjcKmToqTtPe6il0tMGkctS2TzU
-         nszwZe2rkSD0M8JDeO1h+XhaXpJ7DzMW8dYxekWo=
+        b=WkeWgF6110CxtOMRW2l6LDcGGL5m35REe7AN2vRjrZB1CME9px4yvemnbaTcARk0n
+         0jKgCh6p99I8GpNXUWjPwtS0WY1PCVhMyfOn7/1As4QUtDssRb7W4+j5O/V4baz3hf
+         RUHDbv8j9UVGfiGxJsvWLhwEA76vPToG40VzREzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 47/92] CIFS: Fix SMB2 oplock break processing
-Date:   Wed, 11 Dec 2019 16:05:38 +0100
-Message-Id: <20191211150242.515175605@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 48/92] tty: vt: keyboard: reject invalid keycodes
+Date:   Wed, 11 Dec 2019 16:05:39 +0100
+Message-Id: <20191211150242.689131251@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
 References: <20191211150221.977775294@linuxfoundation.org>
@@ -43,67 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit fa9c2362497fbd64788063288dc4e74daf977ebb upstream.
+commit b2b2dd71e0859436d4e05b2f61f86140250ed3f8 upstream.
 
-Even when mounting modern protocol version the server may be
-configured without supporting SMB2.1 leases and the client
-uses SMB2 oplock to optimize IO performance through local caching.
+Do not try to handle keycodes that are too big, otherwise we risk doing
+out-of-bounds writes:
 
-However there is a problem in oplock break handling that leads
-to missing a break notification on the client who has a file
-opened. It latter causes big latencies to other clients that
-are trying to open the same file.
+BUG: KASAN: global-out-of-bounds in clear_bit include/asm-generic/bitops-instrumented.h:56 [inline]
+BUG: KASAN: global-out-of-bounds in kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
+BUG: KASAN: global-out-of-bounds in kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
+Write of size 8 at addr ffffffff89a1b2d8 by task syz-executor108/1722
+...
+ kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
+ kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
+ input_to_handler+0x3b6/0x4c0 drivers/input/input.c:118
+ input_pass_values.part.0+0x2e3/0x720 drivers/input/input.c:145
+ input_pass_values drivers/input/input.c:949 [inline]
+ input_set_keycode+0x290/0x320 drivers/input/input.c:954
+ evdev_handle_set_keycode_v2+0xc4/0x120 drivers/input/evdev.c:882
+ evdev_do_ioctl drivers/input/evdev.c:1150 [inline]
 
-The problem reproduces when there are multiple shares from the
-same server mounted on the client. The processing code tries to
-match persistent and volatile file ids from the break notification
-with an open file but it skips all share besides the first one.
-Fix this by looking up in all shares belonging to the server that
-issued the oplock break.
+In this case we were dealing with a fuzzed HID device that declared over
+12K buttons, and while HID layer should not be reporting to us such big
+keycodes, we should also be defensive and reject invalid data ourselves as
+well.
 
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191122204220.GA129459@dtor-ws
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2misc.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/tty/vt/keyboard.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -673,10 +673,10 @@ smb2_is_valid_oplock_break(char *buffer,
- 	spin_lock(&cifs_tcp_ses_lock);
- 	list_for_each(tmp, &server->smb_ses_list) {
- 		ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
-+
- 		list_for_each(tmp1, &ses->tcon_list) {
- 			tcon = list_entry(tmp1, struct cifs_tcon, tcon_list);
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -1491,7 +1491,7 @@ static void kbd_event(struct input_handl
  
--			cifs_stats_inc(&tcon->stats.cifs_stats.num_oplock_brks);
- 			spin_lock(&tcon->open_file_lock);
- 			list_for_each(tmp2, &tcon->openFileList) {
- 				cfile = list_entry(tmp2, struct cifsFileInfo,
-@@ -688,6 +688,8 @@ smb2_is_valid_oplock_break(char *buffer,
- 					continue;
+ 	if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev))
+ 		kbd_rawcode(value);
+-	if (event_type == EV_KEY)
++	if (event_type == EV_KEY && event_code <= KEY_MAX)
+ 		kbd_keycode(event_code, value, HW_RAW(handle->dev));
  
- 				cifs_dbg(FYI, "file id match, oplock break\n");
-+				cifs_stats_inc(
-+				    &tcon->stats.cifs_stats.num_oplock_brks);
- 				cinode = CIFS_I(d_inode(cfile->dentry));
- 				spin_lock(&cfile->file_info_lock);
- 				if (!CIFS_CACHE_WRITE(cinode) &&
-@@ -720,9 +722,6 @@ smb2_is_valid_oplock_break(char *buffer,
- 				return true;
- 			}
- 			spin_unlock(&tcon->open_file_lock);
--			spin_unlock(&cifs_tcp_ses_lock);
--			cifs_dbg(FYI, "No matching file for oplock break\n");
--			return true;
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
+ 	spin_unlock(&kbd_event_lock);
 
 
