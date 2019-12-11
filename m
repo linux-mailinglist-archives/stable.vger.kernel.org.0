@@ -2,138 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6638011B1E3
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D7511B346
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:41:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388024AbfLKPdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:33:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
+        id S2387628AbfLKPlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:41:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387423AbfLKPdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:33:17 -0500
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+        id S2387890AbfLKPfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:35:12 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63A042077B;
-        Wed, 11 Dec 2019 15:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E04F2173E;
+        Wed, 11 Dec 2019 15:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078396;
-        bh=23YlAnpt744eiuxvp4LvcKrabFlhDLD+8Q8Ilp9BmqY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=HlGrVixYom2ssG9+XLm7A52FHM9+bgKtLuuQ/18ur59yNWaULj75MFKcI3PpKX+2Z
-         7RmrdC8S2f81L+VlreVej0IgovZwco6qqLgr56mFuqRenY+ugnDwhXB2KJYQ7cNYEQ
-         7c2A37KwttEs2TgM4ezgBcYg1z9jEEe3EbnQS1dY=
-Received: by mail-wm1-f49.google.com with SMTP id a5so1811783wmb.0;
-        Wed, 11 Dec 2019 07:33:16 -0800 (PST)
-X-Gm-Message-State: APjAAAXRVsL7zN+BmSoXnfowql2oSzZvpAR+M2zBmhIra1ZdteboF06Y
-        5zvAhd6FNjrhMOk5rbd2+nlw2BZ8hKUu/bbMZ7U=
-X-Google-Smtp-Source: APXvYqwjSC19g0o0KY/WlIEeOOsXoviY4IAXr7g5yUJbzDXE4omBhvNmA6CAL+nCmUBxUwEofGEO2mzo6hRqBLipPL4=
-X-Received: by 2002:a05:600c:2409:: with SMTP id 9mr356922wmp.109.1576078394867;
- Wed, 11 Dec 2019 07:33:14 -0800 (PST)
+        s=default; t=1576078512;
+        bh=Qg9zV/+M2zmODgLZIIMHmF0ZnnWlnBh71Hg7gizc5U0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=O4b4ZjcnOZZUPSd0073TJyIr8owKi5SRdnv0IjO+5+SrkXO9u8yJIuEuwA43lPKi3
+         kcS9L7X3f40y8WrTA+7BZ040cYY5IYBG9QpAr+dJg5ODzxkSSLf6JkXp1M2Lfm1mC4
+         IvNEbI6/qmZ1ey+MniKBrwfinA7e306fOo0rOxjk=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@avagotech.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/42] scsi: mpt3sas: Fix clear pending bit in ioctl status
+Date:   Wed, 11 Dec 2019 10:34:29 -0500
+Message-Id: <20191211153510.23861-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <20191211104152.26496-1-wens@kernel.org> <28dfaeab-73cd-041b-9894-776064d13245@arm.com>
-In-Reply-To: <28dfaeab-73cd-041b-9894-776064d13245@arm.com>
-From:   Chen-Yu Tsai <wens@kernel.org>
-Date:   Wed, 11 Dec 2019 23:33:05 +0800
-X-Gmail-Original-Message-ID: <CAGb2v640NEj+WK_zj-LouvwkLTVrwyMgWGq_xdU8qJkOKF0FFQ@mail.gmail.com>
-Message-ID: <CAGb2v640NEj+WK_zj-LouvwkLTVrwyMgWGq_xdU8qJkOKF0FFQ@mail.gmail.com>
-Subject: Re: [PATCH] ARM: dma-api: fix max_pfn off-by-one error in __dma_supported()
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Chen-Yu Tsai <wens@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        stable <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 9:41 PM Robin Murphy <robin.murphy@arm.com> wrote:
->
-> On 11/12/2019 10:41 am, Chen-Yu Tsai wrote:
-> > From: Chen-Yu Tsai <wens@csie.org>
-> >
-> > max_pfn, as set in arch/arm/mm/init.c:
-> >
-> >      static void __init find_limits(unsigned long *min,
-> >                                  unsigned long *max_low,
-> >                                  unsigned long *max_high)
-> >      {
-> >           *max_low = PFN_DOWN(memblock_get_current_limit());
-> >           *min = PFN_UP(memblock_start_of_DRAM());
-> >           *max_high = PFN_DOWN(memblock_end_of_DRAM());
-> >      }
-> >
-> > with memblock_end_of_DRAM() pointing to the next byte after DRAM. As
-> > such, max_pfn points to the PFN after the end of DRAM.
-> >
-> > Thus when using max_pfn to check DMA masks, we should subtract one
-> > when checking DMA ranges against it.
-> >
-> > Commit 8bf1268f48ad ("ARM: dma-api: fix off-by-one error in
-> > __dma_supported()") fixed the same issue, but missed this spot.
-> >
-> > This issue was found while working on the sun4i-csi v4l2 driver on the
-> > Allwinner R40 SoC. On Allwinner SoCs, DRAM is offset at 0x40000000,
-> > and we are starting to use of_dma_configure() with the "dma-ranges"
-> > property in the device tree to have the DMA API handle the offset.
-> >
-> > In this particular instance, dma-ranges was set to the same range as
-> > the actual available (2 GiB) DRAM. The following error appeared when
-> > the driver attempted to allocate a buffer:
-> >
-> >      sun4i-csi 1c09000.csi: Coherent DMA mask 0x7fffffff (pfn 0x40000-0xc0000)
-> >      covers a smaller range of system memory than the DMA zone pfn 0x0-0xc0001
-> >      sun4i-csi 1c09000.csi: dma_alloc_coherent of size 307200 failed
-> >
-> > Fixing the off-by-one error makes things work.
-> >
-> > Fixes: 11a5aa32562e ("ARM: dma-mapping: check DMA mask against available memory")
-> > Fixes: 9f28cde0bc64 ("ARM: another fix for the DMA mapping checks")
-> > Fixes: ab746573c405 ("ARM: dma-mapping: allow larger DMA mask than supported")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> > ---
-> >   arch/arm/mm/dma-mapping.c | 4 ++--
-> >   1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-> > index e822af0d9219..f4daafdbac56 100644
-> > --- a/arch/arm/mm/dma-mapping.c
-> > +++ b/arch/arm/mm/dma-mapping.c
-> > @@ -227,12 +227,12 @@ static int __dma_supported(struct device *dev, u64 mask, bool warn)
-> >        * Translate the device's DMA mask to a PFN limit.  This
-> >        * PFN number includes the page which we can DMA to.
-> >        */
-> > -     if (dma_to_pfn(dev, mask) < max_dma_pfn) {
-> > +     if (dma_to_pfn(dev, mask) < max_dma_pfn - 1) {
->
-> I think this correction actually wants to happen a couple of lines up in
-> the definition:
->
->         unsigned long max_dma_pfn = min(max_pfn, arm_dma_pfn_limit);
->
-> max_pfn is indeed an exclusive limit, but AFAICS arm_dma_pfn_limit is
-> inclusive, so none of these "+1"s and "-1"s can be entirely right for
-> both cases.
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-You're absolutely right. I'll fix it and send a v2 out.
+[ Upstream commit 782b281883caf70289ba6a186af29441a117d23e ]
 
-Thanks
+When user issues diag register command from application with required size,
+and if driver unable to allocate the memory, then it will fail the register
+command. While failing the register command, driver is not currently
+clearing MPT3_CMD_PENDING bit in ctl_cmds.status variable which was set
+before trying to allocate the memory. As this bit is set, subsequent
+register command will be failed with BUSY status even when user wants to
+register the trace buffer will less memory.
 
-ChenYu
+Clear MPT3_CMD_PENDING bit in ctl_cmds.status before returning the diag
+register command with no memory status.
 
-> Robin.
->
-> >               if (warn)
-> >                       dev_warn(dev, "Coherent DMA mask %#llx (pfn %#lx-%#lx) covers a smaller range of system memory than the DMA zone pfn 0x0-%#lx\n",
-> >                                mask,
-> >                                dma_to_pfn(dev, 0), dma_to_pfn(dev, mask) + 1,
-> > -                              max_dma_pfn + 1);
-> > +                              max_dma_pfn);
-> >               return 0;
-> >       }
-> >
-> >
+Link: https://lore.kernel.org/r/1568379890-18347-4-git-send-email-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/scsi/mpt3sas/mpt3sas_ctl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
+index 26cdc127ac89c..90a87e59ff602 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
+@@ -1465,7 +1465,8 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
+ 			    " for diag buffers, requested size(%d)\n",
+ 			    ioc->name, __func__, request_data_sz);
+ 			mpt3sas_base_free_smid(ioc, smid);
+-			return -ENOMEM;
++			rc = -ENOMEM;
++			goto out;
+ 		}
+ 		ioc->diag_buffer[buffer_type] = request_data;
+ 		ioc->diag_buffer_sz[buffer_type] = request_data_sz;
+-- 
+2.20.1
+
