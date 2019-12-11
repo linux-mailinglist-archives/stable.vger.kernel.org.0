@@ -2,98 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F56B11A675
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 10:08:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2FEE11A686
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 10:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727851AbfLKJIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 04:08:01 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:52186 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727888AbfLKJIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 04:08:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576055278;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=y+7CWlGvo3J1aqX5URICLxANHtApPrtUz6Ly50hT0k8=;
-        b=OAFFQcbl+GANBHUp05SJjRbuv9zIXvKUiDKVKmHAAMiZH85MA7AnQS8wzu/mfHwW+r7EZr
-        3ziip3zZVi3GFrbVwdjEBGhttLm91ko5grBeA6ow+dyP0euq0fYvOe5w06AcsRnEIafAkU
-        hpHmLnJQfK+M51RLQG0C+SZA63IlSKk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-145-oV301jayNgOqIBSHTnp3tQ-1; Wed, 11 Dec 2019 04:07:58 -0500
-Received: by mail-wm1-f69.google.com with SMTP id l11so362801wmi.0
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 01:07:57 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=y+7CWlGvo3J1aqX5URICLxANHtApPrtUz6Ly50hT0k8=;
-        b=qF7bwHuw3kDdDMCbs3mHa2dgR2PbVkvYV5X6Lh8wHYdhBVd8xRClYdtYNcCAyb6BiD
-         5BXOoVW/qUvZGHZeGdDiPx+2u4V9r2iyuDaVa17Vkx/5X3XQSX4ng2YUTqe9oy5zItDK
-         lEcuk/CjNSfY9pnZZliONHZaQEvPauOLxdSsPghCEEODbbBaLEI6kI/oa/Lq74Tie9v1
-         CQX7FFDvV8r7nu22tEcQLs8jjKXx8u3fqHYsK7Qp7PSq5UaKN3/MXcCDryFLb5L2hhVq
-         kFCsXRclqNNMnPwqxSznuLIo9D4OgQy//GOe/TtgRdSp72M2uL3+11/8TImtXovlWKuO
-         JqhQ==
-X-Gm-Message-State: APjAAAXa0yxp6cuoqeM+Ps3OYKJLukxPsbBvGLD+Z8hwtlb6Tuhhcy+h
-        7KMG30nzP/miJUxL9/6eWB3UbR+aj0pNPTXoW07kUHBeDsKjXaZQjrZJySRLWeTsQ6s/LMCK34f
-        d4pRO3VWShRU0HCwk
-X-Received: by 2002:a5d:4fd0:: with SMTP id h16mr2392693wrw.255.1576055276747;
-        Wed, 11 Dec 2019 01:07:56 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyk530KPtCatGmVOoZqOVtdEa4CHIdMd2QUgErjQSW25mSow9KbdltraJ00JOs309bCAh7DDw==
-X-Received: by 2002:a5d:4fd0:: with SMTP id h16mr2392670wrw.255.1576055276544;
-        Wed, 11 Dec 2019 01:07:56 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9? ([2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9])
-        by smtp.gmail.com with ESMTPSA id g2sm1496891wrw.76.2019.12.11.01.07.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Dec 2019 01:07:55 -0800 (PST)
-Subject: Re: [PATCH v2] KVM: x86: use CPUID to locate host page table reserved
- bits
-To:     "Huang, Kai" <kai.huang@intel.com>,
-        "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Cc:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <1575474037-7903-1-git-send-email-pbonzini@redhat.com>
- <8f7e3e87-15dc-2269-f5ee-c3155f91983c@amd.com>
- <7b885f53-e0d3-2036-6a06-9cdcbb738ae2@redhat.com>
- <3efabf0da4954239662e90ea08d99212a654977a.camel@intel.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <62438ac9-e186-32a7-d12f-5806054d56b2@redhat.com>
-Date:   Wed, 11 Dec 2019 10:07:55 +0100
+        id S1727851AbfLKJNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 04:13:11 -0500
+Received: from first.geanix.com ([116.203.34.67]:46082 "EHLO first.geanix.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727253AbfLKJNL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 04:13:11 -0500
+Received: from [192.168.100.11] (unknown [95.138.208.137])
+        by first.geanix.com (Postfix) with ESMTPSA id 66492449;
+        Wed, 11 Dec 2019 09:12:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
+        t=1576055561; bh=YxISBxVYxSRK+XP0WAd8zfV2chhV6asFXIr1+s+IZL8=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=A9NdXoTg5wWJzYYcrajVz//tTfiRe52uB5nOdYxB5S0Vv+WbmIFdwA0X+epDZA0rY
+         LnH+mGcC0NN6AW7Hl4a7Z74M+gYqJjSCNQxQbqi6kVvV+gedgOiybDVcFhPUlaFVVW
+         jncZaIGBIc1x+f+nSBtYCXeiVoJEkSiLM3pq8l8pXBAmltoh411BM34b/6GZDJWpW6
+         dMLu9bj9X5cYcKu4MGvjq7zxtg7nG323qX6Fub0uazM025O8w9F3Q0qNdSpPo44gyf
+         H5mOlVC292vqGoJDNlnoH3Yv3cPlsHHk1pS/V9ACHFYv6kYL/m5xqQRA1oeT6pWGZD
+         wrFccN4eBd1nw==
+Subject: Re: [PATCH v3 1/2] can: m_can: tcan4x5x: put the device out of
+ standby before register access
+To:     Marc Kleine-Budde <mkl@pengutronix.de>, dmurphy@ti.com,
+        linux-can@vger.kernel.org
+Cc:     martin@geanix.com, stable@vger.kernel.org
+References: <20191211064208.84656-1-sean@geanix.com>
+ <8b1682ad-c291-252e-c768-63a7a4801aff@pengutronix.de>
+From:   Sean Nyekjaer <sean@geanix.com>
+Message-ID: <bc0014ec-7302-97f4-5d71-8d029b0fb1fb@geanix.com>
+Date:   Wed, 11 Dec 2019 10:13:07 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-In-Reply-To: <3efabf0da4954239662e90ea08d99212a654977a.camel@intel.com>
-Content-Language: en-US
-X-MC-Unique: oV301jayNgOqIBSHTnp3tQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <8b1682ad-c291-252e-c768-63a7a4801aff@pengutronix.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US-large
 Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,URIBL_BLOCKED
+        autolearn=disabled version=3.4.2
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on 8b5b6f358cc9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/12/19 01:11, Huang, Kai wrote:
->> kvm_get_shadow_phys_bits() must be conservative in that:
->>
->> 1) if a bit is reserved it _can_ return a value higher than its index
->>
->> 2) if a bit is used by the processor (for physical address or anything
->> else) it _must_ return a value higher than its index.
->>
->> In the SEV case we're not obeying (2), because the function returns 43
->> when the C bit is bit 47.  The patch fixes that.
-> Could we guarantee that C-bit is always below bits reported by CPUID?
 
-That's a question for AMD. :)  The C bit can move (and probably will,
-otherwise they wouldn't have bothered adding it to CPUID) in future
-generations of the processor.
 
-Paolo
+On 11/12/2019 09.42, Marc Kleine-Budde wrote:
+> On 12/11/19 7:42 AM, Sean Nyekjaer wrote:
+>> The m_can tries to detect if Non ISO Operation is available while in standby,
+>> this function results in the following error:
+>>
+>> tcan4x5x spi2.0 (unnamed net_device) (uninitialized): Failed to init module
+>> tcan4x5x spi2.0: m_can device registered (irq=84, version=32)
+>> tcan4x5x spi2.0 can2: TCAN4X5X successfully initialized.
+>>
+>> When the tcan device comes out of reset it comes out in standby mode.
+>> The m_can driver tries to access the control register but fails due to
+>> the device is in standby mode.
+>> So this patch will put the tcan device in normal mode before the m_can
+>> driver does the initialization.
+>>
+>> Fixes: a229abeed7f7 ("can: tcan4x5x: Turn on the power before parsing the config")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+> 
+> Applied both to linux-can.
+> 
 
+Oh, the commit id for "can: tcan4x5x: Turn on the power before parsing 
+the config" have changed, since this morning :)
+
+The new commit is 0d38aa7d1090
+
+Thanks
+/Sean
