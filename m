@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3573111B67B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB1111B81D
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730936AbfLKPNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
+        id S1730583AbfLKPJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:09:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731427AbfLKPNb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:31 -0500
+        id S1729994AbfLKPJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:09:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9B532465C;
-        Wed, 11 Dec 2019 15:13:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFAAE24658;
+        Wed, 11 Dec 2019 15:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077210;
-        bh=cQnHYqMKMnTnO6m2mJKlDYRQy3IpoH92Ix9Topw/7fc=;
+        s=default; t=1576076964;
+        bh=ATBWun4wWF0hfWPoCuDAJUpd6PpKWorGF7fWEHv5zi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTz5S2PkPIGoHm4VgVL0v2LmKciuqpdkqfIeWRYqWCVbKxFdBsQGa9SZcBtuIjTo9
-         3VRd61r32l6gKnDeyMuM6/0VrJ/1E4jJwIQX3cOaKLc1a3KovTPh6jJfPgmrPUKpiD
-         /ITU/WkHs2kf9yz89sz7XbYz5y/6aRkRXWtEifwY=
+        b=yYGsdJg4JM0LQeLp595HCLSVUt7oZzX/AfTJERpfshakCAFRk306v9Wh7dAc43bTe
+         +S1VQ7NCFQvN7wGes7L291WitMmDuqlGZJ1Qkvf+b/WPjk1TpJjxuddwFxgX7Gt7If
+         zM7Lb7IStYFsnEJDKa9h4ariRYvwRx7xnv6aV538=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>
-Subject: [PATCH 5.3 059/105] coresight: etm4x: Fix input validation for sysfs.
-Date:   Wed, 11 Dec 2019 16:05:48 +0100
-Message-Id: <20191211150244.203826612@linuxfoundation.org>
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5.4 58/92] arm64: dts: exynos: Revert "Remove unneeded address space mapping for soc node"
+Date:   Wed, 11 Dec 2019 16:05:49 +0100
+Message-Id: <20191211150247.546562289@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Leach <mike.leach@linaro.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit 2fe6899e36aa174abefd017887f9cfe0cb60c43a upstream.
+commit bed903167ae5b5532eda5d7db26de451bd232da5 upstream.
 
-A number of issues are fixed relating to sysfs input validation:-
+Commit ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space
+mapping for soc node") changed the address and size cells in root node from
+2 to 1, but /memory nodes for the affected boards were not updated. This
+went unnoticed on Exynos5433-based TM2(e) boards, because they use u-boot,
+which updates /memory node to the correct values. On the other hand, the
+mentioned commit broke boot on Exynos7-based Espresso board, which
+bootloader doesn't touch /memory node at all.
 
-1) bb_ctrl_store() - incorrect compare of bit select field to absolute
-value. Reworked per ETMv4 specification.
-2) seq_event_store() - incorrect mask value - register has two
-event values.
-3) cyc_threshold_store() - must mask with max before checking min
-otherwise wrapped values can set illegal value below min.
-4) res_ctrl_store() - update to mask off all res0 bits.
+This patch reverts commit ef72171b3621 ("arm64: dts: exynos: Remove
+unneeded address space mapping for soc node"), so Exynos5433 and Exynos7
+SoCs again matches other ARM64 platforms with 64bit mappings in root
+node.
 
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Mike Leach <mike.leach@linaro.org>
-Fixes: a77de2637c9eb ("coresight: etm4x: moving sysFS entries to a dedicated file")
-Cc: stable <stable@vger.kernel.org> # 4.9+
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20191104181251.26732-6-mathieu.poirier@linaro.org
+Reported-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space mapping for soc node")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: <stable@vger.kernel.org> # 5.3.x: 72ddcf6aa224 arm64: dts: exynos: Move GPU under /soc node for Exynos5433
+Cc: <stable@vger.kernel.org> # 5.3.x: ede87c3a2bdb arm64: dts: exynos: Move GPU under /soc node for Exynos7
+Cc: <stable@vger.kernel.org> # 4.18.x
+Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/coresight/coresight-etm4x-sysfs.c |   21 ++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/exynos/exynos5433.dtsi |    6 +++---
+ arch/arm64/boot/dts/exynos/exynos7.dtsi    |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-@@ -655,10 +655,13 @@ static ssize_t cyc_threshold_store(struc
+--- a/arch/arm64/boot/dts/exynos/exynos5433.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos5433.dtsi
+@@ -18,8 +18,8 @@
  
- 	if (kstrtoul(buf, 16, &val))
- 		return -EINVAL;
-+
-+	/* mask off max threshold before checking min value */
-+	val &= ETM_CYC_THRESHOLD_MASK;
- 	if (val < drvdata->ccitmin)
- 		return -EINVAL;
+ / {
+ 	compatible = "samsung,exynos5433";
+-	#address-cells = <1>;
+-	#size-cells = <1>;
++	#address-cells = <2>;
++	#size-cells = <2>;
  
--	config->ccctlr = val & ETM_CYC_THRESHOLD_MASK;
-+	config->ccctlr = val;
- 	return size;
- }
- static DEVICE_ATTR_RW(cyc_threshold);
-@@ -689,14 +692,16 @@ static ssize_t bb_ctrl_store(struct devi
- 		return -EINVAL;
- 	if (!drvdata->nr_addr_cmp)
- 		return -EINVAL;
-+
- 	/*
--	 * Bit[7:0] selects which address range comparator is used for
--	 * branch broadcast control.
-+	 * Bit[8] controls include(1) / exclude(0), bits[0-7] select
-+	 * individual range comparators. If include then at least 1
-+	 * range must be selected.
- 	 */
--	if (BMVAL(val, 0, 7) > drvdata->nr_addr_cmp)
-+	if ((val & BIT(8)) && (BMVAL(val, 0, 7) == 0))
- 		return -EINVAL;
+ 	interrupt-parent = <&gic>;
  
--	config->bb_ctrl = val;
-+	config->bb_ctrl = val & GENMASK(8, 0);
- 	return size;
- }
- static DEVICE_ATTR_RW(bb_ctrl);
-@@ -1329,8 +1334,8 @@ static ssize_t seq_event_store(struct de
+@@ -311,7 +311,7 @@
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		ranges;
++		ranges = <0x0 0x0 0x0 0x18000000>;
  
- 	spin_lock(&drvdata->spinlock);
- 	idx = config->seq_idx;
--	/* RST, bits[7:0] */
--	config->seq_ctrl[idx] = val & 0xFF;
-+	/* Seq control has two masks B[15:8] F[7:0] */
-+	config->seq_ctrl[idx] = val & 0xFFFF;
- 	spin_unlock(&drvdata->spinlock);
- 	return size;
- }
-@@ -1585,7 +1590,7 @@ static ssize_t res_ctrl_store(struct dev
- 	if (idx % 2 != 0)
- 		/* PAIRINV, bit[21] */
- 		val &= ~BIT(21);
--	config->res_ctrl[idx] = val;
-+	config->res_ctrl[idx] = val & GENMASK(21, 0);
- 	spin_unlock(&drvdata->spinlock);
- 	return size;
- }
+ 		chipid@10000000 {
+ 			compatible = "samsung,exynos4210-chipid";
+--- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+@@ -12,8 +12,8 @@
+ / {
+ 	compatible = "samsung,exynos7";
+ 	interrupt-parent = <&gic>;
+-	#address-cells = <1>;
+-	#size-cells = <1>;
++	#address-cells = <2>;
++	#size-cells = <2>;
+ 
+ 	aliases {
+ 		pinctrl0 = &pinctrl_alive;
+@@ -98,7 +98,7 @@
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		ranges;
++		ranges = <0 0 0 0x18000000>;
+ 
+ 		chipid@10000000 {
+ 			compatible = "samsung,exynos4210-chipid";
 
 
