@@ -2,82 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B8A11BE0D
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:38:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D150411BE35
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727489AbfLKUi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 15:38:26 -0500
-Received: from mail-wr1-f48.google.com ([209.85.221.48]:35601 "EHLO
-        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726242AbfLKUiZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:38:25 -0500
-Received: by mail-wr1-f48.google.com with SMTP id g17so155331wro.2
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:38:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZgpTALvCxZtpn/coHdo8q2GnNFUa+4VWx05k6lWc9tk=;
-        b=JJfNYFrNfzFfcmxt+dxb8s1mWI4zrUwDSKMJASi8SoSjf0Gt2ibYN+JsYNOZ3x1qhP
-         PqZdj6v0gSTACJxS5joX+GaxhXuch8akd/FzMjkX9gzVG4TroHpAMMEnEOOkgAls7Eau
-         IWnhHGAXnPS8bYBkzE3eEpGcNPRHGb8nhOIRLUQLghtzX2AnoT55/TQ+wEWCVlYOjTcp
-         JSVrOfAsXSFQjCYNgmTFAbcoTreHyq7G+6eT9z+ZT7eAQfW96nhXdfwD9dqkNjMtOExA
-         MPmMk/RG6WlXPc62BvL2QaswPsgkxvHAqZQa/1vSZdm990QExQDfSI59Qb25f6wEolGQ
-         RmDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZgpTALvCxZtpn/coHdo8q2GnNFUa+4VWx05k6lWc9tk=;
-        b=IjuzHUO3bEkmDiSJ/5yrPJ7q1dBlmi8J23cDtfWo8d9MkjPW91Xhf83K2sHsLvM/ct
-         2E6+dzpwO9rrTLv9aCgTmHwq7THm03am3BErnNqAg79fM1beDG7TC01ycYjMu+uzWwSc
-         XKzZSRTI2i2RJRLSDmhFcsQ0iHBqtvFkUaThc8+UT5Ii9F0oktKdA2HdJkXB1qBI5PEL
-         T/G10FZ3/sHdnp43wnfHbG3lZPsLQsy0AcVoWZ7Rwtl0YN2BJ1MRf7itvcYBgfN3m1Y6
-         AvkcZyF17twl/KaZUZ6VM4Hnn8A9nT1Gyn7HIwP7hsdO8ZNR90EqXJKa0PtIbHAv28wu
-         gTrA==
-X-Gm-Message-State: APjAAAXbMPKSSokRWjeDebo1MeWy/nw12vNl36/izZMxLFyG12JHr1SU
-        q8OlpmUQhkuPVgGw5yXwoc0ty67xPU6G0Q==
-X-Google-Smtp-Source: APXvYqzIlC7BIuPqzugmqLw28TmxcowJrsepE6xrwwlyRXLly3GqtQP9nJOMJnPETbVIf/xfowa1PQ==
-X-Received: by 2002:adf:ec48:: with SMTP id w8mr1870888wrn.19.1576096703477;
-        Wed, 11 Dec 2019 12:38:23 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z21sm3582667wml.5.2019.12.11.12.38.22
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Dec 2019 12:38:22 -0800 (PST)
-Message-ID: <5df153be.1c69fb81.9eb36.239e@mx.google.com>
-Date:   Wed, 11 Dec 2019 12:38:22 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726841AbfLKUqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 15:46:00 -0500
+Received: from mout.kundenserver.de ([212.227.17.10]:54949 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726824AbfLKUqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:46:00 -0500
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue108 [212.227.15.145]) with ESMTPA (Nemesis) id
+ 1MtfVx-1hrzjx1qbH-00v5Yw; Wed, 11 Dec 2019 21:44:34 +0100
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Jens Axboe <axboe@kernel.dk>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jens Axboe <axboe@fb.com>, Hannes Reinecke <hare@suse.com>,
+        Damien Le Moal <damien.lemoal@hgst.com>,
+        Shaun Tancheff <shaun@tancheff.com>
+Cc:     linux-kernel@vger.kernel.org, y2038@lists.linaro.org,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
+        Shaun Tancheff <shaun.tancheff@seagate.com>,
+        Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org
+Subject: [PATCH 03/24] compat_ioctl: block: handle BLKREPORTZONE/BLKRESETZONE
+Date:   Wed, 11 Dec 2019 21:42:37 +0100
+Message-Id: <20191211204306.1207817-4-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
+In-Reply-To: <20191211204306.1207817-1-arnd@arndb.de>
+References: <20191211204306.1207817-1-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.206-92-gede24ca9232b
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 63 boots: 0 failed,
- 62 passed with 1 untried/unknown (v4.9.206-92-gede24ca9232b)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:tUHZTqYugYCYUwAQZWPackACXJTSUKL9x3lbDrGZrX999DK9Asp
+ TVe964nJnMAgtKxNZszDAtDuKLzdq2+bKOi/TqfobbZHHI8sJXCBGqZU/QHvOzN+d6zOfS/
+ Zr8LsXc41Dvhge0/mLw1M78GQTOdVLa+/8mbuDopq13rvC8A8dLivfsUuc3sqFq2hbpqt+a
+ 2T7gy1fgYL0l6KRKhCfjQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:8Ca/Kaw5pJ0=:pX2Fj/FOn33vjECxD2DR3C
+ gSxWY/h8Xl8vHByOcl7R6E0JSiBUsjc+vyap3TL0a6nyiYl2MU9J0aP3apJ/rSnZYrPZpnkPS
+ W2Xj8SOJv52EZqY82PIfqVHzu/QYq/aFoZZEcTlkXKLxoDtvGqLzsuU1mQbE4bGkv7gV4QZRV
+ GPFKQ9MhGGRABXA+ROegxW6pu7ZPeqmyRkIWjVUZrT6b4HWFU94AmaKqkUpUaMmMWdu5+/ixQ
+ /Ul+joTcYsyc0l3f4EYl5USyRrjUhx9vmA0dn2K/SihYox24fWdJFg2bOZnUpJunQtAVjGO+s
+ x/ZhligRpVhEpCI26y5LCJ8Gjkv8oy88jk75CvLFAUaN8RhX4rGmElV6Wa91PBzA7r1K29LYM
+ lyJS4JJ+tV/5KzKmkkuQDhdgZXSzwbp76MIz9OdCKazzUDU+rOqmJEiQtworObbgI3mQauy8o
+ Who5zGuZvHCwG5zcIF1tzTs+hoEVYsXSKQZquno2ai4gncriNKnh4br+M3OcioyNTgSZa6xrQ
+ eF1lVZzXvPqtkSK5Rrwibef0ucVGO/lE+u7Mq9FsNgSuuYLHZAjDsDG+lda0sX6lD3i9ZHAEW
+ fvrpdrl+fRORccEuDSkXTWZtcGTpP2zm2nFZE++CcLXGIQQVmfg/Ba9bA4/rrg3+tdoBI9MVw
+ g/65hRQfWlwg/JC86yDbUxiFSbif0nzxXhhJV+8nZFklGG6ufyXvmACSOAF4BpOCTQJacgbzU
+ dQ/QhZ2biI9H+kwB0zcwO1iGxGAaRX8eStw11rJRX8C+rfEAGLHbMJ8axdDWZoMEpMEmw5hvq
+ LkO6gW96Cnj0eIdRUkFYDPOD4b6On+m6shG6eLibyp2LZ4NRSeHkIrdqCdaEC2Nr3B+Sz7sj3
+ u+m1hGTzY0O37G2+CxFw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 63 boots: 0 failed, 62 passed with 1 untried/un=
-known (v4.9.206-92-gede24ca9232b)
+These were added to blkdev_ioctl() but not blkdev_compat_ioctl,
+so add them now.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.206-92-gede24ca9232b/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.206-92-gede24ca9232b/
-
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.206-92-gede24ca9232b
-Git Commit: ede24ca9232b565f0f6d655b1670e89e25814bb4
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 31 unique boards, 12 SoC families, 12 builds out of 197
-
+Cc: <stable@vger.kernel.org> # v4.10+
+Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
-For more info write to <info@kernelci.org>
+ block/compat_ioctl.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/block/compat_ioctl.c b/block/compat_ioctl.c
+index 6ca015f92766..830f91e05fe3 100644
+--- a/block/compat_ioctl.c
++++ b/block/compat_ioctl.c
+@@ -354,6 +354,8 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 	 * but we call blkdev_ioctl, which gets the lock for us
+ 	 */
+ 	case BLKRRPART:
++	case BLKREPORTZONE:
++	case BLKRESETZONE:
+ 		return blkdev_ioctl(bdev, mode, cmd,
+ 				(unsigned long)compat_ptr(arg));
+ 	case BLKBSZSET_32:
+-- 
+2.20.0
+
