@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1A011BE59
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:49:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A03511BE86
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726901AbfLKUsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 15:48:31 -0500
-Received: from mail-ua1-f73.google.com ([209.85.222.73]:53323 "EHLO
-        mail-ua1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727115AbfLKUsb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:48:31 -0500
-Received: by mail-ua1-f73.google.com with SMTP id 14so6550127uar.20
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:48:30 -0800 (PST)
+        id S1726916AbfLKUts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 15:49:48 -0500
+Received: from mail-pj1-f73.google.com ([209.85.216.73]:50733 "EHLO
+        mail-pj1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727170AbfLKUsf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:48:35 -0500
+Received: by mail-pj1-f73.google.com with SMTP id e5so12140738pjr.17
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:48:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=jlDyQ8V1A4E8vFOmfZoIbJ2QXkEwRCCLJLwBmOJe29A=;
-        b=jjExR/ypQVqELVfmZroUTsrHDq+Kyle0r7cM6GRFHucL2QDpMuZu3CdhmxcEj1+Ggx
-         T8So24lxdlDrhk+RuF27Un0DG77dq2CZ9HeYsLpV5QlMy2HtKC55VRqIb8qE+dHH0ITg
-         GSleJ9N1oeFDK3s2487N+mFccVTnmHlEbx7WcAxgELvTZjNngusHfdOSkg/QcdlZ1riq
-         qSeHd362e8Pu/ZhX+hsgtZ0jZ0iw8suFK6xgpZ2TVTpBplBECiph61eND0JBp2AbBmpq
-         y8snT3db8QYHtMiqkIYkCXFjwa9j8jV//DXickQMzbWZWaBg5Lf9mVwD5Hf2mz9W0kIa
-         v82A==
+        bh=C+6y73EXexRd0hR33vMuaMfO+5uThh3OpWASDclUdXg=;
+        b=Bpdltt77InkOqMirGb9hF5cYmu5WGJuJ0I+s7SKo/MEfJ+hx2Gwwknfp4zMiBTWF5v
+         KbKS2NW6PiYL2+p90yprg30UiDj51uWLgi/dpDBYgFFz5+ZoopDQK7yjbD+swPEhw6uO
+         mDkPxhUFVZdctOJIiSjQ+8YIAO7teNe2UyR6/0grkYqGZuc5hV5FNOPVqul9pWo3ZQ7y
+         A1TWZl83lLWARjYcmw8CkdJ98Sk7sznx06fGkfdV1jkSFW+sJ6KCnn6lE72jprhRTgPA
+         11t8BFJCfr1kfDEPVgGbHCWebxeb/vfn5S5AKLqH4F6RY5OumAIpOfzrueEQ7Genu8jV
+         QTMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=jlDyQ8V1A4E8vFOmfZoIbJ2QXkEwRCCLJLwBmOJe29A=;
-        b=foqQwjzIwJYgxPiWB1w/Tk+8BS8+uJKX/fsOqwz/CvkStEKsYIMJGxmJT69ZC6+1Y/
-         +JTp8w3aREOKoCwxy2tLx0qfB6cikTYHkzodi/hJewQQ6dNrOw6UJNlGDFZk/waIZrGn
-         xAsj0BCBMZAvHx38cVyYgo9Q//2s2Uixc8pHB63fsl7jYdIfQp2QGsSfNRPCh5tiQR7R
-         1/vRs8cnlCwyMZe1ykW3gMOshXEBSKJJ9aL7ONhpSDX9t0BfPV7eowttrvDY1301J5OG
-         H8ejj7YV5Q7bUx+8Zix/8CGfQb1WDa2q9hT9FSySlszadXwuYtF2llQ3VjfupST9hBF0
-         kcqg==
-X-Gm-Message-State: APjAAAUtA6+v+ut/ohOXsOrnJWm/5KI4ldtRUe6sO713Yu1sObLoP4Py
-        tnU/6fpG12g6ykb4Sxs4grKWhiAFfNfU
-X-Google-Smtp-Source: APXvYqyq+7rLt1Mbo63AO66IU/V2FHwB6iU0oZSlIduHJY1TtnmF475NNmuDKCUH1XyAbf89tAosu/+ebq+e
-X-Received: by 2002:a1f:ac57:: with SMTP id v84mr5636546vke.90.1576097310120;
- Wed, 11 Dec 2019 12:48:30 -0800 (PST)
-Date:   Wed, 11 Dec 2019 12:47:42 -0800
+        bh=C+6y73EXexRd0hR33vMuaMfO+5uThh3OpWASDclUdXg=;
+        b=D55vYR9EjCzKYGEPgBoI4VbKa4oeA8I5wvYKiROLmWnhnmhM5lFL2Vzu4Apj4f0FO5
+         5rTRKmZ/sdSFLyzcHBHEPBBxF8fXBCw7MSfIXtmsCtW5WDZGjcbAgk8SqFGSU17/f72v
+         aIXIHp7q1PwxwE00fo/33UMu9LIC5Hy7EIimasnK62nt5dRZIWlwXo97OuWQDzQMBpZu
+         i3hsj/7VJTKW6vn4Co6ezZ7LFBv5zOb3qPn3KLfW9G4fMPpJXGK/BLe0Bp5VPUF2cqB6
+         KXYUtRB96L2XTweRUCKBlLyu60vYK2xBz/FtXC2kMzGBjDCXAsSyKUNUzclNT7JYSvoR
+         oqvQ==
+X-Gm-Message-State: APjAAAXOHczjkme8oi5T+M4Deeq+fu3MaodDw1c8rckAqa7vV2Ufki1Y
+        mMiuzfV9n4MRVg1fGWSggettrsErYBXw
+X-Google-Smtp-Source: APXvYqxauN2Xtwim1usUncxq4tvoh++Me89sTxe8ma6YZe7/GQCKgFE7FrAPcyLob9kJpl5tHySpflrnNfOA
+X-Received: by 2002:a63:e14b:: with SMTP id h11mr6137550pgk.297.1576097314200;
+ Wed, 11 Dec 2019 12:48:34 -0800 (PST)
+Date:   Wed, 11 Dec 2019 12:47:43 -0800
 In-Reply-To: <20191211204753.242298-1-pomonis@google.com>
-Message-Id: <20191211204753.242298-3-pomonis@google.com>
+Message-Id: <20191211204753.242298-4-pomonis@google.com>
 Mime-Version: 1.0
 References: <20191211204753.242298-1-pomonis@google.com>
 X-Mailer: git-send-email 2.24.0.525.g8f36a354ae-goog
-Subject: [PATCH v2 02/13] KVM: x86: Protect kvm_hv_msr_[get|set]_crash_data()
- from Spectre-v1/L1TF attacks
+Subject: [PATCH v2 03/13] KVM: x86: Refactor picdev_write() to prevent
+ Spectre-v1/L1TF attacks
 From:   Marios Pomonis <pomonis@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, rkrcmar@redhat.com,
         Sean Christopherson <sean.j.christopherson@intel.com>,
@@ -67,55 +67,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes Spectre-v1/L1TF vulnerabilities in kvm_hv_msr_get_crash_data()
-and kvm_hv_msr_set_crash_data().
-These functions contain index computations that use the
-(attacker-controlled) MSR number.
+This fixes a Spectre-v1/L1TF vulnerability in picdev_write().
+It replaces index computations based on the (attacked-controlled) port
+number with constants through a minor refactoring.
 
-Fixes: commit e7d9513b60e8 ("kvm/x86: added hyper-v crash msrs into kvm hyperv context")
+Fixes: commit 85f455f7ddbe ("KVM: Add support for in-kernel PIC emulation")
 
 Signed-off-by: Nick Finco <nifi@google.com>
 Signed-off-by: Marios Pomonis <pomonis@google.com>
 Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
 ---
- arch/x86/kvm/hyperv.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/x86/kvm/i8259.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index 23ff65504d7e..26408434b9bc 100644
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -809,11 +809,12 @@ static int kvm_hv_msr_get_crash_data(struct kvm_vcpu *vcpu,
- 				     u32 index, u64 *pdata)
- {
- 	struct kvm_hv *hv = &vcpu->kvm->arch.hyperv;
-+	size_t size = ARRAY_SIZE(hv->hv_crash_param);
- 
--	if (WARN_ON_ONCE(index >= ARRAY_SIZE(hv->hv_crash_param)))
-+	if (WARN_ON_ONCE(index >= size))
- 		return -EINVAL;
- 
--	*pdata = hv->hv_crash_param[index];
-+	*pdata = hv->hv_crash_param[array_index_nospec(index, size)];
- 	return 0;
- }
- 
-@@ -852,11 +853,12 @@ static int kvm_hv_msr_set_crash_data(struct kvm_vcpu *vcpu,
- 				     u32 index, u64 data)
- {
- 	struct kvm_hv *hv = &vcpu->kvm->arch.hyperv;
-+	size_t size = ARRAY_SIZE(hv->hv_crash_param);
- 
--	if (WARN_ON_ONCE(index >= ARRAY_SIZE(hv->hv_crash_param)))
-+	if (WARN_ON_ONCE(index >= size))
- 		return -EINVAL;
- 
--	hv->hv_crash_param[index] = data;
-+	hv->hv_crash_param[array_index_nospec(index, size)] = data;
- 	return 0;
- }
- 
+diff --git a/arch/x86/kvm/i8259.c b/arch/x86/kvm/i8259.c
+index 8b38bb4868a6..629a09ca9860 100644
+--- a/arch/x86/kvm/i8259.c
++++ b/arch/x86/kvm/i8259.c
+@@ -460,10 +460,14 @@ static int picdev_write(struct kvm_pic *s,
+ 	switch (addr) {
+ 	case 0x20:
+ 	case 0x21:
++		pic_lock(s);
++		pic_ioport_write(&s->pics[0], addr, data);
++		pic_unlock(s);
++		break;
+ 	case 0xa0:
+ 	case 0xa1:
+ 		pic_lock(s);
+-		pic_ioport_write(&s->pics[addr >> 7], addr, data);
++		pic_ioport_write(&s->pics[1], addr, data);
+ 		pic_unlock(s);
+ 		break;
+ 	case 0x4d0:
 -- 
 2.24.0.525.g8f36a354ae-goog
 
