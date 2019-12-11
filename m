@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 421E911B833
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB13611B6FC
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729702AbfLKPHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:07:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54342 "EHLO mail.kernel.org"
+        id S2387463AbfLKQEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:04:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729144AbfLKPHT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:07:19 -0500
+        id S1730267AbfLKPNC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 064A4208C3;
-        Wed, 11 Dec 2019 15:07:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E4E724684;
+        Wed, 11 Dec 2019 15:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576076837;
-        bh=S1YkN6O6yv6W4P5KTj8GXvZtQ4bxmpqDV3ZgFsMXh38=;
+        s=default; t=1576077181;
+        bh=RXr2DM/uQQoQ/6KUgA6s1XB/AQUmAh3cUi4wj6XWrR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IIJxPTHvH4qVtjIgqJ2oz3jsAQK9k/0EcUO7EmzzpU3EIo2E997VkOPdFQNYX7WDa
-         u3O5yutQb6TZn+q0KpMCX5nHwjMCavuaGAngAO0yRrEjR7iCeM283ltcI1xjeq5D0j
-         oldSpx/GA0q4p40gWWGUfMt46ZJdJK3s031MkHf8=
+        b=RODhA/T3t3d5Fo71QmKXa6i9RrZ6pAvcdWbBShXAPSo64RNdKvfNRF9Xl1s9C74XB
+         yorHGhMC+TRXAh6WFFY6ygWwQAno8bIAB5JyOjOQmayJ7u1dgj99dri1UEXaHPxRpY
+         9cj0TVZDOTQNNgv1NmtJTNGbn54SOgdcr1fnUYOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Ladislav Michl <ladis@linux-mips.org>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 5.4 10/92] usb: gadget: u_serial: add missing port entry locking
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>
+Subject: [PATCH 5.3 012/105] serial: stm32: fix clearing interrupt error flags
 Date:   Wed, 11 Dec 2019 16:05:01 +0100
-Message-Id: <20191211150224.106028704@linuxfoundation.org>
+Message-Id: <20191211150223.823667644@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
-References: <20191211150221.977775294@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-commit daf82bd24e308c5a83758047aff1bd81edda4f11 upstream.
+commit 1250ed7114a977cdc2a67a0c09d6cdda63970eb9 upstream.
 
-gserial_alloc_line() misses locking (for a release barrier) while
-resetting port entry on TTY allocation failure. Fix this.
+The interrupt clear flag register is a "write 1 to clear" register.
+So, only writing ones allows to clear flags:
+- Replace buggy stm32_clr_bits() by a simple write to clear error flags
+- Replace useless read/modify/write stm32_set_bits() routine by a
+  simple write to clear TC (transfer complete) flag.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-by: Ladislav Michl <ladis@linux-mips.org>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: 4f01d833fdcd ("serial: stm32: fix rx error handling")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1574323849-1909-1-git-send-email-fabrice.gasnier@st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/u_serial.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/stm32-usart.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/u_serial.c
-+++ b/drivers/usb/gadget/function/u_serial.c
-@@ -1239,8 +1239,10 @@ int gserial_alloc_line(unsigned char *li
- 				__func__, port_num, PTR_ERR(tty_dev));
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -239,8 +239,8 @@ static void stm32_receive_chars(struct u
+ 		 * cleared by the sequence [read SR - read DR].
+ 		 */
+ 		if ((sr & USART_SR_ERR_MASK) && ofs->icr != UNDEF_REG)
+-			stm32_clr_bits(port, ofs->icr, USART_ICR_ORECF |
+-				       USART_ICR_PECF | USART_ICR_FECF);
++			writel_relaxed(sr & USART_SR_ERR_MASK,
++				       port->membase + ofs->icr);
  
- 		ret = PTR_ERR(tty_dev);
-+		mutex_lock(&ports[port_num].lock);
- 		port = ports[port_num].port;
- 		ports[port_num].port = NULL;
-+		mutex_unlock(&ports[port_num].lock);
- 		gserial_free_port(port);
- 		goto err;
- 	}
+ 		c = stm32_get_char(port, &sr, &stm32_port->last_res);
+ 		port->icount.rx++;
+@@ -434,7 +434,7 @@ static void stm32_transmit_chars(struct
+ 	if (ofs->icr == UNDEF_REG)
+ 		stm32_clr_bits(port, ofs->isr, USART_SR_TC);
+ 	else
+-		stm32_set_bits(port, ofs->icr, USART_ICR_TCCF);
++		writel_relaxed(USART_ICR_TCCF, port->membase + ofs->icr);
+ 
+ 	if (stm32_port->tx_ch)
+ 		stm32_transmit_chars_dma(port);
 
 
