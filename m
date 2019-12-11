@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C2411B33A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E8C11B336
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388073AbfLKPfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:35:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44062 "EHLO mail.kernel.org"
+        id S2388100AbfLKPlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:41:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388061AbfLKPfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:35:17 -0500
+        id S1733014AbfLKPfS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:35:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AD472173E;
-        Wed, 11 Dec 2019 15:35:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B24BE22B48;
+        Wed, 11 Dec 2019 15:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078516;
-        bh=HNbg6bCPyKPQgU9SbP1UWq4zicPzmIxrkPeN4xAmf0M=;
+        s=default; t=1576078517;
+        bh=4bJhGQXtqrfpaZR8jFrBGqtOoMr990NBGyFdV/V2GEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvbFFqblLAS/5m9ZvYm688pdQloEQfEpDYan7JQ0SO5gycse3RdNIhngSIxyO9yXa
-         c7NphTp5jkugO7jdwofPEBC6+wYqOX1lqIF5fLsSvmStxmATkM51I9vvWQVNbkXdqq
-         d5CZOyc97wLx4RGY6ghA84VO6kceEHXMJeZvCmb0=
+        b=alDdxvSU+k6HrEVa0QNojrKT/JUmZdns/XxWWlzf0JKE6SLJTJmyPoUSwEbnTz6Zt
+         YyQ6Y8q0EsRut08hJSKGT4/Q6z2LC7anwANyKVHGPUnn48eD92KKKI8nWt/O3f7I2M
+         xHeZlZDEM2QuxOtoZjrpAFSEYK5DtkRVmRpRqcR8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Disseldorp <ddiss@suse.de>, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <mchristi@redhat.com>,
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/42] scsi: target: compare full CHAP_A Algorithm strings
-Date:   Wed, 11 Dec 2019 10:34:33 -0500
-Message-Id: <20191211153510.23861-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 06/42] scsi: lpfc: Fix SLI3 hba in loop mode not discovering devices
+Date:   Wed, 11 Dec 2019 10:34:34 -0500
+Message-Id: <20191211153510.23861-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153510.23861-1-sashal@kernel.org>
 References: <20191211153510.23861-1-sashal@kernel.org>
@@ -45,51 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 9cef2a7955f2754257a7cddedec16edae7b587d0 ]
+[ Upstream commit feff8b3d84d3d9570f893b4d83e5eab6693d6a52 ]
 
-RFC 2307 states:
+When operating in private loop mode, PLOGI exchanges are racing and the
+driver tries to abort it's PLOGI. But the PLOGI abort ends up terminating
+the login with the other end causing the other end to abort its PLOGI as
+well. Discovery never fully completes.
 
-  For CHAP [RFC1994], in the first step, the initiator MUST send:
+Fix by disabling the PLOGI abort when private loop and letting the state
+machine play out.
 
-      CHAP_A=<A1,A2...>
-
-   Where A1,A2... are proposed algorithms, in order of preference.
-...
-   For the Algorithm, as stated in [RFC1994], one value is required to
-   be implemented:
-
-       5     (CHAP with MD5)
-
-LIO currently checks for this value by only comparing a single byte in
-the tokenized Algorithm string, which means that any value starting with
-a '5' (e.g. "55") is interpreted as "CHAP with MD5". Fix this by
-comparing the entire tokenized string.
-
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Link: https://lore.kernel.org/r/20190912095547.22427-2-ddiss@suse.de
+Link: https://lore.kernel.org/r/20191018211832.7917-5-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target_auth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_nportdisc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target_auth.c b/drivers/target/iscsi/iscsi_target_auth.c
-index f0d97305575d7..aa3f98994c7d6 100644
---- a/drivers/target/iscsi/iscsi_target_auth.c
-+++ b/drivers/target/iscsi/iscsi_target_auth.c
-@@ -74,7 +74,7 @@ static int chap_check_algorithm(const char *a_str)
- 		if (!token)
- 			goto out;
- 
--		if (!strncmp(token, "5", 1)) {
-+		if (!strcmp(token, "5")) {
- 			pr_debug("Selected MD5 Algorithm\n");
- 			kfree(orig);
- 			return CHAP_DIGEST_MD5;
+diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
+index 21ec7b5b6c85c..fefef2884d590 100644
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -454,8 +454,10 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 	 * single discovery thread, this will cause a huge delay in
+ 	 * discovery. Also this will cause multiple state machines
+ 	 * running in parallel for this node.
++	 * This only applies to a fabric environment.
+ 	 */
+-	if (ndlp->nlp_state == NLP_STE_PLOGI_ISSUE) {
++	if ((ndlp->nlp_state == NLP_STE_PLOGI_ISSUE) &&
++	    (vport->fc_flag & FC_FABRIC)) {
+ 		/* software abort outstanding PLOGI */
+ 		lpfc_els_abort(phba, ndlp);
+ 	}
 -- 
 2.20.1
 
