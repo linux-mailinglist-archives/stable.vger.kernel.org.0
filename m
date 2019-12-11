@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC4311B070
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 071A711AED4
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732485AbfLKPWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:22:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53622 "EHLO mail.kernel.org"
+        id S1730380AbfLKPIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:08:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732630AbfLKPWs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:22:48 -0500
+        id S1730390AbfLKPIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:08:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C64EA2073D;
-        Wed, 11 Dec 2019 15:22:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE9052173E;
+        Wed, 11 Dec 2019 15:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077768;
-        bh=sBp0YHgt70jpnj3jI0N7+0m0ZK2YV5St8lYmC2G7qZE=;
+        s=default; t=1576076910;
+        bh=qReXZGxJuGdgUXSaVN4MZEA7GugGgsymGRN9k2R1I+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JaL1puFx465wH96rLpkoFRK1HxTOKafX4J9KaqNRB2Tb5C/nm1j8R0O3sJpLGnFmp
-         bb6wCJJehNLq4wTWfpbAs4HeIHA+iOnFz+OaB0bRJvF1dh3l7FVB/Sn7gb5LQESLnn
-         A3nWsAFLTMTO79DoZIZ4oUAtEiJzYVMGrW6WNXNI=
+        b=GIdoloNltExgtXqjf6IhoH6lh11vdntcBMwWJ82EvEONPmso7UCniAVGqP6aFMZYB
+         IQ1iuX+69pd6fphHFKX1JPWFcOCNtwgiX5SRuAax72GWaT+Q2L/2MgPnl90sHF7Zdx
+         PFhjUely0D2qjM8JT1uJeWlknBtN0016PehOO4x8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffrey Hugo <jhugo@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 164/243] clk: qcom: Fix MSM8998 resets
-Date:   Wed, 11 Dec 2019 16:05:26 +0100
-Message-Id: <20191211150350.236425961@linuxfoundation.org>
+        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
+        CK Hu <ck.hu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Olof Johansson <olof@lixom.net>
+Subject: [PATCH 5.4 36/92] soc: mediatek: cmdq: fixup wrong input order of write api
+Date:   Wed, 11 Dec 2019 16:05:27 +0100
+Message-Id: <20191211150238.148582799@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jhugo@codeaurora.org>
+From: Bibby Hsieh <bibby.hsieh@mediatek.com>
 
-[ Upstream commit 4f89f7b59a6ea17e81cff212c18a0b580ff5ff27 ]
+commit 47b6b604b2bf396e110e7c2e074fef459bf07b4f upstream.
 
-The offsets for the defined BCR reset registers does not match the hardware
-documentation.  Update the values to match the hardware documentation.
+Fixup a issue was caused by the previous fixup patch.
 
-Fixes: b5f5f525c547 (clk: qcom: Add MSM8998 Global Clock Control (GCC) driver)
-Signed-off-by: Jeffrey Hugo <jhugo@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1a92f989126e ("soc: mediatek: cmdq: reorder the parameter")
+
+Link: https://lore.kernel.org/r/20191127165428.19662-1-matthias.bgg@gmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Reviewed-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/qcom/gcc-msm8998.c | 38 +++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ drivers/soc/mediatek/mtk-cmdq-helper.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gcc-msm8998.c b/drivers/clk/qcom/gcc-msm8998.c
-index cd937ce6aaaf6..5fd6662a1beac 100644
---- a/drivers/clk/qcom/gcc-msm8998.c
-+++ b/drivers/clk/qcom/gcc-msm8998.c
-@@ -2743,25 +2743,25 @@ static struct gdsc *gcc_msm8998_gdscs[] = {
- };
+--- a/drivers/soc/mediatek/mtk-cmdq-helper.c
++++ b/drivers/soc/mediatek/mtk-cmdq-helper.c
+@@ -155,7 +155,7 @@ int cmdq_pkt_write_mask(struct cmdq_pkt
+ 		err = cmdq_pkt_append_command(pkt, CMDQ_CODE_MASK, 0, ~mask);
+ 		offset_mask |= CMDQ_WRITE_ENABLE_MASK;
+ 	}
+-	err |= cmdq_pkt_write(pkt, value, subsys, offset_mask);
++	err |= cmdq_pkt_write(pkt, subsys, offset_mask, value);
  
- static const struct qcom_reset_map gcc_msm8998_resets[] = {
--	[GCC_BLSP1_QUP1_BCR] = { 0x102400 },
--	[GCC_BLSP1_QUP2_BCR] = { 0x110592 },
--	[GCC_BLSP1_QUP3_BCR] = { 0x118784 },
--	[GCC_BLSP1_QUP4_BCR] = { 0x126976 },
--	[GCC_BLSP1_QUP5_BCR] = { 0x135168 },
--	[GCC_BLSP1_QUP6_BCR] = { 0x143360 },
--	[GCC_BLSP2_QUP1_BCR] = { 0x155648 },
--	[GCC_BLSP2_QUP2_BCR] = { 0x163840 },
--	[GCC_BLSP2_QUP3_BCR] = { 0x172032 },
--	[GCC_BLSP2_QUP4_BCR] = { 0x180224 },
--	[GCC_BLSP2_QUP5_BCR] = { 0x188416 },
--	[GCC_BLSP2_QUP6_BCR] = { 0x196608 },
--	[GCC_PCIE_0_BCR] = { 0x438272 },
--	[GCC_PDM_BCR] = { 0x208896 },
--	[GCC_SDCC2_BCR] = { 0x81920 },
--	[GCC_SDCC4_BCR] = { 0x90112 },
--	[GCC_TSIF_BCR] = { 0x221184 },
--	[GCC_UFS_BCR] = { 0x479232 },
--	[GCC_USB_30_BCR] = { 0x61440 },
-+	[GCC_BLSP1_QUP1_BCR] = { 0x19000 },
-+	[GCC_BLSP1_QUP2_BCR] = { 0x1b000 },
-+	[GCC_BLSP1_QUP3_BCR] = { 0x1d000 },
-+	[GCC_BLSP1_QUP4_BCR] = { 0x1f000 },
-+	[GCC_BLSP1_QUP5_BCR] = { 0x21000 },
-+	[GCC_BLSP1_QUP6_BCR] = { 0x23000 },
-+	[GCC_BLSP2_QUP1_BCR] = { 0x26000 },
-+	[GCC_BLSP2_QUP2_BCR] = { 0x28000 },
-+	[GCC_BLSP2_QUP3_BCR] = { 0x2a000 },
-+	[GCC_BLSP2_QUP4_BCR] = { 0x2c000 },
-+	[GCC_BLSP2_QUP5_BCR] = { 0x2e000 },
-+	[GCC_BLSP2_QUP6_BCR] = { 0x30000 },
-+	[GCC_PCIE_0_BCR] = { 0x6b000 },
-+	[GCC_PDM_BCR] = { 0x33000 },
-+	[GCC_SDCC2_BCR] = { 0x14000 },
-+	[GCC_SDCC4_BCR] = { 0x16000 },
-+	[GCC_TSIF_BCR] = { 0x36000 },
-+	[GCC_UFS_BCR] = { 0x75000 },
-+	[GCC_USB_30_BCR] = { 0xf000 },
- };
- 
- static const struct regmap_config gcc_msm8998_regmap_config = {
--- 
-2.20.1
-
+ 	return err;
+ }
 
 
