@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA1511B80B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76DD911B802
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730333AbfLKQMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:12:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58248 "EHLO mail.kernel.org"
+        id S1729806AbfLKPKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:10:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730688AbfLKPKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:10:04 -0500
+        id S1730700AbfLKPKJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:10:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D272120663;
-        Wed, 11 Dec 2019 15:10:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6381F22B48;
+        Wed, 11 Dec 2019 15:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077003;
-        bh=KMskS2d1qc91r8quykui3HyZFlFhTsVOYc2Ir+Blyro=;
+        s=default; t=1576077008;
+        bh=wytKeplqK/AKhB4cIpXTYLqEbmNYTJ0B2BTWnB98EBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdG/rM1s+Oge093Bbs+cKTwBmC7zMJ9ePFCQupYTQFNHXtdwg0EMxc5Yt2sBVDt25
-         SiqW8Lu/RDOZdjpSZxea95CZfpfICx2L9c4ICt7J1d4yZryEFM8lP7o4XLv0Cy3+It
-         TZ0g64DGqpha53a/KMhzYg5IxlYgV4OJkxwEwvHs=
+        b=uY5bbTU7YC4c7zUYgF+8vtS3C4wEb4/XZdg1zZsy4M65WUtqeCixty0KGrefioE9E
+         vy6fmlmzM4Y62SsPeQfsu6BtLU1io3PAQClIIk7b3rTNKars3pLFcHiN3MvVCutMcK
+         7UDc/2ZU0JysScYJc+/kecgGJ+HhB045IjhF5ScM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Florian Bezdeka <florian@bezdeka.de>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 71/92] crypto: geode-aes - switch to skcipher for cbc(aes) fallback
-Date:   Wed, 11 Dec 2019 16:06:02 +0100
-Message-Id: <20191211150256.526348368@linuxfoundation.org>
+Subject: [PATCH 5.4 73/92] crypto: ecdh - fix big endian bug in ECC library
+Date:   Wed, 11 Dec 2019 16:06:04 +0100
+Message-Id: <20191211150257.641511332@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
 References: <20191211150221.977775294@linuxfoundation.org>
@@ -46,177 +45,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 504582e8e40b90b8f8c58783e2d1e4f6a2b71a3a upstream.
+commit f398243e9fd6a3a059c1ea7b380c40628dbf0c61 upstream.
 
-Commit 79c65d179a40e145 ("crypto: cbc - Convert to skcipher") updated
-the generic CBC template wrapper from a blkcipher to a skcipher algo,
-to get away from the deprecated blkcipher interface. However, as a side
-effect, drivers that instantiate CBC transforms using the blkcipher as
-a fallback no longer work, since skciphers can wrap blkciphers but not
-the other way around. This broke the geode-aes driver.
+The elliptic curve arithmetic library used by the EC-DH KPP implementation
+assumes big endian byte order, and unconditionally reverses the byte
+and word order of multi-limb quantities. On big endian systems, the byte
+reordering is not necessary, while the word ordering needs to be retained.
 
-So let's fix it by moving to the sync skcipher interface when allocating
-the fallback. At the same time, align with the generic API for ECB and
-CBC by rejecting inputs that are not a multiple of the AES block size.
+So replace the __swab64() invocation with a call to be64_to_cpu() which
+should do the right thing for both little and big endian builds.
 
-Fixes: 79c65d179a40e145 ("crypto: cbc - Convert to skcipher")
-Cc: <stable@vger.kernel.org> # v4.20+ ONLY
+Fixes: 3c4b23901a0c ("crypto: ecdh - Add ECDH software support")
+Cc: <stable@vger.kernel.org> # v4.9+
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Florian Bezdeka <florian@bezdeka.de>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/geode-aes.c |   57 ++++++++++++++++++++++++++-------------------
- drivers/crypto/geode-aes.h |    2 -
- 2 files changed, 34 insertions(+), 25 deletions(-)
+ crypto/ecc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/geode-aes.c
-+++ b/drivers/crypto/geode-aes.c
-@@ -10,6 +10,7 @@
- #include <linux/spinlock.h>
- #include <crypto/algapi.h>
- #include <crypto/aes.h>
-+#include <crypto/skcipher.h>
- 
- #include <linux/io.h>
- #include <linux/delay.h>
-@@ -166,13 +167,15 @@ static int geode_setkey_blk(struct crypt
- 	/*
- 	 * The requested key size is not supported by HW, do a fallback
- 	 */
--	op->fallback.blk->base.crt_flags &= ~CRYPTO_TFM_REQ_MASK;
--	op->fallback.blk->base.crt_flags |= (tfm->crt_flags & CRYPTO_TFM_REQ_MASK);
-+	crypto_sync_skcipher_clear_flags(op->fallback.blk, CRYPTO_TFM_REQ_MASK);
-+	crypto_sync_skcipher_set_flags(op->fallback.blk,
-+				       tfm->crt_flags & CRYPTO_TFM_REQ_MASK);
- 
--	ret = crypto_blkcipher_setkey(op->fallback.blk, key, len);
-+	ret = crypto_sync_skcipher_setkey(op->fallback.blk, key, len);
- 	if (ret) {
- 		tfm->crt_flags &= ~CRYPTO_TFM_RES_MASK;
--		tfm->crt_flags |= (op->fallback.blk->base.crt_flags & CRYPTO_TFM_RES_MASK);
-+		tfm->crt_flags |= crypto_sync_skcipher_get_flags(op->fallback.blk) &
-+				  CRYPTO_TFM_RES_MASK;
- 	}
- 	return ret;
- }
-@@ -181,33 +184,28 @@ static int fallback_blk_dec(struct blkci
- 		struct scatterlist *dst, struct scatterlist *src,
- 		unsigned int nbytes)
+--- a/crypto/ecc.c
++++ b/crypto/ecc.c
+@@ -1284,10 +1284,11 @@ EXPORT_SYMBOL(ecc_point_mult_shamir);
+ static inline void ecc_swap_digits(const u64 *in, u64 *out,
+ 				   unsigned int ndigits)
  {
--	unsigned int ret;
--	struct crypto_blkcipher *tfm;
- 	struct geode_aes_op *op = crypto_blkcipher_ctx(desc->tfm);
-+	SYNC_SKCIPHER_REQUEST_ON_STACK(req, op->fallback.blk);
++	const __be64 *src = (__force __be64 *)in;
+ 	int i;
  
--	tfm = desc->tfm;
--	desc->tfm = op->fallback.blk;
--
--	ret = crypto_blkcipher_decrypt_iv(desc, dst, src, nbytes);
-+	skcipher_request_set_sync_tfm(req, op->fallback.blk);
-+	skcipher_request_set_callback(req, 0, NULL, NULL);
-+	skcipher_request_set_crypt(req, src, dst, nbytes, desc->info);
- 
--	desc->tfm = tfm;
--	return ret;
-+	return crypto_skcipher_decrypt(req);
- }
-+
- static int fallback_blk_enc(struct blkcipher_desc *desc,
- 		struct scatterlist *dst, struct scatterlist *src,
- 		unsigned int nbytes)
- {
--	unsigned int ret;
--	struct crypto_blkcipher *tfm;
- 	struct geode_aes_op *op = crypto_blkcipher_ctx(desc->tfm);
-+	SYNC_SKCIPHER_REQUEST_ON_STACK(req, op->fallback.blk);
- 
--	tfm = desc->tfm;
--	desc->tfm = op->fallback.blk;
--
--	ret = crypto_blkcipher_encrypt_iv(desc, dst, src, nbytes);
-+	skcipher_request_set_sync_tfm(req, op->fallback.blk);
-+	skcipher_request_set_callback(req, 0, NULL, NULL);
-+	skcipher_request_set_crypt(req, src, dst, nbytes, desc->info);
- 
--	desc->tfm = tfm;
--	return ret;
-+	return crypto_skcipher_encrypt(req);
+ 	for (i = 0; i < ndigits; i++)
+-		out[i] = __swab64(in[ndigits - 1 - i]);
++		out[i] = be64_to_cpu(src[ndigits - 1 - i]);
  }
  
- static void
-@@ -307,6 +305,9 @@ geode_cbc_decrypt(struct blkcipher_desc
- 	struct blkcipher_walk walk;
- 	int err, ret;
- 
-+	if (nbytes % AES_BLOCK_SIZE)
-+		return -EINVAL;
-+
- 	if (unlikely(op->keylen != AES_KEYSIZE_128))
- 		return fallback_blk_dec(desc, dst, src, nbytes);
- 
-@@ -339,6 +340,9 @@ geode_cbc_encrypt(struct blkcipher_desc
- 	struct blkcipher_walk walk;
- 	int err, ret;
- 
-+	if (nbytes % AES_BLOCK_SIZE)
-+		return -EINVAL;
-+
- 	if (unlikely(op->keylen != AES_KEYSIZE_128))
- 		return fallback_blk_enc(desc, dst, src, nbytes);
- 
-@@ -366,9 +370,8 @@ static int fallback_init_blk(struct cryp
- 	const char *name = crypto_tfm_alg_name(tfm);
- 	struct geode_aes_op *op = crypto_tfm_ctx(tfm);
- 
--	op->fallback.blk = crypto_alloc_blkcipher(name, 0,
--			CRYPTO_ALG_ASYNC | CRYPTO_ALG_NEED_FALLBACK);
--
-+	op->fallback.blk = crypto_alloc_sync_skcipher(name, 0,
-+						      CRYPTO_ALG_NEED_FALLBACK);
- 	if (IS_ERR(op->fallback.blk)) {
- 		printk(KERN_ERR "Error allocating fallback algo %s\n", name);
- 		return PTR_ERR(op->fallback.blk);
-@@ -381,7 +384,7 @@ static void fallback_exit_blk(struct cry
- {
- 	struct geode_aes_op *op = crypto_tfm_ctx(tfm);
- 
--	crypto_free_blkcipher(op->fallback.blk);
-+	crypto_free_sync_skcipher(op->fallback.blk);
- 	op->fallback.blk = NULL;
- }
- 
-@@ -420,6 +423,9 @@ geode_ecb_decrypt(struct blkcipher_desc
- 	struct blkcipher_walk walk;
- 	int err, ret;
- 
-+	if (nbytes % AES_BLOCK_SIZE)
-+		return -EINVAL;
-+
- 	if (unlikely(op->keylen != AES_KEYSIZE_128))
- 		return fallback_blk_dec(desc, dst, src, nbytes);
- 
-@@ -450,6 +456,9 @@ geode_ecb_encrypt(struct blkcipher_desc
- 	struct blkcipher_walk walk;
- 	int err, ret;
- 
-+	if (nbytes % AES_BLOCK_SIZE)
-+		return -EINVAL;
-+
- 	if (unlikely(op->keylen != AES_KEYSIZE_128))
- 		return fallback_blk_enc(desc, dst, src, nbytes);
- 
---- a/drivers/crypto/geode-aes.h
-+++ b/drivers/crypto/geode-aes.h
-@@ -60,7 +60,7 @@ struct geode_aes_op {
- 	u8 *iv;
- 
- 	union {
--		struct crypto_blkcipher *blk;
-+		struct crypto_sync_skcipher *blk;
- 		struct crypto_cipher *cip;
- 	} fallback;
- 	u32 keylen;
+ static int __ecc_is_key_valid(const struct ecc_curve *curve,
 
 
