@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C811B11B0A1
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED22D11AFA3
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:14:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732664AbfLKPYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:24:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
+        id S1731634AbfLKPO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:14:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732866AbfLKPYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:24:38 -0500
+        id S1730907AbfLKPO2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DBA82077B;
-        Wed, 11 Dec 2019 15:24:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A23A922B48;
+        Wed, 11 Dec 2019 15:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077878;
-        bh=V9iFbAEEh/ISObvSLThdcNRuyHPmWRB7uxhJV2IbNc0=;
+        s=default; t=1576077268;
+        bh=Iq1nL2L/lJyBsynIxJSWLxogTsQyJ926IbRHWl1SMQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lr2A/KzGmDy6po2nIz8a9sVaHRDYTajzwNMa6SOB5qqsKGm/Rua9skCHYr/bmt3kb
-         JAhtmy2p4TXzu4u6woAzgt/eYSqNB1u24TPadb7UUy/Rk+IJLjUPP+iI3vJCtK7Jcl
-         isU/WxQdryvaibhC7djHn6reZI58Vw1fYmytsXMQ=
+        b=Uhn6xmeTy84kARidHdAv3PToB7sT2kO488dZWDKZIxSv7FQKo2S+b/MOqvSipTjto
+         vXxuTT8nrbZvzrhuxxbUBa9Aj9YmwHChEK9YIdCZBDu7tIWfARhjpuaocyNjsqLBVf
+         KhS93oFIACxvOtQxQI1Wu/p3wK20cju9HW4aLBpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 206/243] Input: synaptics-rmi4 - dont increment rmiaddr for SMBus transfers
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Liran Alon <liran.alon@oracle.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Reto Buerki <reet@codelabs.ch>
+Subject: [PATCH 5.3 079/105] KVM: nVMX: Always write vmcs02.GUEST_CR3 during nested VM-Enter
 Date:   Wed, 11 Dec 2019 16:06:08 +0100
-Message-Id: <20191211150353.088399161@linuxfoundation.org>
+Message-Id: <20191211150257.684251189@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +47,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit a284e11c371e446371675668d8c8120a27227339 upstream.
+commit 04f11ef45810da5ae2542dd78cc353f3761bd2cb upstream.
 
-This increment of rmi_smbus in rmi_smb_read/write_block() causes
-garbage to be read/written.
+Write the desired L2 CR3 into vmcs02.GUEST_CR3 during nested VM-Enter
+instead of deferring the VMWRITE until vmx_set_cr3().  If the VMWRITE
+is deferred, then KVM can consume a stale vmcs02.GUEST_CR3 when it
+refreshes vmcs12->guest_cr3 during nested_vmx_vmexit() if the emulated
+VM-Exit occurs without actually entering L2, e.g. if the nested run
+is squashed because nested VM-Enter (from L1) is putting L2 into HLT.
 
-The first read of SMB_MAX_COUNT bytes is fine, but after that
-it is nonsense. Trial-and-error showed that by dropping the
-increment of rmiaddr everything is fine and the F54 function
-properly works.
+Note, the above scenario can occur regardless of whether L1 is
+intercepting HLT, e.g. L1 can intercept HLT and then re-enter L2 with
+vmcs.GUEST_ACTIVITY_STATE=HALTED.  But practically speaking, a VMM will
+likely put a guest into HALTED if and only if it's not intercepting HLT.
 
-I tried a hack with rmi_smb_write_block() as well (writing to the
-same F54 touchpad data area, then reading it back), and that
-suggests that there too the rmiaddr increment has to be dropped.
-It makes sense that if it has to be dropped for read, then it has
-to be dropped for write as well.
+In an ideal world where EPT *requires* unrestricted guest (and vice
+versa), VMX could handle CR3 similar to how it handles RSP and RIP,
+e.g. mark CR3 dirty and conditionally load it at vmx_vcpu_run().  But
+the unrestricted guest silliness complicates the dirty tracking logic
+to the point that explicitly handling vmcs02.GUEST_CR3 during nested
+VM-Enter is a simpler overall implementation.
 
-It looks like the initial work with F54 was done using i2c, not smbus,
-and it seems nobody ever tested F54 with smbus. The other functions
-all read/write less than SMB_MAX_COUNT as far as I can tell, so this
-issue was never noticed with non-F54 functions.
-
-With this change I can read out the touchpad data correctly on my
-Lenovo X1 Carbon 6th Gen laptop.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Link: https://lore.kernel.org/r/8dd22e21-4933-8e9c-a696-d281872c8de7@xs4all.nl
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-and-tested-by: Reto Buerki <reet@codelabs.ch>
+Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/rmi4/rmi_smbus.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c |   10 ++++++++++
+ arch/x86/kvm/vmx/vmx.c    |   10 +++++++---
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -166,7 +166,6 @@ static int rmi_smb_write_block(struct rm
- 		/* prepare to write next block of bytes */
- 		cur_len -= SMB_MAX_COUNT;
- 		databuff += SMB_MAX_COUNT;
--		rmiaddr += SMB_MAX_COUNT;
- 	}
- exit:
- 	mutex_unlock(&rmi_smb->page_mutex);
-@@ -218,7 +217,6 @@ static int rmi_smb_read_block(struct rmi
- 		/* prepare to read next block of bytes */
- 		cur_len -= SMB_MAX_COUNT;
- 		databuff += SMB_MAX_COUNT;
--		rmiaddr += SMB_MAX_COUNT;
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2392,6 +2392,16 @@ static int prepare_vmcs02(struct kvm_vcp
+ 				entry_failure_code))
+ 		return -EINVAL;
+ 
++	/*
++	 * Immediately write vmcs02.GUEST_CR3.  It will be propagated to vmcs12
++	 * on nested VM-Exit, which can occur without actually running L2 and
++	 * thus without hitting vmx_set_cr3(), e.g. if L1 is entering L2 with
++	 * vmcs12.GUEST_ACTIVITYSTATE=HLT, in which case KVM will intercept the
++	 * transition to HLT instead of running L2.
++	 */
++	if (enable_ept)
++		vmcs_writel(GUEST_CR3, vmcs12->guest_cr3);
++
+ 	/* Late preparation of GUEST_PDPTRs now that EFER and CRs are set. */
+ 	if (load_guest_pdptrs_vmcs12 && nested_cpu_has_ept(vmcs12) &&
+ 	    is_pae_paging(vcpu)) {
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -2878,6 +2878,7 @@ u64 construct_eptp(struct kvm_vcpu *vcpu
+ void vmx_set_cr3(struct kvm_vcpu *vcpu, unsigned long cr3)
+ {
+ 	struct kvm *kvm = vcpu->kvm;
++	bool update_guest_cr3 = true;
+ 	unsigned long guest_cr3;
+ 	u64 eptp;
+ 
+@@ -2894,15 +2895,18 @@ void vmx_set_cr3(struct kvm_vcpu *vcpu,
+ 			spin_unlock(&to_kvm_vmx(kvm)->ept_pointer_lock);
+ 		}
+ 
+-		if (enable_unrestricted_guest || is_paging(vcpu) ||
+-		    is_guest_mode(vcpu))
++		/* Loading vmcs02.GUEST_CR3 is handled by nested VM-Enter. */
++		if (is_guest_mode(vcpu))
++			update_guest_cr3 = false;
++		else if (enable_unrestricted_guest || is_paging(vcpu))
+ 			guest_cr3 = kvm_read_cr3(vcpu);
+ 		else
+ 			guest_cr3 = to_kvm_vmx(kvm)->ept_identity_map_addr;
+ 		ept_load_pdptrs(vcpu);
  	}
  
- 	retval = 0;
+-	vmcs_writel(GUEST_CR3, guest_cr3);
++	if (update_guest_cr3)
++		vmcs_writel(GUEST_CR3, guest_cr3);
+ }
+ 
+ int vmx_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
 
 
