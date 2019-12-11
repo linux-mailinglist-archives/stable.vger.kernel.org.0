@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 939F411B7D7
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5B711B7D8
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731000AbfLKPLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730995AbfLKPLz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 11 Dec 2019 10:11:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60754 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730985AbfLKPLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:11:54 -0500
+        id S1730990AbfLKPLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:11:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 733F020663;
-        Wed, 11 Dec 2019 15:11:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 815B224654;
+        Wed, 11 Dec 2019 15:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077113;
-        bh=GOBp+qS3FGkY90AMsI0PqPGQZH9s+19M68+rUesgz1Q=;
+        s=default; t=1576077114;
+        bh=IEfA3hsWZ0Yg3GpBCtC7l/RlfTi/Nfo3OZYl/HlNhtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YY7f+nwY0323TP/LEOPXOrug3nDnGK8TftXberIN2X+ynNxY2CWg89LPQJUE5Yu6n
-         mtqHO0u2+OTm/kHzyEl4dgaFgboXBxhH1JYkS3quzcDIOZw+Xre2jILH1RuQMJi4kE
-         NqMboqzq42YH1YfCIXm/E4gCUsZ84butVdhzzjdA=
+        b=0WVkvy6gQvaJjUa13MVc0hXUDqtdArmq9N0jAMz3Wzdb2+cXObHx0eFpehWEK4AVs
+         THyHu3sSC+t80djG3L6ORsc8x2KQHp62jxTobVTft2nDRL/k3zxKbRDh8j51X7Bgm8
+         s7nrlQxybJgaKZRwZdYVL9I0yw0ldGHu9b/nX4vI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
+Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 002/134] scsi: lpfc: Fix discovery failures when target device connectivity bounces
-Date:   Wed, 11 Dec 2019 10:09:38 -0500
-Message-Id: <20191211151150.19073-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@avagotech.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 003/134] scsi: mpt3sas: Fix clear pending bit in ioctl status
+Date:   Wed, 11 Dec 2019 10:09:39 -0500
+Message-Id: <20191211151150.19073-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -44,57 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 3f97aed6117c7677eb16756c4ec8b86000fd5822 ]
+[ Upstream commit 782b281883caf70289ba6a186af29441a117d23e ]
 
-An issue was seen discovering all SCSI Luns when a target device undergoes
-link bounce.
+When user issues diag register command from application with required size,
+and if driver unable to allocate the memory, then it will fail the register
+command. While failing the register command, driver is not currently
+clearing MPT3_CMD_PENDING bit in ctl_cmds.status variable which was set
+before trying to allocate the memory. As this bit is set, subsequent
+register command will be failed with BUSY status even when user wants to
+register the trace buffer will less memory.
 
-The driver currently does not qualify the FC4 support on the target.
-Therefore it will send a SCSI PRLI and an NVMe PRLI. The expectation is
-that the target will reject the PRLI if it is not supported. If a PRLI
-times out, the driver will retry. The driver will not proceed with the
-device until both SCSI and NVMe PRLIs are resolved.  In the failure case,
-the device is FCP only and does not respond to the NVMe PRLI, thus
-initiating the wait/retry loop in the driver.  During that time, a RSCN is
-received (device bounced) causing the driver to issue a GID_FT.  The GID_FT
-response comes back before the PRLI mess is resolved and it prematurely
-cancels the PRLI retry logic and leaves the device in a STE_PRLI_ISSUE
-state. Discovery with the target never completes or resets.
+Clear MPT3_CMD_PENDING bit in ctl_cmds.status before returning the diag
+register command with no memory status.
 
-Fix by resetting the node state back to STE_NPR_NODE when GID_FT completes,
-thereby restarting the discovery process for the node.
-
-Link: https://lore.kernel.org/r/20190922035906.10977-10-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/1568379890-18347-4-git-send-email-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_hbadisc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/mpt3sas/mpt3sas_ctl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
-index 749286acdc173..f7c205e1da485 100644
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -5405,9 +5405,14 @@ lpfc_setup_disc_node(struct lpfc_vport *vport, uint32_t did)
- 			/* If we've already received a PLOGI from this NPort
- 			 * we don't need to try to discover it again.
- 			 */
--			if (ndlp->nlp_flag & NLP_RCV_PLOGI)
-+			if (ndlp->nlp_flag & NLP_RCV_PLOGI &&
-+			    !(ndlp->nlp_type &
-+			     (NLP_FCP_TARGET | NLP_NVME_TARGET)))
- 				return NULL;
- 
-+			ndlp->nlp_prev_state = ndlp->nlp_state;
-+			lpfc_nlp_set_state(vport, ndlp, NLP_STE_NPR_NODE);
-+
- 			spin_lock_irq(shost->host_lock);
- 			ndlp->nlp_flag |= NLP_NPR_2B_DISC;
- 			spin_unlock_irq(shost->host_lock);
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
+index 7d696952b3763..3c463e8f60740 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
+@@ -1584,7 +1584,8 @@ _ctl_diag_register_2(struct MPT3SAS_ADAPTER *ioc,
+ 			ioc_err(ioc, "%s: failed allocating memory for diag buffers, requested size(%d)\n",
+ 				__func__, request_data_sz);
+ 			mpt3sas_base_free_smid(ioc, smid);
+-			return -ENOMEM;
++			rc = -ENOMEM;
++			goto out;
+ 		}
+ 		ioc->diag_buffer[buffer_type] = request_data;
+ 		ioc->diag_buffer_sz[buffer_type] = request_data_sz;
 -- 
 2.20.1
 
