@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9650E11AD48
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:23:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 457C611AD4B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:23:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729786AbfLKOXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 09:23:02 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:40027 "EHLO
+        id S1726242AbfLKOXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 09:23:10 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:49499 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726242AbfLKOXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 09:23:02 -0500
+        by vger.kernel.org with ESMTP id S1729763AbfLKOXJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 09:23:09 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 63571A12;
-        Wed, 11 Dec 2019 09:23:01 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 11 Dec 2019 09:23:01 -0500
+        by mailout.west.internal (Postfix) with ESMTP id A8739B07;
+        Wed, 11 Dec 2019 09:23:08 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 11 Dec 2019 09:23:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=vaHFBA
-        46FduGmuznAgm94ojJTq5mBcN43jtRI2aOevc=; b=E17MbBKd5XyUH8yTEoR2PD
-        XQRpuoYbmTBxnMNPgm12y5Ny1ARisAr+iL/udoe6RbiwWQ+buR5z5inwWYVsOCD9
-        HZMrbSphp5b9wqJGdG+oN2MhXwMY6MrdD8qqNkvUgdw6O7n6435Sc+FzAh/s+PZU
-        g74coVG4Q/hZN9DD9n53kwvKtfzTuOghkVAP+e0LgL7Ew6myDsZybusg84YnrmhV
-        jc4jc1+Mjj+s++HJrrZcB9yR85Xut28jneQ4NOAm5M1VDJIRIL0+wB/yi2YC2hbb
-        JZ8ExT+3ZABa7OK+JtDO/ZBNJl6SRBG78GRXTGiybVxrmezEvHn7v0ZKJozK/Spg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=s/G8/y
+        GSsJARJPSml18DvR2noY4LMTXdaEk54v588CA=; b=Unn6pb+M4bjvEHRo75oHcg
+        yHA4C7y4qqXpooaVUe32XkzGLnE/A+MoBFKwNV5MSZ3T89N19cRiiPFB6eFhKhVD
+        JwYG4I/mWzm5yGtnmwuCJav0FGOT1J5zpd8tgiyfvUhwYr4472qKHpm0dLtezwYu
+        9x+07Q4PE3pW6IGdRrys11ClSgPF5snpK39ebDjV4U/3IBT59VFF9fDmxKd2Dyhf
+        tjNQM19+vFqgFLfV8XhYJAOCG3x6r7VilwMmECj7DN/AAG6kYcKONh+ovxmWKI5u
+        HegLSsB3uzSmuoq5+sFsRYJzwEggYa+C3ObI3RaOP8UnEJQjJ77v/t30wgxeLCxw
         ==
-X-ME-Sender: <xms:xPvwXZazBxRdbEyidpHi1PCDWH4YjNQcnwsJSAPEHLymYW8zPFr7xg>
+X-ME-Sender: <xms:zPvwXfy6mGCigeYKcN_be1BBG7QnFhYYooB_i7EwdcUsgQa-z4mEpg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudelhedgiedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:xPvwXSCa91jb8EkWxF658Nvc8AIx2OwyDa5tTKx9a35sRUtX80dx6A>
-    <xmx:xPvwXaoJV8_iYueGjYVwyxHJCkfBNb3TniXZufZEC36UBtORf14Z8A>
-    <xmx:xPvwXQIxbYeSJcFfT9j3NRrZ-nGluglI5jRi-G3DKdq_UoaYGnH1sQ>
-    <xmx:xfvwXe_L46gIn6svi2b21TLCQxbHXvqCVK71QfueHp8Y_DNL_1TmhQ>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:zPvwXW_H0Mo7UD_xyRkdY1S7_IHs8xmRM8AF3XkX8si1IJ80UiMeyg>
+    <xmx:zPvwXU8q32w4K4KJlv3COVHYn4vgK7wXYCQGZ8eotHKmZUjY0edG7Q>
+    <xmx:zPvwXVVBKlVGXMq4qnXviCnM872anqsn_omWU_Ztvl_aIliH3CdYww>
+    <xmx:zPvwXZw1yE201emmfIEGuP7GYi4YyobQDa5AX-8UHehqho6O-_gF1A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0298B80064;
-        Wed, 11 Dec 2019 09:22:59 -0500 (EST)
-Subject: FAILED: patch "[PATCH] binder: Handle start==NULL in binder_update_page_range()" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DEB7F306012F;
+        Wed, 11 Dec 2019 09:23:07 -0500 (EST)
+Subject: FAILED: patch "[PATCH] binder: Handle start==NULL in binder_update_page_range()" failed to apply to 4.4-stable tree
 To:     jannh@google.com, christian.brauner@ubuntu.com,
         gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 11 Dec 2019 15:22:57 +0100
-Message-ID: <15760741774172@kroah.com>
+Date:   Wed, 11 Dec 2019 15:22:58 +0100
+Message-ID: <157607417813365@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
