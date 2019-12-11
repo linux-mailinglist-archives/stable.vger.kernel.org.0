@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE28F11AECB
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:08:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF87511AED8
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730295AbfLKPIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:08:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55680 "EHLO mail.kernel.org"
+        id S1730429AbfLKPIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:08:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729513AbfLKPIN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:08:13 -0500
+        id S1730425AbfLKPIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:08:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3B022173E;
-        Wed, 11 Dec 2019 15:08:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC0B220663;
+        Wed, 11 Dec 2019 15:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576076892;
-        bh=jsS+mafvUDdazFn243kdG/M6SPwWy7C9orpXvZRhJUE=;
+        s=default; t=1576076918;
+        bh=iCe981dpQcbeniIuJo78yCB5icEWgktPbevCe92sIE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUJjvpBNROHoVT2G4ZQjlyEcQgBsM24aC2aRTa1Pu1k4y3LgalnyWQZHqKnc8Kakl
-         2otBtPj3J5k+P6eiQgc6+ZBgk3qS6NBY0aob26bMiCl9CHfiaFrboC30kDNIvrxF6A
-         tn1z7apFSWjBamib6EFnaJcEUzx8UXEjAgBzP2WE=
+        b=mxTsMIirxqkEghgEl7cZIMNA9Ilv1ybe957U1ZPFbe1DMGmDn5e4hKvgmPOt1RVUE
+         Z+ZMTrEfJNbq1rflv4w9QeoDWmSMLfbYMwCHJ/GJq3Gf9p2CbK2b5KZsTPf17qbdIT
+         reJ/ayqxkEL7Re7Wkp1Kv9mhXMseNwGUstPwkt20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.4 03/92] arm64: tegra: Fix active-low warning for Jetson Xavier regulator
-Date:   Wed, 11 Dec 2019 16:04:54 +0100
-Message-Id: <20191211150222.702353122@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 04/92] perf scripts python: exported-sql-viewer.py: Fix use of TRUE with SQLite
+Date:   Wed, 11 Dec 2019 16:04:55 +0100
+Message-Id: <20191211150222.847761303@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
 References: <20191211150221.977775294@linuxfoundation.org>
@@ -43,46 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit d440538e5f219900a9fc9d96fd10727b4d2b3c48 upstream.
+commit af833988c088d3fed3e7188e7c3dd9ca17178dc3 upstream.
 
-Commit 4fdbfd60a3a2 ("arm64: tegra: Add PCIe slot supply information
-in p2972-0000 platform") added regulators for the PCIe slot on the
-Jetson Xavier platform. One of these regulators has an active-low enable
-and this commit incorrectly added an active-low specifier for the GPIO
-which causes the following warning to occur on boot ...
+Prior to version 3.23 SQLite does not support TRUE or FALSE, so always
+use 1 and 0 for SQLite.
 
- WARNING KERN regulator@3 GPIO handle specifies active low - ignored
-
-The fixed-regulator binding does not use the active-low flag from the
-gpio specifier and purely relies of the presence of the
-'enable-active-high' property to determine if it is active high or low
-(if this property is omitted). Fix this warning by setting the GPIO
-to active-high in the GPIO specifier. Finally, remove the
-'enable-active-low' as this is not a valid property.
-
-Fixes: 4fdbfd60a3a2 ("arm64: tegra: Add PCIe slot supply information in p2972-0000 platform")
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 26c11206f433 ("perf scripts python: exported-sql-viewer.py: Use new 'has_calls' column")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v5.3+
+Link: http://lore.kernel.org/lkml/20191113120206.26957-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[Adrian: backported to v5.3, v5.4]
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/perf/scripts/python/exported-sql-viewer.py |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-@@ -309,9 +309,8 @@
- 			regulator-name = "VDD_12V";
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
--			gpio = <&gpio TEGRA194_MAIN_GPIO(A, 1) GPIO_ACTIVE_LOW>;
-+			gpio = <&gpio TEGRA194_MAIN_GPIO(A, 1) GPIO_ACTIVE_HIGH>;
- 			regulator-boot-on;
--			enable-active-low;
- 		};
- 	};
- };
+--- a/tools/perf/scripts/python/exported-sql-viewer.py
++++ b/tools/perf/scripts/python/exported-sql-viewer.py
+@@ -625,7 +625,7 @@ class CallGraphRootItem(CallGraphLevelIt
+ 		self.query_done = True
+ 		if_has_calls = ""
+ 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
+-			if_has_calls = " WHERE has_calls = TRUE"
++			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
+ 		query = QSqlQuery(glb.db)
+ 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
+ 		while query.next():
+@@ -905,7 +905,7 @@ class CallTreeRootItem(CallGraphLevelIte
+ 		self.query_done = True
+ 		if_has_calls = ""
+ 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
+-			if_has_calls = " WHERE has_calls = TRUE"
++			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
+ 		query = QSqlQuery(glb.db)
+ 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
+ 		while query.next():
+@@ -3509,6 +3509,12 @@ class DBRef():
+ 	def __init__(self, is_sqlite3, dbname):
+ 		self.is_sqlite3 = is_sqlite3
+ 		self.dbname = dbname
++		self.TRUE = "TRUE"
++		self.FALSE = "FALSE"
++		# SQLite prior to version 3.23 does not support TRUE and FALSE
++		if self.is_sqlite3:
++			self.TRUE = "1"
++			self.FALSE = "0"
+ 
+ 	def Open(self, connection_name):
+ 		dbname = self.dbname
 
 
