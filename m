@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E7811B3DD
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:44:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B9911B3D6
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732174AbfLKPol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:44:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33004 "EHLO mail.kernel.org"
+        id S2388370AbfLKPoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:44:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732975AbfLKP1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:24 -0500
+        id S2387419AbfLKP10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CBE322527;
-        Wed, 11 Dec 2019 15:27:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D0522173E;
+        Wed, 11 Dec 2019 15:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078043;
-        bh=0kkvMRZ/npEE3ZOX3qFqvZr/yONXMfNvvPFi75Q63SE=;
+        s=default; t=1576078046;
+        bh=metiL5VyAgY0X6jhb1E3qTV+O+hyTzTQ8JDAntR8qpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxjEja541X3RKkhiZ5d2w+ULOO0mS1iAELDhbmOh2hJZKvQbTAuaS7B0F7HkOjLSh
-         mjUXscKhmJfPLLHpG4dePEptlNttceaQsL6HlvJNFbmzogVGgxRoyxyrgqlkZTax4e
-         o+rU0z98EA8jBSn7UAyZmdgp/q9HnFstNgVkJLWA=
+        b=R29QbFbdxnfOVJd8JMIvs5v+ioKglFA7EpjfmcwdXteoiPO4y2H/JVYm02e+Atuvy
+         Z96zm8FBGNbiZrBgO1tWhSBF/+R73JE8qOwq1KTTzALK/7fgvD7tJtt/NS9BxKOpyk
+         Yoc6tTATefBcb+ViBThGJwPg3zcd1TD4Q5fEZreI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+Cc:     David Hildenbrand <david@redhat.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 37/79] PCI: rpaphp: Fix up pointer to first drc-info entry
-Date:   Wed, 11 Dec 2019 10:26:01 -0500
-Message-Id: <20191211152643.23056-37-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 39/79] powerpc/pseries/cmm: Implement release() function for sysfs device
+Date:   Wed, 11 Dec 2019 10:26:03 -0500
+Message-Id: <20191211152643.23056-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -44,41 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 9723c25f99aff0451cfe6392e1b9fdd99d0bf9f0 ]
+[ Upstream commit 7d8212747435c534c8d564fbef4541a463c976ff ]
 
-The first entry of the ibm,drc-info property is an int encoded count
-of the number of drc-info entries that follow. The "value" pointer
-returned by of_prop_next_u32() is still pointing at the this value
-when we call of_read_drc_info_cell(), but the helper function
-expects that value to be pointing at the first element of an entry.
+When unloading the module, one gets
+  ------------[ cut here ]------------
+  Device 'cmm0' does not have a release() function, it is broken and must be fixed. See Documentation/kobject.txt.
+  WARNING: CPU: 0 PID: 19308 at drivers/base/core.c:1244 .device_release+0xcc/0xf0
+  ...
 
-Fix up by incrementing the "value" pointer to point at the first
-element of the first drc-info entry prior.
+We only have one static fake device. There is nothing to do when
+releasing the device (via cmm_exit()).
 
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1573449697-5448-5-git-send-email-tyreld@linux.ibm.com
+Link: https://lore.kernel.org/r/20191031142933.10779-2-david@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/rpaphp_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/platforms/pseries/cmm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
-index cc860c5f7d26f..f56004243591f 100644
---- a/drivers/pci/hotplug/rpaphp_core.c
-+++ b/drivers/pci/hotplug/rpaphp_core.c
-@@ -239,6 +239,8 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
- 	value = of_prop_next_u32(info, NULL, &entries);
- 	if (!value)
- 		return -EINVAL;
-+	else
-+		value++;
+diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
+index 25427a48feae3..502ebcc6c3cbe 100644
+--- a/arch/powerpc/platforms/pseries/cmm.c
++++ b/arch/powerpc/platforms/pseries/cmm.c
+@@ -425,6 +425,10 @@ static struct bus_type cmm_subsys = {
+ 	.dev_name = "cmm",
+ };
  
- 	for (j = 0; j < entries; j++) {
- 		of_read_drc_info_cell(&info, &value, &drc);
++static void cmm_release_device(struct device *dev)
++{
++}
++
+ /**
+  * cmm_sysfs_register - Register with sysfs
+  *
+@@ -440,6 +444,7 @@ static int cmm_sysfs_register(struct device *dev)
+ 
+ 	dev->id = 0;
+ 	dev->bus = &cmm_subsys;
++	dev->release = cmm_release_device;
+ 
+ 	if ((rc = device_register(dev)))
+ 		goto subsys_unregister;
 -- 
 2.20.1
 
