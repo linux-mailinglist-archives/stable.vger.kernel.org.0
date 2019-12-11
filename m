@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE20F11B70D
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:05:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B55D511B81A
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731338AbfLKQFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:05:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35564 "EHLO mail.kernel.org"
+        id S1730473AbfLKPIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:08:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730429AbfLKPM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:57 -0500
+        id S1729654AbfLKPIw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:08:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D4692467D;
-        Wed, 11 Dec 2019 15:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F070724658;
+        Wed, 11 Dec 2019 15:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077176;
-        bh=pQakcmBqFDRLENctK9bfXEUWLJiw418Ya1RuBaWljTQ=;
+        s=default; t=1576076931;
+        bh=KY+MWFGnauWcY/Zv39yLl7TdEnCbPv7rV5WnpBMm7rY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFEYRj8RxbU1sKEEgPuDcs0/drDd/uO7o2nZh8flGXnoR09hukvZBlCyALN3z/ThW
-         dH4lSfD3IfSpT8BRYitil0O1YPhi4fz5g757K/CdhviS1sFu6z8BgzpBMCgk89c0Cp
-         uTY0NY3eKr5jbxToAwQfVK2wQpQKt0KYBk6Pnjms=
+        b=v0mpuGxkU89kyYiSJkg9gOgSpER07suWA0DORGCOgfPSCDq1JEzNoOpkQ8Y0efssj
+         2cDCjPWrTbJuOIpDa555L3hH335lbPhNtoh+fVfw+JaDJgLO9vB2poVIy8S5m50ly3
+         xpxewzsGn3eQj2y6EiTw86UNmVBvbBHPhKmhtcFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>
-Subject: [PATCH 5.3 010/105] serial: pl011: Fix DMA ->flush_buffer()
-Date:   Wed, 11 Dec 2019 16:04:59 +0100
-Message-Id: <20191211150223.556547365@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.4 09/92] staging/octeon: Use stubs for MIPS && !CAVIUM_OCTEON_SOC
+Date:   Wed, 11 Dec 2019 16:05:00 +0100
+Message-Id: <20191211150223.848490134@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Paul Burton <paul.burton@mips.com>
 
-commit f6a196477184b99a31d16366a8e826558aa11f6d upstream.
+commit 17a29fea086ba18b000d28439bd5cb4f2b0a527b upstream.
 
-PL011's ->flush_buffer() implementation releases and reacquires the port
-lock.  Due to a race condition here, data can end up being added to the
-circular buffer but neither being discarded nor being sent out.  This
-leads to, for example, tcdrain(2) waiting indefinitely.
+When building for a non-Cavium MIPS system with COMPILE_TEST=y, the
+Octeon ethernet driver hits a number of issues due to use of macros
+provided only for CONFIG_CAVIUM_OCTEON_SOC=y configurations. For
+example:
 
-Process A                       Process B
+  drivers/staging/octeon/ethernet-rx.c:190:6: error:
+    'CONFIG_CAVIUM_OCTEON_CVMSEG_SIZE' undeclared (first use in this function)
+  drivers/staging/octeon/ethernet-rx.c:472:25: error:
+    'OCTEON_IRQ_WORKQ0' undeclared (first use in this function)
 
-uart_flush_buffer()
- - acquire lock
- - circ_clear
- - pl011_flush_buffer()
- -- release lock
- -- dmaengine_terminate_all()
+These come from various asm/ headers that a non-Octeon build will be
+using a non-Octeon version of.
 
-                                uart_write()
-                                - acquire lock
-                                - add chars to circ buffer
-                                - start_tx()
-                                -- start DMA
-                                - release lock
+Fix this by using the octeon-stubs.h header for non-Cavium MIPS builds,
+and only using the real asm/octeon/ headers when building a Cavium
+Octeon kernel configuration.
 
- -- acquire lock
- -- turn off DMA
- -- release lock
+This requires that octeon-stubs.h doesn't redefine XKPHYS_TO_PHYS, which
+is defined for MIPS by asm/addrspace.h which is pulled in by many other
+common asm/ headers.
 
-                                // Data in circ buffer but DMA is off
-
-According to the comment in the code, the releasing of the lock around
-dmaengine_terminate_all() is to avoid a deadlock with the DMA engine
-callback.  However, since the time this code was written, the DMA engine
-API documentation seems to have been clarified to say that
-dmaengine_terminate_all() (in the identically implemented but
-differently named dmaengine_terminate_async() variant) does not wait for
-any running complete callback to be completed and can even be called
-from a complete callback.  So there is no possibility of deadlock if the
-DMA engine driver implements this API correctly.
-
-So we should be able to just remove this release and reacquire of the
-lock to prevent the aforementioned race condition.
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191118092547.32135-1-vincent.whitchurch@axis.com
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+URL: https://lore.kernel.org/linux-mips/CAMuHMdXvu+BppwzsU9imNWVKea_hoLcRt9N+a29Q-QsjW=ip2g@mail.gmail.com/
+Fixes: 171a9bae68c7 ("staging/octeon: Allow test build on !MIPS")
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20191007231741.2012860-1-paul.burton@mips.com
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/amba-pl011.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/staging/octeon/octeon-ethernet.h |    2 +-
+ drivers/staging/octeon/octeon-stubs.h    |    5 ++++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -813,10 +813,8 @@ __acquires(&uap->port.lock)
- 	if (!uap->using_tx_dma)
- 		return;
+--- a/drivers/staging/octeon/octeon-ethernet.h
++++ b/drivers/staging/octeon/octeon-ethernet.h
+@@ -14,7 +14,7 @@
+ #include <linux/of.h>
+ #include <linux/phy.h>
  
--	/* Avoid deadlock with the DMA engine callback */
--	spin_unlock(&uap->port.lock);
--	dmaengine_terminate_all(uap->dmatx.chan);
--	spin_lock(&uap->port.lock);
-+	dmaengine_terminate_async(uap->dmatx.chan);
+-#ifdef CONFIG_MIPS
++#ifdef CONFIG_CAVIUM_OCTEON_SOC
+ 
+ #include <asm/octeon/octeon.h>
+ 
+--- a/drivers/staging/octeon/octeon-stubs.h
++++ b/drivers/staging/octeon/octeon-stubs.h
+@@ -1,5 +1,8 @@
+ #define CONFIG_CAVIUM_OCTEON_CVMSEG_SIZE	512
+-#define XKPHYS_TO_PHYS(p)			(p)
 +
- 	if (uap->dmatx.queued) {
- 		dma_unmap_sg(uap->dmatx.chan->device->dev, &uap->dmatx.sg, 1,
- 			     DMA_TO_DEVICE);
++#ifndef XKPHYS_TO_PHYS
++# define XKPHYS_TO_PHYS(p)			(p)
++#endif
+ 
+ #define OCTEON_IRQ_WORKQ0 0
+ #define OCTEON_IRQ_RML 0
 
 
