@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B06EE11B7D1
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3AC11B7B2
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:10:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730484AbfLKQKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:10:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
+        id S1731017AbfLKPL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:11:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731004AbfLKPL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:11:57 -0500
+        id S1731012AbfLKPL6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:11:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98C222465A;
-        Wed, 11 Dec 2019 15:11:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A86AB2173E;
+        Wed, 11 Dec 2019 15:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077116;
-        bh=0vMQkuVvGoPs3sp/Ltqni5dv40RdScQcgEDuMlVgDUQ=;
+        s=default; t=1576077117;
+        bh=XebHkKGdyvyJe9x4eWTtKYtITQBxEm2abSNYs2wk4TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icrxUnTxGn/PSasbjxb3u379alTBaHXiivk7DbyyL0hN5+Isnv0nG7wH73QTOeKIW
-         ZOKaqcRUNlzTEECCKYCD6lLWe/PF9CGumGyx4UI/SQt1g380FQLlIUZ+ONASZgxxJl
-         YnjV+SXP8JZefBtD4Ss1Cb4UL5Yf18/gDVIspxyQ=
+        b=JcAB0e/CbI8YBwYoehpJzcMMFVSJPlxthIpWlIb3ITPx+a2Tq5j2G4L/Vb03IY/BK
+         uOeT37i8wuZBPoLb2EPNMu5evyRJ1QuYPSv/ts5OuXA5fVOivSCB/funX9BkxPu/Vq
+         XCWSglvn6f+fJtDDx57aIGAQp1a4N4eM+StGtKt0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        MPT-FusionLinux.pdl@avagotech.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 005/134] scsi: mpt3sas: Reject NVMe Encap cmnds to unsupported HBA
-Date:   Wed, 11 Dec 2019 10:09:41 -0500
-Message-Id: <20191211151150.19073-5-sashal@kernel.org>
+Cc:     Anson Huang <Anson.Huang@nxp.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 006/134] gpio: mxc: Only get the second IRQ when there is more than one IRQ
+Date:   Wed, 11 Dec 2019 10:09:42 -0500
+Message-Id: <20191211151150.19073-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -44,67 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit 77fd4f2c88bf83205a21f9ca49fdcc0c7868dba9 ]
+[ Upstream commit c8f3d144004dd3f471ffd414690d15a005e4acd6 ]
 
-If any faulty application issues an NVMe Encapsulated commands to HBA which
-doesn't support NVMe protocol then driver should return the command as
-invalid with the following message.
+On some of i.MX SoCs like i.MX8QXP, there is ONLY one IRQ for each
+GPIO bank, so it is better to check the IRQ count before getting
+second IRQ to avoid below error message during probe:
 
-"HBA doesn't support NVMe. Rejecting NVMe Encapsulated request."
+[    1.070908] gpio-mxc 5d080000.gpio: IRQ index 1 not found
+[    1.077420] gpio-mxc 5d090000.gpio: IRQ index 1 not found
+[    1.083766] gpio-mxc 5d0a0000.gpio: IRQ index 1 not found
+[    1.090122] gpio-mxc 5d0b0000.gpio: IRQ index 1 not found
+[    1.096470] gpio-mxc 5d0c0000.gpio: IRQ index 1 not found
+[    1.102804] gpio-mxc 5d0d0000.gpio: IRQ index 1 not found
+[    1.109144] gpio-mxc 5d0e0000.gpio: IRQ index 1 not found
+[    1.115475] gpio-mxc 5d0f0000.gpio: IRQ index 1 not found
 
-Otherwise below page fault kernel panic will be observed while building the
-PRPs as there is no PRP pools allocated for the HBA which doesn't support
-NVMe drives.
-
-RIP: 0010:_base_build_nvme_prp+0x3b/0xf0 [mpt3sas]
-Call Trace:
- _ctl_do_mpt_command+0x931/0x1120 [mpt3sas]
- _ctl_ioctl_main.isra.11+0xa28/0x11e0 [mpt3sas]
- ? prepare_to_wait+0xb0/0xb0
- ? tty_ldisc_deref+0x16/0x20
- _ctl_ioctl+0x1a/0x20 [mpt3sas]
- do_vfs_ioctl+0xaa/0x620
- ? vfs_read+0x117/0x140
- ksys_ioctl+0x67/0x90
- __x64_sys_ioctl+0x1a/0x20
- do_syscall_64+0x60/0x190
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-[mkp: tweaked error string]
-
-Link: https://lore.kernel.org/r/1568379890-18347-12-git-send-email-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_ctl.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpio/gpio-mxc.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-index 3c463e8f60740..b95f7d062ea44 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-@@ -778,6 +778,18 @@ _ctl_do_mpt_command(struct MPT3SAS_ADAPTER *ioc, struct mpt3_ioctl_command karg,
- 	case MPI2_FUNCTION_NVME_ENCAPSULATED:
- 	{
- 		nvme_encap_request = (Mpi26NVMeEncapsulatedRequest_t *)request;
-+		if (!ioc->pcie_sg_lookup) {
-+			dtmprintk(ioc, ioc_info(ioc,
-+			    "HBA doesn't support NVMe. Rejecting NVMe Encapsulated request.\n"
-+			    ));
+diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
+index 7907a87558662..c77d474185f31 100644
+--- a/drivers/gpio/gpio-mxc.c
++++ b/drivers/gpio/gpio-mxc.c
+@@ -411,6 +411,7 @@ static int mxc_gpio_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct mxc_gpio_port *port;
++	int irq_count;
+ 	int irq_base;
+ 	int err;
+ 
+@@ -426,9 +427,15 @@ static int mxc_gpio_probe(struct platform_device *pdev)
+ 	if (IS_ERR(port->base))
+ 		return PTR_ERR(port->base);
+ 
+-	port->irq_high = platform_get_irq(pdev, 1);
+-	if (port->irq_high < 0)
+-		port->irq_high = 0;
++	irq_count = platform_irq_count(pdev);
++	if (irq_count < 0)
++		return irq_count;
 +
-+			if (ioc->logging_level & MPT_DEBUG_TM)
-+				_debug_dump_mf(nvme_encap_request,
-+				    ioc->request_sz/4);
-+			mpt3sas_base_free_smid(ioc, smid);
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 		/*
- 		 * Get the Physical Address of the sense buffer.
- 		 * Use Error Response buffer address field to hold the sense
++	if (irq_count > 1) {
++		port->irq_high = platform_get_irq(pdev, 1);
++		if (port->irq_high < 0)
++			port->irq_high = 0;
++	}
+ 
+ 	port->irq = platform_get_irq(pdev, 0);
+ 	if (port->irq < 0)
 -- 
 2.20.1
 
