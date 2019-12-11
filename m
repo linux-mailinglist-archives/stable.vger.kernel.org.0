@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4855D11B314
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:40:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE8311B313
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:40:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731467AbfLKPkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:40:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48914 "EHLO mail.kernel.org"
+        id S2387782AbfLKPk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:40:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733115AbfLKPi2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:38:28 -0500
+        id S2388415AbfLKPi3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:38:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9AE42077B;
-        Wed, 11 Dec 2019 15:38:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1DC3222C4;
+        Wed, 11 Dec 2019 15:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078707;
-        bh=YDTVD4QiSfF95CsPZAPYB9nF6X4QVRMAdw/4MY99k9w=;
+        s=default; t=1576078708;
+        bh=Nk67e4RhOeOWDQdosQluXiIKXUAB/9kkvALVPTL/MFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZtFsLfgc7z3Elm6wnbxJX/2N+c5kUhb388t6jE35oRgK7xXDuE3OtKtuUJ9Uwnrz
-         r+2ZcNHDmq4DWHkqttdNhGAvLnvCl6faeKJTXhwxFEEy8/iMfNB7FCeMu9SVpfossh
-         gEXJZQxnb18ebtpygk7SddYlyoQy+pRlZ5l6FcO0=
+        b=R33Ff7HvSX/hRfXmH04TAFmhqsuSGl0Yc9LMd6Odg4fnDBAgBWqipoJdgYQGy71v8
+         XUSt81+Eki8+e4yJW9eisr87izqrFm4lyA1RDKhalbwfKlpSOOv9XNsDV3PLv2rNVQ
+         qbgRWoNxwv9xtph5XLZLqPyDckR1rSDTjEZN46QI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 13/37] scsi: tracing: Fix handling of TRANSFER LENGTH == 0 for READ(6) and WRITE(6)
-Date:   Wed, 11 Dec 2019 10:37:49 -0500
-Message-Id: <20191211153813.24126-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 14/37] scsi: lpfc: Fix duplicate unreg_rpi error in port offline flow
+Date:   Wed, 11 Dec 2019 10:37:50 -0500
+Message-Id: <20191211153813.24126-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153813.24126-1-sashal@kernel.org>
 References: <20191211153813.24126-1-sashal@kernel.org>
@@ -46,52 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit f6b8540f40201bff91062dd64db8e29e4ddaaa9d ]
+[ Upstream commit 7cfd5639d99bec0d27af089d0c8c114330e43a72 ]
 
-According to SBC-2 a TRANSFER LENGTH field of zero means that 256 logical
-blocks must be transferred. Make the SCSI tracing code follow SBC-2.
+If the driver receives a login that is later then LOGO'd by the remote port
+(aka ndlp), the driver, upon the completion of the LOGO ACC transmission,
+will logout the node and unregister the rpi that is being used for the
+node.  As part of the unreg, the node's rpi value is replaced by the
+LPFC_RPI_ALLOC_ERROR value.  If the port is subsequently offlined, the
+offline walks the nodes and ensures they are logged out, which possibly
+entails unreg'ing their rpi values.  This path does not validate the node's
+rpi value, thus doesn't detect that it has been unreg'd already.  The
+replaced rpi value is then used when accessing the rpi bitmask array which
+tracks active rpi values.  As the LPFC_RPI_ALLOC_ERROR value is not a valid
+index for the bitmask, it may fault the system.
 
-Fixes: bf8162354233 ("[SCSI] add scsi trace core functions and put trace points")
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Douglas Gilbert <dgilbert@interlog.com>
-Link: https://lore.kernel.org/r/20191105215553.185018-1-bvanassche@acm.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Revise the rpi release code to detect when the rpi value is the replaced
+RPI_ALLOC_ERROR value and ignore further release steps.
+
+Link: https://lore.kernel.org/r/20191105005708.7399-2-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_trace.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/scsi_trace.c b/drivers/scsi/scsi_trace.c
-index 08bb47b53bc3e..551fd0329bca8 100644
---- a/drivers/scsi/scsi_trace.c
-+++ b/drivers/scsi/scsi_trace.c
-@@ -29,15 +29,18 @@ static const char *
- scsi_trace_rw6(struct trace_seq *p, unsigned char *cdb, int len)
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 9b8867c023b93..065fdc17bbfbb 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -15792,6 +15792,13 @@ lpfc_sli4_alloc_rpi(struct lpfc_hba *phba)
+ static void
+ __lpfc_sli4_free_rpi(struct lpfc_hba *phba, int rpi)
  {
- 	const char *ret = trace_seq_buffer_ptr(p);
--	sector_t lba = 0, txlen = 0;
-+	u32 lba = 0, txlen;
- 
- 	lba |= ((cdb[1] & 0x1F) << 16);
- 	lba |=  (cdb[2] << 8);
- 	lba |=   cdb[3];
--	txlen = cdb[4];
 +	/*
-+	 * From SBC-2: a TRANSFER LENGTH field set to zero specifies that 256
-+	 * logical blocks shall be read (READ(6)) or written (WRITE(6)).
++	 * if the rpi value indicates a prior unreg has already
++	 * been done, skip the unreg.
 +	 */
-+	txlen = cdb[4] ? cdb[4] : 256;
- 
--	trace_seq_printf(p, "lba=%llu txlen=%llu",
--			 (unsigned long long)lba, (unsigned long long)txlen);
-+	trace_seq_printf(p, "lba=%u txlen=%u", lba, txlen);
- 	trace_seq_putc(p, 0);
- 
- 	return ret;
++	if (rpi == LPFC_RPI_ALLOC_ERROR)
++		return;
++
+ 	if (test_and_clear_bit(rpi, phba->sli4_hba.rpi_bmask)) {
+ 		phba->sli4_hba.rpi_count--;
+ 		phba->sli4_hba.max_cfg_param.rpi_used--;
 -- 
 2.20.1
 
