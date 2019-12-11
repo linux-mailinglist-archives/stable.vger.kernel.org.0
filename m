@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3140511B6AF
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB8511B6B2
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730918AbfLKPNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36288 "EHLO mail.kernel.org"
+        id S1731668AbfLKQCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:02:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731372AbfLKPNN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:13 -0500
+        id S1731378AbfLKPNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6607C22B48;
-        Wed, 11 Dec 2019 15:13:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6790D24680;
+        Wed, 11 Dec 2019 15:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077192;
-        bh=Rh5ce0QnwACFW34gLI8wpJiDmwUoZjCSxe/Za8lhpTw=;
+        s=default; t=1576077193;
+        bh=etoHb+N2upRHCrg7AxpFPKl/JHHQbFBSU4cuwZv9h84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6goPbJ03qAMtOswMfzoB44J4zdJXMR9Hb0aS1tGjJVtOUCw54fvBpV2IbVks1fpN
-         U8BqKbZb2meTe6+BrWgZdmMpoLaURYr3TeDqksefyqV56EG7Wwny4Z56VLnLsliDOF
-         4JEG6xFcAeZGq8CE1SSQZpV82I5VrfzjdjCsm+bs=
+        b=x2hS8y4laDYzGqYrLV/88CRdmaB0niRQDue8ZxFYEbsRzh44Myqrs/LnTW1YfarEM
+         5JLrTjAf9lqyf6QHoN925tuEYUrTzWydNgrEdAjqu0n3f/WJSa+0IG81uBCynP/E/4
+         wNh4HfK9r/q0Vd8Rt1GIEy35tC9u/2McG4gRWf/w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jinke Fan <fanjinke@hygon.cn>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 075/134] HID: quirks: Add quirk for HP MSU1465 PIXART OEM mouse
-Date:   Wed, 11 Dec 2019 10:10:51 -0500
-Message-Id: <20191211151150.19073-75-sashal@kernel.org>
+Cc:     Rob Herring <robh@kernel.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Jeffrey Hugo <jhugo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 076/134] dt-bindings: Improve validation build error handling
+Date:   Wed, 11 Dec 2019 10:10:52 -0500
+Message-Id: <20191211151150.19073-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -42,61 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinke Fan <fanjinke@hygon.cn>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit f1a0094cbbe97a5f8aca7bdc64bfe43ac9dc6879 ]
+[ Upstream commit 93512dad334deb444619505f1fbb761156f7471b ]
 
-The PixArt OEM mouse disconnets/reconnects every minute on
-Linux. All contents of dmesg are repetitive:
+Schema errors can cause make to exit before useful information is
+printed. This leaves developers wondering what's wrong. It can be
+overcome passing '-k' to make, but that's not an obvious solution.
+There's 2 scenarios where this happens.
 
-[ 1465.810014] usb 1-2.2: USB disconnect, device number 20
-[ 1467.431509] usb 1-2.2: new low-speed USB device number 21 using xhci_hcd
-[ 1467.654982] usb 1-2.2: New USB device found, idVendor=03f0,idProduct=1f4a, bcdDevice= 1.00
-[ 1467.654985] usb 1-2.2: New USB device strings: Mfr=1, Product=2,SerialNumber=0
-[ 1467.654987] usb 1-2.2: Product: HP USB Optical Mouse
-[ 1467.654988] usb 1-2.2: Manufacturer: PixArt
-[ 1467.699722] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:07.1/0000:05:00.3/usb1/1-2/1-2.2/1-2.2:1.0/0003:03F0:1F4A.0012/input/input19
-[ 1467.700124] hid-generic 0003:03F0:1F4A.0012: input,hidraw0: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:05:00.3-2.2/input0
+When using DT_SCHEMA_FILES to validate with a single schema, any error
+in the schema results in processed-schema.yaml being empty causing a
+make error. The result is the specific errors in the schema are never
+shown because processed-schema.yaml is the first target built. Simply
+making processed-schema.yaml last in extra-y ensures the full schema
+validation with detailed error messages happen first.
 
-So add HID_QUIRK_ALWAYS_POLL for this one as well.
-Test the patch, the mouse is no longer disconnected and there are no
-duplicate logs in dmesg.
+The 2nd problem is while schema errors are ignored for
+processed-schema.yaml, full validation of the schema still runs in
+parallel and any schema validation errors will still stop the build when
+running validation of dts files. The fix is to not add the schema
+examples to extra-y in this case. This means 'dtbs_check' is no longer a
+superset of 'dt_binding_check'. Update the documentation to make this
+clear.
 
-Reference:
-https://github.com/sriemer/fix-linux-mouse
-
-Signed-off-by: Jinke Fan <fanjinke@hygon.cn>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Tested-by: Jeffrey Hugo <jhugo@codeaurora.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ Documentation/devicetree/bindings/Makefile  | 5 ++++-
+ Documentation/devicetree/writing-schema.rst | 6 ++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 447e8db21174a..00904537e17c4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -573,6 +573,7 @@
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941	0x0941
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
-+#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a	0x1f4a
+diff --git a/Documentation/devicetree/bindings/Makefile b/Documentation/devicetree/bindings/Makefile
+index 5138a2f6232aa..646cb35253733 100644
+--- a/Documentation/devicetree/bindings/Makefile
++++ b/Documentation/devicetree/bindings/Makefile
+@@ -12,7 +12,6 @@ $(obj)/%.example.dts: $(src)/%.yaml FORCE
+ 	$(call if_changed,chk_binding)
  
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index c50bcd967d994..9a35af1e26623 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -94,6 +94,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0941), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },
+ DT_TMP_SCHEMA := processed-schema.yaml
+-extra-y += $(DT_TMP_SCHEMA)
+ 
+ quiet_cmd_mk_schema = SCHEMA  $@
+       cmd_mk_schema = $(DT_MK_SCHEMA) $(DT_MK_SCHEMA_FLAGS) -o $@ $(real-prereqs)
+@@ -26,8 +25,12 @@ DT_DOCS = $(shell \
+ 
+ DT_SCHEMA_FILES ?= $(addprefix $(src)/,$(DT_DOCS))
+ 
++ifeq ($(CHECK_DTBS),)
+ extra-y += $(patsubst $(src)/%.yaml,%.example.dts, $(DT_SCHEMA_FILES))
+ extra-y += $(patsubst $(src)/%.yaml,%.example.dt.yaml, $(DT_SCHEMA_FILES))
++endif
+ 
+ $(obj)/$(DT_TMP_SCHEMA): $(DT_SCHEMA_FILES) FORCE
+ 	$(call if_changed,mk_schema)
++
++extra-y += $(DT_TMP_SCHEMA)
+diff --git a/Documentation/devicetree/writing-schema.rst b/Documentation/devicetree/writing-schema.rst
+index f4a638072262f..83e04e5c342da 100644
+--- a/Documentation/devicetree/writing-schema.rst
++++ b/Documentation/devicetree/writing-schema.rst
+@@ -130,11 +130,13 @@ binding schema. All of the DT binding documents can be validated using the
+ 
+     make dt_binding_check
+ 
+-In order to perform validation of DT source files, use the `dtbs_check` target::
++In order to perform validation of DT source files, use the ``dtbs_check`` target::
+ 
+     make dtbs_check
+ 
+-This will first run the `dt_binding_check` which generates the processed schema.
++Note that ``dtbs_check`` will skip any binding schema files with errors. It is
++necessary to use ``dt_binding_check`` to get all the validation errors in the
++binding schema files.
+ 
+ It is also possible to run checks with a single schema file by setting the
+ ``DT_SCHEMA_FILES`` variable to a specific schema file.
 -- 
 2.20.1
 
