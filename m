@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB2BF11B4B9
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:50:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C5A11B60D
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:58:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732568AbfLKPY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:24:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55790 "EHLO mail.kernel.org"
+        id S1731628AbfLKP6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:58:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732843AbfLKPY2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:24:28 -0500
+        id S1730883AbfLKPOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 477422173E;
-        Wed, 11 Dec 2019 15:24:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0471E24654;
+        Wed, 11 Dec 2019 15:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077867;
-        bh=YOOKKu7KZKalCYc9fcrbvluf+Q6hWobR9h7/kUaryYI=;
+        s=default; t=1576077260;
+        bh=QZ0cs6rH6n1Q7qsmq1TmRkgiIWevSyuM7/uNSv/U0Bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlRW1LRgc+YUiwXFePBrjLlysEWkGCY+IL6T1eiYD0ifAHnx/sWvkfRcr0mO/zCXp
-         +ZKlsqVFmqRxT/8qKH35jJ2wlXBUzSlxcBWyj84rIStFduC8xWDgq3I17MmqqtgrVr
-         k7UYPQktpzfEO/80H5o4jO1DE5FTPQdM4ABMSSLU=
+        b=UDxN7ZUqFzBmETaiY8/fjm5B1f3YkVBpG7T1k68iin3FYP7bCMuFlOEhJ3IazxosQ
+         yqqMsNZTXERdexZ+49+6AJRZS9FXYTtSctsaFwUWDMVNSqhH797LmXlJN7r8Jeew8c
+         yuhAXXpJnWRrXYvcihayyhDsFe84odeYP4h2cR48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 202/243] ALSA: pcm: oss: Avoid potential buffer overflows
-Date:   Wed, 11 Dec 2019 16:06:04 +0100
-Message-Id: <20191211150352.821623102@linuxfoundation.org>
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Greg Kurz <groug@kaod.org>, Lijun Pan <ljp@linux.ibm.com>,
+        Paul Mackerras <paulus@ozlabs.org>
+Subject: [PATCH 5.3 076/105] KVM: PPC: Book3S HV: XIVE: Free previous EQ page when setting up a new one
+Date:   Wed, 11 Dec 2019 16:06:05 +0100
+Message-Id: <20191211150255.164740236@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +46,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Greg Kurz <groug@kaod.org>
 
-commit 4cc8d6505ab82db3357613d36e6c58a297f57f7c upstream.
+commit 31a88c82b466d2f31a44e21c479f45b4732ccfd0 upstream.
 
-syzkaller reported an invalid access in PCM OSS read, and this seems
-to be an overflow of the internal buffer allocated for a plugin.
-Since the rate plugin adjusts its transfer size dynamically, the
-calculation for the chained plugin might be bigger than the given
-buffer size in some extreme cases, which lead to such an buffer
-overflow as caught by KASAN.
+The EQ page is allocated by the guest and then passed to the hypervisor
+with the H_INT_SET_QUEUE_CONFIG hcall. A reference is taken on the page
+before handing it over to the HW. This reference is dropped either when
+the guest issues the H_INT_RESET hcall or when the KVM device is released.
+But, the guest can legitimately call H_INT_SET_QUEUE_CONFIG several times,
+either to reset the EQ (vCPU hot unplug) or to set a new EQ (guest reboot).
+In both cases the existing EQ page reference is leaked because we simply
+overwrite it in the XIVE queue structure without calling put_page().
 
-Fix it by limiting the max transfer size properly by checking against
-the destination size in each plugin transfer callback.
+This is especially visible when the guest memory is backed with huge pages:
+start a VM up to the guest userspace, either reboot it or unplug a vCPU,
+quit QEMU. The leak is observed by comparing the value of HugePages_Free in
+/proc/meminfo before and after the VM is run.
 
-Reported-by: syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191204144824.17801-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Ideally we'd want the XIVE code to handle the EQ page de-allocation at the
+platform level. This isn't the case right now because the various XIVE
+drivers have different allocation needs. It could maybe worth introducing
+hooks for this purpose instead of exposing XIVE internals to the drivers,
+but this is certainly a huge work to be done later.
+
+In the meantime, for easier backport, fix both vCPU unplug and guest reboot
+leaks by introducing a wrapper around xive_native_configure_queue() that
+does the necessary cleanup.
+
+Reported-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org # v5.2
+Fixes: 13ce3297c576 ("KVM: PPC: Book3S HV: XIVE: Add controls for the EQ configuration")
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Greg Kurz <groug@kaod.org>
+Tested-by: Lijun Pan <ljp@linux.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/oss/linear.c |    2 ++
- sound/core/oss/mulaw.c  |    2 ++
- sound/core/oss/route.c  |    2 ++
- 3 files changed, 6 insertions(+)
+ arch/powerpc/kvm/book3s_xive_native.c |   31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
---- a/sound/core/oss/linear.c
-+++ b/sound/core/oss/linear.c
-@@ -107,6 +107,8 @@ static snd_pcm_sframes_t linear_transfer
- 		}
+--- a/arch/powerpc/kvm/book3s_xive_native.c
++++ b/arch/powerpc/kvm/book3s_xive_native.c
+@@ -50,6 +50,24 @@ static void kvmppc_xive_native_cleanup_q
  	}
- #endif
-+	if (frames > dst_channels[0].frames)
-+		frames = dst_channels[0].frames;
- 	convert(plugin, src_channels, dst_channels, frames);
- 	return frames;
  }
---- a/sound/core/oss/mulaw.c
-+++ b/sound/core/oss/mulaw.c
-@@ -269,6 +269,8 @@ static snd_pcm_sframes_t mulaw_transfer(
- 		}
- 	}
- #endif
-+	if (frames > dst_channels[0].frames)
-+		frames = dst_channels[0].frames;
- 	data = (struct mulaw_priv *)plugin->extra_data;
- 	data->func(plugin, src_channels, dst_channels, frames);
- 	return frames;
---- a/sound/core/oss/route.c
-+++ b/sound/core/oss/route.c
-@@ -57,6 +57,8 @@ static snd_pcm_sframes_t route_transfer(
- 		return -ENXIO;
- 	if (frames == 0)
- 		return 0;
-+	if (frames > dst_channels[0].frames)
-+		frames = dst_channels[0].frames;
  
- 	nsrcs = plugin->src_format.channels;
- 	ndsts = plugin->dst_format.channels;
++static int kvmppc_xive_native_configure_queue(u32 vp_id, struct xive_q *q,
++					      u8 prio, __be32 *qpage,
++					      u32 order, bool can_escalate)
++{
++	int rc;
++	__be32 *qpage_prev = q->qpage;
++
++	rc = xive_native_configure_queue(vp_id, q, prio, qpage, order,
++					 can_escalate);
++	if (rc)
++		return rc;
++
++	if (qpage_prev)
++		put_page(virt_to_page(qpage_prev));
++
++	return rc;
++}
++
+ void kvmppc_xive_native_cleanup_vcpu(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+@@ -582,19 +600,14 @@ static int kvmppc_xive_native_set_queue_
+ 		q->guest_qaddr  = 0;
+ 		q->guest_qshift = 0;
+ 
+-		rc = xive_native_configure_queue(xc->vp_id, q, priority,
+-						 NULL, 0, true);
++		rc = kvmppc_xive_native_configure_queue(xc->vp_id, q, priority,
++							NULL, 0, true);
+ 		if (rc) {
+ 			pr_err("Failed to reset queue %d for VCPU %d: %d\n",
+ 			       priority, xc->server_num, rc);
+ 			return rc;
+ 		}
+ 
+-		if (q->qpage) {
+-			put_page(virt_to_page(q->qpage));
+-			q->qpage = NULL;
+-		}
+-
+ 		return 0;
+ 	}
+ 
+@@ -653,8 +666,8 @@ static int kvmppc_xive_native_set_queue_
+ 	  * OPAL level because the use of END ESBs is not supported by
+ 	  * Linux.
+ 	  */
+-	rc = xive_native_configure_queue(xc->vp_id, q, priority,
+-					 (__be32 *) qaddr, kvm_eq.qshift, true);
++	rc = kvmppc_xive_native_configure_queue(xc->vp_id, q, priority,
++					(__be32 *) qaddr, kvm_eq.qshift, true);
+ 	if (rc) {
+ 		pr_err("Failed to configure queue %d for VCPU %d: %d\n",
+ 		       priority, xc->server_num, rc);
 
 
