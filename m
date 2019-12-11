@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C004F11B0F3
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:27:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B568C11B0F5
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:27:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387422AbfLKP11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:27:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33056 "EHLO mail.kernel.org"
+        id S2387431AbfLKP1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:27:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387416AbfLKP10 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:26 -0500
+        id S1732990AbfLKP1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DC4D2468F;
-        Wed, 11 Dec 2019 15:27:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 728A32465B;
+        Wed, 11 Dec 2019 15:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078045;
-        bh=VBqmgu+/fTCK3LmeGT4lLrSBpbjP6+bqqfjkjkKKYmk=;
+        s=default; t=1576078049;
+        bh=QIEmayY7XBaf2l1724/9bB94MXsBZk48XyzvQo26dVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1S+7xJ2ME5sk0GDe59c/VuD6VfC2vokWTFnBcGUqhG/t8LtX+AhC18akEZDmkFomQ
-         OVbit9vWZJ7tCrNW2Ic16hD5RvhkahGPphJwxQg/kKHkABM+GkUhpBtBgoHTy22AzO
-         mGyvLU9v/yXGJuau9BKaVPz3gJSDBSOZg/s9uNQU=
+        b=QbmI0YFhUdyZSmKP7PdBhiBIt5ZnvzLGe+a4R0r3/1a6/KPgR/ksFTk3jLL7AKMVw
+         kU/FlTur4hgkTFun0yZNB3yugoHB42ZCIihIQbhX2qNye/EahjAdNhQgY0CIOo3LGb
+         8JqRseNJcDHftbTNNc/hhhrc1eUgznk57WxffL+A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bean Huo <beanhuo@micron.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 38/79] scsi: ufs: fix potential bug which ends in system hang
-Date:   Wed, 11 Dec 2019 10:26:02 -0500
-Message-Id: <20191211152643.23056-38-sashal@kernel.org>
+Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 42/79] PCI: rpaphp: Correctly match ibm, my-drc-index to drc-name when using drc-info
+Date:   Wed, 11 Dec 2019 10:26:06 -0500
+Message-Id: <20191211152643.23056-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -45,80 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit cfcbae3895b86c390ede57b2a8f601dd5972b47b ]
+[ Upstream commit 4f9f2d3d7a434b7f882b72550194c9278f4a3925 ]
 
-In function __ufshcd_query_descriptor(), in the event of an error
-happening, we directly goto out_unlock and forget to invaliate
-hba->dev_cmd.query.descriptor pointer. This results in this pointer still
-valid in ufshcd_copy_query_response() for other query requests which go
-through ufshcd_exec_raw_upiu_cmd(). This will cause __memcpy() crash and
-system hangs. Log as shown below:
+The newer ibm,drc-info property is a condensed description of the old
+ibm,drc-* properties (ie. names, types, indexes, and power-domains).
+When matching a drc-index to a drc-name we need to verify that the
+index is within the start and last drc-index range and map it to a
+drc-name using the drc-name-prefix and logical index.
 
-Unable to handle kernel paging request at virtual address
-ffff000012233c40
-Mem abort info:
-   ESR = 0x96000047
-   Exception class = DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
-Data abort info:
-   ISV = 0, ISS = 0x00000047
-   CM = 0, WnR = 1
-swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000028cc735c
-[ffff000012233c40] pgd=00000000bffff003, pud=00000000bfffe003,
-pmd=00000000ba8b8003, pte=0000000000000000
- Internal error: Oops: 96000047 [#2] PREEMPT SMP
- ...
- Call trace:
-  __memcpy+0x74/0x180
-  ufshcd_issue_devman_upiu_cmd+0x250/0x3c0
-  ufshcd_exec_raw_upiu_cmd+0xfc/0x1a8
-  ufs_bsg_request+0x178/0x3b0
-  bsg_queue_rq+0xc0/0x118
-  blk_mq_dispatch_rq_list+0xb0/0x538
-  blk_mq_sched_dispatch_requests+0x18c/0x1d8
-  __blk_mq_run_hw_queue+0xb4/0x118
-  blk_mq_run_work_fn+0x28/0x38
-  process_one_work+0x1ec/0x470
-  worker_thread+0x48/0x458
-  kthread+0x130/0x138
-  ret_from_fork+0x10/0x1c
- Code: 540000ab a8c12027 a88120c7 a8c12027 (a88120c7)
- ---[ end trace 793e1eb5dff69f2d ]---
- note: kworker/0:2H[2054] exited with preempt_count 1
+Fix the mapping by checking that the index is within the range of the
+current drc-info entry, and build the name from the drc-name-prefix
+concatenated with the starting drc-name-suffix value and the sequential
+index obtained by subtracting ibm,my-drc-index from this entries
+drc-start-index.
 
-This patch is to move "descriptor = NULL" down to below the label
-"out_unlock".
-
-Fixes: d44a5f98bb49b2(ufs: query descriptor API)
-Link: https://lore.kernel.org/r/20191112223436.27449-3-huobean@gmail.com
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1573449697-5448-10-git-send-email-tyreld@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/hotplug/rpaphp_core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 8bce755e0f5bc..7510d8328d4dd 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3011,10 +3011,10 @@ static int __ufshcd_query_descriptor(struct ufs_hba *hba,
- 		goto out_unlock;
+diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
+index 7d74fe875225e..a306cad704705 100644
+--- a/drivers/pci/hotplug/rpaphp_core.c
++++ b/drivers/pci/hotplug/rpaphp_core.c
+@@ -248,9 +248,10 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
+ 		/* Should now know end of current entry */
+ 
+ 		/* Found it */
+-		if (my_index <= drc.last_drc_index) {
++		if (my_index >= drc.drc_index_start && my_index <= drc.last_drc_index) {
++			int index = my_index - drc.drc_index_start;
+ 			sprintf(cell_drc_name, "%s%d", drc.drc_name_prefix,
+-				my_index);
++				drc.drc_name_suffix_start + index);
+ 			break;
+ 		}
  	}
- 
--	hba->dev_cmd.query.descriptor = NULL;
- 	*buf_len = be16_to_cpu(response->upiu_res.length);
- 
- out_unlock:
-+	hba->dev_cmd.query.descriptor = NULL;
- 	mutex_unlock(&hba->dev_cmd.lock);
- out:
- 	ufshcd_release(hba);
 -- 
 2.20.1
 
