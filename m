@@ -2,86 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA5811A655
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 09:56:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F56B11A675
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 10:08:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727253AbfLKI4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 03:56:35 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:48135 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725973AbfLKI4f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 03:56:35 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C6F91200CF;
-        Wed, 11 Dec 2019 03:56:34 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 11 Dec 2019 03:56:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=tNxPJDhRaUb9dxTuxKKQkUK1mjn
-        pjlZYUVO9jg8ADY0=; b=ZLWQK9pL7wfYAE5JPlBJUNuSf9XBgOE1K7v7hu6wBAR
-        PrlvEwaj5wKN/UUNn9YKxstS2mPWcKBLwsJIG+7fQXR1M0mjV5w2Tq7jDZUO6dKl
-        lvabhwcMPBkSMvWdlwOepdFuJu7p6nv1Av2BrCpWn5TrcVpXh9SRP6uKhdF2Dbmc
-        hTjlcmyvXNUquW0gJ3m+ZmnmsBbu4Pg35z6V7TgoxU/1XrHBDZ0AufwOxthSnAht
-        eCfBvDmdRkYzgI1GMR+xQZqsS7x7Re6Dx3W9to5WN6ZPqsR5y66XhcYtSxjTNjnf
-        OPSNGPMguEXL+bPvTQFQYdlF68V9opnmYtQwyydIFUg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=tNxPJD
-        hRaUb9dxTuxKKQkUK1mjnpjlZYUVO9jg8ADY0=; b=YRO5PV6s3h0ai7eCOu7WMF
-        uadF9G8zXSvMJQOHirTb7/rx8JwVQOK5HGUXFkdI2BIYj1dureCwai1DzWbgEOpn
-        kD/r/STZsRWAnXN5bgkixAmThhe9QskHQ3stvTmLtR54QbO+/V4Enwq6j6ypVmNK
-        P/qJ2o52VcjDyE/2E8BFE4L0KcoBUQ53NeWU7qRAMSMgCtPATYveDsxfGgByTA9l
-        bSByPLB7KJk5VSbWfHUMF8cq/iqfifbxFyq3qPtQDWgbh4imZqofbzCjP1ElAi1h
-        wDC0gH/xv8DtAKT/H2kk7v98IbMFRVCVlYVDCD8j7JhM2mqceRIvcfypPAtxzYgw
-        ==
-X-ME-Sender: <xms:Qq_wXR3p3wEFnJW3ZvvFxl9WflMhORWB_-m9t6f6JtyeO3IVHLhXEQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudelgedguddulecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehrvgguhhgrth
-    drtghomhdpkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucfr
-    rghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsth
-    gvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Qq_wXRJF8V3eWHMs1JFFIpjHZbJ1HQINSV2MzZ-yK4fYOx1_Dwn6SA>
-    <xmx:Qq_wXa_xzBAv5yxc0sPPOh6_nZsEdBsYfyXgC6aWbDU3LmtkJhQUuQ>
-    <xmx:Qq_wXamgnPg5k3ib0n2p5j77BwyPlQcnSgVcsEg8Yz0k2FbbFykVCA>
-    <xmx:Qq_wXQU5bEseDK2jIh-z5E_AW_Uhl4eyWDFC7cCTqjzXAhCmQGkoHw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 452E78005B;
-        Wed, 11 Dec 2019 03:56:34 -0500 (EST)
-Date:   Wed, 11 Dec 2019 09:56:32 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Laura Abbott <labbott@redhat.com>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: Requests for stable inclusion
-Message-ID: <20191211085632.GC500800@kroah.com>
-References: <54f071b9-ab38-156d-dc3e-6a6b3959ccf0@redhat.com>
+        id S1727851AbfLKJIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 04:08:01 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:52186 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727888AbfLKJIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 04:08:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576055278;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=y+7CWlGvo3J1aqX5URICLxANHtApPrtUz6Ly50hT0k8=;
+        b=OAFFQcbl+GANBHUp05SJjRbuv9zIXvKUiDKVKmHAAMiZH85MA7AnQS8wzu/mfHwW+r7EZr
+        3ziip3zZVi3GFrbVwdjEBGhttLm91ko5grBeA6ow+dyP0euq0fYvOe5w06AcsRnEIafAkU
+        hpHmLnJQfK+M51RLQG0C+SZA63IlSKk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-145-oV301jayNgOqIBSHTnp3tQ-1; Wed, 11 Dec 2019 04:07:58 -0500
+Received: by mail-wm1-f69.google.com with SMTP id l11so362801wmi.0
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 01:07:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=y+7CWlGvo3J1aqX5URICLxANHtApPrtUz6Ly50hT0k8=;
+        b=qF7bwHuw3kDdDMCbs3mHa2dgR2PbVkvYV5X6Lh8wHYdhBVd8xRClYdtYNcCAyb6BiD
+         5BXOoVW/qUvZGHZeGdDiPx+2u4V9r2iyuDaVa17Vkx/5X3XQSX4ng2YUTqe9oy5zItDK
+         lEcuk/CjNSfY9pnZZliONHZaQEvPauOLxdSsPghCEEODbbBaLEI6kI/oa/Lq74Tie9v1
+         CQX7FFDvV8r7nu22tEcQLs8jjKXx8u3fqHYsK7Qp7PSq5UaKN3/MXcCDryFLb5L2hhVq
+         kFCsXRclqNNMnPwqxSznuLIo9D4OgQy//GOe/TtgRdSp72M2uL3+11/8TImtXovlWKuO
+         JqhQ==
+X-Gm-Message-State: APjAAAXa0yxp6cuoqeM+Ps3OYKJLukxPsbBvGLD+Z8hwtlb6Tuhhcy+h
+        7KMG30nzP/miJUxL9/6eWB3UbR+aj0pNPTXoW07kUHBeDsKjXaZQjrZJySRLWeTsQ6s/LMCK34f
+        d4pRO3VWShRU0HCwk
+X-Received: by 2002:a5d:4fd0:: with SMTP id h16mr2392693wrw.255.1576055276747;
+        Wed, 11 Dec 2019 01:07:56 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyk530KPtCatGmVOoZqOVtdEa4CHIdMd2QUgErjQSW25mSow9KbdltraJ00JOs309bCAh7DDw==
+X-Received: by 2002:a5d:4fd0:: with SMTP id h16mr2392670wrw.255.1576055276544;
+        Wed, 11 Dec 2019 01:07:56 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9? ([2001:b07:6468:f312:e9bb:92e9:fcc3:7ba9])
+        by smtp.gmail.com with ESMTPSA id g2sm1496891wrw.76.2019.12.11.01.07.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 11 Dec 2019 01:07:55 -0800 (PST)
+Subject: Re: [PATCH v2] KVM: x86: use CPUID to locate host page table reserved
+ bits
+To:     "Huang, Kai" <kai.huang@intel.com>,
+        "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Cc:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <1575474037-7903-1-git-send-email-pbonzini@redhat.com>
+ <8f7e3e87-15dc-2269-f5ee-c3155f91983c@amd.com>
+ <7b885f53-e0d3-2036-6a06-9cdcbb738ae2@redhat.com>
+ <3efabf0da4954239662e90ea08d99212a654977a.camel@intel.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <62438ac9-e186-32a7-d12f-5806054d56b2@redhat.com>
+Date:   Wed, 11 Dec 2019 10:07:55 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <54f071b9-ab38-156d-dc3e-6a6b3959ccf0@redhat.com>
+In-Reply-To: <3efabf0da4954239662e90ea08d99212a654977a.camel@intel.com>
+Content-Language: en-US
+X-MC-Unique: oV301jayNgOqIBSHTnp3tQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 10:17:08AM -0500, Laura Abbott wrote:
-> Hi,
-> 
-> Can you please queue up the following patches for stable 5.4
-> 
-> cba22d86e0a1 bdev: Refresh bdev size for disks without partitioning
-> 731dc4868311 bdev: Factor out bdev revalidation into a common helper
-> 
-> These fix the issue reported in
-> https://bugzilla.kernel.org/show_bug.cgi?id=194965#c46 and
-> https://bugzilla.redhat.com/show_bug.cgi?id=1781762
-> They apply cleanly to 5.4.
-> 
+On 11/12/19 01:11, Huang, Kai wrote:
+>> kvm_get_shadow_phys_bits() must be conservative in that:
+>>
+>> 1) if a bit is reserved it _can_ return a value higher than its index
+>>
+>> 2) if a bit is used by the processor (for physical address or anything
+>> else) it _must_ return a value higher than its index.
+>>
+>> In the SEV case we're not obeying (2), because the function returns 43
+>> when the C bit is bit 47.  The patch fixes that.
+> Could we guarantee that C-bit is always below bits reported by CPUID?
 
-Now queued up, thanks.
+That's a question for AMD. :)  The C bit can move (and probably will,
+otherwise they wouldn't have bothered adding it to CPUID) in future
+generations of the processor.
 
-greg k-h
+Paolo
+
