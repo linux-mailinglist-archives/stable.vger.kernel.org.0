@@ -2,91 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B92611AC30
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 14:39:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3698B11AC45
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 14:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729460AbfLKNjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 08:39:47 -0500
-Received: from first.geanix.com ([116.203.34.67]:59122 "EHLO first.geanix.com"
+        id S1729718AbfLKNkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 08:40:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729438AbfLKNjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 08:39:47 -0500
-Received: from zen.localdomain (unknown [85.184.140.241])
-        by first.geanix.com (Postfix) with ESMTPSA id EC52B492;
-        Wed, 11 Dec 2019 13:39:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1576071557; bh=k7+VnL953BuPTam1Gvl66O35k7Un5e3sIaK+MDU/6uQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=O+avZxUTwgllHyqpBtffKBotjFUmSOQ4VHzSahzyjmu9GeLbVkTl9p8nfnXoMKF9F
-         8mssreXjNlSlFyHKGdKrZDnooskSmN74Hkpi4ym47OUDHqlk4dCx7s38xL7gUhEAxw
-         daBn4O5AxxJ6sHaHZH7TIOYG0vnquLpzDFXgNV38gI39hyzk4mWKbUgw3f0+3iMlfj
-         xDxKDMhF467m07f+YTZZR7vJECWCwIcaxGRUlIcaK8a0SK/3PxSM0yfAmyizqeS10Q
-         l/0EKbvEHOur+/XzFRvFiU8BanolkHZkAzl2i90WrAnQOcCBhv5bdHKzQ3GLM0eD/G
-         1IGghPH1shmGg==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     mkl@pengutronix.de, dmurphy@ti.com, linux-can@vger.kernel.org
-Cc:     Sean Nyekjaer <sean@geanix.com>, martin@geanix.com,
-        stable@vger.kernel.org
-Subject: [PATCH v5 2/2] can: tcan4x5x: put the device out of standby before register access
-Date:   Wed, 11 Dec 2019 14:39:26 +0100
-Message-Id: <20191211133926.319015-2-sean@geanix.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191211133926.319015-1-sean@geanix.com>
-References: <20191211133926.319015-1-sean@geanix.com>
+        id S1729715AbfLKNkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 08:40:52 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54CC220836;
+        Wed, 11 Dec 2019 13:40:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576071651;
+        bh=iCkbJSzBOoHP0gXvXdS/Lpa9tSyAjMi1mXdByMHq1H0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lC5YpXgA9olUrXfhnnWTv+n8veXTR7ZW/WNBe4CfCgbR+7kp30Kh8HfZwLDbUW/U+
+         C3swt3mvtpiJqkCBM9kRXgpNjv47n9nJsXI3j++DqV/P6DZBZA7EKq5NGQUGylwOaN
+         alZUSV/saPyH/nMH37Q1ilQDY/jX6txy1dn5Nnco=
+Date:   Wed, 11 Dec 2019 14:40:49 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Mao Wenan <maowenan@huawei.com>
+Cc:     kernel.openeuler@huawei.com, Oliver Neukum <oneukum@suse.com>,
+        syzbot+a64a382964bf6c71a9c0@syzkaller.appspotmail.com,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH rh7.3 06/11] usb: iowarrior: fix deadlock on disconnect
+Message-ID: <20191211134049.GB523125@kroah.com>
+References: <20191211123154.141040-1-maowenan@huawei.com>
+ <20191211123154.141040-7-maowenan@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=4.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,UNPARSEABLE_RELAY,URIBL_BLOCKED
-        autolearn=disabled version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on 8b5b6f358cc9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191211123154.141040-7-maowenan@huawei.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The m_can tries to detect if Non ISO Operation is available while in
-standby, this function results in the following error:
+On Wed, Dec 11, 2019 at 08:31:49PM +0800, Mao Wenan wrote:
+> From: Oliver Neukum <oneukum@suse.com>
+> 
+> mainline inclusion
+> from mainline-5.3
+> commit c468a8aa790e0dfe0a7f8a39db282d39c2c00b46
+> category: bugfix
+> bugzilla: NA
+> DTS: NA
+> CVE: CVE-2019-19528
+> 
+> -------------------------------------------------
+> 
+> We have to drop the mutex before we close() upon disconnect()
+> as close() needs the lock. This is safe to do by dropping the
+> mutex as intfdata is already set to NULL, so open() will fail.
+> 
+> Fixes: 03f36e885fc26 ("USB: open disconnect race in iowarrior")
+> Reported-by: syzbot+a64a382964bf6c71a9c0@syzkaller.appspotmail.com
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Oliver Neukum <oneukum@suse.com>
+> Link: https://lore.kernel.org/r/20190808092728.23417-1-oneukum@suse.com
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Mao Wenan <maowenan@huawei.com>
+> ---
+>  drivers/usb/misc/iowarrior.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 
-tcan4x5x spi2.0 (unnamed net_device) (uninitialized): Failed to init module
-tcan4x5x spi2.0: m_can device registered (irq=84, version=32)
-tcan4x5x spi2.0 can2: TCAN4X5X successfully initialized.
-
-When the tcan device comes out of reset it comes out in standby mode.
-The m_can driver tries to access the control register but fails due to
-the device is in standby mode.
-
-So this patch will put the tcan device in normal mode before the m_can
-driver does the initialization.
-
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
-Changes since v3:
- - Fixed fixes tag
-
-Changes since v4:
- - None
-
- drivers/net/can/m_can/tcan4x5x.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
-index 032d110e0870..3a3359ad3723 100644
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -485,6 +485,10 @@ static int tcan4x5x_can_probe(struct spi_device *spi)
- 	if (ret)
- 		goto out_power;
- 
-+	ret = tcan4x5x_init(mcan_class);
-+	if (ret)
-+		goto out_power;
-+
- 	ret = m_can_class_register(mcan_class);
- 	if (ret)
- 		goto out_power;
--- 
-2.24.0
-
+Why are you cc:ing us all on these patches???
