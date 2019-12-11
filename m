@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9FEA11B762
+	by mail.lfdr.de (Postfix) with ESMTP id 2FAFE11B761
 	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731566AbfLKQHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:07:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34238 "EHLO mail.kernel.org"
+        id S1731387AbfLKQHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:07:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730763AbfLKPMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:30 -0500
+        id S1730713AbfLKPMb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3E8E208C3;
-        Wed, 11 Dec 2019 15:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 075382467F;
+        Wed, 11 Dec 2019 15:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077149;
-        bh=UXnO5c4FLyYN9Gmyu429fTyxrF3mqzIcAgwWMCRZe3M=;
+        s=default; t=1576077150;
+        bh=FsGRS6i1JQA/Fs5w9IlywZtU1wgcApDmYXC3E95CFLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdzi2jlL+9LO9KDxXDWTu9tCWB9qPqByHQOfXym4Ul6DnqkrY29nTt9XacqftntbW
-         P+OOvjPBfGZ7CyZX673BR6Cg0vHLolOtXuTwWtrjlMfDnhnkUJ5fZ6GxMA/n4Aek05
-         IoSKNgqazCCabcj59wPoH+s039G/hJ/8FPOkD6VI=
+        b=fL88RWqaLkWJ+vbzYl2yvCOP7tJXpUh0zmEms1zT0lefMNEJYWnXMLWj3XH35oR1k
+         32AsMzzGtcjynUj4cVVnBf39ON380OsLMwaUa91sKzqY35snDWrDtNayrmcSNEgxP4
+         +YYVnY4MBzHgmnqf8630pZ0LlDGgDhUxygXnWC1o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rob Herring <robh@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 036/134] clocksource/drivers/timer-of: Use unique device name instead of timer
-Date:   Wed, 11 Dec 2019 10:10:12 -0500
-Message-Id: <20191211151150.19073-36-sashal@kernel.org>
+Cc:     Pavel Modilaynen <pavel.modilaynen@axis.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 037/134] dtc: Use pkg-config to locate libyaml
+Date:   Wed, 11 Dec 2019 10:10:13 -0500
+Message-Id: <20191211151150.19073-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -44,45 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Pavel Modilaynen <pavel.modilaynen@axis.com>
 
-[ Upstream commit 4411464d6f8b5e5759637235a6f2b2a85c2be0f1 ]
+[ Upstream commit 067c650c456e758f933aaf87a202f841d34be269 ]
 
-If a hardware-specific driver does not provide a name, the timer-of core
-falls back to device_node.name.  Due to generic DT node naming policies,
-that name is almost always "timer", and thus doesn't identify the actual
-timer used.
+Using Makefile's wildcard with absolute path to detect
+the presence of libyaml results in false-positive
+detection when cross-compiling e.g. in yocto environment.
+The latter results in build error:
+| scripts/dtc/yamltree.o: In function `yaml_propval_int':
+| yamltree.c: undefined reference to `yaml_sequence_start_event_initialize'
+| yamltree.c: undefined reference to `yaml_emitter_emit'
+| yamltree.c: undefined reference to `yaml_scalar_event_initialize'
+...
+Use pkg-config to locate libyaml to address this scenario.
 
-Fix this by using device_node.full_name instead, which includes the unit
-addrees.
-
-Example impact on /proc/timer_list:
-
-    -Clock Event Device: timer
-    +Clock Event Device: timer@fcfec400
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20191016144747.29538-3-geert+renesas@glider.be
+Signed-off-by: Pavel Modilaynen <pavel.modilaynen@axis.com>
+[robh: silence stderr]
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-of.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/dtc/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/timer-of.c b/drivers/clocksource/timer-of.c
-index 11ff701ff4bb9..a3c73e972fce1 100644
---- a/drivers/clocksource/timer-of.c
-+++ b/drivers/clocksource/timer-of.c
-@@ -192,7 +192,7 @@ int __init timer_of_init(struct device_node *np, struct timer_of *to)
- 	}
+diff --git a/scripts/dtc/Makefile b/scripts/dtc/Makefile
+index 82160808765c3..b5a5b1c548c9b 100644
+--- a/scripts/dtc/Makefile
++++ b/scripts/dtc/Makefile
+@@ -11,7 +11,7 @@ dtc-objs	+= dtc-lexer.lex.o dtc-parser.tab.o
+ # Source files need to get at the userspace version of libfdt_env.h to compile
+ HOST_EXTRACFLAGS := -I $(srctree)/$(src)/libfdt
  
- 	if (!to->clkevt.name)
--		to->clkevt.name = np->name;
-+		to->clkevt.name = np->full_name;
+-ifeq ($(wildcard /usr/include/yaml.h),)
++ifeq ($(shell pkg-config --exists yaml-0.1 2>/dev/null && echo yes),)
+ ifneq ($(CHECK_DTBS),)
+ $(error dtc needs libyaml for DT schema validation support. \
+ 	Install the necessary libyaml development package.)
+@@ -19,7 +19,7 @@ endif
+ HOST_EXTRACFLAGS += -DNO_YAML
+ else
+ dtc-objs	+= yamltree.o
+-HOSTLDLIBS_dtc	:= -lyaml
++HOSTLDLIBS_dtc	:= $(shell pkg-config yaml-0.1 --libs)
+ endif
  
- 	to->np = np;
- 
+ # Generated files need one more search path to include headers in source tree
 -- 
 2.20.1
 
