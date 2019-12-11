@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8773A11B342
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC8D11B33D
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388116AbfLKPlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:41:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43976 "EHLO mail.kernel.org"
+        id S2388027AbfLKPfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:35:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387819AbfLKPfO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:35:14 -0500
+        id S2388055AbfLKPfP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:35:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C62B24656;
-        Wed, 11 Dec 2019 15:35:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C05924687;
+        Wed, 11 Dec 2019 15:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078514;
-        bh=qmbYQIA69e1e8/KqodMHdFAL6GQBeBbTtVfmcEMkdpM=;
+        s=default; t=1576078515;
+        bh=fW7kFxv3HidorxygJ1mFCfCniAqwY8GjxNIzsLGC5+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3YY/Tog2ZHAqn+qh97xNisb9CtbdVG0Tgn7qr8Y/aEK4CtT4OOaUHaaiWplKOiB0
-         fDDK4s9gSIuDwZ/EdaHBkEJwEPzxrc8gCe21zzuTnH1TFh858ZiYQOBWrBHnyqVzhI
-         tqmMy5CRwltJ83lUcj0zrSwpmnifdaSx6CTelNfw=
+        b=H4SuOr0jIMDov1Hv/noXx2GMTc5WmuZS2e137sFpAErQiHb0tond9t1FZ4WMmA9zG
+         rifu9UiYmmOgpm5ok3o0H74YYd303hSkWpTZjmPnS3KCillbIFS8kcYgV3cXRCQGyE
+         2FNhcNp5la7GXta6gHBgsqn2BgU8arEd0hv7RnF8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Green <evgreen@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 03/42] Input: atmel_mxt_ts - disable IRQ across suspend
-Date:   Wed, 11 Dec 2019 10:34:31 -0500
-Message-Id: <20191211153510.23861-3-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/42] iommu/tegra-smmu: Fix page tables in > 4 GiB memory
+Date:   Wed, 11 Dec 2019 10:34:32 -0500
+Message-Id: <20191211153510.23861-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153510.23861-1-sashal@kernel.org>
 References: <20191211153510.23861-1-sashal@kernel.org>
@@ -43,52 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 463fa44eec2fef50d111ed0199cf593235065c04 ]
+[ Upstream commit 96d3ab802e4930a29a33934373157d6dff1b2c7e ]
 
-Across suspend and resume, we are seeing error messages like the following:
+Page tables that reside in physical memory beyond the 4 GiB boundary are
+currently not working properly. The reason is that when the physical
+address for page directory entries is read, it gets truncated at 32 bits
+and can cause crashes when passing that address to the DMA API.
 
-atmel_mxt_ts i2c-PRP0001:00: __mxt_read_reg: i2c transfer failed (-121)
-atmel_mxt_ts i2c-PRP0001:00: Failed to read T44 and T5 (-121)
+Fix this by first casting the PDE value to a dma_addr_t and then using
+the page frame number mask for the SMMU instance to mask out the invalid
+bits, which are typically used for mapping attributes, etc.
 
-This occurs because the driver leaves its IRQ enabled. Upon resume, there
-is an IRQ pending, but the interrupt is serviced before both the driver and
-the underlying I2C bus have been resumed. This causes EREMOTEIO errors.
-
-Disable the IRQ in suspend, and re-enable it on resume. If there are cases
-where the driver enters suspend with interrupts disabled, that's a bug we
-should fix separately.
-
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/iommu/tegra-smmu.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index c2fb0236a47cc..8d871fcb7912a 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -3206,6 +3206,8 @@ static int __maybe_unused mxt_suspend(struct device *dev)
- 
- 	mutex_unlock(&input_dev->mutex);
- 
-+	disable_irq(data->irq);
-+
- 	return 0;
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index c4eb293b15242..04cec050e42bf 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -153,9 +153,9 @@ static bool smmu_dma_addr_valid(struct tegra_smmu *smmu, dma_addr_t addr)
+ 	return (addr & smmu->pfn_mask) == addr;
  }
  
-@@ -3218,6 +3220,8 @@ static int __maybe_unused mxt_resume(struct device *dev)
- 	if (!input_dev)
- 		return 0;
+-static dma_addr_t smmu_pde_to_dma(u32 pde)
++static dma_addr_t smmu_pde_to_dma(struct tegra_smmu *smmu, u32 pde)
+ {
+-	return pde << 12;
++	return (dma_addr_t)(pde & smmu->pfn_mask) << 12;
+ }
  
-+	enable_irq(data->irq);
-+
- 	mutex_lock(&input_dev->mutex);
+ static void smmu_flush_ptc_all(struct tegra_smmu *smmu)
+@@ -540,6 +540,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
+ 				  dma_addr_t *dmap)
+ {
+ 	unsigned int pd_index = iova_pd_index(iova);
++	struct tegra_smmu *smmu = as->smmu;
+ 	struct page *pt_page;
+ 	u32 *pd;
  
- 	if (input_dev->users)
+@@ -548,7 +549,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
+ 		return NULL;
+ 
+ 	pd = page_address(as->pd);
+-	*dmap = smmu_pde_to_dma(pd[pd_index]);
++	*dmap = smmu_pde_to_dma(smmu, pd[pd_index]);
+ 
+ 	return tegra_smmu_pte_offset(pt_page, iova);
+ }
+@@ -590,7 +591,7 @@ static u32 *as_get_pte(struct tegra_smmu_as *as, dma_addr_t iova,
+ 	} else {
+ 		u32 *pd = page_address(as->pd);
+ 
+-		*dmap = smmu_pde_to_dma(pd[pde]);
++		*dmap = smmu_pde_to_dma(smmu, pd[pde]);
+ 	}
+ 
+ 	return tegra_smmu_pte_offset(as->pts[pde], iova);
+@@ -615,7 +616,7 @@ static void tegra_smmu_pte_put_use(struct tegra_smmu_as *as, unsigned long iova)
+ 	if (--as->count[pde] == 0) {
+ 		struct tegra_smmu *smmu = as->smmu;
+ 		u32 *pd = page_address(as->pd);
+-		dma_addr_t pte_dma = smmu_pde_to_dma(pd[pde]);
++		dma_addr_t pte_dma = smmu_pde_to_dma(smmu, pd[pde]);
+ 
+ 		tegra_smmu_set_pde(as, iova, 0);
+ 
 -- 
 2.20.1
 
