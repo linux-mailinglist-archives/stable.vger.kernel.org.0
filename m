@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8840911B2A2
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CA2211B2C0
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:40:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388125AbfLKPfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:35:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44216 "EHLO mail.kernel.org"
+        id S2387638AbfLKPiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:38:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388121AbfLKPfV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:35:21 -0500
+        id S2388126AbfLKPfW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:35:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2CE324656;
-        Wed, 11 Dec 2019 15:35:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B86AC24658;
+        Wed, 11 Dec 2019 15:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078521;
-        bh=szGZa6xdAAZUKRQe07yyEdszF/EljzEkg2z0kvziHNQ=;
+        s=default; t=1576078522;
+        bh=az0lc11zk+wKTLgQFMfQYNUmPhVaAa2KYFUj/KA94KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bO8GBJ4udQ9HrzoCA5CAXNCBVxm/ZQGYQIJYvRNJ1YRScNS/1hghYTKBAQUwOm7Yl
-         20MA5VZUy/x7SmZzVLNFgoRa/ZDAWvT3tOXJWp2M9eG6+Xoo/A7nOqLEwfs+LWz8KE
-         y4ejzTRk8xswfFB1d41RXGkb0ob8BUHFyeO7+KQc=
+        b=ORl1dPD8UCZptVbjxO1XyhtcgiOrsg7r+AxWGlzKzp/zv8BIxYorlbcrJ/Gfs0/dY
+         dcnKo9pW3uNJghe+rSp/ughotuOs+GgeOfDyO9WO24EsGsGLXZxvAulq4SZDiihyP7
+         nC4EpWQ1JJhlGPWHA/ht0HEOpt+xxYscS4et6bIw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/42] dma-debug: add a schedule point in debug_dma_dump_mappings()
-Date:   Wed, 11 Dec 2019 10:34:38 -0500
-Message-Id: <20191211153510.23861-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 11/42] clocksource/drivers/asm9260: Add a check for of_clk_get
+Date:   Wed, 11 Dec 2019 10:34:39 -0500
+Message-Id: <20191211153510.23861-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211153510.23861-1-sashal@kernel.org>
 References: <20191211153510.23861-1-sashal@kernel.org>
@@ -45,43 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 9ff6aa027dbb98755f0265695354f2dd07c0d1ce ]
+[ Upstream commit 6e001f6a4cc73cd06fc7b8c633bc4906c33dd8ad ]
 
-debug_dma_dump_mappings() can take a lot of cpu cycles :
+asm9260_timer_init misses a check for of_clk_get.
+Add a check for it and print errors like other clocksource drivers.
 
-lpk43:/# time wc -l /sys/kernel/debug/dma-api/dump
-163435 /sys/kernel/debug/dma-api/dump
-
-real	0m0.463s
-user	0m0.003s
-sys	0m0.459s
-
-Let's add a cond_resched() to avoid holding cpu for too long.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Corentin Labbe <clabbe@baylibre.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20191016124330.22211-1-hslester96@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dma-debug.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clocksource/asm9260_timer.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/lib/dma-debug.c b/lib/dma-debug.c
-index 8971370bfb161..4435bec55fb59 100644
---- a/lib/dma-debug.c
-+++ b/lib/dma-debug.c
-@@ -435,6 +435,7 @@ void debug_dma_dump_mappings(struct device *dev)
- 		}
- 
- 		spin_unlock_irqrestore(&bucket->lock, flags);
-+		cond_resched();
+diff --git a/drivers/clocksource/asm9260_timer.c b/drivers/clocksource/asm9260_timer.c
+index 1ba871b7fe118..e5717807c00a7 100644
+--- a/drivers/clocksource/asm9260_timer.c
++++ b/drivers/clocksource/asm9260_timer.c
+@@ -198,6 +198,10 @@ static int __init asm9260_timer_init(struct device_node *np)
  	}
- }
- EXPORT_SYMBOL(debug_dma_dump_mappings);
+ 
+ 	clk = of_clk_get(np, 0);
++	if (IS_ERR(clk)) {
++		pr_err("Failed to get clk!\n");
++		return PTR_ERR(clk);
++	}
+ 
+ 	ret = clk_prepare_enable(clk);
+ 	if (ret) {
 -- 
 2.20.1
 
