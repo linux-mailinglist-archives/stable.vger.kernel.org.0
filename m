@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 688A611BE75
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF0911BE6E
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 21:49:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727305AbfLKUtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 15:49:24 -0500
-Received: from mail-vk1-f201.google.com ([209.85.221.201]:48723 "EHLO
-        mail-vk1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727377AbfLKUtI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:49:08 -0500
-Received: by mail-vk1-f201.google.com with SMTP id p26so104588vkm.15
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:49:07 -0800 (PST)
+        id S1727412AbfLKUtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 15:49:11 -0500
+Received: from mail-pf1-f201.google.com ([209.85.210.201]:50457 "EHLO
+        mail-pf1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727406AbfLKUtL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 15:49:11 -0500
+Received: by mail-pf1-f201.google.com with SMTP id b8so2827440pfr.17
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 12:49:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=dcdfpo/SN401J0ADf28PICm6rQuV1bm1m38AbFi1Sng=;
-        b=v3TMDN4qBJP3ynZ8Qz07hxFn0g7CmdhMrFlr6NODGSx4qxZOgw/U1dSWChJLsNoBFU
-         7o8pV4BMWbpBqjD6gu4Gdmv0xE/OBK1gccVoJ0bnS3ZRZnWGPo5T2Px1Q6YSdeaaL4Zb
-         Am8YnUqJMTkV0PHCV/SkNcfObE9Rzx04NJNKADv8xjkDDtIr6nG6BQUEUNgcAx2S0btH
-         ozH1FeW6BVukSfrh2iRl1Qgt8SyV5gxfnZDQdMSMZKXnJiDbXITVNibsl0Li6HSAkLlm
-         boO17LswojP4waDI6My0MeA5ulsFh2uTc/I7tVczPcIGjUicNyH4KSSJs3JrD2/CqNVR
-         GYeg==
+        bh=WZ/pozjf2CR0qApOsQ3LoX3Js66TDlIX/9nxk8jnQ0A=;
+        b=iQ7kT7Y9mfyXWGO8Q29hx1zTEE9Bdhpvd73jndRbpQMA/nkDSJJad1cfgRiSXcp0GG
+         Aoll/H628y/FGWtzQgLzGiYTPKxZHoBdgVo/BXOGGxyK82U8Ult9z22hrdQEAedMOX7p
+         HkB0IiXMVFJtsNvcvj1Hh36SQIgESTDivY0LJOzA8ia/NHpeCKbqEw4JeK9T9+3BWXHb
+         ouPhMP0W13hDD4Zqxc0Houg9bB8OgUh3IslZQvH0jeJn9rzj0AGauJ+zGNSN9kcRKyzv
+         DyfcNbMomWZWNMIcvWzSWqUrHQ8L9PPd6WdGWc8TVeQK5oBINUP6Fsi+0bBJNI5+ggI1
+         PpJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=dcdfpo/SN401J0ADf28PICm6rQuV1bm1m38AbFi1Sng=;
-        b=MES2jv2EPoNgpbicHcjwq7I25Mdglju9Hx1tJASu53NiCBy9BgzT4oYva4Fd3+yZ7V
-         BlqpQgZLK9USJEkiOTldSVwNLPIWmVlL0VYrDPNksyDWzcYp8KJNzOjzhTwKZOVdwtqw
-         4r9n5C69PQOX7u1Cbo6VhmoW/f4+62s+16Wb7ba7Ttb6jc9vWd5ln+xQVTvgj7SdpgQ0
-         ncIBnb83sisyps69bqNqQjtXbgg0gkrbfFQZDy+F98iBGqH4J7aXElV1WfnYO7sVbTNx
-         jmFG3DJ0oUpZH5kLN85sWj4zg1ICIeN1DnVpoBNToDpNi/R3t+5E9Aj6BGXZlOsqkQ1U
-         8oXA==
-X-Gm-Message-State: APjAAAU33tortkk+exMwbXou+DSQ/CqtxNqshpAkmcEwPEclxQUEbUcB
-        5/hfmP/Yu2KqEsCKPGi0G3r9TntOZjfc
-X-Google-Smtp-Source: APXvYqzjD7iLTfwDWn+XE1jFSwfRs9TIrn3KfDXaYEgjRYFqoUbAWMKL38XdPFyOM/7T7xlp2u+Dzp5GDaUe
-X-Received: by 2002:a67:bd13:: with SMTP id y19mr4440913vsq.143.1576097346928;
- Wed, 11 Dec 2019 12:49:06 -0800 (PST)
-Date:   Wed, 11 Dec 2019 12:47:51 -0800
+        bh=WZ/pozjf2CR0qApOsQ3LoX3Js66TDlIX/9nxk8jnQ0A=;
+        b=hhBOyfFQ+FeLz4orzjYhcEXFCS98QJPEbr5zRRSjN1WOQpho8+W66It0NNLBkqR5JN
+         BpONu/IOrBOcXRkcrZlhN1ul7xNBDw5V0uuFF36joyxjSNRdUbFUN6hjANHatgmNaPka
+         lY2U0N6vGWXHto4vijgeYUE/SHu6Sn//4P87EdwokVdcfB/RF4O1ofTyk4ZcI3VqzzQc
+         +1i24BBedYHf1ShOs+ModwmvDhDeNxu8f7s6LNwEHYzaOprumvVmQXWT/SQl1k7frmTD
+         d0oODSwzOdcA9gx3Hi5/6nkZpNGGWlSwlQFLbLzfnltDbg1B0gRu5x+4pi75yckn4Q8g
+         q8OA==
+X-Gm-Message-State: APjAAAVVfi0GlOrlaWvUsJuFFp+17e33dDqe+mGXC2cUJa6XffGhK2HR
+        V/GCqwms6P6ZpC2WEhWvUgELiYRk3Esq
+X-Google-Smtp-Source: APXvYqxQMz+7rmle/AEYWdoD3NDtjcWQN/4YuaU56QUbmfqi9ASnXB/oWkpGs3X5CREMFPVXnKInlo10uoJH
+X-Received: by 2002:a63:d017:: with SMTP id z23mr6411966pgf.110.1576097350640;
+ Wed, 11 Dec 2019 12:49:10 -0800 (PST)
+Date:   Wed, 11 Dec 2019 12:47:52 -0800
 In-Reply-To: <20191211204753.242298-1-pomonis@google.com>
-Message-Id: <20191211204753.242298-12-pomonis@google.com>
+Message-Id: <20191211204753.242298-13-pomonis@google.com>
 Mime-Version: 1.0
 References: <20191211204753.242298-1-pomonis@google.com>
 X-Mailer: git-send-email 2.24.0.525.g8f36a354ae-goog
-Subject: [PATCH v2 11/13] KVM: x86: Protect exit_reason from being used in
+Subject: [PATCH v2 12/13] KVM: x86: Protect DR-based index computations from
  Spectre-v1/L1TF attacks
 From:   Marios Pomonis <pomonis@google.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>, rkrcmar@redhat.com,
@@ -67,91 +67,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes a Spectre-v1/L1TF vulnerability in vmx_handle_exit().
-While exit_reason is set by the hardware and therefore should not be
-attacker-influenced, an unknown exit_reason could potentially be used to
-perform such an attack.
+This fixes a Spectre-v1/L1TF vulnerability in __kvm_set_dr() and
+kvm_get_dr().
+Both kvm_get_dr() and kvm_set_dr() (a wrapper of __kvm_set_dr()) are
+exported symbols so KVM should tream them conservatively from a security
+perspective.
 
-Fixes: commit 55d2375e58a6 ("KVM: nVMX: Move nested code to dedicated files")
+Fixes: commit 020df0794f57 ("KVM: move DR register access handling into generic code")
 
-Signed-off-by: Marios Pomonis <pomonis@google.com>
 Signed-off-by: Nick Finco <nifi@google.com>
-Suggested-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Marios Pomonis <pomonis@google.com>
 Reviewed-by: Andrew Honig <ahonig@google.com>
 Cc: stable@vger.kernel.org
 ---
- arch/x86/kvm/vmx/vmx.c | 55 +++++++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ arch/x86/kvm/x86.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 82b25f1812aa..78f2fef97d93 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -5918,34 +5918,39 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu)
- 		}
- 	}
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index a9e66f09422e..9a2789652231 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1057,9 +1057,11 @@ static u64 kvm_dr6_fixed(struct kvm_vcpu *vcpu)
  
--	if (exit_reason < kvm_vmx_max_exit_handlers
--	    && kvm_vmx_exit_handlers[exit_reason]) {
-+	if (exit_reason >= kvm_vmx_max_exit_handlers)
-+		goto unexpected_vmexit;
- #ifdef CONFIG_RETPOLINE
--		if (exit_reason == EXIT_REASON_MSR_WRITE)
--			return kvm_emulate_wrmsr(vcpu);
--		else if (exit_reason == EXIT_REASON_PREEMPTION_TIMER)
--			return handle_preemption_timer(vcpu);
--		else if (exit_reason == EXIT_REASON_PENDING_INTERRUPT)
--			return handle_interrupt_window(vcpu);
--		else if (exit_reason == EXIT_REASON_EXTERNAL_INTERRUPT)
--			return handle_external_interrupt(vcpu);
--		else if (exit_reason == EXIT_REASON_HLT)
--			return kvm_emulate_halt(vcpu);
--		else if (exit_reason == EXIT_REASON_EPT_MISCONFIG)
--			return handle_ept_misconfig(vcpu);
-+	if (exit_reason == EXIT_REASON_MSR_WRITE)
-+		return kvm_emulate_wrmsr(vcpu);
-+	else if (exit_reason == EXIT_REASON_PREEMPTION_TIMER)
-+		return handle_preemption_timer(vcpu);
-+	else if (exit_reason == EXIT_REASON_PENDING_INTERRUPT)
-+		return handle_interrupt_window(vcpu);
-+	else if (exit_reason == EXIT_REASON_EXTERNAL_INTERRUPT)
-+		return handle_external_interrupt(vcpu);
-+	else if (exit_reason == EXIT_REASON_HLT)
-+		return kvm_emulate_halt(vcpu);
-+	else if (exit_reason == EXIT_REASON_EPT_MISCONFIG)
-+		return handle_ept_misconfig(vcpu);
- #endif
--		return kvm_vmx_exit_handlers[exit_reason](vcpu);
--	} else {
--		vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n",
--				exit_reason);
--		dump_vmcs();
--		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
--		vcpu->run->internal.suberror =
+ static int __kvm_set_dr(struct kvm_vcpu *vcpu, int dr, unsigned long val)
+ {
++	size_t size = ARRAY_SIZE(vcpu->arch.db);
 +
-+	exit_reason = array_index_nospec(exit_reason,
-+					 kvm_vmx_max_exit_handlers);
-+	if (!kvm_vmx_exit_handlers[exit_reason])
-+		goto unexpected_vmexit;
-+
-+	return kvm_vmx_exit_handlers[exit_reason](vcpu);
-+
-+unexpected_vmexit:
-+	vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n", exit_reason);
-+	dump_vmcs();
-+	vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
-+	vcpu->run->internal.suberror =
- 			KVM_INTERNAL_ERROR_UNEXPECTED_EXIT_REASON;
--		vcpu->run->internal.ndata = 1;
--		vcpu->run->internal.data[0] = exit_reason;
--		return 0;
--	}
-+	vcpu->run->internal.ndata = 1;
-+	vcpu->run->internal.data[0] = exit_reason;
-+	return 0;
- }
+ 	switch (dr) {
+ 	case 0 ... 3:
+-		vcpu->arch.db[dr] = val;
++		vcpu->arch.db[array_index_nospec(dr, size)] = val;
+ 		if (!(vcpu->guest_debug & KVM_GUESTDBG_USE_HW_BP))
+ 			vcpu->arch.eff_db[dr] = val;
+ 		break;
+@@ -1096,9 +1098,11 @@ EXPORT_SYMBOL_GPL(kvm_set_dr);
  
- /*
+ int kvm_get_dr(struct kvm_vcpu *vcpu, int dr, unsigned long *val)
+ {
++	size_t size = ARRAY_SIZE(vcpu->arch.db);
++
+ 	switch (dr) {
+ 	case 0 ... 3:
+-		*val = vcpu->arch.db[dr];
++		*val = vcpu->arch.db[array_index_nospec(dr, size)];
+ 		break;
+ 	case 4:
+ 		/* fall through */
 -- 
 2.24.0.525.g8f36a354ae-goog
 
