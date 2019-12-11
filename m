@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD32311B69E
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F9111B6A0
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731388AbfLKPNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36492 "EHLO mail.kernel.org"
+        id S1730656AbfLKPNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:13:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730936AbfLKPNR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:17 -0500
+        id S1730702AbfLKPNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5B622467F;
-        Wed, 11 Dec 2019 15:13:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFBAC20663;
+        Wed, 11 Dec 2019 15:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077196;
-        bh=RubREijqb6fCvtlTS2NxAPSuHQOr0yCZ5UPXyRoih4M=;
+        s=default; t=1576077197;
+        bh=lQByssjgqWaVZWGX1nyIVM5aR1JZ2it8lsG75l/CR1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvWBmsHpl76JDe+5yxMwbiL86aVCieaqGMiz7a6jixLpoI09QTW+esQxWq936TzWG
-         IQgrpv279vaQkp9lxvjXVWNJIqwQCzmBLRkUqMY3L3hWKy6GrhXQuW8hSmOxHo+0hs
-         q+2sHHqWwIh7ncz2p6uhJ4KoKHOdhRP3L9oWwyUU=
+        b=vRkva60YWAM8rlvbEsJpl3rjVa12nPHZ97qi+aeDDvw5fbZ+pSttTPc+2c0NrYimq
+         tnPi8mQf9sOyMZCRuShQzq1j2S05gkZm2R1XEq43bRbZSMDcCg13GC0F2uJx0seOlr
+         9LXGrM/8/FmOwb5BiAn6PvnMVJFZCh2VL/wD9nng=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aaron Ma <aaron.ma@canonical.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 079/134] HID: i2c-hid: fix no irq after reset on raydium 3118
-Date:   Wed, 11 Dec 2019 10:10:55 -0500
-Message-Id: <20191211151150.19073-79-sashal@kernel.org>
+Cc:     Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 080/134] ARM: 8937/1: spectre-v2: remove Brahma-B53 from hardening
+Date:   Wed, 11 Dec 2019 10:10:56 -0500
+Message-Id: <20191211151150.19073-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -42,52 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit 0c8432236dea20a95f68fa17989ea3f8af0186a5 ]
+[ Upstream commit 4ae5061a19b550dfe25397843427ed2ebab16b16 ]
 
-On some ThinkPad L390 some raydium 3118 touchscreen devices
-doesn't response any data after reset, but some does.
+When the default processor handling was added to the function
+cpu_v7_spectre_init() it only excluded other ARM implemented processor
+cores. The Broadcom Brahma B53 core is not implemented by ARM so it
+ended up falling through into the set of processors that attempt to use
+the ARM_SMCCC_ARCH_WORKAROUND_1 service to harden the branch predictor.
 
-Add this ID to no irq quirk,
-then don't wait for any response alike on these touchscreens.
-All kinds of raydium 3118 devices work fine.
+Since this workaround is not necessary for the Brahma-B53 this commit
+explicitly checks for it and prevents it from applying a branch
+predictor hardening workaround.
 
-BugLink: https://bugs.launchpad.net/bugs/1849721
-
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 10115105cb3a ("ARM: spectre-v2: add firmware based hardening")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h              | 1 +
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 3 insertions(+)
+ arch/arm/mm/proc-v7-bugs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 00904537e17c4..6273e7178e785 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -960,6 +960,7 @@
+diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
+index 9a07916af8dd2..a6554fdb56c54 100644
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -65,6 +65,9 @@ static void cpu_v7_spectre_init(void)
+ 		break;
  
- #define I2C_VENDOR_ID_RAYDIUM		0x2386
- #define I2C_PRODUCT_ID_RAYDIUM_4B33	0x4b33
-+#define I2C_PRODUCT_ID_RAYDIUM_3118	0x3118
- 
- #define USB_VENDOR_ID_RAZER            0x1532
- #define USB_DEVICE_ID_RAZER_BLADE_14   0x011D
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 04c088131e044..7608ee053114c 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -170,6 +170,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
- 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-+	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
-+		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
- 		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ 0, 0 }
+ #ifdef CONFIG_ARM_PSCI
++	case ARM_CPU_PART_BRAHMA_B53:
++		/* Requires no workaround */
++		break;
+ 	default:
+ 		/* Other ARM CPUs require no workaround */
+ 		if (read_cpuid_implementor() == ARM_CPU_IMP_ARM)
 -- 
 2.20.1
 
