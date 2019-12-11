@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 770BB11B68B
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:01:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B2911B69A
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731412AbfLKPNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:13:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
+        id S1731550AbfLKQBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:01:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731407AbfLKPNX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:23 -0500
+        id S1731411AbfLKPNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E50C52467E;
-        Wed, 11 Dec 2019 15:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1574E24656;
+        Wed, 11 Dec 2019 15:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077202;
-        bh=BZ0oz8NjKl7UrehNzTIeGh2lJAIqcAF9T36DM21l1JA=;
+        s=default; t=1576077204;
+        bh=Ur/viyuBEyZ5mqbdrZIIH5xEqPh/48fUizwmkULdx4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luMowHQWyuxZ5H6or+1O9/X6HSoxVxA9AzhjWLue8/BSUpQw7A5GERGunsiJULyB8
-         WceqPf51itmbx4NaAWkN98kjrF8pRI/o8eNGEE5BOxaxwZdnzf2kul0ghJUE5U4Af2
-         oxU114/eBVNs/y3/bY1F6qXkNbz+U/lvsn4Fhdwo=
+        b=xaFJuEPcATQr3gajjFdK81T2jXtUe/ZD+k2Z0IwMHQDaLbRTYTcOIpv3XfDTykEj9
+         q3tfUDXjFbnIByX5sz9X2/QF743gd5dQOYV26PUqffvcC4DbAJUOGhoept9HbpIyaU
+         i0IinKA4rMKJ6ba8TsLurhL1+H60LdBzwR2d1QhA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joel Stanley <joel@jms.id.au>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+Cc:     Julia Cartwright <julia@ni.com>,
         Guenter Roeck <linux@roeck-us.net>,
+        Steffen Trumtrar <s.trumtrar@pengutronix.de>,
+        Tim Sander <tim@krieglstein.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 085/134] watchdog: aspeed: Fix clock behaviour for ast2600
-Date:   Wed, 11 Dec 2019 10:11:01 -0500
-Message-Id: <20191211151150.19073-85-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 086/134] watchdog: prevent deferral of watchdogd wakeup on RT
+Date:   Wed, 11 Dec 2019 10:11:02 -0500
+Message-Id: <20191211151150.19073-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,64 +47,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Julia Cartwright <julia@ni.com>
 
-[ Upstream commit c04571251b3d842096f1597f5d4badb508be016d ]
+[ Upstream commit a19f89335f4bda3d77d991c96583e3e51856acbb ]
 
-The ast2600 no longer uses bit 4 in the control register to indicate a
-1MHz clock (It now controls whether this watchdog is reset by a SOC
-reset). This means we do not want to set it. It also does not need to be
-set for the ast2500, as it is read-only on that SoC.
+When PREEMPT_RT is enabled, all hrtimer expiry functions are
+deferred for execution into the context of ksoftirqd unless otherwise
+annotated.
 
-The comment next to the clock rate selection wandered away from where it
-was set, so put it back next to the register setting it's describing.
+Deferring the expiry of the hrtimer used by the watchdog core, however,
+is a waste, as the callback does nothing but queue a kthread work item
+and wakeup watchdogd.
 
-Fixes: b3528b487448 ("watchdog: aspeed: Add support for AST2600")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
+It's worst then that, too: the deferral through ksoftirqd also means
+that for correct behavior a user must adjust the scheduling parameters
+of both watchdogd _and_ ksoftirqd, which is unnecessary and has other
+side effects (like causing unrelated expiry functions to execute at
+potentially elevated priority).
+
+Instead, mark the hrtimer used by the watchdog core as being _HARD to
+allow it's execution directly from hardirq context.  The work done in
+this expiry function is well-bounded and minimal.
+
+A user still must adjust the scheduling parameters of the watchdogd
+to be correct w.r.t. their application needs.
+
+Link: https://lkml.kernel.org/r/0e02d8327aeca344096c246713033887bc490dd7.1538089180.git.julia@ni.com
+Cc: Guenter Roeck <linux@roeck-us.net>
+Reported-and-tested-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Reported-by: Tim Sander <tim@krieglstein.org>
+Signed-off-by: Julia Cartwright <julia@ni.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+[bigeasy: use only HRTIMER_MODE_REL_HARD]
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20191108032905.22463-1-joel@jms.id.au
+Link: https://lore.kernel.org/r/20191105144506.clyadjbvnn7b7b2m@linutronix.de
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/aspeed_wdt.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-index 4ec0906bf12c0..7e00960651fa2 100644
---- a/drivers/watchdog/aspeed_wdt.c
-+++ b/drivers/watchdog/aspeed_wdt.c
-@@ -258,11 +258,6 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
- 	if (IS_ERR(wdt->base))
- 		return PTR_ERR(wdt->base);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index dbd2ad4c92948..d3acc0a7256ca 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -158,7 +158,8 @@ static inline void watchdog_update_worker(struct watchdog_device *wdd)
+ 		ktime_t t = watchdog_next_keepalive(wdd);
  
--	/*
--	 * The ast2400 wdt can run at PCLK, or 1MHz. The ast2500 only
--	 * runs at 1MHz. We chose to always run at 1MHz, as there's no
--	 * good reason to have a faster watchdog counter.
--	 */
- 	wdt->wdd.info = &aspeed_wdt_info;
- 	wdt->wdd.ops = &aspeed_wdt_ops;
- 	wdt->wdd.max_hw_heartbeat_ms = WDT_MAX_TIMEOUT_MS;
-@@ -278,7 +273,16 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	config = ofdid->data;
+ 		if (t > 0)
+-			hrtimer_start(&wd_data->timer, t, HRTIMER_MODE_REL);
++			hrtimer_start(&wd_data->timer, t,
++				      HRTIMER_MODE_REL_HARD);
+ 	} else {
+ 		hrtimer_cancel(&wd_data->timer);
+ 	}
+@@ -177,7 +178,7 @@ static int __watchdog_ping(struct watchdog_device *wdd)
+ 	if (ktime_after(earliest_keepalive, now)) {
+ 		hrtimer_start(&wd_data->timer,
+ 			      ktime_sub(earliest_keepalive, now),
+-			      HRTIMER_MODE_REL);
++			      HRTIMER_MODE_REL_HARD);
+ 		return 0;
+ 	}
  
--	wdt->ctrl = WDT_CTRL_1MHZ_CLK;
-+	/*
-+	 * On clock rates:
-+	 *  - ast2400 wdt can run at PCLK, or 1MHz
-+	 *  - ast2500 only runs at 1MHz, hard coding bit 4 to 1
-+	 *  - ast2600 always runs at 1MHz
-+	 *
-+	 * Set the ast2400 to run at 1MHz as it simplifies the driver.
-+	 */
-+	if (of_device_is_compatible(np, "aspeed,ast2400-wdt"))
-+		wdt->ctrl = WDT_CTRL_1MHZ_CLK;
+@@ -971,7 +972,7 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 		return -ENODEV;
  
- 	/*
- 	 * Control reset on a per-device basis to ensure the
+ 	kthread_init_work(&wd_data->work, watchdog_ping_work);
+-	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	hrtimer_init(&wd_data->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
+ 	wd_data->timer.function = watchdog_timer_expired;
+ 
+ 	if (wdd->id == 0) {
+@@ -1019,7 +1020,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
+ 		__module_get(wdd->ops->owner);
+ 		kref_get(&wd_data->kref);
+ 		if (handle_boot_enabled)
+-			hrtimer_start(&wd_data->timer, 0, HRTIMER_MODE_REL);
++			hrtimer_start(&wd_data->timer, 0,
++				      HRTIMER_MODE_REL_HARD);
+ 		else
+ 			pr_info("watchdog%d running and kernel based pre-userspace handler disabled\n",
+ 				wdd->id);
 -- 
 2.20.1
 
