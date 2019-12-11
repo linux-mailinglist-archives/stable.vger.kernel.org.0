@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E80611B366
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80BD711B35D
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733024AbfLKPmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:42:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33530 "EHLO mail.kernel.org"
+        id S1732856AbfLKP1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:27:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387460AbfLKP1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:44 -0500
+        id S2387468AbfLKP1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A99124654;
-        Wed, 11 Dec 2019 15:27:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 700B4222C4;
+        Wed, 11 Dec 2019 15:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078064;
-        bh=MjdZ+Si+IyCzLycAPuoWRfPaAcvQ0FOabRUeFZvgcVI=;
+        s=default; t=1576078065;
+        bh=QzNDaq2BvpCKmi7xO06govvZMk9GjZdENqHwCpuM2kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XN5qIAbr1HxcziihpbIZPswYXnAnAuzNjVjV6XRVjpBNCabMxshSDZElrQjH2mlhI
-         PJ1GN4qeeMU9HE8Dg4fbBYiM/J/d8piqZlHVMH7u1t4/d8Hn8WeFSo3eRhK663q3tR
-         X6tQLLttbsu7KCErCUgxv4LSgyangnJOHy7iBCNM=
+        b=uTn+k0toIjGbgd9b4YqqwKopRQaz6zn8QjFwaHzVzvM82+/4ipem/qrrq46c0EhST
+         7uAHamEmRnofs9Gs+z53AKBg3+odo6oQ2T7reDgZWc23/O332sOqk2n1B3/88fziLC
+         cTlbVNPHMV/k+OsL9C+YH/4AtZFP0pVYcmbM8F0U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, stable@kernel.org,
-        Andreas Dilger <adilger@dilger.ca>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 56/79] ext4: work around deleting a file with i_nlink == 0 safely
-Date:   Wed, 11 Dec 2019 10:26:20 -0500
-Message-Id: <20191211152643.23056-56-sashal@kernel.org>
+Cc:     peter chang <dpf@google.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Deepak Ukey <deepak.ukey@microchip.com>,
+        Viswas G <Viswas.G@microchip.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, pmchba@pmcs.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 57/79] scsi: pm80xx: Fix for SATA device discovery
+Date:   Wed, 11 Dec 2019 10:26:21 -0500
+Message-Id: <20191211152643.23056-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -43,63 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: peter chang <dpf@google.com>
 
-[ Upstream commit c7df4a1ecb8579838ec8c56b2bb6a6716e974f37 ]
+[ Upstream commit ce21c63ee995b7a8b7b81245f2cee521f8c3c220 ]
 
-If the file system is corrupted such that a file's i_links_count is
-too small, then it's possible that when unlinking that file, i_nlink
-will already be zero.  Previously we were working around this kind of
-corruption by forcing i_nlink to one; but we were doing this before
-trying to delete the directory entry --- and if the file system is
-corrupted enough that ext4_delete_entry() fails, then we exit with
-i_nlink elevated, and this causes the orphan inode list handling to be
-FUBAR'ed, such that when we unmount the file system, the orphan inode
-list can get corrupted.
+Driver was missing complete() call in mpi_sata_completion which result in
+SATA abort error handling timing out. That causes the device to be left in
+the in_recovery state so subsequent commands sent to the device fail and
+the OS removes access to it.
 
-A better way to fix this is to simply skip trying to call drop_nlink()
-if i_nlink is already zero, thus moving the check to the place where
-it makes the most sense.
-
-https://bugzilla.kernel.org/show_bug.cgi?id=205433
-
-Link: https://lore.kernel.org/r/20191112032903.8828-1-tytso@mit.edu
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20191114100910.6153-2-deepak.ukey@microchip.com
+Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: peter chang <dpf@google.com>
+Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
+Signed-off-by: Viswas G <Viswas.G@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index badbb8b4f0f17..f56d6f1950b98 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3056,18 +3056,17 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
- 	if (IS_DIRSYNC(dir))
- 		ext4_handle_sync(handle);
- 
--	if (inode->i_nlink == 0) {
--		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
--				   dentry->d_name.len, dentry->d_name.name);
--		set_nlink(inode, 1);
--	}
- 	retval = ext4_delete_entry(handle, dir, de, bh);
- 	if (retval)
- 		goto end_unlink;
- 	dir->i_ctime = dir->i_mtime = current_time(dir);
- 	ext4_update_dx_flag(dir);
- 	ext4_mark_inode_dirty(handle, dir);
--	drop_nlink(inode);
-+	if (inode->i_nlink == 0)
-+		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
-+				   dentry->d_name.len, dentry->d_name.name);
-+	else
-+		drop_nlink(inode);
- 	if (!inode->i_nlink)
- 		ext4_orphan_add(handle, inode);
- 	inode->i_ctime = current_time(inode);
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 5021aed87f33a..8627feb80261a 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -2382,6 +2382,8 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 			pm8001_printk("task 0x%p done with io_status 0x%x"
+ 			" resp 0x%x stat 0x%x but aborted by upper layer!\n",
+ 			t, status, ts->resp, ts->stat));
++		if (t->slow_task)
++			complete(&t->slow_task->completion);
+ 		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
+ 	} else {
+ 		spin_unlock_irqrestore(&t->task_state_lock, flags);
 -- 
 2.20.1
 
