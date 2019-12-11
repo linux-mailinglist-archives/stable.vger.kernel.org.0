@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A612A11AF29
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:12:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 695A211B04F
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:21:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730942AbfLKPLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:11:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60100 "EHLO mail.kernel.org"
+        id S1731716AbfLKPVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:21:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730938AbfLKPLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:11:30 -0500
+        id S1732312AbfLKPV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:21:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DB38222C4;
-        Wed, 11 Dec 2019 15:11:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E7B822527;
+        Wed, 11 Dec 2019 15:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077089;
-        bh=cRi5G9C0XWPPCnV+02MMDB3bXkRsVGf0Rh3K1z24W0U=;
+        s=default; t=1576077686;
+        bh=2WtK5+o5+VGs1ikguea/UPfLL2YIwjkHhUqcuAEvgwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBwBWzoH9HnRyItramGwexQoNaqYoeDO+57KUGWDv6Tae04H4g5QOBYm5aZaciATB
-         +tefbQRKspJVbAB2arhrsB3z2tTNnB8LlEEnTmZTtoD7Na/o+2zjW0grl/uY9fsBCZ
-         2XKAGWMLnRHet6uUC5p71EDxzUt8RJMkbL0sSQCo=
+        b=qai0+xZBffS9AVj9H0edGnu3ssjzv+yqhLEmknp3zhhjY6WZNL5GF6sL50oetXW+T
+         y8GBDymn2nb7buOeGVnEI5M3IFMQLiSCKVyV28YCGJSoxkAHvnQ07jWecq/PqhHpt3
+         tXv6ASPwcRsvOrVCtM+JVDPoVYFfzhTGtZhnnm6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.3 005/105] lp: fix sparc64 LPSETTIMEOUT ioctl
+        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 132/243] nfsd: fix a warning in __cld_pipe_upcall()
 Date:   Wed, 11 Dec 2019 16:04:54 +0100
-Message-Id: <20191211150222.701178959@linuxfoundation.org>
+Message-Id: <20191211150348.040647637@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
+References: <20191211150339.185439726@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Scott Mayhew <smayhew@redhat.com>
 
-commit 45a2d64696b11913bcf1087b041740edbade3e21 upstream.
+[ Upstream commit b493fd31c0b89d9453917e977002de58bebc3802 ]
 
-The layout of struct timeval is different on sparc64 from
-anything else, and the patch I did long ago failed to take
-this into account.
+__cld_pipe_upcall() emits a "do not call blocking ops when
+!TASK_RUNNING" warning due to the dput() call in rpc_queue_upcall().
+Fix it by using a completion instead of hand coding the wait.
 
-Change it now to handle sparc64 user space correctly again.
-
-Quite likely nobody cares about parallel ports on sparc64,
-but there is no reason not to fix it.
-
-Cc: stable@vger.kernel.org
-Fixes: 9a450484089d ("lp: support 64-bit time_t user space")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20191108203435.112759-7-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/lp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfsd/nfs4recover.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
---- a/drivers/char/lp.c
-+++ b/drivers/char/lp.c
-@@ -713,6 +713,10 @@ static int lp_set_timeout64(unsigned int
- 	if (copy_from_user(karg, arg, sizeof(karg)))
+diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
+index 9c247fa1e9594..5188f9f70c78c 100644
+--- a/fs/nfsd/nfs4recover.c
++++ b/fs/nfsd/nfs4recover.c
+@@ -662,7 +662,7 @@ struct cld_net {
+ struct cld_upcall {
+ 	struct list_head	 cu_list;
+ 	struct cld_net		*cu_net;
+-	struct task_struct	*cu_task;
++	struct completion	 cu_done;
+ 	struct cld_msg		 cu_msg;
+ };
+ 
+@@ -671,23 +671,18 @@ __cld_pipe_upcall(struct rpc_pipe *pipe, struct cld_msg *cmsg)
+ {
+ 	int ret;
+ 	struct rpc_pipe_msg msg;
++	struct cld_upcall *cup = container_of(cmsg, struct cld_upcall, cu_msg);
+ 
+ 	memset(&msg, 0, sizeof(msg));
+ 	msg.data = cmsg;
+ 	msg.len = sizeof(*cmsg);
+ 
+-	/*
+-	 * Set task state before we queue the upcall. That prevents
+-	 * wake_up_process in the downcall from racing with schedule.
+-	 */
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+ 	ret = rpc_queue_upcall(pipe, &msg);
+ 	if (ret < 0) {
+-		set_current_state(TASK_RUNNING);
+ 		goto out;
+ 	}
+ 
+-	schedule();
++	wait_for_completion(&cup->cu_done);
+ 
+ 	if (msg.errno < 0)
+ 		ret = msg.errno;
+@@ -754,7 +749,7 @@ cld_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	if (copy_from_user(&cup->cu_msg, src, mlen) != 0)
  		return -EFAULT;
  
-+	/* sparc64 suseconds_t is 32-bit only */
-+	if (IS_ENABLED(CONFIG_SPARC64) && !in_compat_syscall())
-+		karg[1] >>= 32;
-+
- 	return lp_set_timeout(minor, karg[0], karg[1]);
+-	wake_up_process(cup->cu_task);
++	complete(&cup->cu_done);
+ 	return mlen;
  }
  
+@@ -769,7 +764,7 @@ cld_pipe_destroy_msg(struct rpc_pipe_msg *msg)
+ 	if (msg->errno >= 0)
+ 		return;
+ 
+-	wake_up_process(cup->cu_task);
++	complete(&cup->cu_done);
+ }
+ 
+ static const struct rpc_pipe_ops cld_upcall_ops = {
+@@ -900,7 +895,7 @@ restart_search:
+ 			goto restart_search;
+ 		}
+ 	}
+-	new->cu_task = current;
++	init_completion(&new->cu_done);
+ 	new->cu_msg.cm_vers = CLD_UPCALL_VERSION;
+ 	put_unaligned(cn->cn_xid++, &new->cu_msg.cm_xid);
+ 	new->cu_net = cn;
+-- 
+2.20.1
+
 
 
