@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5610911AB02
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 13:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F63511AB05
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 13:34:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbfLKMer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 07:34:47 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:7217 "EHLO huawei.com"
+        id S1729238AbfLKMeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 07:34:50 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:60596 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729131AbfLKMer (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 07:34:47 -0500
+        id S1729228AbfLKMeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 07:34:50 -0500
 Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 57E5FB965D7FD45D06AF;
-        Wed, 11 Dec 2019 20:34:42 +0800 (CST)
+        by Forcepoint Email with ESMTP id 7242470E316FDC392340;
+        Wed, 11 Dec 2019 20:34:47 +0800 (CST)
 Received: from localhost.localdomain.localdomain (10.175.113.25) by
  DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
- 14.3.439.0; Wed, 11 Dec 2019 20:34:36 +0800
+ 14.3.439.0; Wed, 11 Dec 2019 20:34:38 +0800
 From:   Mao Wenan <maowenan@huawei.com>
 To:     <kernel.openeuler@huawei.com>
 CC:     Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>,
-        <syzbot+863724e7128e14b26732@syzkaller.appspotmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        <syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mao Wenan <maowenan@huawei.com>
-Subject: [PATCH rh7.3 02/11] can: peak_usb: fix slab info leak
-Date:   Wed, 11 Dec 2019 20:31:45 +0800
-Message-ID: <20191211123154.141040-3-maowenan@huawei.com>
+Subject: [PATCH rh7.3 05/11] USB: adutux: fix use-after-free on disconnect
+Date:   Wed, 11 Dec 2019 20:31:48 +0800
+Message-ID: <20191211123154.141040-6-maowenan@huawei.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211123154.141040-1-maowenan@huawei.com>
 References: <20191211123154.141040-1-maowenan@huawei.com>
@@ -43,45 +43,60 @@ From: Johan Hovold <johan@kernel.org>
 
 mainline inclusion
 from mainline-5.4
-commit f7a1337f0d29b98733c8824e165fca3371d7d4fd
+commit 44efc269db7929f6275a1fa927ef082e533ecde0
 category: bugfix
 bugzilla: NA
 DTS: NA
-CVE: CVE-2019-19534
+CVE: CVE-2019-19523
 
 -------------------------------------------------
 
-Fix a small slab info leak due to a failure to clear the command buffer
-at allocation.
+The driver was clearing its struct usb_device pointer, which it used as
+an inverted disconnected flag, before deregistering the character device
+and without serialising against racing release().
 
-The first 16 bytes of the command buffer are always sent to the device
-in pcan_usb_send_cmd() even though only the first two may have been
-initialised in case no argument payload is provided (e.g. when waiting
-for a response).
+This could lead to a use-after-free if a racing release() callback
+observes the cleared pointer and frees the driver data before
+disconnect() is finished with it.
 
-Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
-Cc: stable <stable@vger.kernel.org>     # 3.4
-Reported-by: syzbot+863724e7128e14b26732@syzkaller.appspotmail.com
+This could also lead to NULL-pointer dereferences in a racing open().
+
+Fixes: f08812d5eb8f ("USB: FIx locks and urb->status in adutux (updated)")
+Cc: stable <stable@vger.kernel.org>     # 2.6.24
+Reported-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
+Tested-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20190925092913.8608-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Mao Wenan <maowenan@huawei.com>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/misc/adutux.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index b9df329577a7..8320937a9fd1 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -731,7 +731,7 @@ static int peak_usb_create_dev(struct peak_usb_adapter *peak_usb_adapter,
- 	dev = netdev_priv(netdev);
+diff --git a/drivers/usb/misc/adutux.c b/drivers/usb/misc/adutux.c
+index 3071c0ef909b..2f308f5a415b 100644
+--- a/drivers/usb/misc/adutux.c
++++ b/drivers/usb/misc/adutux.c
+@@ -804,15 +804,16 @@ static void adu_disconnect(struct usb_interface *interface)
  
- 	/* allocate a buffer large enough to send commands */
--	dev->cmd_buf = kmalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
-+	dev->cmd_buf = kzalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
- 	if (!dev->cmd_buf) {
- 		err = -ENOMEM;
- 		goto lbl_free_candev;
+ 	dev = usb_get_intfdata(interface);
+ 
+-	mutex_lock(&dev->mtx);	/* not interruptible */
+-	dev->udev = NULL;	/* poison */
+ 	minor = dev->minor;
+ 	usb_deregister_dev(interface, &adu_class);
+-	mutex_unlock(&dev->mtx);
+ 
+ 	mutex_lock(&adutux_mutex);
+ 	usb_set_intfdata(interface, NULL);
+ 
++	mutex_lock(&dev->mtx);	/* not interruptible */
++	dev->udev = NULL;	/* poison */
++	mutex_unlock(&dev->mtx);
++
+ 	/* if the device is not opened, then we clean up right now */
+ 	if (!dev->open_count)
+ 		adu_delete(dev);
 -- 
 2.20.1
 
