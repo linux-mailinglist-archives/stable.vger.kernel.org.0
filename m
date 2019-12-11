@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF9F11B567
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9AD011B584
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:54:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731780AbfLKPxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:53:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47176 "EHLO mail.kernel.org"
+        id S1732034AbfLKPRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:17:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732032AbfLKPSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:18:53 -0500
+        id S1729663AbfLKPRi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:17:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08BF4208C3;
-        Wed, 11 Dec 2019 15:18:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 531EB24682;
+        Wed, 11 Dec 2019 15:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077531;
-        bh=feQS4pO3IZR4NgvroCLND+ukQaE9cpjpXMmzEaAd84Q=;
+        s=default; t=1576077457;
+        bh=V80Xt/F5molGZym4VsMs8r/TwMbFXOPehtRwwyqzMC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGRZj/cX+wR7r0YNTY1hNqxHGjUvk5MnvIPrlZKsKYjqJN1nw0vPHFUaMYRmvuSoY
-         Pv0d6TAZN7EmN5741wjp2Y6Nh+arTjDLQp7l+H7+m61fCDPEMLocaOjMQVxPls9Vfj
-         6ic9a4rg24c8YLm4IryJRwOD9UOBlsp6p430cakA=
+        b=U+yMSgwkJD/gcLI1UFUoCZ9NS6CIghrbqN0k/qv7k/8myNOaPSFWsjgmOt1KXWH+f
+         Hi86mFVY2nm7iRPr3e0n7C7+gzfvU5F3OiHNUCs3LnfYhowjArB+yHFxg2QGtUeh+h
+         HVBhvEX8bWbIp8Wzu7H7YPHg1SwcYRsgrZbOyvuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 027/243] serial: core: Allow processing sysrq at port unlock time
-Date:   Wed, 11 Dec 2019 16:03:09 +0100
-Message-Id: <20191211150340.712620949@linuxfoundation.org>
+Subject: [PATCH 4.19 029/243] iwlwifi: mvm: synchronize TID queue removal
+Date:   Wed, 11 Dec 2019 16:03:11 +0100
+Message-Id: <20191211150340.826896898@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -43,158 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit d6e1935819db0c91ce4a5af82466f3ab50d17346 ]
+[ Upstream commit 06bc6f6ed4ae0246a5e52094d1be90906a1361c7 ]
 
-Right now serial drivers process sysrq keys deep in their character
-receiving code.  This means that they've already grabbed their
-port->lock spinlock.  This can end up getting in the way if we've go
-to do serial stuff (especially kgdb) in response to the sysrq.
+When we mark a TID as no longer having a queue, there's no
+guarantee the TX path isn't using this txq_id right now,
+having accessed it just before we reset the value. To fix
+this, add synchronize_net() when we change the TIDs from
+having a queue to not having one, so that we can then be
+sure that the TX path is no longer accessing that queue.
 
-Serial drivers have various hacks in them to handle this.  Looking at
-'8250_port.c' you can see that the console_write() skips locking if
-we're in the sysrq handler.  Looking at 'msm_serial.c' you can see
-that the port lock is dropped around uart_handle_sysrq_char().
-
-It turns out that these hacks aren't exactly perfect.  If you have
-lockdep turned on and use something like the 8250_port hack you'll get
-a splat that looks like:
-
-  WARNING: possible circular locking dependency detected
-  [...] is trying to acquire lock:
-  ... (console_owner){-.-.}, at: console_unlock+0x2e0/0x5e4
-
-  but task is already holding lock:
-  ... (&port_lock_key){-.-.}, at: serial8250_handle_irq+0x30/0xe4
-
-  which lock already depends on the new lock.
-
-  the existing dependency chain (in reverse order) is:
-
-  -> #1 (&port_lock_key){-.-.}:
-         _raw_spin_lock_irqsave+0x58/0x70
-         serial8250_console_write+0xa8/0x250
-         univ8250_console_write+0x40/0x4c
-         console_unlock+0x528/0x5e4
-         register_console+0x2c4/0x3b0
-         uart_add_one_port+0x350/0x478
-         serial8250_register_8250_port+0x350/0x3a8
-         dw8250_probe+0x67c/0x754
-         platform_drv_probe+0x58/0xa4
-         really_probe+0x150/0x294
-         driver_probe_device+0xac/0xe8
-         __driver_attach+0x98/0xd0
-         bus_for_each_dev+0x84/0xc8
-         driver_attach+0x2c/0x34
-         bus_add_driver+0xf0/0x1ec
-         driver_register+0xb4/0x100
-         __platform_driver_register+0x60/0x6c
-         dw8250_platform_driver_init+0x20/0x28
-	 ...
-
-  -> #0 (console_owner){-.-.}:
-         lock_acquire+0x1e8/0x214
-         console_unlock+0x35c/0x5e4
-         vprintk_emit+0x230/0x274
-         vprintk_default+0x7c/0x84
-         vprintk_func+0x190/0x1bc
-         printk+0x80/0xa0
-         __handle_sysrq+0x104/0x21c
-         handle_sysrq+0x30/0x3c
-         serial8250_read_char+0x15c/0x18c
-         serial8250_rx_chars+0x34/0x74
-         serial8250_handle_irq+0x9c/0xe4
-         dw8250_handle_irq+0x98/0xcc
-         serial8250_interrupt+0x50/0xe8
-         ...
-
-  other info that might help us debug this:
-
-   Possible unsafe locking scenario:
-
-         CPU0                    CPU1
-         ----                    ----
-    lock(&port_lock_key);
-                                 lock(console_owner);
-                                 lock(&port_lock_key);
-    lock(console_owner);
-
-   *** DEADLOCK ***
-
-The hack used in 'msm_serial.c' doesn't cause the above splats but it
-seems a bit ugly to unlock / lock our spinlock deep in our irq
-handler.
-
-It seems like we could defer processing the sysrq until the end of the
-interrupt handler right after we've unlocked the port.  With this
-scheme if a whole batch of sysrq characters comes in one irq then we
-won't handle them all, but that seems like it should be a fine
-compromise.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/serial_core.h | 37 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 36 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index 406edae44ca30..3460b15a26078 100644
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -173,6 +173,7 @@ struct uart_port {
- 	struct console		*cons;			/* struct console, if any */
- #if defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(SUPPORT_SYSRQ)
- 	unsigned long		sysrq;			/* sysrq timeout */
-+	unsigned int		sysrq_ch;		/* char for sysrq */
- #endif
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+index 04ea516bddcc0..e850aa504b608 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+@@ -440,6 +440,16 @@ static int iwl_mvm_remove_sta_queue_marking(struct iwl_mvm *mvm, int queue)
  
- 	/* flags must be updated while holding port mutex */
-@@ -482,8 +483,42 @@ uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
- 	}
- 	return 0;
+ 	rcu_read_unlock();
+ 
++	/*
++	 * The TX path may have been using this TXQ_ID from the tid_data,
++	 * so make sure it's no longer running so that we can safely reuse
++	 * this TXQ later. We've set all the TIDs to IWL_MVM_INVALID_QUEUE
++	 * above, but nothing guarantees we've stopped using them. Thus,
++	 * without this, we could get to iwl_mvm_disable_txq() and remove
++	 * the queue while still sending frames to it.
++	 */
++	synchronize_net();
++
+ 	return disable_agg_tids;
  }
-+static inline int
-+uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
-+{
-+	if (port->sysrq) {
-+		if (ch && time_before(jiffies, port->sysrq)) {
-+			port->sysrq_ch = ch;
-+			port->sysrq = 0;
-+			return 1;
-+		}
-+		port->sysrq = 0;
-+	}
-+	return 0;
-+}
-+static inline void
-+uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
-+{
-+	int sysrq_ch;
-+
-+	sysrq_ch = port->sysrq_ch;
-+	port->sysrq_ch = 0;
-+
-+	spin_unlock_irqrestore(&port->lock, irqflags);
-+
-+	if (sysrq_ch)
-+		handle_sysrq(sysrq_ch);
-+}
- #else
--#define uart_handle_sysrq_char(port,ch) ({ (void)port; 0; })
-+static inline int
-+uart_handle_sysrq_char(struct uart_port *port, unsigned int ch) { return 0; }
-+static inline int
-+uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch) { return 0; }
-+static inline void
-+uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
-+{
-+	spin_unlock_irqrestore(&port->lock, irqflags);
-+}
- #endif
  
- /*
 -- 
 2.20.1
 
