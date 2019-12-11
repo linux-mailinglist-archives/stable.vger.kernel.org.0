@@ -2,86 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D658511C079
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:19:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4E911C087
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 00:26:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbfLKXTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 18:19:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36600 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbfLKXTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 18:19:02 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6701320836;
-        Wed, 11 Dec 2019 23:19:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576106341;
-        bh=fAYdKWBy0REBRBwfpT2O9WgHpDZhTb5srn3VxP/4GQg=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=AvYgzyofqcb0g2Z+LWdZvUh5KXKi0gHQixD5s7N9u1QcSDAVm6ZiBSUNN3VbQ/SgJ
-         HmBtjH8yXJe1D60Q9LWHFnkHZbcBE4Sdu/a0pe8qYpizmYqrpqxQsTt0SMhdCZ+WuJ
-         k1y09B68pnLNcoMWEtIEZ209EumBtbHDkwH+cYOU=
-Subject: Re: [PATCH 4.4 00/92] 4.4.206-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20191204174327.215426506@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <2959daae-72f2-8f85-df04-d6a0fe33516d@kernel.org>
-Date:   Wed, 11 Dec 2019 16:19:00 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1727119AbfLKX0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 18:26:52 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:60688 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726987AbfLKX0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 18:26:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576106810;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:in-reply-to:in-reply-to:  references:references;
+        bh=xIBtoo8ZOmm+jwrAM70WjwrXU/X7efOhZSB/CmsOthA=;
+        b=QGLnf6IYe3jdAqEtWNWEgM5ymUBRg6f4T4kK0ZR6k1al9sE1Oyv2iMD1favraK8MD/Xlqk
+        RZB+iizej4UVYLn1TaMsvYbRRMF8jvqLwb6LL3dVvnmM+W0kCQe2PYPuPTTqzzQqo7+frN
+        zOc0oeZC2OUh6zrwVRvYgyQhJtiAztw=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-267-MgCzO3_QPcO6jwCxsjaHyg-1; Wed, 11 Dec 2019 18:26:49 -0500
+X-MC-Unique: MgCzO3_QPcO6jwCxsjaHyg-1
+Received: by mail-pl1-f198.google.com with SMTP id b8so262355plz.12
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 15:26:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to;
+        bh=xIBtoo8ZOmm+jwrAM70WjwrXU/X7efOhZSB/CmsOthA=;
+        b=Sm3n5rn5F6HoEo4hXf5qsKr3CdGnPrHcyJmRRPiuxFBpAafR9Ozb82OLBF5GzQryc6
+         tgSbzMWfARh6DCQhN2dmePiCUP6VK7ELTMnAnqqVvbJcFUXTT0nDCpbSY+9UjEeWshTh
+         Z1IPkF58S+R76ixsxWoxd466C+cNMcpcHoSB8Vwh44pNos1TfdBVBGRv0z9paOgf2UAh
+         XEgnTgsSYPlqVxEF694rtrkfOLMCVXaWvK6NeHBB4ibMPnkvvCXagVoiL/DboZZuyRi2
+         vSxMEYhQJtcryHEmI1QZpPhjtjyQHwJJ/NpMi2u9UykB4qLr5EECieWeD9YHXjPDZ4aw
+         h7vw==
+X-Gm-Message-State: APjAAAWG5nv49eeSyiW3xPdSVebZaYx2sdAUL/l9kfUVyjUw1ZiDOMSY
+        IOkyyNRpMVeDG9DUZxK1yckLYfZ0gtNmTxkm9bq5+kOvMoJES2sYw3LC5DRnNobgOnhPMZu3kGW
+        36F8hqRAEQLJwl8H+
+X-Received: by 2002:a17:902:59da:: with SMTP id d26mr6164078plj.287.1576106808651;
+        Wed, 11 Dec 2019 15:26:48 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxqBrhVo8B0NkfhTA7qmWNMDe2NS+bkpJjXqPqOxnEvLKUmHEM6HPU81t6PZa+dDB2P6rEGHg==
+X-Received: by 2002:a17:902:59da:: with SMTP id d26mr6164051plj.287.1576106808281;
+        Wed, 11 Dec 2019 15:26:48 -0800 (PST)
+Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
+        by smtp.gmail.com with ESMTPSA id r62sm4469451pfc.89.2019.12.11.15.26.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2019 15:26:47 -0800 (PST)
+Date:   Wed, 11 Dec 2019 16:26:12 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Christian Bundy <christianbundy@fraction.io>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, linux-integrity@vger.kernel.org
+Subject: Re: [PATCH] tpm_tis: reserve chip for duration of tpm_tis_core_init
+Message-ID: <20191211232612.miaizaxxikhlgvfj@cantor>
+Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+        Christian Bundy <christianbundy@fraction.io>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Stefan Berger <stefanb@linux.vnet.ibm.com>, stable@vger.kernel.org,
+        linux-integrity@vger.kernel.org
+References: <20191211231758.22263-1-jsnitsel@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20191204174327.215426506@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20191211231758.22263-1-jsnitsel@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/4/19 10:49 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.206 release.
-> There are 92 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 06 Dec 2019 17:42:37 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.206-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Wed Dec 11 19, Jerry Snitselaar wrote:
+>Instead of repeatedly calling tpm_chip_start/tpm_chip_stop when
+>issuing commands to the tpm during initialization, just reserve the
+>chip after wait_startup, and release it when we are ready to call
+>tpm_chip_register.
+>
+>Cc: Christian Bundy <christianbundy@fraction.io>
+>Cc: Dan Williams <dan.j.williams@intel.com>
+>Cc: Peter Huewe <peterhuewe@gmx.de>
+>Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+>Cc: Jason Gunthorpe <jgg@ziepe.ca>
+>Cc: Stefan Berger <stefanb@linux.vnet.ibm.com>
+>Cc: stable@vger.kernel.org
+>Cc: linux-intergrity@vger.kernel.org
 
-I know this is way late. I managed to boot 4.4.206 finally on my test
-system running Ubuntu 19.10.
+Typo on the list address, do you want me to resend Jarkko?
 
-It turns out, Ubuntu 19.10 defaults to LZ4 compression.
+>Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
+>Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+>---
 
-/etc/initramfs-tools/initramfs.conf
-COMPRESS=lz4
+I did some initial testing with both a 1.2 device and a 2.0 device here.
+Christian, can you verify that this still solves your timeouts problem
+you were seeing? Dan, can you try this on the internal system with
+the interrupt issues? I will see if I can get the t490s owner to run
+it as well.
 
-Enabling the following worked for me.
+Thanks,
+Jerry
 
-CONFIG_RD_LZ4=y
-CONFIG_SQUASHFS_LZ4=y
-CONFIG_LZ4_DECOMPRESS=y
-CONFIG_DECOMPRESS_LZ4=y
-
-Stable release older than 4.19 will require the above change.
-
-thanks,
--- Shuah
