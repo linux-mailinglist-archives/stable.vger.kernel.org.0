@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A3811B225
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90AE311B21E
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:34:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733140AbfLKPd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:33:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34870 "EHLO mail.kernel.org"
+        id S2388071AbfLKPdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:33:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387674AbfLKP2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:28:38 -0500
+        id S1732983AbfLKP2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:28:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD64D208C3;
-        Wed, 11 Dec 2019 15:28:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA3102465B;
+        Wed, 11 Dec 2019 15:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078117;
-        bh=noZpgBJuRpZhcBM0WoGd9PdBBtglvU5KAndjmBZUy7I=;
+        s=default; t=1576078118;
+        bh=e6ded1V5IaVW7G0fvVHxMvQhqObyPDVK5jKXC+pLjQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svBKBZp947ObmheO0S6p/4n8xiYw8ru8Z/wh5jLn7W1aFXpcwpnYnhA73G+zbtlg1
-         rYwvOGSsoXWTdoWEx8VCgowFEw+dV02nOx47JRlyPg6kUM9rHI9L1f19LC1YV+Fu9h
-         w8oaQhEi3oFp6fFqdSbsD1I8ptSRZTO49HpriHZY=
+        b=dVVEhe1nmwGYACEhUDunj7i0KEbNXtdIKdbxq9sSQ3J2TtCjQkXlhOzfODDle0rAg
+         lDwnVuyGhDN+u1Lu7zEzWBqlyC4xs+hW9otPyqjegzbiP0YBOIEs3CkBgMBPXwype9
+         iTCHYe7tm6pKO1zApPgE705S9AKGWcNvQzxjRVeo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 05/58] iommu/tegra-smmu: Fix page tables in > 4 GiB memory
-Date:   Wed, 11 Dec 2019 10:27:38 -0500
-Message-Id: <20191211152831.23507-5-sashal@kernel.org>
+Cc:     David Disseldorp <ddiss@suse.de>, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <mchristi@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 06/58] scsi: target: compare full CHAP_A Algorithm strings
+Date:   Wed, 11 Dec 2019 10:27:39 -0500
+Message-Id: <20191211152831.23507-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
 References: <20191211152831.23507-1-sashal@kernel.org>
@@ -44,77 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 96d3ab802e4930a29a33934373157d6dff1b2c7e ]
+[ Upstream commit 9cef2a7955f2754257a7cddedec16edae7b587d0 ]
 
-Page tables that reside in physical memory beyond the 4 GiB boundary are
-currently not working properly. The reason is that when the physical
-address for page directory entries is read, it gets truncated at 32 bits
-and can cause crashes when passing that address to the DMA API.
+RFC 2307 states:
 
-Fix this by first casting the PDE value to a dma_addr_t and then using
-the page frame number mask for the SMMU instance to mask out the invalid
-bits, which are typically used for mapping attributes, etc.
+  For CHAP [RFC1994], in the first step, the initiator MUST send:
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+      CHAP_A=<A1,A2...>
+
+   Where A1,A2... are proposed algorithms, in order of preference.
+...
+   For the Algorithm, as stated in [RFC1994], one value is required to
+   be implemented:
+
+       5     (CHAP with MD5)
+
+LIO currently checks for this value by only comparing a single byte in
+the tokenized Algorithm string, which means that any value starting with
+a '5' (e.g. "55") is interpreted as "CHAP with MD5". Fix this by
+comparing the entire tokenized string.
+
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Link: https://lore.kernel.org/r/20190912095547.22427-2-ddiss@suse.de
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/tegra-smmu.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/target/iscsi/iscsi_target_auth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
-index 40eb8138546ad..848dac3e4580f 100644
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -156,9 +156,9 @@ static bool smmu_dma_addr_valid(struct tegra_smmu *smmu, dma_addr_t addr)
- 	return (addr & smmu->pfn_mask) == addr;
- }
+diff --git a/drivers/target/iscsi/iscsi_target_auth.c b/drivers/target/iscsi/iscsi_target_auth.c
+index e2fa3a3bc81df..b6bf605fa5c15 100644
+--- a/drivers/target/iscsi/iscsi_target_auth.c
++++ b/drivers/target/iscsi/iscsi_target_auth.c
+@@ -78,7 +78,7 @@ static int chap_check_algorithm(const char *a_str)
+ 		if (!token)
+ 			goto out;
  
--static dma_addr_t smmu_pde_to_dma(u32 pde)
-+static dma_addr_t smmu_pde_to_dma(struct tegra_smmu *smmu, u32 pde)
- {
--	return pde << 12;
-+	return (dma_addr_t)(pde & smmu->pfn_mask) << 12;
- }
- 
- static void smmu_flush_ptc_all(struct tegra_smmu *smmu)
-@@ -543,6 +543,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
- 				  dma_addr_t *dmap)
- {
- 	unsigned int pd_index = iova_pd_index(iova);
-+	struct tegra_smmu *smmu = as->smmu;
- 	struct page *pt_page;
- 	u32 *pd;
- 
-@@ -551,7 +552,7 @@ static u32 *tegra_smmu_pte_lookup(struct tegra_smmu_as *as, unsigned long iova,
- 		return NULL;
- 
- 	pd = page_address(as->pd);
--	*dmap = smmu_pde_to_dma(pd[pd_index]);
-+	*dmap = smmu_pde_to_dma(smmu, pd[pd_index]);
- 
- 	return tegra_smmu_pte_offset(pt_page, iova);
- }
-@@ -593,7 +594,7 @@ static u32 *as_get_pte(struct tegra_smmu_as *as, dma_addr_t iova,
- 	} else {
- 		u32 *pd = page_address(as->pd);
- 
--		*dmap = smmu_pde_to_dma(pd[pde]);
-+		*dmap = smmu_pde_to_dma(smmu, pd[pde]);
- 	}
- 
- 	return tegra_smmu_pte_offset(as->pts[pde], iova);
-@@ -618,7 +619,7 @@ static void tegra_smmu_pte_put_use(struct tegra_smmu_as *as, unsigned long iova)
- 	if (--as->count[pde] == 0) {
- 		struct tegra_smmu *smmu = as->smmu;
- 		u32 *pd = page_address(as->pd);
--		dma_addr_t pte_dma = smmu_pde_to_dma(pd[pde]);
-+		dma_addr_t pte_dma = smmu_pde_to_dma(smmu, pd[pde]);
- 
- 		tegra_smmu_set_pde(as, iova, 0);
- 
+-		if (!strncmp(token, "5", 1)) {
++		if (!strcmp(token, "5")) {
+ 			pr_debug("Selected MD5 Algorithm\n");
+ 			kfree(orig);
+ 			return CHAP_DIGEST_MD5;
 -- 
 2.20.1
 
