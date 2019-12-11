@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE7911B456
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:47:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0997F11B45C
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:47:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733178AbfLKP0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:26:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60300 "EHLO mail.kernel.org"
+        id S1731596AbfLKPrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:47:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732569AbfLKP0w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:26:52 -0500
+        id S1732553AbfLKP0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:26:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2011324679;
-        Wed, 11 Dec 2019 15:26:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 883792465A;
+        Wed, 11 Dec 2019 15:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078011;
-        bh=sjnsZOZDsbB53F4dQC13LCsU2cKRuRJiJyKpA1cHH6A=;
+        s=default; t=1576078013;
+        bh=vJYi5Cf3RhKaYquMOGw3LcJjHTdtvE0fu1/DA1QsneE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OucdVJEryUoi5pX7FhunvSWO+pTtXWUtOtUEuHXq71ZXdo5A9NAr8NxaScj4/v5na
-         2jPbMUADQRSvnSwEkflFtlyapqmpr0vUEx47t+oLCQTZ/irdMXt7I3JrAqT6lQVjaC
-         q5J/1My5J1NpT+iUOulkSmRsrYGb7Cb7/u7x4Tsw=
+        b=GAAm8DKx/uATzMHfP2SgwoUL2RftKh9yJjAcdYdkSWfmpnzsLmZwVMghR21H0FU8t
+         dhWR+/t9OZ232HvX/t4eY06ShKEqFxgXm6JursYxFx6BQgH4g7Km+Rhbu6W79+pmjh
+         LqK0fljuvFHXfH1wjYEmkMpfXd4q9Rv+eWUYg7xA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 06/79] iommu: rockchip: Free domain on .domain_free
-Date:   Wed, 11 Dec 2019 10:25:30 -0500
-Message-Id: <20191211152643.23056-6-sashal@kernel.org>
+Cc:     Nicholas Graumann <nick.graumann@gmail.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 08/79] dmaengine: xilinx_dma: Clear desc_pendingcount in xilinx_dma_reset
+Date:   Wed, 11 Dec 2019 10:25:32 -0500
+Message-Id: <20191211152643.23056-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -48,62 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Nicholas Graumann <nick.graumann@gmail.com>
 
-[ Upstream commit 42bb97b80f2e3bf592e3e99d109b67309aa1b30e ]
+[ Upstream commit 8a631a5a0f7d4a4a24dba8587d5d9152be0871cc ]
 
-IOMMU domain resource life is well-defined, managed
-by .domain_alloc and .domain_free.
+Whenever we reset the channel, we need to clear desc_pendingcount
+along with desc_submitcount. Otherwise when a new transaction is
+submitted, the irq coalesce level could be programmed to an incorrect
+value in the axidma case.
 
-Therefore, domain-specific resources shouldn't be tied to
-the device life, but instead to its domain.
+This behavior can be observed when terminating pending transactions
+with xilinx_dma_terminate_all() and then submitting new transactions
+without releasing and requesting the channel.
 
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Nicholas Graumann <nick.graumann@gmail.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1571150904-3988-8-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/rockchip-iommu.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index ad3e2b97469ed..140b287e886c8 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -977,13 +977,13 @@ static struct iommu_domain *rk_iommu_domain_alloc(unsigned type)
- 	if (!dma_dev)
- 		return NULL;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 8aec137b4fcaa..d56b6b0e22a84 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -1427,6 +1427,7 @@ static int xilinx_dma_reset(struct xilinx_dma_chan *chan)
  
--	rk_domain = devm_kzalloc(dma_dev, sizeof(*rk_domain), GFP_KERNEL);
-+	rk_domain = kzalloc(sizeof(*rk_domain), GFP_KERNEL);
- 	if (!rk_domain)
- 		return NULL;
+ 	chan->err = false;
+ 	chan->idle = true;
++	chan->desc_pendingcount = 0;
+ 	chan->desc_submitcount = 0;
  
- 	if (type == IOMMU_DOMAIN_DMA &&
- 	    iommu_get_dma_cookie(&rk_domain->domain))
--		return NULL;
-+		goto err_free_domain;
- 
- 	/*
- 	 * rk32xx iommus use a 2 level pagetable.
-@@ -1018,6 +1018,8 @@ err_free_dt:
- err_put_cookie:
- 	if (type == IOMMU_DOMAIN_DMA)
- 		iommu_put_dma_cookie(&rk_domain->domain);
-+err_free_domain:
-+	kfree(rk_domain);
- 
- 	return NULL;
- }
-@@ -1046,6 +1048,7 @@ static void rk_iommu_domain_free(struct iommu_domain *domain)
- 
- 	if (domain->type == IOMMU_DOMAIN_DMA)
- 		iommu_put_dma_cookie(&rk_domain->domain);
-+	kfree(rk_domain);
- }
- 
- static int rk_iommu_add_device(struct device *dev)
+ 	return err;
 -- 
 2.20.1
 
