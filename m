@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA64C11AFE5
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:18:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C0A11AFE9
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732027AbfLKPRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:17:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44992 "EHLO mail.kernel.org"
+        id S1731750AbfLKPRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:17:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731717AbfLKPRc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:17:32 -0500
+        id S1731758AbfLKPRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:17:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9519522527;
-        Wed, 11 Dec 2019 15:17:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 772BD22527;
+        Wed, 11 Dec 2019 15:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077452;
-        bh=5NWWTqVFiDV6KFnH8FHM980wxkNuXYpGH4rfXj5jZf0=;
+        s=default; t=1576077467;
+        bh=wTOKYoN1hkwRLsnXsfoUdKsY9axvXnpmtkXwjRKK4/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQ3nR9lL8a62ZvKp0hts1N4CM0NMW0p12DLuTSI8tedngGtqRQlJ8jxWkiNz1fscQ
-         T5ZjQohzKWXny+oU6KgXOqqq8sGO9Khwy/s4NPhfT7tTNmIoYgjty96HDCQjBe+YOt
-         pid3RxgTqdOVB3WzeStDFujyEFMjHgVsP6mpMRUs=
+        b=ahjN4SJE6xmL6x8p9g6iejhbGHnp33PF+Mc56QGqQjKqJHVCjlFKwgibhX+HYGiZS
+         ozZHLc6TO+ZGZYCTjFsTe/G1vYQdyGa1Bu8v8qH/tdprkOt7TEf1nB4vGPfN6B5Qlh
+         vVvGFZf8tqCDE3h+HoCcq64LnxZy+5J7vpWJ20ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 045/243] i40e: dont restart nway if autoneg not supported
-Date:   Wed, 11 Dec 2019 16:03:27 +0100
-Message-Id: <20191211150342.157482194@linuxfoundation.org>
+Subject: [PATCH 4.19 050/243] dlm: fix missing idr_destroy for recover_idr
+Date:   Wed, 11 Dec 2019 16:03:32 +0100
+Message-Id: <20191211150342.474126697@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -46,65 +43,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: David Teigland <teigland@redhat.com>
 
-[ Upstream commit 7c3758f7839377ab67529cc50264a640636c47af ]
+[ Upstream commit 8fc6ed9a3508a0435b9270c313600799d210d319 ]
 
-On link types that do not support autoneg, we cannot attempt to restart
-nway negotiation. This results in a dead link that requires a power
-cycle to remedy.
+Which would leak memory for the idr internals.
 
-Fix this by saving off the autoneg state and checking this value before
-we try to restart nway.
-
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/dlm/lockspace.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index 5ff6caa83948c..a6b0f605a7d8b 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -1136,6 +1136,7 @@ static int i40e_set_pauseparam(struct net_device *netdev,
- 	i40e_status status;
- 	u8 aq_failures;
- 	int err = 0;
-+	u32 is_an;
+diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
+index 6a1529e478f3d..f1261fa0af8a1 100644
+--- a/fs/dlm/lockspace.c
++++ b/fs/dlm/lockspace.c
+@@ -807,6 +807,7 @@ static int release_lockspace(struct dlm_ls *ls, int force)
  
- 	/* Changing the port's flow control is not supported if this isn't the
- 	 * port's controlling PF
-@@ -1148,15 +1149,14 @@ static int i40e_set_pauseparam(struct net_device *netdev,
- 	if (vsi != pf->vsi[pf->lan_vsi])
- 		return -EOPNOTSUPP;
+ 	dlm_delete_debug_file(ls);
  
--	if (pause->autoneg != ((hw_link_info->an_info & I40E_AQ_AN_COMPLETED) ?
--	    AUTONEG_ENABLE : AUTONEG_DISABLE)) {
-+	is_an = hw_link_info->an_info & I40E_AQ_AN_COMPLETED;
-+	if (pause->autoneg != is_an) {
- 		netdev_info(netdev, "To change autoneg please use: ethtool -s <dev> autoneg <on|off>\n");
- 		return -EOPNOTSUPP;
- 	}
++	idr_destroy(&ls->ls_recover_idr);
+ 	kfree(ls->ls_recover_buf);
  
- 	/* If we have link and don't have autoneg */
--	if (!test_bit(__I40E_DOWN, pf->state) &&
--	    !(hw_link_info->an_info & I40E_AQ_AN_COMPLETED)) {
-+	if (!test_bit(__I40E_DOWN, pf->state) && !is_an) {
- 		/* Send message that it might not necessarily work*/
- 		netdev_info(netdev, "Autoneg did not complete so changing settings may not result in an actual change.\n");
- 	}
-@@ -1207,7 +1207,7 @@ static int i40e_set_pauseparam(struct net_device *netdev,
- 		err = -EAGAIN;
- 	}
- 
--	if (!test_bit(__I40E_DOWN, pf->state)) {
-+	if (!test_bit(__I40E_DOWN, pf->state) && is_an) {
- 		/* Give it a little more time to try to come back */
- 		msleep(75);
- 		if (!test_bit(__I40E_DOWN, pf->state))
+ 	/*
 -- 
 2.20.1
 
