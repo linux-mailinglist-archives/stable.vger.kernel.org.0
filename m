@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D02BE11AD8A
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:33:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AFA711AD8B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 15:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729841AbfLKOdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 09:33:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
+        id S1729879AbfLKOdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 09:33:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727851AbfLKOdW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 09:33:22 -0500
+        id S1729858AbfLKOdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 09:33:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CC7322B48;
-        Wed, 11 Dec 2019 14:33:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACA3F20836;
+        Wed, 11 Dec 2019 14:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576074801;
-        bh=LeafcZ8rXSfByTPKdliGGIxO7zF0URiJs/ONTauq2KQ=;
+        s=default; t=1576074804;
+        bh=Jac2Nl1IQ5Dv3qbwCDowRavPWjG01jXiGy6kyzYEjR8=;
         h=Subject:To:From:Date:From;
-        b=K/JIzAVUCayQX8uujJ2TmVqcmwa/RzQshfzYGFKgVaHv/PztRXMHH/u4qiTVi5guD
-         8vjWONBHZ0Zv7dATgWb3eo1fXIXvDh4yBBLYauVtpTYP9pt60xJnSB4ULnTpj/laKR
-         hIoyBwaQnqBMlWURKe2V6CCvMksrOx/jRlDSFBoo=
-Subject: patch "xhci: make sure interrupts are restored to correct state" added to usb-linus
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
+        b=hFQc6F0heUsDmH9kWrwCDMRzlUAG47heS0jU/9zcR8I8QYmp2v/EPtdx6QeIIR0zc
+         6/M5YqqbTQ5/Ummyi/DSp/RaY4dDIdb7Us80+wZ6jQPBnzFOYp+V0AvF4Tzq40RJD9
+         2KW/w1nyC+YrN9mywyU/OKr7HdqhIt30gR94YP9s=
+Subject: patch "xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default" added to usb-linus
+To:     mathias.nyman@linux.intel.com, ardb@kernel.org,
+        eli.billauer@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 11 Dec 2019 15:33:11 +0100
-Message-ID: <1576074791102252@kroah.com>
+Message-ID: <1576074791125224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    xhci: make sure interrupts are restored to correct state
+    xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,84 +56,56 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From bd82873f23c9a6ad834348f8b83f3b6a5bca2c65 Mon Sep 17 00:00:00 2001
+From 7ff11162808cc2ec66353fc012c58bb449c892c3 Mon Sep 17 00:00:00 2001
 From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Wed, 11 Dec 2019 16:20:07 +0200
-Subject: xhci: make sure interrupts are restored to correct state
+Date: Wed, 11 Dec 2019 16:20:06 +0200
+Subject: xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default
+ behaviour.
 
-spin_unlock_irqrestore() might be called with stale flags after
-reading port status, possibly restoring interrupts to a incorrect
-state.
+xhci driver claims it needs XHCI_TRUST_TX_LENGTH quirk for both
+Broadcom/Cavium and a Renesas xHC controllers.
 
-If a usb2 port just finished resuming while the port status is read
-the spin lock will be temporary released and re-acquired in a separate
-function. The flags parameter is passed as value instead of a pointer,
-not updating flags properly before the final spin_unlock_irqrestore()
-is called.
+The quirk was inteded for handling false "success" complete event for
+transfers that had data left untransferred.
+These transfers should complete with "short packet" events instead.
 
-Cc: <stable@vger.kernel.org> # v3.12+
-Fixes: 8b3d45705e54 ("usb: Fix xHCI host issues on remote wakeup.")
+In these two new cases the false "success" completion is reported
+after a "short packet" if the TD consists of several TRBs.
+xHCI specs 4.10.1.1.2 say remaining TRBs should report "short packet"
+as well after the first short packet in a TD, but this issue seems so
+common it doesn't make sense to add the quirk for all vendors.
+
+Turn these events into short packets automatically instead.
+
+This gets rid of the  "The WARN Successful completion on short TX for
+slot 1 ep 1: needs XHCI_TRUST_TX_LENGTH quirk" warning in many cases.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Eli Billauer <eli.billauer@gmail.com>
+Reported-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Eli Billauer <eli.billauer@gmail.com>
+Tested-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-7-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20191211142007.8847-6-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/host/xhci-ring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index 4b870cd6c575..7a3a29e5e9d2 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -806,7 +806,7 @@ static void xhci_del_comp_mod_timer(struct xhci_hcd *xhci, u32 status,
- 
- static int xhci_handle_usb2_port_link_resume(struct xhci_port *port,
- 					     u32 *status, u32 portsc,
--					     unsigned long flags)
-+					     unsigned long *flags)
- {
- 	struct xhci_bus_state *bus_state;
- 	struct xhci_hcd	*xhci;
-@@ -860,11 +860,11 @@ static int xhci_handle_usb2_port_link_resume(struct xhci_port *port,
- 		xhci_test_and_clear_bit(xhci, port, PORT_PLC);
- 		xhci_set_link_state(xhci, port, XDEV_U0);
- 
--		spin_unlock_irqrestore(&xhci->lock, flags);
-+		spin_unlock_irqrestore(&xhci->lock, *flags);
- 		time_left = wait_for_completion_timeout(
- 			&bus_state->rexit_done[wIndex],
- 			msecs_to_jiffies(XHCI_MAX_REXIT_TIMEOUT_MS));
--		spin_lock_irqsave(&xhci->lock, flags);
-+		spin_lock_irqsave(&xhci->lock, *flags);
- 
- 		if (time_left) {
- 			slot_id = xhci_find_slot_id_by_port(hcd, xhci,
-@@ -967,7 +967,7 @@ static void xhci_get_usb3_port_status(struct xhci_port *port, u32 *status,
- }
- 
- static void xhci_get_usb2_port_status(struct xhci_port *port, u32 *status,
--				      u32 portsc, unsigned long flags)
-+				      u32 portsc, unsigned long *flags)
- {
- 	struct xhci_bus_state *bus_state;
- 	u32 link_state;
-@@ -1017,7 +1017,7 @@ static void xhci_get_usb2_port_status(struct xhci_port *port, u32 *status,
- static u32 xhci_get_port_status(struct usb_hcd *hcd,
- 		struct xhci_bus_state *bus_state,
- 	u16 wIndex, u32 raw_port_status,
--		unsigned long flags)
-+		unsigned long *flags)
- 	__releases(&xhci->lock)
- 	__acquires(&xhci->lock)
- {
-@@ -1140,7 +1140,7 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 		}
- 		trace_xhci_get_port_status(wIndex, temp);
- 		status = xhci_get_port_status(hcd, bus_state, wIndex, temp,
--					      flags);
-+					      &flags);
- 		if (status == 0xffffffff)
- 			goto error;
- 
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 9ebaa8e132a9..d23f7408c81f 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2381,7 +2381,8 @@ static int handle_tx_event(struct xhci_hcd *xhci,
+ 	case COMP_SUCCESS:
+ 		if (EVENT_TRB_LEN(le32_to_cpu(event->transfer_len)) == 0)
+ 			break;
+-		if (xhci->quirks & XHCI_TRUST_TX_LENGTH)
++		if (xhci->quirks & XHCI_TRUST_TX_LENGTH ||
++		    ep_ring->last_td_was_short)
+ 			trb_comp_code = COMP_SHORT_PACKET;
+ 		else
+ 			xhci_warn_ratelimited(xhci,
 -- 
 2.24.1
 
