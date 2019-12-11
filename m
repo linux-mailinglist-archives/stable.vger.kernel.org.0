@@ -2,72 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8108F11A547
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 08:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE39511A54D
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 08:45:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727848AbfLKHoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 02:44:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51876 "EHLO mail.kernel.org"
+        id S1727829AbfLKHpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 02:45:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726230AbfLKHoo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 02:44:44 -0500
+        id S1726151AbfLKHpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 02:45:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67AF120637;
-        Wed, 11 Dec 2019 07:44:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AAAA20637;
+        Wed, 11 Dec 2019 07:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576050283;
-        bh=ZuAU5be4qPQdbwFzHFL1JYNpx9aOpGRnNoEqu23egts=;
+        s=default; t=1576050316;
+        bh=ORoZNGYLwU3ulSzICh6bzHMq1V1v92C9tqa77JQUmCo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qWjZGzu0wtMXb4AwOWR4UDh7DsnBjggDVmgGJwkcRsvYvK2h+P2z2y/eg9ttqpY3H
-         j0JaW+E/UCj9VmB5doricAVhY7xM9XAR/467JXvfYJuzUSh9ziOk5DNWcYF2Em4ev3
-         GJz1XQfzewUkCRRZl6q0KgqcXDfZeuflmX/F2QaI=
-Date:   Wed, 11 Dec 2019 08:44:41 +0100
+        b=kB9SJhnssCAG6VbTJh99wkwijYY/4H1H/oQWmyPW7d/wM/kDHzp4hPhd5/7mFbbBJ
+         Iv/yizG2h1MVCDL8D6hj6dFVGpVuhzQ82JwCbGo3FCmT+vbu8bc7yPcB3eLQ5n+yeS
+         moX5bNIbwlCJLcVu1jslaVL3SjvCm6J9dYuMaTKc=
+Date:   Wed, 11 Dec 2019 08:45:14 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kusanagi Kouichi <slash@ac.auone-net.jp>
-Subject: Re: [PATCH AUTOSEL 4.9 85/91] debugfs: Fix !DEBUG_FS
- debugfs_create_automount
-Message-ID: <20191211074441.GC398293@kroah.com>
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Jason Gunthorpe <jgg@mellanox.com>, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.9 75/91] RDMA/qib: Validate ->show()/store()
+ callbacks before calling them
+Message-ID: <20191211074514.GD398293@kroah.com>
 References: <20191210223035.14270-1-sashal@kernel.org>
- <20191210223035.14270-85-sashal@kernel.org>
+ <20191210223035.14270-75-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191210223035.14270-85-sashal@kernel.org>
+In-Reply-To: <20191210223035.14270-75-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 05:30:29PM -0500, Sasha Levin wrote:
-> From: Kusanagi Kouichi <slash@ac.auone-net.jp>
+On Tue, Dec 10, 2019 at 05:30:19PM -0500, Sasha Levin wrote:
+> From: Viresh Kumar <viresh.kumar@linaro.org>
 > 
-> [ Upstream commit 4250b047039d324e0ff65267c8beb5bad5052a86 ]
+> [ Upstream commit 7ee23491b39259ae83899dd93b2a29ef0f22f0a7 ]
 > 
-> If DEBUG_FS=n, compile fails with the following error:
+> The permissions of the read-only or write-only sysfs files can be
+> changed (as root) and the user can then try to read a write-only file or
+> write to a read-only file which will lead to kernel crash here.
 > 
-> kernel/trace/trace.c: In function 'tracing_init_dentry':
-> kernel/trace/trace.c:8658:9: error: passing argument 3 of 'debugfs_create_automount' from incompatible pointer type [-Werror=incompatible-pointer-types]
->  8658 |         trace_automount, NULL);
->       |         ^~~~~~~~~~~~~~~
->       |         |
->       |         struct vfsmount * (*)(struct dentry *, void *)
-> In file included from kernel/trace/trace.c:24:
-> ./include/linux/debugfs.h:206:25: note: expected 'struct vfsmount * (*)(void *)' but argument is of type 'struct vfsmount * (*)(struct dentry *, void *)'
->   206 |      struct vfsmount *(*f)(void *),
->       |      ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+> Protect against that by always validating the show/store callbacks.
 > 
-> Signed-off-by: Kusanagi Kouichi <slash@ac.auone-net.jp>
-> Link: https://lore.kernel.org/r/20191121102021787.MLMY.25002.ppp.dion.ne.jp@dmta0003.auone-net.jp
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Link: https://lore.kernel.org/r/d45cc26361a174ae12dbb86c994ef334d257924b.1573096807.git.viresh.kumar@linaro.org
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/infiniband/hw/qib/qib_sysfs.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 
-This patch is only needed for 5.4 and newer kernels.  No need to
-backport it anywhere, please drop it from all of these trees.
-
-thanks,
+Good catch, I was looking for this one but somehow the stable tag got
+dropped from it.
 
 greg k-h
