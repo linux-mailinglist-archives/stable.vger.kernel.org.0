@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4537711B772
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E25D11B76E
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:08:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732760AbfLKQH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:07:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33856 "EHLO mail.kernel.org"
+        id S1731111AbfLKQHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:07:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731108AbfLKPMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:22 -0500
+        id S1731117AbfLKPMZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73B7A2467A;
-        Wed, 11 Dec 2019 15:12:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2384208C3;
+        Wed, 11 Dec 2019 15:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077142;
-        bh=TXhQgINiiHOmO+dIBob4x0n3LWwuAWVeGsy7mnGnAgY=;
+        s=default; t=1576077144;
+        bh=HY3j7n3byT9QT0It2CXSCU9ZX3FuttIs9KmwYNh5x4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpNZU3o+oK+g5YzeB7QNOY2RQRJhHkwZ8Jfyx4UqMezedDANTrO34VNeq0V7M4MZn
-         4Qkaqbu9lQHSTQNniwjmF8VN7SEK2wZltuyfeY06MWmaaRHokkoTKDAAGQ2kPTbAA+
-         3mYRfZTQG911aKmXAIZMck46OH//wKV1yczP8gkI=
+        b=WGZbdKlJmVMuw6yi5NztOCK9kWDqeZL/t4xFOgJtWey4UdT5y3GOw3B90h2kOguv9
+         6rJFhSFRqvqPK18XxlIdbY8bpMAaLNxgvDIWKUzZj1C+ajfhJxya2tW40QBZXtcW5M
+         /nVIA4hKeaqhChpJc04tmUlgQsRltdPwejFM1RBo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Laura Abbott <labbott@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 029/134] dma-mapping: Add vmap checks to dma_map_single()
-Date:   Wed, 11 Dec 2019 10:10:05 -0500
-Message-Id: <20191211151150.19073-29-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>, Peng Ma <peng.ma@nxp.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 031/134] dmaengine: fsl-qdma: Handle invalid qdma-queue0 IRQ
+Date:   Wed, 11 Dec 2019 10:10:07 -0500
+Message-Id: <20191211151150.19073-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
@@ -43,41 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 4544b9f25e70eae9f70a243de0cc802aa5c8cb69 ]
+[ Upstream commit 41814c4eadf8a791b6d07114f96e7e120e59555c ]
 
-As we've seen from USB and other areas[1], we need to always do runtime
-checks for DMA operating on memory regions that might be remapped. This
-adds vmap checks (similar to those already in USB but missing in other
-places) into dma_map_single() so all callers benefit from the checking.
+platform_get_irq_byname() might return -errno which later would be cast
+to an unsigned int and used in IRQ handling code leading to usage of
+wrong ID and errors about wrong irq_base.
 
-[1] https://git.kernel.org/linus/3840c5b78803b2b6cc1ff820100a74a092c40cbb
-
-Suggested-by: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-[hch: fixed the printk message]
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Peng Ma <peng.ma@nxp.com>
+Tested-by: Peng Ma <peng.ma@nxp.com>
+Link: https://lore.kernel.org/r/20191004150826.6656-1-krzk@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/dma-mapping.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dma/fsl-qdma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index 4a1c4fca475ad..0aad641d662c3 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -583,6 +583,10 @@ static inline unsigned long dma_get_merge_boundary(struct device *dev)
- static inline dma_addr_t dma_map_single_attrs(struct device *dev, void *ptr,
- 		size_t size, enum dma_data_direction dir, unsigned long attrs)
- {
-+	/* DMA must never operate on areas that might be remapped. */
-+	if (dev_WARN_ONCE(dev, is_vmalloc_addr(ptr),
-+			  "rejecting DMA map of vmalloc memory\n"))
-+		return DMA_MAPPING_ERROR;
- 	debug_dma_map_single(dev, ptr, size);
- 	return dma_map_page_attrs(dev, virt_to_page(ptr), offset_in_page(ptr),
- 			size, dir, attrs);
+diff --git a/drivers/dma/fsl-qdma.c b/drivers/dma/fsl-qdma.c
+index 06664fbd2d911..89792083d62c5 100644
+--- a/drivers/dma/fsl-qdma.c
++++ b/drivers/dma/fsl-qdma.c
+@@ -1155,6 +1155,9 @@ static int fsl_qdma_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	fsl_qdma->irq_base = platform_get_irq_byname(pdev, "qdma-queue0");
++	if (fsl_qdma->irq_base < 0)
++		return fsl_qdma->irq_base;
++
+ 	fsl_qdma->feature = of_property_read_bool(np, "big-endian");
+ 	INIT_LIST_HEAD(&fsl_qdma->dma_dev.channels);
+ 
 -- 
 2.20.1
 
