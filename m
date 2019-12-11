@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5646311B46C
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F1811B5CA
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733112AbfLKP0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:26:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59592 "EHLO mail.kernel.org"
+        id S1731838AbfLKP4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:56:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732965AbfLKP0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:26:21 -0500
+        id S1731802AbfLKPPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:15:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAB4922527;
-        Wed, 11 Dec 2019 15:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD24020663;
+        Wed, 11 Dec 2019 15:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077981;
-        bh=NZwHU/3735iugvdYsyLllWoIe3H0BfykBG6HE1i6ty0=;
+        s=default; t=1576077331;
+        bh=5C/viSkFRj3DF/5+noj7PCPu039K0DAERLDB0HULPn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFcDxJvwJlx/qM/LZ2t3zvQgA2l0YiGVYXHBEFtUg2Ez/CbLZ9G5+OgFVdr5BPOZj
-         D03nhydvTqDXSe/0vyO8DKQRXhnwB89OgolSNUnEE2GuQuWyXmne4uoBFLHEqF2Iju
-         AfON8ESlLyam9CYiV30YnFvWSjR4BWPZhiNMtvIg=
+        b=bLeHIJZ86P5Cfb7NQCAF5VYhq+kQBbA2wbzION3d/Nd5wkYIxunL61EZfWae8PmrK
+         J6TdzpzmVQcvnOEpXxbUPrkE2LsiG/Bj1PzueyaLR9yEeUieNsJL8ZPIs/E+RAljpr
+         E5Awasvqb2zSnoGD+4LcxYpMgUFFvg0A7n1IkpCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Atul Gupta <atul.gupta@chelsio.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 231/243] crypto: af_alg - cast ki_complete ternary op to int
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 5.3 104/105] binder: Prevent repeated use of ->mmap() via NULL mapping
 Date:   Wed, 11 Dec 2019 16:06:33 +0100
-Message-Id: <20191211150354.927140672@linuxfoundation.org>
+Message-Id: <20191211150306.087939736@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
+In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
+References: <20191211150221.153659747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Jann Horn <jannh@google.com>
 
-commit 64e7f852c47ce99f6c324c46d6a299a5a7ebead9 upstream.
+commit a7a74d7ff55a0c657bc46238b050460b9eacea95 upstream.
 
-when libkcapi test is executed  using HW accelerator, cipher operation
-return -74.Since af_alg_async_cb->ki_complete treat err as unsigned int,
-libkcapi receive 429467222 even though it expect -ve value.
+binder_alloc_mmap_handler() attempts to detect the use of ->mmap() on a
+binder_proc whose binder_alloc has already been initialized by checking
+whether alloc->buffer is non-zero.
 
-Hence its required to cast resultlen to int so that proper
-error is returned to libkcapi.
+Before commit 880211667b20 ("binder: remove kernel vm_area for buffer
+space"), alloc->buffer was a kernel mapping address, which is always
+non-zero, but since that commit, it is a userspace mapping address.
 
-AEAD one shot non-aligned test 2(libkcapi test)
-./../bin/kcapi   -x 10   -c "gcm(aes)" -i 7815d4b06ae50c9c56e87bd7
--k ea38ac0c9b9998c80e28fb496a2b88d9 -a
-"853f98a750098bec1aa7497e979e78098155c877879556bb51ddeb6374cbaefc"
--t "c4ce58985b7203094be1d134c1b8ab0b" -q
-"b03692f86d1b8b39baf2abb255197c98"
+A sufficiently privileged user can map /dev/binder at NULL, tricking
+binder_alloc_mmap_handler() into assuming that the binder_proc has not been
+mapped yet. This leads to memory unsafety.
+Luckily, no context on Android has such privileges, and on a typical Linux
+desktop system, you need to be root to do that.
 
-Fixes: d887c52d6ae4 ("crypto: algif_aead - overhaul memory management")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Atul Gupta <atul.gupta@chelsio.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix it by using the mapping size instead of the mapping address to
+distinguish the mapped case. A valid VMA can't have size zero.
+
+Fixes: 880211667b20 ("binder: remove kernel vm_area for buffer space")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Link: https://lore.kernel.org/r/20191018205631.248274-2-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/af_alg.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/android/binder_alloc.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -1058,7 +1058,7 @@ void af_alg_async_cb(struct crypto_async
- 	af_alg_free_resources(areq);
- 	sock_put(sk);
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -681,17 +681,17 @@ int binder_alloc_mmap_handler(struct bin
+ 	struct binder_buffer *buffer;
  
--	iocb->ki_complete(iocb, err ? err : resultlen, 0);
-+	iocb->ki_complete(iocb, err ? err : (int)resultlen, 0);
- }
- EXPORT_SYMBOL_GPL(af_alg_async_cb);
+ 	mutex_lock(&binder_alloc_mmap_lock);
+-	if (alloc->buffer) {
++	if (alloc->buffer_size) {
+ 		ret = -EBUSY;
+ 		failure_string = "already mapped";
+ 		goto err_already_mapped;
+ 	}
++	alloc->buffer_size = min_t(unsigned long, vma->vm_end - vma->vm_start,
++				   SZ_4M);
++	mutex_unlock(&binder_alloc_mmap_lock);
  
+ 	alloc->buffer = (void __user *)vma->vm_start;
+-	mutex_unlock(&binder_alloc_mmap_lock);
+ 
+-	alloc->buffer_size = min_t(unsigned long, vma->vm_end - vma->vm_start,
+-				   SZ_4M);
+ 	alloc->pages = kcalloc(alloc->buffer_size / PAGE_SIZE,
+ 			       sizeof(alloc->pages[0]),
+ 			       GFP_KERNEL);
+@@ -722,8 +722,9 @@ err_alloc_buf_struct_failed:
+ 	kfree(alloc->pages);
+ 	alloc->pages = NULL;
+ err_alloc_pages_failed:
+-	mutex_lock(&binder_alloc_mmap_lock);
+ 	alloc->buffer = NULL;
++	mutex_lock(&binder_alloc_mmap_lock);
++	alloc->buffer_size = 0;
+ err_already_mapped:
+ 	mutex_unlock(&binder_alloc_mmap_lock);
+ 	binder_alloc_debug(BINDER_DEBUG_USER_ERROR,
 
 
