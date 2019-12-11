@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E158811B6BE
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F7511B6B4
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730522AbfLKQCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:02:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36042 "EHLO mail.kernel.org"
+        id S1730718AbfLKQCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:02:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730908AbfLKPNH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:07 -0500
+        id S1730747AbfLKPNK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BAFB2467C;
-        Wed, 11 Dec 2019 15:13:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2378C24654;
+        Wed, 11 Dec 2019 15:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077186;
-        bh=5xNR6jI9+0OjgRnmsvUhBM684dKe2zQ9o5G22OtrEhE=;
+        s=default; t=1576077189;
+        bh=Zv7X83DNDRU28FpHMArSYxtumjsi2FEoN/CxKxeC7IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAiDJCai6UOxF7paoO3wRuWRRuqBkmbTNw/sgYTfsrjKd+Jmux5FghjDLMGwmuzEO
-         ZZZgiJ/1P9ioBPIDj4iIJgFGIdph2WG0og0SInu9qqfxhknktOh7aqRRIe4s65xr1F
-         jXGUZLRcZrbj/BuZq75u4ns50IKmtTWsRUOuy1CU=
+        b=Fd4hFAS4YmkTMNOOyTISe9SGiXN1wNT8X9RbM1DE3r1qK6BE5NrltH0Z6sNT4kefG
+         53ZnwqBn7e49MINlQ/3ecK09aRc9dM/m4uJB2eGJ73/sabQbdDyawS1jLJ8vuUmBZ0
+         78EKXIVDg/Ivm+rUiSvgVacwFc5ckkmBRGN1LUJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillem Jover <guillem@hadrons.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 014/105] aio: Fix io_pgetevents() struct __compat_aio_sigset layout
-Date:   Wed, 11 Dec 2019 16:05:03 +0100
-Message-Id: <20191211150224.289343749@linuxfoundation.org>
+Subject: [PATCH 5.3 015/105] autofs: fix a leak in autofs_expire_indirect()
+Date:   Wed, 11 Dec 2019 16:05:04 +0100
+Message-Id: <20191211150224.377878970@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
 References: <20191211150221.153659747@linuxfoundation.org>
@@ -44,89 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillem Jover <guillem@hadrons.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 97eba80fcca754856d09e048f469db22773bec68 ]
+[ Upstream commit 03ad0d703df75c43f78bd72e16124b5b94a95188 ]
 
-This type is used to pass the sigset_t from userland to the kernel,
-but it was using the kernel native pointer type for the member
-representing the compat userland pointer to the userland sigset_t.
+if the second call of should_expire() in there ends up
+grabbing and returning a new reference to dentry, we need
+to drop it before continuing.
 
-This messes up the layout, and makes the kernel eat up both the
-userland pointer and the size members into the kernel pointer, and
-then reads garbage into the kernel sigsetsize. Which makes the sigset_t
-size consistency check fail, and consequently the syscall always
-returns -EINVAL.
-
-This breaks both libaio and strace on 32-bit userland running on 64-bit
-kernels. And there are apparently no users in the wild of the current
-broken layout (at least according to codesearch.debian.org and a brief
-check over github.com search). So it looks safe to fix this directly
-in the kernel, instead of either letting userland deal with this
-permanently with the additional overhead or trying to make the syscall
-infer what layout userland used, even though this is also being worked
-around in libaio to temporarily cope with kernels that have not yet
-been fixed.
-
-We use a proper compat_uptr_t instead of a compat_sigset_t pointer.
-
-Fixes: 7a074e96dee6 ("aio: implement io_pgetevents")
-Signed-off-by: Guillem Jover <guillem@hadrons.org>
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/aio.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/autofs/expire.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/aio.c b/fs/aio.c
-index 01e0fb9ae45ae..0d9a559d488c1 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -2179,7 +2179,7 @@ SYSCALL_DEFINE5(io_getevents_time32, __u32, ctx_id,
- #ifdef CONFIG_COMPAT
+diff --git a/fs/autofs/expire.c b/fs/autofs/expire.c
+index cdff0567aacb3..2d01553a6d586 100644
+--- a/fs/autofs/expire.c
++++ b/fs/autofs/expire.c
+@@ -498,9 +498,10 @@ static struct dentry *autofs_expire_indirect(struct super_block *sb,
+ 		 */
+ 		how &= ~AUTOFS_EXP_LEAVES;
+ 		found = should_expire(expired, mnt, timeout, how);
+-		if (!found || found != expired)
+-			/* Something has changed, continue */
++		if (found != expired) { // something has changed, continue
++			dput(found);
+ 			goto next;
++		}
  
- struct __compat_aio_sigset {
--	compat_sigset_t __user	*sigmask;
-+	compat_uptr_t		sigmask;
- 	compat_size_t		sigsetsize;
- };
- 
-@@ -2193,7 +2193,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
- 		struct old_timespec32 __user *, timeout,
- 		const struct __compat_aio_sigset __user *, usig)
- {
--	struct __compat_aio_sigset ksig = { NULL, };
-+	struct __compat_aio_sigset ksig = { 0, };
- 	struct timespec64 t;
- 	bool interrupted;
- 	int ret;
-@@ -2204,7 +2204,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
- 	if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
- 		return -EFAULT;
- 
--	ret = set_compat_user_sigmask(ksig.sigmask, ksig.sigsetsize);
-+	ret = set_compat_user_sigmask(compat_ptr(ksig.sigmask), ksig.sigsetsize);
- 	if (ret)
- 		return ret;
- 
-@@ -2228,7 +2228,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_time64,
- 		struct __kernel_timespec __user *, timeout,
- 		const struct __compat_aio_sigset __user *, usig)
- {
--	struct __compat_aio_sigset ksig = { NULL, };
-+	struct __compat_aio_sigset ksig = { 0, };
- 	struct timespec64 t;
- 	bool interrupted;
- 	int ret;
-@@ -2239,7 +2239,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_time64,
- 	if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
- 		return -EFAULT;
- 
--	ret = set_compat_user_sigmask(ksig.sigmask, ksig.sigsetsize);
-+	ret = set_compat_user_sigmask(compat_ptr(ksig.sigmask), ksig.sigsetsize);
- 	if (ret)
- 		return ret;
- 
+ 		if (expired != dentry)
+ 			dput(dentry);
 -- 
 2.20.1
 
