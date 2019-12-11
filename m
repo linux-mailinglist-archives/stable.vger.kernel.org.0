@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4F411B792
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:09:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AABD011B78A
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733053AbfLKQIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:08:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33324 "EHLO mail.kernel.org"
+        id S1731080AbfLKQIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:08:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731064AbfLKPMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:12:12 -0500
+        id S1730717AbfLKPMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:12:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 272252465A;
-        Wed, 11 Dec 2019 15:12:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2142A24658;
+        Wed, 11 Dec 2019 15:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077131;
-        bh=Nzzp9hIMZ7NzxvxCDwnBAX1leUi0Wk+JreeDjHwiWRA=;
+        s=default; t=1576077134;
+        bh=NqacZIeY751Sk6P9cZCPH3F55m9l65RSJBYodqLMxuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KO4Xvi7DvTlYGREUVB5Slvr7Ls63iUdKE6Yx980dYhRFvyM55XwODAku9ETJzrciw
-         7qQyl40UDQ/21Tulo3+lcELAaSxHUDd0oUExn5zvtw6EHgqofGmtYsBqE0n+CoC+Gb
-         3AKxM2EktGx99oCA6Nse+8ZGR7Mrx6zMVzXUTgbQ=
+        b=YJoNaUjoNpLlRuIXUuAJsWLZ66tumSy9mDGwhZCyngo4KUrP7xRelydL/+dfAK+f8
+         B0GZ2sw7rU2NIZDTDOA4A+ibwW1GhDMwznpnbdf5NbA74LK0tSXy766hEXAO9NkDVD
+         j3RbCQEpCVGfPYjVEyXXiDpSKY1lxDdrJweZaJIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 028/105] Input: cyttsp4_core - fix use after free bug
-Date:   Wed, 11 Dec 2019 16:05:17 +0100
-Message-Id: <20191211150229.738315143@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Qian Cai <cai@lca.pw>, Thomas Gleixner <tglx@linutronix.de>,
+        akpm@linux-foundation.org, bigeasy@linutronix.de, cl@linux.com,
+        keescook@chromium.org, penberg@kernel.org, rientjes@google.com,
+        thgarnie@google.com, tytso@mit.edu, will@kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 029/105] sched/core: Avoid spurious lock dependencies
+Date:   Wed, 11 Dec 2019 16:05:18 +0100
+Message-Id: <20191211150230.036214995@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
 References: <20191211150221.153659747@linuxfoundation.org>
@@ -44,49 +49,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 79aae6acbef16f720a7949f8fc6ac69816c79d62 ]
+[ Upstream commit ff51ff84d82aea5a889b85f2b9fb3aa2b8691668 ]
 
-The device md->input is used after it is released. Setting the device
-data to NULL is unnecessary as the device is never used again. Instead,
-md->input should be assigned NULL to avoid accessing the freed memory
-accidently. Besides, checking md->si against NULL is superfluous as it
-points to a variable address, which cannot be NULL.
+While seemingly harmless, __sched_fork() does hrtimer_init(), which,
+when DEBUG_OBJETS, can end up doing allocations.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/1572936379-6423-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This then results in the following lock order:
+
+  rq->lock
+    zone->lock.rlock
+      batched_entropy_u64.lock
+
+Which in turn causes deadlocks when we do wakeups while holding that
+batched_entropy lock -- as the random code does.
+
+Solve this by moving __sched_fork() out from under rq->lock. This is
+safe because nothing there relies on rq->lock, as also evident from the
+other __sched_fork() callsite.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: akpm@linux-foundation.org
+Cc: bigeasy@linutronix.de
+Cc: cl@linux.com
+Cc: keescook@chromium.org
+Cc: penberg@kernel.org
+Cc: rientjes@google.com
+Cc: thgarnie@google.com
+Cc: tytso@mit.edu
+Cc: will@kernel.org
+Fixes: b7d5dc21072c ("random: add a spinlock_t to struct batched_entropy")
+Link: https://lkml.kernel.org/r/20191001091837.GK4536@hirez.programming.kicks-ass.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/cyttsp4_core.c | 7 -------
- 1 file changed, 7 deletions(-)
+ kernel/sched/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
-index 4b22d49a0f49a..6bcffc930384a 100644
---- a/drivers/input/touchscreen/cyttsp4_core.c
-+++ b/drivers/input/touchscreen/cyttsp4_core.c
-@@ -1990,11 +1990,6 @@ static int cyttsp4_mt_probe(struct cyttsp4 *cd)
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index fffe790d98bb2..9a839798851c2 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -5874,10 +5874,11 @@ void init_idle(struct task_struct *idle, int cpu)
+ 	struct rq *rq = cpu_rq(cpu);
+ 	unsigned long flags;
  
- 	/* get sysinfo */
- 	md->si = &cd->sysinfo;
--	if (!md->si) {
--		dev_err(dev, "%s: Fail get sysinfo pointer from core p=%p\n",
--			__func__, md->si);
--		goto error_get_sysinfo;
--	}
++	__sched_fork(0, idle);
++
+ 	raw_spin_lock_irqsave(&idle->pi_lock, flags);
+ 	raw_spin_lock(&rq->lock);
  
- 	rc = cyttsp4_setup_input_device(cd);
- 	if (rc)
-@@ -2004,8 +1999,6 @@ static int cyttsp4_mt_probe(struct cyttsp4 *cd)
- 
- error_init_input:
- 	input_free_device(md->input);
--error_get_sysinfo:
--	input_set_drvdata(md->input, NULL);
- error_alloc_failed:
- 	dev_err(dev, "%s failed.\n", __func__);
- 	return rc;
+-	__sched_fork(0, idle);
+ 	idle->state = TASK_RUNNING;
+ 	idle->se.exec_start = sched_clock();
+ 	idle->flags |= PF_IDLE;
 -- 
 2.20.1
 
