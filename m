@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0D4211B678
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:01:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C56B11B817
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730765AbfLKQBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 11:01:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37374 "EHLO mail.kernel.org"
+        id S1730613AbfLKPJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:09:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731454AbfLKPNg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:13:36 -0500
+        id S1730065AbfLKPJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:09:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 744F824654;
-        Wed, 11 Dec 2019 15:13:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E4C824656;
+        Wed, 11 Dec 2019 15:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077215;
-        bh=m2FDG6Fw3Fq/ydclieVj27dDUEt6I8X68OhLjNVJiCI=;
+        s=default; t=1576076971;
+        bh=+cME4i6w/HOFktWu1TlD6KxQeCzpussbdm5Do3MnTqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCoPruJgKoEp9nLMi+lKgQUFDe0dbpjX3jCmmTOyKpMty0QJiacVKGEt7MTFa3lDs
-         FIlyl521A26LOA+2I1+I7+ADfq118+055ss4tAFwFqOyamr/OYW3MfL/oJ9pggBM9P
-         GWqOn96lp8krYk1ERde9EK9KdM1AgO02Gsuusk4c=
+        b=U2Y40fXB/fV1mI8ybxaPctGPEHXVngRH6bjZfp6XHCEtYYiM3vX5ZC+BbZpXaok0l
+         AWPEoaz1MytPoSwHkTou2Y+qa+0nlVcEyJtRTkzrN/NrI6sB6uIWPYGG6/ZOz8XKW3
+         SiTEAkcN1aSYico0I2KZEScA7CEubHE4I+QxVnOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.3 061/105] media: rc: mark input device as pointing stick
-Date:   Wed, 11 Dec 2019 16:05:50 +0100
-Message-Id: <20191211150245.940231429@linuxfoundation.org>
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Paul Mackerras <paulus@ozlabs.org>
+Subject: [PATCH 5.4 60/92] KVM: PPC: Book3S HV: XIVE: Fix potential page leak on error path
+Date:   Wed, 11 Dec 2019 16:05:51 +0100
+Message-Id: <20191211150249.277334111@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150221.153659747@linuxfoundation.org>
-References: <20191211150221.153659747@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+References: <20191211150221.977775294@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Greg Kurz <groug@kaod.org>
 
-commit ce819649b03d932dc19b0cb6be513779bf64fad3 upstream.
+commit 30486e72093ea2e594f44876b7a445c219449bce upstream.
 
-libinput refuses pointer movement from rc-core, since it believes it's not
-a pointer-type device:
+We need to check the host page size is big enough to accomodate the
+EQ. Let's do this before taking a reference on the EQ page to avoid
+a potential leak if the check fails.
 
-libinput error: event17 - Media Center Ed. eHome Infrared Remote Transceiver (1784:0008): libinput bug: REL_X/Y from a non-pointer device
-
-Fixes: 158bc148a31e ("media: rc: mce_kbd: input events via rc-core's input device")
-Fixes: 0ac5a603a732 ("media: rc: imon: report mouse events using rc-core's input device")
-Cc: stable@vger.kernel.org # 4.20+
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: stable@vger.kernel.org # v5.2
+Fixes: 13ce3297c576 ("KVM: PPC: Book3S HV: XIVE: Add controls for the EQ configuration")
+Signed-off-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/rc-main.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kvm/book3s_xive_native.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -1773,6 +1773,7 @@ static int rc_prepare_rx_device(struct r
- 	set_bit(MSC_SCAN, dev->input_dev->mscbit);
+--- a/arch/powerpc/kvm/book3s_xive_native.c
++++ b/arch/powerpc/kvm/book3s_xive_native.c
+@@ -637,12 +637,6 @@ static int kvmppc_xive_native_set_queue_
  
- 	/* Pointer/mouse events */
-+	set_bit(INPUT_PROP_POINTING_STICK, dev->input_dev->propbit);
- 	set_bit(EV_REL, dev->input_dev->evbit);
- 	set_bit(REL_X, dev->input_dev->relbit);
- 	set_bit(REL_Y, dev->input_dev->relbit);
+ 	srcu_idx = srcu_read_lock(&kvm->srcu);
+ 	gfn = gpa_to_gfn(kvm_eq.qaddr);
+-	page = gfn_to_page(kvm, gfn);
+-	if (is_error_page(page)) {
+-		srcu_read_unlock(&kvm->srcu, srcu_idx);
+-		pr_err("Couldn't get queue page %llx!\n", kvm_eq.qaddr);
+-		return -EINVAL;
+-	}
+ 
+ 	page_size = kvm_host_page_size(kvm, gfn);
+ 	if (1ull << kvm_eq.qshift > page_size) {
+@@ -651,6 +645,13 @@ static int kvmppc_xive_native_set_queue_
+ 		return -EINVAL;
+ 	}
+ 
++	page = gfn_to_page(kvm, gfn);
++	if (is_error_page(page)) {
++		srcu_read_unlock(&kvm->srcu, srcu_idx);
++		pr_err("Couldn't get queue page %llx!\n", kvm_eq.qaddr);
++		return -EINVAL;
++	}
++
+ 	qaddr = page_to_virt(page) + (kvm_eq.qaddr & ~PAGE_MASK);
+ 	srcu_read_unlock(&kvm->srcu, srcu_idx);
+ 
 
 
