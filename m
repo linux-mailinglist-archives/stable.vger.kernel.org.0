@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3640311B3FF
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:45:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EFEF11B3FA
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731850AbfLKPpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:45:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60898 "EHLO mail.kernel.org"
+        id S1731598AbfLKPpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:45:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733211AbfLKP1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:10 -0500
+        id S1733257AbfLKP1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12D6F208C3;
-        Wed, 11 Dec 2019 15:27:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 341242173E;
+        Wed, 11 Dec 2019 15:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078029;
-        bh=9MJpB7t1Y1QQG2Yy3v7yUvWRZdfdBtNnwQoHMf2LRAA=;
+        s=default; t=1576078030;
+        bh=T4EooRhKtBil5rWh1xTbhaj84r+8wFe+9wG1MwmvJD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/VbddDjMx25+v/KCcJU6Us1Ifb4+/bkR7AT/bxIhYVuvkx1RDIqvD8oyuM1jgiBj
-         dssWKaQjcw3RZkswzRWEI7Ot5x9oqvwGLnPhc5qaR2MpgoNBtt7Eai417r/VebDw0N
-         hjHzyY2nNmtFst7j5U7R59Nfuhelv93ZJ0a1v8wY=
+        b=mOr1mMG+Aw0x7kU2cmQWDHQnAyOK0xttXI9AkQj13FFMuHmOn5ePyc23dRbnsveWB
+         H6rGQ0VCUMQN2YSBqURO4t4iklpFVGATXS4RtlqIYH3XzysKBAwawZ+VNn+ZW1l9KK
+         3EY+UVC5ge/ZnmITHu7oq0bZvoutiR3bbv6Gx7nc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthew Bobrowski <mbobrowski@mbobrowski.org>,
-        Jan Kara <jack@suse.cz>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/79] ext4: iomap that extends beyond EOF should be marked dirty
-Date:   Wed, 11 Dec 2019 10:25:48 -0500
-Message-Id: <20191211152643.23056-24-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 25/79] jbd2: Fix statistics for the number of logged blocks
+Date:   Wed, 11 Dec 2019 10:25:49 -0500
+Message-Id: <20191211152643.23056-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -45,59 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Bobrowski <mbobrowski@mbobrowski.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 2e9b51d78229d5145725a481bb5464ebc0a3f9b2 ]
+[ Upstream commit 015c6033068208d6227612c878877919f3fcf6b6 ]
 
-This patch addresses what Dave Chinner had discovered and fixed within
-commit: 7684e2c4384d. This changes does not have any user visible
-impact for ext4 as none of the current users of ext4_iomap_begin()
-that extend files depend on IOMAP_F_DIRTY.
+jbd2 statistics counting number of blocks logged in a transaction was
+wrong. It didn't count the commit block and more importantly it didn't
+count revoke descriptor blocks. Make sure these get properly counted.
 
-When doing a direct IO that spans the current EOF, and there are
-written blocks beyond EOF that extend beyond the current write, the
-only metadata update that needs to be done is a file size extension.
-
-However, we don't mark such iomaps as IOMAP_F_DIRTY to indicate that
-there is IO completion metadata updates required, and hence we may
-fail to correctly sync file size extensions made in IO completion when
-O_DSYNC writes are being used and the hardware supports FUA.
-
-Hence when setting IOMAP_F_DIRTY, we need to also take into account
-whether the iomap spans the current EOF. If it does, then we need to
-mark it dirty so that IO completion will call generic_write_sync() to
-flush the inode size update to stable storage correctly.
-
-Signed-off-by: Matthew Bobrowski <mbobrowski@mbobrowski.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/8b43ee9ee94bee5328da56ba0909b7d2229ef150.1572949325.git.mbobrowski@mbobrowski.org
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191105164437.32602-13-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/jbd2/commit.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 00d25a0643913..8eaf7a581be65 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3535,8 +3535,14 @@ retry:
- 			return ret;
- 	}
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index 24f86ffe11d74..020bd7a0d8e03 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -724,7 +724,6 @@ start_journal_io:
+ 				submit_bh(REQ_OP_WRITE, REQ_SYNC, bh);
+ 			}
+ 			cond_resched();
+-			stats.run.rs_blocks_logged += bufs;
  
-+	/*
-+	 * Writes that span EOF might trigger an I/O size update on completion,
-+	 * so consider them to be dirty for the purposes of O_DSYNC, even if
-+	 * there is no other metadata changes being made or are pending here.
-+	 */
- 	iomap->flags = 0;
--	if (ext4_inode_datasync_dirty(inode))
-+	if (ext4_inode_datasync_dirty(inode) ||
-+	    offset + length > i_size_read(inode))
- 		iomap->flags |= IOMAP_F_DIRTY;
- 	iomap->bdev = inode->i_sb->s_bdev;
- 	iomap->dax_dev = sbi->s_daxdev;
+ 			/* Force a new descriptor to be generated next
+                            time round the loop. */
+@@ -811,6 +810,7 @@ start_journal_io:
+ 		if (unlikely(!buffer_uptodate(bh)))
+ 			err = -EIO;
+ 		jbd2_unfile_log_bh(bh);
++		stats.run.rs_blocks_logged++;
+ 
+ 		/*
+ 		 * The list contains temporary buffer heads created by
+@@ -856,6 +856,7 @@ start_journal_io:
+ 		BUFFER_TRACE(bh, "ph5: control buffer writeout done: unfile");
+ 		clear_buffer_jwrite(bh);
+ 		jbd2_unfile_log_bh(bh);
++		stats.run.rs_blocks_logged++;
+ 		__brelse(bh);		/* One for getblk */
+ 		/* AKPM: bforget here */
+ 	}
+@@ -877,6 +878,7 @@ start_journal_io:
+ 	}
+ 	if (cbh)
+ 		err = journal_wait_on_commit_record(journal, cbh);
++	stats.run.rs_blocks_logged++;
+ 	if (jbd2_has_feature_async_commit(journal) &&
+ 	    journal->j_flags & JBD2_BARRIER) {
+ 		blkdev_issue_flush(journal->j_dev, GFP_NOFS, NULL);
 -- 
 2.20.1
 
