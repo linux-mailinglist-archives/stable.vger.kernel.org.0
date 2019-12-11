@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B568C11B0F5
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:27:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B57BD11B0F7
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:27:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387431AbfLKP1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:27:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
+        id S1733130AbfLKP1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:27:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732990AbfLKP1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:27:30 -0500
+        id S2387429AbfLKP1b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:27:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 728A32465B;
-        Wed, 11 Dec 2019 15:27:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8216A2465A;
+        Wed, 11 Dec 2019 15:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078049;
-        bh=QIEmayY7XBaf2l1724/9bB94MXsBZk48XyzvQo26dVY=;
+        s=default; t=1576078050;
+        bh=zaE6RCXBQnl5FkCZ5vpGQAygE6wYrRNwLwPYZNFgWVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QbmI0YFhUdyZSmKP7PdBhiBIt5ZnvzLGe+a4R0r3/1a6/KPgR/ksFTk3jLL7AKMVw
-         kU/FlTur4hgkTFun0yZNB3yugoHB42ZCIihIQbhX2qNye/EahjAdNhQgY0CIOo3LGb
-         8JqRseNJcDHftbTNNc/hhhrc1eUgznk57WxffL+A=
+        b=eddn95N4at5anxm9tPOompexnbJjwV2mttv30a2FG+cBnJuq43Qxz11W7FLQiNlPB
+         p7Sru22ZtY41L/8LahuTzfhGchmQoQ3Bey9sElp4K0gqwmHy4WIlw9bgGc7C6fWQtS
+         LXJSeCf8KPU2VU/h+0rWUclSTRZh3bKFEk5tKuQs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+Cc:     "Gustavo L. F. Walbon" <gwalbon@linux.ibm.com>,
+        "Mauro S . M . Rodrigues" <maurosr@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 42/79] PCI: rpaphp: Correctly match ibm, my-drc-index to drc-name when using drc-info
-Date:   Wed, 11 Dec 2019 10:26:06 -0500
-Message-Id: <20191211152643.23056-42-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 43/79] powerpc/security: Fix wrong message when RFI Flush is disable
+Date:   Wed, 11 Dec 2019 10:26:07 -0500
+Message-Id: <20191211152643.23056-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
 References: <20191211152643.23056-1-sashal@kernel.org>
@@ -44,48 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: "Gustavo L. F. Walbon" <gwalbon@linux.ibm.com>
 
-[ Upstream commit 4f9f2d3d7a434b7f882b72550194c9278f4a3925 ]
+[ Upstream commit 4e706af3cd8e1d0503c25332b30cad33c97ed442 ]
 
-The newer ibm,drc-info property is a condensed description of the old
-ibm,drc-* properties (ie. names, types, indexes, and power-domains).
-When matching a drc-index to a drc-name we need to verify that the
-index is within the start and last drc-index range and map it to a
-drc-name using the drc-name-prefix and logical index.
+The issue was showing "Mitigation" message via sysfs whatever the
+state of "RFI Flush", but it should show "Vulnerable" when it is
+disabled.
 
-Fix the mapping by checking that the index is within the range of the
-current drc-info entry, and build the name from the drc-name-prefix
-concatenated with the starting drc-name-suffix value and the sequential
-index obtained by subtracting ibm,my-drc-index from this entries
-drc-start-index.
+If you have "L1D private" feature enabled and not "RFI Flush" you are
+vulnerable to meltdown attacks.
 
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+"RFI Flush" is the key feature to mitigate the meltdown whatever the
+"L1D private" state.
+
+SEC_FTR_L1D_THREAD_PRIV is a feature for Power9 only.
+
+So the message should be as the truth table shows:
+
+  CPU | L1D private | RFI Flush |                sysfs
+  ----|-------------|-----------|-------------------------------------
+   P9 |    False    |   False   | Vulnerable
+   P9 |    False    |   True    | Mitigation: RFI Flush
+   P9 |    True     |   False   | Vulnerable: L1D private per thread
+   P9 |    True     |   True    | Mitigation: RFI Flush, L1D private per thread
+   P8 |    False    |   False   | Vulnerable
+   P8 |    False    |   True    | Mitigation: RFI Flush
+
+Output before this fix:
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: RFI Flush, L1D private per thread
+  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: L1D private per thread
+
+Output after fix:
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Mitigation: RFI Flush, L1D private per thread
+  # echo 0 > /sys/kernel/debug/powerpc/rfi_flush
+  # cat /sys/devices/system/cpu/vulnerabilities/meltdown
+  Vulnerable: L1D private per thread
+
+Signed-off-by: Gustavo L. F. Walbon <gwalbon@linux.ibm.com>
+Signed-off-by: Mauro S. M. Rodrigues <maurosr@linux.vnet.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1573449697-5448-10-git-send-email-tyreld@linux.ibm.com
+Link: https://lore.kernel.org/r/20190502210907.42375-1-gwalbon@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/rpaphp_core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/security.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
-index 7d74fe875225e..a306cad704705 100644
---- a/drivers/pci/hotplug/rpaphp_core.c
-+++ b/drivers/pci/hotplug/rpaphp_core.c
-@@ -248,9 +248,10 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
- 		/* Should now know end of current entry */
+diff --git a/arch/powerpc/kernel/security.c b/arch/powerpc/kernel/security.c
+index a4354c4f6bc50..6a3dde9587ccb 100644
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -134,26 +134,22 @@ ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr, cha
  
- 		/* Found it */
--		if (my_index <= drc.last_drc_index) {
-+		if (my_index >= drc.drc_index_start && my_index <= drc.last_drc_index) {
-+			int index = my_index - drc.drc_index_start;
- 			sprintf(cell_drc_name, "%s%d", drc.drc_name_prefix,
--				my_index);
-+				drc.drc_name_suffix_start + index);
- 			break;
- 		}
+ 	thread_priv = security_ftr_enabled(SEC_FTR_L1D_THREAD_PRIV);
+ 
+-	if (rfi_flush || thread_priv) {
++	if (rfi_flush) {
+ 		struct seq_buf s;
+ 		seq_buf_init(&s, buf, PAGE_SIZE - 1);
+ 
+-		seq_buf_printf(&s, "Mitigation: ");
+-
+-		if (rfi_flush)
+-			seq_buf_printf(&s, "RFI Flush");
+-
+-		if (rfi_flush && thread_priv)
+-			seq_buf_printf(&s, ", ");
+-
++		seq_buf_printf(&s, "Mitigation: RFI Flush");
+ 		if (thread_priv)
+-			seq_buf_printf(&s, "L1D private per thread");
++			seq_buf_printf(&s, ", L1D private per thread");
+ 
+ 		seq_buf_printf(&s, "\n");
+ 
+ 		return s.len;
  	}
+ 
++	if (thread_priv)
++		return sprintf(buf, "Vulnerable: L1D private per thread\n");
++
+ 	if (!security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV) &&
+ 	    !security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR))
+ 		return sprintf(buf, "Not affected\n");
 -- 
 2.20.1
 
