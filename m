@@ -2,80 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3873A11B473
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:48:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA8211B657
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732958AbfLKPrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:47:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
+        id S1733019AbfLKQAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 11:00:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733080AbfLKP0L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:26:11 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1730989AbfLKPNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:13:46 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44A4F222C4;
-        Wed, 11 Dec 2019 15:26:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F299624688;
+        Wed, 11 Dec 2019 15:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077970;
-        bh=MtFn0xzkL4jTgKuMDJEhK74IZuC3f1IDzLRwoiosD5E=;
+        s=default; t=1576077225;
+        bh=X4VIC8oeeIK8CMKIcEh7CuwIMwujoPvmyiVCWldE7Dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/Vopgy8HI9kgub2Pk0AOOUKjg/ohn4bX2KkSqmBzfjPDg2vBiN8ZuHoatjYdkBsO
-         XJz6+/MIlAxychEuKeUQGBRa2RB4/j4Hnf6Eoj4pMyMEeebDLjZ1UrLGVOaDVlFB0G
-         sw1UdHB0u/6LzegkK+Fr0ZLu0FmFiyLMnRER8gX4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Nicolas Pitre <npitre@baylibre.com>,
-        Jiri Slaby <jslaby@suse.com>
-Subject: [PATCH 4.19 241/243] vcs: prevent write access to vcsu devices
-Date:   Wed, 11 Dec 2019 16:06:43 +0100
-Message-Id: <20191211150355.607717902@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
-References: <20191211150339.185439726@linuxfoundation.org>
-User-Agent: quilt/0.66
+        b=RIEDqJsdHiNlEY7pZIqE47K8pINGAgUFsVLCwYC82ZpjwWIqc6r1dVkyhVOWxwKL2
+         d1mjjq9E8GEKIiZ5kDMBwGWO8R0XUlEqZFLpnyjaoB3PzRXLAxbuAcH6DyVFmv5Yxf
+         0Vqm4Nb40iYmp9o/zWl/SYCvvpdu5fspay8coRp8=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Walle <michael@walle.cc>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 104/134] gpio: mpc8xxx: Don't overwrite default irq_set_type callback
+Date:   Wed, 11 Dec 2019 10:11:20 -0500
+Message-Id: <20191211151150.19073-104-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
+References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Pitre <nico@fluxnic.net>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 0c9acb1af77a3cb8707e43f45b72c95266903cee upstream.
+[ Upstream commit 4e50573f39229d5e9c985fa3b4923a8b29619ade ]
 
-Commit d21b0be246bf ("vt: introduce unicode mode for /dev/vcs") guarded
-against using devices containing attributes as this is not yet
-implemented. It however failed to guard against writes to any devices
-as this is also unimplemented.
+The per-SoC devtype structures can contain their own callbacks that
+overwrite mpc8xxx_gpio_devtype_default.
 
-Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-Signed-off-by: Nicolas Pitre <npitre@baylibre.com>
-Cc: <stable@vger.kernel.org> # v4.19+
-Cc: Jiri Slaby <jslaby@suse.com>
-Fixes: d21b0be246bf ("vt: introduce unicode mode for /dev/vcs")
-Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.1911051030580.30289@knanqh.ubzr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The clear intention is that mpc8xxx_irq_set_type is used in case the SoC
+does not specify a more specific callback. But what happens is that if
+the SoC doesn't specify one, its .irq_set_type is de-facto NULL, and
+this overwrites mpc8xxx_irq_set_type to a no-op. This means that the
+following SoCs are affected:
 
+- fsl,mpc8572-gpio
+- fsl,ls1028a-gpio
+- fsl,ls1088a-gpio
+
+On these boards, the irq_set_type does exactly nothing, and the GPIO
+controller keeps its GPICR register in the hardware-default state. On
+the LS1028A, that is ACTIVE_BOTH, which means 2 interrupts are raised
+even if the IRQ client requests LEVEL_HIGH. Another implication is that
+the IRQs are not checked (e.g. level-triggered interrupts are not
+rejected, although they are not supported).
+
+Fixes: 82e39b0d8566 ("gpio: mpc8xxx: handle differences between incarnations at a single place")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20191115125551.31061-1-olteanv@gmail.com
+Tested-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vc_screen.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/gpio-mpc8xxx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vc_screen.c
-+++ b/drivers/tty/vt/vc_screen.c
-@@ -437,6 +437,9 @@ vcs_write(struct file *file, const char
- 	size_t ret;
- 	char *con_buf;
+diff --git a/drivers/gpio/gpio-mpc8xxx.c b/drivers/gpio/gpio-mpc8xxx.c
+index b863421ae7309..a031cbcdf6ef9 100644
+--- a/drivers/gpio/gpio-mpc8xxx.c
++++ b/drivers/gpio/gpio-mpc8xxx.c
+@@ -377,7 +377,8 @@ static int mpc8xxx_probe(struct platform_device *pdev)
+ 	 * It's assumed that only a single type of gpio controller is available
+ 	 * on the current machine, so overwriting global data is fine.
+ 	 */
+-	mpc8xxx_irq_chip.irq_set_type = devtype->irq_set_type;
++	if (devtype->irq_set_type)
++		mpc8xxx_irq_chip.irq_set_type = devtype->irq_set_type;
  
-+	if (use_unicode(inode))
-+		return -EOPNOTSUPP;
-+
- 	con_buf = (char *) __get_free_page(GFP_KERNEL);
- 	if (!con_buf)
- 		return -ENOMEM;
-
+ 	if (devtype->gpio_dir_out)
+ 		gc->direction_output = devtype->gpio_dir_out;
+-- 
+2.20.1
 
