@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63EDA11B645
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 17:00:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99FA611B635
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:59:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731747AbfLKP7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:59:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38444 "EHLO mail.kernel.org"
+        id S1731560AbfLKPOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:14:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730946AbfLKPOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:14:00 -0500
+        id S1731558AbfLKPOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F20224682;
-        Wed, 11 Dec 2019 15:13:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D36422465C;
+        Wed, 11 Dec 2019 15:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077239;
-        bh=XUmbsPkZBUep6WkzCfrL1lHhh1NcPsaKVvKEEK7EqIE=;
+        s=default; t=1576077241;
+        bh=l2UCK3xytwrx03fUcDYomWkfGJOqNbOW2JXE+tt4AjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPzP2W5kUO/kAvpMex1Q14EEGtaoiBKmySn569pveD/wAzKDvgXiDXmqBYHX+CLhu
-         P3Ah0CwuRBWlQrMYAIggCkjv0QkO4S6P1cxWnw54vdn1quXeQQUD/vKo6iggCGWu4w
-         Ea18rKUrR1YDm+k2EIKTtb71BA2VDC5jqEumeGvc=
+        b=agYvdn87DcAXobq2nTMnqkS8i9Kfal+N26DZbJZHvK9JSEp3pIalZmfzTZ6A5Zow8
+         tZy5Zm/4R4Dt+x8loGnUW0DN7PNdB15orzqo1gQ4lIkCox/rZQ20jm6LkAxpmEw4Ah
+         nVr8wdxHovxXXB4da+pL0bq5wWwyICNFLehPKu9A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.com>,
-        linux-scsi@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 117/134] cdrom: respect device capabilities during opening action
-Date:   Wed, 11 Dec 2019 10:11:33 -0500
-Message-Id: <20191211151150.19073-117-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 119/134] perf diff: Use llabs() with 64-bit values
+Date:   Wed, 11 Dec 2019 10:11:35 -0500
+Message-Id: <20191211151150.19073-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
 References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,64 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Diego Elio Pettenò <flameeyes@flameeyes.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 366ba7c71ef77c08d06b18ad61b26e2df7352338 ]
+[ Upstream commit 98e93245113d0f5c279ef77f4a9e7d097323ad71 ]
 
-Reading the TOC only works if the device can play audio, otherwise
-these commands fail (and possibly bring the device to an unhealthy
-state.)
+To fix these build errors on a debian mipsel cross build environment:
 
-Similarly, cdrom_mmc3_profile() should only be called if the device
-supports generic packet commands.
+  builtin-diff.c: In function 'block_cycles_diff_cmp':
+  builtin-diff.c:550:6: error: absolute value function 'labs' given an argument of type 's64' {aka 'long long int'} but has parameter of type 'long int' which may cause truncation of value [-Werror=absolute-value]
+    550 |  l = labs(left->diff.cycles);
+        |      ^~~~
+  builtin-diff.c:551:6: error: absolute value function 'labs' given an argument of type 's64' {aka 'long long int'} but has parameter of type 'long int' which may cause truncation of value [-Werror=absolute-value]
+    551 |  r = labs(right->diff.cycles);
+        |      ^~~~
 
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 99150a1faab2 ("perf diff: Use hists to manage basic blocks per symbol")
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-pn7szy5uw384ntjgk6zckh6a@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cdrom/cdrom.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ tools/perf/builtin-diff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-index ac42ae4651ce7..eebdcbef0578f 100644
---- a/drivers/cdrom/cdrom.c
-+++ b/drivers/cdrom/cdrom.c
-@@ -996,6 +996,12 @@ static void cdrom_count_tracks(struct cdrom_device_info *cdi, tracktype *tracks)
- 	tracks->xa = 0;
- 	tracks->error = 0;
- 	cd_dbg(CD_COUNT_TRACKS, "entering cdrom_count_tracks\n");
-+
-+	if (!CDROM_CAN(CDC_PLAY_AUDIO)) {
-+		tracks->error = CDS_NO_INFO;
-+		return;
-+	}
-+
- 	/* Grab the TOC header so we can see how many tracks there are */
- 	ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCHDR, &header);
- 	if (ret) {
-@@ -1162,7 +1168,8 @@ int cdrom_open(struct cdrom_device_info *cdi, struct block_device *bdev,
- 		ret = open_for_data(cdi);
- 		if (ret)
- 			goto err;
--		cdrom_mmc3_profile(cdi);
-+		if (CDROM_CAN(CDC_GENERIC_PACKET))
-+			cdrom_mmc3_profile(cdi);
- 		if (mode & FMODE_WRITE) {
- 			ret = -EROFS;
- 			if (cdrom_open_write(cdi))
-@@ -2882,6 +2889,9 @@ int cdrom_get_last_written(struct cdrom_device_info *cdi, long *last_written)
- 	   it doesn't give enough information or fails. then we return
- 	   the toc contents. */
- use_toc:
-+	if (!CDROM_CAN(CDC_PLAY_AUDIO))
-+		return -ENOSYS;
-+
- 	toc.cdte_format = CDROM_MSF;
- 	toc.cdte_track = CDROM_LEADOUT;
- 	if ((ret = cdi->ops->audio_ioctl(cdi, CDROMREADTOCENTRY, &toc)))
+diff --git a/tools/perf/builtin-diff.c b/tools/perf/builtin-diff.c
+index c37a786779555..265682296836d 100644
+--- a/tools/perf/builtin-diff.c
++++ b/tools/perf/builtin-diff.c
+@@ -575,8 +575,8 @@ static int64_t block_cycles_diff_cmp(struct hist_entry *left,
+ 	if (!pairs_left && !pairs_right)
+ 		return 0;
+ 
+-	l = labs(left->diff.cycles);
+-	r = labs(right->diff.cycles);
++	l = llabs(left->diff.cycles);
++	r = llabs(right->diff.cycles);
+ 	return r - l;
+ }
+ 
 -- 
 2.20.1
 
