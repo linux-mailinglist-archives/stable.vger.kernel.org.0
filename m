@@ -2,100 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C729C11BEEE
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 22:13:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C3F11BF11
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 22:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbfLKVNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 16:13:37 -0500
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:7506 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726313AbfLKVNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 16:13:37 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5df15bf90000>; Wed, 11 Dec 2019 13:13:29 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 11 Dec 2019 13:13:36 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 11 Dec 2019 13:13:36 -0800
-Received: from [10.26.11.206] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 11 Dec
- 2019 21:13:34 +0000
-Subject: Re: [PATCH 5.4 00/92] 5.4.3-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191211150221.977775294@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <a55b4e47-7411-083e-c9ec-8e55db90b415@nvidia.com>
-Date:   Wed, 11 Dec 2019 21:13:32 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1726368AbfLKVXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 16:23:15 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:34862 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726313AbfLKVXP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 16:23:15 -0500
+Received: by mail-pg1-f195.google.com with SMTP id l24so11360995pgk.2
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 13:23:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=PiR4x9CoXnfWfCbQNTlgRP9ROMJUyaR0E0re5tOFBZ8=;
+        b=ic5e0TCqEoJNzj9fGsZQ5N9SAW1l1zgvcZjd56LeFf5mo1wulGCYmSTCjH4ILs0YEe
+         l0mfUZXXjf3ooPnzRT1O5RQkCzKRkw3aqkN6c2aPB9HdsQAWkzDvP0cx/iGQbWP2t3pu
+         OlFJpnzJ8dCIZifbJ784hdGKIMOGG7yVROYcG8TJl58+nHOnsMoJJT25BopTVvv3IMg0
+         S30euSGIGuRb5eKE8njTHIQT51IW4VwwnkkUIrzA4M5bZFNYAkPcWIKJKhk5HR8BLGEx
+         OdYbcmbLDNTSUSpgsSTjJLijaP52w2E5/t0+bLYB1g51M7v/881bd8pQZo7cFN8SWmSx
+         F1cQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=PiR4x9CoXnfWfCbQNTlgRP9ROMJUyaR0E0re5tOFBZ8=;
+        b=ECRUrlWU23PgkV3+SwYhtGHdVyoKepMeD4Z8wGFcJDk2qezP5KppW74mcO/CFs0f4D
+         KnYy11sbdW1zqodXY8Q1+XIjJ6gLxWrpUwcB0Q81CE4vwNaOgWx58RezdRvJC1eG0/r1
+         Onebnpw3ZON0syiCkHIYyphs8piyW5f21cVU6UzXX0CPH7Wzb5lw2hPueFJg8PKuLeyg
+         BuK5CHMmLjuIq2bMd34oAkYpCpr8Bzo/c8i700hziTMayJYBoztVSLJ/daEHrMNlXIB/
+         7vbFb6vMIRdPaS8E8xujtYDDcK5ppFeeRB6/qHHK3e2TQXNWb1d43T8aJOx6S28orkUs
+         +Nfw==
+X-Gm-Message-State: APjAAAX8UQVCu51D8FjceGS02YSDQr/5gNfGqIvVedIVhtUsmyn4xFvE
+        cmhb/+SKN0uerBctU1CoA9eHLQ==
+X-Google-Smtp-Source: APXvYqwrFaHj1syZQej9q7UGHjSQjK/MJs091CunWjBi0pCJ3ZbBj0eGGn30dTwTAbwGEIu9ylCCTQ==
+X-Received: by 2002:a65:5cc2:: with SMTP id b2mr6457132pgt.171.1576099394769;
+        Wed, 11 Dec 2019 13:23:14 -0800 (PST)
+Received: from debian ([122.164.82.31])
+        by smtp.gmail.com with ESMTPSA id i3sm4270815pfg.94.2019.12.11.13.23.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2019 13:23:13 -0800 (PST)
+Date:   Thu, 12 Dec 2019 02:53:05 +0530
+From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        jeffrin@rajagiritech.edu.in
+Subject: Re: [PATCH 5.3 000/105] 5.3.16-stable review
+Message-ID: <20191211212305.GA2676@debian>
+References: <20191211150221.153659747@linuxfoundation.org>
+ <20191211161605.GA4849@debian>
+ <20191211182852.GA715826@kroah.com>
+ <20191211192232.GA14178@debian>
 MIME-Version: 1.0
-In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1576098809; bh=J4kUrNCfnxLI/2vnGKXYe+Y/xOHfWTzxPwP4SF1uUIc=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=JVVU6zMNsMcURrS3X+GK5FjA0I/ODsL+P/nK7BYArF8FF3jne0rcHYbnQfMsf9UiH
-         Sf69B7HDquUzJNeMCWjXvZoFvnmo++sn74LE6AEJdAEmjHigTP8qAup9eFx3Uc071Q
-         YKRraOQVWdlTgXnH61R43q26EqPkwlmXFtsGEOgY9oAWZ3M2FrSX7ZZM9q0ntDvg8N
-         PZ/zBzimwMKCghfffiwXYgqP/Dt7eaj983KJGauTt0BYJP5pw99g+nKrKUP05a8ot3
-         vBwIaNgoEtlhm6CeJOrFwlphHI3UWDEMxSZdjx8l1hnN5NHeFar2mMX8O7MYbJbRri
-         EQWXnmPiVaPiA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191211192232.GA14178@debian>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 11/12/2019 15:04, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.3 release.
-> There are 92 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Dec 12, 2019 at 12:52:32AM +0530, Jeffrin Jose wrote:
+> On Wed, Dec 11, 2019 at 07:28:52PM +0100, Greg Kroah-Hartman wrote:
+> > that's really odd.  How are you building this, from the git tree, or the
+> > tarball generated?
+> git tree
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 > 
-> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
-> Anything received after that time might be too late.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> > And I still see that file in the 5.3 tree, what do you mean it was
+> > deleted?
 > 
-> thanks,
+> may be during "git checkout linux-5.3.y" or may be i did "git pull" inside that branch
 > 
-> greg k-h
-> 
-> -------------
+> that was a git status which showed "D" at the start of a few lines
+> and one of that lines showed that file.
+> i also checked that path locally and found it was not there
+>
 
+i downloaded the tree to another directory.
+i compiled the kernel and it was a success
 
-All tests are passing for Tegra ...
+--
+soffware engineer
+rajagiri school of engineering and technology
 
-Test results for stable-v5.4:
-    13 builds:	13 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
-
-Linux version:	5.4.3-rc1-g6b42537b2c89
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Cheers
-Jon
-
--- 
-nvpublic
