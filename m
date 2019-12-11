@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FBFB11B11C
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:28:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2AED11B125
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733129AbfLKP2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:28:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35062 "EHLO mail.kernel.org"
+        id S2387803AbfLKP3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387709AbfLKP2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:28:45 -0500
+        id S2387794AbfLKP3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:29:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E43352467D;
-        Wed, 11 Dec 2019 15:28:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3457324654;
+        Wed, 11 Dec 2019 15:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576078124;
-        bh=IveGYPqIBGxxO9HI6PWVQ5k5rY4SGIjnoNOe06r8UVQ=;
+        s=default; t=1576078144;
+        bh=m2kHXdSGO2m2+0B8tCsvKfhEWUthbr301EBF8qZEnIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0JpO51Q/RcS5akT7kdo3pbya0q1kMqNDus9XMwLPzaOOHwDJcVe7GeNFPctjw4a9
-         jvDpHhcW8g64RmbLXSz7ibWjOryF2kO/5FPYWqFdsoZjN+sSLZcC75OXCUERKUXERD
-         BklBP5XygVn+0sP6vm17ururQoZrVlv0PrMkBnX0=
+        b=V6VWixn/z2ACXQDSSQKkMHVMzHKIjblS7HPNZIIj77XqDufXDcZHWT5U5Da06bMFY
+         CiOkVKKNaqqiVQK4jVqXZ2mPPCmhikBl/mge/NdR5tP7y/mQHKlBOP9SpwR3OgEJOT
+         Z/tO0r17dhN4u1OCrmOLzbBtQdjt/C0pPp2wsRpg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 12/58] dma-debug: add a schedule point in debug_dma_dump_mappings()
-Date:   Wed, 11 Dec 2019 10:27:45 -0500
-Message-Id: <20191211152831.23507-12-sashal@kernel.org>
+Cc:     Robert Jarzmik <robert.jarzmik@free.fr>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 31/58] clk: pxa: fix one of the pxa RTC clocks
+Date:   Wed, 11 Dec 2019 10:28:04 -0500
+Message-Id: <20191211152831.23507-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
 References: <20191211152831.23507-1-sashal@kernel.org>
@@ -45,43 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
 
-[ Upstream commit 9ff6aa027dbb98755f0265695354f2dd07c0d1ce ]
+[ Upstream commit 46acbcb4849b2ca2e6e975e7c8130c1d61c8fd0c ]
 
-debug_dma_dump_mappings() can take a lot of cpu cycles :
+The pxa27x platforms have a single IP with 2 drivers, sa1100-rtc and
+rtc-pxa drivers.
 
-lpk43:/# time wc -l /sys/kernel/debug/dma-api/dump
-163435 /sys/kernel/debug/dma-api/dump
+A previous patch fixed the sa1100-rtc case, but the pxa-rtc wasn't
+fixed. This patch completes the previous one.
 
-real	0m0.463s
-user	0m0.003s
-sys	0m0.459s
-
-Let's add a cond_resched() to avoid holding cpu for too long.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Corentin Labbe <clabbe@baylibre.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 8b6d10345e16 ("clk: pxa: add missing pxa27x clocks for Irda and sa1100-rtc")
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Link: https://lkml.kernel.org/r/20191026194420.11918-1-robert.jarzmik@free.fr
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/dma-debug.c | 1 +
+ drivers/clk/pxa/clk-pxa27x.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/lib/dma-debug.c b/lib/dma-debug.c
-index ea4cc3dde4f1b..61e7240947f54 100644
---- a/lib/dma-debug.c
-+++ b/lib/dma-debug.c
-@@ -437,6 +437,7 @@ void debug_dma_dump_mappings(struct device *dev)
- 		}
- 
- 		spin_unlock_irqrestore(&bucket->lock, flags);
-+		cond_resched();
- 	}
- }
- EXPORT_SYMBOL(debug_dma_dump_mappings);
+diff --git a/drivers/clk/pxa/clk-pxa27x.c b/drivers/clk/pxa/clk-pxa27x.c
+index 25a30194d27a3..b67ea86ff1566 100644
+--- a/drivers/clk/pxa/clk-pxa27x.c
++++ b/drivers/clk/pxa/clk-pxa27x.c
+@@ -462,6 +462,7 @@ struct dummy_clk {
+ };
+ static struct dummy_clk dummy_clks[] __initdata = {
+ 	DUMMY_CLK(NULL, "pxa27x-gpio", "osc_32_768khz"),
++	DUMMY_CLK(NULL, "pxa-rtc", "osc_32_768khz"),
+ 	DUMMY_CLK(NULL, "sa1100-rtc", "osc_32_768khz"),
+ 	DUMMY_CLK("UARTCLK", "pxa2xx-ir", "STUART"),
+ };
 -- 
 2.20.1
 
