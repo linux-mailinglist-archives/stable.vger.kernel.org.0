@@ -2,92 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8995311A63D
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 09:50:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAA5811A655
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 09:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728024AbfLKIuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 03:50:21 -0500
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:14016 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725973AbfLKIuU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 03:50:20 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5df0adc50003>; Wed, 11 Dec 2019 00:50:13 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 11 Dec 2019 00:50:19 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 11 Dec 2019 00:50:19 -0800
-Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 11 Dec
- 2019 08:50:19 +0000
-Received: from tbergstrom-lnx.Nvidia.com (10.124.1.5) by
- DRHQMAIL107.nvidia.com (10.27.9.16) with Microsoft SMTP Server (TLS) id
- 15.0.1473.3; Wed, 11 Dec 2019 08:50:19 +0000
-Received: by tbergstrom-lnx.Nvidia.com (Postfix, from userid 1000)
-        id F060C42797; Wed, 11 Dec 2019 10:50:16 +0200 (EET)
-Date:   Wed, 11 Dec 2019 10:50:16 +0200
-From:   Peter De Schrijver <pdeschrijver@nvidia.com>
-To:     Dmitry Osipenko <digetx@gmail.com>
-CC:     Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-tegra@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH] ARM: tegra: Fix restoration of PLLM when exiting suspend
-Message-ID: <20191211085016.GW28289@pdeschrijver-desktop.Nvidia.com>
-References: <20191210103708.7023-1-jonathanh@nvidia.com>
- <1f2a4f23-5be5-aa7e-6eb4-2aeb4058481d@gmail.com>
- <1fe9cd2d-50a2-aae5-95fa-0329acce4c4c@gmail.com>
+        id S1727253AbfLKI4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 03:56:35 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:48135 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725973AbfLKI4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 03:56:35 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id C6F91200CF;
+        Wed, 11 Dec 2019 03:56:34 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 11 Dec 2019 03:56:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=tNxPJDhRaUb9dxTuxKKQkUK1mjn
+        pjlZYUVO9jg8ADY0=; b=ZLWQK9pL7wfYAE5JPlBJUNuSf9XBgOE1K7v7hu6wBAR
+        PrlvEwaj5wKN/UUNn9YKxstS2mPWcKBLwsJIG+7fQXR1M0mjV5w2Tq7jDZUO6dKl
+        lvabhwcMPBkSMvWdlwOepdFuJu7p6nv1Av2BrCpWn5TrcVpXh9SRP6uKhdF2Dbmc
+        hTjlcmyvXNUquW0gJ3m+ZmnmsBbu4Pg35z6V7TgoxU/1XrHBDZ0AufwOxthSnAht
+        eCfBvDmdRkYzgI1GMR+xQZqsS7x7Re6Dx3W9to5WN6ZPqsR5y66XhcYtSxjTNjnf
+        OPSNGPMguEXL+bPvTQFQYdlF68V9opnmYtQwyydIFUg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=tNxPJD
+        hRaUb9dxTuxKKQkUK1mjnpjlZYUVO9jg8ADY0=; b=YRO5PV6s3h0ai7eCOu7WMF
+        uadF9G8zXSvMJQOHirTb7/rx8JwVQOK5HGUXFkdI2BIYj1dureCwai1DzWbgEOpn
+        kD/r/STZsRWAnXN5bgkixAmThhe9QskHQ3stvTmLtR54QbO+/V4Enwq6j6ypVmNK
+        P/qJ2o52VcjDyE/2E8BFE4L0KcoBUQ53NeWU7qRAMSMgCtPATYveDsxfGgByTA9l
+        bSByPLB7KJk5VSbWfHUMF8cq/iqfifbxFyq3qPtQDWgbh4imZqofbzCjP1ElAi1h
+        wDC0gH/xv8DtAKT/H2kk7v98IbMFRVCVlYVDCD8j7JhM2mqceRIvcfypPAtxzYgw
+        ==
+X-ME-Sender: <xms:Qq_wXR3p3wEFnJW3ZvvFxl9WflMhORWB_-m9t6f6JtyeO3IVHLhXEQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudelgedguddulecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehrvgguhhgrth
+    drtghomhdpkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucfr
+    rghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsth
+    gvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Qq_wXRJF8V3eWHMs1JFFIpjHZbJ1HQINSV2MzZ-yK4fYOx1_Dwn6SA>
+    <xmx:Qq_wXa_xzBAv5yxc0sPPOh6_nZsEdBsYfyXgC6aWbDU3LmtkJhQUuQ>
+    <xmx:Qq_wXamgnPg5k3ib0n2p5j77BwyPlQcnSgVcsEg8Yz0k2FbbFykVCA>
+    <xmx:Qq_wXQU5bEseDK2jIh-z5E_AW_Uhl4eyWDFC7cCTqjzXAhCmQGkoHw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 452E78005B;
+        Wed, 11 Dec 2019 03:56:34 -0500 (EST)
+Date:   Wed, 11 Dec 2019 09:56:32 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Laura Abbott <labbott@redhat.com>
+Cc:     stable <stable@vger.kernel.org>
+Subject: Re: Requests for stable inclusion
+Message-ID: <20191211085632.GC500800@kroah.com>
+References: <54f071b9-ab38-156d-dc3e-6a6b3959ccf0@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <1fe9cd2d-50a2-aae5-95fa-0329acce4c4c@gmail.com>
-X-NVConfidentiality: public
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- DRHQMAIL107.nvidia.com (10.27.9.16)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1576054213; bh=aT59Us6r+RXBi41ZhK23q+Ubu168i/DTG0ueCLa67nU=;
-        h=X-PGP-Universal:Date:From:To:CC:Subject:Message-ID:References:
-         MIME-Version:Content-Type:Content-Disposition:
-         Content-Transfer-Encoding:In-Reply-To:X-NVConfidentiality:
-         User-Agent:X-Originating-IP:X-ClientProxiedBy;
-        b=bBKdljop3uOxvjy/o3pqji1i6rxEkmO8s/acQe1DjLRXVnEhD93410sOvuVOsKaY0
-         JenibI3MMdIaGFllcLUf34f4bfqA2730HOi4P39ho0opyk9kJWGx60qiUsvFVUSgjZ
-         BIvwwiH7VZPw4IizzuwrjcILMwvSfRTe6Xb5ROTaDI/aLQxkBYqCHwlOoyNIZIymlA
-         dz98J/HTvcx2VvUtTnSrormWY/66UDpO6/OElOHSMfL8x271y8ax+p64aprcgMliTT
-         uk7bPKfvF84yf/d/RHrqp5kLErqM0H3BYuACr17jRIYPrMt+4t1hIinCddp/u9MxpF
-         aMC9nl8Gbf2xA==
+In-Reply-To: <54f071b9-ab38-156d-dc3e-6a6b3959ccf0@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 10, 2019 at 11:29:42PM +0300, Dmitry Osipenko wrote:
-> External email: Use caution opening links or attachments
->=20
->=20
-> 10.12.2019 22:28, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> > Hello Jon,
-> >
-> > PLLM's enable-status could be defined either by PMC or CaR. Thus at
-> > first you need to check whether PMC overrides CaR's enable and then
-> > judge the enable state based on PMC or CaR state respectively.
-> >
->=20
-> Actually, now I think that it doesn't make sense to check PMC WB0 state
-> at all. IIUC, PLLM's state of the WB0 register defines whether Boot ROM
-> should enable PLLM on resume from suspend. Thus it will be correct to
-> check only the CaR's enable-state of PLLM.
->=20
-> I'm not sure what's the idea of WB0 overriding, maybe to resume faster.
-> Peter, could you please clarify that?
+On Tue, Dec 10, 2019 at 10:17:08AM -0500, Laura Abbott wrote:
+> Hi,
+> 
+> Can you please queue up the following patches for stable 5.4
+> 
+> cba22d86e0a1 bdev: Refresh bdev size for disks without partitioning
+> 731dc4868311 bdev: Factor out bdev revalidation into a common helper
+> 
+> These fix the issue reported in
+> https://bugzilla.kernel.org/show_bug.cgi?id=194965#c46 and
+> https://bugzilla.redhat.com/show_bug.cgi?id=1781762
+> They apply cleanly to 5.4.
+> 
 
-I don't know why these overriding bits exist. The code for them was in
-the downstream driver so I implemented the same in the upstream driver
-:)
+Now queued up, thanks.
 
-Peter.
-
+greg k-h
