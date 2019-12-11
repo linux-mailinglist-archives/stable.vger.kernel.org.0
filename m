@@ -2,82 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F1B11BF67
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 22:51:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE20D11BFC1
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 23:25:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726642AbfLKVvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 16:51:36 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:42223 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726141AbfLKVvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 16:51:36 -0500
-Received: by mail-wr1-f68.google.com with SMTP id q6so303104wro.9
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 13:51:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/xhQ6MJKWoSlumRNJXm4RLO57l6PNrpucKWcnOTSYe4=;
-        b=zHLeRxu/gHpLD+ObDn4JdyikdYHvrR+byAPzZ07RwxncTwDm9B02fPaun3G2MzZMhi
-         wpucPHw++OQu0QdorhFwxwAwa9ucf+/86LjgaV5FfRtIta89b998230FKGgyXhzOUOsl
-         t6mmxJySA/thbPa8bP+4BPHyAUXZ/mQyPpY6FlOwcNZdVKbwTvY8+xWhE6bpSx731s3l
-         lkIKPg6oBDdFDm3796WSIFjijmVRXZfJo1aPvXcr4gHyRM1ioL8ebSZ4QnYkGUOrysme
-         2KXTVO5F3Md+GhhjjY2Wnc6sKeX+UOtTGcBRrVl2sf70ihvVBpLzlRaZycU5qNLe63Bm
-         jjnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/xhQ6MJKWoSlumRNJXm4RLO57l6PNrpucKWcnOTSYe4=;
-        b=FY5+7pv7Rl2EKcY6F8ey/wMdZxlljrSlCrAS1RBqSsE7kcyncWCgsWJMTuP3dbn7SC
-         bWf7xMJug1dYi+tRGKw5DkiSii+eIhTHksQu1S60WwrrNXPJOm7b0kaOYdo3QRhdupD7
-         kAdfvvaBdRpJiqJqG1tSeVlrziylI6H3TBbLQVK9DAzGbD//LClwazuZk6ui+cZoOAbx
-         d9xsFhaq7yCMjK4+0cOTPpqoIVTD99GLuNZXW6mdIKh8/aDAchazuYL78Aet3RPUg82i
-         rjxyxaMs1R4wM1ZGwhsDXjtuRFfd3qvz080fV+FC0RkWdE/6Vo/k5tPsKFZ4fSwGgLnX
-         ab2g==
-X-Gm-Message-State: APjAAAW5jSNRBsOMWexyHP2RZPTi+KNFFU0JVKtTTcDQItHOWOAZdAW5
-        uOsBVVNCFV5eOO0p0+mEk31B8x7nKpB16Q==
-X-Google-Smtp-Source: APXvYqy0Js4RhG1IQkI9/mLr52m+snknEBhwxy9XsmDH4+x5TxmAezjBwQoAEEciEUA6SP8QY8sDkA==
-X-Received: by 2002:a5d:5403:: with SMTP id g3mr2156868wrv.302.1576101094461;
-        Wed, 11 Dec 2019 13:51:34 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s82sm4033043wms.28.2019.12.11.13.51.33
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Dec 2019 13:51:34 -0800 (PST)
-Message-ID: <5df164e6.1c69fb81.607f8.4b3e@mx.google.com>
-Date:   Wed, 11 Dec 2019 13:51:34 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726487AbfLKWZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 17:25:44 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:58338 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726345AbfLKWZo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 17:25:44 -0500
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1ifAQO-0008Ev-F5; Wed, 11 Dec 2019 22:25:40 +0000
+Received: from ben by deadeye with local (Exim 4.93-RC7)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1ifAQO-0000Ph-2w; Wed, 11 Dec 2019 22:25:40 +0000
+Message-ID: <6be50392b6128f7cd654c342dc6157a97ccb3d8d.camel@decadent.org.uk>
+Subject: [stable] KVM: x86: fix out-of-bounds write in
+ KVM_GET_EMULATED_CPUID (CVE-2019-19332)
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Date:   Wed, 11 Dec 2019 22:25:34 +0000
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-PatrCYJ+8KhVglHuyvPY"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.206-93-g5974ba38392f
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 61 boots: 0 failed,
- 60 passed with 1 untried/unknown (v4.9.206-93-g5974ba38392f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 61 boots: 0 failed, 60 passed with 1 untried/un=
-known (v4.9.206-93-g5974ba38392f)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.206-93-g5974ba38392f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.206-93-g5974ba38392f/
+--=-PatrCYJ+8KhVglHuyvPY
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.206-93-g5974ba38392f
-Git Commit: 5974ba38392ff1d7e98cd1ed1de3a3ce77c9da58
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 31 unique boards, 12 SoC families, 12 builds out of 197
+Please pick:
 
----
-For more info write to <info@kernelci.org>
+commit 433f4ba1904100da65a311033f17a9bf586b287e
+Author: Paolo Bonzini <pbonzini@redhat.com>
+Date:   Wed Dec 4 10:28:54 2019 +0100
+
+    KVM: x86: fix out-of-bounds write in KVM_GET_EMULATED_CPUID (CVE-2019-1=
+9332)
+
+for all stable branches.
+
+Ben.
+
+--=20
+Ben Hutchings
+The generation of random numbers is too important to be left to chance.
+                                                       - Robert Coveyou
+
+
+
+--=-PatrCYJ+8KhVglHuyvPY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl3xbN4ACgkQ57/I7JWG
+EQleSRAAmpKsAv7IXknS+rglJZZckHPhM7TRzejCzsDZWxtUnqwP1oc4Y8FEke3p
+UvBpXklsTKrVEbZSB30PMSJEENLWx6L5o3fOPtfSgV9xwIlVjxBxzElnDc/jx39B
+yYaBmqhuSGT1hxV2z0sF5TmwMbauyDbA5+Dpb1XdJ5KhPYuKBDr805IdGfZ9eIye
+w/sw6dnPvpoySZ8wiOZYO8cgPhXdHVbZxWnLNPsaZOx7IkdtpdmfeOCUQZs8VXhD
+KA+EecdfJEem7QPMVemN5TpfQpRhX3TuHnB3P8w8/V37LPSuVxG7zltaMwAZu9DV
+aTcPusxwce7dM2ATaTHUX0I8pEaIYZxNudqOwTjpG09fwUCIAajCBY/Zs+Ba6aLt
+X/47m2GLdAyIrKMdSAlrXYhYBFOl65Y4/KCncOBo5R9QYYaW4A45z95aeSbPaXCf
+WB+kCryBJIJRvwWHaMcGEpzOqVUdEwOFs5KyArg0Y8hYEajyJq7IVO1FsyhSG7Fd
+Sysg87QXhGg/S+WXWeIzGMhzuRNGIGu2gDkr4mFB4b3AP11dP1e9+a88T+xep//I
+gtnvMEWSFuJcTZIU+t9bEjrRqzeAGKqOmHmRSBdp4dzBdXuY/XpTAE60X17O/9za
+ejwhsiLXuRlKzkmxuLOIG3QMsOcHsfT7S8kRGyEt0E9sS7AeUVw=
+=zlPe
+-----END PGP SIGNATURE-----
+
+--=-PatrCYJ+8KhVglHuyvPY--
