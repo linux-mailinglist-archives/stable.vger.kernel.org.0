@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA02111B54C
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:53:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6573211B52B
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:52:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732286AbfLKPT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:19:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48846 "EHLO mail.kernel.org"
+        id S1731926AbfLKPUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:20:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732284AbfLKPTy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:19:54 -0500
+        id S1732172AbfLKPUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:20:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 498F42073D;
-        Wed, 11 Dec 2019 15:19:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC9A72073D;
+        Wed, 11 Dec 2019 15:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077593;
-        bh=uwl3yzZIRDGIzZbhCnRwMrZw4/ssOAVybnQ82DWjROE=;
+        s=default; t=1576077631;
+        bh=6S/05kR+XRaCCsjFmPqtTFzZMon5uUNj8h1YbodIfFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsxbjM4boUB31AbILjxM6KeeNnJswSZ1i0M7C3aO9azocKCKpZtlGREo+eh/1tRvU
-         X1mrczO41o6rvuDTRInXorIz5J4vNhIrIxbktVeLjs3px7/B/iQhXeQgPNwYaE2iWR
-         X28GKcsm2UkrIG+oMbXSVfUCQW6octTjdGnOqgek=
+        b=hsQrykMAdfHp4Tlc+Zm3uECOnxkkcQkhJSte9zlzURzSSPgOuCQ3UQsan0s6zMvi3
+         UpkxbKOjZe0epBhBsErXI9b2i2SbwwLJIoWyeqx0BtKnTMIfIYU8R4C9uDUykvZtus
+         m2GAoExbLwDo9yUX38zsWdZ1VK/2l2HWkk18kEQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/243] xfs: extent shifting doesnt fully invalidate page cache
-Date:   Wed, 11 Dec 2019 16:03:52 +0100
-Message-Id: <20191211150343.827226097@linuxfoundation.org>
+Subject: [PATCH 4.19 073/243] ice: Fix return value from NAPI poll
+Date:   Wed, 11 Dec 2019 16:03:55 +0100
+Message-Id: <20191211150344.029162304@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -45,48 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-[ Upstream commit 7f9f71be84bcab368e58020a42f6d0dd97adf0ce ]
+[ Upstream commit e0c9fd9b77a7334032ec407d9e14d7c3cac1ac4f ]
 
-The extent shifting code uses a flush and invalidate mechainsm prior
-to shifting extents around. This is similar to what
-xfs_free_file_space() does, but it doesn't take into account things
-like page cache vs block size differences, and it will fail if there
-is a page that it currently busy.
+ice_napi_poll is hard-coded to return zero when it's done. It should
+instead return the work done (if any work was done). The only time it
+should return zero is if an interrupt or poll is handled and no work
+is performed. So change the return value to be the minimum of work
+done or budget-1.
 
-xfs_flush_unmap_range() handles all of these cases, so just convert
-xfs_prepare_shift() to us that mechanism rather than having it's own
-special sauce.
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_bmap_util.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_txrx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_bmap_util.c b/fs/xfs/xfs_bmap_util.c
-index 41ad9eaab6ce9..c045723678be9 100644
---- a/fs/xfs/xfs_bmap_util.c
-+++ b/fs/xfs/xfs_bmap_util.c
-@@ -1244,13 +1244,7 @@ xfs_prepare_shift(
- 	 * Writeback and invalidate cache for the remainder of the file as we're
- 	 * about to shift down every extent from offset to EOF.
- 	 */
--	error = filemap_write_and_wait_range(VFS_I(ip)->i_mapping, offset, -1);
--	if (error)
--		return error;
--	error = invalidate_inode_pages2_range(VFS_I(ip)->i_mapping,
--					offset >> PAGE_SHIFT, -1);
--	if (error)
--		return error;
-+	error = xfs_flush_unmap_range(ip, offset, XFS_ISIZE(ip));
+diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.c b/drivers/net/ethernet/intel/ice/ice_txrx.c
+index 0c95c8f83432c..1d84fedf1f649 100644
+--- a/drivers/net/ethernet/intel/ice/ice_txrx.c
++++ b/drivers/net/ethernet/intel/ice/ice_txrx.c
+@@ -1106,7 +1106,8 @@ int ice_napi_poll(struct napi_struct *napi, int budget)
+ 	napi_complete_done(napi, work_done);
+ 	if (test_bit(ICE_FLAG_MSIX_ENA, pf->flags))
+ 		ice_irq_dynamic_ena(&vsi->back->hw, vsi, q_vector);
+-	return 0;
++
++	return min(work_done, budget - 1);
+ }
  
- 	/*
- 	 * Clean out anything hanging around in the cow fork now that
+ /* helper function for building cmd/type/offset */
 -- 
 2.20.1
 
