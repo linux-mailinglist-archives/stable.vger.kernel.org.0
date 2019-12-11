@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7AE11AFCE
-	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FDF11AFDB
+	for <lists+stable@lfdr.de>; Wed, 11 Dec 2019 16:18:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730518AbfLKPQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 10:16:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43598 "EHLO mail.kernel.org"
+        id S1731982AbfLKPRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 10:17:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731892AbfLKPQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:16:29 -0500
+        id S1731979AbfLKPRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:17:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5171208C3;
-        Wed, 11 Dec 2019 15:16:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9EE824658;
+        Wed, 11 Dec 2019 15:17:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576077389;
-        bh=zwqM+wS2Wryn1l8lu7xVA8FqBKoSghxz/FEIeQeJyFE=;
+        s=default; t=1576077428;
+        bh=2AS1A87NUSa4PIiydpIvNtQkPx9HzA4w4FQEbZAn4iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5DGcmlEPi0eUXklVsHDeJ9CscfBxi33HHzngaoevYb6g2TzbarvKzw7cLgv0X+Ve
-         L0lDuWlwZ6zihGt689p5gbt6oF5bE5AkDmGT/iKEXR0mZNTWC/N1aL5Z3juYVOZU1W
-         c3xbCch+jG9N7FhrgDGl3A126Bj0oBvnC+wyv+co=
+        b=YJD0uw0ujt1WmJGAsvdPbXGBQqas1W8wmvsnQC3FukQC/o9AYr4jTlPf8+xJBpfTW
+         l31BWk9OA3NE1zv0Lsc2MTA2RZc+Z62VmbmyXsyDQG+NmG41Npoy4XjJaV7l/noijW
+         MMDN9FuUErKT9ngb0RFIOwpL/vTP2YNcLL4jz5v8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/243] perf/core: Consistently fail fork on allocation failures
-Date:   Wed, 11 Dec 2019 16:03:02 +0100
-Message-Id: <20191211150340.342470865@linuxfoundation.org>
+        stable@vger.kernel.org, Arjun Vynipadath <arjun@chelsio.com>,
+        Ganesh Goudar <ganeshgr@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 028/243] cxgb4vf: fix memleak in mac_hlist initialization
+Date:   Wed, 11 Dec 2019 16:03:10 +0100
+Message-Id: <20191211150340.765909315@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191211150339.185439726@linuxfoundation.org>
 References: <20191211150339.185439726@linuxfoundation.org>
@@ -54,52 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Arjun Vynipadath <arjun@chelsio.com>
 
-[ Upstream commit 697d877849d4b34ab58d7078d6930bad0ef6fc66 ]
+[ Upstream commit 24357e06ba511ad874d664d39475dbb01c1ca450 ]
 
-Commit:
+mac_hlist was initialized during adapter_up, which will be called
+every time a vf device is first brought up, or every time when device
+is brought up again after bringing all devices down. This means our
+state of previous list is lost, causing a memleak if entries are
+present in the list. To fix that, move list init to the condition
+that performs initial one time adapter setup.
 
-  313ccb9615948 ("perf: Allocate context task_ctx_data for child event")
-
-makes the inherit path skip over the current event in case of task_ctx_data
-allocation failure. This, however, is inconsistent with allocation failures
-in perf_event_alloc(), which would abort the fork.
-
-Correct this by returning an error code on task_ctx_data allocation
-failure and failing the fork in that case.
-
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Link: https://lkml.kernel.org/r/20191105075702.60319-1-alexander.shishkin@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Arjun Vynipadath <arjun@chelsio.com>
+Signed-off-by: Ganesh Goudar <ganeshgr@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 625ba462e5bbd..460d5fd3ec4e4 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -11377,7 +11377,7 @@ inherit_event(struct perf_event *parent_event,
- 						   GFP_KERNEL);
- 		if (!child_ctx->task_ctx_data) {
- 			free_event(child_event);
--			return NULL;
-+			return ERR_PTR(-ENOMEM);
- 		}
+diff --git a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
+index ff84791a0ff85..972dc7bd721d9 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
+@@ -722,6 +722,10 @@ static int adapter_up(struct adapter *adapter)
+ 
+ 		if (adapter->flags & USING_MSIX)
+ 			name_msix_vecs(adapter);
++
++		/* Initialize hash mac addr list*/
++		INIT_LIST_HEAD(&adapter->mac_hlist);
++
+ 		adapter->flags |= FULL_INIT_DONE;
  	}
+ 
+@@ -747,8 +751,6 @@ static int adapter_up(struct adapter *adapter)
+ 	enable_rx(adapter);
+ 	t4vf_sge_start(adapter);
+ 
+-	/* Initialize hash mac addr list*/
+-	INIT_LIST_HEAD(&adapter->mac_hlist);
+ 	return 0;
+ }
  
 -- 
 2.20.1
