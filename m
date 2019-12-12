@@ -2,63 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBAB11CD11
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 13:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57ADD11CD14
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 13:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbfLLMYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 07:24:19 -0500
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:32792 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729093AbfLLMYT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 07:24:19 -0500
-Received: by mail-ed1-f66.google.com with SMTP id r21so1667356edq.0
-        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 04:24:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=WKKRTtvLHx7Y74rx8WB679hJtEk5KcvpgHGeLFoGeLk=;
-        b=ZeV4bWcwPqxqak0NgXPZwGQLqHzjKkoDrJrPHPOd7+URfj4tdL1GZ0vbfbrEwRoFbe
-         RPsY4aLTnLatm95YJYyD6V736lkVZ4J21aWhz9F2nbYf7pqLyg5468j70DnI0dKUoZIv
-         b9L1UtHurV5PoLoGCcFVf7oXx629IO9ZTKgr2n5Tf5B7WOXOjkPwYNB9aZa4BOF++43T
-         buRrcBjEVbw2I0ZhUP4tdZcd9iketOgFSr4zimEZ95CS8OEkXbHgXWu474ThV3upIpji
-         3xRE5RzVIOwNjjjcBS4hIw1JgGlZZDf1x0d5LjUwY7A+1ajXI0zVdbaGq3fhS0mnrWmK
-         0Z+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=WKKRTtvLHx7Y74rx8WB679hJtEk5KcvpgHGeLFoGeLk=;
-        b=dTQ+b/42Jtcv4Qxh6fSMSUhiHinSq3UOtq0Mx4NX8NgNHXXHAbuJagCyCKegwrAwk8
-         8QssN3B7LGmjMi/vtd9FpFXmdH5QjNGHzTyc71I+EH0Rxs34bYjosFLDnLutThqt/eAO
-         VRpXEbyWw7DPB2hXLXFytpkYKVR/AB7DQSo/nqyz12eahyHfu8DreDFsnUnOBVvggB6u
-         3GaqjRerScyrtt5vdIUxLQIDjEF6rXDHcOKIDLfkjyz5oFTvgyk8hSE/DB5kvLjxG9x+
-         IrBU3Z+KLKDFYqwWe8h/Mi3YTqP29znuE9NeQhoS04A0uWq9aOzbCg0EJAVajG8htCe1
-         0LiA==
-X-Gm-Message-State: APjAAAVZQwv03Aja8w3disLgivDhTHSHeeS8FGlTPrg8OMMtP7y2nhs3
-        2D7ISRYZczVXA197oaKgdNbkoTKmWuQ6tJ6L+QM=
-X-Google-Smtp-Source: APXvYqz06DrmESEuusllwZuJT2w/7HH6cU7MAZvKyfUGjPT9coW/tg/X3kuYKwujeiyDzJBJc8dULmVsxoU1SwPVjQ8=
-X-Received: by 2002:aa7:df09:: with SMTP id c9mr9250127edy.133.1576153457369;
- Thu, 12 Dec 2019 04:24:17 -0800 (PST)
+        id S1729141AbfLLMYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 07:24:42 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:50819 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729093AbfLLMYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 07:24:42 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 0858B226DA;
+        Thu, 12 Dec 2019 07:24:41 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 12 Dec 2019 07:24:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=2scdUPQH6/S737X9bHyYedRxXFA
+        +cGGK7uaXn+cxR+4=; b=bssJTdkTRgSmIe3wKmne6OBDU2GO0mfk6A1uHln3c3i
+        HtNDCklTVoX7NJ62q7TwoLViFTsMomNCru86QkHHj332x5gXQZKNL3/XK8oyQQsl
+        Yer8jWGngrSc7kmGZ9kM6GmTf96ARhcRLcHCX3Xjp2UQeRgwR/VgB/0XJH2eTc1n
+        nXxi3LzZXTB6BA5gSqZGq9mu/5OQ1t8LDBEl2pMjIpjSuRjwuo+GaKw7XJhwEPXn
+        eIgHDyQHoXBke4TzdZ1kV47Bmg9I1aTOCtj0ubvC61gwaubmpd/fzPb+PC8dru+0
+        0u1zFOTPcvQnMsD+dZsKJCyK8u7dB/jr7r1Sqhq36NA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2scdUP
+        QH6/S737X9bHyYedRxXFA+cGGK7uaXn+cxR+4=; b=OmKz87wUNQgdgCH5WvFKSk
+        H2/SxdW7+AIJpvCjbMZldFW5Q0ID/mnhEHlaQMGEXeM6YVWED381FbrWHcrdqZVU
+        LX9MGrlBD1bpwof1V5mwR/FbaFDwOlbMVVIRSzua4HK1oEtVeBsOqDIf5DmcMmVZ
+        aywwnuh43WqJabPFginNLHF9T8l/XsB41uQuGwo+oOqMIfTR2Ody4OgqsdIu5PXu
+        xgNlh0+CM7YhV2UMHV8VCSJnIidFw0Ak8vlRF/Bs+lPtY4AwOC14ogtN486Wb7o7
+        RwofC1TOAiFW0NWGKyP2UGF72zKoMB7Gu7ZE8x7GFk+TwuTdOdPgvO2nOV6/Dx5w
+        ==
+X-ME-Sender: <xms:iDHyXcLPrTdhTlFqv6IXHo9BPM06m_9npGWD8deQZB94lKJ96jvrlQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeljedggeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:iDHyXTuRE_fxWf0NgawgyjAQYf3n4X58vH7cpgkBKrxto7qUiQ7h3g>
+    <xmx:iDHyXcXi3u4IdmKtPWOaP-mBj8sU_tHRwha42oPMziD1ANugwEIklA>
+    <xmx:iDHyXWLr8os-CNAIGOVHZVoMefFf8Uh1MqTKlEs5BvLLguELjL9hGA>
+    <xmx:iTHyXUXMqI0zLC85pkp8IKhjH3GSL_8074Qn_g-SbiZRbtBoa9KIww>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CF6CA80059;
+        Thu, 12 Dec 2019 07:24:39 -0500 (EST)
+Date:   Thu, 12 Dec 2019 13:24:37 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Ricardo Ribalda Delgado <ribalda@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.4 148/350] media: ad5820: Define entity function
+Message-ID: <20191212122437.GA1541615@kroah.com>
+References: <20191210210735.9077-1-sashal@kernel.org>
+ <20191210210735.9077-109-sashal@kernel.org>
+ <20191212121938.GB17876@duo.ucw.cz>
 MIME-Version: 1.0
-Received: by 2002:aa7:dd9a:0:0:0:0:0 with HTTP; Thu, 12 Dec 2019 04:24:16
- -0800 (PST)
-Reply-To: jessicavail090@gmail.com
-From:   Jessica Vail <captkatiehiggins21@gmail.com>
-Date:   Thu, 12 Dec 2019 12:24:16 +0000
-Message-ID: <CAJuBQtoMqUYoHFnFn2MDhQ+usiK_thAddWf938RirDnxFK57Xw@mail.gmail.com>
-Subject: Hi
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191212121938.GB17876@duo.ucw.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good day,
+On Thu, Dec 12, 2019 at 01:19:38PM +0100, Pavel Machek wrote:
+> On Tue 2019-12-10 16:04:13, Sasha Levin wrote:
+> > From: Ricardo Ribalda Delgado <ribalda@kernel.org>
+> > 
+> > [ Upstream commit 801ef7c4919efba6b96b5aed1e72844ca69e26d3 ]
+> > 
+> > Without this patch, media_device_register_entity throws a warning:
+> > 
+> > dev_warn(mdev->dev,
+> > 	 "Entity type for entity %s was not initialized!\n",
+> > 	 entity->name);
+> 
+> This fixes warning, not a serious bug. Thus it is against stable
+> rules.
 
-I'm Jessica Vail, from the United States,Please i wish to have
-communication with you.
+That's a good enough fix for a real issue.  We take patches in stable
+for this all the time.
 
-I am waiting for your answer,
+thanks,
 
-Jessica Vail
+greg k-h
