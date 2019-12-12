@@ -2,99 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2E911D1AC
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 17:01:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD6411D1F4
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 17:11:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729673AbfLLQBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 11:01:23 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:34134 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729247AbfLLQBX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 11:01:23 -0500
-Received: by mail-wr1-f65.google.com with SMTP id t2so3332911wrr.1
-        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 08:01:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bcd1EWIVUfsupb4T0CMFbSGhPIadmViX9GbAV6CTQIw=;
-        b=0zEqFXBKHOEdxaVFH8r4A4RGTSB7nRoLu2S1oo60E6omgH8BoxCDJ+sMHH55f3DTQ+
-         TdhtzolWoNHxQ0dWBjQAKMVysxyG65eWNKpV26Gn/2cuaThh6dFLD3V+RYeZNQWVzZ2b
-         5rsHpUOe7lSKN/dSXOzM4jrxb9GK0rNqNEEU8Gmh2GxaGSnwqAJsIVIFCPuP3c1SUBhP
-         DbrBQ04fRYRjOMW9faL6v4HtDDzom9P/wb1iwOAOhYo5lvc600ABkmr/QIOa4xCn/02K
-         +3bEPeB/nXnB0Qk1emihzHUFFB5ETE5S+zz0pRRqgrwgrLGJNJTu7hMarUKnnBPuvkgT
-         GBRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bcd1EWIVUfsupb4T0CMFbSGhPIadmViX9GbAV6CTQIw=;
-        b=LJI0e4Hu66/prO+oFavazG81TdE1Tny4S8D0He2kbPITo1CN02D9EEGEoucEy1bVlV
-         vm0rSnmYEcb4pIsLMSlmy5CRHr1hbDiyMFsbcl0zFLJEet9DMxoB9K6viEjiF31iXRkl
-         FgI9zE8OqQ2Le2zGgxo5MIdIdYrBc3wB1s7V+qmmHaZCYTzEJXLevHOfE2QQxMkDqc9v
-         +t6YmNu+1fyEZl9b86nY6tPq2Sqob9pRHBo166X5+hZW2aGFoT1e1LDJu/GKuDzXSUn/
-         E7QcXqFkv40HAvrZzZDbz5ShRt3XdIXPn1PorNKrKPcW8hX87EXypR2qNEgXctCmS+e1
-         BZDw==
-X-Gm-Message-State: APjAAAUugATW4WyDorGx54Ro/+bCCtkGk2qBMcm80rintLeiITD54IoL
-        lzwF1NTjl98snTiktoeAdcydVshzo7OsXw==
-X-Google-Smtp-Source: APXvYqyUjAkZTvdOJcZVjYz1KMHQDAELVAnJGKbB/E1MiMMRs09E8+hkzCxV8yB5X6kjzy+BasBkjA==
-X-Received: by 2002:a5d:4044:: with SMTP id w4mr7095959wrp.322.1576166480312;
-        Thu, 12 Dec 2019 08:01:20 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x11sm6694428wre.68.2019.12.12.08.01.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Dec 2019 08:01:19 -0800 (PST)
-Message-ID: <5df2644f.1c69fb81.f7f0d.1a28@mx.google.com>
-Date:   Thu, 12 Dec 2019 08:01:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1729731AbfLLQLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 11:11:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729416AbfLLQLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Dec 2019 11:11:22 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE5382073B;
+        Thu, 12 Dec 2019 16:11:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576167081;
+        bh=slAzlIzEDDtUyqYVNRNXCpBSABhNHtvTF49rt/tiHk4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TXL7ZmvdaRoOtUG+0//y+M9Nvl+dVjSNQMClD1WuGoP2cMQoONYFN9ckoARPeJjeb
+         hmk4pVP+57s6BBdu+VdXTnKvHTNB2ik1isslv92n1jy68zxItcRDCt6zKCJdxR9kWZ
+         wePOqL23XkD1UCBHry0W8LugqiLff13yTvnqVNk0=
+Date:   Thu, 12 Dec 2019 17:11:19 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chen-Yu Tsai <wens@csie.org>
+Cc:     Pavel Machek <pavel@denx.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>
+Subject: Re: [PATCH 4.19 185/243] ARM: dts: sun8i: a23/a33: Fix up RTC device
+ node
+Message-ID: <20191212161119.GA1673133@kroah.com>
+References: <20191211150339.185439726@linuxfoundation.org>
+ <20191211150351.658072828@linuxfoundation.org>
+ <20191212133132.GA13171@amd>
+ <20191212140241.GA1595136@kroah.com>
+ <CAGb2v67z5T4XVOc03LL9K0p1yP9UtiDhmLNj8kzxVnsDsr0rew@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.158-160-g8d615e65ba28
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 77 boots: 1 failed,
- 74 passed with 2 untried/unknown (v4.14.158-160-g8d615e65ba28)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGb2v67z5T4XVOc03LL9K0p1yP9UtiDhmLNj8kzxVnsDsr0rew@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 77 boots: 1 failed, 74 passed with 2 untried/u=
-nknown (v4.14.158-160-g8d615e65ba28)
+On Thu, Dec 12, 2019 at 10:18:34PM +0800, Chen-Yu Tsai wrote:
+> On Thu, Dec 12, 2019 at 10:02 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Thu, Dec 12, 2019 at 02:31:32PM +0100, Pavel Machek wrote:
+> > > Hi!
+> > >
+> > > > The RTC module on the A23 was claimed to be the same as on the A31, when
+> > > > in fact it is not. The A31 does not have an RTC external clock output,
+> > > > and its internal RC oscillator's average clock rate is not in the same
+> > > > range. The A33's RTC is the same as the A23.
+> > > >
+> > > > This patch fixes the compatible string and clock properties to conform
+> > > > to the updated bindings. The register range is also fixed.
+> > >
+> > > No, this is not okay for v4.19. New compatible is not in
+> > > ./drivers/rtc/rtc-sun6i.c, so this will completely break rtc support.
+> >
+> > Good catch, I would have thought both of those would happen at the same
+> > time.
+> 
+> (Fixed Maxime's email)
+> 
+> Neither were marked for stable. I guess Sasha's auto selection bot is at
+> work here. Is there anything we can do to prevent them from being selected?
+> For sunxi, we pretty much don't expect things to be backported, unless
+> something critical was fixed.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.158-160-g8d615e65ba28/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.158-160-g8d615e65ba28/
+Sasha can add any files to the bot to ignore, just let him know what
+ones to mark that way.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.158-160-g8d615e65ba28
-Git Commit: 8d615e65ba28d485657390c7fdec808141485e64
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 42 unique boards, 13 SoC families, 12 builds out of 201
+thanks,
 
-Boot Regressions Detected:
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxl-s905d-p230:
-              lab-baylibre: new failure (last pass: v4.14.158-153-g1fe060c1=
-745b)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
