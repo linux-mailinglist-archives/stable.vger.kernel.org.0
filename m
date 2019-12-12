@@ -2,78 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58BDD11D8F3
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 23:01:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77DD411D930
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 23:18:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731233AbfLLV7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 16:59:52 -0500
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:46991 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730772AbfLLV7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 16:59:52 -0500
-Received: by mail-qt1-f193.google.com with SMTP id 38so480653qtb.13
-        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 13:59:52 -0800 (PST)
+        id S1730942AbfLLWSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 17:18:15 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:44637 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730896AbfLLWSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 17:18:15 -0500
+Received: by mail-lj1-f193.google.com with SMTP id c19so373478lji.11;
+        Thu, 12 Dec 2019 14:18:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=SRcPMsL5fJa7DDuG636/m794t115twSsQekEvSMnulk=;
-        b=qAT4iM01t7N52fNh62rQLYCgxokg8wuQsexb1G9UkXg91FUQIaNmaErcTXRhMd556a
-         mWKiKDiOaRh6ql8WQuV5KE1Bx/9dhmPQczwCT0UvI8/YogS8VAfQx5QdmODTJVbPydxL
-         /dDFx1fNd53g1CpjR4kdmxddKvhiMy4G0EjyuBTs1wh6xrWcHwTDUet3cF8E7oRAQ10P
-         s5qr4lcxPhHGwlTYPS7TDAYluYlAe/diLyEFGHIusxG4qQXl1aTZHEyl0UalCi2d2dOb
-         bhvepiJyFrY3iZIgECXs50C6xZa/zT+ZA3p3D1vB3v9LGs24Jom0mKEYMLnQzwxl7B7T
-         75OA==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=+XD2YJXA7ZufzS9uIPo90GBKSTjiLqm8CiBX+lsDlIA=;
+        b=W+Vqr2bSf/ekx6RYypheSPdTHMmXh+i0Zm/wkXo+ZdjoxrWQh1r5CITjoFHsTLrf6i
+         x9a81qOSV+C7tZat6qngJ+h3QtTmnLoge1Bfc3ZhuTCMigjO63vX8yv4UfJVIotxTj1j
+         iZjIYZ1WmJ4mKP30UXIDqBFUJ8K5u2v1lB6OmDFcRkMH7lMWFUgT8j8Qbhw6LftpRCC+
+         sawUX5P5FL3WPLmGQmDtIWB/epHF94hLmfbkM4aOxWxJukEmWl0Dyvv0Ziofs+WyR1rg
+         LkUDHk6eKI/TWjvG5V4/MAIbi/d9YEFMG9LnaCe1Gh464qUgCePRRvohJdm21vR+pvvs
+         wn2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=SRcPMsL5fJa7DDuG636/m794t115twSsQekEvSMnulk=;
-        b=FtTJA1NUOY3dDfM0RNvrqQbwgd7XpW9uuHY2obxfKmEy+bM9G/zSLzYu01VZANmvqb
-         N7KRtpq+FgC/HPe9y+H17SgjDdg8nyRVcoFDzt/30AKvmWKswoy1AGZrJbmWHoTFcBpB
-         wc7UaXL915LbRvE+RmojFWVkKiB/L5QQuMEV6sv3HJaRvZcdvSKEwU802ttKLydW7KGW
-         iIiHffv6LGlfzs99RryEUdSwONylsndwxosig5lXGHkfbI3tKZws8GvPZwdPchzC+N5g
-         HqVqPNuoTFiuyv+d5NLRpNEOChSPxaUKu9O7dQArIbtnA+TbbZ4XnJsLpD/vXl8lciT8
-         +daA==
-X-Gm-Message-State: APjAAAWg2h6Kf5vELXqSiWHS1VRzbz2y0UuLcRllFtDCRCSDjwdESdet
-        hXaQ+fZZ4SdlXE4QuHCXgkr1sTaSg1wvDiamFOw=
-X-Google-Smtp-Source: APXvYqyM7V8rGDOWdQeR9K5pZAWxXTLZ8J5Mr2y1Yz4F2ZzR64gY8114qO/mtG2pxz5GXtlH91uOznUM6l9IFumZgTg=
-X-Received: by 2002:ac8:6897:: with SMTP id m23mr9570609qtq.244.1576187991681;
- Thu, 12 Dec 2019 13:59:51 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=+XD2YJXA7ZufzS9uIPo90GBKSTjiLqm8CiBX+lsDlIA=;
+        b=f0i/B6bBqaxgmSjzDvOHuSdoAdLZ3oxq6Ab9ZAOzLp6x+a4YyH7KlFfMhVwcW/dFuq
+         QfPSwZyaRrm4sPbsA91JgX9pCenfIyoV53gr4dqI8LEyIMrYgX9OzXyfQKYPd9cxXi5f
+         W0ulH7zeVRPnzEPpiPZ6Z4ugfzIcPm/nlvkgTt5JP8WWgGIKfVgKohNoQ1iBZLJ+DKCK
+         km2V63v2WONFms72ITnQ04z+3Gedq4Y2uvl0fLVXuDsKXYf4r4XgwmpYW1WBIsS4ghPQ
+         u3K1oe7nlZiPzB92xLlV8zRYkcXjmYE6v5OAc0Hl0F3EppzVcTdCrQ79nVpnm6bZGUcP
+         bozA==
+X-Gm-Message-State: APjAAAXmHgbbIN3BIH4MaeJQhqsvz2CPErN1JArTzcHm7YxKIo/F7+QQ
+        fE+FGzKmBX2OLGJ5rswZaMr+SR/D
+X-Google-Smtp-Source: APXvYqyoqLQrADAtdeclQnySLqArLCxK1fwquekZF6UdGDo9yxFqAnEXdQE+naQF4PTlDXetcqZSnQ==
+X-Received: by 2002:a2e:9b8f:: with SMTP id z15mr7595279lji.20.1576189092618;
+        Thu, 12 Dec 2019 14:18:12 -0800 (PST)
+Received: from [192.168.2.145] (79-139-233-37.dynamic.spd-mgts.ru. [79.139.233.37])
+        by smtp.googlemail.com with ESMTPSA id 22sm4147820ljw.9.2019.12.12.14.18.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Dec 2019 14:18:12 -0800 (PST)
+Subject: Re: [PATCH] ARM: tegra: Fix restoration of PLLM when exiting suspend
+To:     Peter De Schrijver <pdeschrijver@nvidia.com>
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20191210103708.7023-1-jonathanh@nvidia.com>
+ <1f2a4f23-5be5-aa7e-6eb4-2aeb4058481d@gmail.com>
+ <1fe9cd2d-50a2-aae5-95fa-0329acce4c4c@gmail.com>
+ <20191211085016.GW28289@pdeschrijver-desktop.Nvidia.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <5ac5de2a-e43f-5332-8453-b73f6fdd64b7@gmail.com>
+Date:   Fri, 13 Dec 2019 01:18:11 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-Received: by 2002:ac8:3969:0:0:0:0:0 with HTTP; Thu, 12 Dec 2019 13:59:51
- -0800 (PST)
-Reply-To: dunawattara96@outlook.com
-From:   Mr Duna Wattara <drhajiuga003@gmail.com>
-Date:   Thu, 12 Dec 2019 13:59:51 -0800
-Message-ID: <CALpYtwBEti2+Tsh0AJ2-+VTSGGF8ByKgiK4q=gmWXidsAoao0w@mail.gmail.com>
-Subject: with due respect
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191211085016.GW28289@pdeschrijver-desktop.Nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+11.12.2019 11:50, Peter De Schrijver пишет:
+> On Tue, Dec 10, 2019 at 11:29:42PM +0300, Dmitry Osipenko wrote:
+>> External email: Use caution opening links or attachments
+>>
+>>
+>> 10.12.2019 22:28, Dmitry Osipenko пишет:
+>>> Hello Jon,
+>>>
+>>> PLLM's enable-status could be defined either by PMC or CaR. Thus at
+>>> first you need to check whether PMC overrides CaR's enable and then
+>>> judge the enable state based on PMC or CaR state respectively.
+>>>
+>>
+>> Actually, now I think that it doesn't make sense to check PMC WB0 state
+>> at all. IIUC, PLLM's state of the WB0 register defines whether Boot ROM
+>> should enable PLLM on resume from suspend. Thus it will be correct to
+>> check only the CaR's enable-state of PLLM.
+>>
+>> I'm not sure what's the idea of WB0 overriding, maybe to resume faster.
+>> Peter, could you please clarify that?
+> 
+> I don't know why these overriding bits exist. The code for them was in
+> the downstream driver so I implemented the same in the upstream driver
+> :)
 
-I know that this mail will come to you as a surprise as we have never
-met before, but need not to worry as I am contacting you independently
-of my investigation and no one is informed of this communication.
-
-I need your urgent assistance in transferring the sum of $11.3million
-immediately to your private account.The money has been here in our
-Bank lying dormant for years now without anybody coming for the claim of it.
-
-I want to release the money to you as the relative to our deceased
-customer (the account owner) who died a long with his supposed NEXT OF
-KIN since 16th October 2005. The Banking laws here does not allow such
-money to stay more than 14 years, because the money will be recalled
-to the Bank treasury account as unclaimed fund.
-
-By indicating your interest I will send you the full details on how
-the business will be executed.
-
-Please respond urgently and delete if you are not interested.
-
-Best Regards,
-Mr. Duna Wattara.
+Okay, I'll try to figure out how to clean up it properly.
