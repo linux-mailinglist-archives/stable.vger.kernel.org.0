@@ -2,118 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0118A11CF15
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 15:02:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040DE11CF17
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 15:02:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729593AbfLLOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 09:02:36 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:36499 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729567AbfLLOCg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 09:02:36 -0500
-Received: by mail-wm1-f65.google.com with SMTP id p17so2647170wma.1
-        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 06:02:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=u2RUDl0mYLvmXxjsLkAo20DZhbBWkB25mVRHhxsu6eI=;
-        b=Og0OIM3ERcWxCnRN++RWWG4z6rzmr5a6nHC6FsZO8HVaAVTtF1LczCuN6879Xt0VbM
-         rtvTvkjllgM1I2VrJQitukSJtlMPazhlm11Eah76iznHoRB3K14Tt5F4kvYqB5FJxaf5
-         cvb+o1m/OKAS7Sg4eHfWZPgI8/P0KTHHdS2q3CM0n6DmXuEy7UM/0tFCR+2D1qLBZjBA
-         4dDgTIEpIdAa5yyroiTlCgmjN97ODLzvGmGwfwOdkI+U0IKJUOokU2BTHsCFXnJ+fsvc
-         LjqAhgryPODrbsbMMp69/CKJtew/4PWTYKeo2iyVqC95uEJSKCPbCY9VSDzMj+uwuQH9
-         hviw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=u2RUDl0mYLvmXxjsLkAo20DZhbBWkB25mVRHhxsu6eI=;
-        b=A7Krg/M5B9DUt2x908LTVcW1X3Qy8ioXWiVI+rYykZhekequ6lLEcX+JKPGaxJY/9d
-         ICONBhdWUf1ae9WpVvHSFSqATyyFoVL+ixTi6tdi6DELxh0Fng1gUVZq0IZ/tIDm4sOZ
-         9aMa4MhOdhJlueePhdzdA/bggEDmpn//fwos7VZ+4VHJc5BSVRgy5xLmUFHv0sHKNedL
-         eR4UjpAXUv1lTNi0j17Dsu+aIT0zM17p2eK8ATb0dXdqTo0J85plDRtNX0v6DgbZiiup
-         1aexF8oYN7/6rYpY8+sxMXTyOxFdF8bVRXThotu4iXnEF14KaNUrYqixtqmLF+8aVz76
-         sACA==
-X-Gm-Message-State: APjAAAUlfTVEdlLM4gDhrhbvPVyfILxeqHKCPXawCkq2OFg7dSpl4cdg
-        eIIlyvKCBoTwb8BbduJrJ4voPYmEPTIg4bmSWtVJeQ==
-X-Google-Smtp-Source: APXvYqxbofXUzxSXHnSYtdpsEwkoDNF3YT6M3W65sasL+TC5Y8hxcYGpm8mGi9TIXs/EUWoX6MrXiLHTPwCwSvhT8tk=
-X-Received: by 2002:a7b:c95a:: with SMTP id i26mr6726628wml.67.1576159354472;
- Thu, 12 Dec 2019 06:02:34 -0800 (PST)
+        id S1729626AbfLLOCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 09:02:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729568AbfLLOCn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Dec 2019 09:02:43 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0637121655;
+        Thu, 12 Dec 2019 14:02:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576159363;
+        bh=sy+crXeHM5W71lQNmFRu6qQnDoDFhxVk2fBkN0YDLvE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WOv4MI7/GQ1xpFQY6FYZg2qCsAoA+Ko1l/1LUW/pXJbfesTD3iU3inIzu/d0jg/fL
+         uXJCtAilUMGgApsr2r/uMaw65wENLo4ZX0kPLEAEL79mr0ew9rx9kC8BwMw4XN9y8e
+         iZdlFXwA/yX/gYw1G/Cn6571Q9YbOBZdNfqF5W6c=
+Date:   Thu, 12 Dec 2019 15:02:41 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 185/243] ARM: dts: sun8i: a23/a33: Fix up RTC device
+ node
+Message-ID: <20191212140241.GA1595136@kroah.com>
+References: <20191211150339.185439726@linuxfoundation.org>
+ <20191211150351.658072828@linuxfoundation.org>
+ <20191212133132.GA13171@amd>
 MIME-Version: 1.0
-References: <20191212103158.4958-1-hdegoede@redhat.com> <20191212103158.4958-3-hdegoede@redhat.com>
- <CAKv+Gu9AjYVvLot9+enuwSWfyfzqgCWSuW3ioccm3FJ7KFA8eA@mail.gmail.com> <82c65f05-1140-e10e-ba2f-0c4c5c85bbc8@redhat.com>
-In-Reply-To: <82c65f05-1140-e10e-ba2f-0c4c5c85bbc8@redhat.com>
-From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date:   Thu, 12 Dec 2019 15:02:15 +0100
-Message-ID: <CAKv+Gu9StgwBs=y6KU2Pb_P499SfH8po978gHoAbXVL8mB722A@mail.gmail.com>
-Subject: Re: [PATCH 5.5 regression fix 2/2] efi/libstub/helper: Initialize
- pointer variables to zero for mixed mode
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191212133132.GA13171@amd>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 12 Dec 2019 at 13:45, Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Hi,
->
-> On 12-12-2019 12:29, Ard Biesheuvel wrote:
-> > On Thu, 12 Dec 2019 at 11:32, Hans de Goede <hdegoede@redhat.com> wrote:
-> >>
-> >> When running in EFI mixed mode (running a 64 bit kernel on 32 bit EFI
-> >> firmware), we _must_ initialize any pointers which are returned by
-> >> reference by an EFI call to NULL before making the EFI call.
-> >>
-> >> In mixed mode pointers are 64 bit, but when running on a 32 bit firmware,
-> >> EFI calls which return a pointer value by reference only fill the lower
-> >> 32 bits of the passed pointer, leaving the upper 32 bits uninitialized
-> >> unless we explicitly set them to 0 before the call.
-> >>
-> >> We have had this bug in the efi-stub-helper.c file reading code for
-> >> a while now, but this has likely not been noticed sofar because
-> >> this code only gets triggered when LILO style file=... arguments are
-> >> present on the kernel cmdline.
-> >>
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> >> ---
-> >>   drivers/firmware/efi/libstub/efi-stub-helper.c | 4 ++--
-> >>   1 file changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/drivers/firmware/efi/libstub/efi-stub-helper.c b/drivers/firmware/efi/libstub/efi-stub-helper.c
-> >> index e02579907f2e..6ca7d86743af 100644
-> >> --- a/drivers/firmware/efi/libstub/efi-stub-helper.c
-> >> +++ b/drivers/firmware/efi/libstub/efi-stub-helper.c
-> >> @@ -365,7 +365,7 @@ static efi_status_t efi_file_size(efi_system_table_t *sys_table_arg, void *__fh,
-> >>                                    u64 *file_sz)
-> >>   {
-> >>          efi_file_handle_t *h, *fh = __fh;
-> >
-> > What about h? Doesn't it suffer from the same problem?
-> >
-> >> -       efi_file_info_t *info;
-> >> +       efi_file_info_t *info = NULL;
-> >>          efi_status_t status;
-> >>          efi_guid_t info_guid = EFI_FILE_INFO_ID;
-> >>          unsigned long info_sz;
-> >
-> > And info_sz?
->
-> And "efi_file_io_interface_t *io" and "efi_file_handle_t *fh"
-> in efi_open_volume().
->
-> I think that is all of them.
->
+On Thu, Dec 12, 2019 at 02:31:32PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > The RTC module on the A23 was claimed to be the same as on the A31, when
+> > in fact it is not. The A31 does not have an RTC external clock output,
+> > and its internal RC oscillator's average clock rate is not in the same
+> > range. The A33's RTC is the same as the A23.
+> > 
+> > This patch fixes the compatible string and clock properties to conform
+> > to the updated bindings. The register range is also fixed.
+> 
+> No, this is not okay for v4.19. New compatible is not in
+> ./drivers/rtc/rtc-sun6i.c, so this will completely break rtc support.
 
-OK.
+Good catch, I would have thought both of those would happen at the same
+time.
 
-I'll fix it up locally.
+Now dropped, thanks.
+
+greg k-h
