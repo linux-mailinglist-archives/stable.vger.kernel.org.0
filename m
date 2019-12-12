@@ -2,60 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE03611CC0F
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 12:19:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B28C711CC10
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 12:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728725AbfLLLTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 06:19:16 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46256 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728722AbfLLLTQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Dec 2019 06:19:16 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 6B5CCAD6C;
-        Thu, 12 Dec 2019 11:19:13 +0000 (UTC)
-Date:   Thu, 12 Dec 2019 12:19:11 +0100
-From:   Joerg Roedel <jroedel@suse.de>
+        id S1728857AbfLLLTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 06:19:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60466 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728722AbfLLLTU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Dec 2019 06:19:20 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4ECCA21655;
+        Thu, 12 Dec 2019 11:19:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576149559;
+        bh=eCeSF7C2XWFwKGPxKjsBF24nnWx7qF46DSSQecIlWVw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fdWC3uFvfIPQiAKxyKQNNI9jRdCixaEbYY7QlWeJfANZNQzc7Hzxya0cfgIDycMXl
+         lsbszwdUmcbyVwvEoCbSrRvmZHeLYl9uosCGd+b9Vo5HGupic0NycJjw6tzUqLdPuj
+         DW/TGo8F7dvvsgrbgvpE2Q7xKGhVNNFReWdZKk/k=
+Date:   Thu, 12 Dec 2019 12:19:17 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Chen-Yu Tsai <wens@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>, Pavel Machek <pavel@denx.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Joerg Roedel <jroedel@suse.de>, stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>
 Subject: Re: Regression from "mm/vmalloc: Sync unmappings in
  __purge_vmap_area_lazy()" in stable kernels
-Message-ID: <20191212111911.GH4477@suse.de>
+Message-ID: <20191212111917.GA1535381@kroah.com>
 References: <CAGb2v656iHP+6X12gT+Kfc3BkM2w=rU6yfHTk03JgaXrUy02TA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <CAGb2v656iHP+6X12gT+Kfc3BkM2w=rU6yfHTk03JgaXrUy02TA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
 On Thu, Dec 12, 2019 at 06:54:12PM +0800, Chen-Yu Tsai wrote:
+> Hi,
+> 
 > I'd like to report a very severe performance regression due to
 > 
 >     mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy() in stable kernels
-
-Yes, that is a known problem, with a couple of reports already in the
-past months. And I posted a fix from which I thought it is on its way
-upstream, but apparently its not:
-
-	https://lore.kernel.org/lkml/20191009124418.8286-1-joro@8bytes.org/
-
-Adding Andrew and the x86 maintainers to Cc.
-
-Regards,
-
-	Joerg
-
 > 
 > in v4.19.88. I believe this was included since v4.19.67. It is also
 > in all the other LTS kernels, except 3.16.
@@ -124,9 +115,10 @@ Regards,
 > to backport this. For now I just reverted the commit by hand by
 > removing the offending code. Seems to work OK, and based on the commit
 > logs I guess it's safe to do so, as we're not running X86-32 or PTI.
-> 
-> 
-> Regards
-> ChenYu
-> 
-> [1] https://en.wikipedia.org/wiki/PTT_Bulletin_Board_System
+
+The above commit should resolve the issue for you, can you try it out on
+5.4?  And any reason you have to stick with the old 4.19 kernel?
+
+thanks,
+
+greg k-h
