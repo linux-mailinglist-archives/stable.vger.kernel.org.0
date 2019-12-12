@@ -2,88 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D01411C82E
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 09:28:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D414811C853
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 09:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728110AbfLLI1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 03:27:42 -0500
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:45642 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727949AbfLLI1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 03:27:42 -0500
-Received: by mail-pf1-f196.google.com with SMTP id 2so349459pfg.12
-        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 00:27:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=dNWOBA5YwzD3g4C2lwDOuDcI1Q0TYRPb9GI/Gzl2Jr8=;
-        b=x2FnOlHQRZ7INIj6O8+MnWCeuiBYNLqdiOswnaoZ864UO6WAQA0twmxYmsxNsOSSnC
-         Ly2ePlLH8p6iDtGIDroA3OJfk3onQ1aAi6kOs1Vv3KZnPsyQ+ZCKvfm8W0y5Io2aTcdz
-         VH/iUSMpZbosWLX5kkWHuNjQ8dFo9lKDfbBTTqS3KKKKOCA+/a3ksx+H2d9O/ans7WNx
-         020CaCgf58fo16lOvDb94CwsHbwZ8t+RvoC7x+ouG8mmKxVK63YWUmPbswnA2ptBbmuC
-         LiOB60aqKZRsoIZEgcmHbJhH15rTh/w+KVSG460Ep745jP/deByOZvgklH6GlWkCZBVK
-         C+yw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=dNWOBA5YwzD3g4C2lwDOuDcI1Q0TYRPb9GI/Gzl2Jr8=;
-        b=kEr/g5pL28Ybx2DbJAiJ8+YplJv9WI1/SJbeyfWaTI5eVVtOHKxC73VJHKkNAozuED
-         kHDflwnjvUCL32B51hwQuSAmHgJ49R4fdpj0VurWMVUmCschAhJ0m9S74wFPTBMe7eyq
-         qxWk5EJkPOhO9/uP/pur3nFvgNFtNoxuW+erGZCuoYy2sheZTX6QX23rRRlZuRsSsG4p
-         07GWpsp5EhI6EAjVHTHwP4oXAtoe/8OIdOou2FXH1H40IKYCv1WtNlEe6xjOHyT1UPNf
-         /GoScSFnmAUq0YaRYPKOGNTJ5YpwmMg6E0lH1OZ9HqXp6yQicFN2TT36EJuRZIgd3gkM
-         qzOg==
-X-Gm-Message-State: APjAAAVHvbMgPEouT6lQ6Qy5hyS059VojWzxiuKp1sAS92GwXfoOwy3f
-        W4snlY7uow2WGbUs/Kyi/35Drg==
-X-Google-Smtp-Source: APXvYqxBBy+O8IUr//c8wJuqru1jWzqjv78xdvkaJ7eDXK/yp7162K1YVGhRaKCcqhiNQoRjFc6OKw==
-X-Received: by 2002:a63:d108:: with SMTP id k8mr9032354pgg.434.1576139261361;
-        Thu, 12 Dec 2019 00:27:41 -0800 (PST)
-Received: from debian ([122.174.90.102])
-        by smtp.gmail.com with ESMTPSA id hg11sm4897908pjb.14.2019.12.12.00.27.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Dec 2019 00:27:40 -0800 (PST)
-Date:   Thu, 12 Dec 2019 13:57:29 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.4 00/92] 5.4.3-stable review
-Message-ID: <20191212082729.GA3268@debian>
-References: <20191211150221.977775294@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+        id S1727906AbfLLIhf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 03:37:35 -0500
+Received: from inva020.nxp.com ([92.121.34.13]:55154 "EHLO inva020.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728221AbfLLIhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Dec 2019 03:37:35 -0500
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 895681A091F;
+        Thu, 12 Dec 2019 09:37:34 +0100 (CET)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 93B2C1A079F;
+        Thu, 12 Dec 2019 09:37:31 +0100 (CET)
+Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 99B61402B4;
+        Thu, 12 Dec 2019 16:37:27 +0800 (SGT)
+From:   Peter Chen <peter.chen@nxp.com>
+To:     balbi@kernel.org
+Cc:     linux-usb@vger.kernel.org, linux-imx@nxp.com,
+        Peter Chen <peter.chen@nxp.com>, Jun Li <jun.li@nxp.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH v2 1/1] usb: gadget: f_fs: set req->num_sgs as 0 for non-sg transfer
+Date:   Thu, 12 Dec 2019 16:35:03 +0800
+Message-Id: <1576139703-9409-1-git-send-email-peter.chen@nxp.com>
+X-Mailer: git-send-email 2.7.4
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 11, 2019 at 04:04:51PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.3 release.
-> There are 92 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+The UDC core uses req->num_sgs to judge if scatter buffer list is used.
+Eg: usb_gadget_map_request_by_dev. For f_fs sync io mode, the request
+is re-used for each request, so if the 1st request->length > PAGE_SIZE,
+and the 2nd request->length is <= PAGE_SIZE, the f_fs uses the 1st
+req->num_sgs for the 2nd request, it causes the UDC core get the wrong
+req->num_sgs value (The 2nd request doesn't use sg). For f_fs async
+io mode, it is not harm to initialize req->num_sgs as 0 either, in case,
+the UDC driver doesn't zeroed request structure.
 
-No new errors from "sudo dmesg -l err".
+Cc: Jun Li <jun.li@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 772a7a724f69 ("usb: gadget: f_fs: Allow scatter-gather buffers")
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+---
+Changes for v2:
+- Using the correct patch, and initialize req->num_sgs as 0 for aio too.
 
---
-software engineer
-rajagiri school of engineering and technology
+ drivers/usb/gadget/function/f_fs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 59d9d512dcda..ced2581cf99f 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1062,6 +1062,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 			req->num_sgs = io_data->sgt.nents;
+ 		} else {
+ 			req->buf = data;
++			req->num_sgs = 0;
+ 		}
+ 		req->length = data_len;
+ 
+@@ -1105,6 +1106,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 			req->num_sgs = io_data->sgt.nents;
+ 		} else {
+ 			req->buf = data;
++			req->num_sgs = 0;
+ 		}
+ 		req->length = data_len;
+ 
+-- 
+2.17.1
 
