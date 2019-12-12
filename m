@@ -2,123 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B28C711CC10
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 12:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2369D11CC14
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 12:19:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728857AbfLLLTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 06:19:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60466 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728722AbfLLLTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Dec 2019 06:19:20 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4ECCA21655;
-        Thu, 12 Dec 2019 11:19:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576149559;
-        bh=eCeSF7C2XWFwKGPxKjsBF24nnWx7qF46DSSQecIlWVw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fdWC3uFvfIPQiAKxyKQNNI9jRdCixaEbYY7QlWeJfANZNQzc7Hzxya0cfgIDycMXl
-         lsbszwdUmcbyVwvEoCbSrRvmZHeLYl9uosCGd+b9Vo5HGupic0NycJjw6tzUqLdPuj
-         DW/TGo8F7dvvsgrbgvpE2Q7xKGhVNNFReWdZKk/k=
-Date:   Thu, 12 Dec 2019 12:19:17 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chen-Yu Tsai <wens@kernel.org>
-Cc:     Joerg Roedel <jroedel@suse.de>, stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>
-Subject: Re: Regression from "mm/vmalloc: Sync unmappings in
- __purge_vmap_area_lazy()" in stable kernels
-Message-ID: <20191212111917.GA1535381@kroah.com>
-References: <CAGb2v656iHP+6X12gT+Kfc3BkM2w=rU6yfHTk03JgaXrUy02TA@mail.gmail.com>
+        id S1728847AbfLLLTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 06:19:52 -0500
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:15830 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728722AbfLLLTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 06:19:52 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5df222500000>; Thu, 12 Dec 2019 03:19:44 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 12 Dec 2019 03:19:51 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 12 Dec 2019 03:19:51 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 12 Dec
+ 2019 11:19:48 +0000
+Subject: Re: [PATCH 4.19 000/243] 4.19.89-stable review
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191211150339.185439726@linuxfoundation.org>
+ <7b43a504-160f-e793-99b2-bcb79d331b6a@nvidia.com>
+ <8de7c018-32c7-f46e-4c43-ea3a70378a14@roeck-us.net>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <892c8078-6db4-d821-43fd-cacf09ca26b9@nvidia.com>
+Date:   Thu, 12 Dec 2019 11:19:46 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGb2v656iHP+6X12gT+Kfc3BkM2w=rU6yfHTk03JgaXrUy02TA@mail.gmail.com>
+In-Reply-To: <8de7c018-32c7-f46e-4c43-ea3a70378a14@roeck-us.net>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1576149584; bh=+AfDW9ORdIXJCM0WDuhqoJWQ1Cb1LoHKsESwe9yzTJs=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=fmsAJ85hmBfIoNIrB37Mpne0ALpWuhLh36TGBQIgnvlIUGt1tB3CR413a2TQHBN+H
+         vkKACDbeap+G+Shdsio6EbFskVUsbXGoYDWO+s7r6qmRAVkaQev6brFJJwiS+d8IPZ
+         Px5ipvfBZsTytTOh/2fqPztw8m3jWFQdApMQM/HgfsaKM4aZVyUuWAIF73lfxwMCfC
+         cqvqoHaQ4LCi6viEw+xpHVXLQ6HiGwq8sbXE3CzwhhT+aajFi02PdzMdR3jP1sEuTK
+         nr6lqq/TLjbym+gvT9kTvuLyRKmEbSyOL0jz32gZXWguctdkVf7ksCz9KSTqcrk/jP
+         wnU3lwvDo684g==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 12, 2019 at 06:54:12PM +0800, Chen-Yu Tsai wrote:
-> Hi,
-> 
-> I'd like to report a very severe performance regression due to
-> 
->     mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy() in stable kernels
-> 
-> in v4.19.88. I believe this was included since v4.19.67. It is also
-> in all the other LTS kernels, except 3.16.
-> 
-> So today I switched an x86_64 production server from v5.1.21 to
-> v4.19.88, because we kept hitting runaway kcompactd and kswapd.
-> Plus there was a significant increase in memory usage compared to
-> v5.1.5. I'm still bisecting that on another production server.
-> 
-> The service we run is one of the largest forums in Taiwan [1].
-> It is a terminal-based bulletin board system running over telnet,
-> SSH or a custom WebSocket bridge. The service itself is the
-> one-process-per-user type of design from the old days. This
-> means a lot of forks when there are user spikes or reconnections.
-> 
-> (Reconnections happen because a lot of people use mobile apps that
->  wrap the service, but they get disconnected as soon as they are
->  backgrounded.)
-> 
-> With v4.19.88 we saw a lot of contention on pgd_lock in the process
-> fork path with CONFIG_VMAP_STACK=y:
-> 
-> Samples: 937K of event 'cycles:ppp', Event count (approx.): 499112453614
->   Children      Self  Command          Shared Object                 Symbol
-> +   31.15%     0.03%  mbbsd            [kernel.kallsyms]
-> [k] entry_SYSCALL_64_after_hwframe
-> +   31.12%     0.02%  mbbsd            [kernel.kallsyms]
-> [k] do_syscall_64
-> +   28.12%     0.42%  mbbsd            [kernel.kallsyms]
-> [k] do_raw_spin_lock
-> -   27.70%    27.62%  mbbsd            [kernel.kallsyms]
-> [k] queued_spin_lock_slowpath
->    - 18.73% __libc_fork
->       - 18.33% entry_SYSCALL_64_after_hwframe
->            do_syscall_64
->          - _do_fork
->             - 18.33% copy_process.part.64
->                - 11.00% __vmalloc_node_range
->                   - 10.93% sync_global_pgds_l4
->                        do_raw_spin_lock
->                        queued_spin_lock_slowpath
->                - 7.27% mm_init.isra.59
->                     pgd_alloc
->                     do_raw_spin_lock
->                     queued_spin_lock_slowpath
->    - 8.68% 0x41fd89415541f689
->       - __libc_start_main
->          + 7.49% main
->          + 0.90% main
-> 
-> This hit us pretty hard, with the service dropping below one-third
-> of its original capacity.
-> 
-> With CONFIG_VMAP_STACK=n, the fork code path skips this, but other
-> vmalloc users are still affected. One other area is the tty layer.
-> This also causes problems for us since there can be as many as 15k
-> users over SSH, some coming and going. So we got a lot of hung sshd
-> processes as well. Unfortunately I don't have any perf reports or
-> kernel logs to go with.
-> 
-> Now I understand that there is already a fix in -next:
-> 
->     https://lore.kernel.org/patchwork/patch/1137341/
-> 
-> However the code has changed a lot in mainline and I'm not sure how
-> to backport this. For now I just reverted the commit by hand by
-> removing the offending code. Seems to work OK, and based on the commit
-> logs I guess it's safe to do so, as we're not running X86-32 or PTI.
 
-The above commit should resolve the issue for you, can you try it out on
-5.4?  And any reason you have to stick with the old 4.19 kernel?
+On 12/12/2019 01:40, Guenter Roeck wrote:
+> On 12/11/19 1:36 PM, Jon Hunter wrote:
+>>
+>> On 11/12/2019 15:02, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 4.19.89 release.
+>>> There are 243 patches in this series, all will be posted as a response
+>>> to this one.=C2=A0 If anyone has any issues with these being applied, p=
+lease
+>>> let me know.
+>>>
+>>> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> =C2=A0=C2=A0=C2=A0=C2=A0https://www.kernel.org/pub/linux/kernel/v4.x/st=
+able-review/patch-4.19.89-rc1.gz
+>>>
+>>> or in the git tree and branch at:
+>>> =C2=A0=C2=A0=C2=A0=C2=A0git://git.kernel.org/pub/scm/linux/kernel/git/s=
+table/linux-stable-rc.git
+>>> linux-4.19.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>>
+>>> -------------
+>>> Pseudo-Shortlog of commits:
+>>
+>> ...
+>>
+>>> Linus Walleij <linus.walleij@linaro.org>
+>>> =C2=A0=C2=A0=C2=A0=C2=A0 gpio: OF: Parse MMC-specific CD and WP propert=
+ies
+>>
+>> The above change is causing intermittent failures on Tegra30 eMMC.
+>> Reverting this change on top of the 4.19.89-rc1 fixes the problem.
+>>
+>=20
+> Thanks for tracking that down. I see boot failures for arm:vexpress-a9
+> when trying to boot from mmc.
+>=20
+> I dimly recall that this was a problem before. Ah yes ... commit
+> 89a5e15bcba8
+> ("gpio/mmc/of: Respect polarity in the device tree") fixes the above
+> commit.
+> Can you give it a try ?
 
-thanks,
+Thanks. I did try this and I can confirm that it does indeed work,
+although does not apply cleanly.
 
-greg k-h
+Cheers
+Jon
+
+--=20
+nvpublic
