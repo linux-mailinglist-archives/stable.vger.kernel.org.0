@@ -2,71 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD1611C383
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 03:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 273D311C476
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 04:54:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727678AbfLLCsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Dec 2019 21:48:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727599AbfLLCs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 11 Dec 2019 21:48:29 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1727772AbfLLDyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Dec 2019 22:54:14 -0500
+Received: from li1843-175.members.linode.com ([172.104.24.175]:58358 "EHLO
+        mail.stoffel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726823AbfLLDyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Dec 2019 22:54:14 -0500
+X-Greylist: delayed 338 seconds by postgrey-1.27 at vger.kernel.org; Wed, 11 Dec 2019 22:54:14 EST
+Received: from quad.stoffel.org (66-189-75-104.dhcp.oxfr.ma.charter.com [66.189.75.104])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAC742054F;
-        Thu, 12 Dec 2019 02:48:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576118909;
-        bh=BYkjhzKIuktii6xSof1BOBNHWNSxPKMC25YuyhU174o=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=ZHYKwTltg7WeAtYkme3X09TeZMmaQTJaJSH2tMmiNg+frFXd21r3xH+zmnw8+I8L0
-         jivLj8U774wWoktqcnOG03QgP7DI4dGA6KHGefLrFFh29ZCJxR1Eg/vs1Wyg1uDA1a
-         4i7TDq4s+o2plOvDspTNQzBq39fyaYvzdygb3zkg=
-Subject: Re: [PATCH 5.4 00/92] 5.4.3-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20191211150221.977775294@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <0253e33d-afa5-3dda-95d5-220535537eb4@kernel.org>
-Date:   Wed, 11 Dec 2019 19:48:28 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        by mail.stoffel.org (Postfix) with ESMTPSA id D8F541EF96;
+        Wed, 11 Dec 2019 22:48:35 -0500 (EST)
+Received: by quad.stoffel.org (Postfix, from userid 1000)
+        id 561E5A5DFF; Wed, 11 Dec 2019 22:48:35 -0500 (EST)
 MIME-Version: 1.0
-In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <24049.47251.286105.88377@quad.stoffel.home>
+Date:   Wed, 11 Dec 2019 22:48:35 -0500
+From:   "John Stoffel" <john@stoffel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.14 32/58] bcache: at least try to shrink 1 node in bch_mca_scan()
+In-Reply-To: <20191211152831.23507-32-sashal@kernel.org>
+References: <20191211152831.23507-1-sashal@kernel.org>
+        <20191211152831.23507-32-sashal@kernel.org>
+X-Mailer: VM 8.2.0b under 25.1.1 (x86_64-pc-linux-gnu)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/11/19 8:04 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.3 release.
-> There are 92 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+>>>>> "Sasha" == Sasha Levin <sashal@kernel.org> writes:
 
-Compiled and booted on my test system. No dmesg regressions.
+Sasha> From: Coly Li <colyli@suse.de>
+Sasha> [ Upstream commit 9fcc34b1a6dd4b8e5337e2b6ef45e428897eca6b ]
 
-thanks,
--- Shuah
+Sasha> In bch_mca_scan(), the number of shrinking btree node is calculated
+Sasha> by code like this,
+Sasha> 	unsigned long nr = sc->nr_to_scan;
+
+Sasha>         nr /= c->btree_pages;
+Sasha>         nr = min_t(unsigned long, nr, mca_can_free(c));
+Sasha> variable sc->nr_to_scan is number of objects (here is bcache B+tree
+Sasha> nodes' number) to shrink, and pointer variable sc is sent from memory
+Sasha> management code as parametr of a callback.
+
+Sasha> If sc->nr_to_scan is smaller than c->btree_pages, after the above
+Sasha> calculation, variable 'nr' will be 0 and nothing will be shrunk. It is
+Sasha> frequeently observed that only 1 or 2 is set to sc->nr_to_scan and make
+Sasha> nr to be zero. Then bch_mca_scan() will do nothing more then acquiring
+Sasha> and releasing mutex c->bucket_lock.
+
+Sasha> This patch checkes whether nr is 0 after the above calculation, if 0
+Sasha> is the result then set 1 to variable 'n'. Then at least bch_mca_scan()
+Sasha> will try to shrink a single B+tree node.
+
+Sasha>  	nr /= c->btree_pages;
+Sasha> +	if (nr == 0)
+Sasha> +		nr = 1;
+
+
+Wouldn't it be even more clear with:
+
+   nr /= c->bree_pages || 1;
+
+instead?
+
+John
