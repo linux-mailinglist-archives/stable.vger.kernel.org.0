@@ -2,92 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C481811CF96
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 15:18:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C3411D03C
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 15:52:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729568AbfLLOSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 09:18:46 -0500
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:42563 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729392AbfLLOSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 09:18:46 -0500
-Received: by mail-ed1-f68.google.com with SMTP id e10so1922251edv.9;
-        Thu, 12 Dec 2019 06:18:45 -0800 (PST)
+        id S1728926AbfLLOwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 09:52:51 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:42430 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728905AbfLLOwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 09:52:51 -0500
+Received: by mail-wr1-f65.google.com with SMTP id q6so3014608wro.9
+        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 06:52:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NO6QYGGUr6HONnaPHTV82vubl31iE8JrwjIhWs1ryR0=;
+        b=XpNEoEXeoSHCWyJT4dmwW6UsHOQEJCm+eZErBHPvb0zYCwNj5tIJ2hiGrJ7C5WPlYd
+         JWnBFnMRrd5uHg+HoyvptkWV4mQWZxrwMFdOZoXdP6EzyZ90vGczymAUmHKrCUI+Vwpe
+         ATkB3UTCp78DktC7qytGhUZKp7jR0ANYqAFs+Pt7q+Zx0o1lts1UszG9BcgnMy1tFT0/
+         q3Ywjv2FFkg/V868+fh4wfuyJkImZNKn9qzeac/mdRo0PlzYhhnHw+9JHTAxD1CGcpos
+         Wh5ehu6Fcr6Oqukqedtqlk4NvqlBgWxrDU6zWaPaOjnUqFvglsnmpSONJc3kMPodlnTb
+         u/Ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=QORpcfpxTVun2omq37w//epuRfcr5mZBlHsi85Oa95M=;
-        b=IUewxsqbsSeH2FIzex3kps6Y+7jFx2NA91RD1LaeCT+kEcf4zn4f9NcjW72luM8L0Y
-         mp9M5lirJhmYGYd7gtV9U99ttRAUo8NRvZXhCY3/symEdUKudcAzcgqDHBjPyIslhrbd
-         xpEoh5rrA3/UUGCoVJqyiCUG2admqbmwiSif4t/5fiyBLAPwWFVrl17B+bmBOPbKPaKW
-         hlNsgoCf2PAsUck+HHQEBz3B3G5xrQ3cU1/dDzCyIsIOvcc1mWInleHuiXf1E5lWpMH7
-         o9t6M+WLRiftGmY83CcfamPrA/Ks8+OYiPy0FD+xpvhsXqNDACzdg8ZZ6S5Kd2aRR2Yv
-         nYFQ==
-X-Gm-Message-State: APjAAAX58QbFTCQvN6oClgnbezvN1e5mr9HRhVBji0WuvZgF1+1jKaWX
-        Mgra0aT3Mqjw00yNvqhwJbT3qPN90Uc=
-X-Google-Smtp-Source: APXvYqwdGWOlKR4douX6oCIzSlnsAcb7BtN7h5bhf8rXp7y7dPR4MGUuWgC2J051AqKFNIdEnP2z1w==
-X-Received: by 2002:a17:907:11cc:: with SMTP id va12mr9985791ejb.164.1576160324391;
-        Thu, 12 Dec 2019 06:18:44 -0800 (PST)
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com. [209.85.128.53])
-        by smtp.gmail.com with ESMTPSA id 11sm151005ejn.83.2019.12.12.06.18.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Dec 2019 06:18:44 -0800 (PST)
-Received: by mail-wm1-f53.google.com with SMTP id t14so2694863wmi.5;
-        Thu, 12 Dec 2019 06:18:43 -0800 (PST)
-X-Received: by 2002:a1c:6a05:: with SMTP id f5mr6752029wmc.2.1576160323683;
- Thu, 12 Dec 2019 06:18:43 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NO6QYGGUr6HONnaPHTV82vubl31iE8JrwjIhWs1ryR0=;
+        b=LR31oqA/k7EBDgv9CymeuEVv+jJ5xMRA9ljvYKf6bdoB2Ss61Jp3Sijcs9n69/K/Va
+         RZFGl4rEiYQKpTFjF1jyfJRM8u/OfuVzxSa//BZo10+MLqE69WJX25nzBhuATHeAQAM2
+         DB9sfoRTRNZlwcpyHTALLKE4Ija/1lwjoxPOGAiKtbkCJoztolpSnP+5V2JnEgYkZXSW
+         cV+ukZ0u+DAhxwiPK6eFmloCWuI50yNLtElsaWWuofpvyf3zYguc6FtYa5pA/DWGJr54
+         44hZnBgSQYZrbjPDUmZPNoVJNPc6+j7WM5BFCcdiK8hY/KkOWvW42MnpYZMf83yXg4ea
+         tfbg==
+X-Gm-Message-State: APjAAAXjBZLSsXE1VJJv0vQcS358aE79NlXVbg77vNtSENanCgFDsHS7
+        OINjOp5wK36zMAdv2OBgWoAezgLdZfixkQ==
+X-Google-Smtp-Source: APXvYqzKWNeRCcAyBjWaLk69AHWhyM6mP1WMMLBdNr8FL80ZOADTjngUmLunVV7e6SLz+D1M2yJNug==
+X-Received: by 2002:a5d:404b:: with SMTP id w11mr7097670wrp.171.1576162368123;
+        Thu, 12 Dec 2019 06:52:48 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p26sm6355848wmc.24.2019.12.12.06.52.46
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Dec 2019 06:52:46 -0800 (PST)
+Message-ID: <5df2543e.1c69fb81.80ee.fb06@mx.google.com>
+Date:   Thu, 12 Dec 2019 06:52:46 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20191211150339.185439726@linuxfoundation.org> <20191211150351.658072828@linuxfoundation.org>
- <20191212133132.GA13171@amd> <20191212140241.GA1595136@kroah.com>
-In-Reply-To: <20191212140241.GA1595136@kroah.com>
-From:   Chen-Yu Tsai <wens@csie.org>
-Date:   Thu, 12 Dec 2019 22:18:34 +0800
-X-Gmail-Original-Message-ID: <CAGb2v67z5T4XVOc03LL9K0p1yP9UtiDhmLNj8kzxVnsDsr0rew@mail.gmail.com>
-Message-ID: <CAGb2v67z5T4XVOc03LL9K0p1yP9UtiDhmLNj8kzxVnsDsr0rew@mail.gmail.com>
-Subject: Re: [PATCH 4.19 185/243] ARM: dts: sun8i: a23/a33: Fix up RTC device node
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Pavel Machek <pavel@denx.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.206-75-gd7e776aeb147
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 52 boots: 1 failed,
+ 51 passed (v4.4.206-75-gd7e776aeb147)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 12, 2019 at 10:02 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Thu, Dec 12, 2019 at 02:31:32PM +0100, Pavel Machek wrote:
-> > Hi!
-> >
-> > > The RTC module on the A23 was claimed to be the same as on the A31, when
-> > > in fact it is not. The A31 does not have an RTC external clock output,
-> > > and its internal RC oscillator's average clock rate is not in the same
-> > > range. The A33's RTC is the same as the A23.
-> > >
-> > > This patch fixes the compatible string and clock properties to conform
-> > > to the updated bindings. The register range is also fixed.
-> >
-> > No, this is not okay for v4.19. New compatible is not in
-> > ./drivers/rtc/rtc-sun6i.c, so this will completely break rtc support.
->
-> Good catch, I would have thought both of those would happen at the same
-> time.
+stable-rc/linux-4.4.y boot: 52 boots: 1 failed, 51 passed (v4.4.206-75-gd7e=
+776aeb147)
 
-(Fixed Maxime's email)
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.206-75-gd7e776aeb147/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.206-75-gd7e776aeb147/
 
-Neither were marked for stable. I guess Sasha's auto selection bot is at
-work here. Is there anything we can do to prevent them from being selected?
-For sunxi, we pretty much don't expect things to be backported, unless
-something critical was fixed.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.206-75-gd7e776aeb147
+Git Commit: d7e776aeb147e4a2090b1c66f7d81c61498224a7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 25 unique boards, 9 SoC families, 9 builds out of 190
 
-Thanks
+Boot Regressions Detected:
 
-ChenYu
+arm:
 
-> Now dropped, thanks.
->
-> greg k-h
+    omap2plus_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v4.4.206-71-g9e88c306da=
+d6)
+
+Boot Failure Detected:
+
+arm:
+    omap2plus_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
