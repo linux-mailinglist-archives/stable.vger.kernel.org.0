@@ -2,119 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8A7411C956
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 10:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D748F11C949
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 10:38:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728486AbfLLJiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 04:38:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37784 "EHLO mail.kernel.org"
+        id S1728382AbfLLJhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 04:37:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728484AbfLLJiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 12 Dec 2019 04:38:25 -0500
+        id S1728274AbfLLJhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Dec 2019 04:37:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BDA92465A;
-        Thu, 12 Dec 2019 09:38:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 374A9214D8;
+        Thu, 12 Dec 2019 09:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576143504;
-        bh=cYCuMCFTyNXD7PUxwYw2ckoA49kvU1ho0ahRRcF6HIk=;
+        s=default; t=1576143439;
+        bh=9T8qbkKxvGdsgH/x9PIs2KKMJmn/JOtZtnDP7i1vdy4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OaPvK91qW6c2n7oIv7S0D+PgS7UheRojABAkgJDWgwyOq3RHz2v8hEFPwYiu/mAAb
-         xImda4KEY6GhDVxE/32eCEy03sMz4fGVXBsO6DkYwTbZ+bz5thnAjLJOqxgumJFaRp
-         MC8TkQ/YjsBOsaDaDGfIwuFIQzW+eY0PnD6rf4GI=
-Date:   Thu, 12 Dec 2019 10:34:33 +0100
+        b=hRgDpX9Z8e16Qkn1Ta7Da8mvw31j+yI5Ls5qWySQkyZNXp9BCRSfp4a8PscoRiMXf
+         gPkxlrxtJiSTMujgYESTy2uRJ2NN0oMrlBQmyvX8UtXLKXQmogNA7vxruvkLEM/gE4
+         YvBjKVOKX2yl+Z7ueB0EnRsZDnMdiF9wKPCTZS+k=
+Date:   Thu, 12 Dec 2019 10:35:30 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nguyen Viet Dung <dung.nguyen.aj@renesas.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 121/243] ASoC: rsnd: tidyup registering method for
- rsnd_kctrl_new()
-Message-ID: <20191212093433.GE1378792@kroah.com>
-References: <20191211150339.185439726@linuxfoundation.org>
- <20191211150347.300543701@linuxfoundation.org>
- <20191211225937.nnu6kvvbyexfrahr@toshiba.co.jp>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/92] 4.4.206-stable review
+Message-ID: <20191212093530.GF1378792@kroah.com>
+References: <20191204174327.215426506@linuxfoundation.org>
+ <2959daae-72f2-8f85-df04-d6a0fe33516d@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191211225937.nnu6kvvbyexfrahr@toshiba.co.jp>
+In-Reply-To: <2959daae-72f2-8f85-df04-d6a0fe33516d@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 12, 2019 at 07:59:37AM +0900, Nobuhiro Iwamatsu wrote:
-> Hi,
-> 
-> On Wed, Dec 11, 2019 at 04:04:43PM +0100, Greg Kroah-Hartman wrote:
-> > From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+On Wed, Dec 11, 2019 at 04:19:00PM -0700, shuah wrote:
+> On 12/4/19 10:49 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.4.206 release.
+> > There are 92 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > [ Upstream commit 9c698e8481a15237a5b1db5f8391dd66d59e42a4 ]
+> > Responses should be made by Fri, 06 Dec 2019 17:42:37 +0000.
+> > Anything received after that time might be too late.
 > > 
-> > Current rsnd dvc.c is using flags to avoid duplicating register for
-> > MIXer case. OTOH, commit e894efef9ac7 ("ASoC: core: add support to card
-> > rebind") allows to rebind sound card without rebinding all drivers.
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.206-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> > and the diffstat can be found below.
 > > 
-> > Because of above patch and dvc.c flags, it can't re-register kctrl if
-> > only sound card was rebinded, because dvc is keeping old flags.
-> > (Of course it will be no problem if rsnd driver also be rebinded,
-> > but it is not purpose of above patch).
+> > thanks,
 > > 
-> > This patch checks current card registered kctrl when registering.
-> > In MIXer case, it can avoid duplicate register if card already has same
-> > kctrl. In rebind case, it can re-register kctrl because card registered
-> > kctl had been removed when unbinding.
+> > greg k-h
 > > 
-> > This patch is updated version of commit b918f1bc7f1ce ("ASoC: rsnd: DVC
-> > kctrl sets once")
-> > 
-> > Reported-by: Nguyen Viet Dung <dung.nguyen.aj@renesas.com>
-> > Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-> > Tested-by: Nguyen Viet Dung <dung.nguyen.aj@renesas.com>
-> > Cc: Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>
-> > Signed-off-by: Mark Brown <broonie@kernel.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> This commit also requires the following commit:
+> I know this is way late. I managed to boot 4.4.206 finally on my test
+> system running Ubuntu 19.10.
 > 
-> commit 7aea8a9d71d54f449f49e20324df06341cc18395
-> Author: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-> Date:   Fri Feb 1 16:49:30 2019 +0900
+> It turns out, Ubuntu 19.10 defaults to LZ4 compression.
 > 
->     ASoC: rsnd: fixup MIX kctrl registration
+> /etc/initramfs-tools/initramfs.conf
+> COMPRESS=lz4
 > 
->     Renesas sound device has many IPs and many situations.
->     If platform/board uses MIXer, situation will be more complex.
->     To avoid duplicate DVC kctrl registration when MIXer was used,
->     it had original flags.
->     But it was issue when sound card was re-binded, because
->     no one can't cleanup this flags then.
+> Enabling the following worked for me.
 > 
->     To solve this issue, commit 9c698e8481a15237a ("ASoC: rsnd: tidyup
->     registering method for rsnd_kctrl_new()") checks registered
->     card->controls, because if card was re-binded, these were cleanuped
->     automatically. This patch could solve re-binding issue.
->     But, it start to avoid MIX kctrl.
+> CONFIG_RD_LZ4=y
+> CONFIG_SQUASHFS_LZ4=y
+> CONFIG_LZ4_DECOMPRESS=y
+> CONFIG_DECOMPRESS_LZ4=y
 > 
->     To solve these issues, we need below.
->     To avoid card re-binding issue: check registered card->controls
->     To avoid duplicate DVC registration: check registered rsnd_kctrl_cfg
->     To allow multiple MIX registration: check registered rsnd_kctrl_cfg
->     This patch do it.
-> 
->     Fixes: 9c698e8481a15237a ("ASoC: rsnd: tidyup registering method for rsnd_kctrl_new()")
->     Reported-by: Jiada Wang <jiada_wang@mentor.com>
->     Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
->     Tested-By: Jiada Wang <jiada_wang@mentor.com>
->     Signed-off-by: Mark Brown <broonie@kernel.org>
-> 
-> 
-> Please apply this to 4.19.y and 4.14.y.
+> Stable release older than 4.19 will require the above change.
 
-Now queued up, thanks!
+Ah, thanks for figuring this out.  Or you can run without an initramfs :)
 
 greg k-h
