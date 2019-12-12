@@ -2,121 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7131611C574
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 06:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F4F11C56F
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 06:29:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726382AbfLLF3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 00:29:41 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:42941 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725980AbfLLF3l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 00:29:41 -0500
-Received: by mail-pj1-f66.google.com with SMTP id o11so523573pjp.9;
-        Wed, 11 Dec 2019 21:29:41 -0800 (PST)
+        id S1726855AbfLLF3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 00:29:10 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:43783 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726851AbfLLF3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 00:29:10 -0500
+Received: by mail-lj1-f196.google.com with SMTP id a13so770141ljm.10
+        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 21:29:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ty3dpK0QTIzeB9iEDR4WAHT8NL5h1eWqIJaiU5glr4w=;
-        b=MvOxXaJJ2IDFyzGFq4UInxj47QiscDaLhYt7M0EP5WBcwN2+3/NiArepmzNC4+A0Sv
-         Ll30HqN8p4r33J3HTR2uWW2lT9Z2f9JsIsmyPo8d1Be9fAmy9PpkmO3I+IH/AyDdF5b3
-         h0zei4D2vTlnmmZZSquKtLEnRc5oL9T/DvDxVazJgApCejDPRm6ey8/dfOsq5PdWuVXU
-         fkrCH2gqmiH17vyTDRZfRW9s2y8QXJUjSA8VSe8iNc63vDe6KLTiA68cTe6mfV3411iA
-         /GzJ3je9Nu7ftlLJUBZDuiPbrGtsYbQxEP1x2z+GgghBOoIlO/6v2fBLsshmsIMX9Yd1
-         EgAQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=0onU7gVBFHeq7m2PLrQb4rE7g9Cdls/YcARoJxqQZoI=;
+        b=ga4yxtjFyobGLmpt6nUXe+vKPDmcBpo+Oa+ePkkrrwEtHlYCij1VYeYIoKPzPS5LB9
+         rjUeSbNzN/qEuRfieM6EPYqQLixxBM30sgiwtwIXFdtur06H673NQNtY1Uw6Gk6EQpH1
+         y/s5ddTuejuECIutiOgC7akr5NCzsBKYm7IeesuHCAO2xbF2m1cUU2rJ4G95J2+7Ji5e
+         R68lsP4qTBUKakHfXlXZSmscQxnpc9qXue5TCxVv8E6xPKke19OYMeefcqpyAcmx/FRJ
+         IDhElqNUFmwyM+DPjHqKu0LJU6F/OYpmRMt0taNNj5j5dhUBipkdODapRENIPmSEgpqP
+         s2Iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ty3dpK0QTIzeB9iEDR4WAHT8NL5h1eWqIJaiU5glr4w=;
-        b=WJiigQUQ4c4ZClztagmHP/yOox9b69KDr81tDh1Lom6GtqjrZ6GqrnI6bxmNZuVQvg
-         jHeGRxda1r/aTFVmRFMzOhdh2Iho20qOgTvcQI+ok6r9LTKUzvXKGTS3nkk9qga7LvP6
-         RxYOcq1k3Vlpa0tbLDtaHxNynJ2PrNwV3EGDPiec+v87QJW+qSxBoyTfkAHNL4fUgCzD
-         2gNIg4tErWBuin2rlKfHwCav2saALY5Qp5lI1JqN6y1PYJmqkFbqaiMrtXWbPvi8ovRQ
-         8C/tLExNZzcV5vMbMtKdtU4GaZUr5hhtcDHSLx3b9b0UadksgS7VvOjnd85LaHgVEIjg
-         +4yA==
-X-Gm-Message-State: APjAAAWsYx+WHieKcqxFhletZMEX3BmH7I7OdBxf1sq9dSdyu/66MyMh
-        WwhqjISgYWhpfPis+Dvm9aPJMLNR
-X-Google-Smtp-Source: APXvYqw67g9FGJ3Vsm4Tg5w1zgdJ1orF+ZDvuJ6G4/7V8u/UUhkJNsMtkHC/XUA8SoL+1XPJKIaX5A==
-X-Received: by 2002:a17:90a:33e8:: with SMTP id n95mr7975895pjb.17.1576128580674;
-        Wed, 11 Dec 2019 21:29:40 -0800 (PST)
-Received: from localhost.localdomain ([163.152.162.99])
-        by smtp.gmail.com with ESMTPSA id h7sm5532289pfq.36.2019.12.11.21.29.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Dec 2019 21:29:40 -0800 (PST)
-From:   Suwan Kim <suwan.kim027@gmail.com>
-To:     shuah@kernel.org, valentina.manea.m@gmail.com,
-        gregkh@linuxfoundation.org, marmarek@invisiblethingslab.com
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Suwan Kim <suwan.kim027@gmail.com>
-Subject: [PATCH 2/2] usbip: Fix error path of vhci_recv_ret_submit()
-Date:   Thu, 12 Dec 2019 14:28:41 +0900
-Message-Id: <20191212052841.6734-3-suwan.kim027@gmail.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191212052841.6734-1-suwan.kim027@gmail.com>
-References: <20191212052841.6734-1-suwan.kim027@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=0onU7gVBFHeq7m2PLrQb4rE7g9Cdls/YcARoJxqQZoI=;
+        b=X9HhqqQ47Nx541n/LuYZng5CceEV7Bqhnv0yR32+/yCbPHToF4gjv7AE9Q6K3r6Uja
+         b+e2DwayyDG6+7XbyRgPdTL3h/W6Kbs0SV7acCIZ0DRZoC/unR1YcN2k3kXevIy2zV5x
+         zr4h9ON+b9JtrrR3dJs0yqux/kZrniIkISBJqiJVw9TK3T3E7cuQSynNt0KMYHlvuydu
+         aRFD+gEqR7evZFeGNOChPORQlLJdCjeg2zBtttDGDxYNe/qBhjSFWVlsC3WiRl37K1YL
+         w7gzgvckt+CD5XAzSeYjorpkcRp9EVEqX8b4dhGjuVbv/bIs2beuFicK+3FyJIEgNAU6
+         umBQ==
+X-Gm-Message-State: APjAAAVAH7trjOAgDFFHFyma+mja4iJXczEcm1fa7wwMnEPVID65ZCdh
+        boLXck6zWz0nyQ7j0MpoZ/9S5qR1OfIx4kMw96YWyg==
+X-Google-Smtp-Source: APXvYqyAi8Y/18qIYbhHxpG5xltgaOPyxUWdx8tLUS0muB40MfO/04uqosm6BUTKxuHVGg7aeT9jHuEH7RoEta9akvM=
+X-Received: by 2002:a2e:a0c6:: with SMTP id f6mr4526081ljm.46.1576128547783;
+ Wed, 11 Dec 2019 21:29:07 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20191211150221.977775294@linuxfoundation.org>
+In-Reply-To: <20191211150221.977775294@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 12 Dec 2019 10:58:56 +0530
+Message-ID: <CA+G9fYsnFnAimAAusrOYtOphC9fnXbwjvi1St0hQFdHKbVZdgg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/92] 5.4.3-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a transaction error happens in vhci_recv_ret_submit(), event
-handler closes connection and changes port status to kick hub_event.
-Then hub tries to flush the endpoint URBs, but that causes infinite
-loop between usb_hub_flush_endpoint() and vhci_urb_dequeue() because
-"vhci_priv" in vhci_urb_dequeue() was already released by
-vhci_recv_ret_submit() before a transmission error occurred. Thus,
-vhci_urb_dequeue() terminates early and usb_hub_flush_endpoint()
-continuously calls vhci_urb_dequeue().
+On Wed, 11 Dec 2019 at 20:39, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.3 release.
+> There are 92 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.3-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-The root cause of this issue is that vhci_recv_ret_submit()
-terminates early without giving back URB when transaction error
-occurs in vhci_recv_ret_submit(). That causes the error URB to still
-be linked at endpoint list without “vhci_priv".
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-So, in the case of trasnaction error in vhci_recv_ret_submit(),
-unlink URB from the endpoint, insert proper error code in
-urb->status and give back URB.
+Summary
+------------------------------------------------------------------------
 
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
----
- drivers/usb/usbip/vhci_rx.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+kernel: 5.4.3-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.4.y
+git commit: 6b42537b2c8927366737f1d297ae4e91fdeba6ea
+git describe: v5.4.2-93-g6b42537b2c89
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
+ld/v5.4.2-93-g6b42537b2c89
 
-diff --git a/drivers/usb/usbip/vhci_rx.c b/drivers/usb/usbip/vhci_rx.c
-index 33f8972ba842..dc26acad6baf 100644
---- a/drivers/usb/usbip/vhci_rx.c
-+++ b/drivers/usb/usbip/vhci_rx.c
-@@ -77,16 +77,21 @@ static void vhci_recv_ret_submit(struct vhci_device *vdev,
- 	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
- 
- 	/* recv transfer buffer */
--	if (usbip_recv_xbuff(ud, urb) < 0)
--		return;
-+	if (usbip_recv_xbuff(ud, urb) < 0) {
-+		urb->status = -EPIPE;
-+		goto error;
-+	}
- 
- 	/* recv iso_packet_descriptor */
--	if (usbip_recv_iso(ud, urb) < 0)
--		return;
-+	if (usbip_recv_iso(ud, urb) < 0) {
-+		urb->status = -EPIPE;
-+		goto error;
-+	}
- 
- 	/* restore the padding in iso packets */
- 	usbip_pad_iso(ud, urb);
- 
-+error:
- 	if (usbip_dbg_flag_vhci_rx)
- 		usbip_dump_urb(urb);
- 
--- 
-2.20.1
 
+No regressions (compared to build v5.4.2)
+
+No fixes (compared to build v5.4.2)
+
+Ran 23952 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* linux-log-parser
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kvm-unit-tests
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
