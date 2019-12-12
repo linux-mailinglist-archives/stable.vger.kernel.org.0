@@ -2,111 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E37B11C6B4
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 08:53:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E930211C6CA
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 09:07:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728214AbfLLHxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 02:53:39 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:43632 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728190AbfLLHxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 02:53:39 -0500
-Received: by mail-wr1-f68.google.com with SMTP id d16so1570630wre.10
-        for <stable@vger.kernel.org>; Wed, 11 Dec 2019 23:53:37 -0800 (PST)
+        id S1728160AbfLLIF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 03:05:26 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:41927 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728153AbfLLIF0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 03:05:26 -0500
+Received: by mail-pj1-f67.google.com with SMTP id ca19so687695pjb.8
+        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 00:05:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=/ok0nQnxyVp+hWourd2iRYkQMDbNDd797Oi+3MDLgvE=;
-        b=kuBwZF3aTUHamxKahISgDPfpkTVxpBWPErTUxDu8tvilS/xaRc3rm9NfU4I6x4KXsZ
-         ZstbdCSaaVFHD07vHcFFvZRa6afY74PXr4bIkBz7g3Tlel5xeUfBh1nGCq4vaGK1US5W
-         EPmSF9L41f5LHog3fQib1Q3H4aTGpyh1uQn5pLKvx5bday1E3nvG8tXShjGW507ItW4X
-         dHMRdOEhHXXNCmKe8jA6j4ZxIec/a2dDFUPoLSeCc/kcwNXRlE3cmUXidsrOcFLm3Wss
-         0Vfrm+hMFh/WZF3hckaFO9jIIEklzubZWt7sSLrhO8VjiS9j/gPtkwA2/cWqiJhfs32i
-         NoZQ==
+        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=fp5LYGJKEkfg5yRhHzvHzf1OfDrIgPebJ2E+jZMHJ24=;
+        b=hTdYUuX/LFg7Pd3ilOvSYz4/ctywOUxqVSTtzhmLSq780UIf98CB3GtH7Uwu3bnbvh
+         DITwUpWZIs0dn/iUvBgQBpCaL64gO92pHN0XqOeyR9dJsic2Rq8t9qMnPzHPWyX0Mxp+
+         s/kD0cxw6ZazoIexIu/KZ9cozucV2BUUhG+01SqZrrpte46ijpJvLGK34Re47P9lQQzw
+         QIHUNEVGMJ7/XO7ZlWvS9a4R2E6sCFylFiUV/HyCyyIni4Nb4edEXTqWdkslx7lxvdAT
+         ZEjJI3iVhdmuAfbERpo3BvtwcBywWWHqI4qRDgan0odwXbfVYlSZWsFCDdH0vfxTj7r+
+         EjAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=/ok0nQnxyVp+hWourd2iRYkQMDbNDd797Oi+3MDLgvE=;
-        b=riuiwN1rdTZMak/bbkgD2UQKTdYmJvOCpkm36zGXGzjKn3OSsVyDDf17g23SsSauxn
-         TicreCDIlUf0B24pKYmdYMMbe3TLAH+oXFEdFrKhf/aXKaoX5Vgi9GA3AGKYocLejBh1
-         Li/Le876URWTY/4HuhuUxKd1KCgvADyE920NNhQjp5+kCPRxsDcMXYcc4n7hoUnPTPh7
-         676PwBlOihwo/W2CrunQJc/hSbRBWJMVsVhQkkeeuY4cmsLAim5V+uvyrYvgfD1khO49
-         XFatrroCmPq6VnSOZk1UFu45+VD2n2sChauPXaqJeOwL3aIUFV5UF/FpnJFgDc+HeAt7
-         ZJfw==
-X-Gm-Message-State: APjAAAWivrJD9cmH+k0c0MlHXYYI/nsOKvbnKA7GjnFbA1uBKgI3f0hF
-        80MtdgvkhgaJD9thHbBtfXhw4Q==
-X-Google-Smtp-Source: APXvYqzPziPpJRFVzoBFwbFJvLDT14cwri/geZerVfDTVoysW08yVdQwFE9ukJgLmSRP+uRdNA+GFA==
-X-Received: by 2002:adf:f10a:: with SMTP id r10mr4623170wro.202.1576137216719;
-        Wed, 11 Dec 2019 23:53:36 -0800 (PST)
-Received: from localhost.localdomain ([212.45.67.2])
-        by smtp.googlemail.com with ESMTPSA id x6sm5636742wmi.44.2019.12.11.23.53.35
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 11 Dec 2019 23:53:36 -0800 (PST)
-From:   Georgi Djakov <georgi.djakov@linaro.org>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Georgi Djakov <georgi.djakov@linaro.org>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 3/4] interconnect: qcom: qcs404: Walk the list safely on node removal
-Date:   Thu, 12 Dec 2019 09:53:31 +0200
-Message-Id: <20191212075332.16202-4-georgi.djakov@linaro.org>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191212075332.16202-1-georgi.djakov@linaro.org>
-References: <20191212075332.16202-1-georgi.djakov@linaro.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=fp5LYGJKEkfg5yRhHzvHzf1OfDrIgPebJ2E+jZMHJ24=;
+        b=aETW8UMaXMYGHPKjUzHfCVWtUSeOyYhhu5jmgQRv1H73z5fLwVzD0ifCq/NOdBitKC
+         dapI5+oGwnwjn+NQPUKo9JO6cIypk7SkOLFb++VkhbmyaQN9/ffCMIhjGAz1rVba+dr8
+         0Hs1dvrr+ZJfW65x0jOO2M6Uz2QqPsjHdnQsIN5LVDroulEFdLz7TB2Lp8+5awsDS9VZ
+         1g6xzXkZndmB1eIXE2VGV8t//eJsoPF8ANq9UItwng1OWMZ1pwo3MWzbaSn6NGPQZURl
+         uvdWsXCyHA4UlM/MuneQ/+7C/0596VscQCXY+J5B13C21uPoRGSKu9t+SyIeCrU0EUS6
+         5gvA==
+X-Gm-Message-State: APjAAAUG8HzdtUV5iv8No0Lmy3bMUlqsZ0lbIj+8bC4u0qfk8EnWP2BH
+        kjLPbP6/gUmXThQEX1eHJRsXIw==
+X-Google-Smtp-Source: APXvYqzgtaUqbQwoRjMvL+XzEm1CG7mK1gKpaRv8+pqOZ54pcrwGWB4YlSELs5ekSKZbvnw0qJXgQw==
+X-Received: by 2002:a17:902:7797:: with SMTP id o23mr8079385pll.149.1576137925667;
+        Thu, 12 Dec 2019 00:05:25 -0800 (PST)
+Received: from debian ([122.174.90.102])
+        by smtp.gmail.com with ESMTPSA id 83sm5739611pgh.12.2019.12.12.00.05.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Dec 2019 00:05:24 -0800 (PST)
+Date:   Thu, 12 Dec 2019 13:35:18 +0530
+From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        jeffrin@rajagiritech.edu.in
+Subject: Re: [PATCH 5.3 000/105] 5.3.16-stable review
+Message-ID: <20191212080518.GA2657@debian>
+References: <20191211150221.153659747@linuxfoundation.org>
+ <20191212065214.GA3747@debian>
+ <20191212074124.GA1368279@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191212074124.GA1368279@kroah.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As we will remove items off the list using list_del(), we need to use the
-safe version of list_for_each_entry().
+On Thu, Dec 12, 2019 at 08:41:24AM +0100, Greg Kroah-Hartman wrote:
+> Are these things new to this release, or have they always been there?
+Normally these are not new things. it has been there.
 
-Fixes: 5e4e6c4d3ae0 ("interconnect: qcom: Add QCS404 interconnect provider driver")
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
-Cc: <stable@vger.kernel.org> # v5.4
----
- drivers/interconnect/qcom/qcs404.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+--
+software engineer
+rajagiri school of engineering and technology
 
-diff --git a/drivers/interconnect/qcom/qcs404.c b/drivers/interconnect/qcom/qcs404.c
-index b4966d8f3348..8e0735a87040 100644
---- a/drivers/interconnect/qcom/qcs404.c
-+++ b/drivers/interconnect/qcom/qcs404.c
-@@ -414,7 +414,7 @@ static int qnoc_probe(struct platform_device *pdev)
- 	struct icc_provider *provider;
- 	struct qcom_icc_node **qnodes;
- 	struct qcom_icc_provider *qp;
--	struct icc_node *node;
-+	struct icc_node *node, *tmp;
- 	size_t num_nodes, i;
- 	int ret;
- 
-@@ -494,7 +494,7 @@ static int qnoc_probe(struct platform_device *pdev)
- 
- 	return 0;
- err:
--	list_for_each_entry(node, &provider->nodes, node_list) {
-+	list_for_each_entry_safe(node, tmp, &provider->nodes, node_list) {
- 		icc_node_del(node);
- 		icc_node_destroy(node->id);
- 	}
-@@ -508,9 +508,9 @@ static int qnoc_remove(struct platform_device *pdev)
- {
- 	struct qcom_icc_provider *qp = platform_get_drvdata(pdev);
- 	struct icc_provider *provider = &qp->provider;
--	struct icc_node *n;
-+	struct icc_node *n, *tmp;
- 
--	list_for_each_entry(n, &provider->nodes, node_list) {
-+	list_for_each_entry_safe(n, tmp, &provider->nodes, node_list) {
- 		icc_node_del(n);
- 		icc_node_destroy(n->id);
- 	}
+
