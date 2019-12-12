@@ -2,117 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE5F11D409
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 18:32:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6FA11D45D
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 18:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730161AbfLLRcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 12:32:24 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34958 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730061AbfLLRcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 12:32:24 -0500
-Received: from [167.98.27.226] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1ifSK3-00027O-P9; Thu, 12 Dec 2019 17:32:19 +0000
-Received: from ben by deadeye with local (Exim 4.93-RC7)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1ifSK3-0005J3-82; Thu, 12 Dec 2019 17:32:19 +0000
-Message-ID: <e51e280b1a2ec31d4a9acb541b26f2e5420c703d.camel@decadent.org.uk>
-Subject: Re: [PATCH 4.9 45/47] Smack: Dont ignore other bprm->unsafe flags
- if LSM_UNSAFE_PTRACE is set
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jann Horn <jannh@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Date:   Thu, 12 Dec 2019 17:32:14 +0000
-In-Reply-To: <20191212170649.GA1681017@kroah.com>
-References: <20191006172016.873463083@linuxfoundation.org>
-         <20191006172019.260683324@linuxfoundation.org>
-         <64c5b8b423774029c3030ae778bf214d36499d2a.camel@decadent.org.uk>
-         <20191212170649.GA1681017@kroah.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-5TWjip13pX9rhqBM9tED"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1730205AbfLLRos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 12:44:48 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:38145 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730075AbfLLRos (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 12:44:48 -0500
+Received: by mail-io1-f67.google.com with SMTP id v3so3696617ioj.5
+        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 09:44:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=NZUkuLltWHAaMt9PiF7re5SLQkc/j51hQPwRCUKb9Mw=;
+        b=Zcvq/j0dfcg82cX+jYcHpmIcVtvtDsWFmkRO4oumpHMJBzVvRQUTs/a+SdZiryhxTt
+         0zzz71YUxyr6JKp3Riotyq8Nacg2OvjaTqLG9Xqfu8ia62nzd/Ez5/pkR3q4gWDBR7Tp
+         MuspoypVdYRvucBFx3gOeBzKWoabO1APnY27Go0vENPxdx97lvA1Zgo/hY0hCMr4DvbY
+         gE4cuFY4cECLbNUHNggMwvoACSoA/V5htVau63pTIHbubNesuuoU3LRh/Of0K3M089hd
+         /NTiWoftyfnBxI2qXB9ksSS6YIk1Y2idkO86qwlw55yX03BbTg0sUea3Q/llueiJXMZD
+         cqaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NZUkuLltWHAaMt9PiF7re5SLQkc/j51hQPwRCUKb9Mw=;
+        b=SqNjo3bugQkgHjcI6T2xIbekG19UFQrtrj3j4iXzggWrrjCzNZQ0M0hNfMkQflUwz9
+         eWKPBH0ssuKktOl3dSUD1f6Odv9VSG5JX5aKgvLnQ5evaof+we+raV4YcqLCNIXPAY1s
+         B1em+j1bgDThvd8vedrs7orenfilZ1l8F6ng1dR8mKQm/XAiaSFM9a/YodhFc5ayvA3Z
+         OBmdtxemTjtiQZ4vyGObmTfglj5Hapwus33Aj55g4pZ4qeBmsBBLhiDY8EeFPFg4bSKB
+         UYjsD5rWWyLbzrMPen+rDBwySUilVwocd33XAlL2bZDXhfvDO5m3kfNWerfRtYsHvBnQ
+         ge8w==
+X-Gm-Message-State: APjAAAX0h09DJ4YT3Zwy7CfDhVfJYS6GUsXgsbzceJk9LxaNVoQnUqZ7
+        JBSVKFHOF0rGkRsFFZFaIYLqFQrtV1GzK6v5dP+x0Q==
+X-Google-Smtp-Source: APXvYqyP11Avt7fW6f3c7v+tjDwdWe3evb7j+D31QfTjrBzg1C5L1u2gm1VV7aaniEW69FxObtJ77JATYAKYJi6EgCc=
+X-Received: by 2002:a5d:8cda:: with SMTP id k26mr4127162iot.26.1576172687645;
+ Thu, 12 Dec 2019 09:44:47 -0800 (PST)
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 167.98.27.226
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+References: <20191211204753.242298-1-pomonis@google.com> <20191211204753.242298-3-pomonis@google.com>
+ <314f6d96-b75f-e159-d94d-1d30a5140e40@de.ibm.com>
+In-Reply-To: <314f6d96-b75f-e159-d94d-1d30a5140e40@de.ibm.com>
+From:   Jim Mattson <jmattson@google.com>
+Date:   Thu, 12 Dec 2019 09:44:36 -0800
+Message-ID: <CALMp9eTOD6r13sPZ3skz_YkSFn2ZKbsr5zbLP9LgzjpHnsebkQ@mail.gmail.com>
+Subject: Re: [PATCH v2 02/13] KVM: x86: Protect kvm_hv_msr_[get|set]_crash_data()
+ from Spectre-v1/L1TF attacks
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Marios Pomonis <pomonis@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Nick Finco <nifi@google.com>, Andrew Honig <ahonig@google.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Dec 12, 2019 at 9:31 AM Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+>
+>
+>
+> On 11.12.19 21:47, Marios Pomonis wrote:
+> > This fixes Spectre-v1/L1TF vulnerabilities in kvm_hv_msr_get_crash_data()
+> > and kvm_hv_msr_set_crash_data().
+> > These functions contain index computations that use the
+> > (attacker-controlled) MSR number.
+> >
+> > Fixes: commit e7d9513b60e8 ("kvm/x86: added hyper-v crash msrs into kvm hyperv context")
+> >
+> > Signed-off-by: Nick Finco <nifi@google.com>
+> > Signed-off-by: Marios Pomonis <pomonis@google.com>
+> > Reviewed-by: Andrew Honig <ahonig@google.com>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  arch/x86/kvm/hyperv.c | 10 ++++++----
+> >  1 file changed, 6 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+> > index 23ff65504d7e..26408434b9bc 100644
+> > --- a/arch/x86/kvm/hyperv.c
+> > +++ b/arch/x86/kvm/hyperv.c
+> > @@ -809,11 +809,12 @@ static int kvm_hv_msr_get_crash_data(struct kvm_vcpu *vcpu,
+> >                                    u32 index, u64 *pdata)
+> >  {
+> >       struct kvm_hv *hv = &vcpu->kvm->arch.hyperv;
+> > +     size_t size = ARRAY_SIZE(hv->hv_crash_param);
+> >
+> > -     if (WARN_ON_ONCE(index >= ARRAY_SIZE(hv->hv_crash_param)))
+> > +     if (WARN_ON_ONCE(index >= size))
+> >               return -EINVAL;
+>
+> The fact that we do a WARN_ON_ONCE here, should actually tell that index is not
+> user controllable. Otherwise this would indicate the possibility to trigger a
+> kernel warning from a malicious user space. So
+> a: we do not need this change
+> or
+> b: we must also fix the WARN_ON_ONCE
 
---=-5TWjip13pX9rhqBM9tED
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+That isn't quite true. The issue is *speculative* execution down this path.
 
-On Thu, 2019-12-12 at 18:06 +0100, Greg Kroah-Hartman wrote:
-> On Thu, Dec 05, 2019 at 03:50:07PM +0000, Ben Hutchings wrote:
-> > On Sun, 2019-10-06 at 19:21 +0200, Greg Kroah-Hartman wrote:
-> > > From: Jann Horn <jannh@google.com>
-> > >=20
-> > > commit 3675f052b43ba51b99b85b073c7070e083f3e6fb upstream.
-> > [...]
-> > > --- a/security/smack/smack_lsm.c
-> > > +++ b/security/smack/smack_lsm.c
-> > > @@ -949,7 +949,8 @@ static int smack_bprm_set_creds(struct l
-> > > =20
-> > >  		if (rc !=3D 0)
-> > >  			return rc;
-> > > -	} else if (bprm->unsafe)
-> > > +	}
-> > > +	if (bprm->unsafe & ~LSM_UNSAFE_PTRACE)
-> >=20
-> > I think this needs to be ~(LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)
-> > for 4.9 and older branches.
->=20
-> Why?  Where did the LSM_UNSAFE_PTRACE_CAP requirement come from (or
-> really, go away?)
+The call site does constrain the *actual* value of index:
 
-LSM_UNSAFE_PTRACE_CAP was combined with LSM_UNSAFE_PTRACE by:
+case HV_X64_MSR_CRASH_P0 ... HV_X64_MSR_CRASH_P4:
+        return kvm_hv_msr_get_crash_data(...);
 
-commit 9227dd2a84a765fcfef1677ff17de0958b192eda
-Author: Eric W. Biederman <ebiederm@xmission.com>
-Date:   Mon Jan 23 17:26:31 2017 +1300
-
-    exec: Remove LSM_UNSAFE_PTRACE_CAP
-
-If I understand the patch ("Smack: Dont ignore other bprm->unsafe
-flags =E2=80=A6") correctly, this function should have one if-statement
-handling LSM_UNSAFE_PTRACE (and LSM_UNSAFE_PTRACE_CAP if it exists),
-followed by another if-statement handling all other flags in
-bprm->unsafe.
-
-Ben.
-
---=20
-Ben Hutchings
-Sturgeon's Law: Ninety percent of everything is crap.
-
-
---=-5TWjip13pX9rhqBM9tED
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl3yeZ8ACgkQ57/I7JWG
-EQlZtA//Vc+1fMfaULjuYh6nSrneMY6YWu/Y5Q1MFJoxEycjb7rMr9CYFyfTa2gK
-S+SQdPneKD3Aqc7j/nYwdXLC3M8JvSHQHzUMQS6AqB377LPlsHDKEoTkZDv7aTFv
-g4PP7L2S3JIKGKkehRu63OEVPbBWyXkNcFmVdnzwxF/aH2x1cBcdAeiyK4wa8Ggb
-4nIHDH7quI3BMAllYH5bwVrz5K3GF2l/kaEhLEsi/EtYHZ+mgdMhFFDzwBWyiIYU
-/J4LEUKf85qtDn/8fToactAOW8Q50oMoPlt/apQ/GnzWbUIjlhDq9DCp5wtjdMXW
-lBhm7W9H8G10lTGeq/hz68WmnWGZT8lMAJ6hqD5wacGTuO2d2JHNrlboLVZWs7RY
-M3uDgJAUTWebubmFr3eu1dahnDxMPy5OIz2f/hxzHZB9A++4s56WKfHH3X2TZG6m
-8gU/57zhLBg3u9LWeR2P4K7IXWqtibfN7dy7qnNO16xhX7pRcCjRqM9YlbSO8Yxs
-Zxe1HPcUphhiHXt2V3j2fAWk9UPNxFeCEg0T3SMAVlR1+0FfxBS/STDbYnWJV0oq
-5vUi+QnJYGE8N6Bcy7yyphubfbfEne9AYzUkwj6+OZcKGxyke4QMbS5wioeTsCJk
-eyaW/S95ud0OmgJc8rESE8sORgJeyL4Lqq2NWsqFbCqmZxQtJDY=
-=Halt
------END PGP SIGNATURE-----
-
---=-5TWjip13pX9rhqBM9tED--
+However, it is possible to train the branch predictor to go down this
+path using valid indices and subsequently pass what would be an
+invalid index. The CPU will speculatively follow this path and may
+pull interesting data into the cache before it realizes its mistake
+and corrects.
