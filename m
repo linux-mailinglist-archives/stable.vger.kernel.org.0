@@ -2,77 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E930211C6CA
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 09:07:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3257511C6D2
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 09:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728160AbfLLIF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 03:05:26 -0500
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:41927 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728153AbfLLIF0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 03:05:26 -0500
-Received: by mail-pj1-f67.google.com with SMTP id ca19so687695pjb.8
-        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 00:05:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=fp5LYGJKEkfg5yRhHzvHzf1OfDrIgPebJ2E+jZMHJ24=;
-        b=hTdYUuX/LFg7Pd3ilOvSYz4/ctywOUxqVSTtzhmLSq780UIf98CB3GtH7Uwu3bnbvh
-         DITwUpWZIs0dn/iUvBgQBpCaL64gO92pHN0XqOeyR9dJsic2Rq8t9qMnPzHPWyX0Mxp+
-         s/kD0cxw6ZazoIexIu/KZ9cozucV2BUUhG+01SqZrrpte46ijpJvLGK34Re47P9lQQzw
-         QIHUNEVGMJ7/XO7ZlWvS9a4R2E6sCFylFiUV/HyCyyIni4Nb4edEXTqWdkslx7lxvdAT
-         ZEjJI3iVhdmuAfbERpo3BvtwcBywWWHqI4qRDgan0odwXbfVYlSZWsFCDdH0vfxTj7r+
-         EjAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=fp5LYGJKEkfg5yRhHzvHzf1OfDrIgPebJ2E+jZMHJ24=;
-        b=aETW8UMaXMYGHPKjUzHfCVWtUSeOyYhhu5jmgQRv1H73z5fLwVzD0ifCq/NOdBitKC
-         dapI5+oGwnwjn+NQPUKo9JO6cIypk7SkOLFb++VkhbmyaQN9/ffCMIhjGAz1rVba+dr8
-         0Hs1dvrr+ZJfW65x0jOO2M6Uz2QqPsjHdnQsIN5LVDroulEFdLz7TB2Lp8+5awsDS9VZ
-         1g6xzXkZndmB1eIXE2VGV8t//eJsoPF8ANq9UItwng1OWMZ1pwo3MWzbaSn6NGPQZURl
-         uvdWsXCyHA4UlM/MuneQ/+7C/0596VscQCXY+J5B13C21uPoRGSKu9t+SyIeCrU0EUS6
-         5gvA==
-X-Gm-Message-State: APjAAAUG8HzdtUV5iv8No0Lmy3bMUlqsZ0lbIj+8bC4u0qfk8EnWP2BH
-        kjLPbP6/gUmXThQEX1eHJRsXIw==
-X-Google-Smtp-Source: APXvYqzgtaUqbQwoRjMvL+XzEm1CG7mK1gKpaRv8+pqOZ54pcrwGWB4YlSELs5ekSKZbvnw0qJXgQw==
-X-Received: by 2002:a17:902:7797:: with SMTP id o23mr8079385pll.149.1576137925667;
-        Thu, 12 Dec 2019 00:05:25 -0800 (PST)
-Received: from debian ([122.174.90.102])
-        by smtp.gmail.com with ESMTPSA id 83sm5739611pgh.12.2019.12.12.00.05.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Dec 2019 00:05:24 -0800 (PST)
-Date:   Thu, 12 Dec 2019 13:35:18 +0530
-From:   Jeffrin Jose <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        jeffrin@rajagiritech.edu.in
-Subject: Re: [PATCH 5.3 000/105] 5.3.16-stable review
-Message-ID: <20191212080518.GA2657@debian>
-References: <20191211150221.153659747@linuxfoundation.org>
- <20191212065214.GA3747@debian>
- <20191212074124.GA1368279@kroah.com>
+        id S1728157AbfLLIKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 03:10:00 -0500
+Received: from mail-eopbgr00052.outbound.protection.outlook.com ([40.107.0.52]:5255
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728150AbfLLIKA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Dec 2019 03:10:00 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kzCO1HNVnE1uHSdPBNHKWoHBjOiefXyAFifi+nz4bc5OTanjP1vZz9yDG6+DrMbjD6FyERnhRruUv9l1PT4Zw9c0frdIqpvg8Cr1YOpbjHwhxfImGXgRrdq/vamzPldBhxi3z7aFzvf2VZHieYAWnkCnVdOmQehMo42iSXYEykaA7QQ6iCu5piU3ToGyHh84knqFC+ROOvNaAb21enqPOYC8izxSvcHy9P3fXG3i+IjFPi43cCVjAGHicDa8rECQa9+8Bdle3DuBtyvAb+LbKTU0lPNXfUMLZWYx2nATrTFUEnjHBK1ZSZiZvFBJsT07cWB21dYjwTWmd/T8X9KjrQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2+bt78+TK9Izlb270cmWwFGCanMsDj6MRnS56lli0hk=;
+ b=IqjxV8MwlMYiBEJ8JtZ8rrYToywVgnmVyoOz03a58iEl9YrGtdqd+P1hik3jrZ71kQVZ/wgYKCRxNC+2TMvcp/Vin2kGBD9NNyqR12p84tiKK44f8NArhCayO1U7FDko4psOxRXoOUH5xDRErCUSqlTSkallQYE8vAouBlHxVhoJWD2JUNle5jz3BOQ8NtkJ3z4ngg5pOBaRbSdkuGmqwR131Xns3sN4/j0m/hwipyiocfdf5VV5R4yFnU1qeoa0uoLHMerVBb8cqVDPdKYvWXEAIGYcYjtduNGHMnKBuiajMSsWiIxGpQuYRFxbcMfUxMf2tbsF3LPVtmtzkEtM6w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2+bt78+TK9Izlb270cmWwFGCanMsDj6MRnS56lli0hk=;
+ b=cQGKGn5d7CWimCcYJvFx6tusHfOh1evFrkR03U2n1gElw9pVuyMiZzhatLjYzm8D4VaisFJoyiEnY379lI1HBEuEIJWfQWTPtx47xE9Jg1Cl66A/+YUTR4W64jeQVBnE7NkV1zGUgz6bTZ+5SgNljpQtqXm5eLNIe6F0gan7XDQ=
+Received: from VI1PR04MB5327.eurprd04.prod.outlook.com (20.177.51.23) by
+ VI1PR04MB4174.eurprd04.prod.outlook.com (52.134.30.142) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2516.13; Thu, 12 Dec 2019 08:09:56 +0000
+Received: from VI1PR04MB5327.eurprd04.prod.outlook.com
+ ([fe80::cd33:501f:b25:51a9]) by VI1PR04MB5327.eurprd04.prod.outlook.com
+ ([fe80::cd33:501f:b25:51a9%7]) with mapi id 15.20.2538.017; Thu, 12 Dec 2019
+ 08:09:55 +0000
+From:   Peter Chen <peter.chen@nxp.com>
+To:     Felipe Balbi <balbi@kernel.org>
+CC:     "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>, Jun Li <jun.li@nxp.com>,
+        stable <stable@vger.kernel.org>
+Subject: RE: [PATCH 1/1] usb: gadget: f_fs: set req->num_sgs as 0 for sync io
+ mode
+Thread-Topic: [PATCH 1/1] usb: gadget: f_fs: set req->num_sgs as 0 for sync io
+ mode
+Thread-Index: AQHVsKDizJBJhPXRY0awfinO/GM7Sqe2Da2AgAAXwDA=
+Date:   Thu, 12 Dec 2019 08:09:55 +0000
+Message-ID: <VI1PR04MB532743340CE35C4F236FEAB68B550@VI1PR04MB5327.eurprd04.prod.outlook.com>
+References: <1576123160-28931-1-git-send-email-peter.chen@nxp.com>
+ <878snixcvg.fsf@kernel.org>
+In-Reply-To: <878snixcvg.fsf@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=peter.chen@nxp.com; 
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 11caddcc-d467-4796-5450-08d77edaac92
+x-ms-traffictypediagnostic: VI1PR04MB4174:|VI1PR04MB4174:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <VI1PR04MB41748B41F11CD532998E45418B550@VI1PR04MB4174.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1227;
+x-forefront-prvs: 0249EFCB0B
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(39860400002)(366004)(396003)(376002)(346002)(136003)(189003)(199004)(66946007)(8936002)(186003)(55016002)(86362001)(5660300002)(76116006)(4326008)(54906003)(7696005)(9686003)(52536014)(66446008)(66476007)(64756008)(8676002)(66556008)(33656002)(6506007)(81156014)(81166006)(71200400001)(26005)(316002)(2906002)(478600001)(44832011)(6916009);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR04MB4174;H:VI1PR04MB5327.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: IKj+ASPFdB1BS/vjeKr6BX84YGW1yuXERVRGMMcF6Fov4vZjGxC3FYYLBNG2AlAaYRO7ZwKUNI20S8FSd6ClTtOBhO/7hLPHpo027LAGZJ57zFzpsawH1MUAPYd9ytYisTTm36eJS6mDqUOAzZnIrjt8udJsqNcdr7NM354uYjZDs6ZqLWj5CqtsRmA8Hz/FXmvr1jgfzJN/iJC21f+IvpOaW4YgZpB9yF6NIEgL7HzqUEZ/9szZUXGqD3i0fQdTzAU7DmdDxqNuzlnK2UlzI+ELMcdBrVo6Amo+8mndm57NQRCBteO6ZPEr2O+mn3M19tvDwOwztkuxRbikbFj0jCIMfpSRMfgFgsiC+gfn5siRou6ubDK3Z/QX7Ewn8TV7rXSaMgTAiVYRVstYPQVXns7oQ6BDTRCBcAmPLM7pYV3Jr6WchalPDqHw1i2uyb3w
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191212074124.GA1368279@kroah.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 11caddcc-d467-4796-5450-08d77edaac92
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Dec 2019 08:09:55.8266
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: FCfBLxp9nkw+6KWnlsHzdFgq7kfuW9hqSMiqT+M7QGVDjzhK0iefcWHA1bb+l8iQx3Y2zygfAXUTr174LeaCxw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB4174
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 12, 2019 at 08:41:24AM +0100, Greg Kroah-Hartman wrote:
-> Are these things new to this release, or have they always been there?
-Normally these are not new things. it has been there.
+=20
+> Peter Chen <peter.chen@nxp.com> writes:
+> > The UDC core uses req->num_sgs to judge if scatter buffer list is used.
+> > Eg: usb_gadget_map_request_by_dev. For f_fs sync io mode, the request
+> > is re-used for each request, so if the 1st request->length >
+> > PAGE_SIZE, and the 2nd request->length is < PAGE_SIZE, the f_fs uses
+> > the 1st
+> > req->num_sgs for the 2nd request, it causes the UDC core get the wrong
+> > req->num_sgs value (The 2nd request doesn't use sg).
+> >
+> > We set req->num_sgs as 0 for each request at non-sg transfer case to
+> > fix it.
+>=20
+> The patch, however, is *removing* initialization to 0...
+>=20
+> > Cc: Jun Li <jun.li@nxp.com>
+> > Cc: stable <stable@vger.kernel.org>
+> > Fixes: 772a7a724f69 ("usb: gadget: f_fs: Allow scatter-gather
+> > buffers")
+> > Signed-off-by: Peter Chen <peter.chen@nxp.com>
+> > ---
+> >  drivers/usb/gadget/function/f_fs.c | 1 -
+> >  1 file changed, 1 deletion(-)
+> >
+> > diff --git a/drivers/usb/gadget/function/f_fs.c
+> > b/drivers/usb/gadget/function/f_fs.c
+> > index eedd926cc578..b5a1bfc2fc7e 100644
+> > --- a/drivers/usb/gadget/function/f_fs.c
+> > +++ b/drivers/usb/gadget/function/f_fs.c
+> > @@ -1106,7 +1106,6 @@ static ssize_t ffs_epfile_io(struct file *file, s=
+truct
+> ffs_io_data *io_data)
+> >  			req->num_sgs =3D io_data->sgt.nents;
+> >  		} else {
+> >  			req->buf =3D data;
+> > -			req->num_sgs =3D 0;
+>=20
+> ... this doesn't seem to match your commit log. Care to explain?
+>=20
 
---
-software engineer
-rajagiri school of engineering and technology
+Sorry, I did not check the patch when I formatted it. I need to pay more at=
+tention to it next time.
+I will send it again.
 
-
+Peter
