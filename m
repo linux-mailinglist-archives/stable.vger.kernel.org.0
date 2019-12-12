@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DEF411C571
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 06:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7131611C574
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 06:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726910AbfLLF3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 00:29:18 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:44531 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725980AbfLLF3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 00:29:18 -0500
-Received: by mail-pg1-f193.google.com with SMTP id x7so519977pgl.11;
-        Wed, 11 Dec 2019 21:29:17 -0800 (PST)
+        id S1726382AbfLLF3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 00:29:41 -0500
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:42941 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725980AbfLLF3l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 00:29:41 -0500
+Received: by mail-pj1-f66.google.com with SMTP id o11so523573pjp.9;
+        Wed, 11 Dec 2019 21:29:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=2ire7BGBo+V8mA64V6uII9p+Li9KPRPWYogcnliILbQ=;
-        b=S+hq5IO58PP9xTvR8TftxLmkNXFp8VRPymKjuM6UhySzEJtOFS5CA6Fuzw6aPZoHg9
-         j2Y+I5NSz6sSRQZuGkpc9VivJV2Cu2PP+B9yayS8XnnD05GgAkQyPGPLTT2OnHFg6F8Y
-         3Zz5QeFNWTHKHdU6/0szqK3Ba0vAq/ilnWrvkP37RkJ5Q8WuAQGcEtg37crc9hAs9JWC
-         kcQ02TUxlKxmwC1IsnH5hMnanddnbBgVEKsvH70Y+23d5sNkNmSI8sQ36E3uIG4S43yo
-         hxecWndwT4dROgmwMl6iLhhas1V0izpSn9jj4gpkoezzLMwuKjtAMmNyO4wTEnaI5rjl
-         IX9g==
+        bh=ty3dpK0QTIzeB9iEDR4WAHT8NL5h1eWqIJaiU5glr4w=;
+        b=MvOxXaJJ2IDFyzGFq4UInxj47QiscDaLhYt7M0EP5WBcwN2+3/NiArepmzNC4+A0Sv
+         Ll30HqN8p4r33J3HTR2uWW2lT9Z2f9JsIsmyPo8d1Be9fAmy9PpkmO3I+IH/AyDdF5b3
+         h0zei4D2vTlnmmZZSquKtLEnRc5oL9T/DvDxVazJgApCejDPRm6ey8/dfOsq5PdWuVXU
+         fkrCH2gqmiH17vyTDRZfRW9s2y8QXJUjSA8VSe8iNc63vDe6KLTiA68cTe6mfV3411iA
+         /GzJ3je9Nu7ftlLJUBZDuiPbrGtsYbQxEP1x2z+GgghBOoIlO/6v2fBLsshmsIMX9Yd1
+         EgAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2ire7BGBo+V8mA64V6uII9p+Li9KPRPWYogcnliILbQ=;
-        b=lRQLfKnEgFTWOmKtsOU4XVajx3bIzTJFI0b/iHeGM3+0MmqTFFVv2On5dLp9zAEo0k
-         tf/0qphJ/oOLn95SZKx3jDyEY9s+LJ20iY8osWkn0Cfg7Kl6fkEDoEyyGFM0q88m6gVa
-         9QZZylhDONA2xdcPie+EtMUfkbhyCH4UNPWH7366A/H2PzCYi7RCH1CZEHDICRHFShDL
-         bAEDJT3y4eJNq4kkvDduNqI6BBErqvzRMxXOgMZUdyBFtFdqoYhhNz3OVfs2Lras+j82
-         z0/YDsr5Yfc5kuh1G7bsAqDNWvQcuNcOmZwUmxb0g/Wc4DyCWZ7RtIt/oJkNW9RhOc+N
-         Sl/w==
-X-Gm-Message-State: APjAAAVSiC+eFpN+w+WRi+QP1BVUpisgNdiwc9h3gN+wvYGUboV4X/DA
-        ip9FrZOI2l2NVQWfR1rRsIY=
-X-Google-Smtp-Source: APXvYqzSaqBgeCIk8rToh6/uY5GYA+cv3JNtXfbIkk4fkIH/Jqg6l1mGDhw797vCqihl6A0eBemvhw==
-X-Received: by 2002:a63:ff5c:: with SMTP id s28mr8397677pgk.196.1576128557566;
-        Wed, 11 Dec 2019 21:29:17 -0800 (PST)
+        bh=ty3dpK0QTIzeB9iEDR4WAHT8NL5h1eWqIJaiU5glr4w=;
+        b=WJiigQUQ4c4ZClztagmHP/yOox9b69KDr81tDh1Lom6GtqjrZ6GqrnI6bxmNZuVQvg
+         jHeGRxda1r/aTFVmRFMzOhdh2Iho20qOgTvcQI+ok6r9LTKUzvXKGTS3nkk9qga7LvP6
+         RxYOcq1k3Vlpa0tbLDtaHxNynJ2PrNwV3EGDPiec+v87QJW+qSxBoyTfkAHNL4fUgCzD
+         2gNIg4tErWBuin2rlKfHwCav2saALY5Qp5lI1JqN6y1PYJmqkFbqaiMrtXWbPvi8ovRQ
+         8C/tLExNZzcV5vMbMtKdtU4GaZUr5hhtcDHSLx3b9b0UadksgS7VvOjnd85LaHgVEIjg
+         +4yA==
+X-Gm-Message-State: APjAAAWsYx+WHieKcqxFhletZMEX3BmH7I7OdBxf1sq9dSdyu/66MyMh
+        WwhqjISgYWhpfPis+Dvm9aPJMLNR
+X-Google-Smtp-Source: APXvYqw67g9FGJ3Vsm4Tg5w1zgdJ1orF+ZDvuJ6G4/7V8u/UUhkJNsMtkHC/XUA8SoL+1XPJKIaX5A==
+X-Received: by 2002:a17:90a:33e8:: with SMTP id n95mr7975895pjb.17.1576128580674;
+        Wed, 11 Dec 2019 21:29:40 -0800 (PST)
 Received: from localhost.localdomain ([163.152.162.99])
-        by smtp.gmail.com with ESMTPSA id h7sm5532289pfq.36.2019.12.11.21.29.15
+        by smtp.gmail.com with ESMTPSA id h7sm5532289pfq.36.2019.12.11.21.29.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Dec 2019 21:29:17 -0800 (PST)
+        Wed, 11 Dec 2019 21:29:40 -0800 (PST)
 From:   Suwan Kim <suwan.kim027@gmail.com>
 To:     shuah@kernel.org, valentina.manea.m@gmail.com,
         gregkh@linuxfoundation.org, marmarek@invisiblethingslab.com
 Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org, Suwan Kim <suwan.kim027@gmail.com>
-Subject: [PATCH 1/2] usbip: Fix receive error in vhci-hcd when using scatter-gather
-Date:   Thu, 12 Dec 2019 14:28:40 +0900
-Message-Id: <20191212052841.6734-2-suwan.kim027@gmail.com>
+Subject: [PATCH 2/2] usbip: Fix error path of vhci_recv_ret_submit()
+Date:   Thu, 12 Dec 2019 14:28:41 +0900
+Message-Id: <20191212052841.6734-3-suwan.kim027@gmail.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191212052841.6734-1-suwan.kim027@gmail.com>
 References: <20191212052841.6734-1-suwan.kim027@gmail.com>
@@ -63,36 +63,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When vhci uses SG and receives data whose size is smaller than SG
-buffer size, it tries to receive more data even if it acutally
-receives all the data from the server. If then, it erroneously adds
-error event and triggers connection shutdown.
+If a transaction error happens in vhci_recv_ret_submit(), event
+handler closes connection and changes port status to kick hub_event.
+Then hub tries to flush the endpoint URBs, but that causes infinite
+loop between usb_hub_flush_endpoint() and vhci_urb_dequeue() because
+"vhci_priv" in vhci_urb_dequeue() was already released by
+vhci_recv_ret_submit() before a transmission error occurred. Thus,
+vhci_urb_dequeue() terminates early and usb_hub_flush_endpoint()
+continuously calls vhci_urb_dequeue().
 
-vhci-hcd should check if it received all the data even if there are
-more SG entries left. So, check if it receivces all the data from
-the server in for_each_sg() loop.
+The root cause of this issue is that vhci_recv_ret_submit()
+terminates early without giving back URB when transaction error
+occurs in vhci_recv_ret_submit(). That causes the error URB to still
+be linked at endpoint list without “vhci_priv".
 
-Fixes: ea44d190764b ("usbip: Implement SG support to vhci-hcd and stub driver")
+So, in the case of trasnaction error in vhci_recv_ret_submit(),
+unlink URB from the endpoint, insert proper error code in
+urb->status and give back URB.
+
 Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
 ---
- drivers/usb/usbip/usbip_common.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/usbip/vhci_rx.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/usbip/usbip_common.c b/drivers/usb/usbip/usbip_common.c
-index 6532d68e8808..e4b96674c405 100644
---- a/drivers/usb/usbip/usbip_common.c
-+++ b/drivers/usb/usbip/usbip_common.c
-@@ -727,6 +727,9 @@ int usbip_recv_xbuff(struct usbip_device *ud, struct urb *urb)
+diff --git a/drivers/usb/usbip/vhci_rx.c b/drivers/usb/usbip/vhci_rx.c
+index 33f8972ba842..dc26acad6baf 100644
+--- a/drivers/usb/usbip/vhci_rx.c
++++ b/drivers/usb/usbip/vhci_rx.c
+@@ -77,16 +77,21 @@ static void vhci_recv_ret_submit(struct vhci_device *vdev,
+ 	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
  
- 			copy -= recv;
- 			ret += recv;
-+
-+			if (!copy)
-+				break;
- 		}
+ 	/* recv transfer buffer */
+-	if (usbip_recv_xbuff(ud, urb) < 0)
+-		return;
++	if (usbip_recv_xbuff(ud, urb) < 0) {
++		urb->status = -EPIPE;
++		goto error;
++	}
  
- 		if (ret != size)
+ 	/* recv iso_packet_descriptor */
+-	if (usbip_recv_iso(ud, urb) < 0)
+-		return;
++	if (usbip_recv_iso(ud, urb) < 0) {
++		urb->status = -EPIPE;
++		goto error;
++	}
+ 
+ 	/* restore the padding in iso packets */
+ 	usbip_pad_iso(ud, urb);
+ 
++error:
+ 	if (usbip_dbg_flag_vhci_rx)
+ 		usbip_dump_urb(urb);
+ 
 -- 
 2.20.1
 
