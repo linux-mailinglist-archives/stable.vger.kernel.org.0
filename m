@@ -2,109 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 138FE11C9F6
-	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 10:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB1811CA20
+	for <lists+stable@lfdr.de>; Thu, 12 Dec 2019 11:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728449AbfLLJzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 04:55:40 -0500
-Received: from inca-roads.misterjones.org ([213.251.177.50]:49364 "EHLO
-        inca-roads.misterjones.org" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728282AbfLLJzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 04:55:39 -0500
-Received: from www-data by cheepnis.misterjones.org with local (Exim 4.80)
-        (envelope-from <maz@kernel.org>)
-        id 1ifLC0-0007AX-PZ; Thu, 12 Dec 2019 10:55:32 +0100
-To:     Will Deacon <will@kernel.org>
-Subject: Re: [PATCH] KVM: arm64: Ensure 'params' is initialised when looking  up sys register
-X-PHP-Originating-Script: 0:main.inc
+        id S1728331AbfLLKDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 05:03:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53092 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726382AbfLLKDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 12 Dec 2019 05:03:25 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 007E020663;
+        Thu, 12 Dec 2019 10:03:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576145004;
+        bh=+ffIvZ8BeZ/FGeStNiEWYPjjVkZ3X9EBtgBzndBBxZI=;
+        h=Subject:To:From:Date:From;
+        b=dyBrUZ95O+nX0eoJ8fMBS1/MreaSE0VL85NloohUqr4Zrc6wJElgJ2zaZIyzIz8Ok
+         LJwzLDcooEgbaFDZX8Z8+cBVP/ddfeGViI0c+7zOJ6YGPzlnW3N9N+hPImh5oIk8yz
+         jTOq+5PEG1jADQuhgGvSkfbXpuKrqrbMNyxXqjn8=
+Subject: patch "interconnect: qcom: sdm845: Walk the list safely on node removal" added to char-misc-linus
+To:     georgi.djakov@linaro.org, bjorn.andersson@linaro.org,
+        digetx@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 12 Dec 2019 11:03:13 +0100
+Message-ID: <157614499312358@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-Date:   Thu, 12 Dec 2019 09:55:32 +0000
-From:   Marc Zyngier <maz@kernel.org>
-Cc:     <kvmarm@lists.cs.columbia.edu>,
-        <linux-arm-kernel@lists.infradead.org>, <james.morse@arm.com>,
-        <suzuki.poulose@arm.com>, <kernel-team@android.com>,
-        <stable@vger.kernel.org>, Vijaya Kumar K <vijaya.kumar@cavium.com>
-In-Reply-To: <20191212094049.12437-1-will@kernel.org>
-References: <20191212094049.12437-1-will@kernel.org>
-Message-ID: <a4b931f697b2fc7ec6ef5356b84a3939@www.loen.fr>
-X-Sender: maz@kernel.org
-User-Agent: Roundcube Webmail/0.7.2
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Rcpt-To: will@kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, james.morse@arm.com, suzuki.poulose@arm.com, kernel-team@android.com, stable@vger.kernel.org, vijaya.kumar@cavium.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on cheepnis.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-12-12 09:40, Will Deacon wrote:
-> Commit 4b927b94d5df ("KVM: arm/arm64: vgic: Introduce 
-> find_reg_by_id()")
-> introduced 'find_reg_by_id()', which looks up a system register only 
-> if
-> the 'id' index parameter identifies a valid system register. As part 
-> of
-> the patch, existing callers of 'find_reg()' were ported over to the 
-> new
-> interface, but this breaks 'index_to_sys_reg_desc()' in the case that 
-> the
-> initial lookup in the vCPU target table fails because we will then 
-> call
-> into 'find_reg()' for the system register table with an uninitialised
-> 'param' as the key to the lookup.
->
-> GCC 10 is bright enough to spot this (amongst a tonne of false 
-> positives,
-> but hey!):
->
->   | arch/arm64/kvm/sys_regs.c: In function 
-> ‘index_to_sys_reg_desc.part.0.isra’:
->   | arch/arm64/kvm/sys_regs.c:983:33: warning: ‘params.Op2’ may be 
-> used uninitialized in this function [-Wmaybe-uninitialized]
->   |   983 |   (u32)(x)->CRn, (u32)(x)->CRm, (u32)(x)->Op2);
->   | [...]
->
-> Revert the hunk of 4b927b94d5df which breaks 
-> 'index_to_sys_reg_desc()' so
-> that the old behaviour of checking the index upfront is restored.
 
-Huhuh... Well spotted GCC 10! And thanks Will for the fix.
+This is a note to let you know that I've just added the patch titled
 
->
-> Cc: <stable@vger.kernel.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Vijaya Kumar K <Vijaya.Kumar@cavium.com>
-> Fixes: 4b927b94d5df ("KVM: arm/arm64: vgic: Introduce 
-> find_reg_by_id()")
-> Signed-off-by: Will Deacon <will@kernel.org>
-> ---
->  arch/arm64/kvm/sys_regs.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-> index 46822afc57e0..01a515e0171e 100644
-> --- a/arch/arm64/kvm/sys_regs.c
-> +++ b/arch/arm64/kvm/sys_regs.c
-> @@ -2360,8 +2360,11 @@ static const struct sys_reg_desc
-> *index_to_sys_reg_desc(struct kvm_vcpu *vcpu,
->  	if ((id & KVM_REG_ARM_COPROC_MASK) != KVM_REG_ARM64_SYSREG)
->  		return NULL;
->
-> +	if (!index_to_params(id, &params))
-> +		return NULL;
-> +
->  	table = get_target_table(vcpu->arch.target, true, &num);
-> -	r = find_reg_by_id(id, &params, table, num);
-> +	r = find_reg(&params, table, num);
->  	if (!r)
->  		r = find_reg(&params, sys_reg_descs, ARRAY_SIZE(sys_reg_descs));
+    interconnect: qcom: sdm845: Walk the list safely on node removal
 
-Applied, thanks.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-         M.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From b29b8113bb41285eb7ed55ce0c65017b5c0240f7 Mon Sep 17 00:00:00 2001
+From: Georgi Djakov <georgi.djakov@linaro.org>
+Date: Thu, 12 Dec 2019 09:53:30 +0200
+Subject: interconnect: qcom: sdm845: Walk the list safely on node removal
+
+As we will remove items off the list using list_del(), we need to use the
+safe version of list_for_each_entry().
+
+Fixes: b5d2f741077a ("interconnect: qcom: Add sdm845 interconnect provider driver")
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+Cc: <stable@vger.kernel.org> # v5.3+
+Link: https://lore.kernel.org/r/20191212075332.16202-3-georgi.djakov@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/interconnect/qcom/sdm845.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/interconnect/qcom/sdm845.c b/drivers/interconnect/qcom/sdm845.c
+index 502a6c22b41e..387267ee9648 100644
+--- a/drivers/interconnect/qcom/sdm845.c
++++ b/drivers/interconnect/qcom/sdm845.c
+@@ -868,9 +868,9 @@ static int qnoc_remove(struct platform_device *pdev)
+ {
+ 	struct qcom_icc_provider *qp = platform_get_drvdata(pdev);
+ 	struct icc_provider *provider = &qp->provider;
+-	struct icc_node *n;
++	struct icc_node *n, *tmp;
+ 
+-	list_for_each_entry(n, &provider->nodes, node_list) {
++	list_for_each_entry_safe(n, tmp, &provider->nodes, node_list) {
+ 		icc_node_del(n);
+ 		icc_node_destroy(n->id);
+ 	}
 -- 
-Jazz is not dead. It just smells funny...
+2.24.1
+
+
