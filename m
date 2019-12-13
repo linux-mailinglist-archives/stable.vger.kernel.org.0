@@ -2,141 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6460411EE62
-	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 00:21:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B122811EEDD
+	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 00:51:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726739AbfLMXTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Dec 2019 18:19:41 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:32841 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726704AbfLMXTl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 18:19:41 -0500
-Received: by mail-pj1-f66.google.com with SMTP id r67so372569pjb.0
-        for <stable@vger.kernel.org>; Fri, 13 Dec 2019 15:19:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=j4OUDi2GWFJr1GQx/XFXLfcptMVLhYOJn6klY92aaOQ=;
-        b=SVp8rLnx0teNHRRRm0PRHhUwbvbRCM2wy4jSFOelIlvzDVLv9yNq2vjqZ1mN3mlpOH
-         k1bgyxh7/bfJ0EkseK7VPY358DRrjePvhtWMdW9sdeT2ilrvA+tm4CRWplh4/XbECcwH
-         wsISc6Usvxqj6Ws7YK0R2/K0qpmR9IABVcmMU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=j4OUDi2GWFJr1GQx/XFXLfcptMVLhYOJn6klY92aaOQ=;
-        b=qOEalWD5cg3JMjRQu7y4oa3OcVd9ICwGBCsqod2L6tmQGwWomvt2JcCzIVFv/zLbpz
-         zV6dxvkzzQvLvQpkpWxCEgCpFmm0JDiXd3SKvQaypVgZKzWOScTmoRMpRBsEdNPjplIk
-         SCIoz6luk3KhrBm1jWgyKTu8m2NNmEVxL24BJEK6alPOW1p67GVP1htkDQqijP24W2Kh
-         WX8ok937m85cdwCoQUh9GC7N0zefCCYlbh6buE9tx6/1LoWZY7SgEfoMBO72laAWOWax
-         1hYC+m9AEYerfg0KjGwUxrJRLPVvwBLa3HlqH6FypjRaoqyqqyf4kMpYVIHUHaB5tERs
-         RX1Q==
-X-Gm-Message-State: APjAAAWOwkkEHo+9hKociV8fUDOqHNNAX79c0iCUd2yKzBeQFhPT+OVE
-        /+S89nHTwRTC3m1NSdbr23zg/w==
-X-Google-Smtp-Source: APXvYqwADL/M0/ouoqApRJjUcc6YwgsphiZr/cd/UqkDLYm8PsIjyhK3SpK4rAoR9Z/WqwufIc40Ig==
-X-Received: by 2002:a17:90a:c390:: with SMTP id h16mr2287765pjt.131.1576279180818;
-        Fri, 13 Dec 2019 15:19:40 -0800 (PST)
-Received: from localhost ([2620:15c:6:12:9c46:e0da:efbf:69cc])
-        by smtp.gmail.com with ESMTPSA id a26sm13060069pfo.5.2019.12.13.15.19.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Dec 2019 15:19:40 -0800 (PST)
-Date:   Fri, 13 Dec 2019 18:19:39 -0500
-From:   Joel Fernandes <joel@joelfernandes.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Phong Tran <tranmanphong@gmail.com>,
-        "Theodore Y. Ts'o" <tytso@mit.edu>, adilger.kernel@dilger.ca,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        linux-ext4@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        rcu <rcu@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH V2] ext4: use rcu API in debug_print_tree
-Message-ID: <20191213231939.GB195887@google.com>
-References: <20191213113510.GG15474@quack2.suse.cz>
- <20191213153306.30744-1-tranmanphong@gmail.com>
- <CAEXW_YQwrM6=u1gsij-5SL5+2n9Pk9HFEYdF_JWYjitLvr7Dcg@mail.gmail.com>
- <20191213194943.GA959@quack2.suse.cz>
+        id S1726638AbfLMXvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Dec 2019 18:51:44 -0500
+Received: from mta05.svc.cra.dublin.eircom.net ([159.134.118.221]:40023 "HELO
+        mta05.svc.cra.dublin.eircom.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with SMTP id S1725747AbfLMXvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 18:51:44 -0500
+X-Greylist: delayed 397 seconds by postgrey-1.27 at vger.kernel.org; Fri, 13 Dec 2019 18:51:42 EST
+Received: (qmail 39138 messnum 6700658 invoked from network[213.94.190.15/avas03.vendorsvc.cra.dublin.eircom.net]); 13 Dec 2019 23:45:01 -0000
+Received: from avas03.vendorsvc.cra.dublin.eircom.net (HELO avas03) (213.94.190.15)
+  by mta05.svc.cra.dublin.eircom.net (qp 39138) with SMTP; 13 Dec 2019 23:45:01 -0000
+Received: from vzmbx18.eircom.net ([86.43.60.98])
+        by Cloudmark Gateway with SMTP
+        id fucHicgcBbSpIfucHikq8A; Fri, 13 Dec 2019 23:45:01 +0000
+X-Spam-Flag: NO
+X-CNFS-Analysis: v=2.2 cv=FcBH/N26 c=1 sm=1 tr=0
+ a=e7gqILOnBbllteVy7xBg4A==:117 a=9cW_t1CCXrUA:10 a=FKkrIqjQGGEA:10
+ a=wZECI49lYIkA:10 a=IkcTkHD0fZMA:10 a=RvYBrFidqJkA:10 a=MEWDuUNxdpMA:10
+ a=ZZnuYtJkoWoA:10 a=pGLkceISAAAA:8 a=FR-hEON8pMiOOTlS7SYA:9
+ a=GIYc_TtF79PlqzcD:21 a=QEXdDO2ut3YA:10 a=Xsk6vqzZI48A:10 a=EyQvBz-zgkIA:10
+ a=wtkpjSFW-GEsYebB2nHs:22
+Date:   Fri, 13 Dec 2019 23:45:01 +0000 (GMT)
+From:   ahmed <ksn4432@eircom.net>
+Message-ID: <185706712.116774.1576280701229.JavaMail.zimbra@eircom.net>
+Subject: Hello dear
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191213194943.GA959@quack2.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [196.52.38.26]
+X-Mailer: Zimbra 8.6.0_GA_1242 (zclient/8.6.0_GA_1242)
+Thread-Topic: Hello dear
+Thread-Index: MiLwKon1Wpj+0cOpb4ksAlMnpDcFZA==
+X-CMAE-Envelope: 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
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 13, 2019 at 08:49:43PM +0100, Jan Kara wrote:
-> On Fri 13-12-19 10:11:50, Joel Fernandes wrote:
-> > On Fri, Dec 13, 2019 at 7:39 AM Phong Tran <tranmanphong@gmail.com> wrote:
-> > >
-> > > struct ext4_sb_info.system_blks was marked __rcu.
-> > > But access the pointer without using RCU lock and dereference.
-> > > Sparse warning with __rcu notation:
-> > >
-> > > block_validity.c:139:29: warning: incorrect type in argument 1 (different address spaces)
-> > > block_validity.c:139:29:    expected struct rb_root const *
-> > > block_validity.c:139:29:    got struct rb_root [noderef] <asn:4> *
-> > >
-> > > Reviewed-by: Jan Kara <jack@suse.cz>
-> > > Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-> > 
-> > Thanks Phong! Looks like a real bug fix caught thanks to Sparse. So
-> > let us mark for stable as well?
-> 
-> Well, not really. The code is active only with CONFIG_EXT4_DEBUG enabled
-> and in this case there's no race with remount (and thus sbi->system_blks
-> changing) possible. So the change is really only to silence the sparse
-> warning.
+Greetings,
 
-Ok, thanks for clarifying.
+With due respect,I need your urgent assistance in transferring the sum of $11.3million to your private account Where this money can be shared between us. By indicating your interest I will send you the full details on how the business will be executed.
 
--Joel
+Please if you are interested send your reply to      o.uea.2345@gmail.com 
 
-> 
-> 								Honza
-> 
-> > 
-> > - Joel
-> > 
-> > > ---
-> > >  fs/ext4/block_validity.c | 6 +++++-
-> > >  1 file changed, 5 insertions(+), 1 deletion(-)
-> > >
-> > > ---
-> > > change log:
-> > > V2: Add Reviewed-by: Jan Kara <jack@suse.cz>
-> > >
-> > > diff --git a/fs/ext4/block_validity.c b/fs/ext4/block_validity.c
-> > > index d4d4fdfac1a6..1ee04e76bbe0 100644
-> > > --- a/fs/ext4/block_validity.c
-> > > +++ b/fs/ext4/block_validity.c
-> > > @@ -133,10 +133,13 @@ static void debug_print_tree(struct ext4_sb_info *sbi)
-> > >  {
-> > >         struct rb_node *node;
-> > >         struct ext4_system_zone *entry;
-> > > +       struct ext4_system_blocks *system_blks;
-> > >         int first = 1;
-> > >
-> > >         printk(KERN_INFO "System zones: ");
-> > > -       node = rb_first(&sbi->system_blks->root);
-> > > +       rcu_read_lock();
-> > > +       system_blks = rcu_dereference(sbi->system_blks);
-> > > +       node = rb_first(&system_blks->root);
-> > >         while (node) {
-> > >                 entry = rb_entry(node, struct ext4_system_zone, node);
-> > >                 printk(KERN_CONT "%s%llu-%llu", first ? "" : ", ",
-> > > @@ -144,6 +147,7 @@ static void debug_print_tree(struct ext4_sb_info *sbi)
-> > >                 first = 0;
-> > >                 node = rb_next(node);
-> > >         }
-> > > +       rcu_read_unlock();
-> > >         printk(KERN_CONT "\n");
-> > >  }
-> > >
-> > > --
-> > > 2.20.1
-> > >
-> -- 
-> Jan Kara <jack@suse.com>
-> SUSE Labs, CR
+Best Regards,
+Ahmed Ouedraogo.
