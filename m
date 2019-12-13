@@ -2,105 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 366E711E4C8
-	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 14:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AE3511E50E
+	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 14:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727385AbfLMNjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Dec 2019 08:39:21 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:44006 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727346AbfLMNjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 08:39:21 -0500
-Received: by mail-wr1-f68.google.com with SMTP id d16so6649322wre.10
-        for <stable@vger.kernel.org>; Fri, 13 Dec 2019 05:39:19 -0800 (PST)
+        id S1727684AbfLMN4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Dec 2019 08:56:45 -0500
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:36157 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727578AbfLMN4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 08:56:44 -0500
+Received: by mail-pl1-f193.google.com with SMTP id d15so1283001pll.3;
+        Fri, 13 Dec 2019 05:56:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=14rnrNBx4s+Kj0T7y5suEjfb+f/4xKjvS7PmECnOqWw=;
-        b=GrI/dkXyYk5ISi699KuSYXDSpQotYwArfhPbOttETbdsTY/5hKNieDhdixk/92Uv6Z
-         Ma6jg4ulXP0fiEX2488X7ofsu8kzzkawSRmXOOnd6XP2sD/xt1vcM9TnAX/DOPAfVPrL
-         MYNmlFGxWtmpghw3zIHMsImN+SCCjTUGtN4oUsv3fJoqZ9eMcnh9SCuP/3ePvTD1YiOs
-         6sIT4dXcdl0NYra5ehY7TbZpqC9vDeBAIxs4DZJIO6xoX46M8XplhfpSxD3BADroW3CN
-         QJoXk1bw6vPkRXlezi93hYC2UYVXj7bsN+2UzaJJBFVgSRm5FdawFUMRvuAuvWvssIbt
-         Ls+A==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=yOTiVTN6TRqhsiKXyuXZAhjh4xoZddWaYpKSnXhSel4=;
+        b=b29/nw7LjKjjtDsfIHyDRy89fMafLkL3tjAMHTk9Us6zjIH9NG/JAc4hnIjwQeioNE
+         VWKGJ+QgOfOvDuFq3Ed1S8wDHsyOw84lK0l+loINKOTBl4wpzaPxaIqSc1lqgKJZzwWa
+         oyQhJQlHmbFTT4lfmN0nk/jSIuS62OEVM9aXBT6SK93n0x2WHFrJylc6SizYkVAFjUuu
+         xwf+JqhKx/4qOtcCDv0orGHxThbuT++dUmL+H4CHZeIv2RDFvA//G5pwebolT/2dU3tP
+         j/C2H1LyLffEd4yLljNvnFQ+PQY49fcpVmTFTtnBUdhy5NIpyhwHSdJN5XBTuHyYPnHP
+         SzLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=14rnrNBx4s+Kj0T7y5suEjfb+f/4xKjvS7PmECnOqWw=;
-        b=fqV+sJBLKa3SAzPg0ApeF0Xm4xfoP/4yQ5+WZpPwY4psKOt9BZLH8gGa6z7sGhjUKE
-         hj3iooLGKb9241tzzIZ+/CVmu+vTnyI3lNCaRmORqZPPDV6H341VpAUxqClWrVdh1FKz
-         t/4DrfqliFRZ6QANZMzMSlBSWRNsHqfWn8QNymWNvecQsZwhbiQ0lk851lDJpOqs+MLG
-         vYY4pbw/9k66q9iEskbYvQzfUIH1BhLaeAHnYQJ82Fu9QHX2zUBnG1/aGNs52mPWdpRp
-         VXw93mja3B0RbR91egUTd7njTKHvs7V91pb17QBGx/EateXNYGqrW5KQJ7KoOY69icMr
-         ZIYA==
-X-Gm-Message-State: APjAAAXolnOXLyajosgVoLoIVC+rVKtFJKd2QtFAN6MyQLynWFTfclla
-        tNYej/nrhI+ux8mFsrKCS9xx7RIviChKvg==
-X-Google-Smtp-Source: APXvYqx4lKJDgUlGSw6HiHlXBtQnHORXdksr62/OonePn8acOFwPUlMaOdTe4FciTgJt1UOzvyMJng==
-X-Received: by 2002:a5d:4e0a:: with SMTP id p10mr12679967wrt.229.1576244359016;
-        Fri, 13 Dec 2019 05:39:19 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j130sm5611219wmb.18.2019.12.13.05.39.17
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Dec 2019 05:39:18 -0800 (PST)
-Message-ID: <5df39486.1c69fb81.e2d9.de95@mx.google.com>
-Date:   Fri, 13 Dec 2019 05:39:18 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=yOTiVTN6TRqhsiKXyuXZAhjh4xoZddWaYpKSnXhSel4=;
+        b=WrXcicGXXr0lbFx24GOk20L+fxjaG2PZ0mL5/BTGbDDLIGx2/KlcHsAm3L6qx7wZwq
+         y9hIOhueNbjncrOn98hTU6YobsT9G26K1aajRN4pCSiZcE5RXTVzdq+zbBOpZiJE57T2
+         kc7eP/rVcvsdHGyWvUfeSOdlqtGo9uFwovPuuYX44uB6F9L5b4L7g443FsNig70kMOWp
+         ki5eOywIsNUcJQoggMJnZkgNDpTRzMzT92FYiMJy5hweC6Yu3ecbQM9qVZJN9sc+nSpw
+         I3t07+38O8gORGaBuk0mSEZL3EAqnFk0dlg2q/s9zuA4929h8oRcBviI6Tuz0NHuXnNv
+         7heg==
+X-Gm-Message-State: APjAAAVP2sBRcuP1Rgimf2GNJT65JWotyfYpP4bIkJlOBHEDll7uZO3c
+        55rGsKRp1oBfhYhICJmx5jX54FU5
+X-Google-Smtp-Source: APXvYqxSnU8c+K3bHypBX2JvZR/ol+6V0HxmeKddZGGp+dpfva7PqMSkcSEsQPmDBV0BK5+V/M5tEQ==
+X-Received: by 2002:a17:902:7287:: with SMTP id d7mr15699726pll.17.1576245403682;
+        Fri, 13 Dec 2019 05:56:43 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id n15sm11332899pgf.17.2019.12.13.05.56.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 13 Dec 2019 05:56:42 -0800 (PST)
+Subject: Re: [PATCH 4.19 000/243] 4.19.89-stable review
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20191211150339.185439726@linuxfoundation.org>
+ <20191213093035.GA27637@amd>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <b9a5af67-c7db-a2f1-b573-cbf25c1f03f6@roeck-us.net>
+Date:   Fri, 13 Dec 2019 05:56:41 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.89
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y boot: 85 boots: 1 failed,
- 82 passed with 2 untried/unknown (v4.19.89)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20191213093035.GA27637@amd>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 85 boots: 1 failed, 82 passed with 2 untried/unkn=
-own (v4.19.89)
+On 12/13/19 1:30 AM, Pavel Machek wrote:
+> Hi!
+> 
+>> This is the start of the stable review cycle for the 4.19.89 release.
+>> There are 243 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
+>> Anything received after that time might be too late.
+> 
+> Is there something funny going on with the timing, again? I see that
+> 4.19.89 is already out:
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.89/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.89/
+Just for the record, in my opinion it is perfectly fine to publish stable
+releases early after all expected feedback is in. That lets me merge the
+release early today and gives me time to fix any merge related problems.
+I don't see the benefit of waiting until 14:46:07.
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.89
-Git Commit: 312017a460d5ea31d646e7148e400e13db799ddc
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 51 unique boards, 17 SoC families, 15 builds out of 206
+Guenter
 
-Boot Regressions Detected:
+> commit 312017a460d5ea31d646e7148e400e13db799ddc
+> Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Date:   Fri Dec 13 08:52:59 2019 +0100
+> 
+>      Linux 4.19.89
+> 
+> Best regards,
+> 								Pavel
+> 
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v4.19.88)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxl-s905x-khadas-vim:
-              lab-baylibre: new failure (last pass: v4.19.88)
-
-Boot Failure Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
