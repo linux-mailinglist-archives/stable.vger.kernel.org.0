@@ -2,123 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6775C11DC22
-	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 03:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA56311DC44
+	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 03:52:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731245AbfLMCbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Dec 2019 21:31:50 -0500
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:34834 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727202AbfLMCbu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 21:31:50 -0500
-Received: by mail-pf1-f194.google.com with SMTP id b19so636663pfo.2;
-        Thu, 12 Dec 2019 18:31:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=VU8W+29VAE6jFbK7qOuEkNtChestID0TQVv19tl4TzA=;
-        b=BsX91WyJ3Nk1wK5jIB4BZeo+UIaW3MvOPtwkDUqOsQ7lBFFvKxxAEngBlmSfQoZNLa
-         5tTxwd2JMnKzYHwFt5RLW5YLKoKtPful9Qjbf56CnidI3ksFOI6obT2UrvLw1d1hI1nr
-         w4AXDGo/hKt9EIswYATHIDAdg/2asKTWA5TMiaWYYW8Nd8Rwjq5alAj1ggM7TIMCK/+0
-         TYSuNCnEnbad767SJtJTjEdwbmAffLWOozv+D93+zwhkdsDXf31KdF1HvesQ0o7o57Qo
-         c9v5DGmWj3rURVqZwESr+6hDCSFDM5+73ZoZTSyaBHM49GcBVtZlS8LVMELxVR2wKIf3
-         UKyw==
+        id S1731777AbfLMCwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Dec 2019 21:52:22 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:26335 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726897AbfLMCwW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Dec 2019 21:52:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576205540;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cD1L+8FREG+GUDcMz+uat68SlppNJ1ul4pAa2adOJms=;
+        b=d/fByj/+frHklvwAW5AJTwO6KsnYJtYJnZ4uSVH2q7NWDIS61i6PIeqx9CrIbjwQRAOdT3
+        SRLgD8itHTssM3MtMCEC01Nm9d5xilxxLz9KPm0oVzOQ5iGG4yAN1wxr7Bymhc14v1T4xf
+        jNOR4spR3HbeTxFeVDkEIq1neYjUur8=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-332-6ikEr-qlNraxEKI7Q_93kw-1; Thu, 12 Dec 2019 21:52:18 -0500
+X-MC-Unique: 6ikEr-qlNraxEKI7Q_93kw-1
+Received: by mail-yb1-f199.google.com with SMTP id 191so855615ybc.16
+        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 18:52:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=VU8W+29VAE6jFbK7qOuEkNtChestID0TQVv19tl4TzA=;
-        b=WpbBA7mrdLgp5w70+13p1XFDYB/s6VwsRxCcZYRYIWnzjKOoVj3X21gDBtFJDyxa57
-         ReIabrjtKEKiO73iEoSXcK0XQcK2Mqz2v0gAF9JmKgBuHMV+r2qwhqvY/kFQDh6pORxd
-         4PJLOH0XMecoqV9Ph6rLnBwW8u+siY/uUs+g1cRTYJO9i0qxLTlu0Quk6rsKsEJn1jHV
-         QMZ9P0lI78J8sSB8BuUCFb0iNr+Nj99WUa6RQcPHdxm6PFX1LJC8gI6YMkbjBfK00JIO
-         Eawx6gHVgKmIm5yNM2W4HBFMHplvY30KZbCECa8ihiOL3ZeNOok9Aj4tN/fqremF9oaD
-         mP7Q==
-X-Gm-Message-State: APjAAAX8+ME4kTYCRj27/NYNlFdrQtPqr9TFIhttC/KXykY6h8YZ2L96
-        TMTkav/Fs7B6RRFR3L+kjGk=
-X-Google-Smtp-Source: APXvYqyoiXE9viROKrRyaoUenVpkWigIxRGvBXQmBt4YZeDe6PYpB+c5VJh2QMBypaRwwP6UG/4r+g==
-X-Received: by 2002:aa7:8007:: with SMTP id j7mr13594737pfi.73.1576204309272;
-        Thu, 12 Dec 2019 18:31:49 -0800 (PST)
-Received: from localhost.localdomain ([163.152.162.99])
-        by smtp.gmail.com with ESMTPSA id h68sm9443654pfe.162.2019.12.12.18.31.43
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :mail-followup-to:references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to;
+        bh=cD1L+8FREG+GUDcMz+uat68SlppNJ1ul4pAa2adOJms=;
+        b=gKjwJwZFpwaNvflOskPEJ5k0HhMFnW98vLpUrVu8wi9DUoP3S4f03SrGNDKkWEMRhK
+         B27vujBr4bT+SRx/AKVxyf6uV2ERQK7xl3NGhrvidLTpON03vkWNTDtZNiVtfSBhqbfO
+         od6RCZeLbSmBfcUqx+p3mLUyepmlCVaE7w7FYfaoLVcUf9lbmE5FKqmL/krbhAa2zRC8
+         D4pfzbd58PL81TxLP+tRS8VgkeIGVQSgZm7AnWizG0JL2Yfi7xJmG/grSvmZemewphAb
+         MiZWqzF18v+UwsOKTmihSmxbGw1f/gTL6GzaCA0c+xqzn0IgkJ0EDsDEfUF7sffPLWyv
+         jL5w==
+X-Gm-Message-State: APjAAAV9zDYCbYgHbuS5xAEqWq0MghaECnemwYGMC2LY7emUVhKpByrd
+        6/XRGeg+Bw/S6UoJDPHSCCAjwsNSv4+UpEQI+2sIjBPTTkhKKmWozNXl46SvYZbvxe1243Zdi79
+        iP6DM6Fc5xvgTK6hu
+X-Received: by 2002:a25:b814:: with SMTP id v20mr7059588ybj.108.1576205537844;
+        Thu, 12 Dec 2019 18:52:17 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxKfbL8mDNB7zRISO5Uc+9Lbw1DKFRT8f3eUHKdf/Rvj+kSjJjTiPaM16CZsiJA82Bqiv70yQ==
+X-Received: by 2002:a25:b814:: with SMTP id v20mr7059569ybj.108.1576205537478;
+        Thu, 12 Dec 2019 18:52:17 -0800 (PST)
+Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
+        by smtp.gmail.com with ESMTPSA id g64sm3548300ywa.20.2019.12.12.18.52.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Dec 2019 18:31:48 -0800 (PST)
-From:   Suwan Kim <suwan.kim027@gmail.com>
-To:     shuah@kernel.org, valentina.manea.m@gmail.com,
-        gregkh@linuxfoundation.org, marmarek@invisiblethingslab.com
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, stern@rowland.harvard.edu,
-        Suwan Kim <suwan.kim027@gmail.com>
-Subject: [PATCH v2 2/2] usbip: Fix error path of vhci_recv_ret_submit()
-Date:   Fri, 13 Dec 2019 11:30:55 +0900
-Message-Id: <20191213023055.19933-3-suwan.kim027@gmail.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191213023055.19933-1-suwan.kim027@gmail.com>
-References: <20191213023055.19933-1-suwan.kim027@gmail.com>
+        Thu, 12 Dec 2019 18:52:16 -0800 (PST)
+Date:   Thu, 12 Dec 2019 19:51:59 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     Lu Baolu <baolu.lu@linux.intel.com>
+Cc:     Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>, ashok.raj@intel.com,
+        jacob.jun.pan@intel.com, kevin.tian@intel.com,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] iommu/vt-d: Fix dmar pte read access not set error
+Message-ID: <20191213025159.kwf6f6zjmcjecamp@cantor>
+Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
+Mail-Followup-To: Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>, ashok.raj@intel.com,
+        jacob.jun.pan@intel.com, kevin.tian@intel.com,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20191211014015.7898-1-baolu.lu@linux.intel.com>
+ <20191212014952.vlrmxrk2cebwxjnp@cantor>
+ <6f3bcad9-b9b3-b349-fdad-ce53a79a665b@linux.intel.com>
+ <20191213003013.gc3zg3fpzpjntnzg@cantor>
+ <7d58da5b-3f55-72b2-0638-ae561446d207@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <7d58da5b-3f55-72b2-0638-ae561446d207@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a transaction error happens in vhci_recv_ret_submit(), event
-handler closes connection and changes port status to kick hub_event.
-Then hub tries to flush the endpoint URBs, but that causes infinite
-loop between usb_hub_flush_endpoint() and vhci_urb_dequeue() because
-"vhci_priv" in vhci_urb_dequeue() was already released by
-vhci_recv_ret_submit() before a transmission error occurred. Thus,
-vhci_urb_dequeue() terminates early and usb_hub_flush_endpoint()
-continuously calls vhci_urb_dequeue().
+On Fri Dec 13 19, Lu Baolu wrote:
+>Hi,
+>
+>On 12/13/19 8:30 AM, Jerry Snitselaar wrote:
+>>On Thu Dec 12 19, Lu Baolu wrote:
+>>>Hi,
+>>>
+>>>On 12/12/19 9:49 AM, Jerry Snitselaar wrote:
+>>>>On Wed Dec 11 19, Lu Baolu wrote:
+>>>>>If the default DMA domain of a group doesn't fit a device, it
+>>>>>will still sit in the group but use a private identity domain.
+>>>>>When map/unmap/iova_to_phys come through iommu API, the driver
+>>>>>should still serve them, otherwise, other devices in the same
+>>>>>group will be impacted. Since identity domain has been mapped
+>>>>>with the whole available memory space and RMRRs, we don't need
+>>>>>to worry about the impact on it.
+>>>>>
+>>>>>Link: https://www.spinics.net/lists/iommu/msg40416.html
+>>>>>Cc: Jerry Snitselaar <jsnitsel@redhat.com>
+>>>>>Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+>>>>>Fixes: 942067f1b6b97 ("iommu/vt-d: Identify default domains 
+>>>>>replaced with private")
+>>>>>Cc: stable@vger.kernel.org # v5.3+
+>>>>>Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+>>>>
+>>>>Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+>>>
+>>>Can you please try this fix and check whether it can fix your problem?
+>>>If it helps, do you mind adding a Tested-by?
+>>>
+>>>Best regards,
+>>>baolu
+>>>
+>>
+>>I'm testing with this patch, my patch that moves the direct mapping call,
+>>and Alex's patch for the ISA bridge. It solved the 2 iommu mapping errors
+>>I was seeing with default passthrough, I no longer see all the dmar pte
+>>read access errors, and the system boots allowing me to login. I'm tracking
+>>down 2 issues at the moment. With passthrough I see a problem with 01:00.4
+>>that I mentioned in the earlier email:
+>>
+>>[   78.978573] uhci_hcd: USB Universal Host Controller Interface driver
+>>[   78.980842] uhci_hcd 0000:01:00.4: UHCI Host Controller
+>>[   78.982738] uhci_hcd 0000:01:00.4: new USB bus registered, 
+>>assigned bus number 3
+>>[   78.985222] uhci_hcd 0000:01:00.4: detected 8 ports
+>>[   78.986907] uhci_hcd 0000:01:00.4: port count misdetected? 
+>>forcing to 2 ports
+>>[   78.989316] uhci_hcd 0000:01:00.4: irq 16, io base 0x00003c00
+>>[   78.994634] uhci_hcd 0000:01:00.4: DMAR: 32bit DMA uses 
+>>non-identity mapping
+>>[   7 0000:01:00.4: unable to allocate consistent memory for frame list
+>>[   79.499891] uhci_hcd 0000:01:00.4: startup error -16
+>>[   79.501588] uhci_hcd 0000:01:00.4: USB bus 3 deregistered
+>>[   79.503494] uhci_hcd 0000:01:00.4: init 0000:01:00.4 fail, -16
+>>[   79.505497] uhci_hcd: probe of 0000:01:00.4 failed with error -16
+>>
+>>If I boot the system with iommu=nopt I see an iommu map failure due to
+>>the prot check in __domain_mapping:
+>>
+>>[   40.940589] pci 0000:00:1f.0: iommu_group_add_device: calling 
+>>iommu_group_create_direct_mappings
+>>[   40.943558] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
+>>iterating through mappings
+>>[   40.946402] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
+>>calling apply_resv_region
+>>[   40.949184] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
+>>entry type is direct
+>>[   40.951819] DMAR: intel_iommu_map: enter
+>>[   40.953128] DMAR: __domain_mapping: prot & 
+>>(DMA_PTE_READ|DMA_PTE_WRITE) == 0
+>>[   40.955486] DMAR: domain_mapping: __domain_mapping failed
+>>[   40.957348] DMAR: intel_iommu_map: domain_pfn_mapping returned -22
+>>[   40.959466] DMAR: intel_iommu_map: leave
+>>[   40.959468] iommu: iommu_map: ops->map failed iova 0x0 pa 
+>>0x0000000000000000 pgsize 0x1000
+>>[   40.963511] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
+>>iommu_map failed
+>>[   40.966026] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
+>>leaving func
+>>[   40.968487] pci 0000:00:1f.0: iommu_group_add_device: calling 
+>>__iommu_attach_device
+>>[   40.971016] pci 0000:00:1f.0: Adding to iommu group 19
+>>[   40.972731] pci 0000:00:1f.0: DMAR: domain->type is dma
+>>
+>>/sys/kernel/iommu_groups/19
+>>[root@hp-dl388g8-07 19]# cat reserved_regions 0x0000000000000000 
+>>0x0000000000ffffff direct
+>>0x00000000bdf6e000 0x00000000bdf84fff direct
+>>0x00000000fee00000 0x00000000feefffff msi
+>>
+>>00:1f.0 ISA bridge: Intel Corporation C600/X79 series chipset LPC 
+>>Controller
+>
+>This seems to be another issue?
+>
+>Best regards,
+>baolu
 
-The root cause of this issue is that vhci_recv_ret_submit()
-terminates early without giving back URB when transaction error
-occurs in vhci_recv_ret_submit(). That causes the error URB to still
-be linked at endpoint list without “vhci_priv".
+In intel_iommu_get_resv_regions this iommu_alloc_resv_region is called
+with prot set to 0:
 
-So, in the case of transaction error in vhci_recv_ret_submit(),
-unlink URB from the endpoint, insert proper error code in
-urb->status and give back URB.
+                 if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA) {
+                         reg = iommu_alloc_resv_region(0, 1UL << 24, 0,
+                                                       IOMMU_RESV_DIRECT_RELAXABLE);
+                         if (reg)
 
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
----
- drivers/usb/usbip/vhci_rx.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+I wonder if this is an issue with the region starting at 0x0 and this
+bit in iommu_group_create_mappings:
 
-diff --git a/drivers/usb/usbip/vhci_rx.c b/drivers/usb/usbip/vhci_rx.c
-index 33f8972ba842..00fc98741c5d 100644
---- a/drivers/usb/usbip/vhci_rx.c
-+++ b/drivers/usb/usbip/vhci_rx.c
-@@ -77,16 +77,21 @@ static void vhci_recv_ret_submit(struct vhci_device *vdev,
- 	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
- 
- 	/* recv transfer buffer */
--	if (usbip_recv_xbuff(ud, urb) < 0)
--		return;
-+	if (usbip_recv_xbuff(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
- 
- 	/* recv iso_packet_descriptor */
--	if (usbip_recv_iso(ud, urb) < 0)
--		return;
-+	if (usbip_recv_iso(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
- 
- 	/* restore the padding in iso packets */
- 	usbip_pad_iso(ud, urb);
- 
-+error:
- 	if (usbip_dbg_flag_vhci_rx)
- 		usbip_dump_urb(urb);
- 
--- 
-2.20.1
+			phys_addr = iommu_iova_to_phys(domain, addr);
+			if (phys_addr)
+				continue;
+
+Off to stick in some more debugging statements.
+
+Regards,
+Jerry
+
+>_______________________________________________
+>iommu mailing list
+>iommu@lists.linux-foundation.org
+>https://lists.linuxfoundation.org/mailman/listinfo/iommu
 
