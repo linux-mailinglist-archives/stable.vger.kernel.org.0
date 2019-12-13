@@ -2,98 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6733011E5A7
-	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 15:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD67C11E5C3
+	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 15:40:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727805AbfLMOfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Dec 2019 09:35:31 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:21745 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727779AbfLMOfb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 09:35:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576247730;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=K16O3uoMoq1X7RVCymy3uF4s1barxs0V/Dkj4PdUFYc=;
-        b=VZN81mWGn6UMlDjdD5lVM69MAc9MLjeoAqmpCugl2vqSwEO5uaxElxuqlWDn8DFntmcG7u
-        V8x4Ep937GN9FV5PERYedMo1IBHe4TW/7byQQ/TAzDVtyhrdv4ZW1h1jVyqA5QkgzPFSWD
-        X1PEFEnTXRzsM6sTuCOzdKA8YOVCZmk=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-88-JXZZB6mYPseD8gdKd_Xv1w-1; Fri, 13 Dec 2019 09:35:26 -0500
-X-MC-Unique: JXZZB6mYPseD8gdKd_Xv1w-1
-Received: by mail-qt1-f200.google.com with SMTP id d18so1908178qtp.16
-        for <stable@vger.kernel.org>; Fri, 13 Dec 2019 06:35:25 -0800 (PST)
+        id S1727793AbfLMOky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Dec 2019 09:40:54 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:53969 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727673AbfLMOky (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 09:40:54 -0500
+Received: by mail-wm1-f66.google.com with SMTP id w8so3403666wmd.3
+        for <stable@vger.kernel.org>; Fri, 13 Dec 2019 06:40:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YnWCjYHAhic972mNYiPJM3SfWN96YgSPeOKeHHQL3rY=;
+        b=F/ZW7MVp8aVGYTEcpqDNtRfhE0w/fnnQ6HMEd4b+YU5ILMgXuk1PtX6CrRUsfQnu1T
+         dqWq4P64neVIWrRSfHtsyAJV2mF8cQrcsNLK7O2lXNgutvSqOeurBBzh00H1CV/AEy/Q
+         wLQWuoMF4MpZZaKCQmVpNPIUh9jzRMloIGvHqgkohoj34nRRJTQ+idjxJySdD1RBPF0I
+         Q2vlb3zZn748HSUlsdZMwiw+g5qxDzEcyWdwavW93ijUWH3iqwd2rR7Xte7mOtqbpCw/
+         J0e5xSrsAuOiujiR2Qft2UBmmyRpXuZcoG2oRhp4QWtTxehr7HygTZHy+VM6ZIp/sUkM
+         yOAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=K16O3uoMoq1X7RVCymy3uF4s1barxs0V/Dkj4PdUFYc=;
-        b=Jya+osSB5Bap22PHfyTsbMSSRHWfyuYWSkDV5HJmBP7J7q5jHLEVEztfculmCEA2/i
-         31sAQkidFsjfd4PUM5WMSQcIKeoV4XlchIxyHPXq25KXTcAUs7hW2XerBF+T5ap9LmCM
-         N6ivIbKNLmQF9jXdFJPnJtgG4V45wIPc9Ni3zOkjkS6yAdNC6OuIXaJTKA7zDf81ljlK
-         ct+V++dlC6+6Nou2dJW/oXsYz0CBcWNee+/viwMu7XJvrZzqWtCSVOEHUMoYqGw2vJKS
-         5LI8mrPrm+2tcH2P2mtdqtNv74wLA98ozmQEvi7RKTXi9GYEJWbzbR4ldTPo/X0z9T/7
-         6qjg==
-X-Gm-Message-State: APjAAAUi0bssKlPY9aIiqi62CeBY6ND+SwBwfr5wv8kXR9dsxNehKSov
-        n7nFxhDvgjaxZD9g5N3f/I2U363EFgtEnIi8/XV6c8F7MGMeQAOaMwFOBLcNOf3S1OGOMbYx387
-        FJ8kwELcNBgj0BZKZ
-X-Received: by 2002:a37:5d1:: with SMTP id 200mr13575570qkf.492.1576247725618;
-        Fri, 13 Dec 2019 06:35:25 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxgq1bbRToA9P95foPk8oGS2OI8ibHY6a72vmEjljgya2qgJqTa4/Xh04URKGN+H8Bz4Y3K4g==
-X-Received: by 2002:a37:5d1:: with SMTP id 200mr13575555qkf.492.1576247725393;
-        Fri, 13 Dec 2019 06:35:25 -0800 (PST)
-Received: from redhat.com (bzq-79-181-48-215.red.bezeqint.net. [79.181.48.215])
-        by smtp.gmail.com with ESMTPSA id l62sm2885132qke.12.2019.12.13.06.35.21
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YnWCjYHAhic972mNYiPJM3SfWN96YgSPeOKeHHQL3rY=;
+        b=bK2B0PDa93gVOlsj9sZXZIntczypDmcWpeA9vlG0njueZR/KcZsNHWVPlxq/UjANkj
+         VlI+Qm52KTNSlzpL1io7k1VmFezv43ouD1s54jhcVDZH4/lue5rSAmxTSxVT5TxXZzwn
+         /UatGop+s1jdKqxoAOOp8lSByYH2FXLwTa7KPcCvHkdunMx/To4idBANvLXJCCgzrI5B
+         cL8DUXyUz6+MOv28UGoj3Y7xFp3aRizXPwERSQ+/RZNgqVXauTcdinkKn7Rc5FXM85U2
+         0YWhP97B3d0CMexXKvc/ldAfb0yrcIiaw4l1a96wRQjA7s8iB3UAQLguDyc54MaRHN58
+         AiXA==
+X-Gm-Message-State: APjAAAWIh8OHwt4A79b8s/ENlz9XjT5Uyfb4g13/vPumxoXcbbX/Wc8w
+        bEInZjJrwXCJ6yIgaZk+wGJrxCNf24K9dg==
+X-Google-Smtp-Source: APXvYqwUjxsHC4US9Fm98YEWtThCqZrgqfjWJJNIENk30NVtGALczbN8vaDrnyXZjpLS3Y0xra7DgQ==
+X-Received: by 2002:a1c:9c08:: with SMTP id f8mr14251733wme.171.1576248051602;
+        Fri, 13 Dec 2019 06:40:51 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a20sm10909802wmd.19.2019.12.13.06.40.50
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Dec 2019 06:35:24 -0800 (PST)
-Date:   Fri, 13 Dec 2019 09:35:19 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        akpm@linux-foundation.org, david@redhat.com, imammedo@redhat.com,
-        jasowang@redhat.com, liuj97@gmail.com, mst@redhat.com,
-        stable@vger.kernel.org, yuhuang@redhat.com
-Subject: [PULL] virtio: cleanups and fixes
-Message-ID: <20191213093519-mutt-send-email-mst@kernel.org>
+        Fri, 13 Dec 2019 06:40:51 -0800 (PST)
+Message-ID: <5df3a2f3.1c69fb81.d0210.7bb4@mx.google.com>
+Date:   Fri, 13 Dec 2019 06:40:51 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Mutt-Fcc: =sent
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.89
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 93 boots: 1 failed,
+ 90 passed with 2 untried/unknown (v4.19.89)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following changes since commit e42617b825f8073569da76dc4510bfa019b1c35a:
+stable-rc/linux-4.19.y boot: 93 boots: 1 failed, 90 passed with 2 untried/u=
+nknown (v4.19.89)
 
-  Linux 5.5-rc1 (2019-12-08 14:57:55 -0800)
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.89/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.89/
 
-are available in the Git repository at:
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.89
+Git Commit: 312017a460d5ea31d646e7148e400e13db799ddc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 52 unique boards, 16 SoC families, 14 builds out of 206
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Boot Regressions Detected:
 
-for you to fetch changes up to 63b9b80e9f5b2c463d98d6e550e0d0e3ace66033:
+arm:
 
-  virtio_balloon: divide/multiply instead of shifts (2019-12-11 08:14:07 -0500)
+    multi_v7_defconfig:
+        gcc-8:
+          sun8i-a83t-bananapi-m3:
+              lab-clabbe: new failure (last pass: v4.19.88-255-gb71ac9dfc6f=
+0)
 
-----------------------------------------------------------------
-virtio: fixes, cleanups
+arm64:
 
-Some fixes and cleanup patches.
+    defconfig:
+        gcc-8:
+          meson-gxl-s805x-p241:
+              lab-baylibre: new failure (last pass: v4.19.88-255-gb71ac9dfc=
+6f0)
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Boot Failure Detected:
 
-----------------------------------------------------------------
-David Hildenbrand (1):
-      virtio-balloon: fix managed page counts when migrating pages between zones
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s805x-p241: 1 failed lab
 
-Michael S. Tsirkin (2):
-      virtio_balloon: name cleanups
-      virtio_balloon: divide/multiply instead of shifts
-
- drivers/virtio/virtio_balloon.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
-
+---
+For more info write to <info@kernelci.org>
