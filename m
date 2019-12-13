@@ -2,177 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC9611DD54
-	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 06:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD12911DD89
+	for <lists+stable@lfdr.de>; Fri, 13 Dec 2019 06:18:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725785AbfLMFCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Dec 2019 00:02:19 -0500
-Received: from mga11.intel.com ([192.55.52.93]:15489 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725770AbfLMFCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Dec 2019 00:02:18 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Dec 2019 21:02:18 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,308,1571727600"; 
-   d="scan'208";a="226175771"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.136]) ([10.239.159.136])
-  by orsmga002.jf.intel.com with ESMTP; 12 Dec 2019 21:02:15 -0800
-Cc:     baolu.lu@linux.intel.com
-Subject: Re: [PATCH 1/1] iommu/vt-d: Fix dmar pte read access not set error
-To:     Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>, ashok.raj@intel.com,
-        jacob.jun.pan@intel.com, kevin.tian@intel.com,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20191211014015.7898-1-baolu.lu@linux.intel.com>
- <20191212014952.vlrmxrk2cebwxjnp@cantor>
- <6f3bcad9-b9b3-b349-fdad-ce53a79a665b@linux.intel.com>
- <20191213003013.gc3zg3fpzpjntnzg@cantor>
- <7d58da5b-3f55-72b2-0638-ae561446d207@linux.intel.com>
- <20191213025159.kwf6f6zjmcjecamp@cantor>
- <20191213031633.zxccz5t5yyillxsb@cantor>
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Message-ID: <0492b96f-6f57-b4f4-3862-07d9c23fdef9@linux.intel.com>
-Date:   Fri, 13 Dec 2019 13:01:29 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1725818AbfLMFSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Dec 2019 00:18:31 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:41699 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728061AbfLMFSb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 00:18:31 -0500
+Received: by mail-lj1-f193.google.com with SMTP id h23so1203334ljc.8
+        for <stable@vger.kernel.org>; Thu, 12 Dec 2019 21:18:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=mkqW0xP+nBYYH3p1CPEf1+sCjfdLgUHi6SV4lII+1qk=;
+        b=IYgum4FQjmmsJQYJqncXVmFAwCkO0Oew84UItkH3AqX8huUghy0eWDWaMyS928lYOw
+         sJaIeeqN9ICZIqlckf/IGnCAW1ZLI5aFNtPxjODWXYK3HlDCqAWW2I5ntUlWsE/c/nB+
+         TCamoHuzYtB8jFWwYOCTvaJmmDQrWrvi6IOWAVE//XI6wFfLjHyflX4WZU9XYP8SUUmj
+         ij+tXcuSicMZfP8SoYbMO7FDbq4ZIbFDnxn7JbThykhY7Vv5GQ+o29jH0ZHfRGCbtdL3
+         ttgehD2DaPcPHANaRNUBhWkAJMRwNpxBsOwsp6nZ/R3Q7KnNtAhCsMFQjilHFpuglpcg
+         y/4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mkqW0xP+nBYYH3p1CPEf1+sCjfdLgUHi6SV4lII+1qk=;
+        b=FwoDrY/Kyou32ezZVFqekGtC98g3TkwTmZRMsMH+nL3GMzFp07JvoU4Hva/s7ZLwxs
+         ibS+on8es6kHNSkd7nMH2wgkuarMV2aWgDw8Xb6LdN1RozG09Ayd0dIfu20VfgbChYeG
+         usNAUoufFIzkmQYr3nkYRHVwgflqS+Jl0TJQ9jWLuLOEG9KvPP8hX4ktnEqetyWSzge0
+         bUyJFprmU8I2uCoHL8jL5I1HVdsN8wU6ZhH/UljyzptFWApQzmyRCRlAUIX6NTIPn5sV
+         +OWvj4o+NmcOqa04peKAo5VyyU6pjGaLZ4C8UdE3ZGKFCZQiEwkhoP4Y5bZAsrxAH5EE
+         PkLw==
+X-Gm-Message-State: APjAAAU0dqPZY/Y3GeXXzNACwjQMRvYv38vtf8K5P2r8wzTt8AjtDS7D
+        h8CloEtKFdxk4t4MxjHFh/zfMvEYq71uZ0amWVBpaQ==
+X-Google-Smtp-Source: APXvYqw9yHd6d5jpLfcnFpEkBIL2C7kblPOexo6jcCFrl4KgMzywo0/ANIKPSQcw1CjR3VkDT48403LnkyTZNWdeWfw=
+X-Received: by 2002:a2e:a0c6:: with SMTP id f6mr8134530ljm.46.1576214309236;
+ Thu, 12 Dec 2019 21:18:29 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191213031633.zxccz5t5yyillxsb@cantor>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20191211150339.185439726@linuxfoundation.org> <20191212100524.GC1470066@kroah.com>
+In-Reply-To: <20191212100524.GC1470066@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 13 Dec 2019 10:48:17 +0530
+Message-ID: <CA+G9fYvNVUKJV=G8qq-vY77bB12ZVVkX7E4H=GtoWANtbg33mg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/243] 4.19.89-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, 12 Dec 2019 at 15:35, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Dec 11, 2019 at 04:02:42PM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.19.89 release.
+> > There are 243 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Fri, 13 Dec 2019 14:56:06 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >       https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.89-rc1.gz
+> > or in the git tree and branch at:
+> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> > and the diffstat can be found below.
+>
+> I have pushed out -rc2 with a bunch of fixes for existing issues, and
+> some new fixes:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.89-rc2.gz
 
-On 12/13/19 11:16 AM, Jerry Snitselaar wrote:
-> On Thu Dec 12 19, Jerry Snitselaar wrote:
->> On Fri Dec 13 19, Lu Baolu wrote:
->>> Hi,
->>>
->>> On 12/13/19 8:30 AM, Jerry Snitselaar wrote:
->>>> On Thu Dec 12 19, Lu Baolu wrote:
->>>>> Hi,
->>>>>
->>>>> On 12/12/19 9:49 AM, Jerry Snitselaar wrote:
->>>>>> On Wed Dec 11 19, Lu Baolu wrote:
->>>>>>> If the default DMA domain of a group doesn't fit a device, it
->>>>>>> will still sit in the group but use a private identity domain.
->>>>>>> When map/unmap/iova_to_phys come through iommu API, the driver
->>>>>>> should still serve them, otherwise, other devices in the same
->>>>>>> group will be impacted. Since identity domain has been mapped
->>>>>>> with the whole available memory space and RMRRs, we don't need
->>>>>>> to worry about the impact on it.
->>>>>>>
->>>>>>> Link: https://www.spinics.net/lists/iommu/msg40416.html
->>>>>>> Cc: Jerry Snitselaar <jsnitsel@redhat.com>
->>>>>>> Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
->>>>>>> Fixes: 942067f1b6b97 ("iommu/vt-d: Identify default domains 
->>>>>>> replaced with private")
->>>>>>> Cc: stable@vger.kernel.org # v5.3+
->>>>>>> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
->>>>>>
->>>>>> Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
->>>>>
->>>>> Can you please try this fix and check whether it can fix your problem?
->>>>> If it helps, do you mind adding a Tested-by?
->>>>>
->>>>> Best regards,
->>>>> baolu
->>>>>
->>>>
->>>> I'm testing with this patch, my patch that moves the direct mapping 
->>>> call,
->>>> and Alex's patch for the ISA bridge. It solved the 2 iommu mapping 
->>>> errors
->>>> I was seeing with default passthrough, I no longer see all the dmar pte
->>>> read access errors, and the system boots allowing me to login. I'm 
->>>> tracking
->>>> down 2 issues at the moment. With passthrough I see a problem with 
->>>> 01:00.4
->>>> that I mentioned in the earlier email:
->>>>
->>>> [   78.978573] uhci_hcd: USB Universal Host Controller Interface driver
->>>> [   78.980842] uhci_hcd 0000:01:00.4: UHCI Host Controller
->>>> [   78.982738] uhci_hcd 0000:01:00.4: new USB bus registered, 
->>>> assigned bus number 3
->>>> [   78.985222] uhci_hcd 0000:01:00.4: detected 8 ports
->>>> [   78.986907] uhci_hcd 0000:01:00.4: port count misdetected? 
->>>> forcing to 2 ports
->>>> [   78.989316] uhci_hcd 0000:01:00.4: irq 16, io base 0x00003c00
->>>> [   78.994634] uhci_hcd 0000:01:00.4: DMAR: 32bit DMA uses 
->>>> non-identity mapping
->>>> [   7 0000:01:00.4: unable to allocate consistent memory for frame list
->>>> [   79.499891] uhci_hcd 0000:01:00.4: startup error -16
->>>> [   79.501588] uhci_hcd 0000:01:00.4: USB bus 3 deregistered
->>>> [   79.503494] uhci_hcd 0000:01:00.4: init 0000:01:00.4 fail, -16
->>>> [   79.505497] uhci_hcd: probe of 0000:01:00.4 failed with error -16
->>>>
->>>> If I boot the system with iommu=nopt I see an iommu map failure due to
->>>> the prot check in __domain_mapping:
->>>>
->>>> [   40.940589] pci 0000:00:1f.0: iommu_group_add_device: calling 
->>>> iommu_group_create_direct_mappings
->>>> [   40.943558] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
->>>> iterating through mappings
->>>> [   40.946402] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
->>>> calling apply_resv_region
->>>> [   40.949184] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
->>>> entry type is direct
->>>> [   40.951819] DMAR: intel_iommu_map: enter
->>>> [   40.953128] DMAR: __domain_mapping: prot & 
->>>> (DMA_PTE_READ|DMA_PTE_WRITE) == 0
->>>> [   40.955486] DMAR: domain_mapping: __domain_mapping failed
->>>> [   40.957348] DMAR: intel_iommu_map: domain_pfn_mapping returned -22
->>>> [   40.959466] DMAR: intel_iommu_map: leave
->>>> [   40.959468] iommu: iommu_map: ops->map failed iova 0x0 pa 
->>>> 0x0000000000000000 pgsize 0x1000
->>>> [   40.963511] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
->>>> iommu_map failed
->>>> [   40.966026] pci 0000:00:1f.0: iommu_group_create_direct_mappings: 
->>>> leaving func
->>>> [   40.968487] pci 0000:00:1f.0: iommu_group_add_device: calling 
->>>> __iommu_attach_device
->>>> [   40.971016] pci 0000:00:1f.0: Adding to iommu group 19
->>>> [   40.972731] pci 0000:00:1f.0: DMAR: domain->type is dma
->>>>
->>>> /sys/kernel/iommu_groups/19
->>>> [root@hp-dl388g8-07 19]# cat reserved_regions 0x0000000000000000 
->>>> 0x0000000000ffffff direct
->>>> 0x00000000bdf6e000 0x00000000bdf84fff direct
->>>> 0x00000000fee00000 0x00000000feefffff msi
->>>>
->>>> 00:1f.0 ISA bridge: Intel Corporation C600/X79 series chipset LPC 
->>>> Controller
->>>
->>> This seems to be another issue?
->>>
->>> Best regards,
->>> baolu
->>
->> In intel_iommu_get_resv_regions this iommu_alloc_resv_region is called
->> with prot set to 0:
->>
->>                if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA) {
->>                        reg = iommu_alloc_resv_region(0, 1UL << 24, 0,
->>                                                      
->> IOMMU_RESV_DIRECT_RELAXABLE);
->>                        if (reg)
->>
-> 
-> Looking at the older code for the ISA bridge it looks like it called
-> iommu_prepare_identity_map -> domain_prepare_identity_map ->
-> iommu_domain_identity_map -> and finally __domain_mapping with 
-> DMA_PTE_READ|DMA_PTE_WRITE?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Yes. Returning a reserved region without any access permission makes no
-sense. Can you please post a fix for this?
+Summary
+------------------------------------------------------------------------
 
-Best regards,
-baolu
+kernel: 4.19.89-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: b71ac9dfc6f0f5ef4a9dfa80113bea22cd8b8167
+git describe: v4.19.88-255-gb71ac9dfc6f0
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.88-255-gb71ac9dfc6f0
+
+No regressions (compared to build v4.19.88)
+
+No fixes (compared to build v4.19.88)
+
+Ran 24936 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kselftest
+* ltp-fs-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
