@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0436D1200ED
+	by mail.lfdr.de (Postfix) with ESMTP id E390C1200EF
 	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 10:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727063AbfLPJWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727047AbfLPJWf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Dec 2019 04:22:35 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:60458 "EHLO www.linuxtv.org"
+Received: from www.linuxtv.org ([130.149.80.248]:60470 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726875AbfLPJWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727052AbfLPJWf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 16 Dec 2019 04:22:35 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1igmZt-00GtUA-Am; Mon, 16 Dec 2019 09:22:09 +0000
+        id 1igmZt-00GtVJ-MA; Mon, 16 Dec 2019 09:22:09 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Date:   Fri, 13 Dec 2019 10:22:10 +0000
-Subject: [git:media_tree/fixes] media: pulse8-cec: fix lost cec_transmit_attempt_done() call
+Subject: [git:media_tree/fixes] media: cec: CEC 2.0-only bcast messages were ignored
 To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1igmZt-00GtUA-Am@www.linuxtv.org>
+Message-Id: <E1igmZt-00GtVJ-MA@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -30,81 +30,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: pulse8-cec: fix lost cec_transmit_attempt_done() call
+Subject: media: cec: CEC 2.0-only bcast messages were ignored
 Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Date:    Sat Dec 7 23:43:23 2019 +0100
+Date:    Wed Dec 4 08:52:08 2019 +0100
 
-The periodic PING command could interfere with the result of
-a CEC transmit, causing a lost cec_transmit_attempt_done()
-call.
+Some messages are allowed to be a broadcast message in CEC 2.0
+only, and should be ignored by CEC 1.4 devices.
+
+Unfortunately, the check was wrong, causing such messages to be
+marked as invalid under CEC 2.0.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Cc: <stable@vger.kernel.org>      # for v4.10 and up
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
- drivers/media/usb/pulse8-cec/pulse8-cec.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/media/cec/cec-adap.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 ---
 
-diff --git a/drivers/media/usb/pulse8-cec/pulse8-cec.c b/drivers/media/usb/pulse8-cec/pulse8-cec.c
-index ac88ade94cda..59609556d969 100644
---- a/drivers/media/usb/pulse8-cec/pulse8-cec.c
-+++ b/drivers/media/usb/pulse8-cec/pulse8-cec.c
-@@ -116,6 +116,7 @@ struct pulse8 {
- 	unsigned int vers;
- 	struct completion cmd_done;
- 	struct work_struct work;
-+	u8 work_result;
- 	struct delayed_work ping_eeprom_work;
- 	struct cec_msg rx_msg;
- 	u8 data[DATA_SIZE];
-@@ -137,8 +138,10 @@ static void pulse8_irq_work_handler(struct work_struct *work)
- {
- 	struct pulse8 *pulse8 =
- 		container_of(work, struct pulse8, work);
-+	u8 result = pulse8->work_result;
- 
--	switch (pulse8->data[0] & 0x3f) {
-+	pulse8->work_result = 0;
-+	switch (result & 0x3f) {
- 	case MSGCODE_FRAME_DATA:
- 		cec_received_msg(pulse8->adap, &pulse8->rx_msg);
- 		break;
-@@ -172,12 +175,12 @@ static irqreturn_t pulse8_interrupt(struct serio *serio, unsigned char data,
- 		pulse8->escape = false;
- 	} else if (data == MSGEND) {
- 		struct cec_msg *msg = &pulse8->rx_msg;
-+		u8 msgcode = pulse8->buf[0];
- 
- 		if (debug)
- 			dev_info(pulse8->dev, "received: %*ph\n",
- 				 pulse8->idx, pulse8->buf);
--		pulse8->data[0] = pulse8->buf[0];
--		switch (pulse8->buf[0] & 0x3f) {
-+		switch (msgcode & 0x3f) {
- 		case MSGCODE_FRAME_START:
- 			msg->len = 1;
- 			msg->msg[0] = pulse8->buf[1];
-@@ -186,14 +189,20 @@ static irqreturn_t pulse8_interrupt(struct serio *serio, unsigned char data,
- 			if (msg->len == CEC_MAX_MSG_SIZE)
- 				break;
- 			msg->msg[msg->len++] = pulse8->buf[1];
--			if (pulse8->buf[0] & MSGCODE_FRAME_EOM)
-+			if (msgcode & MSGCODE_FRAME_EOM) {
-+				WARN_ON(pulse8->work_result);
-+				pulse8->work_result = msgcode;
- 				schedule_work(&pulse8->work);
-+				break;
-+			}
- 			break;
- 		case MSGCODE_TRANSMIT_SUCCEEDED:
- 		case MSGCODE_TRANSMIT_FAILED_LINE:
- 		case MSGCODE_TRANSMIT_FAILED_ACK:
- 		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_DATA:
- 		case MSGCODE_TRANSMIT_FAILED_TIMEOUT_LINE:
-+			WARN_ON(pulse8->work_result);
-+			pulse8->work_result = msgcode;
- 			schedule_work(&pulse8->work);
- 			break;
- 		case MSGCODE_HIGH_ERROR:
+diff --git a/drivers/media/cec/cec-adap.c b/drivers/media/cec/cec-adap.c
+index 9340435a94a0..e90c30dac68b 100644
+--- a/drivers/media/cec/cec-adap.c
++++ b/drivers/media/cec/cec-adap.c
+@@ -1085,11 +1085,11 @@ void cec_received_msg_ts(struct cec_adapter *adap,
+ 			valid_la = false;
+ 		else if (!cec_msg_is_broadcast(msg) && !(dir_fl & DIRECTED))
+ 			valid_la = false;
+-		else if (cec_msg_is_broadcast(msg) && !(dir_fl & BCAST1_4))
++		else if (cec_msg_is_broadcast(msg) && !(dir_fl & BCAST))
+ 			valid_la = false;
+ 		else if (cec_msg_is_broadcast(msg) &&
+-			 adap->log_addrs.cec_version >= CEC_OP_CEC_VERSION_2_0 &&
+-			 !(dir_fl & BCAST2_0))
++			 adap->log_addrs.cec_version < CEC_OP_CEC_VERSION_2_0 &&
++			 !(dir_fl & BCAST1_4))
+ 			valid_la = false;
+ 	}
+ 	if (valid_la && min_len) {
