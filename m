@@ -2,130 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A4011EFF3
-	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 03:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FB411F005
+	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 03:41:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726170AbfLNCOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Dec 2019 21:14:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42612 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726334AbfLNCOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Dec 2019 21:14:12 -0500
-Received: from home.goodmis.org (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726671AbfLNClF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Dec 2019 21:41:05 -0500
+Received: from us03-smtprelay2.synopsys.com ([149.117.87.133]:36692 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726422AbfLNClE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 21:41:04 -0500
+Received: from mailhost.synopsys.com (sv2-mailhost1.synopsys.com [10.205.2.133])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D05242073D;
-        Sat, 14 Dec 2019 02:14:10 +0000 (UTC)
-Date:   Fri, 13 Dec 2019 21:14:03 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        "kernelci.org bot" <bot@kernelci.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 4.19 031/219] arm64: preempt: Fix big-endian when
- checking preempt count in assembly
-Message-ID: <20191214021403.GA1357@home.goodmis.org>
-References: <20191122054911.1750-1-sashal@kernel.org>
- <20191122054911.1750-24-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191122054911.1750-24-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 9FE00C0113;
+        Sat, 14 Dec 2019 02:41:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1576291263; bh=88Qy5g8mmejIuLc8nHzm6nl3V2zo5Tx0a3OJdwUXLN8=;
+        h=Date:From:Subject:To:Cc:From;
+        b=OMG9vw/goTmkHjbczZFR2F09sInteaQT4aKIJkDqVdrp+n6x3i40g8D4Js5qBRKZh
+         zXgVEKBgSvJYxWk/ASWxUnj93L92D1ncnDTLZBd+I/9xhWJ2f8K8bVtZpWc1HxTtyr
+         wH3LFzWzBX5Bvg81dEepRtLz+OPyAp/gzKpxjt6J9d08yZ4xUNNYkhrA+Tqi4B0xNz
+         BuDju/bF6mnJO/Zj/6rHcLa7ErTbBfhVTwE8TtFKY/MRltcI84FZfI/C+aJ9REs9R6
+         be3dhUhxiNBDxEd8Nb0o/5A4q99f7i2tA5gBXn1LRtJNv4JPNJEFY11iLXYSHDKw5j
+         uI1vkU2dlto1A==
+Received: from te-lab16 (nanobot.internal.synopsys.com [10.10.186.99])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id 1159BA007C;
+        Sat, 14 Dec 2019 02:40:45 +0000 (UTC)
+Received: by te-lab16 (sSMTP sendmail emulation); Fri, 13 Dec 2019 18:40:45 -0800
+Date:   Fri, 13 Dec 2019 18:40:45 -0800
+Message-Id: <ac5a3593a94fdaa3d92e6352356b5f7a01ccdc7c.1576291140.git.thinhn@synopsys.com>
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH] usb: dwc3: gadget: Fix request complete check
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org
+Cc:     John Youn <John.Youn@synopsys.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 12:46:03AM -0500, Sasha Levin wrote:
-> From: Will Deacon <will.deacon@arm.com>
-> 
-> [ Upstream commit 7faa313f05cad184e8b17750f0cbe5216ac6debb ]
-> 
-> Commit 396244692232 ("arm64: preempt: Provide our own implementation of
-> asm/preempt.h") extended the preempt count field in struct thread_info
-> to 64 bits, so that it consists of a 32-bit count plus a 32-bit flag
-> indicating whether or not the current task needs rescheduling.
-> 
-> Whilst the asm-offsets definition of TSK_TI_PREEMPT was updated to point
-> to this new field, the assembly usage was left untouched meaning that a
-> 32-bit load from TSK_TI_PREEMPT on a big-endian machine actually returns
-> the reschedule flag instead of the count.
-> 
-> Whilst we could fix this by pointing TSK_TI_PREEMPT at the count field,
-> we're actually better off reworking the two assembly users so that they
-> operate on the whole 64-bit value in favour of inspecting the thread
-> flags separately in order to determine whether a reschedule is needed.
-> 
-> Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Reported-by: "kernelci.org bot" <bot@kernelci.org>
-> Tested-by: Kevin Hilman <khilman@baylibre.com>
-> Signed-off-by: Will Deacon <will.deacon@arm.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  arch/arm64/include/asm/assembler.h | 8 +++-----
->  arch/arm64/kernel/entry.S          | 6 ++----
->  2 files changed, 5 insertions(+), 9 deletions(-)
-> 
-> diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
-> index 5a97ac8531682..0c100506a29aa 100644
-> --- a/arch/arm64/include/asm/assembler.h
-> +++ b/arch/arm64/include/asm/assembler.h
-> @@ -683,11 +683,9 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
->  	.macro		if_will_cond_yield_neon
->  #ifdef CONFIG_PREEMPT
->  	get_thread_info	x0
-> -	ldr		w1, [x0, #TSK_TI_PREEMPT]
-> -	ldr		x0, [x0, #TSK_TI_FLAGS]
-> -	cmp		w1, #PREEMPT_DISABLE_OFFSET
-> -	csel		x0, x0, xzr, eq
-> -	tbnz		x0, #TIF_NEED_RESCHED, .Lyield_\@	// needs rescheduling?
-> +	ldr		x0, [x0, #TSK_TI_PREEMPT]
-> +	sub		x0, x0, #PREEMPT_DISABLE_OFFSET
-> +	cbz		x0, .Lyield_\@
->  	/* fall through to endif_yield_neon */
->  	.subsection	1
->  .Lyield_\@ :
-> diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-> index 5f800384cb9a8..bb68323530458 100644
-> --- a/arch/arm64/kernel/entry.S
-> +++ b/arch/arm64/kernel/entry.S
-> @@ -622,10 +622,8 @@ el1_irq:
->  	irq_handler
->  
->  #ifdef CONFIG_PREEMPT
-> -	ldr	w24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
-> -	cbnz	w24, 1f				// preempt count != 0
-> -	ldr	x0, [tsk, #TSK_TI_FLAGS]	// get flags
-> -	tbz	x0, #TIF_NEED_RESCHED, 1f	// needs rescheduling?
-> +	ldr	x24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
-> +	cbnz	x24, 1f				// preempt count != 0
->  	bl	el1_preempt
+We can only check for IN direction if the request had completed. For OUT
+direction, it's perfectly fine that the host can send less than the
+setup length. Let's return true fall all cases of OUT direction.
 
-While updating 4.19-rt, I stumbled on this change to arm64 backport. And was
-confused by it, but looking deeper, this is something that breaks without
-having 396244692232f ("arm64: preempt: Provide our own implementation of
-asm/preempt.h").
+Fixes: e0c42ce590fe ("usb: dwc3: gadget: simplify IOC handling")
 
-That commit inverts the TIF_NEED_RESCHED meaning where set means we don't need
-to resched, and clear means we need to resched. This way we can combine the
-preempt count with the need resched flag test as they share the same 64bit
-word. A 0 means we need to preempt (as NEED_RESCHED being zero means we need
-to resched, and this also means preempt_count is zero). If the
-TIF_NEED_RESCHED bit is set, that means we don't need to resched, and if
-preempt count is something other than zero, we don't need to resched, and
-since those two are together by commit 396244692232f, we can just test
-#TSK_TI_PREEMPT. But because that commit does not exist in 4.19, we can't
-remove the TIF_NEED_RESCHED check, that this backport does, and then breaks
-the kernel!
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+---
+ drivers/usb/dwc3/gadget.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
--- Steve
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index b3f8514d1f27..edc478c20846 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2470,6 +2470,13 @@ static int dwc3_gadget_ep_reclaim_trb_linear(struct dwc3_ep *dep,
+ 
+ static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
+ {
++	/*
++	 * For OUT direction, host may send less than the setup
++	 * length. Return true for all OUT requests.
++	 */
++	if (!req->direction)
++		return true;
++
+ 	return req->request.actual == req->request.length;
+ }
+ 
+-- 
+2.11.0
 
-
->  1:
->  #endif
-> -- 
-> 2.20.1
