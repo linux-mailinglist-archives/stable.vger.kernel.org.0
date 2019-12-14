@@ -2,125 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B122811EEDD
-	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 00:51:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0EB311EF98
+	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 02:43:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbfLMXvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Dec 2019 18:51:44 -0500
-Received: from mta05.svc.cra.dublin.eircom.net ([159.134.118.221]:40023 "HELO
-        mta05.svc.cra.dublin.eircom.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with SMTP id S1725747AbfLMXvo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Dec 2019 18:51:44 -0500
-X-Greylist: delayed 397 seconds by postgrey-1.27 at vger.kernel.org; Fri, 13 Dec 2019 18:51:42 EST
-Received: (qmail 39138 messnum 6700658 invoked from network[213.94.190.15/avas03.vendorsvc.cra.dublin.eircom.net]); 13 Dec 2019 23:45:01 -0000
-Received: from avas03.vendorsvc.cra.dublin.eircom.net (HELO avas03) (213.94.190.15)
-  by mta05.svc.cra.dublin.eircom.net (qp 39138) with SMTP; 13 Dec 2019 23:45:01 -0000
-Received: from vzmbx18.eircom.net ([86.43.60.98])
-        by Cloudmark Gateway with SMTP
-        id fucHicgcBbSpIfucHikq8A; Fri, 13 Dec 2019 23:45:01 +0000
-X-Spam-Flag: NO
-X-CNFS-Analysis: v=2.2 cv=FcBH/N26 c=1 sm=1 tr=0
- a=e7gqILOnBbllteVy7xBg4A==:117 a=9cW_t1CCXrUA:10 a=FKkrIqjQGGEA:10
- a=wZECI49lYIkA:10 a=IkcTkHD0fZMA:10 a=RvYBrFidqJkA:10 a=MEWDuUNxdpMA:10
- a=ZZnuYtJkoWoA:10 a=pGLkceISAAAA:8 a=FR-hEON8pMiOOTlS7SYA:9
- a=GIYc_TtF79PlqzcD:21 a=QEXdDO2ut3YA:10 a=Xsk6vqzZI48A:10 a=EyQvBz-zgkIA:10
- a=wtkpjSFW-GEsYebB2nHs:22
-Date:   Fri, 13 Dec 2019 23:45:01 +0000 (GMT)
-From:   ahmed <ksn4432@eircom.net>
-Message-ID: <185706712.116774.1576280701229.JavaMail.zimbra@eircom.net>
-Subject: Hello dear
+        id S1726334AbfLNBnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Dec 2019 20:43:17 -0500
+Received: from mga12.intel.com ([192.55.52.136]:46212 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726170AbfLNBnR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Dec 2019 20:43:17 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Dec 2019 17:43:16 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,311,1571727600"; 
+   d="scan'208";a="226461161"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.136]) ([10.239.159.136])
+  by orsmga002.jf.intel.com with ESMTP; 13 Dec 2019 17:43:15 -0800
+Cc:     baolu.lu@linux.intel.com, Joerg Roedel <jroedel@suse.de>,
+        iommu@lists.linux-foundation.org, stable@vger.kernel.org
+Subject: Re: [PATCH] iommu/vt-d: Allocate reserved region for ISA with correct
+ permission
+To:     Jerry Snitselaar <jsnitsel@redhat.com>,
+        linux-kernel@vger.kernel.org
+References: <20191213053642.5696-1-jsnitsel@redhat.com>
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <5ccaaec0-b070-b820-cebd-6b7ad179109c@linux.intel.com>
+Date:   Sat, 14 Dec 2019 09:42:27 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20191213053642.5696-1-jsnitsel@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [196.52.38.26]
-X-Mailer: Zimbra 8.6.0_GA_1242 (zclient/8.6.0_GA_1242)
-Thread-Topic: Hello dear
-Thread-Index: MiLwKon1Wpj+0cOpb4ksAlMnpDcFZA==
-X-CMAE-Envelope: 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
-To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+Hi Jerry,
 
-With due respect,I need your urgent assistance in transferring the sum of $11.3million to your private account Where this money can be shared between us. By indicating your interest I will send you the full details on how the business will be executed.
+On 12/13/19 1:36 PM, Jerry Snitselaar wrote:
+> Currently the reserved region for ISA is allocated with no
+> permissions. If a dma domain is being used, mapping this region will
+> fail. Set the permissions to DMA_PTE_READ|DMA_PTE_WRITE.
+> 
+> Cc: Joerg Roedel <jroedel@suse.de>
+> Cc: Lu Baolu <baolu.lu@linux.intel.com>
+> Cc: iommu@lists.linux-foundation.org
+> Cc: stable@vger.kernel.org # v5.3+
+> Fixes: d850c2ee5fe2 ("iommu/vt-d: Expose ISA direct mapping region via iommu_get_resv_regions")
+> Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> ---
+>   drivers/iommu/intel-iommu.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+> index 0c8d81f56a30..998529cebcf2 100644
+> --- a/drivers/iommu/intel-iommu.c
+> +++ b/drivers/iommu/intel-iommu.c
+> @@ -5736,7 +5736,7 @@ static void intel_iommu_get_resv_regions(struct device *device,
+>   		struct pci_dev *pdev = to_pci_dev(device);
+>   
+>   		if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA) {
+> -			reg = iommu_alloc_resv_region(0, 1UL << 24, 0,
+> +			reg = iommu_alloc_resv_region(0, 1UL << 24, prot,
+>   						      IOMMU_RESV_DIRECT);
 
-Please if you are interested send your reply to      o.uea.2345@gmail.com 
 
-Best Regards,
-Ahmed Ouedraogo.
+This also applies to the IOAPIC range. Can you please change them
+together?
+
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 0c8d81f56a30..256e48434f68 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -5736,7 +5736,7 @@ static void intel_iommu_get_resv_regions(struct 
+device *device,
+                 struct pci_dev *pdev = to_pci_dev(device);
+
+                 if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA) {
+-                       reg = iommu_alloc_resv_region(0, 1UL << 24, 0,
++                       reg = iommu_alloc_resv_region(0, 1UL << 24, prot,
+                                                       IOMMU_RESV_DIRECT);
+                         if (reg)
+                                 list_add_tail(&reg->list, head);
+@@ -5746,7 +5746,7 @@ static void intel_iommu_get_resv_regions(struct 
+device *device,
+
+         reg = iommu_alloc_resv_region(IOAPIC_RANGE_START,
+                                       IOAPIC_RANGE_END - 
+IOAPIC_RANGE_START + 1,
+-                                     0, IOMMU_RESV_MSI);
++                                     prot, IOMMU_RESV_MSI);
+         if (!reg)
+                 return;
+         list_add_tail(&reg->list, head);
+
+Best regards,
+baolu
+
+>   			if (reg)
+>   				list_add_tail(&reg->list, head);
+> 
