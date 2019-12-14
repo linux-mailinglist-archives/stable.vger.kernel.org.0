@@ -2,108 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EB311EF98
-	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 02:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3A4011EFF3
+	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 03:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726334AbfLNBnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Dec 2019 20:43:17 -0500
-Received: from mga12.intel.com ([192.55.52.136]:46212 "EHLO mga12.intel.com"
+        id S1726170AbfLNCOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Dec 2019 21:14:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726170AbfLNBnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 13 Dec 2019 20:43:17 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Dec 2019 17:43:16 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,311,1571727600"; 
-   d="scan'208";a="226461161"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.136]) ([10.239.159.136])
-  by orsmga002.jf.intel.com with ESMTP; 13 Dec 2019 17:43:15 -0800
-Cc:     baolu.lu@linux.intel.com, Joerg Roedel <jroedel@suse.de>,
-        iommu@lists.linux-foundation.org, stable@vger.kernel.org
-Subject: Re: [PATCH] iommu/vt-d: Allocate reserved region for ISA with correct
- permission
-To:     Jerry Snitselaar <jsnitsel@redhat.com>,
-        linux-kernel@vger.kernel.org
-References: <20191213053642.5696-1-jsnitsel@redhat.com>
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Message-ID: <5ccaaec0-b070-b820-cebd-6b7ad179109c@linux.intel.com>
-Date:   Sat, 14 Dec 2019 09:42:27 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1726334AbfLNCOM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 13 Dec 2019 21:14:12 -0500
+Received: from home.goodmis.org (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D05242073D;
+        Sat, 14 Dec 2019 02:14:10 +0000 (UTC)
+Date:   Fri, 13 Dec 2019 21:14:03 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 4.19 031/219] arm64: preempt: Fix big-endian when
+ checking preempt count in assembly
+Message-ID: <20191214021403.GA1357@home.goodmis.org>
+References: <20191122054911.1750-1-sashal@kernel.org>
+ <20191122054911.1750-24-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20191213053642.5696-1-jsnitsel@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191122054911.1750-24-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jerry,
-
-On 12/13/19 1:36 PM, Jerry Snitselaar wrote:
-> Currently the reserved region for ISA is allocated with no
-> permissions. If a dma domain is being used, mapping this region will
-> fail. Set the permissions to DMA_PTE_READ|DMA_PTE_WRITE.
+On Fri, Nov 22, 2019 at 12:46:03AM -0500, Sasha Levin wrote:
+> From: Will Deacon <will.deacon@arm.com>
 > 
-> Cc: Joerg Roedel <jroedel@suse.de>
-> Cc: Lu Baolu <baolu.lu@linux.intel.com>
-> Cc: iommu@lists.linux-foundation.org
-> Cc: stable@vger.kernel.org # v5.3+
-> Fixes: d850c2ee5fe2 ("iommu/vt-d: Expose ISA direct mapping region via iommu_get_resv_regions")
-> Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> [ Upstream commit 7faa313f05cad184e8b17750f0cbe5216ac6debb ]
+> 
+> Commit 396244692232 ("arm64: preempt: Provide our own implementation of
+> asm/preempt.h") extended the preempt count field in struct thread_info
+> to 64 bits, so that it consists of a 32-bit count plus a 32-bit flag
+> indicating whether or not the current task needs rescheduling.
+> 
+> Whilst the asm-offsets definition of TSK_TI_PREEMPT was updated to point
+> to this new field, the assembly usage was left untouched meaning that a
+> 32-bit load from TSK_TI_PREEMPT on a big-endian machine actually returns
+> the reschedule flag instead of the count.
+> 
+> Whilst we could fix this by pointing TSK_TI_PREEMPT at the count field,
+> we're actually better off reworking the two assembly users so that they
+> operate on the whole 64-bit value in favour of inspecting the thread
+> flags separately in order to determine whether a reschedule is needed.
+> 
+> Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Reported-by: "kernelci.org bot" <bot@kernelci.org>
+> Tested-by: Kevin Hilman <khilman@baylibre.com>
+> Signed-off-by: Will Deacon <will.deacon@arm.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->   drivers/iommu/intel-iommu.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>  arch/arm64/include/asm/assembler.h | 8 +++-----
+>  arch/arm64/kernel/entry.S          | 6 ++----
+>  2 files changed, 5 insertions(+), 9 deletions(-)
 > 
-> diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-> index 0c8d81f56a30..998529cebcf2 100644
-> --- a/drivers/iommu/intel-iommu.c
-> +++ b/drivers/iommu/intel-iommu.c
-> @@ -5736,7 +5736,7 @@ static void intel_iommu_get_resv_regions(struct device *device,
->   		struct pci_dev *pdev = to_pci_dev(device);
->   
->   		if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA) {
-> -			reg = iommu_alloc_resv_region(0, 1UL << 24, 0,
-> +			reg = iommu_alloc_resv_region(0, 1UL << 24, prot,
->   						      IOMMU_RESV_DIRECT);
+> diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+> index 5a97ac8531682..0c100506a29aa 100644
+> --- a/arch/arm64/include/asm/assembler.h
+> +++ b/arch/arm64/include/asm/assembler.h
+> @@ -683,11 +683,9 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
+>  	.macro		if_will_cond_yield_neon
+>  #ifdef CONFIG_PREEMPT
+>  	get_thread_info	x0
+> -	ldr		w1, [x0, #TSK_TI_PREEMPT]
+> -	ldr		x0, [x0, #TSK_TI_FLAGS]
+> -	cmp		w1, #PREEMPT_DISABLE_OFFSET
+> -	csel		x0, x0, xzr, eq
+> -	tbnz		x0, #TIF_NEED_RESCHED, .Lyield_\@	// needs rescheduling?
+> +	ldr		x0, [x0, #TSK_TI_PREEMPT]
+> +	sub		x0, x0, #PREEMPT_DISABLE_OFFSET
+> +	cbz		x0, .Lyield_\@
+>  	/* fall through to endif_yield_neon */
+>  	.subsection	1
+>  .Lyield_\@ :
+> diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+> index 5f800384cb9a8..bb68323530458 100644
+> --- a/arch/arm64/kernel/entry.S
+> +++ b/arch/arm64/kernel/entry.S
+> @@ -622,10 +622,8 @@ el1_irq:
+>  	irq_handler
+>  
+>  #ifdef CONFIG_PREEMPT
+> -	ldr	w24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
+> -	cbnz	w24, 1f				// preempt count != 0
+> -	ldr	x0, [tsk, #TSK_TI_FLAGS]	// get flags
+> -	tbz	x0, #TIF_NEED_RESCHED, 1f	// needs rescheduling?
+> +	ldr	x24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
+> +	cbnz	x24, 1f				// preempt count != 0
+>  	bl	el1_preempt
+
+While updating 4.19-rt, I stumbled on this change to arm64 backport. And was
+confused by it, but looking deeper, this is something that breaks without
+having 396244692232f ("arm64: preempt: Provide our own implementation of
+asm/preempt.h").
+
+That commit inverts the TIF_NEED_RESCHED meaning where set means we don't need
+to resched, and clear means we need to resched. This way we can combine the
+preempt count with the need resched flag test as they share the same 64bit
+word. A 0 means we need to preempt (as NEED_RESCHED being zero means we need
+to resched, and this also means preempt_count is zero). If the
+TIF_NEED_RESCHED bit is set, that means we don't need to resched, and if
+preempt count is something other than zero, we don't need to resched, and
+since those two are together by commit 396244692232f, we can just test
+#TSK_TI_PREEMPT. But because that commit does not exist in 4.19, we can't
+remove the TIF_NEED_RESCHED check, that this backport does, and then breaks
+the kernel!
+
+-- Steve
 
 
-This also applies to the IOAPIC range. Can you please change them
-together?
-
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 0c8d81f56a30..256e48434f68 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5736,7 +5736,7 @@ static void intel_iommu_get_resv_regions(struct 
-device *device,
-                 struct pci_dev *pdev = to_pci_dev(device);
-
-                 if ((pdev->class >> 8) == PCI_CLASS_BRIDGE_ISA) {
--                       reg = iommu_alloc_resv_region(0, 1UL << 24, 0,
-+                       reg = iommu_alloc_resv_region(0, 1UL << 24, prot,
-                                                       IOMMU_RESV_DIRECT);
-                         if (reg)
-                                 list_add_tail(&reg->list, head);
-@@ -5746,7 +5746,7 @@ static void intel_iommu_get_resv_regions(struct 
-device *device,
-
-         reg = iommu_alloc_resv_region(IOAPIC_RANGE_START,
-                                       IOAPIC_RANGE_END - 
-IOAPIC_RANGE_START + 1,
--                                     0, IOMMU_RESV_MSI);
-+                                     prot, IOMMU_RESV_MSI);
-         if (!reg)
-                 return;
-         list_add_tail(&reg->list, head);
-
-Best regards,
-baolu
-
->   			if (reg)
->   				list_add_tail(&reg->list, head);
-> 
+>  1:
+>  #endif
+> -- 
+> 2.20.1
