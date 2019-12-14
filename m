@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A3B11F25F
-	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 16:03:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4448011F260
+	for <lists+stable@lfdr.de>; Sat, 14 Dec 2019 16:04:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726072AbfLNPD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Dec 2019 10:03:57 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:48235 "EHLO
+        id S1726704AbfLNPES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Dec 2019 10:04:18 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:54983 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725975AbfLNPD5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Dec 2019 10:03:57 -0500
+        by vger.kernel.org with ESMTP id S1725975AbfLNPES (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Dec 2019 10:04:18 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 3333683C;
-        Sat, 14 Dec 2019 10:03:56 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sat, 14 Dec 2019 10:03:56 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 1A8C084E;
+        Sat, 14 Dec 2019 10:04:17 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sat, 14 Dec 2019 10:04:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nN4cyZ
-        OJs/TuWOC2679i/8rmtdWJGGSp7qYfX+BMsxY=; b=fOXY7EChmpil+VfBe4xHNF
-        RLj9vIW3XRAlXtay2QYryCpUheHRVST9GSBKo9p5XrriQbJJ9NmwaM8ONj5VWT5E
-        VviWK7Idv4pSxYl3RHmIHP5izH9R1NwVuX1rmE+z2HL85a1QjftsdYzSay1ipHKG
-        kBQQm5hRyImPwbgyO6jx/iLCckO5hT3XlPARKlAltSkugjhgguK+cr4yXlg5iJ/8
-        6f7F4iAt8piZRih6vG4AMxIYXbmsSXfP2s9Ho3Prnc6NLF7PpjlCEwzNaZBVlIsR
-        dClatZwYCC53sG7VqSFrleO7AMj+FE2sZpoYgntxY2jTEuXNSeGyXi7XzWPsEqzA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=kNKFRW
+        bLAbEJpB/pwEYrHGE5NRSW/gnfrfkRoR20rcQ=; b=bw3OOQ/LIzFcRsv+JeyQhF
+        NRQS9GIWi2yzgGsYjGL9WBgrmObTXKJJ/vC2+RXk2u5yP7vhMtfLZac7KhmeRa6a
+        TrVP6I+K0npr0/b5guYC5oQvAm/9HzRkV71LJg0iJOlkQA8OXEgHTwMGxszdaX5u
+        eIq1zDY5w2Hpdv7OrWMrdkNvb/zwfFUG8eaO7SV0xig+YbfK2JFWhMuxDIJuTrgE
+        U0vae6tIgWCDRgdhDk5/sWGbs3sCIVIIoeDQMEFHwwaohXqOq8YZotjp6C8xiHlJ
+        a6h5Cg+tVMc2odeACRqkbcwU3q7LhC/gw3BQkzDQLsFVRQhDQk5ldgR4CrclNKOg
         ==
-X-ME-Sender: <xms:2_n0XXi5MLBsk1UDEQTknbDP4fPT1oH7UBcBfqp0u15Rg8qh8ATVHg>
+X-ME-Sender: <xms:8Pn0XaJp7kcc5NbXUqiH3xu8EOimzBMy8Mh2n7AwEo5d-rW_smCTfA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtuddgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpeeh
-X-ME-Proxy: <xmx:2_n0XT3lOHpGYH3EgCahxtMCtchusogMHBdMz6dVfW1kXVVQUlzpuA>
-    <xmx:2_n0XZrwnO-DOOjKQILIBTskPotHhqW5m--M_8_jHfb_mis81y5DyA>
-    <xmx:2_n0XQ0m_cZTEr3Zse3kWDr6Oikk55fKXo0L5n1AX-_kUREceNh3vw>
-    <xmx:2_n0Xf_bpKunjUGBJMz3RYsN6KoqI4QNgusvG7gkuFMsFJ56j7-5hw>
+    ucevlhhushhtvghrufhiiigvpeei
+X-ME-Proxy: <xmx:8Pn0XbSz-hKC0QNeE8T3ATOMBHvzJflaYcphw7GG-B-mZWEmzzfpEA>
+    <xmx:8Pn0XTmuRqi-NwkIbWa9XXppO4qML7icyRj2Tt75-Tb5Ou0BNAii-w>
+    <xmx:8Pn0XSBYRsEjERbai5W2V95xkintvEAe9gRGMkYc0GZaBBGOCzh6BQ>
+    <xmx:8Pn0XXtwD3TsllEdCAa3W3M2sIhDTc6ln__u0lmqg_NefnQ3x8JsNg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 506A0306010D;
-        Sat, 14 Dec 2019 10:03:55 -0500 (EST)
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Retry PLOGI on FC-NVMe PRLI failure" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3CFC38005A;
+        Sat, 14 Dec 2019 10:04:16 -0500 (EST)
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Do command completion on abort timeout" failed to apply to 5.3-stable tree
 To:     qutran@marvell.com, emilne@redhat.com, hmadhani@marvell.com,
         martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Dec 2019 16:03:54 +0100
-Message-ID: <15763358341182@kroah.com>
+Date:   Sat, 14 Dec 2019 16:04:15 +0100
+Message-ID: <1576335855212105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,120 +69,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 983f127603fac650fa34ee69db363e4615eaf9e7 Mon Sep 17 00:00:00 2001
+From 71c80b75ce8f08c0978ce9a9816b81b5c3ce5e12 Mon Sep 17 00:00:00 2001
 From: Quinn Tran <qutran@marvell.com>
-Date: Tue, 5 Nov 2019 07:06:50 -0800
-Subject: [PATCH] scsi: qla2xxx: Retry PLOGI on FC-NVMe PRLI failure
+Date: Tue, 5 Nov 2019 07:06:51 -0800
+Subject: [PATCH] scsi: qla2xxx: Do command completion on abort timeout
 
-Current code will send PRLI with FC-NVMe bit set for the targets which
-support only FCP. This may result into issue with targets which do not
-understand NVMe and will go into a strange state. This patch would restart
-the login process by going back to PLOGI state. The PLOGI state will force
-the target to respond to correct PRLI request.
+On switch, fabric and mgt command timeout, driver send Abort to tell FW to
+return the original command.  If abort is timeout, then return both Abort
+and original command for cleanup.
 
-Fixes: c76ae845ea836 ("scsi: qla2xxx: Add error handling for PLOGI ELS passthrough")
-Cc: stable@vger.kernel.org # 5.4
-Link: https://lore.kernel.org/r/20191105150657.8092-2-hmadhani@marvell.com
+Fixes: 219d27d7147e0 ("scsi: qla2xxx: Fix race conditions in the code for aborting SCSI commands")
+Cc: stable@vger.kernel.org # 5.2
+Link: https://lore.kernel.org/r/20191105150657.8092-3-hmadhani@marvell.com
 Reviewed-by: Ewan D. Milne <emilne@redhat.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index 721ee7f09b39..ef9bb3c7ad6f 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -604,6 +604,7 @@ typedef struct srb {
+ 	const char *name;
+ 	int iocbs;
+ 	struct qla_qpair *qpair;
++	struct srb *cmd_sp;
+ 	struct list_head elem;
+ 	u32 gen1;	/* scratch */
+ 	u32 gen2;	/* scratch */
 diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 7cb7545de962..5db8ad832893 100644
+index 5db8ad832893..7fdbe041cc19 100644
 --- a/drivers/scsi/qla2xxx/qla_init.c
 +++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1864,42 +1864,21 @@ qla24xx_handle_prli_done_event(struct scsi_qla_host *vha, struct event_arg *ea)
- 		 * FCP/NVMe port
- 		 */
- 		if (NVME_FCP_TARGET(ea->fcport)) {
--			if (vha->hw->fc4_type_priority == FC4_PRIORITY_NVME)
--				ea->fcport->fc4_type &= ~FS_FC4TYPE_NVME;
--			else
--				ea->fcport->fc4_type &= ~FS_FC4TYPE_FCP;
- 			ql_dbg(ql_dbg_disc, vha, 0x2118,
- 				"%s %d %8phC post %s prli\n",
- 				__func__, __LINE__, ea->fcport->port_name,
- 				(ea->fcport->fc4_type & FS_FC4TYPE_NVME) ?
- 				"NVMe" : "FCP");
--			qla24xx_post_prli_work(vha, ea->fcport);
--			break;
-+			if (vha->hw->fc4_type_priority == FC4_PRIORITY_NVME)
-+				ea->fcport->fc4_type &= ~FS_FC4TYPE_NVME;
-+			else
-+				ea->fcport->fc4_type &= ~FS_FC4TYPE_FCP;
- 		}
+@@ -101,8 +101,22 @@ static void qla24xx_abort_iocb_timeout(void *data)
+ 	u32 handle;
+ 	unsigned long flags;
  
--		/* at this point both PRLI NVME & PRLI FCP failed */
--		if (N2N_TOPO(vha->hw)) {
--			if (ea->fcport->n2n_link_reset_cnt < 3) {
--				ea->fcport->n2n_link_reset_cnt++;
--				/*
--				 * remote port is not sending Plogi. Reset
--				 * link to kick start his state machine
--				 */
--				set_bit(N2N_LINK_RESET, &vha->dpc_flags);
--			} else {
--				ql_log(ql_log_warn, vha, 0x2119,
--				    "%s %d %8phC Unable to reconnect\n",
--				    __func__, __LINE__, ea->fcport->port_name);
--			}
--		} else {
--			/*
--			 * switch connect. login failed. Take connection
--			 * down and allow relogin to retrigger
--			 */
--			ea->fcport->flags &= ~FCF_ASYNC_SENT;
--			ea->fcport->keep_nport_handle = 0;
--			qlt_schedule_sess_for_deletion(ea->fcport);
--		}
-+		ea->fcport->flags &= ~FCF_ASYNC_SENT;
-+		ea->fcport->keep_nport_handle = 0;
-+		ea->fcport->logout_on_delete = 1;
-+		qlt_schedule_sess_for_deletion(ea->fcport);
- 		break;
- 	}
- }
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index eeb526411536..2b675da34bda 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -2764,6 +2764,7 @@ static void qla2x00_els_dcmd2_sp_done(srb_t *sp, int res)
- 			ea.sp = sp;
- 			qla24xx_handle_plogi_done_event(vha, &ea);
- 			break;
++	if (sp->cmd_sp)
++		ql_dbg(ql_dbg_async, sp->vha, 0x507c,
++		    "Abort timeout - cmd hdl=%x, cmd type=%x hdl=%x, type=%x\n",
++		    sp->cmd_sp->handle, sp->cmd_sp->type,
++		    sp->handle, sp->type);
++	else
++		ql_dbg(ql_dbg_async, sp->vha, 0x507c,
++		    "Abort timeout 2 - hdl=%x, type=%x\n",
++		    sp->handle, sp->type);
 +
- 		case CS_IOCB_ERROR:
- 			switch (fw_status[1]) {
- 			case LSC_SCODE_PORTID_USED:
-@@ -2834,6 +2835,7 @@ static void qla2x00_els_dcmd2_sp_done(srb_t *sp, int res)
- 				    fw_status[0], fw_status[1], fw_status[2]);
- 
- 				fcport->flags &= ~FCF_ASYNC_SENT;
-+				fcport->disc_state = DSC_LOGIN_FAILED;
- 				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 				break;
- 			}
-@@ -2846,6 +2848,7 @@ static void qla2x00_els_dcmd2_sp_done(srb_t *sp, int res)
- 			    fw_status[0], fw_status[1], fw_status[2]);
- 
- 			sp->fcport->flags &= ~FCF_ASYNC_SENT;
-+			sp->fcport->disc_state = DSC_LOGIN_FAILED;
- 			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 			break;
- 		}
-@@ -2881,11 +2884,12 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 		return -ENOMEM;
+ 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
+ 	for (handle = 1; handle < qpair->req->num_outstanding_cmds; handle++) {
++		if (sp->cmd_sp && (qpair->req->outstanding_cmds[handle] ==
++		    sp->cmd_sp))
++			qpair->req->outstanding_cmds[handle] = NULL;
++
+ 		/* removing the abort */
+ 		if (qpair->req->outstanding_cmds[handle] == sp) {
+ 			qpair->req->outstanding_cmds[handle] = NULL;
+@@ -111,6 +125,9 @@ static void qla24xx_abort_iocb_timeout(void *data)
  	}
+ 	spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
  
-+	fcport->flags |= FCF_ASYNC_SENT;
-+	fcport->disc_state = DSC_LOGIN_PEND;
- 	elsio = &sp->u.iocb_cmd;
- 	ql_dbg(ql_dbg_io, vha, 0x3073,
- 	    "Enter: PLOGI portid=%06x\n", fcport->d_id.b24);
++	if (sp->cmd_sp)
++		sp->cmd_sp->done(sp->cmd_sp, QLA_OS_TIMER_EXPIRED);
++
+ 	abt->u.abt.comp_status = CS_TIMEOUT;
+ 	sp->done(sp, QLA_OS_TIMER_EXPIRED);
+ }
+@@ -142,6 +159,7 @@ static int qla24xx_async_abort_cmd(srb_t *cmd_sp, bool wait)
+ 	sp->type = SRB_ABT_CMD;
+ 	sp->name = "abort";
+ 	sp->qpair = cmd_sp->qpair;
++	sp->cmd_sp = cmd_sp;
+ 	if (wait)
+ 		sp->flags = SRB_WAKEUP_ON_COMP;
  
--	fcport->flags |= FCF_ASYNC_SENT;
- 	sp->type = SRB_ELS_DCMD;
- 	sp->name = "ELS_DCMD";
- 	sp->fcport = fcport;
 
