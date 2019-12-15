@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D045011F702
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5571811F703
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:30:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbfLOJaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 04:30:06 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:51907 "EHLO
+        id S1726083AbfLOJaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 04:30:22 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:43521 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726192AbfLOJaG (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 15 Dec 2019 04:30:06 -0500
+        by vger.kernel.org with ESMTP id S1726101AbfLOJaV (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 15 Dec 2019 04:30:21 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id C4D7F6A5;
-        Sun, 15 Dec 2019 04:30:05 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id C2FF66B0;
+        Sun, 15 Dec 2019 04:30:20 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:30:06 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:30:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iGEAV9
-        X2jYhf6Nv3lQDSerdjVVz/Zn+e8UWIdXiP6O0=; b=s3Lf4veh8lrjKssUl1O7Ed
-        /vGJqgpGiMSykm0f0ZJMu6L7MyfHXposTCsRsffZ+QsFFFO145u7UuWKhCIx4Avu
-        0xBXMmXwzGJbEPGfzKrtfWEcruJ9HFeE+JELNzp+qW5tShSYATxf6zPiWM/F509b
-        HDRv5pPlrpOYapA3CvNnxSN+ExJ1nxXPsJZRonRQIWKxpDI077LeJFrPqqU1rLy7
-        j0BreimFg95E6lzBM6iylEnLsNcoBaHQ+llBPJ5cSU71ypbL1U5DCNy0Bty3Ob/k
-        /ReIVjwpTN4KVp/JkPuE9HvA2cshyO4qXNVG78fxLgDkP06Urp85KLyrFn5Doxkg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=3yzpB0
+        OawhhY5XeIGs3V5D0t1tm2mkXYneJXzpPM0/U=; b=sywO2I6KyP46ERGqNMOI56
+        8spFUmjJG/5PTd5FS7FbX08fCQB6i4Yu4faugbWczhyImiqzingVJ05OVVeYQ5Df
+        73WjEmcsEsIY8+tyIWjRaxbC9RRYWQ02n+R44yFblwTSG65mBZQ1NstPyy+fpzOE
+        ejAZGdZvHSQrOz/oba6gUDGwiCd5kYpf9qf/iWG4F2SzfnLMz2TBiA0ta+tJGAjh
+        1fhL8F0uMM7dRomZVzi84e8ENYKEu3KKEsAmzgLYNi8rpsVWnmcaV+DR/2lTbUnJ
+        V9uXv/c112pK3pS+dI9LAIYgFIf3kUtnubyAGXqXJTLLf9j+DuWfoBRbwxvf2n2w
         ==
-X-ME-Sender: <xms:Hf31XVsbgnYB8b9jvMsbXtlOulqBlNQhdE2tiLHkZIfYYtJdrUOb8g>
+X-ME-Sender: <xms:LP31XdAEBo5CLwo0Qaafwc4TEM9VSAoEMM8QXz3S6P7cvLSzp9rl-g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Hf31XapV2Gok_-ENu-WAhwwbc1R9QyXzHg8-uVpSnn2Nh795GUAigw>
-    <xmx:Hf31XbrraboyiFpBbm0E6hRqaGQdwuyBt9NXKT5nNZVAT8KmYWFCxQ>
-    <xmx:Hf31Xa18XgDk9G0RjSS2k_tBJ4FOhOpz6tFqJRmpWpic-29NLhdUfA>
-    <xmx:Hf31XVNPn64L11epda4-ixKjxW4Hz-WLXw1hIO-AVyODU0L8GZQtPg>
+X-ME-Proxy: <xmx:LP31XU9wj7fVH3CQ052uPKm-o0_ZuviWfyPqXypIBvL8054s9yqZuQ>
+    <xmx:LP31XZYmsOFVgiXFGC_eq9I6kCHUANwiqwZgxOEmYq5ZpLQcVQauiA>
+    <xmx:LP31XTGHXl3ZJEpIvEOwyJrbX7WbrPiS4w_nzA2QUxbAt7y7RvcfBg>
+    <xmx:LP31Xf2VVv3akmzy2UvvieAmEoB1XdqRF7fM9sXm_ttJhNHe0x2keg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2086C30600E0;
-        Sun, 15 Dec 2019 04:30:05 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: adis16480: Add debugfs_reg_access entry" failed to apply to 4.4-stable tree
-To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0D0BE30600D4;
+        Sun, 15 Dec 2019 04:30:19 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: fix ODR check in st_lsm6dsx_write_raw" failed to apply to 5.3-stable tree
+To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 10:30:01 +0100
-Message-ID: <1576402201169223@kroah.com>
+Date:   Sun, 15 Dec 2019 10:30:18 +0100
+Message-ID: <157640221818196@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,34 +68,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4c35b7a51e2f291471f7221d112c6a45c63e83bc Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
-Date: Mon, 28 Oct 2019 17:33:49 +0100
-Subject: [PATCH] iio: adis16480: Add debugfs_reg_access entry
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From fc3f6ad7f5dc6c899fbda0255865737bac88c2e0 Mon Sep 17 00:00:00 2001
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+Date: Sun, 27 Oct 2019 19:02:30 +0100
+Subject: [PATCH] iio: imu: st_lsm6dsx: fix ODR check in st_lsm6dsx_write_raw
 
-The driver is defining debugfs entries by calling
-`adis16480_debugfs_init()`. However, those entries are attached to the
-iio_dev debugfs entry which won't exist if no debugfs_reg_access
-callback is provided.
+Since st_lsm6dsx i2c master controller relies on accel device as trigger
+and slave devices can run at different ODRs we must select an accel_odr >=
+slave_odr. Report real accel ODR in st_lsm6dsx_check_odr() in order to
+properly set sensor frequency in st_lsm6dsx_write_raw and avoid to
+report unsupported frequency
 
-Fixes: 2f3abe6cbb6c ("iio:imu: Add support for the ADIS16480 and similar IMUs")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Fixes: 6ffb55e5009ff ("iio: imu: st_lsm6dsx: introduce ST_LSM6DSX_ID_EXT sensor ids")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
-index f1d52563951c..078d49deebd4 100644
---- a/drivers/iio/imu/adis16480.c
-+++ b/drivers/iio/imu/adis16480.c
-@@ -923,6 +923,7 @@ static const struct iio_info adis16480_info = {
- 	.read_raw = &adis16480_read_raw,
- 	.write_raw = &adis16480_write_raw,
- 	.update_scan_mode = adis_update_scan_mode,
-+	.debugfs_reg_access = adis_debugfs_reg_access,
- };
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index a3333c215339..2f9396745bc8 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -1377,8 +1377,7 @@ int st_lsm6dsx_check_odr(struct st_lsm6dsx_sensor *sensor, u16 odr, u8 *val)
+ 		return -EINVAL;
  
- static int adis16480_stop_device(struct iio_dev *indio_dev)
+ 	*val = odr_table->odr_avl[i].val;
+-
+-	return 0;
++	return odr_table->odr_avl[i].hz;
+ }
+ 
+ static u16 st_lsm6dsx_check_odr_dependency(struct st_lsm6dsx_hw *hw, u16 odr,
+@@ -1542,8 +1541,10 @@ static int st_lsm6dsx_write_raw(struct iio_dev *iio_dev,
+ 	case IIO_CHAN_INFO_SAMP_FREQ: {
+ 		u8 data;
+ 
+-		err = st_lsm6dsx_check_odr(sensor, val, &data);
+-		if (!err)
++		val = st_lsm6dsx_check_odr(sensor, val, &data);
++		if (val < 0)
++			err = val;
++		else
+ 			sensor->odr = val;
+ 		break;
+ 	}
 
