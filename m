@@ -2,80 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 125DE11F907
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 17:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0D411F988
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726136AbfLOQcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 11:32:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46196 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726121AbfLOQcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Dec 2019 11:32:48 -0500
-Received: from localhost (unknown [73.61.17.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A5FC206D8;
-        Sun, 15 Dec 2019 16:32:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576427567;
-        bh=Ed+owUMEBOYtcL7SlrH+yY2TomHqgxCG5QCcvEzPZ4o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mhbHvhn8MlfSpgQyAIuPBFp95dcYc9VmeoR8bJNyauxgaTKyxB+RSgAYLPCxCRUcb
-         D0e3PY/t29TvIVL/UYn4n7EsMq0y0K7/Gb9cS2zzrr06cRhUDufEo+QX19Y1LyT6zK
-         7gvVnQPgYAFL7BC6fKOtQDIqUGGAcZ3KFCQI64Sg=
-Date:   Sun, 15 Dec 2019 11:32:40 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     qutran@marvell.com, emilne@redhat.com, hmadhani@marvell.com,
-        martin.petersen@oracle.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] scsi: qla2xxx: Do command completion on
- abort timeout" failed to apply to 5.3-stable tree
-Message-ID: <20191215163240.GD18043@sasha-vm>
-References: <1576335855212105@kroah.com>
+        id S1726135AbfLORLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 12:11:33 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:42167 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726130AbfLORLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:11:32 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id DB6A5221F3;
+        Sun, 15 Dec 2019 12:11:31 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 12:11:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=U4FMsQ
+        Zb/M1tfWjNnn1ZXJCaHMc2q68tU3Q306QznSA=; b=GVm8r70G3lReZ7LPPuKKxg
+        nW0H+5CabrrtTMaDcXQ1P5evf3pXJfAHJGEemfPuqnTmrjnIbiDcqcetBspcOb2S
+        /eZi+zPTiC1i67fr22y4njO04IlnvIb2CYvzVtxlTnP3PSj5fWoIHRFz5nr4fckz
+        2hZR+aAE4dz7Ywv4e3l88VHtAcAIYbqIhndnL//Kz83l9DvKmWDIHcwfmWQpTwHw
+        5YnAWDdT+yfAoIOxRjrta6v2UCeofbwRsffijMKwdXfBuM+pQAQBwIn0hTxs30BQ
+        E3+kXRKbF8jdVVp7GRF0iO6uOxbgpPdQHIF7kXjPj6/qITn1kXAEorMv98phyFpg
+        ==
+X-ME-Sender: <xms:Q2n2XbcV2fGzJPllyv_u799iMzUPu-DS0TtTYY104zDOQK0gPrJUZQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedguddttdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
+    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Q2n2XVeeyVq19Pps38I3iLzE5MqAshV3zIuY9k5gAfAYNeqoGi4Zsg>
+    <xmx:Q2n2XfiB-ffM5zYZOBXTiyb37zShDKzF32gipe_ECOmXU9WisgDV3Q>
+    <xmx:Q2n2XRQwoK8R-LTL5BmYQZaCsAqAasjSdZyES66qzoN7GgyUaXs1rQ>
+    <xmx:Q2n2XZOY492hNzlPl9fnruFtZsUIhOm-ASe6WP8XUSRyEsvFuGTqjQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E948A30600AB;
+        Sun, 15 Dec 2019 12:11:30 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc: Avoid clang warnings around setjmp and longjmp" failed to apply to 5.4-stable tree
+To:     natechancellor@gmail.com, mpe@ellerman.id.au,
+        ndesaulniers@google.com, segher@kernel.crashing.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 15 Dec 2019 18:11:28 +0100
+Message-ID: <1576429888117116@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1576335855212105@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Dec 14, 2019 at 04:04:15PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.3-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 71c80b75ce8f08c0978ce9a9816b81b5c3ce5e12 Mon Sep 17 00:00:00 2001
->From: Quinn Tran <qutran@marvell.com>
->Date: Tue, 5 Nov 2019 07:06:51 -0800
->Subject: [PATCH] scsi: qla2xxx: Do command completion on abort timeout
->
->On switch, fabric and mgt command timeout, driver send Abort to tell FW to
->return the original command.  If abort is timeout, then return both Abort
->and original command for cleanup.
->
->Fixes: 219d27d7147e0 ("scsi: qla2xxx: Fix race conditions in the code for aborting SCSI commands")
->Cc: stable@vger.kernel.org # 5.2
->Link: https://lore.kernel.org/r/20191105150657.8092-3-hmadhani@marvell.com
->Reviewed-by: Ewan D. Milne <emilne@redhat.com>
->Signed-off-by: Quinn Tran <qutran@marvell.com>
->Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
->Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-I took in this additional patch to resolve the conflict:
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-	0c6df59061b2 ("scsi: qla2xxx: Fix abort timeout race condition.")
+thanks,
 
--- 
-Thanks,
-Sasha
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c9029ef9c95765e7b63c4d9aa780674447db1ec0 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Mon, 18 Nov 2019 21:57:11 -0700
+Subject: [PATCH] powerpc: Avoid clang warnings around setjmp and longjmp
+
+Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
+setjmp is used") disabled -Wbuiltin-requires-header because of a
+warning about the setjmp and longjmp declarations.
+
+r367387 in clang added another diagnostic around this, complaining
+that there is no jmp_buf declaration.
+
+  In file included from ../arch/powerpc/xmon/xmon.c:47:
+  ../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
+  built-in function 'setjmp' requires the declaration of the 'jmp_buf'
+  type, commonly provided in the header <setjmp.h>.
+  [-Werror,-Wincomplete-setjmp-declaration]
+  extern long setjmp(long *);
+              ^
+  ../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
+  built-in function 'longjmp' requires the declaration of the 'jmp_buf'
+  type, commonly provided in the header <setjmp.h>.
+  [-Werror,-Wincomplete-setjmp-declaration]
+  extern void longjmp(long *, long);
+              ^
+  2 errors generated.
+
+We are not using the standard library's longjmp/setjmp implementations
+for obvious reasons; make this clear to clang by using -ffreestanding
+on these files.
+
+Cc: stable@vger.kernel.org # 4.14+
+Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191119045712.39633-3-natechancellor@gmail.com
+
+diff --git a/arch/powerpc/kexec/Makefile b/arch/powerpc/kexec/Makefile
+index 16c1c5a19519..378f6108a414 100644
+--- a/arch/powerpc/kexec/Makefile
++++ b/arch/powerpc/kexec/Makefile
+@@ -3,8 +3,8 @@
+ # Makefile for the linux kernel.
+ #
+ 
+-# Disable clang warning for using setjmp without setjmp.h header
+-CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header)
++# Avoid clang warnings around longjmp/setjmp declarations
++CFLAGS_crash.o += -ffreestanding
+ 
+ obj-y				+= core.o crash.o core_$(BITS).o
+ 
+diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+index f142570ad860..c3842dbeb1b7 100644
+--- a/arch/powerpc/xmon/Makefile
++++ b/arch/powerpc/xmon/Makefile
+@@ -1,8 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for xmon
+ 
+-# Disable clang warning for using setjmp without setjmp.h header
+-subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
++# Avoid clang warnings around longjmp/setjmp declarations
++subdir-ccflags-y := -ffreestanding
+ 
+ GCOV_PROFILE := n
+ KCOV_INSTRUMENT := n
+
