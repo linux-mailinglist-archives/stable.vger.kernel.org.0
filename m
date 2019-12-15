@@ -2,147 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 931ED11F8A6
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 16:58:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BAD011F8CF
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 17:16:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726515AbfLOP6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 10:58:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
+        id S1726121AbfLOQQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 11:16:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726481AbfLOP6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Dec 2019 10:58:51 -0500
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        id S1726118AbfLOQQT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Dec 2019 11:16:19 -0500
+Received: from localhost (unknown [73.61.17.254])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54FE520726;
-        Sun, 15 Dec 2019 15:58:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D2B7206D7;
+        Sun, 15 Dec 2019 16:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576425530;
-        bh=Lb6bRogCAQv2A8z1QGFmErVearjfTXEt+fi8X/hIV3U=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=eeOosFvPk/n7icpTEC8v9UXeXmYfrIU23xsFDE6TAH62kVouNipzAT0CIXqvbCrGB
-         MxgQ71NI47mD4qeVTTUujc1rUfP0YcO2jIqUuaBNu+g4VmFb3iC/jVmSNjTlHy9E3r
-         ueGwASHh83GfvPqGbxJKOqejw+O02ao7O00Lr/zU=
-Date:   Sun, 15 Dec 2019 15:58:46 +0000
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        linux-iio@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 192/350] iio: dln2-adc: fix
- iio_triggered_buffer_postenable() position
-Message-ID: <20191215155846.37c85c2e@archlinux>
-In-Reply-To: <20191210210735.9077-153-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
-        <20191210210735.9077-153-sashal@kernel.org>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        s=default; t=1576426579;
+        bh=4Zxpte3zmBPSFTsIKJl4ntmENTxzAEPmrYvKmP/X0/o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=L8RjCbCI1FeYlx6tH4l4GAeR9VwZwtx0A9z5i2D891jtpTaPVzw3I/VvCCc5EISCb
+         aspv7A55vEunU5Fh6dreSsfieDbjljBTuZoOXzhNap4trz4TgG2uCOIld0BM6rCJJ5
+         YzXIyDB338ufuEKubTUCRq9QTe2EEw7fx88PmBiA=
+Date:   Sun, 15 Dec 2019 11:16:11 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     jsmart2021@gmail.com, dick.kennedy@broadcom.com,
+        martin.petersen@oracle.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] scsi: lpfc: Fix bad ndlp ptr in xri
+ aborted handling" failed to apply to 5.3-stable tree
+Message-ID: <20191215161611.GB18043@sasha-vm>
+References: <157633576465127@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <157633576465127@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 Dec 2019 16:04:57 -0500
-Sasha Levin <sashal@kernel.org> wrote:
+On Sat, Dec 14, 2019 at 04:02:44PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 5.3-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 324e1c402069e8d277d2a2b18ce40bde1265b96a Mon Sep 17 00:00:00 2001
+>From: James Smart <jsmart2021@gmail.com>
+>Date: Fri, 18 Oct 2019 14:18:21 -0700
+>Subject: [PATCH] scsi: lpfc: Fix bad ndlp ptr in xri aborted handling
+>
+>In cases where I/O may be aborted, such as driver unload or link bounces,
+>the system will crash based on a bad ndlp pointer.
+>
+>Example:
+>  RIP: 0010:lpfc_sli4_abts_err_handler+0x15/0x140 [lpfc]
+>  ...
+>  lpfc_sli4_io_xri_aborted+0x20d/0x270 [lpfc]
+>  lpfc_sli4_sp_handle_abort_xri_wcqe.isra.54+0x84/0x170 [lpfc]
+>  lpfc_sli4_fp_handle_cqe+0xc2/0x480 [lpfc]
+>  __lpfc_sli4_process_cq+0xc6/0x230 [lpfc]
+>  __lpfc_sli4_hba_process_cq+0x29/0xc0 [lpfc]
+>  process_one_work+0x14c/0x390
+>
+>Crash was caused by a bad ndlp address passed to I/O indicated by the XRI
+>aborted CQE.  The address was not NULL so the routine deferenced the ndlp
+>ptr. The bad ndlp also caused the lpfc_sli4_io_xri_aborted to call an
+>erroneous io handler.  Root cause for the bad ndlp was an lpfc_ncmd that
+>was aborted, put on the abort_io list, completed, taken off the abort_io
+>list, sent to lpfc_release_nvme_buf where it was put back on the abort_io
+>list because the lpfc_ncmd->flags setting LPFC_SBUF_XBUSY was not cleared
+>on the final completion.
+>
+>Rework the exchange busy handling to ensure the flags are properly set for
+>both scsi and nvme.
+>
+>Fixes: c490850a0947 ("scsi: lpfc: Adapt partitioned XRI lists to efficient sharing")
+>Cc: <stable@vger.kernel.org> # v5.1+
+>Link: https://lore.kernel.org/r/20191018211832.7917-6-jsmart2021@gmail.com
+>Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+>Signed-off-by: James Smart <jsmart2021@gmail.com>
+>Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-> From: Alexandru Ardelean <alexandru.ardelean@analog.com>
-> 
-> [ Upstream commit a7bddfe2dfce1d8859422124abe1964e0ecd386e ]
-> 
-> The iio_triggered_buffer_postenable() hook should be called first to
-> attach the poll function. The iio_triggered_buffer_predisable() hook is
-> called last (as is it should).
-> 
-> This change moves iio_triggered_buffer_postenable() to be called first. It
-> adds iio_triggered_buffer_predisable() on the error paths of the postenable
-> hook.
-> For the predisable hook, some code-paths have been changed to make sure
-> that the iio_triggered_buffer_predisable() hook gets called in case there
-> is an error before it.
+For 5.3 there were context changes needed as a result of
 
-Again, fixing logic to allow a more generic rework rather than actual bug.
+	c00f62e6c546 ("scsi: lpfc: Merge per-protocol WQ/CQ pairs into single per-cpu pair")
 
-I didn't do a very good job of adding notes to all of these to indicate
-they weren't stable material. Sorry about that.
+I've fixed up the patch and queued it for 5.3.
 
-Note I am fairly careful about tagging fixes that should go to stable...
-
-Jonathan
-
-> 
-> Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/iio/adc/dln2-adc.c | 20 ++++++++++++++------
->  1 file changed, 14 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/iio/adc/dln2-adc.c b/drivers/iio/adc/dln2-adc.c
-> index 5fa78c273a258..65c7c9329b1c3 100644
-> --- a/drivers/iio/adc/dln2-adc.c
-> +++ b/drivers/iio/adc/dln2-adc.c
-> @@ -524,6 +524,10 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
->  	u16 conflict;
->  	unsigned int trigger_chan;
->  
-> +	ret = iio_triggered_buffer_postenable(indio_dev);
-> +	if (ret)
-> +		return ret;
-> +
->  	mutex_lock(&dln2->mutex);
->  
->  	/* Enable ADC */
-> @@ -537,6 +541,7 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
->  				(int)conflict);
->  			ret = -EBUSY;
->  		}
-> +		iio_triggered_buffer_predisable(indio_dev);
->  		return ret;
->  	}
->  
-> @@ -550,6 +555,7 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
->  		mutex_unlock(&dln2->mutex);
->  		if (ret < 0) {
->  			dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
-> +			iio_triggered_buffer_predisable(indio_dev);
->  			return ret;
->  		}
->  	} else {
-> @@ -557,12 +563,12 @@ static int dln2_adc_triggered_buffer_postenable(struct iio_dev *indio_dev)
->  		mutex_unlock(&dln2->mutex);
->  	}
->  
-> -	return iio_triggered_buffer_postenable(indio_dev);
-> +	return 0;
->  }
->  
->  static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
->  {
-> -	int ret;
-> +	int ret, ret2;
->  	struct dln2_adc *dln2 = iio_priv(indio_dev);
->  
->  	mutex_lock(&dln2->mutex);
-> @@ -577,12 +583,14 @@ static int dln2_adc_triggered_buffer_predisable(struct iio_dev *indio_dev)
->  	ret = dln2_adc_set_port_enabled(dln2, false, NULL);
->  
->  	mutex_unlock(&dln2->mutex);
-> -	if (ret < 0) {
-> +	if (ret < 0)
->  		dev_dbg(&dln2->pdev->dev, "Problem in %s\n", __func__);
-> -		return ret;
-> -	}
->  
-> -	return iio_triggered_buffer_predisable(indio_dev);
-> +	ret2 = iio_triggered_buffer_predisable(indio_dev);
-> +	if (ret == 0)
-> +		ret = ret2;
-> +
-> +	return ret;
->  }
->  
->  static const struct iio_buffer_setup_ops dln2_adc_buffer_setup_ops = {
-
+-- 
+Thanks,
+Sasha
