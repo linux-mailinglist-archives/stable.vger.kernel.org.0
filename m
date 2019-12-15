@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC50A11F807
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF5611F808
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbfLONde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 08:33:34 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:42309 "EHLO
+        id S1726192AbfLONdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 08:33:42 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:49405 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726103AbfLONdd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:33:33 -0500
+        by vger.kernel.org with ESMTP id S1726103AbfLONdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:33:42 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id A5E5922139;
-        Sun, 15 Dec 2019 08:33:32 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id E812F22233;
+        Sun, 15 Dec 2019 08:33:40 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:33:32 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:33:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eQFurq
-        v0IKvM+hneXd4SHWnkJURmCAI2GDepmVDF8F0=; b=JV6r5GZTrfb+/0PnZ2UHMB
-        ch3XBT4h26OtBH2EQr7TzBTwDMHc9/Kfy+A5q7jS4Z6RLpAVMKTtizYABOMPvA3q
-        AhaT3lV+lejCHzvKsVn2wyLeJx67fLogotEU+ZRoHiCRPK1GsfGPopGte4YkBu+o
-        paBCJzNMLymguDtrXAWcNllOKfepyrn0j/knaK49zSHBRTf5hF3D9JqZ4Iv9xUwh
-        vLJbn9n1g35yLjIvONZhNF1gRh3j0Kr3uj+FBoWr6xNHt4OL49PBdRPzmBtK/Dua
-        00xl0sRm3GjaUYdk/n6i6D22cNVDRHlIV6jt0XEtP4SgbLxANdGyDUm5Vb/7484A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=1K5i2r
+        7mas/LcyTdkJtkBH3Ozh0boOlTUJregKUZGsk=; b=fRmAm9LN3x2APdkebqFbQJ
+        TjFYVFpyQVTrf8k6g2pF22UWLzoE3aqHc921lkGPVEPqwDqATvldp8I/d2vm5iNP
+        WR/ujOaoSP9DAj9UPZZpkp+6TtCNmja+O2qaPc8u3H8BABIf+OmXXnU90rqEvkct
+        hIh0XnO8J0jpZ+xxxdrlWMZHtXLTmyCEJV5WL1c4QXwLJI2LoZTTagCjfZ6uQ90n
+        P4bNgAF0dOHc+HUZtb9fpMn4xa2LEbsD5avib33mFsBCb2bem3j0233sLCD00ydT
+        6T6y65BJ+NEAryyT5zEdnYa2cqPer49uXipgrai7UVI2xtM89+PwNl/zq+Zcz26A
         ==
-X-ME-Sender: <xms:LDb2XRlWQk1-K4NWztFNrTJNvNu_TyJI22l0vAlGOS4JvuPclDGb0Q>
+X-ME-Sender: <xms:NDb2XenIxis0AXYfVgDWc7lQkAebC9Qv5-n_JjZ1Ppo-ssMHcKV0RA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgephe
-X-ME-Proxy: <xmx:LDb2Xap7EZA8HHd1dwyUyGcY23pZgwY5-aOQlVckCD_WTCmQMHDxCg>
-    <xmx:LDb2XYjiJpp8OF2zDIkJsHgj5kE8pWprTCCOgVvGYK7kwNXUCn89EQ>
-    <xmx:LDb2XciqTK5byvPgS8923xUu1JEFQRp5CLNYTSWPNauPU99suwiwlA>
-    <xmx:LDb2XcTx2o7MdAyly2Cpn_C0CHF84b2ly8WnZDJ_crnyo0NuodRAWA>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepie
+X-ME-Proxy: <xmx:NDb2XWOoT8uNRiPxU82t0-VouJY84csmotf6D2gaWvYbSmJ6-X_baQ>
+    <xmx:NDb2XUhqaDb-ZxuWXgHFwC0m2Q5sitSvIvRPEIDTQkIEfhjA2IQ_Rg>
+    <xmx:NDb2XQTRPpkHZ47cXgaXM1YQVuKF3fhmWkDVFUMpXa04xpEBF314SQ>
+    <xmx:NDb2XSRBWfhRmrlxFIUOZGh44m_Lj9ZO8AigvDcVYjqIAChDUVc8xQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0B7DA30600DC;
-        Sun, 15 Dec 2019 08:33:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 89E3130600AB;
+        Sun, 15 Dec 2019 08:33:40 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection" failed to apply to 4.9-stable tree
 To:     jarkko.nikula@bitmer.com, stable@vger.kernel.org, tony@atomide.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 14:33:30 +0100
-Message-ID: <1576416810187118@kroah.com>
+Date:   Sun, 15 Dec 2019 14:33:31 +0100
+Message-ID: <157641681111754@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
