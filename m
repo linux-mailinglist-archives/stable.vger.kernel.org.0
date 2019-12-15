@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2CDE11F7F7
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:26:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE0911F7F9
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:26:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726199AbfLON0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 08:26:19 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:56067 "EHLO
+        id S1726204AbfLON0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 08:26:46 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:39915 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726112AbfLON0T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:26:19 -0500
+        by vger.kernel.org with ESMTP id S1726112AbfLON0q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:26:46 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C10C32223B;
-        Sun, 15 Dec 2019 08:26:18 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 7B4BB221E9;
+        Sun, 15 Dec 2019 08:26:45 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:26:18 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:26:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=73n8nN
-        CHxFw4EOI5zqxnTobvJs37KVMKB/X0Xw5hIN0=; b=oA9Rt0wINoaFfp0BuGa3xt
-        tryxRC0WFWsKpB0LMrH82avpa82d9HJwMgxxTDVs9l64VORJ/06Xn0SXwqU0csMU
-        RLsB1Lezno11+bgoh77LGIKtS5NFhQWXSZNxZrBjhdJ+q95R9wezYmNy3H3qrHrd
-        LXHW2+H8PVnsZGmiAee4pEXTC4y7qqFvtxA7uyUekILEDOT03PGgXB30WZvPkD8P
-        aFl2xHEz24kK8HLDg4vuQgbns0oxOmbtcGnWQwfKLUJP4vnAYl/2qG80RhVZZo4H
-        mDRR5LOyuIHKI5nKF9fhCEQvHvGsKuSXl2QHsw6F9YdAMIxDrEBBiUYTGohEzSNg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=hm3Jah
+        asczg5aWyvUpRjpQ1NkMtnvw32rc8rBT9h/sc=; b=v7xRmpcUsDMzoPtL8SvtQ2
+        zETpKFDNZ0uUl9OhrncYSkiNEUuWDt57mKblhuwdFwsTI4Q4erYDzGHJrNPl+oje
+        7wbAQ/MIpkCAUQ8p2QQYQLYmxE0gr1odIrojvBg02ZeHogmp9PURu8bSAcTRbW43
+        7QMH0UEQBtxOPbkJXuF+uqrqV7qHDGsapAtwe1h3tE98emjMFpZPbqaqBtOT7ot2
+        rGtbmiy+fCJr20L/OESo9VpCThOzlLiHbIJCkGaI0egIfULRUe/D9LRyGgbdwCAg
+        aix0nlGdhNXKcGjX2Bz9WQYDsyoJcEciI04w5L85DAp0tV0K9MphooD9KmJTh1iw
         ==
-X-ME-Sender: <xms:ejT2XdwjEx0qWPtrhOPFGLkHLRi_zQf9B20-RjmLENElFRoyxTHaXA>
+X-ME-Sender: <xms:lTT2XbBayKSIZRWaS28Lej_bPTnB1oj0XVPUJY8FKvfkSGSOB5sofA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:ejT2XX_F04zsp7BGjD-WesS2b-wAjQPTgT8q89t6y_1UXyUvA7ZKFw>
-    <xmx:ejT2Xd_jbnkAFedeUy4iveURys1cVJWBV98nstIRH_Tl2Q1C3YpozA>
-    <xmx:ejT2Xaf7rWXfyHca3mXwX2RM_bpVHp3UoTedR--BE4XJyso8pUdXag>
-    <xmx:ejT2XbObLL22a4eZmbM3cxk0A8Ztr2gsZLZwsY4TtfPYPwdhii0zHQ>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepfe
+X-ME-Proxy: <xmx:lTT2XSTGe6arVMcksA1BPQmFugA9Xjs2zLlnfPg6C5ySStwyHKTq5Q>
+    <xmx:lTT2XffkrCU1AnzhcijzJjLhgRiMPX5MLW076tfzqLVs-AJe1z82OA>
+    <xmx:lTT2XVr9petSztjlyD8Ue-Qa2FOplmasyt4NCJelFNH4M_wsO8MV6w>
+    <xmx:lTT2XTgwo1PMHzgIn7fpy-B7k-gqk8Ht54Ac_IwdSz18fk7FfpFP5Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4853E8005C;
-        Sun, 15 Dec 2019 08:26:18 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: samsung: Add of_node_put() before return in error" failed to apply to 4.9-stable tree
-To:     nishkadg.linux@gmail.com, krzk@kernel.org, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 03F768005A;
+        Sun, 15 Dec 2019 08:26:44 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pinctrl: samsung: Fix device node refcount leaks in Exynos" failed to apply to 4.9-stable tree
+To:     krzk@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 14:26:09 +0100
-Message-ID: <157641636919588@kroah.com>
+Date:   Sun, 15 Dec 2019 14:26:35 +0100
+Message-ID: <157641639518039@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -67,37 +67,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3d2557ab75d4c568c79eefa2e550e0d80348a6bd Mon Sep 17 00:00:00 2001
-From: Nishka Dasgupta <nishkadg.linux@gmail.com>
-Date: Sun, 4 Aug 2019 21:32:00 +0530
-Subject: [PATCH] pinctrl: samsung: Add of_node_put() before return in error
- path
+From 5c7f48dd14e892e3e920dd6bbbd52df79e1b3b41 Mon Sep 17 00:00:00 2001
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Date: Mon, 5 Aug 2019 18:27:07 +0200
+Subject: [PATCH] pinctrl: samsung: Fix device node refcount leaks in Exynos
+ wakeup controller init
 
-Each iteration of for_each_child_of_node puts the previous node, but in
-the case of a return from the middle of the loop, there is no put, thus
-causing a memory leak. Hence add an of_node_put before the return of
-exynos_eint_wkup_init() error path.
-Issue found with Coccinelle.
+In exynos_eint_wkup_init() the for_each_child_of_node() loop is used
+with a break to find a matching child node.  Although each iteration of
+for_each_child_of_node puts the previous node, but early exit from loop
+misses it.  This leads to leak of device node.
 
-Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
 Cc: <stable@vger.kernel.org>
-Fixes: 14c255d35b25 ("pinctrl: exynos: Add irq_chip instance for Exynos7 wakeup interrupts")
+Fixes: 43b169db1841 ("pinctrl: add exynos4210 specific extensions for samsung pinctrl driver")
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
 diff --git a/drivers/pinctrl/samsung/pinctrl-exynos.c b/drivers/pinctrl/samsung/pinctrl-exynos.c
-index ebc27b06718c..e7f4cbad2c92 100644
+index e7f4cbad2c92..0599f5127b01 100644
 --- a/drivers/pinctrl/samsung/pinctrl-exynos.c
 +++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
-@@ -486,8 +486,10 @@ int exynos_eint_wkup_init(struct samsung_pinctrl_drv_data *d)
- 		if (match) {
- 			irq_chip = kmemdup(match->data,
- 				sizeof(*irq_chip), GFP_KERNEL);
--			if (!irq_chip)
-+			if (!irq_chip) {
-+				of_node_put(np);
- 				return -ENOMEM;
-+			}
- 			wkup_np = np;
- 			break;
+@@ -506,6 +506,7 @@ int exynos_eint_wkup_init(struct samsung_pinctrl_drv_data *d)
+ 				bank->nr_pins, &exynos_eint_irqd_ops, bank);
+ 		if (!bank->irq_domain) {
+ 			dev_err(dev, "wkup irq domain add failed\n");
++			of_node_put(wkup_np);
+ 			return -ENXIO;
  		}
+ 
+@@ -520,8 +521,10 @@ int exynos_eint_wkup_init(struct samsung_pinctrl_drv_data *d)
+ 		weint_data = devm_kcalloc(dev,
+ 					  bank->nr_pins, sizeof(*weint_data),
+ 					  GFP_KERNEL);
+-		if (!weint_data)
++		if (!weint_data) {
++			of_node_put(wkup_np);
+ 			return -ENOMEM;
++		}
+ 
+ 		for (idx = 0; idx < bank->nr_pins; ++idx) {
+ 			irq = irq_of_parse_and_map(bank->of_node, idx);
+@@ -538,10 +541,13 @@ int exynos_eint_wkup_init(struct samsung_pinctrl_drv_data *d)
+ 		}
+ 	}
+ 
+-	if (!muxed_banks)
++	if (!muxed_banks) {
++		of_node_put(wkup_np);
+ 		return 0;
++	}
+ 
+ 	irq = irq_of_parse_and_map(wkup_np, 0);
++	of_node_put(wkup_np);
+ 	if (!irq) {
+ 		dev_err(dev, "irq number for muxed EINTs not found\n");
+ 		return 0;
 
