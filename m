@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD35211F6FA
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F2811F700
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726094AbfLOJ17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 04:27:59 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:36831 "EHLO
+        id S1726199AbfLOJaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 04:30:03 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:58887 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726049AbfLOJ17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 04:27:59 -0500
+        by vger.kernel.org with ESMTP id S1726194AbfLOJaC (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 15 Dec 2019 04:30:02 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 52FF96A2;
-        Sun, 15 Dec 2019 04:27:58 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id D3A076AC;
+        Sun, 15 Dec 2019 04:30:01 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:27:58 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:30:02 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=sWKCIx
-        sefwVbU9CIZKAHm6tUp1FF5E25es+fCB2qnSU=; b=Ovdcd6wyXusvncS9a/UZyR
-        yj5+ujQKBHU0qvojqObhudAbi0rd5fKAlBVH5kcnmRu/suFPcWgFZA1pyhSdyZRG
-        w78uvaROVGYx8MsIAx8q3NFwqVjpw4+gP1Npx3tmsA6LJ1YBGIxrourAak/yfIt5
-        Wq0GYLsBoExBE1vxEMpl3RGLONeD7KK2rdJG0EGZWfIB8pUOqHD402YjWS6QvuVQ
-        dWuQ0cB2+8BYNMEVXBn8X2hWpYdukVeVCaCcFxBH5kh8xnViPlDen+8bJ2aBealB
-        NLcIHgFs+Pb3Z/wkoD9j1qeUYFs5B9t/TtbNwxRvXIr2wetCJbHmQx+PKktbB53w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+fyf52
+        WG4oK3xXSviaAITmuUU+ODh7JaFE5LoqZyp5c=; b=m2iP6IlImd0SEF4mEie9DK
+        6J7JTITHRsr4JIODmwGUCbMfbnNtly9Dhz4S/59s+e6lskRPcHwh4+6Ln7vEr7mq
+        /6sofzPLPAL7VV5vHLf3/cQPAtZJinfRbD/V6AyoXEPGXxO75ugHE2kQkfCZTeq5
+        uqcOd4ZOaOCQo6JaXq9r84iyaTLhiN/4tJ7sOdGN5KnQGXi88rI2g603wHqDxPUb
+        NwlxewlfiVOhjCLDYmoFHcSjht7Ae6Oe+MGy89QNvPNtEQDbxrcN5nrew5lv6b3U
+        tPQCtfQz/b7LGqV86ahwNCtqHD04RrSllpzQm1UP8lIP8fBCn2uDttBC+F0maPPg
         ==
-X-ME-Sender: <xms:nfz1Xb7V2winnUGOt1Tptqjyep-Yri_pZFYF2ozpDF5zyu4WOBQYIQ>
+X-ME-Sender: <xms:Gf31XQBjb_UEh2v8xBAZpM_ZIi2TZyoywEALvtOTVAOIQ8bzFl7nwg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:nfz1XS-8e0PhPOOoFZ20uL76me2McZxgE15WcCEJRXKkZEcAN-Kcyg>
-    <xmx:nfz1XcihgJddxrbPOeLA5MgjtLeSMHy1ZC5tIKhWo2K-hQtHGM07fA>
-    <xmx:nfz1XW19J60WS0I-qZogBkI-x_Y8oTyVk0atYjGuCv25pCxmGV_tYQ>
-    <xmx:nfz1XVPtgaktav5zfRqh5WWjSgxU5OSGR-mEJWHskYUzG-8hwDS-jw>
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Gf31XdbbmYnUhGvmUdcETDs6fELG-tol5XuCpf_h4G7lr6qMU7wGcA>
+    <xmx:Gf31XWf6MDF3cvGZLzDNoPgL-6jhO2at9BjnDeTExhG3Tw8XIpTtvg>
+    <xmx:Gf31XQfdaOYfqHznp9u9O8k-s5DcDK3G4nZ-fS5KT4OyCdPM0E7Iiw>
+    <xmx:Gf31XW0OHXGGpkqJ2bo4oi9bANl8kIBPZLm6OH-bZbJcuVxG3wnKQw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 574778005B;
-        Sun, 15 Dec 2019 04:27:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] xhci: make sure interrupts are restored to correct state" failed to apply to 4.9-stable tree
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9B80280060;
+        Sun, 15 Dec 2019 04:30:00 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: adis16480: Add debugfs_reg_access entry" failed to apply to 4.14-stable tree
+To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 10:27:51 +0100
-Message-ID: <1576402071250110@kroah.com>
+Date:   Sun, 15 Dec 2019 10:29:58 +0100
+Message-ID: <15764021987748@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -58,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,79 +68,34 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bd82873f23c9a6ad834348f8b83f3b6a5bca2c65 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Wed, 11 Dec 2019 16:20:07 +0200
-Subject: [PATCH] xhci: make sure interrupts are restored to correct state
+From 4c35b7a51e2f291471f7221d112c6a45c63e83bc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+Date: Mon, 28 Oct 2019 17:33:49 +0100
+Subject: [PATCH] iio: adis16480: Add debugfs_reg_access entry
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-spin_unlock_irqrestore() might be called with stale flags after
-reading port status, possibly restoring interrupts to a incorrect
-state.
+The driver is defining debugfs entries by calling
+`adis16480_debugfs_init()`. However, those entries are attached to the
+iio_dev debugfs entry which won't exist if no debugfs_reg_access
+callback is provided.
 
-If a usb2 port just finished resuming while the port status is read
-the spin lock will be temporary released and re-acquired in a separate
-function. The flags parameter is passed as value instead of a pointer,
-not updating flags properly before the final spin_unlock_irqrestore()
-is called.
+Fixes: 2f3abe6cbb6c ("iio:imu: Add support for the ADIS16480 and similar IMUs")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-Cc: <stable@vger.kernel.org> # v3.12+
-Fixes: 8b3d45705e54 ("usb: Fix xHCI host issues on remote wakeup.")
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-7-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index 4b870cd6c575..7a3a29e5e9d2 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -806,7 +806,7 @@ static void xhci_del_comp_mod_timer(struct xhci_hcd *xhci, u32 status,
+diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
+index f1d52563951c..078d49deebd4 100644
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -923,6 +923,7 @@ static const struct iio_info adis16480_info = {
+ 	.read_raw = &adis16480_read_raw,
+ 	.write_raw = &adis16480_write_raw,
+ 	.update_scan_mode = adis_update_scan_mode,
++	.debugfs_reg_access = adis_debugfs_reg_access,
+ };
  
- static int xhci_handle_usb2_port_link_resume(struct xhci_port *port,
- 					     u32 *status, u32 portsc,
--					     unsigned long flags)
-+					     unsigned long *flags)
- {
- 	struct xhci_bus_state *bus_state;
- 	struct xhci_hcd	*xhci;
-@@ -860,11 +860,11 @@ static int xhci_handle_usb2_port_link_resume(struct xhci_port *port,
- 		xhci_test_and_clear_bit(xhci, port, PORT_PLC);
- 		xhci_set_link_state(xhci, port, XDEV_U0);
- 
--		spin_unlock_irqrestore(&xhci->lock, flags);
-+		spin_unlock_irqrestore(&xhci->lock, *flags);
- 		time_left = wait_for_completion_timeout(
- 			&bus_state->rexit_done[wIndex],
- 			msecs_to_jiffies(XHCI_MAX_REXIT_TIMEOUT_MS));
--		spin_lock_irqsave(&xhci->lock, flags);
-+		spin_lock_irqsave(&xhci->lock, *flags);
- 
- 		if (time_left) {
- 			slot_id = xhci_find_slot_id_by_port(hcd, xhci,
-@@ -967,7 +967,7 @@ static void xhci_get_usb3_port_status(struct xhci_port *port, u32 *status,
- }
- 
- static void xhci_get_usb2_port_status(struct xhci_port *port, u32 *status,
--				      u32 portsc, unsigned long flags)
-+				      u32 portsc, unsigned long *flags)
- {
- 	struct xhci_bus_state *bus_state;
- 	u32 link_state;
-@@ -1017,7 +1017,7 @@ static void xhci_get_usb2_port_status(struct xhci_port *port, u32 *status,
- static u32 xhci_get_port_status(struct usb_hcd *hcd,
- 		struct xhci_bus_state *bus_state,
- 	u16 wIndex, u32 raw_port_status,
--		unsigned long flags)
-+		unsigned long *flags)
- 	__releases(&xhci->lock)
- 	__acquires(&xhci->lock)
- {
-@@ -1140,7 +1140,7 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 		}
- 		trace_xhci_get_port_status(wIndex, temp);
- 		status = xhci_get_port_status(hcd, bus_state, wIndex, temp,
--					      flags);
-+					      &flags);
- 		if (status == 0xffffffff)
- 			goto error;
- 
+ static int adis16480_stop_device(struct iio_dev *indio_dev)
 
