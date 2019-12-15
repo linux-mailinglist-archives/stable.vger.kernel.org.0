@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D4611F994
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:13:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23EC911F993
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726488AbfLORNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 12:13:07 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54537 "EHLO
+        id S1726485AbfLORNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 12:13:06 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:33331 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726130AbfLORNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:13:07 -0500
+        by vger.kernel.org with ESMTP id S1726130AbfLORNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:13:06 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C68DC22289;
-        Sun, 15 Dec 2019 12:13:06 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 72A9A222FD;
+        Sun, 15 Dec 2019 12:13:05 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 12:13:06 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 12:13:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=EJPxTU
-        nld+8szqVSKm1sQcOJKPSciG5pUhW1Hi+2XeQ=; b=aQ1yAEifVRC/ejclZDrFry
-        ku+eS90n4EsAFeKf6nrOmgbQFz93p9DvkHrfFJ4LYuG8n7hSnANhT4Zy1c/4MoTw
-        /dAbWppDtUGhndxiwBvQ8Nv4jzXeNeLDhm6rRUAV3Ap3sSl6f7ItPf21jYTRtwQu
-        neIsZzYZui9vXLMSKdHq4YACEP/yHmrXZyAB4Xdm7QkyVaO6NCIHUtBraNcCqi+c
-        qI/WndycZ22PfmbWzy2h8Sa/62DEMqoBVDayxgb7RRDRl8XWTIHzFOf8XHnJwOXb
-        D/V4zjz+7Oslyg+x1+ja+zGl+qUyTW+UzpwbsM7DhmN18UZ4/+hwcDfpLdSS8Fzw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=TGrNqk
+        4G41falEwHC7xP4mQr162BTsll/kXB2l2XxeA=; b=RUkPRZbBjAQ1WRGWUSJBj0
+        nxEQD8oPeetBD22+7PVSkUfDx8F+QSw2HEk89RJLxGz7JJwTN9ZFuewDKJndBl/R
+        aBGytCnVbeyyGC6qPnXdL+A9QqFvwCJF2pl0g8eMHe/tw10Vh5ObVu3qWJbj1l3N
+        YjvAZa0lMvKmHq2WAwu6pzCo8MSvRejVeJgTrZV7AjnYjOsLWTqpBs0GHiV3qvAt
+        bilboQRrucu27xmpascFHcSomrmEZBCbTz1m4+vOkm5SdaPoUdwDfDs0Keh9w6fD
+        mQlI+EdPuzlZoKfkUu5rhuJvdGR+DZqy89Nc6Yd7hGAvoGXedXC2FdJkfTD/WagQ
         ==
-X-ME-Sender: <xms:omn2XdZh_5b5rUEP2SUvAJ5lzl8RMuRjtNP0DzAz1n3Fuj-tzTcpkA>
+X-ME-Sender: <xms:oWn2XZDB7i4CSl1GlWy8z00U4L9-pPUugJbcuKkBPV5EYXbnPc4IAQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedguddtvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedguddtvdcutefuodetgg
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhgvghtthhimhgvohhfuggrhi
     drshgsnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhho
     mhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:omn2XfN9I1F4k6PoE1Ys90KMziWlSJrLGDi8GPpmZh8s0ZtZXKemnw>
-    <xmx:omn2XeO-cBdeJ2ysqe4PMuEcOgAqd-uEVFNKtqyOdNDm4CoxlbqjNQ>
-    <xmx:omn2XbPwrCN4bysVi4ZOTXRz1p7746WFN2ZBGS5MD9sgUJJctrWK8Q>
-    <xmx:omn2Xfiiu_8yLclIIbHM8WQRk2tPCbVXpRIrWoJykH7f_0565aDQeQ>
+X-ME-Proxy: <xmx:oWn2XY0jmGp88HkfFr4NokZVOks5OC_3mQlelI-80cR2uo-GX_WV_Q>
+    <xmx:oWn2XXAY3uxp7gCOnRTtX38rUattEiIdZENoVqI1YWacylxeP8i3tw>
+    <xmx:oWn2XZZHglRUn-cSZR6Xy9BAwFBZH2HDn5i3tUBAQy2Dcy6e00h6xg>
+    <xmx:oWn2XZuYh-Ojh0AVjpgDu7tYpJYGuop2UlOhIbM-UpXJIMeC10CNXA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 669E130600B1;
-        Sun, 15 Dec 2019 12:13:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc: Fix vDSO clock_getres()" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1088630600E0;
+        Sun, 15 Dec 2019 12:13:04 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc: Fix vDSO clock_getres()" failed to apply to 4.9-stable tree
 To:     vincenzo.frascino@arm.com, christophe.leroy@c-s.fr,
         mpe@ellerman.id.au, skhan@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 15 Dec 2019 18:12:59 +0100
-Message-ID: <15764299797917@kroah.com>
+Message-ID: <157642997914310@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
