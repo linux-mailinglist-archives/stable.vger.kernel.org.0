@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0110D11F995
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FFD911F997
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:15:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbfLORNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 12:13:09 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51819 "EHLO
+        id S1726135AbfLORPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 12:15:25 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:48705 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726130AbfLORNJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:13:09 -0500
+        by vger.kernel.org with ESMTP id S1726130AbfLORPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:15:25 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2F1BC222E3;
-        Sun, 15 Dec 2019 12:13:08 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 4E9E5223E2;
+        Sun, 15 Dec 2019 12:15:24 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 12:13:08 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 12:15:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/RY77F
-        GC58zanRWxjeN4hnzG/LXtbNF5ygAfrv8uATk=; b=SK3aJyQtHhkds99KZws8f0
-        R/10T9hUEFOXbAW8DHcwbiCfVdL2QXU/DFRHR7HukhKyg4XPkGO6pGvcxB2AXdpB
-        Jgc1aeU/61zmYHKSzK69SD2HHfIF6Oao2Aoa4YMmGe5feb5R3+abPYuOo469KjFI
-        9R8RdJ3TwZIBN8dCBrf2u0yLos56l++caCAZ8hszzuCi2PeKSJKpJ2qAxlSjwNJX
-        r2zh24SdoyVE1OAYKTFWUa8WBZ5R0hvR1n/lwUykTEgMWAE+xJAzaGLdvfUqUM3p
-        KVagsK5H7Sb5EJB55OgoPO8IH+BTssu977JJme0AaE7UvW4SxiVbB79dLY4OYwCA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Ky9q68
+        iPfma0KD0ZNU6FYzP7oC2tpgnT3v/nejlqzfs=; b=twAR/Zk9raTpX2tRo+h8Kw
+        JbRB1p1Mi0UAFNEaueYHU+CbknhvKh/HEZRtesuILpoNkdv7gT8sA3qBVcLqPNdc
+        EhsY1Y+V2wQSdx7KSn2RrdgC3bqbZaFcLo1rc+L+g54s5Te4Yb6qmT0HZjbwp5SM
+        Kyvhy29+H5iRRm5yy48SQG2DJ2QvAKLyAdJvX4YCrne75SinKStE4HUiUISUiQzO
+        vVKUg8a7+o6aQSzypwIAAxL61T/rASyuUNf4qZzF3+ChIMGl+uQcAZkOeCxWq1Vc
+        Bzg5bm4kiAirBUByTesiEVtRB+h8wFwUrijYLCdDX2zLCTMwn4qUTNWw+mwEBW4A
         ==
-X-ME-Sender: <xms:pGn2XROpQWS3OdbWBWBKMGoFSxkmuyT_gQiwIXrTrPEksxKakx8xcw>
+X-ME-Sender: <xms:K2r2XVg3gadDYSIwrLFoNYzR9Cmj_lHGryAW1RrOYhfUhEv-R83UQQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedguddtvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhgvghtthhimhgvohhfuggrhi
-    drshgsnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhho
-    mhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgephe
-X-ME-Proxy: <xmx:pGn2XXAQ1TXaQir1uYLXinhdgbgCmWSrDxrHMZuizjrp_SFZWGNEqQ>
-    <xmx:pGn2Xa532vsdssCY41BvQfTF-MfvvPRSH-iYK-DypK-XKKoY61aHKA>
-    <xmx:pGn2XZ7A9ZSX0hWWumKCNznMfYB3yh_MCUuV9OjFmhCm3J0YiiKFzw>
-    <xmx:pGn2XV4GICMctrAxLq1t_nJCNgvDL96vunDAbvwp_8MAGR_VULOr-A>
+    rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
+    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:K2r2Xaz8LkOadcxoa8BOD6_mCjA_h36wOyq7QrUgC38IW6Py8OngrQ>
+    <xmx:K2r2XW7rCQj9d3ENDuQWGoAN-XhJoocDbKzcwDBaE6Ba7Kcu_EOuIw>
+    <xmx:K2r2XQkBkSSHgYkViy9ogC1ZIeK7T7xqSE4B524sSg9up8EiZpOoqQ>
+    <xmx:LGr2XW9OlxXMUb_hJOM5-Fx21F4aOUJJuxahA2M2smOJa7jUqLY6TQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C20CE30600AB;
-        Sun, 15 Dec 2019 12:13:07 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc: Fix vDSO clock_getres()" failed to apply to 4.4-stable tree
-To:     vincenzo.frascino@arm.com, christophe.leroy@c-s.fr,
-        mpe@ellerman.id.au, skhan@linuxfoundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8096C30600D7;
+        Sun, 15 Dec 2019 12:15:23 -0500 (EST)
+Subject: FAILED: patch "[PATCH] reiserfs: fix extended attributes on the root directory" failed to apply to 4.9-stable tree
+To:     jeffm@suse.com, jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 18:13:00 +0100
-Message-ID: <157642998014117@kroah.com>
+Date:   Sun, 15 Dec 2019 18:15:19 +0100
+Message-ID: <1576430119239212@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,127 +68,199 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 552263456215ada7ee8700ce022d12b0cffe4802 Mon Sep 17 00:00:00 2001
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Date: Mon, 2 Dec 2019 07:57:29 +0000
-Subject: [PATCH] powerpc: Fix vDSO clock_getres()
+From 60e4cf67a582d64f07713eda5fcc8ccdaf7833e6 Mon Sep 17 00:00:00 2001
+From: Jeff Mahoney <jeffm@suse.com>
+Date: Thu, 24 Oct 2019 10:31:27 -0400
+Subject: [PATCH] reiserfs: fix extended attributes on the root directory
 
-clock_getres in the vDSO library has to preserve the same behaviour
-of posix_get_hrtimer_res().
+Since commit d0a5b995a308 (vfs: Add IOP_XATTR inode operations flag)
+extended attributes haven't worked on the root directory in reiserfs.
 
-In particular, posix_get_hrtimer_res() does:
-    sec = 0;
-    ns = hrtimer_resolution;
-and hrtimer_resolution depends on the enablement of the high
-resolution timers that can happen either at compile or at run time.
+This is due to reiserfs conditionally setting the sb->s_xattrs handler
+array depending on whether it located or create the internal privroot
+directory.  It necessarily does this after the root inode is already
+read in.  The IOP_XATTR flag is set during inode initialization, so
+it never gets set on the root directory.
 
-Fix the powerpc vdso implementation of clock_getres keeping a copy of
-hrtimer_resolution in vdso data and using that directly.
+This commit unconditionally assigns sb->s_xattrs and clears IOP_XATTR on
+internal inodes.  The old return values due to the conditional assignment
+are handled via open_xa_root, which now returns EOPNOTSUPP as the VFS
+would have done.
 
-Fixes: a7f290dad32e ("[PATCH] powerpc: Merge vdso's and add vdso support to 32 bits kernel")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-[chleroy: changed CLOCK_REALTIME_RES to CLOCK_HRTIMER_RES]
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a55eca3a5e85233838c2349783bcb5164dae1d09.1575273217.git.christophe.leroy@c-s.fr
+Link: https://lore.kernel.org/r/20191024143127.17509-1-jeffm@suse.com
+CC: stable@vger.kernel.org
+Fixes: d0a5b995a308 ("vfs: Add IOP_XATTR inode operations flag")
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-diff --git a/arch/powerpc/include/asm/vdso_datapage.h b/arch/powerpc/include/asm/vdso_datapage.h
-index a115970a6809..40f13f3626d3 100644
---- a/arch/powerpc/include/asm/vdso_datapage.h
-+++ b/arch/powerpc/include/asm/vdso_datapage.h
-@@ -83,6 +83,7 @@ struct vdso_data {
- 	__s64 wtom_clock_sec;			/* Wall to monotonic clock sec */
- 	__s64 stamp_xtime_sec;			/* xtime secs as at tb_orig_stamp */
- 	__s64 stamp_xtime_nsec;			/* xtime nsecs as at tb_orig_stamp */
-+	__u32 hrtimer_res;			/* hrtimer resolution */
-    	__u32 syscall_map_64[SYSCALL_MAP_SIZE]; /* map of syscalls  */
-    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
- };
-@@ -105,6 +106,7 @@ struct vdso_data {
- 	__s32 stamp_xtime_sec;		/* xtime seconds as at tb_orig_stamp */
- 	__s32 stamp_xtime_nsec;		/* xtime nsecs as at tb_orig_stamp */
- 	__u32 stamp_sec_fraction;	/* fractional seconds of stamp_xtime */
-+	__u32 hrtimer_res;		/* hrtimer resolution */
-    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
- 	__u32 dcache_block_size;	/* L1 d-cache block size     */
- 	__u32 icache_block_size;	/* L1 i-cache block size     */
-diff --git a/arch/powerpc/kernel/asm-offsets.c b/arch/powerpc/kernel/asm-offsets.c
-index f22bd6d1fe93..3d47aec7becf 100644
---- a/arch/powerpc/kernel/asm-offsets.c
-+++ b/arch/powerpc/kernel/asm-offsets.c
-@@ -388,6 +388,7 @@ int main(void)
- 	OFFSET(STAMP_XTIME_SEC, vdso_data, stamp_xtime_sec);
- 	OFFSET(STAMP_XTIME_NSEC, vdso_data, stamp_xtime_nsec);
- 	OFFSET(STAMP_SEC_FRAC, vdso_data, stamp_sec_fraction);
-+	OFFSET(CLOCK_HRTIMER_RES, vdso_data, hrtimer_res);
- 	OFFSET(CFG_ICACHE_BLOCKSZ, vdso_data, icache_block_size);
- 	OFFSET(CFG_DCACHE_BLOCKSZ, vdso_data, dcache_block_size);
- 	OFFSET(CFG_ICACHE_LOGBLOCKSZ, vdso_data, icache_log_block_size);
-@@ -413,7 +414,6 @@ int main(void)
- 	DEFINE(CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
- 	DEFINE(CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
- 	DEFINE(NSEC_PER_SEC, NSEC_PER_SEC);
--	DEFINE(CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+diff --git a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+index 132ec4406ed0..6419e6dacc39 100644
+--- a/fs/reiserfs/inode.c
++++ b/fs/reiserfs/inode.c
+@@ -2097,6 +2097,15 @@ int reiserfs_new_inode(struct reiserfs_transaction_handle *th,
+ 		goto out_inserted_sd;
+ 	}
  
- #ifdef CONFIG_BUG
- 	DEFINE(BUG_ENTRY_SIZE, sizeof(struct bug_entry));
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 2d13cea13954..1168e8b37e30 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -960,6 +960,7 @@ void update_vsyscall(struct timekeeper *tk)
- 	vdso_data->stamp_xtime_sec = xt.tv_sec;
- 	vdso_data->stamp_xtime_nsec = xt.tv_nsec;
- 	vdso_data->stamp_sec_fraction = frac_sec;
-+	vdso_data->hrtimer_res = hrtimer_resolution;
- 	smp_wmb();
- 	++(vdso_data->tb_update_count);
++	/*
++	 * Mark it private if we're creating the privroot
++	 * or something under it.
++	 */
++	if (IS_PRIVATE(dir) || dentry == REISERFS_SB(sb)->priv_root) {
++		inode->i_flags |= S_PRIVATE;
++		inode->i_opflags &= ~IOP_XATTR;
++	}
++
+ 	if (reiserfs_posixacl(inode->i_sb)) {
+ 		reiserfs_write_unlock(inode->i_sb);
+ 		retval = reiserfs_inherit_default_acl(th, dir, dentry, inode);
+@@ -2111,8 +2120,7 @@ int reiserfs_new_inode(struct reiserfs_transaction_handle *th,
+ 		reiserfs_warning(inode->i_sb, "jdm-13090",
+ 				 "ACLs aren't enabled in the fs, "
+ 				 "but vfs thinks they are!");
+-	} else if (IS_PRIVATE(dir))
+-		inode->i_flags |= S_PRIVATE;
++	}
+ 
+ 	if (security->name) {
+ 		reiserfs_write_unlock(inode->i_sb);
+diff --git a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
+index 97f3fc4fdd79..959a066b7bb0 100644
+--- a/fs/reiserfs/namei.c
++++ b/fs/reiserfs/namei.c
+@@ -377,10 +377,13 @@ static struct dentry *reiserfs_lookup(struct inode *dir, struct dentry *dentry,
+ 
+ 		/*
+ 		 * Propagate the private flag so we know we're
+-		 * in the priv tree
++		 * in the priv tree.  Also clear IOP_XATTR
++		 * since we don't have xattrs on xattr files.
+ 		 */
+-		if (IS_PRIVATE(dir))
++		if (IS_PRIVATE(dir)) {
+ 			inode->i_flags |= S_PRIVATE;
++			inode->i_opflags &= ~IOP_XATTR;
++		}
+ 	}
+ 	reiserfs_write_unlock(dir->i_sb);
+ 	if (retval == IO_ERROR) {
+diff --git a/fs/reiserfs/reiserfs.h b/fs/reiserfs/reiserfs.h
+index e5ca9ed79e54..726580114d55 100644
+--- a/fs/reiserfs/reiserfs.h
++++ b/fs/reiserfs/reiserfs.h
+@@ -1168,6 +1168,8 @@ static inline int bmap_would_wrap(unsigned bmap_nr)
+ 	return bmap_nr > ((1LL << 16) - 1);
  }
-diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
-index c8e6902cb01b..3306672f57a9 100644
---- a/arch/powerpc/kernel/vdso32/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
-@@ -154,12 +154,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
- 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
- 	bne	cr0,99f
  
-+	mflr	r12
-+  .cfi_register lr,r12
-+	bl	__get_datapage@local	/* get data page */
-+	lwz	r5, CLOCK_HRTIMER_RES(r3)
-+	mtlr	r12
- 	li	r3,0
- 	cmpli	cr0,r4,0
- 	crclr	cr0*4+so
- 	beqlr
--	lis	r5,CLOCK_REALTIME_RES@h
--	ori	r5,r5,CLOCK_REALTIME_RES@l
- 	stw	r3,TSPC32_TV_SEC(r4)
- 	stw	r5,TSPC32_TV_NSEC(r4)
- 	blr
-diff --git a/arch/powerpc/kernel/vdso64/gettimeofday.S b/arch/powerpc/kernel/vdso64/gettimeofday.S
-index 1f24e411af80..1c9a04703250 100644
---- a/arch/powerpc/kernel/vdso64/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso64/gettimeofday.S
-@@ -186,12 +186,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
- 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
- 	bne	cr0,99f
++extern const struct xattr_handler *reiserfs_xattr_handlers[];
++
+ /*
+  * this says about version of key of all items (but stat data) the
+  * object consists of
+diff --git a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+index d69b4ac0ae2f..3244037b1286 100644
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -2049,6 +2049,8 @@ static int reiserfs_fill_super(struct super_block *s, void *data, int silent)
+ 	if (replay_only(s))
+ 		goto error_unlocked;
  
-+	mflr	r12
-+  .cfi_register lr,r12
-+	bl	V_LOCAL_FUNC(__get_datapage)
-+	lwz	r5, CLOCK_HRTIMER_RES(r3)
-+	mtlr	r12
- 	li	r3,0
- 	cmpldi	cr0,r4,0
- 	crclr	cr0*4+so
- 	beqlr
--	lis	r5,CLOCK_REALTIME_RES@h
--	ori	r5,r5,CLOCK_REALTIME_RES@l
- 	std	r3,TSPC64_TV_SEC(r4)
- 	std	r5,TSPC64_TV_NSEC(r4)
- 	blr
++	s->s_xattr = reiserfs_xattr_handlers;
++
+ 	if (bdev_read_only(s->s_bdev) && !sb_rdonly(s)) {
+ 		SWARN(silent, s, "clm-7000",
+ 		      "Detected readonly device, marking FS readonly");
+diff --git a/fs/reiserfs/xattr.c b/fs/reiserfs/xattr.c
+index b5b26d8a192c..62b40df36c98 100644
+--- a/fs/reiserfs/xattr.c
++++ b/fs/reiserfs/xattr.c
+@@ -122,13 +122,13 @@ static struct dentry *open_xa_root(struct super_block *sb, int flags)
+ 	struct dentry *xaroot;
+ 
+ 	if (d_really_is_negative(privroot))
+-		return ERR_PTR(-ENODATA);
++		return ERR_PTR(-EOPNOTSUPP);
+ 
+ 	inode_lock_nested(d_inode(privroot), I_MUTEX_XATTR);
+ 
+ 	xaroot = dget(REISERFS_SB(sb)->xattr_root);
+ 	if (!xaroot)
+-		xaroot = ERR_PTR(-ENODATA);
++		xaroot = ERR_PTR(-EOPNOTSUPP);
+ 	else if (d_really_is_negative(xaroot)) {
+ 		int err = -ENODATA;
+ 
+@@ -619,6 +619,10 @@ int reiserfs_xattr_set(struct inode *inode, const char *name,
+ 	int error, error2;
+ 	size_t jbegin_count = reiserfs_xattr_nblocks(inode, buffer_size);
+ 
++	/* Check before we start a transaction and then do nothing. */
++	if (!d_really_is_positive(REISERFS_SB(inode->i_sb)->priv_root))
++		return -EOPNOTSUPP;
++
+ 	if (!(flags & XATTR_REPLACE))
+ 		jbegin_count += reiserfs_xattr_jcreate_nblocks(inode);
+ 
+@@ -841,8 +845,7 @@ ssize_t reiserfs_listxattr(struct dentry * dentry, char *buffer, size_t size)
+ 	if (d_really_is_negative(dentry))
+ 		return -EINVAL;
+ 
+-	if (!dentry->d_sb->s_xattr ||
+-	    get_inode_sd_version(d_inode(dentry)) == STAT_DATA_V1)
++	if (get_inode_sd_version(d_inode(dentry)) == STAT_DATA_V1)
+ 		return -EOPNOTSUPP;
+ 
+ 	dir = open_xa_dir(d_inode(dentry), XATTR_REPLACE);
+@@ -882,6 +885,7 @@ static int create_privroot(struct dentry *dentry)
+ 	}
+ 
+ 	d_inode(dentry)->i_flags |= S_PRIVATE;
++	d_inode(dentry)->i_opflags &= ~IOP_XATTR;
+ 	reiserfs_info(dentry->d_sb, "Created %s - reserved for xattr "
+ 		      "storage.\n", PRIVROOT_NAME);
+ 
+@@ -895,7 +899,7 @@ static int create_privroot(struct dentry *dentry) { return 0; }
+ #endif
+ 
+ /* Actual operations that are exported to VFS-land */
+-static const struct xattr_handler *reiserfs_xattr_handlers[] = {
++const struct xattr_handler *reiserfs_xattr_handlers[] = {
+ #ifdef CONFIG_REISERFS_FS_XATTR
+ 	&reiserfs_xattr_user_handler,
+ 	&reiserfs_xattr_trusted_handler,
+@@ -966,8 +970,10 @@ int reiserfs_lookup_privroot(struct super_block *s)
+ 	if (!IS_ERR(dentry)) {
+ 		REISERFS_SB(s)->priv_root = dentry;
+ 		d_set_d_op(dentry, &xattr_lookup_poison_ops);
+-		if (d_really_is_positive(dentry))
++		if (d_really_is_positive(dentry)) {
+ 			d_inode(dentry)->i_flags |= S_PRIVATE;
++			d_inode(dentry)->i_opflags &= ~IOP_XATTR;
++		}
+ 	} else
+ 		err = PTR_ERR(dentry);
+ 	inode_unlock(d_inode(s->s_root));
+@@ -996,7 +1002,6 @@ int reiserfs_xattr_init(struct super_block *s, int mount_flags)
+ 	}
+ 
+ 	if (d_really_is_positive(privroot)) {
+-		s->s_xattr = reiserfs_xattr_handlers;
+ 		inode_lock(d_inode(privroot));
+ 		if (!REISERFS_SB(s)->xattr_root) {
+ 			struct dentry *dentry;
+diff --git a/fs/reiserfs/xattr_acl.c b/fs/reiserfs/xattr_acl.c
+index aa9380bac196..05f666794561 100644
+--- a/fs/reiserfs/xattr_acl.c
++++ b/fs/reiserfs/xattr_acl.c
+@@ -320,10 +320,8 @@ reiserfs_inherit_default_acl(struct reiserfs_transaction_handle *th,
+ 	 * would be useless since permissions are ignored, and a pain because
+ 	 * it introduces locking cycles
+ 	 */
+-	if (IS_PRIVATE(dir)) {
+-		inode->i_flags |= S_PRIVATE;
++	if (IS_PRIVATE(inode))
+ 		goto apply_umask;
+-	}
+ 
+ 	err = posix_acl_create(dir, &inode->i_mode, &default_acl, &acl);
+ 	if (err)
 
