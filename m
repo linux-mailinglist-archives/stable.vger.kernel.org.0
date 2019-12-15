@@ -2,74 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 996C311FAAE
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 20:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC39811FABD
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 20:24:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726260AbfLOTLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 14:11:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
+        id S1726260AbfLOTYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 14:24:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726232AbfLOTLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Dec 2019 14:11:47 -0500
+        id S1726219AbfLOTYx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Dec 2019 14:24:53 -0500
 Received: from localhost (unknown [73.61.17.254])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 173E624679;
-        Sun, 15 Dec 2019 19:11:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03B722053B;
+        Sun, 15 Dec 2019 19:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576437107;
-        bh=0MNPR4xFYvIu4z9YqYR7S+W/f8sXJZfpGoWN1dW+N8E=;
+        s=default; t=1576437893;
+        bh=jlI68SyiidEi+/zZiwB+JmNx7CjJGQdKOYgNUVblV/M=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0XBIaE0Klr5S82ViLuMey6cZPF+5QGynO3/moIfbKdsgKV4r9lU2/tlK3gAcdEmg6
-         6UBFDZBz7K9IJ7w2fLhJFQO8m51jnS1kJfOLe4uX7KgSkZYeAdWlL430tDVLu7egyU
-         PjluZ/e4tj1Pc60gJXt9qmHIp4Dm35xAmU4eAtWY=
-Date:   Sun, 15 Dec 2019 14:11:45 -0500
+        b=oynQCPcQzOWeppLM90A9+KffmsLhaaUmUUPkT9oCSRFUlcHzN578rD0PCMWOvXPvX
+         hSFgGRI05MOKtfZc9NsvwQLIftV3UMxEHEN6yY1oK4w+mm9YYPOU2NLZU4wF1lkJkK
+         Eqq1rOYWbwZr5hLAIbRV72Rev7RgL/tADaqQOBMQ=
+Date:   Sun, 15 Dec 2019 14:24:51 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     krzk@kernel.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] pinctrl: samsung: Fix device node
- refcount leaks in S3C64xx" failed to apply to 4.9-stable tree
-Message-ID: <20191215191145.GS18043@sasha-vm>
-References: <1576416657206164@kroah.com>
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        tony@atomide.com, ulf.hansson@linaro.org
+Subject: Re: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora
+ quirks for mmc3 and" failed to apply to 4.14-stable tree
+Message-ID: <20191215192451.GT18043@sasha-vm>
+References: <157641677913676@kroah.com>
+ <B77B52F8-BD0E-41D1-ACEF-6440E9C59CED@goldelico.com>
+ <20191215174935.GA856758@kroah.com>
+ <20E4BE11-9846-4A94-9437-5C722D1E2B8E@goldelico.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1576416657206164@kroah.com>
+In-Reply-To: <20E4BE11-9846-4A94-9437-5C722D1E2B8E@goldelico.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 15, 2019 at 02:30:57PM +0100, gregkh@linuxfoundation.org wrote:
+On Sun, Dec 15, 2019 at 08:09:34PM +0100, H. Nikolaus Schaller wrote:
 >
->The patch below does not apply to the 4.9-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+>> Am 15.12.2019 um 18:49 schrieb Greg KH <gregkh@linuxfoundation.org>:
+>>
+>> On Sun, Dec 15, 2019 at 06:37:34PM +0100, H. Nikolaus Schaller wrote:
+>>> Please apply this before: https://patchwork.kernel.org/patch/11232473/
+>>
+>> Links are fun :(
 >
->thanks,
+>Sorry.
 >
->greg k-h
+>>
+>> What is the git commit id of the patch in Linus's tree to apply first?
+>> That I can work with.
 >
->------------------ original commit in Linus's tree ------------------
->
->From 7f028caadf6c37580d0f59c6c094ed09afc04062 Mon Sep 17 00:00:00 2001
->From: Krzysztof Kozlowski <krzk@kernel.org>
->Date: Mon, 5 Aug 2019 18:27:09 +0200
->Subject: [PATCH] pinctrl: samsung: Fix device node refcount leaks in S3C64xx
-> wakeup controller init
->
->In s3c64xx_eint_eint0_init() the for_each_child_of_node() loop is used
->with a break to find a matching child node.  Although each iteration of
->for_each_child_of_node puts the previous node, but early exit from loop
->misses it.  This leads to leak of device node.
->
->Cc: <stable@vger.kernel.org>
->Fixes: 61dd72613177 ("pinctrl: Add pinctrl-s3c64xx driver")
->Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+>4e8fad98171b omap: pdata-quirks: revert pandora specific gpiod additions
 
-Fixed up context and queued for 4.9 and 4.4.
+Already got it in, thanks!
 
 -- 
 Thanks,
