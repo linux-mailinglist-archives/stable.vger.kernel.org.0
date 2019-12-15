@@ -2,154 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF6F111F761
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 12:12:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEAD211F762
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 12:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726089AbfLOLMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 06:12:01 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54043 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726083AbfLOLMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 06:12:01 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id D933864E;
-        Sun, 15 Dec 2019 06:11:59 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 06:12:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=UN+053
-        f6iI9fJVLNs2Ud2FsYdILYaWI9nScPeQQihds=; b=o0pRtMCU8l6P2TpyH2UFoS
-        pUvEuZlZIhgzZMwUZ8nX6NkxX4VNDsM3xDQpqecsYw+QGOYeaVJT55JtFtgY8c0U
-        JjeSCvcZfWFGEadNK3Zlsf5+UxxbKAJbRbpb6FWElzuWq1B0ekXmytx2hBdXu+4D
-        xrbHjqF+fkv1IXLJbOrgflhDKpN8JdAO+s6IxqyjQgTeOsXPuMxcmt7UNTh9HkF6
-        SeKMv/K30bYTwmu3NXwL1vdfCwD8U/R/pIpFXTwUu7FzChEkXRyDswNW+aIXXWSp
-        /TtMzA1LY+eKlW81UIIPrnCPFrilXE8mRsnd7FPlqm5A3ewProFoO9+67oKGxPBA
-        ==
-X-ME-Sender: <xms:_xT2XTFgXzlxYKeYdxi3fhGTsz26JBeDzsjJ5divnkPmQCwjQF-cwQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgvdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:_xT2XUDu-eYCSUwJohdVqTjoWE7Gzjgw8VLWeXqPTc_W9sM8b2_tuQ>
-    <xmx:_xT2Xdw-785wNCI3Wb70LCkugJwoBehm6vu4DRo7nJHduchJGacUMA>
-    <xmx:_xT2XSezp_mWw6AU1kknUiytcaG3cG9pBATnZJhyNzXZntkAH3EYFg>
-    <xmx:_xT2XfufSwOwBgayeCYgyJGmaoCHbEVX_qEQyqPWJnYFIyS5KsBRTg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 63D6A80084;
-        Sun, 15 Dec 2019 06:11:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Btrfs: send, skip backreference walking for extents with many" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, atemu.main@gmail.com, dsterba@suse.com,
-        wqu@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 12:11:55 +0100
-Message-ID: <1576408315167108@kroah.com>
+        id S1726094AbfLOLMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 06:12:16 -0500
+Received: from 50-87-157-213.static.tentacle.fi ([213.157.87.50]:46010 "EHLO
+        bitmer.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726083AbfLOLMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Dec 2019 06:12:16 -0500
+Received: from dsl-hkibng31-54fab8-157.dhcp.inet.fi ([84.250.184.157] helo=[192.168.1.42])
+        by bitmer.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.84_2)
+        (envelope-from <jarkko.nikula@bitmer.com>)
+        id 1igRoq-0002q7-1j; Sun, 15 Dec 2019 13:12:12 +0200
+Subject: Re: [PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection
+ GPIO polarity
+From:   Jarkko Nikula <jarkko.nikula@bitmer.com>
+To:     Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Cc:     linux-omap@vger.kernel.org, stable@vger.kernel.org
+References: <20191116151651.7042-1-jarkko.nikula@bitmer.com>
+ <20191125111125.AF5D720836@mail.kernel.org>
+ <27e677de-4e45-7eef-45b5-796e29fd39c0@bitmer.com>
+Message-ID: <fa4993eb-9cfb-5976-ae3b-3e22a1ddcd69@bitmer.com>
+Date:   Sun, 15 Dec 2019 13:12:08 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <27e677de-4e45-7eef-45b5-796e29fd39c0@bitmer.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 11/25/19 8:27 PM, Jarkko Nikula wrote:
+> On 11/25/19 1:11 PM, Sasha Levin wrote:
+>> Hi,
+>>
+>> [This is an automated email]
+>>
+>> This commit has been processed because it contains a "Fixes:" tag,
+>> fixing commit: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards").
+>>
+>> The bot has tested the following trees: v5.3.12, v4.19.85, v4.14.155, v4.9.202, v4.4.202.
+>>
+>> v5.3.12: Build OK!
+>> v4.19.85: Build OK!
+>> v4.14.155: Build OK!
+>> v4.9.202: Failed to apply! Possible dependencies:
+>>     1a177cf72b3a ("ARM: dts: dra72-evm-tps65917: Add voltage supplies to usb_phy, mmc, dss")
+>>     45ea75eb92a4 ("ARM: dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"")
+>>     5d080aa30681 ("ARM: dts: dra72: Add separate dtsi for tps65917")
+>>     6eebfeb9cf0d ("ARM: dts: Add support for dra718-evm")
+>>     e9a05fbd21de ("ARM: dts: dra72-evm: Fix modelling of regulators")
+>>
+>> v4.4.202: Failed to apply! Possible dependencies:
+>>     12ca468306a2 ("ARM: dts: am57xx: cl-som-am57x: add dual EMAC support")
+>>     1a472e14ba08 ("ARM: dts: am57xx: cl-som-am57x: dts: add RTC support")
+>>     27ddd846cb25 ("ARM: dts: am57xx: cl-som-am57x: add USB support")
+>>     2c7cf1f48f36 ("ARM: dts: am57xx: cl-som-am57x: add EEPROM support")
+>>     2d47fc3b9801 ("ARM: dts: am57xx: cl-som-am57x: add touchscreen support")
+>>     317d15679a5e ("ARM: dts: dra72-evm: Mark uart1 rxd as wakeup capable")
+>>     387450fc882e ("ARM: dts: am57xx: cl-som-am57x: add basic module support")
+>>     3a1de8082405 ("ARM: dts: dra7xx: Fix compatible string for PCF8575 chip")
+>>     4424cd009648 ("ARM: dts: am57xx: cl-som-am57x: add analog audio support")
+>>     45ea75eb92a4 ("ARM: dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"")
+>>     488f270d90e1 ("ARM: dts: dra7: Fix NAND device nodes")
+>>     4e8603eff519 ("ARM: dts: omap: remove unneeded unit name for sound nodes")
+>>     6686f744df70 ("ARM: dts: DRA72-EVM: Add regulator-allow-bypass property for ldo1 and ldo2")
+>>     6cfec12f2545 ("ARM: dts: dra72-evm: Enable AFIFO use for McASP3")
+>>     6eebfeb9cf0d ("ARM: dts: Add support for dra718-evm")
+>>     8deb60f535fa ("ARM: dts: am57xx: cl-som-am57x: add eMMC support")
+>>     9255ea8472d2 ("ARM: dts: dra72-evm: Use DRA7XX_CORE_IOPAD pinmux macro")
+>>     a23fc1558487 ("ARM: dts: dra7x-evm: Provide NAND ready pin")
+>>     a4240d3af677 ("ARM: dts: Add support for dra72-evm rev C (SR2.0)")
+>>     a7cac713f90a ("ARM: dts: AM572x-IDK Initial Support")
+>>     cc2d681420d0 ("ARM: dts: am57xx: cl-som-am57x: add spi-flash support")
+>>     e1fdd060f08d ("ARM: dts: am57xx: sbc-am57x: add basic board support")
+>>     e9a05fbd21de ("ARM: dts: dra72-evm: Fix modelling of regulators")
+>>
+>>
+>> NOTE: The patch will not be queued to stable trees until it is upstream.
+>>
+>> How should we proceed with this patch?
+>>
+> Ah, it doesn't apply to v4.4 and v4.9 due the commit 45ea75eb92a4 ("ARM:
+> dts: omap*: Replace deprecated "vmmc_aux" with "vqmmc"") but that commit
+> doesn't apply either stable and probably even should not even if it would.
+> 
+> I believe best is me to submit a separate version for v4.4/v4.9.
+> 
+Interesting, went checking this again today. Actually both v4.4.202 and
+v4.9.206 work ok and independently of card detect polarity. So both -
+and + lines below work:
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+diff --git a/arch/arm/boot/dts/omap3-tao3530.dtsi
+b/arch/arm/boot/dts/omap3-tao3530.dtsi
+index dc80886b5329..e3dfba8b3efe 100644
+--- a/arch/arm/boot/dts/omap3-tao3530.dtsi
++++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
+@@ -225,7 +225,7 @@
+        pinctrl-0 = <&mmc1_pins>;
+        vmmc-supply = <&vmmc1>;
+        vmmc_aux-supply = <&vsim>;
+-       cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
++       cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
+        bus-width = <8>;
+ };
 
-thanks,
+Unfortunately I don't have time to dig deeper at the moment was there
+regression somewhere else like in TWL GPIO or MMC why card detection is
+always active in MMC point of view.
 
-greg k-h
+So it looks for now on there is no need to have separate version for
+v4.4/v4.9 from my patch.
 
------------------- original commit in Linus's tree ------------------
-
-From fd0ddbe2509568b00df364156f47561e9f469f15 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Wed, 30 Oct 2019 12:23:01 +0000
-Subject: [PATCH] Btrfs: send, skip backreference walking for extents with many
- references
-
-Backreference walking, which is used by send to figure if it can issue
-clone operations instead of write operations, can be very slow and use
-too much memory when extents have many references. This change simply
-skips backreference walking when an extent has more than 64 references,
-in which case we fallback to a write operation instead of a clone
-operation. This limit is conservative and in practice I observed no
-signicant slowdown with up to 100 references and still low memory usage
-up to that limit.
-
-This is a temporary workaround until there are speedups in the backref
-walking code, and as such it does not attempt to add extra interfaces or
-knobs to tweak the threshold.
-
-Reported-by: Atemu <atemu.main@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CAE4GHgkvqVADtS4AzcQJxo0Q1jKQgKaW3JGp3SGdoinVo=C9eQ@mail.gmail.com/T/#me55dc0987f9cc2acaa54372ce0492c65782be3fa
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index cbf4909f5cd9..ae2db5eb1549 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -24,6 +24,14 @@
- #include "transaction.h"
- #include "compression.h"
- 
-+/*
-+ * Maximum number of references an extent can have in order for us to attempt to
-+ * issue clone operations instead of write operations. This currently exists to
-+ * avoid hitting limitations of the backreference walking code (taking a lot of
-+ * time and using too much memory for extents with large number of references).
-+ */
-+#define SEND_MAX_EXTENT_REFS	64
-+
- /*
-  * A fs_path is a helper to dynamically build path names with unknown size.
-  * It reallocates the internal buffer on demand.
-@@ -1310,6 +1318,7 @@ static int find_extent_clone(struct send_ctx *sctx,
- 	struct clone_root *cur_clone_root;
- 	struct btrfs_key found_key;
- 	struct btrfs_path *tmp_path;
-+	struct btrfs_extent_item *ei;
- 	int compressed;
- 	u32 i;
- 
-@@ -1357,7 +1366,6 @@ static int find_extent_clone(struct send_ctx *sctx,
- 	ret = extent_from_logical(fs_info, disk_byte, tmp_path,
- 				  &found_key, &flags);
- 	up_read(&fs_info->commit_root_sem);
--	btrfs_release_path(tmp_path);
- 
- 	if (ret < 0)
- 		goto out;
-@@ -1366,6 +1374,21 @@ static int find_extent_clone(struct send_ctx *sctx,
- 		goto out;
- 	}
- 
-+	ei = btrfs_item_ptr(tmp_path->nodes[0], tmp_path->slots[0],
-+			    struct btrfs_extent_item);
-+	/*
-+	 * Backreference walking (iterate_extent_inodes() below) is currently
-+	 * too expensive when an extent has a large number of references, both
-+	 * in time spent and used memory. So for now just fallback to write
-+	 * operations instead of clone operations when an extent has more than
-+	 * a certain amount of references.
-+	 */
-+	if (btrfs_extent_refs(tmp_path->nodes[0], ei) > SEND_MAX_EXTENT_REFS) {
-+		ret = -ENOENT;
-+		goto out;
-+	}
-+	btrfs_release_path(tmp_path);
-+
- 	/*
- 	 * Setup the clone roots.
- 	 */
-
+-- 
+Jarkko
