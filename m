@@ -2,86 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E083211FAA7
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 20:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2413311FAAD
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 20:09:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726219AbfLOTF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 14:05:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59774 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726146AbfLOTF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 15 Dec 2019 14:05:56 -0500
-Received: from localhost (unknown [73.61.17.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC313206D8;
-        Sun, 15 Dec 2019 19:05:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576436756;
-        bh=/g5i5BqbdNr4y/kxFB2hRDSicqfnqyEo/tkY+k+4Eok=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vLM1GTAorvxYXKUEKwoazgn/xAc4rXSNVywQw0ANYlnPPmv68m1MopX9eTVURQL1w
-         uAd7QYB2YDToO6/pPsS0dz4Bk/hxMhJFZAvbjbjjgMdb27t2ydayfymkqDmL48kofl
-         yFYkqnmaaEDibUtoluYoMmohEV98EfVH6+4a25B8=
-Date:   Sun, 15 Dec 2019 14:05:54 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     jarkko.nikula@bitmer.com, stable@vger.kernel.org, tony@atomide.com
-Subject: Re: FAILED: patch "[PATCH] ARM: dts: omap3-tao3530: Fix incorrect
- MMC card detection" failed to apply to 4.9-stable tree
-Message-ID: <20191215190554.GR18043@sasha-vm>
-References: <157641681111754@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <157641681111754@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726292AbfLOTJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 14:09:39 -0500
+Received: from mo4-p00-ob.smtp.rzone.de ([85.215.255.25]:21583 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726219AbfLOTJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 14:09:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576436977;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=NuwJqjKb01zSnfjHob0wGTDJJYSovgaaXZgXso59XUY=;
+        b=F5wM5aj1v/SbwKuCe059pPnntoBV5AP9mGCwvNV5faRsfjV4bIESZZy92G6Flw6PeQ
+        H0I4eMeup9yZhLhrpv3kMQfqh1A12qa7MituAyQVCZGxqPTFwKAtQU+U0hCtGok+BAE2
+        oR3aa1vWRw/X1rpiAmox9pCN1HWhd3zfW6eoe5Bg47UsuXR6/fDY+5TKQEc0g+fWKiIb
+        6fj5i+Hw4W06vn/QMxgCeFzsXWcjDJ5qbE7f4uXPJmTyX57F5gNYhAT+Dy49PyLref8Z
+        3Ny4wbl0SBKWAxcheQCb8GQK9GTyK51AlUhA4+zOQMysR2Nya730VeB/noPkqj+kJLT7
+        BvQA==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGH/PgwDGiVw=="
+X-RZG-CLASS-ID: mo00
+Received: from imac.fritz.box
+        by smtp.strato.de (RZmta 46.0.7 DYNA|AUTH)
+        with ESMTPSA id i03ca8vBFJ9YEDb
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+        (Client did not present a certificate);
+        Sun, 15 Dec 2019 20:09:34 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Subject: Re: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and" failed to apply to 4.14-stable tree
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <20191215174935.GA856758@kroah.com>
+Date:   Sun, 15 Dec 2019 20:09:34 +0100
+Cc:     stable@vger.kernel.org, tony@atomide.com, ulf.hansson@linaro.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <20E4BE11-9846-4A94-9437-5C722D1E2B8E@goldelico.com>
+References: <157641677913676@kroah.com> <B77B52F8-BD0E-41D1-ACEF-6440E9C59CED@goldelico.com> <20191215174935.GA856758@kroah.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+X-Mailer: Apple Mail (2.3124)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 15, 2019 at 02:33:31PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.9-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 287897f9aaa2ad1c923d9875914f57c4dc9159c8 Mon Sep 17 00:00:00 2001
->From: Jarkko Nikula <jarkko.nikula@bitmer.com>
->Date: Sat, 16 Nov 2019 17:16:51 +0200
->Subject: [PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection
-> GPIO polarity
->
->The MMC card detection GPIO polarity is active low on TAO3530, like in many
->other similar boards. Now the card is not detected and it is unable to
->mount rootfs from an SD card.
->
->Fix this by using the correct polarity.
->
->This incorrect polarity was defined already in the commit 30d95c6d7092
->("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
->kernel and later changed to use defined GPIO constants in v4.4 kernel by
->the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
->cell for OMAP2+ boards").
->
->While the latter commit did not introduce the issue I'm marking it with
->Fixes tag due the v4.4 kernels still being maintained.
->
->Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
->Cc: linux-stable <stable@vger.kernel.org> # 4.4+
->Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
->Signed-off-by: Tony Lindgren <tony@atomide.com>
 
-Fixed up context and queued for 4.9 and 4.4.
+> Am 15.12.2019 um 18:49 schrieb Greg KH <gregkh@linuxfoundation.org>:
+> 
+> On Sun, Dec 15, 2019 at 06:37:34PM +0100, H. Nikolaus Schaller wrote:
+>> Please apply this before: https://patchwork.kernel.org/patch/11232473/
+> 
+> Links are fun :(
 
--- 
-Thanks,
-Sasha
+Sorry.
+
+> 
+> What is the git commit id of the patch in Linus's tree to apply first?
+> That I can work with.
+
+4e8fad98171b omap: pdata-quirks: revert pandora specific gpiod additions
+
+BR and thanks,
+Nikolaus Schaller
