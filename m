@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7523B11F805
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:33:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC50A11F807
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726136AbfLONdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 08:33:12 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33261 "EHLO
+        id S1726148AbfLONde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 08:33:34 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:42309 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726103AbfLONdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:33:11 -0500
+        by vger.kernel.org with ESMTP id S1726103AbfLONdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:33:33 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DC1C622233;
-        Sun, 15 Dec 2019 08:33:10 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:33:10 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id A5E5922139;
+        Sun, 15 Dec 2019 08:33:32 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:33:32 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=lyLsRo
-        wNkujFPorKmY8h8nZj7zdykf45PwBNfrJJchA=; b=vIaST9WsDv+p6287yfl/1A
-        VDBj9NucLWAO/wYaFiEBHFL2VMYi2gZQWA1lrl6bBNb0udWeSEmAunuPytXV0D2f
-        O1QUyKGxj4rZALu7XRWl2H8OlfQdj64ZLQjlLabjdYnuf0CetvfAmZc5PII+ybKh
-        8Y7595K4b6knSZyTPOlM6qSa9KzD5JnKVnpH7/CX3lSDPrJxXAqu3R5wzj9GPxNr
-        gMoDmhfi4gAlVY25GeI72y8K8QrijbXT3mOxbdtlrwCK12CkhxKud+LmPjMMUnSZ
-        94YgKpPAdC1yaFTlpFIY1SGDn5rDwXff28JXd/nD1ylEI18BSdWCwaqhNv6Y/KUQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=eQFurq
+        v0IKvM+hneXd4SHWnkJURmCAI2GDepmVDF8F0=; b=JV6r5GZTrfb+/0PnZ2UHMB
+        ch3XBT4h26OtBH2EQr7TzBTwDMHc9/Kfy+A5q7jS4Z6RLpAVMKTtizYABOMPvA3q
+        AhaT3lV+lejCHzvKsVn2wyLeJx67fLogotEU+ZRoHiCRPK1GsfGPopGte4YkBu+o
+        paBCJzNMLymguDtrXAWcNllOKfepyrn0j/knaK49zSHBRTf5hF3D9JqZ4Iv9xUwh
+        vLJbn9n1g35yLjIvONZhNF1gRh3j0Kr3uj+FBoWr6xNHt4OL49PBdRPzmBtK/Dua
+        00xl0sRm3GjaUYdk/n6i6D22cNVDRHlIV6jt0XEtP4SgbLxANdGyDUm5Vb/7484A
         ==
-X-ME-Sender: <xms:Fjb2XdsKwWWdsC3fI7zwjzXlZGrZmFpNHUKvrCKgopjIFXXwNHjIsg>
+X-ME-Sender: <xms:LDb2XRlWQk1-K4NWztFNrTJNvNu_TyJI22l0vAlGOS4JvuPclDGb0Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:Fjb2Xf9DR-ostTgm0X7cQqdp9d6EnB9seGmQ4y6M6ZtMEEYYakMQgQ>
-    <xmx:Fjb2XVA6Nss8ApuIRPpHl7T-SqpkT9TStY_pVUzoY3tAT2bDZVqdFA>
-    <xmx:Fjb2Xbz-t85Zq_9FG7JpQ5gs7mgigWN6Qikl9bRFKFi2WgPevU-2RQ>
-    <xmx:Fjb2XXlY9gBtQ4w5XSJl-XqQXCr0w4CgF1MYd_LDtpkM37gomjkmZg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgephe
+X-ME-Proxy: <xmx:LDb2Xap7EZA8HHd1dwyUyGcY23pZgwY5-aOQlVckCD_WTCmQMHDxCg>
+    <xmx:LDb2XYjiJpp8OF2zDIkJsHgj5kE8pWprTCCOgVvGYK7kwNXUCn89EQ>
+    <xmx:LDb2XciqTK5byvPgS8923xUu1JEFQRp5CLNYTSWPNauPU99suwiwlA>
+    <xmx:LDb2XcTx2o7MdAyly2Cpn_C0CHF84b2ly8WnZDJ_crnyo0NuodRAWA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6139480063;
-        Sun, 15 Dec 2019 08:33:10 -0500 (EST)
-Subject: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and" failed to apply to 4.9-stable tree
-To:     hns@goldelico.com, stable@vger.kernel.org, tony@atomide.com,
-        ulf.hansson@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0B7DA30600DC;
+        Sun, 15 Dec 2019 08:33:31 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection" failed to apply to 4.4-stable tree
+To:     jarkko.nikula@bitmer.com, stable@vger.kernel.org, tony@atomide.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 14:32:59 +0100
-Message-ID: <1576416779222224@kroah.com>
+Date:   Sun, 15 Dec 2019 14:33:30 +0100
+Message-ID: <1576416810187118@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,136 +67,43 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2398c41d64321e62af54424fd399964f3d48cdc2 Mon Sep 17 00:00:00 2001
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Date: Thu, 7 Nov 2019 11:30:39 +0100
-Subject: [PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and
- wl1251
+From 287897f9aaa2ad1c923d9875914f57c4dc9159c8 Mon Sep 17 00:00:00 2001
+From: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Date: Sat, 16 Nov 2019 17:16:51 +0200
+Subject: [PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection
+ GPIO polarity
 
-With a wl1251 child node of mmc3 in the device tree decoded
-in omap_hsmmc.c to handle special wl1251 initialization, we do
-no longer need to instantiate the mmc3 through pdata quirks.
+The MMC card detection GPIO polarity is active low on TAO3530, like in many
+other similar boards. Now the card is not detected and it is unable to
+mount rootfs from an SD card.
 
-We also can remove the wlan regulator and reset/interrupt definitions
-and do them through device tree.
+Fix this by using the correct polarity.
 
-Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: <stable@vger.kernel.org> # v4.7+
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This incorrect polarity was defined already in the commit 30d95c6d7092
+("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
+kernel and later changed to use defined GPIO constants in v4.4 kernel by
+the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
+cell for OMAP2+ boards").
 
-diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
-index 800a602c06ec..1b7cf81ff035 100644
---- a/arch/arm/mach-omap2/pdata-quirks.c
-+++ b/arch/arm/mach-omap2/pdata-quirks.c
-@@ -310,108 +310,15 @@ static void __init omap3_logicpd_torpedo_init(void)
- }
- 
- /* omap3pandora legacy devices */
--#define PANDORA_WIFI_IRQ_GPIO		21
--#define PANDORA_WIFI_NRESET_GPIO	23
- 
- static struct platform_device pandora_backlight = {
- 	.name	= "pandora-backlight",
- 	.id	= -1,
+While the latter commit did not introduce the issue I'm marking it with
+Fixes tag due the v4.4 kernels still being maintained.
+
+Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
+Cc: linux-stable <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+
+diff --git a/arch/arm/boot/dts/omap3-tao3530.dtsi b/arch/arm/boot/dts/omap3-tao3530.dtsi
+index a7a04d78deeb..f24e2326cfa7 100644
+--- a/arch/arm/boot/dts/omap3-tao3530.dtsi
++++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
+@@ -222,7 +222,7 @@ &mmc1 {
+ 	pinctrl-0 = <&mmc1_pins>;
+ 	vmmc-supply = <&vmmc1>;
+ 	vqmmc-supply = <&vsim>;
+-	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
++	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
+ 	bus-width = <8>;
  };
- 
--static struct regulator_consumer_supply pandora_vmmc3_supply[] = {
--	REGULATOR_SUPPLY("vmmc", "omap_hsmmc.2"),
--};
--
--static struct regulator_init_data pandora_vmmc3 = {
--	.constraints = {
--		.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
--	},
--	.num_consumer_supplies	= ARRAY_SIZE(pandora_vmmc3_supply),
--	.consumer_supplies	= pandora_vmmc3_supply,
--};
--
--static struct fixed_voltage_config pandora_vwlan = {
--	.supply_name		= "vwlan",
--	.microvolts		= 1800000, /* 1.8V */
--	.gpio			= PANDORA_WIFI_NRESET_GPIO,
--	.startup_delay		= 50000, /* 50ms */
--	.enable_high		= 1,
--	.init_data		= &pandora_vmmc3,
--};
--
--static struct platform_device pandora_vwlan_device = {
--	.name		= "reg-fixed-voltage",
--	.id		= 1,
--	.dev = {
--		.platform_data = &pandora_vwlan,
--	},
--};
--
--static void pandora_wl1251_init_card(struct mmc_card *card)
--{
--	/*
--	 * We have TI wl1251 attached to MMC3. Pass this information to
--	 * SDIO core because it can't be probed by normal methods.
--	 */
--	if (card->type == MMC_TYPE_SDIO || card->type == MMC_TYPE_SD_COMBO) {
--		card->quirks |= MMC_QUIRK_NONSTD_SDIO;
--		card->cccr.wide_bus = 1;
--		card->cis.vendor = 0x104c;
--		card->cis.device = 0x9066;
--		card->cis.blksize = 512;
--		card->cis.max_dtr = 24000000;
--		card->ocr = 0x80;
--	}
--}
--
--static struct omap2_hsmmc_info pandora_mmc3[] = {
--	{
--		.mmc		= 3,
--		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_POWER_OFF_CARD,
--		.gpio_cd	= -EINVAL,
--		.gpio_wp	= -EINVAL,
--		.init_card	= pandora_wl1251_init_card,
--	},
--	{}	/* Terminator */
--};
--
--static void __init pandora_wl1251_init(void)
--{
--	struct wl1251_platform_data pandora_wl1251_pdata;
--	int ret;
--
--	memset(&pandora_wl1251_pdata, 0, sizeof(pandora_wl1251_pdata));
--
--	pandora_wl1251_pdata.power_gpio = -1;
--
--	ret = gpio_request_one(PANDORA_WIFI_IRQ_GPIO, GPIOF_IN, "wl1251 irq");
--	if (ret < 0)
--		goto fail;
--
--	pandora_wl1251_pdata.irq = gpio_to_irq(PANDORA_WIFI_IRQ_GPIO);
--	if (pandora_wl1251_pdata.irq < 0)
--		goto fail_irq;
--
--	pandora_wl1251_pdata.use_eeprom = true;
--	ret = wl1251_set_platform_data(&pandora_wl1251_pdata);
--	if (ret < 0)
--		goto fail_irq;
--
--	return;
--
--fail_irq:
--	gpio_free(PANDORA_WIFI_IRQ_GPIO);
--fail:
--	pr_err("wl1251 board initialisation failed\n");
--}
--
- static void __init omap3_pandora_legacy_init(void)
- {
- 	platform_device_register(&pandora_backlight);
--	platform_device_register(&pandora_vwlan_device);
--	omap_hsmmc_init(pandora_mmc3);
--	omap_hsmmc_late_init(pandora_mmc3);
--	pandora_wl1251_init();
- }
- #endif /* CONFIG_ARCH_OMAP3 */
  
 
