@@ -2,66 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2413311FAAD
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 20:09:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 996C311FAAE
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 20:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726292AbfLOTJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 14:09:39 -0500
-Received: from mo4-p00-ob.smtp.rzone.de ([85.215.255.25]:21583 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726219AbfLOTJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 14:09:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576436977;
-        s=strato-dkim-0002; d=goldelico.com;
-        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=NuwJqjKb01zSnfjHob0wGTDJJYSovgaaXZgXso59XUY=;
-        b=F5wM5aj1v/SbwKuCe059pPnntoBV5AP9mGCwvNV5faRsfjV4bIESZZy92G6Flw6PeQ
-        H0I4eMeup9yZhLhrpv3kMQfqh1A12qa7MituAyQVCZGxqPTFwKAtQU+U0hCtGok+BAE2
-        oR3aa1vWRw/X1rpiAmox9pCN1HWhd3zfW6eoe5Bg47UsuXR6/fDY+5TKQEc0g+fWKiIb
-        6fj5i+Hw4W06vn/QMxgCeFzsXWcjDJ5qbE7f4uXPJmTyX57F5gNYhAT+Dy49PyLref8Z
-        3Ny4wbl0SBKWAxcheQCb8GQK9GTyK51AlUhA4+zOQMysR2Nya730VeB/noPkqj+kJLT7
-        BvQA==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGH/PgwDGiVw=="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-        by smtp.strato.de (RZmta 46.0.7 DYNA|AUTH)
-        with ESMTPSA id i03ca8vBFJ9YEDb
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-        Sun, 15 Dec 2019 20:09:34 +0100 (CET)
-Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and" failed to apply to 4.14-stable tree
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <20191215174935.GA856758@kroah.com>
-Date:   Sun, 15 Dec 2019 20:09:34 +0100
-Cc:     stable@vger.kernel.org, tony@atomide.com, ulf.hansson@linaro.org
-Content-Transfer-Encoding: 7bit
-Message-Id: <20E4BE11-9846-4A94-9437-5C722D1E2B8E@goldelico.com>
-References: <157641677913676@kroah.com> <B77B52F8-BD0E-41D1-ACEF-6440E9C59CED@goldelico.com> <20191215174935.GA856758@kroah.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-X-Mailer: Apple Mail (2.3124)
+        id S1726260AbfLOTLs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 14:11:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726232AbfLOTLr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Dec 2019 14:11:47 -0500
+Received: from localhost (unknown [73.61.17.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 173E624679;
+        Sun, 15 Dec 2019 19:11:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576437107;
+        bh=0MNPR4xFYvIu4z9YqYR7S+W/f8sXJZfpGoWN1dW+N8E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0XBIaE0Klr5S82ViLuMey6cZPF+5QGynO3/moIfbKdsgKV4r9lU2/tlK3gAcdEmg6
+         6UBFDZBz7K9IJ7w2fLhJFQO8m51jnS1kJfOLe4uX7KgSkZYeAdWlL430tDVLu7egyU
+         PjluZ/e4tj1Pc60gJXt9qmHIp4Dm35xAmU4eAtWY=
+Date:   Sun, 15 Dec 2019 14:11:45 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     krzk@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] pinctrl: samsung: Fix device node
+ refcount leaks in S3C64xx" failed to apply to 4.9-stable tree
+Message-ID: <20191215191145.GS18043@sasha-vm>
+References: <1576416657206164@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1576416657206164@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Dec 15, 2019 at 02:30:57PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.9-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 7f028caadf6c37580d0f59c6c094ed09afc04062 Mon Sep 17 00:00:00 2001
+>From: Krzysztof Kozlowski <krzk@kernel.org>
+>Date: Mon, 5 Aug 2019 18:27:09 +0200
+>Subject: [PATCH] pinctrl: samsung: Fix device node refcount leaks in S3C64xx
+> wakeup controller init
+>
+>In s3c64xx_eint_eint0_init() the for_each_child_of_node() loop is used
+>with a break to find a matching child node.  Although each iteration of
+>for_each_child_of_node puts the previous node, but early exit from loop
+>misses it.  This leads to leak of device node.
+>
+>Cc: <stable@vger.kernel.org>
+>Fixes: 61dd72613177 ("pinctrl: Add pinctrl-s3c64xx driver")
+>Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-> Am 15.12.2019 um 18:49 schrieb Greg KH <gregkh@linuxfoundation.org>:
-> 
-> On Sun, Dec 15, 2019 at 06:37:34PM +0100, H. Nikolaus Schaller wrote:
->> Please apply this before: https://patchwork.kernel.org/patch/11232473/
-> 
-> Links are fun :(
+Fixed up context and queued for 4.9 and 4.4.
 
-Sorry.
-
-> 
-> What is the git commit id of the patch in Linus's tree to apply first?
-> That I can work with.
-
-4e8fad98171b omap: pdata-quirks: revert pandora specific gpiod additions
-
-BR and thanks,
-Nikolaus Schaller
+-- 
+Thanks,
+Sasha
