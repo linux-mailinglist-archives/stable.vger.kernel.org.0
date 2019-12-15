@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D0D411F988
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:11:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 864DB11F98A
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726135AbfLORLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 12:11:33 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:42167 "EHLO
+        id S1726422AbfLORLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 12:11:39 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:52123 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726130AbfLORLc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:11:32 -0500
+        by vger.kernel.org with ESMTP id S1726130AbfLORLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:11:39 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DB6A5221F3;
-        Sun, 15 Dec 2019 12:11:31 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 7E968222E3;
+        Sun, 15 Dec 2019 12:11:38 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 12:11:31 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 12:11:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=U4FMsQ
-        Zb/M1tfWjNnn1ZXJCaHMc2q68tU3Q306QznSA=; b=GVm8r70G3lReZ7LPPuKKxg
-        nW0H+5CabrrtTMaDcXQ1P5evf3pXJfAHJGEemfPuqnTmrjnIbiDcqcetBspcOb2S
-        /eZi+zPTiC1i67fr22y4njO04IlnvIb2CYvzVtxlTnP3PSj5fWoIHRFz5nr4fckz
-        2hZR+aAE4dz7Ywv4e3l88VHtAcAIYbqIhndnL//Kz83l9DvKmWDIHcwfmWQpTwHw
-        5YnAWDdT+yfAoIOxRjrta6v2UCeofbwRsffijMKwdXfBuM+pQAQBwIn0hTxs30BQ
-        E3+kXRKbF8jdVVp7GRF0iO6uOxbgpPdQHIF7kXjPj6/qITn1kXAEorMv98phyFpg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=lHYr3F
+        5NAhJTnTc3OM6RgyNYaWMnvsEnNoz8rv7wBgc=; b=Ipjs9lq4mko/CoNW8zg5AR
+        9RTdzgwAl6HbDML//1wDePJ6IdXwIWRsmh9LR2D274BDCyxcHmr1nixUp1gnOsx9
+        BDsl8GChHVrEtLs+mQOznqQFCZESD3ms/j7FghxK/FtYou5J4Pm+YXx9qRmGP+zx
+        GYkVSsYjbz6O5XUbfTUHZy7mFLWQ1ObacYScgfLzlPeOLENbcAMnepCWqkUUTkmo
+        sKH4I0NNomiwSCftQn/BlmhLVf50bm8YyXjDbMbFah/UjYhs3JIkyFE2WT9gHsOV
+        SLnnNnKEDY9RiN05mfhjz7YNomQ0L5v8UE+jLSctWETKbQBt3xPQzYgOuswJRqxQ
         ==
-X-ME-Sender: <xms:Q2n2XbcV2fGzJPllyv_u799iMzUPu-DS0TtTYY104zDOQK0gPrJUZQ>
+X-ME-Sender: <xms:Smn2XeMFPMqg-erx59nxb-DPLHTpcmY8qMajSeHlN3Q5x4zOw7Or7Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedguddttdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-    necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Q2n2XVeeyVq19Pps38I3iLzE5MqAshV3zIuY9k5gAfAYNeqoGi4Zsg>
-    <xmx:Q2n2XfiB-ffM5zYZOBXTiyb37zShDKzF32gipe_ECOmXU9WisgDV3Q>
-    <xmx:Q2n2XRQwoK8R-LTL5BmYQZaCsAqAasjSdZyES66qzoN7GgyUaXs1rQ>
-    <xmx:Q2n2XZOY492hNzlPl9fnruFtZsUIhOm-ASe6WP8XUSRyEsvFuGTqjQ>
+    necuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:Smn2XUU0CZ5U26_DA19AASS6tsomIubaxbq-MxvEM2xUW_40YJnTfg>
+    <xmx:Smn2XflmbbuKDXSaWrjBUHZSK1I3GLVzADxSPR9uLENenlCGRr16Vg>
+    <xmx:Smn2XUvLEBFTmG3dtcoUIx2SD22OYZxdGpRluxbBWQrRtC607_zL3Q>
+    <xmx:Smn2XRowDcoE5_Bu0v2GW8q9LUt7xEtWXcZkQ-IReGycmc3CPMgcbQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E948A30600AB;
-        Sun, 15 Dec 2019 12:11:30 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc: Avoid clang warnings around setjmp and longjmp" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2067D30600AB;
+        Sun, 15 Dec 2019 12:11:38 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc: Avoid clang warnings around setjmp and longjmp" failed to apply to 4.19-stable tree
 To:     natechancellor@gmail.com, mpe@ellerman.id.au,
         ndesaulniers@google.com, segher@kernel.crashing.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 18:11:28 +0100
-Message-ID: <1576429888117116@kroah.com>
+Date:   Sun, 15 Dec 2019 18:11:29 +0100
+Message-ID: <157642988918234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
