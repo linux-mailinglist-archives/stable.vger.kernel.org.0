@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBC0511F6F3
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C8211F6F4
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:25:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726050AbfLOJYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 04:24:24 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:36819 "EHLO
+        id S1726083AbfLOJZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 04:25:29 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:51897 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726078AbfLOJYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 04:24:24 -0500
+        by vger.kernel.org with ESMTP id S1726081AbfLOJZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 04:25:29 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id CC8156A5;
-        Sun, 15 Dec 2019 04:24:22 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id EF52B6A2;
+        Sun, 15 Dec 2019 04:25:27 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:24:23 -0500
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:25:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mVPWxh
-        IAA29VhJLnXkmYmB6wJdA8jmdvLON8bOKRmxE=; b=s4oQ6ngO9IbO50JKrWGLx2
-        wYC+ZvX6asia/IgUgqnjKZQjnjvsvz3k7g7T3kyeJ2fHFZMFvDenj7BKu3iN6jDh
-        c4OC7aul2S3fe8fLfSExskAEliKjmqFR21C+iX4cYM3UeXBR6BJsFMyY8WWub1i4
-        zo48HWe1VMftyZaJMGSsrE5qmhpvJPCuMWu/J+YnENuS5DZ2fK782hznJXF5pAGb
-        U0YD2+6nPvihaOTz0rgC1+s4oE1JI1IPuWzuJee0bRHZe+1TTVEYjMdS31NZYDSP
-        /YMJbCuM08Pj8ouoHrolGuM9FcxiRDlIqFYD18rBTKZewYIxPh/kAmRAqcCSsrMA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=b7oj9F
+        rb49RhDrk+SlLv3Dtq8lrxnMl2GUpWL9TBuOY=; b=FAjbnE0p/IqQ76eCt41E1b
+        hDURZCn6eUag9XQ1LF3CBXTXyxoQJEPeiBznGxcDBNGO7YyErP6jiQDhBcc21e5G
+        FtPzJqLluyMHZlrwmEZrKC8A/pv2nI8qB7f4TFftHu8hlPw1xf+WEQWfzU1Fc945
+        1/CehTzqvrLbLcSnL1Rr2hq5xTB9RgPSzUvh1w6sOJjMeihCd4xwOQ8/EwgCHNIA
+        yTTa5wZR+qs+Zr7V79BvhqWkHv01r7Lv09q9Hks25lVXqv7YSdgi60iHxqUgfgly
+        hOyjr/gNanI+Mb+13srClZbnbSmQyR/KeDUyzW24yRid8eO3+CORXT0WdesqmxBA
         ==
-X-ME-Sender: <xms:xvv1XaFAxNnznalXsFlgoRizX9t0Scbg-fCzdpV1f9DlNvCXvSMGRw>
+X-ME-Sender: <xms:B_z1XQXW5kEDUjm_prSTV0iKJU5ioJNmpLlzogR06Da9e5NrLy-jQA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgtdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:xvv1XYB2tkpHEHzLFF7z5Lc5tqYqCvONFRVOU-quECHxpMtrRDOaAA>
-    <xmx:xvv1XYBXFXai31p_mOEs6FButQ22bNtXDToOMnSjSsSBYAajHLwIeg>
-    <xmx:xvv1XeM0ebtN9wvbaAhHRP1gfrT3e95KWT-FLyR3VBou16pJvmpuhQ>
-    <xmx:xvv1XbiCiijCdayeVHa5NBUZ1NcWD2EDrm1O4HVGHfp8w5P-EiuIew>
+    ucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:B_z1XbifwA_02KUp14hFk-Kao-QSq_JLkN0ytacBdcfffKueeIQgZg>
+    <xmx:B_z1Xa384x1PZ1KUcxZUFDMFfOOXbQuIE3EGMPp3-QATheGiuCvx2w>
+    <xmx:B_z1Xd0MBcaKzQgN2_XzgHxWMnRppB0cOTXBq66zww_PvH9ZtQJz-A>
+    <xmx:B_z1XdU0YKaKVQuMbvDQL2anrMGwSo2bFE7QT46prscjdHSiVNU3Rw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1747C30600AB;
-        Sun, 15 Dec 2019 04:24:21 -0500 (EST)
-Subject: FAILED: patch "[PATCH] usb: xhci: only set D3hot for pci device" failed to apply to 4.4-stable tree
-To:     henryl@nvidia.com, gregkh@linuxfoundation.org,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 35F7830600AB;
+        Sun, 15 Dec 2019 04:25:27 -0500 (EST)
+Subject: FAILED: patch "[PATCH] xhci: Fix memory leak in xhci_add_in_port()" failed to apply to 4.14-stable tree
+To:     mika.westerberg@linux.intel.com, gregkh@linuxfoundation.org,
         mathias.nyman@linux.intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 10:24:12 +0100
-Message-ID: <157640185211541@kroah.com>
+Date:   Sun, 15 Dec 2019 10:25:25 +0100
+Message-ID: <157640192510189@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,90 +69,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f2c710f7dca8457e88b4ac9de2060f011254f9dd Mon Sep 17 00:00:00 2001
-From: Henry Lin <henryl@nvidia.com>
-Date: Wed, 11 Dec 2019 16:20:04 +0200
-Subject: [PATCH] usb: xhci: only set D3hot for pci device
+From ce91f1a43b37463f517155bdfbd525eb43adbd1a Mon Sep 17 00:00:00 2001
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Date: Wed, 11 Dec 2019 16:20:02 +0200
+Subject: [PATCH] xhci: Fix memory leak in xhci_add_in_port()
 
-Xhci driver cannot call pci_set_power_state() on non-pci xhci host
-controllers. For example, NVIDIA Tegra XHCI host controller which acts
-as platform device with XHCI_SPURIOUS_WAKEUP quirk set in some platform
-hits this issue during shutdown.
+When xHCI is part of Alpine or Titan Ridge Thunderbolt controller and
+the xHCI device is hot-removed as a result of unplugging a dock for
+example, the driver leaks memory it allocates for xhci->usb3_rhub.psi
+and xhci->usb2_rhub.psi in xhci_add_in_port() as reported by kmemleak:
 
-Cc: <stable@vger.kernel.org>
-Fixes: 638298dc66ea ("xhci: Fix spurious wakeups after S5 on Haswell")
-Signed-off-by: Henry Lin <henryl@nvidia.com>
+unreferenced object 0xffff922c24ef42f0 (size 16):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 16 bytes):
+    21 00 0c 00 12 00 dc 05 23 00 e0 01 00 00 00 00  !.......#.......
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+unreferenced object 0xffff922c24ef3318 (size 8):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 8 bytes):
+    34 01 05 00 35 41 0a 00                          4...5A..
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+
+Fix this by calling kfree() for the both psi objects in
+xhci_mem_cleanup().
+
+Cc: <stable@vger.kernel.org> # 4.4+
+Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-4-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20191211142007.8847-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index a0025d23b257..2907fe4d78dd 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -521,6 +521,18 @@ static int xhci_pci_resume(struct usb_hcd *hcd, bool hibernated)
- }
- #endif /* CONFIG_PM */
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index e16eda6e2b8b..3b1388fa2f36 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1909,13 +1909,17 @@ void xhci_mem_cleanup(struct xhci_hcd *xhci)
+ 	xhci->usb3_rhub.num_ports = 0;
+ 	xhci->num_active_eps = 0;
+ 	kfree(xhci->usb2_rhub.ports);
++	kfree(xhci->usb2_rhub.psi);
+ 	kfree(xhci->usb3_rhub.ports);
++	kfree(xhci->usb3_rhub.psi);
+ 	kfree(xhci->hw_ports);
+ 	kfree(xhci->rh_bw);
+ 	kfree(xhci->ext_caps);
  
-+static void xhci_pci_shutdown(struct usb_hcd *hcd)
-+{
-+	struct xhci_hcd		*xhci = hcd_to_xhci(hcd);
-+	struct pci_dev		*pdev = to_pci_dev(hcd->self.controller);
-+
-+	xhci_shutdown(hcd);
-+
-+	/* Yet another workaround for spurious wakeups at shutdown with HSW */
-+	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
-+		pci_set_power_state(pdev, PCI_D3hot);
-+}
-+
- /*-------------------------------------------------------------------------*/
- 
- /* PCI driver selection metadata; PCI hotplugging uses this */
-@@ -556,6 +568,7 @@ static int __init xhci_pci_init(void)
- #ifdef CONFIG_PM
- 	xhci_pci_hc_driver.pci_suspend = xhci_pci_suspend;
- 	xhci_pci_hc_driver.pci_resume = xhci_pci_resume;
-+	xhci_pci_hc_driver.shutdown = xhci_pci_shutdown;
- #endif
- 	return pci_register_driver(&xhci_pci_driver);
- }
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 6721d059f58a..c5ee562c4c74 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -770,7 +770,7 @@ static void xhci_stop(struct usb_hcd *hcd)
-  *
-  * This will only ever be called with the main usb_hcd (the USB3 roothub).
-  */
--static void xhci_shutdown(struct usb_hcd *hcd)
-+void xhci_shutdown(struct usb_hcd *hcd)
- {
- 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
- 
-@@ -789,11 +789,8 @@ static void xhci_shutdown(struct usb_hcd *hcd)
- 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
- 			"xhci_shutdown completed - status = %x",
- 			readl(&xhci->op_regs->status));
--
--	/* Yet another workaround for spurious wakeups at shutdown with HSW */
--	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
--		pci_set_power_state(to_pci_dev(hcd->self.sysdev), PCI_D3hot);
- }
-+EXPORT_SYMBOL_GPL(xhci_shutdown);
- 
- #ifdef CONFIG_PM
- static void xhci_save_registers(struct xhci_hcd *xhci)
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index dc6f62a4b197..13d8838cd552 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2050,6 +2050,7 @@ int xhci_start(struct xhci_hcd *xhci);
- int xhci_reset(struct xhci_hcd *xhci);
- int xhci_run(struct usb_hcd *hcd);
- int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
-+void xhci_shutdown(struct usb_hcd *hcd);
- void xhci_init_driver(struct hc_driver *drv,
- 		      const struct xhci_driver_overrides *over);
- int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id);
+ 	xhci->usb2_rhub.ports = NULL;
++	xhci->usb2_rhub.psi = NULL;
+ 	xhci->usb3_rhub.ports = NULL;
++	xhci->usb3_rhub.psi = NULL;
+ 	xhci->hw_ports = NULL;
+ 	xhci->rh_bw = NULL;
+ 	xhci->ext_caps = NULL;
 
