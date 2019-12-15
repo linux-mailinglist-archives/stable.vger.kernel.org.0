@@ -2,71 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D3711F8D5
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 17:23:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 395BB11F8F2
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 17:25:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726121AbfLOQT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 11:19:27 -0500
-Received: from sonic303-21.consmr.mail.ne1.yahoo.com ([66.163.188.147]:38743
-        "EHLO sonic303-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726118AbfLOQT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 11:19:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576426766; bh=E+ks7AydzaUb4ISZTuxin7s0E6gVmk5020fTLYVYB5E=; h=Date:From:Reply-To:Subject:From:Subject; b=NlRDeyYrfw65YV7RRcqcWBSkIguA8Jox1Vp8FaOPrKZOpM9ewmB2YH72U9+OI3rH3LBlfUkZ6jgfoFD5jg9mbdT5p/bfR/ODWTrqeREf4dzY/rmoU2+esLwa7JEJ3iuLa412lKVYiwmLxEVqTaDeWDcuXPrLgD5VOVzSmQ7lib9C5RUc9tUMYOwZuEpv+c8/FYMRzYdoR1dNXolE6ZRBcLeCZ/0lyrtGQNpn3Yfh8Il11YjXO5zBYq3DBxyIr+Bnqaw80+IenBU7vCGDMsSQgI3Cz6H7eJ2dSrMl1ee3P++6gCQ6TvRTaDKU7MZxas+SMjDQu+bNKvcb7jDEq1GVtQ==
-X-YMail-OSG: 50Rj4ggVM1n3ln_YdmTa4qx.G7_4bJMC.kQYI702ZaDCCEpNkzph5.w_7W3MnrX
- ZOJmdY3mt.c3BUmhWZxzBqNp_OXpwQ9w3QUAOHeW9zx9HN1_dslDBRs9eNkS7ATnnvgj6D3Th6zX
- KUwdG7TyhiXfgl6yV.uhc4Uk38eF4K_u9gY5eE3KB6hfaDQGvFREu.FPhxJF7CCTH4e8ym8rfNGU
- N6gyodpFz.uFNOs9LLWfnnErUVtbbYmSVV1lWIMz408AFlT7894iRm.m5SrgrPyb55mGfUbWpXCY
- t0aK5aewACBSHnhyJBLEmYKu3OJZi1I_lY33_1H75v.CyyH1lNu96NjiYI41mh3Y2ko9.pld2l.f
- afd_cs2q7XUz1wp9INOWgcunamsaSk92CuRMsURid7MmRVuZeB5Kxpg7n_HKCRTLPTVqsLCcchY0
- TVFWvkftSTwBlCzqtsRCVDE_bOzpnQKzx3Uh55HGj2atlpsqp3sK.jOyf9gPUucH_ronix.ry5t2
- nNqw7__Y8nxwQlK61fObsu1lkiO2S.J50veqStJ21uRcI6wwlzCYkDhe2s6pFdhytQ00B19FLnFq
- urcvkujtVkt32sjm4Al8DyBzLUMvH9HGNzzymwh9rVm61e1qe.Q7Im6qp2MgWDJuCxsdufcb0Wwm
- FbPYpxNOeTU0.o2rmNIoDv8wOpte4KcXyYAJyM_oEwGBhHUWKp4sSZVayeieZkcFdYc2iP84iu_b
- YCCabmBBr7RuSShRPVcuOfcik4.xyzqB7t7oamtFLjLhbHzwgCvYUAeFVmuMXwW34VzO0OQ.Ue4_
- GPf73pnDvxDa1lweSATzkW8U8tfMkGUSB3jcmrAZTQg9tTwtMNR3V3OB10TQbVQVGeeJcexVRZ_B
- Frh8.Rnacoq_RHqiK_Dg69TblkqRXODrGn6lZLgmYdasmKTAkZ9Jo3kWfGPt4vsP2SLje842C_d6
- 8SPZcOimVCklzpowIoa9VvU2Eju0Un34_LzOGVyUf8hj63TlUCCdIMZQVSkXWzA8y8BxiWyGECyb
- t0t0koWUAlypokKLLaKCFZehZzOfvdz5wzaWLCIbNGJAVkS7z7kvDqdcD8mqr7CSu9MKpOYXFCAB
- RacN5toGSLCk6poZtXJj5WVVO2eu9kGDgbAn9VKQw4.MxzEf8i7uSGQ8LXp.d2cvUm_zYjnSp43a
- jb9meSAChGgg3DEz89yWD_GQ5jllQOI9ws7Zqy9vJ.zHJiynWjQxf.Y1ctpCsYYn2H16UP8qrQlB
- sfljrrJTn1fiz5HB22YD3gZm6mascW534jARO6abQfpCuYBzoaaRCiOy15I7hJ5c8jaPbcvbN_Gf
- oIm2Xc0bTU2WDUZw.KVWSR7PQsLPzlz_N
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Sun, 15 Dec 2019 16:19:26 +0000
-Date:   Sun, 15 Dec 2019 16:19:24 +0000 (UTC)
-From:   Aisha Gaddafi <gaddafi661@gmail.com>
-Reply-To: gaddafia504@gmail.com
-Message-ID: <422300716.7930446.1576426764276@mail.yahoo.com>
-Subject: Dear Friend,
+        id S1726136AbfLOQZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 11:25:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726121AbfLOQZB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 15 Dec 2019 11:25:01 -0500
+Received: from localhost (unknown [73.61.17.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17A1F206D8;
+        Sun, 15 Dec 2019 16:25:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576427101;
+        bh=oGkkMXvFf4iangj1PeSie8pXGjMkopETTk35LDUqi0E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dZY49NCcfCapJd/2p04nN0hWrf2WG8Nptq9u0CvHnCa4qNxbrPFWLLQmznf0I3x/X
+         Ik8Q7omIfJBbxyaIELUIB0EAeiwtNMSIM50pP+ZQaiukAFj4TFR/TwIh4If23C3vAi
+         1HZxWtdk1LrbPO1HylwF0YAe09AFa/2enTkH+8hM=
+Date:   Sun, 15 Dec 2019 11:24:58 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     maier@linux.ibm.com, bblock@linux.ibm.com,
+        martin.petersen@oracle.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] scsi: zfcp: trace channel log even for
+ FCP command responses" failed to apply to 4.19-stable tree
+Message-ID: <20191215162457.GC18043@sasha-vm>
+References: <157633580122434@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <157633580122434@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On Sat, Dec 14, 2019 at 04:03:21PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.19-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 100843f176109af94600e500da0428e21030ca7f Mon Sep 17 00:00:00 2001
+>From: Steffen Maier <maier@linux.ibm.com>
+>Date: Fri, 25 Oct 2019 18:12:53 +0200
+>Subject: [PATCH] scsi: zfcp: trace channel log even for FCP command responses
+>
+>While v2.6.26 commit b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug
+>trace") is right that we don't want to flood the (payload) trace ring
+>buffer, we don't trace successful FCP command responses by default.  So we
+>can include the channel log for problem determination with failed responses
+>of any FSF request type.
+>
+>Fixes: b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug trace")
+>Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+>Cc: <stable@vger.kernel.org> #2.6.38+
+>Link: https://lore.kernel.org/r/e37597b5c4ae123aaa85fd86c23a9f71e994e4a9.1572018132.git.bblock@linux.ibm.com
+>Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+>Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+>Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+>Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-I came across your e-mail contact prior a private search while in need of 
-your assistance. My name is Aisha  Gaddafi a single Mother and a Widow with 
-three Children. I am the only biological Daughter of late Libyan President 
-(Late Colonel Muammar Gaddafi).
+Conflicts due to:
 
-I have investment funds worth Twenty Seven Million Five Hundred Thousand 
-United State Dollar ($27.500.000.00 ) and i need a trusted investment 
-Manager/Partner because of my current refugee status, however, I am 
-interested in you for investment project assistance in your country, may be 
-from there, we can build business relationship in the nearest future.
+	f9eca0227600 ("scsi: zfcp: drop duplicate fsf_command from zfcp_fsf_req which is also in QTCB header")
 
-I am willing to negotiate investment/business profit sharing ratio with you 
-base on the future investment earning profits.
+I've adjusted it to address the missing commit and queued it for
+4.19-4.4.
 
-If you are willing to handle this project on my behalf kindly reply urgent 
-to enable me provide you more information about the investment funds.
-
-Your Urgent Reply Will Be Appreciated.
-
-Best Regards
-Mrs Aisha Gaddafi
-(gaddafia504@gmail.com)
+-- 
+Thanks,
+Sasha
