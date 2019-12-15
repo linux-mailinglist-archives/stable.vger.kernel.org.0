@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8786911F9BE
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:38:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0533511F9BF
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 18:38:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbfLORhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 12:37:50 -0500
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.51]:25086 "EHLO
+        id S1726232AbfLORh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 12:37:59 -0500
+Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.164]:15966 "EHLO
         mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbfLORhu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:37:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576431468;
+        with ESMTP id S1726130AbfLORh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 12:37:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1576431476;
         s=strato-dkim-0002; d=goldelico.com;
         h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
         X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=LOYCyMsB8QVQ1ZSQb1f9wQw3aY/MZGHW81JbRdeK3PA=;
-        b=g3jKxvOdCl9IEHDBmVCO7j+ei43yRxKQxa1hKppr69mGN++3pYjcV9h9s+K9QBfvvo
-        1EC0kAuP7hqqSmr+pyW/ENsAbeRW0oKA0ZIriG2kuEk3q4uwt8A2hddGAwMX9TK56ugK
-        5cIydbQKhdIwTjfROCVn2ndcSKOFfRqPv1gqH/86R8Azny54zYJw9fakQPy66G4AB00C
-        BEiC5Lcmi5HokezAok0ySxntKVW8UH8qV8bLpA+4sdHf+CI8IXeZY+8a895qUVov0O9N
-        LDnl4Wy31zIVSPC7JUEXxDa+oXxF4MYiq/6HfU02r97dKtz4zqrPr569xtMzqOUhIJm3
-        ZuVg==
+        bh=jxod+5Sm+VNkDOTDJBK5oGk+ef6RANe2MqlbPrxxsrw=;
+        b=Hghnd4AX6DpkoVGodPypKmJ0PbLT8ROAOlh0FSdC3L8aW+/GFpDbTmYsQ8GBgNHCZr
+        4gXjuuCtflplDf+gXDH92/duNHrKBexZ72fHicZx4qBOfnltcZSz+s+1rqhb9oS4q5co
+        9YPYqsuyF7EgfB0Oc1eLZKBeZtLcQHiz5CpyY57BFtmCnLDOIL3fwfatPKA8AGSo3CuU
+        ytyjGc/B3i4RiMcf/MDl04mmpr+yPXuIzCGusELTizEWqaOMW80vRdfmi33/qoXSaErs
+        Z3U52vMiz8DHALi1hSH0hihOarZWME7TPS59oxvt8XR/nTT+r5yqk3t1j1Su0WbQfpdi
+        T5rQ==
 X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGH/PgwDGiVw=="
 X-RZG-CLASS-ID: mo00
 Received: from imac.fritz.box
         by smtp.strato.de (RZmta 46.0.7 DYNA|AUTH)
-        with ESMTPSA id i03ca8vBFHbkE3H
+        with ESMTPSA id i03ca8vBFHbtE3I
         (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
         (Client did not present a certificate);
-        Sun, 15 Dec 2019 18:37:46 +0100 (CET)
+        Sun, 15 Dec 2019 18:37:55 +0100 (CET)
 Content-Type: text/plain; charset=us-ascii
 Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and" failed to apply to 4.9-stable tree
+Subject: Re: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and" failed to apply to 4.19-stable tree
 From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <1576416779222224@kroah.com>
-Date:   Sun, 15 Dec 2019 18:37:46 +0100
+In-Reply-To: <157641677825462@kroah.com>
+Date:   Sun, 15 Dec 2019 18:37:55 +0100
 Cc:     stable@vger.kernel.org, tony@atomide.com, ulf.hansson@linaro.org
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <6E106337-4D9E-4A5C-B737-33A352EA29BC@goldelico.com>
-References: <1576416779222224@kroah.com>
+Message-Id: <4862AF1D-69C8-4A6D-99D4-F79BC4C2B29E@goldelico.com>
+References: <157641677825462@kroah.com>
 To:     gregkh@linuxfoundation.org
 X-Mailer: Apple Mail (2.3124)
 Sender: stable-owner@vger.kernel.org
@@ -52,7 +52,7 @@ Please apply this before: https://patchwork.kernel.org/patch/11232473/
 > Am 15.12.2019 um 14:32 schrieb gregkh@linuxfoundation.org:
 >=20
 >=20
-> The patch below does not apply to the 4.9-stable tree.
+> The patch below does not apply to the 4.19-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git =
 commit
