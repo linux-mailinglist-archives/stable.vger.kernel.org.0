@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E9111F6F2
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC0511F6F3
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726061AbfLOJYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 04:24:15 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:54767 "EHLO
+        id S1726050AbfLOJYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 04:24:24 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:36819 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726050AbfLOJYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 04:24:15 -0500
+        by vger.kernel.org with ESMTP id S1726078AbfLOJYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 04:24:24 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id F20BA6A2;
-        Sun, 15 Dec 2019 04:24:13 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:24:14 -0500
+        by mailout.west.internal (Postfix) with ESMTP id CC8156A5;
+        Sun, 15 Dec 2019 04:24:22 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:24:23 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=hP5iih
-        3v2kWauO5QeJF1OHdI8dvrLpwGPfiC2YsqvhQ=; b=yWcNDSQ+toX2uy/cYW8uyX
-        2dQHSKxcuSrSld7IVH+6KQQEsHX35sgEOzT9+UEZM7J3tD7nwZICrhNA/A9feQ/2
-        T/uZDECwzsjJI9j7xbUwLfekUeApuSAiMBkeMwC8vsXsuB9X5BB9njuQVI+IwBoC
-        6KM5K/Sw6JT2N0OBgTZsCT7OCru1JpLo4j2Bq/MMdNWhjxLBFJPD1KE0ndGTG+0d
-        kXxtE8AZVy6K81xn28p5N2NC0rO2qXMoejXb85PNDCC4UuTu5jCVdIej6Q5jgV/F
-        tTNs13LuXk6kVTXuAWKfsGhdm4V1nI7wMKCN35MrUou7ba4nkRARn40wsk9uEg4g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mVPWxh
+        IAA29VhJLnXkmYmB6wJdA8jmdvLON8bOKRmxE=; b=s4oQ6ngO9IbO50JKrWGLx2
+        wYC+ZvX6asia/IgUgqnjKZQjnjvsvz3k7g7T3kyeJ2fHFZMFvDenj7BKu3iN6jDh
+        c4OC7aul2S3fe8fLfSExskAEliKjmqFR21C+iX4cYM3UeXBR6BJsFMyY8WWub1i4
+        zo48HWe1VMftyZaJMGSsrE5qmhpvJPCuMWu/J+YnENuS5DZ2fK782hznJXF5pAGb
+        U0YD2+6nPvihaOTz0rgC1+s4oE1JI1IPuWzuJee0bRHZe+1TTVEYjMdS31NZYDSP
+        /YMJbCuM08Pj8ouoHrolGuM9FcxiRDlIqFYD18rBTKZewYIxPh/kAmRAqcCSsrMA
         ==
-X-ME-Sender: <xms:vfv1XeFLS1yBt8Q6l7bGilDF9Mw3w2WoIiu6fNPlcHfyslXG3mGTAA>
+X-ME-Sender: <xms:xvv1XaFAxNnznalXsFlgoRizX9t0Scbg-fCzdpV1f9DlNvCXvSMGRw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgtdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:vfv1XfBJLzq91DLieRgGd7XKAw4EKEjEn-KZ3f2raZm0zwpffnAOqg>
-    <xmx:vfv1XS9hqt5TCLPJkUZEz3OQUMuHMMkiY0iFUrYtbqDG_2xnC8Dsig>
-    <xmx:vfv1XahWgFlaail7AwceDSNadxllNq7RqzXnWKQj_QGFjUMlWSeF5A>
-    <xmx:vfv1XfUvRVQEx3nnekKGsdYCB6BVBK_zD3d4bS2876cZpuCUbMKz3Q>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:xvv1XYB2tkpHEHzLFF7z5Lc5tqYqCvONFRVOU-quECHxpMtrRDOaAA>
+    <xmx:xvv1XYBXFXai31p_mOEs6FButQ22bNtXDToOMnSjSsSBYAajHLwIeg>
+    <xmx:xvv1XeM0ebtN9wvbaAhHRP1gfrT3e95KWT-FLyR3VBou16pJvmpuhQ>
+    <xmx:xvv1XbiCiijCdayeVHa5NBUZ1NcWD2EDrm1O4HVGHfp8w5P-EiuIew>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id ECA268005A;
-        Sun, 15 Dec 2019 04:24:12 -0500 (EST)
-Subject: FAILED: patch "[PATCH] usb: xhci: only set D3hot for pci device" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1747C30600AB;
+        Sun, 15 Dec 2019 04:24:21 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usb: xhci: only set D3hot for pci device" failed to apply to 4.4-stable tree
 To:     henryl@nvidia.com, gregkh@linuxfoundation.org,
         mathias.nyman@linux.intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 10:24:11 +0100
-Message-ID: <157640185110204@kroah.com>
+Date:   Sun, 15 Dec 2019 10:24:12 +0100
+Message-ID: <157640185211541@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
