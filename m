@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FFA11F701
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:30:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D045011F702
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 10:30:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726194AbfLOJaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 04:30:05 -0500
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:50601 "EHLO
+        id S1726204AbfLOJaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 04:30:06 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:51907 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726192AbfLOJaE (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 15 Dec 2019 04:30:04 -0500
+        by vger.kernel.org with ESMTP id S1726192AbfLOJaG (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Sun, 15 Dec 2019 04:30:06 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id DCD9C6B7;
-        Sun, 15 Dec 2019 04:30:03 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:30:04 -0500
+        by mailout.west.internal (Postfix) with ESMTP id C4D7F6A5;
+        Sun, 15 Dec 2019 04:30:05 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 04:30:06 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5C2YOc
-        TBfC7YsfwyGtF59d17P75Rtf1vz4owBRnUlro=; b=WxCBdVjL5UaF6NjhJ2HVps
-        32LHjAHEGW+7tCvEfiKUtKLFHhztMCB2N76H9n5MxNrpYpMKa8yBvg3oy/SjEkv+
-        NKJeNSm+EKjfK4pFDEaNqY9qXN5Cz1kjVJGKaCmBSgZCscxRSOHddYcAoves++fV
-        kDjstIupEpsFIvBuT1+zX3t1M0jimj8K++zXn9OeITujQjCYPc7JxA4FEkRyEEHa
-        ZeVKrhnCXPZhNer3WJaiyluUlh8ttO+C76m33+3jF+RnsRczdZZhPIzdtoznberJ
-        2hM/Uh0axZkepqjdwL48Se8AOf6cplDnThbNDdCBGT0AQM8pT9p4nNZYoP6xK89w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iGEAV9
+        X2jYhf6Nv3lQDSerdjVVz/Zn+e8UWIdXiP6O0=; b=s3Lf4veh8lrjKssUl1O7Ed
+        /vGJqgpGiMSykm0f0ZJMu6L7MyfHXposTCsRsffZ+QsFFFO145u7UuWKhCIx4Avu
+        0xBXMmXwzGJbEPGfzKrtfWEcruJ9HFeE+JELNzp+qW5tShSYATxf6zPiWM/F509b
+        HDRv5pPlrpOYapA3CvNnxSN+ExJ1nxXPsJZRonRQIWKxpDI077LeJFrPqqU1rLy7
+        j0BreimFg95E6lzBM6iylEnLsNcoBaHQ+llBPJ5cSU71ypbL1U5DCNy0Bty3Ob/k
+        /ReIVjwpTN4KVp/JkPuE9HvA2cshyO4qXNVG78fxLgDkP06Urp85KLyrFn5Doxkg
         ==
-X-ME-Sender: <xms:G_31Xea_glORz8vcXbr-lNfQGW0HeiR7CVntstkDtU526sQ01-y1Lw>
+X-ME-Sender: <xms:Hf31XVsbgnYB8b9jvMsbXtlOulqBlNQhdE2tiLHkZIfYYtJdrUOb8g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:G_31XbFmblmC9nWkjykjzUuuwNn6QhvXlazG_yJ4jg-WFl2hFgDnBg>
-    <xmx:G_31Xf6e6SiITxOumDdKKYtpznXGj6mGxviI1v3obpObkxxURs6T6g>
-    <xmx:G_31XUsDscqPeoHbaOlnGiy7Di74Jjxo5XWPLgtIzPPTST0q09f1lA>
-    <xmx:G_31XdhIM30zKK5WTwP0_VZzV_PkkGI-vDrrtVWxlPA8Fs7TsKjlAA>
+X-ME-Proxy: <xmx:Hf31XapV2Gok_-ENu-WAhwwbc1R9QyXzHg8-uVpSnn2Nh795GUAigw>
+    <xmx:Hf31XbrraboyiFpBbm0E6hRqaGQdwuyBt9NXKT5nNZVAT8KmYWFCxQ>
+    <xmx:Hf31Xa18XgDk9G0RjSS2k_tBJ4FOhOpz6tFqJRmpWpic-29NLhdUfA>
+    <xmx:Hf31XVNPn64L11epda4-ixKjxW4Hz-WLXw1hIO-AVyODU0L8GZQtPg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1899D80063;
-        Sun, 15 Dec 2019 04:30:02 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: adis16480: Add debugfs_reg_access entry" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2086C30600E0;
+        Sun, 15 Dec 2019 04:30:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: adis16480: Add debugfs_reg_access entry" failed to apply to 4.4-stable tree
 To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 10:30:00 +0100
-Message-ID: <1576402200163201@kroah.com>
+Date:   Sun, 15 Dec 2019 10:30:01 +0100
+Message-ID: <1576402201169223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
