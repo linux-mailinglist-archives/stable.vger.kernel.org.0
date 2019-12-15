@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6735011F806
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7523B11F805
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbfLONdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 08:33:13 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60039 "EHLO
+        id S1726136AbfLONdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 08:33:12 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33261 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726103AbfLONdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:33:12 -0500
+        by vger.kernel.org with ESMTP id S1726103AbfLONdL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:33:11 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 264002223C;
-        Sun, 15 Dec 2019 08:33:12 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:33:12 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id DC1C622233;
+        Sun, 15 Dec 2019 08:33:10 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:33:10 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=UO2+VQ
-        knkGOPwwVYeS0l4pABissme+wHM0H5ML6TtSs=; b=dPWa33YqbkOMte6ipixCyL
-        IQb22LL1teQ3y+2Hv/JwWATuTlLbni7N8SXw/+eqnn8JV8RHmbKtUSRoKCXtd4i9
-        fJlst7OLKKsJUZPJOR2bJ0HKADj65h/l9nKyr5mT+oeryRGkvzxiWokrNWavYQhT
-        SJSNXRKR+sGjAsftslZF0ylCcJ7KI2YlJzOY/KhhW+OwhHnKsQ5UQJvhI0tZ6Ekl
-        +kFlihTQTzu1rSCIexTC6CsmElLj6URw2DLWHDa2CvtUur9yPUVK/UH8oxQ+9zB0
-        s7qiEvrMaejwTg6So7GGDKbr+vHdKCmQ2zlTYm7hvVzTJrDXovrCXgrE6sAJV7qw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=lyLsRo
+        wNkujFPorKmY8h8nZj7zdykf45PwBNfrJJchA=; b=vIaST9WsDv+p6287yfl/1A
+        VDBj9NucLWAO/wYaFiEBHFL2VMYi2gZQWA1lrl6bBNb0udWeSEmAunuPytXV0D2f
+        O1QUyKGxj4rZALu7XRWl2H8OlfQdj64ZLQjlLabjdYnuf0CetvfAmZc5PII+ybKh
+        8Y7595K4b6knSZyTPOlM6qSa9KzD5JnKVnpH7/CX3lSDPrJxXAqu3R5wzj9GPxNr
+        gMoDmhfi4gAlVY25GeI72y8K8QrijbXT3mOxbdtlrwCK12CkhxKud+LmPjMMUnSZ
+        94YgKpPAdC1yaFTlpFIY1SGDn5rDwXff28JXd/nD1ylEI18BSdWCwaqhNv6Y/KUQ
         ==
-X-ME-Sender: <xms:GDb2XZUUYFunP9jWC6hhvxaj_UXbALSfJEDpUv2I4zGSAEu1phNR-A>
+X-ME-Sender: <xms:Fjb2XdsKwWWdsC3fI7zwjzXlZGrZmFpNHUKvrCKgopjIFXXwNHjIsg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgheehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:GDb2Xczxn2eyzB2OhsfpB7PP-sqCd8kkZOJF67E6bg3sUsr-E6rHmg>
-    <xmx:GDb2XRhYwR0t3M4VLngockxlat74E1M2fJOr4fHAw6PLBbK9kEKLIQ>
-    <xmx:GDb2XWwWYOki_ESyLATVpRFK9tFd2FTSmAid6W0ak2E1N1A8b_cX2A>
-    <xmx:GDb2XVhKKd1UzB_-8U0esC1zWrySHJfmll663veAnkaP3ah8-K-y2Q>
+X-ME-Proxy: <xmx:Fjb2Xf9DR-ostTgm0X7cQqdp9d6EnB9seGmQ4y6M6ZtMEEYYakMQgQ>
+    <xmx:Fjb2XVA6Nss8ApuIRPpHl7T-SqpkT9TStY_pVUzoY3tAT2bDZVqdFA>
+    <xmx:Fjb2Xbz-t85Zq_9FG7JpQ5gs7mgigWN6Qikl9bRFKFi2WgPevU-2RQ>
+    <xmx:Fjb2XXlY9gBtQ4w5XSJl-XqQXCr0w4CgF1MYd_LDtpkM37gomjkmZg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BD21930600AB;
-        Sun, 15 Dec 2019 08:33:11 -0500 (EST)
-Subject: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6139480063;
+        Sun, 15 Dec 2019 08:33:10 -0500 (EST)
+Subject: FAILED: patch "[PATCH] omap: pdata-quirks: remove openpandora quirks for mmc3 and" failed to apply to 4.9-stable tree
 To:     hns@goldelico.com, stable@vger.kernel.org, tony@atomide.com,
         ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 15 Dec 2019 14:32:59 +0100
-Message-ID: <157641677913676@kroah.com>
+Message-ID: <1576416779222224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
