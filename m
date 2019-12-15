@@ -2,108 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEF5611F808
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 14:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CB211F8AE
+	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 17:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726192AbfLONdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 08:33:42 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:49405 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726103AbfLONdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 08:33:42 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E812F22233;
-        Sun, 15 Dec 2019 08:33:40 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 15 Dec 2019 08:33:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=1K5i2r
-        7mas/LcyTdkJtkBH3Ozh0boOlTUJregKUZGsk=; b=fRmAm9LN3x2APdkebqFbQJ
-        TjFYVFpyQVTrf8k6g2pF22UWLzoE3aqHc921lkGPVEPqwDqATvldp8I/d2vm5iNP
-        WR/ujOaoSP9DAj9UPZZpkp+6TtCNmja+O2qaPc8u3H8BABIf+OmXXnU90rqEvkct
-        hIh0XnO8J0jpZ+xxxdrlWMZHtXLTmyCEJV5WL1c4QXwLJI2LoZTTagCjfZ6uQ90n
-        P4bNgAF0dOHc+HUZtb9fpMn4xa2LEbsD5avib33mFsBCb2bem3j0233sLCD00ydT
-        6T6y65BJ+NEAryyT5zEdnYa2cqPer49uXipgrai7UVI2xtM89+PwNl/zq+Zcz26A
-        ==
-X-ME-Sender: <xms:NDb2XenIxis0AXYfVgDWc7lQkAebC9Qv5-n_JjZ1Ppo-ssMHcKV0RA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtfedgheehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepie
-X-ME-Proxy: <xmx:NDb2XWOoT8uNRiPxU82t0-VouJY84csmotf6D2gaWvYbSmJ6-X_baQ>
-    <xmx:NDb2XUhqaDb-ZxuWXgHFwC0m2Q5sitSvIvRPEIDTQkIEfhjA2IQ_Rg>
-    <xmx:NDb2XQTRPpkHZ47cXgaXM1YQVuKF3fhmWkDVFUMpXa04xpEBF314SQ>
-    <xmx:NDb2XSRBWfhRmrlxFIUOZGh44m_Lj9ZO8AigvDcVYjqIAChDUVc8xQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 89E3130600AB;
-        Sun, 15 Dec 2019 08:33:40 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection" failed to apply to 4.9-stable tree
-To:     jarkko.nikula@bitmer.com, stable@vger.kernel.org, tony@atomide.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Dec 2019 14:33:31 +0100
-Message-ID: <157641681111754@kroah.com>
+        id S1726762AbfLOQBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 11:01:21 -0500
+Received: from saturn.retrosnub.co.uk ([46.235.226.198]:44510 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726540AbfLOQBU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 11:01:20 -0500
+Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        by saturn.retrosnub.co.uk (Postfix; Retrosnub mail submission) with ESMTPSA id 76E989E7630;
+        Sun, 15 Dec 2019 15:52:05 +0000 (GMT)
+Date:   Sun, 15 Dec 2019 15:52:03 +0000
+From:   Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        linux-iio@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.4 019/350] iio: tcs3414: fix
+ iio_triggered_buffer_{pre,post}enable positions
+Message-ID: <20191215155203.607cc56d@archlinux>
+In-Reply-To: <20191210210402.8367-19-sashal@kernel.org>
+References: <20191210210402.8367-1-sashal@kernel.org>
+        <20191210210402.8367-19-sashal@kernel.org>
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 10 Dec 2019 15:58:31 -0500
+Sasha Levin <sashal@kernel.org> wrote:
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+> 
+> [ Upstream commit 0fe2f2b789190661df24bb8bf62294145729a1fe ]
+> 
+> The iio_triggered_buffer_{predisable,postenable} functions attach/detach
+> the poll functions.
+> 
+> For the predisable hook, the disable code should occur before detaching
+> the poll func, and for the postenable hook, the poll func should be
+> attached before the enable code.
+> 
+> The driver was slightly reworked. The preenable hook was moved to the
+> postenable, to add some symmetry to the postenable/predisable part.
+> 
+> Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+I doubt this did any harm, but wouldn't consider it stable material normally.
 
-thanks,
+This is part of a general rework going on to allow some core refactoring.
 
-greg k-h
+I should have added a note to this one like some related patches that it
+is a logical fix, but we don't have an actual known bug afaik.
 
------------------- original commit in Linus's tree ------------------
+Sorry about that.
 
-From 287897f9aaa2ad1c923d9875914f57c4dc9159c8 Mon Sep 17 00:00:00 2001
-From: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Date: Sat, 16 Nov 2019 17:16:51 +0200
-Subject: [PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection
- GPIO polarity
+Jonathan
 
-The MMC card detection GPIO polarity is active low on TAO3530, like in many
-other similar boards. Now the card is not detected and it is unable to
-mount rootfs from an SD card.
-
-Fix this by using the correct polarity.
-
-This incorrect polarity was defined already in the commit 30d95c6d7092
-("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
-kernel and later changed to use defined GPIO constants in v4.4 kernel by
-the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
-cell for OMAP2+ boards").
-
-While the latter commit did not introduce the issue I'm marking it with
-Fixes tag due the v4.4 kernels still being maintained.
-
-Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
-Cc: linux-stable <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-
-diff --git a/arch/arm/boot/dts/omap3-tao3530.dtsi b/arch/arm/boot/dts/omap3-tao3530.dtsi
-index a7a04d78deeb..f24e2326cfa7 100644
---- a/arch/arm/boot/dts/omap3-tao3530.dtsi
-+++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
-@@ -222,7 +222,7 @@ &mmc1 {
- 	pinctrl-0 = <&mmc1_pins>;
- 	vmmc-supply = <&vmmc1>;
- 	vqmmc-supply = <&vsim>;
--	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
-+	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
- 	bus-width = <8>;
- };
- 
+> ---
+>  drivers/iio/light/tcs3414.c | 30 ++++++++++++++++++++----------
+>  1 file changed, 20 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/iio/light/tcs3414.c b/drivers/iio/light/tcs3414.c
+> index 7c0291c5fe76e..b542e5619ead8 100644
+> --- a/drivers/iio/light/tcs3414.c
+> +++ b/drivers/iio/light/tcs3414.c
+> @@ -240,32 +240,42 @@ static const struct iio_info tcs3414_info = {
+>  	.attrs = &tcs3414_attribute_group,
+>  };
+>  
+> -static int tcs3414_buffer_preenable(struct iio_dev *indio_dev)
+> +static int tcs3414_buffer_postenable(struct iio_dev *indio_dev)
+>  {
+>  	struct tcs3414_data *data = iio_priv(indio_dev);
+> +	int ret;
+> +
+> +	ret = iio_triggered_buffer_postenable(indio_dev);
+> +	if (ret)
+> +		return ret;
+>  
+>  	data->control |= TCS3414_CONTROL_ADC_EN;
+> -	return i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
+> +	ret = i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
+>  		data->control);
+> +	if (ret)
+> +		iio_triggered_buffer_predisable(indio_dev);
+> +
+> +	return ret;
+>  }
+>  
+>  static int tcs3414_buffer_predisable(struct iio_dev *indio_dev)
+>  {
+>  	struct tcs3414_data *data = iio_priv(indio_dev);
+> -	int ret;
+> -
+> -	ret = iio_triggered_buffer_predisable(indio_dev);
+> -	if (ret < 0)
+> -		return ret;
+> +	int ret, ret2;
+>  
+>  	data->control &= ~TCS3414_CONTROL_ADC_EN;
+> -	return i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
+> +	ret = i2c_smbus_write_byte_data(data->client, TCS3414_CONTROL,
+>  		data->control);
+> +
+> +	ret2 = iio_triggered_buffer_predisable(indio_dev);
+> +	if (!ret)
+> +		ret = ret2;
+> +
+> +	return ret;
+>  }
+>  
+>  static const struct iio_buffer_setup_ops tcs3414_buffer_setup_ops = {
+> -	.preenable = tcs3414_buffer_preenable,
+> -	.postenable = &iio_triggered_buffer_postenable,
+> +	.postenable = tcs3414_buffer_postenable,
+>  	.predisable = tcs3414_buffer_predisable,
+>  };
+>  
 
