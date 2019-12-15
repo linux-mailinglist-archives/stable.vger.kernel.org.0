@@ -2,82 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB2611FBA7
-	for <lists+stable@lfdr.de>; Sun, 15 Dec 2019 23:16:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C1211FBCE
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 00:25:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726295AbfLOWNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Dec 2019 17:13:48 -0500
-Received: from mail-pg1-f169.google.com ([209.85.215.169]:41328 "EHLO
-        mail-pg1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726267AbfLOWNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 17:13:48 -0500
-Received: by mail-pg1-f169.google.com with SMTP id x8so2527590pgk.8
-        for <stable@vger.kernel.org>; Sun, 15 Dec 2019 14:13:47 -0800 (PST)
+        id S1726299AbfLOXZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Dec 2019 18:25:39 -0500
+Received: from mail-io1-f67.google.com ([209.85.166.67]:37209 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726351AbfLOXZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Dec 2019 18:25:39 -0500
+Received: by mail-io1-f67.google.com with SMTP id k24so3363510ioc.4
+        for <stable@vger.kernel.org>; Sun, 15 Dec 2019 15:25:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=B3pJODeYlvkw6x9w1gXyVOilRHRZ3AjydpBMm26uujY=;
-        b=y59nXGPf3gM79fiFIRdimNmtiBdon65lqg0dyJYa3lF8kH4Du95gsQrHd8kJjNF9y1
-         a7IgcI7uJpeRGK8gTbG7NUs9rp5oa0StQhxpZmRUdoHFhGHUiQOjfRUVII2N2vr63Gxb
-         hdNRBIDrIskjt001GiIlPv88IlX3TbJna8UpsH6HangQzwbsehz3PC/+iYpA2NCDWYRY
-         5yI2gIAU+b8Bfb/B57MqUWwFyCdR/218R/qZ2lZbAM5SI3KZ5AWu07EdADhHGVHkcqL/
-         ma67i47nJOmQB68zjQApwyS0/Tn/xw7aGqzU6U5iGpeuqnKmHr40kT3yJqyvGNC/p0jW
-         Tzzw==
+        d=konsulko.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WEL4itFmihZqlf+pK1DU7DEDt/SepncHaF9ZMAufTQk=;
+        b=N+c4HK+qYE45RWqlaHU7AnTEY46OfO0t0kBAN2F+qSebIf6nmrna9JaUNv7TDH9X27
+         eCgTN0xBKqFk/ruLZ7CepWQ0jgS9fLOYi7yjsjSN9bKiqaIzJ/+CIrt8kekjVO41P6NN
+         d5Eo49hMKI8IYCNwJ9GMtn/oFArpJVH77Ajsw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=B3pJODeYlvkw6x9w1gXyVOilRHRZ3AjydpBMm26uujY=;
-        b=e75H8ZzfHGPQNkIc96VUaxNQWGl6Or7y+zKCLzuncynT8WvyLKe+Btr20Bjpz+tt1X
-         veYTvYQ/KWIfmZsoyE3u+Q4mLA/jAcRK9iMLz5vDnmh7jScW5BuFdT4zoJNUF1RJMCTJ
-         Rxt0XGwqXxcQbENLr3YYyzja6+8ojJ0rJMAdmBiRgQmB1cDYcY/wYQsD8CfjiTdCZxgX
-         izMGLoOTL+7V2iVHjt0/3yfAzniKakuQJG1gpUqF+ItjjcUlnOMkumoUjIQYaV5IowUr
-         96UDt/otODplCWERMehSWZz4+dN/l3ljd20fgRX+eqQh2qXiaCYnFL5SQ6xGX1rtvFuU
-         XkIQ==
-X-Gm-Message-State: APjAAAXjk+7tjZwVXEoO4NKJGtK+DIqCrWva+aK7lUcboo3KKVZz7zuM
-        5XftOGRTBI2afJ378uNswVxciS1xzbI=
-X-Google-Smtp-Source: APXvYqyTfzQOTcYlWy+rqvFJ/HqgyOE+iZCl4xThcXJy2lDLG8fIHjmfuQ3wini8X232kAU0bi6BFQ==
-X-Received: by 2002:a63:dc41:: with SMTP id f1mr14791000pgj.119.1576448027310;
-        Sun, 15 Dec 2019 14:13:47 -0800 (PST)
-Received: from ?IPv6:2620:10d:c081:1133::1117? ([2620:10d:c090:180::1d25])
-        by smtp.gmail.com with ESMTPSA id s1sm2598601pgv.87.2019.12.15.14.13.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 15 Dec 2019 14:13:46 -0800 (PST)
-Subject: Re: FAILED: patch "[PATCH] io_uring: allow unbreakable links" failed
- to apply to 5.4-stable tree
-To:     gregkh@linuxfoundation.org, asml.silence@gmail.com,
-        carter.li@eoitek.com
-Cc:     stable@vger.kernel.org
-References: <15764077414946@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <6f68d1db-127c-522e-dd83-8a0d6c2529fd@kernel.dk>
-Date:   Sun, 15 Dec 2019 15:13:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WEL4itFmihZqlf+pK1DU7DEDt/SepncHaF9ZMAufTQk=;
+        b=bBrxwaXXQjD8sqeHEgnznzUUg2zQW5UtkJw1PpfO2L4jQKpZMwm0qHzpwvy7UJoH4Y
+         gscdUTlYWcsge8YrWN8oA2sXgqPsetQ99njSdDqSuA1cg5memPCty6wXt9t2HcACiDz3
+         yl7+nJM26LVvxTjJBnhQ1IRWvQZHPcmg7d+Qki9mr2+RK7uWEqKSWrCpVx8PnsBjlFko
+         WHLaj8hfIy5UPy+wLDH+ArbwYfk0y3ntJf5qFUuEEtNmH+BRLajUy4RECN7kV3bSFPgW
+         uhH73APRIq0Mv+MObRPtF4aQptfd0NcnIadanfnDjsuBsZ4P5uhhLTdgpL5GcZXQqtj1
+         9yqQ==
+X-Gm-Message-State: APjAAAV89EDgsvjYRemq7JBi/ETNROJTAWbjgVveYuim79zvvdrwRAYl
+        KFByD8OurSLZniKw2mImX55+NXTjiJNwn+9KBZ+Lvw==
+X-Google-Smtp-Source: APXvYqyxqgqtul5GG7UvGBKwhR/jHF82eADU4suOa7b5QH1cqUuBRY6sCnLgmir+XVDsPtFBuRQBjcI89ud2U+OOQlo=
+X-Received: by 2002:a05:6638:72c:: with SMTP id j12mr9795715jad.136.1576452338679;
+ Sun, 15 Dec 2019 15:25:38 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <15764077414946@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191210210735.9077-1-sashal@kernel.org> <20191210210735.9077-66-sashal@kernel.org>
+ <20191215155329.4c71ad53@archlinux>
+In-Reply-To: <20191215155329.4c71ad53@archlinux>
+From:   Matt Ranostay <matt.ranostay@konsulko.com>
+Date:   Sun, 15 Dec 2019 15:25:27 -0800
+Message-ID: <CAJCx=gkM8=WCC6t8bjX-q-mDco7HBMdBmJjOQzRHZr4-nKVvcA@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.4 105/350] iio: chemical: atlas-ph-sensor: fix
+ iio_triggered_buffer_predisable() position
+To:     Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "open list:IIO SUBSYSTEM AND DRIVERS" <linux-iio@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/15/19 4:02 AM, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+On Sun, Dec 15, 2019 at 7:53 AM Jonathan Cameron
+<jic23@jic23.retrosnub.co.uk> wrote:
+>
+> On Tue, 10 Dec 2019 16:03:30 -0500
+> Sasha Levin <sashal@kernel.org> wrote:
+>
+> > From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+> >
+> > [ Upstream commit 0c8a6e72f3c04bfe92a64e5e0791bfe006aabe08 ]
+> >
+> > The iio_triggered_buffer_{predisable,postenable} functions attach/detach
+> > the poll functions.
+> >
+> > The iio_triggered_buffer_predisable() should be called last, to detach the
+> > poll func after the devices has been suspended.
+> >
+> > The position of iio_triggered_buffer_postenable() is correct.
+> >
+> > Note this is not stable material. It's a fix in the logical
+> > model rather fixing an actual bug.  These are being tidied up
+> > throughout the subsystem to allow more substantial rework that
+> > was blocked by variations in how things were done.
+>
+> See comment.  This is not what I would consider stable material.
+>
 
-Might just be better to drop this from the 5.4 pile, unless Pavel
-is motivated to backport it. Even if it throws a lot of rejects, most
-of the hunks are trivial. Only one that requires a bit of thinking is
-the one that deals with link issue.
+Outside of the comment, which really isn't probably enough to avoid
+the autoselection script from detecting it (could be "stable" in the
+message alone selects it :) ),
+is there any way to signal that a patch is "NOT for stable trees"?
+Probably don't want to clutter up the commit messages of course.
 
--- 
-Jens Axboe
+- Matt
 
+> >
+> > Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+> > Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
+> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  drivers/iio/chemical/atlas-ph-sensor.c | 8 ++++----
+> >  1 file changed, 4 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/iio/chemical/atlas-ph-sensor.c b/drivers/iio/chemical/atlas-ph-sensor.c
+> > index 3a20cb5d9bffc..6c175eb1c7a7f 100644
+> > --- a/drivers/iio/chemical/atlas-ph-sensor.c
+> > +++ b/drivers/iio/chemical/atlas-ph-sensor.c
+> > @@ -323,16 +323,16 @@ static int atlas_buffer_predisable(struct iio_dev *indio_dev)
+> >       struct atlas_data *data = iio_priv(indio_dev);
+> >       int ret;
+> >
+> > -     ret = iio_triggered_buffer_predisable(indio_dev);
+> > +     ret = atlas_set_interrupt(data, false);
+> >       if (ret)
+> >               return ret;
+> >
+> > -     ret = atlas_set_interrupt(data, false);
+> > +     pm_runtime_mark_last_busy(&data->client->dev);
+> > +     ret = pm_runtime_put_autosuspend(&data->client->dev);
+> >       if (ret)
+> >               return ret;
+> >
+> > -     pm_runtime_mark_last_busy(&data->client->dev);
+> > -     return pm_runtime_put_autosuspend(&data->client->dev);
+> > +     return iio_triggered_buffer_predisable(indio_dev);
+> >  }
+> >
+> >  static const struct iio_trigger_ops atlas_interrupt_trigger_ops = {
+>
