@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA0D12149A
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2F31215B7
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730590AbfLPSMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:12:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58244 "EHLO mail.kernel.org"
+        id S1731889AbfLPSYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:24:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727110AbfLPSMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:12:49 -0500
+        id S1731953AbfLPSTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:19:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7EB420CC7;
-        Mon, 16 Dec 2019 18:12:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF5EA2072D;
+        Mon, 16 Dec 2019 18:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519969;
-        bh=cDrDGBDk6oXaOO6XSqMr574ZbPBCo63cBd4LFc0NzN8=;
+        s=default; t=1576520376;
+        bh=Au99viy+X18pYsQ1rPzRNBgVSzZlFq3Aj87KG1CsGg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2FO2LOItAnPDu59Z/QNFTRdkKkyYoh22yIxb+3HHVG/p7qTPvcAtjpo5PcXPL38hH
-         tcJfGhZbPRycADdhLTNwF/d6KqzreNyCxQWhpOW+OKXXPjpKnX57m+Sh4YwOTTCMbB
-         Gsd8tmwJmTDm+dsaQY3KhiJy0ZgzbcXrW2qZDky4=
+        b=B7tHvJ3QdUu96NHpbJxpMl/kZjBavXLLZXEAWPvi16lUOPpNmMDVXvM2p0iFZob1n
+         IwFxE4ADMUIQTMF4sxJKFX2NltZcxKEg4HXN5QyF2lluroGSX5Tz2EgcRDdNDEZ5/A
+         9Id1oHsmWjcSs99XGTOxu4ee5PPMBu1xEea0DEMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 143/180] scsi: qla2xxx: Make qla2x00_abort_srb() again decrease the sp reference count
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 127/177] ACPI: OSL: only free map once in osl.c
 Date:   Mon, 16 Dec 2019 18:49:43 +0100
-Message-Id: <20191216174843.248552703@linuxfoundation.org>
+Message-Id: <20191216174844.032699335@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-[ Upstream commit d2d2b5a5741d317bed1fa38211f1f3b142d8cf7a ]
+commit 833a426cc471b6088011b3d67f1dc4e147614647 upstream.
 
-Since qla2x00_abort_srb() starts with increasing the reference count of
-@sp, decrease that same reference count before returning.
+acpi_os_map_cleanup checks map->refcount outside of acpi_ioremap_lock
+before freeing the map. This creates a race condition the can result
+in the map being freed more than once.
+A panic can be caused by running
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Fixes: 219d27d7147e ("scsi: qla2xxx: Fix race conditions in the code for aborting SCSI commands") # v5.2.
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Tested-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+for ((i=0; i<10; i++))
+do
+        for ((j=0; j<100000; j++))
+        do
+                cat /sys/firmware/acpi/tables/data/BERT >/dev/null
+        done &
+done
+
+This patch makes sure that only the process that drops the reference
+to 0 does the freeing.
+
+Fixes: b7c1fadd6c2e ("ACPI: Do not use krefs under a mutex in osl.c")
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Reviewed-by: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_os.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/osl.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index ef75897b27132..82f6ae4dcfc0b 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -1751,6 +1751,8 @@ static void qla2x00_abort_srb(struct qla_qpair *qp, srb_t *sp, const int res,
- 		spin_lock_irqsave(qp->qp_lock_ptr, *flags);
- 		sp->comp = NULL;
- 	}
+--- a/drivers/acpi/osl.c
++++ b/drivers/acpi/osl.c
+@@ -374,19 +374,21 @@ void *__ref acpi_os_map_memory(acpi_phys
+ }
+ EXPORT_SYMBOL_GPL(acpi_os_map_memory);
+ 
+-static void acpi_os_drop_map_ref(struct acpi_ioremap *map)
++/* Must be called with mutex_lock(&acpi_ioremap_lock) */
++static unsigned long acpi_os_drop_map_ref(struct acpi_ioremap *map)
+ {
+-	if (!--map->refcount)
++	unsigned long refcount = --map->refcount;
 +
-+	atomic_dec(&sp->ref_count);
++	if (!refcount)
+ 		list_del_rcu(&map->list);
++	return refcount;
  }
  
- static void
--- 
-2.20.1
-
+ static void acpi_os_map_cleanup(struct acpi_ioremap *map)
+ {
+-	if (!map->refcount) {
+-		synchronize_rcu_expedited();
+-		acpi_unmap(map->phys, map->virt);
+-		kfree(map);
+-	}
++	synchronize_rcu_expedited();
++	acpi_unmap(map->phys, map->virt);
++	kfree(map);
+ }
+ 
+ /**
+@@ -406,6 +408,7 @@ static void acpi_os_map_cleanup(struct a
+ void __ref acpi_os_unmap_iomem(void __iomem *virt, acpi_size size)
+ {
+ 	struct acpi_ioremap *map;
++	unsigned long refcount;
+ 
+ 	if (!acpi_permanent_mmap) {
+ 		__acpi_unmap_table(virt, size);
+@@ -419,10 +422,11 @@ void __ref acpi_os_unmap_iomem(void __io
+ 		WARN(true, PREFIX "%s: bad address %p\n", __func__, virt);
+ 		return;
+ 	}
+-	acpi_os_drop_map_ref(map);
++	refcount = acpi_os_drop_map_ref(map);
+ 	mutex_unlock(&acpi_ioremap_lock);
+ 
+-	acpi_os_map_cleanup(map);
++	if (!refcount)
++		acpi_os_map_cleanup(map);
+ }
+ EXPORT_SYMBOL_GPL(acpi_os_unmap_iomem);
+ 
+@@ -457,6 +461,7 @@ void acpi_os_unmap_generic_address(struc
+ {
+ 	u64 addr;
+ 	struct acpi_ioremap *map;
++	unsigned long refcount;
+ 
+ 	if (gas->space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY)
+ 		return;
+@@ -472,10 +477,11 @@ void acpi_os_unmap_generic_address(struc
+ 		mutex_unlock(&acpi_ioremap_lock);
+ 		return;
+ 	}
+-	acpi_os_drop_map_ref(map);
++	refcount = acpi_os_drop_map_ref(map);
+ 	mutex_unlock(&acpi_ioremap_lock);
+ 
+-	acpi_os_map_cleanup(map);
++	if (!refcount)
++		acpi_os_map_cleanup(map);
+ }
+ EXPORT_SYMBOL(acpi_os_unmap_generic_address);
+ 
 
 
