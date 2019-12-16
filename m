@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FAA31216E1
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD510121811
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730553AbfLPSKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:10:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52886 "EHLO mail.kernel.org"
+        id S1729226AbfLPSBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:01:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730550AbfLPSKD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:03 -0500
+        id S1729225AbfLPSBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:01:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B522207FF;
-        Mon, 16 Dec 2019 18:10:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6192620726;
+        Mon, 16 Dec 2019 18:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519803;
-        bh=+bspBDIKEk6WGvIU0P6OLALNUK26uZ/vZbYwiz90Hcc=;
+        s=default; t=1576519308;
+        bh=SLLA6soTRudvRmoUb9fkFaD2Y3fKHbuYA00w0PGg8UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeccaC/pp+aEd+zgjdelVO5dyPnLIRanloReQm544is6gTP4fNX8eA8uKWf9hwHq5
-         py5209GEobNrQxj/92zEVLFuAoDqcl/kzUPAJLu5DHIxILuAMwlhrKodal3VoApV/Y
-         z1HbJ2TsnjBrQF09XRoMeKBtWCEacfnfD12l3CXg=
+        b=cPHoQCVk5nvuCRIPE3mcbT9NPvqOYJhFD5FqUXKwdq2Z93J/8nVXGqTkiGDtklckt
+         WvthY+17xVaIvCDJGS4GifzGKyAalmp4AQhx7plJks6+B/dsYZA+tiBWYQJ06enyap
+         m1kn4zL0TkiGDVE8SBSWHmI8XIPxrDzRSmslzPmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 034/180] USB: atm: ueagle-atm: add missing endpoint check
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 006/140] USB: uas: heed CAPACITY_HEURISTICS
 Date:   Mon, 16 Dec 2019 18:47:54 +0100
-Message-Id: <20191216174815.385222908@linuxfoundation.org>
+Message-Id: <20191216174750.071033306@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 09068c1ad53fb077bdac288869dec2435420bdc4 upstream.
+commit 335cbbd5762d5e5c67a8ddd6e6362c2aa42a328f upstream.
 
-Make sure that the interrupt interface has an endpoint before trying to
-access its endpoint descriptors to avoid dereferencing a NULL pointer.
+There is no need to ignore this flag. We should be as close
+to storage in that regard as makes sense, so honor flags whose
+cost is tiny.
 
-The driver binds to the interrupt interface with interface number 0, but
-must not assume that this interface or its current alternate setting are
-the first entries in the corresponding configuration arrays.
-
-Fixes: b72458a80c75 ("[PATCH] USB: Eagle and ADI 930 usb adsl modem driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.16
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210112601.3561-2-johan@kernel.org
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191114112758.32747-3-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/atm/ueagle-atm.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/usb/storage/uas.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/atm/ueagle-atm.c
-+++ b/drivers/usb/atm/ueagle-atm.c
-@@ -2124,10 +2124,11 @@ resubmit:
- /*
-  * Start the modem : init the data and start kernel thread
-  */
--static int uea_boot(struct uea_softc *sc)
-+static int uea_boot(struct uea_softc *sc, struct usb_interface *intf)
- {
--	int ret, size;
- 	struct intr_pkt *intr;
-+	int ret = -ENOMEM;
-+	int size;
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -845,6 +845,12 @@ static int uas_slave_configure(struct sc
+ 		sdev->fix_capacity = 1;
  
- 	uea_enters(INS_TO_USBDEV(sc));
- 
-@@ -2152,6 +2153,11 @@ static int uea_boot(struct uea_softc *sc
- 	if (UEA_CHIP_VERSION(sc) == ADI930)
- 		load_XILINX_firmware(sc);
- 
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
-+		ret = -ENODEV;
-+		goto err0;
-+	}
+ 	/*
++	 * in some cases we have to guess
++	 */
++	if (devinfo->flags & US_FL_CAPACITY_HEURISTICS)
++		sdev->guess_capacity = 1;
 +
- 	intr = kmalloc(size, GFP_KERNEL);
- 	if (!intr)
- 		goto err0;
-@@ -2163,8 +2169,7 @@ static int uea_boot(struct uea_softc *sc
- 	usb_fill_int_urb(sc->urb_int, sc->usb_dev,
- 			 usb_rcvintpipe(sc->usb_dev, UEA_INTR_PIPE),
- 			 intr, size, uea_intr, sc,
--			 sc->usb_dev->actconfig->interface[0]->altsetting[0].
--			 endpoint[0].desc.bInterval);
-+			 intf->cur_altsetting->endpoint[0].desc.bInterval);
- 
- 	ret = usb_submit_urb(sc->urb_int, GFP_KERNEL);
- 	if (ret < 0) {
-@@ -2179,6 +2184,7 @@ static int uea_boot(struct uea_softc *sc
- 	sc->kthread = kthread_create(uea_kthread, sc, "ueagle-atm");
- 	if (IS_ERR(sc->kthread)) {
- 		uea_err(INS_TO_USBDEV(sc), "failed to create thread\n");
-+		ret = PTR_ERR(sc->kthread);
- 		goto err2;
- 	}
- 
-@@ -2193,7 +2199,7 @@ err1:
- 	kfree(intr);
- err0:
- 	uea_leaves(INS_TO_USBDEV(sc));
--	return -ENOMEM;
-+	return ret;
- }
- 
- /*
-@@ -2554,7 +2560,7 @@ static int uea_bind(struct usbatm_data *
- 	if (ret < 0)
- 		goto error;
- 
--	ret = uea_boot(sc);
-+	ret = uea_boot(sc, intf);
- 	if (ret < 0)
- 		goto error_rm_grp;
- 
++	/*
+ 	 * Some devices don't like MODE SENSE with page=0x3f,
+ 	 * which is the command used for checking if a device
+ 	 * is write-protected.  Now that we tell the sd driver
 
 
