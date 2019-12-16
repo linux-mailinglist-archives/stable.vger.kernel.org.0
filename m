@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7655E1217F7
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B841E1216EC
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:33:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728573AbfLPSkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:40:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38868 "EHLO mail.kernel.org"
+        id S1730158AbfLPSJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:09:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729113AbfLPSCn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:02:43 -0500
+        id S1730063AbfLPSJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:09:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4513B207FF;
-        Mon, 16 Dec 2019 18:02:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D461A206EC;
+        Mon, 16 Dec 2019 18:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519362;
-        bh=RDDDlaYGN4LXkxzUGGrHx9donJGj26ia5jz00kc+6/8=;
+        s=default; t=1576519779;
+        bh=ciHsi6S8mBqBG9SPX5rUDlzx23pZaiJaiyXTm83PUwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVQZdqvyrMjddKVjuypgl17aS0byoYxA6Ta8k8sFGqnI8a9Yz1nFcdt+Qj0ukCvD7
-         SJfCiw50P2m9WB1y+iRcBNXLiehN9laiwTsyLu6QrTo078E8hE/6e4UPbLb6xricaJ
-         nfnBT4fRbmD1bm5Qs0hbe973Wvdzgu9+bAxzCwF0=
+        b=cfXDO0Lr3eYpBQ/4QvNhoNsmIcRM6fXXDKXtmx2xaIK43oXV40KzMC1mkU/oY0SpA
+         Ct74aTTjkhuEKHhdtSI8GK2y8OMpAy4pz5Ez54TEFVRTvkBOu2z6y0c9n6IZw5M3nZ
+         yf6h3e/s3jifQaBFLJ7CQ2P0XzpGnmwoiBqawio8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [PATCH 4.19 035/140] phy: renesas: rcar-gen3-usb2: Fix sysfs interface of "role"
-Date:   Mon, 16 Dec 2019 18:48:23 +0100
-Message-Id: <20191216174758.620659251@linuxfoundation.org>
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.3 064/180] rtlwifi: rtl8192de: Fix missing callback that tests for hw release of buffer
+Date:   Mon, 16 Dec 2019 18:48:24 +0100
+Message-Id: <20191216174829.695516960@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 4bd5ead82d4b877ebe41daf95f28cda53205b039 upstream.
+commit 3155db7613edea8fb943624062baf1e4f9cfbfd6 upstream.
 
-Since the role_store() uses strncmp(), it's possible to refer
-out-of-memory if the sysfs data size is smaller than strlen("host").
-This patch fixes it by using sysfs_streq() instead of strncmp().
+In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
+new drivers"), a callback needed to check if the hardware has released
+a buffer indicating that a DMA operation is completed was not added.
 
-Reported-by: Pavel Machek <pavel@denx.de>
-Fixes: 9bb86777fb71 ("phy: rcar-gen3-usb2: add sysfs for usb role swap")
-Cc: <stable@vger.kernel.org> # v4.10+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
+Cc: Stable <stable@vger.kernel.org>	# v3.18+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/phy/renesas/phy-rcar-gen3-usb2.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c  |    1 +
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |   17 +++++++++++++++++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h |    2 ++
+ 3 files changed, 20 insertions(+)
 
---- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -23,6 +23,7 @@
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/regulator/consumer.h>
-+#include <linux/string.h>
- #include <linux/usb/of.h>
- #include <linux/workqueue.h>
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
+@@ -216,6 +216,7 @@ static struct rtl_hal_ops rtl8192de_hal_
+ 	.led_control = rtl92de_led_control,
+ 	.set_desc = rtl92de_set_desc,
+ 	.get_desc = rtl92de_get_desc,
++	.is_tx_desc_closed = rtl92de_is_tx_desc_closed,
+ 	.tx_polling = rtl92de_tx_polling,
+ 	.enable_hw_sec = rtl92de_enable_hw_security_config,
+ 	.set_key = rtl92de_set_key,
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
+@@ -837,6 +837,23 @@ u64 rtl92de_get_desc(struct ieee80211_hw
+ 	return ret;
+ }
  
-@@ -241,9 +242,9 @@ static ssize_t role_store(struct device
- 	if (!ch->has_otg_pins || !ch->phy->init_count)
- 		return -EIO;
- 
--	if (!strncmp(buf, "host", strlen("host")))
-+	if (sysfs_streq(buf, "host"))
- 		new_mode = PHY_MODE_USB_HOST;
--	else if (!strncmp(buf, "peripheral", strlen("peripheral")))
-+	else if (sysfs_streq(buf, "peripheral"))
- 		new_mode = PHY_MODE_USB_DEVICE;
- 	else
- 		return -EINVAL;
++bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
++			       u8 hw_queue, u16 index)
++{
++	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
++	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[hw_queue];
++	u8 *entry = (u8 *)(&ring->desc[ring->idx]);
++	u8 own = (u8)rtl92de_get_desc(hw, entry, true, HW_DESC_OWN);
++
++	/* a beacon packet will only use the first
++	 * descriptor by defaut, and the own bit may not
++	 * be cleared by the hardware
++	 */
++	if (own)
++		return false;
++	return true;
++}
++
+ void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue)
+ {
+ 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
+@@ -715,6 +715,8 @@ void rtl92de_set_desc(struct ieee80211_h
+ 		      u8 desc_name, u8 *val);
+ u64 rtl92de_get_desc(struct ieee80211_hw *hw,
+ 		     u8 *p_desc, bool istx, u8 desc_name);
++bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
++			       u8 hw_queue, u16 index);
+ void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue);
+ void rtl92de_tx_fill_cmddesc(struct ieee80211_hw *hw, u8 *pdesc,
+ 			     bool b_firstseg, bool b_lastseg,
 
 
