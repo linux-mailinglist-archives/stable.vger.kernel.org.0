@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5922B1213B6
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:04:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FFD31215B2
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729605AbfLPSEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:04:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
+        id S1731929AbfLPSXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:23:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729331AbfLPSEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:04:14 -0500
+        id S1731990AbfLPSTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:19:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE00C2072D;
-        Mon, 16 Dec 2019 18:04:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A1CC2072D;
+        Mon, 16 Dec 2019 18:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519453;
-        bh=DmSp8Or9YMkcXzwwMGfPEohpelPbs30v25qF/wjmyYE=;
+        s=default; t=1576520390;
+        bh=18Ylpm478twVvDnmH9CUFB2PCxMFe4y4fQT3DJfe8ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOwAqIJ6NlinFnsJXIkwUoKTQBOb1bTaRRoiGrDVzBR8gkO6uu+E4q3ktyhyH+Cw2
-         zvCZY7vGYJwA3zpvHOGWJKsJKYBifNqyaEfucGWbmCoTZlQlo+XYsjOWhMS6Ah8lPw
-         5/gJIVET91s+BZJv+uFSjfBgdcMLbTow6WktX9Bk=
+        b=pPmuBgMf/Jzj1M9VU/rEygdNS1sZP3manO5NDsF2Jzj7XdBrHoTNDk5ZsC3RHoqk4
+         32MUZx43DvwgaE0+6JsFJFtu7GLIwCxOsiEGM1eN6Rmas8ghnv3+XNAqMhSPYObOdk
+         hlviPoW3KjoaBSJwF8Q0+CCCXnquCr8BAlofD6qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 072/140] cpufreq: powernv: fix stack bloat and hard limit on number of CPUs
+        stable@vger.kernel.org, zhangxiaoxu <zhangxiaoxu5@huawei.com>,
+        Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 084/177] dm zoned: reduce overhead of backing device checks
 Date:   Mon, 16 Dec 2019 18:49:00 +0100
-Message-Id: <20191216174807.086723618@linuxfoundation.org>
+Message-Id: <20191216174837.926349537@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +44,261 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit db0d32d84031188443e25edbd50a71a6e7ac5d1d upstream.
+commit e7fad909b68aa37470d9f2d2731b5bec355ee5d6 upstream.
 
-The following build warning occurred on powerpc 64-bit builds:
+Commit 75d66ffb48efb3 added backing device health checks and as a part
+of these checks, check_events() block ops template call is invoked in
+dm-zoned mapping path as well as in reclaim and flush path. Calling
+check_events() with ATA or SCSI backing devices introduces a blocking
+scsi_test_unit_ready() call being made in sd_check_events(). Even though
+the overhead of calling scsi_test_unit_ready() is small for ATA zoned
+devices, it is much larger for SCSI and it affects performance in a very
+negative way.
 
-drivers/cpufreq/powernv-cpufreq.c: In function 'init_chip_info':
-drivers/cpufreq/powernv-cpufreq.c:1070:1: warning: the frame size of
-1040 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+Fix this performance regression by executing check_events() only in case
+of any I/O errors. The function dmz_bdev_is_dying() is modified to call
+only blk_queue_dying(), while calls to check_events() are made in a new
+helper function, dmz_check_bdev().
 
-This is with a cross-compiler based on gcc 8.1.0, which I got from:
-  https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/8.1.0/
-
-The warning is due to putting 1024 bytes on the stack:
-
-    unsigned int chip[256];
-
-...and it's also undesirable to have a hard limit on the number of
-CPUs here.
-
-Fix both problems by dynamically allocating based on num_possible_cpus,
-as recommended by Michael Ellerman.
-
-Fixes: 053819e0bf840 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: zhangxiaoxu <zhangxiaoxu5@huawei.com>
+Fixes: 75d66ffb48efb3 ("dm zoned: properly handle backing device failure")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/powernv-cpufreq.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/md/dm-zoned-metadata.c |   29 ++++++++++++++--------
+ drivers/md/dm-zoned-reclaim.c  |    8 +-----
+ drivers/md/dm-zoned-target.c   |   54 ++++++++++++++++++++++++++++-------------
+ drivers/md/dm-zoned.h          |    2 +
+ 4 files changed, 61 insertions(+), 32 deletions(-)
 
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -1042,9 +1042,14 @@ static struct cpufreq_driver powernv_cpu
- 
- static int init_chip_info(void)
- {
--	unsigned int chip[256];
-+	unsigned int *chip;
- 	unsigned int cpu, i;
- 	unsigned int prev_chip_id = UINT_MAX;
-+	int ret = 0;
-+
-+	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
-+	if (!chip)
-+		return -ENOMEM;
- 
- 	for_each_possible_cpu(cpu) {
- 		unsigned int id = cpu_to_chip_id(cpu);
-@@ -1056,8 +1061,10 @@ static int init_chip_info(void)
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -554,6 +554,7 @@ static struct dmz_mblock *dmz_get_mblock
+ 		       TASK_UNINTERRUPTIBLE);
+ 	if (test_bit(DMZ_META_ERROR, &mblk->state)) {
+ 		dmz_release_mblock(zmd, mblk);
++		dmz_check_bdev(zmd->dev);
+ 		return ERR_PTR(-EIO);
  	}
  
- 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
--	if (!chips)
--		return -ENOMEM;
-+	if (!chips) {
-+		ret = -ENOMEM;
-+		goto free_and_return;
-+	}
+@@ -625,6 +626,8 @@ static int dmz_rdwr_block(struct dmz_met
+ 	ret = submit_bio_wait(bio);
+ 	bio_put(bio);
  
- 	for (i = 0; i < nr_chips; i++) {
- 		chips[i].id = chip[i];
-@@ -1067,7 +1074,9 @@ static int init_chip_info(void)
- 			per_cpu(chip_info, cpu) =  &chips[i];
- 	}
- 
--	return 0;
-+free_and_return:
-+	kfree(chip);
-+	return ret;
++	if (ret)
++		dmz_check_bdev(zmd->dev);
+ 	return ret;
  }
  
- static inline void clean_chip_info(void)
+@@ -691,6 +694,7 @@ static int dmz_write_dirty_mblocks(struc
+ 			       TASK_UNINTERRUPTIBLE);
+ 		if (test_bit(DMZ_META_ERROR, &mblk->state)) {
+ 			clear_bit(DMZ_META_ERROR, &mblk->state);
++			dmz_check_bdev(zmd->dev);
+ 			ret = -EIO;
+ 		}
+ 		nr_mblks_submitted--;
+@@ -768,7 +772,7 @@ int dmz_flush_metadata(struct dmz_metada
+ 	/* If there are no dirty metadata blocks, just flush the device cache */
+ 	if (list_empty(&write_list)) {
+ 		ret = blkdev_issue_flush(zmd->dev->bdev, GFP_NOIO, NULL);
+-		goto out;
++		goto err;
+ 	}
+ 
+ 	/*
+@@ -778,7 +782,7 @@ int dmz_flush_metadata(struct dmz_metada
+ 	 */
+ 	ret = dmz_log_dirty_mblocks(zmd, &write_list);
+ 	if (ret)
+-		goto out;
++		goto err;
+ 
+ 	/*
+ 	 * The log is on disk. It is now safe to update in place
+@@ -786,11 +790,11 @@ int dmz_flush_metadata(struct dmz_metada
+ 	 */
+ 	ret = dmz_write_dirty_mblocks(zmd, &write_list, zmd->mblk_primary);
+ 	if (ret)
+-		goto out;
++		goto err;
+ 
+ 	ret = dmz_write_sb(zmd, zmd->mblk_primary);
+ 	if (ret)
+-		goto out;
++		goto err;
+ 
+ 	while (!list_empty(&write_list)) {
+ 		mblk = list_first_entry(&write_list, struct dmz_mblock, link);
+@@ -805,16 +809,20 @@ int dmz_flush_metadata(struct dmz_metada
+ 
+ 	zmd->sb_gen++;
+ out:
+-	if (ret && !list_empty(&write_list)) {
+-		spin_lock(&zmd->mblk_lock);
+-		list_splice(&write_list, &zmd->mblk_dirty_list);
+-		spin_unlock(&zmd->mblk_lock);
+-	}
+-
+ 	dmz_unlock_flush(zmd);
+ 	up_write(&zmd->mblk_sem);
+ 
+ 	return ret;
++
++err:
++	if (!list_empty(&write_list)) {
++		spin_lock(&zmd->mblk_lock);
++		list_splice(&write_list, &zmd->mblk_dirty_list);
++		spin_unlock(&zmd->mblk_lock);
++	}
++	if (!dmz_check_bdev(zmd->dev))
++		ret = -EIO;
++	goto out;
+ }
+ 
+ /*
+@@ -1244,6 +1252,7 @@ static int dmz_update_zone(struct dmz_me
+ 	if (ret) {
+ 		dmz_dev_err(zmd->dev, "Get zone %u report failed",
+ 			    dmz_id(zmd, zone));
++		dmz_check_bdev(zmd->dev);
+ 		return ret;
+ 	}
+ 
+--- a/drivers/md/dm-zoned-reclaim.c
++++ b/drivers/md/dm-zoned-reclaim.c
+@@ -82,6 +82,7 @@ static int dmz_reclaim_align_wp(struct d
+ 			    "Align zone %u wp %llu to %llu (wp+%u) blocks failed %d",
+ 			    dmz_id(zmd, zone), (unsigned long long)wp_block,
+ 			    (unsigned long long)block, nr_blocks, ret);
++		dmz_check_bdev(zrc->dev);
+ 		return ret;
+ 	}
+ 
+@@ -489,12 +490,7 @@ static void dmz_reclaim_work(struct work
+ 	ret = dmz_do_reclaim(zrc);
+ 	if (ret) {
+ 		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
+-		if (ret == -EIO)
+-			/*
+-			 * LLD might be performing some error handling sequence
+-			 * at the underlying device. To not interfere, do not
+-			 * attempt to schedule the next reclaim run immediately.
+-			 */
++		if (!dmz_check_bdev(zrc->dev))
+ 			return;
+ 	}
+ 
+--- a/drivers/md/dm-zoned-target.c
++++ b/drivers/md/dm-zoned-target.c
+@@ -80,6 +80,8 @@ static inline void dmz_bio_endio(struct
+ 
+ 	if (status != BLK_STS_OK && bio->bi_status == BLK_STS_OK)
+ 		bio->bi_status = status;
++	if (bio->bi_status != BLK_STS_OK)
++		bioctx->target->dev->flags |= DMZ_CHECK_BDEV;
+ 
+ 	if (refcount_dec_and_test(&bioctx->ref)) {
+ 		struct dm_zone *zone = bioctx->zone;
+@@ -565,32 +567,52 @@ out:
+ }
+ 
+ /*
+- * Check the backing device availability. If it's on the way out,
++ * Check if the backing device is being removed. If it's on the way out,
+  * start failing I/O. Reclaim and metadata components also call this
+  * function to cleanly abort operation in the event of such failure.
+  */
+ bool dmz_bdev_is_dying(struct dmz_dev *dmz_dev)
+ {
+-	struct gendisk *disk;
++	if (dmz_dev->flags & DMZ_BDEV_DYING)
++		return true;
+ 
+-	if (!(dmz_dev->flags & DMZ_BDEV_DYING)) {
+-		disk = dmz_dev->bdev->bd_disk;
+-		if (blk_queue_dying(bdev_get_queue(dmz_dev->bdev))) {
+-			dmz_dev_warn(dmz_dev, "Backing device queue dying");
+-			dmz_dev->flags |= DMZ_BDEV_DYING;
+-		} else if (disk->fops->check_events) {
+-			if (disk->fops->check_events(disk, 0) &
+-					DISK_EVENT_MEDIA_CHANGE) {
+-				dmz_dev_warn(dmz_dev, "Backing device offline");
+-				dmz_dev->flags |= DMZ_BDEV_DYING;
+-			}
+-		}
++	if (dmz_dev->flags & DMZ_CHECK_BDEV)
++		return !dmz_check_bdev(dmz_dev);
++
++	if (blk_queue_dying(bdev_get_queue(dmz_dev->bdev))) {
++		dmz_dev_warn(dmz_dev, "Backing device queue dying");
++		dmz_dev->flags |= DMZ_BDEV_DYING;
+ 	}
+ 
+ 	return dmz_dev->flags & DMZ_BDEV_DYING;
+ }
+ 
+ /*
++ * Check the backing device availability. This detects such events as
++ * backing device going offline due to errors, media removals, etc.
++ * This check is less efficient than dmz_bdev_is_dying() and should
++ * only be performed as a part of error handling.
++ */
++bool dmz_check_bdev(struct dmz_dev *dmz_dev)
++{
++	struct gendisk *disk;
++
++	dmz_dev->flags &= ~DMZ_CHECK_BDEV;
++
++	if (dmz_bdev_is_dying(dmz_dev))
++		return false;
++
++	disk = dmz_dev->bdev->bd_disk;
++	if (disk->fops->check_events &&
++	    disk->fops->check_events(disk, 0) & DISK_EVENT_MEDIA_CHANGE) {
++		dmz_dev_warn(dmz_dev, "Backing device offline");
++		dmz_dev->flags |= DMZ_BDEV_DYING;
++	}
++
++	return !(dmz_dev->flags & DMZ_BDEV_DYING);
++}
++
++/*
+  * Process a new BIO.
+  */
+ static int dmz_map(struct dm_target *ti, struct bio *bio)
+@@ -902,8 +924,8 @@ static int dmz_prepare_ioctl(struct dm_t
+ {
+ 	struct dmz_target *dmz = ti->private;
+ 
+-	if (dmz_bdev_is_dying(dmz->dev))
+-		return -ENODEV;
++	if (!dmz_check_bdev(dmz->dev))
++		return -EIO;
+ 
+ 	*bdev = dmz->dev->bdev;
+ 
+--- a/drivers/md/dm-zoned.h
++++ b/drivers/md/dm-zoned.h
+@@ -72,6 +72,7 @@ struct dmz_dev {
+ 
+ /* Device flags. */
+ #define DMZ_BDEV_DYING		(1 << 0)
++#define DMZ_CHECK_BDEV		(2 << 0)
+ 
+ /*
+  * Zone descriptor.
+@@ -255,5 +256,6 @@ void dmz_schedule_reclaim(struct dmz_rec
+  * Functions defined in dm-zoned-target.c
+  */
+ bool dmz_bdev_is_dying(struct dmz_dev *dmz_dev);
++bool dmz_check_bdev(struct dmz_dev *dmz_dev);
+ 
+ #endif /* DM_ZONED_H */
 
 
