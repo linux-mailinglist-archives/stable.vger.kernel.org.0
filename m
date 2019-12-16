@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5309C121406
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:08:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F6512141D
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730132AbfLPSHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:07:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48268 "EHLO mail.kernel.org"
+        id S1730252AbfLPSIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:08:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730138AbfLPSHU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:07:20 -0500
+        id S1730124AbfLPSIT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:08:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD14820CC7;
-        Mon, 16 Dec 2019 18:07:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50DF22072B;
+        Mon, 16 Dec 2019 18:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519640;
-        bh=eSh5pE4Q3RAtck0PQkjrW+PH3c7RITGsXb2IGj4X9eo=;
+        s=default; t=1576519698;
+        bh=WSQUyA0Xex8fQZML6qSyOtUq3dH3w80jNaQVKkPJlGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyPRtWsY8tHGOHdLF+too08++ozDLYmF/nGb5nYEikVj4+kN63g4wNGQ8HM3Kakop
-         /ZQUqWzjn/m4vE+euUa7JfoEranvShlR+RKi6xLbvb7s5wMXlRg40cpuusBjSn7zY9
-         1kP5QXMuNOPPFrUqzY4rFNE4vVLRkjXayV/9Uay4=
+        b=Rwj56AhjRoAm82EyChkHZybxpWeVqYs4X7hevkhvaTBoRWKx50sLfpURYRBWrvVAO
+         VHU2cPyjdNQgoH7f0BbOIamZmNSBB1FaRWX59ant++oFWvw2bmUkHd4JViMr8STnxz
+         ytrcjuKv2tuX7JeAb1asdSyAn1n/vsSY4CYktsPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 5.3 001/180] usb: gadget: configfs: Fix missing spin_lock_init()
-Date:   Mon, 16 Dec 2019 18:47:21 +0100
-Message-Id: <20191216174806.244533348@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.3 007/180] media: venus: remove invalid compat_ioctl32 handler
+Date:   Mon, 16 Dec 2019 18:47:27 +0100
+Message-Id: <20191216174807.376288047@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
 References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,35 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 093edc2baad2c258b1f55d1ab9c63c2b5ae67e42 upstream.
+commit 4adc0423de92cf850d1ef5c0e7cb28fd7a38219e upstream.
 
-The driver allocates the spinlock but not initialize it.
-Use spin_lock_init() on it to initialize it correctly.
+v4l2_compat_ioctl32() is the function that calls into
+v4l2_file_operations->compat_ioctl32(), so setting that back to the same
+function leads to a trivial endless loop, followed by a kernel
+stack overrun.
 
-This is detected by Coccinelle semantic patch.
+Remove the incorrect assignment.
 
-Fixes: 1a1c851bbd70 ("usb: gadget: configfs: fix concurrent issue between composite APIs")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20191030034046.188808-1-weiyongjun1@huawei.com
+Cc: stable@vger.kernel.org
+Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
+Fixes: aaaa93eda64b ("[media] media: venus: venc: add video encoder files")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/configfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/qcom/venus/vdec.c |    3 ---
+ drivers/media/platform/qcom/venus/venc.c |    3 ---
+ 2 files changed, 6 deletions(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1544,6 +1544,7 @@ static struct config_group *gadgets_make
- 	gi->composite.resume = NULL;
- 	gi->composite.max_speed = USB_SPEED_SUPER;
+--- a/drivers/media/platform/qcom/venus/vdec.c
++++ b/drivers/media/platform/qcom/venus/vdec.c
+@@ -1104,9 +1104,6 @@ static const struct v4l2_file_operations
+ 	.unlocked_ioctl = video_ioctl2,
+ 	.poll = v4l2_m2m_fop_poll,
+ 	.mmap = v4l2_m2m_fop_mmap,
+-#ifdef CONFIG_COMPAT
+-	.compat_ioctl32 = v4l2_compat_ioctl32,
+-#endif
+ };
  
-+	spin_lock_init(&gi->spinlock);
- 	mutex_init(&gi->lock);
- 	INIT_LIST_HEAD(&gi->string_list);
- 	INIT_LIST_HEAD(&gi->available_func);
+ static int vdec_probe(struct platform_device *pdev)
+--- a/drivers/media/platform/qcom/venus/venc.c
++++ b/drivers/media/platform/qcom/venus/venc.c
+@@ -1230,9 +1230,6 @@ static const struct v4l2_file_operations
+ 	.unlocked_ioctl = video_ioctl2,
+ 	.poll = v4l2_m2m_fop_poll,
+ 	.mmap = v4l2_m2m_fop_mmap,
+-#ifdef CONFIG_COMPAT
+-	.compat_ioctl32 = v4l2_compat_ioctl32,
+-#endif
+ };
+ 
+ static int venc_probe(struct platform_device *pdev)
 
 
