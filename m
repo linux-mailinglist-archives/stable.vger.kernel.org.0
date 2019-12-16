@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 216791216AB
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:31:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB3B1217F2
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730815AbfLPSLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:11:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
+        id S1729491AbfLPSja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:39:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730811AbfLPSLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:11:36 -0500
+        id S1729253AbfLPSDc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA7452072D;
-        Mon, 16 Dec 2019 18:11:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C97420726;
+        Mon, 16 Dec 2019 18:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519896;
-        bh=4lpxXU2p3Hjyoh0K7wEvhHtrnxxSunMDGWN6OBThWKo=;
+        s=default; t=1576519411;
+        bh=YOwGTA8bggtg9EB37TCIHVOeLJOVKCJIfA3AfeYnd68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kT2F1VyDy8/h2HN4sDtZRbMDcr1pd8pDCE1o+8tAR4nmqGSldePMI9eScLMd2g23E
-         BMnMBqtRFp5oQ0wjS5fO379/INh0nIuWNk5LWF2DATvMMfAr0kYLAIC/yG5Q6xMiaf
-         ApjHAlBLhG3ZmGEJUS/7j2eRTsytRmlZ3ojkoJmI=
+        b=M3fzI+AUgQ2NlfFQE65IlOc2ZYhvsydE42r4MZvmsHTb0NFWZ5+GHytm4mjefRrPH
+         r8aER92QoOceFZIiGL5KzO4NVOShPnr6KoDVPLbm9fBOPzpp6qT5qJlEot712xnxpj
+         RGJFIM54dS62WkVfoOc5iZJ7rVOgQHxY3lWu/l4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Rasmussen <jacobraz@google.com>,
-        Ross Zwisler <zwisler@google.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.3 076/180] ASoC: rt5645: Fixed typo for buddy jack support.
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 048/140] ovl: fix corner case of non-unique st_dev;st_ino
 Date:   Mon, 16 Dec 2019 18:48:36 +0100
-Message-Id: <20191216174830.721910122@linuxfoundation.org>
+Message-Id: <20191216174801.803159477@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Rasmussen <jacobraz@chromium.org>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit fe23be2d85b05f561431d75acddec726ea807d2a upstream.
+commit 9c6d8f13e9da10a26ad7f0a020ef86e8ef142835 upstream.
 
-Had a typo in e7cfd867fd98 that resulted in buddy jack support not being
-fixed.
+On non-samefs overlay without xino, non pure upper inodes should use a
+pseudo_dev assigned to each unique lower fs and pure upper inodes use the
+real upper st_dev.
 
-Fixes: e7cfd867fd98 ("ASoC: rt5645: Fixed buddy jack support.")
-Signed-off-by: Jacob Rasmussen <jacobraz@google.com>
-Reviewed-by: Ross Zwisler <zwisler@google.com>
-Cc: <jacobraz@google.com>
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191114232011.165762-1-jacobraz@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+It is fine for an overlay pure upper inode to use the same st_dev;st_ino
+values as the real upper inode, because the content of those two different
+filesystem objects is always the same.
+
+In this case, however:
+ - two filesystems, A and B
+ - upper layer is on A
+ - lower layer 1 is also on A
+ - lower layer 2 is on B
+
+Non pure upper overlay inode, whose origin is in layer 1 will have the same
+st_dev;st_ino values as the real lower inode. This may result with a false
+positive results of 'diff' between the real lower and copied up overlay
+inode.
+
+Fix this by using the upper st_dev;st_ino values in this case.  This breaks
+the property of constant st_dev;st_ino across copy up of this case. This
+breakage will be fixed by a later patch.
+
+Fixes: 5148626b806a ("ovl: allocate anon bdev per unique lower fs")
+Cc: stable@vger.kernel.org # v4.17+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/rt5645.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/overlayfs/inode.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -3271,7 +3271,7 @@ static void rt5645_jack_detect_work(stru
- 				    report, SND_JACK_MICROPHONE);
- 		return;
- 	case 4:
--		val = snd_soc_component_read32(rt5645->component, RT5645_A_JD_CTRL1) & 0x002;
-+		val = snd_soc_component_read32(rt5645->component, RT5645_A_JD_CTRL1) & 0x0020;
- 		break;
- 	default: /* read rt5645 jd1_1 status */
- 		val = snd_soc_component_read32(rt5645->component, RT5645_INT_IRQ_ST) & 0x1000;
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -203,8 +203,14 @@ int ovl_getattr(const struct path *path,
+ 			if (ovl_test_flag(OVL_INDEX, d_inode(dentry)) ||
+ 			    (!ovl_verify_lower(dentry->d_sb) &&
+ 			     (is_dir || lowerstat.nlink == 1))) {
+-				stat->ino = lowerstat.ino;
+ 				lower_layer = ovl_layer_lower(dentry);
++				/*
++				 * Cannot use origin st_dev;st_ino because
++				 * origin inode content may differ from overlay
++				 * inode content.
++				 */
++				if (samefs || lower_layer->fsid)
++					stat->ino = lowerstat.ino;
+ 			}
+ 
+ 			/*
 
 
