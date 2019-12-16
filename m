@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CECA1214BC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEB65121559
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731067AbfLPSOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:14:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33458 "EHLO mail.kernel.org"
+        id S1732192AbfLPSVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:21:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731207AbfLPSOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:14:20 -0500
+        id S1732183AbfLPSVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:21:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19548206E0;
-        Mon, 16 Dec 2019 18:14:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD5252166E;
+        Mon, 16 Dec 2019 18:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520059;
-        bh=Z8qSorUOq32A+KH5Vs7+STz3PRO3FgaprwoajV5hTjI=;
+        s=default; t=1576520463;
+        bh=Uv07aAKk39n58UabQhF6Iu9klPWARZ2sCElrDYxIY9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8ui1yki1LPEGeKInUFXDor6tkCp1r3RHGAsXEaQg0eVke6DKFbJhHg/3J6LHu5qm
-         so/eIdswWn3r3XvbL6DUZYESu/BFsTLk/fM1G6RpY29PFpdajg33Y0X/ntu5H8vhIj
-         WY9ba9AM2sCU7A8RVGMsmC8kSgfprT2XCJcz+XW0=
+        b=NlbFjfDUSI/z1+yS/mjcv0oZIoKMS800oD7IJA7L8zniNR8dRk79gK5C4wAZMF8xB
+         V2xaTkxNtgDT6R5uAO2aAZ11k5t7T1aQoLullll2EMQw+uIt4bm+o0g6f7O9dIwz2Z
+         NjgRhSxVyklgPNt3zo+tZbAzWQgncqgtgw4rikUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.3 180/180] ext4: fix a bug in ext4_wait_for_tail_page_commit
+        stable@vger.kernel.org, Nicolas Geoffray <ngeoffray@google.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Hugh Dickins <hughd@google.com>, Shuah Khan <shuah@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 164/177] mm, memfd: fix COW issue on MAP_PRIVATE and F_SEAL_FUTURE_WRITE mappings
 Date:   Mon, 16 Dec 2019 18:50:20 +0100
-Message-Id: <20191216174848.663806910@linuxfoundation.org>
+Message-Id: <20191216174849.586463116@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,120 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Nicolas Geoffray <ngeoffray@google.com>
 
-commit 565333a1554d704789e74205989305c811fd9c7a upstream.
+commit 05d351102dbe4e103d6bdac18b1122cd3cd04925 upstream.
 
-No need to wait for any commit once the page is fully truncated.
-Besides, it may confuse e.g. concurrent ext4_writepage() with the page
-still be dirty (will be cleared by truncate_pagecache() in
-ext4_setattr()) but buffers has been freed; and then trigger a bug
-show as below:
+F_SEAL_FUTURE_WRITE has unexpected behavior when used with MAP_PRIVATE:
+A private mapping created after the memfd file that gets sealed with
+F_SEAL_FUTURE_WRITE loses the copy-on-write at fork behavior, meaning
+children and parent share the same memory, even though the mapping is
+private.
 
-[   26.057508] ------------[ cut here ]------------
-[   26.058531] kernel BUG at fs/ext4/inode.c:2134!
-...
-[   26.088130] Call trace:
-[   26.088695]  ext4_writepage+0x914/0xb28
-[   26.089541]  writeout.isra.4+0x1b4/0x2b8
-[   26.090409]  move_to_new_page+0x3b0/0x568
-[   26.091338]  __unmap_and_move+0x648/0x988
-[   26.092241]  unmap_and_move+0x48c/0xbb8
-[   26.093096]  migrate_pages+0x220/0xb28
-[   26.093945]  kernel_mbind+0x828/0xa18
-[   26.094791]  __arm64_sys_mbind+0xc8/0x138
-[   26.095716]  el0_svc_common+0x190/0x490
-[   26.096571]  el0_svc_handler+0x60/0xd0
-[   26.097423]  el0_svc+0x8/0xc
+The reason for this is due to the code below:
 
-Run the procedure (generate by syzkaller) parallel with ext3.
+  static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
+  {
+        struct shmem_inode_info *info = SHMEM_I(file_inode(file));
 
-void main()
-{
-	int fd, fd1, ret;
-	void *addr;
-	size_t length = 4096;
-	int flags;
-	off_t offset = 0;
-	char *str = "12345";
+        if (info->seals & F_SEAL_FUTURE_WRITE) {
+                /*
+                 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
+                 * "future write" seal active.
+                 */
+                if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
+                        return -EPERM;
 
-	fd = open("a", O_RDWR | O_CREAT);
-	assert(fd >= 0);
+                /*
+                 * Since the F_SEAL_FUTURE_WRITE seals allow for a MAP_SHARED
+                 * read-only mapping, take care to not allow mprotect to revert
+                 * protections.
+                 */
+                vma->vm_flags &= ~(VM_MAYWRITE);
+        }
+        ...
+  }
 
-	/* Truncate to 4k */
-	ret = ftruncate(fd, length);
-	assert(ret == 0);
+And for the mm to know if a mapping is copy-on-write:
 
-	/* Journal data mode */
-	flags = 0xc00f;
-	ret = ioctl(fd, _IOW('f', 2, long), &flags);
-	assert(ret == 0);
+  static inline bool is_cow_mapping(vm_flags_t flags)
+  {
+        return (flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE;
+  }
 
-	/* Truncate to 0 */
-	fd1 = open("a", O_TRUNC | O_NOATIME);
-	assert(fd1 >= 0);
+The patch fixes the issue by making the mprotect revert protection
+happen only for shared mappings.  For private mappings, using mprotect
+will have no effect on the seal behavior.
 
-	addr = mmap(NULL, length, PROT_WRITE | PROT_READ,
-					MAP_SHARED, fd, offset);
-	assert(addr != (void *)-1);
+The F_SEAL_FUTURE_WRITE feature was introduced in v5.1 so v5.3.x stable
+kernels would need a backport.
 
-	memcpy(addr, str, 5);
-	mbind(addr, length, 0, 0, 0, MPOL_MF_MOVE);
-}
-
-And the bug will be triggered once we seen the below order.
-
-reproduce1                         reproduce2
-
-...                            |   ...
-truncate to 4k                 |
-change to journal data mode    |
-                               |   memcpy(set page dirty)
-truncate to 0:                 |
-ext4_setattr:                  |
-...                            |
-ext4_wait_for_tail_page_commit |
-                               |   mbind(trigger bug)
-truncate_pagecache(clean dirty)|   ...
-...                            |
-
-mbind will call ext4_writepage() since the page still be dirty, and then
-report the bug since the buffers has been free. Fix it by return
-directly once offset equals to 0 which means the page has been fully
-truncated.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Link: https://lore.kernel.org/r/20190919063508.1045-1-yangerkun@huawei.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+[akpm@linux-foundation.org: reflow comment, per Christoph]
+Link: http://lkml.kernel.org/r/20191107195355.80608-1-joel@joelfernandes.org
+Fixes: ab3948f58ff84 ("mm/memfd: add an F_SEAL_FUTURE_WRITE seal to memfd")
+Signed-off-by: Nicolas Geoffray <ngeoffray@google.com>
+Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ mm/shmem.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5493,11 +5493,15 @@ static void ext4_wait_for_tail_page_comm
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2213,11 +2213,14 @@ static int shmem_mmap(struct file *file,
+ 			return -EPERM;
  
- 	offset = inode->i_size & (PAGE_SIZE - 1);
- 	/*
--	 * All buffers in the last page remain valid? Then there's nothing to
--	 * do. We do the check mainly to optimize the common PAGE_SIZE ==
--	 * blocksize case
-+	 * If the page is fully truncated, we don't need to wait for any commit
-+	 * (and we even should not as __ext4_journalled_invalidatepage() may
-+	 * strip all buffers from the page but keep the page dirty which can then
-+	 * confuse e.g. concurrent ext4_writepage() seeing dirty page without
-+	 * buffers). Also we don't need to wait for any commit if all buffers in
-+	 * the page remain valid. This is most beneficial for the common case of
-+	 * blocksize == PAGESIZE.
- 	 */
--	if (offset > PAGE_SIZE - i_blocksize(inode))
-+	if (!offset || offset > (PAGE_SIZE - i_blocksize(inode)))
- 		return;
- 	while (1) {
- 		page = find_lock_page(inode->i_mapping,
+ 		/*
+-		 * Since the F_SEAL_FUTURE_WRITE seals allow for a MAP_SHARED
+-		 * read-only mapping, take care to not allow mprotect to revert
+-		 * protections.
++		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
++		 * MAP_SHARED and read-only, take care to not allow mprotect to
++		 * revert protections on such mappings. Do this only for shared
++		 * mappings. For private mappings, don't need to mask
++		 * VM_MAYWRITE as we still want them to be COW-writable.
+ 		 */
+-		vma->vm_flags &= ~(VM_MAYWRITE);
++		if (vma->vm_flags & VM_SHARED)
++			vma->vm_flags &= ~(VM_MAYWRITE);
+ 	}
+ 
+ 	file_accessed(file);
 
 
