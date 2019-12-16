@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9219912169D
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:30:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EFFA1217A4
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730959AbfLPSMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:12:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
+        id S1729427AbfLPSFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:05:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730956AbfLPSMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:12:30 -0500
+        id S1729846AbfLPSFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:05:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53577206B7;
-        Mon, 16 Dec 2019 18:12:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ADED20700;
+        Mon, 16 Dec 2019 18:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519949;
-        bh=AEN01YZ8NVHmNiKwZzA9bUlX/f3KQSWQ6gZ5yHDG2eA=;
+        s=default; t=1576519538;
+        bh=5cxpUpaQfq084JkcGhH1UyrJMKJkaD6lSDJm5jRztZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWhedt6QqzEpx17yz3a3HVxnyHrTUiHemD7Ziv7+1Gsnn+hOmzFNDsmRxAx9iN8D+
-         vrsUv62pJnBQChevGDVyd2lSHi917gOG1TX9/zLi/1q+Od8fSaKqTuagUoerjr/RwC
-         3xbUCgBGal1iY0DKku6wEb4seSPMijT2dAyozP14=
+        b=tsD/V3StQ2tYaG56SGJbD7KLy60RP3qePjvkotv433sybn+oip+gpcAk7pSHyrPqR
+         WHwLY7HbsUYyGmVlxOunBFMTWOnLousyQRs1B3Hv4iVanQqWOHP/0lHe9slWidgYIu
+         DujauYYIljX17yQjTFSsDrpAYHusZ+5J8uQiG2Zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 135/180] scsi: lpfc: Fix bad ndlp ptr in xri aborted handling
-Date:   Mon, 16 Dec 2019 18:49:35 +0100
-Message-Id: <20191216174842.314039855@linuxfoundation.org>
+Subject: [PATCH 4.19 108/140] omap: pdata-quirks: remove openpandora quirks for mmc3 and wl1251
+Date:   Mon, 16 Dec 2019 18:49:36 +0100
+Message-Id: <20191216174816.194534419@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,126 +45,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit 324e1c402069e8d277d2a2b18ce40bde1265b96a ]
+[ Upstream commit 2398c41d64321e62af54424fd399964f3d48cdc2 ]
 
-In cases where I/O may be aborted, such as driver unload or link bounces,
-the system will crash based on a bad ndlp pointer.
+With a wl1251 child node of mmc3 in the device tree decoded
+in omap_hsmmc.c to handle special wl1251 initialization, we do
+no longer need to instantiate the mmc3 through pdata quirks.
 
-Example:
-  RIP: 0010:lpfc_sli4_abts_err_handler+0x15/0x140 [lpfc]
-  ...
-  lpfc_sli4_io_xri_aborted+0x20d/0x270 [lpfc]
-  lpfc_sli4_sp_handle_abort_xri_wcqe.isra.54+0x84/0x170 [lpfc]
-  lpfc_sli4_fp_handle_cqe+0xc2/0x480 [lpfc]
-  __lpfc_sli4_process_cq+0xc6/0x230 [lpfc]
-  __lpfc_sli4_hba_process_cq+0x29/0xc0 [lpfc]
-  process_one_work+0x14c/0x390
+We also can remove the wlan regulator and reset/interrupt definitions
+and do them through device tree.
 
-Crash was caused by a bad ndlp address passed to I/O indicated by the XRI
-aborted CQE.  The address was not NULL so the routine deferenced the ndlp
-ptr. The bad ndlp also caused the lpfc_sli4_io_xri_aborted to call an
-erroneous io handler.  Root cause for the bad ndlp was an lpfc_ncmd that
-was aborted, put on the abort_io list, completed, taken off the abort_io
-list, sent to lpfc_release_nvme_buf where it was put back on the abort_io
-list because the lpfc_ncmd->flags setting LPFC_SBUF_XBUSY was not cleared
-on the final completion.
-
-Rework the exchange busy handling to ensure the flags are properly set for
-both scsi and nvme.
-
-Fixes: c490850a0947 ("scsi: lpfc: Adapt partitioned XRI lists to efficient sharing")
-Cc: <stable@vger.kernel.org> # v5.1+
-Link: https://lore.kernel.org/r/20191018211832.7917-6-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Cc: <stable@vger.kernel.org> # v4.7+
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 11 +++++++----
- drivers/scsi/lpfc/lpfc_sli.c  |  5 ++++-
- drivers/scsi/lpfc/lpfc_sli.h  |  3 +--
- 3 files changed, 12 insertions(+), 7 deletions(-)
+ arch/arm/mach-omap2/pdata-quirks.c | 93 ------------------------------
+ 1 file changed, 93 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index f9df800e70672..6ba4a741a8053 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -583,7 +583,7 @@ lpfc_sli4_fcp_xri_aborted(struct lpfc_hba *phba,
- 		if (psb->cur_iocbq.sli4_xritag == xri) {
- 			list_del(&psb->list);
- 			qp->abts_scsi_io_bufs--;
--			psb->exch_busy = 0;
-+			psb->flags &= ~LPFC_SBUF_XBUSY;
- 			psb->status = IOSTAT_SUCCESS;
- 			spin_unlock(
- 				&qp->abts_scsi_buf_list_lock);
-@@ -615,7 +615,7 @@ lpfc_sli4_fcp_xri_aborted(struct lpfc_hba *phba,
- 		if (iocbq->sli4_xritag != xri)
- 			continue;
- 		psb = container_of(iocbq, struct lpfc_io_buf, cur_iocbq);
--		psb->exch_busy = 0;
-+		psb->flags &= ~LPFC_SBUF_XBUSY;
- 		spin_unlock_irqrestore(&phba->hbalock, iflag);
- 		if (!list_empty(&pring->txq))
- 			lpfc_worker_wake_up(phba);
-@@ -834,7 +834,7 @@ lpfc_release_scsi_buf_s4(struct lpfc_hba *phba, struct lpfc_io_buf *psb)
- 	psb->prot_seg_cnt = 0;
+diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
+index 7f02743edbe4c..dae7262287704 100644
+--- a/arch/arm/mach-omap2/pdata-quirks.c
++++ b/arch/arm/mach-omap2/pdata-quirks.c
+@@ -305,108 +305,15 @@ static void __init omap3_logicpd_torpedo_init(void)
+ }
  
- 	qp = psb->hdwq;
--	if (psb->exch_busy) {
-+	if (psb->flags & LPFC_SBUF_XBUSY) {
- 		spin_lock_irqsave(&qp->abts_scsi_buf_list_lock, iflag);
- 		psb->pCmd = NULL;
- 		list_add_tail(&psb->list, &qp->lpfc_abts_scsi_buf_list);
-@@ -3679,7 +3679,10 @@ lpfc_scsi_cmd_iocb_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pIocbIn,
- 	lpfc_cmd->result = (pIocbOut->iocb.un.ulpWord[4] & IOERR_PARAM_MASK);
- 	lpfc_cmd->status = pIocbOut->iocb.ulpStatus;
- 	/* pick up SLI4 exhange busy status from HBA */
--	lpfc_cmd->exch_busy = pIocbOut->iocb_flag & LPFC_EXCHANGE_BUSY;
-+	if (pIocbOut->iocb_flag & LPFC_EXCHANGE_BUSY)
-+		lpfc_cmd->flags |= LPFC_SBUF_XBUSY;
-+	else
-+		lpfc_cmd->flags &= ~LPFC_SBUF_XBUSY;
+ /* omap3pandora legacy devices */
+-#define PANDORA_WIFI_IRQ_GPIO		21
+-#define PANDORA_WIFI_NRESET_GPIO	23
  
- #ifdef CONFIG_SCSI_LPFC_DEBUG_FS
- 	if (lpfc_cmd->prot_data_type) {
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index c7027ecd4d19e..6f6e306ff1e6c 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -11768,7 +11768,10 @@ lpfc_sli_wake_iocb_wait(struct lpfc_hba *phba,
- 		!(cmdiocbq->iocb_flag & LPFC_IO_LIBDFC)) {
- 		lpfc_cmd = container_of(cmdiocbq, struct lpfc_io_buf,
- 			cur_iocbq);
--		lpfc_cmd->exch_busy = rspiocbq->iocb_flag & LPFC_EXCHANGE_BUSY;
-+		if (rspiocbq && (rspiocbq->iocb_flag & LPFC_EXCHANGE_BUSY))
-+			lpfc_cmd->flags |= LPFC_SBUF_XBUSY;
-+		else
-+			lpfc_cmd->flags &= ~LPFC_SBUF_XBUSY;
- 	}
+ static struct platform_device pandora_backlight = {
+ 	.name	= "pandora-backlight",
+ 	.id	= -1,
+ };
  
- 	pdone_q = cmdiocbq->context_un.wait_queue;
-diff --git a/drivers/scsi/lpfc/lpfc_sli.h b/drivers/scsi/lpfc/lpfc_sli.h
-index 467b8270f7fdd..9449236c231d5 100644
---- a/drivers/scsi/lpfc/lpfc_sli.h
-+++ b/drivers/scsi/lpfc/lpfc_sli.h
-@@ -375,14 +375,13 @@ struct lpfc_io_buf {
- 
- 	struct lpfc_nodelist *ndlp;
- 	uint32_t timeout;
--	uint16_t flags;  /* TBD convert exch_busy to flags */
-+	uint16_t flags;
- #define LPFC_SBUF_XBUSY		0x1	/* SLI4 hba reported XB on WCQE cmpl */
- #define LPFC_SBUF_BUMP_QDEPTH	0x2	/* bumped queue depth counter */
- 					/* External DIF device IO conversions */
- #define LPFC_SBUF_NORMAL_DIF	0x4	/* normal mode to insert/strip */
- #define LPFC_SBUF_PASS_DIF	0x8	/* insert/strip mode to passthru */
- #define LPFC_SBUF_NOT_POSTED    0x10    /* SGL failed post to FW. */
--	uint16_t exch_busy;     /* SLI4 hba reported XB on complete WCQE */
- 	uint16_t status;	/* From IOCB Word 7- ulpStatus */
- 	uint32_t result;	/* From IOCB Word 4. */
+-static struct regulator_consumer_supply pandora_vmmc3_supply[] = {
+-	REGULATOR_SUPPLY("vmmc", "omap_hsmmc.2"),
+-};
+-
+-static struct regulator_init_data pandora_vmmc3 = {
+-	.constraints = {
+-		.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
+-	},
+-	.num_consumer_supplies	= ARRAY_SIZE(pandora_vmmc3_supply),
+-	.consumer_supplies	= pandora_vmmc3_supply,
+-};
+-
+-static struct fixed_voltage_config pandora_vwlan = {
+-	.supply_name		= "vwlan",
+-	.microvolts		= 1800000, /* 1.8V */
+-	.gpio			= PANDORA_WIFI_NRESET_GPIO,
+-	.startup_delay		= 50000, /* 50ms */
+-	.enable_high		= 1,
+-	.init_data		= &pandora_vmmc3,
+-};
+-
+-static struct platform_device pandora_vwlan_device = {
+-	.name		= "reg-fixed-voltage",
+-	.id		= 1,
+-	.dev = {
+-		.platform_data = &pandora_vwlan,
+-	},
+-};
+-
+-static void pandora_wl1251_init_card(struct mmc_card *card)
+-{
+-	/*
+-	 * We have TI wl1251 attached to MMC3. Pass this information to
+-	 * SDIO core because it can't be probed by normal methods.
+-	 */
+-	if (card->type == MMC_TYPE_SDIO || card->type == MMC_TYPE_SD_COMBO) {
+-		card->quirks |= MMC_QUIRK_NONSTD_SDIO;
+-		card->cccr.wide_bus = 1;
+-		card->cis.vendor = 0x104c;
+-		card->cis.device = 0x9066;
+-		card->cis.blksize = 512;
+-		card->cis.max_dtr = 24000000;
+-		card->ocr = 0x80;
+-	}
+-}
+-
+-static struct omap2_hsmmc_info pandora_mmc3[] = {
+-	{
+-		.mmc		= 3,
+-		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_POWER_OFF_CARD,
+-		.gpio_cd	= -EINVAL,
+-		.gpio_wp	= -EINVAL,
+-		.init_card	= pandora_wl1251_init_card,
+-	},
+-	{}	/* Terminator */
+-};
+-
+-static void __init pandora_wl1251_init(void)
+-{
+-	struct wl1251_platform_data pandora_wl1251_pdata;
+-	int ret;
+-
+-	memset(&pandora_wl1251_pdata, 0, sizeof(pandora_wl1251_pdata));
+-
+-	pandora_wl1251_pdata.power_gpio = -1;
+-
+-	ret = gpio_request_one(PANDORA_WIFI_IRQ_GPIO, GPIOF_IN, "wl1251 irq");
+-	if (ret < 0)
+-		goto fail;
+-
+-	pandora_wl1251_pdata.irq = gpio_to_irq(PANDORA_WIFI_IRQ_GPIO);
+-	if (pandora_wl1251_pdata.irq < 0)
+-		goto fail_irq;
+-
+-	pandora_wl1251_pdata.use_eeprom = true;
+-	ret = wl1251_set_platform_data(&pandora_wl1251_pdata);
+-	if (ret < 0)
+-		goto fail_irq;
+-
+-	return;
+-
+-fail_irq:
+-	gpio_free(PANDORA_WIFI_IRQ_GPIO);
+-fail:
+-	pr_err("wl1251 board initialisation failed\n");
+-}
+-
+ static void __init omap3_pandora_legacy_init(void)
+ {
+ 	platform_device_register(&pandora_backlight);
+-	platform_device_register(&pandora_vwlan_device);
+-	omap_hsmmc_init(pandora_mmc3);
+-	omap_hsmmc_late_init(pandora_mmc3);
+-	pandora_wl1251_init();
+ }
+ #endif /* CONFIG_ARCH_OMAP3 */
  
 -- 
 2.20.1
