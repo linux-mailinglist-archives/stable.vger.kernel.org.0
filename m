@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B051D121498
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E01121535
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:20:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730998AbfLPSMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:12:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58072 "EHLO mail.kernel.org"
+        id S1731947AbfLPSTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:19:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730993AbfLPSMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:12:45 -0500
+        id S1731945AbfLPSTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:19:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9E5F21582;
-        Mon, 16 Dec 2019 18:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 010CF21835;
+        Mon, 16 Dec 2019 18:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519964;
-        bh=AXCS24bMiz5Bb0xzUxIt8oDfRwDtdzooXWjmdPF5MMU=;
+        s=default; t=1576520371;
+        bh=ftSUF9rQfpuhuW0x47/BZ8HPE4U+C48zwwL/o4E7juw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YgCAg100FfxCvyj7YyG764Zerannu28cnfBUnMTbpPg6odq3Xl0WwNjyhubuibtOS
-         JbgGTAWS0ONsIlV7oq40KmUSSG1yi1kK2q5oDxbRVYoQr0GiP35cyCseZ2MNi/y0aU
-         8FyADy+tEtcb6StD/KgE67y3VFijfq/fY0iuWcCY=
+        b=P/tNMG57NKaxkao+J5l7Bo9YIk2wBlymMcX2MxDPht6kHIXXAFWZ2ovjX5JKPWise
+         6znl3IZ/gTNQtwVmm2nHeRvtuVFeE6MPsMfvPyBk4wlWe32lUCyI6sPs0qQQHPAC1i
+         ff6Wp1KyuIsuQs/wYbJdozuxCOLxyotaQDaDYNjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 141/180] scsi: qla2xxx: Fix NVMe port discovery after a short device port loss
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 125/177] ACPI: LPSS: Add dmi quirk for skipping _DEP check for some device-links
 Date:   Mon, 16 Dec 2019 18:49:41 +0100
-Message-Id: <20191216174843.037897728@linuxfoundation.org>
+Message-Id: <20191216174843.808178010@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9e744591ef1b8df27c25c68dac858dada8688f77 ]
+commit 6025e2fae3dde3c3d789d08f8ceacbdd9f90d471 upstream.
 
-The following sequence of event leads to NVME port disappearing:
+The iGPU / GFX0 device's _PS0 method on the ASUS T200TA depends on the
+I2C1 controller (which is connected to the embedded controller). But unlike
+in the T100TA/T100CHI this dependency is not listed in the _DEP of the GFX0
+device.
 
-    - device port shut
-    - nvme_fc_unregister_remoteport
-    - device port online
-    - remote port delete completes
-    - relogin is scheduled
-    - "post gidpn" message appears due to rscn generation # mismatch
+This results in the dev_WARN_ONCE(..., "Transfer while suspended\n") call
+in i2c-designware-master.c triggering and the AML code not working as it
+should.
 
-In short, if a device comes back online sooner than an unregister
-completion, a mismatch in rscn generation number occurs, which is not
-handled correctly during device relogin. Fix this by starting with a redo
-of GNL.
+This commit fixes this by adding a dmi based quirk mechanism for devices
+which miss a _DEP, and adding a quirk for the LNXVIDEO depending on the
+I2C1 device on the Asus T200TA.
 
-When ql2xextended_error_logging is enabled, the re-plugged device's
-discovery stops with the following messages printed:
+Fixes: 2d71ee0ce72f ("ACPI / LPSS: Add a device link from the GPU to the BYT I2C5 controller")
+Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
---8<--
-qla2xxx [0000:41:00.0]-480d:3: Relogin scheduled.
-qla2xxx [0000:41:00.0]-4800:3: DPC handler sleeping.
-qla2xxx [0000:41:00.0]-2902:3: qla24xx_handle_relogin_event 21:00:00:24:ff:17:9e:91 DS 0 LS 7 P 0 del 2 cnfl
-   (null) rscn 1|2 login 1|2 fl 1
-qla2xxx [0000:41:00.0]-28e9:3: qla24xx_handle_relogin_event 1666 21:00:00:24:ff:17:9e:91 post gidpn
-qla2xxx [0000:41:00.0]-480e:3: Relogin end.
---8<--
-
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_lpss.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index a75a40b14140a..2c617a34ae1e7 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1712,9 +1712,9 @@ void qla24xx_handle_relogin_event(scsi_qla_host_t *vha,
- 	}
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -10,6 +10,7 @@
+ #include <linux/acpi.h>
+ #include <linux/clkdev.h>
+ #include <linux/clk-provider.h>
++#include <linux/dmi.h>
+ #include <linux/err.h>
+ #include <linux/io.h>
+ #include <linux/mutex.h>
+@@ -463,6 +464,18 @@ struct lpss_device_links {
+ 	const char *consumer_hid;
+ 	const char *consumer_uid;
+ 	u32 flags;
++	const struct dmi_system_id *dep_missing_ids;
++};
++
++/* Please keep this list sorted alphabetically by vendor and model */
++static const struct dmi_system_id i2c1_dep_missing_dmi_ids[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "T200TA"),
++		},
++	},
++	{}
+ };
  
- 	if (fcport->last_rscn_gen != fcport->rscn_gen) {
--		ql_dbg(ql_dbg_disc, vha, 0x20e9, "%s %d %8phC post gidpn\n",
-+		ql_dbg(ql_dbg_disc, vha, 0x20e9, "%s %d %8phC post gnl\n",
- 		    __func__, __LINE__, fcport->port_name);
--
-+		qla24xx_post_gnl_work(vha, fcport);
+ /*
+@@ -478,7 +491,8 @@ static const struct lpss_device_links lp
+ 	/* CHT iGPU depends on PMIC I2C controller */
+ 	{"808622C1", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
+ 	/* BYT iGPU depends on the Embedded Controller I2C controller (UID 1) */
+-	{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
++	{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME,
++	 i2c1_dep_missing_dmi_ids},
+ 	/* BYT CR iGPU depends on PMIC I2C controller (UID 5 on CR) */
+ 	{"80860F41", "5", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
+ 	/* BYT iGPU depends on PMIC I2C controller (UID 7 on non CR) */
+@@ -577,7 +591,8 @@ static void acpi_lpss_link_consumer(stru
+ 	if (!dev2)
  		return;
- 	}
  
--- 
-2.20.1
-
+-	if (acpi_lpss_dep(ACPI_COMPANION(dev2), ACPI_HANDLE(dev1)))
++	if ((link->dep_missing_ids && dmi_check_system(link->dep_missing_ids))
++	    || acpi_lpss_dep(ACPI_COMPANION(dev2), ACPI_HANDLE(dev1)))
+ 		device_link_add(dev2, dev1, link->flags);
+ 
+ 	put_device(dev2);
+@@ -592,7 +607,8 @@ static void acpi_lpss_link_supplier(stru
+ 	if (!dev2)
+ 		return;
+ 
+-	if (acpi_lpss_dep(ACPI_COMPANION(dev1), ACPI_HANDLE(dev2)))
++	if ((link->dep_missing_ids && dmi_check_system(link->dep_missing_ids))
++	    || acpi_lpss_dep(ACPI_COMPANION(dev1), ACPI_HANDLE(dev2)))
+ 		device_link_add(dev1, dev2, link->flags);
+ 
+ 	put_device(dev2);
 
 
