@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 341BA121616
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:27:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B23121399
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:03:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731226AbfLPSQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:16:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39510 "EHLO mail.kernel.org"
+        id S1728963AbfLPSDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:03:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731573AbfLPSQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:16:39 -0500
+        id S1729453AbfLPSDK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6AF220717;
-        Mon, 16 Dec 2019 18:16:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39BB32072D;
+        Mon, 16 Dec 2019 18:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520198;
-        bh=D9BzyQy5ZzPaglJk39CSdueO88kTdIsmK1/C+xN29lg=;
+        s=default; t=1576519389;
+        bh=hFureTdvfpp1CHTnbCGVi0B4qwsNsYx/cmvjy1S9FKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S20wfiD9cMa9+kLZGUX8QyET0ve3/u3phUtBd+4TZ3iJJHGriIB6rIrfjx792Ko50
-         M5uFSycpCqfaWDGgyhTPgPAsgh6l6l0c6G9Tu45BH9SvFgGf59/jaFyKJqPhWdlezk
-         5TaikdpNZkg00kqKLyRph+6CYXM6dwYT80y8zd/4=
+        b=ehSaD9VvpIrF1B7tQt6PZNH9Nf7KEi1YHT4JKmIz5KKd9Dc6Nhl7WE5HtfFcQxlMl
+         pEROoNJQednaBoFPePDIZef+w4KjIAjNA48hqexZKri141Q1ACAowgktM36icTglqi
+         KAnYyOVw/BYL6GwpNkU1e7QMTkAw7sbRBgYWACYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 057/177] virt_wifi: fix use-after-free in virt_wifi_newlink()
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 045/140] rtlwifi: rtl8192de: Fix missing callback that tests for hw release of buffer
 Date:   Mon, 16 Dec 2019 18:48:33 +0100
-Message-Id: <20191216174831.081261216@linuxfoundation.org>
+Message-Id: <20191216174801.125984474@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit bc71d8b580ba81b55b6e15b1c0320632515b4bac upstream.
+commit 3155db7613edea8fb943624062baf1e4f9cfbfd6 upstream.
 
-When virt_wifi interface is created, virt_wifi_newlink() is called and
-it calls register_netdevice().
-if register_netdevice() fails, it internally would call
-->priv_destructor(), which is virt_wifi_net_device_destructor() and
-it frees netdev. but virt_wifi_newlink() still use netdev.
-So, use-after-free would occur in virt_wifi_newlink().
+In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
+new drivers"), a callback needed to check if the hardware has released
+a buffer indicating that a DMA operation is completed was not added.
 
-Test commands:
-    ip link add dummy0 type dummy
-    modprobe bonding
-    ip link add bonding_masters link dummy0 type virt_wifi
-
-Splat looks like:
-[  202.220554] BUG: KASAN: use-after-free in virt_wifi_newlink+0x88b/0x9a0 [virt_wifi]
-[  202.221659] Read of size 8 at addr ffff888061629cb8 by task ip/852
-
-[  202.222896] CPU: 1 PID: 852 Comm: ip Not tainted 5.4.0-rc5 #3
-[  202.223765] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[  202.225073] Call Trace:
-[  202.225532]  dump_stack+0x7c/0xbb
-[  202.226869]  print_address_description.constprop.5+0x1be/0x360
-[  202.229362]  __kasan_report+0x12a/0x16f
-[  202.230714]  kasan_report+0xe/0x20
-[  202.232595]  virt_wifi_newlink+0x88b/0x9a0 [virt_wifi]
-[  202.233370]  __rtnl_newlink+0xb9f/0x11b0
-[  202.244909]  rtnl_newlink+0x65/0x90
-[ ... ]
-
-Cc: stable@vger.kernel.org
-Fixes: c7cdba31ed8b ("mac80211-next: rtnetlink wifi simulation device")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Link: https://lore.kernel.org/r/20191121122645.9355-1-ap420073@gmail.com
-[trim stack dump a bit]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
+Cc: Stable <stable@vger.kernel.org>	# v3.18+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/virt_wifi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c  |    1 +
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |   17 +++++++++++++++++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h |    2 ++
+ 3 files changed, 20 insertions(+)
 
---- a/drivers/net/wireless/virt_wifi.c
-+++ b/drivers/net/wireless/virt_wifi.c
-@@ -450,7 +450,6 @@ static void virt_wifi_net_device_destruc
- 	 */
- 	kfree(dev->ieee80211_ptr);
- 	dev->ieee80211_ptr = NULL;
--	free_netdev(dev);
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
+@@ -238,6 +238,7 @@ static struct rtl_hal_ops rtl8192de_hal_
+ 	.led_control = rtl92de_led_control,
+ 	.set_desc = rtl92de_set_desc,
+ 	.get_desc = rtl92de_get_desc,
++	.is_tx_desc_closed = rtl92de_is_tx_desc_closed,
+ 	.tx_polling = rtl92de_tx_polling,
+ 	.enable_hw_sec = rtl92de_enable_hw_security_config,
+ 	.set_key = rtl92de_set_key,
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
+@@ -859,6 +859,23 @@ u64 rtl92de_get_desc(struct ieee80211_hw
+ 	return ret;
  }
  
- /* No lock interaction. */
-@@ -458,7 +457,7 @@ static void virt_wifi_setup(struct net_d
++bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
++			       u8 hw_queue, u16 index)
++{
++	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
++	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[hw_queue];
++	u8 *entry = (u8 *)(&ring->desc[ring->idx]);
++	u8 own = (u8)rtl92de_get_desc(hw, entry, true, HW_DESC_OWN);
++
++	/* a beacon packet will only use the first
++	 * descriptor by defaut, and the own bit may not
++	 * be cleared by the hardware
++	 */
++	if (own)
++		return false;
++	return true;
++}
++
+ void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue)
  {
- 	ether_setup(dev);
- 	dev->netdev_ops = &virt_wifi_ops;
--	dev->priv_destructor = virt_wifi_net_device_destructor;
-+	dev->needs_free_netdev  = true;
- }
- 
- /* Called in a RCU read critical section from netif_receive_skb */
-@@ -544,6 +543,7 @@ static int virt_wifi_newlink(struct net
- 		goto unregister_netdev;
- 	}
- 
-+	dev->priv_destructor = virt_wifi_net_device_destructor;
- 	priv->being_deleted = false;
- 	priv->is_connected = false;
- 	priv->is_up = false;
+ 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
+@@ -737,6 +737,8 @@ void rtl92de_set_desc(struct ieee80211_h
+ 		      u8 desc_name, u8 *val);
+ u64 rtl92de_get_desc(struct ieee80211_hw *hw,
+ 		     u8 *p_desc, bool istx, u8 desc_name);
++bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
++			       u8 hw_queue, u16 index);
+ void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue);
+ void rtl92de_tx_fill_cmddesc(struct ieee80211_hw *hw, u8 *pdesc,
+ 			     bool b_firstseg, bool b_lastseg,
 
 
