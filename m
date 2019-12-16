@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBCE121943
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E582A121952
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726436AbfLPRx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:53:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49006 "EHLO mail.kernel.org"
+        id S1728159AbfLPSsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:48:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727855AbfLPRx6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:53:58 -0500
+        id S1726526AbfLPRyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:54:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 367D721739;
-        Mon, 16 Dec 2019 17:53:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A12A6206D3;
+        Mon, 16 Dec 2019 17:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518837;
-        bh=U7b312bTOfKIQ9C33uLex1IfKC+Nxv4IdvkyXjf+DTY=;
+        s=default; t=1576518840;
+        bh=nMJBTNqfc6009iVO2daAnnAIfdD07+2dKXOtxebiMQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5szvK9F/albUBr+RP45y6sG3hST825NJUebGH+GBtzObV5qjkppP3dbMOxvnuw1b
-         /YsVwujqEMogZfH/bgLY9Y/l1FxfLiAiBIfdHjU/bPWsawRHw86TYKTnd5IhLFXfpw
-         +KiiYGaE6p49L4BBAYrcZ4Xeo6KwouwgE9DuR+sE=
+        b=Ci6HvfdK2pCliNUvQ9JlyZxFSYaSgIaJjEcgGXgGMBzOZhmKINtiICUixHqnNA3Rt
+         UNniNkpNlbbHZIkIu9IU67IqbNdekksdqQC9JEZOUjcJu4ei/ChJW4kC8D1BCmO59s
+         f3wbcfte8e2L+bAj1b8Baa7W9j7bonkc1NYmTo9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/267] arm64: dts: meson-gxl-khadas-vim: fix GPIO lines names
-Date:   Mon, 16 Dec 2019 18:46:53 +0100
-Message-Id: <20191216174857.794624572@linuxfoundation.org>
+Subject: [PATCH 4.14 088/267] net/x25: fix called/calling length calculation in x25_parse_address_block
+Date:   Mon, 16 Dec 2019 18:46:54 +0100
+Message-Id: <20191216174857.864004482@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -44,44 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit 5b78012636f537344bd551934387f5772c38ba80 ]
+[ Upstream commit d449ba3d581ed29f751a59792fdc775572c66904 ]
 
-The gpio line names were set in the pinctrl node instead of the gpio node,
-at the time it was merged, it worked, but was obviously wrong.
-This patch moves the properties to the gpio nodes.
+The length of the called and calling address was not calculated
+correctly (BCD encoding).
 
-Fixes: 60795933b709 ("ARM64: dts: meson-gxl-khadas-vim: Add GPIO lines names")
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/x25/af_x25.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-index edc512ad0bac3..fb5db5f33e8c3 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
-@@ -112,7 +112,7 @@
- 	linux,rc-map-name = "rc-geekbox";
- };
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 1b830a6ee3ff6..6e7ad4c6f83c8 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -100,7 +100,7 @@ int x25_parse_address_block(struct sk_buff *skb,
+ 	}
  
--&pinctrl_aobus {
-+&gpio_ao {
- 	gpio-line-names = "UART TX",
- 			  "UART RX",
- 			  "Power Key In",
-@@ -125,7 +125,7 @@
- 			  "SYS LED";
- };
+ 	len = *skb->data;
+-	needed = 1 + (len >> 4) + (len & 0x0f);
++	needed = 1 + ((len >> 4) + (len & 0x0f) + 1) / 2;
  
--&pinctrl_periphs {
-+&gpio {
- 	gpio-line-names = /* Bank GPIOZ */
- 			  "", "", "", "", "", "", "",
- 			  "", "", "", "", "", "", "",
+ 	if (!pskb_may_pull(skb, needed)) {
+ 		/* packet is too short to hold the addresses it claims
 -- 
 2.20.1
 
