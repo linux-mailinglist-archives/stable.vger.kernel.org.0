@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B77121831
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D42512182D
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729022AbfLPSAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:00:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35318 "EHLO mail.kernel.org"
+        id S1729049AbfLPSA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:00:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729014AbfLPSAv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:00:51 -0500
+        id S1728850AbfLPSA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:00:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5943020726;
-        Mon, 16 Dec 2019 18:00:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3520E206B7;
+        Mon, 16 Dec 2019 18:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519250;
-        bh=+vuE0SJ/uHWQr+87i2aXr+YmFOdOSLxYkw5YQuOsSLQ=;
+        s=default; t=1576519255;
+        bh=ANQ+CuwxxollKhevT/xFVkRdzBx6rJJT9D02rqcWfaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5VdPH7qWuBBJnydzus+pOUIjBgjRR7qb17tl51d40XfPZxKq+pNsKYMhBiqfLWhh
-         haAy3P0l/Zjaq1tkXuRoeCNwsKzPXlHJjIhjw0A15YkIgrQhM6v71Bgq9+IVQkOQXp
-         x0G4SYb2bNUtjO0ewuleiuYs2fJs9Tft9e0J/GPk=
+        b=Q1CZs1BR38mRCBgTEUwE3DLaw63G3S8TX5qdTko5H35i2to/dZe+gtIgahD9FyIyc
+         Nk8OIH0fOYkIEJ2SAZsz4HvSqmSpogww49XzAMePpoIINudyEaaRVGUeNUEvfSOyIE
+         jLj155fDse1DsE3oQyyHisdpqYu98xO5YH83BcuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 257/267] media: vimc: fix component match compare
-Date:   Mon, 16 Dec 2019 18:49:43 +0100
-Message-Id: <20191216174916.788330411@linuxfoundation.org>
+Subject: [PATCH 4.14 258/267] ath10k: fix fw crash by moving chip reset after napi disabled
+Date:   Mon, 16 Dec 2019 18:49:44 +0100
+Message-Id: <20191216174916.863799374@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -46,59 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-[ Upstream commit ee1c71a8e1456ab53fe667281d855849edf26a4d ]
+[ Upstream commit 08d80e4cd27ba19f9bee9e5f788f9a9fc440a22f ]
 
-If the system has other devices being registered in the component
-framework, the compare function will be called with a device that
-doesn't belong to vimc.
-This device is not necessarily a platform_device, nor have a
-platform_data (which causes a NULL pointer dereference error) and if it
-does have a pdata, it is not necessarily type of struct vimc_platform_data.
-So casting to any of these types is wrong.
+On SMP platform, when continuously running wifi up/down, the napi
+poll can be scheduled during chip reset, which will call
+ath10k_pci_has_fw_crashed() to check the fw status. But in the reset
+period, the value from FW_INDICATOR_ADDRESS register will return
+0xdeadbeef, which also be treated as fw crash. Fix the issue by
+moving chip reset after napi disabled.
 
-Instead of expecting a given pdev with a given pdata, just expect for
-the device it self. vimc-core is the one who creates them, we know in
-advance exactly which object to expect in the match.
+ath10k_pci 0000:01:00.0: firmware crashed! (guid 73b30611-5b1e-4bdd-90b4-64c81eb947b6)
+ath10k_pci 0000:01:00.0: qca9984/qca9994 hw1.0 target 0x01000000 chip_id 0x00000000 sub 168c:cafe
+ath10k_pci 0000:01:00.0: htt-ver 2.2 wmi-op 6 htt-op 4 cal otp max-sta 512 raw 0 hwcrypto 1
+ath10k_pci 0000:01:00.0: failed to get memcpy hi address for firmware address 4: -16
+ath10k_pci 0000:01:00.0: failed to read firmware dump area: -16
+ath10k_pci 0000:01:00.0: Copy Engine register dump:
+ath10k_pci 0000:01:00.0: [00]: 0x0004a000   0   0   0   0
+ath10k_pci 0000:01:00.0: [01]: 0x0004a400   0   0   0   0
+ath10k_pci 0000:01:00.0: [02]: 0x0004a800   0   0   0   0
+ath10k_pci 0000:01:00.0: [03]: 0x0004ac00   0   0   0   0
+ath10k_pci 0000:01:00.0: [04]: 0x0004b000   0   0   0   0
+ath10k_pci 0000:01:00.0: [05]: 0x0004b400   0   0   0   0
+ath10k_pci 0000:01:00.0: [06]: 0x0004b800   0   0   0   0
+ath10k_pci 0000:01:00.0: [07]: 0x0004bc00   1   0   1   0
+ath10k_pci 0000:01:00.0: [08]: 0x0004c000   0   0   0   0
+ath10k_pci 0000:01:00.0: [09]: 0x0004c400   0   0   0   0
+ath10k_pci 0000:01:00.0: [10]: 0x0004c800   0   0   0   0
+ath10k_pci 0000:01:00.0: [11]: 0x0004cc00   0   0   0   0
 
-Fixes: 4a29b7090749 ("[media] vimc: Subdevices as modules")
+Tested HW: QCA9984,QCA9887,WCN3990
 
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Tested-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vimc/vimc-core.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath10k/pci.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/vimc/vimc-core.c b/drivers/media/platform/vimc/vimc-core.c
-index 57e5d6a020b0e..447a01ff4e23c 100644
---- a/drivers/media/platform/vimc/vimc-core.c
-+++ b/drivers/media/platform/vimc/vimc-core.c
-@@ -243,10 +243,7 @@ static void vimc_comp_unbind(struct device *master)
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 0298ddc1ff060..f9e409caca688 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -1771,6 +1771,11 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
  
- static int vimc_comp_compare(struct device *comp, void *data)
- {
--	const struct platform_device *pdev = to_platform_device(comp);
--	const char *name = data;
--
--	return !strcmp(pdev->dev.platform_data, name);
-+	return comp == data;
- }
+ 	ath10k_dbg(ar, ATH10K_DBG_BOOT, "boot hif stop\n");
  
- static struct component_match *vimc_add_subdevs(struct vimc_device *vimc)
-@@ -275,7 +272,7 @@ static struct component_match *vimc_add_subdevs(struct vimc_device *vimc)
- 		}
++	ath10k_pci_irq_disable(ar);
++	ath10k_pci_irq_sync(ar);
++	napi_synchronize(&ar->napi);
++	napi_disable(&ar->napi);
++
+ 	/* Most likely the device has HTT Rx ring configured. The only way to
+ 	 * prevent the device from accessing (and possible corrupting) host
+ 	 * memory is to reset the chip now.
+@@ -1784,10 +1789,6 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
+ 	 */
+ 	ath10k_pci_safe_chip_reset(ar);
  
- 		component_match_add(&vimc->pdev.dev, &match, vimc_comp_compare,
--				    (void *)vimc->pipe_cfg->ents[i].name);
-+				    &vimc->subdevs[i]->dev);
- 	}
+-	ath10k_pci_irq_disable(ar);
+-	ath10k_pci_irq_sync(ar);
+-	napi_synchronize(&ar->napi);
+-	napi_disable(&ar->napi);
+ 	ath10k_pci_flush(ar);
  
- 	return match;
+ 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
 -- 
 2.20.1
 
