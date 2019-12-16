@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E582A121952
+	by mail.lfdr.de (Postfix) with ESMTP id 754D3121951
 	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728159AbfLPSsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727728AbfLPSsn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Dec 2019 13:48:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49126 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726526AbfLPRyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:54:00 -0500
+        id S1727440AbfLPRyD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:54:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A12A6206D3;
-        Mon, 16 Dec 2019 17:53:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2034620733;
+        Mon, 16 Dec 2019 17:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518840;
-        bh=nMJBTNqfc6009iVO2daAnnAIfdD07+2dKXOtxebiMQI=;
+        s=default; t=1576518842;
+        bh=nKlEQuyx9OU3F7MpnfXzCGoKkM3bM6UtxtePuYeJZ3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ci6HvfdK2pCliNUvQ9JlyZxFSYaSgIaJjEcgGXgGMBzOZhmKINtiICUixHqnNA3Rt
-         UNniNkpNlbbHZIkIu9IU67IqbNdekksdqQC9JEZOUjcJu4ei/ChJW4kC8D1BCmO59s
-         f3wbcfte8e2L+bAj1b8Baa7W9j7bonkc1NYmTo9w=
+        b=AcF4x6KjuSWjfBJAHFV2wngJ+O0DUT089irvhIx4uTpfJslo330DZ/VG1Uf2iqHjh
+         00GbhtKIu3lfhdS+dtuXELOyOBYF/0hEYqrBDgPSfbocrt8+v6ru2vobiaDqh59pji
+         brRagzHKqrWYZCTT3FPqADGZlMWiT0wOcs2M8B7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/267] net/x25: fix called/calling length calculation in x25_parse_address_block
-Date:   Mon, 16 Dec 2019 18:46:54 +0100
-Message-Id: <20191216174857.864004482@linuxfoundation.org>
+Subject: [PATCH 4.14 089/267] net/x25: fix null_x25_address handling
+Date:   Mon, 16 Dec 2019 18:46:55 +0100
+Message-Id: <20191216174857.933627671@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -46,31 +46,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit d449ba3d581ed29f751a59792fdc775572c66904 ]
+[ Upstream commit 06137619f061f498c2924f6543fa45b7d39f0501 ]
 
-The length of the called and calling address was not calculated
-correctly (BCD encoding).
+o x25_find_listener(): the compare for the null_x25_address was wrong.
+   We have to check the x25_addr of the listener socket instead of the
+   x25_addr of the incomming call.
+
+ o x25_bind(): it was not possible to bind a socket to null_x25_address
 
 Signed-off-by: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/x25/af_x25.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 1b830a6ee3ff6..6e7ad4c6f83c8 100644
+index 6e7ad4c6f83c8..a156b6dc3a724 100644
 --- a/net/x25/af_x25.c
 +++ b/net/x25/af_x25.c
-@@ -100,7 +100,7 @@ int x25_parse_address_block(struct sk_buff *skb,
+@@ -288,7 +288,7 @@ static struct sock *x25_find_listener(struct x25_address *addr,
+ 	sk_for_each(s, &x25_list)
+ 		if ((!strcmp(addr->x25_addr,
+ 			x25_sk(s)->source_addr.x25_addr) ||
+-				!strcmp(addr->x25_addr,
++				!strcmp(x25_sk(s)->source_addr.x25_addr,
+ 					null_x25_address.x25_addr)) &&
+ 					s->sk_state == TCP_LISTEN) {
+ 			/*
+@@ -684,11 +684,15 @@ static int x25_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 		goto out;
  	}
  
- 	len = *skb->data;
--	needed = 1 + (len >> 4) + (len & 0x0f);
-+	needed = 1 + ((len >> 4) + (len & 0x0f) + 1) / 2;
+-	len = strlen(addr->sx25_addr.x25_addr);
+-	for (i = 0; i < len; i++) {
+-		if (!isdigit(addr->sx25_addr.x25_addr[i])) {
+-			rc = -EINVAL;
+-			goto out;
++	/* check for the null_x25_address */
++	if (strcmp(addr->sx25_addr.x25_addr, null_x25_address.x25_addr)) {
++
++		len = strlen(addr->sx25_addr.x25_addr);
++		for (i = 0; i < len; i++) {
++			if (!isdigit(addr->sx25_addr.x25_addr[i])) {
++				rc = -EINVAL;
++				goto out;
++			}
+ 		}
+ 	}
  
- 	if (!pskb_may_pull(skb, needed)) {
- 		/* packet is too short to hold the addresses it claims
 -- 
 2.20.1
 
