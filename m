@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABB241216BF
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:31:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B70912185C
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:43:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730083AbfLPSL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:11:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55426 "EHLO mail.kernel.org"
+        id S1728607AbfLPR7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:59:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730364AbfLPSL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:11:27 -0500
+        id S1728769AbfLPR72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:59:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 040602072D;
-        Mon, 16 Dec 2019 18:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3F5A21582;
+        Mon, 16 Dec 2019 17:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519886;
-        bh=k7xBRQGwFZT0l2WQ2lzq2M6iEO5KUqq5Nksao5BGViA=;
+        s=default; t=1576519168;
+        bh=sRaGSy+8FdAqGaH6XBe/JTP4pm6si35gdWrw7STTI28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mV8jOa1k4Vp0UNaFwS3qxJ7lzS61RXVoTGoBK6MpL69KX8TqD9dY3KRWZvplmQi5U
-         qBF8hRdp/pMAE0+JmAm5fKEbVhS/3Bnv+7dPzS75243FHKSujiZt06hjmFuz/HNEwv
-         jooH9lBM6WRr8B2s8wpn2Zm/DaLEqYs+WggvdDCk=
+        b=ctKBsIcwAj/o5gL2+LVKeDK2hghtAG2kV9aUl/kkcFTVfJN8pJ6dcEQ9KCWlSE63r
+         1PRbZTn6x0ciRsQp9NV8jSTGoYR8S14VS9f/p1lQ7AiwExW1zERHLJB1DzTRgT34a2
+         bev6kcSNKCe/cIbTh5qzvSlzehEAqURx8ifiK4DE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.3 108/180] ACPI: OSL: only free map once in osl.c
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.14 222/267] pinctrl: samsung: Fix device node refcount leaks in init code
 Date:   Mon, 16 Dec 2019 18:49:08 +0100
-Message-Id: <20191216174838.239581788@linuxfoundation.org>
+Message-Id: <20191216174914.720020696@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,111 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Ruggeri <fruggeri@arista.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 833a426cc471b6088011b3d67f1dc4e147614647 upstream.
+commit a322b3377f4bac32aa25fb1acb9e7afbbbbd0137 upstream.
 
-acpi_os_map_cleanup checks map->refcount outside of acpi_ioremap_lock
-before freeing the map. This creates a race condition the can result
-in the map being freed more than once.
-A panic can be caused by running
+Several functions use for_each_child_of_node() loop with a break to find
+a matching child node.  Although each iteration of
+for_each_child_of_node puts the previous node, but early exit from loop
+misses it.  This leads to leak of device node.
 
-for ((i=0; i<10; i++))
-do
-        for ((j=0; j<100000; j++))
-        do
-                cat /sys/firmware/acpi/tables/data/BERT >/dev/null
-        done &
-done
-
-This patch makes sure that only the process that drops the reference
-to 0 does the freeing.
-
-Fixes: b7c1fadd6c2e ("ACPI: Do not use krefs under a mutex in osl.c")
-Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
-Reviewed-by: Dmitry Safonov <0x7f454c46@gmail.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 9a2c1c3b91aa ("pinctrl: samsung: Allow grouping multiple pinmux/pinconf nodes")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/osl.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/pinctrl/samsung/pinctrl-samsung.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/osl.c
-+++ b/drivers/acpi/osl.c
-@@ -360,19 +360,21 @@ void *__ref acpi_os_map_memory(acpi_phys
- }
- EXPORT_SYMBOL_GPL(acpi_os_map_memory);
- 
--static void acpi_os_drop_map_ref(struct acpi_ioremap *map)
-+/* Must be called with mutex_lock(&acpi_ioremap_lock) */
-+static unsigned long acpi_os_drop_map_ref(struct acpi_ioremap *map)
- {
--	if (!--map->refcount)
-+	unsigned long refcount = --map->refcount;
-+
-+	if (!refcount)
- 		list_del_rcu(&map->list);
-+	return refcount;
- }
- 
- static void acpi_os_map_cleanup(struct acpi_ioremap *map)
- {
--	if (!map->refcount) {
--		synchronize_rcu_expedited();
--		acpi_unmap(map->phys, map->virt);
--		kfree(map);
--	}
-+	synchronize_rcu_expedited();
-+	acpi_unmap(map->phys, map->virt);
-+	kfree(map);
- }
- 
- /**
-@@ -392,6 +394,7 @@ static void acpi_os_map_cleanup(struct a
- void __ref acpi_os_unmap_iomem(void __iomem *virt, acpi_size size)
- {
- 	struct acpi_ioremap *map;
-+	unsigned long refcount;
- 
- 	if (!acpi_permanent_mmap) {
- 		__acpi_unmap_table(virt, size);
-@@ -405,10 +408,11 @@ void __ref acpi_os_unmap_iomem(void __io
- 		WARN(true, PREFIX "%s: bad address %p\n", __func__, virt);
- 		return;
+--- a/drivers/pinctrl/samsung/pinctrl-samsung.c
++++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
+@@ -277,6 +277,7 @@ static int samsung_dt_node_to_map(struct
+ 						&reserved_maps, num_maps);
+ 		if (ret < 0) {
+ 			samsung_dt_free_map(pctldev, *map, *num_maps);
++			of_node_put(np);
+ 			return ret;
+ 		}
  	}
--	acpi_os_drop_map_ref(map);
-+	refcount = acpi_os_drop_map_ref(map);
- 	mutex_unlock(&acpi_ioremap_lock);
- 
--	acpi_os_map_cleanup(map);
-+	if (!refcount)
-+		acpi_os_map_cleanup(map);
- }
- EXPORT_SYMBOL_GPL(acpi_os_unmap_iomem);
- 
-@@ -443,6 +447,7 @@ void acpi_os_unmap_generic_address(struc
- {
- 	u64 addr;
- 	struct acpi_ioremap *map;
-+	unsigned long refcount;
- 
- 	if (gas->space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY)
- 		return;
-@@ -458,10 +463,11 @@ void acpi_os_unmap_generic_address(struc
- 		mutex_unlock(&acpi_ioremap_lock);
- 		return;
- 	}
--	acpi_os_drop_map_ref(map);
-+	refcount = acpi_os_drop_map_ref(map);
- 	mutex_unlock(&acpi_ioremap_lock);
- 
--	acpi_os_map_cleanup(map);
-+	if (!refcount)
-+		acpi_os_map_cleanup(map);
- }
- EXPORT_SYMBOL(acpi_os_unmap_generic_address);
- 
+@@ -761,8 +762,10 @@ static struct samsung_pmx_func *samsung_
+ 		if (!of_get_child_count(cfg_np)) {
+ 			ret = samsung_pinctrl_create_function(dev, drvdata,
+ 							cfg_np, func);
+-			if (ret < 0)
++			if (ret < 0) {
++				of_node_put(cfg_np);
+ 				return ERR_PTR(ret);
++			}
+ 			if (ret > 0) {
+ 				++func;
+ 				++func_cnt;
+@@ -773,8 +776,11 @@ static struct samsung_pmx_func *samsung_
+ 		for_each_child_of_node(cfg_np, func_np) {
+ 			ret = samsung_pinctrl_create_function(dev, drvdata,
+ 						func_np, func);
+-			if (ret < 0)
++			if (ret < 0) {
++				of_node_put(func_np);
++				of_node_put(cfg_np);
+ 				return ERR_PTR(ret);
++			}
+ 			if (ret > 0) {
+ 				++func;
+ 				++func_cnt;
 
 
