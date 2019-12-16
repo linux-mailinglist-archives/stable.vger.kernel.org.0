@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 096691215C9
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72FA0121529
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731871AbfLPSS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:18:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45812 "EHLO mail.kernel.org"
+        id S1731713AbfLPSTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:19:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731713AbfLPSS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:18:57 -0500
+        id S1731883AbfLPSTC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:19:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFAB220CC7;
-        Mon, 16 Dec 2019 18:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 988FD2166E;
+        Mon, 16 Dec 2019 18:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520337;
-        bh=w8DpnLIqefWHHbyN99Kdhz6nhOOdKYSGyPbX7mF7uQk=;
+        s=default; t=1576520342;
+        bh=Fn0AWLoRLFCe8iXoZK2bvmYmgoHgmT6Cz0yzfVVqEYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sh4UnMfQzz5mrbSiK8/b2zg8EbB/TzuTxvkWDRUoUnqn8Sj52rh6L3lchjzSpK8bD
-         6KTm9FkY2Ro5eIZT2EKZrH78ikI8XTTFcSupg+2Gn7enuj4gdpv0XvJ35ic9j9SU33
-         ZwyUBCcFV5uL1F4XlXonqOpAighpq69uNs7Dxzio=
+        b=bZMhoVrJ4QEVy37iB2xqdyVP3Dfg4nrPYHxcZ9lZmYgXfA5kqPY4/9mLGTVb5YTSN
+         /yyTba8ZpTnVMilzabHwKuFvWnjTjIjNs+68wjQZJJ1+j5CfaImwmNFztscfOWnk5W
+         LHmgVkpXI1rwEHbnTzM1mMeXQMdoZ7Uo0YYlIR20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        "Hariharan T.S." <hari@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 113/177] powerpc/perf: Disable trace_imc pmu
-Date:   Mon, 16 Dec 2019 18:49:29 +0100
-Message-Id: <20191216174842.360082287@linuxfoundation.org>
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Wen Yang <wenyang@linux.alibaba.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 114/177] intel_th: Fix a double put_device() in error path
+Date:   Mon, 16 Dec 2019 18:49:30 +0100
+Message-Id: <20191216174842.471128434@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -45,51 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 249fad734a25889a4f23ed014d43634af6798063 upstream.
+commit 512592779a337feb5905d8fcf9498dbf33672d4a upstream.
 
-When a root user or a user with CAP_SYS_ADMIN privilege uses any
-trace_imc performance monitoring unit events, to monitor application
-or KVM threads, it may result in a checkstop (System crash).
+Commit a753bfcfdb1f ("intel_th: Make the switch allocate its subdevices")
+factored out intel_th_subdevice_alloc() from intel_th_populate(), but got
+the error path wrong, resulting in two instances of a double put_device()
+on a freshly initialized, but not 'added' device.
 
-The cause is frequent switching of the "trace/accumulation" mode of
-the In-Memory Collection hardware (LDBAR).
+Fix this by only doing one put_device() in the error path.
 
-This patch disables the trace_imc PMU unit entirely to avoid
-triggering the checkstop. A future patch will reenable it at a later
-stage once a workaround has been developed.
-
-Fixes: 012ae244845f ("powerpc/perf: Trace imc PMU functions")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Tested-by: Hariharan T.S. <hari@linux.ibm.com>
-[mpe: Add pr_info_once() so dmesg shows the PMU has been disabled]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191118034452.9939-1-maddy@linux.vnet.ibm.com
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: a753bfcfdb1f ("intel_th: Make the switch allocate its subdevices")
+Reported-by: Wen Yang <wenyang@linux.alibaba.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable@vger.kernel.org # v4.14+
+Link: https://lore.kernel.org/r/20191120130806.44028-2-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/opal-imc.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/hwtracing/intel_th/core.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/opal-imc.c
-+++ b/arch/powerpc/platforms/powernv/opal-imc.c
-@@ -285,7 +285,14 @@ static int opal_imc_counters_probe(struc
- 			domain = IMC_DOMAIN_THREAD;
- 			break;
- 		case IMC_TYPE_TRACE:
--			domain = IMC_DOMAIN_TRACE;
-+			/*
-+			 * FIXME. Using trace_imc events to monitor application
-+			 * or KVM thread performance can cause a checkstop
-+			 * (system crash).
-+			 * Disable it for now.
-+			 */
-+			pr_info_once("IMC: disabling trace_imc PMU\n");
-+			domain = -1;
- 			break;
- 		default:
- 			pr_warn("IMC Unknown Device type \n");
+--- a/drivers/hwtracing/intel_th/core.c
++++ b/drivers/hwtracing/intel_th/core.c
+@@ -649,10 +649,8 @@ intel_th_subdevice_alloc(struct intel_th
+ 	}
+ 
+ 	err = intel_th_device_add_resources(thdev, res, subdev->nres);
+-	if (err) {
+-		put_device(&thdev->dev);
++	if (err)
+ 		goto fail_put_device;
+-	}
+ 
+ 	if (subdev->type == INTEL_TH_OUTPUT) {
+ 		if (subdev->mknode)
+@@ -667,10 +665,8 @@ intel_th_subdevice_alloc(struct intel_th
+ 	}
+ 
+ 	err = device_add(&thdev->dev);
+-	if (err) {
+-		put_device(&thdev->dev);
++	if (err)
+ 		goto fail_free_res;
+-	}
+ 
+ 	/* need switch driver to be loaded to enumerate the rest */
+ 	if (subdev->type == INTEL_TH_SWITCH && !req) {
 
 
