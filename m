@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77436121350
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:01:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A08D41215DD
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726296AbfLPSAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:00:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35370 "EHLO mail.kernel.org"
+        id S1731568AbfLPSZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:25:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729032AbfLPSAy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:00:54 -0500
+        id S1731463AbfLPSS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:18:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C635C205C9;
-        Mon, 16 Dec 2019 18:00:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DA9620717;
+        Mon, 16 Dec 2019 18:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519253;
-        bh=8NCXrLCwzmdazBmKh3MPc3z/jq4Rubpa4X2/ZG55fGY=;
+        s=default; t=1576520305;
+        bh=fNccwqWA+SRuS5QnXcv5KmJy7FvExzlUIFIQAkUaYT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vORe0nVBEk9TdcSi8/4emXYgFFrNNV90+k1ibiA3geDi2fgZqj11ZpNlscpMONCzq
-         VMKpsVLptR73TRLjtLzp6DJlyi4FEsqSgcXVkeiL4HSw9/kgzbjm2bHMCQf83Ht1Ew
-         qo9B3FLJFnzH33E9yYWDpl+Y+3AskNJyDV01o9H4=
+        b=ISreGVuwUH+dcYoJPLu3HKzIn5q9Ppwfxu7xtGP8rIIeMwHs52Cq054QZ5ZHwSn02
+         y0vG9E4eKC3gKRCfsoVxqdi3T9Ev4QTOneSO8+IXfuNwl+u1OQJCbkPhX6P3OTpy5+
+         3B1S2f0zfJ4JrIhYC+MYnpn2HGfrtnC8cIX4kdTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-media@vger.kernel.org,
-        Martin Bugge <marbugge@cisco.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH 4.14 231/267] video/hdmi: Fix AVI bar unpack
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 101/177] media: bdisp: fix memleak on release
 Date:   Mon, 16 Dec 2019 18:49:17 +0100
-Message-Id: <20191216174915.211691381@linuxfoundation.org>
+Message-Id: <20191216174841.065452598@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,47 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 6039f37dd6b76641198e290f26b31c475248f567 upstream.
+commit 11609a7e21f8cea42630350aa57662928fa4dc63 upstream.
 
-The bar values are little endian, not big endian. The pack
-function did it right but the unpack got it wrong. Fix it.
+If a process is interrupted while accessing the video device and the
+device lock is contended, release() could return early and fail to free
+related resources.
 
-Cc: stable@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Martin Bugge <marbugge@cisco.com>
-Cc: Hans Verkuil <hans.verkuil@cisco.com>
-Cc: Thierry Reding <treding@nvidia.com>
-Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Fixes: 2c676f378edb ("[media] hdmi: added unpack and logging functions for InfoFrames")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190919132853.30954-1-ville.syrjala@linux.intel.com
-Reviewed-by: Thierry Reding <treding@nvidia.com>
+Note that the return value of the v4l2 release file operation is
+ignored.
+
+Fixes: 28ffeebbb7bd ("[media] bdisp: 2D blitter driver using v4l2 mem2mem framework")
+Cc: stable <stable@vger.kernel.org>     # 4.2
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/hdmi.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/sti/bdisp/bdisp-v4l2.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/video/hdmi.c
-+++ b/drivers/video/hdmi.c
-@@ -1036,12 +1036,12 @@ static int hdmi_avi_infoframe_unpack(str
- 	if (ptr[0] & 0x10)
- 		frame->active_aspect = ptr[1] & 0xf;
- 	if (ptr[0] & 0x8) {
--		frame->top_bar = (ptr[5] << 8) + ptr[6];
--		frame->bottom_bar = (ptr[7] << 8) + ptr[8];
-+		frame->top_bar = (ptr[6] << 8) | ptr[5];
-+		frame->bottom_bar = (ptr[8] << 8) | ptr[7];
- 	}
- 	if (ptr[0] & 0x4) {
--		frame->left_bar = (ptr[9] << 8) + ptr[10];
--		frame->right_bar = (ptr[11] << 8) + ptr[12];
-+		frame->left_bar = (ptr[10] << 8) | ptr[9];
-+		frame->right_bar = (ptr[12] << 8) | ptr[11];
- 	}
- 	frame->scan_mode = ptr[0] & 0x3;
+--- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
++++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+@@ -651,8 +651,7 @@ static int bdisp_release(struct file *fi
+ 
+ 	dev_dbg(bdisp->dev, "%s\n", __func__);
+ 
+-	if (mutex_lock_interruptible(&bdisp->lock))
+-		return -ERESTARTSYS;
++	mutex_lock(&bdisp->lock);
+ 
+ 	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
  
 
 
