@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B02512191E
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D37121920
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727286AbfLPRwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:52:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42928 "EHLO mail.kernel.org"
+        id S1727415AbfLPRwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:52:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727281AbfLPRv7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:51:59 -0500
+        id S1727404AbfLPRwO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:52:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1DE3206D3;
-        Mon, 16 Dec 2019 17:51:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FACF20726;
+        Mon, 16 Dec 2019 17:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518719;
-        bh=EeoVV6ryo2hNzhMUbvjm0xMB01/LlrckvQW141QdoEI=;
+        s=default; t=1576518733;
+        bh=5EaPEyrukBMg3O+QebSDf5gJFnoIyQFT0LBomUN5WwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUGE/Yl7xnfV4+vInlWONz4gnJO0Dcre5+/9wCSxU7gKs4csgZzOzIlkfSCP+PW7k
-         mB2GzSE5Eazj0aO8kXCoNiYoSsq6CbGrSPs5c+I00MLXlVu7izyMMsbBCpohm5FDbH
-         xtrsC4hqTUw7rG9eSZEACvnaME+TJuFJl7Q3mGNM=
+        b=R2NzP9wDqh/ZZWxMRTbwnIlRDN9MXVsiruFXb9xNe7DK052utm56hFzwAYyRX3XR+
+         SRHpL5jpN/Pac1IDJBj2kex9KMLs8gd6HOrnjuhr2W2jcpuERTb+HtmR3DdqKzH9DW
+         E1WoYPYrEbOhCZiWDnrZh56VV4F/EXyfvAhC9+3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+        stable@vger.kernel.org,
+        Shreeya Patel <shreeya.patel23498@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 038/267] MIPS: SiByte: Enable ZONE_DMA32 for LittleSur
-Date:   Mon, 16 Dec 2019 18:46:04 +0100
-Message-Id: <20191216174853.121397187@linuxfoundation.org>
+Subject: [PATCH 4.14 044/267] Staging: iio: adt7316: Fix i2c data reading, set the data field
+Date:   Mon, 16 Dec 2019 18:46:10 +0100
+Message-Id: <20191216174853.583168333@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -46,50 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@linux-mips.org>
+From: Shreeya Patel <shreeya.patel23498@gmail.com>
 
-[ Upstream commit 756d6d836dbfb04a5a486bc2ec89397aa4533737 ]
+[ Upstream commit 688cd642ba0c393344c802647848da5f0d925d0e ]
 
-The LittleSur board is marked for high memory support and therefore
-clearly must provide a way to have enough memory installed for some to
-be present outside the low 4GiB physical address range.  With the memory
-map of the BCM1250 SOC it has been built around it means over 1GiB of
-actual DRAM, as only the first 1GiB is mapped in the low 4GiB physical
-address range[1].
+adt7316_i2c_read function nowhere sets the data field.
+It is necessary to have an appropriate value for it.
+Hence, assign the value stored in 'ret' variable to data field.
 
-Complement commit cce335ae47e2 ("[MIPS] 64-bit Sibyte kernels need
-DMA32.") then and also enable ZONE_DMA32 for LittleSur.
+This is an ancient bug, and as no one seems to have noticed,
+probably no sense in applying it to stable.
 
-
-[1] "BCM1250/BCM1125/BCM1125H User Manual", Revision 1250_1125-UM100-R,
-    Broadcom Corporation, 21 Oct 2002, Section 3: "System Overview",
-    "Memory Map", pp. 34-38
-
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Patchwork: https://patchwork.linux-mips.org/patch/21107/
-Fixes: cce335ae47e2 ("[MIPS] 64-bit Sibyte kernels need DMA32.")
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Shreeya Patel <shreeya.patel23498@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/iio/addac/adt7316-i2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index ae4450e891abc..7e267d657c561 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -812,6 +812,7 @@ config SIBYTE_LITTLESUR
- 	select SYS_SUPPORTS_BIG_ENDIAN
- 	select SYS_SUPPORTS_HIGHMEM
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
-+	select ZONE_DMA32 if 64BIT
+diff --git a/drivers/staging/iio/addac/adt7316-i2c.c b/drivers/staging/iio/addac/adt7316-i2c.c
+index f66dd3ebbab1f..856bcfa60c6c4 100644
+--- a/drivers/staging/iio/addac/adt7316-i2c.c
++++ b/drivers/staging/iio/addac/adt7316-i2c.c
+@@ -35,6 +35,8 @@ static int adt7316_i2c_read(void *client, u8 reg, u8 *data)
+ 		return ret;
+ 	}
  
- config SIBYTE_SENTOSA
- 	bool "Sibyte BCM91250E-Sentosa"
++	*data = ret;
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
