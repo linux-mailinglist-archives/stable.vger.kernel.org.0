@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 937CC121660
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E9A121549
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:21:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729861AbfLPS2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:28:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33982 "EHLO mail.kernel.org"
+        id S1732078AbfLPSU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:20:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731224AbfLPSOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:14:32 -0500
+        id S1732072AbfLPSUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:20:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50748207FF;
-        Mon, 16 Dec 2019 18:14:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17F2420717;
+        Mon, 16 Dec 2019 18:20:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520071;
-        bh=2s/lii9loPIvNFFMVcmr1yl2tE5CR8+63mR1DUuogzc=;
+        s=default; t=1576520424;
+        bh=3nlPpKE9KOPLphkL/bgbzzcQNFy/eBNtAUfrYHGEUHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8FCgF2EdtIhdGImvQBE+QCOvjBDHirZZHB/p8+/Nrk5VRYoRr5+/Vvlw/FG24/tH
-         9ubsmkVeMCVCe+pIrmJqu9VY59czZG6YtKyHR8D4Rh6GJFQ7qrv4UJlb+JZRqeElWs
-         rMMtlE7nLMd2Gjo70hHsGHnVHj9FAjPORk9JaBzA=
+        b=riEyj3BflANYdJiYFgEIUuP0Qvf1kCuJGbhvTlQHGvu8wUiZPQuKgUQ4CvkQ8SE9B
+         rl3oqPimpHylu6Sd+nEbEV8qiDNUrVHJA/ooopmzEO8n9GewG18SmJbgL5owsUx18I
+         Zawl+j4TcfZq/O51kuw2Oc0Sp3VWQVctTxyQtOU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 164/180] iio: ad7949: kill pointless "readback"-handling code
-Date:   Mon, 16 Dec 2019 18:50:04 +0100
-Message-Id: <20191216174846.735485605@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.4 149/177] quota: Check that quota is not dirty before release
+Date:   Mon, 16 Dec 2019 18:50:05 +0100
+Message-Id: <20191216174847.743304736@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Merello <andrea.merello@gmail.com>
+From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
 
-[ Upstream commit c270bbf7bb9ddc4e2a51b3c56557c377c9ac79bc ]
+commit df4bb5d128e2c44848aeb36b7ceceba3ac85080d upstream.
 
-The device could be configured to spit out also the configuration word
-while reading the AD result value (in the same SPI xfer) - this is called
-"readback" in the device datasheet.
+There is a race window where quota was redirted once we drop dq_list_lock inside dqput(),
+but before we grab dquot->dq_lock inside dquot_release()
 
-The driver checks if readback is enabled and it eventually adjusts the SPI
-xfer length and it applies proper shifts to still get the data, discarding
-the configuration word.
+TASK1                                                       TASK2 (chowner)
+->dqput()
+  we_slept:
+    spin_lock(&dq_list_lock)
+    if (dquot_dirty(dquot)) {
+          spin_unlock(&dq_list_lock);
+          dquot->dq_sb->dq_op->write_dquot(dquot);
+          goto we_slept
+    if (test_bit(DQ_ACTIVE_B, &dquot->dq_flags)) {
+          spin_unlock(&dq_list_lock);
+          dquot->dq_sb->dq_op->release_dquot(dquot);
+                                                            dqget()
+							    mark_dquot_dirty()
+							    dqput()
+          goto we_slept;
+        }
+So dquot dirty quota will be released by TASK1, but on next we_sleept loop
+we detect this and call ->write_dquot() for it.
+XFSTEST: https://github.com/dmonakhov/xfstests/commit/440a80d4cbb39e9234df4d7240aee1d551c36107
 
-The readback option is actually never enabled (the driver disables it), so
-the said checks do not serve for any purpose.
+Link: https://lore.kernel.org/r/20191031103920.3919-2-dmonakhov@openvz.org
+CC: stable@vger.kernel.org
+Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Since enabling the readback option seems not to provide any advantage (the
-driver entirely sets the configuration word without relying on any default
-value), just kill the said, unused, code.
-
-Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7949.c | 27 +++------------------------
- 1 file changed, 3 insertions(+), 24 deletions(-)
+ fs/ocfs2/quota_global.c  |    2 +-
+ fs/quota/dquot.c         |    2 +-
+ include/linux/quotaops.h |   10 ++++++++++
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/ad7949.c b/drivers/iio/adc/ad7949.c
-index ac0ffff6c5ae1..518044c31a73b 100644
---- a/drivers/iio/adc/ad7949.c
-+++ b/drivers/iio/adc/ad7949.c
-@@ -57,29 +57,11 @@ struct ad7949_adc_chip {
- 	u32 buffer ____cacheline_aligned;
- };
+--- a/fs/ocfs2/quota_global.c
++++ b/fs/ocfs2/quota_global.c
+@@ -728,7 +728,7 @@ static int ocfs2_release_dquot(struct dq
  
--static bool ad7949_spi_cfg_is_read_back(struct ad7949_adc_chip *ad7949_adc)
--{
--	if (!(ad7949_adc->cfg & AD7949_CFG_READ_BACK))
--		return true;
--
--	return false;
--}
--
--static int ad7949_spi_bits_per_word(struct ad7949_adc_chip *ad7949_adc)
--{
--	int ret = ad7949_adc->resolution;
--
--	if (ad7949_spi_cfg_is_read_back(ad7949_adc))
--		ret += AD7949_CFG_REG_SIZE_BITS;
--
--	return ret;
--}
--
- static int ad7949_spi_write_cfg(struct ad7949_adc_chip *ad7949_adc, u16 val,
- 				u16 mask)
- {
- 	int ret;
--	int bits_per_word = ad7949_spi_bits_per_word(ad7949_adc);
-+	int bits_per_word = ad7949_adc->resolution;
- 	int shift = bits_per_word - AD7949_CFG_REG_SIZE_BITS;
- 	struct spi_message msg;
- 	struct spi_transfer tx[] = {
-@@ -107,7 +89,7 @@ static int ad7949_spi_read_channel(struct ad7949_adc_chip *ad7949_adc, int *val,
- 				   unsigned int channel)
- {
- 	int ret;
--	int bits_per_word = ad7949_spi_bits_per_word(ad7949_adc);
-+	int bits_per_word = ad7949_adc->resolution;
- 	int mask = GENMASK(ad7949_adc->resolution, 0);
- 	struct spi_message msg;
- 	struct spi_transfer tx[] = {
-@@ -138,10 +120,7 @@ static int ad7949_spi_read_channel(struct ad7949_adc_chip *ad7949_adc, int *val,
+ 	mutex_lock(&dquot->dq_lock);
+ 	/* Check whether we are not racing with some other dqget() */
+-	if (atomic_read(&dquot->dq_count) > 1)
++	if (dquot_is_busy(dquot))
+ 		goto out;
+ 	/* Running from downconvert thread? Postpone quota processing to wq */
+ 	if (current == osb->dc_task) {
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -497,7 +497,7 @@ int dquot_release(struct dquot *dquot)
  
- 	ad7949_adc->current_channel = channel;
- 
--	if (ad7949_spi_cfg_is_read_back(ad7949_adc))
--		*val = (ad7949_adc->buffer >> AD7949_CFG_REG_SIZE_BITS) & mask;
--	else
--		*val = ad7949_adc->buffer & mask;
-+	*val = ad7949_adc->buffer & mask;
- 
- 	return 0;
+ 	mutex_lock(&dquot->dq_lock);
+ 	/* Check whether we are not racing with some other dqget() */
+-	if (atomic_read(&dquot->dq_count) > 1)
++	if (dquot_is_busy(dquot))
+ 		goto out_dqlock;
+ 	if (dqopt->ops[dquot->dq_id.type]->release_dqblk) {
+ 		ret = dqopt->ops[dquot->dq_id.type]->release_dqblk(dquot);
+--- a/include/linux/quotaops.h
++++ b/include/linux/quotaops.h
+@@ -54,6 +54,16 @@ static inline struct dquot *dqgrab(struc
+ 	atomic_inc(&dquot->dq_count);
+ 	return dquot;
  }
--- 
-2.20.1
-
++
++static inline bool dquot_is_busy(struct dquot *dquot)
++{
++	if (test_bit(DQ_MOD_B, &dquot->dq_flags))
++		return true;
++	if (atomic_read(&dquot->dq_count) > 1)
++		return true;
++	return false;
++}
++
+ void dqput(struct dquot *dquot);
+ int dquot_scan_active(struct super_block *sb,
+ 		      int (*fn)(struct dquot *dquot, unsigned long priv),
 
 
