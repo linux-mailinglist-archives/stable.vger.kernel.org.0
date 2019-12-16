@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46AA3121929
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6817612192E
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbfLPRwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:52:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44770 "EHLO mail.kernel.org"
+        id S1727578AbfLPRwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:52:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727522AbfLPRwi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:52:38 -0500
+        id S1727577AbfLPRwn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:52:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA07E21775;
-        Mon, 16 Dec 2019 17:52:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8523521D7D;
+        Mon, 16 Dec 2019 17:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518758;
-        bh=cogc0FukY8/3EVaRPufi7VD8ZbhSDT10BfN6/bzVrd8=;
+        s=default; t=1576518763;
+        bh=JMtLdH5N/pRayjeq4ysU3riAaYpsmdHp8ifQ324osZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0Xw8poNwroeZqbFCTJnfy61PQfg/8W4hw0Qmqhv/icWcICfjL1u5fbeBmsGv3R0c
-         tIU1VS2mf53lczrZHTXMEjYz/dcrfbqZfJ7IPXq0cRcsZawk2uyRmk0Rjsa4bw6Pye
-         O9DKDA3MZyMGcjraRYWqo111RVuF9wur8r8bZluE=
+        b=PHfwUtnkHnL6gVQNmgjBszls6pb/DPkjQKEIIyZHpEnN+RnPLX9KeXvyLuPT7nUA1
+         kYUZAlUxNMS4qiz0QdK+e//BjUUvkFYvkt1BtsYFT9jxJFmq2TxoejYR4FnAaDilE/
+         fKfSUWCa/PNBl1blGtp/zc44oI21Hhad/BQkBvF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Chen <vincentc@andestech.com>,
-        Greentime Hu <greentime@andestech.com>,
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 053/267] math-emu/soft-fp.h: (_FP_ROUND_ZERO) cast 0 to void to fix warning
-Date:   Mon, 16 Dec 2019 18:46:19 +0100
-Message-Id: <20191216174854.316358560@linuxfoundation.org>
+Subject: [PATCH 4.14 055/267] rtc: dt-binding: abx80x: fix resistance scale
+Date:   Mon, 16 Dec 2019 18:46:21 +0100
+Message-Id: <20191216174854.516719537@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -44,39 +44,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincentc@andestech.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-[ Upstream commit 83312f1b7ae205dca647bf52bbe2d51303cdedfb ]
+[ Upstream commit 73852e56827f5cb5db9d6e8dd8191fc2f2e8f424 ]
 
-_FP_ROUND_ZERO is defined as 0 and used as a statemente in macro
-_FP_ROUND. This generates "error: statement with no effect
-[-Werror=unused-value]" from gcc. Defining _FP_ROUND_ZERO as (void)0 to
-fix it.
+The abracon,tc-resistor property value is in kOhm.
 
-This modification is quoted from glibc 'commit <In libc/:>
-(8ed1e7d5894000c155acbd06f)'
-
-Signed-off-by: Vincent Chen <vincentc@andestech.com>
-Acked-by: Greentime Hu <greentime@andestech.com>
-Signed-off-by: Greentime Hu <greentime@andestech.com>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/math-emu/soft-fp.h | 2 +-
+ Documentation/devicetree/bindings/rtc/abracon,abx80x.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/math-emu/soft-fp.h b/include/math-emu/soft-fp.h
-index 3f284bc031809..5650c16283830 100644
---- a/include/math-emu/soft-fp.h
-+++ b/include/math-emu/soft-fp.h
-@@ -138,7 +138,7 @@ do {							\
-       _FP_FRAC_ADDI_##wc(X, _FP_WORK_ROUND);		\
- } while (0)
+diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+index be789685a1c24..18b892d010d87 100644
+--- a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
++++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+@@ -27,4 +27,4 @@ and valid to enable charging:
  
--#define _FP_ROUND_ZERO(wc, X)		0
-+#define _FP_ROUND_ZERO(wc, X)		(void)0
- 
- #define _FP_ROUND_PINF(wc, X)				\
- do {							\
+  - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
+  - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
+-                          resistor, the other values are in ohm.
++                          resistor, the other values are in kOhm.
 -- 
 2.20.1
 
