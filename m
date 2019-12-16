@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DC2E121318
+	by mail.lfdr.de (Postfix) with ESMTP id BD9E5121319
 	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:58:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728634AbfLPR6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728645AbfLPR6s (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Dec 2019 12:58:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58878 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728302AbfLPR6p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:58:45 -0500
+        id S1726865AbfLPR6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AF7A21739;
-        Mon, 16 Dec 2019 17:58:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB11920733;
+        Mon, 16 Dec 2019 17:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519124;
-        bh=I1pM00sAx1NXWrBCRm+Y2c8vbUDiPb+MHsbOUbAf5Rk=;
+        s=default; t=1576519127;
+        bh=tlchDs7TvajlhgCZ7OeyLriVnH9A9S73sL+PYnPpnpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtzNDyJ5wyp5EGUP0oG1X1dXNPu4ZY88s7dAmL2CU3RW4zAP9ESFh47M9zQn+Kjsk
-         Ljk78JigIlHmj6yJ6aQ+HmuSRSrWuborlRqmM+Bs0hYzlmaLhFO0UT6xKFHGwd0ZSA
-         GUMR9NQ3OVOftJyPg/MLZ1NZ9gicpj82vrVLdDtY=
+        b=QrmDF5GT3OjkogJ7kKYGaJhuxhbi6urNwVGl9wM39ncOEFNdm29cjo3lMtskoWage
+         BsBa8pPk1WIlIStBSl46k54V2J8pj7u5NMVGEWwlwMSqsluUgGswn4jvX+KnGdPFsd
+         JKssoHGunMb9Zombi1ONoZRM4RNnV3kZZqxcnSxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.14 205/267] cgroup: pids: use atomic64_t for pids->limit
-Date:   Mon, 16 Dec 2019 18:48:51 +0100
-Message-Id: <20191216174913.766499977@linuxfoundation.org>
+        stable@vger.kernel.org, Pontus Fuchs <pontus.fuchs@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 4.14 206/267] ar5523: check NULL before memcpy() in ar5523_cmd()
+Date:   Mon, 16 Dec 2019 18:48:52 +0100
+Message-Id: <20191216174913.820607863@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -43,78 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksa Sarai <cyphar@cyphar.com>
+From: Denis Efremov <efremov@linux.com>
 
-commit a713af394cf382a30dd28a1015cbe572f1b9ca75 upstream.
+commit 315cee426f87658a6799815845788fde965ddaad upstream.
 
-Because pids->limit can be changed concurrently (but we don't want to
-take a lock because it would be needlessly expensive), use atomic64_ts
-instead.
+memcpy() call with "idata == NULL && ilen == 0" results in undefined
+behavior in ar5523_cmd(). For example, NULL is passed in callchain
+"ar5523_stat_work() -> ar5523_cmd_write() -> ar5523_cmd()". This patch
+adds ilen check before memcpy() call in ar5523_cmd() to prevent an
+undefined behavior.
 
-Fixes: commit 49b786ea146f ("cgroup: implement the PIDs subsystem")
-Cc: stable@vger.kernel.org # v4.3+
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Pontus Fuchs <pontus.fuchs@gmail.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/cgroup/pids.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ar5523/ar5523.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/cgroup/pids.c
-+++ b/kernel/cgroup/pids.c
-@@ -48,7 +48,7 @@ struct pids_cgroup {
- 	 * %PIDS_MAX = (%PID_MAX_LIMIT + 1).
- 	 */
- 	atomic64_t			counter;
--	int64_t				limit;
-+	atomic64_t			limit;
+--- a/drivers/net/wireless/ath/ar5523/ar5523.c
++++ b/drivers/net/wireless/ath/ar5523/ar5523.c
+@@ -255,7 +255,8 @@ static int ar5523_cmd(struct ar5523 *ar,
  
- 	/* Handle for "pids.events" */
- 	struct cgroup_file		events_file;
-@@ -76,8 +76,8 @@ pids_css_alloc(struct cgroup_subsys_stat
- 	if (!pids)
- 		return ERR_PTR(-ENOMEM);
+ 	if (flags & AR5523_CMD_FLAG_MAGIC)
+ 		hdr->magic = cpu_to_be32(1 << 24);
+-	memcpy(hdr + 1, idata, ilen);
++	if (ilen)
++		memcpy(hdr + 1, idata, ilen);
  
--	pids->limit = PIDS_MAX;
- 	atomic64_set(&pids->counter, 0);
-+	atomic64_set(&pids->limit, PIDS_MAX);
- 	atomic64_set(&pids->events_limit, 0);
- 	return &pids->css;
- }
-@@ -149,13 +149,14 @@ static int pids_try_charge(struct pids_c
- 
- 	for (p = pids; parent_pids(p); p = parent_pids(p)) {
- 		int64_t new = atomic64_add_return(num, &p->counter);
-+		int64_t limit = atomic64_read(&p->limit);
- 
- 		/*
- 		 * Since new is capped to the maximum number of pid_t, if
- 		 * p->limit is %PIDS_MAX then we know that this test will never
- 		 * fail.
- 		 */
--		if (new > p->limit)
-+		if (new > limit)
- 			goto revert;
- 	}
- 
-@@ -280,7 +281,7 @@ set_limit:
- 	 * Limit updates don't need to be mutex'd, since it isn't
- 	 * critical that any racing fork()s follow the new limit.
- 	 */
--	pids->limit = limit;
-+	atomic64_set(&pids->limit, limit);
- 	return nbytes;
- }
- 
-@@ -288,7 +289,7 @@ static int pids_max_show(struct seq_file
- {
- 	struct cgroup_subsys_state *css = seq_css(sf);
- 	struct pids_cgroup *pids = css_pids(css);
--	int64_t limit = pids->limit;
-+	int64_t limit = atomic64_read(&pids->limit);
- 
- 	if (limit >= PIDS_MAX)
- 		seq_printf(sf, "%s\n", PIDS_MAX_STR);
+ 	cmd->odata = odata;
+ 	cmd->olen = olen;
 
 
