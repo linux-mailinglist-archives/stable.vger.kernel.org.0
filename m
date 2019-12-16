@@ -2,103 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7620120F39
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 17:21:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8122F120F51
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 17:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726180AbfLPQUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 11:20:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39202 "EHLO mail.kernel.org"
+        id S1726692AbfLPQYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 11:24:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725805AbfLPQUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 11:20:30 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1725836AbfLPQYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 11:24:21 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F06F02067C;
-        Mon, 16 Dec 2019 16:20:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90C9A20726;
+        Mon, 16 Dec 2019 16:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576513229;
-        bh=+W3HJxf8mYgXKDeK2Y+jemjrghe0yTj6JOxN73ZJi3E=;
+        s=default; t=1576513460;
+        bh=xDh2YDLUTml/a1VTrsg8vTE3WzPQfNuS8erA20GMNyE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YNh6WZJvNuoZQvXRqRB6YKK5MKCzFq1ZLNadsR2AX5bddtdSx9VVXsa0BjWk+J9JW
-         4ZUzJVkSYiflK7f8JQKn3nyM38/lRadAB5mrnp6xP3z5YheK50GoThffOnnly7o7H8
-         UHezaRQ5zU4vYMeOLzWSuPB44a8mINvGRF8SDzY0=
-Date:   Mon, 16 Dec 2019 17:20:27 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Clark Williams <williams@redhat.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-perf-users@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Wang Nan <wangnan0@huawei.com>,
-        linux- stable <stable@vger.kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        lkft-triage@lists.linaro.org
-Subject: Re: [PATCH 56/63] perf tests: Fix out of bounds memory access
-Message-ID: <20191216162027.GA2227094@kroah.com>
-References: <20191107190011.23924-1-acme@kernel.org>
- <20191107190011.23924-57-acme@kernel.org>
- <CA+G9fYu-sGYutfX5K5LyAZ8cUfNpWomtyA_0SQsHyej0jD8qTw@mail.gmail.com>
+        b=Xids2YQoUKSOQrMNJM3nXGL7hQUe6ZRKwWpTZp2XJENFgMlXHrMjGTn8MCMljY7/1
+         PcMurUQaIDPrIQTLZQ1jBM6I6hXRH5d//HvObhDU4NKmF3WskeCUWxhq0Nq69N/WrC
+         na625G+TuPFTvNA2AlKNZAdB453bKLnjqadYoQHw=
+Date:   Mon, 16 Dec 2019 11:24:19 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     heiko.carstens@de.ibm.com, gor@linux.ibm.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] s390/smp,vdso: fix ASCE handling" failed
+ to apply to 4.19-stable tree
+Message-ID: <20191216162419.GG17708@sasha-vm>
+References: <157650182321140@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYu-sGYutfX5K5LyAZ8cUfNpWomtyA_0SQsHyej0jD8qTw@mail.gmail.com>
+In-Reply-To: <157650182321140@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 16, 2019 at 09:37:02PM +0530, Naresh Kamboju wrote:
-> This patch merged into stable-rc tree and perf build failed on OE for
-> Linaro builds for 5.3, 4.19, 4.14 and 4.9.
-> Please find build error logs here,
-> 
-> tests/backward-ring-buffer.c: In function 'test__backward_ring_buffer':
-> tests/backward-ring-buffer.c:147:2: warning: implicit declaration of
-> function 'evlist__close'; did you mean 'perf_evlist__close'?
-> [-Wimplicit-function-declaration]
->   evlist__close(evlist);
->   ^~~~~~~~~~~~~
->   perf_evlist__close
-> tests/backward-ring-buffer.c:147:2: warning: nested extern declaration
-> of 'evlist__close' [-Wnested-externs]
-> tests/backward-ring-buffer.c:149:8: warning: implicit declaration of
-> function 'evlist__open'; did you mean 'perf_evlist__open'?
-> [-Wimplicit-function-declaration]
->   err = evlist__open(evlist);
->         ^~~~~~~~~~~~
->         perf_evlist__open
-> tests/backward-ring-buffer.c:149:8: warning: nested extern declaration
-> of 'evlist__open' [-Wnested-externs]
-> perf/1.0-r9/recipe-sysroot/usr/lib/python2.7/config/libpython2.7.a(posixmodule.o):
-> In function `posix_tmpnam':
-> /usr/src/debug/python/2.7.15-r1/Python-2.7.15/Modules/posixmodule.c:7648:
-> warning: the use of `tmpnam_r' is dangerous, better use `mkstemp'
-> perf/1.0-r9/recipe-sysroot/usr/lib/python2.7/config/libpython2.7.a(posixmodule.o):
-> In function `posix_tempnam':
-> /usr/src/debug/python/2.7.15-r1/Python-2.7.15/Modules/posixmodule.c:7595:
-> warning: the use of `tempnam' is dangerous, better use `mkstemp'
-> perf/1.0-r9/perf-1.0/perf-in.o: In function `test__backward_ring_buffer':
-> perf/1.0-r9/perf-1.0/tools/perf/tests/backward-ring-buffer.c:147:
-> undefined reference to `evlist__close'
-> perf/1.0-r9/perf-1.0/tools/perf/tests/backward-ring-buffer.c:149:
-> undefined reference to `evlist__open'
-> 
-> Full log can be found at,
-> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.3/DISTRO=lkft,MACHINE=hikey,label=docker-lkft/72/consoleText
-> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.19/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/378/consoleText
-> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.14/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/675/consoleText
-> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.9/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/753/consoleText
-> 
+On Mon, Dec 16, 2019 at 02:10:23PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.19-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From a2308c11ecbc3471ebb7435ee8075815b1502ef0 Mon Sep 17 00:00:00 2001
+>From: Heiko Carstens <heiko.carstens@de.ibm.com>
+>Date: Mon, 18 Nov 2019 13:09:52 +0100
+>Subject: [PATCH] s390/smp,vdso: fix ASCE handling
+>
+>When a secondary CPU is brought up it must initialize its control
+>registers. CPU A which triggers that a secondary CPU B is brought up
+>stores its control register contents into the lowcore of new CPU B,
+>which then loads these values on startup.
+>
+>This is problematic in various ways: the control register which
+>contains the home space ASCE will correctly contain the kernel ASCE;
+>however control registers for primary and secondary ASCEs are
+>initialized with whatever values were present in CPU A.
+>
+>Typically:
+>- the primary ASCE will contain the user process ASCE of the process
+>  that triggered onlining of CPU B.
+>- the secondary ASCE will contain the percpu VDSO ASCE of CPU A.
+>
+>Due to lazy ASCE handling we may also end up with other combinations.
+>
+>When then CPU B switches to a different process (!= idle) it will
+>fixup the primary ASCE. However the problem is that the (wrong) ASCE
+>from CPU A was loaded into control register 1: as soon as an ASCE is
+>attached (aka loaded) a CPU is free to generate TLB entries using that
+>address space.
+>Even though it is very unlikey that CPU B will actually generate such
+>entries, this could result in TLB entries of the address space of the
+>process that ran on CPU A. These entries shouldn't exist at all and
+>could cause problems later on.
+>
+>Furthermore the secondary ASCE of CPU B will not be updated correctly.
+>This means that processes may see wrong results or even crash if they
+>access VDSO data on CPU B. The correct VDSO ASCE will eventually be
+>loaded on return to user space as soon as the kernel executed a call
+>to strnlen_user or an atomic futex operation on CPU B.
+>
+>Fix both issues by intializing the to be loaded control register
+>contents with the correct ASCEs and also enforce (re-)loading of the
+>ASCEs upon first context switch and return to user space.
+>
+>Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
+>Cc: stable@vger.kernel.org # v4.15+
+>Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+>Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 
-Good catch, thanks, I'll go drop it from all of these queues.
+Adjusted context for missing ce3dc447493f ("s390: add support for
+virtually mapped kernel stacks") in 4.19 and queued up.
 
-greg k-h
+-- 
+Thanks,
+Sasha
