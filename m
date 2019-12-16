@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A1C1218A4
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5B21217FB
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728433AbfLPR5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56280 "EHLO mail.kernel.org"
+        id S1729126AbfLPSCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:02:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728438AbfLPR51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:27 -0500
+        id S1729054AbfLPSCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:02:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38958206B7;
-        Mon, 16 Dec 2019 17:57:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A271218AC;
+        Mon, 16 Dec 2019 18:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519046;
-        bh=eKqDTAxFyxA/lXvzU1Qr7q6anvv1C64wcHPO3SspZ5c=;
+        s=default; t=1576519350;
+        bh=02OOIG76Z/Iy1EgmCIZzU+/S2CzO0XCskta4452Yzj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVKlVKrWlQBdAEiL8WtxfCQ9qdACq8hj/U5+g/BydiMsyPeTW50g/uf2Hhc+0LlsN
-         KXTkwZAoqBil4L5x78W63IF3odyC+HndJH9eY+olCqrUUGMDklMasqJpuKWBaFrpmA
-         uvlniWagZDPcKncdht0F355VrayjaOI4XBKZu0QE=
+        b=mEGGMCCBodKZ+IGLPqUonZS2CSjCWdVY0eiI5BH6eH7WPBqdEEeCLHu4F0xXh6g+E
+         TMYqJp9KCoFLbbEsdrgXnYwCKhKlXeBdWrCWJ8Gc5p7nxmgev45tAEUYm4rxLB88hf
+         s/aQMsNRVLVbUHfrmz5Ej6C9TAkoNmKlOIs4ltiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Billauer <eli.billauer@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 172/267] xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default behaviour.
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 030/140] mtd: spear_smi: Fix Write Burst mode
 Date:   Mon, 16 Dec 2019 18:48:18 +0100
-Message-Id: <20191216174911.925916147@linuxfoundation.org>
+Message-Id: <20191216174757.854872981@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 7ff11162808cc2ec66353fc012c58bb449c892c3 upstream.
+commit 69c7f4618c16b4678f8a4949b6bb5ace259c0033 upstream.
 
-xhci driver claims it needs XHCI_TRUST_TX_LENGTH quirk for both
-Broadcom/Cavium and a Renesas xHC controllers.
+Any write with either dd or flashcp to a device driven by the
+spear_smi.c driver will pass through the spear_smi_cpy_toio()
+function. This function will get called for chunks of up to 256 bytes.
+If the amount of data is smaller, we may have a problem if the data
+length is not 4-byte aligned. In this situation, the kernel panics
+during the memcpy:
 
-The quirk was inteded for handling false "success" complete event for
-transfers that had data left untransferred.
-These transfers should complete with "short packet" events instead.
+    # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
+    spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
+    spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
+    spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
+    spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
+    Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
+    [...]
+    PC is at memcpy+0xcc/0x330
 
-In these two new cases the false "success" completion is reported
-after a "short packet" if the TD consists of several TRBs.
-xHCI specs 4.10.1.1.2 say remaining TRBs should report "short packet"
-as well after the first short packet in a TD, but this issue seems so
-common it doesn't make sense to add the quirk for all vendors.
+The above error occurs because the implementation of memcpy_toio()
+tries to optimize the number of I/O by writing 4 bytes at a time as
+much as possible, until there are less than 4 bytes left and then
+switches to word or byte writes.
 
-Turn these events into short packets automatically instead.
+Unfortunately, the specification states about the Write Burst mode:
 
-This gets rid of the  "The WARN Successful completion on short TX for
-slot 1 ep 1: needs XHCI_TRUST_TX_LENGTH quirk" warning in many cases.
+        "the next AHB Write request should point to the next
+	incremented address and should have the same size (byte,
+	half-word or word)"
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Eli Billauer <eli.billauer@gmail.com>
-Reported-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Eli Billauer <eli.billauer@gmail.com>
-Tested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-6-mathias.nyman@linux.intel.com
+This means ARM architecture implementation of memcpy_toio() cannot
+reliably be used blindly here. Workaround this situation by update the
+write path to stick to byte access when the burst length is not
+multiple of 4.
+
+Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mtd/devices/spear_smi.c |   38 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -2398,7 +2398,8 @@ static int handle_tx_event(struct xhci_h
- 	case COMP_SUCCESS:
- 		if (EVENT_TRB_LEN(le32_to_cpu(event->transfer_len)) == 0)
- 			break;
--		if (xhci->quirks & XHCI_TRUST_TX_LENGTH)
-+		if (xhci->quirks & XHCI_TRUST_TX_LENGTH ||
-+		    ep_ring->last_td_was_short)
- 			trb_comp_code = COMP_SHORT_PACKET;
- 		else
- 			xhci_warn_ratelimited(xhci,
+--- a/drivers/mtd/devices/spear_smi.c
++++ b/drivers/mtd/devices/spear_smi.c
+@@ -592,6 +592,26 @@ static int spear_mtd_read(struct mtd_inf
+ 	return 0;
+ }
+ 
++/*
++ * The purpose of this function is to ensure a memcpy_toio() with byte writes
++ * only. Its structure is inspired from the ARM implementation of _memcpy_toio()
++ * which also does single byte writes but cannot be used here as this is just an
++ * implementation detail and not part of the API. Not mentioning the comment
++ * stating that _memcpy_toio() should be optimized.
++ */
++static void spear_smi_memcpy_toio_b(volatile void __iomem *dest,
++				    const void *src, size_t len)
++{
++	const unsigned char *from = src;
++
++	while (len) {
++		len--;
++		writeb(*from, dest);
++		from++;
++		dest++;
++	}
++}
++
+ static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
+ 		void __iomem *dest, const void *src, size_t len)
+ {
+@@ -614,7 +634,23 @@ static inline int spear_smi_cpy_toio(str
+ 	ctrlreg1 = readl(dev->io_base + SMI_CR1);
+ 	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
+ 
+-	memcpy_toio(dest, src, len);
++	/*
++	 * In Write Burst mode (WB_MODE), the specs states that writes must be:
++	 * - incremental
++	 * - of the same size
++	 * The ARM implementation of memcpy_toio() will optimize the number of
++	 * I/O by using as much 4-byte writes as possible, surrounded by
++	 * 2-byte/1-byte access if:
++	 * - the destination is not 4-byte aligned
++	 * - the length is not a multiple of 4-byte.
++	 * Avoid this alternance of write access size by using our own 'byte
++	 * access' helper if at least one of the two conditions above is true.
++	 */
++	if (IS_ALIGNED(len, sizeof(u32)) &&
++	    IS_ALIGNED((uintptr_t)dest, sizeof(u32)))
++		memcpy_toio(dest, src, len);
++	else
++		spear_smi_memcpy_toio_b(dest, src, len);
+ 
+ 	writel(ctrlreg1, dev->io_base + SMI_CR1);
+ 
 
 
