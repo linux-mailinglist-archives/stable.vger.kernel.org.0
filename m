@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 143851217A6
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C46A121839
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729509AbfLPSFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:05:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
+        id S1728984AbfLPSmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:42:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729867AbfLPSFo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:05:44 -0500
+        id S1728483AbfLPSAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:00:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D39482082E;
-        Mon, 16 Dec 2019 18:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A8B0205C9;
+        Mon, 16 Dec 2019 18:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519543;
-        bh=QdyoteWgD7kF0jwwZP6g5VAPMOLvoEu3eqsQsbUZqFU=;
+        s=default; t=1576519238;
+        bh=WlaGsvSqozUh/F0uCzyw6u/3FTIovZt1FXOX8anM9sU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjzq6clJxJiirzcFUJki/E1+vsbqHzTxyIpKtmngxvdHYGNSzOzbGRvOD8paVctf7
-         owbjiuYeWEQUpfYRe6D5sd8ZMhbqr3oO+97eLXpzt8czIiopwL6C2CcT1FUNuEFmk9
-         9rUZjaPj9Lyr7Fb1tMf/9vwP499pOE2XzpLwWFN4=
+        b=MCmXN6Q5z4a5kq5fzlkTTvkA9Z/KufsPdVwzruaA34xZpyWFRqaW+URhWSNr8WFxk
+         UbyUB9D5xzNZqJSDDcbhc98XrVwfJeinL3jJNoln6q83xP9EuTLWDKwTA5GTaCKYav
+         DKLdLtvPTHUwUBB5MBq0YWs3OT9SBnRf96QT4n7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/140] scsi: lpfc: Correct code setting non existent bits in sli4 ABORT WQE
+Subject: [PATCH 4.14 252/267] e100: Fix passing zero to PTR_ERR warning in e100_load_ucode_wait
 Date:   Mon, 16 Dec 2019 18:49:38 +0100
-Message-Id: <20191216174816.759103426@linuxfoundation.org>
+Message-Id: <20191216174916.446817992@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 1c36833d82ff24d0d54215fd956e7cc30fffce54 ]
+[ Upstream commit cd0d465bb697a9c7bf66a9fe940f7981232f1676 ]
 
-Driver is setting bits in word 10 of the SLI4 ABORT WQE (the wqid).  The
-field was a carry over from a prior SLI revision. The field does not exist
-in SLI4, and the action may result in an overlap with future definition of
-the WQE.
+Fix a static code checker warning:
+drivers/net/ethernet/intel/e100.c:1349
+ e100_load_ucode_wait() warn: passing zero to 'PTR_ERR'
 
-Remove the setting of WQID in the ABORT WQE.
-
-Also cleaned up WQE field settings - initialize to zero, don't bother to
-set fields to zero.
-
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvme.c |  2 --
- drivers/scsi/lpfc/lpfc_sli.c  | 14 +++-----------
- 2 files changed, 3 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/intel/e100.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index 8ee585e453dcf..f73726e55e44d 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1856,7 +1856,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
- 	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 4d10270ddf8fb..90974462743b5 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -1370,8 +1370,8 @@ static inline int e100_load_ucode_wait(struct nic *nic)
  
- 	/* word 7 */
--	bf_set(wqe_ct, &abts_wqe->abort_cmd.wqe_com, 0);
- 	bf_set(wqe_cmnd, &abts_wqe->abort_cmd.wqe_com, CMD_ABORT_XRI_CX);
- 	bf_set(wqe_class, &abts_wqe->abort_cmd.wqe_com,
- 	       nvmereq_wqe->iocb.ulpClass);
-@@ -1871,7 +1870,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
- 	       abts_buf->iotag);
+ 	fw = e100_request_firmware(nic);
+ 	/* If it's NULL, then no ucode is required */
+-	if (!fw || IS_ERR(fw))
+-		return PTR_ERR(fw);
++	if (IS_ERR_OR_NULL(fw))
++		return PTR_ERR_OR_ZERO(fw);
  
- 	/* word 10 */
--	bf_set(wqe_wqid, &abts_wqe->abort_cmd.wqe_com, nvmereq_wqe->hba_wqidx);
- 	bf_set(wqe_qosd, &abts_wqe->abort_cmd.wqe_com, 1);
- 	bf_set(wqe_lenloc, &abts_wqe->abort_cmd.wqe_com, LPFC_WQE_LENLOC_NONE);
- 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 755803ff6cfef..f459fd62e493c 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -10989,19 +10989,12 @@ lpfc_sli4_abort_nvme_io(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
- 
- 	/* Complete prepping the abort wqe and issue to the FW. */
- 	abts_wqe = &abtsiocbp->wqe;
--	bf_set(abort_cmd_ia, &abts_wqe->abort_cmd, 0);
--	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
--
--	/* Explicitly set reserved fields to zero.*/
--	abts_wqe->abort_cmd.rsrvd4 = 0;
--	abts_wqe->abort_cmd.rsrvd5 = 0;
- 
--	/* WQE Common - word 6.  Context is XRI tag.  Set 0. */
--	bf_set(wqe_xri_tag, &abts_wqe->abort_cmd.wqe_com, 0);
--	bf_set(wqe_ctxt_tag, &abts_wqe->abort_cmd.wqe_com, 0);
-+	/* Clear any stale WQE contents */
-+	memset(abts_wqe, 0, sizeof(union lpfc_wqe));
-+	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
- 
- 	/* word 7 */
--	bf_set(wqe_ct, &abts_wqe->abort_cmd.wqe_com, 0);
- 	bf_set(wqe_cmnd, &abts_wqe->abort_cmd.wqe_com, CMD_ABORT_XRI_CX);
- 	bf_set(wqe_class, &abts_wqe->abort_cmd.wqe_com,
- 	       cmdiocb->iocb.ulpClass);
-@@ -11016,7 +11009,6 @@ lpfc_sli4_abort_nvme_io(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
- 	       abtsiocbp->iotag);
- 
- 	/* word 10 */
--	bf_set(wqe_wqid, &abts_wqe->abort_cmd.wqe_com, cmdiocb->hba_wqidx);
- 	bf_set(wqe_qosd, &abts_wqe->abort_cmd.wqe_com, 1);
- 	bf_set(wqe_lenloc, &abts_wqe->abort_cmd.wqe_com, LPFC_WQE_LENLOC_NONE);
- 
+ 	if ((err = e100_exec_cb(nic, (void *)fw, e100_setup_ucode)))
+ 		netif_err(nic, probe, nic->netdev,
 -- 
 2.20.1
 
