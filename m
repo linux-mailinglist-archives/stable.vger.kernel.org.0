@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4DF121857
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 216791216AB
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728812AbfLPR7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:59:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33080 "EHLO mail.kernel.org"
+        id S1730815AbfLPSLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:11:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728806AbfLPR7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:59:48 -0500
+        id S1730811AbfLPSLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AF35206B7;
-        Mon, 16 Dec 2019 17:59:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA7452072D;
+        Mon, 16 Dec 2019 18:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519187;
-        bh=vcw8e7sa05RyMhS4Kpi3imk8mmXPeDfeCjey1rZECiw=;
+        s=default; t=1576519896;
+        bh=4lpxXU2p3Hjyoh0K7wEvhHtrnxxSunMDGWN6OBThWKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rffLCONMqvstCrFpZhKIKHyKkY7NK4LgTp+0oan1ZAYo8uCEE51m1/dwwTLFc6daI
-         pH3xLXCnmmYYgj93Di1qcHP31fnNJiClexN+s1cOtnZJdbcQKDX/J41d/gEn0JpCsm
-         Kv8x7eoARQLRHBYLiv5T8IQpkbF6ttyD1cS4LAVo=
+        b=kT2F1VyDy8/h2HN4sDtZRbMDcr1pd8pDCE1o+8tAR4nmqGSldePMI9eScLMd2g23E
+         BMnMBqtRFp5oQ0wjS5fO379/INh0nIuWNk5LWF2DATvMMfAr0kYLAIC/yG5Q6xMiaf
+         ApjHAlBLhG3ZmGEJUS/7j2eRTsytRmlZ3ojkoJmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 190/267] btrfs: record all roots for rename exchange on a subvol
+        stable@vger.kernel.org, Jacob Rasmussen <jacobraz@google.com>,
+        Ross Zwisler <zwisler@google.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.3 076/180] ASoC: rt5645: Fixed typo for buddy jack support.
 Date:   Mon, 16 Dec 2019 18:48:36 +0100
-Message-Id: <20191216174912.935577828@linuxfoundation.org>
+Message-Id: <20191216174830.721910122@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jacob Rasmussen <jacobraz@chromium.org>
 
-commit 3e1740993e43116b3bc71b0aad1e6872f6ccf341 upstream.
+commit fe23be2d85b05f561431d75acddec726ea807d2a upstream.
 
-Testing with the new fsstress support for subvolumes uncovered a pretty
-bad problem with rename exchange on subvolumes.  We're modifying two
-different subvolumes, but we only start the transaction on one of them,
-so the other one is not added to the dirty root list.  This is caught by
-btrfs_cow_block() with a warning because the root has not been updated,
-however if we do not modify this root again we'll end up pointing at an
-invalid root because the root item is never updated.
+Had a typo in e7cfd867fd98 that resulted in buddy jack support not being
+fixed.
 
-Fix this by making sure we add the destination root to the trans list,
-the same as we do with normal renames.  This fixes the corruption.
-
-Fixes: cdd1fedf8261 ("btrfs: add support for RENAME_EXCHANGE and RENAME_WHITEOUT")
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e7cfd867fd98 ("ASoC: rt5645: Fixed buddy jack support.")
+Signed-off-by: Jacob Rasmussen <jacobraz@google.com>
+Reviewed-by: Ross Zwisler <zwisler@google.com>
+Cc: <jacobraz@google.com>
+CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191114232011.165762-1-jacobraz@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/rt5645.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9839,6 +9839,9 @@ static int btrfs_rename_exchange(struct
- 		goto out_notrans;
- 	}
- 
-+	if (dest != root)
-+		btrfs_record_root_in_trans(trans, dest);
-+
- 	/*
- 	 * We need to find a free sequence number both in the source and
- 	 * in the destination directory for the exchange.
+--- a/sound/soc/codecs/rt5645.c
++++ b/sound/soc/codecs/rt5645.c
+@@ -3271,7 +3271,7 @@ static void rt5645_jack_detect_work(stru
+ 				    report, SND_JACK_MICROPHONE);
+ 		return;
+ 	case 4:
+-		val = snd_soc_component_read32(rt5645->component, RT5645_A_JD_CTRL1) & 0x002;
++		val = snd_soc_component_read32(rt5645->component, RT5645_A_JD_CTRL1) & 0x0020;
+ 		break;
+ 	default: /* read rt5645 jd1_1 status */
+ 		val = snd_soc_component_read32(rt5645->component, RT5645_INT_IRQ_ST) & 0x1000;
 
 
