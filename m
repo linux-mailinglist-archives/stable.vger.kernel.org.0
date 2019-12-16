@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BDA12158C
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C19512166A
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732158AbfLPSUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:20:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52638 "EHLO mail.kernel.org"
+        id S1727667AbfLPS3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:29:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732149AbfLPSUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:20:54 -0500
+        id S1727217AbfLPSON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:14:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9AE62166E;
-        Mon, 16 Dec 2019 18:20:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D885C21739;
+        Mon, 16 Dec 2019 18:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520453;
-        bh=1WVLOQ7FtZmmPMQdVLbpbkQ0N8WM+n1L7ASOYMn/u6Q=;
+        s=default; t=1576520052;
+        bh=DLICn1c1uPmyDsnVLmJgRioewe0lH3mEu4E3XX/rk40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euEDza0r7EPKrE7rk1BkB5HXSLl0tW+2hO/K2S5l6++R9EfiYilX3RTrTtpL0zIfS
-         T23AMpeY9e59O0wRenT+iue0dNJnAfQWm80JrIOKKAT1JjtDA5cg1sgR0IUQGElKZ7
-         z4mv0vrzXlEuhK/oQnfljVX/cpv+dVM3NXj9MRAc=
+        b=tFRWb4NrE/lVnv/e379A7c2AgWLBJDIPlXRbyfrUcJPNENHal2Og4W5o/zQCfHQE1
+         skArsgbQA7tBnnzUKbcL76pvEtikEYMX07AeFPS4RiPSWR1QdwRxIkYe+OErYFchsX
+         SzPeI+vuJcIKGBwrRJkomzO67tz6VM/BCPAU2Fxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 160/177] omap: pdata-quirks: revert pandora specific gpiod additions
-Date:   Mon, 16 Dec 2019 18:50:16 +0100
-Message-Id: <20191216174849.051043809@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>, Qian Cai <cai@lca.pw>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 177/180] mm/shmem.c: cast the type of unmap_start to u64
+Date:   Mon, 16 Dec 2019 18:50:17 +0100
+Message-Id: <20191216174848.312900799@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,90 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-[ Upstream commit 4e8fad98171babe019db51c15055ec74697e9525 ]
+commit aa71ecd8d86500da6081a72da6b0b524007e0627 upstream.
 
-This partly reverts the commit efdfeb079cc3 ("regulator: fixed: Convert to
-use GPIO descriptor only").
+In 64bit system. sb->s_maxbytes of shmem filesystem is MAX_LFS_FILESIZE,
+which equal LLONG_MAX.
 
-We must remove this from mainline first, so that the following patch
-to remove the openpandora quirks for mmc3 and wl1251 cleanly applies
-to stable v4.9, v4.14, v4.19 where the above mentioned patch is not yet
-present.
+If offset > LLONG_MAX - PAGE_SIZE, offset + len < LLONG_MAX in
+shmem_fallocate, which will pass the checking in vfs_fallocate.
 
-Since the code affected is removed (no pandora gpios in pdata-quirks
-and more), there will be no matching revert-of-the-revert.
+	/* Check for wrap through zero too */
+	if (((offset + len) > inode->i_sb->s_maxbytes) || ((offset + len) < 0))
+		return -EFBIG;
 
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+loff_t unmap_start = round_up(offset, PAGE_SIZE) in shmem_fallocate
+causes a overflow.
+
+Syzkaller reports a overflow problem in mm/shmem:
+
+  UBSAN: Undefined behaviour in mm/shmem.c:2014:10
+  signed integer overflow: '9223372036854775807 + 1' cannot be represented in type 'long long int'
+  CPU: 0 PID:17076 Comm: syz-executor0 Not tainted 4.1.46+ #1
+  Hardware name: linux, dummy-virt (DT)
+  Call trace:
+     dump_backtrace+0x0/0x2c8 arch/arm64/kernel/traps.c:100
+     show_stack+0x20/0x30 arch/arm64/kernel/traps.c:238
+     __dump_stack lib/dump_stack.c:15 [inline]
+     ubsan_epilogue+0x18/0x70 lib/ubsan.c:164
+     handle_overflow+0x158/0x1b0 lib/ubsan.c:195
+     shmem_fallocate+0x6d0/0x820 mm/shmem.c:2104
+     vfs_fallocate+0x238/0x428 fs/open.c:312
+     SYSC_fallocate fs/open.c:335 [inline]
+     SyS_fallocate+0x54/0xc8 fs/open.c:239
+
+The highest bit of unmap_start will be appended with sign bit 1
+(overflow) when calculate shmem_falloc.start:
+
+    shmem_falloc.start = unmap_start >> PAGE_SHIFT.
+
+Fix it by casting the type of unmap_start to u64, when right shifted.
+
+This bug is found in LTS Linux 4.1.  It also seems to exist in mainline.
+
+Link: http://lkml.kernel.org/r/1573867464-5107-1-git-send-email-chenjun102@huawei.com
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/mach-omap2/pdata-quirks.c | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ mm/shmem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
-index 2efd18e8824c7..800a602c06ecc 100644
---- a/arch/arm/mach-omap2/pdata-quirks.c
-+++ b/arch/arm/mach-omap2/pdata-quirks.c
-@@ -7,7 +7,6 @@
- #include <linux/clk.h>
- #include <linux/davinci_emac.h>
- #include <linux/gpio.h>
--#include <linux/gpio/machine.h>
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/of_platform.h>
-@@ -334,7 +333,9 @@ static struct regulator_init_data pandora_vmmc3 = {
- static struct fixed_voltage_config pandora_vwlan = {
- 	.supply_name		= "vwlan",
- 	.microvolts		= 1800000, /* 1.8V */
-+	.gpio			= PANDORA_WIFI_NRESET_GPIO,
- 	.startup_delay		= 50000, /* 50ms */
-+	.enable_high		= 1,
- 	.init_data		= &pandora_vmmc3,
- };
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2730,7 +2730,7 @@ static long shmem_fallocate(struct file
+ 		}
  
-@@ -346,19 +347,6 @@ static struct platform_device pandora_vwlan_device = {
- 	},
- };
- 
--static struct gpiod_lookup_table pandora_vwlan_gpiod_table = {
--	.dev_id = "reg-fixed-voltage.1",
--	.table = {
--		/*
--		 * As this is a low GPIO number it should be at the first
--		 * GPIO bank.
--		 */
--		GPIO_LOOKUP("gpio-0-31", PANDORA_WIFI_NRESET_GPIO,
--			    NULL, GPIO_ACTIVE_HIGH),
--		{ },
--	},
--};
--
- static void pandora_wl1251_init_card(struct mmc_card *card)
- {
- 	/*
-@@ -380,6 +368,8 @@ static struct omap2_hsmmc_info pandora_mmc3[] = {
- 	{
- 		.mmc		= 3,
- 		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_POWER_OFF_CARD,
-+		.gpio_cd	= -EINVAL,
-+		.gpio_wp	= -EINVAL,
- 		.init_card	= pandora_wl1251_init_card,
- 	},
- 	{}	/* Terminator */
-@@ -418,7 +408,6 @@ fail:
- static void __init omap3_pandora_legacy_init(void)
- {
- 	platform_device_register(&pandora_backlight);
--	gpiod_add_lookup_table(&pandora_vwlan_gpiod_table);
- 	platform_device_register(&pandora_vwlan_device);
- 	omap_hsmmc_init(pandora_mmc3);
- 	omap_hsmmc_late_init(pandora_mmc3);
--- 
-2.20.1
-
+ 		shmem_falloc.waitq = &shmem_falloc_waitq;
+-		shmem_falloc.start = unmap_start >> PAGE_SHIFT;
++		shmem_falloc.start = (u64)unmap_start >> PAGE_SHIFT;
+ 		shmem_falloc.next = (unmap_end + 1) >> PAGE_SHIFT;
+ 		spin_lock(&inode->i_lock);
+ 		inode->i_private = &shmem_falloc;
 
 
