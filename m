@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6901214B2
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1BDA12158C
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730509AbfLPSOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:14:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32988 "EHLO mail.kernel.org"
+        id S1732158AbfLPSUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:20:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731184AbfLPSOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:14:07 -0500
+        id S1732149AbfLPSUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:20:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00D3820CC7;
-        Mon, 16 Dec 2019 18:14:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9AE62166E;
+        Mon, 16 Dec 2019 18:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520047;
-        bh=qONlitSrMg/KdcPLAt0yizWuwMCNALHE+k/dQ5GPIws=;
+        s=default; t=1576520453;
+        bh=1WVLOQ7FtZmmPMQdVLbpbkQ0N8WM+n1L7ASOYMn/u6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0dBeumuSG4/x3smzfq0z1dm9bJvUsstJtv/dbyo/k3tdy/KxZHgR9QBLXrgvbGvhp
-         J+aFB1ePdGQZ8zHVj0uxQZjY+DhWfgXuVhZuT2spkjRpinMjqnrfUbAXW3mqGJdFIM
-         76N+A2BiF9eNVxF7qt7LL3eV1ZzCzv5M565ZB2fM=
+        b=euEDza0r7EPKrE7rk1BkB5HXSLl0tW+2hO/K2S5l6++R9EfiYilX3RTrTtpL0zIfS
+         T23AMpeY9e59O0wRenT+iue0dNJnAfQWm80JrIOKKAT1JjtDA5cg1sgR0IUQGElKZ7
+         z4mv0vrzXlEuhK/oQnfljVX/cpv+dVM3NXj9MRAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.3 176/180] s390/kaslr: store KASLR offset for early dumps
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 160/177] omap: pdata-quirks: revert pandora specific gpiod additions
 Date:   Mon, 16 Dec 2019 18:50:16 +0100
-Message-Id: <20191216174848.194661636@linuxfoundation.org>
+Message-Id: <20191216174849.051043809@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-commit a9f2f6865d784477e1c7b59269d3a384abafd9ca upstream.
+[ Upstream commit 4e8fad98171babe019db51c15055ec74697e9525 ]
 
-The KASLR offset is added to vmcoreinfo in arch_crash_save_vmcoreinfo(),
-so that it can be found by crash when processing kernel dumps.
+This partly reverts the commit efdfeb079cc3 ("regulator: fixed: Convert to
+use GPIO descriptor only").
 
-However, arch_crash_save_vmcoreinfo() is called during a subsys_initcall,
-so if the kernel crashes before that, we have no vmcoreinfo and no KASLR
-offset.
+We must remove this from mainline first, so that the following patch
+to remove the openpandora quirks for mmc3 and wl1251 cleanly applies
+to stable v4.9, v4.14, v4.19 where the above mentioned patch is not yet
+present.
 
-Fix this by storing the KASLR offset in the lowcore, where the vmcore_info
-pointer will be stored, and where it can be found by crash. In order to
-make it distinguishable from a real vmcore_info pointer, mark it as uneven
-(KASLR offset itself is aligned to THREAD_SIZE).
+Since the code affected is removed (no pandora gpios in pdata-quirks
+and more), there will be no matching revert-of-the-revert.
 
-When arch_crash_save_vmcoreinfo() stores the real vmcore_info pointer in
-the lowcore, it overwrites the KASLR offset. At that point, the KASLR
-offset is not yet added to vmcoreinfo, so we also need to move the
-mem_assign_absolute() behind the vmcoreinfo_append_str().
-
-Fixes: b2d24b97b2a9 ("s390/kernel: add support for kernel address space layout randomization (KASLR)")
-Cc: <stable@vger.kernel.org> # v5.2+
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/startup.c         |    5 +++++
- arch/s390/kernel/machine_kexec.c |    2 +-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap2/pdata-quirks.c | 19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
---- a/arch/s390/boot/startup.c
-+++ b/arch/s390/boot/startup.c
-@@ -164,6 +164,11 @@ void startup_kernel(void)
- 		handle_relocs(__kaslr_offset);
+diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
+index 2efd18e8824c7..800a602c06ecc 100644
+--- a/arch/arm/mach-omap2/pdata-quirks.c
++++ b/arch/arm/mach-omap2/pdata-quirks.c
+@@ -7,7 +7,6 @@
+ #include <linux/clk.h>
+ #include <linux/davinci_emac.h>
+ #include <linux/gpio.h>
+-#include <linux/gpio/machine.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/of_platform.h>
+@@ -334,7 +333,9 @@ static struct regulator_init_data pandora_vmmc3 = {
+ static struct fixed_voltage_config pandora_vwlan = {
+ 	.supply_name		= "vwlan",
+ 	.microvolts		= 1800000, /* 1.8V */
++	.gpio			= PANDORA_WIFI_NRESET_GPIO,
+ 	.startup_delay		= 50000, /* 50ms */
++	.enable_high		= 1,
+ 	.init_data		= &pandora_vmmc3,
+ };
  
- 	if (__kaslr_offset) {
-+		/*
-+		 * Save KASLR offset for early dumps, before vmcore_info is set.
-+		 * Mark as uneven to distinguish from real vmcore_info pointer.
-+		 */
-+		S390_lowcore.vmcore_info = __kaslr_offset | 0x1UL;
- 		/* Clear non-relocated kernel */
- 		if (IS_ENABLED(CONFIG_KERNEL_UNCOMPRESSED))
- 			memset(img, 0, vmlinux.image_size);
---- a/arch/s390/kernel/machine_kexec.c
-+++ b/arch/s390/kernel/machine_kexec.c
-@@ -254,10 +254,10 @@ void arch_crash_save_vmcoreinfo(void)
- 	VMCOREINFO_SYMBOL(lowcore_ptr);
- 	VMCOREINFO_SYMBOL(high_memory);
- 	VMCOREINFO_LENGTH(lowcore_ptr, NR_CPUS);
--	mem_assign_absolute(S390_lowcore.vmcore_info, paddr_vmcoreinfo_note());
- 	vmcoreinfo_append_str("SDMA=%lx\n", __sdma);
- 	vmcoreinfo_append_str("EDMA=%lx\n", __edma);
- 	vmcoreinfo_append_str("KERNELOFFSET=%lx\n", kaslr_offset());
-+	mem_assign_absolute(S390_lowcore.vmcore_info, paddr_vmcoreinfo_note());
- }
+@@ -346,19 +347,6 @@ static struct platform_device pandora_vwlan_device = {
+ 	},
+ };
  
- void machine_shutdown(void)
+-static struct gpiod_lookup_table pandora_vwlan_gpiod_table = {
+-	.dev_id = "reg-fixed-voltage.1",
+-	.table = {
+-		/*
+-		 * As this is a low GPIO number it should be at the first
+-		 * GPIO bank.
+-		 */
+-		GPIO_LOOKUP("gpio-0-31", PANDORA_WIFI_NRESET_GPIO,
+-			    NULL, GPIO_ACTIVE_HIGH),
+-		{ },
+-	},
+-};
+-
+ static void pandora_wl1251_init_card(struct mmc_card *card)
+ {
+ 	/*
+@@ -380,6 +368,8 @@ static struct omap2_hsmmc_info pandora_mmc3[] = {
+ 	{
+ 		.mmc		= 3,
+ 		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_POWER_OFF_CARD,
++		.gpio_cd	= -EINVAL,
++		.gpio_wp	= -EINVAL,
+ 		.init_card	= pandora_wl1251_init_card,
+ 	},
+ 	{}	/* Terminator */
+@@ -418,7 +408,6 @@ fail:
+ static void __init omap3_pandora_legacy_init(void)
+ {
+ 	platform_device_register(&pandora_backlight);
+-	gpiod_add_lookup_table(&pandora_vwlan_gpiod_table);
+ 	platform_device_register(&pandora_vwlan_device);
+ 	omap_hsmmc_init(pandora_mmc3);
+ 	omap_hsmmc_late_init(pandora_mmc3);
+-- 
+2.20.1
+
 
 
