@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7849212189C
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2ECB12189F
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728371AbfLPR5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55720 "EHLO mail.kernel.org"
+        id S1728388AbfLPR5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:57:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbfLPR5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:07 -0500
+        id S1728009AbfLPR5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:57:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4581206B7;
-        Mon, 16 Dec 2019 17:57:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A9E8206B7;
+        Mon, 16 Dec 2019 17:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519027;
-        bh=y6rnEU77n16s4mST6pvUdKrdxHfmcibG65MT/rSN5tE=;
+        s=default; t=1576519029;
+        bh=pMddC1IxYZNUa4z6kDPSLVuBkG4EzoSj4SwhIGjUhYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GpJ8LpCwW2QI4BTLvAlWrSPj7aLqRJdVdXFLf7aUvR5Qe5X/X3b+KTdLN/f4Umlau
-         DyEuOWT4IELsR2tx8LgtQrZaFC6t5clrKplPnHjnBmPQ7nSrQMwQll1BnDEfv54+pD
-         ecA79ZdOPeg2DHMMGttRPtLoLEik4g48Qaxl1FA8=
+        b=qP16DsmTROmIJmt3r3mc2NHFcamp5t3oFIVKij9+DHd6fq2xfvztiSqWwzHPPaog/
+         kW944q8ZLzhFFo++lt00Uatd+VdPxpAPEgnB8qqMRQ/aIOaq8Ql21JjegOiB1DmDeH
+         wSJI75lihWlF13+QVfooZFPlIafHjHt1adh7EqBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 165/267] staging: rtl8188eu: fix interface sanity check
-Date:   Mon, 16 Dec 2019 18:48:11 +0100
-Message-Id: <20191216174911.543956751@linuxfoundation.org>
+Subject: [PATCH 4.14 166/267] staging: rtl8712: fix interface sanity check
+Date:   Mon, 16 Dec 2019 18:48:12 +0100
+Message-Id: <20191216174911.597459384@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 74ca34118a0e05793935d804ccffcedd6eb56596 upstream.
+commit c724f776f048538ecfdf53a52b7a522309f5c504 upstream.
 
 Make sure to use the current alternate setting when verifying the
 interface descriptors to avoid binding to an invalid interface.
@@ -52,26 +52,26 @@ interface descriptors to avoid binding to an invalid interface.
 Failing to do so could cause the driver to misbehave or trigger a WARN()
 in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-Fixes: c2478d39076b ("staging: r8188eu: Add files for new driver - part 20")
-Cc: stable <stable@vger.kernel.org>     # 3.12
+Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
+Cc: stable <stable@vger.kernel.org>     # 2.6.37
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210114751.5119-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20191210114751.5119-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    2 +-
+ drivers/staging/rtl8712/usb_intf.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -78,7 +78,7 @@ static struct dvobj_priv *usb_dvobj_init
- 	phost_conf = pusbd->actconfig;
- 	pconf_desc = &phost_conf->desc;
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -275,7 +275,7 @@ static uint r8712_usb_dvobj_init(struct
  
--	phost_iface = &usb_intf->altsetting[0];
-+	phost_iface = usb_intf->cur_altsetting;
+ 	pdvobjpriv->padapter = padapter;
+ 	padapter->EepromAddressSize = 6;
+-	phost_iface = &pintf->altsetting[0];
++	phost_iface = pintf->cur_altsetting;
  	piface_desc = &phost_iface->desc;
- 
- 	pdvobjpriv->NumInterfaces = pconf_desc->bNumInterfaces;
+ 	pdvobjpriv->nr_endpoint = piface_desc->bNumEndpoints;
+ 	if (pusbd->speed == USB_SPEED_HIGH) {
 
 
