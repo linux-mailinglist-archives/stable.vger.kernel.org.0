@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC571213FF
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA29512159C
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730089AbfLPSHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:07:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47768 "EHLO mail.kernel.org"
+        id S1732067AbfLPSUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:20:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729910AbfLPSHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:07:03 -0500
+        id S1732064AbfLPSUW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:20:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDCAD2072D;
-        Mon, 16 Dec 2019 18:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B723E20409;
+        Mon, 16 Dec 2019 18:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519623;
-        bh=BpIGkf7iuxgSZhgg6xR7ks/6NmXixohDVYBsKO+T/yY=;
+        s=default; t=1576520422;
+        bh=Zt9UsHwhVTa1hLUu0QlnF2a3b8p7cUxQiiGQdtFVePU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YR48d6AGJfbxYsudKtBjXboAkLKxhIrYKXG00PO75bXMvp+a2wxrUcLic/vK59wpj
-         MF4jrpHWdEYROIJTQ409smeWueKQB3mJ/3q87y1D1vyC+Znl14MygwQJ74HDIvmze+
-         QyveF8tYV1w1EgTFt188EEeUPwTquoulWB9Sj69Q=
+        b=nkFqGUApPUZSmtYY0ubGc5kijDJ8pDPuwoH/v/1zUGh6RtW5SOKFwZeoa59HtblWZ
+         9ZIEsP+PPkWbAvUsDqNZKyZhEH67lZVUt2YOPSGJxHxT6TGZlIRf7UWRbMWeNBjn/A
+         6OHsaeLNmSduJ0gspxrlP7Cm7KcpcsbPBFg/iyUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3c01db6025f26530cf8d@syzkaller.appspotmail.com,
-        =?UTF-8?q?Andreas=20Gr=C3=BCnbacher?= 
-        <andreas.gruenbacher@gmail.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: [PATCH 4.19 135/140] splice: only read in as much information as there is pipe buffer space
-Date:   Mon, 16 Dec 2019 18:50:03 +0100
-Message-Id: <20191216174829.190526167@linuxfoundation.org>
+        stable@vger.kernel.org, linux-media@vger.kernel.org,
+        Martin Bugge <marbugge@cisco.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 5.4 148/177] video/hdmi: Fix AVI bar unpack
+Date:   Mon, 16 Dec 2019 18:50:04 +0100
+Message-Id: <20191216174847.621564864@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 3253d9d093376d62b4a56e609f15d2ec5085ac73 upstream.
+commit 6039f37dd6b76641198e290f26b31c475248f567 upstream.
 
-Andreas Grünbacher reports that on the two filesystems that support
-iomap directio, it's possible for splice() to return -EAGAIN (instead of
-a short splice) if the pipe being written to has less space available in
-its pipe buffers than the length supplied by the calling process.
+The bar values are little endian, not big endian. The pack
+function did it right but the unpack got it wrong. Fix it.
 
-Months ago we fixed splice_direct_to_actor to clamp the length of the
-read request to the size of the splice pipe.  Do the same to do_splice.
-
-Fixes: 17614445576b6 ("splice: don't read more than available pipe space")
-Reported-by: syzbot+3c01db6025f26530cf8d@syzkaller.appspotmail.com
-Reported-by: Andreas Grünbacher <andreas.gruenbacher@gmail.com>
-Reviewed-by: Andreas Grünbacher <andreas.gruenbacher@gmail.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Cc: stable@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: Martin Bugge <marbugge@cisco.com>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Fixes: 2c676f378edb ("[media] hdmi: added unpack and logging functions for InfoFrames")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190919132853.30954-1-ville.syrjala@linux.intel.com
+Reviewed-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/splice.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/video/hdmi.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -949,12 +949,13 @@ ssize_t splice_direct_to_actor(struct fi
- 	WARN_ON_ONCE(pipe->nrbufs != 0);
+--- a/drivers/video/hdmi.c
++++ b/drivers/video/hdmi.c
+@@ -1576,12 +1576,12 @@ static int hdmi_avi_infoframe_unpack(str
+ 	if (ptr[0] & 0x10)
+ 		frame->active_aspect = ptr[1] & 0xf;
+ 	if (ptr[0] & 0x8) {
+-		frame->top_bar = (ptr[5] << 8) + ptr[6];
+-		frame->bottom_bar = (ptr[7] << 8) + ptr[8];
++		frame->top_bar = (ptr[6] << 8) | ptr[5];
++		frame->bottom_bar = (ptr[8] << 8) | ptr[7];
+ 	}
+ 	if (ptr[0] & 0x4) {
+-		frame->left_bar = (ptr[9] << 8) + ptr[10];
+-		frame->right_bar = (ptr[11] << 8) + ptr[12];
++		frame->left_bar = (ptr[10] << 8) | ptr[9];
++		frame->right_bar = (ptr[12] << 8) | ptr[11];
+ 	}
+ 	frame->scan_mode = ptr[0] & 0x3;
  
- 	while (len) {
-+		unsigned int pipe_pages;
- 		size_t read_len;
- 		loff_t pos = sd->pos, prev_pos = pos;
- 
- 		/* Don't try to read more the pipe has space for. */
--		read_len = min_t(size_t, len,
--				 (pipe->buffers - pipe->nrbufs) << PAGE_SHIFT);
-+		pipe_pages = pipe->buffers - pipe->nrbufs;
-+		read_len = min(len, (size_t)pipe_pages << PAGE_SHIFT);
- 		ret = do_splice_to(in, &pos, pipe, read_len, flags);
- 		if (unlikely(ret <= 0))
- 			goto out_release;
-@@ -1175,8 +1176,15 @@ static long do_splice(struct file *in, l
- 
- 		pipe_lock(opipe);
- 		ret = wait_for_space(opipe, flags);
--		if (!ret)
-+		if (!ret) {
-+			unsigned int pipe_pages;
-+
-+			/* Don't try to read more the pipe has space for. */
-+			pipe_pages = opipe->buffers - opipe->nrbufs;
-+			len = min(len, (size_t)pipe_pages << PAGE_SHIFT);
-+
- 			ret = do_splice_to(in, &offset, opipe, len, flags);
-+		}
- 		pipe_unlock(opipe);
- 		if (ret > 0)
- 			wakeup_pipe_readers(opipe);
 
 
