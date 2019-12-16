@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13ED1121470
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A431213BB
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730759AbfLPSLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:11:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55074 "EHLO mail.kernel.org"
+        id S1729465AbfLPSEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:04:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730510AbfLPSLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:11:17 -0500
+        id S1729450AbfLPSEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CF37206B7;
-        Mon, 16 Dec 2019 18:11:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9AB420733;
+        Mon, 16 Dec 2019 18:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519876;
-        bh=5j+6CsovKw99scUcvr+DpdunNczZoR/kosoKZyu7GQc=;
+        s=default; t=1576519463;
+        bh=cNkXG79So1n4kXcsOaHpB2Dmd53cijgpr0cizpnbsiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLyHc1dHb89YS1DSWO3OLsjl8iSw4za90AaR+FeeFoOZNgj4AneVFSj0dgJ8VZIyd
-         jpHYyHFfVawp7RxFC8HrWK9gV0998RlYCst4O5jRErigX3qrHEtXPXbs1yceOVfPbE
-         fh/uupnJaJb0MzDQ7AIUFnYFtWivGguYQGq2P5Xw=
+        b=KHZbI0d0iXb0r0mViBn3CNVnp5MEy5f51aiKvTbDSbN14/xoCg66NB9ne7FIONHIQ
+         a5aTqtikqGqbKT/sLw4R+1NMm+sjjaXZZiRQRGSUO7mGKAL0y8UtIOEWymaf4w+VQz
+         bDBFspOl9KURYmpH1bAFUTTGCZ7yr4zXGHf3ubw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        Todd Brandt <todd.e.brandt@linux.intel.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.3 104/180] ACPI: LPSS: Add LNXVIDEO -> BYT I2C7 to lpss_device_links
+Subject: [PATCH 4.19 076/140] ACPI: PM: Avoid attaching ACPI PM domain to certain devices
 Date:   Mon, 16 Dec 2019 18:49:04 +0100
-Message-Id: <20191216174837.562060178@linuxfoundation.org>
+Message-Id: <20191216174808.123790184@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit cc18735f208565343a9824adeca5305026598550 upstream.
+commit b9ea0bae260f6aae546db224daa6ac1bd9d94b91 upstream.
 
-So far on Bay Trail (BYT) we only have been adding a device_link adding
-the iGPU (LNXVIDEO) device as consumer for the I2C controller for the
-PMIC for I2C5, but the PMIC only uses I2C5 on BYT CR (cost reduced) on
-regular BYT platforms I2C7 is used and we were not adding the device_link
-sometimes causing resume ordering issues.
+Certain ACPI-enumerated devices represented as platform devices in
+Linux, like fans, require special low-level power management handling
+implemented by their drivers that is not in agreement with the ACPI
+PM domain behavior.  That leads to problems with managing ACPI fans
+during system-wide suspend and resume.
 
-This commit adds LNXVIDEO -> BYT I2C7 to the lpss_device_links table,
-fixing this.
+For this reason, make acpi_dev_pm_attach() skip the affected devices
+by adding a list of device IDs to avoid to it and putting the IDs of
+the affected devices into that list.
 
-Fixes: 2d71ee0ce72f ("ACPI / LPSS: Add a device link from the GPU to the BYT I2C5 controller")
-Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Fixes: e5cc8ef31267 (ACPI / PM: Provide ACPI PM callback routines for subsystems)
+Reported-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_lpss.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/acpi/device_pm.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -473,9 +473,14 @@ struct lpss_device_links {
-  * the supplier is not enumerated until after the consumer is probed.
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -1254,9 +1254,19 @@ static void acpi_dev_pm_detach(struct de
   */
- static const struct lpss_device_links lpss_device_links[] = {
-+	/* CHT External sdcard slot controller depends on PMIC I2C ctrl */
- 	{"808622C1", "7", "80860F14", "3", DL_FLAG_PM_RUNTIME},
-+	/* CHT iGPU depends on PMIC I2C controller */
- 	{"808622C1", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
-+	/* BYT CR iGPU depends on PMIC I2C controller (UID 5 on CR) */
- 	{"80860F41", "5", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
-+	/* BYT iGPU depends on PMIC I2C controller (UID 7 on non CR) */
-+	{"80860F41", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
- };
+ int acpi_dev_pm_attach(struct device *dev, bool power_on)
+ {
++	/*
++	 * Skip devices whose ACPI companions match the device IDs below,
++	 * because they require special power management handling incompatible
++	 * with the generic ACPI PM domain.
++	 */
++	static const struct acpi_device_id special_pm_ids[] = {
++		{"PNP0C0B", }, /* Generic ACPI fan */
++		{"INT3404", }, /* Fan */
++		{}
++	};
+ 	struct acpi_device *adev = ACPI_COMPANION(dev);
  
- static bool hid_uid_match(struct acpi_device *adev,
+-	if (!adev)
++	if (!adev || !acpi_match_device_ids(adev, special_pm_ids))
+ 		return 0;
+ 
+ 	/*
 
 
