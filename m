@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D3471216CE
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 415A51217E9
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730425AbfLPSKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:10:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53744 "EHLO mail.kernel.org"
+        id S1728924AbfLPSDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:03:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730231AbfLPSKd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:33 -0500
+        id S1729541AbfLPSDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 493D521582;
-        Mon, 16 Dec 2019 18:10:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09B2620726;
+        Mon, 16 Dec 2019 18:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519832;
-        bh=RV3klUc/PIvQCfSU2SpZoIO+Xo2pIu/8ydn60yThLWc=;
+        s=default; t=1576519421;
+        bh=I1pM00sAx1NXWrBCRm+Y2c8vbUDiPb+MHsbOUbAf5Rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqUJYQWvKN9e5N7KWqKqB8Oh3c2kG/khh8nJtqJZ9UwoIDOr0RSshNnHx1f7QFhsG
-         FKROT32ZxpTpBJ8Q9u59NocxD1iV853sR9nY9Eg4Jnzy+rQSC/xUokWLTUjB973C7S
-         WxVwBnWga4/u7v6VlD0TPXzHzwSHxSLzbrIytIcs=
+        b=ad4xR9Pidmdih2o77bMF8+X7EFxMpH31wvlSMBpcF7+QwRmYCJdyYHRdX2hV7qQSU
+         CHF/XJMk9pPtfQq/BHtekyn0zDeRoWuRVEsK3zZMtNPZMJpteOoCi7vGW8BtltmxQP
+         j7xgAR7E5OT59bqVhzFEfcLUKQoOtG0UdmABo3Rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Jiunn Chang <c0d1n61at3@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.3 088/180] media: cec.h: CEC_OP_REC_FLAG_ values were swapped
+        stable@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.19 060/140] cgroup: pids: use atomic64_t for pids->limit
 Date:   Mon, 16 Dec 2019 18:48:48 +0100
-Message-Id: <20191216174834.418486955@linuxfoundation.org>
+Message-Id: <20191216174804.341263986@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Aleksa Sarai <cyphar@cyphar.com>
 
-commit 806e0cdfee0b99efbb450f9f6e69deb7118602fc upstream.
+commit a713af394cf382a30dd28a1015cbe572f1b9ca75 upstream.
 
-CEC_OP_REC_FLAG_NOT_USED is 0 and CEC_OP_REC_FLAG_USED is 1, not the
-other way around.
+Because pids->limit can be changed concurrently (but we don't want to
+take a lock because it would be needlessly expensive), use atomic64_ts
+instead.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Jiunn Chang <c0d1n61at3@gmail.com>
-Cc: <stable@vger.kernel.org>      # for v4.10 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: commit 49b786ea146f ("cgroup: implement the PIDs subsystem")
+Cc: stable@vger.kernel.org # v4.3+
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/cec.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/cgroup/pids.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/include/uapi/linux/cec.h
-+++ b/include/uapi/linux/cec.h
-@@ -768,8 +768,8 @@ struct cec_event {
- #define CEC_MSG_SELECT_DIGITAL_SERVICE			0x93
- #define CEC_MSG_TUNER_DEVICE_STATUS			0x07
- /* Recording Flag Operand (rec_flag) */
--#define CEC_OP_REC_FLAG_USED				0
--#define CEC_OP_REC_FLAG_NOT_USED			1
-+#define CEC_OP_REC_FLAG_NOT_USED			0
-+#define CEC_OP_REC_FLAG_USED				1
- /* Tuner Display Info Operand (tuner_display_info) */
- #define CEC_OP_TUNER_DISPLAY_INFO_DIGITAL		0
- #define CEC_OP_TUNER_DISPLAY_INFO_NONE			1
+--- a/kernel/cgroup/pids.c
++++ b/kernel/cgroup/pids.c
+@@ -48,7 +48,7 @@ struct pids_cgroup {
+ 	 * %PIDS_MAX = (%PID_MAX_LIMIT + 1).
+ 	 */
+ 	atomic64_t			counter;
+-	int64_t				limit;
++	atomic64_t			limit;
+ 
+ 	/* Handle for "pids.events" */
+ 	struct cgroup_file		events_file;
+@@ -76,8 +76,8 @@ pids_css_alloc(struct cgroup_subsys_stat
+ 	if (!pids)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	pids->limit = PIDS_MAX;
+ 	atomic64_set(&pids->counter, 0);
++	atomic64_set(&pids->limit, PIDS_MAX);
+ 	atomic64_set(&pids->events_limit, 0);
+ 	return &pids->css;
+ }
+@@ -149,13 +149,14 @@ static int pids_try_charge(struct pids_c
+ 
+ 	for (p = pids; parent_pids(p); p = parent_pids(p)) {
+ 		int64_t new = atomic64_add_return(num, &p->counter);
++		int64_t limit = atomic64_read(&p->limit);
+ 
+ 		/*
+ 		 * Since new is capped to the maximum number of pid_t, if
+ 		 * p->limit is %PIDS_MAX then we know that this test will never
+ 		 * fail.
+ 		 */
+-		if (new > p->limit)
++		if (new > limit)
+ 			goto revert;
+ 	}
+ 
+@@ -280,7 +281,7 @@ set_limit:
+ 	 * Limit updates don't need to be mutex'd, since it isn't
+ 	 * critical that any racing fork()s follow the new limit.
+ 	 */
+-	pids->limit = limit;
++	atomic64_set(&pids->limit, limit);
+ 	return nbytes;
+ }
+ 
+@@ -288,7 +289,7 @@ static int pids_max_show(struct seq_file
+ {
+ 	struct cgroup_subsys_state *css = seq_css(sf);
+ 	struct pids_cgroup *pids = css_pids(css);
+-	int64_t limit = pids->limit;
++	int64_t limit = atomic64_read(&pids->limit);
+ 
+ 	if (limit >= PIDS_MAX)
+ 		seq_printf(sf, "%s\n", PIDS_MAX_STR);
 
 
