@@ -2,102 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A19C1206E5
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 14:18:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E13CF1206EA
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 14:18:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727904AbfLPNPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 08:15:15 -0500
-Received: from vps.xff.cz ([195.181.215.36]:45156 "EHLO vps.xff.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727897AbfLPNPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 08:15:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
-        t=1576502113; bh=91BvEmwihOD7qAEzR/XIWeG45IH0J4HCzYdZSVFlRxE=;
-        h=Date:From:To:Cc:Subject:References:X-My-GPG-KeyId:From;
-        b=RoYqbfkDdb6FsoIaYhxjz2Ad0BUS4hazQTN/VAep2LGC1sC45PMPkNj4TcRaOpEXw
-         +lKGjAZYjdlfM+jDDL56VQCNXbDNQ7WdNYR+kslOaCF46jOuaEoESXrWZU3H2eSBaD
-         zmMbFM82pOEPCylQ5rtxHEj8WW5SZpGoMRvGB5xg=
-Date:   Mon, 16 Dec 2019 14:15:12 +0100
-From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Stefan Wahren <wahrenst@gmx.net>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 133/350] Bluetooth: hci_bcm: Fix RTS handling
- during startup
-Message-ID: <20191216131512.c5x5ltndmdambdf4@core.my.home>
-Mail-Followup-To: Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Stefan Wahren <wahrenst@gmx.net>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        linux-bluetooth@vger.kernel.org
-References: <20191210210735.9077-1-sashal@kernel.org>
- <20191210210735.9077-94-sashal@kernel.org>
+        id S1727833AbfLPNSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 08:18:04 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:44911 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727768AbfLPNSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 08:18:04 -0500
+Received: by mail-pl1-f194.google.com with SMTP id az3so4442878plb.11
+        for <stable@vger.kernel.org>; Mon, 16 Dec 2019 05:18:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=JDTG1dtuof8oohV+ZDjnkTKA+QbTtPXocHHBYvIWtYU=;
+        b=S/J/iNuzrRNSlcoVOoFAosx1pTi88JQTvUDIvkDwjAvXTjmXKPJ+OY4ApQT00OvL3T
+         BihH2XEs9CCbEwTg5bdsJ5JzMng+nXSqV27hrzRCNGYnl5j/pXS3xCnHab5m3tZ6lfdS
+         fVC8ESr3EjvsR8tKYP9Fiy5zwxgVnslVyb57oNetnP2OwrBlIKqff4Ebb8UZ1NwS7qHi
+         4ng9ekKWSPIz15ZgFpQUXh3CSH6OW29DsvxB5Y+aywtmQtx5nvxSOWQxq3KZoQiM8hD8
+         B66/8OtrhB7y+cyji/kKZQpgSpbAOU3q9F7IysssNwFVfmWs0fJ9KVJ93S050e6tMU+B
+         /2+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=JDTG1dtuof8oohV+ZDjnkTKA+QbTtPXocHHBYvIWtYU=;
+        b=AXq/XknP2bOHvCtxGL4VzsIogwD7+tUXZQ9m8jwIhpiAHf7johuX7bntQIqX07WxwQ
+         1Kf76KqHkFtSoFjoQck64OpMWlQ+L3FD04JewwUJEsukNxG2wOOtaxS2q51VjOY5Y9wT
+         snKewjcVu4iZgHte8cQckkYcDpSRcioaTb1n7YVFNxfcO2ygLBbsprbHbajq+KfZkglX
+         p7hi7A/7WOQvN4p7Tv6YHucYMUooXcxki+WYy04QPXK75m++09hbRjIeZ+foE/3WDN6f
+         C8lwHJZ+lye0XPxoiMGnRKgzk8gRzDUhy1UCQe2AyZGNwdCNvcnAciW0qJa0g5GTv7GD
+         k08g==
+X-Gm-Message-State: APjAAAW9JUJLviGGYzt4zM0OKAfxWO9wVxWV7SK5nghHgtZgRgfkk8En
+        0hmu/5A56SboEOVlErKrCIzjuRf8QiqkkvhA/RNDrw==
+X-Google-Smtp-Source: APXvYqyU6prPxVR6gNSNaVAUcL5V++4eeLFe5K9rpahXPgNvA2HzUtv8aCtb6oKq0CyPcRLFn+BQdhyiEUMOptdlRdE=
+X-Received: by 2002:a17:90b:150:: with SMTP id em16mr17350598pjb.123.1576502283682;
+ Mon, 16 Dec 2019 05:18:03 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191210210735.9077-94-sashal@kernel.org>
-X-My-GPG-KeyId: EBFBDDE11FB918D44D1F56C1F9F0A873BE9777ED
- <https://xff.cz/key.txt>
+References: <20191108154838.21487-1-will@kernel.org> <20191108155503.GB15731@pendragon.ideasonboard.com>
+ <20191216121651.GA12947@willie-the-truck>
+In-Reply-To: <20191216121651.GA12947@willie-the-truck>
+From:   Andrey Konovalov <andreyknvl@google.com>
+Date:   Mon, 16 Dec 2019 14:17:52 +0100
+Message-ID: <CAAeHK+xdVmEFtK78bWd2Odn0uBynqnt5UT9jZJFvqGL=_9NU2w@mail.gmail.com>
+Subject: Re: [PATCH RESEND RESEND] media: uvc: Avoid cyclic entity chains due
+ to malformed USB descriptors
+To:     Will Deacon <will@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        linux-media@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Kostya Serebryany <kcc@google.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, Dec 16, 2019 at 1:16 PM Will Deacon <will@kernel.org> wrote:
+>
+> Hi Laurent,
+>
+> On Fri, Nov 08, 2019 at 05:55:03PM +0200, Laurent Pinchart wrote:
+> > Thank you for the patch.
+> >
+> > I'm sorry for the delay, and will have to ask you to be a bit more
+> > patient I'm afraid. I will leave tomorrow for a week without computer
+> > access and will only be able to go through my backlog when I will be
+> > back on the 17th.
+>
+> Gentle reminder on this, now you've been back a month ;)
 
-On Tue, Dec 10, 2019 at 04:03:58PM -0500, Sasha Levin wrote:
-> From: Stefan Wahren <wahrenst@gmx.net>
-> 
-> [ Upstream commit 3347a80965b38f096b1d6f995c00c9c9e53d4b8b ]
-> 
-> The RPi 4 uses the hardware handshake lines for CYW43455, but the chip
-> doesn't react to HCI requests during DT probe. The reason is the inproper
-> handling of the RTS line during startup. According to the startup
-> signaling sequence in the CYW43455 datasheet, the hosts RTS line must
-> be driven after BT_REG_ON and BT_HOST_WAKE.
-> 
-> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-> Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/bluetooth/hci_bcm.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-> index 7646636f2d183..0f73f6a686cb7 100644
-> --- a/drivers/bluetooth/hci_bcm.c
-> +++ b/drivers/bluetooth/hci_bcm.c
-> @@ -445,9 +445,11 @@ static int bcm_open(struct hci_uart *hu)
->  
->  out:
->  	if (bcm->dev) {
-> +		hci_uart_set_flow_control(hu, true);
->  		hu->init_speed = bcm->dev->init_speed;
->  		hu->oper_speed = bcm->dev->oper_speed;
->  		err = bcm_gpio_set_power(bcm->dev, true);
-> +		hci_uart_set_flow_control(hu, false);
->  		if (err)
->  			goto err_unset_hu;
->  	}
+Hi Will,
 
-This causes bluetooth breakage (degraded bluetooth performance, due to failure to
-switch to higher baudrate) for Orange Pi 3 board:
+I think we now have a reproducer for this issue that syzbot just reported:
 
-[    3.839134] Bluetooth: hci0: command 0xfc18 tx timeout
-[   11.999136] Bluetooth: hci0: BCM: failed to write update baudrate (-110)
-[   12.004613] Bluetooth: hci0: Failed to set baudrate
-[   12.123187] Bluetooth: hci0: BCM: chip id 130
-[   12.128398] Bluetooth: hci0: BCM: features 0x0f
-[   12.154686] Bluetooth: hci0: BCM4345C5
-[   12.157165] Bluetooth: hci0: BCM4345C5 (003.006.006) build 0000
-[   15.343684] Bluetooth: hci0: BCM4345C5 (003.006.006) build 0038
+https://syzkaller.appspot.com/bug?extid=0a5c96772a9b26f2a876
 
-I suggest not pushing this to stable.
+You can try you patch on it :)
 
-regards,
-	Ondrej
+There's also another one, which looks related:
 
-> 2.20.1
-> 
+https://syzkaller.appspot.com/bug?extid=0b0095300dfeb8a83dc8
+
+Thanks!
