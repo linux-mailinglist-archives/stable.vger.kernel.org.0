@@ -2,89 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D72A120129
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 10:30:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C52120164
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 10:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727269AbfLPJ2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 04:28:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39536 "EHLO mail.kernel.org"
+        id S1727070AbfLPJpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 04:45:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727053AbfLPJ2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 04:28:22 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726937AbfLPJpa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 04:45:30 -0500
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAF312075A;
-        Mon, 16 Dec 2019 09:28:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D319320665;
+        Mon, 16 Dec 2019 09:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576488501;
-        bh=RW14kw0PJ2wrm6ulu6HtyD0f3CFUMop1Am8yugJWJLY=;
+        s=default; t=1576489529;
+        bh=ID6AxVJaN/XZPaFJDNB6plYUfGK4flJOFGIZw/PCpfI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZR9zT84IZckgL6VojKqYtTYubTnmKvXzNr8AlFm4gcwHI/sjcPmZzLNtZV53XQyzI
-         1IqF2do9BVvrI9iRYVZX+unWx1dwf2wJtRRLH8qKOHZxuj7MA7KJ9Hyhkc/Q4Jjd6k
-         ELcF5ywb2uDp7ymvJjK3TnaoLcfG6VA7an7pl+ro=
-Date:   Mon, 16 Dec 2019 10:28:18 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andre Tomt <andre@tomt.net>
-Cc:     Jack Wang <jack.wang.usish@gmail.com>,
-        linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        Jianchao Wang <jianchao.w.wang@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 153/306] block: fix the DISCARD request merge
- (4.19.87+ crash)
-Message-ID: <20191216092818.GA1203682@kroah.com>
-References: <20191127203114.766709977@linuxfoundation.org>
- <20191127203126.845809286@linuxfoundation.org>
- <aabbc521-b263-2d5f-efc6-72d500ab5c71@tomt.net>
- <CA+res+RtrAOfiVLeg1QE7V1Xjs6029y3tVmh0vfy+B71_bhsUw@mail.gmail.com>
- <4d8343e0-f38a-3e08-edf6-3346b3011ddf@tomt.net>
+        b=usiK59CUF4wvbn/67RYEOn0Dl40MAPAvz11JWIwlYU8+v1B/eA6RgcQdph0DQoTse
+         Uj9p2alU1Ex+bT22CAN1SPQ55yltS4CATkUF8CVhrxuLPw1v+4YAB2nPL5OmW/dDkm
+         qn0CPviLJpyHQ7NqWfK4Ff2LapqUV9TjUR1xFzkk=
+Date:   Mon, 16 Dec 2019 09:45:24 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 4.19 031/219] arm64: preempt: Fix big-endian when
+ checking preempt count in assembly
+Message-ID: <20191216094523.GA9938@willie-the-truck>
+References: <20191122054911.1750-1-sashal@kernel.org>
+ <20191122054911.1750-24-sashal@kernel.org>
+ <20191214021403.GA1357@home.goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4d8343e0-f38a-3e08-edf6-3346b3011ddf@tomt.net>
+In-Reply-To: <20191214021403.GA1357@home.goodmis.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 16, 2019 at 10:18:48AM +0100, Andre Tomt wrote:
-> On 16.12.2019 08:42, Jack Wang wrote:
-> > Andre Tomt <andre@tomt.net> 于2019年12月14日周六 下午3:24写道：
-> > > 
-> > > 4.19.87, 4.19.88, 4.19.89 all lock up frequently on some of my systems.
-> > > The same systems run 5.4.3 fine, so the newer trees are probably OK.
-> > > Reverting this commit on top of 4.19.87 makes everything stable.
-> > > 
-> > > To trigger it all I have to do is re-rsyncing a directory tree with some
-> > > changed files churn, it will usually crash in 10 to 30 minutes.
-> > > 
-> > > The systems crashing has ext4 filesystem on a two ssd md raid1 mounted
-> > > with the mount option discard. If mounting it without discard, the
-> > > crashes no longer seem to occur.
-> > > 
-> > > No oops/panic made it to the ipmi console. I suspect the console is just
-> > > misbehaving and it didnt really livelock. At one point one line of the
-> > > crash made it to the console (kernel BUG at block/blk-core.c:1776), and
-> > > it was enough to pinpoint this commit. Note that the line number might
-> > > be off, as I was attempting a bisect at the time.
-> > > 
-> > > This commit also made it to 4.14.x, but I have not tested it.
-> > Hi Andre,
+On Fri, Dec 13, 2019 at 09:14:03PM -0500, Steven Rostedt wrote:
+> On Fri, Nov 22, 2019 at 12:46:03AM -0500, Sasha Levin wrote:
+> > From: Will Deacon <will.deacon@arm.com>
 > > 
-> > I noticed one fix is missing for discard merge in 4.19.y
-> > 2a5cf35cd6c5 ("block: fix single range discard merge")
+> > [ Upstream commit 7faa313f05cad184e8b17750f0cbe5216ac6debb ]
 > > 
-> > Can you try if it helps? just "git cherry-pick 2a5cf35cd6c5"
+> > Commit 396244692232 ("arm64: preempt: Provide our own implementation of
+> > asm/preempt.h") extended the preempt count field in struct thread_info
+> > to 64 bits, so that it consists of a 32-bit count plus a 32-bit flag
+> > indicating whether or not the current task needs rescheduling.
+> > 
+> > Whilst the asm-offsets definition of TSK_TI_PREEMPT was updated to point
+> > to this new field, the assembly usage was left untouched meaning that a
+> > 32-bit load from TSK_TI_PREEMPT on a big-endian machine actually returns
+> > the reschedule flag instead of the count.
+> > 
+> > Whilst we could fix this by pointing TSK_TI_PREEMPT at the count field,
+> > we're actually better off reworking the two assembly users so that they
+> > operate on the whole 64-bit value in favour of inspecting the thread
+> > flags separately in order to determine whether a reschedule is needed.
+> > 
+> > Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> > Reported-by: "kernelci.org bot" <bot@kernelci.org>
+> > Tested-by: Kevin Hilman <khilman@baylibre.com>
+> > Signed-off-by: Will Deacon <will.deacon@arm.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  arch/arm64/include/asm/assembler.h | 8 +++-----
+> >  arch/arm64/kernel/entry.S          | 6 ++----
+> >  2 files changed, 5 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+> > index 5a97ac8531682..0c100506a29aa 100644
+> > --- a/arch/arm64/include/asm/assembler.h
+> > +++ b/arch/arm64/include/asm/assembler.h
+> > @@ -683,11 +683,9 @@ USER(\label, ic	ivau, \tmp2)			// invalidate I line PoU
+> >  	.macro		if_will_cond_yield_neon
+> >  #ifdef CONFIG_PREEMPT
+> >  	get_thread_info	x0
+> > -	ldr		w1, [x0, #TSK_TI_PREEMPT]
+> > -	ldr		x0, [x0, #TSK_TI_FLAGS]
+> > -	cmp		w1, #PREEMPT_DISABLE_OFFSET
+> > -	csel		x0, x0, xzr, eq
+> > -	tbnz		x0, #TIF_NEED_RESCHED, .Lyield_\@	// needs rescheduling?
+> > +	ldr		x0, [x0, #TSK_TI_PREEMPT]
+> > +	sub		x0, x0, #PREEMPT_DISABLE_OFFSET
+> > +	cbz		x0, .Lyield_\@
+> >  	/* fall through to endif_yield_neon */
+> >  	.subsection	1
+> >  .Lyield_\@ :
+> > diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+> > index 5f800384cb9a8..bb68323530458 100644
+> > --- a/arch/arm64/kernel/entry.S
+> > +++ b/arch/arm64/kernel/entry.S
+> > @@ -622,10 +622,8 @@ el1_irq:
+> >  	irq_handler
+> >  
+> >  #ifdef CONFIG_PREEMPT
+> > -	ldr	w24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
+> > -	cbnz	w24, 1f				// preempt count != 0
+> > -	ldr	x0, [tsk, #TSK_TI_FLAGS]	// get flags
+> > -	tbz	x0, #TIF_NEED_RESCHED, 1f	// needs rescheduling?
+> > +	ldr	x24, [tsk, #TSK_TI_PREEMPT]	// get preempt count
+> > +	cbnz	x24, 1f				// preempt count != 0
+> >  	bl	el1_preempt
 > 
-> Indeed, adding this commit on top a clean 4.19.89 fixes the issue. So far
-> survived about an hour of rsyncing file churn.
+> While updating 4.19-rt, I stumbled on this change to arm64 backport. And was
+> confused by it, but looking deeper, this is something that breaks without
+> having 396244692232f ("arm64: preempt: Provide our own implementation of
+> asm/preempt.h").
 > 
+> That commit inverts the TIF_NEED_RESCHED meaning where set means we don't need
+> to resched, and clear means we need to resched. This way we can combine the
+> preempt count with the need resched flag test as they share the same 64bit
+> word. A 0 means we need to preempt (as NEED_RESCHED being zero means we need
+> to resched, and this also means preempt_count is zero). If the
+> TIF_NEED_RESCHED bit is set, that means we don't need to resched, and if
+> preempt count is something other than zero, we don't need to resched, and
+> since those two are together by commit 396244692232f, we can just test
+> #TSK_TI_PREEMPT. But because that commit does not exist in 4.19, we can't
+> remove the TIF_NEED_RESCHED check, that this backport does, and then breaks
+> the kernel!
 
-Great!
+Yup, without 396244692232 this commit makes no sense. That's why I didn't CC
+stable or add a Fixes tag :(
 
-Thanks Jack for finding the fix and Andre for reporting this.  I'll go
-queue this fix up right now.
-
-greg k-h
+Will
