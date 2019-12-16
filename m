@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C1E1216CD
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E98D51216CB
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728129AbfLPScB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:32:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54188 "EHLO mail.kernel.org"
+        id S1730668AbfLPSKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:10:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730660AbfLPSKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:48 -0500
+        id S1730665AbfLPSKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:10:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B471206B7;
-        Mon, 16 Dec 2019 18:10:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7460E207FF;
+        Mon, 16 Dec 2019 18:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519847;
-        bh=zvMDwGEEflLv0ci+1PJN1E1X3hZPcRLx42HGE3CfK80=;
+        s=default; t=1576519849;
+        bh=+mUDm720vOil5NekTWtSXYLAFxEU5F0beangRkvpLQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6VcmqrQuWSa0D5GFrzWk5Mg/313Fkz84X7TnbAHO23XBgvgVvr7b3QM+NWdgIQmR
-         iDxd07uoKTryaeNfwq/AnSZyaaIGKMz2lyMM2Gx/QCvIlXyR3ik8hSDRJryYSQ9xdd
-         crC9PO+EuFP3l78Zb/nWTbn0BHWqJSB5Eq4OwBuI=
+        b=t8cDNcxUVYU/NU+2dM5lLxuLsefCOmyQZOSIq2zwjcZynrpQmJUBEne60KQVKK6Mk
+         Ftg+vg8bUTVT7zGF9JR43+fyyNSTZr0hum3q5QQtc4BLkLfvtVhkpO78hujYeDweyA
+         Y1RzlwJ34Q/aZNgEJ7NrjzWR9iu6LY/JOBuhitwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Smythies <dsmythies@telus.net>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.3 093/180] cpuidle: teo: Fix "early hits" handling for disabled idle states
-Date:   Mon, 16 Dec 2019 18:48:53 +0100
-Message-Id: <20191216174834.905902973@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Gao Xiang <gaoxiang25@huawei.com>
+Subject: [PATCH 5.3 094/180] erofs: zero out when listxattr is called with no xattr
+Date:   Mon, 16 Dec 2019 18:48:54 +0100
+Message-Id: <20191216174835.001737408@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
 References: <20191216174806.018988360@linuxfoundation.org>
@@ -43,102 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-commit 159e48560f51d9c2aa02d762a18cd24f7868ab27 upstream.
+commit 926d1650176448d7684b991fbe1a5b1a8289e97c upstream.
 
-The TEO governor uses idle duration "bins" defined in accordance with
-the CPU idle states table provided by the driver, so that each "bin"
-covers the idle duration range between the target residency of the
-idle state corresponding to it and the target residency of the closest
-deeper idle state.  The governor collects statistics for each bin
-regardless of whether or not the idle state corresponding to it is
-currently enabled.
+As David reported [1], ENODATA returns when attempting
+to modify files by using EROFS as an overlayfs lower layer.
 
-In particular, the "early hits" metric measures the likelihood of a
-situation in which the idle duration measured after wakeup falls into
-to given bin, but the time till the next timer (sleep length) falls
-into a bin corresponding to one of the deeper idle states.  It is
-used when the "hits" and "misses" metrics indicate that the state
-"matching" the sleep length should not be selected, so that the state
-with the maximum "early hits" value is selected instead of it.
+The root cause is that listxattr could return unexpected
+-ENODATA by mistake for inodes without xattr. That breaks
+listxattr return value convention and it can cause copy
+up failure when used with overlayfs.
 
-If the idle state corresponding to the given bin is disabled, it
-cannot be selected and if it turns out to be the one that should be
-selected, a shallower idle state needs to be used instead of it.
-Nevertheless, the metrics collected for the bin corresponding to it
-are still valid and need to be taken into account as though that
-state had not been disabled.
+Resolve by zeroing out if no xattr is found for listxattr.
 
-As far as the "early hits" metric is concerned, teo_select() tries to
-take disabled states into account, but the state index corresponding
-to the maximum "early hits" value computed by it may be incorrect.
-Namely, it always uses the index of the previous maximum "early hits"
-state then, but there may be enabled idle states closer to the
-disabled one in question.  In particular, if the current candidate
-state (whose index is the idx value) is closer to the disabled one
-and the "early hits" value of the disabled state is greater than the
-current maximum, the index of the current candidate state (idx)
-should replace the "maximum early hits state" index.
-
-Modify the code to handle that case correctly.
-
-Fixes: b26bf6ab716f ("cpuidle: New timer events oriented governor for tickless systems")
-Reported-by: Doug Smythies <dsmythies@telus.net>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+[1] https://lore.kernel.org/r/CAEvUa7nxnby+rxK-KRMA46=exeOMApkDMAV08AjMkkPnTPV4CQ@mail.gmail.com
+Link: https://lore.kernel.org/r/20191201084040.29275-1-hsiangkao@aol.com
+Fixes: cadf1ccf1b00 ("staging: erofs: add error handling for xattr submodule")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpuidle/governors/teo.c |   35 ++++++++++++++++++++++++++---------
- 1 file changed, 26 insertions(+), 9 deletions(-)
+ drivers/staging/erofs/xattr.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/cpuidle/governors/teo.c
-+++ b/drivers/cpuidle/governors/teo.c
-@@ -285,18 +285,35 @@ static int teo_select(struct cpuidle_dri
- 			hits = cpu_data->states[i].hits;
- 			misses = cpu_data->states[i].misses;
+--- a/drivers/staging/erofs/xattr.c
++++ b/drivers/staging/erofs/xattr.c
+@@ -649,6 +649,8 @@ ssize_t erofs_listxattr(struct dentry *d
+ 	struct listxattr_iter it;
  
-+			if (early_hits >= cpu_data->states[i].early_hits ||
-+			    idx < 0)
-+				continue;
-+
-+			/*
-+			 * If the current candidate state has been the one with
-+			 * the maximum "early hits" metric so far, the "early
-+			 * hits" metric of the disabled state replaces the
-+			 * current "early hits" count to avoid selecting a
-+			 * deeper state with lower "early hits" metric.
-+			 */
-+			if (max_early_idx == idx) {
-+				early_hits = cpu_data->states[i].early_hits;
-+				continue;
-+			}
-+
- 			/*
--			 * If the "early hits" metric of a disabled state is
--			 * greater than the current maximum, it should be taken
--			 * into account, because it would be a mistake to select
--			 * a deeper state with lower "early hits" metric.  The
--			 * index cannot be changed to point to it, however, so
--			 * just increase the "early hits" count alone and let
--			 * the index still point to a shallower idle state.
-+			 * The current candidate state is closer to the disabled
-+			 * one than the current maximum "early hits" state, so
-+			 * replace the latter with it, but in case the maximum
-+			 * "early hits" state index has not been set so far,
-+			 * check if the current candidate state is not too
-+			 * shallow for that role.
- 			 */
--			if (max_early_idx >= 0 &&
--			    early_hits < cpu_data->states[i].early_hits)
-+			if (!(tick_nohz_tick_stopped() &&
-+			      drv->states[idx].target_residency < TICK_USEC)) {
- 				early_hits = cpu_data->states[i].early_hits;
-+				max_early_idx = idx;
-+			}
+ 	ret = init_inode_xattrs(d_inode(dentry));
++	if (ret == -ENOATTR)
++		return 0;
+ 	if (ret)
+ 		return ret;
  
- 			continue;
- 		}
 
 
