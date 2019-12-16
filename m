@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4969F121874
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF6201217CA
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728287AbfLPSnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:43:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60022 "EHLO mail.kernel.org"
+        id S1729233AbfLPSip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:38:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728742AbfLPR7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:59:19 -0500
+        id S1729658AbfLPSE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13CCD205ED;
-        Mon, 16 Dec 2019 17:59:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88F282072D;
+        Mon, 16 Dec 2019 18:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519158;
-        bh=zyNlqw6jJ6qg9js0GhHFIqJdmR13Z9w1iavST+dBeFQ=;
+        s=default; t=1576519468;
+        bh=J3ODutVrZsPdiTMVNV1fo4/+fpdWuhjHzTH1YZDgb/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJy27Pbdr1lxYjK26OV601Zjr3WgES6izgn+T6K29Fmm3+lRGy+SsyglNe9JAJNFR
-         LRl76WDZ/RigeVdI0dEmWgYQHbAVo0t6Acht/NmVaSRUpg+OVmOyReiDHd26NnWiyV
-         cD+Ekmwj8kkcq78BeGazBiS7L5KLHUxygLwdh7qI=
+        b=pIMUIdMvwiiDMKjb8oQrTF5qfn4vSjEpk7LQ+AqQvuYh1XtTWBupdIb9fG4au8faH
+         5eqRNg5GbMCtp7w0mUWpuLS/Fouqqc6eFpXuLjv6qISUqhzm7/oG5WCIMsIuSbz1Bu
+         j14K3pvqIhuAub3S4CcBEdoxn1bzYU9MI+9TVBKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 218/267] ACPI: bus: Fix NULL pointer check in acpi_bus_get_private_data()
-Date:   Mon, 16 Dec 2019 18:49:04 +0100
-Message-Id: <20191216174914.501153972@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 077/140] pinctrl: armada-37xx: Fix irq mask access in armada_37xx_irq_set_type()
+Date:   Mon, 16 Dec 2019 18:49:05 +0100
+Message-Id: <20191216174808.282066907@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-commit 627ead724eff33673597216f5020b72118827de4 upstream.
+commit 04fb02757ae5188031eb71b2f6f189edb1caf5dc upstream.
 
-kmemleak reported backtrace:
-    [<bbee0454>] kmem_cache_alloc_trace+0x128/0x260
-    [<6677f215>] i2c_acpi_install_space_handler+0x4b/0xe0
-    [<1180f4fc>] i2c_register_adapter+0x186/0x400
-    [<6083baf7>] i2c_add_adapter+0x4e/0x70
-    [<a3ddf966>] intel_gmbus_setup+0x1a2/0x2c0 [i915]
-    [<84cb69ae>] i915_driver_probe+0x8d8/0x13a0 [i915]
-    [<81911d4b>] i915_pci_probe+0x48/0x160 [i915]
-    [<4b159af1>] pci_device_probe+0xdc/0x160
-    [<b3c64704>] really_probe+0x1ee/0x450
-    [<bc029f5a>] driver_probe_device+0x142/0x1b0
-    [<d8829d20>] device_driver_attach+0x49/0x50
-    [<de71f045>] __driver_attach+0xc9/0x150
-    [<df33ac83>] bus_for_each_dev+0x56/0xa0
-    [<80089bba>] driver_attach+0x19/0x20
-    [<cc73f583>] bus_add_driver+0x177/0x220
-    [<7b29d8c7>] driver_register+0x56/0xf0
+As explained in the following commit a9a1a4833613 ("pinctrl:
+armada-37xx: Fix gpio interrupt setup") the armada_37xx_irq_set_type()
+function can be called before the initialization of the mask field.
 
-In i2c_acpi_remove_space_handler(), a leak occurs whenever the
-"data" parameter is initialized to 0 before being passed to
-acpi_bus_get_private_data().
+That means that we can't use this field in this function and need to
+workaround it using hwirq.
 
-This is because the NULL pointer check in acpi_bus_get_private_data()
-(condition->if(!*data)) returns EINVAL and, in consequence, memory is
-never freed in i2c_acpi_remove_space_handler().
-
-Fix the NULL pointer check in acpi_bus_get_private_data() to follow
-the analogous check in acpi_get_data_full().
-
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-[ rjw: Subject & changelog ]
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 30ac0d3b0702 ("pinctrl: armada-37xx: Add edge both type gpio irq support")
+Cc: stable@vger.kernel.org
+Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20191115155752.2562-1-gregory.clement@bootlin.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/bus.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -196,7 +196,7 @@ int acpi_bus_get_private_data(acpi_handl
- {
- 	acpi_status status;
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -592,10 +592,10 @@ static int armada_37xx_irq_set_type(stru
+ 		regmap_read(info->regmap, in_reg, &in_val);
  
--	if (!*data)
-+	if (!data)
- 		return -EINVAL;
- 
- 	status = acpi_get_data(handle, acpi_bus_private_data_handler, data);
+ 		/* Set initial polarity based on current input level. */
+-		if (in_val & d->mask)
+-			val |= d->mask;		/* falling */
++		if (in_val & BIT(d->hwirq % GPIO_PER_REG))
++			val |= BIT(d->hwirq % GPIO_PER_REG);	/* falling */
+ 		else
+-			val &= ~d->mask;	/* rising */
++			val &= ~(BIT(d->hwirq % GPIO_PER_REG));	/* rising */
+ 		break;
+ 	}
+ 	default:
 
 
