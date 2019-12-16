@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD510121811
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B481218B1
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729226AbfLPSBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:01:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
+        id S1728099AbfLPR6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:58:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729225AbfLPSBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:01:49 -0500
+        id S1728569AbfLPR6D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6192620726;
-        Mon, 16 Dec 2019 18:01:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C84D0205ED;
+        Mon, 16 Dec 2019 17:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519308;
-        bh=SLLA6soTRudvRmoUb9fkFaD2Y3fKHbuYA00w0PGg8UI=;
+        s=default; t=1576519083;
+        bh=lYslgjAVeGe36565v2xmC1jA/tC+3dsA1uoVGkImutY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPHoQCVk5nvuCRIPE3mcbT9NPvqOYJhFD5FqUXKwdq2Z93J/8nVXGqTkiGDtklckt
-         WvthY+17xVaIvCDJGS4GifzGKyAalmp4AQhx7plJks6+B/dsYZA+tiBWYQJ06enyap
-         m1kn4zL0TkiGDVE8SBSWHmI8XIPxrDzRSmslzPmo=
+        b=dT5lAuKAu4VSlSxfGRE0Evv/6tUXYmd8lNgXnm9dh1WT5+YraJrsX4wI2iCcZvZX6
+         kkoohqG4nvXUcoQTtu1+S9OV7OZNosjSnTHZKHsDHUZSfaeS2mpRmKtD6Gn+hH8qPT
+         I4zpO4VV9gbJ3bFO2VJ0n1x/3Bd60Eg9UPIJ1n5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.19 006/140] USB: uas: heed CAPACITY_HEURISTICS
+        stable@vger.kernel.org,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 148/267] spi: atmel: Fix CS high support
 Date:   Mon, 16 Dec 2019 18:47:54 +0100
-Message-Id: <20191216174750.071033306@linuxfoundation.org>
+Message-Id: <20191216174910.582230758@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-commit 335cbbd5762d5e5c67a8ddd6e6362c2aa42a328f upstream.
+commit 7cbb16b2122c09f2ae393a1542fed628505b9da6 upstream.
 
-There is no need to ignore this flag. We should be as close
-to storage in that regard as makes sense, so honor flags whose
-cost is tiny.
+Until a few years ago, this driver was only used with CS GPIO. The
+only exception is CS0 on AT91RM9200 which has to use internal CS. A
+limitation of the internal CS is that they don't support CS High.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191114112758.32747-3-oneukum@suse.com
+So by using the CS GPIO the CS high configuration was available except
+for the particular case CS0 on RM9200.
+
+When the support for the internal chip-select was added, the check of
+the CS high support was not updated. Due to this the driver accepts
+this configuration for all the SPI controller v2 (used by all SoCs
+excepting the AT91RM9200) whereas the hardware doesn't support it for
+infernal CS.
+
+This patch fixes the test to match the hardware capabilities.
+
+Fixes: 4820303480a1 ("spi: atmel: add support for the internal chip-select of the spi controller")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20191017141846.7523-3-gregory.clement@bootlin.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/uas.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/spi/spi-atmel.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -845,6 +845,12 @@ static int uas_slave_configure(struct sc
- 		sdev->fix_capacity = 1;
+--- a/drivers/spi/spi-atmel.c
++++ b/drivers/spi/spi-atmel.c
+@@ -1150,10 +1150,8 @@ static int atmel_spi_setup(struct spi_de
+ 	as = spi_master_get_devdata(spi->master);
  
- 	/*
-+	 * in some cases we have to guess
-+	 */
-+	if (devinfo->flags & US_FL_CAPACITY_HEURISTICS)
-+		sdev->guess_capacity = 1;
-+
-+	/*
- 	 * Some devices don't like MODE SENSE with page=0x3f,
- 	 * which is the command used for checking if a device
- 	 * is write-protected.  Now that we tell the sd driver
+ 	/* see notes above re chipselect */
+-	if (!atmel_spi_is_v2(as)
+-			&& spi->chip_select == 0
+-			&& (spi->mode & SPI_CS_HIGH)) {
+-		dev_dbg(&spi->dev, "setup: can't be active-high\n");
++	if (!as->use_cs_gpios && (spi->mode & SPI_CS_HIGH)) {
++		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
+ 		return -EINVAL;
+ 	}
+ 
 
 
