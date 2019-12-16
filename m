@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7E21212EE
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C85C31212F2
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:57:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727980AbfLPR5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55948 "EHLO mail.kernel.org"
+        id S1727201AbfLPR5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:57:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728179AbfLPR5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:15 -0500
+        id S1728433AbfLPR5Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:57:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1101F24650;
-        Mon, 16 Dec 2019 17:57:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDBB320733;
+        Mon, 16 Dec 2019 17:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519034;
-        bh=U+Zy8WDW51twCqB13+h4TM2bIhnae75Z5rp9vowzhX4=;
+        s=default; t=1576519044;
+        bh=CVQpmsHggTTIIS9+lI4h+PJUbqp97d7qTuyXzomvncQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azbwnre81KjivkWrvrbHjzyRkccz9pqBAmp+8lCyRbEIy4JAwrX22AZAnwkybTxWp
-         bBfFzNr1GMzUZFbPKE6P/TKsTQ/lP8FMyT5tkQSGgTnkOR8QSbBG73cu/66szR6LFT
-         boNRPyB+D0exJ9iXFePNsegtZhUtoFipQE7wi16g=
+        b=YC86IzqRf6rYtG/jJn0azjjB/Jv7PmnaFxew9QQS0MsJMcTedjnJjCyliBgFGDYfv
+         FQ85eqXgWcrEmLHXeqplr+zQ/bAAWGqaM7tZN+evFtrmXeZWg6HU45l1HcxErd+FOx
+         Fnh6A++ggMkbEOFbONY3RpWDgulXZhVjcJk9tA50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tilman Schmidt <tilman@imap.cc>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 168/267] staging: gigaset: fix illegal free on probe errors
-Date:   Mon, 16 Dec 2019 18:48:14 +0100
-Message-Id: <20191216174911.706527380@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 171/267] xhci: Increase STS_HALT timeout in xhci_suspend()
+Date:   Mon, 16 Dec 2019 18:48:17 +0100
+Message-Id: <20191216174911.868500975@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -43,47 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 84f60ca7b326ed8c08582417493982fe2573a9ad upstream.
+commit 7c67cf6658cec70d8a43229f2ce74ca1443dc95e upstream.
 
-The driver failed to initialise its receive-buffer pointer, something
-which could lead to an illegal free on late probe errors.
+I've recently observed failed xHCI suspend attempt on AMD Raven Ridge
+system:
+kernel: xhci_hcd 0000:04:00.4: WARN: xHC CMD_RUN timeout
+kernel: PM: suspend_common(): xhci_pci_suspend+0x0/0xd0 returns -110
+kernel: PM: pci_pm_suspend(): hcd_pci_suspend+0x0/0x30 returns -110
+kernel: PM: dpm_run_callback(): pci_pm_suspend+0x0/0x150 returns -110
+kernel: PM: Device 0000:04:00.4 failed to suspend async: error -110
 
-Fix this by making sure to clear all driver data at allocation.
+Similar to commit ac343366846a ("xhci: Increase STS_SAVE timeout in
+xhci_suspend()") we also need to increase the HALT timeout to make it be
+able to suspend again.
 
-Fixes: 2032e2c2309d ("usb_gigaset: code cleanup")
-Cc: stable <stable@vger.kernel.org>     # 2.6.33
-Cc: Tilman Schmidt <tilman@imap.cc>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191202085610.12719-3-johan@kernel.org
+Cc: <stable@vger.kernel.org> # 5.2+
+Fixes: f7fac17ca925 ("xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20191211142007.8847-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/isdn/gigaset/usb-gigaset.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/usb/host/xhci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/isdn/gigaset/usb-gigaset.c
-+++ b/drivers/isdn/gigaset/usb-gigaset.c
-@@ -574,8 +574,7 @@ static int gigaset_initcshw(struct cards
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -908,7 +908,7 @@ static bool xhci_pending_portevent(struc
+ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
  {
- 	struct usb_cardstate *ucs;
- 
--	cs->hw.usb = ucs =
--		kmalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
-+	cs->hw.usb = ucs = kzalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
- 	if (!ucs) {
- 		pr_err("out of memory\n");
- 		return -ENOMEM;
-@@ -587,9 +586,6 @@ static int gigaset_initcshw(struct cards
- 	ucs->bchars[3] = 0;
- 	ucs->bchars[4] = 0x11;
- 	ucs->bchars[5] = 0x13;
--	ucs->bulk_out_buffer = NULL;
--	ucs->bulk_out_urb = NULL;
--	ucs->read_urb = NULL;
- 	tasklet_init(&cs->write_tasklet,
- 		     gigaset_modem_fill, (unsigned long) cs);
- 
+ 	int			rc = 0;
+-	unsigned int		delay = XHCI_MAX_HALT_USEC;
++	unsigned int		delay = XHCI_MAX_HALT_USEC * 2;
+ 	struct usb_hcd		*hcd = xhci_to_hcd(xhci);
+ 	u32			command;
+ 	u32			res;
 
 
