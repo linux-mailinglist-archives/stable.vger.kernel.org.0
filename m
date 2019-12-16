@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D33A31214CD
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:15:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B8712164E
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731326AbfLPSPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:15:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35416 "EHLO mail.kernel.org"
+        id S1731164AbfLPSPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:15:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731319AbfLPSPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:15:04 -0500
+        id S1731057AbfLPSPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:15:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17F7F20717;
-        Mon, 16 Dec 2019 18:15:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B97820717;
+        Mon, 16 Dec 2019 18:15:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520103;
-        bh=9MaNyCWvJia4kkvMZep4wOiZNAU6Q48KIxe0ZAmr8xI=;
+        s=default; t=1576520105;
+        bh=PE1gd6chq3u1lu+cX2GWnYFFwUK7giUUhwiAe5+2BQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cbGh1U1+ygVS+uJkU11ZORgaL9piq3a12lcNoUiSYW2Fd4epdQ0VgGbkdrEvArv7
-         Ag5Ilv0gGT4PPSJ2nnGYwbpcnAEZRXNdGL5dJPObzekjJWkiwHV1S07mpiYzP15rVD
-         mU3OLtEHIUehDinP0Y9FBnP1G7v97SwwuGcVsMGY=
+        b=orV7rlRJopM4vjOEC4g+o10GfO9NmkHRn8ZnAdnWIJao8APop5mAMw1PH5LPoNOpN
+         CzbayVVacZfUWoLyzQL0Aby5pcV50fmbcZ67OkOjTjEJh+YGQweGBdEP1MDvlYuoKf
+         jXbWPRaFJNJli/eHpvx2L4Ai+xJaH4yu9DgaWahE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nagarjuna Kristam <nkristam@nvidia.com>,
-        Jui Chang Kuo <jckuo@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.4 018/177] usb: host: xhci-tegra: Correct phy enable sequence
-Date:   Mon, 16 Dec 2019 18:47:54 +0100
-Message-Id: <20191216174816.557705483@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>
+Subject: [PATCH 5.4 019/177] binder: fix incorrect calculation for num_valid
+Date:   Mon, 16 Dec 2019 18:47:55 +0100
+Message-Id: <20191216174816.834777313@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -45,97 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nagarjuna Kristam <nkristam@nvidia.com>
+From: Todd Kjos <tkjos@android.com>
 
-commit 6351653febbb784d86fdf83afe41f7523a61b392 upstream.
+commit 16981742717b04644a41052570fb502682a315d2 upstream.
 
-XUSB phy needs to be enabled before un-powergating the power partitions.
-However in the current sequence, it happens opposite. Correct the phy
-enable and powergating partition sequence to avoid any boot hangs.
+For BINDER_TYPE_PTR and BINDER_TYPE_FDA transactions, the
+num_valid local was calculated incorrectly causing the
+range check in binder_validate_ptr() to miss out-of-bounds
+offsets.
 
-Signed-off-by: Nagarjuna Kristam <nkristam@nvidia.com>
+Fixes: bde4a19fc04f ("binder: use userspace pointer as base of buffer space")
+Signed-off-by: Todd Kjos <tkjos@google.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jui Chang Kuo <jckuo@nvidia.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/1572859470-7823-1-git-send-email-nkristam@nvidia.com
+Link: https://lore.kernel.org/r/20191213202531.55010-1-tkjos@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-tegra.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/android/binder.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -755,7 +755,6 @@ static int tegra_xusb_runtime_suspend(st
- {
- 	struct tegra_xusb *tegra = dev_get_drvdata(dev);
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3314,7 +3314,7 @@ static void binder_transaction(struct bi
+ 			binder_size_t parent_offset;
+ 			struct binder_fd_array_object *fda =
+ 				to_binder_fd_array_object(hdr);
+-			size_t num_valid = (buffer_offset - off_start_offset) *
++			size_t num_valid = (buffer_offset - off_start_offset) /
+ 						sizeof(binder_size_t);
+ 			struct binder_buffer_object *parent =
+ 				binder_validate_ptr(target_proc, t->buffer,
+@@ -3388,7 +3388,7 @@ static void binder_transaction(struct bi
+ 				t->buffer->user_data + sg_buf_offset;
+ 			sg_buf_offset += ALIGN(bp->length, sizeof(u64));
  
--	tegra_xusb_phy_disable(tegra);
- 	regulator_bulk_disable(tegra->soc->num_supplies, tegra->supplies);
- 	tegra_xusb_clk_disable(tegra);
- 
-@@ -779,16 +778,8 @@ static int tegra_xusb_runtime_resume(str
- 		goto disable_clk;
- 	}
- 
--	err = tegra_xusb_phy_enable(tegra);
--	if (err < 0) {
--		dev_err(dev, "failed to enable PHYs: %d\n", err);
--		goto disable_regulator;
--	}
--
- 	return 0;
- 
--disable_regulator:
--	regulator_bulk_disable(tegra->soc->num_supplies, tegra->supplies);
- disable_clk:
- 	tegra_xusb_clk_disable(tegra);
- 	return err;
-@@ -1181,6 +1172,12 @@ static int tegra_xusb_probe(struct platf
- 	 */
- 	platform_set_drvdata(pdev, tegra);
- 
-+	err = tegra_xusb_phy_enable(tegra);
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "failed to enable PHYs: %d\n", err);
-+		goto put_hcd;
-+	}
-+
- 	pm_runtime_enable(&pdev->dev);
- 	if (pm_runtime_enabled(&pdev->dev))
- 		err = pm_runtime_get_sync(&pdev->dev);
-@@ -1189,7 +1186,7 @@ static int tegra_xusb_probe(struct platf
- 
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "failed to enable device: %d\n", err);
--		goto disable_rpm;
-+		goto disable_phy;
- 	}
- 
- 	tegra_xusb_config(tegra, regs);
-@@ -1275,9 +1272,11 @@ remove_usb2:
- put_rpm:
- 	if (!pm_runtime_status_suspended(&pdev->dev))
- 		tegra_xusb_runtime_suspend(&pdev->dev);
--disable_rpm:
--	pm_runtime_disable(&pdev->dev);
-+put_hcd:
- 	usb_put_hcd(tegra->hcd);
-+disable_phy:
-+	tegra_xusb_phy_disable(tegra);
-+	pm_runtime_disable(&pdev->dev);
- put_powerdomains:
- 	if (!of_property_read_bool(pdev->dev.of_node, "power-domains")) {
- 		tegra_powergate_power_off(TEGRA_POWERGATE_XUSBC);
-@@ -1314,6 +1313,8 @@ static int tegra_xusb_remove(struct plat
- 		tegra_xusb_powerdomain_remove(&pdev->dev, tegra);
- 	}
- 
-+	tegra_xusb_phy_disable(tegra);
-+
- 	tegra_xusb_padctl_put(tegra->padctl);
- 
- 	return 0;
+-			num_valid = (buffer_offset - off_start_offset) *
++			num_valid = (buffer_offset - off_start_offset) /
+ 					sizeof(binder_size_t);
+ 			ret = binder_fixup_parent(t, thread, bp,
+ 						  off_start_offset,
 
 
