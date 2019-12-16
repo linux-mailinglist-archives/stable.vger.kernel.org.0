@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 231B912154A
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:21:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4374121680
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:30:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732085AbfLPSU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:20:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50630 "EHLO mail.kernel.org"
+        id S1730795AbfLPSNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:13:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732080AbfLPSU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:20:27 -0500
+        id S1726787AbfLPSNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:13:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B6FD206EC;
-        Mon, 16 Dec 2019 18:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1306921582;
+        Mon, 16 Dec 2019 18:13:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520426;
-        bh=E1eH4V28AhDSPxwzREWDAeBIRwVTvqP+aN8l9PpGcgA=;
+        s=default; t=1576520025;
+        bh=DkCPbrmjrLhyggIsxqQ2UgaXx0IBRimw3qNKWnog8O0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GmdR15D15LDehOGem4wLswtqeBi17NcbxLH0JqfgDBCIt1gsFIjlJyKpLdj30IpLd
-         WcE578YkSVvM4IacjoewBeHAEW/Xe0s6QfaloIVZ+Vpg1QWFrOLfWOadg4Hmc0lAvp
-         wgA0anDuSSEBOgUjHSjS2U/pRrLcgq4FP10iq1XQ=
+        b=fy8jXpkA0oBKMH7nynhGKwOoZi57/EsqnNv9MCGhCuogWj7B/H6KKJSveOs7k3Vnh
+         O+XY8wibdWZxCoocKkAC9SSBZW8iuqIF1yEt6Sl15V7gnkvIG/0iPNbq/lWf1takzu
+         LNVXHfNYk8qE7RliHQ9GIyS8LfUGP+sfp2QjKv/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 150/177] ext2: check err when partial != NULL
-Date:   Mon, 16 Dec 2019 18:50:06 +0100
-Message-Id: <20191216174847.857628809@linuxfoundation.org>
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 167/180] omap: pdata-quirks: remove openpandora quirks for mmc3 and wl1251
+Date:   Mon, 16 Dec 2019 18:50:07 +0100
+Message-Id: <20191216174847.143009591@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-commit e705f4b8aa27a59f8933e8f384e9752f052c469c upstream.
+[ Upstream commit 2398c41d64321e62af54424fd399964f3d48cdc2 ]
 
-Check err when partial == NULL is meaningless because
-partial == NULL means getting branch successfully without
-error.
+With a wl1251 child node of mmc3 in the device tree decoded
+in omap_hsmmc.c to handle special wl1251 initialization, we do
+no longer need to instantiate the mmc3 through pdata quirks.
 
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191105045100.7104-1-cgxu519@mykernel.net
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We also can remove the wlan regulator and reset/interrupt definitions
+and do them through device tree.
 
+Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Cc: <stable@vger.kernel.org> # v4.7+
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext2/inode.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm/mach-omap2/pdata-quirks.c | 93 ------------------------------
+ 1 file changed, 93 deletions(-)
 
---- a/fs/ext2/inode.c
-+++ b/fs/ext2/inode.c
-@@ -701,10 +701,13 @@ static int ext2_get_blocks(struct inode
- 		if (!partial) {
- 			count++;
- 			mutex_unlock(&ei->truncate_mutex);
--			if (err)
--				goto cleanup;
- 			goto got_it;
- 		}
-+
-+		if (err) {
-+			mutex_unlock(&ei->truncate_mutex);
-+			goto cleanup;
-+		}
- 	}
+diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
+index e5c99e33afae2..da21c589dbdf1 100644
+--- a/arch/arm/mach-omap2/pdata-quirks.c
++++ b/arch/arm/mach-omap2/pdata-quirks.c
+@@ -303,108 +303,15 @@ static void __init omap3_logicpd_torpedo_init(void)
+ }
  
- 	/*
+ /* omap3pandora legacy devices */
+-#define PANDORA_WIFI_IRQ_GPIO		21
+-#define PANDORA_WIFI_NRESET_GPIO	23
+ 
+ static struct platform_device pandora_backlight = {
+ 	.name	= "pandora-backlight",
+ 	.id	= -1,
+ };
+ 
+-static struct regulator_consumer_supply pandora_vmmc3_supply[] = {
+-	REGULATOR_SUPPLY("vmmc", "omap_hsmmc.2"),
+-};
+-
+-static struct regulator_init_data pandora_vmmc3 = {
+-	.constraints = {
+-		.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
+-	},
+-	.num_consumer_supplies	= ARRAY_SIZE(pandora_vmmc3_supply),
+-	.consumer_supplies	= pandora_vmmc3_supply,
+-};
+-
+-static struct fixed_voltage_config pandora_vwlan = {
+-	.supply_name		= "vwlan",
+-	.microvolts		= 1800000, /* 1.8V */
+-	.gpio			= PANDORA_WIFI_NRESET_GPIO,
+-	.startup_delay		= 50000, /* 50ms */
+-	.enable_high		= 1,
+-	.init_data		= &pandora_vmmc3,
+-};
+-
+-static struct platform_device pandora_vwlan_device = {
+-	.name		= "reg-fixed-voltage",
+-	.id		= 1,
+-	.dev = {
+-		.platform_data = &pandora_vwlan,
+-	},
+-};
+-
+-static void pandora_wl1251_init_card(struct mmc_card *card)
+-{
+-	/*
+-	 * We have TI wl1251 attached to MMC3. Pass this information to
+-	 * SDIO core because it can't be probed by normal methods.
+-	 */
+-	if (card->type == MMC_TYPE_SDIO || card->type == MMC_TYPE_SD_COMBO) {
+-		card->quirks |= MMC_QUIRK_NONSTD_SDIO;
+-		card->cccr.wide_bus = 1;
+-		card->cis.vendor = 0x104c;
+-		card->cis.device = 0x9066;
+-		card->cis.blksize = 512;
+-		card->cis.max_dtr = 24000000;
+-		card->ocr = 0x80;
+-	}
+-}
+-
+-static struct omap2_hsmmc_info pandora_mmc3[] = {
+-	{
+-		.mmc		= 3,
+-		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_POWER_OFF_CARD,
+-		.gpio_cd	= -EINVAL,
+-		.gpio_wp	= -EINVAL,
+-		.init_card	= pandora_wl1251_init_card,
+-	},
+-	{}	/* Terminator */
+-};
+-
+-static void __init pandora_wl1251_init(void)
+-{
+-	struct wl1251_platform_data pandora_wl1251_pdata;
+-	int ret;
+-
+-	memset(&pandora_wl1251_pdata, 0, sizeof(pandora_wl1251_pdata));
+-
+-	pandora_wl1251_pdata.power_gpio = -1;
+-
+-	ret = gpio_request_one(PANDORA_WIFI_IRQ_GPIO, GPIOF_IN, "wl1251 irq");
+-	if (ret < 0)
+-		goto fail;
+-
+-	pandora_wl1251_pdata.irq = gpio_to_irq(PANDORA_WIFI_IRQ_GPIO);
+-	if (pandora_wl1251_pdata.irq < 0)
+-		goto fail_irq;
+-
+-	pandora_wl1251_pdata.use_eeprom = true;
+-	ret = wl1251_set_platform_data(&pandora_wl1251_pdata);
+-	if (ret < 0)
+-		goto fail_irq;
+-
+-	return;
+-
+-fail_irq:
+-	gpio_free(PANDORA_WIFI_IRQ_GPIO);
+-fail:
+-	pr_err("wl1251 board initialisation failed\n");
+-}
+-
+ static void __init omap3_pandora_legacy_init(void)
+ {
+ 	platform_device_register(&pandora_backlight);
+-	platform_device_register(&pandora_vwlan_device);
+-	omap_hsmmc_init(pandora_mmc3);
+-	omap_hsmmc_late_init(pandora_mmc3);
+-	pandora_wl1251_init();
+ }
+ #endif /* CONFIG_ARCH_OMAP3 */
+ 
+-- 
+2.20.1
+
 
 
