@@ -2,132 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34118120725
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 14:28:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD07F120736
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 14:30:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727856AbfLPN1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 08:27:54 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:51695 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727601AbfLPN1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 08:27:54 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id B2FC1727;
-        Mon, 16 Dec 2019 08:27:52 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 16 Dec 2019 08:27:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=Y
-        mViL70LTOh/d2HUWHm4SX1kRjzqtzPlz629CD92l7o=; b=g5559xHV/ZCMjWQRL
-        UWI/pqUKEGOqkKg+bsWfTrrpEDpqnV3jhvtF0IUVbhi8Jlzm7+78bXTjiID/tqTt
-        mY1CCAuOauItpHcX7/RUb2bYdoyBbCgLBdtXgUGXnSQ42XVouKfLdhRq5YQbKw9U
-        03E5CNvw9hC5f72JXyjeM5MiCpurESr2T+lrtjinFGsZd/GKb+KJuSeyTC+LeoBE
-        alfTXc/6OXr6p1edPOecWQp2Hz/XoJwQQdla9AR6mXlMI+niKkDf+abWMcN0Jg5L
-        WhxiUrBRdCwCqfQdHzzxFDhGfzWt7nxS4kNmMOvkRcoLaXQd1wOHqa/GfS6BMaof
-        SrTFw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=YmViL70LTOh/d2HUWHm4SX1kRjzqtzPlz629CD92l
-        7o=; b=cLhqAmDna7VjQ9383OzQsmzNRRFn+BLWtqAEe3oHZhAm9L4rIAEN8kAR/
-        V3f2jyIByYkBIOxTQ+7UDKlFnBOrRZIxTWpFUkRtdOirLWraFVsAvdwpbjFKwyG3
-        PB4qJN0Q7xdLVGwD0NLLD7a/eT8UJm6KQjcYyW5kutR1BZ2URimqpCicSiIJ/Fgh
-        QvWUabgX39A3jr81lUc0JYDdg8LHA9RWhVGoyBxV22ah1PCLE9YTkN7NIJ+8CNwL
-        4x5IITF/gmXt73slDHHqmKnBZ0SAdySnq9MUGVV0Kjkw7pdwQGjf/dWYfgjLbmec
-        75XItDwCituwprizpkesg3eOYXnXw==
-X-ME-Sender: <xms:V4b3XZf5TJsqQm6TdDA2OZMRNdtH63WcOi5z3ON7EyiBheZ7fFiNZQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddthedgheefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:WIb3XaOl1strmbI1xe_6r_gUUNxH1Vy7X7GsRXsF7EoLpm7LU7oFNQ>
-    <xmx:WIb3XeL6fIs7EUe61HNSlxHyMDL1qg-m0lFucPi8_5Yzrbjpi-xJsg>
-    <xmx:WIb3XRppvTTLMJArPhfvq6M9R9whCHoN3hQJZxFvDJCtoS-KHjQB1Q>
-    <xmx:WIb3XSp1VyLOH-z42TfhxpbUlL-3Y-5ZSTjSsGTFvFz6JXnKAVGe8Q>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AFAAF306010D;
-        Mon, 16 Dec 2019 08:27:51 -0500 (EST)
-Date:   Mon, 16 Dec 2019 14:27:50 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 133/350] Bluetooth: hci_bcm: Fix RTS handling
- during startup
-Message-ID: <20191216132750.GA1646935@kroah.com>
-References: <20191210210735.9077-1-sashal@kernel.org>
- <20191210210735.9077-94-sashal@kernel.org>
- <20191216131512.c5x5ltndmdambdf4@core.my.home>
+        id S1727763AbfLPNat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 08:30:49 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:37035 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727758AbfLPNat (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 08:30:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576503048;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=T3wALvF0xpsoopJ4Bzkk3lqyRNuGZEwsZlHqY5vrDU8=;
+        b=D8FuEAKp90PI4ISdkPkEP9MgaOIAVAYq5VZdsC304Rh3NRNdn4Qvz2eHDFGy7cQPgjxe5r
+        MvPC6GdvEqeyrHK6N5mvaM4zVGGoqqsLnYj6VApbH96sJG+ZdvAhSwgMK5liDsSDNIHgeD
+        fC1gbDpk6SZtiXK4M3tX8BPqprJPuO8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-131-qsszcB5ZMUWLdutmVdKZhw-1; Mon, 16 Dec 2019 08:30:47 -0500
+X-MC-Unique: qsszcB5ZMUWLdutmVdKZhw-1
+Received: by mail-wm1-f69.google.com with SMTP id t4so1039633wmf.2
+        for <stable@vger.kernel.org>; Mon, 16 Dec 2019 05:30:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+         :message-id:mime-version;
+        bh=T3wALvF0xpsoopJ4Bzkk3lqyRNuGZEwsZlHqY5vrDU8=;
+        b=GJYiF6nJiIq1yXYdd4ec3TbK2hvF4vCiqwP31ov8S/hOv00VaYdYPpP8KCsOl05ArZ
+         qzTSWPamMBqZ73AN5zQEE74NC3lu258NP86rHTC2Xl4QOKMim4TU8xagWmpDtQRoXZVF
+         YQ3BKpldBbTOWsSE6w6kwHymciEZbWa2FnxwQlhpDrM0/7Ni0FqfDcztIfzhXmOhg6Cr
+         W086IvT0SYbal2T3zWknEeYGphw3X/qpwGD+PVi82+LMQex3mC1cJ0yuVK0GFj+dOgnS
+         Ymp9BnDWPNJr3q+XY35XQh5Dn2Otzr6qRhDpBHxLLODN63LkqCqZ4P93CXjGbCnd3A5o
+         A1Tg==
+X-Gm-Message-State: APjAAAXUSLurQMs1pOvgbdMyNqIb78zqFEOdeTs8QFCFGAW3OxQO62NZ
+        HEMSSaI6hY1x6JGbZNT+T64YNZlCFEbJ2z3LcxmzYA5SI1xCyvlJKDQYPcPkeuCSvP2WcemLRgj
+        c5roDm2Fkiva8qwT5
+X-Received: by 2002:adf:9b83:: with SMTP id d3mr30125997wrc.54.1576503046078;
+        Mon, 16 Dec 2019 05:30:46 -0800 (PST)
+X-Google-Smtp-Source: APXvYqwp1RzM05y36ZEXv8HKgj2CLHoERwAX15WfZnqvn+tQSSKxuIklj/RaULFXdTnzVAnGsM+K+A==
+X-Received: by 2002:adf:9b83:: with SMTP id d3mr30125970wrc.54.1576503045873;
+        Mon, 16 Dec 2019 05:30:45 -0800 (PST)
+Received: from vitty.brq.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id 2sm21854185wrq.31.2019.12.16.05.30.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Dec 2019 05:30:45 -0800 (PST)
+From:   Vitaly Kuznetsov <vkuznets@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Ajay Kaher <akaher@vmware.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, punit.agrawal@arm.com,
+        akpm@linux-foundation.org, kirill.shutemov@linux.intel.com,
+        willy@infradead.org, will.deacon@arm.com, mszeredi@redhat.com,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        srivatsab@vmware.com, srivatsa@csail.mit.edu, amakhalov@vmware.com,
+        srinidhir@vmware.com, bvikas@vmware.com, anishs@vmware.com,
+        vsirnapalli@vmware.com, srostedt@vmware.com,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Oscar Salvador <osalvador@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH v3 8/8] x86, mm, gup: prevent get_page() race with munmap in paravirt guest
+In-Reply-To: <20191216130443.GN2844@hirez.programming.kicks-ass.net>
+References: <1576529149-14269-1-git-send-email-akaher@vmware.com> <1576529149-14269-9-git-send-email-akaher@vmware.com> <20191216130443.GN2844@hirez.programming.kicks-ass.net>
+Date:   Mon, 16 Dec 2019 14:30:44 +0100
+Message-ID: <87lfrc9z3v.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191216131512.c5x5ltndmdambdf4@core.my.home>
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 16, 2019 at 02:15:12PM +0100, Ondřej Jirman wrote:
-> Hi,
-> 
-> On Tue, Dec 10, 2019 at 04:03:58PM -0500, Sasha Levin wrote:
-> > From: Stefan Wahren <wahrenst@gmx.net>
-> > 
-> > [ Upstream commit 3347a80965b38f096b1d6f995c00c9c9e53d4b8b ]
-> > 
-> > The RPi 4 uses the hardware handshake lines for CYW43455, but the chip
-> > doesn't react to HCI requests during DT probe. The reason is the inproper
-> > handling of the RTS line during startup. According to the startup
-> > signaling sequence in the CYW43455 datasheet, the hosts RTS line must
-> > be driven after BT_REG_ON and BT_HOST_WAKE.
-> > 
-> > Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-> > Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >  drivers/bluetooth/hci_bcm.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-> > index 7646636f2d183..0f73f6a686cb7 100644
-> > --- a/drivers/bluetooth/hci_bcm.c
-> > +++ b/drivers/bluetooth/hci_bcm.c
-> > @@ -445,9 +445,11 @@ static int bcm_open(struct hci_uart *hu)
-> >  
-> >  out:
-> >  	if (bcm->dev) {
-> > +		hci_uart_set_flow_control(hu, true);
-> >  		hu->init_speed = bcm->dev->init_speed;
-> >  		hu->oper_speed = bcm->dev->oper_speed;
-> >  		err = bcm_gpio_set_power(bcm->dev, true);
-> > +		hci_uart_set_flow_control(hu, false);
-> >  		if (err)
-> >  			goto err_unset_hu;
-> >  	}
-> 
-> This causes bluetooth breakage (degraded bluetooth performance, due to failure to
-> switch to higher baudrate) for Orange Pi 3 board:
-> 
-> [    3.839134] Bluetooth: hci0: command 0xfc18 tx timeout
-> [   11.999136] Bluetooth: hci0: BCM: failed to write update baudrate (-110)
-> [   12.004613] Bluetooth: hci0: Failed to set baudrate
-> [   12.123187] Bluetooth: hci0: BCM: chip id 130
-> [   12.128398] Bluetooth: hci0: BCM: features 0x0f
-> [   12.154686] Bluetooth: hci0: BCM4345C5
-> [   12.157165] Bluetooth: hci0: BCM4345C5 (003.006.006) build 0000
-> [   15.343684] Bluetooth: hci0: BCM4345C5 (003.006.006) build 0038
-> 
-> I suggest not pushing this to stable.
+Peter Zijlstra <peterz@infradead.org> writes:
 
-Is it being fixed in Linus's tree?
+> On Tue, Dec 17, 2019 at 02:15:48AM +0530, Ajay Kaher wrote:
+>> From: Vlastimil Babka <vbabka@suse.cz>
+>> 
+>> The x86 version of get_user_pages_fast() relies on disabled interrupts to
+>> synchronize gup_pte_range() between gup_get_pte(ptep); and get_page() against
+>> a parallel munmap. The munmap side nulls the pte, then flushes TLBs, then
+>> releases the page. As TLB flush is done synchronously via IPI disabling
+>> interrupts blocks the page release, and get_page(), which assumes existing
+>> reference on page, is thus safe.
+>> However when TLB flush is done by a hypercall, e.g. in a Xen PV guest, there is
+>> no blocking thanks to disabled interrupts, and get_page() can succeed on a page
+>> that was already freed or even reused.
+>> 
+>> We have recently seen this happen with our 4.4 and 4.12 based kernels, with
+>> userspace (java) that exits a thread, where mm_release() performs a futex_wake()
+>> on tsk->clear_child_tid, and another thread in parallel unmaps the page where
+>> tsk->clear_child_tid points to. The spurious get_page() succeeds, but futex code
+>> immediately releases the page again, while it's already on a freelist. Symptoms
+>> include a bad page state warning, general protection faults acessing a poisoned
+>> list prev/next pointer in the freelist, or free page pcplists of two cpus joined
+>> together in a single list. Oscar has also reproduced this scenario, with a
+>> patch inserting delays before the get_page() to make the race window larger.
+>> 
+>> Fix this by removing the dependency on TLB flush interrupts the same way as the
+>
+> This is suppsed to be fixed by:
+>
+> arch/x86/Kconfig:       select HAVE_RCU_TABLE_FREE              if PARAVIRT
+>
 
-thanks,
+Yes,
 
-greg k-h
+but HAVE_RCU_TABLE_FREE was enabled on x86 only in 4.14:
+
+commit 9e52fc2b50de3a1c08b44f94c610fbe998c0031a
+Author: Vitaly Kuznetsov <vkuznets@redhat.com>
+Date:   Mon Aug 28 10:22:51 2017 +0200
+
+    x86/mm: Enable RCU based page table freeing (CONFIG_HAVE_RCU_TABLE_FREE=y)
+
+and, if I understood correctly, Ajay is suggesting the patch for older
+stable kernels (4.9 and 4.4 I would guess).
+
+-- 
+Vitaly
+
