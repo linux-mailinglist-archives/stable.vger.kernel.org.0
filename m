@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51DA312158B
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 982481214B7
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732138AbfLPSUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:20:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
+        id S1730879AbfLPSOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:14:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731360AbfLPSUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:20:52 -0500
+        id S1731179AbfLPSOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:14:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77BCB206EC;
-        Mon, 16 Dec 2019 18:20:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FA0421775;
+        Mon, 16 Dec 2019 18:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520450;
-        bh=LE/ojb96WAFFLYu4wiJQJxjpbgtNDSnCSubFzAS8OmQ=;
+        s=default; t=1576520045;
+        bh=zxZs6ko0mtsxntLnAfKqr1zLGrhb0mWWaY4nzW/Ukmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohtGMv5A6MxsQXmIrNfJdiwnby3Y0nMUj3M4DhauX0nmifO902y0oQjctmuThTJzP
-         R8MfyFK09i03HAJgUi5OKV9uFLsUOIhmoNWZmMdbb+gJsVvXN4KzkJPs9jI4sFdr0/
-         vWXgeKVqotGmdT/pzUFxyGvO3wGb0XmZgK4oyT8I=
+        b=OqDCLvIbmV5lSc0CoKEYKjQqs0ogmOURJAFfZG8hU7aynyJqRZ3t093U7P0zZTjON
+         nQduR64deg7U6xmKZD0JUznfHk4owMTGcgIJ8mVOUqI6k3iE7e/7ET3fZiwLKV9IX6
+         FKTKCKzMRR8NazkJY4/XoAQrRZe/XRh3PaW+7WnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>,
-        Charles-Antoine Couret <charles-antoine.couret@essensium.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/177] iio: ad7949: fix channels mixups
+        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.3 175/180] s390/smp,vdso: fix ASCE handling
 Date:   Mon, 16 Dec 2019 18:50:15 +0100
-Message-Id: <20191216174848.954422354@linuxfoundation.org>
+Message-Id: <20191216174848.079439949@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,128 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Merello <andrea.merello@gmail.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[ Upstream commit 3b71f6b59508b1c9befcb43de434866aafc76520 ]
+commit a2308c11ecbc3471ebb7435ee8075815b1502ef0 upstream.
 
-Each time we need to read a sample (from the sysfs interface, since the
-driver supports only it) the driver writes the configuration register
-with the proper settings needed to perform the said read, then it runs
-another xfer to actually read the resulting value. Most notably the
-configuration register is updated to set the ADC internal MUX depending by
-which channel the read targets.
+When a secondary CPU is brought up it must initialize its control
+registers. CPU A which triggers that a secondary CPU B is brought up
+stores its control register contents into the lowcore of new CPU B,
+which then loads these values on startup.
 
-Unfortunately this seems not enough to ensure correct operation because
-the ADC works in a pipelined-like fashion and the new configuration isn't
-applied in time.
+This is problematic in various ways: the control register which
+contains the home space ASCE will correctly contain the kernel ASCE;
+however control registers for primary and secondary ASCEs are
+initialized with whatever values were present in CPU A.
 
-The ADC alternates two phases: acquisition and conversion. During the
-acquisition phase the ADC samples the analog signal in an internal
-capacitor; in the conversion phase the ADC performs the actual analog to
-digital conversion of the stored voltage. Note that of course the MUX
-needs to be set to the proper channel when the acquisition phase is
-performed.
+Typically:
+- the primary ASCE will contain the user process ASCE of the process
+  that triggered onlining of CPU B.
+- the secondary ASCE will contain the percpu VDSO ASCE of CPU A.
 
-Once the conversion phase has been completed, the device automatically
-switches back to a new acquisition; on the other hand the device switches
-from acquisition to conversion on the rising edge of SPI cs signal (that
-is when the xfer finishes).
+Due to lazy ASCE handling we may also end up with other combinations.
 
-Only after both two phases have been completed (with the proper settings
-already written in the configuration register since the beginning) it is
-possible to read the outcome from SPI bus.
+When then CPU B switches to a different process (!= idle) it will
+fixup the primary ASCE. However the problem is that the (wrong) ASCE
+from CPU A was loaded into control register 1: as soon as an ASCE is
+attached (aka loaded) a CPU is free to generate TLB entries using that
+address space.
+Even though it is very unlikey that CPU B will actually generate such
+entries, this could result in TLB entries of the address space of the
+process that ran on CPU A. These entries shouldn't exist at all and
+could cause problems later on.
 
-With the current driver implementation, we end up in the following
-situation:
+Furthermore the secondary ASCE of CPU B will not be updated correctly.
+This means that processes may see wrong results or even crash if they
+access VDSO data on CPU B. The correct VDSO ASCE will eventually be
+loaded on return to user space as soon as the kernel executed a call
+to strnlen_user or an atomic futex operation on CPU B.
 
-        _______  1st xfer ____________  2nd xfer ___________________
-SPI cs..       \_________/            \_________/
-SPI rd.. idle  |(val N-2)+    idle    | val N-1 +   idle ...
-SPI wr.. idle  |  cfg N  +    idle    |   (X)   +   idle ...
------------------------- + -------------------- + ------------------
-  AD  ..   acq  N-1      + cnv N-1 |  acq N     +  cnv N  | acq N+1
+Fix both issues by intializing the to be loaded control register
+contents with the correct ASCEs and also enforce (re-)loading of the
+ASCEs upon first context switch and return to user space.
 
-As shown in the diagram above, the value we read in the Nth read belongs
-to configuration setting N-1.
+Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
+Cc: stable@vger.kernel.org # v4.15+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-In case the configuration is not changed (config[N] == config[N-1]), then
-we still get correct data, but in case the configuration changes (i.e.
-switching the MUX on another channel), we get wrong data (data from the
-previously selected channel).
-
-This patch fixes this by performing one more "dummy" transfer in order to
-ending up in reading the data when it's really ready, as per the following
-timing diagram.
-
-        _______  1st xfer ____________  2nd xfer ___________  3rd xfer ___
-SPI cs..       \_________/            \_________/           \_________/
-SPI rd.. idle  |(val N-2)+    idle    |(val N-1)+    idle   |  val N  + ..
-SPI wr.. idle  |  cfg N  +    idle    |   (X)   +    idle   |   (X)   + ..
------------------------- + -------------------- + ------------------- + --
-  AD  ..   acq  N-1      + cnv N-1 |  acq N     +  cnv N  | acq N+1   | ..
-
-NOTE: in the latter case (cfg changes), the acquisition phase for the
-value to be read begins after the 1st xfer, that is after the read request
-has been issued on sysfs. On the other hand, if the cfg doesn't change,
-then we can refer to the fist diagram assuming N == (N - 1); the
-acquisition phase _begins_ before the 1st xfer (potentially a lot of time
-before the read has been issued via sysfs, but it _ends_ after the 1st
-xfer, that is _after_ the read has started. This should guarantee a
-reasonably fresh data, which value represents the voltage that the sampled
-signal has after the read start or maybe just around it.
-
-Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-Reviewed-by: Charles-Antoine Couret <charles-antoine.couret@essensium.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7949.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ arch/s390/kernel/smp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iio/adc/ad7949.c b/drivers/iio/adc/ad7949.c
-index 518044c31a73b..6b51bfcad0d04 100644
---- a/drivers/iio/adc/ad7949.c
-+++ b/drivers/iio/adc/ad7949.c
-@@ -89,6 +89,7 @@ static int ad7949_spi_read_channel(struct ad7949_adc_chip *ad7949_adc, int *val,
- 				   unsigned int channel)
- {
- 	int ret;
-+	int i;
- 	int bits_per_word = ad7949_adc->resolution;
- 	int mask = GENMASK(ad7949_adc->resolution, 0);
- 	struct spi_message msg;
-@@ -100,12 +101,23 @@ static int ad7949_spi_read_channel(struct ad7949_adc_chip *ad7949_adc, int *val,
- 		},
- 	};
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -262,10 +262,13 @@ static void pcpu_prepare_secondary(struc
+ 	lc->spinlock_index = 0;
+ 	lc->percpu_offset = __per_cpu_offset[cpu];
+ 	lc->kernel_asce = S390_lowcore.kernel_asce;
++	lc->user_asce = S390_lowcore.kernel_asce;
+ 	lc->machine_flags = S390_lowcore.machine_flags;
+ 	lc->user_timer = lc->system_timer =
+ 		lc->steal_timer = lc->avg_steal_timer = 0;
+ 	__ctl_store(lc->cregs_save_area, 0, 15);
++	lc->cregs_save_area[1] = lc->kernel_asce;
++	lc->cregs_save_area[7] = lc->vdso_asce;
+ 	save_access_regs((unsigned int *) lc->access_regs_save_area);
+ 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+ 	       sizeof(lc->stfle_fac_list));
+@@ -816,6 +819,8 @@ static void smp_init_secondary(void)
  
--	ret = ad7949_spi_write_cfg(ad7949_adc,
--				   channel << AD7949_OFFSET_CHANNEL_SEL,
--				   AD7949_MASK_CHANNEL_SEL);
--	if (ret)
--		return ret;
-+	/*
-+	 * 1: write CFG for sample N and read old data (sample N-2)
-+	 * 2: if CFG was not changed since sample N-1 then we'll get good data
-+	 *    at the next xfer, so we bail out now, otherwise we write something
-+	 *    and we read garbage (sample N-1 configuration).
-+	 */
-+	for (i = 0; i < 2; i++) {
-+		ret = ad7949_spi_write_cfg(ad7949_adc,
-+					   channel << AD7949_OFFSET_CHANNEL_SEL,
-+					   AD7949_MASK_CHANNEL_SEL);
-+		if (ret)
-+			return ret;
-+		if (channel == ad7949_adc->current_channel)
-+			break;
-+	}
- 
-+	/* 3: write something and read actual data */
- 	ad7949_adc->buffer = 0;
- 	spi_message_init_with_transfers(&msg, tx, 1);
- 	ret = spi_sync(ad7949_adc->spi, &msg);
--- 
-2.20.1
-
+ 	S390_lowcore.last_update_clock = get_tod_clock();
+ 	restore_access_regs(S390_lowcore.access_regs_save_area);
++	set_cpu_flag(CIF_ASCE_PRIMARY);
++	set_cpu_flag(CIF_ASCE_SECONDARY);
+ 	cpu_init();
+ 	preempt_disable();
+ 	init_cpu_timer();
 
 
