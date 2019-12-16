@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1F8121423
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:08:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B030121640
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730293AbfLPSIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:08:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50350 "EHLO mail.kernel.org"
+        id S1731382AbfLPSP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:15:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730288AbfLPSIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:08:38 -0500
+        id S1731378AbfLPSP0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:15:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA0EE2072D;
-        Mon, 16 Dec 2019 18:08:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAA3920717;
+        Mon, 16 Dec 2019 18:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519718;
-        bh=l3oBwYvLz9ls60wuoWgre1Z4dfrdBGfWK45ZGV2kUcA=;
+        s=default; t=1576520125;
+        bh=mg2DCLQ8QFo+1Hd5CR7rqVt1ibBM/8B3A2AtloUxIbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGo23RFxl50yUkIvsK/s4FAivVrCtxBu9sSMLtmlt4OL6hiwQugnJnxnMaKGq/n0s
-         xGT634GlAAnCRSDVSHOdnM98kL2Z5mRdxl+uphEZnMKkSotvjxeWXMz7WjC1OlJTfJ
-         sprbfcJ5709MXlTkv7Oav1LPYr0wPXi6lU8PHf38=
+        b=uCCHjAbPIHaZGv56A7M8UEb0Gxg67cNZXkxBVS91KqTsMT/Rcx3JaXBvxP1bxq4Rc
+         EVp2g4okzPMyLVFq8q7AUq6jexGNP8RgrktwHHZRDp+UVJgG5dNXNtDjBtOCE90Iro
+         AVyUj+cxAtSAyQuZ1eiZtmS+61YnE4YuDfNZnsB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@intel.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.3 041/180] tpm: add check after commands attribs tab allocation
-Date:   Mon, 16 Dec 2019 18:48:01 +0100
-Message-Id: <20191216174817.104372186@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 026/177] staging: gigaset: add endpoint-type sanity check
+Date:   Mon, 16 Dec 2019 18:48:02 +0100
+Message-Id: <20191216174820.378476346@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit f1689114acc5e89a196fec6d732dae3e48edb6ad upstream.
+commit ed9ed5a89acba51b82bdff61144d4e4a4245ec8a upstream.
 
-devm_kcalloc() can fail and return NULL so we need to check for that.
+Add missing endpoint-type sanity checks to probe.
 
-Cc: stable@vger.kernel.org
-Fixes: 58472f5cd4f6f ("tpm: validate TPM 2.0 commands")
-Signed-off-by: Tadeusz Struk <tadeusz.struk@intel.com>
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Tested-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+This specifically prevents a warning in USB core on URB submission when
+fuzzing USB descriptors.
+
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191202085610.12719-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm2-cmd.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/staging/isdn/gigaset/usb-gigaset.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/char/tpm/tpm2-cmd.c
-+++ b/drivers/char/tpm/tpm2-cmd.c
-@@ -939,6 +939,10 @@ static int tpm2_get_cc_attrs_tbl(struct
+--- a/drivers/staging/isdn/gigaset/usb-gigaset.c
++++ b/drivers/staging/isdn/gigaset/usb-gigaset.c
+@@ -705,6 +705,12 @@ static int gigaset_probe(struct usb_inte
  
- 	chip->cc_attrs_tbl = devm_kcalloc(&chip->dev, 4, nr_commands,
- 					  GFP_KERNEL);
-+	if (!chip->cc_attrs_tbl) {
-+		rc = -ENOMEM;
-+		goto out;
+ 	endpoint = &hostif->endpoint[0].desc;
+ 
++	if (!usb_endpoint_is_bulk_out(endpoint)) {
++		dev_err(&interface->dev, "missing bulk-out endpoint\n");
++		retval = -ENODEV;
++		goto error;
 +	}
++
+ 	buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
+ 	ucs->bulk_out_size = buffer_size;
+ 	ucs->bulk_out_epnum = usb_endpoint_num(endpoint);
+@@ -724,6 +730,12 @@ static int gigaset_probe(struct usb_inte
  
- 	rc = tpm_buf_init(&buf, TPM2_ST_NO_SESSIONS, TPM2_CC_GET_CAPABILITY);
- 	if (rc)
+ 	endpoint = &hostif->endpoint[1].desc;
+ 
++	if (!usb_endpoint_is_int_in(endpoint)) {
++		dev_err(&interface->dev, "missing int-in endpoint\n");
++		retval = -ENODEV;
++		goto error;
++	}
++
+ 	ucs->busy = 0;
+ 
+ 	ucs->read_urb = usb_alloc_urb(0, GFP_KERNEL);
 
 
