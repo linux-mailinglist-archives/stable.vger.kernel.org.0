@@ -2,70 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7298120896
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 15:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7CDD12089E
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 15:29:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728012AbfLPOZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 09:25:15 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45594 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727579AbfLPOZP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 09:25:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576506311;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=MTKpPlVwIBujqq4Qqq6wiAtKLmkL1V1kAblZmfWfz94=;
-        b=Wv4hSJIhamZmd/Yo1HOa3/fS+d2n0isamlLzkyuUq8Gdf586ithFTTZkZTy3k2E9EwQpMY
-        6C4KUd/kcJU+jmTxAOTdJMfV9vkG1MVcef95UCDuKb2TdNDl0eCYuad5A8aSfF0aXBQsDZ
-        2m7fL3o1/mENyjvsH/7qiEV3Y7qK1hc=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-296-oyeLKZlzNfe8mUwS-yXMAQ-1; Mon, 16 Dec 2019 09:25:10 -0500
-X-MC-Unique: oyeLKZlzNfe8mUwS-yXMAQ-1
-Received: by mail-wm1-f69.google.com with SMTP id 18so1112448wmp.0
-        for <stable@vger.kernel.org>; Mon, 16 Dec 2019 06:25:10 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=MTKpPlVwIBujqq4Qqq6wiAtKLmkL1V1kAblZmfWfz94=;
-        b=czP3v+Cgrz3HRqQzAAkTm3hoJlFIB4oWLRbekJMFGvsAALgH3/kAcDM+6PQ38MPudm
-         7i2nrOKYB1hv0myC0wMRZx4H0KLard5BbphQib/rpAGw8HJqdY3X4ZCwxO5nlEZ/AenO
-         xdkWdGJBVjBsmwl1/EhOUhNQ/Lc6espUwspSf4u6t6/k6JrgkFNYzpnGc8tvUIyM0U5L
-         yy7DaAlpCVBrZItKR+xCuKRjWCKCXmS9kf0fcMHmnqtK8L+f0L563JukLA+nAJX+m4DP
-         DnrQVxlrjShVGpCXFxhSMgO4MXnT9PcYTk7Jpxu4uHOwfxZ+bgs7uZnwK5ztxGNtdlKC
-         hEJg==
-X-Gm-Message-State: APjAAAWjUJEAbPel4eAUqaBN0MqMi5PmR5sAksRDDJNqkxT0iCN7FCgv
-        TWJmXN+/7/SccEXKgenCq3l8vb6N3j4tYSVqx7GZ6W+R0DFKH0LIAvPh8PUl1GPTNdj/Vo4ZzaC
-        0oxhodJsc5P5585xhM6KT1y841JPXJu7x
-X-Received: by 2002:adf:fe07:: with SMTP id n7mr30981607wrr.286.1576506308967;
-        Mon, 16 Dec 2019 06:25:08 -0800 (PST)
-X-Google-Smtp-Source: APXvYqx7DU4IAfqtL59oZgtZ7WlCnJHGcv2eAynSkTRfNOUKtpngZ4TVtHQbV7nY27qzZpkDErx8BjmnaKEo2H0vX30=
-X-Received: by 2002:adf:fe07:: with SMTP id n7mr30981589wrr.286.1576506308834;
- Mon, 16 Dec 2019 06:25:08 -0800 (PST)
+        id S1728134AbfLPO2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 09:28:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40814 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728008AbfLPO2U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 09:28:20 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A97A2067C;
+        Mon, 16 Dec 2019 14:28:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576506500;
+        bh=L8x9hNnvkTtZuEESDkQZ3kDHNAQUQZTigGjl7HhLEKQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hbsA1vyKOSqpljVD3NEBoy8nAy8ZCs2BVRQh4gXkJrluBSSgVAOBDVaEQAMeV5Kp3
+         A2PNDUI3RpLHDOu7I+ba+xAS9rNKj5nwR3WflHNit/z9pjrjH6w6TFowdv1ZBzkfI7
+         jg1LsYBNgHtEquuKq1IzPAWgySZ5hnrwnEPdOanY=
+Date:   Mon, 16 Dec 2019 15:28:17 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc:     Stable <stable@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: Re: Please queue "ext4: fix leak of quota reservations" into 5.4.y
+Message-ID: <20191216142817.GA1898872@kroah.com>
+References: <9682429e-34a6-e8db-deec-b9628b1c6ba6@yandex-team.ru>
 MIME-Version: 1.0
-From:   Major Hayden <major@redhat.com>
-Date:   Mon, 16 Dec 2019 08:24:58 -0600
-Message-ID: <CAD3hnWh3xcADADtiGvBRRu3857s8rDXPm2x6oct+ZBaM=ACQnA@mail.gmail.com>
-Subject: CKI outage impacting testing
-To:     Stable <stable@vger.kernel.org>
-Cc:     CKI <cki-project@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9682429e-34a6-e8db-deec-b9628b1c6ba6@yandex-team.ru>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello there,
+On Mon, Dec 16, 2019 at 05:08:28PM +0300, Konstantin Khlebnikov wrote:
+> Upstream commit f4c2d372b89a1e504ebb7b7eb3e29b8306479366 ("ext4: fix leak of quota reservations")
+> 
+> Only 5.4 is affected.
+> 
+> As I see it wasn't autoselected.
+> Probably because it isn't tagged as stable@ as should be.
 
-Some of the critical infrastructure that is used by the CKI Project is
-currently offline. We are working to bring it back online and resume
-testing, but we do not have an ETA for that right now.
+Now queued up, thanks.
 
-We will send updates as soon as the status changes. If you have any
-questions in the meantime, please email us at cki-project@redhat.com
-anytime.
-
---
-Major Hayden
-
+greg k-h
