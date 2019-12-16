@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB0F11215E3
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:25:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 681101213C5
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731166AbfLPSSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:18:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43380 "EHLO mail.kernel.org"
+        id S1729709AbfLPSEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:04:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731485AbfLPSSN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:18:13 -0500
+        id S1729706AbfLPSEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A7EF206E0;
-        Mon, 16 Dec 2019 18:18:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 910CE20717;
+        Mon, 16 Dec 2019 18:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520293;
-        bh=M1qSF9C6lbbG626ZISz/mHWHf8JxKj1u65Yh2IOaimM=;
+        s=default; t=1576519485;
+        bh=nlCm/i/vz9gRTy1TTk/VR1vVaAHeSydTSN+G0wRG3vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhS+vcTMctakxR3uzhn+n8UO6vox0TwpQ/NMgMQ220R1s5KqbnJfNp1reFxzOTdr4
-         Aim8aewTGceuMkEDe1FjdcL0k8s/WbGKnuZxOEoN9j6fTdNsDxnvAzDReSpxOwbIeh
-         kJeoKf2TEJQ0/sP3LboQeOOUPaU+UszAlaeHlh0s=
+        b=F1BjaWkzKq2f69un2Mjzlb38wAPTAlgNuU7Qnjrobh6beOu0q3DEY10WD6VIIzZix
+         Nxl3Dc96XS3m9MzepdBI6xgK+XlFdrmVRe0I9dLS4MCfu1zBkIvF4TKGxKSj1hzUua
+         wxO7Nk6bxuz0MUZ3IYEfAz8HdOT5rjyofiq69USY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 096/177] s390/mm: properly clear _PAGE_NOEXEC bit when it is not supported
+        stable@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 4.19 084/140] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection GPIO polarity
 Date:   Mon, 16 Dec 2019 18:49:12 +0100
-Message-Id: <20191216174840.265440151@linuxfoundation.org>
+Message-Id: <20191216174809.783706048@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Jarkko Nikula <jarkko.nikula@bitmer.com>
 
-commit ab874f22d35a8058d8fdee5f13eb69d8867efeae upstream.
+commit 287897f9aaa2ad1c923d9875914f57c4dc9159c8 upstream.
 
-On older HW or under a hypervisor, w/o the instruction-execution-
-protection (IEP) facility, and also w/o EDAT-1, a translation-specification
-exception may be recognized when bit 55 of a pte is one (_PAGE_NOEXEC).
+The MMC card detection GPIO polarity is active low on TAO3530, like in many
+other similar boards. Now the card is not detected and it is unable to
+mount rootfs from an SD card.
 
-The current code tries to prevent setting _PAGE_NOEXEC in such cases,
-by removing it within set_pte_at(). However, ptep_set_access_flags()
-will modify a pte directly, w/o using set_pte_at(). There is at least
-one scenario where this can result in an active pte with _PAGE_NOEXEC
-set, which would then lead to a panic due to a translation-specification
-exception (write to swapped out page):
+Fix this by using the correct polarity.
 
-do_swap_page
-  pte = mk_pte (with _PAGE_NOEXEC bit)
-  set_pte_at   (will remove _PAGE_NOEXEC bit in page table, but keep it
-                in local variable pte)
-  vmf->orig_pte = pte (pte still contains _PAGE_NOEXEC bit)
-  do_wp_page
-    wp_page_reuse
-      entry = vmf->orig_pte (still with _PAGE_NOEXEC bit)
-      ptep_set_access_flags (writes entry with _PAGE_NOEXEC bit)
+This incorrect polarity was defined already in the commit 30d95c6d7092
+("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
+kernel and later changed to use defined GPIO constants in v4.4 kernel by
+the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
+cell for OMAP2+ boards").
 
-Fix this by clearing _PAGE_NOEXEC already in mk_pte_phys(), where the
-pgprot value is applied, so that no pte with _PAGE_NOEXEC will ever be
-visible, if it is not supported. The check in set_pte_at() can then also
-be removed.
+While the latter commit did not introduce the issue I'm marking it with
+Fixes tag due the v4.4 kernels still being maintained.
 
-Cc: <stable@vger.kernel.org> # 4.11+
-Fixes: 57d7f939e7bd ("s390: add no-execute support")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
+Cc: linux-stable <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/pgtable.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/omap3-tao3530.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1173,8 +1173,6 @@ void gmap_pmdp_idte_global(struct mm_str
- static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
- 			      pte_t *ptep, pte_t entry)
- {
--	if (!MACHINE_HAS_NX)
--		pte_val(entry) &= ~_PAGE_NOEXEC;
- 	if (pte_present(entry))
- 		pte_val(entry) &= ~_PAGE_UNUSED;
- 	if (mm_has_pgste(mm))
-@@ -1191,6 +1189,8 @@ static inline pte_t mk_pte_phys(unsigned
- {
- 	pte_t __pte;
- 	pte_val(__pte) = physpage + pgprot_val(pgprot);
-+	if (!MACHINE_HAS_NX)
-+		pte_val(__pte) &= ~_PAGE_NOEXEC;
- 	return pte_mkyoung(__pte);
- }
+--- a/arch/arm/boot/dts/omap3-tao3530.dtsi
++++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
+@@ -225,7 +225,7 @@
+ 	pinctrl-0 = <&mmc1_pins>;
+ 	vmmc-supply = <&vmmc1>;
+ 	vqmmc-supply = <&vsim>;
+-	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
++	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
+ 	bus-width = <8>;
+ };
  
 
 
