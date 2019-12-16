@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE585121887
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FB51216D4
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726880AbfLPSof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:44:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58414 "EHLO mail.kernel.org"
+        id S1730619AbfLPSKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:10:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728477AbfLPR6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:58:33 -0500
+        id S1730231AbfLPSKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:10:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21AE02166E;
-        Mon, 16 Dec 2019 17:58:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D615D206EC;
+        Mon, 16 Dec 2019 18:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519112;
-        bh=0j3ZluLBGgo15F+76C2SbklVfa3ZlRGGW1Y6cDHAVnc=;
+        s=default; t=1576519830;
+        bh=7dCGIPm6GYG4d8q0NsGFaaUy2fuhwEoIC+B+G6NlFKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVHuIkBvjJvQ3mvNtTGu/LB6lwx/J/0d4am7ffOXe8SUMTn54hY0qJ0PvmCcbhZks
-         6J0Ex2lFH2V6+yW/ui1t2S9ppqrW4rjNsoW6JxElqwZOm9qTrUIhhPnX/ZmtnGj+tY
-         9ZyomrVYiPz+4iIT0cEzReg7GD2sRBKqOfeUTMeQ=
+        b=TJPJlbD7AZWSbriodRZQQA1c4pvCl7MGT+d4RZZsLEoWuSCPfsz0MMDcSPl57m6bU
+         vjESdoTl0a2tTOpYqu6BM5DTldfQ2PoLmjTYHA7evn48IsOzH4WNrz7Q+C/MOwynlp
+         WV7yObmY6sZfxtHQuZYSMSg7Cf3sROCkHsTyx5Yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Marcin Pawlowski <mpawlowski@fb.com>,
-        "Williams, Gerald S" <gerald.s.williams@intel.com>
-Subject: [PATCH 4.14 201/267] workqueue: Fix spurious sanity check failures in destroy_workqueue()
+        stable@vger.kernel.org,
+        Matti Aaltonen <matti.j.aaltonen@nokia.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.3 087/180] media: radio: wl1273: fix interrupt masking on release
 Date:   Mon, 16 Dec 2019 18:48:47 +0100
-Message-Id: <20191216174913.544913052@linuxfoundation.org>
+Message-Id: <20191216174833.096217681@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit def98c84b6cdf2eeea19ec5736e90e316df5206b upstream.
+commit 1091eb830627625dcf79958d99353c2391f41708 upstream.
 
-Before actually destrying a workqueue, destroy_workqueue() checks
-whether it's actually idle.  If it isn't, it prints out a bunch of
-warning messages and leaves the workqueue dangling.  It unfortunately
-has a couple issues.
+If a process is interrupted while accessing the radio device and the
+core lock is contended, release() could return early and fail to update
+the interrupt mask.
 
-* Mayday list queueing increments pwq's refcnts which gets detected as
-  busy and fails the sanity checks.  However, because mayday list
-  queueing is asynchronous, this condition can happen without any
-  actual work items left in the workqueue.
+Note that the return value of the v4l2 release file operation is
+ignored.
 
-* Sanity check failure leaves the sysfs interface behind too which can
-  lead to init failure of newer instances of the workqueue.
-
-This patch fixes the above two by
-
-* If a workqueue has a rescuer, disable and kill the rescuer before
-  sanity checks.  Disabling and killing is guaranteed to flush the
-  existing mayday list.
-
-* Remove sysfs interface before sanity checks.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Marcin Pawlowski <mpawlowski@fb.com>
-Reported-by: "Williams, Gerald S" <gerald.s.williams@intel.com>
-Cc: stable@vger.kernel.org
+Fixes: 87d1a50ce451 ("[media] V4L2: WL1273 FM Radio: TI WL1273 FM radio driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.38
+Cc: Matti Aaltonen <matti.j.aaltonen@nokia.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/workqueue.c |   24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/media/radio/radio-wl1273.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -4084,9 +4084,28 @@ void destroy_workqueue(struct workqueue_
- 	struct pool_workqueue *pwq;
- 	int node;
+--- a/drivers/media/radio/radio-wl1273.c
++++ b/drivers/media/radio/radio-wl1273.c
+@@ -1148,8 +1148,7 @@ static int wl1273_fm_fops_release(struct
+ 	if (radio->rds_users > 0) {
+ 		radio->rds_users--;
+ 		if (radio->rds_users == 0) {
+-			if (mutex_lock_interruptible(&core->lock))
+-				return -EINTR;
++			mutex_lock(&core->lock);
  
-+	/*
-+	 * Remove it from sysfs first so that sanity check failure doesn't
-+	 * lead to sysfs name conflicts.
-+	 */
-+	workqueue_sysfs_unregister(wq);
-+
- 	/* drain it before proceeding with destruction */
- 	drain_workqueue(wq);
+ 			radio->irq_flags &= ~WL1273_RDS_EVENT;
  
-+	/* kill rescuer, if sanity checks fail, leave it w/o rescuer */
-+	if (wq->rescuer) {
-+		struct worker *rescuer = wq->rescuer;
-+
-+		/* this prevents new queueing */
-+		spin_lock_irq(&wq_mayday_lock);
-+		wq->rescuer = NULL;
-+		spin_unlock_irq(&wq_mayday_lock);
-+
-+		/* rescuer will empty maydays list before exiting */
-+		kthread_stop(rescuer->task);
-+	}
-+
- 	/* sanity checks */
- 	mutex_lock(&wq->mutex);
- 	for_each_pwq(pwq, wq) {
-@@ -4118,11 +4137,6 @@ void destroy_workqueue(struct workqueue_
- 	list_del_rcu(&wq->list);
- 	mutex_unlock(&wq_pool_mutex);
- 
--	workqueue_sysfs_unregister(wq);
--
--	if (wq->rescuer)
--		kthread_stop(wq->rescuer->task);
--
- 	if (!(wq->flags & WQ_UNBOUND)) {
- 		/*
- 		 * The base ref is never dropped on per-cpu pwqs.  Directly
 
 
