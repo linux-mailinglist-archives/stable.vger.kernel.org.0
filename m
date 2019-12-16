@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 415A51217E9
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B4C121884
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728924AbfLPSDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40642 "EHLO mail.kernel.org"
+        id S1728804AbfLPSo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:44:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729541AbfLPSDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:42 -0500
+        id S1728627AbfLPR6f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09B2620726;
-        Mon, 16 Dec 2019 18:03:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92EAC21739;
+        Mon, 16 Dec 2019 17:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519421;
-        bh=I1pM00sAx1NXWrBCRm+Y2c8vbUDiPb+MHsbOUbAf5Rk=;
+        s=default; t=1576519115;
+        bh=PelHHQEbbBbSlIejTyVCKNHJCPc14wPvz8tFO4VEpLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ad4xR9Pidmdih2o77bMF8+X7EFxMpH31wvlSMBpcF7+QwRmYCJdyYHRdX2hV7qQSU
-         CHF/XJMk9pPtfQq/BHtekyn0zDeRoWuRVEsK3zZMtNPZMJpteOoCi7vGW8BtltmxQP
-         j7xgAR7E5OT59bqVhzFEfcLUKQoOtG0UdmABo3Rg=
+        b=nI8TlHwLUvKN7zuY3KKCJnuz/E4yWIffbfT359VmXFnVGhlBTROuti0SrcEceKF1H
+         emrW43BtvwzcqRz6cWaFY3/gIgPzfXd0+NAMT7aqPfaf2HOQJBnYUNVKngm+BjEdGS
+         NYTOt6NsAGpwEPo4FbYUuDwoWPHYUxXMJ41TYFgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.19 060/140] cgroup: pids: use atomic64_t for pids->limit
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        "Williams, Gerald S" <gerald.s.williams@intel.com>,
+        NeilBrown <neilb@suse.de>
+Subject: [PATCH 4.14 202/267] workqueue: Fix pwq ref leak in rescuer_thread()
 Date:   Mon, 16 Dec 2019 18:48:48 +0100
-Message-Id: <20191216174804.341263986@linuxfoundation.org>
+Message-Id: <20191216174913.600404151@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksa Sarai <cyphar@cyphar.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit a713af394cf382a30dd28a1015cbe572f1b9ca75 upstream.
+commit e66b39af00f426b3356b96433d620cb3367ba1ff upstream.
 
-Because pids->limit can be changed concurrently (but we don't want to
-take a lock because it would be needlessly expensive), use atomic64_ts
-instead.
+008847f66c3 ("workqueue: allow rescuer thread to do more work.") made
+the rescuer worker requeue the pwq immediately if there may be more
+work items which need rescuing instead of waiting for the next mayday
+timer expiration.  Unfortunately, it doesn't check whether the pwq is
+already on the mayday list and unconditionally gets the ref and moves
+it onto the list.  This doesn't corrupt the list but creates an
+additional reference to the pwq.  It got queued twice but will only be
+removed once.
 
-Fixes: commit 49b786ea146f ("cgroup: implement the PIDs subsystem")
-Cc: stable@vger.kernel.org # v4.3+
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+This leak later can trigger pwq refcnt warning on workqueue
+destruction and prevent freeing of the workqueue.
+
 Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: "Williams, Gerald S" <gerald.s.williams@intel.com>
+Cc: NeilBrown <neilb@suse.de>
+Cc: stable@vger.kernel.org # v3.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/cgroup/pids.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ kernel/workqueue.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/kernel/cgroup/pids.c
-+++ b/kernel/cgroup/pids.c
-@@ -48,7 +48,7 @@ struct pids_cgroup {
- 	 * %PIDS_MAX = (%PID_MAX_LIMIT + 1).
- 	 */
- 	atomic64_t			counter;
--	int64_t				limit;
-+	atomic64_t			limit;
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -2366,8 +2366,14 @@ repeat:
+ 			 */
+ 			if (need_to_create_worker(pool)) {
+ 				spin_lock(&wq_mayday_lock);
+-				get_pwq(pwq);
+-				list_move_tail(&pwq->mayday_node, &wq->maydays);
++				/*
++				 * Queue iff we aren't racing destruction
++				 * and somebody else hasn't queued it already.
++				 */
++				if (wq->rescuer && list_empty(&pwq->mayday_node)) {
++					get_pwq(pwq);
++					list_add_tail(&pwq->mayday_node, &wq->maydays);
++				}
+ 				spin_unlock(&wq_mayday_lock);
+ 			}
+ 		}
+@@ -4413,7 +4419,8 @@ static void show_pwq(struct pool_workque
+ 	pr_info("  pwq %d:", pool->id);
+ 	pr_cont_pool_info(pool);
  
- 	/* Handle for "pids.events" */
- 	struct cgroup_file		events_file;
-@@ -76,8 +76,8 @@ pids_css_alloc(struct cgroup_subsys_stat
- 	if (!pids)
- 		return ERR_PTR(-ENOMEM);
+-	pr_cont(" active=%d/%d%s\n", pwq->nr_active, pwq->max_active,
++	pr_cont(" active=%d/%d refcnt=%d%s\n",
++		pwq->nr_active, pwq->max_active, pwq->refcnt,
+ 		!list_empty(&pwq->mayday_node) ? " MAYDAY" : "");
  
--	pids->limit = PIDS_MAX;
- 	atomic64_set(&pids->counter, 0);
-+	atomic64_set(&pids->limit, PIDS_MAX);
- 	atomic64_set(&pids->events_limit, 0);
- 	return &pids->css;
- }
-@@ -149,13 +149,14 @@ static int pids_try_charge(struct pids_c
- 
- 	for (p = pids; parent_pids(p); p = parent_pids(p)) {
- 		int64_t new = atomic64_add_return(num, &p->counter);
-+		int64_t limit = atomic64_read(&p->limit);
- 
- 		/*
- 		 * Since new is capped to the maximum number of pid_t, if
- 		 * p->limit is %PIDS_MAX then we know that this test will never
- 		 * fail.
- 		 */
--		if (new > p->limit)
-+		if (new > limit)
- 			goto revert;
- 	}
- 
-@@ -280,7 +281,7 @@ set_limit:
- 	 * Limit updates don't need to be mutex'd, since it isn't
- 	 * critical that any racing fork()s follow the new limit.
- 	 */
--	pids->limit = limit;
-+	atomic64_set(&pids->limit, limit);
- 	return nbytes;
- }
- 
-@@ -288,7 +289,7 @@ static int pids_max_show(struct seq_file
- {
- 	struct cgroup_subsys_state *css = seq_css(sf);
- 	struct pids_cgroup *pids = css_pids(css);
--	int64_t limit = pids->limit;
-+	int64_t limit = atomic64_read(&pids->limit);
- 
- 	if (limit >= PIDS_MAX)
- 		seq_printf(sf, "%s\n", PIDS_MAX_STR);
+ 	hash_for_each(pool->busy_hash, bkt, worker, hentry) {
 
 
