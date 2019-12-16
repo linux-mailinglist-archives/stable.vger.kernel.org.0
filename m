@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A7E121957
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 577AE121960
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727920AbfLPStP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:49:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47140 "EHLO mail.kernel.org"
+        id S1727709AbfLPSuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:50:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727185AbfLPRxW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:53:22 -0500
+        id S1727731AbfLPRxY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:53:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3481720733;
-        Mon, 16 Dec 2019 17:53:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9831C206D3;
+        Mon, 16 Dec 2019 17:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518801;
-        bh=hlgJavf+bIDpCYxZ8/TP+6ibNvdneXkVfBByrcKCWN8=;
+        s=default; t=1576518804;
+        bh=gq4887FukYlF5vNKsQSCbTtKEEhPkVCXTdwLbsbFhMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4ppP3kdtiBv+LH9HJoizm9B+uned+tTkyivBPlbvyQkcyQMgLXbGNMLofNLbgvuo
-         tsvumvRJdEGb486F8CtXm/ryuz9fIL2eoXIVAfvEhP8dVElPgPopTQvrbaGRNQk/52
-         NfC/4aNfPoz0brxfw+4qiqIby4gVM8k+eK6sc+jU=
+        b=gBkWMp3Bmy8l97xanhxlxb9+DKDS8Vyqr+Xbd4COlu6dC3gAPeqLwUT5hd53jq3o8
+         N+7z+aOUB5cS4xl8DcrQB3Ndmw+uR7rP2x2YJHA7p8zjtf+9OYz3QhkZVvi/qvODpy
+         W2N88hhi3xBoMNNP+RUHEIygQvHY5yAwq3CZJI6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 073/267] serial: imx: fix error handling in console_setup
-Date:   Mon, 16 Dec 2019 18:46:39 +0100
-Message-Id: <20191216174856.690213575@linuxfoundation.org>
+        <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 074/267] i2c: imx: dont print error message on probe defer
+Date:   Mon, 16 Dec 2019 18:46:40 +0100
+Message-Id: <20191216174856.778310533@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -44,35 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 63fd4b94b948c14eeb27a3bbf50ea0f7f0593bad ]
+[ Upstream commit fece4978510e43f09c8cd386fee15210e8c68493 ]
 
-The ipg clock only needs to be unprepared in case preparing
-per clock fails. The ipg clock has already disabled at the point.
+Probe deferral is a normal operating condition in the probe function,
+so don't spam the log with an error in this case.
 
-Fixes: 1cf93e0d5488 ("serial: imx: remove the uart_console() check")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-imx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 4e827e5a52a36..aae68230fb7b8 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -1956,7 +1956,7 @@ imx_console_setup(struct console *co, char *options)
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index b73dd837fb533..26f83029f64ae 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1088,7 +1088,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 	/* Get I2C clock */
+ 	i2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(i2c_imx->clk)) {
+-		dev_err(&pdev->dev, "can't get I2C clock\n");
++		if (PTR_ERR(i2c_imx->clk) != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "can't get I2C clock\n");
+ 		return PTR_ERR(i2c_imx->clk);
+ 	}
  
- 	retval = clk_prepare(sport->clk_per);
- 	if (retval)
--		clk_disable_unprepare(sport->clk_ipg);
-+		clk_unprepare(sport->clk_ipg);
- 
- error_console:
- 	return retval;
 -- 
 2.20.1
 
