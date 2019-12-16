@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF98D121651
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DC5A121377
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728503AbfLPS2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:28:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35756 "EHLO mail.kernel.org"
+        id S1729247AbfLPSBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:01:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731094AbfLPSPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:15:12 -0500
+        id S1729242AbfLPSBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:01:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BA9D206EC;
-        Mon, 16 Dec 2019 18:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7360A20700;
+        Mon, 16 Dec 2019 18:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520110;
-        bh=HtZUt4Q3OJRm1tgaNWfTS9BY9ENfJu1WJyeDXyVhVlY=;
+        s=default; t=1576519313;
+        bh=AP+G3vTS21bXeN5bhSec23YlawevdBzPW2DJK1Lq5tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4jxJs459lHzjeSvlGmqaHX4W5NoXv3PUl/TXnxyyH6gO4DMW35p8YjlDiTuUZhn7
-         AGzEL743R4QcejBWoKfdZ8cZR72TQI7SvR1zw272rncFDSnsGqvjmtr5iyRCTTd68s
-         mDL97d5yxbq2LW9Yqy1gNbNSWKw4aTCot02STTB0=
+        b=unGXuhv8QXjbwrViBTdN98AlezX2ciGAgthN9WkGrDJP1p5uv+nxaeeEkfYRn3bLD
+         hPEtydHGIUW43tu+CrwT2iHkpgR59Z9aZ9RcOR3waANCtGg1cgmh63aeVa9KdKsk0h
+         cMbAmuNXwuBtqdDpCDlbDE/MsW8n2TitH9DpnKcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-        David Gow <davidgow@google.com>
-Subject: [PATCH 5.4 020/177] staging: exfat: fix multiple definition error of `rename_file
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.19 008/140] usb: Allow USB device to be warm reset in suspended state
 Date:   Mon, 16 Dec 2019 18:47:56 +0100
-Message-Id: <20191216174817.169218237@linuxfoundation.org>
+Message-Id: <20191216174750.723282165@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Higgins <brendanhiggins@google.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 1af73a25e6e7d9f2f1e2a14259cc9ffce6d8f6d4 upstream.
+commit e76b3bf7654c3c94554c24ba15a3d105f4006c80 upstream.
 
-`rename_file' was exported but not properly namespaced causing a
-multiple definition error because `rename_file' is already defined in
-fs/hostfs/hostfs_user.c:
+On Dell WD15 dock, sometimes USB ethernet cannot be detected after plugging
+cable to the ethernet port, the hub and roothub get runtime resumed and
+runtime suspended immediately:
+...
+[  433.315169] xhci_hcd 0000:3a:00.0: hcd_pci_runtime_resume: 0
+[  433.315204] usb usb4: usb auto-resume
+[  433.315226] hub 4-0:1.0: hub_resume
+[  433.315239] xhci_hcd 0000:3a:00.0: Get port status 4-1 read: 0x10202e2, return 0x10343
+[  433.315264] usb usb4-port1: status 0343 change 0001
+[  433.315279] xhci_hcd 0000:3a:00.0: clear port1 connect change, portsc: 0x10002e2
+[  433.315293] xhci_hcd 0000:3a:00.0: Get port status 4-2 read: 0x2a0, return 0x2a0
+[  433.317012] xhci_hcd 0000:3a:00.0: xhci_hub_status_data: stopping port polling.
+[  433.422282] xhci_hcd 0000:3a:00.0: Get port status 4-1 read: 0x10002e2, return 0x343
+[  433.422307] usb usb4-port1: do warm reset
+[  433.422311] usb 4-1: device reset not allowed in state 8
+[  433.422339] hub 4-0:1.0: state 7 ports 2 chg 0002 evt 0000
+[  433.422346] xhci_hcd 0000:3a:00.0: Get port status 4-1 read: 0x10002e2, return 0x343
+[  433.422356] usb usb4-port1: do warm reset
+[  433.422358] usb 4-1: device reset not allowed in state 8
+[  433.422428] xhci_hcd 0000:3a:00.0: set port remote wake mask, actual port 0 status  = 0xf0002e2
+[  433.422455] xhci_hcd 0000:3a:00.0: set port remote wake mask, actual port 1 status  = 0xe0002a0
+[  433.422465] hub 4-0:1.0: hub_suspend
+[  433.422475] usb usb4: bus auto-suspend, wakeup 1
+[  433.426161] xhci_hcd 0000:3a:00.0: xhci_hub_status_data: stopping port polling.
+[  433.466209] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.510204] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.554051] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.598235] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.642154] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.686204] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.730205] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.774203] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.818207] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.862040] xhci_hcd 0000:3a:00.0: port 0 polling in bus suspend, waiting
+[  433.862053] xhci_hcd 0000:3a:00.0: xhci_hub_status_data: stopping port polling.
+[  433.862077] xhci_hcd 0000:3a:00.0: xhci_suspend: stopping port polling.
+[  433.862096] xhci_hcd 0000:3a:00.0: // Setting command ring address to 0x8578fc001
+[  433.862312] xhci_hcd 0000:3a:00.0: hcd_pci_runtime_suspend: 0
+[  433.862445] xhci_hcd 0000:3a:00.0: PME# enabled
+[  433.902376] xhci_hcd 0000:3a:00.0: restoring config space at offset 0xc (was 0x0, writing 0x20)
+[  433.902395] xhci_hcd 0000:3a:00.0: restoring config space at offset 0x4 (was 0x100000, writing 0x100403)
+[  433.902490] xhci_hcd 0000:3a:00.0: PME# disabled
+[  433.902504] xhci_hcd 0000:3a:00.0: enabling bus mastering
+[  433.902547] xhci_hcd 0000:3a:00.0: // Setting command ring address to 0x8578fc001
+[  433.902649] pcieport 0000:00:1b.0: PME: Spurious native interrupt!
+[  433.902839] xhci_hcd 0000:3a:00.0: Port change event, 4-1, id 3, portsc: 0xb0202e2
+[  433.902842] xhci_hcd 0000:3a:00.0: resume root hub
+[  433.902845] xhci_hcd 0000:3a:00.0: handle_port_status: starting port polling.
+[  433.902877] xhci_hcd 0000:3a:00.0: xhci_resume: starting port polling.
+[  433.902889] xhci_hcd 0000:3a:00.0: xhci_hub_status_data: stopping port polling.
+[  433.902891] xhci_hcd 0000:3a:00.0: hcd_pci_runtime_resume: 0
+[  433.902919] usb usb4: usb wakeup-resume
+[  433.902942] usb usb4: usb auto-resume
+[  433.902966] hub 4-0:1.0: hub_resume
+...
 
-ld: drivers/staging/exfat/exfat_core.o: in function `rename_file':
-drivers/staging/exfat/exfat_core.c:2327: multiple definition of
-`rename_file'; fs/hostfs/hostfs_user.o:fs/hostfs/hostfs_user.c:350:
-first defined here
-make: *** [Makefile:1077: vmlinux] Error 1
+As Mathias pointed out, the hub enters Cold Attach Status state and
+requires a warm reset. However usb_reset_device() bails out early when
+the device is in suspended state, as its callers port_event() and
+hub_event() don't always resume the device.
 
-This error can be reproduced on ARCH=um by selecting:
+Since there's nothing wrong to reset a suspended device, allow
+usb_reset_device() to do so to solve the issue.
 
-CONFIG_EXFAT_FS=y
-CONFIG_HOSTFS=y
-
-Add a namespace prefix exfat_* to fix this error.
-
-Reported-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
 Cc: stable <stable@vger.kernel.org>
-Cc: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Tested-by: David Gow <davidgow@google.com>
-Reviewed-by: David Gow <davidgow@google.com>
-Link: https://lore.kernel.org/r/20191204234522.42855-1-brendanhiggins@google.com
+Link: https://lore.kernel.org/r/20191106062710.29880-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/exfat/exfat.h       |    4 ++--
- drivers/staging/exfat/exfat_core.c  |    4 ++--
- drivers/staging/exfat/exfat_super.c |    4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/core/hub.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/exfat/exfat.h
-+++ b/drivers/staging/exfat/exfat.h
-@@ -943,8 +943,8 @@ s32 create_dir(struct inode *inode, stru
- s32 create_file(struct inode *inode, struct chain_t *p_dir,
- 		struct uni_name_t *p_uniname, u8 mode, struct file_id_t *fid);
- void remove_file(struct inode *inode, struct chain_t *p_dir, s32 entry);
--s32 rename_file(struct inode *inode, struct chain_t *p_dir, s32 old_entry,
--		struct uni_name_t *p_uniname, struct file_id_t *fid);
-+s32 exfat_rename_file(struct inode *inode, struct chain_t *p_dir, s32 old_entry,
-+		      struct uni_name_t *p_uniname, struct file_id_t *fid);
- s32 move_file(struct inode *inode, struct chain_t *p_olddir, s32 oldentry,
- 	      struct chain_t *p_newdir, struct uni_name_t *p_uniname,
- 	      struct file_id_t *fid);
---- a/drivers/staging/exfat/exfat_core.c
-+++ b/drivers/staging/exfat/exfat_core.c
-@@ -3381,8 +3381,8 @@ void remove_file(struct inode *inode, st
- 	fs_func->delete_dir_entry(sb, p_dir, entry, 0, num_entries);
- }
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -5740,7 +5740,7 @@ re_enumerate_no_bos:
  
--s32 rename_file(struct inode *inode, struct chain_t *p_dir, s32 oldentry,
--		struct uni_name_t *p_uniname, struct file_id_t *fid)
-+s32 exfat_rename_file(struct inode *inode, struct chain_t *p_dir, s32 oldentry,
-+		      struct uni_name_t *p_uniname, struct file_id_t *fid)
- {
- 	s32 ret, newentry = -1, num_old_entries, num_new_entries;
- 	sector_t sector_old, sector_new;
---- a/drivers/staging/exfat/exfat_super.c
-+++ b/drivers/staging/exfat/exfat_super.c
-@@ -1308,8 +1308,8 @@ static int ffsMoveFile(struct inode *old
- 	fs_set_vol_flags(sb, VOL_DIRTY);
+ /**
+  * usb_reset_device - warn interface drivers and perform a USB port reset
+- * @udev: device to reset (not in SUSPENDED or NOTATTACHED state)
++ * @udev: device to reset (not in NOTATTACHED state)
+  *
+  * Warns all drivers bound to registered interfaces (using their pre_reset
+  * method), performs the port reset, and then lets the drivers know that
+@@ -5768,8 +5768,7 @@ int usb_reset_device(struct usb_device *
+ 	struct usb_host_config *config = udev->actconfig;
+ 	struct usb_hub *hub = usb_hub_to_struct_hub(udev->parent);
  
- 	if (olddir.dir == newdir.dir)
--		ret = rename_file(new_parent_inode, &olddir, dentry, &uni_name,
--				  fid);
-+		ret = exfat_rename_file(new_parent_inode, &olddir, dentry,
-+					&uni_name, fid);
- 	else
- 		ret = move_file(new_parent_inode, &olddir, dentry, &newdir,
- 				&uni_name, fid);
+-	if (udev->state == USB_STATE_NOTATTACHED ||
+-			udev->state == USB_STATE_SUSPENDED) {
++	if (udev->state == USB_STATE_NOTATTACHED) {
+ 		dev_dbg(&udev->dev, "device reset not allowed in state %d\n",
+ 				udev->state);
+ 		return -EINVAL;
 
 
