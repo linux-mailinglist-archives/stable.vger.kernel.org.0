@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3271214A9
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A901213D6
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730881AbfLPSNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:13:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59480 "EHLO mail.kernel.org"
+        id S1729251AbfLPSFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:05:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731094AbfLPSNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:13:22 -0500
+        id S1729808AbfLPSFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:05:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A299207FF;
-        Mon, 16 Dec 2019 18:13:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7E5E206EC;
+        Mon, 16 Dec 2019 18:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520001;
-        bh=B3uDbUr2ZpsvlyW0xfEfaHDX65/k0MXfJxDbDhI7W+8=;
+        s=default; t=1576519519;
+        bh=tQnQ7eGrRB4decAAN2WbhDaaCkvZX5ZKgulZVP1wGHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dN/vsjPs/8PlxcdblPq3aGNAbbBl8jplmmPzWVh+O359d8FDOvZ1gT0LDedOLNtXj
-         FZ88ZDEi1UPBK+A8SKBO+ruxytiP6usMzKNVNBi8p0n+AybWObIiQKTiqasDC08QIi
-         HInjNEDuBMZx0WRK3S4LTdP6WrQV+dHtv3pAW1DI=
+        b=MxeSRn3MHK3PPKSghVvkDgEC0Ce1yCdxrciTYQr3WHW+fSj7Y/Fcddgc4KxtH72M2
+         ISDRLcM+MQpqusRpAPUq2y6UYbAZVTyyJSsVkKEbQ7VHoR80PFlCiRlGglVmcFXiA1
+         sjTWWrz3maSBpPhc5pUx2SQDnnMVcF9L/Km+oNPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.3 119/180] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection GPIO polarity
-Date:   Mon, 16 Dec 2019 18:49:19 +0100
-Message-Id: <20191216174840.423452835@linuxfoundation.org>
+        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 092/140] ext2: check err when partial != NULL
+Date:   Mon, 16 Dec 2019 18:49:20 +0100
+Message-Id: <20191216174811.515507769@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@bitmer.com>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-commit 287897f9aaa2ad1c923d9875914f57c4dc9159c8 upstream.
+commit e705f4b8aa27a59f8933e8f384e9752f052c469c upstream.
 
-The MMC card detection GPIO polarity is active low on TAO3530, like in many
-other similar boards. Now the card is not detected and it is unable to
-mount rootfs from an SD card.
+Check err when partial == NULL is meaningless because
+partial == NULL means getting branch successfully without
+error.
 
-Fix this by using the correct polarity.
-
-This incorrect polarity was defined already in the commit 30d95c6d7092
-("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
-kernel and later changed to use defined GPIO constants in v4.4 kernel by
-the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
-cell for OMAP2+ boards").
-
-While the latter commit did not introduce the issue I'm marking it with
-Fixes tag due the v4.4 kernels still being maintained.
-
-Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
-Cc: linux-stable <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191105045100.7104-1-cgxu519@mykernel.net
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/omap3-tao3530.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext2/inode.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/omap3-tao3530.dtsi
-+++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
-@@ -222,7 +222,7 @@
- 	pinctrl-0 = <&mmc1_pins>;
- 	vmmc-supply = <&vmmc1>;
- 	vqmmc-supply = <&vsim>;
--	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
-+	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
- 	bus-width = <8>;
- };
+--- a/fs/ext2/inode.c
++++ b/fs/ext2/inode.c
+@@ -699,10 +699,13 @@ static int ext2_get_blocks(struct inode
+ 		if (!partial) {
+ 			count++;
+ 			mutex_unlock(&ei->truncate_mutex);
+-			if (err)
+-				goto cleanup;
+ 			goto got_it;
+ 		}
++
++		if (err) {
++			mutex_unlock(&ei->truncate_mutex);
++			goto cleanup;
++		}
+ 	}
  
+ 	/*
 
 
