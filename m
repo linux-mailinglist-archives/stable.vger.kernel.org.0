@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48F9B121614
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:27:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1537121447
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:10:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731551AbfLPSQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:16:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39278 "EHLO mail.kernel.org"
+        id S1730326AbfLPSJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:09:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731555AbfLPSQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:16:34 -0500
+        id S1730178AbfLPSJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:09:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DCD7207FF;
-        Mon, 16 Dec 2019 18:16:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28350206EC;
+        Mon, 16 Dec 2019 18:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520193;
-        bh=02OOIG76Z/Iy1EgmCIZzU+/S2CzO0XCskta4452Yzj4=;
+        s=default; t=1576519798;
+        bh=IWANP2m/HdiV9PxPUQGlMOT2EXU8H0Be69ffeLkXblc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LguArqz6HD8EGQz3FAoYLkfGBOy63+YwaGeDOWnza9H/CoBjGMRp1p1dvCpM/hU7p
-         Ib7JhBcgatppi/UQET7mOAH1dOz4GIZnJCkupXOnQhlowG1okh/uysUD92GRUbu0KV
-         5BwvtYdndwBDgeK8N+SNhY54DesyvvW1h8/d8094=
+        b=f6/J5QEmmw2c6y2ptCI6bpe1zw40it43KTDYK9Y3nBWhHafAu7WCNm69JPS+s4HY2
+         BDe3b7s0tQU70xvYbumbUoAA/uNR1QO3GooCUYWCglWYkNwpNrOYPNw+EoFX+cmb03
+         FeUsTBb5hO8Oc5SJjrk7gibY7xGHdR8goQdlfwMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.4 055/177] mtd: spear_smi: Fix Write Burst mode
+        stable@vger.kernel.org, Maged Mokhtar <mmokhtar@petasan.org>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.3 071/180] dm writecache: handle REQ_FUA
 Date:   Mon, 16 Dec 2019 18:48:31 +0100
-Message-Id: <20191216174830.814576815@linuxfoundation.org>
+Message-Id: <20191216174830.280901804@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Maged Mokhtar <mmokhtar@petasan.org>
 
-commit 69c7f4618c16b4678f8a4949b6bb5ace259c0033 upstream.
+commit c1005322ff02110a4df7f0033368ea015062b583 upstream.
 
-Any write with either dd or flashcp to a device driven by the
-spear_smi.c driver will pass through the spear_smi_cpy_toio()
-function. This function will get called for chunks of up to 256 bytes.
-If the amount of data is smaller, we may have a problem if the data
-length is not 4-byte aligned. In this situation, the kernel panics
-during the memcpy:
+Call writecache_flush() on REQ_FUA in writecache_map().
 
-    # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
-    spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
-    spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
-    spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
-    spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
-    Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
-    [...]
-    PC is at memcpy+0xcc/0x330
-
-The above error occurs because the implementation of memcpy_toio()
-tries to optimize the number of I/O by writing 4 bytes at a time as
-much as possible, until there are less than 4 bytes left and then
-switches to word or byte writes.
-
-Unfortunately, the specification states about the Write Burst mode:
-
-        "the next AHB Write request should point to the next
-	incremented address and should have the same size (byte,
-	half-word or word)"
-
-This means ARM architecture implementation of memcpy_toio() cannot
-reliably be used blindly here. Workaround this situation by update the
-write path to stick to byte access when the burst length is not
-multiple of 4.
-
-Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: stable@vger.kernel.org # 4.18+
+Signed-off-by: Maged Mokhtar <mmokhtar@petasan.org>
+Acked-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/devices/spear_smi.c |   38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ drivers/md/dm-writecache.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/devices/spear_smi.c
-+++ b/drivers/mtd/devices/spear_smi.c
-@@ -592,6 +592,26 @@ static int spear_mtd_read(struct mtd_inf
- 	return 0;
- }
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -1218,7 +1218,8 @@ bio_copy:
+ 			}
+ 		} while (bio->bi_iter.bi_size);
  
-+/*
-+ * The purpose of this function is to ensure a memcpy_toio() with byte writes
-+ * only. Its structure is inspired from the ARM implementation of _memcpy_toio()
-+ * which also does single byte writes but cannot be used here as this is just an
-+ * implementation detail and not part of the API. Not mentioning the comment
-+ * stating that _memcpy_toio() should be optimized.
-+ */
-+static void spear_smi_memcpy_toio_b(volatile void __iomem *dest,
-+				    const void *src, size_t len)
-+{
-+	const unsigned char *from = src;
-+
-+	while (len) {
-+		len--;
-+		writeb(*from, dest);
-+		from++;
-+		dest++;
-+	}
-+}
-+
- static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
- 		void __iomem *dest, const void *src, size_t len)
- {
-@@ -614,7 +634,23 @@ static inline int spear_smi_cpy_toio(str
- 	ctrlreg1 = readl(dev->io_base + SMI_CR1);
- 	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
- 
--	memcpy_toio(dest, src, len);
-+	/*
-+	 * In Write Burst mode (WB_MODE), the specs states that writes must be:
-+	 * - incremental
-+	 * - of the same size
-+	 * The ARM implementation of memcpy_toio() will optimize the number of
-+	 * I/O by using as much 4-byte writes as possible, surrounded by
-+	 * 2-byte/1-byte access if:
-+	 * - the destination is not 4-byte aligned
-+	 * - the length is not a multiple of 4-byte.
-+	 * Avoid this alternance of write access size by using our own 'byte
-+	 * access' helper if at least one of the two conditions above is true.
-+	 */
-+	if (IS_ALIGNED(len, sizeof(u32)) &&
-+	    IS_ALIGNED((uintptr_t)dest, sizeof(u32)))
-+		memcpy_toio(dest, src, len);
-+	else
-+		spear_smi_memcpy_toio_b(dest, src, len);
- 
- 	writel(ctrlreg1, dev->io_base + SMI_CR1);
- 
+-		if (unlikely(wc->uncommitted_blocks >= wc->autocommit_blocks))
++		if (unlikely(bio->bi_opf & REQ_FUA ||
++			     wc->uncommitted_blocks >= wc->autocommit_blocks))
+ 			writecache_flush(wc);
+ 		else
+ 			writecache_schedule_autocommit(wc);
 
 
