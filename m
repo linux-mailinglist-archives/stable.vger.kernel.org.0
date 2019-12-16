@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5288121604
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:26:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2204A121605
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:26:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731870AbfLPS0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:26:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41002 "EHLO mail.kernel.org"
+        id S1731180AbfLPS0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:26:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731502AbfLPSRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:17:18 -0500
+        id S1731505AbfLPSRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:17:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30849206E0;
-        Mon, 16 Dec 2019 18:17:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A573420717;
+        Mon, 16 Dec 2019 18:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520237;
-        bh=LULC68LBkDNs5bIj3iC2ZbhDy2Wb0evTtTqr154+a8Y=;
+        s=default; t=1576520240;
+        bh=NuxosJ/LMYAEF7tYnKIAaZAkD4oCBlF4hHcFCRYA40s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nKX4DgMlMT2RESRQTsVmKcT4ATkS5tA1UFYf1tDe9LUIR+tG7xMORVk3HwnHxqk2
-         K9DZIdHcVa5bC2wjgk5xaFPNeT/Up4+B5ARruvxdhrUHjBAzd+vuaLxoGjnzY8q60B
-         XWS72AjXtGIHGugYCmSAS6K9JOu4CsKgYPre/7BE=
+        b=MoL+EEEWwo5YKhpTA2XKcV5bsyiJqF++JuRxaprq49J2u4wnD56DMTXC82N9t1ugQ
+         nCDZwx55aESBgS/2NRAEgBwQFibNF0DpxrxN7S6bEIHrRFQX2lANuv7kYQJn5oxF0y
+         k7SNfDKqrZP4EbZLIAebN52za9f7mQoBjd3uaCDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 071/177] btrfs: Avoid getting stuck during cyclic writebacks
-Date:   Mon, 16 Dec 2019 18:48:47 +0100
-Message-Id: <20191216174835.004018583@linuxfoundation.org>
+Subject: [PATCH 5.4 072/177] btrfs: Remove btrfs_bio::flags member
+Date:   Mon, 16 Dec 2019 18:48:48 +0100
+Message-Id: <20191216174835.081135586@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -43,99 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Qu Wenruo <wqu@suse.com>
 
-commit f7bddf1e27d18fbc7d3e3056ba449cfbe4e20b0a upstream.
+commit 34b127aecd4fe8e6a3903e10f204a7b7ffddca22 upstream.
 
-During a cyclic writeback, extent_write_cache_pages() uses done_index
-to update the writeback_index after the current run is over.  However,
-instead of current index + 1, it gets to to the current index itself.
+The last user of btrfs_bio::flags was removed in commit 326e1dbb5736
+("block: remove management of bi_remaining when restoring original
+bi_end_io"), remove it.
 
-Unfortunately, this, combined with returning on EOF instead of looping
-back, can lead to the following pathlogical behavior.
+(Tagged for stable as the structure is heavily used and space savings
+are desirable.)
 
-1. There is a single file which has accumulated enough dirty pages to
-   trigger balance_dirty_pages() and the writer appending to the file
-   with a series of short writes.
-
-2. balance_dirty_pages kicks in, wakes up background writeback and sleeps.
-
-3. Writeback kicks in and the cursor is on the last page of the dirty
-   file.  Writeback is started or skipped if already in progress.  As
-   it's EOF, extent_write_cache_pages() returns and the cursor is set
-   to done_index which is pointing to the last page.
-
-4. Writeback is done.  Nothing happens till balance_dirty_pages
-   finishes, at which point we go back to #1.
-
-This can almost completely stall out writing back of the file and keep
-the system over dirty threshold for a long time which can mess up the
-whole system.  We encountered this issue in production with a package
-handling application which can reliably reproduce the issue when
-running under tight memory limits.
-
-Reading the comment in the error handling section, this seems to be to
-avoid accidentally skipping a page in case the write attempt on the
-page doesn't succeed.  However, this concern seems bogus.
-
-On each page, the code either:
-
-* Skips and moves onto the next page.
-
-* Fails issue and sets done_index to index + 1.
-
-* Successfully issues and continue to the next page if budget allows
-  and not EOF.
-
-IOW, as long as it's not EOF and there's budget, the code never
-retries writing back the same page.  Only when a page happens to be
-the last page of a particular run, we end up retrying the page, which
-can't possibly guarantee anything data integrity related.  Besides,
-cyclic writes are only used for non-syncing writebacks meaning that
-there's no data integrity implication to begin with.
-
-Fix it by always setting done_index past the current page being
-processed.
-
-Note that this problem exists in other writepages too.
-
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Tejun Heo <tj@kernel.org>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c |   12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ fs/btrfs/volumes.h |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4121,7 +4121,7 @@ retry:
- 		for (i = 0; i < nr_pages; i++) {
- 			struct page *page = pvec.pages[i];
- 
--			done_index = page->index;
-+			done_index = page->index + 1;
- 			/*
- 			 * At this point we hold neither the i_pages lock nor
- 			 * the page lock: the page may be truncated or
-@@ -4156,16 +4156,6 @@ retry:
- 
- 			ret = __extent_writepage(page, wbc, epd);
- 			if (ret < 0) {
--				/*
--				 * done_index is set past this page,
--				 * so media errors will not choke
--				 * background writeout for the entire
--				 * file. This has consequences for
--				 * range_cyclic semantics (ie. it may
--				 * not be suitable for data integrity
--				 * writeout).
--				 */
--				done_index = page->index + 1;
- 				done = 1;
- 				break;
- 			}
+--- a/fs/btrfs/volumes.h
++++ b/fs/btrfs/volumes.h
+@@ -330,7 +330,6 @@ struct btrfs_bio {
+ 	u64 map_type; /* get from map_lookup->type */
+ 	bio_end_io_t *end_io;
+ 	struct bio *orig_bio;
+-	unsigned long flags;
+ 	void *private;
+ 	atomic_t error;
+ 	int max_errors;
 
 
