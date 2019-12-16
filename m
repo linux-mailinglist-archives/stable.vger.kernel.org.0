@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 089AA121582
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:22:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5EB5121689
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:30:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731922AbfLPSV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:21:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55470 "EHLO mail.kernel.org"
+        id S1731076AbfLPSNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:13:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731497AbfLPSVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:21:25 -0500
+        id S1730725AbfLPSNL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:13:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B02B20717;
-        Mon, 16 Dec 2019 18:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC608207FF;
+        Mon, 16 Dec 2019 18:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520485;
-        bh=+TcQCskO8Yxad2UV+B9L/vAH6xNMwSDamhI/wfm7YAM=;
+        s=default; t=1576519991;
+        bh=kWddPSHAoKeWMyw+eJdzZg965iYKPauvg8fv26S+uUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ui8aUPD37QzzR3lZL91cEjESgNoziFp50DGjIcS2LIwEO6A8mErHtFmyZfZtsG3Fa
-         ljwXmawP5g7NEWqvHJBbWToRayJfyhh4LmJYoYVlV0qjdEN5GM+AWc8wEbRdFWwgeW
-         B/6vVVFeKCWheiXQScS1W+P7QPbNftWZO3AE9Dvs=
+        b=aAjqBoz/dxEcS3B0qcbKX9byWpvTvj5wOr25S5oOxAsm85V8Sv2Pt2xRpV6dOynFv
+         Qkh+nLJ6lbXh0e7RL6zhPf3xWRMCjJb9RpKJQKhqmsLsKgUmk14G+RZvTJOMO4v8Fe
+         iYDsKk2UzwxJNshOZg8bi3uJJr1x3k5xSVcc7QKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.4 134/177] pinctrl: samsung: Fix device node refcount leaks in Exynos wakeup controller init
-Date:   Mon, 16 Dec 2019 18:49:50 +0100
-Message-Id: <20191216174844.862838184@linuxfoundation.org>
+        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
+        "Ewan D. Milne" <emilne@redhat.com>, Lee Duncan <lduncan@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 151/180] scsi: qla2xxx: Fix message indicating vectors used by driver
+Date:   Mon, 16 Dec 2019 18:49:51 +0100
+Message-Id: <20191216174844.193148694@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Himanshu Madhani <hmadhani@marvell.com>
 
-commit 5c7f48dd14e892e3e920dd6bbbd52df79e1b3b41 upstream.
+[ Upstream commit da48b82425b8bf999fb9f7c220e967c4d661b5f8 ]
 
-In exynos_eint_wkup_init() the for_each_child_of_node() loop is used
-with a break to find a matching child node.  Although each iteration of
-for_each_child_of_node puts the previous node, but early exit from loop
-misses it.  This leads to leak of device node.
+This patch updates log message which indicates number of vectors used by
+the driver instead of displaying failure to get maximum requested
+vectors. Driver will always request maximum vectors during
+initialization. In the event driver is not able to get maximum requested
+vectors, it will adjust the allocated vectors. This is normal and does not
+imply failure in driver.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 43b169db1841 ("pinctrl: add exynos4210 specific extensions for samsung pinctrl driver")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Link: https://lore.kernel.org/r/20190830222402.23688-2-hmadhani@marvell.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/samsung/pinctrl-exynos.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_isr.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/pinctrl/samsung/pinctrl-exynos.c
-+++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
-@@ -506,6 +506,7 @@ int exynos_eint_wkup_init(struct samsung
- 				bank->nr_pins, &exynos_eint_irqd_ops, bank);
- 		if (!bank->irq_domain) {
- 			dev_err(dev, "wkup irq domain add failed\n");
-+			of_node_put(wkup_np);
- 			return -ENXIO;
- 		}
- 
-@@ -520,8 +521,10 @@ int exynos_eint_wkup_init(struct samsung
- 		weint_data = devm_kcalloc(dev,
- 					  bank->nr_pins, sizeof(*weint_data),
- 					  GFP_KERNEL);
--		if (!weint_data)
-+		if (!weint_data) {
-+			of_node_put(wkup_np);
- 			return -ENOMEM;
-+		}
- 
- 		for (idx = 0; idx < bank->nr_pins; ++idx) {
- 			irq = irq_of_parse_and_map(bank->of_node, idx);
-@@ -538,10 +541,13 @@ int exynos_eint_wkup_init(struct samsung
- 		}
- 	}
- 
--	if (!muxed_banks)
-+	if (!muxed_banks) {
-+		of_node_put(wkup_np);
- 		return 0;
-+	}
- 
- 	irq = irq_of_parse_and_map(wkup_np, 0);
-+	of_node_put(wkup_np);
- 	if (!irq) {
- 		dev_err(dev, "irq number for muxed EINTs not found\n");
- 		return 0;
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index 78aec50abe0f8..f7458d74ae3d2 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -3471,10 +3471,8 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
+ 		    ha->msix_count, ret);
+ 		goto msix_out;
+ 	} else if (ret < ha->msix_count) {
+-		ql_log(ql_log_warn, vha, 0x00c6,
+-		    "MSI-X: Failed to enable support "
+-		     "with %d vectors, using %d vectors.\n",
+-		    ha->msix_count, ret);
++		ql_log(ql_log_info, vha, 0x00c6,
++		    "MSI-X: Using %d vectors\n", ret);
+ 		ha->msix_count = ret;
+ 		/* Recalculate queue values */
+ 		if (ha->mqiobase && (ql2xmqsupport || ql2xnvmeenable)) {
+-- 
+2.20.1
+
 
 
