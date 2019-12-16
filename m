@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C69121880
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF5C21216D1
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbfLPSoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:44:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58776 "EHLO mail.kernel.org"
+        id S1730459AbfLPSKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:10:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728261AbfLPR6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:58:43 -0500
+        id S1730645AbfLPSKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:10:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E85642166E;
-        Mon, 16 Dec 2019 17:58:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC996206B7;
+        Mon, 16 Dec 2019 18:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519122;
-        bh=mJyW3bGZGxeHOaKmOOkB18TClZVtTy46GI792QeP9VA=;
+        s=default; t=1576519840;
+        bh=JQCZJhCVcLu+i7SlAEtiB0+LaoT3S/NLbdjXaVDs1bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1GYMKhYreBKH9X4jwjg/j40VZVJSaqZTnzRwERhvUpieosqPO5cjL4IBA7cw6o9Fg
-         dZkaq/eFPnugOxmbAc58hn+tIElC3Mpn/uhdvtr6CuL815mSL2oMNJE6cTxMl5FsdY
-         Xm7MbOn8P5zmGZ7RvBIhw8qao9hmGJMxWLE6x0eo=
+        b=QyA5S+ratEGgo6HMuXVGui2ayDRAYHIRNS9ZsKbEOY64cvwNy54hhfzrg3tOna54M
+         UzJw565ZXPKocsMyHGFMpJtpC/94Qt/OZtSgxpgfM5Mo9Ry5ja4yVjTyeNJ4s/XQMV
+         Hg6S392QQ428/Ml3uHpCO6M9trdMZr2RJlv7NBOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 204/267] blk-mq: avoid sysfs buffer overflow with too many CPU cores
-Date:   Mon, 16 Dec 2019 18:48:50 +0100
-Message-Id: <20191216174913.713799376@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.3 091/180] cpuidle: teo: Rename local variable in teo_select()
+Date:   Mon, 16 Dec 2019 18:48:51 +0100
+Message-Id: <20191216174834.667664935@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 8962842ca5abdcf98e22ab3b2b45a103f0408b95 upstream.
+commit 4f690bb8ce4cc5d3fabe3a8e9c2401de1554cdc1 upstream.
 
-It is reported that sysfs buffer overflow can be triggered if the system
-has too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
-hctx via /sys/block/$DEV/mq/$N/cpu_list.
+Rename a local variable in teo_select() in preparation for subsequent
+code modifications, no intentional impact.
 
-Use snprintf to avoid the potential buffer overflow.
-
-This version doesn't change the attribute format, and simply stops
-showing CPU numbers if the buffer is going to overflow.
-
-Cc: stable@vger.kernel.org
-Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq-sysfs.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/cpuidle/governors/teo.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -145,20 +145,25 @@ static ssize_t blk_mq_hw_sysfs_nr_reserv
- 
- static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
+--- a/drivers/cpuidle/governors/teo.c
++++ b/drivers/cpuidle/governors/teo.c
+@@ -241,7 +241,7 @@ static int teo_select(struct cpuidle_dri
  {
-+	const size_t size = PAGE_SIZE - 1;
- 	unsigned int i, first = 1;
--	ssize_t ret = 0;
-+	int ret = 0, pos = 0;
+ 	struct teo_cpu *cpu_data = per_cpu_ptr(&teo_cpus, dev->cpu);
+ 	int latency_req = cpuidle_governor_latency_req(dev->cpu);
+-	unsigned int duration_us, count;
++	unsigned int duration_us, early_hits;
+ 	int max_early_idx, constraint_idx, idx, i;
+ 	ktime_t delta_tick;
  
- 	for_each_cpu(i, hctx->cpumask) {
- 		if (first)
--			ret += sprintf(ret + page, "%u", i);
-+			ret = snprintf(pos + page, size - pos, "%u", i);
- 		else
--			ret += sprintf(ret + page, ", %u", i);
-+			ret = snprintf(pos + page, size - pos, ", %u", i);
-+
-+		if (ret >= size - pos)
-+			break;
+@@ -255,7 +255,7 @@ static int teo_select(struct cpuidle_dri
+ 	cpu_data->sleep_length_ns = tick_nohz_get_sleep_length(&delta_tick);
+ 	duration_us = ktime_to_us(cpu_data->sleep_length_ns);
  
- 		first = 0;
-+		pos += ret;
+-	count = 0;
++	early_hits = 0;
+ 	max_early_idx = -1;
+ 	constraint_idx = drv->state_count;
+ 	idx = -1;
+@@ -278,12 +278,12 @@ static int teo_select(struct cpuidle_dri
+ 			 * into account, because it would be a mistake to select
+ 			 * a deeper state with lower "early hits" metric.  The
+ 			 * index cannot be changed to point to it, however, so
+-			 * just increase the max count alone and let the index
+-			 * still point to a shallower idle state.
++			 * just increase the "early hits" count alone and let
++			 * the index still point to a shallower idle state.
+ 			 */
+ 			if (max_early_idx >= 0 &&
+-			    count < cpu_data->states[i].early_hits)
+-				count = cpu_data->states[i].early_hits;
++			    early_hits < cpu_data->states[i].early_hits)
++				early_hits = cpu_data->states[i].early_hits;
+ 
+ 			continue;
+ 		}
+@@ -299,10 +299,10 @@ static int teo_select(struct cpuidle_dri
+ 
+ 		idx = i;
+ 
+-		if (count < cpu_data->states[i].early_hits &&
++		if (early_hits < cpu_data->states[i].early_hits &&
+ 		    !(tick_nohz_tick_stopped() &&
+ 		      drv->states[i].target_residency < TICK_USEC)) {
+-			count = cpu_data->states[i].early_hits;
++			early_hits = cpu_data->states[i].early_hits;
+ 			max_early_idx = i;
+ 		}
  	}
+@@ -331,10 +331,9 @@ static int teo_select(struct cpuidle_dri
+ 	if (idx < 0) {
+ 		idx = 0; /* No states enabled. Must use 0. */
+ 	} else if (idx > 0) {
++		unsigned int count = 0;
+ 		u64 sum = 0;
  
--	ret += sprintf(ret + page, "\n");
--	return ret;
-+	ret = snprintf(pos + page, size - pos, "\n");
-+	return pos + ret;
- }
- 
- static struct attribute *default_ctx_attrs[] = {
+-		count = 0;
+-
+ 		/*
+ 		 * Count and sum the most recent idle duration values less than
+ 		 * the current expected idle duration value.
 
 
