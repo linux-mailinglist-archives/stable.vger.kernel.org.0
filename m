@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78AFC121740
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E76621218DD
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:47:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728826AbfLPSHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:07:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49076 "EHLO mail.kernel.org"
+        id S1727723AbfLPRz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:55:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729812AbfLPSHx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:07:53 -0500
+        id S1728117AbfLPRz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:55:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C433206EC;
-        Mon, 16 Dec 2019 18:07:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 545BE206B7;
+        Mon, 16 Dec 2019 17:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519672;
-        bh=/L3ZLsmnkEAzY4IF0kVxdx6uxvNTHirXKdj/uKXUDC0=;
+        s=default; t=1576518956;
+        bh=U4z2sRDYdJKHX1PNo+xR3U0qZN1owb1vJ9hDYEmbJF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0yBZPbWwJ/tASygJRVQyLT74elSZzgTlqQBzL7s/QY7eDSNpjxzlf7zGKVdglqGe
-         sQ3bmeFCPUsmv0ZaYQEsn+7ogrtJ021oUgbKAhnBWmVDghb1X/n5rqh3td3lFRhLVm
-         Duga/3wJV9qdwKxZ/VIXYJt1qWfnYvaX6u1/wEMU=
+        b=GW1xW6RoZRG8C9xFexuB/f56U/eXZuosXkwcz88oI/90u8G6G24J6MlOWVKMgpqac
+         nZdpG3Z63GU4my+kh109VZZuMmzbP+Std+pkua6btN0Z79d2hcI4J2Sv0uEc1kBMiA
+         27VNdsjkQJA7IwD8T0+ASNLKrmEfX9SEoudxXGEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.3 021/180] xhci: Fix memory leak in xhci_add_in_port()
+        syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 135/267] tty: vt: keyboard: reject invalid keycodes
 Date:   Mon, 16 Dec 2019 18:47:41 +0100
-Message-Id: <20191216174810.861112107@linuxfoundation.org>
+Message-Id: <20191216174908.123251878@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit ce91f1a43b37463f517155bdfbd525eb43adbd1a upstream.
+commit b2b2dd71e0859436d4e05b2f61f86140250ed3f8 upstream.
 
-When xHCI is part of Alpine or Titan Ridge Thunderbolt controller and
-the xHCI device is hot-removed as a result of unplugging a dock for
-example, the driver leaks memory it allocates for xhci->usb3_rhub.psi
-and xhci->usb2_rhub.psi in xhci_add_in_port() as reported by kmemleak:
+Do not try to handle keycodes that are too big, otherwise we risk doing
+out-of-bounds writes:
 
-unreferenced object 0xffff922c24ef42f0 (size 16):
-  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
-  hex dump (first 16 bytes):
-    21 00 0c 00 12 00 dc 05 23 00 e0 01 00 00 00 00  !.......#.......
-  backtrace:
-    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
-    [<0000000001b6d775>] xhci_init+0x7c/0x160
-    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
-    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
-    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
-    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
-    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
-    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
-    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
-    [<0000000070241068>] really_probe+0xf5/0x3c0
-    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
-    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
-    [<000000009ce45f69>] __device_attach+0xda/0x160
-    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
-    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
-    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
-unreferenced object 0xffff922c24ef3318 (size 8):
-  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
-  hex dump (first 8 bytes):
-    34 01 05 00 35 41 0a 00                          4...5A..
-  backtrace:
-    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
-    [<0000000001b6d775>] xhci_init+0x7c/0x160
-    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
-    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
-    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
-    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
-    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
-    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
-    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
-    [<0000000070241068>] really_probe+0xf5/0x3c0
-    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
-    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
-    [<000000009ce45f69>] __device_attach+0xda/0x160
-    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
-    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
-    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+BUG: KASAN: global-out-of-bounds in clear_bit include/asm-generic/bitops-instrumented.h:56 [inline]
+BUG: KASAN: global-out-of-bounds in kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
+BUG: KASAN: global-out-of-bounds in kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
+Write of size 8 at addr ffffffff89a1b2d8 by task syz-executor108/1722
+...
+ kbd_keycode drivers/tty/vt/keyboard.c:1411 [inline]
+ kbd_event+0xe6b/0x3790 drivers/tty/vt/keyboard.c:1495
+ input_to_handler+0x3b6/0x4c0 drivers/input/input.c:118
+ input_pass_values.part.0+0x2e3/0x720 drivers/input/input.c:145
+ input_pass_values drivers/input/input.c:949 [inline]
+ input_set_keycode+0x290/0x320 drivers/input/input.c:954
+ evdev_handle_set_keycode_v2+0xc4/0x120 drivers/input/evdev.c:882
+ evdev_do_ioctl drivers/input/evdev.c:1150 [inline]
 
-Fix this by calling kfree() for the both psi objects in
-xhci_mem_cleanup().
+In this case we were dealing with a fuzzed HID device that declared over
+12K buttons, and while HID layer should not be reporting to us such big
+keycodes, we should also be defensive and reject invalid data ourselves as
+well.
 
-Cc: <stable@vger.kernel.org> # 4.4+
-Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-2-mathias.nyman@linux.intel.com
+Reported-by: syzbot+19340dff067c2d3835c0@syzkaller.appspotmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191122204220.GA129459@dtor-ws
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-mem.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/vt/keyboard.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -1909,13 +1909,17 @@ no_bw:
- 	xhci->usb3_rhub.num_ports = 0;
- 	xhci->num_active_eps = 0;
- 	kfree(xhci->usb2_rhub.ports);
-+	kfree(xhci->usb2_rhub.psi);
- 	kfree(xhci->usb3_rhub.ports);
-+	kfree(xhci->usb3_rhub.psi);
- 	kfree(xhci->hw_ports);
- 	kfree(xhci->rh_bw);
- 	kfree(xhci->ext_caps);
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -1460,7 +1460,7 @@ static void kbd_event(struct input_handl
  
- 	xhci->usb2_rhub.ports = NULL;
-+	xhci->usb2_rhub.psi = NULL;
- 	xhci->usb3_rhub.ports = NULL;
-+	xhci->usb3_rhub.psi = NULL;
- 	xhci->hw_ports = NULL;
- 	xhci->rh_bw = NULL;
- 	xhci->ext_caps = NULL;
+ 	if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev))
+ 		kbd_rawcode(value);
+-	if (event_type == EV_KEY)
++	if (event_type == EV_KEY && event_code <= KEY_MAX)
+ 		kbd_keycode(event_code, value, HW_RAW(handle->dev));
+ 
+ 	spin_unlock(&kbd_event_lock);
 
 
