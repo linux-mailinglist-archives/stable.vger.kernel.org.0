@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3BD7121613
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:27:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FC812139B
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:03:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731304AbfLPSQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:16:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39168 "EHLO mail.kernel.org"
+        id S1729456AbfLPSDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:03:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731551AbfLPSQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:16:31 -0500
+        id S1729439AbfLPSDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A546421739;
-        Mon, 16 Dec 2019 18:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8A1620726;
+        Mon, 16 Dec 2019 18:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520191;
-        bh=L0RDW2xVEkpL8/XEYi0LAlybTE199bltg4a5H+Iddk8=;
+        s=default; t=1576519382;
+        bh=/5DUqEzaNLRdbV3ur86BfkkVZ+Y736/baIc1Rt/Zd/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQRkBzI0qMLEUXxqCkxxIdae/9K7sQkm/Ct0gBbaOgThcmfBEuYICGohH12c6F9nI
-         GH6Tc3cZYQD3Qv9a1t7Hna3wCkuqS6J4zKBxUrqn1/aWmouIsp3R7TwDL6iApY3DBT
-         H96829iyd6eZQJRORrg/m527j0/9TaHhE7/YW+0I=
+        b=kME6suugm4WkodtZMCZd1okuZJHFnnlE2ji/8vdbyKNusTldg9WCl5s7Yn0rELzPy
+         sMQUp9p6J1MP2tvlesMVuvPE/BDR1pd5lMASsaPq04zu5lZtMa4f1oNPkRNY+i8jHe
+         VAz6J9aeR88Nrx9HYRehR+lfTLZVxmdbEkvI+qZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 054/177] brcmfmac: disable PCIe interrupts before bus reset
+        stable@vger.kernel.org, Atemu <atemu.main@gmail.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 042/140] Btrfs: send, skip backreference walking for extents with many references
 Date:   Mon, 16 Dec 2019 18:48:30 +0100
-Message-Id: <20191216174830.695630262@linuxfoundation.org>
+Message-Id: <20191216174800.208627990@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 5d26a6a6150c486f51ea2aaab33af04db02f63b8 upstream.
+commit fd0ddbe2509568b00df364156f47561e9f469f15 upstream.
 
-Keeping interrupts on could result in brcmfmac freeing some resources
-and then IRQ handlers trying to use them. That was obviously a straight
-path for crashing a kernel.
+Backreference walking, which is used by send to figure if it can issue
+clone operations instead of write operations, can be very slow and use
+too much memory when extents have many references. This change simply
+skips backreference walking when an extent has more than 64 references,
+in which case we fallback to a write operation instead of a clone
+operation. This limit is conservative and in practice I observed no
+signicant slowdown with up to 100 references and still low memory usage
+up to that limit.
 
-Example:
-CPU0                           CPU1
-----                           ----
-brcmf_pcie_reset
-  brcmf_pcie_bus_console_read
-  brcmf_detach
-    ...
-    brcmf_fweh_detach
-    brcmf_proto_detach
-                               brcmf_pcie_isr_thread
-                                 ...
-                                 brcmf_proto_msgbuf_rx_trigger
-                                   ...
-                                   drvr->proto->pd
-    brcmf_pcie_release_irq
+This is a temporary workaround until there are speedups in the backref
+walking code, and as such it does not attempt to add extra interfaces or
+knobs to tweak the threshold.
 
-[  363.789218] Unable to handle kernel NULL pointer dereference at virtual address 00000038
-[  363.797339] pgd = c0004000
-[  363.800050] [00000038] *pgd=00000000
-[  363.803635] Internal error: Oops: 17 [#1] SMP ARM
-(...)
-[  364.029209] Backtrace:
-[  364.031725] [<bf243838>] (brcmf_proto_msgbuf_rx_trigger [brcmfmac]) from [<bf2471dc>] (brcmf_pcie_isr_thread+0x228/0x274 [brcmfmac])
-[  364.043662]  r7:00000001 r6:c8ca0000 r5:00010000 r4:c7b4f800
-
-Fixes: 4684997d9eea ("brcmfmac: reset PCIe bus on a firmware crash")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Reported-by: Atemu <atemu.main@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CAE4GHgkvqVADtS4AzcQJxo0Q1jKQgKaW3JGp3SGdoinVo=C9eQ@mail.gmail.com/T/#me55dc0987f9cc2acaa54372ce0492c65782be3fa
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/send.c |   25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -1427,6 +1427,8 @@ static int brcmf_pcie_reset(struct devic
- 	struct brcmf_fw_request *fwreq;
- 	int err;
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -25,6 +25,14 @@
+ #include "compression.h"
  
-+	brcmf_pcie_intr_disable(devinfo);
+ /*
++ * Maximum number of references an extent can have in order for us to attempt to
++ * issue clone operations instead of write operations. This currently exists to
++ * avoid hitting limitations of the backreference walking code (taking a lot of
++ * time and using too much memory for extents with large number of references).
++ */
++#define SEND_MAX_EXTENT_REFS	64
 +
- 	brcmf_pcie_bus_console_read(devinfo, true);
++/*
+  * A fs_path is a helper to dynamically build path names with unknown size.
+  * It reallocates the internal buffer on demand.
+  * It allows fast adding of path elements on the right side (normal path) and
+@@ -1303,6 +1311,7 @@ static int find_extent_clone(struct send
+ 	struct clone_root *cur_clone_root;
+ 	struct btrfs_key found_key;
+ 	struct btrfs_path *tmp_path;
++	struct btrfs_extent_item *ei;
+ 	int compressed;
+ 	u32 i;
  
- 	brcmf_detach(dev);
+@@ -1352,7 +1361,6 @@ static int find_extent_clone(struct send
+ 	ret = extent_from_logical(fs_info, disk_byte, tmp_path,
+ 				  &found_key, &flags);
+ 	up_read(&fs_info->commit_root_sem);
+-	btrfs_release_path(tmp_path);
+ 
+ 	if (ret < 0)
+ 		goto out;
+@@ -1361,6 +1369,21 @@ static int find_extent_clone(struct send
+ 		goto out;
+ 	}
+ 
++	ei = btrfs_item_ptr(tmp_path->nodes[0], tmp_path->slots[0],
++			    struct btrfs_extent_item);
++	/*
++	 * Backreference walking (iterate_extent_inodes() below) is currently
++	 * too expensive when an extent has a large number of references, both
++	 * in time spent and used memory. So for now just fallback to write
++	 * operations instead of clone operations when an extent has more than
++	 * a certain amount of references.
++	 */
++	if (btrfs_extent_refs(tmp_path->nodes[0], ei) > SEND_MAX_EXTENT_REFS) {
++		ret = -ENOENT;
++		goto out;
++	}
++	btrfs_release_path(tmp_path);
++
+ 	/*
+ 	 * Setup the clone roots.
+ 	 */
 
 
