@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D7041213A9
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:03:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5288121604
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729538AbfLPSDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
+        id S1731870AbfLPS0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:26:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729534AbfLPSDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:39 -0500
+        id S1731502AbfLPSRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:17:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99AF421835;
-        Mon, 16 Dec 2019 18:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30849206E0;
+        Mon, 16 Dec 2019 18:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519419;
-        bh=Ed1Hq/HQhuS0e/QvE5n80m20YwTftllcPIv26wDuKiY=;
+        s=default; t=1576520237;
+        bh=LULC68LBkDNs5bIj3iC2ZbhDy2Wb0evTtTqr154+a8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUhGpeIw3nisJU1SotmZk9odFNu5eLSM8deehAVdXavVm2Ca9YAtwd0D1LFQ8NmIt
-         66EWMSyCucW1Rm3l2wmp3y7IjHf5KgYPhcnrip1a5IXZiw9ioGaiFJ/z5ddkhCvnFn
-         2G27OFpSRC+mvDV7EZ1B3N08O0leu6iPI7gQ9+v0=
+        b=0nKX4DgMlMT2RESRQTsVmKcT4ATkS5tA1UFYf1tDe9LUIR+tG7xMORVk3HwnHxqk2
+         K9DZIdHcVa5bC2wjgk5xaFPNeT/Up4+B5ARruvxdhrUHjBAzd+vuaLxoGjnzY8q60B
+         XWS72AjXtGIHGugYCmSAS6K9JOu4CsKgYPre/7BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 059/140] blk-mq: avoid sysfs buffer overflow with too many CPU cores
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 071/177] btrfs: Avoid getting stuck during cyclic writebacks
 Date:   Mon, 16 Dec 2019 18:48:47 +0100
-Message-Id: <20191216174804.176499341@linuxfoundation.org>
+Message-Id: <20191216174835.004018583@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 8962842ca5abdcf98e22ab3b2b45a103f0408b95 upstream.
+commit f7bddf1e27d18fbc7d3e3056ba449cfbe4e20b0a upstream.
 
-It is reported that sysfs buffer overflow can be triggered if the system
-has too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
-hctx via /sys/block/$DEV/mq/$N/cpu_list.
+During a cyclic writeback, extent_write_cache_pages() uses done_index
+to update the writeback_index after the current run is over.  However,
+instead of current index + 1, it gets to to the current index itself.
 
-Use snprintf to avoid the potential buffer overflow.
+Unfortunately, this, combined with returning on EOF instead of looping
+back, can lead to the following pathlogical behavior.
 
-This version doesn't change the attribute format, and simply stops
-showing CPU numbers if the buffer is going to overflow.
+1. There is a single file which has accumulated enough dirty pages to
+   trigger balance_dirty_pages() and the writer appending to the file
+   with a series of short writes.
 
-Cc: stable@vger.kernel.org
-Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+2. balance_dirty_pages kicks in, wakes up background writeback and sleeps.
+
+3. Writeback kicks in and the cursor is on the last page of the dirty
+   file.  Writeback is started or skipped if already in progress.  As
+   it's EOF, extent_write_cache_pages() returns and the cursor is set
+   to done_index which is pointing to the last page.
+
+4. Writeback is done.  Nothing happens till balance_dirty_pages
+   finishes, at which point we go back to #1.
+
+This can almost completely stall out writing back of the file and keep
+the system over dirty threshold for a long time which can mess up the
+whole system.  We encountered this issue in production with a package
+handling application which can reliably reproduce the issue when
+running under tight memory limits.
+
+Reading the comment in the error handling section, this seems to be to
+avoid accidentally skipping a page in case the write attempt on the
+page doesn't succeed.  However, this concern seems bogus.
+
+On each page, the code either:
+
+* Skips and moves onto the next page.
+
+* Fails issue and sets done_index to index + 1.
+
+* Successfully issues and continue to the next page if budget allows
+  and not EOF.
+
+IOW, as long as it's not EOF and there's budget, the code never
+retries writing back the same page.  Only when a page happens to be
+the last page of a particular run, we end up retrying the page, which
+can't possibly guarantee anything data integrity related.  Besides,
+cyclic writes are only used for non-syncing writebacks meaning that
+there's no data integrity implication to begin with.
+
+Fix it by always setting done_index past the current page being
+processed.
+
+Note that this problem exists in other writepages too.
+
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq-sysfs.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ fs/btrfs/extent_io.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -151,20 +151,25 @@ static ssize_t blk_mq_hw_sysfs_nr_reserv
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4121,7 +4121,7 @@ retry:
+ 		for (i = 0; i < nr_pages; i++) {
+ 			struct page *page = pvec.pages[i];
  
- static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
- {
-+	const size_t size = PAGE_SIZE - 1;
- 	unsigned int i, first = 1;
--	ssize_t ret = 0;
-+	int ret = 0, pos = 0;
+-			done_index = page->index;
++			done_index = page->index + 1;
+ 			/*
+ 			 * At this point we hold neither the i_pages lock nor
+ 			 * the page lock: the page may be truncated or
+@@ -4156,16 +4156,6 @@ retry:
  
- 	for_each_cpu(i, hctx->cpumask) {
- 		if (first)
--			ret += sprintf(ret + page, "%u", i);
-+			ret = snprintf(pos + page, size - pos, "%u", i);
- 		else
--			ret += sprintf(ret + page, ", %u", i);
-+			ret = snprintf(pos + page, size - pos, ", %u", i);
-+
-+		if (ret >= size - pos)
-+			break;
- 
- 		first = 0;
-+		pos += ret;
- 	}
- 
--	ret += sprintf(ret + page, "\n");
--	return ret;
-+	ret = snprintf(pos + page, size - pos, "\n");
-+	return pos + ret;
- }
- 
- static struct attribute *default_ctx_attrs[] = {
+ 			ret = __extent_writepage(page, wbc, epd);
+ 			if (ret < 0) {
+-				/*
+-				 * done_index is set past this page,
+-				 * so media errors will not choke
+-				 * background writeout for the entire
+-				 * file. This has consequences for
+-				 * range_cyclic semantics (ie. it may
+-				 * not be suitable for data integrity
+-				 * writeout).
+-				 */
+-				done_index = page->index + 1;
+ 				done = 1;
+ 				break;
+ 			}
 
 
