@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE3B1218BE
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 839A412174B
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727921AbfLPSqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:46:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54840 "EHLO mail.kernel.org"
+        id S1729560AbfLPSIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:08:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727067AbfLPR4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:56:33 -0500
+        id S1729934AbfLPSIb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:08:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7A3621582;
-        Mon, 16 Dec 2019 17:56:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 770AD2072B;
+        Mon, 16 Dec 2019 18:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518993;
-        bh=Kq/Fq7kyvsgnTWJMezzUi0YYEWQPd0NAaOiejOwwiTE=;
+        s=default; t=1576519710;
+        bh=a4YDg4n+rBNstDbt6wO6fqRGNXg+YSO/7h2SbdokrZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIyH/aiQN+QQdFqIoq2RXQEUDaQn3SGAmsoDVkGh8H7n1+2pzN6gW/tIog5R04hd+
-         jfJF8L8iW+0tAA/dFZAXWa2HYVlgKSnL1V6BvISiQDRSAXb6zZrsZFW6aTz5sEOOYf
-         QAJSuL+sCvEsUEEqooa8EZQcnikv07p1Qu+u/Cvw=
+        b=aYU4+Vnku3klkh6YTfTKBbcPZDI/u84k+gDYLkpT/UsF03z+9k+CzFjWxc1+888M7
+         410FeF8MM3kap69MpdzZEzvfgKws+jNWvkZ5uvzUCDXybnBlrC10xVrqSDcQK7rDCo
+         EUf9OxYhI9n8xXE628DrxkDop97lKQ9GAbAPWhXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 4.14 152/267] binder: Handle start==NULL in binder_update_page_range()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.3 038/180] USB: adutux: fix interface sanity check
 Date:   Mon, 16 Dec 2019 18:47:58 +0100
-Message-Id: <20191216174910.820997337@linuxfoundation.org>
+Message-Id: <20191216174816.338524225@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 2a9edd056ed4fbf9d2e797c3fc06335af35bccc4 upstream.
+commit 3c11c4bed02b202e278c0f5c319ae435d7fb9815 upstream.
 
-The old loop wouldn't stop when reaching `start` if `start==NULL`, instead
-continuing backwards to index -1 and crashing.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-Luckily you need to be highly privileged to map things at NULL, so it's not
-a big problem.
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-Fix it by adjusting the loop so that the loop variable is always in bounds.
-
-This patch is deliberately minimal to simplify backporting, but IMO this
-function could use a refactor. The jump labels in the second loop body are
-horrible (the error gotos should be jumping to free_range instead), and
-both loops would look nicer if they just iterated upwards through indices.
-And the up_read()+mmput() shouldn't be duplicated like that.
-
-Cc: stable@vger.kernel.org
-Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/20191018205631.248274-3-jannh@google.com
+Fixes: 03270634e242 ("USB: Add ADU support for Ontrak ADU devices")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191210112601.3561-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder_alloc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/misc/adutux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -289,8 +289,7 @@ static int binder_update_page_range(stru
- 	return 0;
+--- a/drivers/usb/misc/adutux.c
++++ b/drivers/usb/misc/adutux.c
+@@ -669,7 +669,7 @@ static int adu_probe(struct usb_interfac
+ 	init_waitqueue_head(&dev->read_wait);
+ 	init_waitqueue_head(&dev->write_wait);
  
- free_range:
--	for (page_addr = end - PAGE_SIZE; page_addr >= start;
--	     page_addr -= PAGE_SIZE) {
-+	for (page_addr = end - PAGE_SIZE; 1; page_addr -= PAGE_SIZE) {
- 		bool ret;
- 		size_t index;
- 
-@@ -303,6 +302,8 @@ free_range:
- 		WARN_ON(!ret);
- 
- 		trace_binder_free_lru_end(alloc, index);
-+		if (page_addr == start)
-+			break;
- 		continue;
- 
- err_vm_insert_page_failed:
-@@ -312,7 +313,8 @@ err_map_kernel_failed:
- 		page->page_ptr = NULL;
- err_alloc_page_failed:
- err_page_ptr_cleared:
--		;
-+		if (page_addr == start)
-+			break;
- 	}
- err_no_vma:
- 	if (mm) {
+-	res = usb_find_common_endpoints_reverse(&interface->altsetting[0],
++	res = usb_find_common_endpoints_reverse(interface->cur_altsetting,
+ 			NULL, NULL,
+ 			&dev->interrupt_in_endpoint,
+ 			&dev->interrupt_out_endpoint);
 
 
