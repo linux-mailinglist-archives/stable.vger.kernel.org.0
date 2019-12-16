@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DBF1121592
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C19251214B3
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731893AbfLPSUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:20:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51568 "EHLO mail.kernel.org"
+        id S1730844AbfLPSOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:14:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731952AbfLPSUl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:20:41 -0500
+        id S1731165AbfLPSN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:13:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA643206EC;
-        Mon, 16 Dec 2019 18:20:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DDA621775;
+        Mon, 16 Dec 2019 18:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520441;
-        bh=VMJt5NBnVWEBZ6OIVNBHveWFXukZL1cWBAtk60f6bgc=;
+        s=default; t=1576520037;
+        bh=1r5YjeyGQ+rXDX+mIuVThFKde5JhDHGx5ysOG9BpUgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXo0e/xqN8t5xMeOlYj59j/uU1hhASmHAm2Zo1MR/TkCsliG6VRgvtTWriukNKe9j
-         C9dWSparqDocT9RVjtqcUfM99FCyeG7Y3Jjw0owzNcbbR8L1fF1ybqhxekjN7B1qLB
-         FYsCX5M5MM+iDDaS9iNNftMbRSs47PaXvjSgaPhE=
+        b=v/0hiAv1TQqR2rn/PoioplPWlEw7vumgSOfZ168J6pbZAYRKY2pR/nDxdIkAQXbve
+         92uUF483iPCkc0PgM+WSuCvQFRsHwYf/J3/lsYlaoUabq3fDJr+HdG/8xNpHJ3+wEn
+         UJ3BCYTe/gUed5ML5VFP4gmMWyDFoE6NA0uIK7Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Hernandez <mhernandez@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        Martin Wilck <mwilck@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 156/177] scsi: qla2xxx: Fix a dma_pool_free() call
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 172/180] mm: memcg/slab: wait for !root kmem_cache refcnt killing on root kmem_cache destruction
 Date:   Mon, 16 Dec 2019 18:50:12 +0100
-Message-Id: <20191216174848.606775145@linuxfoundation.org>
+Message-Id: <20191216174847.752140627@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,62 +48,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Roman Gushchin <guro@fb.com>
 
-[ Upstream commit 162b805e38327135168cb0938bd37b131b481cb0 ]
+commit a264df74df38855096393447f1b8f386069a94b9 upstream.
 
-This patch fixes the following kernel warning:
+Christian reported a warning like the following obtained during running
+some KVM-related tests on s390:
 
-DMA-API: qla2xxx 0000:00:0a.0: device driver frees DMA memory with different size [device address=0x00000000c7b60000] [map size=4088 bytes] [unmap size=512 bytes]
-WARNING: CPU: 3 PID: 1122 at kernel/dma/debug.c:1021 check_unmap+0x4d0/0xbd0
-CPU: 3 PID: 1122 Comm: rmmod Tainted: G           O      5.4.0-rc1-dbg+ #1
-RIP: 0010:check_unmap+0x4d0/0xbd0
-Call Trace:
- debug_dma_free_coherent+0x123/0x173
- dma_free_attrs+0x76/0xe0
- qla2x00_mem_free+0x329/0xc40 [qla2xxx_scst]
- qla2x00_free_device+0x170/0x1c0 [qla2xxx_scst]
- qla2x00_remove_one+0x4f0/0x6d0 [qla2xxx_scst]
- pci_device_remove+0xd5/0x1f0
- device_release_driver_internal+0x159/0x280
- driver_detach+0x8b/0xf2
- bus_remove_driver+0x9a/0x15a
- driver_unregister+0x51/0x70
- pci_unregister_driver+0x2d/0x130
- qla2x00_module_exit+0x1c/0xbc [qla2xxx_scst]
- __x64_sys_delete_module+0x22a/0x300
- do_syscall_64+0x6f/0x2e0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    WARNING: CPU: 8 PID: 208 at lib/percpu-refcount.c:108 percpu_ref_exit+0x50/0x58
+    Modules linked in: kvm(-) xt_CHECKSUM xt_MASQUERADE bonding xt_tcpudp ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_na>
+    CPU: 8 PID: 208 Comm: kworker/8:1 Not tainted 5.2.0+ #66
+    Hardware name: IBM 2964 NC9 712 (LPAR)
+    Workqueue: events sysfs_slab_remove_workfn
+    Krnl PSW : 0704e00180000000 0000001529746850 (percpu_ref_exit+0x50/0x58)
+               R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+    Krnl GPRS: 00000000ffff8808 0000001529746740 000003f4e30e8e18 0036008100000000
+               0000001f00000000 0035008100000000 0000001fb3573ab8 0000000000000000
+               0000001fbdb6de00 0000000000000000 0000001529f01328 0000001fb3573b00
+               0000001fbb27e000 0000001fbdb69300 000003e009263d00 000003e009263cd0
+    Krnl Code: 0000001529746842: f0a0000407fe        srp        4(11,%r0),2046,0
+               0000001529746848: 47000700            bc         0,1792
+              #000000152974684c: a7f40001            brc        15,152974684e
+              >0000001529746850: a7f4fff2            brc        15,1529746834
+               0000001529746854: 0707                bcr        0,%r7
+               0000001529746856: 0707                bcr        0,%r7
+               0000001529746858: eb8ff0580024        stmg       %r8,%r15,88(%r15)
+               000000152974685e: a738ffff            lhi        %r3,-1
+    Call Trace:
+    ([<000003e009263d00>] 0x3e009263d00)
+     [<00000015293252ea>] slab_kmem_cache_release+0x3a/0x70
+     [<0000001529b04882>] kobject_put+0xaa/0xe8
+     [<000000152918cf28>] process_one_work+0x1e8/0x428
+     [<000000152918d1b0>] worker_thread+0x48/0x460
+     [<00000015291942c6>] kthread+0x126/0x160
+     [<0000001529b22344>] ret_from_fork+0x28/0x30
+     [<0000001529b2234c>] kernel_thread_starter+0x0/0x10
+    Last Breaking-Event-Address:
+     [<000000152974684c>] percpu_ref_exit+0x4c/0x58
+    ---[ end trace b035e7da5788eb09 ]---
 
-Fixes: 3f006ac342c0 ("scsi: qla2xxx: Secure flash update support for ISP28XX") # v5.2-rc1~130^2~270.
-Cc: Michael Hernandez <mhernandez@marvell.com>
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Link: https://lore.kernel.org/r/20191106044226.5207-3-bvanassche@acm.org
-Reviewed-by: Martin Wilck <mwilck@suse.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem occurs because kmem_cache_destroy() is called immediately
+after deleting of a memcg, so it races with the memcg kmem_cache
+deactivation.
+
+flush_memcg_workqueue() at the beginning of kmem_cache_destroy() is
+supposed to guarantee that all deactivation processes are finished, but
+failed to do so.  It waits for an rcu grace period, after which all
+children kmem_caches should be deactivated.  During the deactivation
+percpu_ref_kill() is called for non root kmem_cache refcounters, but it
+requires yet another rcu grace period to finish the transition to the
+atomic (dead) state.
+
+So in a rare case when not all children kmem_caches are destroyed at the
+moment when the root kmem_cache is about to be gone, we need to wait
+another rcu grace period before destroying the root kmem_cache.
+
+This issue can be triggered only with dynamically created kmem_caches
+which are used with memcg accounting.  In this case per-memcg child
+kmem_caches are created.  They are deactivated from the cgroup removing
+path.  If the destruction of the root kmem_cache is racing with the
+removal of the cgroup (both are quite complicated multi-stage
+processes), the described issue can occur.  The only known way to
+trigger it in the real life, is to unload some kernel module which
+creates a dedicated kmem_cache, used from different memory cgroups with
+GFP_ACCOUNT flag.  If the unloading happens immediately after calling
+rmdir on the corresponding cgroup, there is some chance to trigger the
+issue.
+
+Link: http://lkml.kernel.org/r/20191129025011.3076017-1-guro@fb.com
+Fixes: f0a3a24b532d ("mm: memcg/slab: rework non-root kmem_cache lifecycle management")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_os.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/slab_common.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 23c3927751637..0bbc6a82470a5 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -4680,7 +4680,8 @@ qla2x00_mem_free(struct qla_hw_data *ha)
- 	ha->sfp_data = NULL;
- 
- 	if (ha->flt)
--		dma_free_coherent(&ha->pdev->dev, SFP_DEV_SIZE,
-+		dma_free_coherent(&ha->pdev->dev,
-+		    sizeof(struct qla_flt_header) + FLT_REGIONS_SIZE,
- 		    ha->flt, ha->flt_dma);
- 	ha->flt = NULL;
- 	ha->flt_dma = 0;
--- 
-2.20.1
-
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -904,6 +904,18 @@ static void flush_memcg_workqueue(struct
+ 	 * previous workitems on workqueue are processed.
+ 	 */
+ 	flush_workqueue(memcg_kmem_cache_wq);
++
++	/*
++	 * If we're racing with children kmem_cache deactivation, it might
++	 * take another rcu grace period to complete their destruction.
++	 * At this moment the corresponding percpu_ref_kill() call should be
++	 * done, but it might take another rcu grace period to complete
++	 * switching to the atomic mode.
++	 * Please, note that we check without grabbing the slab_mutex. It's safe
++	 * because at this moment the children list can't grow.
++	 */
++	if (!list_empty(&s->memcg_params.children))
++		rcu_barrier();
+ }
+ #else
+ static inline int shutdown_memcg_caches(struct kmem_cache *s)
 
 
