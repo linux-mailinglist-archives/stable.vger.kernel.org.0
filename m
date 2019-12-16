@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9020C121838
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED851217A5
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728606AbfLPSAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:00:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
+        id S1729638AbfLPSFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:05:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728949AbfLPSAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:00:36 -0500
+        id S1729677AbfLPSFl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:05:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E668E20726;
-        Mon, 16 Dec 2019 18:00:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7570A21582;
+        Mon, 16 Dec 2019 18:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519236;
-        bh=qpNwJcQPCMoeoqAQpmsMhpaFzPY0C6tolrQbm+JA800=;
+        s=default; t=1576519540;
+        bh=oBdUceBh9iji2lhiwMRLh5mwNhI8r7frfSTtgbxrcEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gf1btnJqWDowtrwAc1dtxVG+tUsbW6t3CQFjqGJg7XITq0WhWeMEQDi833zWIHutX
-         JsRDQsX+bEM8eA/NNZGSSS3Rq/UfsvMCvj/YV9jXWynYStP0L5Ogq55KGMrVFz1Jgz
-         /p38FbL2zyvmfwznxF0spn+9fgGt64T+4Au0PmFM=
+        b=NHAGgZHGVzHgD1mSzOqG5bUIPqY/W9kdBSt/urSVU9cPeMkEusJ3buTXaGuDMLClI
+         +wtxStoeOZ98ZJEA0av59n6HVWp1QxISvqenYe4eR2HVTZMW6cCl7IX80UAzf4IDad
+         p4zzg/cXuVcBoCAul7aO0mw7jkzY9HG1K7UwX2KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 251/267] drbd: Change drbd_request_detach_interruptibles return type to int
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 109/140] scsi: lpfc: Cap NPIV vports to 256
 Date:   Mon, 16 Dec 2019 18:49:37 +0100
-Message-Id: <20191216174916.378746725@linuxfoundation.org>
+Message-Id: <20191216174816.549065385@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 5816a0932b4fd74257b8cc5785bc8067186a8723 ]
+[ Upstream commit 8b47ae69e049ae0b3373859d901f0334322f9fe9 ]
 
-Clang warns when an implicit conversion is done between enumerated
-types:
+Depending on the chipset, the number of NPIV vports may vary and be in
+excess of what most switches support (256). To avoid confusion with the
+users, limit the reported NPIV vports to 256.
 
-drivers/block/drbd/drbd_state.c:708:8: warning: implicit conversion from
-enumeration type 'enum drbd_ret_code' to different enumeration type
-'enum drbd_state_rv' [-Wenum-conversion]
-                rv = ERR_INTR;
-                   ~ ^~~~~~~~
+Additionally correct the 16G adapter which is reporting a bogus NPIV vport
+number if the link is down.
 
-drbd_request_detach_interruptible's only call site is in the return
-statement of adm_detach, which returns an int. Change the return type of
-drbd_request_detach_interruptible to match, silencing Clang's warning.
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_state.c | 6 ++----
- drivers/block/drbd/drbd_state.h | 3 +--
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/scsi/lpfc/lpfc.h      |  3 ++-
+ drivers/scsi/lpfc/lpfc_attr.c | 12 ++++++++++--
+ drivers/scsi/lpfc/lpfc_init.c |  3 +++
+ 3 files changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_state.c b/drivers/block/drbd/drbd_state.c
-index 0813c654c8938..b452359b6aae8 100644
---- a/drivers/block/drbd/drbd_state.c
-+++ b/drivers/block/drbd/drbd_state.c
-@@ -688,11 +688,9 @@ request_detach(struct drbd_device *device)
- 			CS_VERBOSE | CS_ORDERED | CS_INHIBIT_MD_IO);
- }
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index a62e85cb62eb2..706aca3f7c253 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -966,7 +966,8 @@ struct lpfc_hba {
+ 	struct list_head port_list;
+ 	struct lpfc_vport *pport;	/* physical lpfc_vport pointer */
+ 	uint16_t max_vpi;		/* Maximum virtual nports */
+-#define LPFC_MAX_VPI 0xFFFF		/* Max number of VPI supported */
++#define LPFC_MAX_VPI	0xFF		/* Max number VPI supported 0 - 0xff */
++#define LPFC_MAX_VPORTS	0x100		/* Max vports per port, with pport */
+ 	uint16_t max_vports;            /*
+ 					 * For IOV HBAs max_vpi can change
+ 					 * after a reset. max_vports is max
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index 3f69a5e4e470a..1e9002138d31c 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -1632,6 +1632,9 @@ lpfc_get_hba_info(struct lpfc_hba *phba,
+ 		max_vpi = (bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config) > 0) ?
+ 			(bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config) - 1) : 0;
  
--enum drbd_state_rv
--drbd_request_detach_interruptible(struct drbd_device *device)
-+int drbd_request_detach_interruptible(struct drbd_device *device)
- {
--	enum drbd_state_rv rv;
--	int ret;
-+	int ret, rv;
++		/* Limit the max we support */
++		if (max_vpi > LPFC_MAX_VPI)
++			max_vpi = LPFC_MAX_VPI;
+ 		if (mvpi)
+ 			*mvpi = max_vpi;
+ 		if (avpi)
+@@ -1647,8 +1650,13 @@ lpfc_get_hba_info(struct lpfc_hba *phba,
+ 			*axri = pmb->un.varRdConfig.avail_xri;
+ 		if (mvpi)
+ 			*mvpi = pmb->un.varRdConfig.max_vpi;
+-		if (avpi)
+-			*avpi = pmb->un.varRdConfig.avail_vpi;
++		if (avpi) {
++			/* avail_vpi is only valid if link is up and ready */
++			if (phba->link_state == LPFC_HBA_READY)
++				*avpi = pmb->un.varRdConfig.avail_vpi;
++			else
++				*avpi = pmb->un.varRdConfig.max_vpi;
++		}
+ 	}
  
- 	drbd_suspend_io(device); /* so no-one is stuck in drbd_al_begin_io */
- 	wait_event_interruptible(device->state_wait,
-diff --git a/drivers/block/drbd/drbd_state.h b/drivers/block/drbd/drbd_state.h
-index b2a390ba73a05..f87371e55e682 100644
---- a/drivers/block/drbd/drbd_state.h
-+++ b/drivers/block/drbd/drbd_state.h
-@@ -162,8 +162,7 @@ static inline int drbd_request_state(struct drbd_device *device,
- }
- 
- /* for use in adm_detach() (drbd_adm_detach(), drbd_adm_down()) */
--enum drbd_state_rv
--drbd_request_detach_interruptible(struct drbd_device *device);
-+int drbd_request_detach_interruptible(struct drbd_device *device);
- 
- enum drbd_role conn_highest_role(struct drbd_connection *connection);
- enum drbd_role conn_highest_peer(struct drbd_connection *connection);
+ 	mempool_free(pmboxq, phba->mbox_mem_pool);
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index da63c026ba460..57510a831735b 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -7766,6 +7766,9 @@ lpfc_sli4_read_config(struct lpfc_hba *phba)
+ 			bf_get(lpfc_mbx_rd_conf_xri_base, rd_config);
+ 		phba->sli4_hba.max_cfg_param.max_vpi =
+ 			bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config);
++		/* Limit the max we support */
++		if (phba->sli4_hba.max_cfg_param.max_vpi > LPFC_MAX_VPORTS)
++			phba->sli4_hba.max_cfg_param.max_vpi = LPFC_MAX_VPORTS;
+ 		phba->sli4_hba.max_cfg_param.vpi_base =
+ 			bf_get(lpfc_mbx_rd_conf_vpi_base, rd_config);
+ 		phba->sli4_hba.max_cfg_param.max_rpi =
 -- 
 2.20.1
 
