@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D078E1217E4
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 836CF121894
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729472AbfLPSDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39914 "EHLO mail.kernel.org"
+        id S1727548AbfLPR4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:56:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729256AbfLPSDR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:17 -0500
+        id S1728259AbfLPR4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:56:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3DA0207FF;
-        Mon, 16 Dec 2019 18:03:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE27C21582;
+        Mon, 16 Dec 2019 17:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519397;
-        bh=U+Zy8WDW51twCqB13+h4TM2bIhnae75Z5rp9vowzhX4=;
+        s=default; t=1576518998;
+        bh=NaWavsSZhFlb4xQQSsr5Jhv73K6/rXkLUuFFF1PQqd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2LNTlPsCvMey0gLdjRtC6K5DRTbZqjyxWQEGs3zxmNyxdTWIL1iN+EFkhNI4HhPMA
-         w/ENLHlSelYzsRQPHvJ4rC8j37fLXdL0Hju5+Z5x0G3e1DB5v9axfg9M3VW4QcGqEH
-         8iN+vzzzK2hGGIMyWhRPMKlQfE40Rpq4DVVVXdII=
+        b=YZv3eL8jUkRbjtKKwAH1gA6zgijeW/c0Ois3gnqWm2VAMHrISi9Wnc+QFCIFKI3zW
+         TBu6nezakmMs7abFsrqgwmWm+bgQWuvwPQR3jDiM8KFwCmf49Ihq8GMmxiYoGq0j4v
+         5TxWnKI70yCS8H/k0B537g3Or7NPKf18fSa99T30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tilman Schmidt <tilman@imap.cc>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 012/140] staging: gigaset: fix illegal free on probe errors
+        stable@vger.kernel.org,
+        syzbot+e3f4897236c4eeb8af4f@syzkaller.appspotmail.com,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.14 154/267] KVM: x86: fix out-of-bounds write in KVM_GET_EMULATED_CPUID (CVE-2019-19332)
 Date:   Mon, 16 Dec 2019 18:48:00 +0100
-Message-Id: <20191216174753.117607514@linuxfoundation.org>
+Message-Id: <20191216174910.932121900@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 84f60ca7b326ed8c08582417493982fe2573a9ad upstream.
+commit 433f4ba1904100da65a311033f17a9bf586b287e upstream.
 
-The driver failed to initialise its receive-buffer pointer, something
-which could lead to an illegal free on late probe errors.
+The bounds check was present in KVM_GET_SUPPORTED_CPUID but not
+KVM_GET_EMULATED_CPUID.
 
-Fix this by making sure to clear all driver data at allocation.
-
-Fixes: 2032e2c2309d ("usb_gigaset: code cleanup")
-Cc: stable <stable@vger.kernel.org>     # 2.6.33
-Cc: Tilman Schmidt <tilman@imap.cc>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191202085610.12719-3-johan@kernel.org
+Reported-by: syzbot+e3f4897236c4eeb8af4f@syzkaller.appspotmail.com
+Fixes: 84cffe499b94 ("kvm: Emulate MOVBE", 2013-10-29)
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/isdn/gigaset/usb-gigaset.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/x86/kvm/cpuid.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/isdn/gigaset/usb-gigaset.c
-+++ b/drivers/isdn/gigaset/usb-gigaset.c
-@@ -574,8 +574,7 @@ static int gigaset_initcshw(struct cards
- {
- 	struct usb_cardstate *ucs;
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -404,7 +404,7 @@ static inline int __do_cpuid_ent(struct
  
--	cs->hw.usb = ucs =
--		kmalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
-+	cs->hw.usb = ucs = kzalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
- 	if (!ucs) {
- 		pr_err("out of memory\n");
- 		return -ENOMEM;
-@@ -587,9 +586,6 @@ static int gigaset_initcshw(struct cards
- 	ucs->bchars[3] = 0;
- 	ucs->bchars[4] = 0x11;
- 	ucs->bchars[5] = 0x13;
--	ucs->bulk_out_buffer = NULL;
--	ucs->bulk_out_urb = NULL;
--	ucs->read_urb = NULL;
- 	tasklet_init(&cs->write_tasklet,
- 		     gigaset_modem_fill, (unsigned long) cs);
+ 	r = -E2BIG;
+ 
+-	if (*nent >= maxnent)
++	if (WARN_ON(*nent >= maxnent))
+ 		goto out;
+ 
+ 	do_cpuid_1_ent(entry, function, index);
+@@ -707,6 +707,9 @@ out:
+ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 func,
+ 			u32 idx, int *nent, int maxnent, unsigned int type)
+ {
++	if (*nent >= maxnent)
++		return -E2BIG;
++
+ 	if (type == KVM_GET_EMULATED_CPUID)
+ 		return __do_cpuid_ent_emulated(entry, func, idx, nent, maxnent);
  
 
 
