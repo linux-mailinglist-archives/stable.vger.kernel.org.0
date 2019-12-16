@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 678B51212E7
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:57:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 761731212EC
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:57:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728110AbfLPR5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55620 "EHLO mail.kernel.org"
+        id S1728083AbfLPR5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:57:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727789AbfLPR5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:03 -0500
+        id S1728401AbfLPR5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:57:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7829206B7;
-        Mon, 16 Dec 2019 17:57:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 940FB206B7;
+        Mon, 16 Dec 2019 17:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519022;
-        bh=/qWSjtpl8l0VMhR6z4mLhUZbg6xlTt7fND0HVsGsKGQ=;
+        s=default; t=1576519032;
+        bh=3TWcu9/vsPKBynX4OuH3lh8x9lLJu48NKdQdI7KMP8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d88cXVFxpGe1gIjX26f+XecDLV07Pi+80fIsqr8k7PB2pJTiHn0yag2pZp6dP/pvZ
-         5lKAx6BkFfDPu4kRL7le+Yqt5cC5CiWdw9TvIsaeDm/wFXxLkzQ3EoZG4F21fZxg4d
-         Fg2yh89Yzn4XKwtmhdGNjXCdbjXkVOaP7sntrBvQ=
+        b=M+5Xo9svKYeExvZIFuAZ10KaWy1BOzspDNcGOl7IEGgyq4rjS4h5+9PPFikkP2hxf
+         W+ntJw293ti6xraiw6gPbRRT+QlejnN6IowbZOl4G7Euis3AG+gBPGDDzIXpCjWJEm
+         FzYUfO5CZg4KCtLOaHsUPM29LG0kE8cflbE6s2f8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.14 163/267] USB: documentation: flags on usb-storage versus UAS
-Date:   Mon, 16 Dec 2019 18:48:09 +0100
-Message-Id: <20191216174911.437219968@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com,
+        Hansjoerg Lipp <hjlipp@web.de>,
+        Tilman Schmidt <tilman@imap.cc>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 167/267] staging: gigaset: fix general protection fault on probe
+Date:   Mon, 16 Dec 2019 18:48:13 +0100
+Message-Id: <20191216174911.652179597@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -42,74 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 65cc8bf99349f651a0a2cee69333525fe581f306 upstream.
+commit 53f35a39c3860baac1e5ca80bf052751cfb24a99 upstream.
 
-Document which flags work storage, UAS or both
+Fix a general protection fault when accessing the endpoint descriptors
+which could be triggered by a malicious device due to missing sanity
+checks on the number of endpoints.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191114112758.32747-4-oneukum@suse.com
+Reported-by: syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com
+Fixes: 07dc1f9f2f80 ("[PATCH] isdn4linux: Siemens Gigaset drivers - M105 USB DECT adapter")
+Cc: stable <stable@vger.kernel.org>     # 2.6.17
+Cc: Hansjoerg Lipp <hjlipp@web.de>
+Cc: Tilman Schmidt <tilman@imap.cc>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191202085610.12719-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/admin-guide/kernel-parameters.txt |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/isdn/gigaset/usb-gigaset.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4693,13 +4693,13 @@
- 			Flags is a set of characters, each corresponding
- 			to a common usb-storage quirk flag as follows:
- 				a = SANE_SENSE (collect more than 18 bytes
--					of sense data);
-+					of sense data, not on uas);
- 				b = BAD_SENSE (don't collect more than 18
--					bytes of sense data);
-+					bytes of sense data, not on uas);
- 				c = FIX_CAPACITY (decrease the reported
- 					device capacity by one sector);
- 				d = NO_READ_DISC_INFO (don't use
--					READ_DISC_INFO command);
-+					READ_DISC_INFO command, not on uas);
- 				e = NO_READ_CAPACITY_16 (don't use
- 					READ_CAPACITY_16 command);
- 				f = NO_REPORT_OPCODES (don't use report opcodes
-@@ -4714,17 +4714,18 @@
- 				j = NO_REPORT_LUNS (don't use report luns
- 					command, uas only);
- 				l = NOT_LOCKABLE (don't try to lock and
--					unlock ejectable media);
-+					unlock ejectable media, not on uas);
- 				m = MAX_SECTORS_64 (don't transfer more
--					than 64 sectors = 32 KB at a time);
-+					than 64 sectors = 32 KB at a time,
-+					not on uas);
- 				n = INITIAL_READ10 (force a retry of the
--					initial READ(10) command);
-+					initial READ(10) command, not on uas);
- 				o = CAPACITY_OK (accept the capacity
--					reported by the device);
-+					reported by the device, not on uas);
- 				p = WRITE_CACHE (the device cache is ON
--					by default);
-+					by default, not on uas);
- 				r = IGNORE_RESIDUE (the device reports
--					bogus residue values);
-+					bogus residue values, not on uas);
- 				s = SINGLE_LUN (the device has only one
- 					Logical Unit);
- 				t = NO_ATA_1X (don't allow ATA(12) and ATA(16)
-@@ -4733,7 +4734,8 @@
- 				w = NO_WP_DETECT (don't test whether the
- 					medium is write-protected).
- 				y = ALWAYS_SYNC (issue a SYNCHRONIZE_CACHE
--					even if the device claims no cache)
-+					even if the device claims no cache,
-+					not on uas)
- 			Example: quirks=0419:aaf5:rl,0421:0433:rc
+--- a/drivers/isdn/gigaset/usb-gigaset.c
++++ b/drivers/isdn/gigaset/usb-gigaset.c
+@@ -688,6 +688,11 @@ static int gigaset_probe(struct usb_inte
+ 		return -ENODEV;
+ 	}
  
- 	user_debug=	[KNL,ARM]
++	if (hostif->desc.bNumEndpoints < 2) {
++		dev_err(&interface->dev, "missing endpoints\n");
++		return -ENODEV;
++	}
++
+ 	dev_info(&udev->dev, "%s: Device matched ... !\n", __func__);
+ 
+ 	/* allocate memory for our device state and initialize it */
 
 
