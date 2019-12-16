@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9C5E121397
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48F9B121614
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729195AbfLPSDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39504 "EHLO mail.kernel.org"
+        id S1731551AbfLPSQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:16:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729447AbfLPSDF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:05 -0500
+        id S1731555AbfLPSQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:16:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42D5C207FF;
-        Mon, 16 Dec 2019 18:03:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DCD7207FF;
+        Mon, 16 Dec 2019 18:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519384;
-        bh=cEdxnPGO5e/nVkeBVm+zWYxNq4dqFhKR5zKWnqFg0vc=;
+        s=default; t=1576520193;
+        bh=02OOIG76Z/Iy1EgmCIZzU+/S2CzO0XCskta4452Yzj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eTwc6XQpcGvQFhPqgwdVs0SRmH+IFFKMRvqKHZLebn9tS3wqfETf0f9h7SO/bPHva
-         7/V64wewxApYD1O+8jyb0yLgEIKfYqmTC90yL25yFv3qjQ1xxxTh7kRDLiwpD3Udq+
-         BEKVsNfcqIPZIna/TobMwPfVrszS+JKIsEGLXaiY=
+        b=LguArqz6HD8EGQz3FAoYLkfGBOy63+YwaGeDOWnza9H/CoBjGMRp1p1dvCpM/hU7p
+         Ib7JhBcgatppi/UQET7mOAH1dOz4GIZnJCkupXOnQhlowG1okh/uysUD92GRUbu0KV
+         5BwvtYdndwBDgeK8N+SNhY54DesyvvW1h8/d8094=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 043/140] btrfs: record all roots for rename exchange on a subvol
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 055/177] mtd: spear_smi: Fix Write Burst mode
 Date:   Mon, 16 Dec 2019 18:48:31 +0100
-Message-Id: <20191216174800.488351870@linuxfoundation.org>
+Message-Id: <20191216174830.814576815@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 3e1740993e43116b3bc71b0aad1e6872f6ccf341 upstream.
+commit 69c7f4618c16b4678f8a4949b6bb5ace259c0033 upstream.
 
-Testing with the new fsstress support for subvolumes uncovered a pretty
-bad problem with rename exchange on subvolumes.  We're modifying two
-different subvolumes, but we only start the transaction on one of them,
-so the other one is not added to the dirty root list.  This is caught by
-btrfs_cow_block() with a warning because the root has not been updated,
-however if we do not modify this root again we'll end up pointing at an
-invalid root because the root item is never updated.
+Any write with either dd or flashcp to a device driven by the
+spear_smi.c driver will pass through the spear_smi_cpy_toio()
+function. This function will get called for chunks of up to 256 bytes.
+If the amount of data is smaller, we may have a problem if the data
+length is not 4-byte aligned. In this situation, the kernel panics
+during the memcpy:
 
-Fix this by making sure we add the destination root to the trans list,
-the same as we do with normal renames.  This fixes the corruption.
+    # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
+    spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
+    spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
+    spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
+    spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
+    Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
+    [...]
+    PC is at memcpy+0xcc/0x330
 
-Fixes: cdd1fedf8261 ("btrfs: add support for RENAME_EXCHANGE and RENAME_WHITEOUT")
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+The above error occurs because the implementation of memcpy_toio()
+tries to optimize the number of I/O by writing 4 bytes at a time as
+much as possible, until there are less than 4 bytes left and then
+switches to word or byte writes.
+
+Unfortunately, the specification states about the Write Burst mode:
+
+        "the next AHB Write request should point to the next
+	incremented address and should have the same size (byte,
+	half-word or word)"
+
+This means ARM architecture implementation of memcpy_toio() cannot
+reliably be used blindly here. Workaround this situation by update the
+write path to stick to byte access when the burst length is not
+multiple of 4.
+
+Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/devices/spear_smi.c |   38 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9510,6 +9510,9 @@ static int btrfs_rename_exchange(struct
- 		goto out_notrans;
- 	}
+--- a/drivers/mtd/devices/spear_smi.c
++++ b/drivers/mtd/devices/spear_smi.c
+@@ -592,6 +592,26 @@ static int spear_mtd_read(struct mtd_inf
+ 	return 0;
+ }
  
-+	if (dest != root)
-+		btrfs_record_root_in_trans(trans, dest);
++/*
++ * The purpose of this function is to ensure a memcpy_toio() with byte writes
++ * only. Its structure is inspired from the ARM implementation of _memcpy_toio()
++ * which also does single byte writes but cannot be used here as this is just an
++ * implementation detail and not part of the API. Not mentioning the comment
++ * stating that _memcpy_toio() should be optimized.
++ */
++static void spear_smi_memcpy_toio_b(volatile void __iomem *dest,
++				    const void *src, size_t len)
++{
++	const unsigned char *from = src;
 +
- 	/*
- 	 * We need to find a free sequence number both in the source and
- 	 * in the destination directory for the exchange.
++	while (len) {
++		len--;
++		writeb(*from, dest);
++		from++;
++		dest++;
++	}
++}
++
+ static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
+ 		void __iomem *dest, const void *src, size_t len)
+ {
+@@ -614,7 +634,23 @@ static inline int spear_smi_cpy_toio(str
+ 	ctrlreg1 = readl(dev->io_base + SMI_CR1);
+ 	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
+ 
+-	memcpy_toio(dest, src, len);
++	/*
++	 * In Write Burst mode (WB_MODE), the specs states that writes must be:
++	 * - incremental
++	 * - of the same size
++	 * The ARM implementation of memcpy_toio() will optimize the number of
++	 * I/O by using as much 4-byte writes as possible, surrounded by
++	 * 2-byte/1-byte access if:
++	 * - the destination is not 4-byte aligned
++	 * - the length is not a multiple of 4-byte.
++	 * Avoid this alternance of write access size by using our own 'byte
++	 * access' helper if at least one of the two conditions above is true.
++	 */
++	if (IS_ALIGNED(len, sizeof(u32)) &&
++	    IS_ALIGNED((uintptr_t)dest, sizeof(u32)))
++		memcpy_toio(dest, src, len);
++	else
++		spear_smi_memcpy_toio_b(dest, src, len);
+ 
+ 	writel(ctrlreg1, dev->io_base + SMI_CR1);
+ 
 
 
