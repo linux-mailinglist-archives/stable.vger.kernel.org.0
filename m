@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E9A121549
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:21:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF831214C2
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732078AbfLPSU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:20:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
+        id S1730476AbfLPSOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:14:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732072AbfLPSUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:20:25 -0500
+        id S1731242AbfLPSOf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:14:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17F2420717;
-        Mon, 16 Dec 2019 18:20:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B07C720674;
+        Mon, 16 Dec 2019 18:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520424;
-        bh=3nlPpKE9KOPLphkL/bgbzzcQNFy/eBNtAUfrYHGEUHE=;
+        s=default; t=1576520074;
+        bh=LE/ojb96WAFFLYu4wiJQJxjpbgtNDSnCSubFzAS8OmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=riEyj3BflANYdJiYFgEIUuP0Qvf1kCuJGbhvTlQHGvu8wUiZPQuKgUQ4CvkQ8SE9B
-         rl3oqPimpHylu6Sd+nEbEV8qiDNUrVHJA/ooopmzEO8n9GewG18SmJbgL5owsUx18I
-         Zawl+j4TcfZq/O51kuw2Oc0Sp3VWQVctTxyQtOU8=
+        b=cyXlcjDQH5RVOQu7IGX1ptmP5JNXdry+d1SELndXu0kb6bob6iiBotHT19ZmjaSbK
+         nstMzV/zd15l4MZDIym+Egr5Pc6IxBzC43QwmOEyJVXSoBIvp2UlKd1DeJgW+Ywgbw
+         htx9u51LqmnLRpLCqgJfnhKWmWlmT3OcENWBim+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 149/177] quota: Check that quota is not dirty before release
+        stable@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>,
+        Charles-Antoine Couret <charles-antoine.couret@essensium.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 165/180] iio: ad7949: fix channels mixups
 Date:   Mon, 16 Dec 2019 18:50:05 +0100
-Message-Id: <20191216174847.743304736@linuxfoundation.org>
+Message-Id: <20191216174846.926937703@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +46,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+From: Andrea Merello <andrea.merello@gmail.com>
 
-commit df4bb5d128e2c44848aeb36b7ceceba3ac85080d upstream.
+[ Upstream commit 3b71f6b59508b1c9befcb43de434866aafc76520 ]
 
-There is a race window where quota was redirted once we drop dq_list_lock inside dqput(),
-but before we grab dquot->dq_lock inside dquot_release()
+Each time we need to read a sample (from the sysfs interface, since the
+driver supports only it) the driver writes the configuration register
+with the proper settings needed to perform the said read, then it runs
+another xfer to actually read the resulting value. Most notably the
+configuration register is updated to set the ADC internal MUX depending by
+which channel the read targets.
 
-TASK1                                                       TASK2 (chowner)
-->dqput()
-  we_slept:
-    spin_lock(&dq_list_lock)
-    if (dquot_dirty(dquot)) {
-          spin_unlock(&dq_list_lock);
-          dquot->dq_sb->dq_op->write_dquot(dquot);
-          goto we_slept
-    if (test_bit(DQ_ACTIVE_B, &dquot->dq_flags)) {
-          spin_unlock(&dq_list_lock);
-          dquot->dq_sb->dq_op->release_dquot(dquot);
-                                                            dqget()
-							    mark_dquot_dirty()
-							    dqput()
-          goto we_slept;
-        }
-So dquot dirty quota will be released by TASK1, but on next we_sleept loop
-we detect this and call ->write_dquot() for it.
-XFSTEST: https://github.com/dmonakhov/xfstests/commit/440a80d4cbb39e9234df4d7240aee1d551c36107
+Unfortunately this seems not enough to ensure correct operation because
+the ADC works in a pipelined-like fashion and the new configuration isn't
+applied in time.
 
-Link: https://lore.kernel.org/r/20191031103920.3919-2-dmonakhov@openvz.org
-CC: stable@vger.kernel.org
-Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The ADC alternates two phases: acquisition and conversion. During the
+acquisition phase the ADC samples the analog signal in an internal
+capacitor; in the conversion phase the ADC performs the actual analog to
+digital conversion of the stored voltage. Note that of course the MUX
+needs to be set to the proper channel when the acquisition phase is
+performed.
 
+Once the conversion phase has been completed, the device automatically
+switches back to a new acquisition; on the other hand the device switches
+from acquisition to conversion on the rising edge of SPI cs signal (that
+is when the xfer finishes).
+
+Only after both two phases have been completed (with the proper settings
+already written in the configuration register since the beginning) it is
+possible to read the outcome from SPI bus.
+
+With the current driver implementation, we end up in the following
+situation:
+
+        _______  1st xfer ____________  2nd xfer ___________________
+SPI cs..       \_________/            \_________/
+SPI rd.. idle  |(val N-2)+    idle    | val N-1 +   idle ...
+SPI wr.. idle  |  cfg N  +    idle    |   (X)   +   idle ...
+------------------------ + -------------------- + ------------------
+  AD  ..   acq  N-1      + cnv N-1 |  acq N     +  cnv N  | acq N+1
+
+As shown in the diagram above, the value we read in the Nth read belongs
+to configuration setting N-1.
+
+In case the configuration is not changed (config[N] == config[N-1]), then
+we still get correct data, but in case the configuration changes (i.e.
+switching the MUX on another channel), we get wrong data (data from the
+previously selected channel).
+
+This patch fixes this by performing one more "dummy" transfer in order to
+ending up in reading the data when it's really ready, as per the following
+timing diagram.
+
+        _______  1st xfer ____________  2nd xfer ___________  3rd xfer ___
+SPI cs..       \_________/            \_________/           \_________/
+SPI rd.. idle  |(val N-2)+    idle    |(val N-1)+    idle   |  val N  + ..
+SPI wr.. idle  |  cfg N  +    idle    |   (X)   +    idle   |   (X)   + ..
+------------------------ + -------------------- + ------------------- + --
+  AD  ..   acq  N-1      + cnv N-1 |  acq N     +  cnv N  | acq N+1   | ..
+
+NOTE: in the latter case (cfg changes), the acquisition phase for the
+value to be read begins after the 1st xfer, that is after the read request
+has been issued on sysfs. On the other hand, if the cfg doesn't change,
+then we can refer to the fist diagram assuming N == (N - 1); the
+acquisition phase _begins_ before the 1st xfer (potentially a lot of time
+before the read has been issued via sysfs, but it _ends_ after the 1st
+xfer, that is _after_ the read has started. This should guarantee a
+reasonably fresh data, which value represents the voltage that the sampled
+signal has after the read start or maybe just around it.
+
+Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
+Reviewed-by: Charles-Antoine Couret <charles-antoine.couret@essensium.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/quota_global.c  |    2 +-
- fs/quota/dquot.c         |    2 +-
- include/linux/quotaops.h |   10 ++++++++++
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ad7949.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/fs/ocfs2/quota_global.c
-+++ b/fs/ocfs2/quota_global.c
-@@ -728,7 +728,7 @@ static int ocfs2_release_dquot(struct dq
+diff --git a/drivers/iio/adc/ad7949.c b/drivers/iio/adc/ad7949.c
+index 518044c31a73b..6b51bfcad0d04 100644
+--- a/drivers/iio/adc/ad7949.c
++++ b/drivers/iio/adc/ad7949.c
+@@ -89,6 +89,7 @@ static int ad7949_spi_read_channel(struct ad7949_adc_chip *ad7949_adc, int *val,
+ 				   unsigned int channel)
+ {
+ 	int ret;
++	int i;
+ 	int bits_per_word = ad7949_adc->resolution;
+ 	int mask = GENMASK(ad7949_adc->resolution, 0);
+ 	struct spi_message msg;
+@@ -100,12 +101,23 @@ static int ad7949_spi_read_channel(struct ad7949_adc_chip *ad7949_adc, int *val,
+ 		},
+ 	};
  
- 	mutex_lock(&dquot->dq_lock);
- 	/* Check whether we are not racing with some other dqget() */
--	if (atomic_read(&dquot->dq_count) > 1)
-+	if (dquot_is_busy(dquot))
- 		goto out;
- 	/* Running from downconvert thread? Postpone quota processing to wq */
- 	if (current == osb->dc_task) {
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -497,7 +497,7 @@ int dquot_release(struct dquot *dquot)
+-	ret = ad7949_spi_write_cfg(ad7949_adc,
+-				   channel << AD7949_OFFSET_CHANNEL_SEL,
+-				   AD7949_MASK_CHANNEL_SEL);
+-	if (ret)
+-		return ret;
++	/*
++	 * 1: write CFG for sample N and read old data (sample N-2)
++	 * 2: if CFG was not changed since sample N-1 then we'll get good data
++	 *    at the next xfer, so we bail out now, otherwise we write something
++	 *    and we read garbage (sample N-1 configuration).
++	 */
++	for (i = 0; i < 2; i++) {
++		ret = ad7949_spi_write_cfg(ad7949_adc,
++					   channel << AD7949_OFFSET_CHANNEL_SEL,
++					   AD7949_MASK_CHANNEL_SEL);
++		if (ret)
++			return ret;
++		if (channel == ad7949_adc->current_channel)
++			break;
++	}
  
- 	mutex_lock(&dquot->dq_lock);
- 	/* Check whether we are not racing with some other dqget() */
--	if (atomic_read(&dquot->dq_count) > 1)
-+	if (dquot_is_busy(dquot))
- 		goto out_dqlock;
- 	if (dqopt->ops[dquot->dq_id.type]->release_dqblk) {
- 		ret = dqopt->ops[dquot->dq_id.type]->release_dqblk(dquot);
---- a/include/linux/quotaops.h
-+++ b/include/linux/quotaops.h
-@@ -54,6 +54,16 @@ static inline struct dquot *dqgrab(struc
- 	atomic_inc(&dquot->dq_count);
- 	return dquot;
- }
-+
-+static inline bool dquot_is_busy(struct dquot *dquot)
-+{
-+	if (test_bit(DQ_MOD_B, &dquot->dq_flags))
-+		return true;
-+	if (atomic_read(&dquot->dq_count) > 1)
-+		return true;
-+	return false;
-+}
-+
- void dqput(struct dquot *dquot);
- int dquot_scan_active(struct super_block *sb,
- 		      int (*fn)(struct dquot *dquot, unsigned long priv),
++	/* 3: write something and read actual data */
+ 	ad7949_adc->buffer = 0;
+ 	spi_message_init_with_transfers(&msg, tx, 1);
+ 	ret = spi_sync(ad7949_adc->spi, &msg);
+-- 
+2.20.1
+
 
 
