@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBA66121677
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75A711213F3
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:07:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730937AbfLPSNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:13:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59592 "EHLO mail.kernel.org"
+        id S1729222AbfLPSGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:06:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730741AbfLPSNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:13:24 -0500
+        id S1729979AbfLPSGa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:06:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AEDC20CC7;
-        Mon, 16 Dec 2019 18:13:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7F39206E0;
+        Mon, 16 Dec 2019 18:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520003;
-        bh=xM3l1nyEPHhbbcxD8IHwnFt40y0AFFRwzfxMpW0VxSY=;
+        s=default; t=1576519589;
+        bh=YYQ8N5EhGVGkimdEJGsZMVoD/AVRFTn8QzFLXA/pd/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpbqIvHL0qQ8AwZOY/291iZd3tBV1MFkJX+2/TfQnCM5+Yf7t1qXC6ky9Mp9Awdz0
-         meZ/lZIvCxSDSrIyRcQdzEgZl6KV0zdm2r4JBV133BqLZ7MW2zQgP8gERkNs2WRbWL
-         PCadzWnxuLTEBV8i3FY/urfTvX+QrOGVL/ugWC9M=
+        b=hz4HdUOfoNzH+gYKrKvCM4S6QAaCqYJg0cxJWra80xwnAkAtLI5YZLzxU+RxutTDv
+         4Gyek13ysDWi0xbrxSlM1mDYHKOgumK3ugvTiM+Cdxq7IwmmxzVgb32q2GkzQbzki4
+         hL3xHhmmMyJDh5UZLVv0Ir1VBxT1Vh368Hr0Me9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 155/180] scsi: qla2xxx: Fix stale session
+Subject: [PATCH 4.19 127/140] ath10k: fix fw crash by moving chip reset after napi disabled
 Date:   Mon, 16 Dec 2019 18:49:55 +0100
-Message-Id: <20191216174844.675793574@linuxfoundation.org>
+Message-Id: <20191216174826.492946596@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-[ Upstream commit 2037ce49d30a0d07348df406ef78f6664f4bc899 ]
+[ Upstream commit 08d80e4cd27ba19f9bee9e5f788f9a9fc440a22f ]
 
-On fast cable pull, where driver is unable to detect device has disappeared
-and came back based on switch info, qla2xxx would not re-login while remote
-port has already invalidated the session.  This causes IO timeout.  This
-patch would relogin to remote device for RSCN affected port.
+On SMP platform, when continuously running wifi up/down, the napi
+poll can be scheduled during chip reset, which will call
+ath10k_pci_has_fw_crashed() to check the fw status. But in the reset
+period, the value from FW_INDICATOR_ADDRESS register will return
+0xdeadbeef, which also be treated as fw crash. Fix the issue by
+moving chip reset after napi disabled.
 
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Link: https://lore.kernel.org/r/20190830222402.23688-6-hmadhani@marvell.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+ath10k_pci 0000:01:00.0: firmware crashed! (guid 73b30611-5b1e-4bdd-90b4-64c81eb947b6)
+ath10k_pci 0000:01:00.0: qca9984/qca9994 hw1.0 target 0x01000000 chip_id 0x00000000 sub 168c:cafe
+ath10k_pci 0000:01:00.0: htt-ver 2.2 wmi-op 6 htt-op 4 cal otp max-sta 512 raw 0 hwcrypto 1
+ath10k_pci 0000:01:00.0: failed to get memcpy hi address for firmware address 4: -16
+ath10k_pci 0000:01:00.0: failed to read firmware dump area: -16
+ath10k_pci 0000:01:00.0: Copy Engine register dump:
+ath10k_pci 0000:01:00.0: [00]: 0x0004a000   0   0   0   0
+ath10k_pci 0000:01:00.0: [01]: 0x0004a400   0   0   0   0
+ath10k_pci 0000:01:00.0: [02]: 0x0004a800   0   0   0   0
+ath10k_pci 0000:01:00.0: [03]: 0x0004ac00   0   0   0   0
+ath10k_pci 0000:01:00.0: [04]: 0x0004b000   0   0   0   0
+ath10k_pci 0000:01:00.0: [05]: 0x0004b400   0   0   0   0
+ath10k_pci 0000:01:00.0: [06]: 0x0004b800   0   0   0   0
+ath10k_pci 0000:01:00.0: [07]: 0x0004bc00   1   0   1   0
+ath10k_pci 0000:01:00.0: [08]: 0x0004c000   0   0   0   0
+ath10k_pci 0000:01:00.0: [09]: 0x0004c400   0   0   0   0
+ath10k_pci 0000:01:00.0: [10]: 0x0004c800   0   0   0   0
+ath10k_pci 0000:01:00.0: [11]: 0x0004cc00   0   0   0   0
+
+Tested HW: QCA9984,QCA9887,WCN3990
+
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/pci.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index ebf223cfebbc5..dec521d726d91 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3674,7 +3674,6 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
- 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
- 			if (memcmp(rp->port_name, fcport->port_name, WWN_SIZE))
- 				continue;
--			fcport->scan_needed = 0;
- 			fcport->scan_state = QLA_FCPORT_FOUND;
- 			found = true;
- 			/*
-@@ -3683,10 +3682,12 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
- 			if ((fcport->flags & FCF_FABRIC_DEVICE) == 0) {
- 				qla2x00_clear_loop_id(fcport);
- 				fcport->flags |= FCF_FABRIC_DEVICE;
--			} else if (fcport->d_id.b24 != rp->id.b24) {
-+			} else if (fcport->d_id.b24 != rp->id.b24 ||
-+				fcport->scan_needed) {
- 				qlt_schedule_sess_for_deletion(fcport);
- 			}
- 			fcport->d_id.b24 = rp->id.b24;
-+			fcport->scan_needed = 0;
- 			break;
- 		}
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 50a801a5d4f15..2a503aacf0c64 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -2052,6 +2052,11 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
  
+ 	ath10k_dbg(ar, ATH10K_DBG_BOOT, "boot hif stop\n");
+ 
++	ath10k_pci_irq_disable(ar);
++	ath10k_pci_irq_sync(ar);
++	napi_synchronize(&ar->napi);
++	napi_disable(&ar->napi);
++
+ 	/* Most likely the device has HTT Rx ring configured. The only way to
+ 	 * prevent the device from accessing (and possible corrupting) host
+ 	 * memory is to reset the chip now.
+@@ -2065,10 +2070,6 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
+ 	 */
+ 	ath10k_pci_safe_chip_reset(ar);
+ 
+-	ath10k_pci_irq_disable(ar);
+-	ath10k_pci_irq_sync(ar);
+-	napi_synchronize(&ar->napi);
+-	napi_disable(&ar->napi);
+ 	ath10k_pci_flush(ar);
+ 
+ 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
 -- 
 2.20.1
 
