@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B60591215C8
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC23C1215C5
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731571AbfLPSTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:19:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
+        id S1731907AbfLPSTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:19:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731737AbfLPSTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:19:07 -0500
+        id S1731899AbfLPSTK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:19:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88AA0206EC;
-        Mon, 16 Dec 2019 18:19:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F09EF20717;
+        Mon, 16 Dec 2019 18:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520347;
-        bh=s65DDVfEGzN6e22jq/z0By06AaK6hri5WvgzDtVjdCo=;
+        s=default; t=1576520349;
+        bh=LIdc/Ky4bIZV7jaCh27m9/rLPKNcEEgcB2fhg7yU7wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnOF2DOnE+xTqbl1WCmJWH0Rzjqm5fYp3ZY8oWxIsTWpmmybA/3i3jKtH7GA3tb1e
-         9RNA3cTzUMWb+D11R429T9xOk7rnfRU+PassLvMRDGL3T5/lcpngR6I12YyCGIhHhx
-         8jqQ7VGbmMMWqFbqy0UEHj13yoqS5hO5RV4j1b1Q=
+        b=1pH4tfDBLnnirVJ2y4Z9E0bAJfpivF4IxDBiScONNVAgvG0BqgmdVdPp+8iOjZMqe
+         zXKhLPkPNZL2Jj5Y9J2IueORhQeymmSHvIjieUYNg2qPk36XzjaMXoumK90GpRJA7w
+         Cl8tOTJHShJlQUXlifiORKHTupC2GUzdDpOBLl+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 116/177] intel_th: pci: Add Tiger Lake CPU support
-Date:   Mon, 16 Dec 2019 18:49:32 +0100
-Message-Id: <20191216174842.707825753@linuxfoundation.org>
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH 5.4 117/177] PM / devfreq: Lock devfreq in trans_stat_show
+Date:   Mon, 16 Dec 2019 18:49:33 +0100
+Message-Id: <20191216174842.825068854@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -44,35 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Leonard Crestez <leonard.crestez@nxp.com>
 
-commit 6e6c18bcb78c0dc0601ebe216bed12c844492d0c upstream.
+commit 2abb0d5268ae7b5ddf82099b1f8d5aa8414637d4 upstream.
 
-This adds support for the Trace Hub in Tiger Lake CPU.
+There is no locking in this sysfs show function so stats printing can
+race with a devfreq_update_status called as part of freq switching or
+with initialization.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Also add an assert in devfreq_update_status to make it clear that lock
+must be held by caller.
+
+Fixes: 39688ce6facd ("PM / devfreq: account suspend/resume for stats")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191120130806.44028-4-alexander.shishkin@linux.intel.com
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/devfreq/devfreq.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -215,6 +215,11 @@ static const struct pci_device_id intel_
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
- 	{
-+		/* Tiger Lake CPU */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x9a33),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
-+	{
- 		/* Tiger Lake PCH */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa0a6),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -160,6 +160,7 @@ int devfreq_update_status(struct devfreq
+ 	int lev, prev_lev, ret = 0;
+ 	unsigned long cur_time;
+ 
++	lockdep_assert_held(&devfreq->lock);
+ 	cur_time = jiffies;
+ 
+ 	/* Immediately exit if previous_freq is not initialized yet. */
+@@ -1397,12 +1398,17 @@ static ssize_t trans_stat_show(struct de
+ 	int i, j;
+ 	unsigned int max_state = devfreq->profile->max_state;
+ 
+-	if (!devfreq->stop_polling &&
+-			devfreq_update_status(devfreq, devfreq->previous_freq))
+-		return 0;
+ 	if (max_state == 0)
+ 		return sprintf(buf, "Not Supported.\n");
+ 
++	mutex_lock(&devfreq->lock);
++	if (!devfreq->stop_polling &&
++			devfreq_update_status(devfreq, devfreq->previous_freq)) {
++		mutex_unlock(&devfreq->lock);
++		return 0;
++	}
++	mutex_unlock(&devfreq->lock);
++
+ 	len = sprintf(buf, "     From  :   To\n");
+ 	len += sprintf(buf + len, "           :");
+ 	for (i = 0; i < max_state; i++)
 
 
