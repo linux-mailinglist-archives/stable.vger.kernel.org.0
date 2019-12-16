@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56AF51212F9
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:57:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4595D121300
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727261AbfLPR5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56804 "EHLO mail.kernel.org"
+        id S1728096AbfLPR55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:57:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728524AbfLPR5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:44 -0500
+        id S1728253AbfLPR5y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:57:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C3EB21582;
-        Mon, 16 Dec 2019 17:57:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C6A0205ED;
+        Mon, 16 Dec 2019 17:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519063;
-        bh=T0ZeePh69wfZFJoEVb5zMxvl/KiHPmT9h9JmdM695A8=;
+        s=default; t=1576519073;
+        bh=EvYG8J8rrt1Rby5sE8y2ueLkHNm3ED/KbOuIQmmIz5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=le8qzr1KoaBIhDG0vTTjDC5COLDgHFvPey+ucJC6eMQEbAXD07fpjfZzSPipwRFEx
-         ec9gbL7OmR8ZJ+tw5QEvMtxc0MudWp1FJeGuI4yB6g+TVcHmYVBSSKQ6ZEBodA6bO1
-         lFvuz7vARrAmNb0bt0QYxOXTKputjB6mXpI7BjAI=
+        b=DiUp8+OoxA3LCjcydvhyG3X66GhbnvVRaE69eI0RmlQTVLskO3oNXV3VvVywGNDZ8
+         l56dKzdKKfLPNRPQ6Hi3zlcXblpbxx6y4Tfopa0yWqGbowywTj+Nl/8IMt6AZgXdB2
+         Bl8xqjOzo+/QwAx6fOO7j3R2hQlo6IrdlxHMXdjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Emiliano Ingrassia <ingrassia@epigenesys.com>
-Subject: [PATCH 4.14 179/267] usb: core: urb: fix URB structure initialization function
-Date:   Mon, 16 Dec 2019 18:48:25 +0100
-Message-Id: <20191216174912.308525246@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.14 182/267] mtd: spear_smi: Fix Write Burst mode
+Date:   Mon, 16 Dec 2019 18:48:28 +0100
+Message-Id: <20191216174912.479677655@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -43,34 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emiliano Ingrassia <ingrassia@epigenesys.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 1cd17f7f0def31e3695501c4f86cd3faf8489840 upstream.
+commit 69c7f4618c16b4678f8a4949b6bb5ace259c0033 upstream.
 
-Explicitly initialize URB structure urb_list field in usb_init_urb().
-This field can be potentially accessed uninitialized and its
-initialization is coherent with the usage of list_del_init() in
-usb_hcd_unlink_urb_from_ep() and usb_giveback_urb_bh() and its
-explicit initialization in usb_hcd_submit_urb() error path.
+Any write with either dd or flashcp to a device driven by the
+spear_smi.c driver will pass through the spear_smi_cpy_toio()
+function. This function will get called for chunks of up to 256 bytes.
+If the amount of data is smaller, we may have a problem if the data
+length is not 4-byte aligned. In this situation, the kernel panics
+during the memcpy:
 
-Signed-off-by: Emiliano Ingrassia <ingrassia@epigenesys.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191127160355.GA27196@ingrassia.epigenesys.com
+    # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
+    spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
+    spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
+    spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
+    spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
+    Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
+    [...]
+    PC is at memcpy+0xcc/0x330
+
+The above error occurs because the implementation of memcpy_toio()
+tries to optimize the number of I/O by writing 4 bytes at a time as
+much as possible, until there are less than 4 bytes left and then
+switches to word or byte writes.
+
+Unfortunately, the specification states about the Write Burst mode:
+
+        "the next AHB Write request should point to the next
+	incremented address and should have the same size (byte,
+	half-word or word)"
+
+This means ARM architecture implementation of memcpy_toio() cannot
+reliably be used blindly here. Workaround this situation by update the
+write path to stick to byte access when the burst length is not
+multiple of 4.
+
+Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/urb.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/devices/spear_smi.c |   38 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/urb.c
-+++ b/drivers/usb/core/urb.c
-@@ -45,6 +45,7 @@ void usb_init_urb(struct urb *urb)
- 	if (urb) {
- 		memset(urb, 0, sizeof(*urb));
- 		kref_init(&urb->kref);
-+		INIT_LIST_HEAD(&urb->urb_list);
- 		INIT_LIST_HEAD(&urb->anchor_list);
- 	}
+--- a/drivers/mtd/devices/spear_smi.c
++++ b/drivers/mtd/devices/spear_smi.c
+@@ -595,6 +595,26 @@ static int spear_mtd_read(struct mtd_inf
+ 	return 0;
  }
+ 
++/*
++ * The purpose of this function is to ensure a memcpy_toio() with byte writes
++ * only. Its structure is inspired from the ARM implementation of _memcpy_toio()
++ * which also does single byte writes but cannot be used here as this is just an
++ * implementation detail and not part of the API. Not mentioning the comment
++ * stating that _memcpy_toio() should be optimized.
++ */
++static void spear_smi_memcpy_toio_b(volatile void __iomem *dest,
++				    const void *src, size_t len)
++{
++	const unsigned char *from = src;
++
++	while (len) {
++		len--;
++		writeb(*from, dest);
++		from++;
++		dest++;
++	}
++}
++
+ static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
+ 		void __iomem *dest, const void *src, size_t len)
+ {
+@@ -617,7 +637,23 @@ static inline int spear_smi_cpy_toio(str
+ 	ctrlreg1 = readl(dev->io_base + SMI_CR1);
+ 	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
+ 
+-	memcpy_toio(dest, src, len);
++	/*
++	 * In Write Burst mode (WB_MODE), the specs states that writes must be:
++	 * - incremental
++	 * - of the same size
++	 * The ARM implementation of memcpy_toio() will optimize the number of
++	 * I/O by using as much 4-byte writes as possible, surrounded by
++	 * 2-byte/1-byte access if:
++	 * - the destination is not 4-byte aligned
++	 * - the length is not a multiple of 4-byte.
++	 * Avoid this alternance of write access size by using our own 'byte
++	 * access' helper if at least one of the two conditions above is true.
++	 */
++	if (IS_ALIGNED(len, sizeof(u32)) &&
++	    IS_ALIGNED((uintptr_t)dest, sizeof(u32)))
++		memcpy_toio(dest, src, len);
++	else
++		spear_smi_memcpy_toio_b(dest, src, len);
+ 
+ 	writel(ctrlreg1, dev->io_base + SMI_CR1);
+ 
 
 
