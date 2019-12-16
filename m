@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4498812139C
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:03:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85241121643
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729467AbfLPSDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39824 "EHLO mail.kernel.org"
+        id S1728526AbfLPS1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:27:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729459AbfLPSDP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:15 -0500
+        id S1731371AbfLPSPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:15:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 484472072D;
-        Mon, 16 Dec 2019 18:03:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 194E820717;
+        Mon, 16 Dec 2019 18:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519394;
-        bh=3TWcu9/vsPKBynX4OuH3lh8x9lLJu48NKdQdI7KMP8E=;
+        s=default; t=1576520120;
+        bh=/tj0gDX0fkh+RFZbiR/QISLXCPBGQ1w4WHMffeu0LKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1KRBALCvd68pSdAh22Hm4tq9Xlw1kFGB2KHR+CSNBgyJGN+NefNY3b9mlntXKbjb
-         NfYja3LCL6WQLnhxlR0jy3IeaQQ/+EYkmhmHVb1aQEnHoLO0Xn0nXenvSaI8tJn/jU
-         mwyOoihO4W3k2BFDh48LmcZTQo6bvL5jFlqMkwTs=
+        b=CBq58XQj/Nmt7fDT56tUfNybSG/Cd66VzPNm7TOJ0mA6fvbNTU9/pYEu88kaAiJqF
+         QvOAJ4ponMeDhnJE+ZlKtA6oLEVabuSoCwemilDe9BqiDHlkN9/2Ks6+/UoCoDjCxW
+         zL6Rgsmyo1FIUXWBDHae07ettjM0W/s5e4ucg5dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hansjoerg Lipp <hjlipp@web.de>,
         Tilman Schmidt <tilman@imap.cc>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 011/140] staging: gigaset: fix general protection fault on probe
-Date:   Mon, 16 Dec 2019 18:47:59 +0100
-Message-Id: <20191216174752.333002928@linuxfoundation.org>
+Subject: [PATCH 5.4 024/177] staging: gigaset: fix general protection fault on probe
+Date:   Mon, 16 Dec 2019 18:48:00 +0100
+Message-Id: <20191216174819.912279527@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,12 +64,12 @@ Link: https://lore.kernel.org/r/20191202085610.12719-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/isdn/gigaset/usb-gigaset.c |    5 +++++
+ drivers/staging/isdn/gigaset/usb-gigaset.c |    5 +++++
  1 file changed, 5 insertions(+)
 
---- a/drivers/isdn/gigaset/usb-gigaset.c
-+++ b/drivers/isdn/gigaset/usb-gigaset.c
-@@ -688,6 +688,11 @@ static int gigaset_probe(struct usb_inte
+--- a/drivers/staging/isdn/gigaset/usb-gigaset.c
++++ b/drivers/staging/isdn/gigaset/usb-gigaset.c
+@@ -685,6 +685,11 @@ static int gigaset_probe(struct usb_inte
  		return -ENODEV;
  	}
  
