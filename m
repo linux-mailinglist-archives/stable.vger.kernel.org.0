@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2179812169E
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68EFD1217BB
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730686AbfLPSM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:12:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57438 "EHLO mail.kernel.org"
+        id S1729765AbfLPSFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:05:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730952AbfLPSM2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:12:28 -0500
+        id S1729762AbfLPSFC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:05:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8ED62166E;
-        Mon, 16 Dec 2019 18:12:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A0E020726;
+        Mon, 16 Dec 2019 18:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519947;
-        bh=PHBl7xJvR/pmjiITQEmO7ueYAFIPDrnVsE5yaoW6tvU=;
+        s=default; t=1576519502;
+        bh=DIq68H6C4WDWqKvKZ7xrNEXmEWRCTheZD3gZ60Y7vkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OFuJyExtsOUFcM8TlFU5FjsCvasOz+/1lnIPyvamiduq2Syf5q0XXyNdSWYxbgUM
-         /mYzmc8Bc90xqFNJ381YIgXc0nLY9VdzLzdnucCus/tuBe6a9zlqdp7n70yN3kd33W
-         Jmw95Xi1yPgOMpnF2vfoEHbGGK9/m2YLXk0B6FV4=
+        b=Ezpj8ZOIV1REHpbo//Vnq660MVYs0q9tR+7r+CTVVGvUi959kszkBOAWulK6UEilD
+         xWFWIt8XyCuH+i4RW8+rscQIIbcCRGTGFVHuspgBn9AxFEdfrEF/EiiHBS98Omx45q
+         CYpVpRUHeA6wm2MECqkWLlHL8D+RRjHkMswwaJQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.3 117/180] pinctrl: samsung: Fix device node refcount leaks in S3C64xx wakeup controller init
-Date:   Mon, 16 Dec 2019 18:49:17 +0100
-Message-Id: <20191216174839.551751721@linuxfoundation.org>
+        stable@vger.kernel.org, linux-media@vger.kernel.org,
+        Martin Bugge <marbugge@cisco.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 4.19 090/140] video/hdmi: Fix AVI bar unpack
+Date:   Mon, 16 Dec 2019 18:49:18 +0100
+Message-Id: <20191216174811.201999222@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 7f028caadf6c37580d0f59c6c094ed09afc04062 upstream.
+commit 6039f37dd6b76641198e290f26b31c475248f567 upstream.
 
-In s3c64xx_eint_eint0_init() the for_each_child_of_node() loop is used
-with a break to find a matching child node.  Although each iteration of
-for_each_child_of_node puts the previous node, but early exit from loop
-misses it.  This leads to leak of device node.
+The bar values are little endian, not big endian. The pack
+function did it right but the unpack got it wrong. Fix it.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 61dd72613177 ("pinctrl: Add pinctrl-s3c64xx driver")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: Martin Bugge <marbugge@cisco.com>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Fixes: 2c676f378edb ("[media] hdmi: added unpack and logging functions for InfoFrames")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190919132853.30954-1-ville.syrjala@linux.intel.com
+Reviewed-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/samsung/pinctrl-s3c64xx.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/video/hdmi.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
-+++ b/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
-@@ -704,8 +704,10 @@ static int s3c64xx_eint_eint0_init(struc
- 		return -ENODEV;
- 
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
--	if (!data)
-+	if (!data) {
-+		of_node_put(eint0_np);
- 		return -ENOMEM;
-+	}
- 	data->drvdata = d;
- 
- 	for (i = 0; i < NUM_EINT0_IRQ; ++i) {
-@@ -714,6 +716,7 @@ static int s3c64xx_eint_eint0_init(struc
- 		irq = irq_of_parse_and_map(eint0_np, i);
- 		if (!irq) {
- 			dev_err(dev, "failed to get wakeup EINT IRQ %d\n", i);
-+			of_node_put(eint0_np);
- 			return -ENXIO;
- 		}
- 
-@@ -721,6 +724,7 @@ static int s3c64xx_eint_eint0_init(struc
- 						 s3c64xx_eint0_handlers[i],
- 						 data);
+--- a/drivers/video/hdmi.c
++++ b/drivers/video/hdmi.c
+@@ -1039,12 +1039,12 @@ static int hdmi_avi_infoframe_unpack(str
+ 	if (ptr[0] & 0x10)
+ 		frame->active_aspect = ptr[1] & 0xf;
+ 	if (ptr[0] & 0x8) {
+-		frame->top_bar = (ptr[5] << 8) + ptr[6];
+-		frame->bottom_bar = (ptr[7] << 8) + ptr[8];
++		frame->top_bar = (ptr[6] << 8) | ptr[5];
++		frame->bottom_bar = (ptr[8] << 8) | ptr[7];
  	}
-+	of_node_put(eint0_np);
+ 	if (ptr[0] & 0x4) {
+-		frame->left_bar = (ptr[9] << 8) + ptr[10];
+-		frame->right_bar = (ptr[11] << 8) + ptr[12];
++		frame->left_bar = (ptr[10] << 8) | ptr[9];
++		frame->right_bar = (ptr[12] << 8) | ptr[11];
+ 	}
+ 	frame->scan_mode = ptr[0] & 0x3;
  
- 	bank = d->pin_banks;
- 	for (i = 0; i < d->nr_banks; ++i, ++bank) {
 
 
