@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D116E12168B
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F1671213EE
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730910AbfLPSaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:30:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
+        id S1729787AbfLPSGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:06:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731063AbfLPSNH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:13:07 -0500
+        id S1729947AbfLPSGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:06:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0544C206E0;
-        Mon, 16 Dec 2019 18:13:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 943A0206E0;
+        Mon, 16 Dec 2019 18:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519986;
-        bh=9sbwwmIHqMFlv0Ii6t+1Pf0NwP7cv8fe1f5qXa8+hiE=;
+        s=default; t=1576519575;
+        bh=HgIBv7vYljcoymvSM8gL33YyVXFJK4cPOimdyTJAuTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLOauvQ30sM/TnAIw4b6MbOUSWS/2NwF2KZmhqTlIEFR7gNTLlG9XM/LrRVZyfXbH
-         M29TNEnlD0LRlZsptQMsraDijlkZ4Y7AtBDlxH7M4eYF7e7f0wQRDXFTRMCTENJax1
-         xZTxuYHFxwycDkm7Jlo8JeDj97ul462EesWsLVdE=
+        b=thPk1oP2QCO6hiAwf3Kv9RVR6tIZklqegqXyRqbRBSvz1uSZygAf7wtGOschKRYWf
+         1sT3FH7SRNwVjcc6UsciKT43sW6BH/aMKkUNcrNX8NGzy8rBk9nsEwWCBD5oLvNTA/
+         Bfiidn276ih5etG7q5vtbjJ03uH6m2i0+wk1/gG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
+        stable@vger.kernel.org, Luo Jiaxing <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 149/180] scsi: qla2xxx: Make sure that aborted commands are freed
+Subject: [PATCH 4.19 121/140] scsi: hisi_sas: Reject setting programmed minimum linkrate > 1.5G
 Date:   Mon, 16 Dec 2019 18:49:49 +0100
-Message-Id: <20191216174843.955211336@linuxfoundation.org>
+Message-Id: <20191216174822.583600427@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,111 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Luo Jiaxing <luojiaxing@huawei.com>
 
-[ Upstream commit 0dcec41acb85da33841c2ab56dbf337ed00a3914 ]
+[ Upstream commit eb44e4d7b5a3090f0114927f42ae575c29664a09 ]
 
-The LIO core requires that the target driver callback functions
-.queue_data_in() and .queue_status() call target_put_sess_cmd() or
-transport_generic_free_cmd(). These calls may happen synchronously or
-asynchronously. Make sure that one of these LIO functions is called in case
-a command has been aborted. This patch avoids that the code for removing a
-session hangs due to commands that do not make progress.
+The SAS controller cannot support a programmed minimum linkrate of > 1.5G
+(it will always negotiate to 1.5G at least), so just reject it.
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Fixes: 694833ee00c4 ("scsi: tcm_qla2xxx: Do not allow aborted cmd to advance.") # v4.13.
-Fixes: a07100e00ac4 ("qla2xxx: Fix TMR ABORT interaction issue between qla2xxx and TCM") # v4.5.
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Tested-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Himanshu Madhani <hmadhani@marvell.com>
+This solves a strange situation where the PHY negotiated linkrate may be
+less than the programmed minimum linkrate.
+
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c  | 13 ++++++++-----
- drivers/scsi/qla2xxx/tcm_qla2xxx.c |  4 ++++
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 7c44f84a58e92..0b8ec4218d6bd 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -3237,7 +3237,8 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
- 	if (!qpair->fw_started || (cmd->reset_count != qpair->chip_reset) ||
- 	    (cmd->sess && cmd->sess->deleted)) {
- 		cmd->state = QLA_TGT_STATE_PROCESSED;
--		return 0;
-+		res = 0;
-+		goto free;
- 	}
- 
- 	ql_dbg_qp(ql_dbg_tgt, qpair, 0xe018,
-@@ -3248,9 +3249,8 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
- 
- 	res = qlt_pre_xmit_response(cmd, &prm, xmit_type, scsi_status,
- 	    &full_req_cnt);
--	if (unlikely(res != 0)) {
--		return res;
--	}
-+	if (unlikely(res != 0))
-+		goto free;
- 
- 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
- 
-@@ -3270,7 +3270,8 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
- 			vha->flags.online, qla2x00_reset_active(vha),
- 			cmd->reset_count, qpair->chip_reset);
- 		spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
--		return 0;
-+		res = 0;
-+		goto free;
- 	}
- 
- 	/* Does F/W have an IOCBs for this request */
-@@ -3373,6 +3374,8 @@ out_unmap_unlock:
- 	qlt_unmap_sg(vha, cmd);
- 	spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
- 
-+free:
-+	vha->hw->tgt.tgt_ops->free_cmd(cmd);
- 	return res;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 0ad8875c30e8e..f35c56217694b 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -886,7 +886,7 @@ static int hisi_sas_queue_command(struct sas_task *task, gfp_t gfp_flags)
+ 	return hisi_sas_task_exec(task, gfp_flags, 0, NULL);
  }
- EXPORT_SYMBOL(qlt_xmit_response);
-diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-index d15412d3d9bd2..0bb06e33ecab4 100644
---- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-+++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-@@ -620,6 +620,7 @@ static int tcm_qla2xxx_queue_data_in(struct se_cmd *se_cmd)
+ 
+-static void hisi_sas_phy_set_linkrate(struct hisi_hba *hisi_hba, int phy_no,
++static int hisi_sas_phy_set_linkrate(struct hisi_hba *hisi_hba, int phy_no,
+ 			struct sas_phy_linkrates *r)
  {
- 	struct qla_tgt_cmd *cmd = container_of(se_cmd,
- 				struct qla_tgt_cmd, se_cmd);
-+	struct scsi_qla_host *vha = cmd->vha;
+ 	struct sas_phy_linkrates _r;
+@@ -895,6 +895,9 @@ static void hisi_sas_phy_set_linkrate(struct hisi_hba *hisi_hba, int phy_no,
+ 	struct asd_sas_phy *sas_phy = &phy->sas_phy;
+ 	enum sas_linkrate min, max;
  
- 	if (cmd->aborted) {
- 		/* Cmd can loop during Q-full.  tcm_qla2xxx_aborted_task
-@@ -632,6 +633,7 @@ static int tcm_qla2xxx_queue_data_in(struct se_cmd *se_cmd)
- 			cmd->se_cmd.transport_state,
- 			cmd->se_cmd.t_state,
- 			cmd->se_cmd.se_cmd_flags);
-+		vha->hw->tgt.tgt_ops->free_cmd(cmd);
- 		return 0;
- 	}
++	if (r->minimum_linkrate > SAS_LINK_RATE_1_5_GBPS)
++		return -EINVAL;
++
+ 	if (r->maximum_linkrate == SAS_LINK_RATE_UNKNOWN) {
+ 		max = sas_phy->phy->maximum_linkrate;
+ 		min = r->minimum_linkrate;
+@@ -902,7 +905,7 @@ static void hisi_sas_phy_set_linkrate(struct hisi_hba *hisi_hba, int phy_no,
+ 		max = r->maximum_linkrate;
+ 		min = sas_phy->phy->minimum_linkrate;
+ 	} else
+-		return;
++		return -EINVAL;
  
-@@ -659,6 +661,7 @@ static int tcm_qla2xxx_queue_status(struct se_cmd *se_cmd)
- {
- 	struct qla_tgt_cmd *cmd = container_of(se_cmd,
- 				struct qla_tgt_cmd, se_cmd);
-+	struct scsi_qla_host *vha = cmd->vha;
- 	int xmit_type = QLA_TGT_XMIT_STATUS;
+ 	_r.maximum_linkrate = max;
+ 	_r.minimum_linkrate = min;
+@@ -914,6 +917,8 @@ static void hisi_sas_phy_set_linkrate(struct hisi_hba *hisi_hba, int phy_no,
+ 	msleep(100);
+ 	hisi_hba->hw->phy_set_linkrate(hisi_hba, phy_no, &_r);
+ 	hisi_hba->hw->phy_start(hisi_hba, phy_no);
++
++	return 0;
+ }
  
- 	if (cmd->aborted) {
-@@ -672,6 +675,7 @@ static int tcm_qla2xxx_queue_status(struct se_cmd *se_cmd)
- 		    cmd, kref_read(&cmd->se_cmd.cmd_kref),
- 		    cmd->se_cmd.transport_state, cmd->se_cmd.t_state,
- 		    cmd->se_cmd.se_cmd_flags);
-+		vha->hw->tgt.tgt_ops->free_cmd(cmd);
- 		return 0;
- 	}
- 	cmd->bufflen = se_cmd->data_length;
+ static int hisi_sas_control_phy(struct asd_sas_phy *sas_phy, enum phy_func func,
+@@ -939,8 +944,7 @@ static int hisi_sas_control_phy(struct asd_sas_phy *sas_phy, enum phy_func func,
+ 		break;
+ 
+ 	case PHY_FUNC_SET_LINK_RATE:
+-		hisi_sas_phy_set_linkrate(hisi_hba, phy_no, funcdata);
+-		break;
++		return hisi_sas_phy_set_linkrate(hisi_hba, phy_no, funcdata);
+ 	case PHY_FUNC_GET_EVENTS:
+ 		if (hisi_hba->hw->get_events) {
+ 			hisi_hba->hw->get_events(hisi_hba, phy_no);
 -- 
 2.20.1
 
