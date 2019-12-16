@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89FD31216D5
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E64F121886
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730604AbfLPSK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:10:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53526 "EHLO mail.kernel.org"
+        id S1728617AbfLPR6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:58:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730231AbfLPSK0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:26 -0500
+        id S1728001AbfLPR6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3F6B21582;
-        Mon, 16 Dec 2019 18:10:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE0B421582;
+        Mon, 16 Dec 2019 17:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519825;
-        bh=NeQzpFfclPtsz87k4W3jeo/1VKJIkBRQNsBK1c9e4cU=;
+        s=default; t=1576519110;
+        bh=8SZW3rTA8io7BWtFP9Tek6UH24tOYQpNUhhqUpw4tf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LKjNIeDvP0vb3i/ZeDfn7/MvQFaa7R0hf32tL1IBw+2oWIk2cGUe/yb2MPjD2dHSe
-         LMpFrvZyj7x2v54qBjvqJsVPTMuXG+L5aMsb1mmh4pOjb2vAeuw13clDGrMWF2G1Sk
-         +556mh1+RmlRAtRRVgIqzvuYTSERsnMFfVt8gOmw=
+        b=JReg8zzbI6fytj9yZyiurTIGRnjB+BByDyAJIDQ3vZdH7HvViuEAIRmjkEjvqzbmX
+         rzJ9YD4/E13W9WCu7KfMExPOK0CEtecV5bciWvAFcJYQv5scFP5eOYOfSyB5jyrxSQ
+         zMBbgC4D5nWBwT6UREvgQO/vcJh39mFMYc6TMtxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.3 085/180] media: hantro: Fix s_fmt for dynamic resolution changes
-Date:   Mon, 16 Dec 2019 18:48:45 +0100
-Message-Id: <20191216174832.318953840@linuxfoundation.org>
+        stable@vger.kernel.org, zhangxiaoxu <zhangxiaoxu5@huawei.com>,
+        Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 200/267] dm zoned: reduce overhead of backing device checks
+Date:   Mon, 16 Dec 2019 18:48:46 +0100
+Message-Id: <20191216174913.491643559@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,92 +44,261 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-commit ae02d49493b5d32bb3e035fdeb1655346f5e1ea5 upstream.
+commit e7fad909b68aa37470d9f2d2731b5bec355ee5d6 upstream.
 
-Commit 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
-changed the conditions under S_FMT was allowed for OUTPUT
-CAPTURE buffers.
+Commit 75d66ffb48efb3 added backing device health checks and as a part
+of these checks, check_events() block ops template call is invoked in
+dm-zoned mapping path as well as in reclaim and flush path. Calling
+check_events() with ATA or SCSI backing devices introduces a blocking
+scsi_test_unit_ready() call being made in sd_check_events(). Even though
+the overhead of calling scsi_test_unit_ready() is small for ATA zoned
+devices, it is much larger for SCSI and it affects performance in a very
+negative way.
 
-However, and according to the mem-to-mem stateless decoder specification,
-in order to support dynamic resolution changes, S_FMT should be allowed
-even if OUTPUT buffers have been allocated.
+Fix this performance regression by executing check_events() only in case
+of any I/O errors. The function dmz_bdev_is_dying() is modified to call
+only blk_queue_dying(), while calls to check_events() are made in a new
+helper function, dmz_check_bdev().
 
-Relax decoder S_FMT restrictions on OUTPUT buffers, allowing a
-resolution modification, provided the pixel format stays the same.
-
-Tested on RK3288 platforms using ChromiumOS Video Decode/Encode
-Accelerator Unittests.
-
-[hverkuil: fix typo: In other -> In order]
-
-Fixes: 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: <stable@vger.kernel.org>      # for v5.4 and up
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: zhangxiaoxu <zhangxiaoxu5@huawei.com>
+Fixes: 75d66ffb48efb3 ("dm zoned: properly handle backing device failure")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/media/hantro/hantro_v4l2.c |   28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/md/dm-zoned-metadata.c |   29 ++++++++++++++--------
+ drivers/md/dm-zoned-reclaim.c  |    8 +-----
+ drivers/md/dm-zoned-target.c   |   54 ++++++++++++++++++++++++++++-------------
+ drivers/md/dm-zoned.h          |    2 +
+ 4 files changed, 61 insertions(+), 32 deletions(-)
 
---- a/drivers/staging/media/hantro/hantro_v4l2.c
-+++ b/drivers/staging/media/hantro/hantro_v4l2.c
-@@ -356,20 +356,27 @@ vidioc_s_fmt_out_mplane(struct file *fil
- {
- 	struct v4l2_pix_format_mplane *pix_mp = &f->fmt.pix_mp;
- 	struct hantro_ctx *ctx = fh_to_ctx(priv);
-+	struct vb2_queue *vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
- 	const struct hantro_fmt *formats;
- 	unsigned int num_fmts;
--	struct vb2_queue *vq;
- 	int ret;
- 
--	/* Change not allowed if queue is busy. */
--	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
--	if (vb2_is_busy(vq))
--		return -EBUSY;
-+	ret = vidioc_try_fmt_out_mplane(file, priv, f);
-+	if (ret)
-+		return ret;
- 
- 	if (!hantro_is_encoder_ctx(ctx)) {
- 		struct vb2_queue *peer_vq;
- 
- 		/*
-+		 * In order to support dynamic resolution change,
-+		 * the decoder admits a resolution change, as long
-+		 * as the pixelformat remains. Can't be done if streaming.
-+		 */
-+		if (vb2_is_streaming(vq) || (vb2_is_busy(vq) &&
-+		    pix_mp->pixelformat != ctx->src_fmt.pixelformat))
-+			return -EBUSY;
-+		/*
- 		 * Since format change on the OUTPUT queue will reset
- 		 * the CAPTURE queue, we can't allow doing so
- 		 * when the CAPTURE queue has buffers allocated.
-@@ -378,12 +385,15 @@ vidioc_s_fmt_out_mplane(struct file *fil
- 					  V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
- 		if (vb2_is_busy(peer_vq))
- 			return -EBUSY;
-+	} else {
-+		/*
-+		 * The encoder doesn't admit a format change if
-+		 * there are OUTPUT buffers allocated.
-+		 */
-+		if (vb2_is_busy(vq))
-+			return -EBUSY;
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -552,6 +552,7 @@ static struct dmz_mblock *dmz_get_mblock
+ 		       TASK_UNINTERRUPTIBLE);
+ 	if (test_bit(DMZ_META_ERROR, &mblk->state)) {
+ 		dmz_release_mblock(zmd, mblk);
++		dmz_check_bdev(zmd->dev);
+ 		return ERR_PTR(-EIO);
  	}
  
--	ret = vidioc_try_fmt_out_mplane(file, priv, f);
--	if (ret)
--		return ret;
+@@ -623,6 +624,8 @@ static int dmz_rdwr_block(struct dmz_met
+ 	ret = submit_bio_wait(bio);
+ 	bio_put(bio);
+ 
++	if (ret)
++		dmz_check_bdev(zmd->dev);
+ 	return ret;
+ }
+ 
+@@ -689,6 +692,7 @@ static int dmz_write_dirty_mblocks(struc
+ 			       TASK_UNINTERRUPTIBLE);
+ 		if (test_bit(DMZ_META_ERROR, &mblk->state)) {
+ 			clear_bit(DMZ_META_ERROR, &mblk->state);
++			dmz_check_bdev(zmd->dev);
+ 			ret = -EIO;
+ 		}
+ 		nr_mblks_submitted--;
+@@ -766,7 +770,7 @@ int dmz_flush_metadata(struct dmz_metada
+ 	/* If there are no dirty metadata blocks, just flush the device cache */
+ 	if (list_empty(&write_list)) {
+ 		ret = blkdev_issue_flush(zmd->dev->bdev, GFP_NOIO, NULL);
+-		goto out;
++		goto err;
+ 	}
+ 
+ 	/*
+@@ -776,7 +780,7 @@ int dmz_flush_metadata(struct dmz_metada
+ 	 */
+ 	ret = dmz_log_dirty_mblocks(zmd, &write_list);
+ 	if (ret)
+-		goto out;
++		goto err;
+ 
+ 	/*
+ 	 * The log is on disk. It is now safe to update in place
+@@ -784,11 +788,11 @@ int dmz_flush_metadata(struct dmz_metada
+ 	 */
+ 	ret = dmz_write_dirty_mblocks(zmd, &write_list, zmd->mblk_primary);
+ 	if (ret)
+-		goto out;
++		goto err;
+ 
+ 	ret = dmz_write_sb(zmd, zmd->mblk_primary);
+ 	if (ret)
+-		goto out;
++		goto err;
+ 
+ 	while (!list_empty(&write_list)) {
+ 		mblk = list_first_entry(&write_list, struct dmz_mblock, link);
+@@ -803,16 +807,20 @@ int dmz_flush_metadata(struct dmz_metada
+ 
+ 	zmd->sb_gen++;
+ out:
+-	if (ret && !list_empty(&write_list)) {
+-		spin_lock(&zmd->mblk_lock);
+-		list_splice(&write_list, &zmd->mblk_dirty_list);
+-		spin_unlock(&zmd->mblk_lock);
+-	}
 -
- 	formats = hantro_get_formats(ctx, &num_fmts);
- 	ctx->vpu_src_fmt = hantro_find_format(formats, num_fmts,
- 					      pix_mp->pixelformat);
+ 	dmz_unlock_flush(zmd);
+ 	up_write(&zmd->mblk_sem);
+ 
+ 	return ret;
++
++err:
++	if (!list_empty(&write_list)) {
++		spin_lock(&zmd->mblk_lock);
++		list_splice(&write_list, &zmd->mblk_dirty_list);
++		spin_unlock(&zmd->mblk_lock);
++	}
++	if (!dmz_check_bdev(zmd->dev))
++		ret = -EIO;
++	goto out;
+ }
+ 
+ /*
+@@ -1235,6 +1243,7 @@ static int dmz_update_zone(struct dmz_me
+ 	if (ret) {
+ 		dmz_dev_err(zmd->dev, "Get zone %u report failed",
+ 			    dmz_id(zmd, zone));
++		dmz_check_bdev(zmd->dev);
+ 		return ret;
+ 	}
+ 
+--- a/drivers/md/dm-zoned-reclaim.c
++++ b/drivers/md/dm-zoned-reclaim.c
+@@ -81,6 +81,7 @@ static int dmz_reclaim_align_wp(struct d
+ 			    "Align zone %u wp %llu to %llu (wp+%u) blocks failed %d",
+ 			    dmz_id(zmd, zone), (unsigned long long)wp_block,
+ 			    (unsigned long long)block, nr_blocks, ret);
++		dmz_check_bdev(zrc->dev);
+ 		return ret;
+ 	}
+ 
+@@ -490,12 +491,7 @@ static void dmz_reclaim_work(struct work
+ 	ret = dmz_do_reclaim(zrc);
+ 	if (ret) {
+ 		dmz_dev_debug(zrc->dev, "Reclaim error %d\n", ret);
+-		if (ret == -EIO)
+-			/*
+-			 * LLD might be performing some error handling sequence
+-			 * at the underlying device. To not interfere, do not
+-			 * attempt to schedule the next reclaim run immediately.
+-			 */
++		if (!dmz_check_bdev(zrc->dev))
+ 			return;
+ 	}
+ 
+--- a/drivers/md/dm-zoned-target.c
++++ b/drivers/md/dm-zoned-target.c
+@@ -79,6 +79,8 @@ static inline void dmz_bio_endio(struct
+ 
+ 	if (status != BLK_STS_OK && bio->bi_status == BLK_STS_OK)
+ 		bio->bi_status = status;
++	if (bio->bi_status != BLK_STS_OK)
++		bioctx->target->dev->flags |= DMZ_CHECK_BDEV;
+ 
+ 	if (atomic_dec_and_test(&bioctx->ref)) {
+ 		struct dm_zone *zone = bioctx->zone;
+@@ -564,32 +566,52 @@ out:
+ }
+ 
+ /*
+- * Check the backing device availability. If it's on the way out,
++ * Check if the backing device is being removed. If it's on the way out,
+  * start failing I/O. Reclaim and metadata components also call this
+  * function to cleanly abort operation in the event of such failure.
+  */
+ bool dmz_bdev_is_dying(struct dmz_dev *dmz_dev)
+ {
+-	struct gendisk *disk;
++	if (dmz_dev->flags & DMZ_BDEV_DYING)
++		return true;
+ 
+-	if (!(dmz_dev->flags & DMZ_BDEV_DYING)) {
+-		disk = dmz_dev->bdev->bd_disk;
+-		if (blk_queue_dying(bdev_get_queue(dmz_dev->bdev))) {
+-			dmz_dev_warn(dmz_dev, "Backing device queue dying");
+-			dmz_dev->flags |= DMZ_BDEV_DYING;
+-		} else if (disk->fops->check_events) {
+-			if (disk->fops->check_events(disk, 0) &
+-					DISK_EVENT_MEDIA_CHANGE) {
+-				dmz_dev_warn(dmz_dev, "Backing device offline");
+-				dmz_dev->flags |= DMZ_BDEV_DYING;
+-			}
+-		}
++	if (dmz_dev->flags & DMZ_CHECK_BDEV)
++		return !dmz_check_bdev(dmz_dev);
++
++	if (blk_queue_dying(bdev_get_queue(dmz_dev->bdev))) {
++		dmz_dev_warn(dmz_dev, "Backing device queue dying");
++		dmz_dev->flags |= DMZ_BDEV_DYING;
+ 	}
+ 
+ 	return dmz_dev->flags & DMZ_BDEV_DYING;
+ }
+ 
+ /*
++ * Check the backing device availability. This detects such events as
++ * backing device going offline due to errors, media removals, etc.
++ * This check is less efficient than dmz_bdev_is_dying() and should
++ * only be performed as a part of error handling.
++ */
++bool dmz_check_bdev(struct dmz_dev *dmz_dev)
++{
++	struct gendisk *disk;
++
++	dmz_dev->flags &= ~DMZ_CHECK_BDEV;
++
++	if (dmz_bdev_is_dying(dmz_dev))
++		return false;
++
++	disk = dmz_dev->bdev->bd_disk;
++	if (disk->fops->check_events &&
++	    disk->fops->check_events(disk, 0) & DISK_EVENT_MEDIA_CHANGE) {
++		dmz_dev_warn(dmz_dev, "Backing device offline");
++		dmz_dev->flags |= DMZ_BDEV_DYING;
++	}
++
++	return !(dmz_dev->flags & DMZ_BDEV_DYING);
++}
++
++/*
+  * Process a new BIO.
+  */
+ static int dmz_map(struct dm_target *ti, struct bio *bio)
+@@ -901,8 +923,8 @@ static int dmz_prepare_ioctl(struct dm_t
+ {
+ 	struct dmz_target *dmz = ti->private;
+ 
+-	if (dmz_bdev_is_dying(dmz->dev))
+-		return -ENODEV;
++	if (!dmz_check_bdev(dmz->dev))
++		return -EIO;
+ 
+ 	*bdev = dmz->dev->bdev;
+ 
+--- a/drivers/md/dm-zoned.h
++++ b/drivers/md/dm-zoned.h
+@@ -71,6 +71,7 @@ struct dmz_dev {
+ 
+ /* Device flags. */
+ #define DMZ_BDEV_DYING		(1 << 0)
++#define DMZ_CHECK_BDEV		(2 << 0)
+ 
+ /*
+  * Zone descriptor.
+@@ -254,5 +255,6 @@ void dmz_schedule_reclaim(struct dmz_rec
+  * Functions defined in dm-zoned-target.c
+  */
+ bool dmz_bdev_is_dying(struct dmz_dev *dmz_dev);
++bool dmz_check_bdev(struct dmz_dev *dmz_dev);
+ 
+ #endif /* DM_ZONED_H */
 
 
