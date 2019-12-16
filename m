@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 334C6121468
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5922B1213B6
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:04:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730713AbfLPSLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:11:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54766 "EHLO mail.kernel.org"
+        id S1729605AbfLPSEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:04:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730710AbfLPSLF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:11:05 -0500
+        id S1729331AbfLPSEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 059512072D;
-        Mon, 16 Dec 2019 18:11:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE00C2072D;
+        Mon, 16 Dec 2019 18:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519864;
-        bh=P1W7VsLg1ccfrXtluoSlXoEz9xd4qtjEQuc9NOvlP5Y=;
+        s=default; t=1576519453;
+        bh=DmSp8Or9YMkcXzwwMGfPEohpelPbs30v25qF/wjmyYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLydCyVxdYqeaPSplSu7a6SRG9Ul4eNBh57G8Fa++W6D3SHSAiPAFqAhc9j9cvlEL
-         eWw5xS9qzNtGtJveuUyLLm8v7ONxwfFrAH5ZTJMFkQLBgXX/qny7IKsPIXthmba+Y6
-         LKlZk+1U1t0A2EL8U/WLwslNSKEtx76efwduKJ+c=
+        b=VOwAqIJ6NlinFnsJXIkwUoKTQBOb1bTaRRoiGrDVzBR8gkO6uu+E4q3ktyhyH+Cw2
+         zvCZY7vGYJwA3zpvHOGWJKsJKYBifNqyaEfucGWbmCoTZlQlo+XYsjOWhMS6Ah8lPw
+         5/gJIVET91s+BZJv+uFSjfBgdcMLbTow6WktX9Bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.3 100/180] cpufreq: powernv: fix stack bloat and hard limit on number of CPUs
+Subject: [PATCH 4.19 072/140] cpufreq: powernv: fix stack bloat and hard limit on number of CPUs
 Date:   Mon, 16 Dec 2019 18:49:00 +0100
-Message-Id: <20191216174835.920386596@linuxfoundation.org>
+Message-Id: <20191216174807.086723618@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/cpufreq/powernv-cpufreq.c
 +++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -1041,9 +1041,14 @@ static struct cpufreq_driver powernv_cpu
+@@ -1042,9 +1042,14 @@ static struct cpufreq_driver powernv_cpu
  
  static int init_chip_info(void)
  {
@@ -96,7 +96,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	for_each_possible_cpu(cpu) {
  		unsigned int id = cpu_to_chip_id(cpu);
-@@ -1055,8 +1060,10 @@ static int init_chip_info(void)
+@@ -1056,8 +1061,10 @@ static int init_chip_info(void)
  	}
  
  	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
@@ -109,7 +109,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	for (i = 0; i < nr_chips; i++) {
  		chips[i].id = chip[i];
-@@ -1066,7 +1073,9 @@ static int init_chip_info(void)
+@@ -1067,7 +1074,9 @@ static int init_chip_info(void)
  			per_cpu(chip_info, cpu) =  &chips[i];
  	}
  
