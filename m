@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B481218B1
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F5991217F3
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728099AbfLPR6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:58:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57520 "EHLO mail.kernel.org"
+        id S1728243AbfLPSji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:39:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728569AbfLPR6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:58:03 -0500
+        id S1728463AbfLPSD3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C84D0205ED;
-        Mon, 16 Dec 2019 17:58:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D36292072D;
+        Mon, 16 Dec 2019 18:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519083;
-        bh=lYslgjAVeGe36565v2xmC1jA/tC+3dsA1uoVGkImutY=;
+        s=default; t=1576519409;
+        bh=qz4e+jMLzi0AUc7pzJTJEPsDGMBbCsc1pllEvhhsMdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dT5lAuKAu4VSlSxfGRE0Evv/6tUXYmd8lNgXnm9dh1WT5+YraJrsX4wI2iCcZvZX6
-         kkoohqG4nvXUcoQTtu1+S9OV7OZNosjSnTHZKHsDHUZSfaeS2mpRmKtD6Gn+hH8qPT
-         I4zpO4VV9gbJ3bFO2VJ0n1x/3Bd60Eg9UPIJ1n5A=
+        b=qG+JryCIzOpU+O/FcVg4tfiLWHreDY4YzeMm8fHLFIz3czjpRyI0RpzYZjl6YZkWZ
+         uvsNcfh+txcTSkw7mr6jYtdQz3HXvbnl4QRcolCLKWcHr2ZxFTtLvRTDWXIwZJ3TsC
+         kGqOh+EmXlCuTpNtEb+dttDL6fw2moaSLBkZ0Kac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 148/267] spi: atmel: Fix CS high support
-Date:   Mon, 16 Dec 2019 18:47:54 +0100
-Message-Id: <20191216174910.582230758@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 007/140] USB: documentation: flags on usb-storage versus UAS
+Date:   Mon, 16 Dec 2019 18:47:55 +0100
+Message-Id: <20191216174750.251932194@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 7cbb16b2122c09f2ae393a1542fed628505b9da6 upstream.
+commit 65cc8bf99349f651a0a2cee69333525fe581f306 upstream.
 
-Until a few years ago, this driver was only used with CS GPIO. The
-only exception is CS0 on AT91RM9200 which has to use internal CS. A
-limitation of the internal CS is that they don't support CS High.
+Document which flags work storage, UAS or both
 
-So by using the CS GPIO the CS high configuration was available except
-for the particular case CS0 on RM9200.
-
-When the support for the internal chip-select was added, the check of
-the CS high support was not updated. Due to this the driver accepts
-this configuration for all the SPI controller v2 (used by all SoCs
-excepting the AT91RM9200) whereas the hardware doesn't support it for
-infernal CS.
-
-This patch fixes the test to match the hardware capabilities.
-
-Fixes: 4820303480a1 ("spi: atmel: add support for the internal chip-select of the spi controller")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20191017141846.7523-3-gregory.clement@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191114112758.32747-4-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-atmel.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/drivers/spi/spi-atmel.c
-+++ b/drivers/spi/spi-atmel.c
-@@ -1150,10 +1150,8 @@ static int atmel_spi_setup(struct spi_de
- 	as = spi_master_get_devdata(spi->master);
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4941,13 +4941,13 @@
+ 			Flags is a set of characters, each corresponding
+ 			to a common usb-storage quirk flag as follows:
+ 				a = SANE_SENSE (collect more than 18 bytes
+-					of sense data);
++					of sense data, not on uas);
+ 				b = BAD_SENSE (don't collect more than 18
+-					bytes of sense data);
++					bytes of sense data, not on uas);
+ 				c = FIX_CAPACITY (decrease the reported
+ 					device capacity by one sector);
+ 				d = NO_READ_DISC_INFO (don't use
+-					READ_DISC_INFO command);
++					READ_DISC_INFO command, not on uas);
+ 				e = NO_READ_CAPACITY_16 (don't use
+ 					READ_CAPACITY_16 command);
+ 				f = NO_REPORT_OPCODES (don't use report opcodes
+@@ -4962,17 +4962,18 @@
+ 				j = NO_REPORT_LUNS (don't use report luns
+ 					command, uas only);
+ 				l = NOT_LOCKABLE (don't try to lock and
+-					unlock ejectable media);
++					unlock ejectable media, not on uas);
+ 				m = MAX_SECTORS_64 (don't transfer more
+-					than 64 sectors = 32 KB at a time);
++					than 64 sectors = 32 KB at a time,
++					not on uas);
+ 				n = INITIAL_READ10 (force a retry of the
+-					initial READ(10) command);
++					initial READ(10) command, not on uas);
+ 				o = CAPACITY_OK (accept the capacity
+-					reported by the device);
++					reported by the device, not on uas);
+ 				p = WRITE_CACHE (the device cache is ON
+-					by default);
++					by default, not on uas);
+ 				r = IGNORE_RESIDUE (the device reports
+-					bogus residue values);
++					bogus residue values, not on uas);
+ 				s = SINGLE_LUN (the device has only one
+ 					Logical Unit);
+ 				t = NO_ATA_1X (don't allow ATA(12) and ATA(16)
+@@ -4981,7 +4982,8 @@
+ 				w = NO_WP_DETECT (don't test whether the
+ 					medium is write-protected).
+ 				y = ALWAYS_SYNC (issue a SYNCHRONIZE_CACHE
+-					even if the device claims no cache)
++					even if the device claims no cache,
++					not on uas)
+ 			Example: quirks=0419:aaf5:rl,0421:0433:rc
  
- 	/* see notes above re chipselect */
--	if (!atmel_spi_is_v2(as)
--			&& spi->chip_select == 0
--			&& (spi->mode & SPI_CS_HIGH)) {
--		dev_dbg(&spi->dev, "setup: can't be active-high\n");
-+	if (!as->use_cs_gpios && (spi->mode & SPI_CS_HIGH)) {
-+		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
- 		return -EINVAL;
- 	}
- 
+ 	user_debug=	[KNL,ARM]
 
 
