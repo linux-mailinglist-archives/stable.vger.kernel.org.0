@@ -2,143 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ADB01206AC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 14:10:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A19C1206E5
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 14:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727686AbfLPNK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 08:10:29 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:45783 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727657AbfLPNK3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 08:10:29 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 384FB78E;
-        Mon, 16 Dec 2019 08:10:28 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 16 Dec 2019 08:10:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=NpGIoG
-        N0F8q3w97Df/FmbB5gifnSi8jIJ7UmWD6LfMU=; b=ZUbd7qsK/gaRwV015005LN
-        aRyOYzFlgmwNZ0pwCu2hpoQBTjwzGBBEG37NqsVEZcdSh3XJ8CuEpx67unC/6OUI
-        pdIZ6L+lWQ2pT9tS07HAP5PoWEd8p+kVNSb07nJAV0yXE89NUUV9Puk5yS3lQrfa
-        bmqe9Caw4tUM/J+DvrbNh+ejdvEAOscsSJovkO/m+XwTDPqh5yWA/4mdSx2jM36K
-        ERvrykLXvdQ7fb3GlSJp7ElDJ3ggME7OmgpXa9to3JeUj+36As3UsWH31oHA4lwl
-        Y56+4vUl+XQvucM2PmLm+eqge0npZx3GGrELepCdD0qHx5rhOGoN9Ezo20HvcK0g
-        ==
-X-ME-Sender: <xms:Q4L3XbLXUGewN5sG9brPW4rVxs2tVlNkPBt0Op62-pXycD1DooaMTw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddthedggeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Q4L3XVn-zhiZs2SgJW74X9HdaKCn1AdIM5PxX1-vc63bWJkcFmtcFw>
-    <xmx:Q4L3XchUTBsDz1K6dygcRXo16blmZpKe7dlomx5WIoz1-NSaYL5SgA>
-    <xmx:Q4L3XXSud9BDprMgTwfWsANo96gigLcRQM25ua0yUjLOm-5HtfdtRA>
-    <xmx:Q4L3Xfqr-kItwsC5W-Xa8pD5dfKn5D0E70fXr8OQWlU5-Wo7knGW3w>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0BC813060132;
-        Mon, 16 Dec 2019 08:10:26 -0500 (EST)
-Subject: FAILED: patch "[PATCH] s390/smp,vdso: fix ASCE handling" failed to apply to 4.19-stable tree
-To:     heiko.carstens@de.ibm.com, gor@linux.ibm.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 Dec 2019 14:10:23 +0100
-Message-ID: <157650182321140@kroah.com>
+        id S1727904AbfLPNPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 08:15:15 -0500
+Received: from vps.xff.cz ([195.181.215.36]:45156 "EHLO vps.xff.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727897AbfLPNPO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 08:15:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
+        t=1576502113; bh=91BvEmwihOD7qAEzR/XIWeG45IH0J4HCzYdZSVFlRxE=;
+        h=Date:From:To:Cc:Subject:References:X-My-GPG-KeyId:From;
+        b=RoYqbfkDdb6FsoIaYhxjz2Ad0BUS4hazQTN/VAep2LGC1sC45PMPkNj4TcRaOpEXw
+         +lKGjAZYjdlfM+jDDL56VQCNXbDNQ7WdNYR+kslOaCF46jOuaEoESXrWZU3H2eSBaD
+         zmMbFM82pOEPCylQ5rtxHEj8WW5SZpGoMRvGB5xg=
+Date:   Mon, 16 Dec 2019 14:15:12 +0100
+From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        linux-bluetooth@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.4 133/350] Bluetooth: hci_bcm: Fix RTS handling
+ during startup
+Message-ID: <20191216131512.c5x5ltndmdambdf4@core.my.home>
+Mail-Followup-To: Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        linux-bluetooth@vger.kernel.org
+References: <20191210210735.9077-1-sashal@kernel.org>
+ <20191210210735.9077-94-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191210210735.9077-94-sashal@kernel.org>
+X-My-GPG-KeyId: EBFBDDE11FB918D44D1F56C1F9F0A873BE9777ED
+ <https://xff.cz/key.txt>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Tue, Dec 10, 2019 at 04:03:58PM -0500, Sasha Levin wrote:
+> From: Stefan Wahren <wahrenst@gmx.net>
+> 
+> [ Upstream commit 3347a80965b38f096b1d6f995c00c9c9e53d4b8b ]
+> 
+> The RPi 4 uses the hardware handshake lines for CYW43455, but the chip
+> doesn't react to HCI requests during DT probe. The reason is the inproper
+> handling of the RTS line during startup. According to the startup
+> signaling sequence in the CYW43455 datasheet, the hosts RTS line must
+> be driven after BT_REG_ON and BT_HOST_WAKE.
+> 
+> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+> Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/bluetooth/hci_bcm.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+> index 7646636f2d183..0f73f6a686cb7 100644
+> --- a/drivers/bluetooth/hci_bcm.c
+> +++ b/drivers/bluetooth/hci_bcm.c
+> @@ -445,9 +445,11 @@ static int bcm_open(struct hci_uart *hu)
+>  
+>  out:
+>  	if (bcm->dev) {
+> +		hci_uart_set_flow_control(hu, true);
+>  		hu->init_speed = bcm->dev->init_speed;
+>  		hu->oper_speed = bcm->dev->oper_speed;
+>  		err = bcm_gpio_set_power(bcm->dev, true);
+> +		hci_uart_set_flow_control(hu, false);
+>  		if (err)
+>  			goto err_unset_hu;
+>  	}
 
-thanks,
+This causes bluetooth breakage (degraded bluetooth performance, due to failure to
+switch to higher baudrate) for Orange Pi 3 board:
 
-greg k-h
+[    3.839134] Bluetooth: hci0: command 0xfc18 tx timeout
+[   11.999136] Bluetooth: hci0: BCM: failed to write update baudrate (-110)
+[   12.004613] Bluetooth: hci0: Failed to set baudrate
+[   12.123187] Bluetooth: hci0: BCM: chip id 130
+[   12.128398] Bluetooth: hci0: BCM: features 0x0f
+[   12.154686] Bluetooth: hci0: BCM4345C5
+[   12.157165] Bluetooth: hci0: BCM4345C5 (003.006.006) build 0000
+[   15.343684] Bluetooth: hci0: BCM4345C5 (003.006.006) build 0038
 
------------------- original commit in Linus's tree ------------------
+I suggest not pushing this to stable.
 
-From a2308c11ecbc3471ebb7435ee8075815b1502ef0 Mon Sep 17 00:00:00 2001
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Date: Mon, 18 Nov 2019 13:09:52 +0100
-Subject: [PATCH] s390/smp,vdso: fix ASCE handling
+regards,
+	Ondrej
 
-When a secondary CPU is brought up it must initialize its control
-registers. CPU A which triggers that a secondary CPU B is brought up
-stores its control register contents into the lowcore of new CPU B,
-which then loads these values on startup.
-
-This is problematic in various ways: the control register which
-contains the home space ASCE will correctly contain the kernel ASCE;
-however control registers for primary and secondary ASCEs are
-initialized with whatever values were present in CPU A.
-
-Typically:
-- the primary ASCE will contain the user process ASCE of the process
-  that triggered onlining of CPU B.
-- the secondary ASCE will contain the percpu VDSO ASCE of CPU A.
-
-Due to lazy ASCE handling we may also end up with other combinations.
-
-When then CPU B switches to a different process (!= idle) it will
-fixup the primary ASCE. However the problem is that the (wrong) ASCE
-from CPU A was loaded into control register 1: as soon as an ASCE is
-attached (aka loaded) a CPU is free to generate TLB entries using that
-address space.
-Even though it is very unlikey that CPU B will actually generate such
-entries, this could result in TLB entries of the address space of the
-process that ran on CPU A. These entries shouldn't exist at all and
-could cause problems later on.
-
-Furthermore the secondary ASCE of CPU B will not be updated correctly.
-This means that processes may see wrong results or even crash if they
-access VDSO data on CPU B. The correct VDSO ASCE will eventually be
-loaded on return to user space as soon as the kernel executed a call
-to strnlen_user or an atomic futex operation on CPU B.
-
-Fix both issues by intializing the to be loaded control register
-contents with the correct ASCEs and also enforce (re-)loading of the
-ASCEs upon first context switch and return to user space.
-
-Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
-Cc: stable@vger.kernel.org # v4.15+
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 6acdcf1d4074..06dddd7c4290 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -262,10 +262,13 @@ static void pcpu_prepare_secondary(struct pcpu *pcpu, int cpu)
- 	lc->spinlock_index = 0;
- 	lc->percpu_offset = __per_cpu_offset[cpu];
- 	lc->kernel_asce = S390_lowcore.kernel_asce;
-+	lc->user_asce = S390_lowcore.kernel_asce;
- 	lc->machine_flags = S390_lowcore.machine_flags;
- 	lc->user_timer = lc->system_timer =
- 		lc->steal_timer = lc->avg_steal_timer = 0;
- 	__ctl_store(lc->cregs_save_area, 0, 15);
-+	lc->cregs_save_area[1] = lc->kernel_asce;
-+	lc->cregs_save_area[7] = lc->vdso_asce;
- 	save_access_regs((unsigned int *) lc->access_regs_save_area);
- 	memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
- 	       sizeof(lc->stfle_fac_list));
-@@ -844,6 +847,8 @@ static void smp_init_secondary(void)
- 
- 	S390_lowcore.last_update_clock = get_tod_clock();
- 	restore_access_regs(S390_lowcore.access_regs_save_area);
-+	set_cpu_flag(CIF_ASCE_PRIMARY);
-+	set_cpu_flag(CIF_ASCE_SECONDARY);
- 	cpu_init();
- 	preempt_disable();
- 	init_cpu_timer();
-
+> 2.20.1
+> 
