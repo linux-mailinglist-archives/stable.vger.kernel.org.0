@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DF81213CC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77436121350
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:01:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729759AbfLPSFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:05:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42794 "EHLO mail.kernel.org"
+        id S1726296AbfLPSAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:00:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729756AbfLPSFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:05:00 -0500
+        id S1729032AbfLPSAy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:00:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21D8221835;
-        Mon, 16 Dec 2019 18:04:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C635C205C9;
+        Mon, 16 Dec 2019 18:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519499;
-        bh=ZYYL1p+zq4PdlNBAJkLK66Wm5+hyr64tTevPX9wrpPk=;
+        s=default; t=1576519253;
+        bh=8NCXrLCwzmdazBmKh3MPc3z/jq4Rubpa4X2/ZG55fGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JrCZXzGhaKRbk3ImHYfTGLGYU21IicURV/j0w6EMSXEnFqPn8cG6qaWkOFv94TTkZ
-         qsMxq7xZN2RT6//mUoaTVPqVu+YFn3nIuWdTXMtjVb1fKMRanJaUebA1KpFSEhg08k
-         Oszuy03N9HjO+NDQkFwpnLgM5fPrLtd7yhnIxXTo=
+        b=vORe0nVBEk9TdcSi8/4emXYgFFrNNV90+k1ibiA3geDi2fgZqj11ZpNlscpMONCzq
+         VMKpsVLptR73TRLjtLzp6DJlyi4FEsqSgcXVkeiL4HSw9/kgzbjm2bHMCQf83Ht1Ew
+         qo9B3FLJFnzH33E9yYWDpl+Y+3AskNJyDV01o9H4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 089/140] powerpc/xive: Skip ioremap() of ESB pages for LSI interrupts
+        stable@vger.kernel.org, linux-media@vger.kernel.org,
+        Martin Bugge <marbugge@cisco.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 4.14 231/267] video/hdmi: Fix AVI bar unpack
 Date:   Mon, 16 Dec 2019 18:49:17 +0100
-Message-Id: <20191216174811.044728822@linuxfoundation.org>
+Message-Id: <20191216174915.211691381@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit b67a95f2abff0c34e5667c15ab8900de73d8d087 upstream.
+commit 6039f37dd6b76641198e290f26b31c475248f567 upstream.
 
-The PCI INTx interrupts and other LSI interrupts are handled differently
-under a sPAPR platform. When the interrupt source characteristics are
-queried, the hypervisor returns an H_INT_ESB flag to inform the OS
-that it should be using the H_INT_ESB hcall for interrupt management
-and not loads and stores on the interrupt ESB pages.
+The bar values are little endian, not big endian. The pack
+function did it right but the unpack got it wrong. Fix it.
 
-A default -1 value is returned for the addresses of the ESB pages. The
-driver ignores this condition today and performs a bogus IO mapping.
-Recent changes and the DEBUG_VM configuration option make the bug
-visible with :
-
-  kernel BUG at arch/powerpc/include/asm/book3s/64/pgtable.h:612!
-  Oops: Exception in kernel mode, sig: 5 [#1]
-  LE PAGE_SIZE=64K MMU=Radix MMU=Hash SMP NR_CPUS=1024 NUMA pSeries
-  Modules linked in:
-  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.0-0.rc6.git0.1.fc32.ppc64le #1
-  NIP:  c000000000f63294 LR: c000000000f62e44 CTR: 0000000000000000
-  REGS: c0000000fa45f0d0 TRAP: 0700   Not tainted  (5.4.0-0.rc6.git0.1.fc32.ppc64le)
-  ...
-  NIP ioremap_page_range+0x4c4/0x6e0
-  LR  ioremap_page_range+0x74/0x6e0
-  Call Trace:
-    ioremap_page_range+0x74/0x6e0 (unreliable)
-    do_ioremap+0x8c/0x120
-    __ioremap_caller+0x128/0x140
-    ioremap+0x30/0x50
-    xive_spapr_populate_irq_data+0x170/0x260
-    xive_irq_domain_map+0x8c/0x170
-    irq_domain_associate+0xb4/0x2d0
-    irq_create_mapping+0x1e0/0x3b0
-    irq_create_fwspec_mapping+0x27c/0x3e0
-    irq_create_of_mapping+0x98/0xb0
-    of_irq_parse_and_map_pci+0x168/0x230
-    pcibios_setup_device+0x88/0x250
-    pcibios_setup_bus_devices+0x54/0x100
-    __of_scan_bus+0x160/0x310
-    pcibios_scan_phb+0x330/0x390
-    pcibios_init+0x8c/0x128
-    do_one_initcall+0x60/0x2c0
-    kernel_init_freeable+0x290/0x378
-    kernel_init+0x2c/0x148
-    ret_from_kernel_thread+0x5c/0x80
-
-Fixes: bed81ee181dd ("powerpc/xive: introduce H_INT_ESB hcall")
-Cc: stable@vger.kernel.org # v4.14+
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Tested-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191203163642.2428-1-clg@kaod.org
+Cc: stable@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: Martin Bugge <marbugge@cisco.com>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Fixes: 2c676f378edb ("[media] hdmi: added unpack and logging functions for InfoFrames")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190919132853.30954-1-ville.syrjala@linux.intel.com
+Reviewed-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/sysdev/xive/spapr.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/video/hdmi.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/sysdev/xive/spapr.c
-+++ b/arch/powerpc/sysdev/xive/spapr.c
-@@ -359,20 +359,28 @@ static int xive_spapr_populate_irq_data(
- 	data->esb_shift = esb_shift;
- 	data->trig_page = trig_page;
- 
-+	data->hw_irq = hw_irq;
-+
- 	/*
- 	 * No chip-id for the sPAPR backend. This has an impact how we
- 	 * pick a target. See xive_pick_irq_target().
- 	 */
- 	data->src_chip = XIVE_INVALID_CHIP_ID;
- 
-+	/*
-+	 * When the H_INT_ESB flag is set, the H_INT_ESB hcall should
-+	 * be used for interrupt management. Skip the remapping of the
-+	 * ESB pages which are not available.
-+	 */
-+	if (data->flags & XIVE_IRQ_FLAG_H_INT_ESB)
-+		return 0;
-+
- 	data->eoi_mmio = ioremap(data->eoi_page, 1u << data->esb_shift);
- 	if (!data->eoi_mmio) {
- 		pr_err("Failed to map EOI page for irq 0x%x\n", hw_irq);
- 		return -ENOMEM;
+--- a/drivers/video/hdmi.c
++++ b/drivers/video/hdmi.c
+@@ -1036,12 +1036,12 @@ static int hdmi_avi_infoframe_unpack(str
+ 	if (ptr[0] & 0x10)
+ 		frame->active_aspect = ptr[1] & 0xf;
+ 	if (ptr[0] & 0x8) {
+-		frame->top_bar = (ptr[5] << 8) + ptr[6];
+-		frame->bottom_bar = (ptr[7] << 8) + ptr[8];
++		frame->top_bar = (ptr[6] << 8) | ptr[5];
++		frame->bottom_bar = (ptr[8] << 8) | ptr[7];
  	}
+ 	if (ptr[0] & 0x4) {
+-		frame->left_bar = (ptr[9] << 8) + ptr[10];
+-		frame->right_bar = (ptr[11] << 8) + ptr[12];
++		frame->left_bar = (ptr[10] << 8) | ptr[9];
++		frame->right_bar = (ptr[12] << 8) | ptr[11];
+ 	}
+ 	frame->scan_mode = ptr[0] & 0x3;
  
--	data->hw_irq = hw_irq;
--
- 	/* Full function page supports trigger */
- 	if (flags & XIVE_SRC_TRIGGER) {
- 		data->trig_mmio = data->eoi_mmio;
 
 
