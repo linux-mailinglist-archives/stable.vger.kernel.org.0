@@ -2,185 +2,429 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72C7D120F1F
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 17:19:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 402B8120F2D
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 17:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726077AbfLPQP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 11:15:56 -0500
-Received: from mail-dm6nam12on2046.outbound.protection.outlook.com ([40.107.243.46]:6656
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725805AbfLPQPz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 11:15:55 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JcfG60er/4SiWVGHN6Kjv7TfKT+svuAYKBOVf5syYCh+jy+Psewh+lGreiqaBYuICaBeDtsBY5FF/Bpfr0MfkNJ4ilqjz6XNRxpiO8B6qg557TNrMthZTtzCIiHdt4y9wcfTq12ZysvsZXWN1gT+VwwCwHNBZ8z9RcFBdlT+U033NxX8xIixrw9BDB9PA6umuzO/krA9nubp5C39WOncTRGuyTmVKVSAjIc7lij86LiYhwSVRoDA4XSOLNdTj/jpIYrcp7L3ss2h/p7/DybMIzJAHmfBr5m/ER/ZZRrGIK3bgqasD7MBKLrWrTtDGX1hZnGjCK1dQmDF8wbPiQQnzg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=V2pTOri5D2SYgsZnCaRJHEvs0sBbq/grVKXrscKTDNQ=;
- b=kloMiDsE5CFYS0safY52ksUOpmlSpGZ4fBGEbKUARQ69vxl/5EJ3wjomytEAG+R0i4e0jzW9Em8SiOXOyJMxx68dtViJj5A8wTLQwR+m+BMqxb0kpDlPCov6O2mJT6CcMl4TKnFxR0o7MV4sFuJ9d8YKCq3f4gFYYrvtX9ekj342XeXn7kIQNcBvW+6yi5XG9jBF4Ev6aJT0ka0m6Ikxe/7JRCW4Fr6W/ZXSOD4bCPoQzJ2BnuHH6r5zDd5ayqA4q/z74ge3bZuTcxyInnVJqtXC0ZY+5f4uWjv0KJI1GLz/M8LB22P7AtJ+Eyjtp2gr3p0kHhl4LYqTPYIny1reSg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=V2pTOri5D2SYgsZnCaRJHEvs0sBbq/grVKXrscKTDNQ=;
- b=xPW1ZkiDrmqyoqQ6efVPzBV4kF27a2UQSTNpdQMCzDldq2qEYMTumNrroCHTu1Ov4Iwe1N2U7tztJDOTcb//MPPUam3We/dnWQ2Q1rJiKYdqp50t1GsY78UcVusLB7kqfY4t0n1BbZxE7yX2BU0zS6evhJgntCcdq3lwyOkooqQ=
-Received: from MN2PR05MB6141.namprd05.prod.outlook.com (20.178.241.217) by
- MN2PR05MB6477.namprd05.prod.outlook.com (20.178.246.220) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2559.12; Mon, 16 Dec 2019 16:15:52 +0000
-Received: from MN2PR05MB6141.namprd05.prod.outlook.com
- ([fe80::611e:6a6b:9109:5aa8]) by MN2PR05MB6141.namprd05.prod.outlook.com
- ([fe80::611e:6a6b:9109:5aa8%7]) with mapi id 15.20.2538.019; Mon, 16 Dec 2019
- 16:15:52 +0000
-From:   Thomas Hellstrom <thellstrom@vmware.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "mhocko@suse.com" <mhocko@suse.com>
-CC:     "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "willy@infradead.org" <willy@infradead.org>
-Subject: Re: FAILED: patch "[PATCH] mm/memory.c: fix a huge pud insertion race
- during faulting" failed to apply to 4.19-stable tree
-Thread-Topic: FAILED: patch "[PATCH] mm/memory.c: fix a huge pud insertion
- race during faulting" failed to apply to 4.19-stable tree
-Thread-Index: AQHVtAh1XUudiPx/N0iksCFJFjPcUA==
-Date:   Mon, 16 Dec 2019 16:15:52 +0000
-Message-ID: <MN2PR05MB6141372C8C638027EDE5AA12A1510@MN2PR05MB6141.namprd05.prod.outlook.com>
-References: <1576497644874@kroah.com> <20191216155718.GF17708@sasha-vm>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=thellstrom@vmware.com; 
-x-originating-ip: [155.4.205.35]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: a6379383-353a-4eb1-416f-08d7824338cb
-x-ms-traffictypediagnostic: MN2PR05MB6477:
-x-microsoft-antispam-prvs: <MN2PR05MB6477D5261B0EC8CA592EA402A1510@MN2PR05MB6477.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-forefront-prvs: 02530BD3AA
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(366004)(376002)(136003)(39860400002)(396003)(199004)(189003)(8676002)(81166006)(71200400001)(9686003)(81156014)(110136005)(8936002)(86362001)(33656002)(2906002)(316002)(6506007)(54906003)(7696005)(64756008)(66556008)(186003)(66446008)(66476007)(66946007)(52536014)(5660300002)(91956017)(76116006)(53546011)(55016002)(478600001)(966005)(26005)(45080400002)(4326008)(14583001);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6477;H:MN2PR05MB6141.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: vmware.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 9lqvcQiMOT3jpM4kkEy0AiYSiLHwXRmVlRkYV0tJdLy7FBDCX0c+qw8zM1oHVupzLQRz3kJzuwrAmn4M8gROjOgaYEPK8mZpaCBj/O3nNHDjfjoTSL0AptTV3Ns6gT+AOuSMt49DmgQyD+uPF/uEpTXQFmlFHefQl2gs6bKIa8kPGuGv+EKTWYP8g/Fs+Gd2tw85Hqs2byXRsRfPjBxcHAGa5q1fXl7eeNF1ayASAmePh9OrlIkrbTLNd3R5IPDubSu1TyQWHTguYLFVJPsMrM3XkFe6aIrcLlhMvP9uIekHYF+pEe60zECKxlzQof97A98J3XOfTn7/eYTNhHWHVeQnGrKiqXdatkzlPcdcLU6mMHB0afcECvDV/Jj5W9VGotXijj///GC+OgHz2CU9t8cJmKGMmNW7j689apUHXa0WXqssCqgNaeovgu/r5lcdBzKUZ1CqRDqI6HmD1zusu23JhygQNt7zf94oziG1n2p2BcPfb0QVcLa6VTIdNVOpSIxs7Ka4JNBuhEiqnYDK0w==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1726784AbfLPQR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 11:17:26 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:56602 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726742AbfLPQR0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 11:17:26 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19597437-1500050 
+        for multiple; Mon, 16 Dec 2019 16:17:17 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.auld@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 2/2] drm/i915: Hold reference to intel_frontbuffer as we track activity
+Date:   Mon, 16 Dec 2019 16:17:17 +0000
+Message-Id: <20191216161717.2688274-2-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191216161717.2688274-1-chris@chris-wilson.co.uk>
+References: <20191216161717.2688274-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a6379383-353a-4eb1-416f-08d7824338cb
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Dec 2019 16:15:52.2249
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 166l0YuKlCygggp/pnuxThfR8V0jjWepCAA17Bf+lXHvw1NiKM6YusIbtAlj0qyHB4KBcrme9efGh9dIKKR0cA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6477
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi!=0A=
-=0A=
-On 12/16/19 4:57 PM, Sasha Levin wrote:=0A=
-> On Mon, Dec 16, 2019 at 01:00:44PM +0100, gregkh@linuxfoundation.org wrot=
-e:=0A=
->> The patch below does not apply to the 4.19-stable tree.=0A=
->> If someone wants it applied there, or to any other stable or longterm=0A=
->> tree, then please email the backport, including the original git commit=
-=0A=
->> id to <stable@vger.kernel.org>.=0A=
->>=0A=
->> thanks,=0A=
->>=0A=
->> greg k-h=0A=
->>=0A=
->> ------------------ original commit in Linus's tree ------------------=0A=
->>=0A=
-> >From 625110b5e9dae9074d8a7e67dd07f821a053eed7 Mon Sep 17 00:00:00 2001=
-=0A=
->> From: Thomas Hellstrom <thellstrom@vmware.com>=0A=
->> Date: Sat, 30 Nov 2019 17:51:32 -0800=0A=
->> Subject: [PATCH] mm/memory.c: fix a huge pud insertion race during fault=
-ing=0A=
->>=0A=
->> A huge pud page can theoretically be faulted in racing with pmd_alloc()=
-=0A=
->> in __handle_mm_fault().  That will lead to pmd_alloc() returning an=0A=
->> invalid pmd pointer.=0A=
->>=0A=
->> Fix this by adding a pud_trans_unstable() function similar to=0A=
->> pmd_trans_unstable() and check whether the pud is really stable before=
-=0A=
->> using the pmd pointer.=0A=
->>=0A=
->> Race:=0A=
->>  Thread 1:             Thread 2:                 Comment=0A=
->>  create_huge_pud()                               Fallback - not taken.=
-=0A=
->>                        create_huge_pud()         Taken.=0A=
->>  pmd_alloc()                                     Returns an invalid poin=
-ter.=0A=
->>=0A=
->> This will result in user-visible huge page data corruption.=0A=
->>=0A=
->> Note that this was caught during a code audit rather than a real=0A=
->> experienced problem.  It looks to me like the only implementation that=
-=0A=
->> currently creates huge pud pagetable entries is dev_dax_huge_fault()=0A=
->> which doesn't appear to care much about private (COW) mappings or=0A=
->> write-tracking which is, I believe, a prerequisite for create_huge_pud()=
-=0A=
->> falling back on thread 1, but not in thread 2.=0A=
->>=0A=
->> Link: https://nam04.safelinks.protection.outlook.com/?url=3Dhttp%3A%2F%2=
-Flkml.kernel.org%2Fr%2F20191115115808.21181-2-thomas_os%40shipmail.org&amp;=
-data=3D02%7C01%7Cthellstrom%40vmware.com%7C24addc40cb56441b594408d78240a278=
-%7Cb39138ca3cee4b4aa4d6cd83d9dd62f0%7C0%7C0%7C637121086431698566&amp;sdata=
-=3DwAhgL%2BfbBiu2eDOb3ygPahH0OiYBLV1unSCZ0VxpAQY%3D&amp;reserved=3D0=0A=
->> Fixes: a00cc7d9dd93 ("mm, x86: add support for PUD-sized transparent hug=
-epages")=0A=
->> Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>=0A=
->> Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>=0A=
->> Cc: Arnd Bergmann <arnd@arndb.de>=0A=
->> Cc: Matthew Wilcox <willy@infradead.org>=0A=
->> Cc: <stable@vger.kernel.org>=0A=
->> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>=0A=
->> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>=0A=
-> This one doesn't apply cleanly because 7635d9cbe832 ("mm, thp, proc:=0A=
-> report THP eligibility for each vma") has changed what=0A=
-> transparent_hugepage_enabled() does.=0A=
->=0A=
-> The "right" backport here would be to simply change from calling=0A=
-> __transparent_hugepage_enabled() to calling=0A=
-> transparent_hugepage_enabled() as we don't have 7635d9cbe832 in older=0A=
-> kernels, but I worry that if we do end up backporting some part of that=
-=0A=
-> logic change later it will diverge us from upstream and will cause for=0A=
-> subtle issues that are difficult to debug.=0A=
->=0A=
-> So unless Michal / Andrew yell at me for this, I'm going to take in=0A=
-> 7635d9cbe832 even though it's clearly a new feature just to make=0A=
-> 625110b5e9da and future patches apply cleanly, and avoid future issues.=
-=0A=
->=0A=
-Isn't this a change just in the patch context?=0A=
-=0A=
-In any case, please see previous mails regarding additional testing of=0A=
-this patch.=0A=
-=0A=
-Thanks,=0A=
-=0A=
-Thomas=0A=
-=0A=
-=0A=
+Since obj->frontbuffer is no longer protected by the struct_mutex, as we
+are processing the execbuf, it may be removed. Mark the
+intel_frontbuffer as rcu protected, and so acquire a reference to
+the struct as we track activity upon it.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/827
+Fixes: 8e7cb1799b4f ("drm/i915: Extract intel_frontbuffer active tracking")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+---
+ drivers/gpu/drm/i915/display/intel_display.c  |  2 +-
+ .../gpu/drm/i915/display/intel_frontbuffer.c  | 16 ++++-----
+ .../gpu/drm/i915/display/intel_frontbuffer.h  | 34 +++++++++++++++++--
+ drivers/gpu/drm/i915/display/intel_overlay.c  | 17 +++++++---
+ drivers/gpu/drm/i915/gem/i915_gem_clflush.c   |  3 +-
+ drivers/gpu/drm/i915/gem/i915_gem_domain.c    |  4 +--
+ drivers/gpu/drm/i915/gem/i915_gem_object.c    | 26 +++++++++++++-
+ drivers/gpu/drm/i915/gem/i915_gem_object.h    | 23 ++++++++++++-
+ .../gpu/drm/i915/gem/i915_gem_object_types.h  |  2 +-
+ drivers/gpu/drm/i915/i915_gem.c               | 10 +++---
+ drivers/gpu/drm/i915/i915_vma.c               | 10 ++++--
+ 11 files changed, 116 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 64e4bfb0dfc9..e18ee1f17d6e 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -15186,7 +15186,7 @@ intel_prepare_plane_fb(struct drm_plane *plane,
+ 		return ret;
+ 
+ 	fb_obj_bump_render_priority(obj);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_DIRTYFB);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_DIRTYFB);
+ 
+ 	if (!new_plane_state->uapi.fence) { /* implicit fencing */
+ 		struct dma_fence *fence;
+diff --git a/drivers/gpu/drm/i915/display/intel_frontbuffer.c b/drivers/gpu/drm/i915/display/intel_frontbuffer.c
+index 84b164f31895..6cb02c912acc 100644
+--- a/drivers/gpu/drm/i915/display/intel_frontbuffer.c
++++ b/drivers/gpu/drm/i915/display/intel_frontbuffer.c
+@@ -229,11 +229,11 @@ static void frontbuffer_release(struct kref *ref)
+ 		vma->display_alignment = I915_GTT_MIN_ALIGNMENT;
+ 	spin_unlock(&obj->vma.lock);
+ 
+-	obj->frontbuffer = NULL;
++	RCU_INIT_POINTER(obj->frontbuffer, NULL);
+ 	spin_unlock(&to_i915(obj->base.dev)->fb_tracking.lock);
+ 
+ 	i915_gem_object_put(obj);
+-	kfree(front);
++	kfree_rcu(front, rcu);
+ }
+ 
+ struct intel_frontbuffer *
+@@ -242,11 +242,7 @@ intel_frontbuffer_get(struct drm_i915_gem_object *obj)
+ 	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+ 	struct intel_frontbuffer *front;
+ 
+-	spin_lock(&i915->fb_tracking.lock);
+-	front = obj->frontbuffer;
+-	if (front)
+-		kref_get(&front->ref);
+-	spin_unlock(&i915->fb_tracking.lock);
++	front = __intel_frontbuffer_get(obj);
+ 	if (front)
+ 		return front;
+ 
+@@ -262,13 +258,13 @@ intel_frontbuffer_get(struct drm_i915_gem_object *obj)
+ 			 i915_active_may_sleep(frontbuffer_retire));
+ 
+ 	spin_lock(&i915->fb_tracking.lock);
+-	if (obj->frontbuffer) {
++	if (rcu_access_pointer(obj->frontbuffer)) {
+ 		kfree(front);
+-		front = obj->frontbuffer;
++		front = rcu_dereference_protected(obj->frontbuffer, true);
+ 		kref_get(&front->ref);
+ 	} else {
+ 		i915_gem_object_get(obj);
+-		obj->frontbuffer = front;
++		rcu_assign_pointer(obj->frontbuffer, front);
+ 	}
+ 	spin_unlock(&i915->fb_tracking.lock);
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_frontbuffer.h b/drivers/gpu/drm/i915/display/intel_frontbuffer.h
+index adc64d61a4a5..ae4a1fff9f41 100644
+--- a/drivers/gpu/drm/i915/display/intel_frontbuffer.h
++++ b/drivers/gpu/drm/i915/display/intel_frontbuffer.h
+@@ -27,10 +27,10 @@
+ #include <linux/atomic.h>
+ #include <linux/kref.h>
+ 
++#include "gem/i915_gem_object_types.h"
+ #include "i915_active.h"
+ 
+ struct drm_i915_private;
+-struct drm_i915_gem_object;
+ 
+ enum fb_op_origin {
+ 	ORIGIN_GTT,
+@@ -45,6 +45,7 @@ struct intel_frontbuffer {
+ 	atomic_t bits;
+ 	struct i915_active write;
+ 	struct drm_i915_gem_object *obj;
++	struct rcu_head rcu;
+ };
+ 
+ void intel_frontbuffer_flip_prepare(struct drm_i915_private *i915,
+@@ -54,6 +55,35 @@ void intel_frontbuffer_flip_complete(struct drm_i915_private *i915,
+ void intel_frontbuffer_flip(struct drm_i915_private *i915,
+ 			    unsigned frontbuffer_bits);
+ 
++void intel_frontbuffer_put(struct intel_frontbuffer *front);
++
++static inline struct intel_frontbuffer *
++__intel_frontbuffer_get(const struct drm_i915_gem_object *obj)
++{
++	struct intel_frontbuffer *front;
++
++	if (likely(!rcu_access_pointer(obj->frontbuffer)))
++		return NULL;
++
++	rcu_read_lock();
++	do {
++		front = rcu_dereference(obj->frontbuffer);
++		if (!front)
++			break;
++
++		if (!kref_get_unless_zero(&front->ref))
++			continue;
++
++		if (front == rcu_access_pointer(obj->frontbuffer))
++			break;
++
++		intel_frontbuffer_put(front);
++	} while (1);
++	rcu_read_unlock();
++
++	return front;
++}
++
+ struct intel_frontbuffer *
+ intel_frontbuffer_get(struct drm_i915_gem_object *obj);
+ 
+@@ -119,6 +149,4 @@ void intel_frontbuffer_track(struct intel_frontbuffer *old,
+ 			     struct intel_frontbuffer *new,
+ 			     unsigned int frontbuffer_bits);
+ 
+-void intel_frontbuffer_put(struct intel_frontbuffer *front);
+-
+ #endif /* __INTEL_FRONTBUFFER_H__ */
+diff --git a/drivers/gpu/drm/i915/display/intel_overlay.c b/drivers/gpu/drm/i915/display/intel_overlay.c
+index 2a44b3be2600..6097594468a9 100644
+--- a/drivers/gpu/drm/i915/display/intel_overlay.c
++++ b/drivers/gpu/drm/i915/display/intel_overlay.c
+@@ -279,12 +279,21 @@ static void intel_overlay_flip_prepare(struct intel_overlay *overlay,
+ 				       struct i915_vma *vma)
+ {
+ 	enum pipe pipe = overlay->crtc->pipe;
++	struct intel_frontbuffer *from, *to;
+ 
+ 	WARN_ON(overlay->old_vma);
+ 
+-	intel_frontbuffer_track(overlay->vma ? overlay->vma->obj->frontbuffer : NULL,
+-				vma ? vma->obj->frontbuffer : NULL,
+-				INTEL_FRONTBUFFER_OVERLAY(pipe));
++	if (overlay->vma)
++		from = intel_frontbuffer_get(overlay->vma->obj);
++	if (vma)
++		to = intel_frontbuffer_get(vma->obj);
++
++	intel_frontbuffer_track(from, to, INTEL_FRONTBUFFER_OVERLAY(pipe));
++
++	if (to)
++		intel_frontbuffer_put(to);
++	if (from)
++		intel_frontbuffer_put(from);
+ 
+ 	intel_frontbuffer_flip_prepare(overlay->i915,
+ 				       INTEL_FRONTBUFFER_OVERLAY(pipe));
+@@ -764,7 +773,7 @@ static int intel_overlay_do_put_image(struct intel_overlay *overlay,
+ 		ret = PTR_ERR(vma);
+ 		goto out_pin_section;
+ 	}
+-	intel_frontbuffer_flush(new_bo->frontbuffer, ORIGIN_DIRTYFB);
++	i915_gem_object_flush_frontbuffer(new_bo, ORIGIN_DIRTYFB);
+ 
+ 	if (!overlay->active) {
+ 		u32 oconfig;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_clflush.c b/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
+index 5448efa77710..34be4c0ee7c5 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
+@@ -20,7 +20,8 @@ static void __do_clflush(struct drm_i915_gem_object *obj)
+ {
+ 	GEM_BUG_ON(!i915_gem_object_has_pages(obj));
+ 	drm_clflush_sg(obj->mm.pages);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ }
+ 
+ static int clflush_work(struct dma_fence_work *base)
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+index 65f1851e2863..0cc40e77bbd2 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+@@ -558,7 +558,7 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	i915_gem_object_unlock(obj);
+ 
+ 	if (write_domain)
+-		intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++		i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ out_unpin:
+ 	i915_gem_object_unpin_pages(obj);
+@@ -678,7 +678,7 @@ int i915_gem_object_prepare_write(struct drm_i915_gem_object *obj,
+ 	}
+ 
+ out:
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 	obj->mm.dirty = true;
+ 	/* return with the pages pinned */
+ 	return 0;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.c b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+index 16d611db9ca6..ddc82a7a34ff 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+@@ -313,7 +313,7 @@ i915_gem_object_flush_write_domain(struct drm_i915_gem_object *obj,
+ 		}
+ 		spin_unlock(&obj->vma.lock);
+ 
+-		intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++		i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 		break;
+ 
+ 	case I915_GEM_DOMAIN_WC:
+@@ -333,6 +333,30 @@ i915_gem_object_flush_write_domain(struct drm_i915_gem_object *obj,
+ 	obj->write_domain = 0;
+ }
+ 
++void __i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++					 enum fb_op_origin origin)
++{
++	struct intel_frontbuffer *front;
++
++	front = __intel_frontbuffer_get(obj);
++	if (front) {
++		intel_frontbuffer_flush(front, origin);
++		intel_frontbuffer_put(front);
++	}
++}
++
++void __i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++					      enum fb_op_origin origin)
++{
++	struct intel_frontbuffer *front;
++
++	front = __intel_frontbuffer_get(obj);
++	if (front) {
++		intel_frontbuffer_invalidate(front, origin);
++		intel_frontbuffer_put(front);
++	}
++}
++
+ void i915_gem_init__objects(struct drm_i915_private *i915)
+ {
+ 	INIT_WORK(&i915->mm.free_work, __i915_gem_free_work);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+index a1eb7c0b23ac..858f8bf49a04 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+@@ -13,8 +13,8 @@
+ 
+ #include <drm/i915_drm.h>
+ 
++#include "display/intel_frontbuffer.h"
+ #include "i915_gem_object_types.h"
+-
+ #include "i915_gem_gtt.h"
+ 
+ void i915_gem_init__objects(struct drm_i915_private *i915);
+@@ -471,4 +471,25 @@ int i915_gem_object_wait_priority(struct drm_i915_gem_object *obj,
+ 				  unsigned int flags,
+ 				  const struct i915_sched_attr *attr);
+ 
++void __i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++					 enum fb_op_origin origin);
++void __i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++					      enum fb_op_origin origin);
++
++static inline void
++i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++				  enum fb_op_origin origin)
++{
++	if (unlikely(rcu_access_pointer(obj->frontbuffer)))
++		__i915_gem_object_flush_frontbuffer(obj, origin);
++}
++
++static inline void
++i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++				       enum fb_op_origin origin)
++{
++	if (unlikely(rcu_access_pointer(obj->frontbuffer)))
++		__i915_gem_object_invalidate_frontbuffer(obj, origin);
++}
++
+ #endif
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+index 2d404e6f63df..88e268633fdc 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -173,7 +173,7 @@ struct drm_i915_gem_object {
+ 	 */
+ 	u16 write_domain;
+ 
+-	struct intel_frontbuffer *frontbuffer;
++	struct intel_frontbuffer __rcu *frontbuffer;
+ 
+ 	/** Current tiling stride for the object, if it's tiled. */
+ 	unsigned int tiling_and_stride;
+diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+index 5eeef1ef7448..f19c678ebefc 100644
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -200,7 +200,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
+ 	 * We manually control the domain here and pretend that it
+ 	 * remains coherent i.e. in the GTT domain, like shmem_pwrite.
+ 	 */
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	if (copy_from_user(vaddr, user_data, args->size))
+ 		return -EFAULT;
+@@ -208,7 +208,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
+ 	drm_clflush_virt_range(vaddr, args->size);
+ 	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
+ 
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 	return 0;
+ }
+ 
+@@ -628,7 +628,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
+ 		goto out_unpin;
+ 	}
+ 
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	user_data = u64_to_user_ptr(args->data_ptr);
+ 	offset = args->offset;
+@@ -672,7 +672,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
+ 	}
+ 
+ 	intel_gt_flush_ggtt_writes(ggtt->vm.gt);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	i915_gem_object_unlock_fence(obj, fence);
+ out_unpin:
+@@ -761,7 +761,7 @@ i915_gem_shmem_pwrite(struct drm_i915_gem_object *obj,
+ 		offset = 0;
+ 	}
+ 
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 	i915_gem_object_unlock_fence(obj, fence);
+ 
+ 	return ret;
+diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
+index 878975b37a45..8df0bf85f800 100644
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -1148,8 +1148,14 @@ int i915_vma_move_to_active(struct i915_vma *vma,
+ 		return err;
+ 
+ 	if (flags & EXEC_OBJECT_WRITE) {
+-		if (intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CS))
+-			i915_active_add_request(&obj->frontbuffer->write, rq);
++		struct intel_frontbuffer *front;
++
++		front = __intel_frontbuffer_get(obj);
++		if (unlikely(front)) {
++			if (intel_frontbuffer_invalidate(front, ORIGIN_CS))
++				i915_active_add_request(&front->write, rq);
++			intel_frontbuffer_put(front);
++		}
+ 
+ 		dma_resv_add_excl_fence(vma->resv, &rq->fence);
+ 		obj->write_domain = I915_GEM_DOMAIN_RENDER;
+-- 
+2.24.0
+
