@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9090121367
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 448EC121368
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727351AbfLPSBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:01:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36250 "EHLO mail.kernel.org"
+        id S1728816AbfLPSBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:01:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726741AbfLPSBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:01:20 -0500
+        id S1726861AbfLPSBW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:01:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35FCF206B7;
-        Mon, 16 Dec 2019 18:01:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F2062072D;
+        Mon, 16 Dec 2019 18:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519279;
-        bh=i4gAvKs121LiDWofI0Qx/fKnNA3MI2OySE18wyl/BxI=;
+        s=default; t=1576519282;
+        bh=tQnQ7eGrRB4decAAN2WbhDaaCkvZX5ZKgulZVP1wGHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nr+No7/wndnr/VN4SQtd5lMN4VlMMIJSC92zx4jvNKgyT/pC9Qb7Z+ZEeEI7Me0ot
-         0PcIKU1Jbc3FlQv3WcoXwKbvZE1dxjvCJ3NVK6CVowIswYM5nb7FDw7hFw0X4CCSpA
-         1qt7y7mKLjsm4AbX2H9LV9jGj17SEsvFspg/afcs=
+        b=aGzv/7T9hqONQyLYaa9tQesdmmdZu8Z0koiPA9Lh6Qxl12eZs8FiKhcZozl9Ptw+E
+         Xgur/ep+VtKmVniwreguL9mnT8/ZQG2PrmbJIdmULm0xTgI9zU0EN3NkHtc+ktkbxX
+         GXkcZS3DaqSHfXqbJ2qsOytoikXgruRoDr5QPYtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
         Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 232/267] quota: Check that quota is not dirty before release
-Date:   Mon, 16 Dec 2019 18:49:18 +0100
-Message-Id: <20191216174915.269272193@linuxfoundation.org>
+Subject: [PATCH 4.14 233/267] ext2: check err when partial != NULL
+Date:   Mon, 16 Dec 2019 18:49:19 +0100
+Message-Id: <20191216174915.322920804@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -44,85 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-commit df4bb5d128e2c44848aeb36b7ceceba3ac85080d upstream.
+commit e705f4b8aa27a59f8933e8f384e9752f052c469c upstream.
 
-There is a race window where quota was redirted once we drop dq_list_lock inside dqput(),
-but before we grab dquot->dq_lock inside dquot_release()
+Check err when partial == NULL is meaningless because
+partial == NULL means getting branch successfully without
+error.
 
-TASK1                                                       TASK2 (chowner)
-->dqput()
-  we_slept:
-    spin_lock(&dq_list_lock)
-    if (dquot_dirty(dquot)) {
-          spin_unlock(&dq_list_lock);
-          dquot->dq_sb->dq_op->write_dquot(dquot);
-          goto we_slept
-    if (test_bit(DQ_ACTIVE_B, &dquot->dq_flags)) {
-          spin_unlock(&dq_list_lock);
-          dquot->dq_sb->dq_op->release_dquot(dquot);
-                                                            dqget()
-							    mark_dquot_dirty()
-							    dqput()
-          goto we_slept;
-        }
-So dquot dirty quota will be released by TASK1, but on next we_sleept loop
-we detect this and call ->write_dquot() for it.
-XFSTEST: https://github.com/dmonakhov/xfstests/commit/440a80d4cbb39e9234df4d7240aee1d551c36107
-
-Link: https://lore.kernel.org/r/20191031103920.3919-2-dmonakhov@openvz.org
 CC: stable@vger.kernel.org
-Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Link: https://lore.kernel.org/r/20191105045100.7104-1-cgxu519@mykernel.net
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/quota_global.c  |    2 +-
- fs/quota/dquot.c         |    2 +-
- include/linux/quotaops.h |   10 ++++++++++
- 3 files changed, 12 insertions(+), 2 deletions(-)
+ fs/ext2/inode.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/quota_global.c
-+++ b/fs/ocfs2/quota_global.c
-@@ -727,7 +727,7 @@ static int ocfs2_release_dquot(struct dq
- 
- 	mutex_lock(&dquot->dq_lock);
- 	/* Check whether we are not racing with some other dqget() */
--	if (atomic_read(&dquot->dq_count) > 1)
-+	if (dquot_is_busy(dquot))
- 		goto out;
- 	/* Running from downconvert thread? Postpone quota processing to wq */
- 	if (current == osb->dc_task) {
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -491,7 +491,7 @@ int dquot_release(struct dquot *dquot)
- 
- 	mutex_lock(&dquot->dq_lock);
- 	/* Check whether we are not racing with some other dqget() */
--	if (atomic_read(&dquot->dq_count) > 1)
-+	if (dquot_is_busy(dquot))
- 		goto out_dqlock;
- 	if (dqopt->ops[dquot->dq_id.type]->release_dqblk) {
- 		ret = dqopt->ops[dquot->dq_id.type]->release_dqblk(dquot);
---- a/include/linux/quotaops.h
-+++ b/include/linux/quotaops.h
-@@ -51,6 +51,16 @@ static inline struct dquot *dqgrab(struc
- 	atomic_inc(&dquot->dq_count);
- 	return dquot;
- }
+--- a/fs/ext2/inode.c
++++ b/fs/ext2/inode.c
+@@ -699,10 +699,13 @@ static int ext2_get_blocks(struct inode
+ 		if (!partial) {
+ 			count++;
+ 			mutex_unlock(&ei->truncate_mutex);
+-			if (err)
+-				goto cleanup;
+ 			goto got_it;
+ 		}
 +
-+static inline bool dquot_is_busy(struct dquot *dquot)
-+{
-+	if (test_bit(DQ_MOD_B, &dquot->dq_flags))
-+		return true;
-+	if (atomic_read(&dquot->dq_count) > 1)
-+		return true;
-+	return false;
-+}
-+
- void dqput(struct dquot *dquot);
- int dquot_scan_active(struct super_block *sb,
- 		      int (*fn)(struct dquot *dquot, unsigned long priv),
++		if (err) {
++			mutex_unlock(&ei->truncate_mutex);
++			goto cleanup;
++		}
+ 	}
+ 
+ 	/*
 
 
