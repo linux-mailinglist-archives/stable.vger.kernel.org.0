@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B70912185C
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:43:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AE951217C5
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728607AbfLPR7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:59:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
+        id S1729688AbfLPSEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:04:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728769AbfLPR72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:59:28 -0500
+        id S1729687AbfLPSEi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3F5A21582;
-        Mon, 16 Dec 2019 17:59:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 589E320700;
+        Mon, 16 Dec 2019 18:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519168;
-        bh=sRaGSy+8FdAqGaH6XBe/JTP4pm6si35gdWrw7STTI28=;
+        s=default; t=1576519477;
+        bh=ALqeQ1mlQFZm/ZCQSnRaAsLeLzHzRts0tCbGZwrATSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ctKBsIcwAj/o5gL2+LVKeDK2hghtAG2kV9aUl/kkcFTVfJN8pJ6dcEQ9KCWlSE63r
-         1PRbZTn6x0ciRsQp9NV8jSTGoYR8S14VS9f/p1lQ7AiwExW1zERHLJB1DzTRgT34a2
-         bev6kcSNKCe/cIbTh5qzvSlzehEAqURx8ifiK4DE=
+        b=GbNsmdGczIB4Y9lygeTS7WRdr+eWf0Y8LIfYPvaJ4YDxK2b8y0MefdVCRhDlmAQu4
+         Gz3/oZjfGMP22yh2Aqw2d8cbQw3WPoK+RSh9+RvMHC/DNDBuVkb0J+fM4s054vGwia
+         Uwa9XmCHiSrkIkMNP2ArKrtSpXmcANJgZA8dvxYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 4.14 222/267] pinctrl: samsung: Fix device node refcount leaks in init code
-Date:   Mon, 16 Dec 2019 18:49:08 +0100
-Message-Id: <20191216174914.720020696@linuxfoundation.org>
+Subject: [PATCH 4.19 081/140] pinctrl: samsung: Fix device node refcount leaks in init code
+Date:   Mon, 16 Dec 2019 18:49:09 +0100
+Message-Id: <20191216174809.093575097@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,7 +62,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/pinctrl/samsung/pinctrl-samsung.c
 +++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
-@@ -277,6 +277,7 @@ static int samsung_dt_node_to_map(struct
+@@ -272,6 +272,7 @@ static int samsung_dt_node_to_map(struct
  						&reserved_maps, num_maps);
  		if (ret < 0) {
  			samsung_dt_free_map(pctldev, *map, *num_maps);
@@ -70,7 +70,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			return ret;
  		}
  	}
-@@ -761,8 +762,10 @@ static struct samsung_pmx_func *samsung_
+@@ -785,8 +786,10 @@ static struct samsung_pmx_func *samsung_
  		if (!of_get_child_count(cfg_np)) {
  			ret = samsung_pinctrl_create_function(dev, drvdata,
  							cfg_np, func);
@@ -82,7 +82,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			if (ret > 0) {
  				++func;
  				++func_cnt;
-@@ -773,8 +776,11 @@ static struct samsung_pmx_func *samsung_
+@@ -797,8 +800,11 @@ static struct samsung_pmx_func *samsung_
  		for_each_child_of_node(cfg_np, func_np) {
  			ret = samsung_pinctrl_create_function(dev, drvdata,
  						func_np, func);
