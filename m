@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B841E1216EC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA0421218AA
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730158AbfLPSJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:09:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52208 "EHLO mail.kernel.org"
+        id S1727991AbfLPR5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:57:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730063AbfLPSJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:09:40 -0500
+        id S1728507AbfLPR5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:57:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D461A206EC;
-        Mon, 16 Dec 2019 18:09:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC7592166E;
+        Mon, 16 Dec 2019 17:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519779;
-        bh=ciHsi6S8mBqBG9SPX5rUDlzx23pZaiJaiyXTm83PUwQ=;
+        s=default; t=1576519061;
+        bh=Bcyfsom547QGU5e7VQvQpY+Cvi9D3GQGIU6yVL4/iB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfXDO0Lr3eYpBQ/4QvNhoNsmIcRM6fXXDKXtmx2xaIK43oXV40KzMC1mkU/oY0SpA
-         Ct74aTTjkhuEKHhdtSI8GK2y8OMpAy4pz5Ez54TEFVRTvkBOu2z6y0c9n6IZw5M3nZ
-         yf6h3e/s3jifQaBFLJ7CQ2P0XzpGnmwoiBqawio8=
+        b=UXjjA/Xf3DeJDliSfFhobCM3NpTFqFvvvI6a3U6PFuPndWxcC45ag9LrgBB/dc56/
+         6Mz3LxNFrLI9ySU364lN0IoTLy86RZI65d8q6kGBLw1EThO8gqQgKkj0b9CyNMHHlX
+         QGDqtoXIqtcVB58mgC+rcsaeFyHT+73zDY5YhLzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.3 064/180] rtlwifi: rtl8192de: Fix missing callback that tests for hw release of buffer
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 178/267] USB: adutux: fix interface sanity check
 Date:   Mon, 16 Dec 2019 18:48:24 +0100
-Message-Id: <20191216174829.695516960@linuxfoundation.org>
+Message-Id: <20191216174912.253212531@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Johan Hovold <johan@kernel.org>
 
-commit 3155db7613edea8fb943624062baf1e4f9cfbfd6 upstream.
+commit 3c11c4bed02b202e278c0f5c319ae435d7fb9815 upstream.
 
-In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
-new drivers"), a callback needed to check if the hardware has released
-a buffer indicating that a DMA operation is completed was not added.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
-Cc: Stable <stable@vger.kernel.org>	# v3.18+
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+
+Fixes: 03270634e242 ("USB: Add ADU support for Ontrak ADU devices")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191210112601.3561-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c  |    1 +
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |   17 +++++++++++++++++
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h |    2 ++
- 3 files changed, 20 insertions(+)
+ drivers/usb/misc/adutux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
-@@ -216,6 +216,7 @@ static struct rtl_hal_ops rtl8192de_hal_
- 	.led_control = rtl92de_led_control,
- 	.set_desc = rtl92de_set_desc,
- 	.get_desc = rtl92de_get_desc,
-+	.is_tx_desc_closed = rtl92de_is_tx_desc_closed,
- 	.tx_polling = rtl92de_tx_polling,
- 	.enable_hw_sec = rtl92de_enable_hw_security_config,
- 	.set_key = rtl92de_set_key,
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
-@@ -837,6 +837,23 @@ u64 rtl92de_get_desc(struct ieee80211_hw
- 	return ret;
- }
+--- a/drivers/usb/misc/adutux.c
++++ b/drivers/usb/misc/adutux.c
+@@ -671,7 +671,7 @@ static int adu_probe(struct usb_interfac
+ 	init_waitqueue_head(&dev->read_wait);
+ 	init_waitqueue_head(&dev->write_wait);
  
-+bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
-+			       u8 hw_queue, u16 index)
-+{
-+	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
-+	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[hw_queue];
-+	u8 *entry = (u8 *)(&ring->desc[ring->idx]);
-+	u8 own = (u8)rtl92de_get_desc(hw, entry, true, HW_DESC_OWN);
-+
-+	/* a beacon packet will only use the first
-+	 * descriptor by defaut, and the own bit may not
-+	 * be cleared by the hardware
-+	 */
-+	if (own)
-+		return false;
-+	return true;
-+}
-+
- void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue)
- {
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
-@@ -715,6 +715,8 @@ void rtl92de_set_desc(struct ieee80211_h
- 		      u8 desc_name, u8 *val);
- u64 rtl92de_get_desc(struct ieee80211_hw *hw,
- 		     u8 *p_desc, bool istx, u8 desc_name);
-+bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
-+			       u8 hw_queue, u16 index);
- void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue);
- void rtl92de_tx_fill_cmddesc(struct ieee80211_hw *hw, u8 *pdesc,
- 			     bool b_firstseg, bool b_lastseg,
+-	res = usb_find_common_endpoints_reverse(&interface->altsetting[0],
++	res = usb_find_common_endpoints_reverse(interface->cur_altsetting,
+ 			NULL, NULL,
+ 			&dev->interrupt_in_endpoint,
+ 			&dev->interrupt_out_endpoint);
 
 
