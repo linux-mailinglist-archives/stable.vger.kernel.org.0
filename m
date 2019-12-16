@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 497881218B8
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A772F121726
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726798AbfLPSp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:45:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55986 "EHLO mail.kernel.org"
+        id S1730388AbfLPSJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:09:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728180AbfLPR5R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:17 -0500
+        id S1729989AbfLPSJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:09:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74C13206B7;
-        Mon, 16 Dec 2019 17:57:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 832DC20700;
+        Mon, 16 Dec 2019 18:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519036;
-        bh=Q6IPlbKphm9Ek82Zr/DSnj+WRQWNrsOn12LL6QQn+jg=;
+        s=default; t=1576519755;
+        bh=MZDP1uDEVQ1FeCEgMw5LxnwwOU/j06szPXQYjxuaDkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XqaToXXZ4hEhLTw/k1uo0Eoz9iDO8G98OF9PIJv1kRIzFlrJynwBU/rQwW+OnZKpZ
-         Hmd+v7lcMotDU2/rRYPFR92a8gCqxqpRVMEC+/1J2up59P6iciZ62PZ/2XZmk4hMJd
-         XN31D4SRZOCegSiPq+fU7f7zTnNvAxz4YcWyJBsY=
+        b=XaLFnmbCbu0GpPbYT1Cq09mdtGygaXWXNwvZ8w7rW52JPQ305SHBhTgFCe0WQ8aaT
+         TdjmHszIWMU/lJykanEMgI51LUhzjSkNY+83RszvlXELan9YfAiIhKJx89gWs+cgtO
+         NshYs+vfrO4okIUOkPLG/B6cS+lXM7cNy9gGifyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 169/267] staging: gigaset: add endpoint-type sanity check
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.3 055/180] btrfs: check page->mapping when loading free space cache
 Date:   Mon, 16 Dec 2019 18:48:15 +0100
-Message-Id: <20191216174911.761701488@linuxfoundation.org>
+Message-Id: <20191216174828.178979255@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit ed9ed5a89acba51b82bdff61144d4e4a4245ec8a upstream.
+commit 3797136b626ad4b6582223660c041efdea8f26b2 upstream.
 
-Add missing endpoint-type sanity checks to probe.
+While testing 5.2 we ran into the following panic
 
-This specifically prevents a warning in USB core on URB submission when
-fuzzing USB descriptors.
+[52238.017028] BUG: kernel NULL pointer dereference, address: 0000000000000001
+[52238.105608] RIP: 0010:drop_buffers+0x3d/0x150
+[52238.304051] Call Trace:
+[52238.308958]  try_to_free_buffers+0x15b/0x1b0
+[52238.317503]  shrink_page_list+0x1164/0x1780
+[52238.325877]  shrink_inactive_list+0x18f/0x3b0
+[52238.334596]  shrink_node_memcg+0x23e/0x7d0
+[52238.342790]  ? do_shrink_slab+0x4f/0x290
+[52238.350648]  shrink_node+0xce/0x4a0
+[52238.357628]  balance_pgdat+0x2c7/0x510
+[52238.365135]  kswapd+0x216/0x3e0
+[52238.371425]  ? wait_woken+0x80/0x80
+[52238.378412]  ? balance_pgdat+0x510/0x510
+[52238.386265]  kthread+0x111/0x130
+[52238.392727]  ? kthread_create_on_node+0x60/0x60
+[52238.401782]  ret_from_fork+0x1f/0x30
 
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191202085610.12719-4-johan@kernel.org
+The page we were trying to drop had a page->private, but had no
+page->mapping and so called drop_buffers, assuming that we had a
+buffer_head on the page, and then panic'ed trying to deref 1, which is
+our page->private for data pages.
+
+This is happening because we're truncating the free space cache while
+we're trying to load the free space cache.  This isn't supposed to
+happen, and I'll fix that in a followup patch.  However we still
+shouldn't allow those sort of mistakes to result in messing with pages
+that do not belong to us.  So add the page->mapping check to verify that
+we still own this page after dropping and re-acquiring the page lock.
+
+This page being unlocked as:
+btrfs_readpage
+  extent_read_full_page
+    __extent_read_full_page
+      __do_readpage
+        if (!nr)
+	   unlock_page  <-- nr can be 0 only if submit_extent_page
+			    returns an error
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+[ add callchain ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/isdn/gigaset/usb-gigaset.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ fs/btrfs/free-space-cache.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/isdn/gigaset/usb-gigaset.c
-+++ b/drivers/isdn/gigaset/usb-gigaset.c
-@@ -708,6 +708,12 @@ static int gigaset_probe(struct usb_inte
- 
- 	endpoint = &hostif->endpoint[0].desc;
- 
-+	if (!usb_endpoint_is_bulk_out(endpoint)) {
-+		dev_err(&interface->dev, "missing bulk-out endpoint\n");
-+		retval = -ENODEV;
-+		goto error;
-+	}
-+
- 	buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
- 	ucs->bulk_out_size = buffer_size;
- 	ucs->bulk_out_epnum = usb_endpoint_num(endpoint);
-@@ -727,6 +733,12 @@ static int gigaset_probe(struct usb_inte
- 
- 	endpoint = &hostif->endpoint[1].desc;
- 
-+	if (!usb_endpoint_is_int_in(endpoint)) {
-+		dev_err(&interface->dev, "missing int-in endpoint\n");
-+		retval = -ENODEV;
-+		goto error;
-+	}
-+
- 	ucs->busy = 0;
- 
- 	ucs->read_urb = usb_alloc_urb(0, GFP_KERNEL);
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -384,6 +384,12 @@ static int io_ctl_prepare_pages(struct b
+ 		if (uptodate && !PageUptodate(page)) {
+ 			btrfs_readpage(NULL, page);
+ 			lock_page(page);
++			if (page->mapping != inode->i_mapping) {
++				btrfs_err(BTRFS_I(inode)->root->fs_info,
++					  "free space cache page truncated");
++				io_ctl_drop_pages(io_ctl);
++				return -EIO;
++			}
+ 			if (!PageUptodate(page)) {
+ 				btrfs_err(BTRFS_I(inode)->root->fs_info,
+ 					   "error reading free space cache");
 
 
