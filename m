@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 069E012184C
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB111216B9
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728533AbfLPSmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:42:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34142 "EHLO mail.kernel.org"
+        id S1728368AbfLPSaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:30:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728899AbfLPSAP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:00:15 -0500
+        id S1730901AbfLPSMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:12:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDDE3206EC;
-        Mon, 16 Dec 2019 18:00:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62D52206E0;
+        Mon, 16 Dec 2019 18:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519214;
-        bh=AS7vz4AG6dDOpzOWr7bFy+qNqjjjnghZQo+IX8vYMJ0=;
+        s=default; t=1576519932;
+        bh=3nlPpKE9KOPLphkL/bgbzzcQNFy/eBNtAUfrYHGEUHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYLSGOYoMibt5KOzjAgvkIZGtTCnaSpL9CGLRODoyUe2PbTkDZ9cj1HwITMUa1bO0
-         aGY85Qgixdz3yXC/dWNCdV3GVWC+g9AyxjvaC1tb3N/qyGkyt0Vtz65UTg5UBduMO8
-         S5E64ehCq7S/f1AP3sNiLk3anP8UH+4WWMK0V5OM=
+        b=jVqDs+xnEPRwZGw23SyMYQGfF609I2rTNc/3JiP+BiNKvqw9FnURIw15prmALDS4g
+         WczSDGVUe3V5RrirjCnEvM8qyj2gPJKA/KGL+b3OTfAUjVkMf6CJyECuUfszfynd9U
+         Od+R54BqFyp+nzERtxwdRLaI/St8NathepOMlZbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        "Ewan D. Milne" <emilne@redhat.com>, Lee Duncan <lduncan@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 243/267] scsi: qla2xxx: Fix message indicating vectors used by driver
+        stable@vger.kernel.org,
+        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.3 129/180] quota: Check that quota is not dirty before release
 Date:   Mon, 16 Dec 2019 18:49:29 +0100
-Message-Id: <20191216174915.865473186@linuxfoundation.org>
+Message-Id: <20191216174841.632663744@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Himanshu Madhani <hmadhani@marvell.com>
+From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
 
-[ Upstream commit da48b82425b8bf999fb9f7c220e967c4d661b5f8 ]
+commit df4bb5d128e2c44848aeb36b7ceceba3ac85080d upstream.
 
-This patch updates log message which indicates number of vectors used by
-the driver instead of displaying failure to get maximum requested
-vectors. Driver will always request maximum vectors during
-initialization. In the event driver is not able to get maximum requested
-vectors, it will adjust the allocated vectors. This is normal and does not
-imply failure in driver.
+There is a race window where quota was redirted once we drop dq_list_lock inside dqput(),
+but before we grab dquot->dq_lock inside dquot_release()
 
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Link: https://lore.kernel.org/r/20190830222402.23688-2-hmadhani@marvell.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+TASK1                                                       TASK2 (chowner)
+->dqput()
+  we_slept:
+    spin_lock(&dq_list_lock)
+    if (dquot_dirty(dquot)) {
+          spin_unlock(&dq_list_lock);
+          dquot->dq_sb->dq_op->write_dquot(dquot);
+          goto we_slept
+    if (test_bit(DQ_ACTIVE_B, &dquot->dq_flags)) {
+          spin_unlock(&dq_list_lock);
+          dquot->dq_sb->dq_op->release_dquot(dquot);
+                                                            dqget()
+							    mark_dquot_dirty()
+							    dqput()
+          goto we_slept;
+        }
+So dquot dirty quota will be released by TASK1, but on next we_sleept loop
+we detect this and call ->write_dquot() for it.
+XFSTEST: https://github.com/dmonakhov/xfstests/commit/440a80d4cbb39e9234df4d7240aee1d551c36107
+
+Link: https://lore.kernel.org/r/20191031103920.3919-2-dmonakhov@openvz.org
+CC: stable@vger.kernel.org
+Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_isr.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/ocfs2/quota_global.c  |    2 +-
+ fs/quota/dquot.c         |    2 +-
+ include/linux/quotaops.h |   10 ++++++++++
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index 6a76d72175154..ebca1a470e9bc 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3369,10 +3369,8 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
- 		    ha->msix_count, ret);
- 		goto msix_out;
- 	} else if (ret < ha->msix_count) {
--		ql_log(ql_log_warn, vha, 0x00c6,
--		    "MSI-X: Failed to enable support "
--		     "with %d vectors, using %d vectors.\n",
--		    ha->msix_count, ret);
-+		ql_log(ql_log_info, vha, 0x00c6,
-+		    "MSI-X: Using %d vectors\n", ret);
- 		ha->msix_count = ret;
- 		/* Recalculate queue values */
- 		if (ha->mqiobase && ql2xmqsupport) {
--- 
-2.20.1
-
+--- a/fs/ocfs2/quota_global.c
++++ b/fs/ocfs2/quota_global.c
+@@ -728,7 +728,7 @@ static int ocfs2_release_dquot(struct dq
+ 
+ 	mutex_lock(&dquot->dq_lock);
+ 	/* Check whether we are not racing with some other dqget() */
+-	if (atomic_read(&dquot->dq_count) > 1)
++	if (dquot_is_busy(dquot))
+ 		goto out;
+ 	/* Running from downconvert thread? Postpone quota processing to wq */
+ 	if (current == osb->dc_task) {
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -497,7 +497,7 @@ int dquot_release(struct dquot *dquot)
+ 
+ 	mutex_lock(&dquot->dq_lock);
+ 	/* Check whether we are not racing with some other dqget() */
+-	if (atomic_read(&dquot->dq_count) > 1)
++	if (dquot_is_busy(dquot))
+ 		goto out_dqlock;
+ 	if (dqopt->ops[dquot->dq_id.type]->release_dqblk) {
+ 		ret = dqopt->ops[dquot->dq_id.type]->release_dqblk(dquot);
+--- a/include/linux/quotaops.h
++++ b/include/linux/quotaops.h
+@@ -54,6 +54,16 @@ static inline struct dquot *dqgrab(struc
+ 	atomic_inc(&dquot->dq_count);
+ 	return dquot;
+ }
++
++static inline bool dquot_is_busy(struct dquot *dquot)
++{
++	if (test_bit(DQ_MOD_B, &dquot->dq_flags))
++		return true;
++	if (atomic_read(&dquot->dq_count) > 1)
++		return true;
++	return false;
++}
++
+ void dqput(struct dquot *dquot);
+ int dquot_scan_active(struct super_block *sb,
+ 		      int (*fn)(struct dquot *dquot, unsigned long priv),
 
 
