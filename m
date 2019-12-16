@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D43121817
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 525DA121758
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728983AbfLPSCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:02:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S1730370AbfLPSJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:09:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbfLPSCO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:02:14 -0500
+        id S1729891AbfLPSJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:09:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E506E207FF;
-        Mon, 16 Dec 2019 18:02:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30F0D20700;
+        Mon, 16 Dec 2019 18:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519333;
-        bh=e2UyM+TXay0wzQ4sGvv+pApzuAUzU5AJTyWnsr4Udis=;
+        s=default; t=1576519747;
+        bh=40JMI6VQBZQYGPRBCqC1Q5JsXnBsyZXglDSKlZdoUug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vVDDyBjPjS3Wkgu2dGWEp/F5zboq6DOg8WuFz6f6+1QRU5YzlhI17fEee2QYgJ8A0
-         tb0jCp2vYtQovJpNPZKS1HfEjGsKOxWkRRdQ8y4K1MRHkyOWNjQrjRBb/ud0Ma3Y5a
-         W8KjewWTx1c2PbVC/dSjbAawj95oT2sSLi6zNH4o=
+        b=eHfyQE/ghK/10I4kTKsQejYy6aaMdSM3a7ZZdgGCeWQQCj+rTmBFxon/EWzx+7oF9
+         1+v+biNS07RRQkNBmTHt85Vjd4KJ16jNGBoB3krECnLUvmb3+7a/JYuLsSkgCyx7lI
+         MpgsiCxzlbDzNh7Dqc9lDMqSWSVnZLt9BHk6E5Sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 024/140] USB: serial: io_edgeport: fix epic endpoint lookup
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: [PATCH 5.3 052/180] phy: renesas: rcar-gen3-usb2: Fix sysfs interface of "role"
 Date:   Mon, 16 Dec 2019 18:48:12 +0100
-Message-Id: <20191216174756.811284228@linuxfoundation.org>
+Message-Id: <20191216174823.569732139@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 7c5a2df3367a2c4984f1300261345817d95b71f8 upstream.
+commit 4bd5ead82d4b877ebe41daf95f28cda53205b039 upstream.
 
-Make sure to use the current alternate setting when looking up the
-endpoints on epic devices to avoid binding to an invalid interface.
+Since the role_store() uses strncmp(), it's possible to refer
+out-of-memory if the sysfs data size is smaller than strlen("host").
+This patch fixes it by using sysfs_streq() instead of strncmp().
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: 6e8cf7751f9f ("USB: add EPIC support to the io_edgeport driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.21
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210112601.3561-5-johan@kernel.org
+Reported-by: Pavel Machek <pavel@denx.de>
+Fixes: 9bb86777fb71 ("phy: rcar-gen3-usb2: add sysfs for usb role swap")
+Cc: <stable@vger.kernel.org> # v4.10+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/io_edgeport.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/phy/renesas/phy-rcar-gen3-usb2.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/io_edgeport.c
-+++ b/drivers/usb/serial/io_edgeport.c
-@@ -2919,16 +2919,18 @@ static int edge_startup(struct usb_seria
- 	response = 0;
+--- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
++++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
+@@ -21,6 +21,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/string.h>
+ #include <linux/usb/of.h>
+ #include <linux/workqueue.h>
  
- 	if (edge_serial->is_epic) {
-+		struct usb_host_interface *alt;
-+
-+		alt = serial->interface->cur_altsetting;
-+
- 		/* EPIC thing, set up our interrupt polling now and our read
- 		 * urb, so that the device knows it really is connected. */
- 		interrupt_in_found = bulk_in_found = bulk_out_found = false;
--		for (i = 0; i < serial->interface->altsetting[0]
--						.desc.bNumEndpoints; ++i) {
-+		for (i = 0; i < alt->desc.bNumEndpoints; ++i) {
- 			struct usb_endpoint_descriptor *endpoint;
- 			int buffer_size;
+@@ -320,9 +321,9 @@ static ssize_t role_store(struct device
+ 	if (!ch->is_otg_channel || !rcar_gen3_is_any_rphy_initialized(ch))
+ 		return -EIO;
  
--			endpoint = &serial->interface->altsetting[0].
--							endpoint[i].desc;
-+			endpoint = &alt->endpoint[i].desc;
- 			buffer_size = usb_endpoint_maxp(endpoint);
- 			if (!interrupt_in_found &&
- 			    (usb_endpoint_is_int_in(endpoint))) {
+-	if (!strncmp(buf, "host", strlen("host")))
++	if (sysfs_streq(buf, "host"))
+ 		new_mode = PHY_MODE_USB_HOST;
+-	else if (!strncmp(buf, "peripheral", strlen("peripheral")))
++	else if (sysfs_streq(buf, "peripheral"))
+ 		new_mode = PHY_MODE_USB_DEVICE;
+ 	else
+ 		return -EINVAL;
 
 
