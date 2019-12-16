@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B55112136D
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 097E012147D
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:12:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729177AbfLPSBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:01:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36694 "EHLO mail.kernel.org"
+        id S1730635AbfLPSLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:11:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729175AbfLPSBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:01:34 -0500
+        id S1730148AbfLPSLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4AAC207FF;
-        Mon, 16 Dec 2019 18:01:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C952206E0;
+        Mon, 16 Dec 2019 18:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519294;
-        bh=hvjL24Mlxa/zyxzP4Llii51+D5DmhlYB/3tFpUR1fiU=;
+        s=default; t=1576519903;
+        bh=+TcQCskO8Yxad2UV+B9L/vAH6xNMwSDamhI/wfm7YAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lwy+XBIuDBOunLEKo+WRQU5u0qI1Uuiu6VYGYtKPC9hW0j0JZ4IFRsilp3IKPaNkJ
-         Yj6/B0U9W7ukDaKzaJ65AtgdSVkUf2lDeikgOEsHlvZIbqIE9LsSRuN4U7/IjFxCsc
-         /6Z4ZLEwaG4PzJbc+Mp+vQkUzaF1u9S713jsdwBk=
+        b=m/5eskF93S5FJ+NRw70wLbEQxKCsJISHINo2QcRxq3oAoyu88QDEVFtxIxTHA4aYu
+         2/o+iKGTfQUv15qpBSVabXqOqE5wPwy5EJ3gXGla/CIt6HAdt2cj5mI+PLT2rlvj3M
+         Bnil/YzBgKJQGG8dOc2xNLBwhN1DpiZ8PkBGqDHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Greg Kurz <groug@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 228/267] powerpc/xive: Prevent page fault issues in the machine crash handler
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5.3 114/180] pinctrl: samsung: Fix device node refcount leaks in Exynos wakeup controller init
 Date:   Mon, 16 Dec 2019 18:49:14 +0100
-Message-Id: <20191216174915.047602027@linuxfoundation.org>
+Message-Id: <20191216174839.220927863@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 1ca3dec2b2dff9d286ce6cd64108bda0e98f9710 upstream.
+commit 5c7f48dd14e892e3e920dd6bbbd52df79e1b3b41 upstream.
 
-When the machine crash handler is invoked, all interrupts are masked
-but interrupts which have not been started yet do not have an ESB page
-mapped in the Linux address space. This crashes the 'crash kexec'
-sequence on sPAPR guests.
+In exynos_eint_wkup_init() the for_each_child_of_node() loop is used
+with a break to find a matching child node.  Although each iteration of
+for_each_child_of_node puts the previous node, but early exit from loop
+misses it.  This leads to leak of device node.
 
-To fix, force the mapping of the ESB page when an interrupt is being
-mapped in the Linux IRQ number space. This is done by setting the
-initial state of the interrupt to OFF which is not necessarily the
-case on PowerNV.
-
-Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE interrupt controller")
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191031063100.3864-1-clg@kaod.org
+Cc: <stable@vger.kernel.org>
+Fixes: 43b169db1841 ("pinctrl: add exynos4210 specific extensions for samsung pinctrl driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/sysdev/xive/common.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pinctrl/samsung/pinctrl-exynos.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -967,6 +967,15 @@ static int xive_irq_alloc_data(unsigned
- 	xd->target = XIVE_INVALID_TARGET;
- 	irq_set_handler_data(virq, xd);
+--- a/drivers/pinctrl/samsung/pinctrl-exynos.c
++++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
+@@ -506,6 +506,7 @@ int exynos_eint_wkup_init(struct samsung
+ 				bank->nr_pins, &exynos_eint_irqd_ops, bank);
+ 		if (!bank->irq_domain) {
+ 			dev_err(dev, "wkup irq domain add failed\n");
++			of_node_put(wkup_np);
+ 			return -ENXIO;
+ 		}
  
-+	/*
-+	 * Turn OFF by default the interrupt being mapped. A side
-+	 * effect of this check is the mapping the ESB page of the
-+	 * interrupt in the Linux address space. This prevents page
-+	 * fault issues in the crash handler which masks all
-+	 * interrupts.
-+	 */
-+	xive_esb_read(xd, XIVE_ESB_SET_PQ_01);
-+
- 	return 0;
- }
+@@ -520,8 +521,10 @@ int exynos_eint_wkup_init(struct samsung
+ 		weint_data = devm_kcalloc(dev,
+ 					  bank->nr_pins, sizeof(*weint_data),
+ 					  GFP_KERNEL);
+-		if (!weint_data)
++		if (!weint_data) {
++			of_node_put(wkup_np);
+ 			return -ENOMEM;
++		}
  
+ 		for (idx = 0; idx < bank->nr_pins; ++idx) {
+ 			irq = irq_of_parse_and_map(bank->of_node, idx);
+@@ -538,10 +541,13 @@ int exynos_eint_wkup_init(struct samsung
+ 		}
+ 	}
+ 
+-	if (!muxed_banks)
++	if (!muxed_banks) {
++		of_node_put(wkup_np);
+ 		return 0;
++	}
+ 
+ 	irq = irq_of_parse_and_map(wkup_np, 0);
++	of_node_put(wkup_np);
+ 	if (!irq) {
+ 		dev_err(dev, "irq number for muxed EINTs not found\n");
+ 		return 0;
 
 
