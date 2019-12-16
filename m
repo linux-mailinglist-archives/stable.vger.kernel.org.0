@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5368121478
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89ACF1215EB
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:25:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730792AbfLPSLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:11:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55490 "EHLO mail.kernel.org"
+        id S1732070AbfLPSZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:25:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728074AbfLPSL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:11:29 -0500
+        id S1731756AbfLPSSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:18:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70754206E0;
-        Mon, 16 Dec 2019 18:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 186B0206E0;
+        Mon, 16 Dec 2019 18:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519888;
-        bh=6xdm1M0tEeY7At1h5MvDfHcXQcl135ewA0mZSxi3U78=;
+        s=default; t=1576520288;
+        bh=pm2cQGMCeE/U1M1ZNd+RFAp2veHPU25WymHFRQgKUQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ersp7mrqlDdzSXx8XEHM3H78g6dzPoimNsnrfdDGLonCo8U7iOB+XCfphcXI1Q2b7
-         RM9t7aogpCqphemrnW+/SAwl0pZyKpTK0sHPL4gZftYujg46ZDV/H/qo+CUP0iFl+i
-         1FXn7IMAFOibHXfNumXfdCirzNwnZJcvIAe3V0/o=
+        b=fjwoEDP+TujWZVTBJ3SVvyROBjcV7iBlKs+dmDRCaYQrwAb1yA7uvJoiiI8ltjD+e
+         pHD+GH5E6oO2VHNG98k6LmV5bAsobIO6soF2RLQ1bRiuN6gx3tUDTGLPXv+sCH7MRl
+         EHyA3JkHptU25L95Mkx78nJzTqA2JaQLlE6Km6pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.3 109/180] ACPI: bus: Fix NULL pointer check in acpi_bus_get_private_data()
-Date:   Mon, 16 Dec 2019 18:49:09 +0100
-Message-Id: <20191216174838.344695631@linuxfoundation.org>
+        stable@vger.kernel.org, Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 5.4 094/177] wil6210: check len before memcpy() calls
+Date:   Mon, 16 Dec 2019 18:49:10 +0100
+Message-Id: <20191216174839.462805451@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Denis Efremov <efremov@linux.com>
 
-commit 627ead724eff33673597216f5020b72118827de4 upstream.
+commit 2c840676be8ffc624bf9bb4490d944fd13c02d71 upstream.
 
-kmemleak reported backtrace:
-    [<bbee0454>] kmem_cache_alloc_trace+0x128/0x260
-    [<6677f215>] i2c_acpi_install_space_handler+0x4b/0xe0
-    [<1180f4fc>] i2c_register_adapter+0x186/0x400
-    [<6083baf7>] i2c_add_adapter+0x4e/0x70
-    [<a3ddf966>] intel_gmbus_setup+0x1a2/0x2c0 [i915]
-    [<84cb69ae>] i915_driver_probe+0x8d8/0x13a0 [i915]
-    [<81911d4b>] i915_pci_probe+0x48/0x160 [i915]
-    [<4b159af1>] pci_device_probe+0xdc/0x160
-    [<b3c64704>] really_probe+0x1ee/0x450
-    [<bc029f5a>] driver_probe_device+0x142/0x1b0
-    [<d8829d20>] device_driver_attach+0x49/0x50
-    [<de71f045>] __driver_attach+0xc9/0x150
-    [<df33ac83>] bus_for_each_dev+0x56/0xa0
-    [<80089bba>] driver_attach+0x19/0x20
-    [<cc73f583>] bus_add_driver+0x177/0x220
-    [<7b29d8c7>] driver_register+0x56/0xf0
+memcpy() in wmi_set_ie() and wmi_update_ft_ies() is called with
+src == NULL and len == 0. This is an undefined behavior. Fix it
+by checking "ie_len > 0" before the memcpy() calls.
 
-In i2c_acpi_remove_space_handler(), a leak occurs whenever the
-"data" parameter is initialized to 0 before being passed to
-acpi_bus_get_private_data().
+As suggested by GCC documentation:
+"The pointers passed to memmove (and similar functions in <string.h>)
+must be non-null even when nbytes==0, so GCC can use that information
+to remove the check after the memmove call." [1]
 
-This is because the NULL pointer check in acpi_bus_get_private_data()
-(condition->if(!*data)) returns EINVAL and, in consequence, memory is
-never freed in i2c_acpi_remove_space_handler().
+[1] https://gcc.gnu.org/gcc-4.9/porting_to.html
 
-Fix the NULL pointer check in acpi_bus_get_private_data() to follow
-the analogous check in acpi_get_data_full().
-
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-[ rjw: Subject & changelog ]
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Maya Erez <merez@codeaurora.org>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/bus.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wil6210/wmi.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -153,7 +153,7 @@ int acpi_bus_get_private_data(acpi_handl
- {
- 	acpi_status status;
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -2505,7 +2505,8 @@ int wmi_set_ie(struct wil6210_vif *vif,
+ 	cmd->mgmt_frm_type = type;
+ 	/* BUG: FW API define ieLen as u8. Will fix FW */
+ 	cmd->ie_len = cpu_to_le16(ie_len);
+-	memcpy(cmd->ie_info, ie, ie_len);
++	if (ie_len)
++		memcpy(cmd->ie_info, ie, ie_len);
+ 	rc = wmi_send(wil, WMI_SET_APPIE_CMDID, vif->mid, cmd, len);
+ 	kfree(cmd);
+ out:
+@@ -2541,7 +2542,8 @@ int wmi_update_ft_ies(struct wil6210_vif
+ 	}
  
--	if (!*data)
-+	if (!data)
- 		return -EINVAL;
+ 	cmd->ie_len = cpu_to_le16(ie_len);
+-	memcpy(cmd->ie_info, ie, ie_len);
++	if (ie_len)
++		memcpy(cmd->ie_info, ie, ie_len);
+ 	rc = wmi_send(wil, WMI_UPDATE_FT_IES_CMDID, vif->mid, cmd, len);
+ 	kfree(cmd);
  
- 	status = acpi_get_data(handle, acpi_bus_private_data_handler, data);
 
 
