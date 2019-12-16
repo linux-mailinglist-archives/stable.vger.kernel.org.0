@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1860B121568
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:22:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4FB12156A
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732294AbfLPSVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:21:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56864 "EHLO mail.kernel.org"
+        id S1732298AbfLPSVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:21:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732291AbfLPSVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:21:45 -0500
+        id S1732297AbfLPSVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:21:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 073AF2166E;
-        Mon, 16 Dec 2019 18:21:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6650B2176D;
+        Mon, 16 Dec 2019 18:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520504;
-        bh=tV2z1ja2zHlj5jhifV+uZdn0BPjYitXdpaQ4jLkp6L0=;
+        s=default; t=1576520506;
+        bh=8u+kKloouRp+fZXOBHVFwKcMa6g72kyl4ur9MdRpgTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M82zR1TwW+I7HzTfqlerD1X0jdWWkmCdJ75e+mN6/v3garte6VXSHZEuMeZ2ISJmS
-         qSi3dsUgSMctapGixq/EBdyFowFlm537gewt/jC3HMQirL5OqKYo37wsVMB465yYiA
-         0nRT8Xu4xq7BhcjK2MtfTWEnSfwzmerey4wVeL8Q=
+        b=vxQGdeXO88CZoAjiviBq7Sfl+iu3N77AD1VPhQCfY2oUoTiEEtXK/muimhmBpr1ol
+         uBLvk4S5XN0ZdUvJffbqJK4WiPIWMCZxKodBSZ3ay77NKJYV6iQUCHJs5po1kY77Q4
+         AQH/zRHhtm8j6+1NhBgdME9LaXEdBJ22uZ9IjhUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3c01db6025f26530cf8d@syzkaller.appspotmail.com,
-        =?UTF-8?q?Andreas=20Gr=C3=BCnbacher?= 
-        <andreas.gruenbacher@gmail.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: [PATCH 5.4 175/177] splice: only read in as much information as there is pipe buffer space
-Date:   Mon, 16 Dec 2019 18:50:31 +0100
-Message-Id: <20191216174851.025191373@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 176/177] ext4: fix a bug in ext4_wait_for_tail_page_commit
+Date:   Mon, 16 Dec 2019 18:50:32 +0100
+Message-Id: <20191216174851.118372183@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -46,63 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: yangerkun <yangerkun@huawei.com>
 
-commit 3253d9d093376d62b4a56e609f15d2ec5085ac73 upstream.
+commit 565333a1554d704789e74205989305c811fd9c7a upstream.
 
-Andreas Grünbacher reports that on the two filesystems that support
-iomap directio, it's possible for splice() to return -EAGAIN (instead of
-a short splice) if the pipe being written to has less space available in
-its pipe buffers than the length supplied by the calling process.
+No need to wait for any commit once the page is fully truncated.
+Besides, it may confuse e.g. concurrent ext4_writepage() with the page
+still be dirty (will be cleared by truncate_pagecache() in
+ext4_setattr()) but buffers has been freed; and then trigger a bug
+show as below:
 
-Months ago we fixed splice_direct_to_actor to clamp the length of the
-read request to the size of the splice pipe.  Do the same to do_splice.
+[   26.057508] ------------[ cut here ]------------
+[   26.058531] kernel BUG at fs/ext4/inode.c:2134!
+...
+[   26.088130] Call trace:
+[   26.088695]  ext4_writepage+0x914/0xb28
+[   26.089541]  writeout.isra.4+0x1b4/0x2b8
+[   26.090409]  move_to_new_page+0x3b0/0x568
+[   26.091338]  __unmap_and_move+0x648/0x988
+[   26.092241]  unmap_and_move+0x48c/0xbb8
+[   26.093096]  migrate_pages+0x220/0xb28
+[   26.093945]  kernel_mbind+0x828/0xa18
+[   26.094791]  __arm64_sys_mbind+0xc8/0x138
+[   26.095716]  el0_svc_common+0x190/0x490
+[   26.096571]  el0_svc_handler+0x60/0xd0
+[   26.097423]  el0_svc+0x8/0xc
 
-Fixes: 17614445576b6 ("splice: don't read more than available pipe space")
-Reported-by: syzbot+3c01db6025f26530cf8d@syzkaller.appspotmail.com
-Reported-by: Andreas Grünbacher <andreas.gruenbacher@gmail.com>
-Reviewed-by: Andreas Grünbacher <andreas.gruenbacher@gmail.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Run the procedure (generate by syzkaller) parallel with ext3.
+
+void main()
+{
+	int fd, fd1, ret;
+	void *addr;
+	size_t length = 4096;
+	int flags;
+	off_t offset = 0;
+	char *str = "12345";
+
+	fd = open("a", O_RDWR | O_CREAT);
+	assert(fd >= 0);
+
+	/* Truncate to 4k */
+	ret = ftruncate(fd, length);
+	assert(ret == 0);
+
+	/* Journal data mode */
+	flags = 0xc00f;
+	ret = ioctl(fd, _IOW('f', 2, long), &flags);
+	assert(ret == 0);
+
+	/* Truncate to 0 */
+	fd1 = open("a", O_TRUNC | O_NOATIME);
+	assert(fd1 >= 0);
+
+	addr = mmap(NULL, length, PROT_WRITE | PROT_READ,
+					MAP_SHARED, fd, offset);
+	assert(addr != (void *)-1);
+
+	memcpy(addr, str, 5);
+	mbind(addr, length, 0, 0, 0, MPOL_MF_MOVE);
+}
+
+And the bug will be triggered once we seen the below order.
+
+reproduce1                         reproduce2
+
+...                            |   ...
+truncate to 4k                 |
+change to journal data mode    |
+                               |   memcpy(set page dirty)
+truncate to 0:                 |
+ext4_setattr:                  |
+...                            |
+ext4_wait_for_tail_page_commit |
+                               |   mbind(trigger bug)
+truncate_pagecache(clean dirty)|   ...
+...                            |
+
+mbind will call ext4_writepage() since the page still be dirty, and then
+report the bug since the buffers has been free. Fix it by return
+directly once offset equals to 0 which means the page has been fully
+truncated.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Link: https://lore.kernel.org/r/20190919063508.1045-1-yangerkun@huawei.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/splice.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -945,12 +945,13 @@ ssize_t splice_direct_to_actor(struct fi
- 	WARN_ON_ONCE(pipe->nrbufs != 0);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5459,11 +5459,15 @@ static void ext4_wait_for_tail_page_comm
  
- 	while (len) {
-+		unsigned int pipe_pages;
- 		size_t read_len;
- 		loff_t pos = sd->pos, prev_pos = pos;
- 
- 		/* Don't try to read more the pipe has space for. */
--		read_len = min_t(size_t, len,
--				 (pipe->buffers - pipe->nrbufs) << PAGE_SHIFT);
-+		pipe_pages = pipe->buffers - pipe->nrbufs;
-+		read_len = min(len, (size_t)pipe_pages << PAGE_SHIFT);
- 		ret = do_splice_to(in, &pos, pipe, read_len, flags);
- 		if (unlikely(ret <= 0))
- 			goto out_release;
-@@ -1180,8 +1181,15 @@ static long do_splice(struct file *in, l
- 
- 		pipe_lock(opipe);
- 		ret = wait_for_space(opipe, flags);
--		if (!ret)
-+		if (!ret) {
-+			unsigned int pipe_pages;
-+
-+			/* Don't try to read more the pipe has space for. */
-+			pipe_pages = opipe->buffers - opipe->nrbufs;
-+			len = min(len, (size_t)pipe_pages << PAGE_SHIFT);
-+
- 			ret = do_splice_to(in, &offset, opipe, len, flags);
-+		}
- 		pipe_unlock(opipe);
- 		if (ret > 0)
- 			wakeup_pipe_readers(opipe);
+ 	offset = inode->i_size & (PAGE_SIZE - 1);
+ 	/*
+-	 * All buffers in the last page remain valid? Then there's nothing to
+-	 * do. We do the check mainly to optimize the common PAGE_SIZE ==
+-	 * blocksize case
++	 * If the page is fully truncated, we don't need to wait for any commit
++	 * (and we even should not as __ext4_journalled_invalidatepage() may
++	 * strip all buffers from the page but keep the page dirty which can then
++	 * confuse e.g. concurrent ext4_writepage() seeing dirty page without
++	 * buffers). Also we don't need to wait for any commit if all buffers in
++	 * the page remain valid. This is most beneficial for the common case of
++	 * blocksize == PAGESIZE.
+ 	 */
+-	if (offset > PAGE_SIZE - i_blocksize(inode))
++	if (!offset || offset > (PAGE_SIZE - i_blocksize(inode)))
+ 		return;
+ 	while (1) {
+ 		page = find_lock_page(inode->i_mapping,
 
 
