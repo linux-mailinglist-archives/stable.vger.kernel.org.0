@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75E7512150A
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 334C6121468
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731705AbfLPSRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:17:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42358 "EHLO mail.kernel.org"
+        id S1730713AbfLPSLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:11:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731368AbfLPSRt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:17:49 -0500
+        id S1730710AbfLPSLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0821206E0;
-        Mon, 16 Dec 2019 18:17:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 059512072D;
+        Mon, 16 Dec 2019 18:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520269;
-        bh=IWANP2m/HdiV9PxPUQGlMOT2EXU8H0Be69ffeLkXblc=;
+        s=default; t=1576519864;
+        bh=P1W7VsLg1ccfrXtluoSlXoEz9xd4qtjEQuc9NOvlP5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1BX4kHNOzycgnQqtT17kj8YVcwxO21PeUyVm9O0v/TVEViJwL8aUwwA/lvYelmQ+
-         Gi7hbsp1F64oZsX2UCK62H4dIbcop9hdjVvZRUnvgOc7McKk6deA//eSRKu15Zv0z4
-         ddzAI2gCcsXzgeA64vC5wA99lPJEljyR/VIeG2HU=
+        b=YLydCyVxdYqeaPSplSu7a6SRG9Ul4eNBh57G8Fa++W6D3SHSAiPAFqAhc9j9cvlEL
+         eWw5xS9qzNtGtJveuUyLLm8v7ONxwfFrAH5ZTJMFkQLBgXX/qny7IKsPIXthmba+Y6
+         LKlZk+1U1t0A2EL8U/WLwslNSKEtx76efwduKJ+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maged Mokhtar <mmokhtar@petasan.org>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 083/177] dm writecache: handle REQ_FUA
-Date:   Mon, 16 Dec 2019 18:48:59 +0100
-Message-Id: <20191216174837.756474123@linuxfoundation.org>
+        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.3 100/180] cpufreq: powernv: fix stack bloat and hard limit on number of CPUs
+Date:   Mon, 16 Dec 2019 18:49:00 +0100
+Message-Id: <20191216174835.920386596@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maged Mokhtar <mmokhtar@petasan.org>
+From: John Hubbard <jhubbard@nvidia.com>
 
-commit c1005322ff02110a4df7f0033368ea015062b583 upstream.
+commit db0d32d84031188443e25edbd50a71a6e7ac5d1d upstream.
 
-Call writecache_flush() on REQ_FUA in writecache_map().
+The following build warning occurred on powerpc 64-bit builds:
 
-Cc: stable@vger.kernel.org # 4.18+
-Signed-off-by: Maged Mokhtar <mmokhtar@petasan.org>
-Acked-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+drivers/cpufreq/powernv-cpufreq.c: In function 'init_chip_info':
+drivers/cpufreq/powernv-cpufreq.c:1070:1: warning: the frame size of
+1040 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+
+This is with a cross-compiler based on gcc 8.1.0, which I got from:
+  https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/8.1.0/
+
+The warning is due to putting 1024 bytes on the stack:
+
+    unsigned int chip[256];
+
+...and it's also undesirable to have a hard limit on the number of
+CPUs here.
+
+Fix both problems by dynamically allocating based on num_possible_cpus,
+as recommended by Michael Ellerman.
+
+Fixes: 053819e0bf840 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-writecache.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/cpufreq/powernv-cpufreq.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -1218,7 +1218,8 @@ bio_copy:
- 			}
- 		} while (bio->bi_iter.bi_size);
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -1041,9 +1041,14 @@ static struct cpufreq_driver powernv_cpu
  
--		if (unlikely(wc->uncommitted_blocks >= wc->autocommit_blocks))
-+		if (unlikely(bio->bi_opf & REQ_FUA ||
-+			     wc->uncommitted_blocks >= wc->autocommit_blocks))
- 			writecache_flush(wc);
- 		else
- 			writecache_schedule_autocommit(wc);
+ static int init_chip_info(void)
+ {
+-	unsigned int chip[256];
++	unsigned int *chip;
+ 	unsigned int cpu, i;
+ 	unsigned int prev_chip_id = UINT_MAX;
++	int ret = 0;
++
++	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
++	if (!chip)
++		return -ENOMEM;
+ 
+ 	for_each_possible_cpu(cpu) {
+ 		unsigned int id = cpu_to_chip_id(cpu);
+@@ -1055,8 +1060,10 @@ static int init_chip_info(void)
+ 	}
+ 
+ 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
+-	if (!chips)
+-		return -ENOMEM;
++	if (!chips) {
++		ret = -ENOMEM;
++		goto free_and_return;
++	}
+ 
+ 	for (i = 0; i < nr_chips; i++) {
+ 		chips[i].id = chip[i];
+@@ -1066,7 +1073,9 @@ static int init_chip_info(void)
+ 			per_cpu(chip_info, cpu) =  &chips[i];
+ 	}
+ 
+-	return 0;
++free_and_return:
++	kfree(chip);
++	return ret;
+ }
+ 
+ static inline void clean_chip_info(void)
 
 
