@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7B81215CA
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13ED1121470
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730058AbfLPSYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:24:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45974 "EHLO mail.kernel.org"
+        id S1730759AbfLPSLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:11:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731875AbfLPSTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:19:00 -0500
+        id S1730510AbfLPSLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29A72206EC;
-        Mon, 16 Dec 2019 18:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CF37206B7;
+        Mon, 16 Dec 2019 18:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520339;
-        bh=I/aQZOgdx/StfqxD/zjch/Q7mN7Mb/s/G1BBWN5EtvE=;
+        s=default; t=1576519876;
+        bh=5j+6CsovKw99scUcvr+DpdunNczZoR/kosoKZyu7GQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6LePJr0asZSvtjG8vqqqS3j1NRoFmt4y4JmRqZijkPWAH5/duozshCO+HpABRbmx
-         Ib4CGVwedv188nBwayWeeWdOhUPFmenqfOxjsiVCOxJZkJ26A0ZKRkRRz6xgEDmztD
-         7Jzc+EYF1R6mt2exNAp4A22HUugMQmQrqf3PnKDY=
+        b=HLyHc1dHb89YS1DSWO3OLsjl8iSw4za90AaR+FeeFoOZNgj4AneVFSj0dgJ8VZIyd
+         jpHYyHFfVawp7RxFC8HrWK9gV0998RlYCst4O5jRErigX3qrHEtXPXbs1yceOVfPbE
+         fh/uupnJaJb0MzDQ7AIUFnYFtWivGguYQGq2P5Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Rasmussen <jacobraz@google.com>,
-        Ross Zwisler <zwisler@google.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 087/177] ASoC: rt5645: Fixed buddy jack support.
-Date:   Mon, 16 Dec 2019 18:49:03 +0100
-Message-Id: <20191216174838.656873901@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.3 104/180] ACPI: LPSS: Add LNXVIDEO -> BYT I2C7 to lpss_device_links
+Date:   Mon, 16 Dec 2019 18:49:04 +0100
+Message-Id: <20191216174837.562060178@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Rasmussen <jacobraz@chromium.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit e7cfd867fd9842f346688f28412eb83dec342900 upstream.
+commit cc18735f208565343a9824adeca5305026598550 upstream.
 
-The headphone jack on buddy was broken with the following commit:
-commit 6b5da66322c5 ("ASoC: rt5645: read jd1_1 status for jd
-detection").
-This changes the jd_mode for buddy to 4 so buddy can read from the same
-register that was used in the working version of this driver without
-affecting any other devices that might use this, since no other device uses
-jd_mode = 4. To test this I plugged and uplugged the headphone jack, verifying
-audio works.
+So far on Bay Trail (BYT) we only have been adding a device_link adding
+the iGPU (LNXVIDEO) device as consumer for the I2C controller for the
+PMIC for I2C5, but the PMIC only uses I2C5 on BYT CR (cost reduced) on
+regular BYT platforms I2C7 is used and we were not adding the device_link
+sometimes causing resume ordering issues.
 
-Signed-off-by: Jacob Rasmussen <jacobraz@google.com>
-Reviewed-by: Ross Zwisler <zwisler@google.com>
-Link: https://lore.kernel.org/r/20191111185957.217244-1-jacobraz@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+This commit adds LNXVIDEO -> BYT I2C7 to the lpss_device_links table,
+fixing this.
+
+Fixes: 2d71ee0ce72f ("ACPI / LPSS: Add a device link from the GPU to the BYT I2C5 controller")
+Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/rt5645.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/acpi/acpi_lpss.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -3270,6 +3270,9 @@ static void rt5645_jack_detect_work(stru
- 		snd_soc_jack_report(rt5645->mic_jack,
- 				    report, SND_JACK_MICROPHONE);
- 		return;
-+	case 4:
-+		val = snd_soc_component_read32(rt5645->component, RT5645_A_JD_CTRL1) & 0x002;
-+		break;
- 	default: /* read rt5645 jd1_1 status */
- 		val = snd_soc_component_read32(rt5645->component, RT5645_INT_IRQ_ST) & 0x1000;
- 		break;
-@@ -3603,7 +3606,7 @@ static const struct rt5645_platform_data
- static const struct rt5645_platform_data buddy_platform_data = {
- 	.dmic1_data_pin = RT5645_DMIC_DATA_GPIO5,
- 	.dmic2_data_pin = RT5645_DMIC_DATA_IN2P,
--	.jd_mode = 3,
-+	.jd_mode = 4,
- 	.level_trigger_irq = true,
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -473,9 +473,14 @@ struct lpss_device_links {
+  * the supplier is not enumerated until after the consumer is probed.
+  */
+ static const struct lpss_device_links lpss_device_links[] = {
++	/* CHT External sdcard slot controller depends on PMIC I2C ctrl */
+ 	{"808622C1", "7", "80860F14", "3", DL_FLAG_PM_RUNTIME},
++	/* CHT iGPU depends on PMIC I2C controller */
+ 	{"808622C1", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
++	/* BYT CR iGPU depends on PMIC I2C controller (UID 5 on CR) */
+ 	{"80860F41", "5", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
++	/* BYT iGPU depends on PMIC I2C controller (UID 7 on non CR) */
++	{"80860F41", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
  };
  
-@@ -3999,6 +4002,7 @@ static int rt5645_i2c_probe(struct i2c_c
- 					   RT5645_JD1_MODE_1);
- 			break;
- 		case 3:
-+		case 4:
- 			regmap_update_bits(rt5645->regmap, RT5645_A_JD_CTRL1,
- 					   RT5645_JD1_MODE_MASK,
- 					   RT5645_JD1_MODE_2);
+ static bool hid_uid_match(struct acpi_device *adev,
 
 
