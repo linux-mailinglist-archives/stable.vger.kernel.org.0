@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08C51121793
+	by mail.lfdr.de (Postfix) with ESMTP id 7878D121794
 	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729971AbfLPSGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:06:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46488 "EHLO mail.kernel.org"
+        id S1729609AbfLPSG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:06:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729700AbfLPSGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:06:22 -0500
+        id S1729975AbfLPSGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:06:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF0952166E;
-        Mon, 16 Dec 2019 18:06:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18F0920CC7;
+        Mon, 16 Dec 2019 18:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519582;
-        bh=qfLIyuP8vUYwtGD85lTzXF8+5mCQRvrpZUQQVQpkGXw=;
+        s=default; t=1576519584;
+        bh=bu9+zdzg8UDEu4byHFza+rngROkhwfxinAmlIETMOBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uupPAW8VIgWOU5eSJRBZ85rmY/3zNz3vMTvu7TR0yMNEd8p2Jaas2Tn8nufoye3IH
-         XaWBWAxefk/OcLOBexkaNA6kivIl097pVFQGWBh0CPfcKzDO6wLbpdIknIMElOI1Va
-         ZEugfU5gaN4k+bSwD0SWCR5D6L8rDSR33cUB2R4g=
+        b=DnbW8VtinOKZC6BH8AnIQU+WEimGpeK7tfy8BQ36F8cNPCE2MtEwBM/K3wW3p2oTJ
+         GgueRoAlT2KL2qBNAGM86SIoHUKe2fntlCTBfy8Zj0CFYEexsadi8vItF24llsub+C
+         gl5FGylsK7jyafthj2TLDgjTLfHnfpFgefYZxNgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Alex Veber <alexve@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 124/140] power: supply: cpcap-battery: Fix signed counter sample register
-Date:   Mon, 16 Dec 2019 18:49:52 +0100
-Message-Id: <20191216174823.568255325@linuxfoundation.org>
+Subject: [PATCH 4.19 125/140] mlxsw: spectrum_router: Refresh nexthop neighbour when it becomes dead
+Date:   Mon, 16 Dec 2019 18:49:53 +0100
+Message-Id: <20191216174824.587088968@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
 References: <20191216174747.111154704@linuxfoundation.org>
@@ -45,80 +46,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit c68b901ac4fa969db8917b6a9f9b40524a690d20 ]
+[ Upstream commit 83d5782681cc12b3d485a83cb34c46b2445f510c ]
 
-The accumulator sample register is signed 32-bits wide register on
-droid 4. And only the earlier version of cpcap has a signed 24-bits
-wide register. We're currently passing it around as unsigned, so
-let's fix that and use sign_extend32() for the earlier revision.
+The driver tries to periodically refresh neighbours that are used to
+reach nexthops. This is done by periodically calling neigh_event_send().
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+However, if the neighbour becomes dead, there is nothing we can do to
+return it to a connected state and the above function call is basically
+a NOP.
+
+This results in the nexthop never being written to the device's
+adjacency table and therefore never used to forward packets.
+
+Fix this by dropping our reference from the dead neighbour and
+associating the nexthop with a new neigbhour which we will try to
+refresh.
+
+Fixes: a7ff87acd995 ("mlxsw: spectrum_router: Implement next-hop routing")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Alex Veber <alexve@mellanox.com>
+Tested-by: Alex Veber <alexve@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cpcap-battery.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ .../ethernet/mellanox/mlxsw/spectrum_router.c | 73 ++++++++++++++++++-
+ 1 file changed, 70 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
-index 3bae02380bb22..e183a22de7153 100644
---- a/drivers/power/supply/cpcap-battery.c
-+++ b/drivers/power/supply/cpcap-battery.c
-@@ -82,7 +82,7 @@ struct cpcap_battery_config {
- };
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+index 44b6c2ac5961d..76960d3adfc03 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
+@@ -2228,7 +2228,7 @@ static void mlxsw_sp_router_probe_unresolved_nexthops(struct work_struct *work)
+ static void
+ mlxsw_sp_nexthop_neigh_update(struct mlxsw_sp *mlxsw_sp,
+ 			      struct mlxsw_sp_neigh_entry *neigh_entry,
+-			      bool removing);
++			      bool removing, bool dead);
  
- struct cpcap_coulomb_counter_data {
--	s32 sample;		/* 24-bits */
-+	s32 sample;		/* 24 or 32 bits */
- 	s32 accumulator;
- 	s16 offset;		/* 10-bits */
- };
-@@ -213,7 +213,7 @@ static int cpcap_battery_get_current(struct cpcap_battery_ddata *ddata)
-  * TI or ST coulomb counter in the PMIC.
-  */
- static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
--				    u32 sample, s32 accumulator,
-+				    s32 sample, s32 accumulator,
- 				    s16 offset, u32 divider)
+ static enum mlxsw_reg_rauht_op mlxsw_sp_rauht_op(bool adding)
  {
- 	s64 acc;
-@@ -224,7 +224,6 @@ static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
- 	if (!divider)
- 		return 0;
+@@ -2359,7 +2359,8 @@ static void mlxsw_sp_router_neigh_event_work(struct work_struct *work)
  
--	sample &= 0xffffff;		/* 24-bits, unsigned */
- 	offset &= 0x7ff;		/* 10-bits, signed */
+ 	memcpy(neigh_entry->ha, ha, ETH_ALEN);
+ 	mlxsw_sp_neigh_entry_update(mlxsw_sp, neigh_entry, entry_connected);
+-	mlxsw_sp_nexthop_neigh_update(mlxsw_sp, neigh_entry, !entry_connected);
++	mlxsw_sp_nexthop_neigh_update(mlxsw_sp, neigh_entry, !entry_connected,
++				      dead);
  
- 	switch (ddata->vendor) {
-@@ -259,7 +258,7 @@ static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
- 
- /* 3600000μAms = 1μAh */
- static int cpcap_battery_cc_to_uah(struct cpcap_battery_ddata *ddata,
--				   u32 sample, s32 accumulator,
-+				   s32 sample, s32 accumulator,
- 				   s16 offset)
- {
- 	return cpcap_battery_cc_raw_div(ddata, sample,
-@@ -268,7 +267,7 @@ static int cpcap_battery_cc_to_uah(struct cpcap_battery_ddata *ddata,
+ 	if (!neigh_entry->connected && list_empty(&neigh_entry->nexthop_list))
+ 		mlxsw_sp_neigh_entry_destroy(mlxsw_sp, neigh_entry);
+@@ -3323,13 +3324,79 @@ static void __mlxsw_sp_nexthop_neigh_update(struct mlxsw_sp_nexthop *nh,
+ 	nh->update = 1;
  }
  
- static int cpcap_battery_cc_to_ua(struct cpcap_battery_ddata *ddata,
--				  u32 sample, s32 accumulator,
-+				  s32 sample, s32 accumulator,
- 				  s16 offset)
++static int
++mlxsw_sp_nexthop_dead_neigh_replace(struct mlxsw_sp *mlxsw_sp,
++				    struct mlxsw_sp_neigh_entry *neigh_entry)
++{
++	struct neighbour *n, *old_n = neigh_entry->key.n;
++	struct mlxsw_sp_nexthop *nh;
++	bool entry_connected;
++	u8 nud_state, dead;
++	int err;
++
++	nh = list_first_entry(&neigh_entry->nexthop_list,
++			      struct mlxsw_sp_nexthop, neigh_list_node);
++
++	n = neigh_lookup(nh->nh_grp->neigh_tbl, &nh->gw_addr, nh->rif->dev);
++	if (!n) {
++		n = neigh_create(nh->nh_grp->neigh_tbl, &nh->gw_addr,
++				 nh->rif->dev);
++		if (IS_ERR(n))
++			return PTR_ERR(n);
++		neigh_event_send(n, NULL);
++	}
++
++	mlxsw_sp_neigh_entry_remove(mlxsw_sp, neigh_entry);
++	neigh_entry->key.n = n;
++	err = mlxsw_sp_neigh_entry_insert(mlxsw_sp, neigh_entry);
++	if (err)
++		goto err_neigh_entry_insert;
++
++	read_lock_bh(&n->lock);
++	nud_state = n->nud_state;
++	dead = n->dead;
++	read_unlock_bh(&n->lock);
++	entry_connected = nud_state & NUD_VALID && !dead;
++
++	list_for_each_entry(nh, &neigh_entry->nexthop_list,
++			    neigh_list_node) {
++		neigh_release(old_n);
++		neigh_clone(n);
++		__mlxsw_sp_nexthop_neigh_update(nh, !entry_connected);
++		mlxsw_sp_nexthop_group_refresh(mlxsw_sp, nh->nh_grp);
++	}
++
++	neigh_release(n);
++
++	return 0;
++
++err_neigh_entry_insert:
++	neigh_entry->key.n = old_n;
++	mlxsw_sp_neigh_entry_insert(mlxsw_sp, neigh_entry);
++	neigh_release(n);
++	return err;
++}
++
+ static void
+ mlxsw_sp_nexthop_neigh_update(struct mlxsw_sp *mlxsw_sp,
+ 			      struct mlxsw_sp_neigh_entry *neigh_entry,
+-			      bool removing)
++			      bool removing, bool dead)
  {
- 	return cpcap_battery_cc_raw_div(ddata, sample,
-@@ -312,6 +311,8 @@ cpcap_battery_read_accumulated(struct cpcap_battery_ddata *ddata,
- 	/* Sample value CPCAP_REG_CCS1 & 2 */
- 	ccd->sample = (buf[1] & 0x0fff) << 16;
- 	ccd->sample |= buf[0];
-+	if (ddata->vendor == CPCAP_VENDOR_TI)
-+		ccd->sample = sign_extend32(24, ccd->sample);
+ 	struct mlxsw_sp_nexthop *nh;
  
- 	/* Accumulator value CPCAP_REG_CCA1 & 2 */
- 	ccd->accumulator = ((s16)buf[3]) << 16;
++	if (list_empty(&neigh_entry->nexthop_list))
++		return;
++
++	if (dead) {
++		int err;
++
++		err = mlxsw_sp_nexthop_dead_neigh_replace(mlxsw_sp,
++							  neigh_entry);
++		if (err)
++			dev_err(mlxsw_sp->bus_info->dev, "Failed to replace dead neigh\n");
++		return;
++	}
++
+ 	list_for_each_entry(nh, &neigh_entry->nexthop_list,
+ 			    neigh_list_node) {
+ 		__mlxsw_sp_nexthop_neigh_update(nh, removing);
 -- 
 2.20.1
 
