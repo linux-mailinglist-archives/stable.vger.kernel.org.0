@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1F61218A1
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6139712180E
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727993AbfLPR5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56128 "EHLO mail.kernel.org"
+        id S1729184AbfLPSBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:01:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726758AbfLPR5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:22 -0500
+        id S1727711AbfLPSBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:01:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55B98206B7;
-        Mon, 16 Dec 2019 17:57:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D8F32072D;
+        Mon, 16 Dec 2019 18:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519041;
-        bh=xO5dXkCw8xhNTbDA2BESEhyvgo+MUghQp48pLDiRep0=;
+        s=default; t=1576519299;
+        bh=bHY+hH+oy5H5ZMf0BwWbtEFg6DNlTY265tdURzve4P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Log/zCJwX6hiBxyRuXUKNY+eAA8W54ESnV/qjdppVRv1uqLHoOLi9jDMA2RD4OQjD
-         r1axPHZ5aykaOd7aR5huhItexqCSaVvC42qtg9FnwPxi2c3RJFdTja5zDnyros5x/B
-         rG8Ci9WSMi/yz28MvG2iPoSwZ+X8dHa3Wx0vNpA8=
+        b=DDToMEgJskIG7qHqTCJiKRJOA5JGlnZEKsaxRnhoYFQLmgRzpjyFw/XPZSDARZQ76
+         J8WkyxyLGIXJS+SxQNgO+YvmAXSdi9W31ITN1yMdaH/r5pXrk4K0j7RGNsrLfZXBT6
+         iWeBy66HvEO9pN5d0jGz6varSBMloGm11f4xVJk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Atul Gupta <atul.gupta@chelsio.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 144/267] crypto: af_alg - cast ki_complete ternary op to int
+        stable@vger.kernel.org, Michal Nazarewicz <mina86@mina86.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH 4.19 002/140] usb: gadget: pch_udc: fix use after free
 Date:   Mon, 16 Dec 2019 18:47:50 +0100
-Message-Id: <20191216174910.366989499@linuxfoundation.org>
+Message-Id: <20191216174748.287062615@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 64e7f852c47ce99f6c324c46d6a299a5a7ebead9 upstream.
+commit 66d1b0c0580b7f1b1850ee4423f32ac42afa2e92 upstream.
 
-when libkcapi test is executed  using HW accelerator, cipher operation
-return -74.Since af_alg_async_cb->ki_complete treat err as unsigned int,
-libkcapi receive 429467222 even though it expect -ve value.
+Remove pointer dereference after free.
 
-Hence its required to cast resultlen to int so that proper
-error is returned to libkcapi.
+pci_pool_free doesn't care about contents of td.
+It's just a void* for it
 
-AEAD one shot non-aligned test 2(libkcapi test)
-./../bin/kcapi   -x 10   -c "gcm(aes)" -i 7815d4b06ae50c9c56e87bd7
--k ea38ac0c9b9998c80e28fb496a2b88d9 -a
-"853f98a750098bec1aa7497e979e78098155c877879556bb51ddeb6374cbaefc"
--t "c4ce58985b7203094be1d134c1b8ab0b" -q
-"b03692f86d1b8b39baf2abb255197c98"
-
-Fixes: d887c52d6ae4 ("crypto: algif_aead - overhaul memory management")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Atul Gupta <atul.gupta@chelsio.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Addresses-Coverity-ID: 1091173 ("Use after free")
+Cc: stable@vger.kernel.org
+Acked-by: Michal Nazarewicz <mina86@mina86.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Link: https://lore.kernel.org/r/20191106202821.GA20347@embeddedor
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/af_alg.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/pch_udc.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -1086,7 +1086,7 @@ void af_alg_async_cb(struct crypto_async
- 	af_alg_free_resources(areq);
- 	sock_put(sk);
- 
--	iocb->ki_complete(iocb, err ? err : resultlen, 0);
-+	iocb->ki_complete(iocb, err ? err : (int)resultlen, 0);
- }
- EXPORT_SYMBOL_GPL(af_alg_async_cb);
- 
+--- a/drivers/usb/gadget/udc/pch_udc.c
++++ b/drivers/usb/gadget/udc/pch_udc.c
+@@ -1520,7 +1520,6 @@ static void pch_udc_free_dma_chain(struc
+ 		td = phys_to_virt(addr);
+ 		addr2 = (dma_addr_t)td->next;
+ 		dma_pool_free(dev->data_requests, td, addr);
+-		td->next = 0x00;
+ 		addr = addr2;
+ 	}
+ 	req->chain_len = 1;
 
 
