@@ -2,96 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 885DA120389
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 12:16:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B231C12049D
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 13:01:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727086AbfLPLQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 06:16:46 -0500
-Received: from smtp121.ord1c.emailsrvr.com ([108.166.43.121]:49816 "EHLO
-        smtp121.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727059AbfLPLQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 06:16:46 -0500
-X-Greylist: delayed 488 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Dec 2019 06:16:45 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
-        s=20190130-41we5z8j; t=1576494517;
-        bh=WLd3xrSEYO6aiQo721gX/dm1JxG+nSUMrXStEQ3wHvg=;
-        h=From:To:Subject:Date:From;
-        b=Ai9v+y06+7s03bsmweD4dpbrDAJ2oyNXhg0znMjL7Sl+ZU99hTqryl5YGUOrjNQEY
-         S1By6Bgkcr+crqgDmYFrtSa5lEk99te3bQx8y20+C5HjYiEy+dHTOKifMgkcShxut1
-         Wrg914oSAHDqpyvv+aloXiVnuaxD9vQsQnKBYHdU=
-X-Auth-ID: abbotti@mev.co.uk
-Received: by smtp8.relay.ord1c.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 3F646A015C;
-        Mon, 16 Dec 2019 06:08:36 -0500 (EST)
-X-Sender-Id: abbotti@mev.co.uk
-Received: from ian-deb.inside.mev.co.uk (remote.quintadena.com [81.133.34.160])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-GCM-SHA256)
-        by 0.0.0.0:465 (trex/5.7.12);
-        Mon, 16 Dec 2019 06:08:37 -0500
-From:   Ian Abbott <abbotti@mev.co.uk>
-To:     devel@driverdev.osuosl.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ian Abbott <abbotti@mev.co.uk>,
-        H Hartley Sweeten <hsweeten@visionengravers.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] staging: comedi: gsc_hpdi: check dma_alloc_coherent() return value
-Date:   Mon, 16 Dec 2019 11:08:23 +0000
-Message-Id: <20191216110823.216237-1-abbotti@mev.co.uk>
-X-Mailer: git-send-email 2.24.0
+        id S1727562AbfLPMAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 07:00:11 -0500
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:37377 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727491AbfLPMAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 07:00:11 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 80E4B776;
+        Mon, 16 Dec 2019 07:00:10 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 16 Dec 2019 07:00:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=y5/pu9
+        2CqiUOlPQdmsRC9I90dChMQ38LPCL/D+/fcJs=; b=IspBS6bfx1mST/HBp265VW
+        3RTIrCUP17AxcKaTd3Y3nG6Xst79rXUWSwY3A3jMypkPlE2GJgyKp2IsI4eCOXig
+        kVgio57s2zz7KIpGgmEcsL4RXBdS6oBwJ8IWJ7Qlwqj3ZdigI9oFoDWVSo75hzre
+        HYSfsuFl/JSkj9hNdHRiSatzM5rJqzuiLRjeLG+wbZsEhxeFSGVFlqOCBjbDJJ2n
+        dgY9t85idIgvyF1itT37bsaIl3/L0WEGZGBlBnMx9vAfD7LnNaXOP9YkeR4/IR29
+        qVuh3vshcByDjFkzcybS+9tdvjHgdHR8IzpVpbpW0iIY2P/NYdSAwwqF3YbjRqFg
+        ==
+X-ME-Sender: <xms:yHH3XbhakXylIO5Tu9pStRKjOGHS4YmhP8GwdBUd4JkfJX-DyfshZw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddthedgfeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:yHH3XRqjma6B4kGodB7Fq0TBw9UtpKHSdYqTsosvALOWf7AjAGYdhQ>
+    <xmx:yHH3XbHFvfns45WWkcrE3eItELEFU3dDgNvQ7enFWaKCXIBPBVQvVA>
+    <xmx:yHH3Xbk6FMdPviqvjF7--sFifrZI6NWGN9SHC1-W1zEwoJC0VfGXrA>
+    <xmx:ynH3XWvRmX_CYI5Iip_0Fy9zRS0gqpf2EJEsiazMdXH5xmGLICbkBQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 871368005A;
+        Mon, 16 Dec 2019 07:00:08 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mfd: rk808: Fix RK818 ID template" failed to apply to 4.19-stable tree
+To:     d.schultz@phytec.de, chenjh@rock-chips.com, heiko@sntech.de,
+        lee.jones@linaro.org, zhangqing@rock-chips.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 16 Dec 2019 13:00:05 +0100
+Message-ID: <1576497605185176@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The "auto-attach" handler function `gsc_hpdi_auto_attach()` calls
-`dma_alloc_coherent()` in a loop to allocate some DMA data buffers, and
-also calls it to allocate a buffer for a DMA descriptor chain.  However,
-it does not check the return value of any of these calls.  Change
-`gsc_hpdi_auto_attach()` to return `-ENOMEM` if any of these
-`dma_alloc_coherent()` calls fail.  This will result in the comedi core
-calling the "detach" handler `gsc_hpdi_detach()` as part of the
-clean-up, which will call `gsc_hpdi_free_dma()` to free any allocated
-DMA coherent memory buffers.
 
-Cc: <stable@vger.kernel.org> #4.6+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
----
-Note: Bug is also present in kernel 4.5 and earlier, but the patch will
-not apply cleanly to those (the gsc_hpdi driver used to call
-`pci_alloc_consistent()` instead of `dma_alloc_coherent()`).
----
- drivers/staging/comedi/drivers/gsc_hpdi.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-diff --git a/drivers/staging/comedi/drivers/gsc_hpdi.c b/drivers/staging/comedi/drivers/gsc_hpdi.c
-index 4bdf44d82879..dc62db1ee1dd 100644
---- a/drivers/staging/comedi/drivers/gsc_hpdi.c
-+++ b/drivers/staging/comedi/drivers/gsc_hpdi.c
-@@ -623,6 +623,11 @@ static int gsc_hpdi_auto_attach(struct comedi_device *dev,
- 		    dma_alloc_coherent(&pcidev->dev, DMA_BUFFER_SIZE,
- 				       &devpriv->dio_buffer_phys_addr[i],
- 				       GFP_KERNEL);
-+		if (!devpriv->dio_buffer[i]) {
-+			dev_warn(dev->class_dev,
-+				 "failed to allocate DMA buffer\n");
-+			return -ENOMEM;
-+		}
- 	}
- 	/* allocate dma descriptors */
- 	devpriv->dma_desc = dma_alloc_coherent(&pcidev->dev,
-@@ -630,6 +635,11 @@ static int gsc_hpdi_auto_attach(struct comedi_device *dev,
- 					       NUM_DMA_DESCRIPTORS,
- 					       &devpriv->dma_desc_phys_addr,
- 					       GFP_KERNEL);
-+	if (!devpriv->dma_desc) {
-+		dev_warn(dev->class_dev,
-+			 "failed to allocate DMA descriptors\n");
-+		return -ENOMEM;
-+	}
- 	if (devpriv->dma_desc_phys_addr & 0xf) {
- 		dev_warn(dev->class_dev,
- 			 " dma descriptors not quad-word aligned (bug)\n");
--- 
-2.24.0
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 37ef8c2c15bdc1322b160e38986c187de2b877b2 Mon Sep 17 00:00:00 2001
+From: Daniel Schultz <d.schultz@phytec.de>
+Date: Tue, 17 Sep 2019 10:12:53 +0200
+Subject: [PATCH] mfd: rk808: Fix RK818 ID template
+
+The Rockchip PMIC driver can automatically detect connected component
+versions by reading the ID_MSB and ID_LSB registers. The probe function
+will always fail with RK818 PMICs because the ID_MSK is 0xFFF0 and the
+RK818 template ID is 0x8181.
+
+This patch changes this value to 0x8180.
+
+Fixes: 9d6105e19f61 ("mfd: rk808: Fix up the chip id get failed")
+Cc: stable@vger.kernel.org
+Cc: Elaine Zhang <zhangqing@rock-chips.com>
+Cc: Joseph Chen <chenjh@rock-chips.com>
+Signed-off-by: Daniel Schultz <d.schultz@phytec.de>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+
+diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
+index 7cfd2b0504df..a59bf323f713 100644
+--- a/include/linux/mfd/rk808.h
++++ b/include/linux/mfd/rk808.h
+@@ -610,7 +610,7 @@ enum {
+ 	RK808_ID = 0x0000,
+ 	RK809_ID = 0x8090,
+ 	RK817_ID = 0x8170,
+-	RK818_ID = 0x8181,
++	RK818_ID = 0x8180,
+ };
+ 
+ struct rk808 {
 
