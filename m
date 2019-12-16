@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED851217A5
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 143851217A6
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729638AbfLPSFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:05:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44460 "EHLO mail.kernel.org"
+        id S1729509AbfLPSFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:05:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729677AbfLPSFl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:05:41 -0500
+        id S1729867AbfLPSFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:05:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7570A21582;
-        Mon, 16 Dec 2019 18:05:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D39482082E;
+        Mon, 16 Dec 2019 18:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519540;
-        bh=oBdUceBh9iji2lhiwMRLh5mwNhI8r7frfSTtgbxrcEE=;
+        s=default; t=1576519543;
+        bh=QdyoteWgD7kF0jwwZP6g5VAPMOLvoEu3eqsQsbUZqFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHAGgZHGVzHgD1mSzOqG5bUIPqY/W9kdBSt/urSVU9cPeMkEusJ3buTXaGuDMLClI
-         +wtxStoeOZ98ZJEA0av59n6HVWp1QxISvqenYe4eR2HVTZMW6cCl7IX80UAzf4IDad
-         p4zzg/cXuVcBoCAul7aO0mw7jkzY9HG1K7UwX2KE=
+        b=sjzq6clJxJiirzcFUJki/E1+vsbqHzTxyIpKtmngxvdHYGNSzOzbGRvOD8paVctf7
+         owbjiuYeWEQUpfYRe6D5sd8ZMhbqr3oO+97eLXpzt8czIiopwL6C2CcT1FUNuEFmk9
+         9rUZjaPj9Lyr7Fb1tMf/9vwP499pOE2XzpLwWFN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 109/140] scsi: lpfc: Cap NPIV vports to 256
-Date:   Mon, 16 Dec 2019 18:49:37 +0100
-Message-Id: <20191216174816.549065385@linuxfoundation.org>
+Subject: [PATCH 4.19 110/140] scsi: lpfc: Correct code setting non existent bits in sli4 ABORT WQE
+Date:   Mon, 16 Dec 2019 18:49:38 +0100
+Message-Id: <20191216174816.759103426@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
 References: <20191216174747.111154704@linuxfoundation.org>
@@ -47,83 +47,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 8b47ae69e049ae0b3373859d901f0334322f9fe9 ]
+[ Upstream commit 1c36833d82ff24d0d54215fd956e7cc30fffce54 ]
 
-Depending on the chipset, the number of NPIV vports may vary and be in
-excess of what most switches support (256). To avoid confusion with the
-users, limit the reported NPIV vports to 256.
+Driver is setting bits in word 10 of the SLI4 ABORT WQE (the wqid).  The
+field was a carry over from a prior SLI revision. The field does not exist
+in SLI4, and the action may result in an overlap with future definition of
+the WQE.
 
-Additionally correct the 16G adapter which is reporting a bogus NPIV vport
-number if the link is down.
+Remove the setting of WQID in the ABORT WQE.
+
+Also cleaned up WQE field settings - initialize to zero, don't bother to
+set fields to zero.
 
 Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h      |  3 ++-
- drivers/scsi/lpfc/lpfc_attr.c | 12 ++++++++++--
- drivers/scsi/lpfc/lpfc_init.c |  3 +++
- 3 files changed, 15 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_nvme.c |  2 --
+ drivers/scsi/lpfc/lpfc_sli.c  | 14 +++-----------
+ 2 files changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
-index a62e85cb62eb2..706aca3f7c253 100644
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -966,7 +966,8 @@ struct lpfc_hba {
- 	struct list_head port_list;
- 	struct lpfc_vport *pport;	/* physical lpfc_vport pointer */
- 	uint16_t max_vpi;		/* Maximum virtual nports */
--#define LPFC_MAX_VPI 0xFFFF		/* Max number of VPI supported */
-+#define LPFC_MAX_VPI	0xFF		/* Max number VPI supported 0 - 0xff */
-+#define LPFC_MAX_VPORTS	0x100		/* Max vports per port, with pport */
- 	uint16_t max_vports;            /*
- 					 * For IOV HBAs max_vpi can change
- 					 * after a reset. max_vports is max
-diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
-index 3f69a5e4e470a..1e9002138d31c 100644
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -1632,6 +1632,9 @@ lpfc_get_hba_info(struct lpfc_hba *phba,
- 		max_vpi = (bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config) > 0) ?
- 			(bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config) - 1) : 0;
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index 8ee585e453dcf..f73726e55e44d 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -1856,7 +1856,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
+ 	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
  
-+		/* Limit the max we support */
-+		if (max_vpi > LPFC_MAX_VPI)
-+			max_vpi = LPFC_MAX_VPI;
- 		if (mvpi)
- 			*mvpi = max_vpi;
- 		if (avpi)
-@@ -1647,8 +1650,13 @@ lpfc_get_hba_info(struct lpfc_hba *phba,
- 			*axri = pmb->un.varRdConfig.avail_xri;
- 		if (mvpi)
- 			*mvpi = pmb->un.varRdConfig.max_vpi;
--		if (avpi)
--			*avpi = pmb->un.varRdConfig.avail_vpi;
-+		if (avpi) {
-+			/* avail_vpi is only valid if link is up and ready */
-+			if (phba->link_state == LPFC_HBA_READY)
-+				*avpi = pmb->un.varRdConfig.avail_vpi;
-+			else
-+				*avpi = pmb->un.varRdConfig.max_vpi;
-+		}
- 	}
+ 	/* word 7 */
+-	bf_set(wqe_ct, &abts_wqe->abort_cmd.wqe_com, 0);
+ 	bf_set(wqe_cmnd, &abts_wqe->abort_cmd.wqe_com, CMD_ABORT_XRI_CX);
+ 	bf_set(wqe_class, &abts_wqe->abort_cmd.wqe_com,
+ 	       nvmereq_wqe->iocb.ulpClass);
+@@ -1871,7 +1870,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
+ 	       abts_buf->iotag);
  
- 	mempool_free(pmboxq, phba->mbox_mem_pool);
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index da63c026ba460..57510a831735b 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -7766,6 +7766,9 @@ lpfc_sli4_read_config(struct lpfc_hba *phba)
- 			bf_get(lpfc_mbx_rd_conf_xri_base, rd_config);
- 		phba->sli4_hba.max_cfg_param.max_vpi =
- 			bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config);
-+		/* Limit the max we support */
-+		if (phba->sli4_hba.max_cfg_param.max_vpi > LPFC_MAX_VPORTS)
-+			phba->sli4_hba.max_cfg_param.max_vpi = LPFC_MAX_VPORTS;
- 		phba->sli4_hba.max_cfg_param.vpi_base =
- 			bf_get(lpfc_mbx_rd_conf_vpi_base, rd_config);
- 		phba->sli4_hba.max_cfg_param.max_rpi =
+ 	/* word 10 */
+-	bf_set(wqe_wqid, &abts_wqe->abort_cmd.wqe_com, nvmereq_wqe->hba_wqidx);
+ 	bf_set(wqe_qosd, &abts_wqe->abort_cmd.wqe_com, 1);
+ 	bf_set(wqe_lenloc, &abts_wqe->abort_cmd.wqe_com, LPFC_WQE_LENLOC_NONE);
+ 
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 755803ff6cfef..f459fd62e493c 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -10989,19 +10989,12 @@ lpfc_sli4_abort_nvme_io(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 
+ 	/* Complete prepping the abort wqe and issue to the FW. */
+ 	abts_wqe = &abtsiocbp->wqe;
+-	bf_set(abort_cmd_ia, &abts_wqe->abort_cmd, 0);
+-	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
+-
+-	/* Explicitly set reserved fields to zero.*/
+-	abts_wqe->abort_cmd.rsrvd4 = 0;
+-	abts_wqe->abort_cmd.rsrvd5 = 0;
+ 
+-	/* WQE Common - word 6.  Context is XRI tag.  Set 0. */
+-	bf_set(wqe_xri_tag, &abts_wqe->abort_cmd.wqe_com, 0);
+-	bf_set(wqe_ctxt_tag, &abts_wqe->abort_cmd.wqe_com, 0);
++	/* Clear any stale WQE contents */
++	memset(abts_wqe, 0, sizeof(union lpfc_wqe));
++	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
+ 
+ 	/* word 7 */
+-	bf_set(wqe_ct, &abts_wqe->abort_cmd.wqe_com, 0);
+ 	bf_set(wqe_cmnd, &abts_wqe->abort_cmd.wqe_com, CMD_ABORT_XRI_CX);
+ 	bf_set(wqe_class, &abts_wqe->abort_cmd.wqe_com,
+ 	       cmdiocb->iocb.ulpClass);
+@@ -11016,7 +11009,6 @@ lpfc_sli4_abort_nvme_io(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	       abtsiocbp->iotag);
+ 
+ 	/* word 10 */
+-	bf_set(wqe_wqid, &abts_wqe->abort_cmd.wqe_com, cmdiocb->hba_wqidx);
+ 	bf_set(wqe_qosd, &abts_wqe->abort_cmd.wqe_com, 1);
+ 	bf_set(wqe_lenloc, &abts_wqe->abort_cmd.wqe_com, LPFC_WQE_LENLOC_NONE);
+ 
 -- 
 2.20.1
 
