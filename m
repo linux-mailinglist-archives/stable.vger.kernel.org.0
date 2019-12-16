@@ -2,224 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD3512061C
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 13:46:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC332120625
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 13:46:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727686AbfLPMqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 07:46:33 -0500
-Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:35028 "EHLO
-        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727750AbfLPMq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 07:46:26 -0500
+        id S1727576AbfLPMqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 07:46:48 -0500
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:28510 "EHLO
+        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727634AbfLPMqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 07:46:48 -0500
 Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
- EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
- 15.0.1156.6; Mon, 16 Dec 2019 04:46:24 -0800
+ EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
+ 15.0.1156.6; Mon, 16 Dec 2019 04:46:34 -0800
 Received: from akaher-lnx-dev.eng.vmware.com (unknown [10.110.19.203])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 4532E402B6;
-        Mon, 16 Dec 2019 04:46:20 -0800 (PST)
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 30E75402B8;
+        Mon, 16 Dec 2019 04:46:27 -0800 (PST)
 From:   Ajay Kaher <akaher@vmware.com>
-To:     <gregkh@linuxfoundation.org>
+To:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>
 CC:     <torvalds@linux-foundation.org>, <punit.agrawal@arm.com>,
         <akpm@linux-foundation.org>, <kirill.shutemov@linux.intel.com>,
         <willy@infradead.org>, <will.deacon@arm.com>,
-        <mszeredi@redhat.com>, <stable@vger.kernel.org>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
-        <amakhalov@vmware.com>, <srinidhir@vmware.com>,
-        <bvikas@vmware.com>, <anishs@vmware.com>, <vsirnapalli@vmware.com>,
-        <srostedt@vmware.com>, <akaher@vmware.com>, <stable@kernel.org>,
-        Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH v3 7/8] fs: prevent page refcount overflow in pipe_buf_get
-Date:   Tue, 17 Dec 2019 02:15:47 +0530
-Message-ID: <1576529149-14269-8-git-send-email-akaher@vmware.com>
+        <mszeredi@redhat.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>, <srivatsab@vmware.com>,
+        <srivatsa@csail.mit.edu>, <amakhalov@vmware.com>,
+        <srinidhir@vmware.com>, <bvikas@vmware.com>, <anishs@vmware.com>,
+        <vsirnapalli@vmware.com>, <srostedt@vmware.com>,
+        <akaher@vmware.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Oscar Salvador <osalvador@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juergen Gross <jgross@suse.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH v3 8/8] x86, mm, gup: prevent get_page() race with munmap in paravirt guest
+Date:   Tue, 17 Dec 2019 02:15:48 +0530
+Message-ID: <1576529149-14269-9-git-send-email-akaher@vmware.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1576529149-14269-1-git-send-email-akaher@vmware.com>
 References: <1576529149-14269-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
+Received-SPF: None (EX13-EDG-OU-002.vmware.com: akaher@vmware.com does not
  designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox <willy@infradead.org>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-commit 15fab63e1e57be9fdb5eec1bbc5916e9825e9acb upstream.
+The x86 version of get_user_pages_fast() relies on disabled interrupts to
+synchronize gup_pte_range() between gup_get_pte(ptep); and get_page() against
+a parallel munmap. The munmap side nulls the pte, then flushes TLBs, then
+releases the page. As TLB flush is done synchronously via IPI disabling
+interrupts blocks the page release, and get_page(), which assumes existing
+reference on page, is thus safe.
+However when TLB flush is done by a hypercall, e.g. in a Xen PV guest, there is
+no blocking thanks to disabled interrupts, and get_page() can succeed on a page
+that was already freed or even reused.
 
-Change pipe_buf_get() to return a bool indicating whether it succeeded
-in raising the refcount of the page (if the thing in the pipe is a page).
-This removes another mechanism for overflowing the page refcount.  All
-callers converted to handle a failure.
+We have recently seen this happen with our 4.4 and 4.12 based kernels, with
+userspace (java) that exits a thread, where mm_release() performs a futex_wake()
+on tsk->clear_child_tid, and another thread in parallel unmaps the page where
+tsk->clear_child_tid points to. The spurious get_page() succeeds, but futex code
+immediately releases the page again, while it's already on a freelist. Symptoms
+include a bad page state warning, general protection faults acessing a poisoned
+list prev/next pointer in the freelist, or free page pcplists of two cpus joined
+together in a single list. Oscar has also reproduced this scenario, with a
+patch inserting delays before the get_page() to make the race window larger.
 
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Matthew Wilcox <willy@infradead.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[ 4.4.y backport notes:
-  Regarding the change in generic_pipe_buf_get(), note that
-  page_cache_get() is the same as get_page(). See mainline commit
-  09cbfeaf1a5a6 "mm, fs: get rid of PAGE_CACHE_* and
-  page_cache_{get,release} macros" for context. ]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
+Fix this by removing the dependency on TLB flush interrupts the same way as the
+generic get_user_pages_fast() code by using page_cache_add_speculative() and
+revalidating the PTE contents after pinning the page. Mainline is safe since
+4.13 where the x86 gup code was removed in favor of the common code. Accessing
+the page table itself safely also relies on disabled interrupts and TLB flush
+IPIs that don't happen with hypercalls, which was acknowledged in commit
+9e52fc2b50de ("x86/mm: Enable RCU based page table freeing
+(CONFIG_HAVE_RCU_TABLE_FREE=y)"). That commit with follups should also be
+backported for full safety, although our reproducer didn't hit a problem
+without that backport.
+
+Reproduced-by: Oscar Salvador <osalvador@suse.de>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+
 Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 ---
- fs/fuse/dev.c             | 12 ++++++------
- fs/pipe.c                 |  4 ++--
- fs/splice.c               | 12 ++++++++++--
- include/linux/pipe_fs_i.h | 10 ++++++----
- kernel/trace/trace.c      |  6 +++++-
- 5 files changed, 29 insertions(+), 15 deletions(-)
+ arch/x86/mm/gup.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 36a5df9..16891f5 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -2031,10 +2031,8 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 		rem += pipe->bufs[(pipe->curbuf + idx) & (pipe->buffers - 1)].len;
+diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
+index 6612d532e42e..6379a4883c0a 100644
+--- a/arch/x86/mm/gup.c
++++ b/arch/x86/mm/gup.c
+@@ -9,6 +9,7 @@
+ #include <linux/vmstat.h>
+ #include <linux/highmem.h>
+ #include <linux/swap.h>
++#include <linux/pagemap.h>
  
- 	ret = -EINVAL;
--	if (rem < len) {
--		pipe_unlock(pipe);
--		goto out;
--	}
-+	if (rem < len)
-+		goto out_free;
+ #include <asm/pgtable.h>
  
- 	rem = len;
- 	while (rem) {
-@@ -2052,7 +2050,9 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 			pipe->curbuf = (pipe->curbuf + 1) & (pipe->buffers - 1);
- 			pipe->nrbufs--;
- 		} else {
--			pipe_buf_get(pipe, ibuf);
-+			if (!pipe_buf_get(pipe, ibuf))
-+				goto out_free;
+@@ -95,10 +96,23 @@ static noinline int gup_pte_range(pmd_t pmd, unsigned long addr,
+ 		}
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+-		if (unlikely(!try_get_page(page))) {
 +
- 			*obuf = *ibuf;
- 			obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
- 			obuf->len = rem;
-@@ -2075,13 +2075,13 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 	ret = fuse_dev_do_write(fud, &cs, len);
- 
- 	pipe_lock(pipe);
-+out_free:
- 	for (idx = 0; idx < nbuf; idx++) {
- 		struct pipe_buffer *buf = &bufs[idx];
- 		buf->ops->release(pipe, buf);
- 	}
- 	pipe_unlock(pipe);
- 
--out:
- 	kfree(bufs);
- 	return ret;
- }
-diff --git a/fs/pipe.c b/fs/pipe.c
-index 1e7263b..6534470 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -178,9 +178,9 @@ EXPORT_SYMBOL(generic_pipe_buf_steal);
-  *	in the tee() system call, when we duplicate the buffers in one
-  *	pipe into another.
-  */
--void generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
-+bool generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
- {
--	page_cache_get(buf->page);
-+	return try_get_page(buf->page);
- }
- EXPORT_SYMBOL(generic_pipe_buf_get);
- 
-diff --git a/fs/splice.c b/fs/splice.c
-index fde1263..57ccc58 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -1876,7 +1876,11 @@ retry:
- 			 * Get a reference to this pipe buffer,
- 			 * so we can copy the contents over.
- 			 */
--			pipe_buf_get(ipipe, ibuf);
-+			if (!pipe_buf_get(ipipe, ibuf)) {
-+				if (ret == 0)
-+					ret = -EFAULT;
-+				break;
-+			}
- 			*obuf = *ibuf;
- 
- 			/*
-@@ -1948,7 +1952,11 @@ static int link_pipe(struct pipe_inode_info *ipipe,
- 		 * Get a reference to this pipe buffer,
- 		 * so we can copy the contents over.
- 		 */
--		pipe_buf_get(ipipe, ibuf);
-+		if (!pipe_buf_get(ipipe, ibuf)) {
-+			if (ret == 0)
-+				ret = -EFAULT;
-+			break;
++		if (WARN_ON_ONCE(page_ref_count(page) < 0)) {
++			pte_unmap(ptep);
++			return 0;
 +		}
- 
- 		obuf = opipe->bufs + nbuf;
- 		*obuf = *ibuf;
-diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
-index 10876f3..0b28b65 100644
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -112,18 +112,20 @@ struct pipe_buf_operations {
- 	/*
- 	 * Get a reference to the pipe buffer.
- 	 */
--	void (*get)(struct pipe_inode_info *, struct pipe_buffer *);
-+	bool (*get)(struct pipe_inode_info *, struct pipe_buffer *);
- };
- 
- /**
-  * pipe_buf_get - get a reference to a pipe_buffer
-  * @pipe:	the pipe that the buffer belongs to
-  * @buf:	the buffer to get a reference to
-+ *
-+ * Return: %true if the reference was successfully obtained.
-  */
--static inline void pipe_buf_get(struct pipe_inode_info *pipe,
-+static inline __must_check bool pipe_buf_get(struct pipe_inode_info *pipe,
- 				struct pipe_buffer *buf)
- {
--	buf->ops->get(pipe, buf);
-+	return buf->ops->get(pipe, buf);
- }
- 
- /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
-@@ -148,7 +150,7 @@ struct pipe_inode_info *alloc_pipe_info(void);
- void free_pipe_info(struct pipe_inode_info *);
- 
- /* Generic pipe buffer ops functions */
--void generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
-+bool generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
- void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index ae00e68..7fe8d04 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5731,12 +5731,16 @@ static void buffer_pipe_buf_release(struct pipe_inode_info *pipe,
- 	buf->private = 0;
- }
- 
--static void buffer_pipe_buf_get(struct pipe_inode_info *pipe,
-+static bool buffer_pipe_buf_get(struct pipe_inode_info *pipe,
- 				struct pipe_buffer *buf)
- {
- 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
- 
-+	if (ref->ref > INT_MAX/2)
-+		return false;
 +
- 	ref->ref++;
-+	return true;
- }
- 
- /* Pipe buffer operations for a buffer. */
++		if (!page_cache_get_speculative(page)) {
+ 			pte_unmap(ptep);
+ 			return 0;
+ 		}
++
++		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
++			put_page(page);
++			pte_unmap(ptep);
++			return 0;
++		}
++
+ 		SetPageReferenced(page);
+ 		pages[*nr] = page;
+ 		(*nr)++;
 -- 
-2.7.4
-
+2.23.0
