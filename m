@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D25E1214B4
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53137121551
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:21:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731171AbfLPSOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:14:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60914 "EHLO mail.kernel.org"
+        id S1732135AbfLPSUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:20:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726787AbfLPSOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:14:00 -0500
+        id S1732131AbfLPSUo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:20:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C43920CC7;
-        Mon, 16 Dec 2019 18:13:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DC522082E;
+        Mon, 16 Dec 2019 18:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520040;
-        bh=9qlUL9FC7N+k1z+E4k4mGKZs9S4CLnnOmFfX4VzFhWY=;
+        s=default; t=1576520443;
+        bh=qC2dGsy8YPSNHCGZduahSOXJzmMdZKrBI2F3JvshQok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXyuEO3+q/hyIEAjL3h6sNHsyLJKYObZAJlTbHYpYIVPSpy5o22S6P98DHEvU+2Qs
-         1r29h8oGeRYg0L7pSNwWYJ+B5DmPK+OPDnGm3oqqxRJQ0+o70NoIhajPr+WgZ+rQSb
-         4n/cMbzgIeXaSzjNlgAsbdbCMj6XN2fXzlznewhU=
+        b=uR2EAa5729BGWVaNHqPNbgU492yVKEOcqWANFxn5FIqhyo0g1lEW1ui8erpjiF6xd
+         1GjsHMCB3NsMKeINdurqXctkFIe+FzeCSt3RlYTlZF/3cPQ7vKhVOFrCIJz/Tl1gsb
+         Njrai6Vh9fxwMgqOfYDCLi2PqdVUQdZl1YvhQEfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Andreas Dilger <adilger@dilger.ca>
-Subject: [PATCH 5.3 173/180] ext4: work around deleting a file with i_nlink == 0 safely
+        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 157/177] Revert "scsi: qla2xxx: Fix memory leak when sending I/O fails"
 Date:   Mon, 16 Dec 2019 18:50:13 +0100
-Message-Id: <20191216174847.858148201@linuxfoundation.org>
+Message-Id: <20191216174848.732122292@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Martin K. Petersen <martin.petersen@oracle.com>
 
-commit c7df4a1ecb8579838ec8c56b2bb6a6716e974f37 upstream.
+[ Upstream commit 5a993e507ee65a28eca6690ee11868555c4ca46b ]
 
-If the file system is corrupted such that a file's i_links_count is
-too small, then it's possible that when unlinking that file, i_nlink
-will already be zero.  Previously we were working around this kind of
-corruption by forcing i_nlink to one; but we were doing this before
-trying to delete the directory entry --- and if the file system is
-corrupted enough that ext4_delete_entry() fails, then we exit with
-i_nlink elevated, and this causes the orphan inode list handling to be
-FUBAR'ed, such that when we unmount the file system, the orphan inode
-list can get corrupted.
+This reverts commit 2f856d4e8c23f5ad5221f8da4a2f22d090627f19.
 
-A better way to fix this is to simply skip trying to call drop_nlink()
-if i_nlink is already zero, thus moving the check to the place where
-it makes the most sense.
+This patch was found to introduce a double free regression. The issue
+it originally attempted to address was fixed in patch
+f45bca8c5052 ("scsi: qla2xxx: Fix double scsi_done for abort path").
 
-https://bugzilla.kernel.org/show_bug.cgi?id=205433
-
-Link: https://lore.kernel.org/r/20191112032903.8828-1-tytso@mit.edu
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/4BDE2B95-835F-43BE-A32C-2629D7E03E0A@marvell.com
+Requested-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3182,18 +3182,17 @@ static int ext4_unlink(struct inode *dir
- 	if (IS_DIRSYNC(dir))
- 		ext4_handle_sync(handle);
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 0bbc6a82470a5..06037e3c78549 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -909,8 +909,6 @@ qla2xxx_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *cmd)
  
--	if (inode->i_nlink == 0) {
--		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
--				   dentry->d_name.len, dentry->d_name.name);
--		set_nlink(inode, 1);
--	}
- 	retval = ext4_delete_entry(handle, dir, de, bh);
- 	if (retval)
- 		goto end_unlink;
- 	dir->i_ctime = dir->i_mtime = current_time(dir);
- 	ext4_update_dx_flag(dir);
- 	ext4_mark_inode_dirty(handle, dir);
--	drop_nlink(inode);
-+	if (inode->i_nlink == 0)
-+		ext4_warning_inode(inode, "Deleting file '%.*s' with no links",
-+				   dentry->d_name.len, dentry->d_name.name);
-+	else
-+		drop_nlink(inode);
- 	if (!inode->i_nlink)
- 		ext4_orphan_add(handle, inode);
- 	inode->i_ctime = current_time(inode);
+ qc24_host_busy_free_sp:
+ 	sp->free(sp);
+-	CMD_SP(cmd) = NULL;
+-	qla2x00_rel_sp(sp);
+ 
+ qc24_target_busy:
+ 	return SCSI_MLQUEUE_TARGET_BUSY;
+@@ -994,8 +992,6 @@ qla2xxx_mqueuecommand(struct Scsi_Host *host, struct scsi_cmnd *cmd,
+ 
+ qc24_host_busy_free_sp:
+ 	sp->free(sp);
+-	CMD_SP(cmd) = NULL;
+-	qla2xxx_rel_qpair_sp(sp->qpair, sp);
+ 
+ qc24_target_busy:
+ 	return SCSI_MLQUEUE_TARGET_BUSY;
+-- 
+2.20.1
+
 
 
