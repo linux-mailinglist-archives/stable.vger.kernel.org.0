@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C72361213DC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:07:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 888E512134C
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:01:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728943AbfLPSFh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:05:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44230 "EHLO mail.kernel.org"
+        id S1728798AbfLPSAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:00:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727459AbfLPSFg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:05:36 -0500
+        id S1728624AbfLPSAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:00:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC3202166E;
-        Mon, 16 Dec 2019 18:05:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7453220717;
+        Mon, 16 Dec 2019 18:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519536;
-        bh=UOc/FJlJ+vBa71ybe5UqQhEaD33njVr12Vobl8SZBx4=;
+        s=default; t=1576519233;
+        bh=n7PqSwoJjQXmFCR1Rqf7AvkCzyPbm8XeHudT4zxom2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7G2aWN92uHE3nc3Mja17MYMPPhnCijFoXC8ocjWcZXd2Cmmh0J06CxuEaTcn/5Ho
-         OB2Kqw5NnUmp7pTVELCD+peAO7lSBIlwyiZ6X3ubdq3Iq/jWGIYRhEmwGyHerOB9HH
-         8NnB7BdzWUB15MzKuJLC9UJNqXwCCCGp+t8APK1o=
+        b=bBXEcPHk3pou2wYY1eu6L8Dc1jMbiocP9o0hBqztjwo+zlS0iq0HkrO+N7zK2EHPj
+         gXje/JdVTtnfSLFDQ1oDWAobMzVcFLQYccB7ZV78b0eYZbR+ea/YauPLBfcV1876Jz
+         kgpSp75lMiSVjA1RGriVryCdCFJjCMZiMmLPKW+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        linux-usb@vger.kernel.org,
-        =?UTF-8?q?Heikki=20Krogerus=C2=A0?= 
-        <heikki.krogerus@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/140] usb: typec: fix use after free in typec_register_port()
-Date:   Mon, 16 Dec 2019 18:49:35 +0100
-Message-Id: <20191216174815.842184472@linuxfoundation.org>
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 250/267] scsi: lpfc: Correct code setting non existent bits in sli4 ABORT WQE
+Date:   Mon, 16 Dec 2019 18:49:36 +0100
+Message-Id: <20191216174916.311797196@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 5c388abefda0d92355714010c0199055c57ab6c7 ]
+[ Upstream commit 1c36833d82ff24d0d54215fd956e7cc30fffce54 ]
 
-We can't use "port->sw" and/or "port->mux" after it has been freed.
+Driver is setting bits in word 10 of the SLI4 ABORT WQE (the wqid).  The
+field was a carry over from a prior SLI revision. The field does not exist
+in SLI4, and the action may result in an overlap with future definition of
+the WQE.
 
-Fixes: 23481121c81d ("usb: typec: class: Don't use port parent for getting mux handles")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: stable <stable@vger.kernel.org>
-Cc: linux-usb@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20191126140452.14048-1-wenyang@linux.alibaba.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Remove the setting of WQID in the ABORT WQE.
+
+Also cleaned up WQE field settings - initialize to zero, don't bother to
+set fields to zero.
+
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/class.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_nvme.c |  2 --
+ drivers/scsi/lpfc/lpfc_sli.c  | 14 +++-----------
+ 2 files changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/usb/typec/class.c b/drivers/usb/typec/class.c
-index 00141e05bc724..1916ee1600b47 100644
---- a/drivers/usb/typec/class.c
-+++ b/drivers/usb/typec/class.c
-@@ -1589,14 +1589,16 @@ struct typec_port *typec_register_port(struct device *parent,
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index 6c4499db969c1..fcf4b4175d771 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -1544,7 +1544,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
+ 	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
  
- 	port->sw = typec_switch_get(&port->dev);
- 	if (IS_ERR(port->sw)) {
-+		ret = PTR_ERR(port->sw);
- 		put_device(&port->dev);
--		return ERR_CAST(port->sw);
-+		return ERR_PTR(ret);
- 	}
+ 	/* word 7 */
+-	bf_set(wqe_ct, &abts_wqe->abort_cmd.wqe_com, 0);
+ 	bf_set(wqe_cmnd, &abts_wqe->abort_cmd.wqe_com, CMD_ABORT_XRI_CX);
+ 	bf_set(wqe_class, &abts_wqe->abort_cmd.wqe_com,
+ 	       nvmereq_wqe->iocb.ulpClass);
+@@ -1559,7 +1558,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
+ 	       abts_buf->iotag);
  
- 	port->mux = typec_mux_get(&port->dev, "typec-mux");
- 	if (IS_ERR(port->mux)) {
-+		ret = PTR_ERR(port->mux);
- 		put_device(&port->dev);
--		return ERR_CAST(port->mux);
-+		return ERR_PTR(ret);
- 	}
+ 	/* word 10 */
+-	bf_set(wqe_wqid, &abts_wqe->abort_cmd.wqe_com, nvmereq_wqe->hba_wqidx);
+ 	bf_set(wqe_qosd, &abts_wqe->abort_cmd.wqe_com, 1);
+ 	bf_set(wqe_lenloc, &abts_wqe->abort_cmd.wqe_com, LPFC_WQE_LENLOC_NONE);
  
- 	ret = device_add(&port->dev);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 62bea4ffdc25a..d3bad0dbfaf7f 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -10722,19 +10722,12 @@ lpfc_sli4_abort_nvme_io(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 
+ 	/* Complete prepping the abort wqe and issue to the FW. */
+ 	abts_wqe = &abtsiocbp->wqe;
+-	bf_set(abort_cmd_ia, &abts_wqe->abort_cmd, 0);
+-	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
+-
+-	/* Explicitly set reserved fields to zero.*/
+-	abts_wqe->abort_cmd.rsrvd4 = 0;
+-	abts_wqe->abort_cmd.rsrvd5 = 0;
+ 
+-	/* WQE Common - word 6.  Context is XRI tag.  Set 0. */
+-	bf_set(wqe_xri_tag, &abts_wqe->abort_cmd.wqe_com, 0);
+-	bf_set(wqe_ctxt_tag, &abts_wqe->abort_cmd.wqe_com, 0);
++	/* Clear any stale WQE contents */
++	memset(abts_wqe, 0, sizeof(union lpfc_wqe));
++	bf_set(abort_cmd_criteria, &abts_wqe->abort_cmd, T_XRI_TAG);
+ 
+ 	/* word 7 */
+-	bf_set(wqe_ct, &abts_wqe->abort_cmd.wqe_com, 0);
+ 	bf_set(wqe_cmnd, &abts_wqe->abort_cmd.wqe_com, CMD_ABORT_XRI_CX);
+ 	bf_set(wqe_class, &abts_wqe->abort_cmd.wqe_com,
+ 	       cmdiocb->iocb.ulpClass);
+@@ -10749,7 +10742,6 @@ lpfc_sli4_abort_nvme_io(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	       abtsiocbp->iotag);
+ 
+ 	/* word 10 */
+-	bf_set(wqe_wqid, &abts_wqe->abort_cmd.wqe_com, cmdiocb->hba_wqidx);
+ 	bf_set(wqe_qosd, &abts_wqe->abort_cmd.wqe_com, 1);
+ 	bf_set(wqe_lenloc, &abts_wqe->abort_cmd.wqe_com, LPFC_WQE_LENLOC_NONE);
+ 
 -- 
 2.20.1
 
