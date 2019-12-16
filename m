@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6ED121849
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B08712184A
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728707AbfLPSAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:00:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33988 "EHLO mail.kernel.org"
+        id S1728901AbfLPSAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:00:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728886AbfLPSAK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:00:10 -0500
+        id S1728896AbfLPSAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:00:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B97B20717;
-        Mon, 16 Dec 2019 18:00:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7617D206B7;
+        Mon, 16 Dec 2019 18:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519209;
-        bh=kQtCxx+0nKbASP2IPskD48N7LpyYoYrh6ldzJmm0QsA=;
+        s=default; t=1576519211;
+        bh=PjRTivSThzWAPtY8BdWGvjX8V2EKIO+0ggdCBxpSkCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftSCYyIt4pPkpokEVbE85LEcpA14wKyvnxD/MbVYr1JyqT1Z+E6uLA+TMqL+d38Rt
-         rLp4U4DnZUiFbzj27o943nM6JUXCKsAOUD+YbFGo8x99oWznCckfETInKdp2ebCZnn
-         x5HB/Ly+HVtJ2dXbJfe0fLVwdvpw6YeMs0DwGDZ4=
+        b=CQcM2WvMEkFzk8MIHbXs+8EVg22+9mrg4zFUkOI1vdfu2grN1jjhnunIrvN+pP1aH
+         DqRFOSpIMOkkLojlsTiyenyC+Nu3VZW0nvIhCV9nKVFQ7OcTXt7xR8BYje+d3xYQiW
+         5w6XyHm38AI/hccX15sFdb0G6LaNmwzYx8Dx6aBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 241/267] scsi: qla2xxx: Fix qla24xx_process_bidir_cmd()
-Date:   Mon, 16 Dec 2019 18:49:27 +0100
-Message-Id: <20191216174915.757704926@linuxfoundation.org>
+Subject: [PATCH 4.14 242/267] scsi: qla2xxx: Always check the qla2x00_wait_for_hba_online() return value
+Date:   Mon, 16 Dec 2019 18:49:28 +0100
+Message-Id: <20191216174915.811245126@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -47,66 +47,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit c29282c65d1cf54daeea63be46243d7f69d72f4d ]
+[ Upstream commit e6803efae5acd109fad9f2f07dab674563441a53 ]
 
-Set the r??_data_len variables before using these instead of after.
-
-This patch fixes the following Coverity complaint:
-
-const: At condition req_data_len != rsp_data_len, the value of req_data_len
-must be equal to 0.
-const: At condition req_data_len != rsp_data_len, the value of rsp_data_len
-must be equal to 0.
-dead_error_condition: The condition req_data_len != rsp_data_len cannot be
-true.
+This patch fixes several Coverity complaints about not always checking
+the qla2x00_wait_for_hba_online() return value.
 
 Cc: Himanshu Madhani <hmadhani@marvell.com>
-Fixes: a9b6f722f62d ("[SCSI] qla2xxx: Implementation of bidirectional.") # v3.7.
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Tested-by: Himanshu Madhani <hmadhani@marvell.com>
 Reviewed-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c   | 3 ++-
+ drivers/scsi/qla2xxx/qla_target.c | 7 +++++--
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
-index 6f8c7df69f66c..c1ca21a88a096 100644
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -1782,8 +1782,8 @@ qla24xx_process_bidir_cmd(struct bsg_job *bsg_job)
- 	uint16_t nextlid = 0;
- 	uint32_t tot_dsds;
- 	srb_t *sp = NULL;
--	uint32_t req_data_len = 0;
--	uint32_t rsp_data_len = 0;
-+	uint32_t req_data_len;
-+	uint32_t rsp_data_len;
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index 1844c2f594605..656253285db9d 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -652,7 +652,8 @@ qla2x00_sysfs_write_reset(struct file *filp, struct kobject *kobj,
+ 			break;
+ 		} else {
+ 			/* Make sure FC side is not in reset */
+-			qla2x00_wait_for_hba_online(vha);
++			WARN_ON_ONCE(qla2x00_wait_for_hba_online(vha) !=
++				     QLA_SUCCESS);
  
- 	/* Check the type of the adapter */
- 	if (!IS_BIDI_CAPABLE(ha)) {
-@@ -1888,6 +1888,9 @@ qla24xx_process_bidir_cmd(struct bsg_job *bsg_job)
- 		goto done_unmap_sg;
+ 			/* Issue MPI reset */
+ 			scsi_block_requests(vha->host);
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index 2f5658554275c..69ed544d80ef0 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -6394,7 +6394,8 @@ qlt_enable_vha(struct scsi_qla_host *vha)
+ 	} else {
+ 		set_bit(ISP_ABORT_NEEDED, &base_vha->dpc_flags);
+ 		qla2xxx_wake_dpc(base_vha);
+-		qla2x00_wait_for_hba_online(base_vha);
++		WARN_ON_ONCE(qla2x00_wait_for_hba_online(base_vha) !=
++			     QLA_SUCCESS);
  	}
+ }
+ EXPORT_SYMBOL(qlt_enable_vha);
+@@ -6424,7 +6425,9 @@ static void qlt_disable_vha(struct scsi_qla_host *vha)
  
-+	req_data_len = bsg_job->request_payload.payload_len;
-+	rsp_data_len = bsg_job->reply_payload.payload_len;
-+
- 	if (req_data_len != rsp_data_len) {
- 		rval = EXT_STATUS_BUSY;
- 		ql_log(ql_log_warn, vha, 0x70aa,
-@@ -1895,10 +1898,6 @@ qla24xx_process_bidir_cmd(struct bsg_job *bsg_job)
- 		goto done_unmap_sg;
- 	}
+ 	set_bit(ISP_ABORT_NEEDED, &vha->dpc_flags);
+ 	qla2xxx_wake_dpc(vha);
+-	qla2x00_wait_for_hba_online(vha);
++	if (qla2x00_wait_for_hba_online(vha) != QLA_SUCCESS)
++		ql_dbg(ql_dbg_tgt, vha, 0xe081,
++		       "qla2x00_wait_for_hba_online() failed\n");
+ }
  
--	req_data_len = bsg_job->request_payload.payload_len;
--	rsp_data_len = bsg_job->reply_payload.payload_len;
--
--
- 	/* Alloc SRB structure */
- 	sp = qla2x00_get_sp(vha, &(vha->bidir_fcport), GFP_KERNEL);
- 	if (!sp) {
+ /*
 -- 
 2.20.1
 
