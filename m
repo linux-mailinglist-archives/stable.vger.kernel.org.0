@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B711215B1
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5368121478
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731980AbfLPSTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:19:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48600 "EHLO mail.kernel.org"
+        id S1730792AbfLPSLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:11:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731977AbfLPSTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:19:49 -0500
+        id S1728074AbfLPSL3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE7B2207FF;
-        Mon, 16 Dec 2019 18:19:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70754206E0;
+        Mon, 16 Dec 2019 18:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520388;
-        bh=/e3NT3D/oOcYk73D5vg3cZsVrFVEhzX+Py48eq6U8rY=;
+        s=default; t=1576519888;
+        bh=6xdm1M0tEeY7At1h5MvDfHcXQcl135ewA0mZSxi3U78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaX9Gc+RPOxJxfs7HDn5xSmYdTrRyX5cxPM830JdmDY2j5/Vc6JgYZ/C/kgExVC6m
-         zYgDFnWX5vOM+bvy9v7KeYGNNV5va8Keel1oRNaeP+Exqq2vQw/WwMnrCv/HlpO8jX
-         x4NIogU05V4DqyiP4iQ0PlaqCy6k0D/Yi0r7Yf+U=
+        b=Ersp7mrqlDdzSXx8XEHM3H78g6dzPoimNsnrfdDGLonCo8U7iOB+XCfphcXI1Q2b7
+         RM9t7aogpCqphemrnW+/SAwl0pZyKpTK0sHPL4gZftYujg46ZDV/H/qo+CUP0iFl+i
+         1FXn7IMAFOibHXfNumXfdCirzNwnZJcvIAe3V0/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.4 093/177] cgroup: pids: use atomic64_t for pids->limit
+        stable@vger.kernel.org,
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.3 109/180] ACPI: bus: Fix NULL pointer check in acpi_bus_get_private_data()
 Date:   Mon, 16 Dec 2019 18:49:09 +0100
-Message-Id: <20191216174839.364582110@linuxfoundation.org>
+Message-Id: <20191216174838.344695631@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksa Sarai <cyphar@cyphar.com>
+From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
 
-commit a713af394cf382a30dd28a1015cbe572f1b9ca75 upstream.
+commit 627ead724eff33673597216f5020b72118827de4 upstream.
 
-Because pids->limit can be changed concurrently (but we don't want to
-take a lock because it would be needlessly expensive), use atomic64_ts
-instead.
+kmemleak reported backtrace:
+    [<bbee0454>] kmem_cache_alloc_trace+0x128/0x260
+    [<6677f215>] i2c_acpi_install_space_handler+0x4b/0xe0
+    [<1180f4fc>] i2c_register_adapter+0x186/0x400
+    [<6083baf7>] i2c_add_adapter+0x4e/0x70
+    [<a3ddf966>] intel_gmbus_setup+0x1a2/0x2c0 [i915]
+    [<84cb69ae>] i915_driver_probe+0x8d8/0x13a0 [i915]
+    [<81911d4b>] i915_pci_probe+0x48/0x160 [i915]
+    [<4b159af1>] pci_device_probe+0xdc/0x160
+    [<b3c64704>] really_probe+0x1ee/0x450
+    [<bc029f5a>] driver_probe_device+0x142/0x1b0
+    [<d8829d20>] device_driver_attach+0x49/0x50
+    [<de71f045>] __driver_attach+0xc9/0x150
+    [<df33ac83>] bus_for_each_dev+0x56/0xa0
+    [<80089bba>] driver_attach+0x19/0x20
+    [<cc73f583>] bus_add_driver+0x177/0x220
+    [<7b29d8c7>] driver_register+0x56/0xf0
 
-Fixes: commit 49b786ea146f ("cgroup: implement the PIDs subsystem")
-Cc: stable@vger.kernel.org # v4.3+
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+In i2c_acpi_remove_space_handler(), a leak occurs whenever the
+"data" parameter is initialized to 0 before being passed to
+acpi_bus_get_private_data().
+
+This is because the NULL pointer check in acpi_bus_get_private_data()
+(condition->if(!*data)) returns EINVAL and, in consequence, memory is
+never freed in i2c_acpi_remove_space_handler().
+
+Fix the NULL pointer check in acpi_bus_get_private_data() to follow
+the analogous check in acpi_get_data_full().
+
+Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+[ rjw: Subject & changelog ]
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/cgroup/pids.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/acpi/bus.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/cgroup/pids.c
-+++ b/kernel/cgroup/pids.c
-@@ -45,7 +45,7 @@ struct pids_cgroup {
- 	 * %PIDS_MAX = (%PID_MAX_LIMIT + 1).
- 	 */
- 	atomic64_t			counter;
--	int64_t				limit;
-+	atomic64_t			limit;
- 
- 	/* Handle for "pids.events" */
- 	struct cgroup_file		events_file;
-@@ -73,8 +73,8 @@ pids_css_alloc(struct cgroup_subsys_stat
- 	if (!pids)
- 		return ERR_PTR(-ENOMEM);
- 
--	pids->limit = PIDS_MAX;
- 	atomic64_set(&pids->counter, 0);
-+	atomic64_set(&pids->limit, PIDS_MAX);
- 	atomic64_set(&pids->events_limit, 0);
- 	return &pids->css;
- }
-@@ -146,13 +146,14 @@ static int pids_try_charge(struct pids_c
- 
- 	for (p = pids; parent_pids(p); p = parent_pids(p)) {
- 		int64_t new = atomic64_add_return(num, &p->counter);
-+		int64_t limit = atomic64_read(&p->limit);
- 
- 		/*
- 		 * Since new is capped to the maximum number of pid_t, if
- 		 * p->limit is %PIDS_MAX then we know that this test will never
- 		 * fail.
- 		 */
--		if (new > p->limit)
-+		if (new > limit)
- 			goto revert;
- 	}
- 
-@@ -277,7 +278,7 @@ set_limit:
- 	 * Limit updates don't need to be mutex'd, since it isn't
- 	 * critical that any racing fork()s follow the new limit.
- 	 */
--	pids->limit = limit;
-+	atomic64_set(&pids->limit, limit);
- 	return nbytes;
- }
- 
-@@ -285,7 +286,7 @@ static int pids_max_show(struct seq_file
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -153,7 +153,7 @@ int acpi_bus_get_private_data(acpi_handl
  {
- 	struct cgroup_subsys_state *css = seq_css(sf);
- 	struct pids_cgroup *pids = css_pids(css);
--	int64_t limit = pids->limit;
-+	int64_t limit = atomic64_read(&pids->limit);
+ 	acpi_status status;
  
- 	if (limit >= PIDS_MAX)
- 		seq_printf(sf, "%s\n", PIDS_MAX_STR);
+-	if (!*data)
++	if (!data)
+ 		return -EINVAL;
+ 
+ 	status = acpi_get_data(handle, acpi_bus_private_data_handler, data);
 
 
