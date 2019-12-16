@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65EDF1216D0
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C69121880
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730411AbfLPSKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:10:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53890 "EHLO mail.kernel.org"
+        id S1726448AbfLPSoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:44:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730636AbfLPSKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:38 -0500
+        id S1728261AbfLPR6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 249E7206B7;
-        Mon, 16 Dec 2019 18:10:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E85642166E;
+        Mon, 16 Dec 2019 17:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519837;
-        bh=Fd7ChdYtx6FGdMpsIhsq6sadR6GKedj+dYkI6xfVanY=;
+        s=default; t=1576519122;
+        bh=mJyW3bGZGxeHOaKmOOkB18TClZVtTy46GI792QeP9VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYgaNzf6f31wGO6Sgk4zCJQz8UaORVX+Hj3wvVv+H52HW3ZfBx8WBKEJU6jCq473R
-         nT6zXXcj0tRkbgEvpU4vU3wFiIjqiKQRk6vq9Yp//RFKKd/Nbww8O/9EbyKgGxre9F
-         4uY8FDROySz5z7su4pNXCl+0mV2DWg23b7I2d8YI=
+        b=1GYMKhYreBKH9X4jwjg/j40VZVJSaqZTnzRwERhvUpieosqPO5cjL4IBA7cw6o9Fg
+         dZkaq/eFPnugOxmbAc58hn+tIElC3Mpn/uhdvtr6CuL815mSL2oMNJE6cTxMl5FsdY
+         Xm7MbOn8P5zmGZ7RvBIhw8qao9hmGJMxWLE6x0eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.3 090/180] cpuidle: teo: Ignore disabled idle states that are too deep
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 204/267] blk-mq: avoid sysfs buffer overflow with too many CPU cores
 Date:   Mon, 16 Dec 2019 18:48:50 +0100
-Message-Id: <20191216174834.567028096@linuxfoundation.org>
+Message-Id: <20191216174913.713799376@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 069ce2ef1a6dd84cbd4d897b333e30f825e021f0 upstream.
+commit 8962842ca5abdcf98e22ab3b2b45a103f0408b95 upstream.
 
-Prevent disabled CPU idle state with target residencies beyond the
-anticipated idle duration from being taken into account by the TEO
-governor.
+It is reported that sysfs buffer overflow can be triggered if the system
+has too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
+hctx via /sys/block/$DEV/mq/$N/cpu_list.
 
-Fixes: b26bf6ab716f ("cpuidle: New timer events oriented governor for tickless systems")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Use snprintf to avoid the potential buffer overflow.
+
+This version doesn't change the attribute format, and simply stops
+showing CPU numbers if the buffer is going to overflow.
+
+Cc: stable@vger.kernel.org
+Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpuidle/governors/teo.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ block/blk-mq-sysfs.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/cpuidle/governors/teo.c
-+++ b/drivers/cpuidle/governors/teo.c
-@@ -266,6 +266,13 @@ static int teo_select(struct cpuidle_dri
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -145,20 +145,25 @@ static ssize_t blk_mq_hw_sysfs_nr_reserv
  
- 		if (s->disabled || su->disable) {
- 			/*
-+			 * Ignore disabled states with target residencies beyond
-+			 * the anticipated idle duration.
-+			 */
-+			if (s->target_residency > duration_us)
-+				continue;
+ static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
+ {
++	const size_t size = PAGE_SIZE - 1;
+ 	unsigned int i, first = 1;
+-	ssize_t ret = 0;
++	int ret = 0, pos = 0;
+ 
+ 	for_each_cpu(i, hctx->cpumask) {
+ 		if (first)
+-			ret += sprintf(ret + page, "%u", i);
++			ret = snprintf(pos + page, size - pos, "%u", i);
+ 		else
+-			ret += sprintf(ret + page, ", %u", i);
++			ret = snprintf(pos + page, size - pos, ", %u", i);
 +
-+			/*
- 			 * If the "early hits" metric of a disabled state is
- 			 * greater than the current maximum, it should be taken
- 			 * into account, because it would be a mistake to select
++		if (ret >= size - pos)
++			break;
+ 
+ 		first = 0;
++		pos += ret;
+ 	}
+ 
+-	ret += sprintf(ret + page, "\n");
+-	return ret;
++	ret = snprintf(pos + page, size - pos, "\n");
++	return pos + ret;
+ }
+ 
+ static struct attribute *default_ctx_attrs[] = {
 
 
