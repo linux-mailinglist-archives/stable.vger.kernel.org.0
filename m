@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21784121832
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99ED712179C
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728643AbfLPSAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:00:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35236 "EHLO mail.kernel.org"
+        id S1728404AbfLPSGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:06:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727395AbfLPSAt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:00:49 -0500
+        id S1729730AbfLPSF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:05:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E816E2176D;
-        Mon, 16 Dec 2019 18:00:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D5AA20733;
+        Mon, 16 Dec 2019 18:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519248;
-        bh=j3c5d5ilTa8VfY0xwUYro+uYnCIetXhYbAL5O2t5hd0=;
+        s=default; t=1576519558;
+        bh=FRtwolZSfoLpput8mu1bah8CEizgvrjVeDj+1BvLqDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3ARqsMgGhrZydY86ilhZD3vF26kydRVK0ckA8RxrWdBZJVlRBU2I5KoUABj3cNq6
-         fOumgzjNJ3ziXVUFcCIZBlqv4Yg0/0Cg/C+4N4L5u6+7TUwf8H82MD06y4EwVCvr16
-         ITZushDZ8tv1lkmz5zDdiZHuxmrFevq78T+5neKk=
+        b=fprXEEh2RCbgCiX3AG+TBW1u15T0TYGYrB9YGz5JhctXFZWG4aDVMWKydqXNJDfHK
+         nCyMhkiCRepC7yZVT5UqMwzYJRutekeqY6m8PcFkQPEjxT7OqvmUslqInyMcHEvgM1
+         NUxLYQyPY3DGFEI/OiL/YO6/f4VWCU8M2HDmUWN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Alex Veber <alexve@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
+        stable@vger.kernel.org, Pete Heist <pete@heistp.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 256/267] mlxsw: spectrum_router: Refresh nexthop neighbour when it becomes dead
-Date:   Mon, 16 Dec 2019 18:49:42 +0100
-Message-Id: <20191216174916.718967191@linuxfoundation.org>
+Subject: [PATCH 4.19 115/140] sch_cake: Correctly update parent qlen when splitting GSO packets
+Date:   Mon, 16 Dec 2019 18:49:43 +0100
+Message-Id: <20191216174818.717932404@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,139 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 83d5782681cc12b3d485a83cb34c46b2445f510c ]
+[ Upstream commit 8c6c37fdc20ec9ffaa342f827a8e20afe736fb0c ]
 
-The driver tries to periodically refresh neighbours that are used to
-reach nexthops. This is done by periodically calling neigh_event_send().
+To ensure parent qdiscs have the same notion of the number of enqueued
+packets even after splitting a GSO packet, update the qdisc tree with the
+number of packets that was added due to the split.
 
-However, if the neighbour becomes dead, there is nothing we can do to
-return it to a connected state and the above function call is basically
-a NOP.
-
-This results in the nexthop never being written to the device's
-adjacency table and therefore never used to forward packets.
-
-Fix this by dropping our reference from the dead neighbour and
-associating the nexthop with a new neigbhour which we will try to
-refresh.
-
-Fixes: a7ff87acd995 ("mlxsw: spectrum_router: Implement next-hop routing")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reported-by: Alex Veber <alexve@mellanox.com>
-Tested-by: Alex Veber <alexve@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
+Reported-by: Pete Heist <pete@heistp.net>
+Tested-by: Pete Heist <pete@heistp.net>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlxsw/spectrum_router.c | 73 ++++++++++++++++++-
- 1 file changed, 70 insertions(+), 3 deletions(-)
+ net/sched/sch_cake.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-index 5b9a5c3834d9e..05a2006a20b9b 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_router.c
-@@ -1762,7 +1762,7 @@ static void mlxsw_sp_router_probe_unresolved_nexthops(struct work_struct *work)
- static void
- mlxsw_sp_nexthop_neigh_update(struct mlxsw_sp *mlxsw_sp,
- 			      struct mlxsw_sp_neigh_entry *neigh_entry,
--			      bool removing);
-+			      bool removing, bool dead);
+diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
+index 9fd37d91b5ed0..e4cf72b0675e1 100644
+--- a/net/sched/sch_cake.c
++++ b/net/sched/sch_cake.c
+@@ -1666,7 +1666,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	if (skb_is_gso(skb) && q->rate_flags & CAKE_FLAG_SPLIT_GSO) {
+ 		struct sk_buff *segs, *nskb;
+ 		netdev_features_t features = netif_skb_features(skb);
+-		unsigned int slen = 0;
++		unsigned int slen = 0, numsegs = 0;
  
- static enum mlxsw_reg_rauht_op mlxsw_sp_rauht_op(bool adding)
- {
-@@ -1891,7 +1891,8 @@ static void mlxsw_sp_router_neigh_event_work(struct work_struct *work)
+ 		segs = skb_gso_segment(skb, features & ~NETIF_F_GSO_MASK);
+ 		if (IS_ERR_OR_NULL(segs))
+@@ -1682,6 +1682,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 			flow_queue_add(flow, segs);
  
- 	memcpy(neigh_entry->ha, ha, ETH_ALEN);
- 	mlxsw_sp_neigh_entry_update(mlxsw_sp, neigh_entry, entry_connected);
--	mlxsw_sp_nexthop_neigh_update(mlxsw_sp, neigh_entry, !entry_connected);
-+	mlxsw_sp_nexthop_neigh_update(mlxsw_sp, neigh_entry, !entry_connected,
-+				      dead);
+ 			sch->q.qlen++;
++			numsegs++;
+ 			slen += segs->len;
+ 			q->buffer_used += segs->truesize;
+ 			b->packets++;
+@@ -1695,7 +1696,7 @@ static s32 cake_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 		sch->qstats.backlog += slen;
+ 		q->avg_window_bytes += slen;
  
- 	if (!neigh_entry->connected && list_empty(&neigh_entry->nexthop_list))
- 		mlxsw_sp_neigh_entry_destroy(mlxsw_sp, neigh_entry);
-@@ -2535,13 +2536,79 @@ static void __mlxsw_sp_nexthop_neigh_update(struct mlxsw_sp_nexthop *nh,
- 	nh->update = 1;
- }
- 
-+static int
-+mlxsw_sp_nexthop_dead_neigh_replace(struct mlxsw_sp *mlxsw_sp,
-+				    struct mlxsw_sp_neigh_entry *neigh_entry)
-+{
-+	struct neighbour *n, *old_n = neigh_entry->key.n;
-+	struct mlxsw_sp_nexthop *nh;
-+	bool entry_connected;
-+	u8 nud_state, dead;
-+	int err;
-+
-+	nh = list_first_entry(&neigh_entry->nexthop_list,
-+			      struct mlxsw_sp_nexthop, neigh_list_node);
-+
-+	n = neigh_lookup(nh->nh_grp->neigh_tbl, &nh->gw_addr, nh->rif->dev);
-+	if (!n) {
-+		n = neigh_create(nh->nh_grp->neigh_tbl, &nh->gw_addr,
-+				 nh->rif->dev);
-+		if (IS_ERR(n))
-+			return PTR_ERR(n);
-+		neigh_event_send(n, NULL);
-+	}
-+
-+	mlxsw_sp_neigh_entry_remove(mlxsw_sp, neigh_entry);
-+	neigh_entry->key.n = n;
-+	err = mlxsw_sp_neigh_entry_insert(mlxsw_sp, neigh_entry);
-+	if (err)
-+		goto err_neigh_entry_insert;
-+
-+	read_lock_bh(&n->lock);
-+	nud_state = n->nud_state;
-+	dead = n->dead;
-+	read_unlock_bh(&n->lock);
-+	entry_connected = nud_state & NUD_VALID && !dead;
-+
-+	list_for_each_entry(nh, &neigh_entry->nexthop_list,
-+			    neigh_list_node) {
-+		neigh_release(old_n);
-+		neigh_clone(n);
-+		__mlxsw_sp_nexthop_neigh_update(nh, !entry_connected);
-+		mlxsw_sp_nexthop_group_refresh(mlxsw_sp, nh->nh_grp);
-+	}
-+
-+	neigh_release(n);
-+
-+	return 0;
-+
-+err_neigh_entry_insert:
-+	neigh_entry->key.n = old_n;
-+	mlxsw_sp_neigh_entry_insert(mlxsw_sp, neigh_entry);
-+	neigh_release(n);
-+	return err;
-+}
-+
- static void
- mlxsw_sp_nexthop_neigh_update(struct mlxsw_sp *mlxsw_sp,
- 			      struct mlxsw_sp_neigh_entry *neigh_entry,
--			      bool removing)
-+			      bool removing, bool dead)
- {
- 	struct mlxsw_sp_nexthop *nh;
- 
-+	if (list_empty(&neigh_entry->nexthop_list))
-+		return;
-+
-+	if (dead) {
-+		int err;
-+
-+		err = mlxsw_sp_nexthop_dead_neigh_replace(mlxsw_sp,
-+							  neigh_entry);
-+		if (err)
-+			dev_err(mlxsw_sp->bus_info->dev, "Failed to replace dead neigh\n");
-+		return;
-+	}
-+
- 	list_for_each_entry(nh, &neigh_entry->nexthop_list,
- 			    neigh_list_node) {
- 		__mlxsw_sp_nexthop_neigh_update(nh, removing);
+-		qdisc_tree_reduce_backlog(sch, 1, len);
++		qdisc_tree_reduce_backlog(sch, 1-numsegs, len-slen);
+ 		consume_skb(skb);
+ 	} else {
+ 		/* not splitting */
 -- 
 2.20.1
 
