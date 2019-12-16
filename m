@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE033121461
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E2A1215FD
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730665AbfLPSKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:10:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54322 "EHLO mail.kernel.org"
+        id S1731496AbfLPSZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:25:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730318AbfLPSKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:52 -0500
+        id S1731659AbfLPSRk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:17:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3500206B7;
-        Mon, 16 Dec 2019 18:10:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1167E206E0;
+        Mon, 16 Dec 2019 18:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519852;
-        bh=w8DpnLIqefWHHbyN99Kdhz6nhOOdKYSGyPbX7mF7uQk=;
+        s=default; t=1576520259;
+        bh=+acM6/3oFbKzz7oCcG64SWWaZNc21NPB0mvTRhzs49c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09W6uUf4s+kgMI1lJo/faNzSxXHxBsTXxqAporPbTnqTngKmLXy9kIh8hqukhNit4
-         ik9WDdv4Gnh5kT24+DQ7r+j95604Moek5yCzBuJEN4zfMnYZw3nJMfZoa2QSNhqnLR
-         CTLq4JXaZEcfUPvA55Vlvj5Ce2k30JDhApNaOTkA=
+        b=CEMS+1nIz5tYwLvlpq3ubL+wujCqoLhRirpCwhzAxi4G60wfEcwTXoL+n/kKi3XgH
+         q9whT+JvEKS84IBhbV/DlsRs8ugKUSS72tkeEDofDSYnpEpcKweOK96pMGWqBC7BEb
+         Iu02YgYrK/7rCA8UjO3H62BtjkfSMSz5AORSQvUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        "Hariharan T.S." <hari@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.3 095/180] powerpc/perf: Disable trace_imc pmu
-Date:   Mon, 16 Dec 2019 18:48:55 +0100
-Message-Id: <20191216174835.132489608@linuxfoundation.org>
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.4 080/177] ovl: fix corner case of non-unique st_dev;st_ino
+Date:   Mon, 16 Dec 2019 18:48:56 +0100
+Message-Id: <20191216174836.969129558@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 249fad734a25889a4f23ed014d43634af6798063 upstream.
+commit 9c6d8f13e9da10a26ad7f0a020ef86e8ef142835 upstream.
 
-When a root user or a user with CAP_SYS_ADMIN privilege uses any
-trace_imc performance monitoring unit events, to monitor application
-or KVM threads, it may result in a checkstop (System crash).
+On non-samefs overlay without xino, non pure upper inodes should use a
+pseudo_dev assigned to each unique lower fs and pure upper inodes use the
+real upper st_dev.
 
-The cause is frequent switching of the "trace/accumulation" mode of
-the In-Memory Collection hardware (LDBAR).
+It is fine for an overlay pure upper inode to use the same st_dev;st_ino
+values as the real upper inode, because the content of those two different
+filesystem objects is always the same.
 
-This patch disables the trace_imc PMU unit entirely to avoid
-triggering the checkstop. A future patch will reenable it at a later
-stage once a workaround has been developed.
+In this case, however:
+ - two filesystems, A and B
+ - upper layer is on A
+ - lower layer 1 is also on A
+ - lower layer 2 is on B
 
-Fixes: 012ae244845f ("powerpc/perf: Trace imc PMU functions")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Tested-by: Hariharan T.S. <hari@linux.ibm.com>
-[mpe: Add pr_info_once() so dmesg shows the PMU has been disabled]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191118034452.9939-1-maddy@linux.vnet.ibm.com
+Non pure upper overlay inode, whose origin is in layer 1 will have the same
+st_dev;st_ino values as the real lower inode. This may result with a false
+positive results of 'diff' between the real lower and copied up overlay
+inode.
+
+Fix this by using the upper st_dev;st_ino values in this case.  This breaks
+the property of constant st_dev;st_ino across copy up of this case. This
+breakage will be fixed by a later patch.
+
+Fixes: 5148626b806a ("ovl: allocate anon bdev per unique lower fs")
+Cc: stable@vger.kernel.org # v4.17+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/opal-imc.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/overlayfs/inode.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/powernv/opal-imc.c
-+++ b/arch/powerpc/platforms/powernv/opal-imc.c
-@@ -285,7 +285,14 @@ static int opal_imc_counters_probe(struc
- 			domain = IMC_DOMAIN_THREAD;
- 			break;
- 		case IMC_TYPE_TRACE:
--			domain = IMC_DOMAIN_TRACE;
-+			/*
-+			 * FIXME. Using trace_imc events to monitor application
-+			 * or KVM thread performance can cause a checkstop
-+			 * (system crash).
-+			 * Disable it for now.
-+			 */
-+			pr_info_once("IMC: disabling trace_imc PMU\n");
-+			domain = -1;
- 			break;
- 		default:
- 			pr_warn("IMC Unknown Device type \n");
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -200,8 +200,14 @@ int ovl_getattr(const struct path *path,
+ 			if (ovl_test_flag(OVL_INDEX, d_inode(dentry)) ||
+ 			    (!ovl_verify_lower(dentry->d_sb) &&
+ 			     (is_dir || lowerstat.nlink == 1))) {
+-				stat->ino = lowerstat.ino;
+ 				lower_layer = ovl_layer_lower(dentry);
++				/*
++				 * Cannot use origin st_dev;st_ino because
++				 * origin inode content may differ from overlay
++				 * inode content.
++				 */
++				if (samefs || lower_layer->fsid)
++					stat->ino = lowerstat.ino;
+ 			}
+ 
+ 			/*
 
 
