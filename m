@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A50101216F0
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDEB1218AF
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730504AbfLPSJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:09:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52472 "EHLO mail.kernel.org"
+        id S1728552AbfLPR57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:57:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730500AbfLPSJt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:09:49 -0500
+        id S1728549AbfLPR56 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:57:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8518120700;
-        Mon, 16 Dec 2019 18:09:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED18E205ED;
+        Mon, 16 Dec 2019 17:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519789;
-        bh=7lH2J8jbJLx5db/U3NXg0SHa+gy/pg/2nY0NAcJSs5o=;
+        s=default; t=1576519078;
+        bh=2e8/UuLvJLNecZgC8ChFnpt7Ilo18ui9cPMWigdrHKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ImhPIFTm+kze106Up4R4Yjvs4lH99rL8R+XyoQO1ShWMTUKPJmybg/QlkrhuHa2I8
-         ziEr2FEt6UEdNZwmwMgoVibqEWCvGCr/wpBx7XTv+Bt0jG1UwESkx5VgObSC6Yq4R4
-         2vonsGD0DfcFvyTUU8zd0F4uZb9Ql7PmoOgS/NZk=
+        b=WHwyUURrJdSHNvH+nij4hUT84zieEIwCVNiS48B5zMh36TXXjIFq928SJ1Qr8CmgA
+         nMl1ySgXR6+8UIPZ0GdGmc2axFVroS5+YzvmNWYp3NwJAGOI0aL1YXU5ex4mSH6uvE
+         Y/x63fUzJ+iBp5RNDc/p+pDxAW1oeSZcJW56+ros=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Robert=20W=C3=B6rle?= <rwoerle@mibtec.de>,
-        Beniamin Bia <beniamin.bia@analog.com>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.3 032/180] iio: adc: ad7606: fix reading unnecessary data from device
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 146/267] crypto: ecdh - fix big endian bug in ECC library
 Date:   Mon, 16 Dec 2019 18:47:52 +0100
-Message-Id: <20191216174813.559785560@linuxfoundation.org>
+Message-Id: <20191216174910.473333138@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Beniamin Bia <beniamin.bia@analog.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 341826a065660d1b77d89e6335b6095cd654271c upstream.
+commit f398243e9fd6a3a059c1ea7b380c40628dbf0c61 upstream.
 
-When a conversion result is being read from ADC, the driver reads the
-number of channels + 1 because it thinks that IIO_CHAN_SOFT_TIMESTAMP
-is also a physical channel. This patch fixes this issue.
+The elliptic curve arithmetic library used by the EC-DH KPP implementation
+assumes big endian byte order, and unconditionally reverses the byte
+and word order of multi-limb quantities. On big endian systems, the byte
+reordering is not necessary, while the word ordering needs to be retained.
 
-Fixes: 2985a5d88455 ("staging: iio: adc: ad7606: Move out of staging")
-Reported-by: Robert Wörle <rwoerle@mibtec.de>
-Signed-off-by: Beniamin Bia <beniamin.bia@analog.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+So replace the __swab64() invocation with a call to be64_to_cpu() which
+should do the right thing for both little and big endian builds.
+
+Fixes: 3c4b23901a0c ("crypto: ecdh - Add ECDH software support")
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/ad7606.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/ecc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ad7606.c
-+++ b/drivers/iio/adc/ad7606.c
-@@ -57,7 +57,7 @@ static int ad7606_reset(struct ad7606_st
- 
- static int ad7606_read_samples(struct ad7606_state *st)
+--- a/crypto/ecc.c
++++ b/crypto/ecc.c
+@@ -898,10 +898,11 @@ static void ecc_point_mult(struct ecc_po
+ static inline void ecc_swap_digits(const u64 *in, u64 *out,
+ 				   unsigned int ndigits)
  {
--	unsigned int num = st->chip_info->num_channels;
-+	unsigned int num = st->chip_info->num_channels - 1;
- 	u16 *data = st->data;
- 	int ret;
++	const __be64 *src = (__force __be64 *)in;
+ 	int i;
  
+ 	for (i = 0; i < ndigits; i++)
+-		out[i] = __swab64(in[ndigits - 1 - i]);
++		out[i] = be64_to_cpu(src[ndigits - 1 - i]);
+ }
+ 
+ static int __ecc_is_key_valid(const struct ecc_curve *curve,
 
 
