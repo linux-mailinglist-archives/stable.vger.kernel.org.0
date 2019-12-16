@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9716E1215AB
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAED51215A9
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728640AbfLPSUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:20:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49008 "EHLO mail.kernel.org"
+        id S1732007AbfLPSUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:20:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731669AbfLPST7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:19:59 -0500
+        id S1731590AbfLPSUB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:20:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0805207FF;
-        Mon, 16 Dec 2019 18:19:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C78420717;
+        Mon, 16 Dec 2019 18:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520398;
-        bh=B3uDbUr2ZpsvlyW0xfEfaHDX65/k0MXfJxDbDhI7W+8=;
+        s=default; t=1576520400;
+        bh=cbNPlnp3RZdHG/QI5oceeLss/Ui224GBU1q62a4/UdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIU33QCSjjgPHK48/QpQmeL7XFET1WCGv9caMRXEkAHn4VoK9AnIVaOOXhqsbCQ3/
-         gr28ZI9xJe5oGVMckxu+O0dLS+ctBC316lF/VDM/TSWK3yf7s23i/fKcyWDCagN/em
-         YVTOcK1nP/D+i33WsvIuKrOi5WOOyp2YH6Z2ew6w=
+        b=jYkFtpiCy28wK2JvQ4HOImQbmr+dsUnpvEBYsh98pkpZb2Zqv3FaSjLA8SlX8gfNj
+         rN4MAVGl+87UW0b1KZnprJCWMoDSgRjB9+ibu1mfk6xTF9bU56/Bp9sT0X89a1CreL
+         PAAUwr0bXf/jATDpM2LjmJBf4TPgfi28mfO3GZTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.4 139/177] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection GPIO polarity
-Date:   Mon, 16 Dec 2019 18:49:55 +0100
-Message-Id: <20191216174846.386269041@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 140/177] RDMA/core: Fix ib_dma_max_seg_size()
+Date:   Mon, 16 Dec 2019 18:49:56 +0100
+Message-Id: <20191216174846.681477103@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -43,45 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@bitmer.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 287897f9aaa2ad1c923d9875914f57c4dc9159c8 upstream.
+commit ecdfdfdbe4d4c74029f2b416b7ee6d0aeb56364a upstream.
 
-The MMC card detection GPIO polarity is active low on TAO3530, like in many
-other similar boards. Now the card is not detected and it is unable to
-mount rootfs from an SD card.
+If dev->dma_device->params == NULL then the maximum DMA segment size is 64
+KB. See also the dma_get_max_seg_size() implementation. This patch fixes
+the following kernel warning:
 
-Fix this by using the correct polarity.
+  DMA-API: infiniband rxe0: mapping sg segment longer than device claims to support [len=126976] [max=65536]
+  WARNING: CPU: 4 PID: 4848 at kernel/dma/debug.c:1220 debug_dma_map_sg+0x3d9/0x450
+  RIP: 0010:debug_dma_map_sg+0x3d9/0x450
+  Call Trace:
+   srp_queuecommand+0x626/0x18d0 [ib_srp]
+   scsi_queue_rq+0xd02/0x13e0 [scsi_mod]
+   __blk_mq_try_issue_directly+0x2b3/0x3f0
+   blk_mq_request_issue_directly+0xac/0xf0
+   blk_insert_cloned_request+0xdf/0x170
+   dm_mq_queue_rq+0x43d/0x830 [dm_mod]
+   __blk_mq_try_issue_directly+0x2b3/0x3f0
+   blk_mq_request_issue_directly+0xac/0xf0
+   blk_mq_try_issue_list_directly+0xb8/0x170
+   blk_mq_sched_insert_requests+0x23c/0x3b0
+   blk_mq_flush_plug_list+0x529/0x730
+   blk_flush_plug_list+0x21f/0x260
+   blk_mq_make_request+0x56b/0xf20
+   generic_make_request+0x196/0x660
+   submit_bio+0xae/0x290
+   blkdev_direct_IO+0x822/0x900
+   generic_file_direct_write+0x110/0x200
+   __generic_file_write_iter+0x124/0x2a0
+   blkdev_write_iter+0x168/0x270
+   aio_write+0x1c4/0x310
+   io_submit_one+0x971/0x1390
+   __x64_sys_io_submit+0x12a/0x390
+   do_syscall_64+0x6f/0x2e0
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-This incorrect polarity was defined already in the commit 30d95c6d7092
-("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
-kernel and later changed to use defined GPIO constants in v4.4 kernel by
-the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
-cell for OMAP2+ boards").
-
-While the latter commit did not introduce the issue I'm marking it with
-Fixes tag due the v4.4 kernels still being maintained.
-
-Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
-Cc: linux-stable <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20191025225830.257535-2-bvanassche@acm.org
+Cc: <stable@vger.kernel.org>
+Fixes: 0b5cb3300ae5 ("RDMA/srp: Increase max_segment_size")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/omap3-tao3530.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/rdma/ib_verbs.h |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/omap3-tao3530.dtsi
-+++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
-@@ -222,7 +222,7 @@
- 	pinctrl-0 = <&mmc1_pins>;
- 	vmmc-supply = <&vmmc1>;
- 	vqmmc-supply = <&vsim>;
--	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
-+	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
- 	bus-width = <8>;
- };
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -4043,9 +4043,7 @@ static inline void ib_dma_unmap_sg_attrs
+  */
+ static inline unsigned int ib_dma_max_seg_size(struct ib_device *dev)
+ {
+-	struct device_dma_parameters *p = dev->dma_device->dma_parms;
+-
+-	return p ? p->max_segment_size : UINT_MAX;
++	return dma_get_max_seg_size(dev->dma_device);
+ }
  
+ /**
 
 
