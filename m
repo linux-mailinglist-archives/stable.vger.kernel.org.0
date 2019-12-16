@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E30B121408
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15A8712140C
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730138AbfLPSHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:07:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
+        id S1730164AbfLPSHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:07:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729967AbfLPSHX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:07:23 -0500
+        id S1730160AbfLPSHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:07:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 192252166E;
-        Mon, 16 Dec 2019 18:07:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B0D0206E0;
+        Mon, 16 Dec 2019 18:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519642;
-        bh=vVxJ+FxthJfmbcChelrHumybQHmC1SgZuN0K7KSHf2Q=;
+        s=default; t=1576519654;
+        bh=1ZYy98CPAyq93GUIgcw6UU4FpMPiCZDurkn4EcsWQtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3w/U1dHi9sYs5CZYurodNaVhos1aUf5z94yuXc9bHf15kVGzvtwCACfufyU8Hs3R
-         izXnXm2pndgmx/TeK6Po6z360sCznGRkIttaZ3oFtPiQTEDgXwdDxy1KIL6pWRP+lf
-         DnTHsv0CLjIJLgXzrXbYojbS3vs4j9CxmlHptIxU=
+        b=ZvN9HUYOvjI1mVUoN2RoSmbosgAnjA3aFeR0+jVNjfJeG8Emii1x4qNFed2Aw68Pt
+         1nxCNnlAJVQCTaCa81Zh4tMXWHIA4BfTaWglYgVlcfi+t/Mvzpql9fZ94cXMYe0zyP
+         brE6Z82vNCRBsQk7TlX3XAJfIxa9ZdKt1FRJnD+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.3 010/180] USB: documentation: flags on usb-storage versus UAS
-Date:   Mon, 16 Dec 2019 18:47:30 +0100
-Message-Id: <20191216174808.192985780@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.3 015/180] staging: rtl8712: fix interface sanity check
+Date:   Mon, 16 Dec 2019 18:47:35 +0100
+Message-Id: <20191216174809.143033848@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
 References: <20191216174806.018988360@linuxfoundation.org>
@@ -42,74 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 65cc8bf99349f651a0a2cee69333525fe581f306 upstream.
+commit c724f776f048538ecfdf53a52b7a522309f5c504 upstream.
 
-Document which flags work storage, UAS or both
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191114112758.32747-4-oneukum@suse.com
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+
+Fixes: 2865d42c78a9 ("staging: r8712u: Add the new driver to the mainline kernel")
+Cc: stable <stable@vger.kernel.org>     # 2.6.37
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191210114751.5119-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/admin-guide/kernel-parameters.txt |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/staging/rtl8712/usb_intf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5066,13 +5066,13 @@
- 			Flags is a set of characters, each corresponding
- 			to a common usb-storage quirk flag as follows:
- 				a = SANE_SENSE (collect more than 18 bytes
--					of sense data);
-+					of sense data, not on uas);
- 				b = BAD_SENSE (don't collect more than 18
--					bytes of sense data);
-+					bytes of sense data, not on uas);
- 				c = FIX_CAPACITY (decrease the reported
- 					device capacity by one sector);
- 				d = NO_READ_DISC_INFO (don't use
--					READ_DISC_INFO command);
-+					READ_DISC_INFO command, not on uas);
- 				e = NO_READ_CAPACITY_16 (don't use
- 					READ_CAPACITY_16 command);
- 				f = NO_REPORT_OPCODES (don't use report opcodes
-@@ -5087,17 +5087,18 @@
- 				j = NO_REPORT_LUNS (don't use report luns
- 					command, uas only);
- 				l = NOT_LOCKABLE (don't try to lock and
--					unlock ejectable media);
-+					unlock ejectable media, not on uas);
- 				m = MAX_SECTORS_64 (don't transfer more
--					than 64 sectors = 32 KB at a time);
-+					than 64 sectors = 32 KB at a time,
-+					not on uas);
- 				n = INITIAL_READ10 (force a retry of the
--					initial READ(10) command);
-+					initial READ(10) command, not on uas);
- 				o = CAPACITY_OK (accept the capacity
--					reported by the device);
-+					reported by the device, not on uas);
- 				p = WRITE_CACHE (the device cache is ON
--					by default);
-+					by default, not on uas);
- 				r = IGNORE_RESIDUE (the device reports
--					bogus residue values);
-+					bogus residue values, not on uas);
- 				s = SINGLE_LUN (the device has only one
- 					Logical Unit);
- 				t = NO_ATA_1X (don't allow ATA(12) and ATA(16)
-@@ -5106,7 +5107,8 @@
- 				w = NO_WP_DETECT (don't test whether the
- 					medium is write-protected).
- 				y = ALWAYS_SYNC (issue a SYNCHRONIZE_CACHE
--					even if the device claims no cache)
-+					even if the device claims no cache,
-+					not on uas)
- 			Example: quirks=0419:aaf5:rl,0421:0433:rc
+--- a/drivers/staging/rtl8712/usb_intf.c
++++ b/drivers/staging/rtl8712/usb_intf.c
+@@ -247,7 +247,7 @@ static uint r8712_usb_dvobj_init(struct
  
- 	user_debug=	[KNL,ARM]
+ 	pdvobjpriv->padapter = padapter;
+ 	padapter->eeprom_address_size = 6;
+-	phost_iface = &pintf->altsetting[0];
++	phost_iface = pintf->cur_altsetting;
+ 	piface_desc = &phost_iface->desc;
+ 	pdvobjpriv->nr_endpoint = piface_desc->bNumEndpoints;
+ 	if (pusbd->speed == USB_SPEED_HIGH) {
 
 
