@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C501214A3
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 089AA121582
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730677AbfLPSNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:13:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
+        id S1731922AbfLPSV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:21:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731071AbfLPSNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:13:09 -0500
+        id S1731497AbfLPSVZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:21:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7487C206E0;
-        Mon, 16 Dec 2019 18:13:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B02B20717;
+        Mon, 16 Dec 2019 18:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519988;
-        bh=fwJCKovsLkqZb80+g3AyreicO1Fvvvg4vopenRTYNig=;
+        s=default; t=1576520485;
+        bh=+TcQCskO8Yxad2UV+B9L/vAH6xNMwSDamhI/wfm7YAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wVoZtorhEQ12DRew1ZfPGlORQ+wneijIl2obZOS8+aFM0tx1UVy8EhfCgrqk6P/1N
-         fIiUMW2sgTeVgWumAiJBMxY72/jz2T8kdegLUA3CVi1AGnMnKkcYnsytw+LTl4cbU9
-         8iSBDlvJRdlhgdzIpOZk7geAn3kqYVf1B8kBqDQw=
+        b=ui8aUPD37QzzR3lZL91cEjESgNoziFp50DGjIcS2LIwEO6A8mErHtFmyZfZtsG3Fa
+         ljwXmawP5g7NEWqvHJBbWToRayJfyhh4LmJYoYVlV0qjdEN5GM+AWc8wEbRdFWwgeW
+         B/6vVVFeKCWheiXQScS1W+P7QPbNftWZO3AE9Dvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Carnuccio <joe.carnuccio@cavium.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 150/180] scsi: qla2xxx: qla2x00_alloc_fw_dump: set ha->eft
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5.4 134/177] pinctrl: samsung: Fix device node refcount leaks in Exynos wakeup controller init
 Date:   Mon, 16 Dec 2019 18:49:50 +0100
-Message-Id: <20191216174844.076122064@linuxfoundation.org>
+Message-Id: <20191216174844.862838184@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,44 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit edbd56472a636ab396f5ee6783e8438fa725a6ee ]
+commit 5c7f48dd14e892e3e920dd6bbbd52df79e1b3b41 upstream.
 
-In qla2x00_alloc_fw_dump(), an existing EFT buffer (e.g. from previous
-invocation of qla2x00_alloc_offload_mem()) is freed.  The buffer is then
-re-allocated, but without setting the eft and eft_dma fields to the new
-values.
+In exynos_eint_wkup_init() the for_each_child_of_node() loop is used
+with a break to find a matching child node.  Although each iteration of
+for_each_child_of_node puts the previous node, but early exit from loop
+misses it.  This leads to leak of device node.
 
-Fixes: a28d9e4ef997 ("scsi: qla2xxx: Add support for multiple fwdump templates/segments")
-Cc: Joe Carnuccio <joe.carnuccio@cavium.com>
-Cc: Quinn Tran <qutran@marvell.com>
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Tested-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 43b169db1841 ("pinctrl: add exynos4210 specific extensions for samsung pinctrl driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_init.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/samsung/pinctrl-exynos.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index bcd3411fc6be8..f4ed061b96886 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -3317,6 +3317,8 @@ try_eft:
- 		ql_dbg(ql_dbg_init, vha, 0x00c3,
- 		    "Allocated (%d KB) EFT ...\n", EFT_SIZE / 1024);
- 		eft_size = EFT_SIZE;
-+		ha->eft_dma = tc_dma;
-+		ha->eft = tc;
+--- a/drivers/pinctrl/samsung/pinctrl-exynos.c
++++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
+@@ -506,6 +506,7 @@ int exynos_eint_wkup_init(struct samsung
+ 				bank->nr_pins, &exynos_eint_irqd_ops, bank);
+ 		if (!bank->irq_domain) {
+ 			dev_err(dev, "wkup irq domain add failed\n");
++			of_node_put(wkup_np);
+ 			return -ENXIO;
+ 		}
+ 
+@@ -520,8 +521,10 @@ int exynos_eint_wkup_init(struct samsung
+ 		weint_data = devm_kcalloc(dev,
+ 					  bank->nr_pins, sizeof(*weint_data),
+ 					  GFP_KERNEL);
+-		if (!weint_data)
++		if (!weint_data) {
++			of_node_put(wkup_np);
+ 			return -ENOMEM;
++		}
+ 
+ 		for (idx = 0; idx < bank->nr_pins; ++idx) {
+ 			irq = irq_of_parse_and_map(bank->of_node, idx);
+@@ -538,10 +541,13 @@ int exynos_eint_wkup_init(struct samsung
+ 		}
  	}
  
- 	if (IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
--- 
-2.20.1
-
+-	if (!muxed_banks)
++	if (!muxed_banks) {
++		of_node_put(wkup_np);
+ 		return 0;
++	}
+ 
+ 	irq = irq_of_parse_and_map(wkup_np, 0);
++	of_node_put(wkup_np);
+ 	if (!irq) {
+ 		dev_err(dev, "irq number for muxed EINTs not found\n");
+ 		return 0;
 
 
