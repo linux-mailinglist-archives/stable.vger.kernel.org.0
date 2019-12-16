@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6F21213AE
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 583DD1215FF
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:26:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729580AbfLPSDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40884 "EHLO mail.kernel.org"
+        id S1731930AbfLPS0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:26:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729172AbfLPSDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:51 -0500
+        id S1731665AbfLPSRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:17:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4116207FF;
-        Mon, 16 Dec 2019 18:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48FA1206E0;
+        Mon, 16 Dec 2019 18:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519431;
-        bh=klIdzkzvFKDWvvLxvjoRckTHmAjYSgP6WS1tO3GbRjI=;
+        s=default; t=1576520249;
+        bh=pqNHbAcxx1bxCjXAbX5u1ivSyYL15S5es8kOLtgdxeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9lzD2/VE5skrv5Rf5XcPY9l8Dq8lc0EmdstVAUZ292EKHE3TyugjVBHoY0z+hPnB
-         jmCoc1TeEI5aD60lkaHV0HIdCO24UxY0zfOz8z7woLOas3mgyuDTFXsAs/8g5CXimk
-         mPHqosOT3nbBAyrmprw9gwNcI5isHUW8U3dhyLmE=
+        b=AwEZ1+ALJvt23QCm0WD8ZKUcFoSXrQwBJaza7AKjIli8jM3qINd3o+c7Tq3Bk19Iq
+         vrP4zX1+Niv5copQy151x/k85OfqqppENX7CvCI9h+G/7xCKpZfeOkc/SQACOP7qhT
+         sKcUa81U6Yd1RAvZMHhzbAcdnVSx/YYBdt6+Qk+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matti Aaltonen <matti.j.aaltonen@nokia.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.19 064/140] media: radio: wl1273: fix interrupt masking on release
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 076/177] rtlwifi: rtl8192de: Fix missing callback that tests for hw release of buffer
 Date:   Mon, 16 Dec 2019 18:48:52 +0100
-Message-Id: <20191216174805.217646045@linuxfoundation.org>
+Message-Id: <20191216174835.889506106@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 1091eb830627625dcf79958d99353c2391f41708 upstream.
+commit 3155db7613edea8fb943624062baf1e4f9cfbfd6 upstream.
 
-If a process is interrupted while accessing the radio device and the
-core lock is contended, release() could return early and fail to update
-the interrupt mask.
+In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
+new drivers"), a callback needed to check if the hardware has released
+a buffer indicating that a DMA operation is completed was not added.
 
-Note that the return value of the v4l2 release file operation is
-ignored.
-
-Fixes: 87d1a50ce451 ("[media] V4L2: WL1273 FM Radio: TI WL1273 FM radio driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.38
-Cc: Matti Aaltonen <matti.j.aaltonen@nokia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
+Cc: Stable <stable@vger.kernel.org>	# v3.18+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/radio/radio-wl1273.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c  |    1 +
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |   17 +++++++++++++++++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h |    2 ++
+ 3 files changed, 20 insertions(+)
 
---- a/drivers/media/radio/radio-wl1273.c
-+++ b/drivers/media/radio/radio-wl1273.c
-@@ -1156,8 +1156,7 @@ static int wl1273_fm_fops_release(struct
- 	if (radio->rds_users > 0) {
- 		radio->rds_users--;
- 		if (radio->rds_users == 0) {
--			if (mutex_lock_interruptible(&core->lock))
--				return -EINTR;
-+			mutex_lock(&core->lock);
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
+@@ -216,6 +216,7 @@ static struct rtl_hal_ops rtl8192de_hal_
+ 	.led_control = rtl92de_led_control,
+ 	.set_desc = rtl92de_set_desc,
+ 	.get_desc = rtl92de_get_desc,
++	.is_tx_desc_closed = rtl92de_is_tx_desc_closed,
+ 	.tx_polling = rtl92de_tx_polling,
+ 	.enable_hw_sec = rtl92de_enable_hw_security_config,
+ 	.set_key = rtl92de_set_key,
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
+@@ -823,6 +823,23 @@ u64 rtl92de_get_desc(struct ieee80211_hw
+ 	return ret;
+ }
  
- 			radio->irq_flags &= ~WL1273_RDS_EVENT;
- 
++bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
++			       u8 hw_queue, u16 index)
++{
++	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
++	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[hw_queue];
++	u8 *entry = (u8 *)(&ring->desc[ring->idx]);
++	u8 own = (u8)rtl92de_get_desc(hw, entry, true, HW_DESC_OWN);
++
++	/* a beacon packet will only use the first
++	 * descriptor by defaut, and the own bit may not
++	 * be cleared by the hardware
++	 */
++	if (own)
++		return false;
++	return true;
++}
++
+ void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue)
+ {
+ 	struct rtl_priv *rtlpriv = rtl_priv(hw);
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
+@@ -715,6 +715,8 @@ void rtl92de_set_desc(struct ieee80211_h
+ 		      u8 desc_name, u8 *val);
+ u64 rtl92de_get_desc(struct ieee80211_hw *hw,
+ 		     u8 *p_desc, bool istx, u8 desc_name);
++bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
++			       u8 hw_queue, u16 index);
+ void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue);
+ void rtl92de_tx_fill_cmddesc(struct ieee80211_hw *hw, u8 *pdesc,
+ 			     bool b_firstseg, bool b_lastseg,
 
 
