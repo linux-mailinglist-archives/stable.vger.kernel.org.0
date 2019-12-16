@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AC361216AC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:31:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 534A6121858
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730453AbfLPSLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:11:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56086 "EHLO mail.kernel.org"
+        id S1728838AbfLPR7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:59:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730829AbfLPSLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:11:46 -0500
+        id S1728646AbfLPR7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:59:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8251B206EC;
-        Mon, 16 Dec 2019 18:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BBD2206EC;
+        Mon, 16 Dec 2019 17:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519906;
-        bh=zr40ijXVMEOd8x6/Kipd24NfEl4lgp/N8U1A6J9z/vM=;
+        s=default; t=1576519190;
+        bh=tlsq84Sjw04k/4K1GPsBwrxcrthZHeY7gccHOEHnC7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9NHDSWFKxafetNHyACIFDRjrMngpcYUY8KO4Nnv4tc1lmdKpgiDJ7yDTq0Wng31J
-         hERLRUuD3GSAX0jliTbKlWuE7M4XEo+c211oN020MKQi5w4ispNYFP1SEbMhmEdlcI
-         /43bqqsfrNEi2ztjBCRVRmtUJyIToxzh8ZixR3e4=
+        b=rusY+goO97eKHBR5/OihqrIyAzmznjQQnUSkjMiSPBvG0XgCxtuouVxMz6IvX9IoY
+         8iLuc29TUyn06VRRH/758kEvds8DSlJoJNLxoyKG1fMpB9zm832vGOvaG4jqhhE96u
+         0DNG5nHg66SinJHjY67qPvvO9767cDaxkMIovNtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawel Harlozinski <pawel.harlozinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.3 077/180] ASoC: Jack: Fix NULL pointer dereference in snd_soc_jack_report
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 191/267] rtlwifi: rtl8192de: Fix missing code to retrieve RX buffer address
 Date:   Mon, 16 Dec 2019 18:48:37 +0100
-Message-Id: <20191216174830.831310842@linuxfoundation.org>
+Message-Id: <20191216174912.989877268@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Harlozinski <pawel.harlozinski@linux.intel.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 8f157d4ff039e03e2ed4cb602eeed2fd4687a58f upstream.
+commit 0e531cc575c4e9e3dd52ad287b49d3c2dc74c810 upstream.
 
-Check for existance of jack before tracing.
-NULL pointer dereference has been reported by KASAN while unloading
-machine driver (snd_soc_cnl_rt274).
+In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
+new drivers"), a callback to get the RX buffer address was added to
+the PCI driver. Unfortunately, driver rtl8192de was not modified
+appropriately and the code runs into a WARN_ONCE() call. The use
+of an incorrect array is also fixed.
 
-Signed-off-by: Pawel Harlozinski <pawel.harlozinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20191112130237.10141-1-pawel.harlozinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
+Cc: Stable <stable@vger.kernel.org> # 3.18+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-jack.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/sound/soc/soc-jack.c
-+++ b/sound/soc/soc-jack.c
-@@ -100,10 +100,9 @@ void snd_soc_jack_report(struct snd_soc_
- 	unsigned int sync = 0;
- 	int enable;
- 
--	trace_snd_soc_jack_report(jack, mask, status);
--
- 	if (!jack)
- 		return;
-+	trace_snd_soc_jack_report(jack, mask, status);
- 
- 	dapm = &jack->card->dapm;
- 
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
+@@ -839,13 +839,15 @@ u32 rtl92de_get_desc(u8 *p_desc, bool is
+ 			break;
+ 		}
+ 	} else {
+-		struct rx_desc_92c *pdesc = (struct rx_desc_92c *)p_desc;
+ 		switch (desc_name) {
+ 		case HW_DESC_OWN:
+-			ret = GET_RX_DESC_OWN(pdesc);
++			ret = GET_RX_DESC_OWN(p_desc);
+ 			break;
+ 		case HW_DESC_RXPKT_LEN:
+-			ret = GET_RX_DESC_PKT_LEN(pdesc);
++			ret = GET_RX_DESC_PKT_LEN(p_desc);
++			break;
++		case HW_DESC_RXBUFF_ADDR:
++			ret = GET_RX_DESC_BUFF_ADDR(p_desc);
+ 			break;
+ 		default:
+ 			WARN_ONCE(true, "rtl8192de: ERR rxdesc :%d not processed\n",
 
 
