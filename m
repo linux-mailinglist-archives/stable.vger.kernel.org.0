@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 577AE121960
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B42121936
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbfLPSuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:50:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47272 "EHLO mail.kernel.org"
+        id S1727742AbfLPRx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:53:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727731AbfLPRxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:53:24 -0500
+        id S1727741AbfLPRx0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:53:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9831C206D3;
-        Mon, 16 Dec 2019 17:53:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED5E920733;
+        Mon, 16 Dec 2019 17:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518804;
-        bh=gq4887FukYlF5vNKsQSCbTtKEEhPkVCXTdwLbsbFhMA=;
+        s=default; t=1576518806;
+        bh=dDBDlbf091Mgq77WY0ie6J14Z/JMU3bD7FbbkoZrOnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBkWMp3Bmy8l97xanhxlxb9+DKDS8Vyqr+Xbd4COlu6dC3gAPeqLwUT5hd53jq3o8
-         N+7z+aOUB5cS4xl8DcrQB3Ndmw+uR7rP2x2YJHA7p8zjtf+9OYz3QhkZVvi/qvODpy
-         W2N88hhi3xBoMNNP+RUHEIygQvHY5yAwq3CZJI6s=
+        b=zrCrMviGdpzol3YP/oMpPmj1E/MJENrFANC/4iB8OiOVLuaWg6Kol43Cc6YqqQEFr
+         QA49xfPX71P3PSwy2wNuqcTpLsqs/trufJA3l+cdlBIbrA4omMN4xZs7eidIzfDvQi
+         Rk6oQiknEgidyYTVyvRaYtMx4jlMLLnTOiq1wrFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 074/267] i2c: imx: dont print error message on probe defer
-Date:   Mon, 16 Dec 2019 18:46:40 +0100
-Message-Id: <20191216174856.778310533@linuxfoundation.org>
+Subject: [PATCH 4.14 075/267] lockd: fix decoding of TEST results
+Date:   Mon, 16 Dec 2019 18:46:41 +0100
+Message-Id: <20191216174856.855742103@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -45,35 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit fece4978510e43f09c8cd386fee15210e8c68493 ]
+[ Upstream commit b8db159239b3f51e2b909859935cc25cb3ff3eed ]
 
-Probe deferral is a normal operating condition in the probe function,
-so don't spam the log with an error in this case.
+We fail to advance the read pointer when reading the stat.oh field that
+identifies the lock-holder in a TEST result.
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This turns out not to matter if the server is knfsd, which always
+returns a zero-length field.  But other servers (Ganesha is an example)
+may not do this.  The result is bad values in fcntl F_GETLK results.
+
+Fix this.
+
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/lockd/clnt4xdr.c | 22 ++++++----------------
+ fs/lockd/clntxdr.c  | 22 ++++++----------------
+ 2 files changed, 12 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index b73dd837fb533..26f83029f64ae 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1088,7 +1088,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	/* Get I2C clock */
- 	i2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(i2c_imx->clk)) {
--		dev_err(&pdev->dev, "can't get I2C clock\n");
-+		if (PTR_ERR(i2c_imx->clk) != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "can't get I2C clock\n");
- 		return PTR_ERR(i2c_imx->clk);
- 	}
+diff --git a/fs/lockd/clnt4xdr.c b/fs/lockd/clnt4xdr.c
+index 00d5ef5f99f73..214a2fa1f1e39 100644
+--- a/fs/lockd/clnt4xdr.c
++++ b/fs/lockd/clnt4xdr.c
+@@ -128,24 +128,14 @@ static void encode_netobj(struct xdr_stream *xdr,
+ static int decode_netobj(struct xdr_stream *xdr,
+ 			 struct xdr_netobj *obj)
+ {
+-	u32 length;
+-	__be32 *p;
++	ssize_t ret;
  
+-	p = xdr_inline_decode(xdr, 4);
+-	if (unlikely(p == NULL))
+-		goto out_overflow;
+-	length = be32_to_cpup(p++);
+-	if (unlikely(length > XDR_MAX_NETOBJ))
+-		goto out_size;
+-	obj->len = length;
+-	obj->data = (u8 *)p;
++	ret = xdr_stream_decode_opaque_inline(xdr, (void *)&obj->data,
++						XDR_MAX_NETOBJ);
++	if (unlikely(ret < 0))
++		return -EIO;
++	obj->len = ret;
+ 	return 0;
+-out_size:
+-	dprintk("NFS: returned netobj was too long: %u\n", length);
+-	return -EIO;
+-out_overflow:
+-	print_overflow_msg(__func__, xdr);
+-	return -EIO;
+ }
+ 
+ /*
+diff --git a/fs/lockd/clntxdr.c b/fs/lockd/clntxdr.c
+index 2c6176387143c..747b9c8c940ac 100644
+--- a/fs/lockd/clntxdr.c
++++ b/fs/lockd/clntxdr.c
+@@ -125,24 +125,14 @@ static void encode_netobj(struct xdr_stream *xdr,
+ static int decode_netobj(struct xdr_stream *xdr,
+ 			 struct xdr_netobj *obj)
+ {
+-	u32 length;
+-	__be32 *p;
++	ssize_t ret;
+ 
+-	p = xdr_inline_decode(xdr, 4);
+-	if (unlikely(p == NULL))
+-		goto out_overflow;
+-	length = be32_to_cpup(p++);
+-	if (unlikely(length > XDR_MAX_NETOBJ))
+-		goto out_size;
+-	obj->len = length;
+-	obj->data = (u8 *)p;
++	ret = xdr_stream_decode_opaque_inline(xdr, (void *)&obj->data,
++			XDR_MAX_NETOBJ);
++	if (unlikely(ret < 0))
++		return -EIO;
++	obj->len = ret;
+ 	return 0;
+-out_size:
+-	dprintk("NFS: returned netobj was too long: %u\n", length);
+-	return -EIO;
+-out_overflow:
+-	print_overflow_msg(__func__, xdr);
+-	return -EIO;
+ }
+ 
+ /*
 -- 
 2.20.1
 
