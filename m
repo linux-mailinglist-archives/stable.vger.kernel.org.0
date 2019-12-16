@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4431D12131A
+	by mail.lfdr.de (Postfix) with ESMTP id C133012131B
 	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbfLPR6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:58:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59102 "EHLO mail.kernel.org"
+        id S1728656AbfLPR6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:58:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728648AbfLPR6u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:58:50 -0500
+        id S1728546AbfLPR6w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A33024686;
-        Mon, 16 Dec 2019 17:58:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86BF02166E;
+        Mon, 16 Dec 2019 17:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519129;
-        bh=CIOEINeAN7LvyrE7wcED0uhSQ+QXU6eHBgG2IWOUgaM=;
+        s=default; t=1576519132;
+        bh=fNccwqWA+SRuS5QnXcv5KmJy7FvExzlUIFIQAkUaYT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsLwHJi8voGAYEbVo7bxosFWQ6/6Ujh97cHCrvvwl1LWdvqk0XrvVQOJZPqGfgECR
-         LR6t9t+kGDwTG/U5qbVAkLU9Fn79l977CCNBR4EiHR0Bp7gkGcS386vdHQE1fz977r
-         fyzKKDR2a/l04wagsadFWZDHT7Uk9xnZbnAnYmNY=
+        b=OkMQsr5wm5oMpijvDXaTNm/DwkJgae3KYU8Z663qgwPQA6qJI+j72y/90GRnlEepm
+         xahw9rtAKy10hLrxFv2JOEioH/lsPGE9y/pUNkEj7e7ZNLOXVZbGZuBT7tl29/Mn9n
+         yC7LdGn3JNPk5MWpRYlQ72D5eX1+2iqrbPLCcZT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14 207/267] s390/mm: properly clear _PAGE_NOEXEC bit when it is not supported
-Date:   Mon, 16 Dec 2019 18:48:53 +0100
-Message-Id: <20191216174913.876284964@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.14 208/267] media: bdisp: fix memleak on release
+Date:   Mon, 16 Dec 2019 18:48:54 +0100
+Message-Id: <20191216174913.930056503@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -44,65 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit ab874f22d35a8058d8fdee5f13eb69d8867efeae upstream.
+commit 11609a7e21f8cea42630350aa57662928fa4dc63 upstream.
 
-On older HW or under a hypervisor, w/o the instruction-execution-
-protection (IEP) facility, and also w/o EDAT-1, a translation-specification
-exception may be recognized when bit 55 of a pte is one (_PAGE_NOEXEC).
+If a process is interrupted while accessing the video device and the
+device lock is contended, release() could return early and fail to free
+related resources.
 
-The current code tries to prevent setting _PAGE_NOEXEC in such cases,
-by removing it within set_pte_at(). However, ptep_set_access_flags()
-will modify a pte directly, w/o using set_pte_at(). There is at least
-one scenario where this can result in an active pte with _PAGE_NOEXEC
-set, which would then lead to a panic due to a translation-specification
-exception (write to swapped out page):
+Note that the return value of the v4l2 release file operation is
+ignored.
 
-do_swap_page
-  pte = mk_pte (with _PAGE_NOEXEC bit)
-  set_pte_at   (will remove _PAGE_NOEXEC bit in page table, but keep it
-                in local variable pte)
-  vmf->orig_pte = pte (pte still contains _PAGE_NOEXEC bit)
-  do_wp_page
-    wp_page_reuse
-      entry = vmf->orig_pte (still with _PAGE_NOEXEC bit)
-      ptep_set_access_flags (writes entry with _PAGE_NOEXEC bit)
-
-Fix this by clearing _PAGE_NOEXEC already in mk_pte_phys(), where the
-pgprot value is applied, so that no pte with _PAGE_NOEXEC will ever be
-visible, if it is not supported. The check in set_pte_at() can then also
-be removed.
-
-Cc: <stable@vger.kernel.org> # 4.11+
-Fixes: 57d7f939e7bd ("s390: add no-execute support")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 28ffeebbb7bd ("[media] bdisp: 2D blitter driver using v4l2 mem2mem framework")
+Cc: stable <stable@vger.kernel.org>     # 4.2
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/pgtable.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/sti/bdisp/bdisp-v4l2.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1126,8 +1126,6 @@ int pgste_perform_essa(struct mm_struct
- static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
- 			      pte_t *ptep, pte_t entry)
- {
--	if (!MACHINE_HAS_NX)
--		pte_val(entry) &= ~_PAGE_NOEXEC;
- 	if (pte_present(entry))
- 		pte_val(entry) &= ~_PAGE_UNUSED;
- 	if (mm_has_pgste(mm))
-@@ -1144,6 +1142,8 @@ static inline pte_t mk_pte_phys(unsigned
- {
- 	pte_t __pte;
- 	pte_val(__pte) = physpage + pgprot_val(pgprot);
-+	if (!MACHINE_HAS_NX)
-+		pte_val(__pte) &= ~_PAGE_NOEXEC;
- 	return pte_mkyoung(__pte);
- }
+--- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
++++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+@@ -651,8 +651,7 @@ static int bdisp_release(struct file *fi
+ 
+ 	dev_dbg(bdisp->dev, "%s\n", __func__);
+ 
+-	if (mutex_lock_interruptible(&bdisp->lock))
+-		return -ERESTARTSYS;
++	mutex_lock(&bdisp->lock);
+ 
+ 	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
  
 
 
