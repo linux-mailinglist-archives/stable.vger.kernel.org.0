@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF7B121425
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:08:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B65451214D5
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730298AbfLPSIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:08:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50404 "EHLO mail.kernel.org"
+        id S1731392AbfLPSPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:15:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730296AbfLPSIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:08:41 -0500
+        id S1731095AbfLPSP3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:15:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AC6A206EC;
-        Mon, 16 Dec 2019 18:08:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F452206E0;
+        Mon, 16 Dec 2019 18:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519720;
-        bh=Ul+6vb0R77VIZx6xIPBeeZvukDJoyv1LW2mE2NNbkms=;
+        s=default; t=1576520127;
+        bh=OSi5Fr3TjcjzhGg8idHN9PqxQnEgQoPKECBW8Sp2Hes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnjjoAWeqRRiojYWb/KA9p/0CT/y3xgmPnL+CuNTCi9GQ+x+1vrkAG7x2dxYojQo3
-         VZbFGn+pJ3Na7FPn8c99aCR9O/CtkK21pUR+fznQV0YNO/M5AQd4yMoYOuKmWByt9D
-         e1IOXQPgFfuRrCYzLrc7fuAD1Nc/o/LUuyRD+h7g=
+        b=0z7VdAONwgXk6lBcfBmkrqqwzcbkzfbpxbdKPDpi02mFjjP4LGrmY3ggS3Imr519Y
+         Zra1TJdabdt5C/oaFMPPJSldZAeicT1KMvm7AkwnwunxJhJVaIZSs92ocrsHQANcEr
+         c772ou6AFHcrmr8lD8nboLQ+d+02DWXlr7zMGGo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        Thor Thayer <thor.thayer@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        James Morse <james.morse@arm.com>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Robert Richter <rrichter@marvell.com>,
-        Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 5.3 042/180] EDAC/altera: Use fast register IO for S10 IRQs
-Date:   Mon, 16 Dec 2019 18:48:02 +0100
-Message-Id: <20191216174817.274664572@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 027/177] usb: xhci: only set D3hot for pci device
+Date:   Mon, 16 Dec 2019 18:48:03 +0100
+Message-Id: <20191216174821.431212852@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,60 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Henry Lin <henryl@nvidia.com>
 
-commit 56d9e7bd3fa0f105b6670021d167744bc50ae4fe upstream.
+commit f2c710f7dca8457e88b4ac9de2060f011254f9dd upstream.
 
-When an IRQ occurs, regmap_{read,write,...}() is invoked in atomic
-context. Regmap must indicate register IO is fast so that a spinlock is
-used instead of a mutex to avoid sleeping in atomic context:
+Xhci driver cannot call pci_set_power_state() on non-pci xhci host
+controllers. For example, NVIDIA Tegra XHCI host controller which acts
+as platform device with XHCI_SPURIOUS_WAKEUP quirk set in some platform
+hits this issue during shutdown.
 
-  lock_acquire
-  __mutex_lock
-  mutex_lock_nested
-  regmap_lock_mutex
-  regmap_write
-  a10_eccmgr_irq_unmask
-  unmask_irq.part.0
-  irq_enable
-  __irq_startup
-  irq_startup
-  __setup_irq
-  request_threaded_irq
-  devm_request_threaded_irq
-  altr_sdram_probe
-
-Mark it so.
-
- [ bp: Massage. ]
-
-Fixes: 3dab6bd52687 ("EDAC, altera: Add support for Stratix10 SDRAM EDAC")
-Reported-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: James Morse <james.morse@arm.com>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Robert Richter <rrichter@marvell.com>
-Cc: stable <stable@vger.kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/1574361048-17572-2-git-send-email-thor.thayer@linux.intel.com
+Cc: <stable@vger.kernel.org>
+Fixes: 638298dc66ea ("xhci: Fix spurious wakeups after S5 on Haswell")
+Signed-off-by: Henry Lin <henryl@nvidia.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20191211142007.8847-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/edac/altera_edac.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-pci.c |   13 +++++++++++++
+ drivers/usb/host/xhci.c     |    7 ++-----
+ drivers/usb/host/xhci.h     |    1 +
+ 3 files changed, 16 insertions(+), 5 deletions(-)
 
---- a/drivers/edac/altera_edac.c
-+++ b/drivers/edac/altera_edac.c
-@@ -561,6 +561,7 @@ static const struct regmap_config s10_sd
- 	.reg_write = s10_protected_reg_write,
- 	.use_single_read = true,
- 	.use_single_write = true,
-+	.fast_io = true,
- };
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -519,6 +519,18 @@ static int xhci_pci_resume(struct usb_hc
+ }
+ #endif /* CONFIG_PM */
  
- /************** </Stratix10 EDAC Memory Controller Functions> ***********/
++static void xhci_pci_shutdown(struct usb_hcd *hcd)
++{
++	struct xhci_hcd		*xhci = hcd_to_xhci(hcd);
++	struct pci_dev		*pdev = to_pci_dev(hcd->self.controller);
++
++	xhci_shutdown(hcd);
++
++	/* Yet another workaround for spurious wakeups at shutdown with HSW */
++	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
++		pci_set_power_state(pdev, PCI_D3hot);
++}
++
+ /*-------------------------------------------------------------------------*/
+ 
+ /* PCI driver selection metadata; PCI hotplugging uses this */
+@@ -554,6 +566,7 @@ static int __init xhci_pci_init(void)
+ #ifdef CONFIG_PM
+ 	xhci_pci_hc_driver.pci_suspend = xhci_pci_suspend;
+ 	xhci_pci_hc_driver.pci_resume = xhci_pci_resume;
++	xhci_pci_hc_driver.shutdown = xhci_pci_shutdown;
+ #endif
+ 	return pci_register_driver(&xhci_pci_driver);
+ }
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -770,7 +770,7 @@ static void xhci_stop(struct usb_hcd *hc
+  *
+  * This will only ever be called with the main usb_hcd (the USB3 roothub).
+  */
+-static void xhci_shutdown(struct usb_hcd *hcd)
++void xhci_shutdown(struct usb_hcd *hcd)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+ 
+@@ -789,11 +789,8 @@ static void xhci_shutdown(struct usb_hcd
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+ 			"xhci_shutdown completed - status = %x",
+ 			readl(&xhci->op_regs->status));
+-
+-	/* Yet another workaround for spurious wakeups at shutdown with HSW */
+-	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+-		pci_set_power_state(to_pci_dev(hcd->self.sysdev), PCI_D3hot);
+ }
++EXPORT_SYMBOL_GPL(xhci_shutdown);
+ 
+ #ifdef CONFIG_PM
+ static void xhci_save_registers(struct xhci_hcd *xhci)
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2050,6 +2050,7 @@ int xhci_start(struct xhci_hcd *xhci);
+ int xhci_reset(struct xhci_hcd *xhci);
+ int xhci_run(struct usb_hcd *hcd);
+ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
++void xhci_shutdown(struct usb_hcd *hcd);
+ void xhci_init_driver(struct hc_driver *drv,
+ 		      const struct xhci_driver_overrides *over);
+ int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id);
 
 
