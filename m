@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75A711213F3
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:07:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9716E1215AB
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729222AbfLPSGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:06:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46716 "EHLO mail.kernel.org"
+        id S1728640AbfLPSUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:20:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729979AbfLPSGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:06:30 -0500
+        id S1731669AbfLPST7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:19:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7F39206E0;
-        Mon, 16 Dec 2019 18:06:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0805207FF;
+        Mon, 16 Dec 2019 18:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519589;
-        bh=YYQ8N5EhGVGkimdEJGsZMVoD/AVRFTn8QzFLXA/pd/w=;
+        s=default; t=1576520398;
+        bh=B3uDbUr2ZpsvlyW0xfEfaHDX65/k0MXfJxDbDhI7W+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hz4HdUOfoNzH+gYKrKvCM4S6QAaCqYJg0cxJWra80xwnAkAtLI5YZLzxU+RxutTDv
-         4Gyek13ysDWi0xbrxSlM1mDYHKOgumK3ugvTiM+Cdxq7IwmmxzVgb32q2GkzQbzki4
-         hL3xHhmmMyJDh5UZLVv0Ir1VBxT1Vh368Hr0Me9U=
+        b=DIU33QCSjjgPHK48/QpQmeL7XFET1WCGv9caMRXEkAHn4VoK9AnIVaOOXhqsbCQ3/
+         gr28ZI9xJe5oGVMckxu+O0dLS+ctBC316lF/VDM/TSWK3yf7s23i/fKcyWDCagN/em
+         YVTOcK1nP/D+i33WsvIuKrOi5WOOyp2YH6Z2ew6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 127/140] ath10k: fix fw crash by moving chip reset after napi disabled
+        stable@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.4 139/177] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection GPIO polarity
 Date:   Mon, 16 Dec 2019 18:49:55 +0100
-Message-Id: <20191216174826.492946596@linuxfoundation.org>
+Message-Id: <20191216174846.386269041@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Jarkko Nikula <jarkko.nikula@bitmer.com>
 
-[ Upstream commit 08d80e4cd27ba19f9bee9e5f788f9a9fc440a22f ]
+commit 287897f9aaa2ad1c923d9875914f57c4dc9159c8 upstream.
 
-On SMP platform, when continuously running wifi up/down, the napi
-poll can be scheduled during chip reset, which will call
-ath10k_pci_has_fw_crashed() to check the fw status. But in the reset
-period, the value from FW_INDICATOR_ADDRESS register will return
-0xdeadbeef, which also be treated as fw crash. Fix the issue by
-moving chip reset after napi disabled.
+The MMC card detection GPIO polarity is active low on TAO3530, like in many
+other similar boards. Now the card is not detected and it is unable to
+mount rootfs from an SD card.
 
-ath10k_pci 0000:01:00.0: firmware crashed! (guid 73b30611-5b1e-4bdd-90b4-64c81eb947b6)
-ath10k_pci 0000:01:00.0: qca9984/qca9994 hw1.0 target 0x01000000 chip_id 0x00000000 sub 168c:cafe
-ath10k_pci 0000:01:00.0: htt-ver 2.2 wmi-op 6 htt-op 4 cal otp max-sta 512 raw 0 hwcrypto 1
-ath10k_pci 0000:01:00.0: failed to get memcpy hi address for firmware address 4: -16
-ath10k_pci 0000:01:00.0: failed to read firmware dump area: -16
-ath10k_pci 0000:01:00.0: Copy Engine register dump:
-ath10k_pci 0000:01:00.0: [00]: 0x0004a000   0   0   0   0
-ath10k_pci 0000:01:00.0: [01]: 0x0004a400   0   0   0   0
-ath10k_pci 0000:01:00.0: [02]: 0x0004a800   0   0   0   0
-ath10k_pci 0000:01:00.0: [03]: 0x0004ac00   0   0   0   0
-ath10k_pci 0000:01:00.0: [04]: 0x0004b000   0   0   0   0
-ath10k_pci 0000:01:00.0: [05]: 0x0004b400   0   0   0   0
-ath10k_pci 0000:01:00.0: [06]: 0x0004b800   0   0   0   0
-ath10k_pci 0000:01:00.0: [07]: 0x0004bc00   1   0   1   0
-ath10k_pci 0000:01:00.0: [08]: 0x0004c000   0   0   0   0
-ath10k_pci 0000:01:00.0: [09]: 0x0004c400   0   0   0   0
-ath10k_pci 0000:01:00.0: [10]: 0x0004c800   0   0   0   0
-ath10k_pci 0000:01:00.0: [11]: 0x0004cc00   0   0   0   0
+Fix this by using the correct polarity.
 
-Tested HW: QCA9984,QCA9887,WCN3990
+This incorrect polarity was defined already in the commit 30d95c6d7092
+("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
+kernel and later changed to use defined GPIO constants in v4.4 kernel by
+the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
+cell for OMAP2+ boards").
 
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While the latter commit did not introduce the issue I'm marking it with
+Fixes tag due the v4.4 kernels still being maintained.
+
+Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
+Cc: linux-stable <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/ath/ath10k/pci.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/omap3-tao3530.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
-index 50a801a5d4f15..2a503aacf0c64 100644
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -2052,6 +2052,11 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
+--- a/arch/arm/boot/dts/omap3-tao3530.dtsi
++++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
+@@ -222,7 +222,7 @@
+ 	pinctrl-0 = <&mmc1_pins>;
+ 	vmmc-supply = <&vmmc1>;
+ 	vqmmc-supply = <&vsim>;
+-	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
++	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
+ 	bus-width = <8>;
+ };
  
- 	ath10k_dbg(ar, ATH10K_DBG_BOOT, "boot hif stop\n");
- 
-+	ath10k_pci_irq_disable(ar);
-+	ath10k_pci_irq_sync(ar);
-+	napi_synchronize(&ar->napi);
-+	napi_disable(&ar->napi);
-+
- 	/* Most likely the device has HTT Rx ring configured. The only way to
- 	 * prevent the device from accessing (and possible corrupting) host
- 	 * memory is to reset the chip now.
-@@ -2065,10 +2070,6 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
- 	 */
- 	ath10k_pci_safe_chip_reset(ar);
- 
--	ath10k_pci_irq_disable(ar);
--	ath10k_pci_irq_sync(ar);
--	napi_synchronize(&ar->napi);
--	napi_disable(&ar->napi);
- 	ath10k_pci_flush(ar);
- 
- 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
--- 
-2.20.1
-
 
 
