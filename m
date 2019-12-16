@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E777612186D
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3371217D4
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727692AbfLPR7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:59:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59442 "EHLO mail.kernel.org"
+        id S1727436AbfLPSjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:39:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728685AbfLPR67 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:58:59 -0500
+        id S1729275AbfLPSEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C005C21739;
-        Mon, 16 Dec 2019 17:58:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9643F20733;
+        Mon, 16 Dec 2019 18:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519139;
-        bh=F2n07ws10lQmM2LodegTTQfMXCbscbF5aBDGHTmAry4=;
+        s=default; t=1576519446;
+        bh=vHsi3h0JBvPwui+hP1q2MboD+20bo/8Jko6+neK5a60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttPNKmEvoXbOY/pQWpOcvEoLtzCpHkH/mQeCultiaJ+LPQ9AfNrkrQjk0K7rYMJUT
-         Ce0cC+5gSccTC6EWrtBIHW3Pz8LWwIv+PhwwfA1Evyv+u56yu9POcZAlAVbPbDYh7U
-         enfDuSdAtAuDdjNxPwx7KvRJOxASeI00s1vh2t08=
+        b=EnO2/z6CbLHaPVs8kbHaYVH4/ph+F60N7FJw6B4s1ZQvJQoio+U+umjpBYkh0Y9V8
+         wNdMgaoXgGruXG99KDBv/4zDyNaTARohXZ8J6j2fygh4hKt3kpLFJLDpOhE1a9K0MP
+         rxaMrpv3zZykpNetwjYAlAHthywwzILlWv6X9ODE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 211/267] cpuidle: Do not unset the driver if it is there already
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 069/140] intel_th: pci: Add Ice Lake CPU support
 Date:   Mon, 16 Dec 2019 18:48:57 +0100
-Message-Id: <20191216174914.109393338@linuxfoundation.org>
+Message-Id: <20191216174806.479917163@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 918c1fe9fbbe46fcf56837ff21f0ef96424e8b29 upstream.
+commit 6a1743422a7c0fda26764a544136cac13e5ae486 upstream.
 
-Fix __cpuidle_set_driver() to check if any of the CPUs in the mask has
-a driver different from drv already and, if so, return -EBUSY before
-updating any cpuidle_drivers per-CPU pointers.
+This adds support for the Trace Hub in Ice Lake CPU.
 
-Fixes: 82467a5a885d ("cpuidle: simplify multiple driver support")
-Cc: 3.11+ <stable@vger.kernel.org> # 3.11+
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-[ rjw: Subject & changelog ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191120130806.44028-3-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpuidle/driver.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/hwtracing/intel_th/pci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/cpuidle/driver.c
-+++ b/drivers/cpuidle/driver.c
-@@ -62,24 +62,23 @@ static inline void __cpuidle_unset_drive
-  * __cpuidle_set_driver - set per CPU driver variables for the given driver.
-  * @drv: a valid pointer to a struct cpuidle_driver
-  *
-- * For each CPU in the driver's cpumask, unset the registered driver per CPU
-- * to @drv.
-- *
-- * Returns 0 on success, -EBUSY if the CPUs have driver(s) already.
-+ * Returns 0 on success, -EBUSY if any CPU in the cpumask have a driver
-+ * different from drv already.
-  */
- static inline int __cpuidle_set_driver(struct cpuidle_driver *drv)
- {
- 	int cpu;
- 
- 	for_each_cpu(cpu, drv->cpumask) {
-+		struct cpuidle_driver *old_drv;
- 
--		if (__cpuidle_get_cpu_driver(cpu)) {
--			__cpuidle_unset_driver(drv);
-+		old_drv = __cpuidle_get_cpu_driver(cpu);
-+		if (old_drv && old_drv != drv)
- 			return -EBUSY;
--		}
-+	}
- 
-+	for_each_cpu(cpu, drv->cpumask)
- 		per_cpu(cpuidle_drivers, cpu) = drv;
--	}
- 
- 	return 0;
- }
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -186,6 +186,11 @@ static const struct pci_device_id intel_
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
+ 	{
++		/* Ice Lake CPU */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x8a29),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
++	{
+ 		/* Tiger Lake PCH */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa0a6),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 
 
