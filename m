@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72FA0121529
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CCD112148B
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:13:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731713AbfLPSTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:19:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
+        id S1730749AbfLPSMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:12:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731883AbfLPSTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:19:02 -0500
+        id S1730920AbfLPSMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:12:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 988FD2166E;
-        Mon, 16 Dec 2019 18:19:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9BE821775;
+        Mon, 16 Dec 2019 18:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520342;
-        bh=Fn0AWLoRLFCe8iXoZK2bvmYmgoHgmT6Cz0yzfVVqEYM=;
+        s=default; t=1576519935;
+        bh=E1eH4V28AhDSPxwzREWDAeBIRwVTvqP+aN8l9PpGcgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZMhoVrJ4QEVy37iB2xqdyVP3Dfg4nrPYHxcZ9lZmYgXfA5kqPY4/9mLGTVb5YTSN
-         /yyTba8ZpTnVMilzabHwKuFvWnjTjIjNs+68wjQZJJ1+j5CfaImwmNFztscfOWnk5W
-         LHmgVkpXI1rwEHbnTzM1mMeXQMdoZ7Uo0YYlIR20=
+        b=wT8My/DgP41wa9YYMerFi4PM1HTL1nVek7FMVaVaHV/SQV/v67qI92lJz62vb/tj9
+         9wxZ0PyKJ4Otm6TP7DnOkNm+tFivcI+GZOujEw7hXA135mKkQEkl9dzWYtckHggDQD
+         4NP0xctKszsQ8zqtUjnbghfWOP0p7hyr6ZD0XPlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Wen Yang <wenyang@linux.alibaba.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 114/177] intel_th: Fix a double put_device() in error path
+        stable@vger.kernel.org, Chengguang Xu <cgxu519@mykernel.net>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.3 130/180] ext2: check err when partial != NULL
 Date:   Mon, 16 Dec 2019 18:49:30 +0100
-Message-Id: <20191216174842.471128434@linuxfoundation.org>
+Message-Id: <20191216174841.735294082@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-commit 512592779a337feb5905d8fcf9498dbf33672d4a upstream.
+commit e705f4b8aa27a59f8933e8f384e9752f052c469c upstream.
 
-Commit a753bfcfdb1f ("intel_th: Make the switch allocate its subdevices")
-factored out intel_th_subdevice_alloc() from intel_th_populate(), but got
-the error path wrong, resulting in two instances of a double put_device()
-on a freshly initialized, but not 'added' device.
+Check err when partial == NULL is meaningless because
+partial == NULL means getting branch successfully without
+error.
 
-Fix this by only doing one put_device() in the error path.
-
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: a753bfcfdb1f ("intel_th: Make the switch allocate its subdevices")
-Reported-by: Wen Yang <wenyang@linux.alibaba.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.14+
-Link: https://lore.kernel.org/r/20191120130806.44028-2-alexander.shishkin@linux.intel.com
+CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191105045100.7104-1-cgxu519@mykernel.net
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/core.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ fs/ext2/inode.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/hwtracing/intel_th/core.c
-+++ b/drivers/hwtracing/intel_th/core.c
-@@ -649,10 +649,8 @@ intel_th_subdevice_alloc(struct intel_th
+--- a/fs/ext2/inode.c
++++ b/fs/ext2/inode.c
+@@ -701,10 +701,13 @@ static int ext2_get_blocks(struct inode
+ 		if (!partial) {
+ 			count++;
+ 			mutex_unlock(&ei->truncate_mutex);
+-			if (err)
+-				goto cleanup;
+ 			goto got_it;
+ 		}
++
++		if (err) {
++			mutex_unlock(&ei->truncate_mutex);
++			goto cleanup;
++		}
  	}
  
- 	err = intel_th_device_add_resources(thdev, res, subdev->nres);
--	if (err) {
--		put_device(&thdev->dev);
-+	if (err)
- 		goto fail_put_device;
--	}
- 
- 	if (subdev->type == INTEL_TH_OUTPUT) {
- 		if (subdev->mknode)
-@@ -667,10 +665,8 @@ intel_th_subdevice_alloc(struct intel_th
- 	}
- 
- 	err = device_add(&thdev->dev);
--	if (err) {
--		put_device(&thdev->dev);
-+	if (err)
- 		goto fail_free_res;
--	}
- 
- 	/* need switch driver to be loaded to enumerate the rest */
- 	if (subdev->type == INTEL_TH_SWITCH && !req) {
+ 	/*
 
 
