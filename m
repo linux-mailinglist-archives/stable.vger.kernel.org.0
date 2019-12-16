@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAEAA1208C8
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 15:40:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C5891208C9
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 15:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728071AbfLPOki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 09:40:38 -0500
-Received: from sonic313-13.consmr.mail.bf2.yahoo.com ([74.6.133.123]:44158
-        "EHLO sonic313-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728014AbfLPOkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 09:40:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576507235; bh=zPC9p8T5S06DA73PD5F75wViZ/EpBpeYylTS7OqjCU4=; h=Date:From:Reply-To:Subject:From:Subject; b=efqWkVkMnX6DmuxyLw8VSaNu3PduHV20q2iI7Vb/pfkYsLPaNoWeMW+bcoYIzcGoD9l+dTIw1WlDpYdsF6qpsnSfAz2XgiA2d/L7n/ZbWxTYRbcvZpNAjmkn7HGm5Gv0JBw2ODUlJGTSXUACf2eqA8o9vHEfas1tnzxVG+65zdThg6839cQirONriLUGrstnr6yRkGIA5ogb4GqrLBb2KXG2WRTmP7tLKrwAbFwZBFJgEXSfEu3XxZzUENJ6m2KSBqUROb/ftkCx5s01GxXCdzl8V99Kmw6uo6tMCmqM2tlzrq1HKIMaWjTqT59liDG4qm5dEoJCKfM/kTJAsuIq5A==
-X-YMail-OSG: tV7iO24VM1l.aqEQ904Wh.wu01wwCT9nsEqMqghYMGf5__wrw.4hhLL_iCoKGHd
- Nn7v9Tt0C.A7gqeDxn_yMYuSxZ4S5m61b8lIyMOskLdqBqMpEYNh3hT1GUFga6lC1FsLDqMnWANT
- 9h.0PHSy.tROQCZKR14eDGxgE0szgMsS6bbCQbMF0ROS1.qpciccZrq3P_D2xEpLYDBR7ADXNZTR
- 6hsvzaMJzOZsghcyn3QdwAUeOfuK68DOYNNtGKY9EUFSGXAv8RluilPLLH4dGN7cXQDCgu4cc4t2
- nzKKmcLE6zRncgHNSQXWbe.RKRrn5P5EGg2E8u0u6jnjPvW1yKwswL7.vyHM_DGcR1UJBiGvjMQY
- R5gWUg9HsRK.LRQ_FOX09c3Pr0y_EQR.yS4piNXM1ROgOzDYYWFpWEtaphusV0oGoduufDqVar9y
- Qr7SX1YVs_gm1I4YMNg6dTUECStckLM8iIc1iopPpDNYedQ3SOy4lpFbUYj66W.e6sxiyBNqavWA
- DAJ0vQqhvaBKVvTi1JB9ztE83n.d79CGYx0v7pzXAC2996I_xuND5UKoGa3tSFTF.9hWPIC2an1T
- bT5CyjNIwsJwDaxCXUNxH1dsDwYdEaeqygvRC3YghqEPK_J6UpcOBWTRSONmQoTzeGmHLllFAcJo
- zNUim_1udW88sYuwSQrB7kIRctvFkxfrdcuArMEWzVkM26IMR1n1T.LyjkJRBvR9290LU.UQeKE2
- 5FRFCCQaDQZ650xGuK_Z6gE1R_e8TA5KcayA1fwwVY9Yne_LJIESTAyKQoeAuRarrd1jI6vZ580D
- CPrV1hF1FsYKhRn0318jzFfHmO4Oke5xYI8Owz1woZ17KilNaWlS3VM4sCFbieyw.pTj.1UofIjt
- 2pZB_PpBNqgOEzueaeH2gwqJ5BQAdjH6yT8tpsUgaUIRLUcFL7fFi3pJhW68GF6E_SDk5RTiV_J3
- fyXdKuH6DMzMdXdSobpbx9oHXcWSPo5h_Vao.pPzG_T2X5rqjbS7OJvX1KELzufK65QSJqAEzOka
- iP0Z1TciUhOyz64ZvrXHA_eYaaPpp6CCwnJQY_o6gGddknxmRy6gpBYiKGLTADnxyhrk2D2whNWb
- ADekD64SJF_MQ9iE9DmEpHaOPkIrhq5E5mPhCXT5nq76dUzJesO0qxwH9AwCsnq3AfE4TysDvqtT
- Fx0La0yscOs.X7hMqQeNy2b2dccSCMlDfYBpjmnBhyDL.DN_cRDoeunyPQ5yX_aB8aHLJDULsrE.
- 5d8pJx6gDZIlS74v26uo3vshqtYE6hr4iPqNWi_QPTV62KQgMAsOU.I_HCnIxpBUEKJ6cUq0sday
- CVSpm370-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.bf2.yahoo.com with HTTP; Mon, 16 Dec 2019 14:40:35 +0000
-Date:   Mon, 16 Dec 2019 14:40:31 +0000 (UTC)
-From:   Ms Lisa Hugh <lisa.hugh222@gmail.com>
-Reply-To: ms.lisahugh000@gmail.com
-Message-ID: <1384645300.9292481.1576507231402@mail.yahoo.com>
-Subject: I NEED YOUR HELP FOR THIS BUSINESS.
+        id S1728056AbfLPOkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 09:40:52 -0500
+Received: from sonic315-13.consmr.mail.bf2.yahoo.com ([74.6.134.123]:37358
+        "EHLO sonic315-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728014AbfLPOkw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 09:40:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1576507251; bh=KB5k1+sCGpSRd9pTKc0P9/4ZGPy9ZVtmix5g8Hf7Eac=; h=Date:From:Reply-To:Subject:From:Subject; b=Hl6e8IZ/bI9HEjM0JonD5p4PACI4nb2QeY93P3aHPsH+Nn4/jCA1HHYMnjr5rBMeIOZIbV7XsVsA3mPIdvkreKhYBhxt2P61RE6PWmeyENhtb5xhiPw3avDeE6IvXdvWNJI07CvkYBc3RnAe8zUeyecu9im4VBm5BX5m+PPMBR1RkDivmXqC4W35uhAF/QrlJzOokk5QGsJcOIavOZKNiC9nbve5xVBzD4XeFw5p4GxqJjmgGZidZOYO5YcpIF2wstgcXECBrttOjlyZoIFBwmPPL/z6fVbBqAKXqd45FQF33ixF1OgjIU6DMOZixr//NKei3fIPUnRwRpuYmX/1yw==
+X-YMail-OSG: 2vhoRYoVM1mR_5k909pOxZS6TpgqAb_wfW2AjPyajDB3xwFa3Kj48LSeuJ1DJGk
+ VNihiN3P_Ox8dGMz9hgnyJvHnoG6ggBav_daXws_SCP7JqQGhtd5jkzECVOvtlnf0VvKwVUEodqK
+ 9g87FY_SqQxo_k6ichhXcvaYwMdHInXrU3HqGJ6slyEVnhvSYjZ1j2XihN.zfwLktRS8Xb9Okzji
+ 1acnxyxfbMmfXpX1sMA.b.GAjvhVpGw8c_DVb1cbF4xiipliuNEAuz5sPAzMFDxCy.ds0034FdfM
+ dpwK2AoIG3tBnArK1ak2_SA2CKiXr1OqKZedC5SShjvVQoeSjcQTNuOa8BhyH1Bamt337iPcSFQy
+ xJBrHX.HGy0bsC_uvoDWn3c3xE83DbXLE2Wy2BQpLNlLraj7ojg_LmCAKRktN6j2zDfqRh9MFoAS
+ pD.CL9zfhtTJks9LC7DrI8suzK1L30o6m8.Q9fi2SErMYOYfWkV9f31HLjwfZV3XN2AtpVhWeC0u
+ Fae64MOQJVJOjLiCLpy1X6v93TAEW7Ca1E5pbiWw6ISs9Osi3ffS7O5FQOkg2KGHi93Dfm4uLkqB
+ sPZWFNlaPZJcf8c1Ix.VpML83oYgAQ7Ngg6HNYmJeBizigE1XnrFiUV2fFwJlYmBo.OwpbjWRQl2
+ XZ9AfJ9cZaDeBWf0a0dQE__Vf9PRdV8uA6aJ6R2ybjHlNcXzJL9Pq2VzRAefhzUHROXm7sNgvSuZ
+ 93PazRiY_x0yPUjjgEtFvib1ZYZX6LsPtPVo5LN56E4A41KLhprujLhdZXoEstThTzmIRxnrODQF
+ rAxhCeq1H6jP3VH6wqzIPdRBbSBfCZQA8JLQStzyq4HA1Jt1aADo8Zq.Wfp1jYgdtQKzRXDp6DqL
+ Q6g.rjAGN.phDmwBRLb_qgzVmlrYEV0QT9HPSuRzoScIN2KN5uTBwtfVvHK0CkwLdWeOdha8dQtc
+ uJQslixf3xVVUjYgSbFu9F6u_htixxh9dXur_Sor_K.5pVDEwY.wGAXF9Xw6BOr5UHSvAOUo1rQu
+ cLXeleXP3x2b3N78LTLYdXa5eJ29IeEXXhPcDomH8KfVq7YDdySjMFuwdZGTgHre4MoD7BrLNKk3
+ 2e3qiipN7zL6RaO8vs8n6ncP3Ds5wFNeICJB8fOsiQK51qJUHIMYLRlw0VXbV3M9ORB_lP9Kqk2t
+ oPswpPkP8sfObu4r0SjrTV0geRbzjHLGxocUrOF3TVAU_u1jlx06.FydBxorcSLqyALiqzER_UxI
+ 1OPkR0jVXze0ipWBStc0zTYcCjrPMSRz1pKzaUmaAk8fxIW0EIcg6h9JjzBEDdDN6EELK0CZ5Ug-
+ -
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.bf2.yahoo.com with HTTP; Mon, 16 Dec 2019 14:40:51 +0000
+Date:   Mon, 16 Dec 2019 14:40:48 +0000 (UTC)
+From:   jerom Njitap <jeromenjitap10@aol.com>
+Reply-To: jeromenjitap100@gmail.com
+Message-ID: <71818101.9302004.1576507248635@mail.yahoo.com>
+Subject: SESAME SEED SUPPLY BURKINA FASO
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
@@ -46,29 +46,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear Sir,
+
+This is to bring to your notice that we can supply your needs for
+quality Sesame seeds and other products listed below :
 
 
-Dear Friend,
-
-I am Ms Lisa Hugh work with the department of Audit and accounting manager here in the Bank(B.O.A).
-
-Please i need your assistance for the transferring of thIs fund to your bank account for both of us benefit for life time investment, amount (US$4.5M DOLLARS).
-
-I have every inquiry details to make the bank believe you and release the fund in within 5 banking working days with your full co-operation with me forsuccess.
-
-Note/ 50% for you why 50% for me after success of the transfer to your bank
-account.
-
-Below information is what i need from you so will can be reaching each
-other
-
-1)Full name ...
-2)Private telephone number...
-3)Age...
-4)Nationality...
-5)Occupation ...
+Cashew nut
+Raw cotton
+Sesame seed
+Copper cathode
+Copper wire scraps
+Mazut 100 oil,D6
+Used rails
+HMS 1/2
 
 
-Thanks.
+We offer the best quality at reasonable prices both on CIF and FOB,
+depending on the nature of your offer. Our company has been in this
+line of business for over a decade so you you can expect nothing but a
+top-notch professional touch and guarantee when you deal or trade with
+us.all communication should be through this email address for
+confidencial purpose(jeromenjitap100@gmail.com)and your whatsaap number.
 
-Ms Lisa Hugh
+Look forward to your response.
+
+Regards
+Mr Jerome
