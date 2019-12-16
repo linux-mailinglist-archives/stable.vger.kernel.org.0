@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E7921218A0
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4AE1217FD
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727680AbfLPR5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56066 "EHLO mail.kernel.org"
+        id S1729338AbfLPSC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:02:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727344AbfLPR5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:20 -0500
+        id S1729054AbfLPSC0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:02:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D30A320733;
-        Mon, 16 Dec 2019 17:57:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34253207FF;
+        Mon, 16 Dec 2019 18:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519039;
-        bh=79lURdrE0UlnzKSZK6JLWN+3FhI4rYtU1zPTMjzb8FI=;
+        s=default; t=1576519345;
+        bh=ThkZrGCpRWJfNFSjjFeIhD8e0DeNX9ugk1KreQ0/rlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=phUbMAXRthCQPKLs3YPPVlU5j0051RLhNSVjOYqSkGKFF/CNelH00uCk+ajT3Jd64
-         rTJVjuhMrM/TSqPG4OYmEal0opg7NQ8K0Rk+NwI6BZNNfuSp07NrXQRClqCgOSqkJM
-         ZgyhKdr1xsjTVuJHYm9a6pFleF1ETaRHOFVAeRVo=
+        b=XG555jIr/8N0/6LxwDhDpyE1HcX/C0ctHEdZvZaNcdXfanrHHT2ZV6PPIUC+qtiFA
+         S5TmlkCEx0R5o9/UIF4oFDKxRb489hOcMhE0Kmk972Z0MGijBZtJKzfF55bIwPNoo6
+         lkxvnXgGOA/GcgB6HV+5eM0Ij8mPFqrOzp4iVReQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 170/267] usb: xhci: only set D3hot for pci device
+        stable@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>,
+        syzbot+56f9673bb4cdcbeb0e92@syzkaller.appspotmail.com,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.19 028/140] usb: mon: Fix a deadlock in usbmon between mmap and read
 Date:   Mon, 16 Dec 2019 18:48:16 +0100
-Message-Id: <20191216174911.815331190@linuxfoundation.org>
+Message-Id: <20191216174757.608036067@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Lin <henryl@nvidia.com>
+From: Pete Zaitcev <zaitcev@redhat.com>
 
-commit f2c710f7dca8457e88b4ac9de2060f011254f9dd upstream.
+commit 19e6317d24c25ee737c65d1ffb7483bdda4bb54a upstream.
 
-Xhci driver cannot call pci_set_power_state() on non-pci xhci host
-controllers. For example, NVIDIA Tegra XHCI host controller which acts
-as platform device with XHCI_SPURIOUS_WAKEUP quirk set in some platform
-hits this issue during shutdown.
+The problem arises because our read() function grabs a lock of the
+circular buffer, finds something of interest, then invokes copy_to_user()
+straight from the buffer, which in turn takes mm->mmap_sem. In the same
+time, the callback mon_bin_vma_fault() is invoked under mm->mmap_sem.
+It attempts to take the fetch lock and deadlocks.
 
+This patch does away with protecting of our page list with any
+semaphores, and instead relies on the kernel not close the device
+while mmap is active in a process.
+
+In addition, we prohibit re-sizing of a buffer while mmap is active.
+This way, when (now unlocked) fault is processed, it works with the
+page that is intended to be mapped-in, and not some other random page.
+Note that this may have an ABI impact, but hopefully no legitimate
+program is this wrong.
+
+Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
+Reported-by: syzbot+56f9673bb4cdcbeb0e92@syzkaller.appspotmail.com
+Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
+Fixes: 46eb14a6e158 ("USB: fix usbmon BUG trigger")
 Cc: <stable@vger.kernel.org>
-Fixes: 638298dc66ea ("xhci: Fix spurious wakeups after S5 on Haswell")
-Signed-off-by: Henry Lin <henryl@nvidia.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-4-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20191204203941.3503452b@suzdal.zaitcev.lan
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-pci.c |   13 +++++++++++++
- drivers/usb/host/xhci.c     |    7 ++-----
- drivers/usb/host/xhci.h     |    1 +
- 3 files changed, 16 insertions(+), 5 deletions(-)
+ drivers/usb/mon/mon_bin.c |   32 +++++++++++++++++++++-----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -499,6 +499,18 @@ static int xhci_pci_resume(struct usb_hc
- }
- #endif /* CONFIG_PM */
+--- a/drivers/usb/mon/mon_bin.c
++++ b/drivers/usb/mon/mon_bin.c
+@@ -1039,12 +1039,18 @@ static long mon_bin_ioctl(struct file *f
  
-+static void xhci_pci_shutdown(struct usb_hcd *hcd)
-+{
-+	struct xhci_hcd		*xhci = hcd_to_xhci(hcd);
-+	struct pci_dev		*pdev = to_pci_dev(hcd->self.controller);
-+
-+	xhci_shutdown(hcd);
-+
-+	/* Yet another workaround for spurious wakeups at shutdown with HSW */
-+	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
-+		pci_set_power_state(pdev, PCI_D3hot);
-+}
-+
- /*-------------------------------------------------------------------------*/
- 
- /* PCI driver selection metadata; PCI hotplugging uses this */
-@@ -534,6 +546,7 @@ static int __init xhci_pci_init(void)
- #ifdef CONFIG_PM
- 	xhci_pci_hc_driver.pci_suspend = xhci_pci_suspend;
- 	xhci_pci_hc_driver.pci_resume = xhci_pci_resume;
-+	xhci_pci_hc_driver.shutdown = xhci_pci_shutdown;
- #endif
- 	return pci_register_driver(&xhci_pci_driver);
- }
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -717,7 +717,7 @@ static void xhci_stop(struct usb_hcd *hc
-  *
-  * This will only ever be called with the main usb_hcd (the USB3 roothub).
-  */
--static void xhci_shutdown(struct usb_hcd *hcd)
-+void xhci_shutdown(struct usb_hcd *hcd)
+ 		mutex_lock(&rp->fetch_lock);
+ 		spin_lock_irqsave(&rp->b_lock, flags);
+-		mon_free_buff(rp->b_vec, rp->b_size/CHUNK_SIZE);
+-		kfree(rp->b_vec);
+-		rp->b_vec  = vec;
+-		rp->b_size = size;
+-		rp->b_read = rp->b_in = rp->b_out = rp->b_cnt = 0;
+-		rp->cnt_lost = 0;
++		if (rp->mmap_active) {
++			mon_free_buff(vec, size/CHUNK_SIZE);
++			kfree(vec);
++			ret = -EBUSY;
++		} else {
++			mon_free_buff(rp->b_vec, rp->b_size/CHUNK_SIZE);
++			kfree(rp->b_vec);
++			rp->b_vec  = vec;
++			rp->b_size = size;
++			rp->b_read = rp->b_in = rp->b_out = rp->b_cnt = 0;
++			rp->cnt_lost = 0;
++		}
+ 		spin_unlock_irqrestore(&rp->b_lock, flags);
+ 		mutex_unlock(&rp->fetch_lock);
+ 		}
+@@ -1216,13 +1222,21 @@ mon_bin_poll(struct file *file, struct p
+ static void mon_bin_vma_open(struct vm_area_struct *vma)
  {
- 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
- 
-@@ -736,11 +736,8 @@ static void xhci_shutdown(struct usb_hcd
- 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
- 			"xhci_shutdown completed - status = %x",
- 			readl(&xhci->op_regs->status));
--
--	/* Yet another workaround for spurious wakeups at shutdown with HSW */
--	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
--		pci_set_power_state(to_pci_dev(hcd->self.sysdev), PCI_D3hot);
+ 	struct mon_reader_bin *rp = vma->vm_private_data;
++	unsigned long flags;
++
++	spin_lock_irqsave(&rp->b_lock, flags);
+ 	rp->mmap_active++;
++	spin_unlock_irqrestore(&rp->b_lock, flags);
  }
-+EXPORT_SYMBOL_GPL(xhci_shutdown);
  
- #ifdef CONFIG_PM
- static void xhci_save_registers(struct xhci_hcd *xhci)
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2022,6 +2022,7 @@ int xhci_start(struct xhci_hcd *xhci);
- int xhci_reset(struct xhci_hcd *xhci);
- int xhci_run(struct usb_hcd *hcd);
- int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
-+void xhci_shutdown(struct usb_hcd *hcd);
- void xhci_init_driver(struct hc_driver *drv,
- 		      const struct xhci_driver_overrides *over);
- int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id);
+ static void mon_bin_vma_close(struct vm_area_struct *vma)
+ {
++	unsigned long flags;
++
+ 	struct mon_reader_bin *rp = vma->vm_private_data;
++	spin_lock_irqsave(&rp->b_lock, flags);
+ 	rp->mmap_active--;
++	spin_unlock_irqrestore(&rp->b_lock, flags);
+ }
+ 
+ /*
+@@ -1234,16 +1248,12 @@ static vm_fault_t mon_bin_vma_fault(stru
+ 	unsigned long offset, chunk_idx;
+ 	struct page *pageptr;
+ 
+-	mutex_lock(&rp->fetch_lock);
+ 	offset = vmf->pgoff << PAGE_SHIFT;
+-	if (offset >= rp->b_size) {
+-		mutex_unlock(&rp->fetch_lock);
++	if (offset >= rp->b_size)
+ 		return VM_FAULT_SIGBUS;
+-	}
+ 	chunk_idx = offset / CHUNK_SIZE;
+ 	pageptr = rp->b_vec[chunk_idx].pg;
+ 	get_page(pageptr);
+-	mutex_unlock(&rp->fetch_lock);
+ 	vmf->page = pageptr;
+ 	return 0;
+ }
 
 
