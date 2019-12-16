@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A49D12193D
+	by mail.lfdr.de (Postfix) with ESMTP id BA05F12193E
 	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:51:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727438AbfLPRxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:53:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
+        id S1726582AbfLPRxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:53:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726582AbfLPRxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:53:43 -0500
+        id S1727804AbfLPRxq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:53:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA39A20733;
-        Mon, 16 Dec 2019 17:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28F03206D3;
+        Mon, 16 Dec 2019 17:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518823;
-        bh=pO4lacVKq57i/HeIY8f9aUj1nN3FE2OYzqeHQmrqVrs=;
+        s=default; t=1576518825;
+        bh=VwLAfRDoSzLbC0UpfvNv0VhAoPx0p0yCXc6MwO0YWpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUiSbrPBtyvSEFVDhbwVmNBKZsO76EgYFG2/q98AvfylSkL9qQW0hcB1DGHuac8kw
-         HE3WjfkalimFz4CR5Dz/QThcdCnij1O4Y4FW6tW7uQ6NjBPn6jWvGpxhjgDQ7l6uDp
-         438+rEdg+CuNp7AgMGhU4dzUV19c8j129nlHW3FI=
+        b=rhEmKLTiEWtl63kqkWAA6GysLYXzWsYS5pJjGivHpA76C2T+Di6DSQH1Kiku8fZuy
+         Flu5NXa75GTaQa118PamAOosS1Zyi8ogmftp1KXW3+ORECd+cIWxJSsTmMJCbcdACr
+         lH2m10s7LltxT4ApUO5XA8okup3xmb0lz24QkkUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Young_X <YangX92@hotmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/267] nfsd: fix a warning in __cld_pipe_upcall()
-Date:   Mon, 16 Dec 2019 18:46:47 +0100
-Message-Id: <20191216174857.370100070@linuxfoundation.org>
+Subject: [PATCH 4.14 082/267] ASoC: au8540: use 64-bit arithmetic instead of 32-bit
+Date:   Mon, 16 Dec 2019 18:46:48 +0100
+Message-Id: <20191216174857.443138049@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -44,87 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Young_X <YangX92@hotmail.com>
 
-[ Upstream commit b493fd31c0b89d9453917e977002de58bebc3802 ]
+[ Upstream commit cd7fdc45bc69a62b4e22c6e875f1f1aea566256d ]
 
-__cld_pipe_upcall() emits a "do not call blocking ops when
-!TASK_RUNNING" warning due to the dput() call in rpc_queue_upcall().
-Fix it by using a completion instead of hand coding the wait.
+Add suffix ULL to constant 256 in order to give the compiler complete
+information about the proper arithmetic to use.
 
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Notice that such constant is used in a context that expects an
+expression of type u64 (64 bits, unsigned) and the following
+expression is currently being evaluated using 32-bit arithmetic:
+
+    256 * fs * 2 * mclk_src_scaling[i].param
+
+Signed-off-by: Young_X <YangX92@hotmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4recover.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ sound/soc/codecs/nau8540.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
-index 66eaeb1e8c2ce..dc9586feab317 100644
---- a/fs/nfsd/nfs4recover.c
-+++ b/fs/nfsd/nfs4recover.c
-@@ -661,7 +661,7 @@ struct cld_net {
- struct cld_upcall {
- 	struct list_head	 cu_list;
- 	struct cld_net		*cu_net;
--	struct task_struct	*cu_task;
-+	struct completion	 cu_done;
- 	struct cld_msg		 cu_msg;
- };
- 
-@@ -670,23 +670,18 @@ __cld_pipe_upcall(struct rpc_pipe *pipe, struct cld_msg *cmsg)
- {
- 	int ret;
- 	struct rpc_pipe_msg msg;
-+	struct cld_upcall *cup = container_of(cmsg, struct cld_upcall, cu_msg);
- 
- 	memset(&msg, 0, sizeof(msg));
- 	msg.data = cmsg;
- 	msg.len = sizeof(*cmsg);
- 
--	/*
--	 * Set task state before we queue the upcall. That prevents
--	 * wake_up_process in the downcall from racing with schedule.
--	 */
--	set_current_state(TASK_UNINTERRUPTIBLE);
- 	ret = rpc_queue_upcall(pipe, &msg);
- 	if (ret < 0) {
--		set_current_state(TASK_RUNNING);
- 		goto out;
- 	}
- 
--	schedule();
-+	wait_for_completion(&cup->cu_done);
- 
- 	if (msg.errno < 0)
- 		ret = msg.errno;
-@@ -753,7 +748,7 @@ cld_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
- 	if (copy_from_user(&cup->cu_msg, src, mlen) != 0)
- 		return -EFAULT;
- 
--	wake_up_process(cup->cu_task);
-+	complete(&cup->cu_done);
- 	return mlen;
- }
- 
-@@ -768,7 +763,7 @@ cld_pipe_destroy_msg(struct rpc_pipe_msg *msg)
- 	if (msg->errno >= 0)
- 		return;
- 
--	wake_up_process(cup->cu_task);
-+	complete(&cup->cu_done);
- }
- 
- static const struct rpc_pipe_ops cld_upcall_ops = {
-@@ -899,7 +894,7 @@ restart_search:
- 			goto restart_search;
- 		}
- 	}
--	new->cu_task = current;
-+	init_completion(&new->cu_done);
- 	new->cu_msg.cm_vers = CLD_UPCALL_VERSION;
- 	put_unaligned(cn->cn_xid++, &new->cu_msg.cm_xid);
- 	new->cu_net = cn;
+diff --git a/sound/soc/codecs/nau8540.c b/sound/soc/codecs/nau8540.c
+index f9c9933acffb6..c0c64f90a61b7 100644
+--- a/sound/soc/codecs/nau8540.c
++++ b/sound/soc/codecs/nau8540.c
+@@ -548,7 +548,7 @@ static int nau8540_calc_fll_param(unsigned int fll_in,
+ 	fvco_max = 0;
+ 	fvco_sel = ARRAY_SIZE(mclk_src_scaling);
+ 	for (i = 0; i < ARRAY_SIZE(mclk_src_scaling); i++) {
+-		fvco = 256 * fs * 2 * mclk_src_scaling[i].param;
++		fvco = 256ULL * fs * 2 * mclk_src_scaling[i].param;
+ 		if (fvco > NAU_FVCO_MIN && fvco < NAU_FVCO_MAX &&
+ 			fvco_max < fvco) {
+ 			fvco_max = fvco;
 -- 
 2.20.1
 
