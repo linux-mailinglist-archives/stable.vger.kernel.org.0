@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 844AF1218C3
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4E8121901
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:48:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727126AbfLPSqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:46:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54498 "EHLO mail.kernel.org"
+        id S1728138AbfLPSrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:47:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727927AbfLPR4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:56:24 -0500
+        id S1727959AbfLPRyv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:54:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DD7621582;
-        Mon, 16 Dec 2019 17:56:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDE86206B7;
+        Mon, 16 Dec 2019 17:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518983;
-        bh=Bvqqqe3GhN6lFEa5+962rvSDLp9kezccEfUJn96dULY=;
+        s=default; t=1576518891;
+        bh=xoLbdjnG4Q9AJYtioJdQMA9gFOkUVdYX+29fOJTfD64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWOMT/thXq0QrEemMZUsoqEqSPZEfBtlNQcv792AJmu8pdQZvtmO+OTNi88IJQ2PP
-         KGt8ixkjn/+1rsMZBvtdaA0xiFWtYkc0+Ic16Ko9tpUMIaY4GKmReTUeEyhSlHzrhw
-         nPDxPTl2qImgJO4URO+NwEzlwMbI29m9nbOAmBJE=
+        b=mO2Z2PjbA3dZ4JA7L3JFI2rJmfa0/1bm7UyHAaai6wYrQMynlNEU42xhW7RkHaFIK
+         V42W5BTidhIG70/MoF9wUfErbufHc60PYnQWeCCpSnPbbMhG7V251pgdZRqXeZRwvk
+         XZXfS0VwGR6JFoy5FB0lOhcMernEBPZWompXsqSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Pape <ap@ca-pape.de>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <andy.gross@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 109/267] media: stkwebcam: Bugfix for wrong return values
-Date:   Mon, 16 Dec 2019 18:47:15 +0100
-Message-Id: <20191216174902.687446834@linuxfoundation.org>
+Subject: [PATCH 4.14 110/267] firmware: qcom: scm: fix compilation error when disabled
+Date:   Mon, 16 Dec 2019 18:47:16 +0100
+Message-Id: <20191216174902.740963172@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -45,40 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Pape <ap@ca-pape.de>
+From: Jonathan Marek <jonathan@marek.ca>
 
-[ Upstream commit 3c28b91380dd1183347d32d87d820818031ebecf ]
+[ Upstream commit 16ad9501b1f2edebe24f8cf3c09da0695871986b ]
 
-usb_control_msg returns in case of a successfully sent message the number
-of sent bytes as a positive number. Don't use this value as a return value
-for stk_camera_read_reg, as a non-zero return value is used as an error
-condition in some cases when stk_camera_read_reg is called.
+This fixes the case when CONFIG_QCOM_SCM is not enabled, and linux/errno.h
+has not been included previously.
 
-Signed-off-by: Andreas Pape <ap@ca-pape.de>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/qcom_scm.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/stkwebcam/stk-webcam.c b/drivers/media/usb/stkwebcam/stk-webcam.c
-index a7da1356a36ef..6992e84f8a8bb 100644
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -164,7 +164,11 @@ int stk_camera_read_reg(struct stk_camera *dev, u16 index, u8 *value)
- 		*value = *buf;
- 
- 	kfree(buf);
--	return ret;
+diff --git a/include/linux/qcom_scm.h b/include/linux/qcom_scm.h
+index e5380471c2cd2..428278a44c7db 100644
+--- a/include/linux/qcom_scm.h
++++ b/include/linux/qcom_scm.h
+@@ -44,6 +44,9 @@ extern int qcom_scm_restore_sec_cfg(u32 device_id, u32 spare);
+ extern int qcom_scm_iommu_secure_ptbl_size(u32 spare, size_t *size);
+ extern int qcom_scm_iommu_secure_ptbl_init(u64 addr, u32 size, u32 spare);
+ #else
 +
-+	if (ret < 0)
-+		return ret;
-+	else
-+		return 0;
- }
- 
- static int stk_start_stream(struct stk_camera *dev)
++#include <linux/errno.h>
++
+ static inline
+ int qcom_scm_set_cold_boot_addr(void *entry, const cpumask_t *cpus)
+ {
 -- 
 2.20.1
 
