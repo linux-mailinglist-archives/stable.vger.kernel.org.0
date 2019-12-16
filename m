@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 856141219DF
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 20:22:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 154961219FE
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 20:34:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726716AbfLPTWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 14:22:36 -0500
-Received: from mail-wr1-f42.google.com ([209.85.221.42]:43920 "EHLO
-        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726426AbfLPTWg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 14:22:36 -0500
-Received: by mail-wr1-f42.google.com with SMTP id d16so8688316wre.10
-        for <stable@vger.kernel.org>; Mon, 16 Dec 2019 11:22:30 -0800 (PST)
+        id S1727347AbfLPTdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 14:33:21 -0500
+Received: from mail-wr1-f53.google.com ([209.85.221.53]:33161 "EHLO
+        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726752AbfLPTdV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 14:33:21 -0500
+Received: by mail-wr1-f53.google.com with SMTP id b6so8751584wrq.0
+        for <stable@vger.kernel.org>; Mon, 16 Dec 2019 11:33:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=hv5zaN7pKpNkLNjGeyHZD4Gqa8bKySu9wauiPUDu6ig=;
-        b=jS6OkyPSBWnuKffztEylFBL11vpZGTY2QdokxUKpdNCRGkRZ8ohsl93D7Xw3hPELpI
-         E5xiSe9DxNbIGmnpgQ3Qsvnr5qxjcMz+PFaSZKLVdzhFdZ0fEu3FBq15IoF3Ga3x3sDb
-         c+HtABIpL8pnj+BBtEDZxux+cbNmJ8mqS9lbCxqsx0sKexjhjLNaJs1bWDpXtgzLqgHH
-         PX0Y9Jmw/IX+3i5LKL6yBZwZm39RVzee+VahaEE5nAmT6Cim6tt9bWgHx1GAF4TXCLaT
-         87owmWAf2K2rpNPMcRDfnZe7RVz1zKkT5vnBhlq9MD2UApk8jz+knG8iv8BZHoeM3psU
-         gwng==
+        bh=3rFQ3V1JyjhzK/FNhp9Vbf0G3vBAShrjiAYynp1WPPc=;
+        b=k5CiqcLwQsXHHH3drITuZ9aKY6s39ucqvVXU/zDb7NcIvPXyPQ037zExhEfGdfel9a
+         rTxXtqjfDp14iRf84Tl+bt9CzDe8lmbrd/qGtSYRDbMsmGZXpyM+MSJifgsuLdG3u+SO
+         rkYJ0YTJ4zKvXG2jHkvuqxVCTbY5AE+aAhGF7Pckj9mf7M05PAs7XJlVXMCBYbYmyvUQ
+         XqtGJqoU/XPGVSirvDDdhSpF41X4fY9N4+Sy2Asn72oJI8WZq9HbJ401Lz7CZQGRQxqU
+         Lzru3pnZvmbCR4oK2/HgdSYEDiOHJgSFB6SDvGSBj0jIUrxUgF8o+nKD2WTKnzhGp2tA
+         i5JA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=hv5zaN7pKpNkLNjGeyHZD4Gqa8bKySu9wauiPUDu6ig=;
-        b=oZlqmLgE9IDVSKQxSPjjTOssuKi3ft8wvCLRJDzMuN0+JMophwxyIZlw3tOyTMmitv
-         iZHtb64L7iI0ViEtdQ4fDelqoBAiA3SUep2NookyRXsensp5r6ae/Goerd6GriUrMhZM
-         3G+oLUJJxk7h+eoZLXPWzcsHjDd/KIO32LGge/aa5aqezI+7LjXdZ5o2g9iS8/7CLjlS
-         LHE+3QsFF2ex2pb3CleyqteDtniHRM0PeE+oOMSYfF9NeYwN0vLzcjJs3LZed1ol7Xu5
-         evE1+7ub04RD3XDYqftpaW6zSlZ+n0EzhsV1TlvO+QT74yAGQWglgxSD0z8IE3yNuOEQ
-         4eWQ==
-X-Gm-Message-State: APjAAAWD6a+iDzUjTjwDcR/PKQr1TEo0MKF3UfvDaDGMexQCwWoHoFUI
-        lpsQ6yMmCPmUWxTMQ09TOag1xKrp1vM=
-X-Google-Smtp-Source: APXvYqy3VTaRca2HdRMrlMjtC3kdk1ObehCR9yNcSlwQUqJpvRE6t4L3e8/AwYmft778DO7QfkvVSw==
-X-Received: by 2002:a5d:4807:: with SMTP id l7mr32919740wrq.64.1576524144841;
-        Mon, 16 Dec 2019 11:22:24 -0800 (PST)
+        bh=3rFQ3V1JyjhzK/FNhp9Vbf0G3vBAShrjiAYynp1WPPc=;
+        b=SSk5yn7WcgWGseYso8aUzv1rxBkHNoOt0YSIcykqehH9Wi5v87o29HtxOvzAF89tfJ
+         NMjapwvL/PKbDbx6ZCxV1cxyWrl5P4cwJUrgRj6UqHk8RIe7c29ieHLz2Zv9dJ/5Ylje
+         ddLtirxI5g8XJdkzI9KLECkTKtg2nOE+y7cP1o2zLl30KozFZOddPqXn7bAiHXu4b/XP
+         xc206IEMMi5ylziu0IZGGjkIE5HahcM6kIA6uA38FjWLofBQ3cS0jWspRQXfdJTjpRMA
+         Gn7HUvhfd8ckwr+mR7wg5F312u8MlXCRthbjnw1PlKCRoW/zuKcm1TKlW+HXRa6rOwUl
+         jq+Q==
+X-Gm-Message-State: APjAAAX1umT0QstRdycCimO+nG/2j4FfIJWnU5ofeKUvyZKijPv+G9Fa
+        V6lGfLBW5/OfE0Ta0ZyYY9iznel82tE=
+X-Google-Smtp-Source: APXvYqyhKJxTGjIrd+qT9i4DMujlp7uHMb891z9xI8PhgN/G0hq6zKxjH/pqsYvubR5e+hhLaZXOmA==
+X-Received: by 2002:adf:dc8d:: with SMTP id r13mr33625445wrj.357.1576524789685;
+        Mon, 16 Dec 2019 11:33:09 -0800 (PST)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id m7sm22419503wrr.40.2019.12.16.11.22.23
+        by smtp.gmail.com with ESMTPSA id y7sm728665wmd.1.2019.12.16.11.33.07
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Dec 2019 11:22:24 -0800 (PST)
-Message-ID: <5df7d970.1c69fb81.fc5b0.53f1@mx.google.com>
-Date:   Mon, 16 Dec 2019 11:22:24 -0800 (PST)
+        Mon, 16 Dec 2019 11:33:07 -0800 (PST)
+Message-ID: <5df7dbf3.1c69fb81.721f4.4f2d@mx.google.com>
+Date:   Mon, 16 Dec 2019 11:33:07 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.19.89-141-g0e8256bac586
+X-Kernelci-Kernel: v4.14.158-268-gb5ad3dcc64ef
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y build: 206 builds: 199 failed, 7 passed,
- 440 errors, 222 warnings (v4.19.89-141-g0e8256bac586)
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y build: 201 builds: 195 failed, 6 passed,
+ 390 errors, 196 warnings (v4.14.158-268-gb5ad3dcc64ef)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,19 +63,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 206 builds: 199 failed, 7 passed, 440 errors,=
- 222 warnings (v4.19.89-141-g0e8256bac586)
+stable-rc/linux-4.14.y build: 201 builds: 195 failed, 6 passed, 390 errors,=
+ 196 warnings (v4.14.158-268-gb5ad3dcc64ef)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.89-141-g0e8256bac586/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.158-268-gb5ad3dcc64ef/
 
 Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.89-141-g0e8256bac586
-Git Commit: 0e8256bac586a784a26d12fb266ece7f996a1504
+Branch: linux-4.14.y
+Git Describe: v4.14.158-268-gb5ad3dcc64ef
+Git Commit: b5ad3dcc64ef682d96b28afb6a66ce8136cbb92f
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 7 unique architectures
+Built: 6 unique architectures
 
 Build Failures Detected:
 
@@ -170,7 +170,6 @@ arm:
     omap1_defconfig: (gcc-8) FAIL
     omap2plus_defconfig: (gcc-8) FAIL
     orion5x_defconfig: (gcc-8) FAIL
-    oxnas_v6_defconfig: (gcc-8) FAIL
     palmz72_defconfig: (gcc-8) FAIL
     pcm027_defconfig: (gcc-8) FAIL
     pleb_defconfig: (gcc-8) FAIL
@@ -235,7 +234,6 @@ mips:
     decstation_defconfig: (gcc-8) FAIL
     e55_defconfig: (gcc-8) FAIL
     fuloong2e_defconfig: (gcc-8) FAIL
-    gcw0_defconfig: (gcc-8) FAIL
     gpr_defconfig: (gcc-8) FAIL
     ip22_defconfig: (gcc-8) FAIL
     ip27_defconfig: (gcc-8) FAIL
@@ -280,12 +278,8 @@ mips:
     tinyconfig: (gcc-8) FAIL
     vocore2_defconfig: (gcc-8) FAIL
     workpad_defconfig: (gcc-8) FAIL
+    xilfpga_defconfig: (gcc-8) FAIL
     xway_defconfig: (gcc-8) FAIL
-
-riscv:
-    allnoconfig: (gcc-8) FAIL
-    defconfig: (gcc-8) FAIL
-    tinyconfig: (gcc-8) FAIL
 
 x86_64:
     allnoconfig: (gcc-8) FAIL
@@ -385,7 +379,6 @@ arm:
     omap1_defconfig (gcc-8): 2 errors, 1 warning
     omap2plus_defconfig (gcc-8): 2 errors, 1 warning
     orion5x_defconfig (gcc-8): 2 errors, 1 warning
-    oxnas_v6_defconfig (gcc-8): 2 errors, 1 warning
     palmz72_defconfig (gcc-8): 2 errors, 1 warning
     pcm027_defconfig (gcc-8): 2 errors, 1 warning
     pleb_defconfig (gcc-8): 2 errors, 1 warning
@@ -450,7 +443,6 @@ mips:
     decstation_defconfig (gcc-8): 2 errors, 1 warning
     e55_defconfig (gcc-8): 2 errors, 1 warning
     fuloong2e_defconfig (gcc-8): 2 errors, 1 warning
-    gcw0_defconfig (gcc-8): 2 errors, 1 warning
     gpr_defconfig (gcc-8): 2 errors, 1 warning
     ip22_defconfig (gcc-8): 2 errors, 1 warning
     ip27_defconfig (gcc-8): 2 errors, 1 warning
@@ -462,7 +454,7 @@ mips:
     lemote2f_defconfig (gcc-8): 2 errors, 1 warning
     loongson1b_defconfig (gcc-8): 2 errors, 1 warning
     loongson1c_defconfig (gcc-8): 2 errors, 1 warning
-    loongson3_defconfig (gcc-8): 2 errors, 2 warnings
+    loongson3_defconfig (gcc-8): 2 errors, 1 warning
     malta_defconfig (gcc-8): 2 errors, 1 warning
     malta_kvm_defconfig (gcc-8): 2 errors, 1 warning
     malta_kvm_guest_defconfig (gcc-8): 2 errors, 1 warning
@@ -495,12 +487,8 @@ mips:
     tinyconfig (gcc-8): 2 errors, 1 warning
     vocore2_defconfig (gcc-8): 2 errors, 1 warning
     workpad_defconfig (gcc-8): 2 errors, 1 warning
+    xilfpga_defconfig (gcc-8): 2 errors, 1 warning
     xway_defconfig (gcc-8): 2 errors, 1 warning
-
-riscv:
-    allnoconfig (gcc-8): 18 errors, 9 warnings
-    defconfig (gcc-8): 16 errors, 8 warnings
-    tinyconfig (gcc-8): 14 errors, 7 warnings
 
 x86_64:
     allnoconfig (gcc-8): 2 errors, 1 warning
@@ -509,27 +497,22 @@ x86_64:
 
 Errors summary:
 
-    220  include/linux/mm.h:484:19: error: static declaration of =E2=80=98p=
+    195  include/linux/mm.h:438:19: error: static declaration of =E2=80=98p=
 ud_devmap=E2=80=99 follows non-static declaration
-    210  include/asm-generic/pgtable.h:882:52: error: implicit declaration =
+    189  include/asm-generic/pgtable.h:854:52: error: implicit declaration =
 of function =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=
 =80=99? [-Werror=3Dimplicit-function-declaration]
-    4    include/asm-generic/pgtable.h:882:52: error: implicit declaration =
-of function =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98put_device=
-=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    3    include/asm-generic/pgtable.h:882:52: error: implicit declaration =
+    3    include/asm-generic/pgtable.h:854:52: error: implicit declaration =
 of function =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_mkdevma=
 p=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    3    include/asm-generic/pgtable.h:882:52: error: implicit declaration =
+    3    include/asm-generic/pgtable.h:854:52: error: implicit declaration =
 of function =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pte_devmap=
 =E2=80=99? [-Werror=3Dimplicit-function-declaration]
 
 Warnings summary:
 
-    220  cc1: some warnings being treated as errors
-    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
- invalid for HOTPLUG_PCI_SHPC
-    1    .config:1009:warning: override: UNWINDER_GUESS changes choice state
+    195  cc1: some warnings being treated as errors
+    1    .config:1027:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -544,10 +527,10 @@ Detailed per-defconfig build reports:
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -559,10 +542,10 @@ acs5k_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -574,25 +557,10 @@ acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -604,10 +572,10 @@ allnoconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
 matches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -619,76 +587,13 @@ allnoconfig (x86_64, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pte_devmap=E2=80=
 =99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-8) =E2=80=94 FAIL, 18 errors, 9 warnings, 0 section=
- mismatches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98put_device=E2=80=
-=99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -697,10 +602,25 @@ allnoconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
 smatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
+vmap=E2=80=99 follows non-static declaration
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
+smatches
+
+Errors:
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
+nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_mkdevmap=E2=
+=80=99? [-Werror=3Dimplicit-function-declaration]
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -713,14 +633,14 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
-smatches
+allnoconfig (arm64, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
+ismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_mkdevmap=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
+nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -732,10 +652,10 @@ am200epdkit_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -747,10 +667,10 @@ ar7_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -762,10 +682,10 @@ aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -777,10 +697,10 @@ aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -792,10 +712,10 @@ assabet_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -807,10 +727,10 @@ at91_dt_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -822,10 +742,10 @@ ath25_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -837,10 +757,10 @@ ath79_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -852,10 +772,10 @@ axm55xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -867,10 +787,10 @@ axs103_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -882,10 +802,10 @@ axs103_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -897,10 +817,10 @@ badge4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -912,10 +832,10 @@ bcm2835_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -927,10 +847,10 @@ bcm47xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -942,10 +862,10 @@ bcm63xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -957,10 +877,10 @@ bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -972,10 +892,10 @@ bmips_be_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -987,10 +907,10 @@ bmips_stb_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1002,10 +922,10 @@ capcella_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1017,10 +937,10 @@ cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
 0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1032,10 +952,10 @@ cerfcube_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1047,10 +967,10 @@ ci20_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1062,10 +982,10 @@ clps711x_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1077,10 +997,10 @@ cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1092,10 +1012,10 @@ cm_x300_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1107,10 +1027,10 @@ cns3420vb_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1122,10 +1042,10 @@ cobalt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1137,10 +1057,10 @@ colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
 0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1152,10 +1072,10 @@ colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
 0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1167,10 +1087,10 @@ collie_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1182,10 +1102,10 @@ corgi_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1197,10 +1117,10 @@ davinci_all_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1212,10 +1132,10 @@ db1xxx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1227,10 +1147,10 @@ decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1242,70 +1162,13 @@ defconfig (arm64, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
 matches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-8) =E2=80=94 FAIL, 16 errors, 8 warnings, 0 section m=
-ismatches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98put_device=E2=80=
-=99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98put_device=E2=80=
-=99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -1314,10 +1177,10 @@ dove_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1329,10 +1192,10 @@ e55_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1344,10 +1207,10 @@ ebsa110_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1364,10 +1227,10 @@ em_x270_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1379,10 +1242,10 @@ ep93xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1394,10 +1257,10 @@ eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1409,10 +1272,10 @@ exynos_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1424,10 +1287,10 @@ ezx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
 ismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1439,10 +1302,10 @@ footbridge_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1454,25 +1317,10 @@ fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1484,10 +1332,10 @@ gemini_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1499,10 +1347,10 @@ gpr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1514,10 +1362,10 @@ h3600_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1529,10 +1377,10 @@ h5000_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1544,10 +1392,10 @@ hackkit_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1559,10 +1407,10 @@ haps_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1574,10 +1422,10 @@ haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1589,10 +1437,10 @@ hisi_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1604,10 +1452,10 @@ hsdk_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1619,10 +1467,10 @@ i386_defconfig (i386, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_mkdevmap=E2=
 =80=99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1634,10 +1482,10 @@ imote2_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1649,10 +1497,10 @@ imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1664,10 +1512,10 @@ imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1679,10 +1527,10 @@ integrator_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1694,10 +1542,10 @@ iop13xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1709,10 +1557,10 @@ iop32x_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1724,10 +1572,10 @@ iop33x_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1739,10 +1587,10 @@ ip22_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1754,10 +1602,10 @@ ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1769,10 +1617,10 @@ ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1784,10 +1632,10 @@ ip32_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1799,10 +1647,10 @@ ixp4xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1814,10 +1662,10 @@ jazz_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1829,10 +1677,10 @@ jmr3927_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1844,10 +1692,10 @@ jornada720_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1859,10 +1707,10 @@ keystone_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1874,10 +1722,10 @@ ks8695_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1889,10 +1737,10 @@ lart_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1904,10 +1752,10 @@ lasat_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1919,10 +1767,10 @@ lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1934,10 +1782,10 @@ loongson1b_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1949,10 +1797,10 @@ loongson1c_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -1960,19 +1808,17 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 s=
-ection mismatches
+loongson3_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
+ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
-    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
-lid for HOTPLUG_PCI_SHPC
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -1986,10 +1832,10 @@ lpc32xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2001,10 +1847,10 @@ lpd270_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2016,10 +1862,10 @@ lubbock_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2031,10 +1877,10 @@ magician_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2046,10 +1892,10 @@ mainstone_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2061,10 +1907,10 @@ malta_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2076,10 +1922,10 @@ malta_kvm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2091,10 +1937,10 @@ malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning=
 , 0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2106,10 +1952,10 @@ malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning=
 , 0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2121,10 +1967,10 @@ maltaaprp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2136,10 +1982,10 @@ maltasmvp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2151,10 +1997,10 @@ maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
 0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2166,10 +2012,10 @@ maltaup_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2181,10 +2027,10 @@ maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 =
 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2196,10 +2042,10 @@ markeins_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2211,10 +2057,10 @@ mini2440_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2226,10 +2072,10 @@ mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
 0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2241,10 +2087,10 @@ mmp2_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2256,10 +2102,10 @@ moxart_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2271,10 +2117,10 @@ mpc30x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2291,10 +2137,10 @@ msp71xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2306,10 +2152,10 @@ mtx1_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2321,10 +2167,10 @@ multi_v4t_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2336,10 +2182,10 @@ multi_v5_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2351,10 +2197,10 @@ multi_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2366,10 +2212,10 @@ mv78xx0_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2381,10 +2227,10 @@ mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2396,10 +2242,10 @@ mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2411,10 +2257,10 @@ mxs_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
 ismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2426,10 +2272,10 @@ neponset_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2441,10 +2287,10 @@ netwinder_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2456,10 +2302,10 @@ netx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2471,10 +2317,10 @@ nhk8815_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2486,10 +2332,10 @@ nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2501,10 +2347,10 @@ nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2516,10 +2362,10 @@ nsim_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2531,10 +2377,10 @@ nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2546,10 +2392,10 @@ nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
 ection mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2561,10 +2407,10 @@ nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning,=
  0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2576,10 +2422,10 @@ nuc910_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2591,10 +2437,10 @@ nuc950_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2606,10 +2452,10 @@ nuc960_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2621,10 +2467,10 @@ omap1_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2636,10 +2482,10 @@ omap2plus_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2651,10 +2497,10 @@ omega2p_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2666,25 +2512,10 @@ orion5x_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2696,10 +2527,10 @@ palmz72_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2711,10 +2542,10 @@ pcm027_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2726,10 +2557,10 @@ pic32mzda_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2741,10 +2572,10 @@ pistachio_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2756,10 +2587,10 @@ pleb_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2771,10 +2602,10 @@ pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning,=
  0 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2786,10 +2617,10 @@ prima2_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2801,10 +2632,10 @@ pxa168_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2816,10 +2647,10 @@ pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2831,10 +2662,10 @@ pxa3xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2846,10 +2677,10 @@ pxa910_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2861,10 +2692,10 @@ pxa_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
 ismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2876,10 +2707,10 @@ qcom_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2891,10 +2722,10 @@ qi_lb60_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2906,10 +2737,10 @@ raumfeld_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2921,10 +2752,10 @@ rb532_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2936,10 +2767,10 @@ rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2951,10 +2782,10 @@ realview_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2966,10 +2797,10 @@ rm200_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2981,10 +2812,10 @@ rpc_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section m=
 ismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -2996,10 +2827,10 @@ rt305x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3011,10 +2842,10 @@ s3c2410_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3026,10 +2857,10 @@ s3c6400_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3041,10 +2872,10 @@ s5pv210_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3056,10 +2887,10 @@ sama5_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3071,10 +2902,10 @@ sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0=
  section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3086,10 +2917,10 @@ shannon_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3101,10 +2932,10 @@ shmobile_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3116,10 +2947,10 @@ simpad_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3131,10 +2962,10 @@ socfpga_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3146,10 +2977,10 @@ spear13xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3161,10 +2992,10 @@ spear3xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3176,10 +3007,10 @@ spear6xx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3191,10 +3022,10 @@ spitz_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3211,10 +3042,10 @@ sunxi_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3226,10 +3057,10 @@ tango4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
 n mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3241,10 +3072,10 @@ tb0219_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3256,10 +3087,10 @@ tb0226_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3271,10 +3102,10 @@ tb0287_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
 on mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3286,10 +3117,10 @@ tct_hammer_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
 ction mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3301,10 +3132,55 @@ tegra_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
+vmap=E2=80=99 follows non-static declaration
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
+matches
+
+Errors:
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
+nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
+vmap=E2=80=99 follows non-static declaration
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
+matches
+
+Errors:
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
+nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_mkdevmap=E2=
+=80=99? [-Werror=3Dimplicit-function-declaration]
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
+vmap=E2=80=99 follows non-static declaration
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mism=
+atches
+
+Errors:
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
+nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3317,126 +3193,30 @@ matches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
-smatches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-8) =E2=80=94 FAIL, 14 errors, 7 warnings, 0 section =
-mismatches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98put_device=E2=80=
-=99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
-matches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
 tinyconfig (x86_64, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pte_devmap=E2=80=
 =99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
-    .config:1009:warning: override: UNWINDER_GUESS changes choice state
+    .config:1027:warning: override: UNWINDER_GUESS changes choice state
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
-matches
+tinyconfig (arm64, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
+smatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
-nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_mkdevmap=E2=
-=80=99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
-vmap=E2=80=99 follows non-static declaration
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mism=
-atches
-
-Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3448,10 +3228,10 @@ trizeps4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3463,10 +3243,10 @@ u300_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3478,10 +3258,10 @@ u8500_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3493,10 +3273,10 @@ vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3508,10 +3288,10 @@ vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 =
 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3523,10 +3303,10 @@ versatile_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3538,10 +3318,10 @@ vexpress_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3549,19 +3329,14 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 viper_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3573,10 +3348,10 @@ vocore2_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3588,10 +3363,10 @@ vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 =
 section mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3603,10 +3378,10 @@ workpad_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
 ion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3618,10 +3393,10 @@ x86_64_defconfig (x86_64, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
 tion mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pte_devmap=E2=80=
 =99? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3633,10 +3408,25 @@ xcep_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
+vmap=E2=80=99 follows non-static declaration
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
+ion mismatches
+
+Errors:
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
+nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3648,10 +3438,10 @@ xway_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
  mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3663,10 +3453,10 @@ zeus_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
 mismatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
@@ -3678,10 +3468,10 @@ zx_defconfig (arm, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
 smatches
 
 Errors:
-    include/asm-generic/pgtable.h:882:52: error: implicit declaration of fu=
+    include/asm-generic/pgtable.h:854:52: error: implicit declaration of fu=
 nction =E2=80=98pud_devmap=E2=80=99; did you mean =E2=80=98pud_val=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    include/linux/mm.h:484:19: error: static declaration of =E2=80=98pud_de=
+    include/linux/mm.h:438:19: error: static declaration of =E2=80=98pud_de=
 vmap=E2=80=99 follows non-static declaration
 
 Warnings:
