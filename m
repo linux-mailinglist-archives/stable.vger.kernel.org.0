@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 633BB121810
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C72D1218B0
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728771AbfLPSBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:01:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37098 "EHLO mail.kernel.org"
+        id S1727369AbfLPR6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:58:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728756AbfLPSBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:01:46 -0500
+        id S1728561AbfLPR6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAEC620733;
-        Mon, 16 Dec 2019 18:01:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D858206B7;
+        Mon, 16 Dec 2019 17:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519306;
-        bh=35yKDkiE8KL4FQ6IGuKiSvQsrdEoHklWw7BgukhTtfY=;
+        s=default; t=1576519080;
+        bh=aIcXJ6YY5YCUHBkqLx2UXxkVTjCadninB9hTVsHjFvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAAgM76/M3z/a5jS+zNbnFYuWuJFPo84D4ETugQu48rDU0O7PuE4stdOHSATtMIJP
-         c5+Bwx0ysM3gVuDsntj8mNiDndgWkcf6DQpIbKH0hD6U2Dp/A7rQAvZ19Gm8DVe+9K
-         rQf8nYaS+aP/Gkr6vTfN7UyqOCw6CEhgh+v8RA74=
+        b=jK33hRo6IUtaENt3Mxy3oe19V5dp7REtkgztCTCNf/N5Yk8xYNNM9YZGLIeOkaOPb
+         Ls4OI4X3sBHOOTLrsx7sZU6PMzXDMwPQ6i04nIhtw5E7OjDtjsT+3yWzwZWcPB3aFu
+         zzXCfZLmg1RAPpEI3RokcQS8/LnkHiqbFmvA6E4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.19 005/140] USB: uas: honor flag to avoid CAPACITY16
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 147/267] crypto: user - fix memory leak in crypto_report
 Date:   Mon, 16 Dec 2019 18:47:53 +0100
-Message-Id: <20191216174749.658842089@linuxfoundation.org>
+Message-Id: <20191216174910.527101748@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit bff000cae1eec750d62e265c4ba2db9af57b17e1 upstream.
+commit ffdde5932042600c6807d46c1550b28b0db6a3bc upstream.
 
-Copy the support over from usb-storage to get feature parity
+In crypto_report, a new skb is created via nlmsg_new(). This skb should
+be released if crypto_report_alg() fails.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191114112758.32747-2-oneukum@suse.com
+Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/uas.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ crypto/crypto_user.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -832,6 +832,10 @@ static int uas_slave_configure(struct sc
- 		sdev->wce_default_on = 1;
- 	}
+--- a/crypto/crypto_user.c
++++ b/crypto/crypto_user.c
+@@ -288,8 +288,10 @@ static int crypto_report(struct sk_buff
+ drop_alg:
+ 	crypto_mod_put(alg);
  
-+	/* Some disks cannot handle READ_CAPACITY_16 */
-+	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
-+		sdev->no_read_capacity_16 = 1;
-+
- 	/*
- 	 * Some disks return the total number of blocks in response
- 	 * to READ CAPACITY rather than the highest block number.
+-	if (err)
++	if (err) {
++		kfree_skb(skb);
+ 		return err;
++	}
+ 
+ 	return nlmsg_unicast(crypto_nlsk, skb, NETLINK_CB(in_skb).portid);
+ }
 
 
