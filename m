@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5B21217FB
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9C8121723
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729126AbfLPSCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:02:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38512 "EHLO mail.kernel.org"
+        id S1730065AbfLPSJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:09:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729054AbfLPSCb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:02:31 -0500
+        id S1730246AbfLPSJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:09:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A271218AC;
-        Mon, 16 Dec 2019 18:02:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BFFE2072D;
+        Mon, 16 Dec 2019 18:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519350;
-        bh=02OOIG76Z/Iy1EgmCIZzU+/S2CzO0XCskta4452Yzj4=;
+        s=default; t=1576519764;
+        bh=vLGodRCGkCR1avik2p/FRYXEtMWNfbPeLSlc7nWweAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEGGMCCBodKZ+IGLPqUonZS2CSjCWdVY0eiI5BH6eH7WPBqdEEeCLHu4F0xXh6g+E
-         TMYqJp9KCoFLbbEsdrgXnYwCKhKlXeBdWrCWJ8Gc5p7nxmgev45tAEUYm4rxLB88hf
-         s/aQMsNRVLVbUHfrmz5Ej6C9TAkoNmKlOIs4ltiU=
+        b=RRwnfHhGnEGIVqQdJ4fwmkUOpYxUYzAjixJGAnWYK8CnU/Q8SKOR+CwQU7gq4tq6U
+         UKhon1S5ZQh/FyDy2WU9DR9f11iRCv75meVEUwrv5S5mGOCa7RxpscBhMaDrJFq5ld
+         uxYMRrQNskwjvqtO0TJ4AZyEE1aLRUi7fz6ub4nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.19 030/140] mtd: spear_smi: Fix Write Burst mode
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.3 058/180] Btrfs: fix negative subv_writers counter and data space leak after buffered write
 Date:   Mon, 16 Dec 2019 18:48:18 +0100
-Message-Id: <20191216174757.854872981@linuxfoundation.org>
+Message-Id: <20191216174828.673302887@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 69c7f4618c16b4678f8a4949b6bb5ace259c0033 upstream.
+commit a0e248bb502d5165b3314ac3819e888fdcdf7d9f upstream.
 
-Any write with either dd or flashcp to a device driven by the
-spear_smi.c driver will pass through the spear_smi_cpy_toio()
-function. This function will get called for chunks of up to 256 bytes.
-If the amount of data is smaller, we may have a problem if the data
-length is not 4-byte aligned. In this situation, the kernel panics
-during the memcpy:
+When doing a buffered write it's possible to leave the subv_writers
+counter of the root, used for synchronization between buffered nocow
+writers and snapshotting. This happens in an exceptional case like the
+following:
 
-    # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
-    spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
-    spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
-    spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
-    spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
-    Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
-    [...]
-    PC is at memcpy+0xcc/0x330
+1) We fail to allocate data space for the write, since there's not
+   enough available data space nor enough unallocated space for allocating
+   a new data block group;
 
-The above error occurs because the implementation of memcpy_toio()
-tries to optimize the number of I/O by writing 4 bytes at a time as
-much as possible, until there are less than 4 bytes left and then
-switches to word or byte writes.
+2) Because of that failure, we try to go to NOCOW mode, which succeeds
+   and therefore we set the local variable 'only_release_metadata' to true
+   and set the root's sub_writers counter to 1 through the call to
+   btrfs_start_write_no_snapshotting() made by check_can_nocow();
 
-Unfortunately, the specification states about the Write Burst mode:
+3) The call to btrfs_copy_from_user() returns zero, which is very unlikely
+   to happen but not impossible;
 
-        "the next AHB Write request should point to the next
-	incremented address and should have the same size (byte,
-	half-word or word)"
+4) No pages are copied because btrfs_copy_from_user() returned zero;
 
-This means ARM architecture implementation of memcpy_toio() cannot
-reliably be used blindly here. Workaround this situation by update the
-write path to stick to byte access when the burst length is not
-multiple of 4.
+5) We call btrfs_end_write_no_snapshotting() which decrements the root's
+   subv_writers counter to 0;
 
-Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
+6) We don't set 'only_release_metadata' back to 'false' because we do
+   it only if 'copied', the value returned by btrfs_copy_from_user(), is
+   greater than zero;
+
+7) On the next iteration of the while loop, which processes the same
+   page range, we are now able to allocate data space for the write (we
+   got enough data space released in the meanwhile);
+
+8) After this if we fail at btrfs_delalloc_reserve_metadata(), because
+   now there isn't enough free metadata space, or in some other place
+   further below (prepare_pages(), lock_and_cleanup_extent_if_need(),
+   btrfs_dirty_pages()), we break out of the while loop with
+   'only_release_metadata' having a value of 'true';
+
+9) Because 'only_release_metadata' is 'true' we end up decrementing the
+   root's subv_writers counter to -1 (through a call to
+   btrfs_end_write_no_snapshotting()), and we also end up not releasing the
+   data space previously reserved through btrfs_check_data_free_space().
+   As a consequence the mechanism for synchronizing NOCOW buffered writes
+   with snapshotting gets broken.
+
+Fix this by always setting 'only_release_metadata' to false at the start
+of each iteration.
+
+Fixes: 8257b2dc3c1a ("Btrfs: introduce btrfs_{start, end}_nocow_write() for each subvolume")
+Fixes: 7ee9e4405f26 ("Btrfs: check if we can nocow if we don't have data space")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/devices/spear_smi.c |   38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ fs/btrfs/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/devices/spear_smi.c
-+++ b/drivers/mtd/devices/spear_smi.c
-@@ -592,6 +592,26 @@ static int spear_mtd_read(struct mtd_inf
- 	return 0;
- }
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1636,6 +1636,7 @@ static noinline ssize_t btrfs_buffered_w
+ 			break;
+ 		}
  
-+/*
-+ * The purpose of this function is to ensure a memcpy_toio() with byte writes
-+ * only. Its structure is inspired from the ARM implementation of _memcpy_toio()
-+ * which also does single byte writes but cannot be used here as this is just an
-+ * implementation detail and not part of the API. Not mentioning the comment
-+ * stating that _memcpy_toio() should be optimized.
-+ */
-+static void spear_smi_memcpy_toio_b(volatile void __iomem *dest,
-+				    const void *src, size_t len)
-+{
-+	const unsigned char *from = src;
-+
-+	while (len) {
-+		len--;
-+		writeb(*from, dest);
-+		from++;
-+		dest++;
-+	}
-+}
-+
- static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
- 		void __iomem *dest, const void *src, size_t len)
- {
-@@ -614,7 +634,23 @@ static inline int spear_smi_cpy_toio(str
- 	ctrlreg1 = readl(dev->io_base + SMI_CR1);
- 	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
++		only_release_metadata = false;
+ 		sector_offset = pos & (fs_info->sectorsize - 1);
+ 		reserve_bytes = round_up(write_bytes + sector_offset,
+ 				fs_info->sectorsize);
+@@ -1791,7 +1792,6 @@ again:
+ 			set_extent_bit(&BTRFS_I(inode)->io_tree, lockstart,
+ 				       lockend, EXTENT_NORESERVE, NULL,
+ 				       NULL, GFP_NOFS);
+-			only_release_metadata = false;
+ 		}
  
--	memcpy_toio(dest, src, len);
-+	/*
-+	 * In Write Burst mode (WB_MODE), the specs states that writes must be:
-+	 * - incremental
-+	 * - of the same size
-+	 * The ARM implementation of memcpy_toio() will optimize the number of
-+	 * I/O by using as much 4-byte writes as possible, surrounded by
-+	 * 2-byte/1-byte access if:
-+	 * - the destination is not 4-byte aligned
-+	 * - the length is not a multiple of 4-byte.
-+	 * Avoid this alternance of write access size by using our own 'byte
-+	 * access' helper if at least one of the two conditions above is true.
-+	 */
-+	if (IS_ALIGNED(len, sizeof(u32)) &&
-+	    IS_ALIGNED((uintptr_t)dest, sizeof(u32)))
-+		memcpy_toio(dest, src, len);
-+	else
-+		spear_smi_memcpy_toio_b(dest, src, len);
- 
- 	writel(ctrlreg1, dev->io_base + SMI_CR1);
- 
+ 		btrfs_drop_pages(pages, num_pages);
 
 
