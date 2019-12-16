@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB021215B4
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2DE8121472
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731862AbfLPSYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:24:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48316 "EHLO mail.kernel.org"
+        id S1730769AbfLPSLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:11:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731959AbfLPSTj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:19:39 -0500
+        id S1730768AbfLPSLT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 421CB206EC;
-        Mon, 16 Dec 2019 18:19:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A32A62072D;
+        Mon, 16 Dec 2019 18:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520378;
-        bh=QA9F+xZ2ekjN/MqhF4t0Gp3icowfE+3Q9boBMFZHcwc=;
+        s=default; t=1576519879;
+        bh=b6FHj+maMhZUKVUQhdEcWTeoceobhOMs2XG/SnLR0FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zpLy/rKvvxpM2vHo10jgZt2QDF9fe2/7tkIkftkSFRiaoCMUipyepZ00P1d8tG07e
-         5sqwBXdcLSf9YfSb/VY1dvJwAIZKWvcQENDmwzVVlcaGPSTgaOFmYeUuZc4XfIhFm1
-         uUEcoybVOAKZwqJ8QsnVKwWz0icCsgEos+U2aFTE=
+        b=gJ5t5iZCJDMLcd3B79zMkbULHbgTWhh65HvTN64kbzyErYqq5O+bvn7+N+ZsIcahH
+         cnUNvUiQsAtOE82geAgUqagaPAt8H+dKSaV7/m0j5tdKA7G0G7Bx/kLQ/W98GRfI11
+         jJCbc5c4qcw3yTTGqPgXu7PD6fL3rKFcB7FeVS18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pawel Harlozinski <pawel.harlozinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 089/177] ASoC: Jack: Fix NULL pointer dereference in snd_soc_jack_report
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.3 105/180] ACPI: LPSS: Add LNXVIDEO -> BYT I2C1 to lpss_device_links
 Date:   Mon, 16 Dec 2019 18:49:05 +0100
-Message-Id: <20191216174838.982882719@linuxfoundation.org>
+Message-Id: <20191216174837.634063408@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Harlozinski <pawel.harlozinski@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 8f157d4ff039e03e2ed4cb602eeed2fd4687a58f upstream.
+commit b3b3519c04bdff91651d0a6deb79dbd4516b5d7b upstream.
 
-Check for existance of jack before tracing.
-NULL pointer dereference has been reported by KASAN while unloading
-machine driver (snd_soc_cnl_rt274).
+Various Asus Bay Trail devices (T100TA, T100CHI, T200TA) have an embedded
+controller connected to I2C1 and the iGPU (LNXVIDEO) _PS0/_PS3 methods
+access it, so we need to add a consumer link from LNXVIDEO to I2C1 on
+these devices to avoid suspend/resume ordering problems.
 
-Signed-off-by: Pawel Harlozinski <pawel.harlozinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20191112130237.10141-1-pawel.harlozinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+Fixes: 2d71ee0ce72f ("ACPI / LPSS: Add a device link from the GPU to the BYT I2C5 controller")
+Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-jack.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/acpi/acpi_lpss.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/soc-jack.c
-+++ b/sound/soc/soc-jack.c
-@@ -82,10 +82,9 @@ void snd_soc_jack_report(struct snd_soc_
- 	unsigned int sync = 0;
- 	int enable;
- 
--	trace_snd_soc_jack_report(jack, mask, status);
--
- 	if (!jack)
- 		return;
-+	trace_snd_soc_jack_report(jack, mask, status);
- 
- 	dapm = &jack->card->dapm;
- 
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -477,6 +477,8 @@ static const struct lpss_device_links lp
+ 	{"808622C1", "7", "80860F14", "3", DL_FLAG_PM_RUNTIME},
+ 	/* CHT iGPU depends on PMIC I2C controller */
+ 	{"808622C1", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
++	/* BYT iGPU depends on the Embedded Controller I2C controller (UID 1) */
++	{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
+ 	/* BYT CR iGPU depends on PMIC I2C controller (UID 5 on CR) */
+ 	{"80860F41", "5", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
+ 	/* BYT iGPU depends on PMIC I2C controller (UID 7 on non CR) */
 
 
