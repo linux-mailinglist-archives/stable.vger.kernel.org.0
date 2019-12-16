@@ -2,282 +2,429 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39F551202A3
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 11:32:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E38221202CC
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 11:42:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727462AbfLPKbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 05:31:25 -0500
-Received: from inca-roads.misterjones.org ([213.251.177.50]:54822 "EHLO
-        inca-roads.misterjones.org" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727319AbfLPKbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 05:31:24 -0500
-Received: from www-data by cheepnis.misterjones.org with local (Exim 4.80)
-        (envelope-from <maz@kernel.org>)
-        id 1igneq-0003dz-DA; Mon, 16 Dec 2019 11:31:20 +0100
-To:     Christoffer Dall <christoffer.dall@arm.com>
-Subject: Re: [PATCH 1/3] KVM: arm/arm64: Properly handle faulting of device  mappings
-X-PHP-Originating-Script: 0:main.inc
+        id S1727229AbfLPKjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 05:39:13 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:50572 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727319AbfLPKjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 05:39:13 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19593207-1500050 
+        for multiple; Mon, 16 Dec 2019 10:39:02 +0000
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.auld@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 3/3] drm/i915: Hold reference to intel_frontbuffer as we track activity
+Date:   Mon, 16 Dec 2019 10:39:01 +0000
+Message-Id: <20191216103901.2518461-3-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191216103901.2518461-1-chris@chris-wilson.co.uk>
+References: <20191216103901.2518461-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 16 Dec 2019 10:31:19 +0000
-From:   Marc Zyngier <maz@kernel.org>
-Cc:     <kvm@vger.kernel.org>, <kvmarm@lists.cs.columbia.edu>,
-        <linux-arm-kernel@lists.infradead.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        <stable@vger.kernel.org>
-In-Reply-To: <20191213111400.GI28840@e113682-lin.lund.arm.com>
-References: <20191211165651.7889-1-maz@kernel.org>
- <20191211165651.7889-2-maz@kernel.org>
- <20191213082920.GA28840@e113682-lin.lund.arm.com>
- <7f86824f4cbd17cd75ef347473e34278@www.loen.fr>
- <20191213111400.GI28840@e113682-lin.lund.arm.com>
-Message-ID: <4889a4894f13c67f7e48466afb0763f6@www.loen.fr>
-X-Sender: maz@kernel.org
-User-Agent: Roundcube Webmail/0.7.2
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Rcpt-To: christoffer.dall@arm.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on cheepnis.misterjones.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-12-13 11:14, Christoffer Dall wrote:
-> On Fri, Dec 13, 2019 at 09:28:59AM +0000, Marc Zyngier wrote:
->> Hi Christoffer,
->>
->> On 2019-12-13 08:29, Christoffer Dall wrote:
->> > Hi Marc,
->> >
->> > On Wed, Dec 11, 2019 at 04:56:48PM +0000, Marc Zyngier wrote:
->> > > A device mapping is normally always mapped at Stage-2, since 
->> there
->> > > is very little gain in having it faulted in.
->> >
->> > It is actually becoming less clear to me what the real benefits of
->> > pre-populating the stage 2 page table are, especially given that 
->> we can
->> > provoke a situation where they're faulted in anyhow.  Do you 
->> recall if
->> > we had any specific case that motivated us to pre-fault in the 
->> pages?
->>
->> It's only a minor performance optimization that was introduced by 
->> Ard in
->> 8eef91239e57d. Which makes sense for platform devices that have a 
->> single
->> fixed location in memory. It makes slightly less sense for PCI, 
->> where
->> you can move things around.
->
-> User space could still decide to move things around in its VA map 
-> even
-> if the device is fixed.
->
-> Anyway, I was thinking more if there was some sort of device, like a
-> frambuffer, which for example crosses page boundaries and where it 
-> would
-> be visible to the user that there's a sudden performance drop while
-> operating the device over page boundaries.  Anything like that?
->
->>
->> > > Nonetheless, it is possible to end-up in a situation where the
->> > > device
->> > > mapping has been removed from Stage-2 (userspace munmaped the 
->> VFIO
->> > > region, and the MMU notifier did its job), but present in a
->> > > userspace
->> > > mapping (userpace has mapped it back at the same address). In 
->> such
->> > > a situation, the device mapping will be demand-paged as the 
->> guest
->> > > performs memory accesses.
->> > >
->> > > This requires to be careful when dealing with mapping size, 
->> cache
->> > > management, and to handle potential execution of a device 
->> mapping.
->> > >
->> > > Cc: stable@vger.kernel.org
->> > > Reported-by: Alexandru Elisei <alexandru.elisei@arm.com>
->> > > Signed-off-by: Marc Zyngier <maz@kernel.org>
->> > > ---
->> > >  virt/kvm/arm/mmu.c | 21 +++++++++++++++++----
->> > >  1 file changed, 17 insertions(+), 4 deletions(-)
->> > >
->> > > diff --git a/virt/kvm/arm/mmu.c b/virt/kvm/arm/mmu.c
->> > > index a48994af70b8..0b32a904a1bb 100644
->> > > --- a/virt/kvm/arm/mmu.c
->> > > +++ b/virt/kvm/arm/mmu.c
->> > > @@ -38,6 +38,11 @@ static unsigned long io_map_base;
->> > >  #define KVM_S2PTE_FLAG_IS_IOMAP		(1UL << 0)
->> > >  #define KVM_S2_FLAG_LOGGING_ACTIVE	(1UL << 1)
->> > >
->> > > +static bool is_iomap(unsigned long flags)
->> > > +{
->> > > +	return flags & KVM_S2PTE_FLAG_IS_IOMAP;
->> > > +}
->> > > +
->> >
->> > nit: I'm not really sure this indirection makes the code more 
->> readable,
->> > but I guess that's a matter of taste.
->> >
->> > >  static bool memslot_is_logging(struct kvm_memory_slot *memslot)
->> > >  {
->> > >  	return memslot->dirty_bitmap && !(memslot->flags &
->> > > KVM_MEM_READONLY);
->> > > @@ -1698,6 +1703,7 @@ static int user_mem_abort(struct kvm_vcpu
->> > > *vcpu, phys_addr_t fault_ipa,
->> > >
->> > >  	vma_pagesize = vma_kernel_pagesize(vma);
->> > >  	if (logging_active ||
->> > > +	    (vma->vm_flags & VM_PFNMAP) ||
->> >
->> > WHat is actually the rationale for this?
->> >
->> > Why is a huge mapping not permitted to device memory?
->> >
->> > Are we guaranteed that VM_PFNMAP on the vma results in device 
->> mappings?
->> > I'm not convinced this is the case, and it would be better if we 
->> can
->> > stick to a single primitive (either kvm_is_device_pfn, or 
->> VM_PFNMAP) to
->> > detect device mappings.
->>
->> For now, I've tried to keep the two paths that deal with mapping 
->> devices
->> (or rather, things that we interpret as devices) as close as 
->> possible.
->> If we drop the "eager" mapping, then we're at liberty to restructure
->> this in creative ways.
->>
->> This includes potential huge mappings, but I'm not sure the rest of 
->> the
->> kernel uses them for devices anyway (I need to find out).
->>
->> > As a subsequent patch, I'd like to make sure that at the very 
->> least our
->> > memslot prepare function follows the exact same logic for mapping 
->> device
->> > memory as a fault-in approach does, or that we simply always fault 
->> pages
->> > in.
->>
->> As far as I can see, the two approach are now identical. Am I 
->> missing
->> something?
->> And yes, getting rid of the eager mapping works for me.
->>
->
-> As far as I can tell, our user_mem_abort() uses gfn_to_pfn_prot() 
-> which
-> goes doesn a long trail which ends up at hva_to_pfn_remapped(), which
-> might result in doing the same offset calculation that we do in
-> kvm_arch_prepare_memory_region(), but it also considers other 
-> scenarios.
->
-> Even if we analyze all that and convince oursleves it's always all 
-> the
-> same on arm64, the two code paths could change, leading to really 
-> hard
-> to debug differing behavior, and nobody will actively keep the two 
-> paths
-> in sync.  I'd be fine with keeping the performance optimization if we
-> have good grounds for that though, and using the same translation
-> mechanism for VM_PFNMAP as user_mem_abort.
->
-> Am I missing something?
+Since obj->frontbuffer is no longer protected by the struct_mutex, as we
+are processing the execbuf, it may be removed. Mark the
+intel_frontbuffer as rcu protected, and so acquire a reference to
+the struct as we track activity upon it.
 
-I'm not disputing any of the above. I'm only trying to keep this patch
-minimal so that we can easily backport it (although it is arguable that
-deleting code isn't that big a deal).
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/827
+Fixes: 8e7cb1799b4f ("drm/i915: Extract intel_frontbuffer active tracking")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+---
+ drivers/gpu/drm/i915/display/intel_display.c  |  2 +-
+ .../gpu/drm/i915/display/intel_frontbuffer.c  | 16 ++++-----
+ .../gpu/drm/i915/display/intel_frontbuffer.h  | 34 +++++++++++++++++--
+ drivers/gpu/drm/i915/display/intel_overlay.c  | 17 +++++++---
+ drivers/gpu/drm/i915/gem/i915_gem_clflush.c   |  3 +-
+ drivers/gpu/drm/i915/gem/i915_gem_domain.c    |  4 +--
+ drivers/gpu/drm/i915/gem/i915_gem_object.c    | 26 +++++++++++++-
+ drivers/gpu/drm/i915/gem/i915_gem_object.h    | 23 ++++++++++++-
+ .../gpu/drm/i915/gem/i915_gem_object_types.h  |  2 +-
+ drivers/gpu/drm/i915/i915_gem.c               | 10 +++---
+ drivers/gpu/drm/i915/i915_vma.c               | 10 ++++--
+ 11 files changed, 116 insertions(+), 31 deletions(-)
 
-[...]
-
->> > I can't seem to decide for myself if I think there's a sematic
->> > difference between trying to execute from somewhere the VMM has
->> > explicitly told us is device memory and from somewhere which we 
->> happen
->> > to have mapped with VM_PFNMAP from user space.  But I also can't 
->> seem to
->> > really fault it (pun intended).  Thoughts?
->>
->> The issue is that the VMM never really tells us whether something is 
->> a
->> device mapping or not (the only exception being the GICv2 cpuif). 
->> Even
->> with PFNMAP, we guess it (it could well be memory that lives outside
->> of the linear mapping). I don't see a way to lift this ambiguity.
->>
->> Ideally, faulting on executing a non-mapping should be offloaded to
->> userspace for emulation, in line with your patches that offload
->> non-emulated data accesses. That'd be a new ABI, and I can't imagine
->> anyone willing to deal with it.
->
-> So what I was asking was if it makes sense to report the Prefetch 
-> Abort
-> in the case where the VMM has already told us that it doesn't want to
-> register anything backing the IPA (no memslot), and instead return an
-> error to user space, so that it can make a decision (for example 
-> inject
-> an external abort, which may have been the right thing to do in the
-> former case as well, but that could be considered ABI now, so let's 
-> not
-> kick that hornet's nest).
->
-> In any case, no strong feelings here, I just have a vague feeling 
-> that
-> injecting more prefetch aborts on execute-from-some-device is not
-> necessarily the right thing to do.
-
-The ARMv8 ARM has the following stuff in B2.7.2 (Device Memory):
-
-<quote>
-Hardware does not prevent speculative instruction fetches from a memory 
-location with any of the Device
-memory attributes unless the memory location is also marked as 
-Execute-never for all Exception levels.
-
-Note
-
-This means that to prevent speculative instruction fetches from memory 
-locations with Device memory
-attributes, any location that is assigned any Device memory type must 
-also be marked as Execute-never for
-all Exception levels. Failure to mark a memory location with any Device 
-memory attribute as Execute-never
-for all Exception levels is a programming error.
-</quote>
-
-and
-
-<quote>
-For instruction fetches, if branches cause the program counter to point 
-to an area of memory with the Device
-attribute which is not marked as Execute-never for the current 
-Exception level, an implementation can either:
-
-- Treat the instruction fetch as if it were to a memory location with 
-the Normal Non-cacheable attribute.
-
-- Take a Permission fault.
-</quote>
-
-My reading here is that a prefetch abort is the right thing to do.
-What we don't do correctly is that we qualify it as an external abort
-instead of a permission fault (which is annoying as it requires us
-to find out about the S1 translation level).
-
-Happy to revisit this once we get a S1 PTW.
-
-         M.
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 64e4bfb0dfc9..e18ee1f17d6e 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -15186,7 +15186,7 @@ intel_prepare_plane_fb(struct drm_plane *plane,
+ 		return ret;
+ 
+ 	fb_obj_bump_render_priority(obj);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_DIRTYFB);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_DIRTYFB);
+ 
+ 	if (!new_plane_state->uapi.fence) { /* implicit fencing */
+ 		struct dma_fence *fence;
+diff --git a/drivers/gpu/drm/i915/display/intel_frontbuffer.c b/drivers/gpu/drm/i915/display/intel_frontbuffer.c
+index 84b164f31895..6cb02c912acc 100644
+--- a/drivers/gpu/drm/i915/display/intel_frontbuffer.c
++++ b/drivers/gpu/drm/i915/display/intel_frontbuffer.c
+@@ -229,11 +229,11 @@ static void frontbuffer_release(struct kref *ref)
+ 		vma->display_alignment = I915_GTT_MIN_ALIGNMENT;
+ 	spin_unlock(&obj->vma.lock);
+ 
+-	obj->frontbuffer = NULL;
++	RCU_INIT_POINTER(obj->frontbuffer, NULL);
+ 	spin_unlock(&to_i915(obj->base.dev)->fb_tracking.lock);
+ 
+ 	i915_gem_object_put(obj);
+-	kfree(front);
++	kfree_rcu(front, rcu);
+ }
+ 
+ struct intel_frontbuffer *
+@@ -242,11 +242,7 @@ intel_frontbuffer_get(struct drm_i915_gem_object *obj)
+ 	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+ 	struct intel_frontbuffer *front;
+ 
+-	spin_lock(&i915->fb_tracking.lock);
+-	front = obj->frontbuffer;
+-	if (front)
+-		kref_get(&front->ref);
+-	spin_unlock(&i915->fb_tracking.lock);
++	front = __intel_frontbuffer_get(obj);
+ 	if (front)
+ 		return front;
+ 
+@@ -262,13 +258,13 @@ intel_frontbuffer_get(struct drm_i915_gem_object *obj)
+ 			 i915_active_may_sleep(frontbuffer_retire));
+ 
+ 	spin_lock(&i915->fb_tracking.lock);
+-	if (obj->frontbuffer) {
++	if (rcu_access_pointer(obj->frontbuffer)) {
+ 		kfree(front);
+-		front = obj->frontbuffer;
++		front = rcu_dereference_protected(obj->frontbuffer, true);
+ 		kref_get(&front->ref);
+ 	} else {
+ 		i915_gem_object_get(obj);
+-		obj->frontbuffer = front;
++		rcu_assign_pointer(obj->frontbuffer, front);
+ 	}
+ 	spin_unlock(&i915->fb_tracking.lock);
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_frontbuffer.h b/drivers/gpu/drm/i915/display/intel_frontbuffer.h
+index adc64d61a4a5..ae4a1fff9f41 100644
+--- a/drivers/gpu/drm/i915/display/intel_frontbuffer.h
++++ b/drivers/gpu/drm/i915/display/intel_frontbuffer.h
+@@ -27,10 +27,10 @@
+ #include <linux/atomic.h>
+ #include <linux/kref.h>
+ 
++#include "gem/i915_gem_object_types.h"
+ #include "i915_active.h"
+ 
+ struct drm_i915_private;
+-struct drm_i915_gem_object;
+ 
+ enum fb_op_origin {
+ 	ORIGIN_GTT,
+@@ -45,6 +45,7 @@ struct intel_frontbuffer {
+ 	atomic_t bits;
+ 	struct i915_active write;
+ 	struct drm_i915_gem_object *obj;
++	struct rcu_head rcu;
+ };
+ 
+ void intel_frontbuffer_flip_prepare(struct drm_i915_private *i915,
+@@ -54,6 +55,35 @@ void intel_frontbuffer_flip_complete(struct drm_i915_private *i915,
+ void intel_frontbuffer_flip(struct drm_i915_private *i915,
+ 			    unsigned frontbuffer_bits);
+ 
++void intel_frontbuffer_put(struct intel_frontbuffer *front);
++
++static inline struct intel_frontbuffer *
++__intel_frontbuffer_get(const struct drm_i915_gem_object *obj)
++{
++	struct intel_frontbuffer *front;
++
++	if (likely(!rcu_access_pointer(obj->frontbuffer)))
++		return NULL;
++
++	rcu_read_lock();
++	do {
++		front = rcu_dereference(obj->frontbuffer);
++		if (!front)
++			break;
++
++		if (!kref_get_unless_zero(&front->ref))
++			continue;
++
++		if (front == rcu_access_pointer(obj->frontbuffer))
++			break;
++
++		intel_frontbuffer_put(front);
++	} while (1);
++	rcu_read_unlock();
++
++	return front;
++}
++
+ struct intel_frontbuffer *
+ intel_frontbuffer_get(struct drm_i915_gem_object *obj);
+ 
+@@ -119,6 +149,4 @@ void intel_frontbuffer_track(struct intel_frontbuffer *old,
+ 			     struct intel_frontbuffer *new,
+ 			     unsigned int frontbuffer_bits);
+ 
+-void intel_frontbuffer_put(struct intel_frontbuffer *front);
+-
+ #endif /* __INTEL_FRONTBUFFER_H__ */
+diff --git a/drivers/gpu/drm/i915/display/intel_overlay.c b/drivers/gpu/drm/i915/display/intel_overlay.c
+index 2a44b3be2600..6097594468a9 100644
+--- a/drivers/gpu/drm/i915/display/intel_overlay.c
++++ b/drivers/gpu/drm/i915/display/intel_overlay.c
+@@ -279,12 +279,21 @@ static void intel_overlay_flip_prepare(struct intel_overlay *overlay,
+ 				       struct i915_vma *vma)
+ {
+ 	enum pipe pipe = overlay->crtc->pipe;
++	struct intel_frontbuffer *from, *to;
+ 
+ 	WARN_ON(overlay->old_vma);
+ 
+-	intel_frontbuffer_track(overlay->vma ? overlay->vma->obj->frontbuffer : NULL,
+-				vma ? vma->obj->frontbuffer : NULL,
+-				INTEL_FRONTBUFFER_OVERLAY(pipe));
++	if (overlay->vma)
++		from = intel_frontbuffer_get(overlay->vma->obj);
++	if (vma)
++		to = intel_frontbuffer_get(vma->obj);
++
++	intel_frontbuffer_track(from, to, INTEL_FRONTBUFFER_OVERLAY(pipe));
++
++	if (to)
++		intel_frontbuffer_put(to);
++	if (from)
++		intel_frontbuffer_put(from);
+ 
+ 	intel_frontbuffer_flip_prepare(overlay->i915,
+ 				       INTEL_FRONTBUFFER_OVERLAY(pipe));
+@@ -764,7 +773,7 @@ static int intel_overlay_do_put_image(struct intel_overlay *overlay,
+ 		ret = PTR_ERR(vma);
+ 		goto out_pin_section;
+ 	}
+-	intel_frontbuffer_flush(new_bo->frontbuffer, ORIGIN_DIRTYFB);
++	i915_gem_object_flush_frontbuffer(new_bo, ORIGIN_DIRTYFB);
+ 
+ 	if (!overlay->active) {
+ 		u32 oconfig;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_clflush.c b/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
+index 5448efa77710..34be4c0ee7c5 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_clflush.c
+@@ -20,7 +20,8 @@ static void __do_clflush(struct drm_i915_gem_object *obj)
+ {
+ 	GEM_BUG_ON(!i915_gem_object_has_pages(obj));
+ 	drm_clflush_sg(obj->mm.pages);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ }
+ 
+ static int clflush_work(struct dma_fence_work *base)
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+index 65f1851e2863..0cc40e77bbd2 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+@@ -558,7 +558,7 @@ i915_gem_set_domain_ioctl(struct drm_device *dev, void *data,
+ 	i915_gem_object_unlock(obj);
+ 
+ 	if (write_domain)
+-		intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++		i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ out_unpin:
+ 	i915_gem_object_unpin_pages(obj);
+@@ -678,7 +678,7 @@ int i915_gem_object_prepare_write(struct drm_i915_gem_object *obj,
+ 	}
+ 
+ out:
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 	obj->mm.dirty = true;
+ 	/* return with the pages pinned */
+ 	return 0;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.c b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+index 16d611db9ca6..ddc82a7a34ff 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+@@ -313,7 +313,7 @@ i915_gem_object_flush_write_domain(struct drm_i915_gem_object *obj,
+ 		}
+ 		spin_unlock(&obj->vma.lock);
+ 
+-		intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++		i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 		break;
+ 
+ 	case I915_GEM_DOMAIN_WC:
+@@ -333,6 +333,30 @@ i915_gem_object_flush_write_domain(struct drm_i915_gem_object *obj,
+ 	obj->write_domain = 0;
+ }
+ 
++void __i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++					 enum fb_op_origin origin)
++{
++	struct intel_frontbuffer *front;
++
++	front = __intel_frontbuffer_get(obj);
++	if (front) {
++		intel_frontbuffer_flush(front, origin);
++		intel_frontbuffer_put(front);
++	}
++}
++
++void __i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++					      enum fb_op_origin origin)
++{
++	struct intel_frontbuffer *front;
++
++	front = __intel_frontbuffer_get(obj);
++	if (front) {
++		intel_frontbuffer_invalidate(front, origin);
++		intel_frontbuffer_put(front);
++	}
++}
++
+ void i915_gem_init__objects(struct drm_i915_private *i915)
+ {
+ 	INIT_WORK(&i915->mm.free_work, __i915_gem_free_work);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+index a1eb7c0b23ac..858f8bf49a04 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+@@ -13,8 +13,8 @@
+ 
+ #include <drm/i915_drm.h>
+ 
++#include "display/intel_frontbuffer.h"
+ #include "i915_gem_object_types.h"
+-
+ #include "i915_gem_gtt.h"
+ 
+ void i915_gem_init__objects(struct drm_i915_private *i915);
+@@ -471,4 +471,25 @@ int i915_gem_object_wait_priority(struct drm_i915_gem_object *obj,
+ 				  unsigned int flags,
+ 				  const struct i915_sched_attr *attr);
+ 
++void __i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++					 enum fb_op_origin origin);
++void __i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++					      enum fb_op_origin origin);
++
++static inline void
++i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
++				  enum fb_op_origin origin)
++{
++	if (unlikely(rcu_access_pointer(obj->frontbuffer)))
++		__i915_gem_object_flush_frontbuffer(obj, origin);
++}
++
++static inline void
++i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
++				       enum fb_op_origin origin)
++{
++	if (unlikely(rcu_access_pointer(obj->frontbuffer)))
++		__i915_gem_object_invalidate_frontbuffer(obj, origin);
++}
++
+ #endif
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+index 2d404e6f63df..88e268633fdc 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -173,7 +173,7 @@ struct drm_i915_gem_object {
+ 	 */
+ 	u16 write_domain;
+ 
+-	struct intel_frontbuffer *frontbuffer;
++	struct intel_frontbuffer __rcu *frontbuffer;
+ 
+ 	/** Current tiling stride for the object, if it's tiled. */
+ 	unsigned int tiling_and_stride;
+diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+index 0f9e1411a031..c643ad8be669 100644
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -202,7 +202,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
+ 	 * We manually control the domain here and pretend that it
+ 	 * remains coherent i.e. in the GTT domain, like shmem_pwrite.
+ 	 */
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	if (copy_from_user(vaddr, user_data, args->size))
+ 		return -EFAULT;
+@@ -210,7 +210,7 @@ i915_gem_phys_pwrite(struct drm_i915_gem_object *obj,
+ 	drm_clflush_virt_range(vaddr, args->size);
+ 	intel_gt_chipset_flush(&to_i915(obj->base.dev)->gt);
+ 
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 	return 0;
+ }
+ 
+@@ -630,7 +630,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
+ 		goto out_unpin;
+ 	}
+ 
+-	intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_invalidate_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	user_data = u64_to_user_ptr(args->data_ptr);
+ 	offset = args->offset;
+@@ -674,7 +674,7 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
+ 	}
+ 
+ 	intel_gt_flush_ggtt_writes(ggtt->vm.gt);
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 
+ 	i915_gem_object_unlock_fence(obj, fence);
+ out_unpin:
+@@ -763,7 +763,7 @@ i915_gem_shmem_pwrite(struct drm_i915_gem_object *obj,
+ 		offset = 0;
+ 	}
+ 
+-	intel_frontbuffer_flush(obj->frontbuffer, ORIGIN_CPU);
++	i915_gem_object_flush_frontbuffer(obj, ORIGIN_CPU);
+ 	i915_gem_object_unlock_fence(obj, fence);
+ 
+ 	return ret;
+diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
+index 878975b37a45..8df0bf85f800 100644
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -1148,8 +1148,14 @@ int i915_vma_move_to_active(struct i915_vma *vma,
+ 		return err;
+ 
+ 	if (flags & EXEC_OBJECT_WRITE) {
+-		if (intel_frontbuffer_invalidate(obj->frontbuffer, ORIGIN_CS))
+-			i915_active_add_request(&obj->frontbuffer->write, rq);
++		struct intel_frontbuffer *front;
++
++		front = __intel_frontbuffer_get(obj);
++		if (unlikely(front)) {
++			if (intel_frontbuffer_invalidate(front, ORIGIN_CS))
++				i915_active_add_request(&front->write, rq);
++			intel_frontbuffer_put(front);
++		}
+ 
+ 		dma_resv_add_excl_fence(vma->resv, &rq->fence);
+ 		obj->write_domain = I915_GEM_DOMAIN_RENDER;
 -- 
-Jazz is not dead. It just smells funny...
+2.24.0
+
