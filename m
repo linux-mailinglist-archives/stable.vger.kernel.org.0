@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77EDC1218DC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:47:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B8712173E
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728106AbfLPRzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:55:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
+        id S1729829AbfLPSHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:07:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727692AbfLPRzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:55:52 -0500
+        id S1730180AbfLPSHp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:07:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 819BA206B7;
-        Mon, 16 Dec 2019 17:55:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FE7F20700;
+        Mon, 16 Dec 2019 18:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518952;
-        bh=NEpL2CzNtWa8pl2T6jNiFSD8t5+OTKp74Cn9n98fZfI=;
+        s=default; t=1576519664;
+        bh=mg2DCLQ8QFo+1Hd5CR7rqVt1ibBM/8B3A2AtloUxIbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFqnsXnZ2530A01RG1eDCnHUmnAe6i9Y9LxjB6oxUyiurB4rNGmN2y32iCp2ayzoq
-         C0xgy3WgpmUQErWQiOp7lLNUjy/zoIpl9Mo3XsmDYuVWNmAX+7vnP+mrlO204p5MEN
-         GecQXNtrqM0xY0JWbCwGZs7Ybg2LbF1NqmEwr9qU=
+        b=G/p8yfaHeKpWiT29rIG68THUlgrkiNNy8zf5kTICWZ0AGr/moV26j/V2gnuxD6jhc
+         r7/9Mben0X7fzcn/xC4vIPYkLgBtf9C5bPSGo5HJjcW4AidBmO1P2FXGdnsgQZNHBZ
+         tHS/bE3ntFP7cURxHGRTEJlAZi0Ax2ZVKWBiLn0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 133/267] CIFS: Fix NULL-pointer dereference in smb2_push_mandatory_locks
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.3 019/180] staging: gigaset: add endpoint-type sanity check
 Date:   Mon, 16 Dec 2019 18:47:39 +0100
-Message-Id: <20191216174907.518224306@linuxfoundation.org>
+Message-Id: <20191216174810.567713865@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 6f582b273ec23332074d970a7fb25bef835df71f upstream.
+commit ed9ed5a89acba51b82bdff61144d4e4a4245ec8a upstream.
 
-Currently when the client creates a cifsFileInfo structure for
-a newly opened file, it allocates a list of byte-range locks
-with a pointer to the new cfile and attaches this list to the
-inode's lock list. The latter happens before initializing all
-other fields, e.g. cfile->tlink. Thus a partially initialized
-cifsFileInfo structure becomes available to other threads that
-walk through the inode's lock list. One example of such a thread
-may be an oplock break worker thread that tries to push all
-cached byte-range locks. This causes NULL-pointer dereference
-in smb2_push_mandatory_locks() when accessing cfile->tlink:
+Add missing endpoint-type sanity checks to probe.
 
-[598428.945633] BUG: kernel NULL pointer dereference, address: 0000000000000038
-...
-[598428.945749] Workqueue: cifsoplockd cifs_oplock_break [cifs]
-[598428.945793] RIP: 0010:smb2_push_mandatory_locks+0xd6/0x5a0 [cifs]
-...
-[598428.945834] Call Trace:
-[598428.945870]  ? cifs_revalidate_mapping+0x45/0x90 [cifs]
-[598428.945901]  cifs_oplock_break+0x13d/0x450 [cifs]
-[598428.945909]  process_one_work+0x1db/0x380
-[598428.945914]  worker_thread+0x4d/0x400
-[598428.945921]  kthread+0x104/0x140
-[598428.945925]  ? process_one_work+0x380/0x380
-[598428.945931]  ? kthread_park+0x80/0x80
-[598428.945937]  ret_from_fork+0x35/0x40
+This specifically prevents a warning in USB core on URB submission when
+fuzzing USB descriptors.
 
-Fix this by reordering initialization steps of the cifsFileInfo
-structure: initialize all the fields first and then add the new
-byte-range lock list to the inode's lock list.
-
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191202085610.12719-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/file.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/staging/isdn/gigaset/usb-gigaset.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -312,9 +312,6 @@ cifs_new_fileinfo(struct cifs_fid *fid,
- 	INIT_LIST_HEAD(&fdlocks->locks);
- 	fdlocks->cfile = cfile;
- 	cfile->llist = fdlocks;
--	cifs_down_write(&cinode->lock_sem);
--	list_add(&fdlocks->llist, &cinode->llist);
--	up_write(&cinode->lock_sem);
+--- a/drivers/staging/isdn/gigaset/usb-gigaset.c
++++ b/drivers/staging/isdn/gigaset/usb-gigaset.c
+@@ -705,6 +705,12 @@ static int gigaset_probe(struct usb_inte
  
- 	cfile->count = 1;
- 	cfile->pid = current->tgid;
-@@ -338,6 +335,10 @@ cifs_new_fileinfo(struct cifs_fid *fid,
- 		oplock = 0;
- 	}
+ 	endpoint = &hostif->endpoint[0].desc;
  
-+	cifs_down_write(&cinode->lock_sem);
-+	list_add(&fdlocks->llist, &cinode->llist);
-+	up_write(&cinode->lock_sem);
++	if (!usb_endpoint_is_bulk_out(endpoint)) {
++		dev_err(&interface->dev, "missing bulk-out endpoint\n");
++		retval = -ENODEV;
++		goto error;
++	}
 +
- 	spin_lock(&tcon->open_file_lock);
- 	if (fid->pending_open->oplock != CIFS_OPLOCK_NO_CHANGE && oplock)
- 		oplock = fid->pending_open->oplock;
+ 	buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
+ 	ucs->bulk_out_size = buffer_size;
+ 	ucs->bulk_out_epnum = usb_endpoint_num(endpoint);
+@@ -724,6 +730,12 @@ static int gigaset_probe(struct usb_inte
+ 
+ 	endpoint = &hostif->endpoint[1].desc;
+ 
++	if (!usb_endpoint_is_int_in(endpoint)) {
++		dev_err(&interface->dev, "missing int-in endpoint\n");
++		retval = -ENODEV;
++		goto error;
++	}
++
+ 	ucs->busy = 0;
+ 
+ 	ucs->read_urb = usb_alloc_urb(0, GFP_KERNEL);
 
 
