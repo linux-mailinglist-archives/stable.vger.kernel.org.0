@@ -2,103 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A751204D1
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 13:06:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE533120548
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 13:17:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727730AbfLPMGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 07:06:25 -0500
-Received: from foss.arm.com ([217.140.110.172]:52672 "EHLO foss.arm.com"
+        id S1727473AbfLPMQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 07:16:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727717AbfLPMGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 07:06:24 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AEF891045;
-        Mon, 16 Dec 2019 04:06:23 -0800 (PST)
-Received: from localhost (unknown [10.37.6.21])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2FEC93F719;
-        Mon, 16 Dec 2019 04:06:23 -0800 (PST)
-Date:   Mon, 16 Dec 2019 12:06:21 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Christophe Leroy <christophe.leroy@c-s.fr>
-Cc:     devicetree@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        stable@vger.kernel.org
-Subject: Applied "spi: fsl: use platform_get_irq() instead of of_irq_to_resource()" to the spi tree
-In-Reply-To: <091a277fd0b3356dca1e29858c1c96983fc9cb25.1576172743.git.christophe.leroy@c-s.fr>
-Message-Id: <applied-091a277fd0b3356dca1e29858c1c96983fc9cb25.1576172743.git.christophe.leroy@c-s.fr>
-X-Patchwork-Hint: ignore
+        id S1727316AbfLPMQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 07:16:57 -0500
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A8C3206CB;
+        Mon, 16 Dec 2019 12:16:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576498617;
+        bh=y3xrqwndnHqBmt8OZzbLzXuw772VMZ49R/W5r6PEWvE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=w67PQUfZe3869rj6TQCOzn3NQLjLbEmBaZAB2QQgE4KmK3kzuDSuXm5bYtSRc9Dmx
+         ve75LPFaZO2PfrlosWyX0XhcHp2QjPAKE2UqfLce6Pq+SfZup9QCOq8/b9vGsPd6Vl
+         01ynwYiYt5S1uNtIu15+fcYr0pCfrQgJgbhv0cxc=
+Date:   Mon, 16 Dec 2019 12:16:52 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
+        andreyknvl@google.com, gregkh@linuxfoundation.org,
+        akpm@linux-foundation.org,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Kostya Serebryany <kcc@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH RESEND RESEND] media: uvc: Avoid cyclic entity chains due
+ to malformed USB descriptors
+Message-ID: <20191216121651.GA12947@willie-the-truck>
+References: <20191108154838.21487-1-will@kernel.org>
+ <20191108155503.GB15731@pendragon.ideasonboard.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191108155503.GB15731@pendragon.ideasonboard.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+Hi Laurent,
 
-   spi: fsl: use platform_get_irq() instead of of_irq_to_resource()
+On Fri, Nov 08, 2019 at 05:55:03PM +0200, Laurent Pinchart wrote:
+> Thank you for the patch.
+> 
+> I'm sorry for the delay, and will have to ask you to be a bit more
+> patient I'm afraid. I will leave tomorrow for a week without computer
+> access and will only be able to go through my backlog when I will be
+> back on the 17th.
 
-has been applied to the spi tree at
+Gentle reminder on this, now you've been back a month ;)
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-5.5
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
-From 63aa6a692595d47a0785297b481072086b9272d2 Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Date: Thu, 12 Dec 2019 17:47:24 +0000
-Subject: [PATCH] spi: fsl: use platform_get_irq() instead of
- of_irq_to_resource()
-
-Unlike irq_of_parse_and_map() which has a dummy definition on SPARC,
-of_irq_to_resource() hasn't.
-
-But as platform_get_irq() can be used instead and is generic, use it.
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Suggested-by: Mark Brown <broonie@kernel.org>
-Fixes: 	3194d2533eff ("spi: fsl: don't map irq during probe")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Link: https://lore.kernel.org/r/091a277fd0b3356dca1e29858c1c96983fc9cb25.1576172743.git.christophe.leroy@c-s.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- drivers/spi/spi-fsl-spi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/spi/spi-fsl-spi.c b/drivers/spi/spi-fsl-spi.c
-index d0ad9709f4a6..fb4159ad6bf6 100644
---- a/drivers/spi/spi-fsl-spi.c
-+++ b/drivers/spi/spi-fsl-spi.c
-@@ -746,9 +746,9 @@ static int of_fsl_spi_probe(struct platform_device *ofdev)
- 	if (ret)
- 		goto err;
- 
--	irq = of_irq_to_resource(np, 0, NULL);
--	if (irq <= 0) {
--		ret = -EINVAL;
-+	irq = platform_get_irq(ofdev, 0);
-+	if (irq < 0) {
-+		ret = irq;
- 		goto err;
- 	}
- 
--- 
-2.20.1
-
+Will
