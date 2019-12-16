@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB801213A6
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B48121607
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:26:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729114AbfLPSDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40442 "EHLO mail.kernel.org"
+        id S1727121AbfLPS0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:26:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729522AbfLPSDe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:34 -0500
+        id S1730913AbfLPSRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:17:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCB0520733;
-        Mon, 16 Dec 2019 18:03:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D6DA207FF;
+        Mon, 16 Dec 2019 18:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519414;
-        bh=zr40ijXVMEOd8x6/Kipd24NfEl4lgp/N8U1A6J9z/vM=;
+        s=default; t=1576520232;
+        bh=vLGodRCGkCR1avik2p/FRYXEtMWNfbPeLSlc7nWweAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVp5f+tKESyqbN94VLOemAZoDz5HtyvT3VEiDJ9niEfmIjK66BFTqG04U/f6XYFTs
-         fpxXAGipiqWQ1muzQSOSqxmfGeqpPTcgFgzZLRZUdvMJhIcXCR+SgKTVg4ypdbfTPP
-         S/Asag+b/cDDS94J2154Cxif8R3J3aWlNBkghcvg=
+        b=ytpBGjEDhj9W+hT/8dviu8xw1WJEWgQtWA6a1XFOH3bEGWcEfTii34cKb2IvA+JPo
+         DTMiBZdkvqfKcHjkEiRXbF2L+krC7p0J6WXR42tObe/U6M55KLKqTxbvup8jVyBI/e
+         Suex9Iu63qRUlLyTzcy4v+FsHPcX9Uot7YwbY+zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawel Harlozinski <pawel.harlozinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 057/140] ASoC: Jack: Fix NULL pointer dereference in snd_soc_jack_report
-Date:   Mon, 16 Dec 2019 18:48:45 +0100
-Message-Id: <20191216174803.777135697@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 070/177] Btrfs: fix negative subv_writers counter and data space leak after buffered write
+Date:   Mon, 16 Dec 2019 18:48:46 +0100
+Message-Id: <20191216174834.879897578@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Harlozinski <pawel.harlozinski@linux.intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 8f157d4ff039e03e2ed4cb602eeed2fd4687a58f upstream.
+commit a0e248bb502d5165b3314ac3819e888fdcdf7d9f upstream.
 
-Check for existance of jack before tracing.
-NULL pointer dereference has been reported by KASAN while unloading
-machine driver (snd_soc_cnl_rt274).
+When doing a buffered write it's possible to leave the subv_writers
+counter of the root, used for synchronization between buffered nocow
+writers and snapshotting. This happens in an exceptional case like the
+following:
 
-Signed-off-by: Pawel Harlozinski <pawel.harlozinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20191112130237.10141-1-pawel.harlozinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+1) We fail to allocate data space for the write, since there's not
+   enough available data space nor enough unallocated space for allocating
+   a new data block group;
+
+2) Because of that failure, we try to go to NOCOW mode, which succeeds
+   and therefore we set the local variable 'only_release_metadata' to true
+   and set the root's sub_writers counter to 1 through the call to
+   btrfs_start_write_no_snapshotting() made by check_can_nocow();
+
+3) The call to btrfs_copy_from_user() returns zero, which is very unlikely
+   to happen but not impossible;
+
+4) No pages are copied because btrfs_copy_from_user() returned zero;
+
+5) We call btrfs_end_write_no_snapshotting() which decrements the root's
+   subv_writers counter to 0;
+
+6) We don't set 'only_release_metadata' back to 'false' because we do
+   it only if 'copied', the value returned by btrfs_copy_from_user(), is
+   greater than zero;
+
+7) On the next iteration of the while loop, which processes the same
+   page range, we are now able to allocate data space for the write (we
+   got enough data space released in the meanwhile);
+
+8) After this if we fail at btrfs_delalloc_reserve_metadata(), because
+   now there isn't enough free metadata space, or in some other place
+   further below (prepare_pages(), lock_and_cleanup_extent_if_need(),
+   btrfs_dirty_pages()), we break out of the while loop with
+   'only_release_metadata' having a value of 'true';
+
+9) Because 'only_release_metadata' is 'true' we end up decrementing the
+   root's subv_writers counter to -1 (through a call to
+   btrfs_end_write_no_snapshotting()), and we also end up not releasing the
+   data space previously reserved through btrfs_check_data_free_space().
+   As a consequence the mechanism for synchronizing NOCOW buffered writes
+   with snapshotting gets broken.
+
+Fix this by always setting 'only_release_metadata' to false at the start
+of each iteration.
+
+Fixes: 8257b2dc3c1a ("Btrfs: introduce btrfs_{start, end}_nocow_write() for each subvolume")
+Fixes: 7ee9e4405f26 ("Btrfs: check if we can nocow if we don't have data space")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-jack.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/btrfs/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/soc-jack.c
-+++ b/sound/soc/soc-jack.c
-@@ -100,10 +100,9 @@ void snd_soc_jack_report(struct snd_soc_
- 	unsigned int sync = 0;
- 	int enable;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1636,6 +1636,7 @@ static noinline ssize_t btrfs_buffered_w
+ 			break;
+ 		}
  
--	trace_snd_soc_jack_report(jack, mask, status);
--
- 	if (!jack)
- 		return;
-+	trace_snd_soc_jack_report(jack, mask, status);
++		only_release_metadata = false;
+ 		sector_offset = pos & (fs_info->sectorsize - 1);
+ 		reserve_bytes = round_up(write_bytes + sector_offset,
+ 				fs_info->sectorsize);
+@@ -1791,7 +1792,6 @@ again:
+ 			set_extent_bit(&BTRFS_I(inode)->io_tree, lockstart,
+ 				       lockend, EXTENT_NORESERVE, NULL,
+ 				       NULL, GFP_NOFS);
+-			only_release_metadata = false;
+ 		}
  
- 	dapm = &jack->card->dapm;
- 
+ 		btrfs_drop_pages(pages, num_pages);
 
 
