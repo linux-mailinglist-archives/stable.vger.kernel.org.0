@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDEB1218AF
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 633BB121810
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728552AbfLPR57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57368 "EHLO mail.kernel.org"
+        id S1728771AbfLPSBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:01:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728549AbfLPR56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:58 -0500
+        id S1728756AbfLPSBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:01:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED18E205ED;
-        Mon, 16 Dec 2019 17:57:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAEC620733;
+        Mon, 16 Dec 2019 18:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519078;
-        bh=2e8/UuLvJLNecZgC8ChFnpt7Ilo18ui9cPMWigdrHKs=;
+        s=default; t=1576519306;
+        bh=35yKDkiE8KL4FQ6IGuKiSvQsrdEoHklWw7BgukhTtfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHwyUURrJdSHNvH+nij4hUT84zieEIwCVNiS48B5zMh36TXXjIFq928SJ1Qr8CmgA
-         nMl1ySgXR6+8UIPZ0GdGmc2axFVroS5+YzvmNWYp3NwJAGOI0aL1YXU5ex4mSH6uvE
-         Y/x63fUzJ+iBp5RNDc/p+pDxAW1oeSZcJW56+ros=
+        b=jAAgM76/M3z/a5jS+zNbnFYuWuJFPo84D4ETugQu48rDU0O7PuE4stdOHSATtMIJP
+         c5+Bwx0ysM3gVuDsntj8mNiDndgWkcf6DQpIbKH0hD6U2Dp/A7rQAvZ19Gm8DVe+9K
+         rQf8nYaS+aP/Gkr6vTfN7UyqOCw6CEhgh+v8RA74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 146/267] crypto: ecdh - fix big endian bug in ECC library
-Date:   Mon, 16 Dec 2019 18:47:52 +0100
-Message-Id: <20191216174910.473333138@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 005/140] USB: uas: honor flag to avoid CAPACITY16
+Date:   Mon, 16 Dec 2019 18:47:53 +0100
+Message-Id: <20191216174749.658842089@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit f398243e9fd6a3a059c1ea7b380c40628dbf0c61 upstream.
+commit bff000cae1eec750d62e265c4ba2db9af57b17e1 upstream.
 
-The elliptic curve arithmetic library used by the EC-DH KPP implementation
-assumes big endian byte order, and unconditionally reverses the byte
-and word order of multi-limb quantities. On big endian systems, the byte
-reordering is not necessary, while the word ordering needs to be retained.
+Copy the support over from usb-storage to get feature parity
 
-So replace the __swab64() invocation with a call to be64_to_cpu() which
-should do the right thing for both little and big endian builds.
-
-Fixes: 3c4b23901a0c ("crypto: ecdh - Add ECDH software support")
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191114112758.32747-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/ecc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/storage/uas.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/crypto/ecc.c
-+++ b/crypto/ecc.c
-@@ -898,10 +898,11 @@ static void ecc_point_mult(struct ecc_po
- static inline void ecc_swap_digits(const u64 *in, u64 *out,
- 				   unsigned int ndigits)
- {
-+	const __be64 *src = (__force __be64 *)in;
- 	int i;
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -832,6 +832,10 @@ static int uas_slave_configure(struct sc
+ 		sdev->wce_default_on = 1;
+ 	}
  
- 	for (i = 0; i < ndigits; i++)
--		out[i] = __swab64(in[ndigits - 1 - i]);
-+		out[i] = be64_to_cpu(src[ndigits - 1 - i]);
- }
- 
- static int __ecc_is_key_valid(const struct ecc_curve *curve,
++	/* Some disks cannot handle READ_CAPACITY_16 */
++	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
++		sdev->no_read_capacity_16 = 1;
++
+ 	/*
+ 	 * Some disks return the total number of blocks in response
+ 	 * to READ CAPACITY rather than the highest block number.
 
 
