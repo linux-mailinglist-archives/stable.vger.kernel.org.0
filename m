@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C65EB1217E6
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D7E121898
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729489AbfLPSD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:03:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40132 "EHLO mail.kernel.org"
+        id S1728002AbfLPR4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:56:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729485AbfLPSDZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:03:25 -0500
+        id S1727908AbfLPR4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:56:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 015492072D;
-        Mon, 16 Dec 2019 18:03:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76007206B7;
+        Mon, 16 Dec 2019 17:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519404;
-        bh=/L3ZLsmnkEAzY4IF0kVxdx6uxvNTHirXKdj/uKXUDC0=;
+        s=default; t=1576519007;
+        bh=7v9Nt0umS3gM455BPNBm91enprq0zUj3UrK0FBst+OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUODlBDT+FNHgjHWBFo2++p/2qhIvxT6ilOEv//JsIR2YpDRde/Z6o2OJW27s/6G9
-         lco13sB0ZuKpaHt0PgdWwtS6MBx3ql26DVqImbtZoXY40OdTc4ojwoEmKjJonOp2L6
-         d437A57sj5ZMtSRoTBMo9MIjLESPOA8c56bBGqq8=
+        b=WqyDlvGC0mIbNCsGG/SBjzSDfDREAQxgSY76GMDKmuzNlB67TtqzThx/JO9i/IwYI
+         wBepGAsRiUmRknYCOxVdRZ5XQ8jCWTVLbAGK2175gKZDa7mOnItOaGurT6Ed/v8phd
+         OuThhuYoynOe7gICrS+qarHlim3pO5HJbvJBuNew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 015/140] xhci: Fix memory leak in xhci_add_in_port()
-Date:   Mon, 16 Dec 2019 18:48:03 +0100
-Message-Id: <20191216174754.580118549@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Nazarewicz <mina86@mina86.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH 4.14 158/267] usb: gadget: pch_udc: fix use after free
+Date:   Mon, 16 Dec 2019 18:48:04 +0100
+Message-Id: <20191216174911.161361692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit ce91f1a43b37463f517155bdfbd525eb43adbd1a upstream.
+commit 66d1b0c0580b7f1b1850ee4423f32ac42afa2e92 upstream.
 
-When xHCI is part of Alpine or Titan Ridge Thunderbolt controller and
-the xHCI device is hot-removed as a result of unplugging a dock for
-example, the driver leaks memory it allocates for xhci->usb3_rhub.psi
-and xhci->usb2_rhub.psi in xhci_add_in_port() as reported by kmemleak:
+Remove pointer dereference after free.
 
-unreferenced object 0xffff922c24ef42f0 (size 16):
-  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
-  hex dump (first 16 bytes):
-    21 00 0c 00 12 00 dc 05 23 00 e0 01 00 00 00 00  !.......#.......
-  backtrace:
-    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
-    [<0000000001b6d775>] xhci_init+0x7c/0x160
-    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
-    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
-    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
-    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
-    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
-    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
-    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
-    [<0000000070241068>] really_probe+0xf5/0x3c0
-    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
-    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
-    [<000000009ce45f69>] __device_attach+0xda/0x160
-    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
-    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
-    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
-unreferenced object 0xffff922c24ef3318 (size 8):
-  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
-  hex dump (first 8 bytes):
-    34 01 05 00 35 41 0a 00                          4...5A..
-  backtrace:
-    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
-    [<0000000001b6d775>] xhci_init+0x7c/0x160
-    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
-    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
-    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
-    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
-    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
-    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
-    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
-    [<0000000070241068>] really_probe+0xf5/0x3c0
-    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
-    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
-    [<000000009ce45f69>] __device_attach+0xda/0x160
-    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
-    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
-    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+pci_pool_free doesn't care about contents of td.
+It's just a void* for it
 
-Fix this by calling kfree() for the both psi objects in
-xhci_mem_cleanup().
-
-Cc: <stable@vger.kernel.org> # 4.4+
-Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-2-mathias.nyman@linux.intel.com
+Addresses-Coverity-ID: 1091173 ("Use after free")
+Cc: stable@vger.kernel.org
+Acked-by: Michal Nazarewicz <mina86@mina86.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Link: https://lore.kernel.org/r/20191106202821.GA20347@embeddedor
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-mem.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/gadget/udc/pch_udc.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -1909,13 +1909,17 @@ no_bw:
- 	xhci->usb3_rhub.num_ports = 0;
- 	xhci->num_active_eps = 0;
- 	kfree(xhci->usb2_rhub.ports);
-+	kfree(xhci->usb2_rhub.psi);
- 	kfree(xhci->usb3_rhub.ports);
-+	kfree(xhci->usb3_rhub.psi);
- 	kfree(xhci->hw_ports);
- 	kfree(xhci->rh_bw);
- 	kfree(xhci->ext_caps);
- 
- 	xhci->usb2_rhub.ports = NULL;
-+	xhci->usb2_rhub.psi = NULL;
- 	xhci->usb3_rhub.ports = NULL;
-+	xhci->usb3_rhub.psi = NULL;
- 	xhci->hw_ports = NULL;
- 	xhci->rh_bw = NULL;
- 	xhci->ext_caps = NULL;
+--- a/drivers/usb/gadget/udc/pch_udc.c
++++ b/drivers/usb/gadget/udc/pch_udc.c
+@@ -1523,7 +1523,6 @@ static void pch_udc_free_dma_chain(struc
+ 		td = phys_to_virt(addr);
+ 		addr2 = (dma_addr_t)td->next;
+ 		dma_pool_free(dev->data_requests, td, addr);
+-		td->next = 0x00;
+ 		addr = addr2;
+ 	}
+ 	req->chain_len = 1;
 
 
