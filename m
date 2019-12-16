@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61BE6121870
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D88AB1217CF
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:39:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728716AbfLPR7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:59:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59874 "EHLO mail.kernel.org"
+        id S1729658AbfLPSiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:38:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728181AbfLPR7O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:59:14 -0500
+        id S1729223AbfLPSET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44ED221582;
-        Mon, 16 Dec 2019 17:59:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF83A20700;
+        Mon, 16 Dec 2019 18:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519153;
-        bh=2JwDM7TaPeUxhQ0KNFjZ43IsJOHsVpWhexDGziKV0Ug=;
+        s=default; t=1576519458;
+        bh=Au99viy+X18pYsQ1rPzRNBgVSzZlFq3Aj87KG1CsGg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGlZOQvJetKflbwAK8hr3OxFcs6F56wWurq3NykBgZY9kY0I1QOvsfdBGSAMqaaVv
-         Syb3Xj7TCawnR7Dm1fCU9sHOfXKy6o/aYTVLxsI/MaSYa5EYbeiBw/tA9zk6h1sjjq
-         hoSdwc1euwBJtxr22Iqw9ogKdxVLBKfuUKuCXmQk=
+        b=jMnuJ29ir/K3B845w8I/866ISRTQtlNvu27PHwik6XVSmqfv3Fl46DQDBVqfFkm6V
+         bK4E9An+2CMvo7barRbrB+5Gsdx+OiM3Lc+I+YfVMU4nw6KcQimUEKyUWyQsGV9ON6
+         ozCEy29r4SfQ82RiHqDGXv0GiTrmzOIMmvgjTN1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 216/267] cpufreq: powernv: fix stack bloat and hard limit on number of CPUs
+Subject: [PATCH 4.19 074/140] ACPI: OSL: only free map once in osl.c
 Date:   Mon, 16 Dec 2019 18:49:02 +0100
-Message-Id: <20191216174914.391297366@linuxfoundation.org>
+Message-Id: <20191216174807.473825782@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-commit db0d32d84031188443e25edbd50a71a6e7ac5d1d upstream.
+commit 833a426cc471b6088011b3d67f1dc4e147614647 upstream.
 
-The following build warning occurred on powerpc 64-bit builds:
+acpi_os_map_cleanup checks map->refcount outside of acpi_ioremap_lock
+before freeing the map. This creates a race condition the can result
+in the map being freed more than once.
+A panic can be caused by running
 
-drivers/cpufreq/powernv-cpufreq.c: In function 'init_chip_info':
-drivers/cpufreq/powernv-cpufreq.c:1070:1: warning: the frame size of
-1040 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+for ((i=0; i<10; i++))
+do
+        for ((j=0; j<100000; j++))
+        do
+                cat /sys/firmware/acpi/tables/data/BERT >/dev/null
+        done &
+done
 
-This is with a cross-compiler based on gcc 8.1.0, which I got from:
-  https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/8.1.0/
+This patch makes sure that only the process that drops the reference
+to 0 does the freeing.
 
-The warning is due to putting 1024 bytes on the stack:
-
-    unsigned int chip[256];
-
-...and it's also undesirable to have a hard limit on the number of
-CPUs here.
-
-Fix both problems by dynamically allocating based on num_possible_cpus,
-as recommended by Michael Ellerman.
-
-Fixes: 053819e0bf840 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Fixes: b7c1fadd6c2e ("ACPI: Do not use krefs under a mutex in osl.c")
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Reviewed-by: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: All applicable <stable@vger.kernel.org>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/powernv-cpufreq.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/acpi/osl.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -1002,9 +1002,14 @@ static struct cpufreq_driver powernv_cpu
+--- a/drivers/acpi/osl.c
++++ b/drivers/acpi/osl.c
+@@ -374,19 +374,21 @@ void *__ref acpi_os_map_memory(acpi_phys
+ }
+ EXPORT_SYMBOL_GPL(acpi_os_map_memory);
  
- static int init_chip_info(void)
+-static void acpi_os_drop_map_ref(struct acpi_ioremap *map)
++/* Must be called with mutex_lock(&acpi_ioremap_lock) */
++static unsigned long acpi_os_drop_map_ref(struct acpi_ioremap *map)
  {
--	unsigned int chip[256];
-+	unsigned int *chip;
- 	unsigned int cpu, i;
- 	unsigned int prev_chip_id = UINT_MAX;
-+	int ret = 0;
+-	if (!--map->refcount)
++	unsigned long refcount = --map->refcount;
 +
-+	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
-+	if (!chip)
-+		return -ENOMEM;
- 
- 	for_each_possible_cpu(cpu) {
- 		unsigned int id = cpu_to_chip_id(cpu);
-@@ -1016,8 +1021,10 @@ static int init_chip_info(void)
- 	}
- 
- 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
--	if (!chips)
--		return -ENOMEM;
-+	if (!chips) {
-+		ret = -ENOMEM;
-+		goto free_and_return;
-+	}
- 
- 	for (i = 0; i < nr_chips; i++) {
- 		chips[i].id = chip[i];
-@@ -1027,7 +1034,9 @@ static int init_chip_info(void)
- 			per_cpu(chip_info, cpu) =  &chips[i];
- 	}
- 
--	return 0;
-+free_and_return:
-+	kfree(chip);
-+	return ret;
++	if (!refcount)
+ 		list_del_rcu(&map->list);
++	return refcount;
  }
  
- static inline void clean_chip_info(void)
+ static void acpi_os_map_cleanup(struct acpi_ioremap *map)
+ {
+-	if (!map->refcount) {
+-		synchronize_rcu_expedited();
+-		acpi_unmap(map->phys, map->virt);
+-		kfree(map);
+-	}
++	synchronize_rcu_expedited();
++	acpi_unmap(map->phys, map->virt);
++	kfree(map);
+ }
+ 
+ /**
+@@ -406,6 +408,7 @@ static void acpi_os_map_cleanup(struct a
+ void __ref acpi_os_unmap_iomem(void __iomem *virt, acpi_size size)
+ {
+ 	struct acpi_ioremap *map;
++	unsigned long refcount;
+ 
+ 	if (!acpi_permanent_mmap) {
+ 		__acpi_unmap_table(virt, size);
+@@ -419,10 +422,11 @@ void __ref acpi_os_unmap_iomem(void __io
+ 		WARN(true, PREFIX "%s: bad address %p\n", __func__, virt);
+ 		return;
+ 	}
+-	acpi_os_drop_map_ref(map);
++	refcount = acpi_os_drop_map_ref(map);
+ 	mutex_unlock(&acpi_ioremap_lock);
+ 
+-	acpi_os_map_cleanup(map);
++	if (!refcount)
++		acpi_os_map_cleanup(map);
+ }
+ EXPORT_SYMBOL_GPL(acpi_os_unmap_iomem);
+ 
+@@ -457,6 +461,7 @@ void acpi_os_unmap_generic_address(struc
+ {
+ 	u64 addr;
+ 	struct acpi_ioremap *map;
++	unsigned long refcount;
+ 
+ 	if (gas->space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY)
+ 		return;
+@@ -472,10 +477,11 @@ void acpi_os_unmap_generic_address(struc
+ 		mutex_unlock(&acpi_ioremap_lock);
+ 		return;
+ 	}
+-	acpi_os_drop_map_ref(map);
++	refcount = acpi_os_drop_map_ref(map);
+ 	mutex_unlock(&acpi_ioremap_lock);
+ 
+-	acpi_os_map_cleanup(map);
++	if (!refcount)
++		acpi_os_map_cleanup(map);
+ }
+ EXPORT_SYMBOL(acpi_os_unmap_generic_address);
+ 
 
 
