@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F0EB121366
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F3B1214A6
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729112AbfLPSBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:01:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36186 "EHLO mail.kernel.org"
+        id S1730719AbfLPSNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:13:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727351AbfLPSBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:01:18 -0500
+        id S1731082AbfLPSNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:13:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB6CE20CC7;
-        Mon, 16 Dec 2019 18:01:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C392D207FF;
+        Mon, 16 Dec 2019 18:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519277;
-        bh=NhTUkNUnWlUw5sRGxbnm9ErpzftSp+1qbWU5OtIbVwg=;
+        s=default; t=1576519996;
+        bh=GPmgw5NZ3Wo99UcsvM0MofrYXw6eZWUQgcBxGmh+Jp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aaDrEdYsK4xYuW87ra74wbykAyJRtctZYbRvPE6A2/M7yOBbDEPq3Z5n0UDiWJyPw
-         6qtakkCHZtNYJ42Fnm0w46JA0/8ZxsB2sWnhzmoP26s8Tj4alfDyptnCkdZVtRwEIZ
-         kD1gcfLMikfheMGILAu5FHKrYjQHe/q93bjiD9Nc=
+        b=doh11DFFG6bcbfyUKDV9mBhllnIpEJM773L5UWFCvUkumLSpFNAnQYEt0LDzmR8cY
+         taamyFwPqH0s+THNhCiZDts8kX2yIpQ8ZkQlkCeUC4dk1fH3/761hZ+p8a8/DYR3WP
+         NCricn9vLBlim7KhIFwQdKLQ+wz0eIB5pIYUS6EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 267/267] mm/memory.c: fix a huge pud insertion race during faulting
+Subject: [PATCH 5.3 153/180] scsi: qla2xxx: Fix driver reload for ISP82xx
 Date:   Mon, 16 Dec 2019 18:49:53 +0100
-Message-Id: <20191216174917.502311675@linuxfoundation.org>
+Message-Id: <20191216174844.448888662@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,110 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: Himanshu Madhani <hmadhani@marvell.com>
 
-[ Upstream commit 3e0a2ff638b34f322eb170b1ae4515f61cfe3b14 ]
+[ Upstream commit 32a13df21668b92f70f0673387f29251e0f285ec ]
 
-[ Upstream commit 625110b5e9dae9074d8a7e67dd07f821a053eed7 ]
+HINT_MBX_INT_PENDING is not guaranteed to be cleared by firmware. Remove
+check that prevent driver load with ISP82XX.
 
-A huge pud page can theoretically be faulted in racing with pmd_alloc()
-in __handle_mm_fault().  That will lead to pmd_alloc() returning an
-invalid pmd pointer.
-
-Fix this by adding a pud_trans_unstable() function similar to
-pmd_trans_unstable() and check whether the pud is really stable before
-using the pmd pointer.
-
-Race:
-  Thread 1:             Thread 2:                 Comment
-  create_huge_pud()                               Fallback - not taken.
-                        create_huge_pud()         Taken.
-  pmd_alloc()                                     Returns an invalid pointer.
-
-This will result in user-visible huge page data corruption.
-
-Note that this was caught during a code audit rather than a real
-experienced problem.  It looks to me like the only implementation that
-currently creates huge pud pagetable entries is dev_dax_huge_fault()
-which doesn't appear to care much about private (COW) mappings or
-write-tracking which is, I believe, a prerequisite for create_huge_pud()
-falling back on thread 1, but not in thread 2.
-
-Link: http://lkml.kernel.org/r/20191115115808.21181-2-thomas_os@shipmail.org
-Fixes: a00cc7d9dd93 ("mm, x86: add support for PUD-sized transparent hugepages")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Link: https://lore.kernel.org/r/20190830222402.23688-4-hmadhani@marvell.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/pgtable.h | 25 +++++++++++++++++++++++++
- mm/memory.c                   |  6 ++++++
- 2 files changed, 31 insertions(+)
+ drivers/scsi/qla2xxx/qla_mbx.c | 16 ++--------------
+ drivers/scsi/qla2xxx/qla_nx.c  |  3 ++-
+ 2 files changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
-index 0c21014a38f23..876826240dead 100644
---- a/include/asm-generic/pgtable.h
-+++ b/include/asm-generic/pgtable.h
-@@ -846,6 +846,31 @@ static inline int pud_trans_huge(pud_t pud)
- }
- #endif
+diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
+index ac4640f456786..45548628c6f3e 100644
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -253,21 +253,9 @@ qla2x00_mailbox_command(scsi_qla_host_t *vha, mbx_cmd_t *mcp)
+ 	if ((!abort_active && io_lock_on) || IS_NOPOLLING_TYPE(ha)) {
+ 		set_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
  
-+/* See pmd_none_or_trans_huge_or_clear_bad for discussion. */
-+static inline int pud_none_or_trans_huge_or_dev_or_clear_bad(pud_t *pud)
-+{
-+	pud_t pudval = READ_ONCE(*pud);
-+
-+	if (pud_none(pudval) || pud_trans_huge(pudval) || pud_devmap(pudval))
-+		return 1;
-+	if (unlikely(pud_bad(pudval))) {
-+		pud_clear_bad(pud);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+/* See pmd_trans_unstable for discussion. */
-+static inline int pud_trans_unstable(pud_t *pud)
-+{
-+#if defined(CONFIG_TRANSPARENT_HUGEPAGE) &&			\
-+	defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)
-+	return pud_none_or_trans_huge_or_dev_or_clear_bad(pud);
-+#else
-+	return 0;
-+#endif
-+}
-+
- #ifndef pmd_read_atomic
- static inline pmd_t pmd_read_atomic(pmd_t *pmdp)
+-		if (IS_P3P_TYPE(ha)) {
+-			if (RD_REG_DWORD(&reg->isp82.hint) &
+-				HINT_MBX_INT_PENDING) {
+-				ha->flags.mbox_busy = 0;
+-				spin_unlock_irqrestore(&ha->hardware_lock,
+-					flags);
+-
+-				atomic_dec(&ha->num_pend_mbx_stage2);
+-				ql_dbg(ql_dbg_mbx, vha, 0x1010,
+-				    "Pending mailbox timeout, exiting.\n");
+-				rval = QLA_FUNCTION_TIMEOUT;
+-				goto premature_exit;
+-			}
++		if (IS_P3P_TYPE(ha))
+ 			WRT_REG_DWORD(&reg->isp82.hint, HINT_MBX_INT_PENDING);
+-		} else if (IS_FWI2_CAPABLE(ha))
++		else if (IS_FWI2_CAPABLE(ha))
+ 			WRT_REG_DWORD(&reg->isp24.hccr, HCCRX_SET_HOST_INT);
+ 		else
+ 			WRT_REG_WORD(&reg->isp.hccr, HCCR_SET_HOST_INT);
+diff --git a/drivers/scsi/qla2xxx/qla_nx.c b/drivers/scsi/qla2xxx/qla_nx.c
+index 6ce0f026debb1..3a23827e0f0bc 100644
+--- a/drivers/scsi/qla2xxx/qla_nx.c
++++ b/drivers/scsi/qla2xxx/qla_nx.c
+@@ -2287,7 +2287,8 @@ qla82xx_disable_intrs(struct qla_hw_data *ha)
  {
-diff --git a/mm/memory.c b/mm/memory.c
-index 24963eee4fb03..174252bd87df8 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4054,6 +4054,7 @@ static int __handle_mm_fault(struct vm_area_struct *vma, unsigned long address,
- 	vmf.pud = pud_alloc(mm, p4d, address);
- 	if (!vmf.pud)
- 		return VM_FAULT_OOM;
-+retry_pud:
- 	if (pud_none(*vmf.pud) && __transparent_hugepage_enabled(vma)) {
- 		ret = create_huge_pud(&vmf);
- 		if (!(ret & VM_FAULT_FALLBACK))
-@@ -4080,6 +4081,11 @@ static int __handle_mm_fault(struct vm_area_struct *vma, unsigned long address,
- 	vmf.pmd = pmd_alloc(mm, vmf.pud, address);
- 	if (!vmf.pmd)
- 		return VM_FAULT_OOM;
-+
-+	/* Huge pud page fault raced with pmd_alloc? */
-+	if (pud_trans_unstable(vmf.pud))
-+		goto retry_pud;
-+
- 	if (pmd_none(*vmf.pmd) && __transparent_hugepage_enabled(vma)) {
- 		ret = create_huge_pmd(&vmf);
- 		if (!(ret & VM_FAULT_FALLBACK))
+ 	scsi_qla_host_t *vha = pci_get_drvdata(ha->pdev);
+ 
+-	qla82xx_mbx_intr_disable(vha);
++	if (ha->interrupts_on)
++		qla82xx_mbx_intr_disable(vha);
+ 
+ 	spin_lock_irq(&ha->hardware_lock);
+ 	if (IS_QLA8044(ha))
 -- 
 2.20.1
 
