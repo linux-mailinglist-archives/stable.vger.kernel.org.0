@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 457811217C1
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5581E1217BD
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729713AbfLPSEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:04:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42410 "EHLO mail.kernel.org"
+        id S1729483AbfLPSiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:38:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729727AbfLPSEu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:04:50 -0500
+        id S1729368AbfLPSEz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7399A20726;
-        Mon, 16 Dec 2019 18:04:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 501002072D;
+        Mon, 16 Dec 2019 18:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519489;
-        bh=Z8anMrWmTZjHIUgn0N7JaWIaabcZ42ch5MZ7XopHJD4=;
+        s=default; t=1576519494;
+        bh=140WJj6EyLddBXjufsKxRaq1jtOvqlNrf61LR1W3RG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQm4ijOTlAR+mOxQvuoVYB1uxCPDkucE2NGv9ybL9YF5T+fOBYWvrlCDt4K6dxT3E
-         2/R93JYFnp2HCwC1w3hATc5AcNeUFWVgOIUHwl/U62E+XTd02a8q98OtrM1mj1s+3y
-         x8Ajh53edFsx83JjgakS9A9VbvteXBJ5fBMQE1wM=
+        b=cbO4/E4Gpzg9RONqQzOl6ngNuWFoVyzQOfB0iDhWcFNOwP8dZuWCNQMRaGNDCgJVG
+         Dpj+D6PmiPawzFCfy3PRp8ov+xq6RLqSDJW0Jt2FrfyY+DCl67ufx+2FkzAluBHpTL
+         yj+xxPJsYBUWQ3+nIvRkFXfNSBsOhD99h2PdAS5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alastair DSilva <alastair@d-silva.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Greg Kurz <groug@kaod.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 086/140] powerpc: Allow 64bit VDSO __kernel_sync_dicache to work across ranges >4GB
-Date:   Mon, 16 Dec 2019 18:49:14 +0100
-Message-Id: <20191216174810.645222091@linuxfoundation.org>
+Subject: [PATCH 4.19 087/140] powerpc/xive: Prevent page fault issues in the machine crash handler
+Date:   Mon, 16 Dec 2019 18:49:15 +0100
+Message-Id: <20191216174810.764407091@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
 References: <20191216174747.111154704@linuxfoundation.org>
@@ -43,46 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alastair D'Silva <alastair@d-silva.org>
+From: Cédric Le Goater <clg@kaod.org>
 
-commit f9ec11165301982585e5e5f606739b5bae5331f3 upstream.
+commit 1ca3dec2b2dff9d286ce6cd64108bda0e98f9710 upstream.
 
-When calling __kernel_sync_dicache with a size >4GB, we were masking
-off the upper 32 bits, so we would incorrectly flush a range smaller
-than intended.
+When the machine crash handler is invoked, all interrupts are masked
+but interrupts which have not been started yet do not have an ESB page
+mapped in the Linux address space. This crashes the 'crash kexec'
+sequence on sPAPR guests.
 
-This patch replaces the 32 bit shifts with 64 bit ones, so that
-the full size is accounted for.
+To fix, force the mapping of the ESB page when an interrupt is being
+mapped in the Linux IRQ number space. This is done by setting the
+initial state of the interrupt to OFF which is not necessarily the
+case on PowerNV.
 
-Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
-Cc: stable@vger.kernel.org
+Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE interrupt controller")
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Reviewed-by: Greg Kurz <groug@kaod.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191104023305.9581-3-alastair@au1.ibm.com
+Link: https://lore.kernel.org/r/20191031063100.3864-1-clg@kaod.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/vdso64/cacheflush.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/sysdev/xive/common.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/arch/powerpc/kernel/vdso64/cacheflush.S
-+++ b/arch/powerpc/kernel/vdso64/cacheflush.S
-@@ -39,7 +39,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5		/* ensure we get enough */
- 	lwz	r9,CFG_DCACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
-@@ -56,7 +56,7 @@ V_FUNCTION_BEGIN(__kernel_sync_dicache)
- 	subf	r8,r6,r4		/* compute length */
- 	add	r8,r8,r5
- 	lwz	r9,CFG_ICACHE_LOGBLOCKSZ(r10)
--	srw.	r8,r8,r9		/* compute line count */
-+	srd.	r8,r8,r9		/* compute line count */
- 	crclr	cr0*4+so
- 	beqlr				/* nothing to do? */
- 	mtctr	r8
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -968,6 +968,15 @@ static int xive_irq_alloc_data(unsigned
+ 	xd->target = XIVE_INVALID_TARGET;
+ 	irq_set_handler_data(virq, xd);
+ 
++	/*
++	 * Turn OFF by default the interrupt being mapped. A side
++	 * effect of this check is the mapping the ESB page of the
++	 * interrupt in the Linux address space. This prevents page
++	 * fault issues in the crash handler which masks all
++	 * interrupts.
++	 */
++	xive_esb_read(xd, XIVE_ESB_SET_PQ_01);
++
+ 	return 0;
+ }
+ 
 
 
