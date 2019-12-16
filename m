@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 353F5121441
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:09:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A73121394
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:03:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730515AbfLPSJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:09:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52512 "EHLO mail.kernel.org"
+        id S1729434AbfLPSDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:03:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730500AbfLPSJw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:09:52 -0500
+        id S1729195AbfLPSDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9F5C206B7;
-        Mon, 16 Dec 2019 18:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56692207FF;
+        Mon, 16 Dec 2019 18:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519791;
-        bh=+acM6/3oFbKzz7oCcG64SWWaZNc21NPB0mvTRhzs49c=;
+        s=default; t=1576519379;
+        bh=ifH8X5vkN/6z3kuCQ1cHLW7FJruu9svUDegwE67t3VU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPO1IPaCJrNBAQAVY1SvC0kV0Sv4lzQo+kQ1m+fVuSDXT2B4dDB8JojoSgI2549xm
-         1yV22tazXDorZxlpGE3JWrzYplJFN99eYWDjsHI4BDVMMFMoAvT31CSaVd3xsjNxic
-         EU+ytxBmz85oJsU62u9ZVixbNZmSRMlMiqRzm9cw=
+        b=etp/XYjvG9XyApXbq/30f7X3cf9LAZtgv0a/0C22LIQUhS5cjonUR8mL+7GxYyNCt
+         GkbubOPHoKn2iV+hYU9ljidZglqnLjL5pEU6mAVL21xD/NAiLKclUgXE4RnwJ0KNKM
+         D4dnPNuFyBz4c+XkJPprhS8GzsuXcDXduIV6e560=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.3 068/180] ovl: fix corner case of non-unique st_dev;st_ino
-Date:   Mon, 16 Dec 2019 18:48:28 +0100
-Message-Id: <20191216174830.044230419@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 041/140] btrfs: Remove btrfs_bio::flags member
+Date:   Mon, 16 Dec 2019 18:48:29 +0100
+Message-Id: <20191216174800.009954528@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 9c6d8f13e9da10a26ad7f0a020ef86e8ef142835 upstream.
+commit 34b127aecd4fe8e6a3903e10f204a7b7ffddca22 upstream.
 
-On non-samefs overlay without xino, non pure upper inodes should use a
-pseudo_dev assigned to each unique lower fs and pure upper inodes use the
-real upper st_dev.
+The last user of btrfs_bio::flags was removed in commit 326e1dbb5736
+("block: remove management of bi_remaining when restoring original
+bi_end_io"), remove it.
 
-It is fine for an overlay pure upper inode to use the same st_dev;st_ino
-values as the real upper inode, because the content of those two different
-filesystem objects is always the same.
+(Tagged for stable as the structure is heavily used and space savings
+are desirable.)
 
-In this case, however:
- - two filesystems, A and B
- - upper layer is on A
- - lower layer 1 is also on A
- - lower layer 2 is on B
-
-Non pure upper overlay inode, whose origin is in layer 1 will have the same
-st_dev;st_ino values as the real lower inode. This may result with a false
-positive results of 'diff' between the real lower and copied up overlay
-inode.
-
-Fix this by using the upper st_dev;st_ino values in this case.  This breaks
-the property of constant st_dev;st_ino across copy up of this case. This
-breakage will be fixed by a later patch.
-
-Fixes: 5148626b806a ("ovl: allocate anon bdev per unique lower fs")
-Cc: stable@vger.kernel.org # v4.17+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/inode.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/btrfs/volumes.h |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -200,8 +200,14 @@ int ovl_getattr(const struct path *path,
- 			if (ovl_test_flag(OVL_INDEX, d_inode(dentry)) ||
- 			    (!ovl_verify_lower(dentry->d_sb) &&
- 			     (is_dir || lowerstat.nlink == 1))) {
--				stat->ino = lowerstat.ino;
- 				lower_layer = ovl_layer_lower(dentry);
-+				/*
-+				 * Cannot use origin st_dev;st_ino because
-+				 * origin inode content may differ from overlay
-+				 * inode content.
-+				 */
-+				if (samefs || lower_layer->fsid)
-+					stat->ino = lowerstat.ino;
- 			}
- 
- 			/*
+--- a/fs/btrfs/volumes.h
++++ b/fs/btrfs/volumes.h
+@@ -304,7 +304,6 @@ struct btrfs_bio {
+ 	u64 map_type; /* get from map_lookup->type */
+ 	bio_end_io_t *end_io;
+ 	struct bio *orig_bio;
+-	unsigned long flags;
+ 	void *private;
+ 	atomic_t error;
+ 	int max_errors;
 
 
