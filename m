@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB16B12186F
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:44:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 082C71216C7
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbfLPR7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:59:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59776 "EHLO mail.kernel.org"
+        id S1728929AbfLPSbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:31:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728547AbfLPR7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:59:11 -0500
+        id S1730723AbfLPSLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D40FD205ED;
-        Mon, 16 Dec 2019 17:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E318206B7;
+        Mon, 16 Dec 2019 18:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519151;
-        bh=rf2JFvwPekkwXf59/gAHINLFJXaZsk3nYBMj1lVaYFE=;
+        s=default; t=1576519866;
+        bh=vp9h9sH+3jUCNoXaY9XmcYdycZ30TI2SG5ijrITR6Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4MzAmS0FGAUO+Pf+FiG+YsczCCgpDyXE4sSBF+F60Titm7ageMbSdsse/rIWb+kG
-         3SAeeyP+V0kxjd/69FA590dpYp27evjKrqS1SZY827rxdektRNJYyyxtpm0NvYc4Tw
-         knfuQ9Hxyr5Uf4LSh+AIDQioP/Xa8nx82HOxuqko=
+        b=hKgg9g/ES5aXOcKdv1Vg3j+2B2FVzL9toQZpfRboxsGjlEnfmRiGV/8RYPgyei/xf
+         Q2QBWQdtKR7wCslaSB9CDfLKj2T0lWYfzdG6HYiXgpeQZh+ERia3feGffWfiR/hN1y
+         xlguCGE5kn8v7/aAY4OlH+lnMrQaLZ1P+q1gRhdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Subject: [PATCH 4.14 215/267] PM / devfreq: Lock devfreq in trans_stat_show
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.3 101/180] ALSA: fireface: fix return value in error path of isochronous resources reservation
 Date:   Mon, 16 Dec 2019 18:49:01 +0100
-Message-Id: <20191216174914.338186083@linuxfoundation.org>
+Message-Id: <20191216174836.299780318@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonard Crestez <leonard.crestez@nxp.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 2abb0d5268ae7b5ddf82099b1f8d5aa8414637d4 upstream.
+commit 480136343cbe89426d6c2ab74ffb4e3ee572c7ee upstream.
 
-There is no locking in this sysfs show function so stats printing can
-race with a devfreq_update_status called as part of freq switching or
-with initialization.
+Even if isochronous resources reservation fails, error code doesn't return
+in pcm.hw_params callback.
 
-Also add an assert in devfreq_update_status to make it clear that lock
-must be held by caller.
-
-Fixes: 39688ce6facd ("PM / devfreq: account suspend/resume for stats")
-Cc: stable@vger.kernel.org
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: <stable@vger.kernel.org> #5.3+
+Fixes: 55162d2bb0e8 ("ALSA: fireface: reserve/release isochronous resources in pcm.hw_params/hw_free callbacks")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191209151655.GA8090@workstation
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/devfreq/devfreq.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ sound/firewire/fireface/ff-pcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -133,6 +133,7 @@ int devfreq_update_status(struct devfreq
- 	int lev, prev_lev, ret = 0;
- 	unsigned long cur_time;
+--- a/sound/firewire/fireface/ff-pcm.c
++++ b/sound/firewire/fireface/ff-pcm.c
+@@ -219,7 +219,7 @@ static int pcm_hw_params(struct snd_pcm_
+ 		mutex_unlock(&ff->mutex);
+ 	}
  
-+	lockdep_assert_held(&devfreq->lock);
- 	cur_time = jiffies;
+-	return 0;
++	return err;
+ }
  
- 	/* Immediately exit if previous_freq is not initialized yet. */
-@@ -1161,12 +1162,17 @@ static ssize_t trans_stat_show(struct de
- 	int i, j;
- 	unsigned int max_state = devfreq->profile->max_state;
- 
--	if (!devfreq->stop_polling &&
--			devfreq_update_status(devfreq, devfreq->previous_freq))
--		return 0;
- 	if (max_state == 0)
- 		return sprintf(buf, "Not Supported.\n");
- 
-+	mutex_lock(&devfreq->lock);
-+	if (!devfreq->stop_polling &&
-+			devfreq_update_status(devfreq, devfreq->previous_freq)) {
-+		mutex_unlock(&devfreq->lock);
-+		return 0;
-+	}
-+	mutex_unlock(&devfreq->lock);
-+
- 	len = sprintf(buf, "     From  :   To\n");
- 	len += sprintf(buf + len, "           :");
- 	for (i = 0; i < max_state; i++)
+ static int pcm_hw_free(struct snd_pcm_substream *substream)
 
 
