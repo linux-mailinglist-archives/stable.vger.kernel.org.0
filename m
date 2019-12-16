@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB07121769
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B371218CD
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729426AbfLPSfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:35:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49280 "EHLO mail.kernel.org"
+        id S1726536AbfLPR4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:56:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727816AbfLPSH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:07:59 -0500
+        id S1728152AbfLPR4E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:56:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C245D206E0;
-        Mon, 16 Dec 2019 18:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90D36205ED;
+        Mon, 16 Dec 2019 17:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519679;
-        bh=LmkIYTRoq1puurBJPSSi6hdYB2es2hW23ta6JZXP8dM=;
+        s=default; t=1576518964;
+        bh=z3Kj59tElYDFczXrLzBvFGf3Lq0FVEcXhM0H7/niF5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mh2mLwfOb2wJmi8G+YMQDnEqmTVQoW7YvzkcnLXrKNMJR97wlPHhU9sAAT17oKlPQ
-         jEjjVnxGbISc7RgMD3SuGQCI3XfPuAmwZp9TObsQQNX5/w0KlDrqpGEZG6NTWpq7JA
-         t1p2cwxUGnZOCMQ9qPq53ELP9SVR511EgLrN+KD8=
+        b=n5REI/HtGV94qLxsBnJg5NaS6jZnHtIsLwWtQqoLlnL0dA08bntKU5rh3xJX5h4O+
+         gB4yWCDexksL6moDzMh2XNCZdABGXiqnLKm4BEpg55oU1q0WrKw/dSutfl6iHqFFf1
+         bAsfxhVB+y/8BR8UPtsDiG6J7rr2tbqJxawg/p3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Billauer <eli.billauer@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.3 024/180] xhci: handle some XHCI_TRUST_TX_LENGTH quirks cases as default behaviour.
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.14 138/267] jbd2: Fix possible overflow in jbd2_log_space_left()
 Date:   Mon, 16 Dec 2019 18:47:44 +0100
-Message-Id: <20191216174811.329785964@linuxfoundation.org>
+Message-Id: <20191216174909.393995412@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 7ff11162808cc2ec66353fc012c58bb449c892c3 upstream.
+commit add3efdd78b8a0478ce423bb9d4df6bd95e8b335 upstream.
 
-xhci driver claims it needs XHCI_TRUST_TX_LENGTH quirk for both
-Broadcom/Cavium and a Renesas xHC controllers.
+When number of free space in the journal is very low, the arithmetic in
+jbd2_log_space_left() could underflow resulting in very high number of
+free blocks and thus triggering assertion failure in transaction commit
+code complaining there's not enough space in the journal:
 
-The quirk was inteded for handling false "success" complete event for
-transfers that had data left untransferred.
-These transfers should complete with "short packet" events instead.
+J_ASSERT(journal->j_free > 1);
 
-In these two new cases the false "success" completion is reported
-after a "short packet" if the TD consists of several TRBs.
-xHCI specs 4.10.1.1.2 say remaining TRBs should report "short packet"
-as well after the first short packet in a TD, but this issue seems so
-common it doesn't make sense to add the quirk for all vendors.
+Properly check for the low number of free blocks.
 
-Turn these events into short packets automatically instead.
-
-This gets rid of the  "The WARN Successful completion on short TX for
-slot 1 ep 1: needs XHCI_TRUST_TX_LENGTH quirk" warning in many cases.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Eli Billauer <eli.billauer@gmail.com>
-Reported-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Eli Billauer <eli.billauer@gmail.com>
-Tested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-6-mathias.nyman@linux.intel.com
+CC: stable@vger.kernel.org
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191105164437.32602-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/jbd2.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -2377,7 +2377,8 @@ static int handle_tx_event(struct xhci_h
- 	case COMP_SUCCESS:
- 		if (EVENT_TRB_LEN(le32_to_cpu(event->transfer_len)) == 0)
- 			break;
--		if (xhci->quirks & XHCI_TRUST_TX_LENGTH)
-+		if (xhci->quirks & XHCI_TRUST_TX_LENGTH ||
-+		    ep_ring->last_td_was_short)
- 			trb_comp_code = COMP_SHORT_PACKET;
- 		else
- 			xhci_warn_ratelimited(xhci,
+--- a/include/linux/jbd2.h
++++ b/include/linux/jbd2.h
+@@ -1584,7 +1584,7 @@ static inline int jbd2_space_needed(jour
+ static inline unsigned long jbd2_log_space_left(journal_t *journal)
+ {
+ 	/* Allow for rounding errors */
+-	unsigned long free = journal->j_free - 32;
++	long free = journal->j_free - 32;
+ 
+ 	if (journal->j_committing_transaction) {
+ 		unsigned long committing = atomic_read(&journal->
+@@ -1593,7 +1593,7 @@ static inline unsigned long jbd2_log_spa
+ 		/* Transaction + control blocks */
+ 		free -= committing + (committing >> JBD2_CONTROL_BLOCKS_SHIFT);
+ 	}
+-	return free;
++	return max_t(long, free, 0);
+ }
+ 
+ /*
 
 
