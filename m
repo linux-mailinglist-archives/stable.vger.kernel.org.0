@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D8812159A
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5246121682
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732106AbfLPSUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:20:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50904 "EHLO mail.kernel.org"
+        id S1729592AbfLPS3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:29:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732101AbfLPSUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:20:32 -0500
+        id S1731133AbfLPSNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:13:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29F86207FF;
-        Mon, 16 Dec 2019 18:20:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E798207FF;
+        Mon, 16 Dec 2019 18:13:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520431;
-        bh=3moiQoxxvNMC+stxxb5nQ7tU8bHiKDEQTcfdzncWdX0=;
+        s=default; t=1576520028;
+        bh=3fMw/zbAR7/WFG0cjvqYO0/y5D5DtOKBvIKrryhQEyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+wWsfBHFxdsjNxaMSmIkhw2HJBTySMvo8fdKm3bKp5j2MfUxBm8mxjdpnyv1Yydi
-         FJjStF+ShPWXRD/deIJQGIF84rjurt9MM/eX9qzArDStJcF2s9c3UdqvMLDxwyjq43
-         irBUXkTXouv7W3kZaSE7lrRRWHBgQnU0SfSFazmU=
+        b=aC6D+nRziDUz2jfAC3RkYIxOly5kHk4T2ZdZjERNxb4rL3la1JEyH0XZ/uvW72q55
+         3q6U7EicNbXGE3r4q6j9A5ux8WvHik692W1JZP7hBQTHl2LUKHK7mgil+9ysCqX5yv
+         dVttplVOpP8lPB0ZwXEgEf7GtPIJpYQjh4EKOtDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 152/177] quota: fix livelock in dquot_writeback_dquots
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 168/180] powerpc: Avoid clang warnings around setjmp and longjmp
 Date:   Mon, 16 Dec 2019 18:50:08 +0100
-Message-Id: <20191216174848.112470783@linuxfoundation.org>
+Message-Id: <20191216174847.257845976@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 6ff33d99fc5c96797103b48b7b0902c296f09c05 upstream.
+[ Upstream commit c9029ef9c95765e7b63c4d9aa780674447db1ec0 ]
 
-Write only quotas which are dirty at entry.
+Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
+setjmp is used") disabled -Wbuiltin-requires-header because of a
+warning about the setjmp and longjmp declarations.
 
-XFSTEST: https://github.com/dmonakhov/xfstests/commit/b10ad23566a5bf75832a6f500e1236084083cddc
+r367387 in clang added another diagnostic around this, complaining
+that there is no jmp_buf declaration.
 
-Link: https://lore.kernel.org/r/20191031103920.3919-1-dmonakhov@openvz.org
-CC: stable@vger.kernel.org
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Dmitry Monakhov <dmtrmonakhov@yandex-team.ru>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  In file included from ../arch/powerpc/xmon/xmon.c:47:
+  ../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
+  built-in function 'setjmp' requires the declaration of the 'jmp_buf'
+  type, commonly provided in the header <setjmp.h>.
+  [-Werror,-Wincomplete-setjmp-declaration]
+  extern long setjmp(long *);
+              ^
+  ../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
+  built-in function 'longjmp' requires the declaration of the 'jmp_buf'
+  type, commonly provided in the header <setjmp.h>.
+  [-Werror,-Wincomplete-setjmp-declaration]
+  extern void longjmp(long *, long);
+              ^
+  2 errors generated.
 
+We are not using the standard library's longjmp/setjmp implementations
+for obvious reasons; make this clear to clang by using -ffreestanding
+on these files.
+
+Cc: stable@vger.kernel.org # 4.14+
+Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191119045712.39633-3-natechancellor@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/dquot.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/Makefile | 4 ++--
+ arch/powerpc/xmon/Makefile   | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -623,7 +623,7 @@ EXPORT_SYMBOL(dquot_scan_active);
- /* Write all dquot structures to quota files */
- int dquot_writeback_dquots(struct super_block *sb, int type)
- {
--	struct list_head *dirty;
-+	struct list_head dirty;
- 	struct dquot *dquot;
- 	struct quota_info *dqopt = sb_dqopt(sb);
- 	int cnt;
-@@ -637,9 +637,10 @@ int dquot_writeback_dquots(struct super_
- 		if (!sb_has_quota_active(sb, cnt))
- 			continue;
- 		spin_lock(&dq_list_lock);
--		dirty = &dqopt->info[cnt].dqi_dirty_list;
--		while (!list_empty(dirty)) {
--			dquot = list_first_entry(dirty, struct dquot,
-+		/* Move list away to avoid livelock. */
-+		list_replace_init(&dqopt->info[cnt].dqi_dirty_list, &dirty);
-+		while (!list_empty(&dirty)) {
-+			dquot = list_first_entry(&dirty, struct dquot,
- 						 dq_dirty);
+diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+index 56dfa7a2a6f2a..61527f1d4d05b 100644
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -5,8 +5,8 @@
  
- 			WARN_ON(!test_bit(DQ_ACTIVE_B, &dquot->dq_flags));
+ CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
+ 
+-# Disable clang warning for using setjmp without setjmp.h header
+-CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header)
++# Avoid clang warnings around longjmp/setjmp declarations
++CFLAGS_crash.o += -ffreestanding
+ 
+ ifdef CONFIG_PPC64
+ CFLAGS_prom_init.o	+= $(NO_MINIMAL_TOC)
+diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+index f142570ad8606..c3842dbeb1b75 100644
+--- a/arch/powerpc/xmon/Makefile
++++ b/arch/powerpc/xmon/Makefile
+@@ -1,8 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for xmon
+ 
+-# Disable clang warning for using setjmp without setjmp.h header
+-subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
++# Avoid clang warnings around longjmp/setjmp declarations
++subdir-ccflags-y := -ffreestanding
+ 
+ GCOV_PROFILE := n
+ KCOV_INSTRUMENT := n
+-- 
+2.20.1
+
 
 
