@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9DFF121626
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48905121435
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:09:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731172AbfLPSQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:16:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38036 "EHLO mail.kernel.org"
+        id S1729989AbfLPSJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:09:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731462AbfLPSQF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:16:05 -0500
+        id S1729811AbfLPSJR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:09:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5FD0207FF;
-        Mon, 16 Dec 2019 18:16:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6C612072D;
+        Mon, 16 Dec 2019 18:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520164;
-        bh=4FAopnWEW4sAmErItMkZw9/jbKecniXpe7hWz5Qlsvo=;
+        s=default; t=1576519757;
+        bh=yG9L4C+msop68MM25zSb59otvmeXIfGZyrHuEtcxYGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpepH9kPKmYINUPXrTH+Hk07pZQ9wBjgyCrVMcCNaL0CmmUQE8EeUUC1MW4+e+gni
-         UQbonI8Q4PftkcxXVZ+1ZYsW7qjDrC57CskW/JwOL1AUzewKlz9K37UrszlypCkZ4k
-         PifqfnwnnXtHU+o/o48sTUTcUjii/aIQWH+C4AGo=
+        b=YNHueRC9ILDVWUbGHT4mSdpyhrrDKAWOH2JZaGrKAWPQahjUEVabBZHew6gqpOpXU
+         FhI5r5asVgkRCzMB9kFPlui4Z80BsRHtBImpcz3Nk+eqQKCogj44sVEAYOCakjq9lo
+         4dSyYMBJuJbdN/Pf/odtZrnzbW95XafcDhjisJ7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Lesiak <chris.lesiak@licor.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 040/177] iio: humidity: hdc100x: fix IIO_HUMIDITYRELATIVE channel reporting
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.3 056/180] btrfs: use refcount_inc_not_zero in kill_all_nodes
 Date:   Mon, 16 Dec 2019 18:48:16 +0100
-Message-Id: <20191216174829.438472092@linuxfoundation.org>
+Message-Id: <20191216174828.382986882@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Lesiak <chris.lesiak@licor.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 342a6928bd5017edbdae376042d8ad6af3d3b943 upstream.
+commit baf320b9d531f1cfbf64c60dd155ff80a58b3796 upstream.
 
-The IIO_HUMIDITYRELATIVE channel was being incorrectly reported back
-as percent when it should have been milli percent. This is via an
-incorrect scale value being returned to userspace.
+We hit the following warning while running down a different problem
 
-Signed-off-by: Chris Lesiak <chris.lesiak@licor.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[ 6197.175850] ------------[ cut here ]------------
+[ 6197.185082] refcount_t: underflow; use-after-free.
+[ 6197.194704] WARNING: CPU: 47 PID: 966 at lib/refcount.c:190 refcount_sub_and_test_checked+0x53/0x60
+[ 6197.521792] Call Trace:
+[ 6197.526687]  __btrfs_release_delayed_node+0x76/0x1c0
+[ 6197.536615]  btrfs_kill_all_delayed_nodes+0xec/0x130
+[ 6197.546532]  ? __btrfs_btree_balance_dirty+0x60/0x60
+[ 6197.556482]  btrfs_clean_one_deleted_snapshot+0x71/0xd0
+[ 6197.566910]  cleaner_kthread+0xfa/0x120
+[ 6197.574573]  kthread+0x111/0x130
+[ 6197.581022]  ? kthread_create_on_node+0x60/0x60
+[ 6197.590086]  ret_from_fork+0x1f/0x30
+[ 6197.597228] ---[ end trace 424bb7ae00509f56 ]---
+
+This is because the free side drops the ref without the lock, and then
+takes the lock if our refcount is 0.  So you can have nodes on the tree
+that have a refcount of 0.  Fix this by zero'ing out that element in our
+temporary array so we don't try to kill it again.
+
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ add comment ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/humidity/hdc100x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/delayed-inode.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/humidity/hdc100x.c
-+++ b/drivers/iio/humidity/hdc100x.c
-@@ -229,7 +229,7 @@ static int hdc100x_read_raw(struct iio_d
- 			*val2 = 65536;
- 			return IIO_VAL_FRACTIONAL;
- 		} else {
--			*val = 100;
-+			*val = 100000;
- 			*val2 = 65536;
- 			return IIO_VAL_FRACTIONAL;
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -1948,12 +1948,19 @@ void btrfs_kill_all_delayed_nodes(struct
+ 		}
+ 
+ 		inode_id = delayed_nodes[n - 1]->inode_id + 1;
+-
+-		for (i = 0; i < n; i++)
+-			refcount_inc(&delayed_nodes[i]->refs);
++		for (i = 0; i < n; i++) {
++			/*
++			 * Don't increase refs in case the node is dead and
++			 * about to be removed from the tree in the loop below
++			 */
++			if (!refcount_inc_not_zero(&delayed_nodes[i]->refs))
++				delayed_nodes[i] = NULL;
++		}
+ 		spin_unlock(&root->inode_lock);
+ 
+ 		for (i = 0; i < n; i++) {
++			if (!delayed_nodes[i])
++				continue;
+ 			__btrfs_kill_delayed_node(delayed_nodes[i]);
+ 			btrfs_release_delayed_node(delayed_nodes[i]);
  		}
 
 
