@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5581E1217BD
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9EB11217BC
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729483AbfLPSiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:38:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42592 "EHLO mail.kernel.org"
+        id S1729330AbfLPSE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:04:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729368AbfLPSEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:04:55 -0500
+        id S1729361AbfLPSE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:04:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 501002072D;
-        Mon, 16 Dec 2019 18:04:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B253120726;
+        Mon, 16 Dec 2019 18:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519494;
-        bh=140WJj6EyLddBXjufsKxRaq1jtOvqlNrf61LR1W3RG4=;
+        s=default; t=1576519497;
+        bh=mCI4S4/T15GA9BG/NeIVDXtWlqHfZkgbY2tGx5ztKNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbO4/E4Gpzg9RONqQzOl6ngNuWFoVyzQOfB0iDhWcFNOwP8dZuWCNQMRaGNDCgJVG
-         Dpj+D6PmiPawzFCfy3PRp8ov+xq6RLqSDJW0Jt2FrfyY+DCl67ufx+2FkzAluBHpTL
-         yj+xxPJsYBUWQ3+nIvRkFXfNSBsOhD99h2PdAS5U=
+        b=mIHkjuharjRgux3MIjg26vvun7ZuajhyXq1bcC08soO5PMv59rZoP3M6dH7/NVw+F
+         AbUQOTDUHbD/k+kVP9Jd8LZhZ1OhvCrjVhb1i/59cMTeOeybGPnvml9+h0UpF1ELet
+         6YN5SqvgZpKQ2AA3tTROTvpIL9t36VXfZj89fBR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Greg Kurz <groug@kaod.org>,
+        stable@vger.kernel.org, Alastair DSilva <alastair@d-silva.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 087/140] powerpc/xive: Prevent page fault issues in the machine crash handler
-Date:   Mon, 16 Dec 2019 18:49:15 +0100
-Message-Id: <20191216174810.764407091@linuxfoundation.org>
+Subject: [PATCH 4.19 088/140] powerpc: Allow flush_icache_range to work across ranges >4GB
+Date:   Mon, 16 Dec 2019 18:49:16 +0100
+Message-Id: <20191216174810.897145865@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
 References: <20191216174747.111154704@linuxfoundation.org>
@@ -45,49 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Alastair D'Silva <alastair@d-silva.org>
 
-commit 1ca3dec2b2dff9d286ce6cd64108bda0e98f9710 upstream.
+commit 29430fae82073d39b1b881a3cd507416a56a363f upstream.
 
-When the machine crash handler is invoked, all interrupts are masked
-but interrupts which have not been started yet do not have an ESB page
-mapped in the Linux address space. This crashes the 'crash kexec'
-sequence on sPAPR guests.
+When calling flush_icache_range with a size >4GB, we were masking
+off the upper 32 bits, so we would incorrectly flush a range smaller
+than intended.
 
-To fix, force the mapping of the ESB page when an interrupt is being
-mapped in the Linux IRQ number space. This is done by setting the
-initial state of the interrupt to OFF which is not necessarily the
-case on PowerNV.
+This patch replaces the 32 bit shifts with 64 bit ones, so that
+the full size is accounted for.
 
-Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE interrupt controller")
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Reviewed-by: Greg Kurz <groug@kaod.org>
+Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191031063100.3864-1-clg@kaod.org
+Link: https://lore.kernel.org/r/20191104023305.9581-2-alastair@au1.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/sysdev/xive/common.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/powerpc/kernel/misc_64.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -968,6 +968,15 @@ static int xive_irq_alloc_data(unsigned
- 	xd->target = XIVE_INVALID_TARGET;
- 	irq_set_handler_data(virq, xd);
- 
-+	/*
-+	 * Turn OFF by default the interrupt being mapped. A side
-+	 * effect of this check is the mapping the ESB page of the
-+	 * interrupt in the Linux address space. This prevents page
-+	 * fault issues in the crash handler which masks all
-+	 * interrupts.
-+	 */
-+	xive_esb_read(xd, XIVE_ESB_SET_PQ_01);
-+
- 	return 0;
- }
- 
+--- a/arch/powerpc/kernel/misc_64.S
++++ b/arch/powerpc/kernel/misc_64.S
+@@ -87,7 +87,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_I
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5		/* ensure we get enough */
+ 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of cache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 1:	dcbst	0,r6
+@@ -103,7 +103,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_I
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5
+ 	lwz	r9,ICACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of Icache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 2:	icbi	0,r6
 
 
