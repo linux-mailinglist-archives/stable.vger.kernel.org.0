@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F12D121618
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E42A1213B2
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:04:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731573AbfLPSQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:16:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39770 "EHLO mail.kernel.org"
+        id S1729585AbfLPSED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:04:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731400AbfLPSQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:16:46 -0500
+        id S1729599AbfLPSD7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D395206E0;
-        Mon, 16 Dec 2019 18:16:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 324CD20700;
+        Mon, 16 Dec 2019 18:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520205;
-        bh=ftMvWzn4IjXn9M6Ibkiy56/cS0YEF3UtTIygOj+2RrM=;
+        s=default; t=1576519438;
+        bh=FkDwqSX2U3Zi6u1zSLl0ekZoB6wGScHpf/uAMixefME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxJuLcdW4K41F3V86ZiY9G1rSCUvT1DQMVcD2o3WdIeexJax0WlIJXgWCzAIvYp3O
-         iC6hFYbxGl90p7OW/1nBbp9W9tCcubwmljwbYqGlGhKK2e5NaAxOdu50lJoyAQBaZ+
-         QjOYcxy/S5AQcY63IVZeIOAM9oIR+ATvJ1XrRWe4=
+        b=ly8nJfBubQhbrPehHejxOIlJa44TIdI8hVN/bqs2/hyFfgunnzWGtCgJC2EZT4T42
+         WZ5/B/0FG4qS7XkAwgd8DMz1EaqR+KoQILRcYW75YVIfSGYF3sISednO4zsvLj+sjS
+         LEcJ/WCv/RiUHO/lDew/jQ0wxM0gx3nYgiJyrEQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejas Joglekar <joglekar@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 060/177] usb: dwc3: gadget: Fix logical condition
-Date:   Mon, 16 Dec 2019 18:48:36 +0100
-Message-Id: <20191216174831.445399812@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+bb1836a212e69f8e201a@syzkaller.appspotmail.com,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 049/140] ovl: relax WARN_ON() on rename to self
+Date:   Mon, 16 Dec 2019 18:48:37 +0100
+Message-Id: <20191216174802.043464455@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejas Joglekar <Tejas.Joglekar@synopsys.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 8c7d4b7b3d43c54c0b8c1e4adb917a151c754196 upstream.
+commit 6889ee5a53b8d969aa542047f5ac8acdc0e79a91 upstream.
 
-This patch corrects the condition to kick the transfer without
-giving back the requests when either request has remaining data
-or when there are pending SGs. The && check was introduced during
-spliting up the dwc3_gadget_ep_cleanup_completed_requests() function.
+In ovl_rename(), if new upper is hardlinked to old upper underneath
+overlayfs before upper dirs are locked, user will get an ESTALE error
+and a WARN_ON will be printed.
 
-Fixes: f38e35dd84e2 ("usb: dwc3: gadget: split dwc3_gadget_ep_cleanup_completed_requests()")
+Changes to underlying layers while overlayfs is mounted may result in
+unexpected behavior, but it shouldn't crash the kernel and it shouldn't
+trigger WARN_ON() either, so relax this WARN_ON().
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Tejas Joglekar <joglekar@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Reported-by: syzbot+bb1836a212e69f8e201a@syzkaller.appspotmail.com
+Fixes: 804032fabb3b ("ovl: don't check rename to self")
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    2 +-
+ fs/overlayfs/dir.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2491,7 +2491,7 @@ static int dwc3_gadget_ep_cleanup_comple
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -1174,7 +1174,7 @@ static int ovl_rename(struct inode *oldd
+ 	if (newdentry == trap)
+ 		goto out_dput;
  
- 	req->request.actual = req->request.length - req->remaining;
+-	if (WARN_ON(olddentry->d_inode == newdentry->d_inode))
++	if (olddentry->d_inode == newdentry->d_inode)
+ 		goto out_dput;
  
--	if (!dwc3_gadget_ep_request_completed(req) &&
-+	if (!dwc3_gadget_ep_request_completed(req) ||
- 			req->num_pending_sgs) {
- 		__dwc3_gadget_kick_transfer(dep);
- 		goto out;
+ 	err = 0;
 
 
