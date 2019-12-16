@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 557C61215E4
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:25:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B55112136D
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731779AbfLPSSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:18:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43530 "EHLO mail.kernel.org"
+        id S1729177AbfLPSBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:01:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731765AbfLPSSQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:18:16 -0500
+        id S1729175AbfLPSBe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:01:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C7B1206EC;
-        Mon, 16 Dec 2019 18:18:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4AAC207FF;
+        Mon, 16 Dec 2019 18:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520295;
-        bh=1Ry6fVqGGoMfQSSnMpOkMUW3urorG2fuGbiPNMrl9Hg=;
+        s=default; t=1576519294;
+        bh=hvjL24Mlxa/zyxzP4Llii51+D5DmhlYB/3tFpUR1fiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxGRIDPZp3MT/FuCjgM54x68jotL0+n4y/na8QqhY0hVk3hkdHUx7PkaVR6kUYxji
-         ldrbTHkDAHMt4fXsZVqi1JgodWQKQ6jnXK5mszetlAhN611GHnevmjNhQI2d0+hTJq
-         SYdZvxjxTqEaSLLW5E7UVkjGkyvZjN7jygWz1bLI=
+        b=Lwy+XBIuDBOunLEKo+WRQU5u0qI1Uuiu6VYGYtKPC9hW0j0JZ4IFRsilp3IKPaNkJ
+         Yj6/B0U9W7ukDaKzaJ65AtgdSVkUf2lDeikgOEsHlvZIbqIE9LsSRuN4U7/IjFxCsc
+         /6Z4ZLEwaG4PzJbc+Mp+vQkUzaF1u9S713jsdwBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.4 097/177] media: hantro: Fix s_fmt for dynamic resolution changes
-Date:   Mon, 16 Dec 2019 18:49:13 +0100
-Message-Id: <20191216174840.433340622@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Greg Kurz <groug@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 228/267] powerpc/xive: Prevent page fault issues in the machine crash handler
+Date:   Mon, 16 Dec 2019 18:49:14 +0100
+Message-Id: <20191216174915.047602027@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,92 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Cédric Le Goater <clg@kaod.org>
 
-commit ae02d49493b5d32bb3e035fdeb1655346f5e1ea5 upstream.
+commit 1ca3dec2b2dff9d286ce6cd64108bda0e98f9710 upstream.
 
-Commit 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
-changed the conditions under S_FMT was allowed for OUTPUT
-CAPTURE buffers.
+When the machine crash handler is invoked, all interrupts are masked
+but interrupts which have not been started yet do not have an ESB page
+mapped in the Linux address space. This crashes the 'crash kexec'
+sequence on sPAPR guests.
 
-However, and according to the mem-to-mem stateless decoder specification,
-in order to support dynamic resolution changes, S_FMT should be allowed
-even if OUTPUT buffers have been allocated.
+To fix, force the mapping of the ESB page when an interrupt is being
+mapped in the Linux IRQ number space. This is done by setting the
+initial state of the interrupt to OFF which is not necessarily the
+case on PowerNV.
 
-Relax decoder S_FMT restrictions on OUTPUT buffers, allowing a
-resolution modification, provided the pixel format stays the same.
-
-Tested on RK3288 platforms using ChromiumOS Video Decode/Encode
-Accelerator Unittests.
-
-[hverkuil: fix typo: In other -> In order]
-
-Fixes: 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: <stable@vger.kernel.org>      # for v5.4 and up
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE interrupt controller")
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191031063100.3864-1-clg@kaod.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/media/hantro/hantro_v4l2.c |   28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ arch/powerpc/sysdev/xive/common.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/staging/media/hantro/hantro_v4l2.c
-+++ b/drivers/staging/media/hantro/hantro_v4l2.c
-@@ -367,20 +367,27 @@ vidioc_s_fmt_out_mplane(struct file *fil
- {
- 	struct v4l2_pix_format_mplane *pix_mp = &f->fmt.pix_mp;
- 	struct hantro_ctx *ctx = fh_to_ctx(priv);
-+	struct vb2_queue *vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
- 	const struct hantro_fmt *formats;
- 	unsigned int num_fmts;
--	struct vb2_queue *vq;
- 	int ret;
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -967,6 +967,15 @@ static int xive_irq_alloc_data(unsigned
+ 	xd->target = XIVE_INVALID_TARGET;
+ 	irq_set_handler_data(virq, xd);
  
--	/* Change not allowed if queue is busy. */
--	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
--	if (vb2_is_busy(vq))
--		return -EBUSY;
-+	ret = vidioc_try_fmt_out_mplane(file, priv, f);
-+	if (ret)
-+		return ret;
++	/*
++	 * Turn OFF by default the interrupt being mapped. A side
++	 * effect of this check is the mapping the ESB page of the
++	 * interrupt in the Linux address space. This prevents page
++	 * fault issues in the crash handler which masks all
++	 * interrupts.
++	 */
++	xive_esb_read(xd, XIVE_ESB_SET_PQ_01);
++
+ 	return 0;
+ }
  
- 	if (!hantro_is_encoder_ctx(ctx)) {
- 		struct vb2_queue *peer_vq;
- 
- 		/*
-+		 * In order to support dynamic resolution change,
-+		 * the decoder admits a resolution change, as long
-+		 * as the pixelformat remains. Can't be done if streaming.
-+		 */
-+		if (vb2_is_streaming(vq) || (vb2_is_busy(vq) &&
-+		    pix_mp->pixelformat != ctx->src_fmt.pixelformat))
-+			return -EBUSY;
-+		/*
- 		 * Since format change on the OUTPUT queue will reset
- 		 * the CAPTURE queue, we can't allow doing so
- 		 * when the CAPTURE queue has buffers allocated.
-@@ -389,12 +396,15 @@ vidioc_s_fmt_out_mplane(struct file *fil
- 					  V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
- 		if (vb2_is_busy(peer_vq))
- 			return -EBUSY;
-+	} else {
-+		/*
-+		 * The encoder doesn't admit a format change if
-+		 * there are OUTPUT buffers allocated.
-+		 */
-+		if (vb2_is_busy(vq))
-+			return -EBUSY;
- 	}
- 
--	ret = vidioc_try_fmt_out_mplane(file, priv, f);
--	if (ret)
--		return ret;
--
- 	formats = hantro_get_formats(ctx, &num_fmts);
- 	ctx->vpu_src_fmt = hantro_find_format(formats, num_fmts,
- 					      pix_mp->pixelformat);
 
 
