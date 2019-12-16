@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2BF71215CE
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:25:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18397121526
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731332AbfLPSSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:18:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
+        id S1731720AbfLPSS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:18:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731858AbfLPSSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:18:53 -0500
+        id S1731863AbfLPSSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:18:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE427207FF;
-        Mon, 16 Dec 2019 18:18:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4497C2082E;
+        Mon, 16 Dec 2019 18:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520332;
-        bh=wwlmxGK47+3NKt/tCyF1WitVXEn7YD87pa8sUS9EE8g=;
+        s=default; t=1576520334;
+        bh=WP1uKgwvWNq1jnzgW0Y4vEn/qsU+xo4nO31DIKB2sdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=actTZaSAtAlkWvsRA8QMeGxhX3/mtNZybOInMhK/8cs2ZndyYb2yXFz31+Londt/n
-         xRf8CO7qIiE832uiHTI9FOTzSXcQLGBL0PQiuVimDTjsF/lHgtYyNpGqvm0+++p2wA
-         29+LJQHRSeZ2XVNy0pfuXhPlCO0I/LJtu9B0c0mk=
+        b=wxHqBAntyAw6WqmEpxRCWGcN9p+k5YhRW49ZLBpnGwL1I+NQidXUCiPmv/sQREZPW
+         sLTiXXavnqjUU6qQwGk2pMG+oOGwLuu+vR6AXU5k932T07DfroBTMMBVTE+JMRaNkA
+         +MWo1eLJfAP2VOS20vSoEMiKzunL60EglJlg7zI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Wang Nan <wangnan0@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 111/177] perf tests: Fix out of bounds memory access
-Date:   Mon, 16 Dec 2019 18:49:27 +0100
-Message-Id: <20191216174842.136673983@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 112/177] drm/panfrost: Open/close the perfcnt BO
+Date:   Mon, 16 Dec 2019 18:49:28 +0100
+Message-Id: <20191216174842.252334613@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -50,94 +46,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit af8490eb2b33684e26a0a927a9d93ae43cd08890 upstream.
+commit 0a5239985a3bc084738851afdf3fceb7d5651b0c upstream.
 
-The test case 'Read backward ring buffer' failed on 32-bit architectures
-which were found by LKFT perf testing.  The test failed on arm32 x15
-device, qemu_arm32, qemu_i386, and found intermittent failure on i386;
-the failure log is as below:
+Commit a5efb4c9a562 ("drm/panfrost: Restructure the GEM object creation")
+moved the drm_mm_insert_node_generic() call to the gem->open() hook,
+but forgot to update perfcnt accordingly.
 
-  50: Read backward ring buffer                  :
-  --- start ---
-  test child forked, pid 510
-  Using CPUID GenuineIntel-6-9E-9
-  mmap size 1052672B
-  mmap size 8192B
-  Finished reading overwrite ring buffer: rewind
-  free(): invalid next size (fast)
-  test child interrupted
-  ---- end ----
-  Read backward ring buffer: FAILED!
+Patch the perfcnt logic to call panfrost_gem_open/close() where
+appropriate.
 
-The log hints there have issue for memory usage, thus free() reports
-error 'invalid next size' and directly exit for the case.  Finally, this
-issue is root caused as out of bounds memory access for the data array
-'evsel->id'.
-
-The backward ring buffer test invokes do_test() twice.  'evsel->id' is
-allocated at the first call with the flow:
-
-  test__backward_ring_buffer()
-    `-> do_test()
-	  `-> evlist__mmap()
-	        `-> evlist__mmap_ex()
-	              `-> perf_evsel__alloc_id()
-
-So 'evsel->id' is allocated with one item, and it will be used in
-function perf_evlist__id_add():
-
-   evsel->id[0] = id
-   evsel->ids   = 1
-
-At the second call for do_test(), it skips to initialize 'evsel->id'
-and reuses the array which is allocated in the first call.  But
-'evsel->ids' contains the stale value.  Thus:
-
-   evsel->id[1] = id    -> out of bound access
-   evsel->ids   = 2
-
-To fix this issue, we will use evlist__open() and evlist__close() pair
-functions to prepare and cleanup context for evlist; so 'evsel->id' and
-'evsel->ids' can be initialized properly when invoke do_test() and avoid
-the out of bounds memory access.
-
-Fixes: ee74701ed8ad ("perf tests: Add test to check backward ring buffer")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Cc: stable@vger.kernel.org # v4.10+
-Link: http://lore.kernel.org/lkml/20191107020244.2427-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: a5efb4c9a562 ("drm/panfrost: Restructure the GEM object creation")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Acked-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191129135908.2439529-6-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/tests/backward-ring-buffer.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/panfrost/panfrost_drv.c     |    2 +-
+ drivers/gpu/drm/panfrost/panfrost_gem.c     |    4 ++--
+ drivers/gpu/drm/panfrost/panfrost_gem.h     |    4 ++++
+ drivers/gpu/drm/panfrost/panfrost_perfcnt.c |   23 ++++++++++++++---------
+ drivers/gpu/drm/panfrost/panfrost_perfcnt.h |    2 +-
+ 5 files changed, 22 insertions(+), 13 deletions(-)
 
---- a/tools/perf/tests/backward-ring-buffer.c
-+++ b/tools/perf/tests/backward-ring-buffer.c
-@@ -147,6 +147,15 @@ int test__backward_ring_buffer(struct te
- 		goto out_delete_evlist;
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -443,7 +443,7 @@ panfrost_postclose(struct drm_device *de
+ {
+ 	struct panfrost_file_priv *panfrost_priv = file->driver_priv;
+ 
+-	panfrost_perfcnt_close(panfrost_priv);
++	panfrost_perfcnt_close(file);
+ 	panfrost_job_close(panfrost_priv);
+ 
+ 	panfrost_mmu_pgtable_free(panfrost_priv);
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+@@ -41,7 +41,7 @@ static void panfrost_gem_free_object(str
+ 	drm_gem_shmem_free_object(obj);
+ }
+ 
+-static int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv)
++int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv)
+ {
+ 	int ret;
+ 	size_t size = obj->size;
+@@ -80,7 +80,7 @@ static int panfrost_gem_open(struct drm_
+ 	return ret;
+ }
+ 
+-static void panfrost_gem_close(struct drm_gem_object *obj, struct drm_file *file_priv)
++void panfrost_gem_close(struct drm_gem_object *obj, struct drm_file *file_priv)
+ {
+ 	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
+ 	struct panfrost_file_priv *priv = file_priv->driver_priv;
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.h
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
+@@ -45,6 +45,10 @@ panfrost_gem_create_with_handle(struct d
+ 				u32 flags,
+ 				uint32_t *handle);
+ 
++int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv);
++void panfrost_gem_close(struct drm_gem_object *obj,
++			struct drm_file *file_priv);
++
+ void panfrost_gem_shrinker_init(struct drm_device *dev);
+ void panfrost_gem_shrinker_cleanup(struct drm_device *dev);
+ 
+--- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
++++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
+@@ -67,9 +67,10 @@ static int panfrost_perfcnt_dump_locked(
+ }
+ 
+ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
+-					  struct panfrost_file_priv *user,
++					  struct drm_file *file_priv,
+ 					  unsigned int counterset)
+ {
++	struct panfrost_file_priv *user = file_priv->driver_priv;
+ 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
+ 	struct drm_gem_shmem_object *bo;
+ 	u32 cfg;
+@@ -91,14 +92,14 @@ static int panfrost_perfcnt_enable_locke
+ 	perfcnt->bo = to_panfrost_bo(&bo->base);
+ 
+ 	/* Map the perfcnt buf in the address space attached to file_priv. */
+-	ret = panfrost_mmu_map(perfcnt->bo);
++	ret = panfrost_gem_open(&perfcnt->bo->base.base, file_priv);
+ 	if (ret)
+ 		goto err_put_bo;
+ 
+ 	perfcnt->buf = drm_gem_shmem_vmap(&bo->base);
+ 	if (IS_ERR(perfcnt->buf)) {
+ 		ret = PTR_ERR(perfcnt->buf);
+-		goto err_put_bo;
++		goto err_close_bo;
  	}
  
-+	evlist__close(evlist);
-+
-+	err = evlist__open(evlist);
-+	if (err < 0) {
-+		pr_debug("perf_evlist__open: %s\n",
-+			 str_error_r(errno, sbuf, sizeof(sbuf)));
-+		goto out_delete_evlist;
-+	}
-+
- 	err = do_test(evlist, 1, &sample_count, &comm_count);
- 	if (err != TEST_OK)
- 		goto out_delete_evlist;
+ 	/*
+@@ -157,14 +158,17 @@ static int panfrost_perfcnt_enable_locke
+ 
+ err_vunmap:
+ 	drm_gem_shmem_vunmap(&perfcnt->bo->base.base, perfcnt->buf);
++err_close_bo:
++	panfrost_gem_close(&perfcnt->bo->base.base, file_priv);
+ err_put_bo:
+ 	drm_gem_object_put_unlocked(&bo->base);
+ 	return ret;
+ }
+ 
+ static int panfrost_perfcnt_disable_locked(struct panfrost_device *pfdev,
+-					   struct panfrost_file_priv *user)
++					   struct drm_file *file_priv)
+ {
++	struct panfrost_file_priv *user = file_priv->driver_priv;
+ 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
+ 
+ 	if (user != perfcnt->user)
+@@ -180,6 +184,7 @@ static int panfrost_perfcnt_disable_lock
+ 	perfcnt->user = NULL;
+ 	drm_gem_shmem_vunmap(&perfcnt->bo->base.base, perfcnt->buf);
+ 	perfcnt->buf = NULL;
++	panfrost_gem_close(&perfcnt->bo->base.base, file_priv);
+ 	drm_gem_object_put_unlocked(&perfcnt->bo->base.base);
+ 	perfcnt->bo = NULL;
+ 	pm_runtime_mark_last_busy(pfdev->dev);
+@@ -191,7 +196,6 @@ static int panfrost_perfcnt_disable_lock
+ int panfrost_ioctl_perfcnt_enable(struct drm_device *dev, void *data,
+ 				  struct drm_file *file_priv)
+ {
+-	struct panfrost_file_priv *pfile = file_priv->driver_priv;
+ 	struct panfrost_device *pfdev = dev->dev_private;
+ 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
+ 	struct drm_panfrost_perfcnt_enable *req = data;
+@@ -207,10 +211,10 @@ int panfrost_ioctl_perfcnt_enable(struct
+ 
+ 	mutex_lock(&perfcnt->lock);
+ 	if (req->enable)
+-		ret = panfrost_perfcnt_enable_locked(pfdev, pfile,
++		ret = panfrost_perfcnt_enable_locked(pfdev, file_priv,
+ 						     req->counterset);
+ 	else
+-		ret = panfrost_perfcnt_disable_locked(pfdev, pfile);
++		ret = panfrost_perfcnt_disable_locked(pfdev, file_priv);
+ 	mutex_unlock(&perfcnt->lock);
+ 
+ 	return ret;
+@@ -248,15 +252,16 @@ out:
+ 	return ret;
+ }
+ 
+-void panfrost_perfcnt_close(struct panfrost_file_priv *pfile)
++void panfrost_perfcnt_close(struct drm_file *file_priv)
+ {
++	struct panfrost_file_priv *pfile = file_priv->driver_priv;
+ 	struct panfrost_device *pfdev = pfile->pfdev;
+ 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
+ 
+ 	pm_runtime_get_sync(pfdev->dev);
+ 	mutex_lock(&perfcnt->lock);
+ 	if (perfcnt->user == pfile)
+-		panfrost_perfcnt_disable_locked(pfdev, pfile);
++		panfrost_perfcnt_disable_locked(pfdev, file_priv);
+ 	mutex_unlock(&perfcnt->lock);
+ 	pm_runtime_mark_last_busy(pfdev->dev);
+ 	pm_runtime_put_autosuspend(pfdev->dev);
+--- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.h
++++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.h
+@@ -9,7 +9,7 @@ void panfrost_perfcnt_sample_done(struct
+ void panfrost_perfcnt_clean_cache_done(struct panfrost_device *pfdev);
+ int panfrost_perfcnt_init(struct panfrost_device *pfdev);
+ void panfrost_perfcnt_fini(struct panfrost_device *pfdev);
+-void panfrost_perfcnt_close(struct panfrost_file_priv *pfile);
++void panfrost_perfcnt_close(struct drm_file *file_priv);
+ int panfrost_ioctl_perfcnt_enable(struct drm_device *dev, void *data,
+ 				  struct drm_file *file_priv);
+ int panfrost_ioctl_perfcnt_dump(struct drm_device *dev, void *data,
 
 
