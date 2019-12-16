@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 052661216B3
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C361212177D
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730638AbfLPSMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:12:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56596 "EHLO mail.kernel.org"
+        id S1730048AbfLPSGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:06:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730428AbfLPSMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:12:03 -0500
+        id S1730042AbfLPSGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:06:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87900206E0;
-        Mon, 16 Dec 2019 18:12:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5F5A206E0;
+        Mon, 16 Dec 2019 18:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519923;
-        bh=BwSct2I91Z70qutOSsbyocDgk2SHOEB2uZh27rDiUZg=;
+        s=default; t=1576519611;
+        bh=i/NrF+piZxvv2GQF0MueVMQiuW1SYl5QDi2LBe9oGD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ncTSSfwdiBs02bZD2O2ZrGcsnIl0Vo6lerEz1CLDzQCtgV2pV09SJGhBuTcZ5llaF
-         FWVEOYH6bESBYObHIs5Hpiv+YnEvI2wqpQV13cm0CzKw6zLNLSMDBzhunrC9Q4VTbV
-         pqV036XhS7E7O53KJV9yD/msXBsEYwTTDXAPzFYs=
+        b=smWeEmS1ZOSTSJ0gUm3EQ847/3cuKzoasquF/EFhPGcfI3Q6N5oDmnIEis9nwj60G
+         dQ4NdFv4LXDhwAI9ymDlxT9IQQDQx9Vgqgetz13bhpbUOItfs/PkH7HjYVExtYWhYY
+         2hSgdi/TyhE07YXqlqit7kheu1myB4K0hs6Xf+8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Greg Kurz <groug@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.3 125/180] powerpc/xive: Prevent page fault issues in the machine crash handler
+        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 097/140] scsi: zfcp: trace channel log even for FCP command responses
 Date:   Mon, 16 Dec 2019 18:49:25 +0100
-Message-Id: <20191216174841.211849622@linuxfoundation.org>
+Message-Id: <20191216174812.469714872@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit 1ca3dec2b2dff9d286ce6cd64108bda0e98f9710 upstream.
+[ Upstream commit 100843f176109af94600e500da0428e21030ca7f ]
 
-When the machine crash handler is invoked, all interrupts are masked
-but interrupts which have not been started yet do not have an ESB page
-mapped in the Linux address space. This crashes the 'crash kexec'
-sequence on sPAPR guests.
+While v2.6.26 commit b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug
+trace") is right that we don't want to flood the (payload) trace ring
+buffer, we don't trace successful FCP command responses by default.  So we
+can include the channel log for problem determination with failed responses
+of any FSF request type.
 
-To fix, force the mapping of the ESB page when an interrupt is being
-mapped in the Linux IRQ number space. This is done by setting the
-initial state of the interrupt to OFF which is not necessarily the
-case on PowerNV.
-
-Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE interrupt controller")
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191031063100.3864-1-clg@kaod.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug trace")
+Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+Cc: <stable@vger.kernel.org> #2.6.38+
+Link: https://lore.kernel.org/r/e37597b5c4ae123aaa85fd86c23a9f71e994e4a9.1572018132.git.bblock@linux.ibm.com
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/common.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/s390/scsi/zfcp_dbf.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -1000,6 +1000,15 @@ static int xive_irq_alloc_data(unsigned
- 	xd->target = XIVE_INVALID_TARGET;
- 	irq_set_handler_data(virq, xd);
+diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+index 3b368fcf13f40..946380f0d7199 100644
+--- a/drivers/s390/scsi/zfcp_dbf.c
++++ b/drivers/s390/scsi/zfcp_dbf.c
+@@ -94,11 +94,9 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
+ 	memcpy(rec->u.res.fsf_status_qual, &q_head->fsf_status_qual,
+ 	       FSF_STATUS_QUALIFIER_SIZE);
  
-+	/*
-+	 * Turn OFF by default the interrupt being mapped. A side
-+	 * effect of this check is the mapping the ESB page of the
-+	 * interrupt in the Linux address space. This prevents page
-+	 * fault issues in the crash handler which masks all
-+	 * interrupts.
-+	 */
-+	xive_esb_read(xd, XIVE_ESB_SET_PQ_01);
-+
- 	return 0;
- }
+-	if (req->fsf_command != FSF_QTCB_FCP_CMND) {
+-		rec->pl_len = q_head->log_length;
+-		zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
+-				  rec->pl_len, "fsf_res", req->req_id);
+-	}
++	rec->pl_len = q_head->log_length;
++	zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
++			  rec->pl_len, "fsf_res", req->req_id);
  
+ 	debug_event(dbf->hba, level, rec, sizeof(*rec));
+ 	spin_unlock_irqrestore(&dbf->hba_lock, flags);
+-- 
+2.20.1
+
 
 
