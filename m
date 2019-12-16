@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48905121435
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:09:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56589121387
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729989AbfLPSJT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:09:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
+        id S1728929AbfLPSC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:02:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729811AbfLPSJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:09:17 -0500
+        id S1729344AbfLPSC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:02:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6C612072D;
-        Mon, 16 Dec 2019 18:09:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A07FC20733;
+        Mon, 16 Dec 2019 18:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519757;
-        bh=yG9L4C+msop68MM25zSb59otvmeXIfGZyrHuEtcxYGs=;
+        s=default; t=1576519348;
+        bh=RyVyHX5MP+hvyFuV/2fAADMX1ycY5ZEMPHXFdKpKjfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YNHueRC9ILDVWUbGHT4mSdpyhrrDKAWOH2JZaGrKAWPQahjUEVabBZHew6gqpOpXU
-         FhI5r5asVgkRCzMB9kFPlui4Z80BsRHtBImpcz3Nk+eqQKCogj44sVEAYOCakjq9lo
-         4dSyYMBJuJbdN/Pf/odtZrnzbW95XafcDhjisJ7A=
+        b=Ju+IcJDpMMVwTozhEDTF/0hkXT+BvHE0Z2lhobsjAFXReLqUSzDViNhQQ1gXJvmTo
+         B7Kd62eBa1FXYZQL6W0WAP3LUUhwlvteHs45CbyEH5jhMO+tCY7D4kRgBrWQJyqBgK
+         TTaqffzftUP5i6R2DKSmY+nD7+fsZQflfNMXQxMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 056/180] btrfs: use refcount_inc_not_zero in kill_all_nodes
-Date:   Mon, 16 Dec 2019 18:48:16 +0100
-Message-Id: <20191216174828.382986882@linuxfoundation.org>
+        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@intel.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 4.19 029/140] tpm: add check after commands attribs tab allocation
+Date:   Mon, 16 Dec 2019 18:48:17 +0100
+Message-Id: <20191216174757.744044348@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Tadeusz Struk <tadeusz.struk@intel.com>
 
-commit baf320b9d531f1cfbf64c60dd155ff80a58b3796 upstream.
+commit f1689114acc5e89a196fec6d732dae3e48edb6ad upstream.
 
-We hit the following warning while running down a different problem
+devm_kcalloc() can fail and return NULL so we need to check for that.
 
-[ 6197.175850] ------------[ cut here ]------------
-[ 6197.185082] refcount_t: underflow; use-after-free.
-[ 6197.194704] WARNING: CPU: 47 PID: 966 at lib/refcount.c:190 refcount_sub_and_test_checked+0x53/0x60
-[ 6197.521792] Call Trace:
-[ 6197.526687]  __btrfs_release_delayed_node+0x76/0x1c0
-[ 6197.536615]  btrfs_kill_all_delayed_nodes+0xec/0x130
-[ 6197.546532]  ? __btrfs_btree_balance_dirty+0x60/0x60
-[ 6197.556482]  btrfs_clean_one_deleted_snapshot+0x71/0xd0
-[ 6197.566910]  cleaner_kthread+0xfa/0x120
-[ 6197.574573]  kthread+0x111/0x130
-[ 6197.581022]  ? kthread_create_on_node+0x60/0x60
-[ 6197.590086]  ret_from_fork+0x1f/0x30
-[ 6197.597228] ---[ end trace 424bb7ae00509f56 ]---
-
-This is because the free side drops the ref without the lock, and then
-takes the lock if our refcount is 0.  So you can have nodes on the tree
-that have a refcount of 0.  Fix this by zero'ing out that element in our
-temporary array so we don't try to kill it again.
-
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add comment ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Fixes: 58472f5cd4f6f ("tpm: validate TPM 2.0 commands")
+Signed-off-by: Tadeusz Struk <tadeusz.struk@intel.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Tested-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/delayed-inode.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/char/tpm/tpm2-cmd.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -1948,12 +1948,19 @@ void btrfs_kill_all_delayed_nodes(struct
- 		}
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -938,6 +938,10 @@ static int tpm2_get_cc_attrs_tbl(struct
  
- 		inode_id = delayed_nodes[n - 1]->inode_id + 1;
--
--		for (i = 0; i < n; i++)
--			refcount_inc(&delayed_nodes[i]->refs);
-+		for (i = 0; i < n; i++) {
-+			/*
-+			 * Don't increase refs in case the node is dead and
-+			 * about to be removed from the tree in the loop below
-+			 */
-+			if (!refcount_inc_not_zero(&delayed_nodes[i]->refs))
-+				delayed_nodes[i] = NULL;
-+		}
- 		spin_unlock(&root->inode_lock);
+ 	chip->cc_attrs_tbl = devm_kcalloc(&chip->dev, 4, nr_commands,
+ 					  GFP_KERNEL);
++	if (!chip->cc_attrs_tbl) {
++		rc = -ENOMEM;
++		goto out;
++	}
  
- 		for (i = 0; i < n; i++) {
-+			if (!delayed_nodes[i])
-+				continue;
- 			__btrfs_kill_delayed_node(delayed_nodes[i]);
- 			btrfs_release_delayed_node(delayed_nodes[i]);
- 		}
+ 	rc = tpm_buf_init(&buf, TPM2_ST_NO_SESSIONS, TPM2_CC_GET_CAPABILITY);
+ 	if (rc)
 
 
