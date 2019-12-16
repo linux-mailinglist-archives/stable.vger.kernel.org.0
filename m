@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB164121273
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:52:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1B7121298
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:54:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727591AbfLPRwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:52:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45196 "EHLO mail.kernel.org"
+        id S1727036AbfLPRyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:54:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727577AbfLPRwq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:52:46 -0500
+        id S1727486AbfLPRyF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:54:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05B9221775;
-        Mon, 16 Dec 2019 17:52:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A7C8206D3;
+        Mon, 16 Dec 2019 17:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518765;
-        bh=QSdhKLOCJdi1nDRDrfplSOxXx5/mnCvmw6p4a8jvB24=;
+        s=default; t=1576518845;
+        bh=URVkprWfAJWhyxcjKilsS7zegySLeavygfZpeHY4j3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h4hAJ9Kiupev5khp+gNXXvDybt/I358vgU85N6QRp5Jt8Y+M0AIsV+PTtwNGQb39F
-         tG6q0mzHZk6hdn9KbD95KBhE+kBtFzcN4hdubt8Ybad7RFiJ8N2oC0DAbklO30+gwX
-         Bc1GBwn957MrgcAO4CEqVV0cjQEapZPdhA3tuwW0=
+        b=jJWtfuUuGJxZRBiaXlsL8elQkEBxJYg0hceXrDARLSb0EUYjoSs4//vZQa4anmRH0
+         zs85zgdNiPsjRN8kPWdYhOOLaq/6XWk227Zw6Eh0hRfqEGKU7Y1d2UdEhAwy5bJ6l9
+         ZbCpywNUw+bMQFTAOX3FrPtqXOu+fZxtzyLFmvwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 056/267] ARM: dts: exynos: Use Samsung SoC specific compatible for DWC2 module
-Date:   Mon, 16 Dec 2019 18:46:22 +0100
-Message-Id: <20191216174854.609482572@linuxfoundation.org>
+Subject: [PATCH 4.14 063/267] usb: dwc3: dont log probe deferrals; but do log other error codes
+Date:   Mon, 16 Dec 2019 18:46:29 +0100
+Message-Id: <20191216174855.820358372@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -45,34 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 6035cbcceb069f87296b3cd0bc4736ad5618bf47 ]
+[ Upstream commit 408d3ba006af57380fa48858b39f72fde6405031 ]
 
-DWC2 hardware module integrated in Samsung SoCs requires some quirks to
-operate properly, so use Samsung SoC specific compatible to notify driver
-to apply respective fixes.
+It's not very useful to repeat a bunch of probe deferral errors. And
+it's also not very useful to log "failed" without telling the error
+code.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos3250.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/exynos3250.dtsi b/arch/arm/boot/dts/exynos3250.dtsi
-index aa06a02c3ff59..5ba6622549097 100644
---- a/arch/arm/boot/dts/exynos3250.dtsi
-+++ b/arch/arm/boot/dts/exynos3250.dtsi
-@@ -359,7 +359,7 @@
- 		};
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 48755c501201d..a497b878c3e2b 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1261,7 +1261,8 @@ static int dwc3_probe(struct platform_device *pdev)
  
- 		hsotg: hsotg@12480000 {
--			compatible = "snps,dwc2";
-+			compatible = "samsung,s3c6400-hsotg", "snps,dwc2";
- 			reg = <0x12480000 0x20000>;
- 			interrupts = <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cmu CLK_USBOTG>;
+ 	ret = dwc3_core_init(dwc);
+ 	if (ret) {
+-		dev_err(dev, "failed to initialize core\n");
++		if (ret != -EPROBE_DEFER)
++			dev_err(dev, "failed to initialize core: %d\n", ret);
+ 		goto err4;
+ 	}
+ 
 -- 
 2.20.1
 
