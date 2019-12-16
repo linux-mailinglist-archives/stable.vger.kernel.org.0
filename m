@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98237121590
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7466121667
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:29:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731872AbfLPSVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:21:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53014 "EHLO mail.kernel.org"
+        id S1727609AbfLPS3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:29:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732149AbfLPSU7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:20:59 -0500
+        id S1731196AbfLPSOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:14:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1E042166E;
-        Mon, 16 Dec 2019 18:20:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC811206B7;
+        Mon, 16 Dec 2019 18:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520458;
-        bh=iHZnIBUH+TeJAH7aD9BvRdytgdXXyUOXxjUqRAcvn90=;
+        s=default; t=1576520057;
+        bh=tV2z1ja2zHlj5jhifV+uZdn0BPjYitXdpaQ4jLkp6L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpVel1a3pB9lnQjn82zNt0oAEFqecIKt6EfdmbOTaLGf77oCEooSUXeS9eIKBqqa5
-         7F2qwLtSHa7DVDvfKgbEjsFdVUYhbiFc5R4J3x04PCqIOhRagQUFIY61eMN1kb4BV7
-         FXyLVSi4PXEORhzVRUnaQOeybE4Uemov050KYAnk=
+        b=upT5SsYhpSTRFqeFn/WFEZz8AP2s9aTNNzfpEK/3hoxz4IU86Vh8RMmnhEkuTjD6J
+         CVeMCpqd9OSXVMP85fO00OWpSL8OP3POFPQeSLQn24hjQjUm20zmoOd5qmJSX1Kbb2
+         uOfxv9m9YmSrvygUZ514JC3PoSPI8fMtKr7ZGUJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/177] powerpc: Avoid clang warnings around setjmp and longjmp
-Date:   Mon, 16 Dec 2019 18:50:18 +0100
-Message-Id: <20191216174849.319583062@linuxfoundation.org>
+        syzbot+3c01db6025f26530cf8d@syzkaller.appspotmail.com,
+        =?UTF-8?q?Andreas=20Gr=C3=BCnbacher?= 
+        <andreas.gruenbacher@gmail.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: [PATCH 5.3 179/180] splice: only read in as much information as there is pipe buffer space
+Date:   Mon, 16 Dec 2019 18:50:19 +0100
+Message-Id: <20191216174848.539258702@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-References: <20191216174811.158424118@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit c9029ef9c95765e7b63c4d9aa780674447db1ec0 ]
+commit 3253d9d093376d62b4a56e609f15d2ec5085ac73 upstream.
 
-Commit aea447141c7e ("powerpc: Disable -Wbuiltin-requires-header when
-setjmp is used") disabled -Wbuiltin-requires-header because of a
-warning about the setjmp and longjmp declarations.
+Andreas Grünbacher reports that on the two filesystems that support
+iomap directio, it's possible for splice() to return -EAGAIN (instead of
+a short splice) if the pipe being written to has less space available in
+its pipe buffers than the length supplied by the calling process.
 
-r367387 in clang added another diagnostic around this, complaining
-that there is no jmp_buf declaration.
+Months ago we fixed splice_direct_to_actor to clamp the length of the
+read request to the size of the splice pipe.  Do the same to do_splice.
 
-  In file included from ../arch/powerpc/xmon/xmon.c:47:
-  ../arch/powerpc/include/asm/setjmp.h:10:13: error: declaration of
-  built-in function 'setjmp' requires the declaration of the 'jmp_buf'
-  type, commonly provided in the header <setjmp.h>.
-  [-Werror,-Wincomplete-setjmp-declaration]
-  extern long setjmp(long *);
-              ^
-  ../arch/powerpc/include/asm/setjmp.h:11:13: error: declaration of
-  built-in function 'longjmp' requires the declaration of the 'jmp_buf'
-  type, commonly provided in the header <setjmp.h>.
-  [-Werror,-Wincomplete-setjmp-declaration]
-  extern void longjmp(long *, long);
-              ^
-  2 errors generated.
+Fixes: 17614445576b6 ("splice: don't read more than available pipe space")
+Reported-by: syzbot+3c01db6025f26530cf8d@syzkaller.appspotmail.com
+Reported-by: Andreas Grünbacher <andreas.gruenbacher@gmail.com>
+Reviewed-by: Andreas Grünbacher <andreas.gruenbacher@gmail.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-We are not using the standard library's longjmp/setjmp implementations
-for obvious reasons; make this clear to clang by using -ffreestanding
-on these files.
-
-Cc: stable@vger.kernel.org # 4.14+
-Suggested-by: Segher Boessenkool <segher@kernel.crashing.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191119045712.39633-3-natechancellor@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/Makefile | 4 ++--
- arch/powerpc/xmon/Makefile   | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ fs/splice.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
-index a7ca8fe623686..3c02445cf0865 100644
---- a/arch/powerpc/kernel/Makefile
-+++ b/arch/powerpc/kernel/Makefile
-@@ -5,8 +5,8 @@
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -945,12 +945,13 @@ ssize_t splice_direct_to_actor(struct fi
+ 	WARN_ON_ONCE(pipe->nrbufs != 0);
  
- CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
+ 	while (len) {
++		unsigned int pipe_pages;
+ 		size_t read_len;
+ 		loff_t pos = sd->pos, prev_pos = pos;
  
--# Disable clang warning for using setjmp without setjmp.h header
--CFLAGS_crash.o		+= $(call cc-disable-warning, builtin-requires-header)
-+# Avoid clang warnings around longjmp/setjmp declarations
-+CFLAGS_crash.o += -ffreestanding
+ 		/* Don't try to read more the pipe has space for. */
+-		read_len = min_t(size_t, len,
+-				 (pipe->buffers - pipe->nrbufs) << PAGE_SHIFT);
++		pipe_pages = pipe->buffers - pipe->nrbufs;
++		read_len = min(len, (size_t)pipe_pages << PAGE_SHIFT);
+ 		ret = do_splice_to(in, &pos, pipe, read_len, flags);
+ 		if (unlikely(ret <= 0))
+ 			goto out_release;
+@@ -1180,8 +1181,15 @@ static long do_splice(struct file *in, l
  
- ifdef CONFIG_PPC64
- CFLAGS_prom_init.o	+= $(NO_MINIMAL_TOC)
-diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
-index f142570ad8606..c3842dbeb1b75 100644
---- a/arch/powerpc/xmon/Makefile
-+++ b/arch/powerpc/xmon/Makefile
-@@ -1,8 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for xmon
- 
--# Disable clang warning for using setjmp without setjmp.h header
--subdir-ccflags-y := $(call cc-disable-warning, builtin-requires-header)
-+# Avoid clang warnings around longjmp/setjmp declarations
-+subdir-ccflags-y := -ffreestanding
- 
- GCOV_PROFILE := n
- KCOV_INSTRUMENT := n
--- 
-2.20.1
-
+ 		pipe_lock(opipe);
+ 		ret = wait_for_space(opipe, flags);
+-		if (!ret)
++		if (!ret) {
++			unsigned int pipe_pages;
++
++			/* Don't try to read more the pipe has space for. */
++			pipe_pages = opipe->buffers - opipe->nrbufs;
++			len = min(len, (size_t)pipe_pages << PAGE_SHIFT);
++
+ 			ret = do_splice_to(in, &offset, opipe, len, flags);
++		}
+ 		pipe_unlock(opipe);
+ 		if (ret > 0)
+ 			wakeup_pipe_readers(opipe);
 
 
