@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF821216DC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FD31216D5
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727452AbfLPScZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:32:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53468 "EHLO mail.kernel.org"
+        id S1730604AbfLPSK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:10:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728339AbfLPSKX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:23 -0500
+        id S1730231AbfLPSK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:10:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88C292166E;
-        Mon, 16 Dec 2019 18:10:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3F6B21582;
+        Mon, 16 Dec 2019 18:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519823;
-        bh=x1ed5r99Qnq3+hzL0B4eqzzGkPZGOvZD9r5grSQqhmU=;
+        s=default; t=1576519825;
+        bh=NeQzpFfclPtsz87k4W3jeo/1VKJIkBRQNsBK1c9e4cU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0H9VEHkLrxW6Dt9mwvJOuRVS5YxS7U/IoVbsLo49KmQUGsQNog+hZ42pHRlOM46qO
-         Kv53q8tTAcp/fa+bVIbJuaqWwhDeAbKBDTasqBprPlRYuLcTcxYfk0xfbl6eUS/OQ9
-         5gIoLWjsvG3TfA1zM9pnCtv8/ZqyYMdjT1QrUweU=
+        b=LKjNIeDvP0vb3i/ZeDfn7/MvQFaa7R0hf32tL1IBw+2oWIk2cGUe/yb2MPjD2dHSe
+         LMpFrvZyj7x2v54qBjvqJsVPTMuXG+L5aMsb1mmh4pOjb2vAeuw13clDGrMWF2G1Sk
+         +556mh1+RmlRAtRRVgIqzvuYTSERsnMFfVt8gOmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.3 084/180] s390/mm: properly clear _PAGE_NOEXEC bit when it is not supported
-Date:   Mon, 16 Dec 2019 18:48:44 +0100
-Message-Id: <20191216174831.832761010@linuxfoundation.org>
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.3 085/180] media: hantro: Fix s_fmt for dynamic resolution changes
+Date:   Mon, 16 Dec 2019 18:48:45 +0100
+Message-Id: <20191216174832.318953840@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
 References: <20191216174806.018988360@linuxfoundation.org>
@@ -44,65 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-commit ab874f22d35a8058d8fdee5f13eb69d8867efeae upstream.
+commit ae02d49493b5d32bb3e035fdeb1655346f5e1ea5 upstream.
 
-On older HW or under a hypervisor, w/o the instruction-execution-
-protection (IEP) facility, and also w/o EDAT-1, a translation-specification
-exception may be recognized when bit 55 of a pte is one (_PAGE_NOEXEC).
+Commit 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
+changed the conditions under S_FMT was allowed for OUTPUT
+CAPTURE buffers.
 
-The current code tries to prevent setting _PAGE_NOEXEC in such cases,
-by removing it within set_pte_at(). However, ptep_set_access_flags()
-will modify a pte directly, w/o using set_pte_at(). There is at least
-one scenario where this can result in an active pte with _PAGE_NOEXEC
-set, which would then lead to a panic due to a translation-specification
-exception (write to swapped out page):
+However, and according to the mem-to-mem stateless decoder specification,
+in order to support dynamic resolution changes, S_FMT should be allowed
+even if OUTPUT buffers have been allocated.
 
-do_swap_page
-  pte = mk_pte (with _PAGE_NOEXEC bit)
-  set_pte_at   (will remove _PAGE_NOEXEC bit in page table, but keep it
-                in local variable pte)
-  vmf->orig_pte = pte (pte still contains _PAGE_NOEXEC bit)
-  do_wp_page
-    wp_page_reuse
-      entry = vmf->orig_pte (still with _PAGE_NOEXEC bit)
-      ptep_set_access_flags (writes entry with _PAGE_NOEXEC bit)
+Relax decoder S_FMT restrictions on OUTPUT buffers, allowing a
+resolution modification, provided the pixel format stays the same.
 
-Fix this by clearing _PAGE_NOEXEC already in mk_pte_phys(), where the
-pgprot value is applied, so that no pte with _PAGE_NOEXEC will ever be
-visible, if it is not supported. The check in set_pte_at() can then also
-be removed.
+Tested on RK3288 platforms using ChromiumOS Video Decode/Encode
+Accelerator Unittests.
 
-Cc: <stable@vger.kernel.org> # 4.11+
-Fixes: 57d7f939e7bd ("s390: add no-execute support")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+[hverkuil: fix typo: In other -> In order]
+
+Fixes: 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: <stable@vger.kernel.org>      # for v5.4 and up
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/pgtable.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/media/hantro/hantro_v4l2.c |   28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1172,8 +1172,6 @@ void gmap_pmdp_idte_global(struct mm_str
- static inline void set_pte_at(struct mm_struct *mm, unsigned long addr,
- 			      pte_t *ptep, pte_t entry)
+--- a/drivers/staging/media/hantro/hantro_v4l2.c
++++ b/drivers/staging/media/hantro/hantro_v4l2.c
+@@ -356,20 +356,27 @@ vidioc_s_fmt_out_mplane(struct file *fil
  {
--	if (!MACHINE_HAS_NX)
--		pte_val(entry) &= ~_PAGE_NOEXEC;
- 	if (pte_present(entry))
- 		pte_val(entry) &= ~_PAGE_UNUSED;
- 	if (mm_has_pgste(mm))
-@@ -1190,6 +1188,8 @@ static inline pte_t mk_pte_phys(unsigned
- {
- 	pte_t __pte;
- 	pte_val(__pte) = physpage + pgprot_val(pgprot);
-+	if (!MACHINE_HAS_NX)
-+		pte_val(__pte) &= ~_PAGE_NOEXEC;
- 	return pte_mkyoung(__pte);
- }
+ 	struct v4l2_pix_format_mplane *pix_mp = &f->fmt.pix_mp;
+ 	struct hantro_ctx *ctx = fh_to_ctx(priv);
++	struct vb2_queue *vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
+ 	const struct hantro_fmt *formats;
+ 	unsigned int num_fmts;
+-	struct vb2_queue *vq;
+ 	int ret;
  
+-	/* Change not allowed if queue is busy. */
+-	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
+-	if (vb2_is_busy(vq))
+-		return -EBUSY;
++	ret = vidioc_try_fmt_out_mplane(file, priv, f);
++	if (ret)
++		return ret;
+ 
+ 	if (!hantro_is_encoder_ctx(ctx)) {
+ 		struct vb2_queue *peer_vq;
+ 
+ 		/*
++		 * In order to support dynamic resolution change,
++		 * the decoder admits a resolution change, as long
++		 * as the pixelformat remains. Can't be done if streaming.
++		 */
++		if (vb2_is_streaming(vq) || (vb2_is_busy(vq) &&
++		    pix_mp->pixelformat != ctx->src_fmt.pixelformat))
++			return -EBUSY;
++		/*
+ 		 * Since format change on the OUTPUT queue will reset
+ 		 * the CAPTURE queue, we can't allow doing so
+ 		 * when the CAPTURE queue has buffers allocated.
+@@ -378,12 +385,15 @@ vidioc_s_fmt_out_mplane(struct file *fil
+ 					  V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+ 		if (vb2_is_busy(peer_vq))
+ 			return -EBUSY;
++	} else {
++		/*
++		 * The encoder doesn't admit a format change if
++		 * there are OUTPUT buffers allocated.
++		 */
++		if (vb2_is_busy(vq))
++			return -EBUSY;
+ 	}
+ 
+-	ret = vidioc_try_fmt_out_mplane(file, priv, f);
+-	if (ret)
+-		return ret;
+-
+ 	formats = hantro_get_formats(ctx, &num_fmts);
+ 	ctx->vpu_src_fmt = hantro_find_format(formats, num_fmts,
+ 					      pix_mp->pixelformat);
 
 
