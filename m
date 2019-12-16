@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBAEF1212D5
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A771212A9
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727110AbfLPR4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:56:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54152 "EHLO mail.kernel.org"
+        id S1727105AbfLPRzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727790AbfLPR4O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:56:14 -0500
+        id S1727982AbfLPRzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:55:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 583F0205ED;
-        Mon, 16 Dec 2019 17:56:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 992CC20663;
+        Mon, 16 Dec 2019 17:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576518973;
-        bh=sSQGXtUBwq1HgWZiNGj8oNP9wbdZB0MTUIajG+SdqIA=;
+        s=default; t=1576518901;
+        bh=aWlTSsAz5pIPz3sdH4Px6OlGakCFM7rgFREkQ+ye7i4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOBAAE7cZjZLpDcffcP3vB3w5DG4RAy7ZhZmUb/CGest0gZhDMPD8fIPTZQkSPATq
-         iV/x0WEN09LdwHe1Ar4z/mKLsdQmeAa/FR9WnZNsHoTBiLqhGv+yXpddcNSenUCOCQ
-         rOiwS0TE4FCOKWTJKCcK7HznCFyCFuULYtGLwDCw=
+        b=QTJC0pHY5oYWABp9XUvJBcfL9oD3jelfoE1tyBeOvXqjEvcvLwUQabPp5xBoqdOzE
+         LAYv1XU/e44S/QvQvV0GkBCjpV4G+4NcxyXikkmrYdb1XSER430jW+9nMAg9yIK+oF
+         cy3XhZm/mqmf1RzM4angsPRi1kVeg+5TXtP38vBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Qian Cai <cai@gmx.us>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 105/267] clk: renesas: r8a77995: Correct parent clock of DU
-Date:   Mon, 16 Dec 2019 18:47:11 +0100
-Message-Id: <20191216174902.474889166@linuxfoundation.org>
+Subject: [PATCH 4.14 114/267] mlx4: Use snprintf instead of complicated strcpy
+Date:   Mon, 16 Dec 2019 18:47:20 +0100
+Message-Id: <20191216174902.956744923@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -46,38 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Qian Cai <cai@gmx.us>
 
-[ Upstream commit 515b2915ee08060ad4f6a3b3de38c5c2c5258e8b ]
+[ Upstream commit 0fbc9b8b4ea3f688a5da141a64f97aa33ad02ae9 ]
 
-According to the R-Car Gen3 Hardware Manual Rev 1.00, the parent clock
-of the DU module clocks on R-Car D3 is S1D1.
+This fixes a compilation warning in sysfs.c
 
-Fixes: d71e851d82c6cfe5 ("clk: renesas: cpg-mssr: Add R8A77995 support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Tested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+drivers/infiniband/hw/mlx4/sysfs.c:360:2: warning: 'strncpy' output may be
+truncated copying 8 bytes from a string of length 31
+[-Wstringop-truncation]
+
+By eliminating the temporary stack buffer.
+
+Signed-off-by: Qian Cai <cai@gmx.us>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r8a77995-cpg-mssr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx4/sysfs.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/renesas/r8a77995-cpg-mssr.c b/drivers/clk/renesas/r8a77995-cpg-mssr.c
-index e594cf8ee63b6..8434d5530fb15 100644
---- a/drivers/clk/renesas/r8a77995-cpg-mssr.c
-+++ b/drivers/clk/renesas/r8a77995-cpg-mssr.c
-@@ -141,8 +141,8 @@ static const struct mssr_mod_clk r8a77995_mod_clks[] __initconst = {
- 	DEF_MOD("vspbs",		 627,	R8A77995_CLK_S0D1),
- 	DEF_MOD("ehci0",		 703,	R8A77995_CLK_S3D2),
- 	DEF_MOD("hsusb",		 704,	R8A77995_CLK_S3D2),
--	DEF_MOD("du1",			 723,	R8A77995_CLK_S2D1),
--	DEF_MOD("du0",			 724,	R8A77995_CLK_S2D1),
-+	DEF_MOD("du1",			 723,	R8A77995_CLK_S1D1),
-+	DEF_MOD("du0",			 724,	R8A77995_CLK_S1D1),
- 	DEF_MOD("lvds",			 727,	R8A77995_CLK_S2D1),
- 	DEF_MOD("vin7",			 804,	R8A77995_CLK_S1D2),
- 	DEF_MOD("vin6",			 805,	R8A77995_CLK_S1D2),
+diff --git a/drivers/infiniband/hw/mlx4/sysfs.c b/drivers/infiniband/hw/mlx4/sysfs.c
+index e219093d27645..d2da28d613f2c 100644
+--- a/drivers/infiniband/hw/mlx4/sysfs.c
++++ b/drivers/infiniband/hw/mlx4/sysfs.c
+@@ -353,16 +353,12 @@ err:
+ 
+ static void get_name(struct mlx4_ib_dev *dev, char *name, int i, int max)
+ {
+-	char base_name[9];
+-
+-	/* pci_name format is: bus:dev:func -> xxxx:yy:zz.n */
+-	strlcpy(name, pci_name(dev->dev->persist->pdev), max);
+-	strncpy(base_name, name, 8); /*till xxxx:yy:*/
+-	base_name[8] = '\0';
+-	/* with no ARI only 3 last bits are used so when the fn is higher than 8
++	/* pci_name format is: bus:dev:func -> xxxx:yy:zz.n
++	 * with no ARI only 3 last bits are used so when the fn is higher than 8
+ 	 * need to add it to the dev num, so count in the last number will be
+ 	 * modulo 8 */
+-	sprintf(name, "%s%.2d.%d", base_name, (i/8), (i%8));
++	snprintf(name, max, "%.8s%.2d.%d", pci_name(dev->dev->persist->pdev),
++		 i / 8, i % 8);
+ }
+ 
+ struct mlx4_port {
 -- 
 2.20.1
 
