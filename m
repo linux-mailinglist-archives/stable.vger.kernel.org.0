@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F48112180C
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABAE9121787
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:37:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728601AbfLPSBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:01:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36616 "EHLO mail.kernel.org"
+        id S1730003AbfLPSGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:06:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729165AbfLPSBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:01:32 -0500
+        id S1730001AbfLPSGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:06:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41FD62072D;
-        Mon, 16 Dec 2019 18:01:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E052206E0;
+        Mon, 16 Dec 2019 18:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519291;
-        bh=rT3S8LmnIhDXVtIv59nKqnU/7vcYn/2MEcD2L1YLdNE=;
+        s=default; t=1576519599;
+        bh=DgM+niUr03lgCGh7xsbsIRCL8WBuqAQMSTFkasKDqyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JC8zdBMLymjKyg1cKcsIoUYdqXErUsKx/MP2cWNJWDQMtBksP1ttxOo5gmSS6xFTp
-         /FYWbA22H/xLDAoVs3MOS06bKIzZ7gU6UooZ+GYRMj2bsLAcOpB4Gc6iQdf4191wR3
-         Qu7wHZzusQmNCcCtViEoRl/2ejBDatwz2hTWflSc=
+        b=iaqi8bwWsyYCbs8cvZiZNVMCiy5fPFN8rAYiuvsPf7GqXeONXIbgV30chrGeB9JOs
+         VXl99ee/2rCNtlwTNxcsScBdQ+UX4bhBI99MGtoh3l6C3rkeiqsoDBhXilhiAwRaII
+         tNirMMvMiHoo9XELxLGZwp/7dE+jrhKRVr6q0Cik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Guangwu Zhang <guazhang@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Jianchao Wang <jianchao.w.wang@oracle.com>,
-        Ming Lei <ming.lei@redhat.com>, Andre Tomt <andre@tomt.net>,
-        Jack Wang <jack.wang.usish@gmail.com>
-Subject: [PATCH 4.14 237/267] block: fix single range discard merge
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 095/140] reiserfs: fix extended attributes on the root directory
 Date:   Mon, 16 Dec 2019 18:49:23 +0100
-Message-Id: <20191216174915.536375247@linuxfoundation.org>
+Message-Id: <20191216174811.946743535@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
-References: <20191216174848.701533383@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,100 +43,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Jeff Mahoney <jeffm@suse.com>
 
-commit 2a5cf35cd6c56b2924bce103413ad3381bdc31fa upstream.
+commit 60e4cf67a582d64f07713eda5fcc8ccdaf7833e6 upstream.
 
-There are actually two kinds of discard merge:
+Since commit d0a5b995a308 (vfs: Add IOP_XATTR inode operations flag)
+extended attributes haven't worked on the root directory in reiserfs.
 
-- one is the normal discard merge, just like normal read/write request,
-and call it single-range discard
+This is due to reiserfs conditionally setting the sb->s_xattrs handler
+array depending on whether it located or create the internal privroot
+directory.  It necessarily does this after the root inode is already
+read in.  The IOP_XATTR flag is set during inode initialization, so
+it never gets set on the root directory.
 
-- another is the multi-range discard, queue_max_discard_segments(rq->q) > 1
+This commit unconditionally assigns sb->s_xattrs and clears IOP_XATTR on
+internal inodes.  The old return values due to the conditional assignment
+are handled via open_xa_root, which now returns EOPNOTSUPP as the VFS
+would have done.
 
-For the former case, queue_max_discard_segments(rq->q) is 1, and we
-should handle this kind of discard merge like the normal read/write
-request.
-
-This patch fixes the following kernel panic issue[1], which is caused by
-not removing the single-range discard request from elevator queue.
-
-Guangwu has one raid discard test case, in which this issue is a bit
-easier to trigger, and I verified that this patch can fix the kernel
-panic issue in Guangwu's test case.
-
-[1] kernel panic log from Jens's report
-
- BUG: unable to handle kernel NULL pointer dereference at 0000000000000148
- PGD 0 P4D 0.
- Oops: 0000 [#1] SMP PTI
- CPU: 37 PID: 763 Comm: kworker/37:1H Not tainted \
-4.20.0-rc3-00649-ge64d9a554a91-dirty #14  Hardware name: Wiwynn \
-Leopard-Orv2/Leopard-DDR BW, BIOS LBM08   03/03/2017       Workqueue: kblockd \
-blk_mq_run_work_fn                                            RIP: \
-0010:blk_mq_get_driver_tag+0x81/0x120                                       Code: 24 \
-10 48 89 7c 24 20 74 21 83 fa ff 0f 95 c0 48 8b 4c 24 28 65 48 33 0c 25 28 00 00 00 \
-0f 85 96 00 00 00 48 83 c4 30 5b 5d c3 <48> 8b 87 48 01 00 00 8b 40 04 39 43 20 72 37 \
-f6 87 b0 00 00 00 02  RSP: 0018:ffffc90004aabd30 EFLAGS: 00010246                     \
-  RAX: 0000000000000003 RBX: ffff888465ea1300 RCX: ffffc90004aabde8
- RDX: 00000000ffffffff RSI: ffffc90004aabde8 RDI: 0000000000000000
- RBP: 0000000000000000 R08: ffff888465ea1348 R09: 0000000000000000
- R10: 0000000000001000 R11: 00000000ffffffff R12: ffff888465ea1300
- R13: 0000000000000000 R14: ffff888465ea1348 R15: ffff888465d10000
- FS:  0000000000000000(0000) GS:ffff88846f9c0000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000148 CR3: 000000000220a003 CR4: 00000000003606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  blk_mq_dispatch_rq_list+0xec/0x480
-  ? elv_rb_del+0x11/0x30
-  blk_mq_do_dispatch_sched+0x6e/0xf0
-  blk_mq_sched_dispatch_requests+0xfa/0x170
-  __blk_mq_run_hw_queue+0x5f/0xe0
-  process_one_work+0x154/0x350
-  worker_thread+0x46/0x3c0
-  kthread+0xf5/0x130
-  ? process_one_work+0x350/0x350
-  ? kthread_destroy_worker+0x50/0x50
-  ret_from_fork+0x1f/0x30
- Modules linked in: sb_edac x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel \
-kvm switchtec irqbypass iTCO_wdt iTCO_vendor_support efivars cdc_ether usbnet mii \
-cdc_acm i2c_i801 lpc_ich mfd_core ipmi_si ipmi_devintf ipmi_msghandler acpi_cpufreq \
-button sch_fq_codel nfsd nfs_acl lockd grace auth_rpcgss oid_registry sunrpc nvme \
-nvme_core fuse sg loop efivarfs autofs4  CR2: 0000000000000148                        \
-
- ---[ end trace 340a1fb996df1b9b ]---
- RIP: 0010:blk_mq_get_driver_tag+0x81/0x120
- Code: 24 10 48 89 7c 24 20 74 21 83 fa ff 0f 95 c0 48 8b 4c 24 28 65 48 33 0c 25 28 \
-00 00 00 0f 85 96 00 00 00 48 83 c4 30 5b 5d c3 <48> 8b 87 48 01 00 00 8b 40 04 39 43 \
-20 72 37 f6 87 b0 00 00 00 02
-
-Fixes: 445251d0f4d329a ("blk-mq: fix discard merge with scheduler attached")
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Cc: Guangwu Zhang <guazhang@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jianchao Wang <jianchao.w.wang@oracle.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Andre Tomt <andre@tomt.net>
-Cc: Jack Wang <jack.wang.usish@gmail.com>
+Link: https://lore.kernel.org/r/20191024143127.17509-1-jeffm@suse.com
+CC: stable@vger.kernel.org
+Fixes: d0a5b995a308 ("vfs: Add IOP_XATTR inode operations flag")
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-merge.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/reiserfs/inode.c     |   12 ++++++++++--
+ fs/reiserfs/namei.c     |    7 +++++--
+ fs/reiserfs/reiserfs.h  |    2 ++
+ fs/reiserfs/super.c     |    2 ++
+ fs/reiserfs/xattr.c     |   19 ++++++++++++-------
+ fs/reiserfs/xattr_acl.c |    4 +---
+ 6 files changed, 32 insertions(+), 14 deletions(-)
 
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -765,7 +765,7 @@ static struct request *attempt_merge(str
+--- a/fs/reiserfs/inode.c
++++ b/fs/reiserfs/inode.c
+@@ -2097,6 +2097,15 @@ int reiserfs_new_inode(struct reiserfs_t
+ 		goto out_inserted_sd;
+ 	}
  
- 	req->__data_len += blk_rq_bytes(next);
++	/*
++	 * Mark it private if we're creating the privroot
++	 * or something under it.
++	 */
++	if (IS_PRIVATE(dir) || dentry == REISERFS_SB(sb)->priv_root) {
++		inode->i_flags |= S_PRIVATE;
++		inode->i_opflags &= ~IOP_XATTR;
++	}
++
+ 	if (reiserfs_posixacl(inode->i_sb)) {
+ 		reiserfs_write_unlock(inode->i_sb);
+ 		retval = reiserfs_inherit_default_acl(th, dir, dentry, inode);
+@@ -2111,8 +2120,7 @@ int reiserfs_new_inode(struct reiserfs_t
+ 		reiserfs_warning(inode->i_sb, "jdm-13090",
+ 				 "ACLs aren't enabled in the fs, "
+ 				 "but vfs thinks they are!");
+-	} else if (IS_PRIVATE(dir))
+-		inode->i_flags |= S_PRIVATE;
++	}
  
--	if (req_op(req) != REQ_OP_DISCARD)
-+	if (!blk_discard_mergable(req))
- 		elv_merge_requests(q, req, next);
+ 	if (security->name) {
+ 		reiserfs_write_unlock(inode->i_sb);
+--- a/fs/reiserfs/namei.c
++++ b/fs/reiserfs/namei.c
+@@ -377,10 +377,13 @@ static struct dentry *reiserfs_lookup(st
  
- 	/*
+ 		/*
+ 		 * Propagate the private flag so we know we're
+-		 * in the priv tree
++		 * in the priv tree.  Also clear IOP_XATTR
++		 * since we don't have xattrs on xattr files.
+ 		 */
+-		if (IS_PRIVATE(dir))
++		if (IS_PRIVATE(dir)) {
+ 			inode->i_flags |= S_PRIVATE;
++			inode->i_opflags &= ~IOP_XATTR;
++		}
+ 	}
+ 	reiserfs_write_unlock(dir->i_sb);
+ 	if (retval == IO_ERROR) {
+--- a/fs/reiserfs/reiserfs.h
++++ b/fs/reiserfs/reiserfs.h
+@@ -1168,6 +1168,8 @@ static inline int bmap_would_wrap(unsign
+ 	return bmap_nr > ((1LL << 16) - 1);
+ }
+ 
++extern const struct xattr_handler *reiserfs_xattr_handlers[];
++
+ /*
+  * this says about version of key of all items (but stat data) the
+  * object consists of
+--- a/fs/reiserfs/super.c
++++ b/fs/reiserfs/super.c
+@@ -2052,6 +2052,8 @@ static int reiserfs_fill_super(struct su
+ 	if (replay_only(s))
+ 		goto error_unlocked;
+ 
++	s->s_xattr = reiserfs_xattr_handlers;
++
+ 	if (bdev_read_only(s->s_bdev) && !sb_rdonly(s)) {
+ 		SWARN(silent, s, "clm-7000",
+ 		      "Detected readonly device, marking FS readonly");
+--- a/fs/reiserfs/xattr.c
++++ b/fs/reiserfs/xattr.c
+@@ -122,13 +122,13 @@ static struct dentry *open_xa_root(struc
+ 	struct dentry *xaroot;
+ 
+ 	if (d_really_is_negative(privroot))
+-		return ERR_PTR(-ENODATA);
++		return ERR_PTR(-EOPNOTSUPP);
+ 
+ 	inode_lock_nested(d_inode(privroot), I_MUTEX_XATTR);
+ 
+ 	xaroot = dget(REISERFS_SB(sb)->xattr_root);
+ 	if (!xaroot)
+-		xaroot = ERR_PTR(-ENODATA);
++		xaroot = ERR_PTR(-EOPNOTSUPP);
+ 	else if (d_really_is_negative(xaroot)) {
+ 		int err = -ENODATA;
+ 
+@@ -610,6 +610,10 @@ int reiserfs_xattr_set(struct inode *ino
+ 	int error, error2;
+ 	size_t jbegin_count = reiserfs_xattr_nblocks(inode, buffer_size);
+ 
++	/* Check before we start a transaction and then do nothing. */
++	if (!d_really_is_positive(REISERFS_SB(inode->i_sb)->priv_root))
++		return -EOPNOTSUPP;
++
+ 	if (!(flags & XATTR_REPLACE))
+ 		jbegin_count += reiserfs_xattr_jcreate_nblocks(inode);
+ 
+@@ -832,8 +836,7 @@ ssize_t reiserfs_listxattr(struct dentry
+ 	if (d_really_is_negative(dentry))
+ 		return -EINVAL;
+ 
+-	if (!dentry->d_sb->s_xattr ||
+-	    get_inode_sd_version(d_inode(dentry)) == STAT_DATA_V1)
++	if (get_inode_sd_version(d_inode(dentry)) == STAT_DATA_V1)
+ 		return -EOPNOTSUPP;
+ 
+ 	dir = open_xa_dir(d_inode(dentry), XATTR_REPLACE);
+@@ -873,6 +876,7 @@ static int create_privroot(struct dentry
+ 	}
+ 
+ 	d_inode(dentry)->i_flags |= S_PRIVATE;
++	d_inode(dentry)->i_opflags &= ~IOP_XATTR;
+ 	reiserfs_info(dentry->d_sb, "Created %s - reserved for xattr "
+ 		      "storage.\n", PRIVROOT_NAME);
+ 
+@@ -886,7 +890,7 @@ static int create_privroot(struct dentry
+ #endif
+ 
+ /* Actual operations that are exported to VFS-land */
+-static const struct xattr_handler *reiserfs_xattr_handlers[] = {
++const struct xattr_handler *reiserfs_xattr_handlers[] = {
+ #ifdef CONFIG_REISERFS_FS_XATTR
+ 	&reiserfs_xattr_user_handler,
+ 	&reiserfs_xattr_trusted_handler,
+@@ -957,8 +961,10 @@ int reiserfs_lookup_privroot(struct supe
+ 	if (!IS_ERR(dentry)) {
+ 		REISERFS_SB(s)->priv_root = dentry;
+ 		d_set_d_op(dentry, &xattr_lookup_poison_ops);
+-		if (d_really_is_positive(dentry))
++		if (d_really_is_positive(dentry)) {
+ 			d_inode(dentry)->i_flags |= S_PRIVATE;
++			d_inode(dentry)->i_opflags &= ~IOP_XATTR;
++		}
+ 	} else
+ 		err = PTR_ERR(dentry);
+ 	inode_unlock(d_inode(s->s_root));
+@@ -987,7 +993,6 @@ int reiserfs_xattr_init(struct super_blo
+ 	}
+ 
+ 	if (d_really_is_positive(privroot)) {
+-		s->s_xattr = reiserfs_xattr_handlers;
+ 		inode_lock(d_inode(privroot));
+ 		if (!REISERFS_SB(s)->xattr_root) {
+ 			struct dentry *dentry;
+--- a/fs/reiserfs/xattr_acl.c
++++ b/fs/reiserfs/xattr_acl.c
+@@ -320,10 +320,8 @@ reiserfs_inherit_default_acl(struct reis
+ 	 * would be useless since permissions are ignored, and a pain because
+ 	 * it introduces locking cycles
+ 	 */
+-	if (IS_PRIVATE(dir)) {
+-		inode->i_flags |= S_PRIVATE;
++	if (IS_PRIVATE(inode))
+ 		goto apply_umask;
+-	}
+ 
+ 	err = posix_acl_create(dir, &inode->i_mode, &default_acl, &acl);
+ 	if (err)
 
 
