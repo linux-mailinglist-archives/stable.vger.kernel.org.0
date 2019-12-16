@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC359121451
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEBA312160A
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:26:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730593AbfLPSKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:10:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53310 "EHLO mail.kernel.org"
+        id S1731278AbfLPSRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:17:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728339AbfLPSKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:18 -0500
+        id S1731622AbfLPSRE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:17:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99DD0206EC;
-        Mon, 16 Dec 2019 18:10:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 802BA207FF;
+        Mon, 16 Dec 2019 18:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519818;
-        bh=Y4iET9vI16486tsdjHkxtgL0h01ixTEhKDNcbp5kogY=;
+        s=default; t=1576520223;
+        bh=8Zq4DPHZWhYTXypB/u/8KmEgA6SgVcttkjX8RIwVA84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKgOEa71qf7meO6l2KqGbJuNg5rDJ1k4E7z2SdRkfJ0CnhJi+FPNeQ8bsp8fDbxZa
-         T9XqHbjT06pK9djyR8KT5AxyLw7Nlii1SQ7lIfa211AzchIT5EbSUowiMhKaXnNEZZ
-         nobo62nKt+zo02g1P5Y8Mv+XctlAkPys1oYOurlU=
+        b=MXfnzcqPkYVNGG07VMsVTu6esCUWbvLxFSBOsSTakt+OhlNFFmVpbuZlnNIeSumJt
+         yGfUcpF2M59wcyaAxeGamtjyC3mWEdm+qM79s1f/2Po8oRGydvQCxU23mkll4bsx/J
+         iM8Wjr+ZSGehsOf6CpUKiN/1Ya8M26V5aaqn13P8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maya Erez <merez@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Denis Efremov <efremov@linux.com>
-Subject: [PATCH 5.3 082/180] wil6210: check len before memcpy() calls
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 066/177] btrfs: check page->mapping when loading free space cache
 Date:   Mon, 16 Dec 2019 18:48:42 +0100
-Message-Id: <20191216174831.479468128@linuxfoundation.org>
+Message-Id: <20191216174834.408988203@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 2c840676be8ffc624bf9bb4490d944fd13c02d71 upstream.
+commit 3797136b626ad4b6582223660c041efdea8f26b2 upstream.
 
-memcpy() in wmi_set_ie() and wmi_update_ft_ies() is called with
-src == NULL and len == 0. This is an undefined behavior. Fix it
-by checking "ie_len > 0" before the memcpy() calls.
+While testing 5.2 we ran into the following panic
 
-As suggested by GCC documentation:
-"The pointers passed to memmove (and similar functions in <string.h>)
-must be non-null even when nbytes==0, so GCC can use that information
-to remove the check after the memmove call." [1]
+[52238.017028] BUG: kernel NULL pointer dereference, address: 0000000000000001
+[52238.105608] RIP: 0010:drop_buffers+0x3d/0x150
+[52238.304051] Call Trace:
+[52238.308958]  try_to_free_buffers+0x15b/0x1b0
+[52238.317503]  shrink_page_list+0x1164/0x1780
+[52238.325877]  shrink_inactive_list+0x18f/0x3b0
+[52238.334596]  shrink_node_memcg+0x23e/0x7d0
+[52238.342790]  ? do_shrink_slab+0x4f/0x290
+[52238.350648]  shrink_node+0xce/0x4a0
+[52238.357628]  balance_pgdat+0x2c7/0x510
+[52238.365135]  kswapd+0x216/0x3e0
+[52238.371425]  ? wait_woken+0x80/0x80
+[52238.378412]  ? balance_pgdat+0x510/0x510
+[52238.386265]  kthread+0x111/0x130
+[52238.392727]  ? kthread_create_on_node+0x60/0x60
+[52238.401782]  ret_from_fork+0x1f/0x30
 
-[1] https://gcc.gnu.org/gcc-4.9/porting_to.html
+The page we were trying to drop had a page->private, but had no
+page->mapping and so called drop_buffers, assuming that we had a
+buffer_head on the page, and then panic'ed trying to deref 1, which is
+our page->private for data pages.
 
-Cc: Maya Erez <merez@codeaurora.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+This is happening because we're truncating the free space cache while
+we're trying to load the free space cache.  This isn't supposed to
+happen, and I'll fix that in a followup patch.  However we still
+shouldn't allow those sort of mistakes to result in messing with pages
+that do not belong to us.  So add the page->mapping check to verify that
+we still own this page after dropping and re-acquiring the page lock.
+
+This page being unlocked as:
+btrfs_readpage
+  extent_read_full_page
+    __extent_read_full_page
+      __do_readpage
+        if (!nr)
+	   unlock_page  <-- nr can be 0 only if submit_extent_page
+			    returns an error
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+[ add callchain ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/wil6210/wmi.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/btrfs/free-space-cache.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/wireless/ath/wil6210/wmi.c
-+++ b/drivers/net/wireless/ath/wil6210/wmi.c
-@@ -2478,7 +2478,8 @@ int wmi_set_ie(struct wil6210_vif *vif,
- 	cmd->mgmt_frm_type = type;
- 	/* BUG: FW API define ieLen as u8. Will fix FW */
- 	cmd->ie_len = cpu_to_le16(ie_len);
--	memcpy(cmd->ie_info, ie, ie_len);
-+	if (ie_len)
-+		memcpy(cmd->ie_info, ie, ie_len);
- 	rc = wmi_send(wil, WMI_SET_APPIE_CMDID, vif->mid, cmd, len);
- 	kfree(cmd);
- out:
-@@ -2514,7 +2515,8 @@ int wmi_update_ft_ies(struct wil6210_vif
- 	}
- 
- 	cmd->ie_len = cpu_to_le16(ie_len);
--	memcpy(cmd->ie_info, ie, ie_len);
-+	if (ie_len)
-+		memcpy(cmd->ie_info, ie, ie_len);
- 	rc = wmi_send(wil, WMI_UPDATE_FT_IES_CMDID, vif->mid, cmd, len);
- 	kfree(cmd);
- 
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -385,6 +385,12 @@ static int io_ctl_prepare_pages(struct b
+ 		if (uptodate && !PageUptodate(page)) {
+ 			btrfs_readpage(NULL, page);
+ 			lock_page(page);
++			if (page->mapping != inode->i_mapping) {
++				btrfs_err(BTRFS_I(inode)->root->fs_info,
++					  "free space cache page truncated");
++				io_ctl_drop_pages(io_ctl);
++				return -EIO;
++			}
+ 			if (!PageUptodate(page)) {
+ 				btrfs_err(BTRFS_I(inode)->root->fs_info,
+ 					   "error reading free space cache");
 
 
