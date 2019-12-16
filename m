@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 142AE12145D
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:10:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3EE12146C
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730469AbfLPSKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:10:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54050 "EHLO mail.kernel.org"
+        id S1730740AbfLPSLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:11:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730451AbfLPSKn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:10:43 -0500
+        id S1730739AbfLPSLJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:11:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E5E7206B7;
-        Mon, 16 Dec 2019 18:10:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D14E5206E0;
+        Mon, 16 Dec 2019 18:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519842;
-        bh=iI/RkI3HDLfJrV5Yf7UTlFLrZGwH/B1OA9pA1U9tTXA=;
+        s=default; t=1576519869;
+        bh=I/aQZOgdx/StfqxD/zjch/Q7mN7Mb/s/G1BBWN5EtvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHUt8+oYShuaspTfb9dLbBpokdRgNNfRShMrAxWC1f8WddnkYC5EPcpWvQCl//rDZ
-         oMHVyrSdgJydSUefrIw0WE9wvRjIIGTvFjtCLBTi5uG37pJSGtCO7MkPv/ApJiv+0I
-         Yr1Xf5Fwlf3iLuHcsPAFfbTvzGQ6q0OIU5hrG3S8=
+        b=C3Q1q2zMz0LnpzHTq3gMGvy5aHRxy8yXD2JF7EOin5a5h9Y+HYlzV5MdrTsBEDWpu
+         EJXrcl9t5Q6zgQyyB4YzJP1JvGKzSVlixsayV+TvBCNoSYCqV+qjt5S0dmj7I8j0cY
+         r9OxrPs+ckN7iQcq2pUU/2V1s23n/6EQSJCJoZpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        "Williams, Gerald S" <gerald.s.williams@intel.com>,
-        NeilBrown <neilb@suse.de>
-Subject: [PATCH 5.3 074/180] workqueue: Fix pwq ref leak in rescuer_thread()
-Date:   Mon, 16 Dec 2019 18:48:34 +0100
-Message-Id: <20191216174830.534635482@linuxfoundation.org>
+        stable@vger.kernel.org, Jacob Rasmussen <jacobraz@google.com>,
+        Ross Zwisler <zwisler@google.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.3 075/180] ASoC: rt5645: Fixed buddy jack support.
+Date:   Mon, 16 Dec 2019 18:48:35 +0100
+Message-Id: <20191216174830.619155079@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
 References: <20191216174806.018988360@linuxfoundation.org>
@@ -44,60 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Jacob Rasmussen <jacobraz@chromium.org>
 
-commit e66b39af00f426b3356b96433d620cb3367ba1ff upstream.
+commit e7cfd867fd9842f346688f28412eb83dec342900 upstream.
 
-008847f66c3 ("workqueue: allow rescuer thread to do more work.") made
-the rescuer worker requeue the pwq immediately if there may be more
-work items which need rescuing instead of waiting for the next mayday
-timer expiration.  Unfortunately, it doesn't check whether the pwq is
-already on the mayday list and unconditionally gets the ref and moves
-it onto the list.  This doesn't corrupt the list but creates an
-additional reference to the pwq.  It got queued twice but will only be
-removed once.
+The headphone jack on buddy was broken with the following commit:
+commit 6b5da66322c5 ("ASoC: rt5645: read jd1_1 status for jd
+detection").
+This changes the jd_mode for buddy to 4 so buddy can read from the same
+register that was used in the working version of this driver without
+affecting any other devices that might use this, since no other device uses
+jd_mode = 4. To test this I plugged and uplugged the headphone jack, verifying
+audio works.
 
-This leak later can trigger pwq refcnt warning on workqueue
-destruction and prevent freeing of the workqueue.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: "Williams, Gerald S" <gerald.s.williams@intel.com>
-Cc: NeilBrown <neilb@suse.de>
-Cc: stable@vger.kernel.org # v3.19+
+Signed-off-by: Jacob Rasmussen <jacobraz@google.com>
+Reviewed-by: Ross Zwisler <zwisler@google.com>
+Link: https://lore.kernel.org/r/20191111185957.217244-1-jacobraz@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/workqueue.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ sound/soc/codecs/rt5645.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -2532,8 +2532,14 @@ repeat:
- 			 */
- 			if (need_to_create_worker(pool)) {
- 				spin_lock(&wq_mayday_lock);
--				get_pwq(pwq);
--				list_move_tail(&pwq->mayday_node, &wq->maydays);
-+				/*
-+				 * Queue iff we aren't racing destruction
-+				 * and somebody else hasn't queued it already.
-+				 */
-+				if (wq->rescuer && list_empty(&pwq->mayday_node)) {
-+					get_pwq(pwq);
-+					list_add_tail(&pwq->mayday_node, &wq->maydays);
-+				}
- 				spin_unlock(&wq_mayday_lock);
- 			}
- 		}
-@@ -4643,7 +4649,8 @@ static void show_pwq(struct pool_workque
- 	pr_info("  pwq %d:", pool->id);
- 	pr_cont_pool_info(pool);
+--- a/sound/soc/codecs/rt5645.c
++++ b/sound/soc/codecs/rt5645.c
+@@ -3270,6 +3270,9 @@ static void rt5645_jack_detect_work(stru
+ 		snd_soc_jack_report(rt5645->mic_jack,
+ 				    report, SND_JACK_MICROPHONE);
+ 		return;
++	case 4:
++		val = snd_soc_component_read32(rt5645->component, RT5645_A_JD_CTRL1) & 0x002;
++		break;
+ 	default: /* read rt5645 jd1_1 status */
+ 		val = snd_soc_component_read32(rt5645->component, RT5645_INT_IRQ_ST) & 0x1000;
+ 		break;
+@@ -3603,7 +3606,7 @@ static const struct rt5645_platform_data
+ static const struct rt5645_platform_data buddy_platform_data = {
+ 	.dmic1_data_pin = RT5645_DMIC_DATA_GPIO5,
+ 	.dmic2_data_pin = RT5645_DMIC_DATA_IN2P,
+-	.jd_mode = 3,
++	.jd_mode = 4,
+ 	.level_trigger_irq = true,
+ };
  
--	pr_cont(" active=%d/%d%s\n", pwq->nr_active, pwq->max_active,
-+	pr_cont(" active=%d/%d refcnt=%d%s\n",
-+		pwq->nr_active, pwq->max_active, pwq->refcnt,
- 		!list_empty(&pwq->mayday_node) ? " MAYDAY" : "");
- 
- 	hash_for_each(pool->busy_hash, bkt, worker, hentry) {
+@@ -3999,6 +4002,7 @@ static int rt5645_i2c_probe(struct i2c_c
+ 					   RT5645_JD1_MODE_1);
+ 			break;
+ 		case 3:
++		case 4:
+ 			regmap_update_bits(rt5645->regmap, RT5645_A_JD_CTRL1,
+ 					   RT5645_JD1_MODE_MASK,
+ 					   RT5645_JD1_MODE_2);
 
 
