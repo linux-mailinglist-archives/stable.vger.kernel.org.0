@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 345BE1216EF
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 031291218B3
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:46:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730496AbfLPSJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:09:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52396 "EHLO mail.kernel.org"
+        id S1727926AbfLPSoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:44:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730493AbfLPSJr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:09:47 -0500
+        id S1727443AbfLPR55 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:57:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A54A206B7;
-        Mon, 16 Dec 2019 18:09:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8890921582;
+        Mon, 16 Dec 2019 17:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519786;
-        bh=8li020Po+yB8tIM/vH97YFOqrlj1+GSSXyV+MrYkqqo=;
+        s=default; t=1576519076;
+        bh=LtzVQ3/GMxZRuBqGRFkaSIKgpRDKbbujR3P/8V8kpy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iMHxoE8OF8VDq5N0UvkMOjXYLdpNvNBlWqq4DCza2R8/3GR+cmd+LxokWqOGvhjCs
-         NO8I4BApjT0K2/nHtNnBssg0eDGJ7PDaJ0DhlZ8COyL6qbGZ8v9stwbKxvVmrO+DL4
-         A0iY/eRfgyn0KLzmKDOy/OJNOi31Hr9kh7QXzWQM=
+        b=YEypLl3byZDcWqB8ImvnaYFFUPoxDKV6hz+Ia/QSK1oA4Y57/RDiuMfxvASftncWe
+         mhj5Py0ebcD12qoU4XsQTchqKkfoMwIBUMTeeogSeM6yWmDEbXCFJM6O6SKugnCt0P
+         W8P/P44uu4ZcGfUP1Ikjff8sHp5Kpj6s0HQ+r8Fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.3 067/180] ovl: fix lookup failure on multi lower squashfs
-Date:   Mon, 16 Dec 2019 18:48:27 +0100
-Message-Id: <20191216174829.950628779@linuxfoundation.org>
+        stable@vger.kernel.org, Yumei Huang <yuhuang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, Jiang Liu <liuj97@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Igor Mammedov <imammedo@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH 4.14 183/267] virtio-balloon: fix managed page counts when migrating pages between zones
+Date:   Mon, 16 Dec 2019 18:48:29 +0100
+Message-Id: <20191216174912.533119356@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,145 +48,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 7e63c87fc2dcf3be9d3aab82d4a0ea085880bdca upstream.
+commit 63341ab03706e11a31e3dd8ccc0fbc9beaf723f0 upstream.
 
-In the past, overlayfs required that lower fs have non null uuid in
-order to support nfs export and decode copy up origin file handles.
+In case we have to migrate a ballon page to a newpage of another zone, the
+managed page count of both zones is wrong. Paired with memory offlining
+(which will adjust the managed page count), we can trigger kernel crashes
+and all kinds of different symptoms.
 
-Commit 9df085f3c9a2 ("ovl: relax requirement for non null uuid of
-lower fs") relaxed this requirement for nfs export support, as long
-as uuid (even if null) is unique among all lower fs.
+One way to reproduce:
+1. Start a QEMU guest with 4GB, no NUMA
+2. Hotplug a 1GB DIMM and online the memory to ZONE_NORMAL
+3. Inflate the balloon to 1GB
+4. Unplug the DIMM (be quick, otherwise unmovable data ends up on it)
+5. Observe /proc/zoneinfo
+  Node 0, zone   Normal
+    pages free     16810
+          min      24848885473806
+          low      18471592959183339
+          high     36918337032892872
+          spanned  262144
+          present  262144
+          managed  18446744073709533486
+6. Do anything that requires some memory (e.g., inflate the balloon some
+more). The OOM goes crazy and the system crashes
+  [  238.324946] Out of memory: Killed process 537 (login) total-vm:27584kB, anon-rss:860kB, file-rss:0kB, shmem-rss:00
+  [  238.338585] systemd invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+  [  238.339420] CPU: 0 PID: 1 Comm: systemd Tainted: G      D W         5.4.0-next-20191204+ #75
+  [  238.340139] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
+  [  238.341121] Call Trace:
+  [  238.341337]  dump_stack+0x8f/0xd0
+  [  238.341630]  dump_header+0x61/0x5ea
+  [  238.341942]  oom_kill_process.cold+0xb/0x10
+  [  238.342299]  out_of_memory+0x24d/0x5a0
+  [  238.342625]  __alloc_pages_slowpath+0xd12/0x1020
+  [  238.343024]  __alloc_pages_nodemask+0x391/0x410
+  [  238.343407]  pagecache_get_page+0xc3/0x3a0
+  [  238.343757]  filemap_fault+0x804/0xc30
+  [  238.344083]  ? ext4_filemap_fault+0x28/0x42
+  [  238.344444]  ext4_filemap_fault+0x30/0x42
+  [  238.344789]  __do_fault+0x37/0x1a0
+  [  238.345087]  __handle_mm_fault+0x104d/0x1ab0
+  [  238.345450]  handle_mm_fault+0x169/0x360
+  [  238.345790]  do_user_addr_fault+0x20d/0x490
+  [  238.346154]  do_page_fault+0x31/0x210
+  [  238.346468]  async_page_fault+0x43/0x50
+  [  238.346797] RIP: 0033:0x7f47eba4197e
+  [  238.347110] Code: Bad RIP value.
+  [  238.347387] RSP: 002b:00007ffd7c0c1890 EFLAGS: 00010293
+  [  238.347834] RAX: 0000000000000002 RBX: 000055d196a20a20 RCX: 00007f47eba4197e
+  [  238.348437] RDX: 0000000000000033 RSI: 00007ffd7c0c18c0 RDI: 0000000000000004
+  [  238.349047] RBP: 00007ffd7c0c1c20 R08: 0000000000000000 R09: 0000000000000033
+  [  238.349660] R10: 00000000ffffffff R11: 0000000000000293 R12: 0000000000000001
+  [  238.350261] R13: ffffffffffffffff R14: 0000000000000000 R15: 00007ffd7c0c18c0
+  [  238.350878] Mem-Info:
+  [  238.351085] active_anon:3121 inactive_anon:51 isolated_anon:0
+  [  238.351085]  active_file:12 inactive_file:7 isolated_file:0
+  [  238.351085]  unevictable:0 dirty:0 writeback:0 unstable:0
+  [  238.351085]  slab_reclaimable:5565 slab_unreclaimable:10170
+  [  238.351085]  mapped:3 shmem:111 pagetables:155 bounce:0
+  [  238.351085]  free:720717 free_pcp:2 free_cma:0
+  [  238.353757] Node 0 active_anon:12484kB inactive_anon:204kB active_file:48kB inactive_file:28kB unevictable:0kB iss
+  [  238.355979] Node 0 DMA free:11556kB min:36kB low:48kB high:60kB reserved_highatomic:0KB active_anon:152kB inactivB
+  [  238.358345] lowmem_reserve[]: 0 2955 2884 2884 2884
+  [  238.358761] Node 0 DMA32 free:2677864kB min:7004kB low:10028kB high:13052kB reserved_highatomic:0KB active_anon:0B
+  [  238.361202] lowmem_reserve[]: 0 0 72057594037927865 72057594037927865 72057594037927865
+  [  238.361888] Node 0 Normal free:193448kB min:99395541895224kB low:73886371836733356kB high:147673348131571488kB reB
+  [  238.364765] lowmem_reserve[]: 0 0 0 0 0
+  [  238.365101] Node 0 DMA: 7*4kB (U) 5*8kB (UE) 6*16kB (UME) 2*32kB (UM) 1*64kB (U) 2*128kB (UE) 3*256kB (UME) 2*512B
+  [  238.366379] Node 0 DMA32: 0*4kB 1*8kB (U) 2*16kB (UM) 2*32kB (UM) 2*64kB (UM) 1*128kB (U) 1*256kB (U) 1*512kB (U)B
+  [  238.367654] Node 0 Normal: 1985*4kB (UME) 1321*8kB (UME) 844*16kB (UME) 524*32kB (UME) 300*64kB (UME) 138*128kB (B
+  [  238.369184] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
+  [  238.369915] 130 total pagecache pages
+  [  238.370241] 0 pages in swap cache
+  [  238.370533] Swap cache stats: add 0, delete 0, find 0/0
+  [  238.370981] Free swap  = 0kB
+  [  238.371239] Total swap = 0kB
+  [  238.371488] 1048445 pages RAM
+  [  238.371756] 0 pages HighMem/MovableOnly
+  [  238.372090] 306992 pages reserved
+  [  238.372376] 0 pages cma reserved
+  [  238.372661] 0 pages hwpoisoned
 
-However, said commit unintentionally also relaxed the non null uuid
-requirement for decoding copy up origin file handles, regardless of
-the unique uuid requirement.
+In another instance (older kernel), I was able to observe this
+(negative page count :/):
+  [  180.896971] Offlined Pages 32768
+  [  182.667462] Offlined Pages 32768
+  [  184.408117] Offlined Pages 32768
+  [  186.026321] Offlined Pages 32768
+  [  187.684861] Offlined Pages 32768
+  [  189.227013] Offlined Pages 32768
+  [  190.830303] Offlined Pages 32768
+  [  190.833071] Built 1 zonelists, mobility grouping on.  Total pages: -36920272750453009
 
-Amend this mistake by disabling decoding of copy up origin file handle
-from lower fs with a conflicting uuid.
+In another instance (older kernel), I was no longer able to start any
+process:
+  [root@vm ~]# [  214.348068] Offlined Pages 32768
+  [  215.973009] Offlined Pages 32768
+  cat /proc/meminfo
+  -bash: fork: Cannot allocate memory
+  [root@vm ~]# cat /proc/meminfo
+  -bash: fork: Cannot allocate memory
 
-We still encode copy up origin file handles from those fs, because
-file handles like those already exist in the wild and because they
-might provide useful information in the future.
+Fix it by properly adjusting the managed page count when migrating if
+the zone changed. The managed page count of the zones now looks after
+unplug of the DIMM (and after deflating the balloon) just like before
+inflating the balloon (and plugging+onlining the DIMM).
 
-There is an unhandled corner case described by Miklos this way:
-- two filesystems, A and B, both have null uuid
-- upper layer is on A
-- lower layer 1 is also on A
-- lower layer 2 is on B
+We'll temporarily modify the totalram page count. If this ever becomes a
+problem, we can fine tune by providing helpers that don't touch
+the totalram pages (e.g., adjust_zone_managed_page_count()).
 
-In this case bad_uuid won't be set for B, because the check only
-involves the list of lower fs.  Hence we'll try to decode a layer 2
-origin on layer 1 and fail.
+Please note that fixing up the managed page count is only necessary when
+we adjusted the managed page count when inflating - only if we
+don't have VIRTIO_BALLOON_F_DEFLATE_ON_OOM. With that feature, the
+managed page count is not touched when inflating/deflating.
 
-We will deal with this corner case later.
-
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Tested-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/lkml/20191106234301.283006-1-colin.king@canonical.com/
-Fixes: 9df085f3c9a2 ("ovl: relax requirement for non null uuid ...")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Reported-by: Yumei Huang <yuhuang@redhat.com>
+Fixes: 3dcc0571cd64 ("mm: correctly update zone->managed_pages")
+Cc: <stable@vger.kernel.org> # v3.11+
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Jiang Liu <liuj97@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Igor Mammedov <imammedo@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/namei.c     |    8 ++++++++
- fs/overlayfs/ovl_entry.h |    2 ++
- fs/overlayfs/super.c     |   24 +++++++++++++++++-------
- 3 files changed, 27 insertions(+), 7 deletions(-)
+ drivers/virtio/virtio_balloon.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/overlayfs/namei.c
-+++ b/fs/overlayfs/namei.c
-@@ -325,6 +325,14 @@ int ovl_check_origin_fh(struct ovl_fs *o
- 	int i;
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -492,6 +492,17 @@ static int virtballoon_migratepage(struc
  
- 	for (i = 0; i < ofs->numlower; i++) {
-+		/*
-+		 * If lower fs uuid is not unique among lower fs we cannot match
-+		 * fh->uuid to layer.
-+		 */
-+		if (ofs->lower_layers[i].fsid &&
-+		    ofs->lower_layers[i].fs->bad_uuid)
-+			continue;
+ 	get_page(newpage); /* balloon reference */
+ 
++	/*
++	  * When we migrate a page to a different zone and adjusted the
++	  * managed page count when inflating, we have to fixup the count of
++	  * both involved zones.
++	  */
++	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM) &&
++	    page_zone(page) != page_zone(newpage)) {
++		adjust_managed_page_count(page, 1);
++		adjust_managed_page_count(newpage, -1);
++	}
 +
- 		origin = ovl_decode_real_fh(fh, ofs->lower_layers[i].mnt,
- 					    connected);
- 		if (origin)
---- a/fs/overlayfs/ovl_entry.h
-+++ b/fs/overlayfs/ovl_entry.h
-@@ -22,6 +22,8 @@ struct ovl_config {
- struct ovl_sb {
- 	struct super_block *sb;
- 	dev_t pseudo_dev;
-+	/* Unusable (conflicting) uuid */
-+	bool bad_uuid;
- };
- 
- struct ovl_layer {
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -1255,7 +1255,7 @@ static bool ovl_lower_uuid_ok(struct ovl
- {
- 	unsigned int i;
- 
--	if (!ofs->config.nfs_export && !(ofs->config.index && ofs->upper_mnt))
-+	if (!ofs->config.nfs_export && !ofs->upper_mnt)
- 		return true;
- 
- 	for (i = 0; i < ofs->numlowerfs; i++) {
-@@ -1263,9 +1263,13 @@ static bool ovl_lower_uuid_ok(struct ovl
- 		 * We use uuid to associate an overlay lower file handle with a
- 		 * lower layer, so we can accept lower fs with null uuid as long
- 		 * as all lower layers with null uuid are on the same fs.
-+		 * if we detect multiple lower fs with the same uuid, we
-+		 * disable lower file handle decoding on all of them.
- 		 */
--		if (uuid_equal(&ofs->lower_fs[i].sb->s_uuid, uuid))
-+		if (uuid_equal(&ofs->lower_fs[i].sb->s_uuid, uuid)) {
-+			ofs->lower_fs[i].bad_uuid = true;
- 			return false;
-+		}
- 	}
- 	return true;
- }
-@@ -1277,6 +1281,7 @@ static int ovl_get_fsid(struct ovl_fs *o
- 	unsigned int i;
- 	dev_t dev;
- 	int err;
-+	bool bad_uuid = false;
- 
- 	/* fsid 0 is reserved for upper fs even with non upper overlay */
- 	if (ofs->upper_mnt && ofs->upper_mnt->mnt_sb == sb)
-@@ -1288,11 +1293,15 @@ static int ovl_get_fsid(struct ovl_fs *o
- 	}
- 
- 	if (!ovl_lower_uuid_ok(ofs, &sb->s_uuid)) {
--		ofs->config.index = false;
--		ofs->config.nfs_export = false;
--		pr_warn("overlayfs: %s uuid detected in lower fs '%pd2', falling back to index=off,nfs_export=off.\n",
--			uuid_is_null(&sb->s_uuid) ? "null" : "conflicting",
--			path->dentry);
-+		bad_uuid = true;
-+		if (ofs->config.index || ofs->config.nfs_export) {
-+			ofs->config.index = false;
-+			ofs->config.nfs_export = false;
-+			pr_warn("overlayfs: %s uuid detected in lower fs '%pd2', falling back to index=off,nfs_export=off.\n",
-+				uuid_is_null(&sb->s_uuid) ? "null" :
-+							    "conflicting",
-+				path->dentry);
-+		}
- 	}
- 
- 	err = get_anon_bdev(&dev);
-@@ -1303,6 +1312,7 @@ static int ovl_get_fsid(struct ovl_fs *o
- 
- 	ofs->lower_fs[ofs->numlowerfs].sb = sb;
- 	ofs->lower_fs[ofs->numlowerfs].pseudo_dev = dev;
-+	ofs->lower_fs[ofs->numlowerfs].bad_uuid = bad_uuid;
- 	ofs->numlowerfs++;
- 
- 	return ofs->numlowerfs;
+ 	/* balloon's page migration 1st step  -- inflate "newpage" */
+ 	spin_lock_irqsave(&vb_dev_info->pages_lock, flags);
+ 	balloon_page_insert(vb_dev_info, newpage);
 
 
