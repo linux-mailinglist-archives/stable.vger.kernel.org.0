@@ -2,114 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F941216C9
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:32:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3900512178F
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730407AbfLPSbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:31:45 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:46505 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730365AbfLPSbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 13:31:44 -0500
-Received: by mail-pg1-f196.google.com with SMTP id z124so4169492pgb.13;
-        Mon, 16 Dec 2019 10:31:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=q6wgY7fQy1m4FBOYKfnwYqVpu2I96z7LmDo1JYpVKmA=;
-        b=oHAUq9CJWPu2x9rms0fDdTAm6ul0RPmQhldrsN5OLylWRT0QAkNMoiBg+qldjqhuVE
-         pC01WYcRZcqbql2Xk1TZeLGh/t9abXxANyNKi6ScykT5hqJ6VQHqIoyeOhIiNsnNxpmS
-         gYVIr9ogXexsFc5vP2kdujTRDAnuhVX8OcC9sEQ3WCLX2/0G6DBgAMnxj4EZpxH1fsiJ
-         h8Ue9p1vYopiP2M3k2mG90lwVZbF4bPwEoIWprXHXcRoHTevhwMdiHw/kN99BtaNLFV9
-         8WPiL2i0bskE5hz4kpEgdKG2o9zplIG0/a6L5jR8VjF6CCUgEF6hvVUUVjElXwucWa7n
-         fatg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=q6wgY7fQy1m4FBOYKfnwYqVpu2I96z7LmDo1JYpVKmA=;
-        b=jbi2ICbbxcMiGyE7fkzeyiNIjORZHo/VI8XIHIng9mAUg6Gbs2BFM3SGOa7KuQZ66n
-         uONJKdr2nrtvNaB2gmvhycPov+CvcjqURAsuVM4imhTI61nMV2/1u2stXP1YBQQjofU2
-         IeMWvMTnQuNusiPhkwY6BYBbrp/oQX2InswApC0nywEQup63/54gFmJDG5nt79NC+1ac
-         b7eC+tKE7Z5CfCwqM4uP8RnTs/ZirrurmyCNOpHp9Jt25FHa0n1nEf57lnpdm3YG0v2l
-         YM4o4tu+JG0j+9LhyABlVQqWNorV639P7XL7YXRvWicdrJFwP8x+5HVudTwxuQldRG/y
-         DuZg==
-X-Gm-Message-State: APjAAAVUY3efypcKyRyhbFhzhd+bt10liHxrIqrNp/PX/AI0mN5L+bdB
-        DG8PzjCvvgufWtJZy05brEbBe6jh0dvBXqTAWUBNnQ==
-X-Google-Smtp-Source: APXvYqxsNamYDluy4MU6SGf4xgUn04QcfrEm+7mgsyXt1Aa1RCnnLKK8DURIStGo/unIqvJuRCAO2zGEMOPD6Nn2h30=
-X-Received: by 2002:a63:364d:: with SMTP id d74mr19952282pga.408.1576521103641;
- Mon, 16 Dec 2019 10:31:43 -0800 (PST)
-MIME-Version: 1.0
-References: <20191216174747.111154704@linuxfoundation.org> <20191216174815.749524432@linuxfoundation.org>
-In-Reply-To: <20191216174815.749524432@linuxfoundation.org>
-Reply-To: andrea.merello@gmail.com
-From:   Andrea Merello <andrea.merello@gmail.com>
-Date:   Mon, 16 Dec 2019 19:31:31 +0100
-Message-ID: <CAN8YU5NrEbJx3yxBNoRWnwUiAYWffDp6gEcCcGUK+g4zjbHwEg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 106/140] iio: ad7949: kill pointless
- "readback"-handling code
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        id S1729235AbfLPShD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:37:03 -0500
+Received: from mail-eopbgr760040.outbound.protection.outlook.com ([40.107.76.40]:4206
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729681AbfLPShB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:37:01 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lntMCfjLtXvq0ejZUrkXC/dwBHrPdO/qqRZ124UeXhEMHj93+XzpYd4Q9EnVqboOQSTy1FK4RsVOVTuE19ahk9EtIoYTGASpZ2Ikfoz15ZrcDyQHx7Bj9JW3+IIGRj933vPYRLrwZPb8SvbfMxwLseC05KpqOpug8HjVp3jxnEE0ihTdqbm+Ivfn+xAYix/NKp6WgxUG1QHnw/eUAklDkip1d5kFij/DemPSBYpj8M82+wJJ5h4i7gHaPuD68AsUv2SgXtiGVZrQm/hkJGua1VJf90ShzFGfa3ncOA/iUuIrMIC13eb36of7iYaGb3yy1ocucsmUjT1KOcf35tuTJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=GS4T7C4tapTc1UzKsGi+HmJb6iJSeUeTn0bOjNOC1eA=;
+ b=Hd/TEd8+va0kmp0rUaOhUI8IvmZYe2C6hTS2BhpJnzPynaUV6Tv9pVjM8RGPBu4nsB+ta0/DnJNkmEWf2041F22HcCatqiuZ/BmFzoUk4UKKxJKr8KY5+ArOjV6PtUvXmwe1UQN9enr7U6zKKR4ESTclmelFUA8Jf+7YjcvlV26icV3mtvbQKS8vREbHa5GrvU9nGRIpFFtoFQ8jQdsvnR10q8+XHJbJREHU3vzV4Y9uceNEhTnMsR1b326oE5qQgBqnzn0OwtZPb2981WWbHy8RLsoQ8AeCYcHA/kFjgUKkyxD/xs03C8PSTxXAvE8Aafef5SfEDmzYPi0jcfN14g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=GS4T7C4tapTc1UzKsGi+HmJb6iJSeUeTn0bOjNOC1eA=;
+ b=FiE3oPPkfccj48p7ayoPXUFEd9hzjhwtwof7V9yIP8VrS6UskZKQpgasE9mazxPMk15Is67Dc0fedJX9b+S7Q/DFJgRmsCBY/ot5FEPa8vOPipyX+ZWWCMtKlezYWBDn8+yyfGGNFET9OIvvI6mRDsAdPa7WAvev9EYASR5kXqU=
+Received: from MN2PR05MB6141.namprd05.prod.outlook.com (20.178.241.217) by
+ MN2PR05MB6607.namprd05.prod.outlook.com (20.178.246.150) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2559.11; Mon, 16 Dec 2019 18:36:58 +0000
+Received: from MN2PR05MB6141.namprd05.prod.outlook.com
+ ([fe80::611e:6a6b:9109:5aa8]) by MN2PR05MB6141.namprd05.prod.outlook.com
+ ([fe80::611e:6a6b:9109:5aa8%7]) with mapi id 15.20.2538.019; Mon, 16 Dec 2019
+ 18:36:58 +0000
+From:   Thomas Hellstrom <thellstrom@vmware.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 4.19 139/140] mm/memory.c: fix a huge pud insertion race
+ during faulting
+Thread-Topic: [PATCH 4.19 139/140] mm/memory.c: fix a huge pud insertion race
+ during faulting
+Thread-Index: AQHVtDulXh+YP6/bhEC7+ZhBemA23Q==
+Date:   Mon, 16 Dec 2019 18:36:57 +0000
+Message-ID: <MN2PR05MB6141D3283B5D4365CBA0A497A1510@MN2PR05MB6141.namprd05.prod.outlook.com>
+References: <20191216174747.111154704@linuxfoundation.org>
+ <20191216174829.761116794@linuxfoundation.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=thellstrom@vmware.com; 
+x-originating-ip: [155.4.205.35]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 62a9d415-d3ee-44cd-2f74-08d78256eec2
+x-ms-traffictypediagnostic: MN2PR05MB6607:
+x-microsoft-antispam-prvs: <MN2PR05MB6607BA75C1E141206171DD00A1510@MN2PR05MB6607.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-forefront-prvs: 02530BD3AA
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(396003)(136003)(366004)(376002)(346002)(39860400002)(199004)(189003)(53546011)(2906002)(4744005)(6506007)(66946007)(66476007)(86362001)(91956017)(76116006)(186003)(478600001)(66446008)(71200400001)(52536014)(55016002)(33656002)(9686003)(5660300002)(110136005)(26005)(81166006)(81156014)(4326008)(7696005)(64756008)(66556008)(8676002)(8936002)(316002)(54906003)(14583001);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6607;H:MN2PR05MB6141.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: vmware.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: hhkVerr9q8G5BlxRj2knnnA8cX2zsBxlUPkHvRMG95+XLS6sGFzIepBhMZJ9JzEu8lYVbPvMctZO+m9Wes0P7gNBWce9jX8YvyDnw3ddT6AXaOWTnJH6Hrtb83o5I1TM8x9ZPP02IHFPRl7k/yPaPoPur6K3n3iT870k45lXaWsjA/L6+vGTRujMoDRrmBB0bAN1h0vvsReXG/Tg1l9pldUZasnNCc/tL1WttrT6aD3FnpbdhkJArn7BbAtoogrXJgBzgeXCX+lkHJiRMbqpc1iM5gYnXJ4WwNFIVpDPWRMr99IIkDetVHHrWkgGccWIwXok90S5t7aP+CFT9/F2lr5uwPIeLX65Hm8dF9eJPSAK9FDxImwg0g56mnRgryaRBgWJtPB0OIiaK7CMFZ6RgyOrVg6bAaZ66xhNAN8eXV/BsUsMQZwdufxbwjkDx18ZKuWiGkOXJbzhCNzXn+D2Yvok/eI4ghBYXsLsKPpRptU869/AfhipTgsO9WKJYhJO
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 62a9d415-d3ee-44cd-2f74-08d78256eec2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Dec 2019 18:36:57.8967
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: nPm4snmQZcUSqdl3udPL9DWkpUCCQ/xP59WFR4wiqRkybuX5T6K0q9ruKQi0q5JWz50qKBfISL/Noe0SyjxLaA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6607
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Something nasty seems happening here: it looks like the commit message
-and the actual diff have nothing to do one wrt the other; the commit
-message is from one of my patches, the diff is against some unrelated
-file.
-
-Il giorno lun 16 dic 2019 alle ore 19:05 Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> ha scritto:
->
-> From: Meng Li <Meng.Li@windriver.com>
->
-> [ Upstream commit c270bbf7bb9ddc4e2a51b3c56557c377c9ac79bc ]
->
-> The device could be configured to spit out also the configuration word
-> while reading the AD result value (in the same SPI xfer) - this is called
-> "readback" in the device datasheet.
->
-> The driver checks if readback is enabled and it eventually adjusts the SPI
-> xfer length and it applies proper shifts to still get the data, discarding
-> the configuration word.
->
-> The readback option is actually never enabled (the driver disables it), so
-> the said checks do not serve for any purpose.
->
-> Since enabling the readback option seems not to provide any advantage (the
-> driver entirely sets the configuration word without relying on any default
-> value), just kill the said, unused, code.
->
-> Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-> Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/edac/altera_edac.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
-> index 56de378ad13dc..c9108906bcdc0 100644
-> --- a/drivers/edac/altera_edac.c
-> +++ b/drivers/edac/altera_edac.c
-> @@ -600,6 +600,7 @@ static const struct regmap_config s10_sdram_regmap_cfg = {
->         .reg_read = s10_protected_reg_read,
->         .reg_write = s10_protected_reg_write,
->         .use_single_rw = true,
-> +       .fast_io = true,
->  };
->
->  static int altr_s10_sdram_probe(struct platform_device *pdev)
-> --
-> 2.20.1
->
->
->
+Greg, Sasha=0A=
+=0A=
+On 12/16/19 7:07 PM, Greg Kroah-Hartman wrote:=0A=
+> From: Thomas Hellstrom <thellstrom@vmware.com>=0A=
+>=0A=
+> [ Upstream commit 625110b5e9dae9074d8a7e67dd07f821a053eed7 ]=0A=
+>=0A=
+=0A=
+Just repeating to make sure it's dropped, since it re-appeared again.=0A=
+=0A=
+Could we please drop this patch from -stable for now. I'll re-nominate=0A=
+for stable with the correct dependencies when it's seen some more=0A=
+testing. It's depending on another patch and it's touching a code path=0A=
+we definitely don't want to break with unforeseen corner-cases.=0A=
+=0A=
+Thanks,=0A=
+Thomas=0A=
+=0A=
+=0A=
