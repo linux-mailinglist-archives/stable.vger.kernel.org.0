@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA6C712180D
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7DC121755
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728767AbfLPSBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:01:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36782 "EHLO mail.kernel.org"
+        id S1730344AbfLPSI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:08:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729184AbfLPSBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:01:37 -0500
+        id S1728056AbfLPSIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:08:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2772320726;
-        Mon, 16 Dec 2019 18:01:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4C5120700;
+        Mon, 16 Dec 2019 18:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519296;
-        bh=eSh5pE4Q3RAtck0PQkjrW+PH3c7RITGsXb2IGj4X9eo=;
+        s=default; t=1576519735;
+        bh=4FAopnWEW4sAmErItMkZw9/jbKecniXpe7hWz5Qlsvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+igfSQJnDVNyGaD6FYnhrtPe/NpjDWfViWmsM+Pa4UcXRC1iF2pmXnffCGOJb//r
-         k0iqyT8WbMZ42L1Mxnvcu3CaFDsyFWObODu1etXFPYs8t0V03jEuWB0w5kiPeZPaSu
-         D2ljhzpJgbsnB+V0MYypBxwF9EGEePIRmKbjOwfY=
+        b=X685ISRIxfWt11/VMvM8Vy9bJq6yhPDdwfFRPzzWk47XDelT6tkZCSOk8P56951+Y
+         TXmJt7P9Z1eSnp89QJvaS6Iq3mNwjtYm0RL+6wbNE//Xo/cClYYBsrpfTHiersLqBz
+         UaE/wUoC4sYacYbuqnz7PH/Tmxf04b+ngKTSPp1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.19 001/140] usb: gadget: configfs: Fix missing spin_lock_init()
-Date:   Mon, 16 Dec 2019 18:47:49 +0100
-Message-Id: <20191216174747.808397958@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Lesiak <chris.lesiak@licor.com>,
+        Matt Ranostay <matt.ranostay@konsulko.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.3 030/180] iio: humidity: hdc100x: fix IIO_HUMIDITYRELATIVE channel reporting
+Date:   Mon, 16 Dec 2019 18:47:50 +0100
+Message-Id: <20191216174812.824561557@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,35 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Chris Lesiak <chris.lesiak@licor.com>
 
-commit 093edc2baad2c258b1f55d1ab9c63c2b5ae67e42 upstream.
+commit 342a6928bd5017edbdae376042d8ad6af3d3b943 upstream.
 
-The driver allocates the spinlock but not initialize it.
-Use spin_lock_init() on it to initialize it correctly.
+The IIO_HUMIDITYRELATIVE channel was being incorrectly reported back
+as percent when it should have been milli percent. This is via an
+incorrect scale value being returned to userspace.
 
-This is detected by Coccinelle semantic patch.
-
-Fixes: 1a1c851bbd70 ("usb: gadget: configfs: fix concurrent issue between composite APIs")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20191030034046.188808-1-weiyongjun1@huawei.com
+Signed-off-by: Chris Lesiak <chris.lesiak@licor.com>
+Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/configfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/humidity/hdc100x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1544,6 +1544,7 @@ static struct config_group *gadgets_make
- 	gi->composite.resume = NULL;
- 	gi->composite.max_speed = USB_SPEED_SUPER;
- 
-+	spin_lock_init(&gi->spinlock);
- 	mutex_init(&gi->lock);
- 	INIT_LIST_HEAD(&gi->string_list);
- 	INIT_LIST_HEAD(&gi->available_func);
+--- a/drivers/iio/humidity/hdc100x.c
++++ b/drivers/iio/humidity/hdc100x.c
+@@ -229,7 +229,7 @@ static int hdc100x_read_raw(struct iio_d
+ 			*val2 = 65536;
+ 			return IIO_VAL_FRACTIONAL;
+ 		} else {
+-			*val = 100;
++			*val = 100000;
+ 			*val2 = 65536;
+ 			return IIO_VAL_FRACTIONAL;
+ 		}
 
 
