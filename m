@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D4FB12156A
+	by mail.lfdr.de (Postfix) with ESMTP id ECC3A12156C
 	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732298AbfLPSVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:21:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57052 "EHLO mail.kernel.org"
+        id S1732146AbfLPSVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:21:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57289 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732297AbfLPSVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:21:47 -0500
+        id S1732301AbfLPSVt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:21:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6650B2176D;
-        Mon, 16 Dec 2019 18:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0D96206EC;
+        Mon, 16 Dec 2019 18:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576520506;
-        bh=8u+kKloouRp+fZXOBHVFwKcMa6g72kyl4ur9MdRpgTE=;
+        s=default; t=1576520509;
+        bh=pNacaEzUve952DMc+ojKhY/TSAljSVBx9N/TnS5BDmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxQGdeXO88CZoAjiviBq7Sfl+iu3N77AD1VPhQCfY2oUoTiEEtXK/muimhmBpr1ol
-         uBLvk4S5XN0ZdUvJffbqJK4WiPIWMCZxKodBSZ3ay77NKJYV6iQUCHJs5po1kY77Q4
-         AQH/zRHhtm8j6+1NhBgdME9LaXEdBJ22uZ9IjhUw=
+        b=nyiNQ8ywoX2yo+CPjEMVZ2P4ouGa788stlfPvkJ3aoFdXkDyHARBzvbwgURNJQZWq
+         kP+XWP8IOcUtuTAC/sdmlcoE8jhPs0REyL7voICh2jL9MLu2Y4hui9/4Xo4BMe+Ut/
+         53m8ap8WnmNL+mouNBgmz4TQh1JdfqVO1J/PKyrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 176/177] ext4: fix a bug in ext4_wait_for_tail_page_commit
-Date:   Mon, 16 Dec 2019 18:50:32 +0100
-Message-Id: <20191216174851.118372183@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 177/177] ext4: fix leak of quota reservations
+Date:   Mon, 16 Dec 2019 18:50:33 +0100
+Message-Id: <20191216174851.197443318@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
 References: <20191216174811.158424118@linuxfoundation.org>
@@ -44,120 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 565333a1554d704789e74205989305c811fd9c7a upstream.
+commit f4c2d372b89a1e504ebb7b7eb3e29b8306479366 upstream.
 
-No need to wait for any commit once the page is fully truncated.
-Besides, it may confuse e.g. concurrent ext4_writepage() with the page
-still be dirty (will be cleared by truncate_pagecache() in
-ext4_setattr()) but buffers has been freed; and then trigger a bug
-show as below:
+Commit 8fcc3a580651 ("ext4: rework reserved cluster accounting when
+invalidating pages") moved freeing of delayed allocation reservations
+from dirty page invalidation time to time when we evict corresponding
+status extent from extent status tree. For inodes which don't have any
+blocks allocated this may actually happen only in ext4_clear_blocks()
+which is after we've dropped references to quota structures from the
+inode. Thus reservation of quota leaked. Fix the problem by clearing
+quota information from the inode only after evicting extent status tree
+in ext4_clear_inode().
 
-[   26.057508] ------------[ cut here ]------------
-[   26.058531] kernel BUG at fs/ext4/inode.c:2134!
-...
-[   26.088130] Call trace:
-[   26.088695]  ext4_writepage+0x914/0xb28
-[   26.089541]  writeout.isra.4+0x1b4/0x2b8
-[   26.090409]  move_to_new_page+0x3b0/0x568
-[   26.091338]  __unmap_and_move+0x648/0x988
-[   26.092241]  unmap_and_move+0x48c/0xbb8
-[   26.093096]  migrate_pages+0x220/0xb28
-[   26.093945]  kernel_mbind+0x828/0xa18
-[   26.094791]  __arm64_sys_mbind+0xc8/0x138
-[   26.095716]  el0_svc_common+0x190/0x490
-[   26.096571]  el0_svc_handler+0x60/0xd0
-[   26.097423]  el0_svc+0x8/0xc
-
-Run the procedure (generate by syzkaller) parallel with ext3.
-
-void main()
-{
-	int fd, fd1, ret;
-	void *addr;
-	size_t length = 4096;
-	int flags;
-	off_t offset = 0;
-	char *str = "12345";
-
-	fd = open("a", O_RDWR | O_CREAT);
-	assert(fd >= 0);
-
-	/* Truncate to 4k */
-	ret = ftruncate(fd, length);
-	assert(ret == 0);
-
-	/* Journal data mode */
-	flags = 0xc00f;
-	ret = ioctl(fd, _IOW('f', 2, long), &flags);
-	assert(ret == 0);
-
-	/* Truncate to 0 */
-	fd1 = open("a", O_TRUNC | O_NOATIME);
-	assert(fd1 >= 0);
-
-	addr = mmap(NULL, length, PROT_WRITE | PROT_READ,
-					MAP_SHARED, fd, offset);
-	assert(addr != (void *)-1);
-
-	memcpy(addr, str, 5);
-	mbind(addr, length, 0, 0, 0, MPOL_MF_MOVE);
-}
-
-And the bug will be triggered once we seen the below order.
-
-reproduce1                         reproduce2
-
-...                            |   ...
-truncate to 4k                 |
-change to journal data mode    |
-                               |   memcpy(set page dirty)
-truncate to 0:                 |
-ext4_setattr:                  |
-...                            |
-ext4_wait_for_tail_page_commit |
-                               |   mbind(trigger bug)
-truncate_pagecache(clean dirty)|   ...
-...                            |
-
-mbind will call ext4_writepage() since the page still be dirty, and then
-report the bug since the buffers has been free. Fix it by return
-directly once offset equals to 0 which means the page has been fully
-truncated.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Link: https://lore.kernel.org/r/20190919063508.1045-1-yangerkun@huawei.com
-Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191108115420.GI20863@quack2.suse.cz
+Reported-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Fixes: 8fcc3a580651 ("ext4: rework reserved cluster accounting when invalidating pages")
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/ext4/ialloc.c |    5 -----
+ fs/ext4/super.c  |    2 +-
+ 2 files changed, 1 insertion(+), 6 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5459,11 +5459,15 @@ static void ext4_wait_for_tail_page_comm
+--- a/fs/ext4/ialloc.c
++++ b/fs/ext4/ialloc.c
+@@ -265,13 +265,8 @@ void ext4_free_inode(handle_t *handle, s
+ 	ext4_debug("freeing inode %lu\n", ino);
+ 	trace_ext4_free_inode(inode);
  
- 	offset = inode->i_size & (PAGE_SIZE - 1);
- 	/*
--	 * All buffers in the last page remain valid? Then there's nothing to
--	 * do. We do the check mainly to optimize the common PAGE_SIZE ==
--	 * blocksize case
-+	 * If the page is fully truncated, we don't need to wait for any commit
-+	 * (and we even should not as __ext4_journalled_invalidatepage() may
-+	 * strip all buffers from the page but keep the page dirty which can then
-+	 * confuse e.g. concurrent ext4_writepage() seeing dirty page without
-+	 * buffers). Also we don't need to wait for any commit if all buffers in
-+	 * the page remain valid. This is most beneficial for the common case of
-+	 * blocksize == PAGESIZE.
- 	 */
--	if (offset > PAGE_SIZE - i_blocksize(inode))
-+	if (!offset || offset > (PAGE_SIZE - i_blocksize(inode)))
- 		return;
- 	while (1) {
- 		page = find_lock_page(inode->i_mapping,
+-	/*
+-	 * Note: we must free any quota before locking the superblock,
+-	 * as writing the quota to disk may need the lock as well.
+-	 */
+ 	dquot_initialize(inode);
+ 	dquot_free_inode(inode);
+-	dquot_drop(inode);
+ 
+ 	is_directory = S_ISDIR(inode->i_mode);
+ 
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1172,9 +1172,9 @@ void ext4_clear_inode(struct inode *inod
+ {
+ 	invalidate_inode_buffers(inode);
+ 	clear_inode(inode);
+-	dquot_drop(inode);
+ 	ext4_discard_preallocations(inode);
+ 	ext4_es_remove_extent(inode, 0, EXT_MAX_BLOCKS);
++	dquot_drop(inode);
+ 	if (EXT4_I(inode)->jinode) {
+ 		jbd2_journal_release_jbd_inode(EXT4_JOURNAL(inode),
+ 					       EXT4_I(inode)->jinode);
 
 
