@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B571213E3
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:07:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C34491215C0
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729875AbfLPSFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
+        id S1727701AbfLPSYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:24:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729685AbfLPSFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:05:53 -0500
+        id S1728005AbfLPSTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:19:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B8CD2072D;
-        Mon, 16 Dec 2019 18:05:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74F6320409;
+        Mon, 16 Dec 2019 18:19:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519553;
-        bh=BdZ0yQP4HI8x/lzZSpbUwSTV0mG9B9AKkhRakrXWk5s=;
+        s=default; t=1576520373;
+        bh=vWpec5VhB3CUngkYh6UIiOcmKJ4jFbjxAXQH3GFI/AE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1sH7zy80RhVyV/W9ntYjhJKidzQsNYax3L7JLfDRI7JwJ85fdGZYIZQAxK7PPzaX
-         X2l08pfHCxlPgIDqdj5zbOAqSTrs8XcOKsVgqOtjjujjbI6Nq/hHpSmnNtcCRe6jys
-         CYPQTyK2fHIkXMD9FVKoBYz8MhaWzxOyF3dy8Ydg=
+        b=OJuWHXuZtv1W97pjPq0ym1oDavowSbBplOPkgmZtLNvemRGGAsbIqYOvO15JjXaPc
+         /TqW3NSpRiRmlQFDWPT1kCOM8VZD+J+Q7QBta23mLY+Yknn4e5cHShaMQGVpkgo/qO
+         E/RY/0DNly5TbRrlXQg7zK86cGd0wEgB566YxnhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 113/140] e100: Fix passing zero to PTR_ERR warning in e100_load_ucode_wait
-Date:   Mon, 16 Dec 2019 18:49:41 +0100
-Message-Id: <20191216174817.376556781@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Valerio Passini <passini.valerio@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 126/177] ACPI / hotplug / PCI: Allocate resources directly under the non-hotplug bridge
+Date:   Mon, 16 Dec 2019 18:49:42 +0100
+Message-Id: <20191216174843.919210561@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
+References: <20191216174811.158424118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit cd0d465bb697a9c7bf66a9fe940f7981232f1676 ]
+commit 77adf9355304f8dcf09054280af5e23fc451ab3d upstream.
 
-Fix a static code checker warning:
-drivers/net/ethernet/intel/e100.c:1349
- e100_load_ucode_wait() warn: passing zero to 'PTR_ERR'
+Valerio and others reported that commit 84c8b58ed3ad ("ACPI / hotplug /
+PCI: Don't scan bridges managed by native hotplug") prevents some recent
+LG and HP laptops from booting with endless loop of:
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  ACPI Error: No handler or method for GPE 08, disabling event (20190215/evgpe-835)
+  ACPI Error: No handler or method for GPE 09, disabling event (20190215/evgpe-835)
+  ACPI Error: No handler or method for GPE 0A, disabling event (20190215/evgpe-835)
+  ...
+
+What seems to happen is that during boot, after the initial PCI enumeration
+when EC is enabled the platform triggers ACPI Notify() to one of the root
+ports. The root port itself looks like this:
+
+  pci 0000:00:1b.0: PCI bridge to [bus 02-3a]
+  pci 0000:00:1b.0:   bridge window [mem 0xc4000000-0xda0fffff]
+  pci 0000:00:1b.0:   bridge window [mem 0x80000000-0xa1ffffff 64bit pref]
+
+The BIOS has configured the root port so that it does not have I/O bridge
+window.
+
+Now when the ACPI Notify() is triggered ACPI hotplug handler calls
+acpiphp_native_scan_bridge() for each non-hotplug bridge (as this system is
+using native PCIe hotplug) and pci_assign_unassigned_bridge_resources() to
+allocate resources.
+
+The device connected to the root port is a PCIe switch (Thunderbolt
+controller) with two hotplug downstream ports. Because of the hotplug ports
+__pci_bus_size_bridges() tries to add "additional I/O" of 256 bytes to each
+(DEFAULT_HOTPLUG_IO_SIZE). This gets further aligned to 4k as that's the
+minimum I/O window size so each hotplug port gets 4k I/O window and the
+same happens for the root port (which is also hotplug port). This means
+3 * 4k = 12k I/O window.
+
+Because of this pci_assign_unassigned_bridge_resources() ends up opening a
+I/O bridge window for the root port at first available I/O address which
+seems to be in range 0x1000 - 0x3fff. Normally this range is used for ACPI
+stuff such as GPE bits (below is part of /proc/ioports):
+
+    1800-1803 : ACPI PM1a_EVT_BLK
+    1804-1805 : ACPI PM1a_CNT_BLK
+    1808-180b : ACPI PM_TMR
+    1810-1815 : ACPI CPU throttle
+    1850-1850 : ACPI PM2_CNT_BLK
+    1854-1857 : pnp 00:05
+    1860-187f : ACPI GPE0_BLK
+
+However, when the ACPI Notify() happened this range was not yet reserved
+for ACPI/PNP (that happens later) so PCI gets it. It then starts writing to
+this range and accidentally stomps over GPE bits among other things causing
+the endless stream of messages about missing GPE handler.
+
+This problem does not happen if "pci=hpiosize=0" is passed in the kernel
+command line. The reason is that then the kernel does not try to allocate
+the additional 256 bytes for each hotplug port.
+
+Fix this by allocating resources directly below the non-hotplug bridges
+where a new device may appear as a result of ACPI Notify(). This avoids the
+hotplug bridges and prevents opening the additional I/O window.
+
+Fixes: 84c8b58ed3ad ("ACPI / hotplug / PCI: Don't scan bridges managed by native hotplug")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203617
+Link: https://lore.kernel.org/r/20191030150545.19885-1-mika.westerberg@linux.intel.com
+Reported-by: Valerio Passini <passini.valerio@gmail.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/intel/e100.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/acpiphp_glue.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index 27d5f27163d2c..78b44d7876386 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -1345,8 +1345,8 @@ static inline int e100_load_ucode_wait(struct nic *nic)
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -449,8 +449,15 @@ static void acpiphp_native_scan_bridge(s
  
- 	fw = e100_request_firmware(nic);
- 	/* If it's NULL, then no ucode is required */
--	if (!fw || IS_ERR(fw))
--		return PTR_ERR(fw);
-+	if (IS_ERR_OR_NULL(fw))
-+		return PTR_ERR_OR_ZERO(fw);
+ 	/* Scan non-hotplug bridges that need to be reconfigured */
+ 	for_each_pci_bridge(dev, bus) {
+-		if (!hotplug_is_native(dev))
+-			max = pci_scan_bridge(bus, dev, max, 1);
++		if (hotplug_is_native(dev))
++			continue;
++
++		max = pci_scan_bridge(bus, dev, max, 1);
++		if (dev->subordinate) {
++			pcibios_resource_survey_bus(dev->subordinate);
++			pci_bus_size_bridges(dev->subordinate);
++			pci_bus_assign_resources(dev->subordinate);
++		}
+ 	}
+ }
  
- 	if ((err = e100_exec_cb(nic, (void *)fw, e100_setup_ucode)))
- 		netif_err(nic, probe, nic->netdev,
--- 
-2.20.1
-
+@@ -480,7 +487,6 @@ static void enable_slot(struct acpiphp_s
+ 			if (PCI_SLOT(dev->devfn) == slot->device)
+ 				acpiphp_native_scan_bridge(dev);
+ 		}
+-		pci_assign_unassigned_bridge_resources(bus->self);
+ 	} else {
+ 		LIST_HEAD(add_list);
+ 		int max, pass;
 
 
