@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 798271212FC
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1720A121305
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727377AbfLPR5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:57:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57018 "EHLO mail.kernel.org"
+        id S1728362AbfLPR6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:58:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726722AbfLPR5t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:57:49 -0500
+        id S1728575AbfLPR6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:58:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 374B5205ED;
-        Mon, 16 Dec 2019 17:57:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71C8F205ED;
+        Mon, 16 Dec 2019 17:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519068;
-        bh=DXDA4Lq4acHcggXVh/4++Hr9oR4iVnfHrAAnjEEAhiw=;
+        s=default; t=1576519085;
+        bh=bMEM8CgX/6uIErmN9B5ttGlNi4wBwVVcAmuXfFf4Z8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haOIuDREjegheu1zlxMNs2WIPPfEGk/1LJub39lwbRAwU0CLjevF7NcJjdBetxrAp
-         H5MajEz2aIy2vrYOwH4EXT527molyCsCq1ALo18l70BTOnLSowfhJhyCLAWBW67+Rv
-         ETjlYCOLM1hP7Sldr4LTaCxDRlm4OZ9t7PvHbPh8=
+        b=2Vv/OV4ir2v2pxr5sXbyG200/DvKyQob6zQquIFJKXaieSEaKOdNWt5eS8kSxJvRT
+         DuPm+Xq5fM6KHTESiDm4BHRhSW8o6fz6sBMKzWQGHx2a2ivJeVPwCOJQizwyXREFHx
+         qZhvZZI/mnTyD2LMwzY14cqDX/kmPKDsNrbZNwes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sahaj Sarup <sahajsarup@gmail.com>,
-        Mark Salter <msalter@redhat.com>,
-        Gary R Hook <gary.hook@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 145/267] crypto: ccp - fix uninitialized list head
-Date:   Mon, 16 Dec 2019 18:47:51 +0100
-Message-Id: <20191216174910.419981328@linuxfoundation.org>
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 149/267] RDMA/qib: Validate ->show()/store() callbacks before calling them
+Date:   Mon, 16 Dec 2019 18:47:55 +0100
+Message-Id: <20191216174910.648241558@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -45,87 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Salter <msalter@redhat.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-commit 691505a803a7f223b2af621848d581259c61f77d upstream.
+commit 7ee23491b39259ae83899dd93b2a29ef0f22f0a7 upstream.
 
-A NULL-pointer dereference was reported in fedora bz#1762199 while
-reshaping a raid6 array after adding a fifth drive to an existing
-array.
+The permissions of the read-only or write-only sysfs files can be
+changed (as root) and the user can then try to read a write-only file or
+write to a read-only file which will lead to kernel crash here.
 
-[   47.343549] md/raid:md0: raid level 6 active with 3 out of 5 devices, algorithm 2
-[   47.804017] md0: detected capacity change from 0 to 7885289422848
-[   47.822083] Unable to handle kernel read from unreadable memory at virtual address 0000000000000000
-...
-[   47.940477] CPU: 1 PID: 14210 Comm: md0_raid6 Tainted: G        W         5.2.18-200.fc30.aarch64 #1
-[   47.949594] Hardware name: AMD Overdrive/Supercharger/To be filled by O.E.M., BIOS ROD1002C 04/08/2016
-[   47.958886] pstate: 00400085 (nzcv daIf +PAN -UAO)
-[   47.963668] pc : __list_del_entry_valid+0x2c/0xa8
-[   47.968366] lr : ccp_tx_submit+0x84/0x168 [ccp]
-[   47.972882] sp : ffff00001369b970
-[   47.976184] x29: ffff00001369b970 x28: ffff00001369bdb8
-[   47.981483] x27: 00000000ffffffff x26: ffff8003b758af70
-[   47.986782] x25: ffff8003b758b2d8 x24: ffff8003e6245818
-[   47.992080] x23: 0000000000000000 x22: ffff8003e62450c0
-[   47.997379] x21: ffff8003dfd6add8 x20: 0000000000000003
-[   48.002678] x19: ffff8003e6245100 x18: 0000000000000000
-[   48.007976] x17: 0000000000000000 x16: 0000000000000000
-[   48.013274] x15: 0000000000000000 x14: 0000000000000000
-[   48.018572] x13: ffff7e000ef83a00 x12: 0000000000000001
-[   48.023870] x11: ffff000010eff998 x10: 00000000000019a0
-[   48.029169] x9 : 0000000000000000 x8 : ffff8003e6245180
-[   48.034467] x7 : 0000000000000000 x6 : 000000000000003f
-[   48.039766] x5 : 0000000000000040 x4 : ffff8003e0145080
-[   48.045064] x3 : dead000000000200 x2 : 0000000000000000
-[   48.050362] x1 : 0000000000000000 x0 : ffff8003e62450c0
-[   48.055660] Call trace:
-[   48.058095]  __list_del_entry_valid+0x2c/0xa8
-[   48.062442]  ccp_tx_submit+0x84/0x168 [ccp]
-[   48.066615]  async_tx_submit+0x224/0x368 [async_tx]
-[   48.071480]  async_trigger_callback+0x68/0xfc [async_tx]
-[   48.076784]  ops_run_biofill+0x178/0x1e8 [raid456]
-[   48.081566]  raid_run_ops+0x248/0x818 [raid456]
-[   48.086086]  handle_stripe+0x864/0x1208 [raid456]
-[   48.090781]  handle_active_stripes.isra.0+0xb0/0x278 [raid456]
-[   48.096604]  raid5d+0x378/0x618 [raid456]
-[   48.100602]  md_thread+0xa0/0x150
-[   48.103905]  kthread+0x104/0x130
-[   48.107122]  ret_from_fork+0x10/0x18
-[   48.110686] Code: d2804003 f2fbd5a3 eb03003f 54000320 (f9400021)
-[   48.116766] ---[ end trace 23f390a527f7ad77 ]---
+Protect against that by always validating the show/store callbacks.
 
-ccp_tx_submit is passed a dma_async_tx_descriptor which is contained in
-a ccp_dma_desc and adds it to a ccp channel's pending list:
-
-	list_del(&desc->entry);
-	list_add_tail(&desc->entry, &chan->pending);
-
-The problem is that desc->entry may be uninitialized in the
-async_trigger_callback path where the descriptor was gotten
-from ccp_prep_dma_interrupt which got it from ccp_alloc_dma_desc
-which doesn't initialize the desc->entry list head. So, just
-initialize the list head to avoid the problem.
-
-Cc: <stable@vger.kernel.org>
-Reported-by: Sahaj Sarup <sahajsarup@gmail.com>
-Signed-off-by: Mark Salter <msalter@redhat.com>
-Acked-by: Gary R Hook <gary.hook@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Link: https://lore.kernel.org/r/d45cc26361a174ae12dbb86c994ef334d257924b.1573096807.git.viresh.kumar@linaro.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccp/ccp-dmaengine.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/qib/qib_sysfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/crypto/ccp/ccp-dmaengine.c
-+++ b/drivers/crypto/ccp/ccp-dmaengine.c
-@@ -341,6 +341,7 @@ static struct ccp_dma_desc *ccp_alloc_dm
- 	desc->tx_desc.flags = flags;
- 	desc->tx_desc.tx_submit = ccp_tx_submit;
- 	desc->ccp = chan->ccp;
-+	INIT_LIST_HEAD(&desc->entry);
- 	INIT_LIST_HEAD(&desc->pending);
- 	INIT_LIST_HEAD(&desc->active);
- 	desc->status = DMA_IN_PROGRESS;
+--- a/drivers/infiniband/hw/qib/qib_sysfs.c
++++ b/drivers/infiniband/hw/qib/qib_sysfs.c
+@@ -301,6 +301,9 @@ static ssize_t qib_portattr_show(struct
+ 	struct qib_pportdata *ppd =
+ 		container_of(kobj, struct qib_pportdata, pport_kobj);
+ 
++	if (!pattr->show)
++		return -EIO;
++
+ 	return pattr->show(ppd, buf);
+ }
+ 
+@@ -312,6 +315,9 @@ static ssize_t qib_portattr_store(struct
+ 	struct qib_pportdata *ppd =
+ 		container_of(kobj, struct qib_pportdata, pport_kobj);
+ 
++	if (!pattr->store)
++		return -EIO;
++
+ 	return pattr->store(ppd, buf, len);
+ }
+ 
 
 
