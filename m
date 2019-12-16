@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3EA6121320
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:59:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB35C12132A
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 18:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728689AbfLPR7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 12:59:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59482 "EHLO mail.kernel.org"
+        id S1727337AbfLPR7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 12:59:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728687AbfLPR7C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:59:02 -0500
+        id S1728549AbfLPR7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:59:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3580B2166E;
-        Mon, 16 Dec 2019 17:59:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76FD9205ED;
+        Mon, 16 Dec 2019 17:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519141;
-        bh=RiHveqCWVdP3RSPZSPGetwtQ5nykNe6+tU/V2tKOyhs=;
+        s=default; t=1576519160;
+        bh=iiGxtiCksUKZs3N0Uvz48pMrybG/3CoWbd+PwipCuu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDI9ikFRvL03rNpr+h407CJQRI44qUyWDjVi6d8GELg23IdXwY3Dk5RcCdySoXvGD
-         CqHIs5o8LjhXXOaw1CqFArxnP/cr3PVE2c/+cyEGBPrD42ME6hQi0/kcQiKe4yOZ3t
-         x4cR68Tt/89r5WIpKdaGdeAw52NxA2ePM3Kt9A9w=
+        b=PybzV/zvIvt7JF/Axnwd8ONhmJQiav0I7GvOCuVmB4ND79ku54WfRppFGMEhhXaqm
+         YzpnWmYppe++JxAzG8lIkDqzxVMl3pArHiWw1e9lEcqcn5Evwn8pqAa8BDT1T0tZ6u
+         vVa16hHQP8zuLaV2NndDElnxLkexPu7gPcookQ8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Wen Yang <wenyang@linux.alibaba.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 212/267] intel_th: Fix a double put_device() in error path
-Date:   Mon, 16 Dec 2019 18:48:58 +0100
-Message-Id: <20191216174914.170497116@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        Todd Brandt <todd.e.brandt@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 219/267] ACPI: PM: Avoid attaching ACPI PM domain to certain devices
+Date:   Mon, 16 Dec 2019 18:49:05 +0100
+Message-Id: <20191216174914.554256331@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
 References: <20191216174848.701533383@linuxfoundation.org>
@@ -45,54 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 512592779a337feb5905d8fcf9498dbf33672d4a upstream.
+commit b9ea0bae260f6aae546db224daa6ac1bd9d94b91 upstream.
 
-Commit a753bfcfdb1f ("intel_th: Make the switch allocate its subdevices")
-factored out intel_th_subdevice_alloc() from intel_th_populate(), but got
-the error path wrong, resulting in two instances of a double put_device()
-on a freshly initialized, but not 'added' device.
+Certain ACPI-enumerated devices represented as platform devices in
+Linux, like fans, require special low-level power management handling
+implemented by their drivers that is not in agreement with the ACPI
+PM domain behavior.  That leads to problems with managing ACPI fans
+during system-wide suspend and resume.
 
-Fix this by only doing one put_device() in the error path.
+For this reason, make acpi_dev_pm_attach() skip the affected devices
+by adding a list of device IDs to avoid to it and putting the IDs of
+the affected devices into that list.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: a753bfcfdb1f ("intel_th: Make the switch allocate its subdevices")
-Reported-by: Wen Yang <wenyang@linux.alibaba.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.14+
-Link: https://lore.kernel.org/r/20191120130806.44028-2-alexander.shishkin@linux.intel.com
+Fixes: e5cc8ef31267 (ACPI / PM: Provide ACPI PM callback routines for subsystems)
+Reported-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/core.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/acpi/device_pm.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/hwtracing/intel_th/core.c
-+++ b/drivers/hwtracing/intel_th/core.c
-@@ -628,10 +628,8 @@ intel_th_subdevice_alloc(struct intel_th
- 	}
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -1154,9 +1154,19 @@ static void acpi_dev_pm_detach(struct de
+  */
+ int acpi_dev_pm_attach(struct device *dev, bool power_on)
+ {
++	/*
++	 * Skip devices whose ACPI companions match the device IDs below,
++	 * because they require special power management handling incompatible
++	 * with the generic ACPI PM domain.
++	 */
++	static const struct acpi_device_id special_pm_ids[] = {
++		{"PNP0C0B", }, /* Generic ACPI fan */
++		{"INT3404", }, /* Fan */
++		{}
++	};
+ 	struct acpi_device *adev = ACPI_COMPANION(dev);
  
- 	err = intel_th_device_add_resources(thdev, res, subdev->nres);
--	if (err) {
--		put_device(&thdev->dev);
-+	if (err)
- 		goto fail_put_device;
--	}
+-	if (!adev)
++	if (!adev || !acpi_match_device_ids(adev, special_pm_ids))
+ 		return -ENODEV;
  
- 	if (subdev->type == INTEL_TH_OUTPUT) {
- 		thdev->dev.devt = MKDEV(th->major, th->num_thdevs);
-@@ -644,10 +642,8 @@ intel_th_subdevice_alloc(struct intel_th
- 	}
- 
- 	err = device_add(&thdev->dev);
--	if (err) {
--		put_device(&thdev->dev);
-+	if (err)
- 		goto fail_free_res;
--	}
- 
- 	/* need switch driver to be loaded to enumerate the rest */
- 	if (subdev->type == INTEL_TH_SWITCH && !req) {
+ 	if (dev->pm_domain)
 
 
