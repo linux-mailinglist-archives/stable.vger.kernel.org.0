@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5613121750
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:36:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C65EB1217E6
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:40:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730288AbfLPSIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:08:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50490 "EHLO mail.kernel.org"
+        id S1729489AbfLPSD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:03:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730306AbfLPSIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:08:43 -0500
+        id S1729485AbfLPSDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:03:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B17D120700;
-        Mon, 16 Dec 2019 18:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 015492072D;
+        Mon, 16 Dec 2019 18:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519723;
-        bh=EU7t9QC6x1Qa93dOKlmzl2pS5NWaMNioNG7xowQQfy8=;
+        s=default; t=1576519404;
+        bh=/L3ZLsmnkEAzY4IF0kVxdx6uxvNTHirXKdj/uKXUDC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vafbDHYFbCrDffzelalNH/zyZ2rMZ0GY2NKsRYkqxyS95IPrsjrICp4kaeF9kikzD
-         IC0pot1BvOkWbK8C+Z5WIu4PWa5Re+4dM7OyXGvFLbLYFr7jMDGRkE+gEfcqN1DZzu
-         rBGw52ahYryNk2PeH1fdFWyzhxh7ue12xu2mC5E8=
+        b=WUODlBDT+FNHgjHWBFo2++p/2qhIvxT6ilOEv//JsIR2YpDRde/Z6o2OJW27s/6G9
+         lco13sB0ZuKpaHt0PgdWwtS6MBx3ql26DVqImbtZoXY40OdTc4ojwoEmKjJonOp2L6
+         d437A57sj5ZMtSRoTBMo9MIjLESPOA8c56bBGqq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.3 043/180] brcmfmac: disable PCIe interrupts before bus reset
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 015/140] xhci: Fix memory leak in xhci_add_in_port()
 Date:   Mon, 16 Dec 2019 18:48:03 +0100
-Message-Id: <20191216174818.645990175@linuxfoundation.org>
+Message-Id: <20191216174754.580118549@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
-References: <20191216174806.018988360@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+References: <20191216174747.111154704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 5d26a6a6150c486f51ea2aaab33af04db02f63b8 upstream.
+commit ce91f1a43b37463f517155bdfbd525eb43adbd1a upstream.
 
-Keeping interrupts on could result in brcmfmac freeing some resources
-and then IRQ handlers trying to use them. That was obviously a straight
-path for crashing a kernel.
+When xHCI is part of Alpine or Titan Ridge Thunderbolt controller and
+the xHCI device is hot-removed as a result of unplugging a dock for
+example, the driver leaks memory it allocates for xhci->usb3_rhub.psi
+and xhci->usb2_rhub.psi in xhci_add_in_port() as reported by kmemleak:
 
-Example:
-CPU0                           CPU1
-----                           ----
-brcmf_pcie_reset
-  brcmf_pcie_bus_console_read
-  brcmf_detach
-    ...
-    brcmf_fweh_detach
-    brcmf_proto_detach
-                               brcmf_pcie_isr_thread
-                                 ...
-                                 brcmf_proto_msgbuf_rx_trigger
-                                   ...
-                                   drvr->proto->pd
-    brcmf_pcie_release_irq
+unreferenced object 0xffff922c24ef42f0 (size 16):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 16 bytes):
+    21 00 0c 00 12 00 dc 05 23 00 e0 01 00 00 00 00  !.......#.......
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+unreferenced object 0xffff922c24ef3318 (size 8):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 8 bytes):
+    34 01 05 00 35 41 0a 00                          4...5A..
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
 
-[  363.789218] Unable to handle kernel NULL pointer dereference at virtual address 00000038
-[  363.797339] pgd = c0004000
-[  363.800050] [00000038] *pgd=00000000
-[  363.803635] Internal error: Oops: 17 [#1] SMP ARM
-(...)
-[  364.029209] Backtrace:
-[  364.031725] [<bf243838>] (brcmf_proto_msgbuf_rx_trigger [brcmfmac]) from [<bf2471dc>] (brcmf_pcie_isr_thread+0x228/0x274 [brcmfmac])
-[  364.043662]  r7:00000001 r6:c8ca0000 r5:00010000 r4:c7b4f800
+Fix this by calling kfree() for the both psi objects in
+xhci_mem_cleanup().
 
-Fixes: 4684997d9eea ("brcmfmac: reset PCIe bus on a firmware crash")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: <stable@vger.kernel.org> # 4.4+
+Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20191211142007.8847-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-mem.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -1426,6 +1426,8 @@ static int brcmf_pcie_reset(struct devic
- 	struct brcmf_fw_request *fwreq;
- 	int err;
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1909,13 +1909,17 @@ no_bw:
+ 	xhci->usb3_rhub.num_ports = 0;
+ 	xhci->num_active_eps = 0;
+ 	kfree(xhci->usb2_rhub.ports);
++	kfree(xhci->usb2_rhub.psi);
+ 	kfree(xhci->usb3_rhub.ports);
++	kfree(xhci->usb3_rhub.psi);
+ 	kfree(xhci->hw_ports);
+ 	kfree(xhci->rh_bw);
+ 	kfree(xhci->ext_caps);
  
-+	brcmf_pcie_intr_disable(devinfo);
-+
- 	brcmf_pcie_bus_console_read(devinfo, true);
- 
- 	brcmf_detach(dev);
+ 	xhci->usb2_rhub.ports = NULL;
++	xhci->usb2_rhub.psi = NULL;
+ 	xhci->usb3_rhub.ports = NULL;
++	xhci->usb3_rhub.psi = NULL;
+ 	xhci->hw_ports = NULL;
+ 	xhci->rh_bw = NULL;
+ 	xhci->ext_caps = NULL;
 
 
