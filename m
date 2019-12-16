@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C895C1213EB
-	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA71312135F
+	for <lists+stable@lfdr.de>; Mon, 16 Dec 2019 19:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729548AbfLPSGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 13:06:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45718 "EHLO mail.kernel.org"
+        id S1729102AbfLPSBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 13:01:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729940AbfLPSGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 16 Dec 2019 13:06:11 -0500
+        id S1729095AbfLPSBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 16 Dec 2019 13:01:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B04FD2072D;
-        Mon, 16 Dec 2019 18:06:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41568206B7;
+        Mon, 16 Dec 2019 18:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576519570;
-        bh=oc9ro4LAIuQXzg9PbT00l/mg0NDEym0x4weUm2An9AY=;
+        s=default; t=1576519267;
+        bh=MmBpzhloIqyRon6fOR6yoIIJJ6tzuKcYzGm4JJ5qJFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMFfXW9TepkB6sgL/dT4Vxi5k6/8XzGvVxh6/WlukwmOHKtXZev5WwHAaNH1fJY99
-         0gdv4ChExIMlLcgAzpk2fpMUDtc/oTGiFQKp971wTKYmhLSlZhB8oKQ/zihOeiUJOv
-         p/6iWjbu5Sga1UBqRiOdOxCZb9izowoCe6tNRUao=
+        b=d0pCl/Qz2RBH9oZauscK+23nQm0ICDGxWFymDblp+ZYZF6goLyklbOJTqN7WiY9be
+         Z4PGEu2aG8OJIk7UfKVhV9PWC79qWs4RTFL52U53zyFAk7PK7EMLHpmB0nHT2iYMdJ
+         w0MfO1UtdShJ0me7U+HvVz1w/1OlkwvcEQv0UL3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 120/140] scsi: hisi_sas: send primitive NOTIFY to SSP situation only
-Date:   Mon, 16 Dec 2019 18:49:48 +0100
-Message-Id: <20191216174820.382069598@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>, Qian Cai <cai@lca.pw>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 263/267] mm/shmem.c: cast the type of unmap_start to u64
+Date:   Mon, 16 Dec 2019 18:49:49 +0100
+Message-Id: <20191216174917.216261846@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174848.701533383@linuxfoundation.org>
+References: <20191216174848.701533383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,121 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-[ Upstream commit 569eddcf3a0f4efff4ef96a7012010e0f7daa8b4 ]
+commit aa71ecd8d86500da6081a72da6b0b524007e0627 upstream.
 
-Send primitive NOTIFY to SSP situation only, or it causes underflow issue
-when sending IO. Also rename hisi_sas_hw.sl_notify() to hisi_sas_hw.
-sl_notify_ssp().
+In 64bit system. sb->s_maxbytes of shmem filesystem is MAX_LFS_FILESIZE,
+which equal LLONG_MAX.
 
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If offset > LLONG_MAX - PAGE_SIZE, offset + len < LLONG_MAX in
+shmem_fallocate, which will pass the checking in vfs_fallocate.
+
+	/* Check for wrap through zero too */
+	if (((offset + len) > inode->i_sb->s_maxbytes) || ((offset + len) < 0))
+		return -EFBIG;
+
+loff_t unmap_start = round_up(offset, PAGE_SIZE) in shmem_fallocate
+causes a overflow.
+
+Syzkaller reports a overflow problem in mm/shmem:
+
+  UBSAN: Undefined behaviour in mm/shmem.c:2014:10
+  signed integer overflow: '9223372036854775807 + 1' cannot be represented in type 'long long int'
+  CPU: 0 PID:17076 Comm: syz-executor0 Not tainted 4.1.46+ #1
+  Hardware name: linux, dummy-virt (DT)
+  Call trace:
+     dump_backtrace+0x0/0x2c8 arch/arm64/kernel/traps.c:100
+     show_stack+0x20/0x30 arch/arm64/kernel/traps.c:238
+     __dump_stack lib/dump_stack.c:15 [inline]
+     ubsan_epilogue+0x18/0x70 lib/ubsan.c:164
+     handle_overflow+0x158/0x1b0 lib/ubsan.c:195
+     shmem_fallocate+0x6d0/0x820 mm/shmem.c:2104
+     vfs_fallocate+0x238/0x428 fs/open.c:312
+     SYSC_fallocate fs/open.c:335 [inline]
+     SyS_fallocate+0x54/0xc8 fs/open.c:239
+
+The highest bit of unmap_start will be appended with sign bit 1
+(overflow) when calculate shmem_falloc.start:
+
+    shmem_falloc.start = unmap_start >> PAGE_SHIFT.
+
+Fix it by casting the type of unmap_start to u64, when right shifted.
+
+This bug is found in LTS Linux 4.1.  It also seems to exist in mainline.
+
+Link: http://lkml.kernel.org/r/1573867464-5107-1-git-send-email-chenjun102@huawei.com
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/hisi_sas/hisi_sas.h       | 2 +-
- drivers/scsi/hisi_sas/hisi_sas_main.c  | 3 ++-
- drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 4 ++--
- drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 4 ++--
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 4 ++--
- 5 files changed, 9 insertions(+), 8 deletions(-)
+ mm/shmem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas.h b/drivers/scsi/hisi_sas/hisi_sas.h
-index 6c7d2e201abed..d499c44661661 100644
---- a/drivers/scsi/hisi_sas/hisi_sas.h
-+++ b/drivers/scsi/hisi_sas/hisi_sas.h
-@@ -220,7 +220,7 @@ struct hisi_sas_hw {
- 	int (*slot_index_alloc)(struct hisi_hba *hisi_hba, int *slot_idx,
- 				struct domain_device *device);
- 	struct hisi_sas_device *(*alloc_dev)(struct domain_device *device);
--	void (*sl_notify)(struct hisi_hba *hisi_hba, int phy_no);
-+	void (*sl_notify_ssp)(struct hisi_hba *hisi_hba, int phy_no);
- 	int (*get_free_slot)(struct hisi_hba *hisi_hba, struct hisi_sas_dq *dq);
- 	void (*start_delivery)(struct hisi_sas_dq *dq);
- 	void (*prep_ssp)(struct hisi_hba *hisi_hba,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index f478d1f50dfc0..0ad8875c30e8e 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -716,7 +716,8 @@ static void hisi_sas_phyup_work(struct work_struct *work)
- 	struct asd_sas_phy *sas_phy = &phy->sas_phy;
- 	int phy_no = sas_phy->id;
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2895,7 +2895,7 @@ static long shmem_fallocate(struct file
+ 		}
  
--	hisi_hba->hw->sl_notify(hisi_hba, phy_no); /* This requires a sleep */
-+	if (phy->identify.target_port_protocols == SAS_PROTOCOL_SSP)
-+		hisi_hba->hw->sl_notify_ssp(hisi_hba, phy_no);
- 	hisi_sas_bytes_dmaed(hisi_hba, phy_no);
- }
- 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-index 410eccf0bc5eb..8aa3222fe4865 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-@@ -834,7 +834,7 @@ static void phys_init_v1_hw(struct hisi_hba *hisi_hba)
- 	mod_timer(timer, jiffies + HZ);
- }
- 
--static void sl_notify_v1_hw(struct hisi_hba *hisi_hba, int phy_no)
-+static void sl_notify_ssp_v1_hw(struct hisi_hba *hisi_hba, int phy_no)
- {
- 	u32 sl_control;
- 
-@@ -1822,7 +1822,7 @@ static struct scsi_host_template sht_v1_hw = {
- static const struct hisi_sas_hw hisi_sas_v1_hw = {
- 	.hw_init = hisi_sas_v1_init,
- 	.setup_itct = setup_itct_v1_hw,
--	.sl_notify = sl_notify_v1_hw,
-+	.sl_notify_ssp = sl_notify_ssp_v1_hw,
- 	.clear_itct = clear_itct_v1_hw,
- 	.prep_smp = prep_smp_v1_hw,
- 	.prep_ssp = prep_ssp_v1_hw,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-index c4774d63d5d04..ebc984ffe6a22 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-@@ -1584,7 +1584,7 @@ static void phys_init_v2_hw(struct hisi_hba *hisi_hba)
- 	}
- }
- 
--static void sl_notify_v2_hw(struct hisi_hba *hisi_hba, int phy_no)
-+static void sl_notify_ssp_v2_hw(struct hisi_hba *hisi_hba, int phy_no)
- {
- 	u32 sl_control;
- 
-@@ -3575,7 +3575,7 @@ static const struct hisi_sas_hw hisi_sas_v2_hw = {
- 	.setup_itct = setup_itct_v2_hw,
- 	.slot_index_alloc = slot_index_alloc_quirk_v2_hw,
- 	.alloc_dev = alloc_dev_quirk_v2_hw,
--	.sl_notify = sl_notify_v2_hw,
-+	.sl_notify_ssp = sl_notify_ssp_v2_hw,
- 	.get_wideport_bitmap = get_wideport_bitmap_v2_hw,
- 	.clear_itct = clear_itct_v2_hw,
- 	.free_device = free_device_v2_hw,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index a7407d5376ba2..ce2f232b3df38 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -827,7 +827,7 @@ static void phys_init_v3_hw(struct hisi_hba *hisi_hba)
- 	}
- }
- 
--static void sl_notify_v3_hw(struct hisi_hba *hisi_hba, int phy_no)
-+static void sl_notify_ssp_v3_hw(struct hisi_hba *hisi_hba, int phy_no)
- {
- 	u32 sl_control;
- 
-@@ -2127,7 +2127,7 @@ static const struct hisi_sas_hw hisi_sas_v3_hw = {
- 	.get_wideport_bitmap = get_wideport_bitmap_v3_hw,
- 	.complete_hdr_size = sizeof(struct hisi_sas_complete_v3_hdr),
- 	.clear_itct = clear_itct_v3_hw,
--	.sl_notify = sl_notify_v3_hw,
-+	.sl_notify_ssp = sl_notify_ssp_v3_hw,
- 	.prep_ssp = prep_ssp_v3_hw,
- 	.prep_smp = prep_smp_v3_hw,
- 	.prep_stp = prep_ata_v3_hw,
--- 
-2.20.1
-
+ 		shmem_falloc.waitq = &shmem_falloc_waitq;
+-		shmem_falloc.start = unmap_start >> PAGE_SHIFT;
++		shmem_falloc.start = (u64)unmap_start >> PAGE_SHIFT;
+ 		shmem_falloc.next = (unmap_end + 1) >> PAGE_SHIFT;
+ 		spin_lock(&inode->i_lock);
+ 		inode->i_private = &shmem_falloc;
 
 
