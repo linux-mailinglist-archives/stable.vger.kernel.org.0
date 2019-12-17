@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1095D1236BA
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:12:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3501236BD
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:12:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728672AbfLQULP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:11:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37750 "EHLO mail.kernel.org"
+        id S1728686AbfLQULU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:11:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728662AbfLQULP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 15:11:15 -0500
+        id S1728685AbfLQULR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:11:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADF8B2465E;
-        Tue, 17 Dec 2019 20:11:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27164206D7;
+        Tue, 17 Dec 2019 20:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576613474;
-        bh=eSnrJ3ULyj/dIp5UshGbVzKSGuZxeQBMGCY5ozG3p0s=;
+        s=default; t=1576613476;
+        bh=JhLQk5eB6cGLnd5VD/bDqYe5M3ZgaacSg/f5ubenojc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZI2INuRzANzFTw9RlOyNAgZ+vwTbG/EykPmOVhzd3GcFp92+0zhhLOCpoTwSYtC0
-         L0n5PnJF5F7ed6KajYBLIVr09zjuvI9awZ1Uio8EBuTSWY2JjLkwgJ46ohmhIlKiNP
-         xiEhv3/PIw986yEdcT1Z+ZXh74fEsE286n+0VYPw=
+        b=iWBwS7MLZhd5cyxt/dYpDWWO66Y4bnYjw3JoPeWi8CGCJK/gj1m2kiPjsEQFxOlS1
+         CWqCxb7Seuwx/NQ3NXmsjutKfNnXQnAMb/SGfPjCF7Ni/bdp0Z5YvEZlFTqb75IA6D
+         YX0vextFuCUuMdZD9gtyiQv0e2oZpoIp2j5taXT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 34/37] xdp: obtain the mem_id mutex before trying to remove an entry.
-Date:   Tue, 17 Dec 2019 21:09:55 +0100
-Message-Id: <20191217200735.119542808@linuxfoundation.org>
+Subject: [PATCH 5.4 35/37] ionic: keep users rss hash across lif reset
+Date:   Tue, 17 Dec 2019 21:09:56 +0100
+Message-Id: <20191217200735.306626253@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191217200721.741054904@linuxfoundation.org>
 References: <20191217200721.741054904@linuxfoundation.org>
@@ -47,60 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Lemon <jonathan.lemon@gmail.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 86c76c09898332143be365c702cf8d586ed4ed21 ]
+[ Upstream commit ffac2027e18f006f42630f2e01a8a9bd8dc664b5 ]
 
-A lockdep splat was observed when trying to remove an xdp memory
-model from the table since the mutex was obtained when trying to
-remove the entry, but not before the table walk started:
+If the user has specified their own RSS hash key, don't
+lose it across queue resets such as DOWN/UP, MTU change,
+and number of channels change.  This is fixed by moving
+the key initialization to a little earlier in the lif
+creation.
 
-Fix the splat by obtaining the lock before starting the table walk.
+Also, let's clean up the RSS config a little better on
+the way down by setting it all to 0.
 
-Fixes: c3f812cea0d7 ("page_pool: do not release pool until inflight == 0.")
-Reported-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Tested-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Fixes: aa3198819bea ("ionic: Add RSS support")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/xdp.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/net/core/xdp.c
-+++ b/net/core/xdp.c
-@@ -85,12 +85,8 @@ static void mem_xa_remove(struct xdp_mem
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -1364,12 +1364,9 @@ int ionic_lif_rss_config(struct ionic_li
+ 
+ static int ionic_lif_rss_init(struct ionic_lif *lif)
  {
- 	trace_mem_disconnect(xa);
+-	u8 rss_key[IONIC_RSS_HASH_KEY_SIZE];
+ 	unsigned int tbl_sz;
+ 	unsigned int i;
  
--	mutex_lock(&mem_id_lock);
+-	netdev_rss_key_fill(rss_key, IONIC_RSS_HASH_KEY_SIZE);
 -
- 	if (!rhashtable_remove_fast(mem_id_ht, &xa->node, mem_id_rht_params))
- 		call_rcu(&xa->rcu, __xdp_mem_allocator_rcu_free);
--
--	mutex_unlock(&mem_id_lock);
+ 	lif->rss_types = IONIC_RSS_TYPE_IPV4     |
+ 			 IONIC_RSS_TYPE_IPV4_TCP |
+ 			 IONIC_RSS_TYPE_IPV4_UDP |
+@@ -1382,12 +1379,18 @@ static int ionic_lif_rss_init(struct ion
+ 	for (i = 0; i < tbl_sz; i++)
+ 		lif->rss_ind_tbl[i] = ethtool_rxfh_indir_default(i, lif->nxqs);
+ 
+-	return ionic_lif_rss_config(lif, lif->rss_types, rss_key, NULL);
++	return ionic_lif_rss_config(lif, lif->rss_types, NULL, NULL);
  }
  
- static void mem_allocator_disconnect(void *allocator)
-@@ -98,6 +94,8 @@ static void mem_allocator_disconnect(voi
- 	struct xdp_mem_allocator *xa;
- 	struct rhashtable_iter iter;
- 
-+	mutex_lock(&mem_id_lock);
+-static int ionic_lif_rss_deinit(struct ionic_lif *lif)
++static void ionic_lif_rss_deinit(struct ionic_lif *lif)
+ {
+-	return ionic_lif_rss_config(lif, 0x0, NULL, NULL);
++	int tbl_sz;
 +
- 	rhashtable_walk_enter(mem_id_ht, &iter);
- 	do {
- 		rhashtable_walk_start(&iter);
-@@ -111,6 +109,8 @@ static void mem_allocator_disconnect(voi
- 
- 	} while (xa == ERR_PTR(-EAGAIN));
- 	rhashtable_walk_exit(&iter);
++	tbl_sz = le16_to_cpu(lif->ionic->ident.lif.eth.rss_ind_tbl_sz);
++	memset(lif->rss_ind_tbl, 0, tbl_sz);
++	memset(lif->rss_hash_key, 0, IONIC_RSS_HASH_KEY_SIZE);
 +
-+	mutex_unlock(&mem_id_lock);
++	ionic_lif_rss_config(lif, 0x0, NULL, NULL);
  }
  
- static void mem_id_disconnect(int id)
+ static void ionic_txrx_disable(struct ionic_lif *lif)
+@@ -1710,6 +1713,7 @@ static struct ionic_lif *ionic_lif_alloc
+ 		dev_err(dev, "Failed to allocate rss indirection table, aborting\n");
+ 		goto err_out_free_qcqs;
+ 	}
++	netdev_rss_key_fill(lif->rss_hash_key, IONIC_RSS_HASH_KEY_SIZE);
+ 
+ 	list_add_tail(&lif->list, &ionic->lifs);
+ 
 
 
