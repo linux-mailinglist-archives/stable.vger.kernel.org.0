@@ -2,58 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A28E5122929
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 11:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC05122946
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 11:54:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725940AbfLQKsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 05:48:41 -0500
-Received: from mx2.suse.de ([195.135.220.15]:33108 "EHLO mx2.suse.de"
+        id S1727412AbfLQKyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 05:54:39 -0500
+Received: from mga03.intel.com ([134.134.136.65]:1665 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725870AbfLQKsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 05:48:41 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id BEEF4ADA1;
-        Tue, 17 Dec 2019 10:48:39 +0000 (UTC)
-Date:   Tue, 17 Dec 2019 11:48:38 +0100
-From:   Joerg Roedel <jroedel@suse.de>
-To:     Lu Baolu <baolu.lu@linux.intel.com>
-Cc:     Jerry Snitselaar <jsnitsel@redhat.com>,
-        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] iommu/vt-d: Allocate reserved region for ISA with
- correct permission
-Message-ID: <20191217104838.GC28651@suse.de>
-References: <20191213053642.5696-1-jsnitsel@redhat.com>
- <3a9bcdc5-9e78-945d-f6e4-5af6829bf4f0@linux.intel.com>
+        id S1726784AbfLQKyj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 05:54:39 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Dec 2019 02:54:38 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,325,1571727600"; 
+   d="scan'208";a="416784382"
+Received: from pbroex-mobl1.ger.corp.intel.com ([10.251.85.107])
+  by fmsmga006.fm.intel.com with ESMTP; 17 Dec 2019 02:54:37 -0800
+Message-ID: <71bb3bdebe302fcc8254ba9e8b607001bb87aa1b.camel@linux.intel.com>
+Subject: Re: [PATCH] tpm: Don't make log failures fatal
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Matthew Garrett <matthewgarrett@google.com>,
+        linux-integrity@vger.kernel.org
+Cc:     Matthew Garrett <mjg59@google.com>, stable@vger.kernel.org
+Date:   Tue, 17 Dec 2019 12:54:35 +0200
+In-Reply-To: <20191213225748.11256-1-matthewgarrett@google.com>
+References: <20191213225748.11256-1-matthewgarrett@google.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.1-2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3a9bcdc5-9e78-945d-f6e4-5af6829bf4f0@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 15, 2019 at 01:39:31PM +0800, Lu Baolu wrote:
-> Hi,
+On Fri, 2019-12-13 at 14:57 -0800, Matthew Garrett wrote:
+> If a TPM is in disabled state, it's reasonable for it to have an empty
+> log. Bailing out of probe in this case means that the PPI interface
+> isn't available, so there's no way to then enable the TPM from the OS.
+> In general it seems reasonable to ignore log errors - they shouldn't
+> itnerfere with any other TPM functionality.
 > 
-> On 12/13/19 1:36 PM, Jerry Snitselaar wrote:
-> > Currently the reserved region for ISA is allocated with no
-> > permissions. If a dma domain is being used, mapping this region will
-> > fail. Set the permissions to DMA_PTE_READ|DMA_PTE_WRITE.
-> > 
-> > Cc: Joerg Roedel <jroedel@suse.de>
-> > Cc: Lu Baolu <baolu.lu@linux.intel.com>
-> > Cc: iommu@lists.linux-foundation.org
-> > Cc: stable@vger.kernel.org # v5.3+
-> > Fixes: d850c2ee5fe2 ("iommu/vt-d: Expose ISA direct mapping region via iommu_get_resv_regions")
-> > Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
-> 
-> This fix looks reasonable to me.
-> 
-> Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+> Signed-off-by: Matthew Garrett <mjg59@google.com>
+> Cc: stable@vger.kernel.org
 
-Applied for v5.5, thanks.
+Otherwise looks great but maybe it would make sense to change
+tpm_bios_log_setup() as void as part of the change?
+
+> ---
+>  drivers/char/tpm/tpm-chip.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+> index 3d6d394a8661..58073836b555 100644
+> --- a/drivers/char/tpm/tpm-chip.c
+> +++ b/drivers/char/tpm/tpm-chip.c
+> @@ -596,9 +596,7 @@ int tpm_chip_register(struct tpm_chip *chip)
+>  
+>  	tpm_sysfs_add_device(chip);
+>  
+> -	rc = tpm_bios_log_setup(chip);
+> -	if (rc != 0 && rc != -ENODEV)
+> -		return rc;
+> +	tpm_bios_log_setup(chip);
+>  
+>  	tpm_add_ppi(chip);
+>  
+
+/Jarkko
 
