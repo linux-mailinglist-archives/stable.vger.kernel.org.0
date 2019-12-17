@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD58C12211A
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8EE122119
 	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 02:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727977AbfLQBAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727197AbfLQBAc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Dec 2019 20:00:32 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34626 "EHLO
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34638 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726591AbfLQAvd (ORCPT
+        by vger.kernel.org with ESMTP id S1726618AbfLQAvd (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:33 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15G-0003Jp-8H; Tue, 17 Dec 2019 00:51:30 +0000
+        id 1ih15G-0003K7-H5; Tue, 17 Dec 2019 00:51:30 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15F-0005Sl-KB; Tue, 17 Dec 2019 00:51:29 +0000
+        id 1ih15F-0005T2-VV; Tue, 17 Dec 2019 00:51:29 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -28,11 +28,11 @@ To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Johan Hovold" <johan@kernel.org>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Dec 2019 00:45:53 +0000
-Message-ID: <lsq.1576543535.907728721@decadent.org.uk>
+Date:   Tue, 17 Dec 2019 00:45:56 +0000
+Message-ID: <lsq.1576543535.397191990@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 019/136] USB: adutux: fix NULL-derefs on disconnect
+Subject: [PATCH 3.16 022/136] USB: usblcd: fix I/O after disconnect
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,105 +48,124 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit b2fa7baee744fde746c17bc1860b9c6f5c2eebb7 upstream.
+commit eb7f5a490c5edfe8126f64bc58b9ba2edef0a425 upstream.
 
-The driver was using its struct usb_device pointer as an inverted
-disconnected flag, but was setting it to NULL before making sure all
-completion handlers had run. This could lead to a NULL-pointer
-dereference in a number of dev_dbg statements in the completion handlers
-which relies on said pointer.
+Make sure to stop all I/O on disconnect by adding a disconnected flag
+which is used to prevent new I/O from being started and by stopping all
+ongoing I/O before returning.
 
-The pointer was also dereferenced unconditionally in a dev_dbg statement
-release() something which would lead to a NULL-deref whenever a device
-was disconnected before the final character-device close if debugging
-was enabled.
+This also fixes a potential use-after-free on driver unbind in case the
+driver data is freed before the completion handler has run.
 
-Fix this by unconditionally stopping all I/O and preventing
-resubmissions by poisoning the interrupt URBs at disconnect and using a
-dedicated disconnected flag.
-
-This also makes sure that all I/O has completed by the time the
-disconnect callback returns.
-
-Fixes: 1ef37c6047fe ("USB: adutux: remove custom debug macro and module parameter")
-Fixes: 66d4bc30d128 ("USB: adutux: remove custom debug macro")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20190925092913.8608-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20190926091228.24634-7-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/misc/adutux.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/usb/misc/usblcd.c | 33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/adutux.c
-+++ b/drivers/usb/misc/adutux.c
-@@ -80,6 +80,7 @@ struct adu_device {
- 	char			serial_number[8];
+--- a/drivers/usb/misc/usblcd.c
++++ b/drivers/usb/misc/usblcd.c
+@@ -17,6 +17,7 @@
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+ #include <linux/mutex.h>
++#include <linux/rwsem.h>
+ #include <linux/uaccess.h>
+ #include <linux/usb.h>
  
- 	int			open_count; /* number of times this port has been opened */
+@@ -56,6 +57,8 @@ struct usb_lcd {
+ 							   using up all RAM */
+ 	struct usb_anchor	submitted;		/* URBs to wait for
+ 							   before suspend */
++	struct rw_semaphore	io_rwsem;
 +	unsigned long		disconnected:1;
+ };
+ #define to_lcd_dev(d) container_of(d, struct usb_lcd, kref)
  
- 	char		*read_buffer_primary;
- 	int			read_buffer_length;
-@@ -121,7 +122,7 @@ static void adu_abort_transfers(struct a
- {
- 	unsigned long flags;
+@@ -141,6 +144,13 @@ static ssize_t lcd_read(struct file *fil
  
--	if (dev->udev == NULL)
-+	if (dev->disconnected)
- 		return;
+ 	dev = file->private_data;
  
- 	/* shutdown transfer */
-@@ -244,7 +245,7 @@ static int adu_open(struct inode *inode,
- 	}
- 
- 	dev = usb_get_intfdata(interface);
--	if (!dev || !dev->udev) {
-+	if (!dev) {
- 		retval = -ENODEV;
- 		goto exit_no_device;
- 	}
-@@ -327,7 +328,7 @@ static int adu_release(struct inode *ino
- 	}
- 
- 	adu_release_internal(dev);
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		/* the device was unplugged before the file was released */
- 		if (!dev->open_count)	/* ... and we're the last user */
- 			adu_delete(dev);
-@@ -356,7 +357,7 @@ static ssize_t adu_read(struct file *fil
- 		return -ERESTARTSYS;
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto exit;
-@@ -521,7 +522,7 @@ static ssize_t adu_write(struct file *fi
- 		goto exit_nolock;
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto exit;
-@@ -801,11 +802,14 @@ static void adu_disconnect(struct usb_in
- 
- 	usb_deregister_dev(interface, &adu_class);
- 
-+	usb_poison_urb(dev->interrupt_in_urb);
-+	usb_poison_urb(dev->interrupt_out_urb);
++	down_read(&dev->io_rwsem);
 +
- 	mutex_lock(&adutux_mutex);
- 	usb_set_intfdata(interface, NULL);
++	if (dev->disconnected) {
++		retval = -ENODEV;
++		goto out_up_io;
++	}
++
+ 	/* do a blocking bulk read to get data from the device */
+ 	retval = usb_bulk_msg(dev->udev,
+ 			      usb_rcvbulkpipe(dev->udev,
+@@ -157,6 +167,9 @@ static ssize_t lcd_read(struct file *fil
+ 			retval = bytes_read;
+ 	}
  
- 	mutex_lock(&dev->mtx);	/* not interruptible */
--	dev->udev = NULL;	/* poison */
++out_up_io:
++	up_read(&dev->io_rwsem);
++
+ 	return retval;
+ }
+ 
+@@ -236,11 +249,18 @@ static ssize_t lcd_write(struct file *fi
+ 	if (r < 0)
+ 		return -EINTR;
+ 
++	down_read(&dev->io_rwsem);
++
++	if (dev->disconnected) {
++		retval = -ENODEV;
++		goto err_up_io;
++	}
++
+ 	/* create a urb, and a buffer for it, and copy the data to the urb */
+ 	urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!urb) {
+ 		retval = -ENOMEM;
+-		goto err_no_buf;
++		goto err_up_io;
+ 	}
+ 
+ 	buf = usb_alloc_coherent(dev->udev, count, GFP_KERNEL,
+@@ -277,6 +297,7 @@ static ssize_t lcd_write(struct file *fi
+ 	   the USB core will eventually free it entirely */
+ 	usb_free_urb(urb);
+ 
++	up_read(&dev->io_rwsem);
+ exit:
+ 	return count;
+ error_unanchor:
+@@ -284,7 +305,8 @@ error_unanchor:
+ error:
+ 	usb_free_coherent(dev->udev, count, buf, urb->transfer_dma);
+ 	usb_free_urb(urb);
+-err_no_buf:
++err_up_io:
++	up_read(&dev->io_rwsem);
+ 	up(&dev->limit_sem);
+ 	return retval;
+ }
+@@ -327,6 +349,7 @@ static int lcd_probe(struct usb_interfac
+ 	}
+ 	kref_init(&dev->kref);
+ 	sema_init(&dev->limit_sem, USB_LCD_CONCURRENT_WRITES);
++	init_rwsem(&dev->io_rwsem);
+ 	init_usb_anchor(&dev->submitted);
+ 
+ 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
+@@ -437,6 +460,12 @@ static void lcd_disconnect(struct usb_in
+ 	/* give back our minor */
+ 	usb_deregister_dev(interface, &lcd_class);
+ 
++	down_write(&dev->io_rwsem);
 +	dev->disconnected = 1;
- 	mutex_unlock(&dev->mtx);
++	up_write(&dev->io_rwsem);
++
++	usb_kill_anchored_urbs(&dev->submitted);
++
+ 	/* decrement our usage count */
+ 	kref_put(&dev->kref, lcd_delete);
  
- 	/* if the device is not opened, then we clean up right now */
 
