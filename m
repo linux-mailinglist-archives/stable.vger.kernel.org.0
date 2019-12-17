@@ -2,82 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1663A123813
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:50:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B288123827
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 22:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727809AbfLQUuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:50:52 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:45743 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727803AbfLQUuw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 15:50:52 -0500
-Received: by mail-lf1-f66.google.com with SMTP id 203so7947539lfa.12
-        for <stable@vger.kernel.org>; Tue, 17 Dec 2019 12:50:51 -0800 (PST)
+        id S1726992AbfLQVBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 16:01:38 -0500
+Received: from mail-wr1-f41.google.com ([209.85.221.41]:36757 "EHLO
+        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726623AbfLQVBi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 16:01:38 -0500
+Received: by mail-wr1-f41.google.com with SMTP id z3so5293746wru.3
+        for <stable@vger.kernel.org>; Tue, 17 Dec 2019 13:01:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=72qCgtbemVTUpvzrdd2T6FECaArR3GQue5QrhrOMv0E=;
-        b=ggGR/He0Hsgwd31MnY+FydqIofQaWQSwdhJmZrf0/ctB64MiNNNiQCrslq58bzpNM7
-         Bj2WRkLnM+jur2eBLEhKY57q35vW1HDH3NiJgeQ0ytDbjrQ4qJYFEqoiu/Rx06PMsYwk
-         9d55fkD+zHMMXGd2O5gjPiAzctTkwKZQaheTmueU93mby2CCUSTfbnrdgKb4IITmqv3g
-         SPKA/+WctfvchpcwFofhn9WfuYJA4KxiasY5/hbnBqcY0nlP2/hOapuvjp5KmmChRrU5
-         F7oTgUU7GkOC4cKvUG+jIBdz4/uIoWQ5L/QTKGLgMeoFYVVYcStScoxCjrPri4HIM6Um
-         YOpw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Ja+04dw+wijY/8qhE0uhZGMx63QuPG0ocY5G1Po5aWI=;
+        b=qkhuCqisD3d9WJT1/T5aKEJOuEkCfwkkMfvYKOECOVMkBCoXAHoIdi1J+AhwdC3Hbw
+         lzxMbj4Fk2yLm5hXBTVtvV40t3He27+Z9A4GezJdi1wd8PgQGKya4Px9U5CMIlxRWTnC
+         ZG5me75NBdprzExFLUEXZ8IiyZfAgiiTUsfsZ0Gy5cYtHzGXR0DoZVw7WFbdmi57QTE1
+         WiP5vh+sSoBaR+inJot6FiZZRnX0xfR+U/kDlylG1EUtUeUSac/96NZCQV12tv9Esc5R
+         8a6a69zio5Y5+Vygyg6209mHy41MzIAJLuU1ARFDL72w8mt4XkRzTwhmIa7VwpGw5qr4
+         hLWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=72qCgtbemVTUpvzrdd2T6FECaArR3GQue5QrhrOMv0E=;
-        b=aqDj9eQOiO8TbbAlG0jAG5i+x7B+3Bf+1P3B9t2UOK6hW3/U1YQu+mCwqby4Z581mc
-         y+acDszUMP8r4Xa9EdJDHbF4eeBH0lQJVSbu01YA/wArYgVXlWCtivw/n9HkMoSd1OI5
-         eDblx3mmZITccSljKVH7859WZ0GN5SnHH6ps7bsxiWtg37ftaJieniB5Pngxwj6YSnpJ
-         uXaDmu2vp17uzRQupfDRGjsuCVdHrHJlI9Lf/hqYchF3M/Rk8YIhRvsHi7BuRYkifTgS
-         8F4NT7m79XFxFepjlYHTdDLCM5nKS4hd8DRA4vek6XCAjy6zjA1BPco+pzETp2bMjVMY
-         m2aQ==
-X-Gm-Message-State: APjAAAWXzpA++7IDspcB1pJMGsR2Sr0zJdU6z5XNMveOOFDv8Hu6lkA3
-        +zQN2ZYgRo9R4LGeZ5VUg8aoeZ5xK7GanK5Xmgg=
-X-Google-Smtp-Source: APXvYqwGpgNTMK4o2n8sswlWUK1XE8m70fjvzm08QfaldMSevG92fGLUjulo+qprcIHRSikj1IZdbcLijeJZXFmEaSE=
-X-Received: by 2002:ac2:4316:: with SMTP id l22mr4019466lfh.115.1576615850170;
- Tue, 17 Dec 2019 12:50:50 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Ja+04dw+wijY/8qhE0uhZGMx63QuPG0ocY5G1Po5aWI=;
+        b=FrCYL8CwL7V3XQCDC+95CLrlnvLEsTIQw2/MDg96V+8xNBqunoTi9hLNRHVULi4scx
+         EnRf7zE12RNgRKaqVGYjuoPlA/YAHsHzV3tM2Ypa4R46Dn1pDXRNbMDk+KJb+xvs8FfM
+         V4wjfAqaBda/n1jl/iDn98shNyd1+iTUh1cTt3HxHBY8uYL1rpx34DZswrmVaEfywWCh
+         6gwX8DoiQ3fmRnb7UWQKXC6ddZMP7Yhxo1EpozEoF3eoQu4WvmLqOqQcWMuiRa9trsIs
+         BpH8Dffym1V1rZpDggF2TIHzKicUauYe44puTwel3mV0mgO65v15vAmOu329qtOBvoBv
+         xb4Q==
+X-Gm-Message-State: APjAAAVSIKfi6qXTGUytdmpkAd81taCIH+RYroMlU3nVrLClNLDdIGoE
+        lN9q4mNC299g+aeZuAntJms12KNQrk3cFA==
+X-Google-Smtp-Source: APXvYqwbSYhTDoDmlHHFvKRGIhEim7CreFTaRtjaETboundIzCyPMrxNcGPjynhna7lpanC/Be6AnQ==
+X-Received: by 2002:a5d:50cf:: with SMTP id f15mr39492859wrt.381.1576616496214;
+        Tue, 17 Dec 2019 13:01:36 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g23sm55187wmk.14.2019.12.17.13.01.35
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Dec 2019 13:01:35 -0800 (PST)
+Message-ID: <5df9422f.1c69fb81.26289.04c7@mx.google.com>
+Date:   Tue, 17 Dec 2019 13:01:35 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a2e:9910:0:0:0:0:0 with HTTP; Tue, 17 Dec 2019 12:50:49
- -0800 (PST)
-Reply-To: muali000111@gmail.com
-From:   MUSSA ALI <mrsceline001@gmail.com>
-Date:   Tue, 17 Dec 2019 12:50:49 -0800
-Message-ID: <CAAiFTcvDP+p0XOvN2SUuaS8Ae12hwMOy595ygW8qF8JUWecWCA@mail.gmail.com>
-Subject: Urgent Reply
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.16-190-g6e31894f1769
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.3.y
+Subject: stable-rc/linux-5.3.y boot: 121 boots: 0 failed,
+ 115 passed with 5 offline, 1 untried/unknown (v5.3.16-190-g6e31894f1769)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear  friend,
+stable-rc/linux-5.3.y boot: 121 boots: 0 failed, 115 passed with 5 offline,=
+ 1 untried/unknown (v5.3.16-190-g6e31894f1769)
 
-I know this means of communication may not be morally right to you as
-a person but I also have had a great thought about it and I have come
-to this conclusion which I am about to share with you.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.16-190-g6e31894f1769/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.16-190-g6e31894f1769/
 
-INTRODUCTION: I am a banker   and in one way or the other was hoping
-you will cooperate with me as a partner in a project of transferring
-an abandoned fund of a late customer of the bank worth of $18,000,000
-(Eighteen Million Dollars US).
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.16-190-g6e31894f1769
+Git Commit: 6e31894f1769bda9dff133b8baeedbc9918b1cdb
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 76 unique boards, 22 SoC families, 17 builds out of 208
 
-This will be disbursed or shared between the both of us in these
-percentages, 60% for me and 40% for you. Contact me immediately if
-that is alright for you so that we can enter in agreement before we
-start processing for the transfer of the funds. If you are satisfied
-with this proposal, please provide the below details for the Mutual
-Confidential Agreement:
+Offline Platforms:
 
-1. Full Name and Address
-2. Occupation and Country of Origin
-3. Telephone Number
+arm:
 
-I wait for your response so that we can commence on this project as
-soon as possible.
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-Regards,
-Mr. Mussa  Ali
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
