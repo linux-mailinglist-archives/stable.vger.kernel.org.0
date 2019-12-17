@@ -2,168 +2,267 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 479EC123635
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:04:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A10EC123685
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728254AbfLQUEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:04:33 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:32100 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728092AbfLQUEc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 15:04:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576613071;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0gPdkIyRZAJvPSTRoX5H5XEW5mX5l3b5f1jVxA8POtI=;
-        b=B4gMCHFk3Q/9CcrcJ4fUk6HDwvi5SSL0al7zF3S3bDh1+dutZ8dZhCigAkKwAXMLDsam7u
-        EeHadAp0XcWQRF7iS6b1ydPQ9LMd2w5xYGEoaiUjEIGVEc1Qu4SKgjWAZVKTFQqNy6eV7X
-        ca46kqRkgAOctEUAfJ3EJlIiUkjp4bk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-38-IGbNvfqiPMGdUhHJ0W6UOQ-1; Tue, 17 Dec 2019 15:04:29 -0500
-X-MC-Unique: IGbNvfqiPMGdUhHJ0W6UOQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727036AbfLQUKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:10:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726852AbfLQUKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:10:03 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 96AD01005512;
-        Tue, 17 Dec 2019 20:04:28 +0000 (UTC)
-Received: from sandy.ghostprotocols.net (ovpn-112-12.phx2.redhat.com [10.3.112.12])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id DD66468877;
-        Tue, 17 Dec 2019 20:04:27 +0000 (UTC)
-Received: by sandy.ghostprotocols.net (Postfix, from userid 1000)
-        id 95070244; Tue, 17 Dec 2019 17:04:20 -0300 (BRT)
-Date:   Tue, 17 Dec 2019 17:04:20 -0300
-From:   Arnaldo Carvalho de Melo <acme@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-        "Dmitry V . Levin" <ldv@altlinux.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
-        stable@vger.kernel.org, acme@kernel.org
-Subject: Re: [PATCH] tools lib: Disable redundant-delcs error for strlcpy
-Message-ID: <20191217200420.GD7095@redhat.com>
-References: <20191208214607.20679-1-vt@altlinux.org>
- <20191217122331.4g5atx7in6njjlw4@altlinux.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id ACCC9206D7;
+        Tue, 17 Dec 2019 20:10:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576613402;
+        bh=MOVkRkXctavxVys2EcUjzm7vPp28gaKX3IfqZQE8d/8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=b+aqPT/bkOJsrtY+vanV5yl9ygE6lIR/lAC8pOVux1MNZvqSBosl3k+70Zt+ydOJ5
+         to5UKnYxeNhjHVpC0zAophQJ/EiSnquLy6sp6AIzBowfyGglUs5Fuxu4Uh94AB63QX
+         utwansDMAIb1I4Opj3zwPCNn2yi+dEWc+1CwxC14=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 00/37] 5.4.5-stable review
+Date:   Tue, 17 Dec 2019 21:09:21 +0100
+Message-Id: <20191217200721.741054904@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20191217122331.4g5atx7in6njjlw4@altlinux.org>
-X-Url:  http://acmel.wordpress.com
-User-Agent: Mutt/1.5.20 (2009-12-10)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Content-Transfer-Encoding: quoted-printable
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.5-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.5-rc1
+X-KernelTest-Deadline: 2019-12-19T20:07+00:00
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Em Tue, Dec 17, 2019 at 03:23:32PM +0300, Vitaly Chikunov escreveu:
-> Arnaldo,
->=20
-> Ping. Can you accept or comment on this patch? There is further
-> explanations of it:
+This is the start of the stable review cycle for the 5.4.5 release.
+There are 37 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Will this work when building with clang
+Responses should be made by Thu, 19 Dec 2019 20:06:21 +0000.
+Anything received after that time might be too late.
 
-- Arnaldo
-=20
-> 1. It seems that people putting strlcpy() into the tools was already aw=
-are of
-> the problems it causes and tried to solve them. Probably, that's why th=
-ey put
-> `__weak` attribute on it (so it would be linkable in the presence of an=
-other
-> strlcpy). Then `#ifndef __UCLIBC__`ed and later `#if defined(__GLIBC__)=
- &&
-> !defined(__UCLIBC__)` its declaration. But, solution was incomplete and=
- could
-> be improved to make kernel buildable on more systems (where libc contai=
-ns
-> strlcpy).
->=20
-> There is not need to make `redundant redeclaration` warning an error in
-> this case.
->=20
-> 2. `#pragma GCC diagnostic ignored` trick is already used multiple time=
-s
-> in the kernel:
->=20
->   $ git grep  '#pragma GCC diagnostic ignored'
->   arch/arm/lib/xor-neon.c:#pragma GCC diagnostic ignored "-Wunused-vari=
-able"
->   tools/build/feature/test-gtk2-infobar.c:#pragma GCC diagnostic ignore=
-d "-Wstrict-prototypes"
->   tools/build/feature/test-gtk2.c:#pragma GCC diagnostic ignored "-Wstr=
-ict-prototypes"
->   tools/include/linux/string.h:#pragma GCC diagnostic ignored "-Wredund=
-ant-decls"
->   tools/lib/bpf/libbpf.c:#pragma GCC diagnostic ignored "-Wformat-nonli=
-teral"
->   tools/perf/ui/gtk/gtk.h:#pragma GCC diagnostic ignored "-Wstrict-prot=
-otypes"
->   tools/testing/selftests/kvm/lib/assert.c:#pragma GCC diagnostic ignor=
-ed "-Wunused-result"
->   tools/usb/ffs-test.c:#pragma GCC diagnostic ignored "-Wdeprecated-dec=
-larations"
->=20
-> So the solution does not seem alien in the kernel and should be accepta=
-ble.
->=20
-> (I also send this to another of your emails in case I used wrong one be=
-fore.)
->=20
-> Thanks,
->=20
->=20
-> On Mon, Dec 09, 2019 at 12:46:07AM +0300, Vitaly Chikunov wrote:
-> > Disable `redundant-decls' error for strlcpy declaration and solve bui=
-ld
-> > error allowing users to compile vanilla kernels.
-> >=20
-> > When glibc have strlcpy (such as in ALT linux since 2004) objtool and
-> > perf build fails with something like:
-> >=20
-> >   In file included from exec-cmd.c:3:
-> >   tools/include/linux/string.h:20:15: error: redundant redeclaration =
-of =E2=80=98strlcpy=E2=80=99 [-Werror=3Dredundant-decls]
-> >      20 | extern size_t strlcpy(char *dest, const char *src, size_t s=
-ize);
-> > 	|               ^~~~~~~
-> >=20
-> > It's very hard to produce a perfect fix for that since it is a header
-> > file indirectly pulled from many sources from different Makefile buil=
-ds.
-> >=20
-> > Fixes: ce99091 ("perf tools: Move strlcpy() from perf to tools/lib/st=
-ring.c")
-> > Fixes: 0215d59 ("tools lib: Reinstate strlcpy() header guard with __U=
-CLIBC__")
-> > Signed-off-by: Vitaly Chikunov <vt@altlinux.org>
-> > Cc: Dmitry V. Levin <ldv@altlinux.org>
-> > Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-> > Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  tools/include/linux/string.h | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >=20
-> > diff --git a/tools/include/linux/string.h b/tools/include/linux/strin=
-g.h
-> > index 980cb9266718..99ede7f5dfb8 100644
-> > --- a/tools/include/linux/string.h
-> > +++ b/tools/include/linux/string.h
-> > @@ -17,7 +17,10 @@ int strtobool(const char *s, bool *res);
-> >   * However uClibc headers also define __GLIBC__ hence the hack below
-> >   */
-> >  #if defined(__GLIBC__) && !defined(__UCLIBC__)
-> > +#pragma GCC diagnostic push
-> > +#pragma GCC diagnostic ignored "-Wredundant-decls"
-> >  extern size_t strlcpy(char *dest, const char *src, size_t size);
-> > +#pragma GCC diagnostic pop
-> >  #endif
-> > =20
-> >  char *str_error_r(int errnum, char *buf, size_t buflen);
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.5-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.5-rc1
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    r8169: add missing RX enabling for WoL on RTL8125
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: mscc: ocelot: unregister the PTP clock on deinit
+
+Shannon Nelson <snelson@pensando.io>
+    ionic: keep users rss hash across lif reset
+
+Jonathan Lemon <jonathan.lemon@gmail.com>
+    xdp: obtain the mem_id mutex before trying to remove an entry.
+
+Jonathan Lemon <jonathan.lemon@gmail.com>
+    page_pool: do not release pool until inflight == 0.
+
+Aya Levin <ayal@mellanox.com>
+    net/mlx5e: ethtool, Fix analysis of speed setting
+
+Aya Levin <ayal@mellanox.com>
+    net/mlx5e: Fix translation of link mode into speed
+
+Roi Dayan <roid@mellanox.com>
+    net/mlx5e: Fix freeing flow with kfree() and not kvfree()
+
+Eran Ben Elisha <eranbe@mellanox.com>
+    net/mlx5e: Fix SFF 8472 eeprom length
+
+Aaron Conole <aconole@redhat.com>
+    act_ct: support asymmetric conntrack
+
+Eran Ben Elisha <eranbe@mellanox.com>
+    net/mlx5e: Fix TXQ indices to be sequential
+
+Martin Varghese <martin.varghese@nokia.com>
+    net: Fixed updating of ethertype in skb_mpls_push()
+
+Taehee Yoo <ap420073@gmail.com>
+    hsr: fix a NULL pointer dereference in hsr_dev_xmit()
+
+Martin Varghese <martin.varghese@nokia.com>
+    Fixed updating of ethertype in function skb_mpls_pop
+
+Cong Wang <xiyou.wangcong@gmail.com>
+    gre: refetch erspan header from skb->data after pskb_may_pull()
+
+Yoshiki Komachi <komachi.yoshiki@gmail.com>
+    cls_flower: Fix the behavior using port ranges with hw-offload
+
+John Hurley <john.hurley@netronome.com>
+    net: sched: allow indirect blocks to bind to clsact in TC
+
+John Hurley <john.hurley@netronome.com>
+    net: core: rename indirect block ingress cb function
+
+Guillaume Nault <gnault@redhat.com>
+    tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
+
+Guillaume Nault <gnault@redhat.com>
+    tcp: tighten acceptance of ACKs not matching a child socket
+
+Guillaume Nault <gnault@redhat.com>
+    tcp: fix rejected syncookies due to stale timestamps
+
+Sabrina Dubroca <sd@queasysnail.net>
+    net: ipv6_stub: use ip6_dst_lookup_flow instead of ip6_dst_lookup
+
+Sabrina Dubroca <sd@queasysnail.net>
+    net: ipv6: add net argument to ip6_dst_lookup_flow
+
+Huy Nguyen <huyn@mellanox.com>
+    net/mlx5e: Query global pause state before setting prio2buffer
+
+Taehee Yoo <ap420073@gmail.com>
+    tipc: fix ordering of tipc module init and exit routine
+
+Eric Dumazet <edumazet@google.com>
+    tcp: md5: fix potential overestimation of TCP option space
+
+Aaron Conole <aconole@redhat.com>
+    openvswitch: support asymmetric conntrack
+
+Valentin Vidic <vvidic@valentin-vidic.from.hr>
+    net/tls: Fix return values to avoid ENOTSUPP
+
+Mian Yousaf Kaukab <ykaukab@suse.de>
+    net: thunderx: start phy before starting autonegotiation
+
+Jouni Hogander <jouni.hogander@unikie.com>
+    net-sysfs: Call dev_hold always in netdev_queue_add_kobject
+
+Eric Dumazet <edumazet@google.com>
+    net_sched: validate TCA_KIND attribute in tc_chain_tmplt_add()
+
+Dust Li <dust.li@linux.alibaba.com>
+    net: sched: fix dump qlen for sch_mq/sch_mqprio with NOLOCK subqueues
+
+Grygorii Strashko <grygorii.strashko@ti.com>
+    net: ethernet: ti: cpsw: fix extra rx interrupt
+
+Alexander Lobakin <alobakin@dlink.ru>
+    net: dsa: fix flow dissection on Tx path
+
+Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+    net: bridge: deny dev_set_mac_address() when unregistering
+
+Vladyslav Tarasiuk <vladyslavt@mellanox.com>
+    mqprio: Fix out-of-bounds access in mqprio_dump
+
+Eric Dumazet <edumazet@google.com>
+    inet: protect against too small mtu values.
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ drivers/infiniband/core/addr.c                     |   7 +-
+ drivers/infiniband/sw/rxe/rxe_net.c                |   8 +-
+ drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en.h       |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en/port.c  |   1 +
+ .../ethernet/mellanox/mlx5/core/en/port_buffer.c   |  27 ++++-
+ .../net/ethernet/mellanox/mlx5/core/en/tc_tun.c    |   8 +-
+ .../net/ethernet/mellanox/mlx5/core/en_ethtool.c   |  15 +--
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |  31 ++----
+ drivers/net/ethernet/mellanox/mlx5/core/en_stats.c |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c    |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c    |   2 +-
+ drivers/net/ethernet/mscc/ocelot.c                 |  14 ++-
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c    |  16 ++-
+ drivers/net/ethernet/realtek/r8169_main.c          |   2 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   4 +-
+ drivers/net/ethernet/ti/cpsw.c                     |   2 +-
+ drivers/net/geneve.c                               |   4 +-
+ drivers/net/vxlan.c                                |   8 +-
+ include/linux/netdevice.h                          |   5 +
+ include/linux/skbuff.h                             |   5 +-
+ include/linux/time.h                               |  13 +++
+ include/net/flow_dissector.h                       |   1 +
+ include/net/flow_offload.h                         |  15 ++-
+ include/net/ip.h                                   |   5 +
+ include/net/ipv6.h                                 |   2 +-
+ include/net/ipv6_stubs.h                           |   6 +-
+ include/net/page_pool.h                            |  52 +++------
+ include/net/tcp.h                                  |  27 +++--
+ include/net/xdp_priv.h                             |   4 -
+ include/trace/events/xdp.h                         |  19 +---
+ net/bridge/br_device.c                             |   6 +
+ net/core/dev.c                                     |   3 +-
+ net/core/flow_dissector.c                          |  42 +++++--
+ net/core/flow_offload.c                            |  45 ++++----
+ net/core/lwt_bpf.c                                 |   4 +-
+ net/core/net-sysfs.c                               |   7 +-
+ net/core/page_pool.c                               | 122 +++++++++++++--------
+ net/core/skbuff.c                                  |  10 +-
+ net/core/xdp.c                                     | 117 +++++++-------------
+ net/dccp/ipv6.c                                    |   6 +-
+ net/hsr/hsr_device.c                               |   9 +-
+ net/ipv4/devinet.c                                 |   5 -
+ net/ipv4/gre_demux.c                               |   2 +-
+ net/ipv4/ip_output.c                               |  13 ++-
+ net/ipv4/tcp_output.c                              |   5 +-
+ net/ipv6/addrconf_core.c                           |  11 +-
+ net/ipv6/af_inet6.c                                |   4 +-
+ net/ipv6/datagram.c                                |   2 +-
+ net/ipv6/inet6_connection_sock.c                   |   4 +-
+ net/ipv6/ip6_output.c                              |   8 +-
+ net/ipv6/raw.c                                     |   2 +-
+ net/ipv6/syncookies.c                              |   2 +-
+ net/ipv6/tcp_ipv6.c                                |   4 +-
+ net/l2tp/l2tp_ip6.c                                |   2 +-
+ net/mpls/af_mpls.c                                 |   7 +-
+ net/netfilter/nf_tables_offload.c                  |   6 +-
+ net/openvswitch/actions.c                          |   6 +-
+ net/openvswitch/conntrack.c                        |  11 ++
+ net/sched/act_ct.c                                 |  13 ++-
+ net/sched/act_mpls.c                               |   7 +-
+ net/sched/cls_api.c                                |  60 ++++++----
+ net/sched/cls_flower.c                             | 118 +++++++++++---------
+ net/sched/sch_mq.c                                 |   1 +
+ net/sched/sch_mqprio.c                             |   3 +-
+ net/sctp/ipv6.c                                    |   4 +-
+ net/tipc/core.c                                    |  29 ++---
+ net/tipc/udp_media.c                               |   9 +-
+ net/tls/tls_device.c                               |   8 +-
+ net/tls/tls_main.c                                 |   4 +-
+ net/tls/tls_sw.c                                   |   8 +-
+ tools/testing/selftests/net/tls.c                  |   8 +-
+ 73 files changed, 581 insertions(+), 471 deletions(-)
+
 
