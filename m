@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7887F122034
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 582FB122043
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727803AbfLQAw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:52:59 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35478 "EHLO
+        id S1727576AbfLQAxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:53:34 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35368 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727152AbfLQAvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:45 -0500
+        by vger.kernel.org with ESMTP id S1727076AbfLQAvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:44 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15L-0003ND-93; Tue, 17 Dec 2019 00:51:35 +0000
+        id 1ih15L-0003NI-0i; Tue, 17 Dec 2019 00:51:35 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15J-0005aQ-4u; Tue, 17 Dec 2019 00:51:33 +0000
+        id 1ih15J-0005aV-6Y; Tue, 17 Dec 2019 00:51:33 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Marek Szyprowski" <m.szyprowski@samsung.com>,
-        "Reported-by: Marian Mihailescu" <mihailescu2m@gmail.com>,
-        "Sylwester Nawrocki" <s.nawrocki@samsung.com>
-Date:   Tue, 17 Dec 2019 00:47:06 +0000
-Message-ID: <lsq.1576543535.482826178@decadent.org.uk>
+        "Takashi Sakamoto" <o-takashi@sakamocchi.jp>,
+        "Takashi Iwai" <tiwai@suse.de>
+Date:   Tue, 17 Dec 2019 00:47:07 +0000
+Message-ID: <lsq.1576543535.51536194@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 092/136] clk: samsung: exynos5420: Preserve PLL
- configuration during suspend/resume
+Subject: [PATCH 3.16 093/136] ALSA: bebob: Fix prototype of helper
+ function to return negative value
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,44 +47,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit e9323b664ce29547d996195e8a6129a351c39108 upstream.
+commit f2bbdbcb075f3977a53da3bdcb7cd460bc8ae5f2 upstream.
 
-Properly save and restore all top PLL related configuration registers
-during suspend/resume cycle. So far driver only handled EPLL and RPLL
-clocks, all other were reset to default values after suspend/resume cycle.
-This caused for example lower G3D (MALI Panfrost) performance after system
-resume, even if performance governor has been selected.
+A helper function of ALSA bebob driver returns negative value in a
+function which has a prototype to return unsigned value.
 
-Reported-by: Reported-by: Marian Mihailescu <mihailescu2m@gmail.com>
-Fixes: 773424326b51 ("clk: samsung: exynos5420: add more registers to restore list")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+This commit fixes it by changing the prototype.
+
+Fixes: eb7b3a056cd8 ("ALSA: bebob: Add commands and connections/streams management")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191026030620.12077-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/clk/samsung/clk-exynos5420.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/firewire/bebob/bebob_stream.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/clk/samsung/clk-exynos5420.c
-+++ b/drivers/clk/samsung/clk-exynos5420.c
-@@ -162,12 +162,18 @@ static unsigned long exynos5x_clk_regs[]
- 	GATE_BUS_CPU,
- 	GATE_SCLK_CPU,
- 	CLKOUT_CMU_CPU,
-+	CPLL_CON0,
-+	DPLL_CON0,
- 	EPLL_CON0,
- 	EPLL_CON1,
- 	EPLL_CON2,
- 	RPLL_CON0,
- 	RPLL_CON1,
- 	RPLL_CON2,
-+	IPLL_CON0,
-+	SPLL_CON0,
-+	VPLL_CON0,
-+	MPLL_CON0,
- 	SRC_TOP0,
- 	SRC_TOP1,
- 	SRC_TOP2,
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -196,8 +196,7 @@ end:
+ 	return err;
+ }
+ 
+-static unsigned int
+-map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
++static int map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
+ {
+ 	unsigned int sec, sections, ch, channels;
+ 	unsigned int pcm, midi, location;
 
