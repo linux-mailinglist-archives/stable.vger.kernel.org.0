@@ -2,128 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 116631230AE
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 16:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3234C12327A
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 17:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727725AbfLQPl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 10:41:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34668 "EHLO mail.kernel.org"
+        id S1728244AbfLQQaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 11:30:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727370AbfLQPl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 10:41:29 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1728214AbfLQQaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 11:30:46 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3462A2465E;
-        Tue, 17 Dec 2019 15:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4FA721835;
+        Tue, 17 Dec 2019 16:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576597288;
-        bh=14fxz1g93eJrGWAl22AH5K143t43QwrxjnddQxfnLBY=;
-        h=Subject:To:From:Date:From;
-        b=XK0uVedqgIuqqjJVjuFzsfXqGFbfQ6tW1Yzkiho+n/UCarnT26oQ48/zPaB0KUX7b
-         Ji16VBp1w+0keEeUJtkI7T8N33tlNVfAU/aklVnsIDrr3UyfEFHuHjrM478BVqQ8Ht
-         bX4xMvOyR2/q2p8UoiqKU1xn6HKEg2O9TK+6kTYg=
-Subject: patch "usbip: Fix error path of vhci_recv_ret_submit()" added to usb-linus
-To:     suwan.kim027@gmail.com, gregkh@linuxfoundation.org,
-        marmarek@invisiblethingslab.com, skhan@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Dec 2019 16:41:18 +0100
-Message-ID: <15765972787371@kroah.com>
+        s=default; t=1576600245;
+        bh=Ruri3xp18Qqifgv+llL3zcYiL8zvB2i9sWMuqfeuf+k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nRw8mIyNZPgJgNQKxV12br+jPuVGBsPbBd8R2L0MKGnXYkV1orl+4g4PRX8jLyGiA
+         v+xT5QbnJMl2Y1s4y14pHKMxPikne1O1PdI+mBzGegRfyl7xGgMgG1D1pJiZBNuXp4
+         ajpNr0TEJ7SPd/Ds9YsFCnruHmPfRfmzpvJqhxxY=
+Date:   Tue, 17 Dec 2019 11:30:43 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Andrea Merello <andrea.merello@gmail.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: Re: [PATCH 4.19 106/140] iio: ad7949: kill pointless
+ "readback"-handling code
+Message-ID: <20191217163043.GH17708@sasha-vm>
+References: <20191216174747.111154704@linuxfoundation.org>
+ <20191216174815.749524432@linuxfoundation.org>
+ <CAN8YU5NrEbJx3yxBNoRWnwUiAYWffDp6gEcCcGUK+g4zjbHwEg@mail.gmail.com>
+ <20191216184536.GB2411653@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20191216184536.GB2411653@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Dec 16, 2019 at 07:45:36PM +0100, Greg Kroah-Hartman wrote:
+>On Mon, Dec 16, 2019 at 07:31:31PM +0100, Andrea Merello wrote:
+>> Something nasty seems happening here: it looks like the commit message
+>> and the actual diff have nothing to do one wrt the other; the commit
+>> message is from one of my patches, the diff is against some unrelated
+>> file.
+>>
+>> Il giorno lun 16 dic 2019 alle ore 19:05 Greg Kroah-Hartman
+>> <gregkh@linuxfoundation.org> ha scritto:
+>> >
+>> > From: Meng Li <Meng.Li@windriver.com>
+>> >
+>> > [ Upstream commit c270bbf7bb9ddc4e2a51b3c56557c377c9ac79bc ]
+>> >
+>> > The device could be configured to spit out also the configuration word
+>> > while reading the AD result value (in the same SPI xfer) - this is called
+>> > "readback" in the device datasheet.
+>> >
+>> > The driver checks if readback is enabled and it eventually adjusts the SPI
+>> > xfer length and it applies proper shifts to still get the data, discarding
+>> > the configuration word.
+>> >
+>> > The readback option is actually never enabled (the driver disables it), so
+>> > the said checks do not serve for any purpose.
+>> >
+>> > Since enabling the readback option seems not to provide any advantage (the
+>> > driver entirely sets the configuration word without relying on any default
+>> > value), just kill the said, unused, code.
+>> >
+>> > Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
+>> > Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+>> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> > ---
+>> >  drivers/edac/altera_edac.c | 1 +
+>> >  1 file changed, 1 insertion(+)
+>> >
+>> > diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
+>> > index 56de378ad13dc..c9108906bcdc0 100644
+>> > --- a/drivers/edac/altera_edac.c
+>> > +++ b/drivers/edac/altera_edac.c
+>> > @@ -600,6 +600,7 @@ static const struct regmap_config s10_sdram_regmap_cfg = {
+>> >         .reg_read = s10_protected_reg_read,
+>> >         .reg_write = s10_protected_reg_write,
+>> >         .use_single_rw = true,
+>> > +       .fast_io = true,
+>> >  };
+>> >
+>> >  static int altr_s10_sdram_probe(struct platform_device *pdev)
+>> > --
+>> > 2.20.1
+>> >
+>> >
+>> >
+>
+>Wow, something went wrong.
+>
+>Sasha, can you look into this?
 
-This is a note to let you know that I've just added the patch titled
+Yikes, sorry - this is one of the commits that needed to be manually
+backported, and I must have copy pasted the wrong commit hash to use as
+the commit message.
 
-    usbip: Fix error path of vhci_recv_ret_submit()
+This really is 56d9e7bd3fa0 ("EDAC/altera: Use fast register IO for S10
+IRQs") which needs to be in the stable tree, I'll go fix up the message.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From aabb5b833872524eaf28f52187e5987984982264 Mon Sep 17 00:00:00 2001
-From: Suwan Kim <suwan.kim027@gmail.com>
-Date: Fri, 13 Dec 2019 11:30:55 +0900
-Subject: usbip: Fix error path of vhci_recv_ret_submit()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-If a transaction error happens in vhci_recv_ret_submit(), event
-handler closes connection and changes port status to kick hub_event.
-Then hub tries to flush the endpoint URBs, but that causes infinite
-loop between usb_hub_flush_endpoint() and vhci_urb_dequeue() because
-"vhci_priv" in vhci_urb_dequeue() was already released by
-vhci_recv_ret_submit() before a transmission error occurred. Thus,
-vhci_urb_dequeue() terminates early and usb_hub_flush_endpoint()
-continuously calls vhci_urb_dequeue().
-
-The root cause of this issue is that vhci_recv_ret_submit()
-terminates early without giving back URB when transaction error
-occurs in vhci_recv_ret_submit(). That causes the error URB to still
-be linked at endpoint list without “vhci_priv".
-
-So, in the case of transaction error in vhci_recv_ret_submit(),
-unlink URB from the endpoint, insert proper error code in
-urb->status and give back URB.
-
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Tested-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20191213023055.19933-3-suwan.kim027@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/usbip/vhci_rx.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/usb/usbip/vhci_rx.c b/drivers/usb/usbip/vhci_rx.c
-index 33f8972ba842..00fc98741c5d 100644
---- a/drivers/usb/usbip/vhci_rx.c
-+++ b/drivers/usb/usbip/vhci_rx.c
-@@ -77,16 +77,21 @@ static void vhci_recv_ret_submit(struct vhci_device *vdev,
- 	usbip_pack_pdu(pdu, urb, USBIP_RET_SUBMIT, 0);
- 
- 	/* recv transfer buffer */
--	if (usbip_recv_xbuff(ud, urb) < 0)
--		return;
-+	if (usbip_recv_xbuff(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
- 
- 	/* recv iso_packet_descriptor */
--	if (usbip_recv_iso(ud, urb) < 0)
--		return;
-+	if (usbip_recv_iso(ud, urb) < 0) {
-+		urb->status = -EPROTO;
-+		goto error;
-+	}
- 
- 	/* restore the padding in iso packets */
- 	usbip_pad_iso(ud, urb);
- 
-+error:
- 	if (usbip_dbg_flag_vhci_rx)
- 		usbip_dump_urb(urb);
- 
 -- 
-2.24.1
-
-
+Thanks,
+Sasha
