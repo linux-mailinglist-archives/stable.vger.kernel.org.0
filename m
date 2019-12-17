@@ -2,126 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8EA122828
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 11:01:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E39E12284F
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 11:08:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727398AbfLQKBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 05:01:24 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:54861 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727039AbfLQKBX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 05:01:23 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1ih9fB-0003qk-Hn; Tue, 17 Dec 2019 11:01:09 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 3E6311C2A30;
-        Tue, 17 Dec 2019 11:01:09 +0100 (CET)
-Date:   Tue, 17 Dec 2019 10:01:09 -0000
-From:   "tip-bot2 for Konstantin Khlebnikov" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: ras/urgent] x86/MCE/AMD: Do not use rdmsr_safe_on_cpu() in
- smca_configure()
-Cc:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Borislav Petkov <bp@suse.de>,
-        Yazen Ghannam <yazen.ghannam@amd.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        "linux-edac" <linux-edac@vger.kernel.org>,
-        <stable@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, "x86-ml" <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <157252708836.3876.4604398213417262402.stgit@buzz>
-References: <157252708836.3876.4604398213417262402.stgit@buzz>
+        id S1727161AbfLQKIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 05:08:12 -0500
+Received: from mail-out.m-online.net ([212.18.0.9]:40079 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726824AbfLQKIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 05:08:11 -0500
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 47cYjz3GZwz1qv2x;
+        Tue, 17 Dec 2019 11:08:07 +0100 (CET)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 47cYjz2Z3mz1r0n8;
+        Tue, 17 Dec 2019 11:08:07 +0100 (CET)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id LVBJyw7uh_iC; Tue, 17 Dec 2019 11:08:06 +0100 (CET)
+X-Auth-Info: dr12vmsJmv00RDQi62FtkfPFZZHSFt36jHq/A6RkKRw=
+Received: from desktop.lan (ip-86-49-35-8.net.upcbroadband.cz [86.49.35.8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mnet-online.de (Postfix) with ESMTPSA;
+        Tue, 17 Dec 2019 11:08:05 +0100 (CET)
+From:   Marek Vasut <marex@denx.de>
+To:     linux-can@vger.kernel.org
+Cc:     Marek Vasut <marex@denx.de>, Bich Hemon <bich.hemon@st.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        "J . D . Schroeder" <jay.schroeder@garmin.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Roger Quadros <rogerq@ti.com>,
+        linux-stable <stable@vger.kernel.org>
+Subject: [PATCH] can: m_can: Fix default pinmux glitch at init
+Date:   Tue, 17 Dec 2019 11:07:40 +0100
+Message-Id: <20191217100740.2687835-1-marex@denx.de>
+X-Mailer: git-send-email 2.24.0.525.g8f36a354ae
 MIME-Version: 1.0
-Message-ID: <157657686913.30329.12674595394156740801.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the ras/urgent branch of tip:
+The current code causes a slight glitch on the pinctrl settings when used.
+Since commit ab78029 (drivers/pinctrl: grab default handles from device core),
+the device core will automatically set the default pins. This causes the pins
+to be momentarily set to the default and then to the sleep state in
+register_m_can_dev(). By adding an optional "enable" state, boards can set the
+default pin state to be disabled and avoid the glitch when the switch from
+default to sleep first occurs. If the "enable" state is not available
+pinctrl_get_select() falls back to using the "default" pinctrl state.
 
-Commit-ID:     246ff09f89e54fdf740a8d496176c86743db3ec7
-Gitweb:        https://git.kernel.org/tip/246ff09f89e54fdf740a8d496176c86743db3ec7
-Author:        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-AuthorDate:    Thu, 31 Oct 2019 16:04:48 +03:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Tue, 17 Dec 2019 09:39:33 +01:00
-
-x86/MCE/AMD: Do not use rdmsr_safe_on_cpu() in smca_configure()
-
-... because interrupts are disabled that early and sending IPIs can
-deadlock:
-
-  BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
-  in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 0, name: swapper/1
-  no locks held by swapper/1/0.
-  irq event stamp: 0
-  hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  hardirqs last disabled at (0): [<ffffffff8106dda9>] copy_process+0x8b9/0x1ca0
-  softirqs last  enabled at (0): [<ffffffff8106dda9>] copy_process+0x8b9/0x1ca0
-  softirqs last disabled at (0): [<0000000000000000>] 0x0
-  Preemption disabled at:
-  [<ffffffff8104703b>] start_secondary+0x3b/0x190
-  CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.5.0-rc2+ #1
-  Hardware name: GIGABYTE MZ01-CE1-00/MZ01-CE1-00, BIOS F02 08/29/2018
-  Call Trace:
-   dump_stack
-   ___might_sleep.cold.92
-   wait_for_completion
-   ? generic_exec_single
-   rdmsr_safe_on_cpu
-   ? wrmsr_on_cpus
-   mce_amd_feature_init
-   mcheck_cpu_init
-   identify_cpu
-   identify_secondary_cpu
-   smp_store_cpu_info
-   start_secondary
-   secondary_startup_64
-
-The function smca_configure() is called only on the current CPU anyway,
-therefore replace rdmsr_safe_on_cpu() with atomic rdmsr_safe() and avoid
-the IPI.
-
- [ bp: Update commit message. ]
-
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/157252708836.3876.4604398213417262402.stgit@buzz
+Fixes: c9b3bce18da4 ("can: m_can: select pinctrl state in each suspend/resume function")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Bich Hemon <bich.hemon@st.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: J.D. Schroeder <jay.schroeder@garmin.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: Roger Quadros <rogerq@ti.com>
+Cc: linux-stable <stable@vger.kernel.org>
+To: linux-can@vger.kernel.org
 ---
- arch/x86/kernel/cpu/mce/amd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+NOTE: This is commit 033365191136 ("can: c_can: Fix default pinmux glitch at init")
+      adapted for m_can driver.
+---
+ drivers/net/can/m_can/m_can.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/mce/amd.c b/arch/x86/kernel/cpu/mce/amd.c
-index 5167bd2..e41e3b4 100644
---- a/arch/x86/kernel/cpu/mce/amd.c
-+++ b/arch/x86/kernel/cpu/mce/amd.c
-@@ -269,7 +269,7 @@ static void smca_configure(unsigned int bank, unsigned int cpu)
- 	if (smca_banks[bank].hwid)
- 		return;
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 02c5795b73936..afb6760b17427 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1243,12 +1243,20 @@ static void m_can_chip_config(struct net_device *dev)
+ static void m_can_start(struct net_device *dev)
+ {
+ 	struct m_can_classdev *cdev = netdev_priv(dev);
++	struct pinctrl *p;
  
--	if (rdmsr_safe_on_cpu(cpu, MSR_AMD64_SMCA_MCx_IPID(bank), &low, &high)) {
-+	if (rdmsr_safe(MSR_AMD64_SMCA_MCx_IPID(bank), &low, &high)) {
- 		pr_warn("Failed to read MCA_IPID for bank %d\n", bank);
- 		return;
- 	}
+ 	/* basic m_can configuration */
+ 	m_can_chip_config(dev);
+ 
+ 	cdev->can.state = CAN_STATE_ERROR_ACTIVE;
+ 
++	/* Attempt to use "active" if available else use "default" */
++	p = pinctrl_get_select(cdev->dev, "active");
++	if (!IS_ERR(p))
++		pinctrl_put(p);
++	else
++		pinctrl_pm_select_default_state(cdev->dev);
++
+ 	m_can_enable_all_interrupts(cdev);
+ }
+ 
+-- 
+2.24.0.525.g8f36a354ae
+
