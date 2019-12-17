@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AC812211D
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 02:00:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B3112211B
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 02:00:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbfLQAvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:51:32 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34596 "EHLO
+        id S1728062AbfLQBAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 20:00:33 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34620 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726551AbfLQAvc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:32 -0500
+        by vger.kernel.org with ESMTP id S1726587AbfLQAvd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:33 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15G-0003Jh-0b; Tue, 17 Dec 2019 00:51:30 +0000
+        id 1ih15G-0003Jr-DK; Tue, 17 Dec 2019 00:51:30 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15F-0005Sc-Bi; Tue, 17 Dec 2019 00:51:29 +0000
+        id 1ih15F-0005Sg-I0; Tue, 17 Dec 2019 00:51:29 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        syzbot+5630ca7c3b2be5c9da5e@syzkaller.appspotmail.com,
         "Johan Hovold" <johan@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Dec 2019 00:45:51 +0000
-Message-ID: <lsq.1576543535.825704292@decadent.org.uk>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Oliver Neukum" <oneukum@suse.com>
+Date:   Tue, 17 Dec 2019 00:45:52 +0000
+Message-ID: <lsq.1576543535.617134764@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 017/136] USB: serial: keyspan: fix NULL-derefs on
- open() and write()
+Subject: [PATCH 3.16 018/136] USB: microtek: fix info-leak at probe
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,69 +50,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 7d7e21fafdbc7fcf0854b877bd0975b487ed2717 upstream.
+commit 177238c3d47d54b2ed8f0da7a4290db492f4a057 upstream.
 
-Fix NULL-pointer dereferences on open() and write() which can be
-triggered by a malicious USB device.
+Add missing bulk-in endpoint sanity check to prevent uninitialised stack
+data from being reported to the system log and used as endpoint
+addresses.
 
-The current URB allocation helper would fail to initialise the newly
-allocated URB if the device has unexpected endpoint descriptors,
-something which could lead NULL-pointer dereferences in a number of
-open() and write() paths when accessing the URB. For example:
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000000
-	...
-	RIP: 0010:usb_clear_halt+0x11/0xc0
-	...
-	Call Trace:
-	 ? tty_port_open+0x4d/0xd0
-	 keyspan_open+0x70/0x160 [keyspan]
-	 serial_port_activate+0x5b/0x80 [usbserial]
-	 tty_port_open+0x7b/0xd0
-	 ? check_tty_count+0x43/0xa0
-	 tty_open+0xf1/0x490
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000000
-	...
-	RIP: 0010:keyspan_write+0x14e/0x1f3 [keyspan]
-	...
-	Call Trace:
-	 serial_write+0x43/0xa0 [usbserial]
-	 n_tty_write+0x1af/0x4f0
-	 ? do_wait_intr_irq+0x80/0x80
-	 ? process_echoes+0x60/0x60
-	 tty_write+0x13f/0x2f0
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000000
-	...
-	RIP: 0010:keyspan_usa26_send_setup+0x298/0x305 [keyspan]
-	...
-	Call Trace:
-	 keyspan_open+0x10f/0x160 [keyspan]
-	 serial_port_activate+0x5b/0x80 [usbserial]
-	 tty_port_open+0x7b/0xd0
-	 ? check_tty_count+0x43/0xa0
-	 tty_open+0xf1/0x490
-
-Fixes: fdcba53e2d58 ("fix for bugzilla #7544 (keyspan USB-to-serial converter)")
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+5630ca7c3b2be5c9da5e@syzkaller.appspotmail.com
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20191003070931.17009-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/serial/keyspan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/image/microtek.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/serial/keyspan.c
-+++ b/drivers/usb/serial/keyspan.c
-@@ -1249,8 +1249,8 @@ static struct urb *keyspan_setup_urb(str
+--- a/drivers/usb/image/microtek.c
++++ b/drivers/usb/image/microtek.c
+@@ -727,6 +727,10 @@ static int mts_usb_probe(struct usb_inte
  
- 	ep_desc = find_ep(serial, endpoint);
- 	if (!ep_desc) {
--		/* leak the urb, something's wrong and the callers don't care */
--		return urb;
-+		usb_free_urb(urb);
-+		return NULL;
  	}
- 	if (usb_endpoint_xfer_int(ep_desc)) {
- 		ep_type_name = "INT";
+ 
++	if (ep_in_current != &ep_in_set[2]) {
++		MTS_WARNING("couldn't find two input bulk endpoints. Bailing out.\n");
++		return -ENODEV;
++	}
+ 
+ 	if ( ep_out == -1 ) {
+ 		MTS_WARNING( "couldn't find an output bulk endpoint. Bailing out.\n" );
 
