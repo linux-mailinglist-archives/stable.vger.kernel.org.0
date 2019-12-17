@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2777F122086
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:57:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15024122063
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727658AbfLQAzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:55:41 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35320 "EHLO
+        id S1727411AbfLQAyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:54:36 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35350 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727053AbfLQAvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:43 -0500
+        by vger.kernel.org with ESMTP id S1727066AbfLQAvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:44 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15L-0003MS-3o; Tue, 17 Dec 2019 00:51:35 +0000
+        id 1ih15K-0003MA-KR; Tue, 17 Dec 2019 00:51:34 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15J-0005bZ-T5; Tue, 17 Dec 2019 00:51:33 +0000
+        id 1ih15J-0005be-WB; Tue, 17 Dec 2019 00:51:34 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jeff Layton" <jlayton@kernel.org>,
-        "Al Viro" <viro@zeniv.linux.org.uk>,
-        "Ilya Dryomov" <idryomov@gmail.com>
-Date:   Tue, 17 Dec 2019 00:47:18 +0000
-Message-ID: <lsq.1576543535.424136682@decadent.org.uk>
+        "Johan Hovold" <johan@kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+Date:   Tue, 17 Dec 2019 00:47:19 +0000
+Message-ID: <lsq.1576543535.605152971@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 104/136] ceph: add missing check in d_revalidate
- snapdir handling
+Subject: [PATCH 3.16 105/136] USB: serial: whiteheat: fix potential slab
+ corruption
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,31 +47,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Johan Hovold <johan@kernel.org>
 
-commit 1f08529c84cfecaf1261ed9b7e17fab18541c58f upstream.
+commit 1251dab9e0a2c4d0d2d48370ba5baa095a5e8774 upstream.
 
-We should not play with dcache without parent locked...
+Fix a user-controlled slab buffer overflow due to a missing sanity check
+on the bulk-out transfer buffer used for control requests.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-[bwh: Backported to 3.16:
- - Test ceph_mds_request::r_locked_dir
- - Adjust context]
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191029102354.2733-2-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/ceph/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/whiteheat.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -1260,6 +1260,7 @@ retry_lookup:
- 					    req->r_request_started);
- 		dout(" final dn %p\n", dn);
- 	} else if (!req->r_aborted &&
-+	           req->r_locked_dir &&
- 		   (req->r_op == CEPH_MDS_OP_LOOKUPSNAP ||
- 		    req->r_op == CEPH_MDS_OP_MKSNAP)) {
- 		struct dentry *dn = req->r_dentry;
+--- a/drivers/usb/serial/whiteheat.c
++++ b/drivers/usb/serial/whiteheat.c
+@@ -604,6 +604,10 @@ static int firm_send_command(struct usb_
+ 
+ 	command_port = port->serial->port[COMMAND_PORT];
+ 	command_info = usb_get_serial_port_data(command_port);
++
++	if (command_port->bulk_out_size < datasize + 1)
++		return -EIO;
++
+ 	mutex_lock(&command_info->mutex);
+ 	command_info->command_finished = false;
+ 
 
