@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57E101220B6
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:57:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040D712207D
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727217AbfLQA5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:57:22 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34968 "EHLO
+        id S1727397AbfLQAzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:55:21 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35286 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726858AbfLQAvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:40 -0500
+        by vger.kernel.org with ESMTP id S1727039AbfLQAvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:43 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15I-0003Km-Hk; Tue, 17 Dec 2019 00:51:32 +0000
+        id 1ih15I-0003LC-Iy; Tue, 17 Dec 2019 00:51:32 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15I-0005Yb-Cl; Tue, 17 Dec 2019 00:51:32 +0000
+        id 1ih15I-0005Yk-E2; Tue, 17 Dec 2019 00:51:32 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "David Sterba" <dsterba@suse.com>,
-        "Filipe Manana" <fdmanana@suse.com>
-Date:   Tue, 17 Dec 2019 00:46:49 +0000
-Message-ID: <lsq.1576543535.611022098@decadent.org.uk>
+        "Yufen Yu" <yuyufen@huawei.com>,
+        "Bart Van Assche" <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Date:   Tue, 17 Dec 2019 00:46:50 +0000
+Message-ID: <lsq.1576543535.245209603@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 075/136] Btrfs: check for the full sync flag while
- holding the inode lock during fsync
+Subject: [PATCH 3.16 076/136] scsi: core: try to get module before
+ removing device
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,86 +48,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-commit ba0b084ac309283db6e329785c1dc4f45fdbd379 upstream.
+commit 77c301287ebae86cc71d03eb3806f271cb14da79 upstream.
 
-We were checking for the full fsync flag in the inode before locking the
-inode, which is racy, since at that that time it might not be set but
-after we acquire the inode lock some other task set it. One case where
-this can happen is on a system low on memory and some concurrent task
-failed to allocate an extent map and therefore set the full sync flag on
-the inode, to force the next fsync to work in full mode.
+We have a test case like block/001 in blktests, which will create a scsi
+device by loading scsi_debug module and then try to delete the device by
+sysfs interface. At the same time, it may remove the scsi_debug module.
 
-A consequence of missing the full fsync flag set is hitting the problems
-fixed by commit 0c713cbab620 ("Btrfs: fix race between ranged fsync and
-writeback of adjacent ranges"), BUG_ON() when dropping extents from a log
-tree, hitting assertion failures at tree-log.c:copy_items() or all sorts
-of weird inconsistencies after replaying a log due to file extents items
-representing ranges that overlap.
+And getting a invalid paging request BUG_ON as following:
 
-So just move the check such that it's done after locking the inode and
-before starting writeback again.
+[   34.625854] BUG: unable to handle page fault for address: ffffffffa0016bb8
+[   34.629189] Oops: 0000 [#1] SMP PTI
+[   34.629618] CPU: 1 PID: 450 Comm: bash Tainted: G        W         5.4.0-rc3+ #473
+[   34.632524] RIP: 0010:scsi_proc_hostdir_rm+0x5/0xa0
+[   34.643555] CR2: ffffffffa0016bb8 CR3: 000000012cd88000 CR4: 00000000000006e0
+[   34.644545] Call Trace:
+[   34.644907]  scsi_host_dev_release+0x6b/0x1f0
+[   34.645511]  device_release+0x74/0x110
+[   34.646046]  kobject_put+0x116/0x390
+[   34.646559]  put_device+0x17/0x30
+[   34.647041]  scsi_target_dev_release+0x2b/0x40
+[   34.647652]  device_release+0x74/0x110
+[   34.648186]  kobject_put+0x116/0x390
+[   34.648691]  put_device+0x17/0x30
+[   34.649157]  scsi_device_dev_release_usercontext+0x2e8/0x360
+[   34.649953]  execute_in_process_context+0x29/0x80
+[   34.650603]  scsi_device_dev_release+0x20/0x30
+[   34.651221]  device_release+0x74/0x110
+[   34.651732]  kobject_put+0x116/0x390
+[   34.652230]  sysfs_unbreak_active_protection+0x3f/0x50
+[   34.652935]  sdev_store_delete.cold.4+0x71/0x8f
+[   34.653579]  dev_attr_store+0x1b/0x40
+[   34.654103]  sysfs_kf_write+0x3d/0x60
+[   34.654603]  kernfs_fop_write+0x174/0x250
+[   34.655165]  __vfs_write+0x1f/0x60
+[   34.655639]  vfs_write+0xc7/0x280
+[   34.656117]  ksys_write+0x6d/0x140
+[   34.656591]  __x64_sys_write+0x1e/0x30
+[   34.657114]  do_syscall_64+0xb1/0x400
+[   34.657627]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   34.658335] RIP: 0033:0x7f156f337130
 
-Fixes: 0c713cbab620 ("Btrfs: fix race between ranged fsync and writeback of adjacent ranges")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-[bwh: Backported to 3.16:
- - Keep the "len" variable since we pass it to btrfs_wait_ordered_range()
-   in two different places here
- - Adjust context]
+During deleting scsi target, the scsi_debug module have been removed. Then,
+sdebug_driver_template belonged to the module cannot be accessd, resulting
+in scsi_proc_hostdir_rm() BUG_ON.
+
+To fix the bug, we add scsi_device_get() in sdev_store_delete() to try to
+increase refcount of module, avoiding the module been removed.
+
+Link: https://lore.kernel.org/r/20191015130556.18061-1-yuyufen@huawei.com
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -1888,23 +1888,6 @@ int btrfs_sync_file(struct file *file, l
- 	bool full_sync = 0;
- 	u64 len;
- 
--	/*
--	 * If the inode needs a full sync, make sure we use a full range to
--	 * avoid log tree corruption, due to hole detection racing with ordered
--	 * extent completion for adjacent ranges, and assertion failures during
--	 * hole detection.
--	 */
--	if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
--		     &BTRFS_I(inode)->runtime_flags)) {
--		start = 0;
--		end = LLONG_MAX;
--	}
--
--	/*
--	 * The range length can be represented by u64, we have to do the typecasts
--	 * to avoid signed overflow if it's [0, LLONG_MAX] eg. from fsync()
--	 */
--	len = (u64)end - (u64)start + 1;
- 	trace_btrfs_sync_file(file, datasync);
- 
- 	/*
-@@ -1925,6 +1908,25 @@ int btrfs_sync_file(struct file *file, l
- 	mutex_lock(&inode->i_mutex);
- 
- 	/*
-+	 * If the inode needs a full sync, make sure we use a full range to
-+	 * avoid log tree corruption, due to hole detection racing with ordered
-+	 * extent completion for adjacent ranges, and assertion failures during
-+	 * hole detection. Do this while holding the inode lock, to avoid races
-+	 * with other tasks.
-+	 */
-+	if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
-+		     &BTRFS_I(inode)->runtime_flags)) {
-+		start = 0;
-+		end = LLONG_MAX;
-+	}
+ drivers/scsi/scsi_sysfs.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -652,6 +652,14 @@ sdev_store_delete(struct device *dev, st
+ 		  const char *buf, size_t count)
+ {
+ 	struct kernfs_node *kn;
++	struct scsi_device *sdev = to_scsi_device(dev);
 +
 +	/*
-+	 * The range length can be represented by u64, we have to do the typecasts
-+	 * to avoid signed overflow if it's [0, LLONG_MAX] eg. from fsync()
++	 * We need to try to get module, avoiding the module been removed
++	 * during delete.
 +	 */
-+	len = (u64)end - (u64)start + 1;
-+
-+	/*
- 	 * We flush the dirty pages again to avoid some dirty pages in the
- 	 * range being left.
++	if (scsi_device_get(sdev))
++		return -ENODEV;
+ 
+ 	kn = sysfs_break_active_protection(&dev->kobj, &attr->attr);
+ 	WARN_ON_ONCE(!kn);
+@@ -666,9 +674,10 @@ sdev_store_delete(struct device *dev, st
+ 	 * state into SDEV_DEL.
  	 */
+ 	device_remove_file(dev, attr);
+-	scsi_remove_device(to_scsi_device(dev));
++	scsi_remove_device(sdev);
+ 	if (kn)
+ 		sysfs_unbreak_active_protection(kn);
++	scsi_device_put(sdev);
+ 	return count;
+ };
+ static DEVICE_ATTR(delete, S_IWUSR, NULL, sdev_store_delete);
 
