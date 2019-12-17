@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC591236EC
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E881236F9
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728620AbfLQURC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:17:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41330 "EHLO mail.kernel.org"
+        id S1728782AbfLQURT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:17:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728614AbfLQURB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 15:17:01 -0500
+        id S1728772AbfLQURS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:17:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1D8D21775;
-        Tue, 17 Dec 2019 20:16:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25A49206D8;
+        Tue, 17 Dec 2019 20:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576613820;
-        bh=Rbxn+mhz5nZooNXEHWaE4uC+r8lmHz35r1FEl8qsTw0=;
+        s=default; t=1576613837;
+        bh=mEjOtDnWl6Sk8Dcq5ErPMR05oSVZPAxURSZP407aJqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rd3lAt0cn/Mt5teTJum/fBVpwY7V2NKyCy6ooQbRKd0jeoXU2j3zy31oDJRtz8rv2
-         RJnOPPd1EDjESKd/+S82VW6AscebXBwnPiNZlb/t9hn5ip/f03GZEZtGQYxYx7kqhz
-         UtVrgpz5792meR7V5PFdY6+WavpW1fuCkbPDLWpI=
+        b=cCWUjaJcVdQkmpX2IWUqeIt6VptLMf1t6SCx3z03ebBrH1nhIsvNDIDGaLeHsAHSf
+         /MjoI6HU+Mgktei2MvKKlvpFg6q9C/joPgKQrRd1OFdq+crONvCnZgL7Ye0fg4kt/X
+         77rT+bqKJ9rVvuejtpoqURnBQHCIG0j58PamaPZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vladyslav Tarasiuk <vladyslavt@mellanox.com>,
+        syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 02/25] mqprio: Fix out-of-bounds access in mqprio_dump
-Date:   Tue, 17 Dec 2019 21:16:01 +0100
-Message-Id: <20191217200904.475066246@linuxfoundation.org>
+Subject: [PATCH 5.3 03/25] net: bridge: deny dev_set_mac_address() when unregistering
+Date:   Tue, 17 Dec 2019 21:16:02 +0100
+Message-Id: <20191217200904.674817598@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191217200903.179327435@linuxfoundation.org>
 References: <20191217200903.179327435@linuxfoundation.org>
@@ -44,42 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladyslav Tarasiuk <vladyslavt@mellanox.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-[ Upstream commit 9f104c7736904ac72385bbb48669e0c923ca879b ]
+[ Upstream commit c4b4c421857dc7b1cf0dccbd738472360ff2cd70 ]
 
-When user runs a command like
-tc qdisc add dev eth1 root mqprio
-KASAN stack-out-of-bounds warning is emitted.
-Currently, NLA_ALIGN macro used in mqprio_dump provides too large
-buffer size as argument for nla_put and memcpy down the call stack.
-The flow looks like this:
-1. nla_put expects exact object size as an argument;
-2. Later it provides this size to memcpy;
-3. To calculate correct padding for SKB, nla_put applies NLA_ALIGN
-   macro itself.
+We have an interesting memory leak in the bridge when it is being
+unregistered and is a slave to a master device which would change the
+mac of its slaves on unregister (e.g. bond, team). This is a very
+unusual setup but we do end up leaking 1 fdb entry because
+dev_set_mac_address() would cause the bridge to insert the new mac address
+into its table after all fdbs are flushed, i.e. after dellink() on the
+bridge has finished and we call NETDEV_UNREGISTER the bond/team would
+release it and will call dev_set_mac_address() to restore its original
+address and that in turn will add an fdb in the bridge.
+One fix is to check for the bridge dev's reg_state in its
+ndo_set_mac_address callback and return an error if the bridge is not in
+NETREG_REGISTERED.
 
-Therefore, NLA_ALIGN should not be applied to the nla_put parameter.
-Otherwise it will lead to out-of-bounds memory access in memcpy.
+Easy steps to reproduce:
+ 1. add bond in mode != A/B
+ 2. add any slave to the bond
+ 3. add bridge dev as a slave to the bond
+ 4. destroy the bridge device
 
-Fixes: 4e8b86c06269 ("mqprio: Introduce new hardware offload mode and shaper in mqprio")
-Signed-off-by: Vladyslav Tarasiuk <vladyslavt@mellanox.com>
+Trace:
+ unreferenced object 0xffff888035c4d080 (size 128):
+   comm "ip", pid 4068, jiffies 4296209429 (age 1413.753s)
+   hex dump (first 32 bytes):
+     41 1d c9 36 80 88 ff ff 00 00 00 00 00 00 00 00  A..6............
+     d2 19 c9 5e 3f d7 00 00 00 00 00 00 00 00 00 00  ...^?...........
+   backtrace:
+     [<00000000ddb525dc>] kmem_cache_alloc+0x155/0x26f
+     [<00000000633ff1e0>] fdb_create+0x21/0x486 [bridge]
+     [<0000000092b17e9c>] fdb_insert+0x91/0xdc [bridge]
+     [<00000000f2a0f0ff>] br_fdb_change_mac_address+0xb3/0x175 [bridge]
+     [<000000001de02dbd>] br_stp_change_bridge_id+0xf/0xff [bridge]
+     [<00000000ac0e32b1>] br_set_mac_address+0x76/0x99 [bridge]
+     [<000000006846a77f>] dev_set_mac_address+0x63/0x9b
+     [<00000000d30738fc>] __bond_release_one+0x3f6/0x455 [bonding]
+     [<00000000fc7ec01d>] bond_netdev_event+0x2f2/0x400 [bonding]
+     [<00000000305d7795>] notifier_call_chain+0x38/0x56
+     [<0000000028885d4a>] call_netdevice_notifiers+0x1e/0x23
+     [<000000008279477b>] rollback_registered_many+0x353/0x6a4
+     [<0000000018ef753a>] unregister_netdevice_many+0x17/0x6f
+     [<00000000ba854b7a>] rtnl_delete_link+0x3c/0x43
+     [<00000000adf8618d>] rtnl_dellink+0x1dc/0x20a
+     [<000000009b6395fd>] rtnetlink_rcv_msg+0x23d/0x268
+
+Fixes: 43598813386f ("bridge: add local MAC address to forwarding table (v2)")
+Reported-by: syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_mqprio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_device.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/sched/sch_mqprio.c
-+++ b/net/sched/sch_mqprio.c
-@@ -433,7 +433,7 @@ static int mqprio_dump(struct Qdisc *sch
- 		opt.offset[tc] = dev->tc_to_txq[tc].offset;
- 	}
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -253,6 +253,12 @@ static int br_set_mac_address(struct net
+ 	if (!is_valid_ether_addr(addr->sa_data))
+ 		return -EADDRNOTAVAIL;
  
--	if (nla_put(skb, TCA_OPTIONS, NLA_ALIGN(sizeof(opt)), &opt))
-+	if (nla_put(skb, TCA_OPTIONS, sizeof(opt), &opt))
- 		goto nla_put_failure;
- 
- 	if ((priv->flags & TC_MQPRIO_F_MODE) &&
++	/* dev_set_mac_addr() can be called by a master device on bridge's
++	 * NETDEV_UNREGISTER, but since it's being destroyed do nothing
++	 */
++	if (dev->reg_state != NETREG_REGISTERED)
++		return -EBUSY;
++
+ 	spin_lock_bh(&br->lock);
+ 	if (!ether_addr_equal(dev->dev_addr, addr->sa_data)) {
+ 		/* Mac address will be changed in br_stp_change_bridge_id(). */
 
 
