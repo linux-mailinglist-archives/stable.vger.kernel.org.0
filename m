@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 793A11220DF
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:58:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF2F01220E2
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726559AbfLQA6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:58:47 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34796 "EHLO
+        id S1727734AbfLQA6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:58:48 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34776 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726743AbfLQAvh (ORCPT
+        by vger.kernel.org with ESMTP id S1726742AbfLQAvh (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:37 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15H-0003Ky-Pc; Tue, 17 Dec 2019 00:51:31 +0000
+        id 1ih15H-0003Ku-QR; Tue, 17 Dec 2019 00:51:31 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15H-0005Vv-Ff; Tue, 17 Dec 2019 00:51:31 +0000
+        id 1ih15H-0005W0-GT; Tue, 17 Dec 2019 00:51:31 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -28,12 +28,11 @@ To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Johan Hovold" <johan@kernel.org>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Dec 2019 00:46:31 +0000
-Message-ID: <lsq.1576543535.632412410@decadent.org.uk>
+Date:   Tue, 17 Dec 2019 00:46:32 +0000
+Message-ID: <lsq.1576543535.458010526@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 057/136] USB: iowarrior: fix use-after-free after
- driver unbind
+Subject: [PATCH 3.16 058/136] USB: yurex: fix NULL-derefs on disconnect
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,60 +48,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit b5f8d46867ca233d773408ffbe691a8062ed718f upstream.
+commit aafb00a977cf7d81821f7c9d12e04c558c22dc3c upstream.
 
-Make sure to stop also the asynchronous write URBs on disconnect() to
-avoid use-after-free in the completion handler after driver unbind.
+The driver was using its struct usb_interface pointer as an inverted
+disconnected flag, but was setting it to NULL without making sure all
+code paths that used it were done with it.
 
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
+Before commit ef61eb43ada6 ("USB: yurex: Fix protection fault after
+device removal") this included the interrupt-in completion handler, but
+there are further accesses in dev_err and dev_dbg statements in
+yurex_write() and the driver-data destructor (sic!).
+
+Fix this by unconditionally stopping also the control URB at disconnect
+and by using a dedicated disconnected flag.
+
+Note that we need to take a reference to the struct usb_interface to
+avoid a use-after-free in the destructor whenever the device was
+disconnected while the character device was still open.
+
+Fixes: aadd6472d904 ("USB: yurex.c: remove dbg() usage")
+Fixes: 45714104b9e8 ("USB: yurex.c: remove err() usage")
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009104846.5925-4-johan@kernel.org
+Link: https://lore.kernel.org/r/20191009153848.8664-6-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/misc/iowarrior.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/misc/yurex.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -89,6 +89,7 @@ struct iowarrior {
- 	char chip_serial[9];		/* the serial number string of the chip connected */
- 	int report_size;		/* number of bytes in a report */
- 	u16 product_id;
-+	struct usb_anchor submitted;
- };
+--- a/drivers/usb/misc/yurex.c
++++ b/drivers/usb/misc/yurex.c
+@@ -64,6 +64,7 @@ struct usb_yurex {
  
- /*--------------*/
-@@ -437,11 +438,13 @@ static ssize_t iowarrior_write(struct fi
- 			retval = -EFAULT;
- 			goto error;
- 		}
-+		usb_anchor_urb(int_out_urb, &dev->submitted);
- 		retval = usb_submit_urb(int_out_urb, GFP_KERNEL);
- 		if (retval) {
- 			dev_dbg(&dev->interface->dev,
- 				"submit error %d for urb nr.%d\n",
- 				retval, atomic_read(&dev->write_busy));
-+			usb_unanchor_urb(int_out_urb);
- 			goto error;
- 		}
- 		/* submit was ok */
-@@ -788,6 +791,8 @@ static int iowarrior_probe(struct usb_in
- 	iface_desc = interface->cur_altsetting;
- 	dev->product_id = le16_to_cpu(udev->descriptor.idProduct);
+ 	struct kref		kref;
+ 	struct mutex		io_mutex;
++	unsigned long		disconnected:1;
+ 	struct fasync_struct	*async_queue;
+ 	wait_queue_head_t	waitq;
  
-+	init_usb_anchor(&dev->submitted);
-+
+@@ -111,6 +112,7 @@ static void yurex_delete(struct kref *kr
+ 				dev->int_buffer, dev->urb->transfer_dma);
+ 		usb_free_urb(dev->urb);
+ 	}
++	usb_put_intf(dev->interface);
+ 	usb_put_dev(dev->udev);
+ 	kfree(dev);
+ }
+@@ -211,7 +213,7 @@ static int yurex_probe(struct usb_interf
+ 	init_waitqueue_head(&dev->waitq);
+ 
+ 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
+-	dev->interface = interface;
++	dev->interface = usb_get_intf(interface);
+ 
  	/* set up the endpoint information */
- 	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
- 		endpoint = &iface_desc->endpoint[i].desc;
-@@ -917,6 +922,7 @@ static void iowarrior_disconnect(struct
- 		   Deleting the device is postponed until close() was called.
- 		 */
- 		usb_kill_urb(dev->int_in_urb);
-+		usb_kill_anchored_urbs(&dev->submitted);
- 		wake_up_interruptible(&dev->read_wait);
- 		wake_up_interruptible(&dev->write_wait);
- 		mutex_unlock(&dev->mutex);
+ 	iface_desc = interface->cur_altsetting;
+@@ -334,8 +336,9 @@ static void yurex_disconnect(struct usb_
+ 
+ 	/* prevent more I/O from starting */
+ 	usb_poison_urb(dev->urb);
++	usb_poison_urb(dev->cntl_urb);
+ 	mutex_lock(&dev->io_mutex);
+-	dev->interface = NULL;
++	dev->disconnected = 1;
+ 	mutex_unlock(&dev->io_mutex);
+ 
+ 	/* wakeup waiters */
+@@ -422,7 +425,7 @@ static ssize_t yurex_read(struct file *f
+ 	dev = (struct usb_yurex *)file->private_data;
+ 
+ 	mutex_lock(&dev->io_mutex);
+-	if (!dev->interface) {		/* already disconnected */
++	if (dev->disconnected) {		/* already disconnected */
+ 		mutex_unlock(&dev->io_mutex);
+ 		return -ENODEV;
+ 	}
+@@ -453,7 +456,7 @@ static ssize_t yurex_write(struct file *
+ 		goto error;
+ 
+ 	mutex_lock(&dev->io_mutex);
+-	if (!dev->interface) {		/* already disconnected */
++	if (dev->disconnected) {		/* already disconnected */
+ 		mutex_unlock(&dev->io_mutex);
+ 		retval = -ENODEV;
+ 		goto error;
 
