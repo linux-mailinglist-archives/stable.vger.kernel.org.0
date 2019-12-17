@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6383812205B
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01055122065
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727683AbfLQAyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:54:17 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35532 "EHLO
+        id S1727825AbfLQAyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:54:36 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35410 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727185AbfLQAvo (ORCPT
+        by vger.kernel.org with ESMTP id S1727105AbfLQAvo (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:44 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15N-0003P8-KJ; Tue, 17 Dec 2019 00:51:37 +0000
+        id 1ih15N-0003PC-Lh; Tue, 17 Dec 2019 00:51:37 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15L-0005ei-6s; Tue, 17 Dec 2019 00:51:35 +0000
+        id 1ih15L-0005ey-98; Tue, 17 Dec 2019 00:51:35 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Takashi Iwai" <tiwai@suse.de>
-Date:   Tue, 17 Dec 2019 00:47:39 +0000
-Message-ID: <lsq.1576543535.499255447@decadent.org.uk>
+        "Al Viro" <viro@zeniv.linux.org.uk>
+Date:   Tue, 17 Dec 2019 00:47:40 +0000
+Message-ID: <lsq.1576543535.985489010@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 125/136] ALSA: usb-audio: Fix missing error check at
- mixer resolution test
+Subject: [PATCH 3.16 126/136] ecryptfs_lookup_interpose(): lower_dentry->d_inode
+ is not stable
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,43 +46,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 167beb1756791e0806365a3f86a0da10d7a327ee upstream.
+commit e72b9dd6a5f17d0fb51f16f8685f3004361e83d0 upstream.
 
-A check of the return value from get_cur_mix_raw() is missing at the
-resolution test code in get_min_max_with_quirks(), which may leave the
-variable untouched, leading to a random uninitialized value, as
-detected by syzkaller fuzzer.
+lower_dentry can't go from positive to negative (we have it pinned),
+but it *can* go from negative to positive.  So fetching ->d_inode
+into a local variable, doing a blocking allocation, checking that
+now ->d_inode is non-NULL and feeding the value we'd fetched
+earlier to a function that won't accept NULL is not a good idea.
 
-Add the missing return error check for fixing that.
-
-Reported-and-tested-by: syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20191109181658.30368-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+[bwh: Backported to 3.16:
+ - Use ACCESS_ONCE() instead of READ_ONCE()
+ - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- sound/usb/mixer.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ecryptfs/inode.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1014,7 +1014,8 @@ static int get_min_max_with_quirks(struc
- 		if (cval->min + cval->res < cval->max) {
- 			int last_valid_res = cval->res;
- 			int saved, test, check;
--			get_cur_mix_raw(cval, minchn, &saved);
-+			if (get_cur_mix_raw(cval, minchn, &saved) < 0)
-+				goto no_res_check;
- 			for (;;) {
- 				test = saved;
- 				if (test < cval->max)
-@@ -1034,6 +1035,7 @@ static int get_min_max_with_quirks(struc
- 			set_cur_mix_value(cval, minchn, 0, saved);
- 		}
+--- a/fs/ecryptfs/inode.c
++++ b/fs/ecryptfs/inode.c
+@@ -341,7 +341,7 @@ static int ecryptfs_lookup_interpose(str
+ 				     struct dentry *lower_dentry,
+ 				     struct inode *dir_inode)
+ {
+-	struct inode *inode, *lower_inode = lower_dentry->d_inode;
++	struct inode *inode, *lower_inode;
+ 	struct ecryptfs_dentry_info *dentry_info;
+ 	struct vfsmount *lower_mnt;
+ 	int rc = 0;
+@@ -363,7 +363,15 @@ static int ecryptfs_lookup_interpose(str
+ 	dentry_info->lower_path.mnt = lower_mnt;
+ 	dentry_info->lower_path.dentry = lower_dentry;
  
-+no_res_check:
- 		cval->initialized = 1;
- 	}
- 
+-	if (!lower_dentry->d_inode) {
++	/*
++	 * negative dentry can go positive under us here - its parent is not
++	 * locked.  That's OK and that could happen just as we return from
++	 * ecryptfs_lookup() anyway.  Just need to be careful and fetch
++	 * ->d_inode only once - it's not stable here.
++	 */
++	lower_inode = ACCESS_ONCE(lower_dentry->d_inode);
++
++	if (!lower_inode) {
+ 		/* We want to add because we couldn't find in lower */
+ 		d_add(dentry, NULL);
+ 		return 0;
 
