@@ -2,81 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1CD1234DD
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 19:32:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C2A123527
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 19:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727005AbfLQScC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 13:32:02 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:40922 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726813AbfLQScC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 13:32:02 -0500
-Received: by mail-pl1-f193.google.com with SMTP id g6so6479854plp.7;
-        Tue, 17 Dec 2019 10:32:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Jt9igp/vb3Q4imVycGHAIChk8Rd9kKBHmsaYFmp6Y7o=;
-        b=N7LjdDasH4+CqBepfgfMlE44vLxYadjQ67o+oL4zFoXyrMfU7okw0uW4mSe5x3Htfo
-         UkAiTrsYVYfxgqDvIuH+2KQyQ0ERJKbUJx5/5bWr+b+lXGSCx1rVdWnGJBdDVZ23dVpS
-         mmk87XHA+7PvbKmkqc8uLcer8HcL6Slcn1s00QmAZxR8kyIXOyVuI7dxt0PBMJu9mkp6
-         z30iHL3T8qBoYehiyo3jaI9+BmLori12ZbIKe2V+oHALmcQQa2Yz/P94/yKIM2DNShrw
-         6P+KLDPEVLWXEsRU4GxUsQdM5z8KWnFklXH09NBSEb7OjR6g1xfLQTFGnWLfe6dXpMme
-         oUwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Jt9igp/vb3Q4imVycGHAIChk8Rd9kKBHmsaYFmp6Y7o=;
-        b=ef4ez/MgN/NnuNB1UHV6o0Op7es+4Q3vWzgQQMjcXurDThv5VfXST/R4zM5k8iYfdn
-         s2vGXzon9WErEmnTGo4Brmt4qXxxgj1T6NbtJft29K6QMShtl/tP+TfASSSq5qzfQOca
-         SM4bdeSU3X72HePKRLrBrvUtv5H7ma+O0ZFoCWoYYnXD4NZMaA77I8A8NgrRVfNVWfP0
-         qbiqbNbkiw3OxRy+mMrUmpTehzPc45rnSprIJoIxhZi5wz/W1QbzO/fmAw2EABDrU9yk
-         EyO6Yd9talPfEmiR+/SByl1vIs6tZhNwdVrMxrcd4oCkG7A07gh0/4GuJDTdx3Ohkn1V
-         Dk2w==
-X-Gm-Message-State: APjAAAXbEn6UOuiwoAn55xacAyZEKAk99yQys1xF/O3GU35Jsfionc5A
-        X3aEyIFnQw72iJSgwq7052679/3C
-X-Google-Smtp-Source: APXvYqytROhdFNm7gtHFIYzQThGI9Cm4KPk4pN7Lte39uDB9Dpss2233RTNPTm5a05S1YiowJ/D9Fw==
-X-Received: by 2002:a17:90a:6587:: with SMTP id k7mr7540210pjj.40.1576607521697;
-        Tue, 17 Dec 2019 10:32:01 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id r6sm27579405pfh.91.2019.12.17.10.32.00
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 17 Dec 2019 10:32:00 -0800 (PST)
-Date:   Tue, 17 Dec 2019 10:31:59 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 000/177] 5.4.4-stable review
-Message-ID: <20191217183159.GB29679@roeck-us.net>
-References: <20191216174811.158424118@linuxfoundation.org>
+        id S1727161AbfLQSns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 13:43:48 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41150 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726887AbfLQSns (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 13:43:48 -0500
+Received: from [167.98.27.226] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1ihHov-0000rr-UU; Tue, 17 Dec 2019 18:43:46 +0000
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1ihHou-0001UB-0F; Tue, 17 Dec 2019 18:43:44 +0000
+Message-ID: <1fde0e5a4cf7dddc96f29e8183dde770888ab4e4.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 000/136] 3.16.80-rc1 review
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Tue, 17 Dec 2019 18:43:39 +0000
+In-Reply-To: <20191217181946.GD6047@roeck-us.net>
+References: <lsq.1576543534.33060804@decadent.org.uk>
+         <20191217181946.GD6047@roeck-us.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-6zvYZVFIZuXBkLas/bpb"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191216174811.158424118@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-SA-Exim-Connect-IP: 167.98.27.226
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 16, 2019 at 06:47:36PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.4 release.
-> There are 177 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 18 Dec 2019 17:41:25 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 158 pass: 158 fail: 0
-Qemu test results:
-	total: 387 pass: 387 fail: 0
+--=-6zvYZVFIZuXBkLas/bpb
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Guenter
+On Tue, 2019-12-17 at 10:19 -0800, Guenter Roeck wrote:
+> On Tue, Dec 17, 2019 at 12:45:34AM +0000, Ben Hutchings wrote:
+> > This is the start of the stable review cycle for the 3.16.80 release.
+> > There are 136 patches in this series, which will be posted as responses
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >=20
+> > Responses should be made by Thu Dec 19 12:00:00 UTC 2019.
+> > Anything received after that time might be too late.
+> >=20
+>=20
+> Build results:
+> 	total: 136 pass: 136 fail: 0
+> Qemu test results:
+> 	total: 229 pass: 229 fail: 0
+
+Thanks for testing,
+
+Ben.
+
+--=20
+Ben Hutchings
+If the facts do not conform to your theory, they must be disposed of.
+
+
+
+--=-6zvYZVFIZuXBkLas/bpb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl35IdsACgkQ57/I7JWG
+EQnJRA//Z05rZ1KnaSO/Brw+VXP77YuW/gXtW4BRe8QSFakWytBAHfYO5wxDrf7y
+AlfqWpdwbi8WQWScGw7CHNrJBhtxM5DSgAZQlP3EO4SFBgCSb5P1arp9wlgqU2XO
+Lg4KlkICOQUaO8IbAXiHkqruq7bjUcfYN99n+g7zphiTAwB4jtM09tbob548pYjq
+p/7DK0IkVx8Ogo9GHsIniTby0eX/gZdWwdKzrIqgw8kOJGSj80iaVAoDVoHUs88+
+rkVu1L6gMRRWNdBjum11ZLJzHQLK+wg6n6QSqZRNHtRdgZKD3bsxiO730/Zq2UPE
+YoLU4u7td10DoRC/CL0rjW9XOKEkNpG8IHMlVz169xdlhJWkSXgFV6G8086R652o
+mgomPl9Hn7ac/ZzPnO7glo6lJ6QYVpuwgR8xsUc+ezmkrKxWXZExe9ZzrI7/5syr
+QXvn9YltrgUfyqsEEWmBiLejy6R+t3KwT9bG29eF8AQe7FTpf+KaC3eDRn0lKyB+
+HkVFAbzfn17eG2cFZcHtc2fIWGaAAJPOAyF7Z22EAncSfvcJZGJZgljvLSDe/+Ut
+Zkqw2EMG8S4LEWedFWvVfqydFjcVa9JwQapGbieQ/sTA4mpaK19dODNgXbQ9p9Pd
+fUlVNy8bbLBaBAYP7v1qBtT1TWtP4OXRwAKBM5fle0MideUJE94=
+=rSf7
+-----END PGP SIGNATURE-----
+
+--=-6zvYZVFIZuXBkLas/bpb--
