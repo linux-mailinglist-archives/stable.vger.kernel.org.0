@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8288D122027
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C28122013
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727667AbfLQAwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:52:33 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35652 "EHLO
+        id S1727310AbfLQAvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:51:46 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35512 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727221AbfLQAvq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:46 -0500
+        by vger.kernel.org with ESMTP id S1727177AbfLQAvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:45 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15K-0003N2-Pi; Tue, 17 Dec 2019 00:51:34 +0000
+        id 1ih15K-0003N3-Ub; Tue, 17 Dec 2019 00:51:35 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15I-0005a6-Uk; Tue, 17 Dec 2019 00:51:32 +0000
+        id 1ih15J-0005aC-0u; Tue, 17 Dec 2019 00:51:33 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jonas Gorski" <jonas.gorski@gmail.com>,
-        linux-mips@vger.kernel.org, "James Hogan" <jhogan@kernel.org>,
-        "Ralf Baechle" <ralf@linux-mips.org>,
-        "Paul Burton" <paulburton@kernel.org>,
-        "Florian Fainelli" <f.fainelli@gmail.com>
-Date:   Tue, 17 Dec 2019 00:47:02 +0000
-Message-ID: <lsq.1576543535.456304494@decadent.org.uk>
+        "Dmitry Korotin" <dkorotin@wavecomp.com>,
+        linux-mips@vger.kernel.org, "Paul Burton" <paulburton@kernel.org>
+Date:   Tue, 17 Dec 2019 00:47:03 +0000
+Message-ID: <lsq.1576543535.646013337@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 088/136] MIPS: bmips: mark exception vectors as char
- arrays
+Subject: [PATCH 3.16 089/136] MIPS: tlbex: Fix build_restore_pagemask
+ KScratch restore
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,97 +47,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jonas Gorski <jonas.gorski@gmail.com>
+From: Paul Burton <paulburton@kernel.org>
 
-commit e4f5cb1a9b27c0f94ef4f5a0178a3fde2d3d0e9e upstream.
+commit b42aa3fd5957e4daf4b69129e5ce752a2a53e7d6 upstream.
 
-The vectors span more than one byte, so mark them as arrays.
+build_restore_pagemask() will restore the value of register $1/$at when
+its restore_scratch argument is non-zero, and aims to do so by filling a
+branch delay slot. Commit 0b24cae4d535 ("MIPS: Add missing EHB in mtc0
+-> mfc0 sequence.") added an EHB instruction (Execution Hazard Barrier)
+prior to restoring $1 from a KScratch register, in order to resolve a
+hazard that can result in stale values of the KScratch register being
+observed. In particular, P-class CPUs from MIPS with out of order
+execution pipelines such as the P5600 & P6600 are affected.
 
-Fixes the following build error when building when using GCC 8.3:
+Unfortunately this EHB instruction was inserted in the branch delay slot
+causing the MFC0 instruction which performs the restoration to no longer
+execute along with the branch. The result is that the $1 register isn't
+actually restored, ie. the TLB refill exception handler clobbers it -
+which is exactly the problem the EHB is meant to avoid for the P-class
+CPUs.
 
-In file included from ./include/linux/string.h:19,
-                 from ./include/linux/bitmap.h:9,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/mips/include/asm/processor.h:15,
-                 from ./arch/mips/include/asm/thread_info.h:16,
-                 from ./include/linux/thread_info.h:38,
-                 from ./include/asm-generic/preempt.h:5,
-                 from ./arch/mips/include/generated/asm/preempt.h:1,
-                 from ./include/linux/preempt.h:81,
-                 from ./include/linux/spinlock.h:51,
-                 from ./include/linux/mmzone.h:8,
-                 from ./include/linux/bootmem.h:8,
-                 from arch/mips/bcm63xx/prom.c:10:
-arch/mips/bcm63xx/prom.c: In function 'prom_init':
-./arch/mips/include/asm/string.h:162:11: error: '__builtin_memcpy' forming offset [2, 32] is out of the bounds [0, 1] of object 'bmips_smp_movevec' with type 'char' [-Werror=array-bounds]
-   __ret = __builtin_memcpy((dst), (src), __len); \
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-arch/mips/bcm63xx/prom.c:97:3: note: in expansion of macro 'memcpy'
-   memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
-   ^~~~~~
-In file included from arch/mips/bcm63xx/prom.c:14:
-./arch/mips/include/asm/bmips.h:80:13: note: 'bmips_smp_movevec' declared here
- extern char bmips_smp_movevec;
+Similarly build_get_pgd_vmalloc() will restore the value of $1/$at when
+its mode argument equals refill_scratch, and suffers from the same
+problem.
 
-Fixes: 18a1eef92dcd ("MIPS: BMIPS: Introduce bmips.h")
-Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fix this by in both cases moving the EHB earlier in the emitted code.
+There's no reason it needs to immediately precede the MFC0 - it simply
+needs to be between the MTC0 & MFC0.
+
+This bug only affects Cavium Octeon systems which use
+build_fast_tlb_refill_handler().
+
 Signed-off-by: Paul Burton <paulburton@kernel.org>
+Fixes: 0b24cae4d535 ("MIPS: Add missing EHB in mtc0 -> mfc0 sequence.")
+Cc: Dmitry Korotin <dkorotin@wavecomp.com>
 Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/mips/bcm63xx/prom.c      |  2 +-
- arch/mips/include/asm/bmips.h | 10 +++++-----
- arch/mips/kernel/smp-bmips.c  |  8 ++++----
- 3 files changed, 10 insertions(+), 10 deletions(-)
+ arch/mips/mm/tlbex.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/arch/mips/bcm63xx/prom.c
-+++ b/arch/mips/bcm63xx/prom.c
-@@ -88,7 +88,7 @@ void __init prom_init(void)
- 		 * Here we will start up CPU1 in the background and ask it to
- 		 * reconfigure itself then go back to sleep.
- 		 */
--		memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
-+		memcpy((void *)0xa0000200, bmips_smp_movevec, 0x20);
- 		__sync();
- 		set_c0_cause(C_SW0);
- 		cpumask_set_cpu(1, &bmips_booted_mask);
---- a/arch/mips/include/asm/bmips.h
-+++ b/arch/mips/include/asm/bmips.h
-@@ -75,11 +75,11 @@ static inline int register_bmips_smp_ops
- #endif
- }
- 
--extern char bmips_reset_nmi_vec;
--extern char bmips_reset_nmi_vec_end;
--extern char bmips_smp_movevec;
--extern char bmips_smp_int_vec;
--extern char bmips_smp_int_vec_end;
-+extern char bmips_reset_nmi_vec[];
-+extern char bmips_reset_nmi_vec_end[];
-+extern char bmips_smp_movevec[];
-+extern char bmips_smp_int_vec[];
-+extern char bmips_smp_int_vec_end[];
- 
- extern int bmips_smp_enabled;
- extern int bmips_cpu_offset;
---- a/arch/mips/kernel/smp-bmips.c
-+++ b/arch/mips/kernel/smp-bmips.c
-@@ -467,10 +467,10 @@ static void bmips_wr_vec(unsigned long d
- 
- static inline void bmips_nmi_handler_setup(void)
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -652,6 +652,13 @@ static void build_restore_pagemask(u32 *
+ 				   int restore_scratch)
  {
--	bmips_wr_vec(BMIPS_NMI_RESET_VEC, &bmips_reset_nmi_vec,
--		&bmips_reset_nmi_vec_end);
--	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, &bmips_smp_int_vec,
--		&bmips_smp_int_vec_end);
-+	bmips_wr_vec(BMIPS_NMI_RESET_VEC, bmips_reset_nmi_vec,
-+		bmips_reset_nmi_vec_end);
-+	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, bmips_smp_int_vec,
-+		bmips_smp_int_vec_end);
- }
+ 	if (restore_scratch) {
++		/*
++		 * Ensure the MFC0 below observes the value written to the
++		 * KScratch register by the prior MTC0.
++		 */
++		if (scratch_reg >= 0)
++			uasm_i_ehb(p);
++
+ 		/* Reset default page size */
+ 		if (PM_DEFAULT_MASK >> 16) {
+ 			uasm_i_lui(p, tmp, PM_DEFAULT_MASK >> 16);
+@@ -666,12 +673,10 @@ static void build_restore_pagemask(u32 *
+ 			uasm_i_mtc0(p, 0, C0_PAGEMASK);
+ 			uasm_il_b(p, r, lid);
+ 		}
+-		if (scratch_reg >= 0) {
+-			uasm_i_ehb(p);
++		if (scratch_reg >= 0)
+ 			UASM_i_MFC0(p, 1, c0_kscratch(), scratch_reg);
+-		} else {
++		else
+ 			UASM_i_LW(p, 1, scratchpad_offset(0), 0);
+-		}
+ 	} else {
+ 		/* Reset default page size */
+ 		if (PM_DEFAULT_MASK >> 16) {
+@@ -893,6 +898,10 @@ build_get_pgd_vmalloc64(u32 **p, struct
+ 	}
+ 	if (mode != not_refill && check_for_high_segbits) {
+ 		uasm_l_large_segbits_fault(l, *p);
++
++		if (mode == refill_scratch && scratch_reg >= 0)
++			uasm_i_ehb(p);
++
+ 		/*
+ 		 * We get here if we are an xsseg address, or if we are
+ 		 * an xuseg address above (PGDIR_SHIFT+PGDIR_BITS) boundary.
+@@ -909,12 +918,10 @@ build_get_pgd_vmalloc64(u32 **p, struct
+ 		uasm_i_jr(p, ptr);
  
- void bmips_ebase_setup(void)
+ 		if (mode == refill_scratch) {
+-			if (scratch_reg >= 0) {
+-				uasm_i_ehb(p);
++			if (scratch_reg >= 0)
+ 				UASM_i_MFC0(p, 1, c0_kscratch(), scratch_reg);
+-			} else {
++			else
+ 				UASM_i_LW(p, 1, scratchpad_offset(0), 0);
+-			}
+ 		} else {
+ 			uasm_i_nop(p);
+ 		}
 
