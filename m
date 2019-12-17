@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD871220FF
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:59:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95540122106
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 02:00:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbfLQA7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:59:41 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34670 "EHLO
+        id S1726692AbfLQA75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:59:57 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34688 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726670AbfLQAvf (ORCPT
+        by vger.kernel.org with ESMTP id S1726694AbfLQAvf (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:35 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15G-0003KG-PC; Tue, 17 Dec 2019 00:51:30 +0000
+        id 1ih15G-0003KH-Tz; Tue, 17 Dec 2019 00:51:31 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15G-0005TS-6M; Tue, 17 Dec 2019 00:51:30 +0000
+        id 1ih15G-0005TW-7I; Tue, 17 Dec 2019 00:51:30 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Johan Hovold" <johan@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Dec 2019 00:46:01 +0000
-Message-ID: <lsq.1576543535.227515843@decadent.org.uk>
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Mathias Nyman" <mathias.nyman@linux.intel.com>,
+        "Jan Schmidt" <jan@centricular.com>
+Date:   Tue, 17 Dec 2019 00:46:02 +0000
+Message-ID: <lsq.1576543535.100076458@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 027/136] USB: legousbtower: fix open after failed
- reset request
+Subject: [PATCH 3.16 028/136] xhci: Prevent device initiated U1/U2 link pm
+ if exit latency is too long
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,49 +48,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Johan Hovold <johan@kernel.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 0b074f6986751361ff442bc1127c1648567aa8d6 upstream.
+commit cd9d9491e835a845c1a98b8471f88d26285e0bb9 upstream.
 
-The driver would return with a nonzero open count in case the reset
-control request failed. This would prevent any further attempts to open
-the char dev until the device was disconnected.
+If host/hub initiated link pm is prevented by a driver flag we still must
+ensure that periodic endpoints have longer service intervals than link pm
+exit latency before allowing device initiated link pm.
 
-Fix this by incrementing the open count only on successful open.
+Fix this by continue walking and checking endpoint service interval if
+xhci_get_timeout_no_hub_lpm() returns anything else than USB3_LPM_DISABLED
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20190919083039.30898-5-johan@kernel.org
+While at it fix the split line error message
+
+Tested-by: Jan Schmidt <jan@centricular.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1570190373-30684-3-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/misc/legousbtower.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/misc/legousbtower.c
-+++ b/drivers/usb/misc/legousbtower.c
-@@ -354,7 +354,6 @@ static int tower_open (struct inode *ino
- 		retval = -EBUSY;
- 		goto unlock_exit;
- 	}
--	dev->open_count = 1;
- 
- 	/* reset the tower */
- 	result = usb_control_msg (dev->udev,
-@@ -394,13 +393,14 @@ static int tower_open (struct inode *ino
- 		dev_err(&dev->udev->dev,
- 			"Couldn't submit interrupt_in_urb %d\n", retval);
- 		dev->interrupt_in_running = 0;
--		dev->open_count = 0;
- 		goto unlock_exit;
- 	}
- 
- 	/* save device in the file's private structure */
- 	file->private_data = dev;
- 
-+	dev->open_count = 1;
-+
- unlock_exit:
- 	mutex_unlock(&dev->lock);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4618,10 +4618,12 @@ static u16 xhci_calculate_lpm_timeout(st
+ 		if (intf->dev.driver) {
+ 			driver = to_usb_driver(intf->dev.driver);
+ 			if (driver && driver->disable_hub_initiated_lpm) {
+-				dev_dbg(&udev->dev, "Hub-initiated %s disabled "
+-						"at request of driver %s\n",
+-						state_name, driver->name);
+-				return xhci_get_timeout_no_hub_lpm(udev, state);
++				dev_dbg(&udev->dev, "Hub-initiated %s disabled at request of driver %s\n",
++					state_name, driver->name);
++				timeout = xhci_get_timeout_no_hub_lpm(udev,
++								      state);
++				if (timeout == USB3_LPM_DISABLED)
++					return timeout;
+ 			}
+ 		}
  
 
