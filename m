@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 441F11220AB
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C7D122088
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727160AbfLQA4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:56:31 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35082 "EHLO
+        id S1727387AbfLQAzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:55:41 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35266 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726933AbfLQAvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:41 -0500
+        by vger.kernel.org with ESMTP id S1727024AbfLQAvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:43 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15K-0003M9-8M; Tue, 17 Dec 2019 00:51:34 +0000
+        id 1ih15K-0003MA-9I; Tue, 17 Dec 2019 00:51:34 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15J-0005bG-P9; Tue, 17 Dec 2019 00:51:33 +0000
+        id 1ih15J-0005bU-Qk; Tue, 17 Dec 2019 00:51:33 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Alan Stern" <stern@rowland.harvard.edu>,
-        "Felipe Balbi" <balbi@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Dec 2019 00:47:16 +0000
-Message-ID: <lsq.1576543535.102946779@decadent.org.uk>
+        "Luis Henriques" <lhenriques@suse.com>,
+        "Ilya Dryomov" <idryomov@gmail.com>,
+        "Jeff Layton" <jlayton@kernel.org>
+Date:   Tue, 17 Dec 2019 00:47:17 +0000
+Message-ID: <lsq.1576543535.425487150@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 102/136] USB: gadget: Reject endpoints with 0
- maxpacket value
+Subject: [PATCH 3.16 103/136] ceph: fix use-after-free in __ceph_remove_cap()
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,55 +47,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Luis Henriques <lhenriques@suse.com>
 
-commit 54f83b8c8ea9b22082a496deadf90447a326954e upstream.
+commit ea60ed6fcf29eebc78f2ce91491e6309ee005a01 upstream.
 
-Endpoints with a maxpacket length of 0 are probably useless.  They
-can't transfer any data, and it's not at all unlikely that a UDC will
-crash or hang when trying to handle a non-zero-length usb_request for
-such an endpoint.  Indeed, dummy-hcd gets a divide error when trying
-to calculate the remainder of a transfer length by the maxpacket
-value, as discovered by the syzbot fuzzer.
+KASAN reports a use-after-free when running xfstest generic/531, with the
+following trace:
 
-Currently the gadget core does not check for endpoints having a
-maxpacket value of 0.  This patch adds a check to usb_ep_enable(),
-preventing such endpoints from being used.
+[  293.903362]  kasan_report+0xe/0x20
+[  293.903365]  rb_erase+0x1f/0x790
+[  293.903370]  __ceph_remove_cap+0x201/0x370
+[  293.903375]  __ceph_remove_caps+0x4b/0x70
+[  293.903380]  ceph_evict_inode+0x4e/0x360
+[  293.903386]  evict+0x169/0x290
+[  293.903390]  __dentry_kill+0x16f/0x250
+[  293.903394]  dput+0x1c6/0x440
+[  293.903398]  __fput+0x184/0x330
+[  293.903404]  task_work_run+0xb9/0xe0
+[  293.903410]  exit_to_usermode_loop+0xd3/0xe0
+[  293.903413]  do_syscall_64+0x1a0/0x1c0
+[  293.903417]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-As far as I know, none of the gadget drivers in the kernel tries to
-create an endpoint with maxpacket = 0, but until now there has been
-nothing to prevent userspace programs under gadgetfs or configfs from
-doing it.
+This happens because __ceph_remove_cap() may queue a cap release
+(__ceph_queue_cap_release) which can be scheduled before that cap is
+removed from the inode list with
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+8ab8bf161038a8768553@syzkaller.appspotmail.com
-Acked-by: Felipe Balbi <balbi@kernel.org>
+	rb_erase(&cap->ci_node, &ci->i_caps);
 
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910281052370.1485-100000@iolanthe.rowland.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: adjust context]
+And, when this finally happens, the use-after-free will occur.
+
+This can be fixed by removing the cap from the inode list before being
+removed from the session list, and thus eliminating the risk of an UAF.
+
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- include/linux/usb/gadget.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/ceph/caps.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/include/linux/usb/gadget.h
-+++ b/include/linux/usb/gadget.h
-@@ -222,6 +222,16 @@ static inline void usb_ep_set_maxpacket_
-  */
- static inline int usb_ep_enable(struct usb_ep *ep)
- {
-+	/* UDC drivers can't handle endpoints with maxpacket size 0 */
-+	if (usb_endpoint_maxp(ep->desc) == 0) {
-+		/*
-+		 * We should log an error message here, but we can't call
-+		 * dev_err() because there's no way to find the gadget
-+		 * given only ep.
-+		 */
-+		return -EINVAL;
-+	}
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -913,6 +913,11 @@ void __ceph_remove_cap(struct ceph_cap *
+ 
+ 	dout("__ceph_remove_cap %p from %p\n", cap, &ci->vfs_inode);
+ 
++	/* remove from inode's cap rbtree, and clear auth cap */
++	rb_erase(&cap->ci_node, &ci->i_caps);
++	if (ci->i_auth_cap == cap)
++		ci->i_auth_cap = NULL;
 +
- 	return ep->ops->enable(ep, ep->desc);
- }
+ 	/* remove from session list */
+ 	spin_lock(&session->s_cap_lock);
+ 	/*
+@@ -939,11 +944,6 @@ void __ceph_remove_cap(struct ceph_cap *
+ 	cap->ci = NULL;
+ 	spin_unlock(&session->s_cap_lock);
+ 
+-	/* remove from inode list */
+-	rb_erase(&cap->ci_node, &ci->i_caps);
+-	if (ci->i_auth_cap == cap)
+-		ci->i_auth_cap = NULL;
+-
+ 	if (removed)
+ 		ceph_put_cap(mdsc, cap);
  
 
