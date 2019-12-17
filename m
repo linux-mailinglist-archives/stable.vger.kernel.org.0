@@ -2,91 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B80F1226AC
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 09:28:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EC612268C
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 09:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726275AbfLQI2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 03:28:44 -0500
-Received: from mx1.pb.gov.br ([200.164.109.71]:44652 "HELO mx1.pb.gov.br"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-        id S1725870AbfLQI2o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 03:28:44 -0500
-X-Greylist: delayed 729 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Dec 2019 03:28:33 EST
-Received: from localhost (localhost [127.0.0.1])
-        by mx1.pb.gov.br (Postfix) with ESMTP id 5AB8F3AAFE;
-        Tue, 17 Dec 2019 05:16:23 -0300 (-03)
-X-Virus-Scanned: Debian amavisd-new at mx1.pb.gov.br
-Received: from mx1.pb.gov.br ([127.0.0.1])
-        by localhost (mx1.pb.gov.br [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id eyhH1gpz-cse; Tue, 17 Dec 2019 05:16:23 -0300 (-03)
-Received: from gerencia.webmail.pb.gov.br (unknown [200.164.109.75])
-        by mx1.pb.gov.br (Postfix) with ESMTPS id 046433AAF7;
-        Tue, 17 Dec 2019 05:16:22 -0300 (-03)
-Received: from localhost (localhost [127.0.0.1])
-        by gerencia.webmail.pb.gov.br (Postfix) with ESMTP id 867B338030C;
-        Tue, 17 Dec 2019 05:16:19 -0300 (BRT)
-Received: from gerencia.webmail.pb.gov.br ([127.0.0.1])
-        by localhost (gerencia.webmail.pb.gov.br [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id Plh-iWCJIm8S; Tue, 17 Dec 2019 05:16:17 -0300 (BRT)
-Received: from localhost (localhost [127.0.0.1])
-        by gerencia.webmail.pb.gov.br (Postfix) with ESMTP id 6C46A380381;
-        Tue, 17 Dec 2019 05:16:13 -0300 (BRT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 gerencia.webmail.pb.gov.br 6C46A380381
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ses.pb.gov.br;
-        s=DF097E4A-2002-11E9-B7D5-D974AFC91483; t=1576570575;
-        bh=KgUgQlfJbej+DHIgSE4SItT35/zGnbGQcdhxQCPkNcU=;
-        h=Date:From:Message-ID:MIME-Version;
-        b=Aw28MNf7FAI+SIi3o8jsr1uoyiDs/8baMWXrs1sxxbialjIHwQEjLdWnaTNv8+BfV
-         NthvnDDbKQXHyhViy8ET4MXJ32mBkqP4ZSgJyYvoJnlUnfXS45nfoRZ2jc+U1dWay/
-         bsXqCPgNY/1BdXZvgXxwxw/XoxbHItkpMpBb1HuVG9zIe5NuzYrn3azT/yyjbX/rVc
-         DooSD024T5XERlrMaOkddgCUVZ3NZgEpXKvM2yPVw/L2xQnSvtyI2SfvTdBwQuAWSY
-         vAk2Wiz1J7ZoUbBJPYfpyv3rWDoGbz+vg9pOT+k+4rv/Vx9yhfLLpiAJ7HHoIFIKi+
-         7HKxwneSTbzDQ==
-X-Virus-Scanned: amavisd-new at gerencia.webmail.pb.gov.br
-Received: from gerencia.webmail.pb.gov.br ([127.0.0.1])
-        by localhost (gerencia.webmail.pb.gov.br [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id wtVIn4tVgGBl; Tue, 17 Dec 2019 05:16:11 -0300 (BRT)
-Received: from gerencia.webmail.pb.gov.br (localhost [127.0.0.1])
-        by gerencia.webmail.pb.gov.br (Postfix) with ESMTP id 5F3293802C1;
-        Tue, 17 Dec 2019 05:15:49 -0300 (BRT)
-Date:   Tue, 17 Dec 2019 05:15:49 -0300 (BRT)
-From:   Luisa Adams <fernanda.medeiros@ses.pb.gov.br>
-Reply-To: Luisa Adams <fundingcirclelimited19@gmail.com>
-Message-ID: <1634445112.12354579.1576570549208.JavaMail.zimbra@ses.pb.gov.br>
-Subject: hallo
+        id S1725870AbfLQITU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 03:19:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34740 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725805AbfLQITU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 03:19:20 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB027206A5;
+        Tue, 17 Dec 2019 08:19:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576570760;
+        bh=OPCtg2ZC1o6TEQVOVsUtRbLBZm3+QKjquF+ir6TDHvk=;
+        h=Subject:To:From:Date:From;
+        b=XuPcLc6VpDzoUDt7fzxsyc6acUPBsAU5PAAEHUZfzwOEmvOVa/AOMZ4diBfI+SaOc
+         G1DUAj9fDUz+C//bAdUc9nuoU1rnujQdvtDYmSkVFdP7oriL+KlI1dBAHLmiL0sIKD
+         EoAXx608P0e3e4XBEEH3jkOuKJUpp+em4XPsEug0=
+Subject: patch "staging: comedi: gsc_hpdi: check dma_alloc_coherent() return value" added to staging-linus
+To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 17 Dec 2019 09:19:18 +0100
+Message-ID: <1576570758121252@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [200.164.109.74]
-X-Mailer: Zimbra 8.8.15_GA_3847 (zclient/8.8.15_GA_3847)
-X-Authenticated-User: fernanda.medeiros@ses.pb.gov.br
-Thread-Index: D2eQtms8ouGJ/9ZJgWzqraPpzur3+A==
-Thread-Topic: hallo
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+This is a note to let you know that I've just added the patch titled
 
-Gr=C3=BC=C3=9Fe an alle da!
+    staging: comedi: gsc_hpdi: check dma_alloc_coherent() return value
 
-Dies ist Luisa Adams von FUNDING CIRCLE LTD mit Sitz in Gro=C3=9Fbritannien=
-. Wir sind hier, um Ihre finanziellen Probleme zu l=C3=B6sen: Haben Sie une=
-rwartete Kosten? Pers=C3=B6nliche Darlehen? Autokredite? Heimwerker? F=C3=
-=BCr weitere Informationen gehen Sie zu einem Darlehen, um uns zu kaufen:
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
-Kontaktieren Sie uns per E-Mail, wenn Sie an unseren Dienstleistungen inter=
-essiert sind: fundscirclelimited@gmail.com.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Vollst=C3=A4ndiger Name:
-Darlehen
-Dauer:
-Land:
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-Vielen Dank,
+If you have any questions about this process, please let me know.
 
 
+From ab42b48f32d4c766420c3499ee9c0289b7028182 Mon Sep 17 00:00:00 2001
+From: Ian Abbott <abbotti@mev.co.uk>
+Date: Mon, 16 Dec 2019 11:08:23 +0000
+Subject: staging: comedi: gsc_hpdi: check dma_alloc_coherent() return value
+
+The "auto-attach" handler function `gsc_hpdi_auto_attach()` calls
+`dma_alloc_coherent()` in a loop to allocate some DMA data buffers, and
+also calls it to allocate a buffer for a DMA descriptor chain.  However,
+it does not check the return value of any of these calls.  Change
+`gsc_hpdi_auto_attach()` to return `-ENOMEM` if any of these
+`dma_alloc_coherent()` calls fail.  This will result in the comedi core
+calling the "detach" handler `gsc_hpdi_detach()` as part of the
+clean-up, which will call `gsc_hpdi_free_dma()` to free any allocated
+DMA coherent memory buffers.
+
+Cc: <stable@vger.kernel.org> #4.6+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20191216110823.216237-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/comedi/drivers/gsc_hpdi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/staging/comedi/drivers/gsc_hpdi.c b/drivers/staging/comedi/drivers/gsc_hpdi.c
+index 4bdf44d82879..dc62db1ee1dd 100644
+--- a/drivers/staging/comedi/drivers/gsc_hpdi.c
++++ b/drivers/staging/comedi/drivers/gsc_hpdi.c
+@@ -623,6 +623,11 @@ static int gsc_hpdi_auto_attach(struct comedi_device *dev,
+ 		    dma_alloc_coherent(&pcidev->dev, DMA_BUFFER_SIZE,
+ 				       &devpriv->dio_buffer_phys_addr[i],
+ 				       GFP_KERNEL);
++		if (!devpriv->dio_buffer[i]) {
++			dev_warn(dev->class_dev,
++				 "failed to allocate DMA buffer\n");
++			return -ENOMEM;
++		}
+ 	}
+ 	/* allocate dma descriptors */
+ 	devpriv->dma_desc = dma_alloc_coherent(&pcidev->dev,
+@@ -630,6 +635,11 @@ static int gsc_hpdi_auto_attach(struct comedi_device *dev,
+ 					       NUM_DMA_DESCRIPTORS,
+ 					       &devpriv->dma_desc_phys_addr,
+ 					       GFP_KERNEL);
++	if (!devpriv->dma_desc) {
++		dev_warn(dev->class_dev,
++			 "failed to allocate DMA descriptors\n");
++		return -ENOMEM;
++	}
+ 	if (devpriv->dma_desc_phys_addr & 0xf) {
+ 		dev_warn(dev->class_dev,
+ 			 " dma descriptors not quad-word aligned (bug)\n");
+-- 
+2.24.1
 
 
