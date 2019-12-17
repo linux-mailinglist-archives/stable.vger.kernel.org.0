@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4AC12209E
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D65F1220D1
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726944AbfLQAvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:51:41 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34942 "EHLO
+        id S1726794AbfLQA6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:58:18 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34892 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726818AbfLQAvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:40 -0500
+        by vger.kernel.org with ESMTP id S1726783AbfLQAvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:39 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15I-0003LF-Fh; Tue, 17 Dec 2019 00:51:32 +0000
+        id 1ih15I-0003Kl-Hs; Tue, 17 Dec 2019 00:51:32 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15I-0005Y4-9e; Tue, 17 Dec 2019 00:51:32 +0000
+        id 1ih15I-0005YV-BL; Tue, 17 Dec 2019 00:51:32 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Florian Fainelli" <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Doug Berger" <opendmb@gmail.com>
-Date:   Tue, 17 Dec 2019 00:46:47 +0000
-Message-ID: <lsq.1576543535.745936190@decadent.org.uk>
+        "Johan Hovold" <johan@kernel.org>
+Date:   Tue, 17 Dec 2019 00:46:48 +0000
+Message-ID: <lsq.1576543535.764009942@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 073/136] net: bcmgenet: Fix RGMII_MODE_EN value for
- GENET v1/2/3
+Subject: [PATCH 3.16 074/136] USB: serial: ti_usb_3410_5052: fix
+ port-close races
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,46 +46,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit efb86fede98cdc70b674692ff617b1162f642c49 upstream.
+commit 6f1d1dc8d540a9aa6e39b9cb86d3a67bbc1c8d8d upstream.
 
-The RGMII_MODE_EN bit value was 0 for GENET versions 1 through 3, and
-became 6 for GENET v4 and above, account for that difference.
+Fix races between closing a port and opening or closing another port on
+the same device which could lead to a failure to start or stop the
+shared interrupt URB. The latter could potentially cause a
+use-after-free or worse in the completion handler on driver unbind.
 
-Fixes: aa09677cba42 ("net: bcmgenet: add MDIO routines")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.h | 1 +
- drivers/net/ethernet/broadcom/genet/bcmmii.c   | 6 +++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ti_usb_3410_5052.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-@@ -335,6 +335,7 @@ struct bcmgenet_mib_counters {
- #define  EXT_ENERGY_DET_MASK		(1 << 12)
+--- a/drivers/usb/serial/ti_usb_3410_5052.c
++++ b/drivers/usb/serial/ti_usb_3410_5052.c
+@@ -542,7 +542,6 @@ static void ti_close(struct usb_serial_p
+ 	struct ti_port *tport;
+ 	int port_number;
+ 	int status;
+-	int do_unlock;
+ 	unsigned long flags;
  
- #define EXT_RGMII_OOB_CTRL		0x0C
-+#define  RGMII_MODE_EN_V123		(1 << 0)
- #define  RGMII_LINK			(1 << 4)
- #define  OOB_DISABLE			(1 << 5)
- #define  RGMII_MODE_EN			(1 << 6)
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -280,7 +280,11 @@ int bcmgenet_mii_config(struct net_devic
- 		else
- 			phy_name = "external RGMII (TX delay)";
- 		reg = bcmgenet_ext_readl(priv, EXT_RGMII_OOB_CTRL);
--		reg |= RGMII_MODE_EN | id_mode_dis;
-+		reg |= id_mode_dis;
-+		if (GENET_IS_V1(priv) || GENET_IS_V2(priv) || GENET_IS_V3(priv))
-+			reg |= RGMII_MODE_EN_V123;
-+		else
-+			reg |= RGMII_MODE_EN;
- 		bcmgenet_ext_writel(priv, reg, EXT_RGMII_OOB_CTRL);
- 		bcmgenet_sys_writel(priv,
- 				PORT_MODE_EXT_GPHY, SYS_PORT_CTRL);
+ 	tdev = usb_get_serial_data(port->serial);
+@@ -569,16 +568,13 @@ static void ti_close(struct usb_serial_p
+ 			"%s - cannot send close port command, %d\n"
+ 							, __func__, status);
+ 
+-	/* if mutex_lock is interrupted, continue anyway */
+-	do_unlock = !mutex_lock_interruptible(&tdev->td_open_close_lock);
++	mutex_lock(&tdev->td_open_close_lock);
+ 	--tport->tp_tdev->td_open_port_count;
+-	if (tport->tp_tdev->td_open_port_count <= 0) {
++	if (tport->tp_tdev->td_open_port_count == 0) {
+ 		/* last port is closed, shut down interrupt urb */
+ 		usb_kill_urb(port->serial->port[0]->interrupt_in_urb);
+-		tport->tp_tdev->td_open_port_count = 0;
+ 	}
+-	if (do_unlock)
+-		mutex_unlock(&tdev->td_open_close_lock);
++	mutex_unlock(&tdev->td_open_close_lock);
+ }
+ 
+ 
 
