@@ -2,121 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A22122F41
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 15:50:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C11E122F98
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 16:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726411AbfLQOuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 09:50:17 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46158 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727127AbfLQOuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 09:50:17 -0500
-Received: by mail-wr1-f65.google.com with SMTP id z7so11563256wrl.13
-        for <stable@vger.kernel.org>; Tue, 17 Dec 2019 06:50:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=EIoQFh4g5jsa415JJS54OBA5xgcKMdDWa6nS96VuJ4M=;
-        b=m5b/UwAGh4v3bM0FCNV399cLg51DqggHjIsreSjOfdSpjzhQ4/4kNG1Evb1dMkkKp+
-         Ot2cSMRDpIR665UpZV4O8bKogj1K35n9SRgrde//nS7ai1I3Yra5xwJfjzOjD41gtp3P
-         KSAP6g//mFVHrL/QRCbIIyfwKQXEYHWUL8CTOVY5HcyVEFlkURmfPSiWRABAzbP/Hijq
-         Wxzna87TBs2OCyawNW15cZc2Phy+/WLy8VCJ+18tYJCASpB+iGtM/tG0xW6v36Cbw6Fp
-         wClDKq54h8Ygeg6ZQjer1dTVCL82DbOKahD3Ahj117txyQD8wxeRQFc09JM61bZMTFwr
-         vSUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=EIoQFh4g5jsa415JJS54OBA5xgcKMdDWa6nS96VuJ4M=;
-        b=KOQrSi068WhmLBN1WKUYiQZ090SCvkOLlZ/GGo1L3fKlphsDzjKXUxjilepmOIDpyB
-         YPFhbNIcvd4mnU0lTpYWLD7LiUeotPK51bzJRZ07PDqcxgqCuVPsnf5cQO3uO5fmJdIG
-         KXmT+eL+5BpOS5HGx1XtIPTPII/Srl5IkE17MJQw3ruz9D/6q4iEwMwUKVCV+jomZNKL
-         pOiLFswoMSUNedvE9yBkmb4BfNE25aa3oHuT+Ex+tp8fjTQ870HvGophTn7Dv9Q1qzwE
-         O6eEKhpMBrPw091pgK9yhSM5HPXZuMSkuVup72Ivlvs5ONZVw8fUH/ase2hwRAqtqoZS
-         d1Jg==
-X-Gm-Message-State: APjAAAVAu40+WY5X9CH7Be6C6/ZF6Vq267v0AWGMb5sPJtyp5k9QWLN6
-        OGOWvISaT1RW3cDYh9h+fCR4hJmFs7Zaaw==
-X-Google-Smtp-Source: APXvYqzTK6lMn58xXryS7ySbS51MnzIRz6/681Q2C8GxPieNwMyP2+b1r88reVcgufl8JpOl9Ha31w==
-X-Received: by 2002:a5d:534b:: with SMTP id t11mr38059738wrv.120.1576594215332;
-        Tue, 17 Dec 2019 06:50:15 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z11sm26079714wrt.82.2019.12.17.06.50.14
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Dec 2019 06:50:14 -0800 (PST)
-Message-ID: <5df8eb26.1c69fb81.988df.5d6c@mx.google.com>
-Date:   Tue, 17 Dec 2019 06:50:14 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1728137AbfLQPDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 10:03:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48000 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726560AbfLQPDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 10:03:53 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD873218AC;
+        Tue, 17 Dec 2019 15:03:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576595032;
+        bh=RftHGcfKcjuUK8HebAuWXuY4lhVyAlSfj4FGL/AJFLw=;
+        h=Subject:To:From:Date:From;
+        b=zOpB6OJv9OuQc2vr2HrPtOHPGUb6NcyGgCXhJ/qy0/fycZvKKN+0Z8StLLNEVAfCt
+         G3NMEF5e+wyD7L4vmulAORE5Q8vlnoFYQbIWTH6HGiPs69j3BE2PHXus3DH5gvQBP4
+         5qvhn5FxGtkcWUXuOAXuIeKDKceboVSgsHcJ39os=
+Subject: patch "USB: EHCI: Do not return -EPIPE when hub is disconnected" added to usb-linus
+To:     erkka.talvitie@vincit.fi, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 17 Dec 2019 16:03:42 +0100
+Message-ID: <157659502211534@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.158-268-g66745e000c83
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 96 boots: 1 failed,
- 86 passed with 8 offline, 1 untried/unknown (v4.14.158-268-g66745e000c83)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 96 boots: 1 failed, 86 passed with 8 offline, =
-1 untried/unknown (v4.14.158-268-g66745e000c83)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.158-268-g66745e000c83/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.158-268-g66745e000c83/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.158-268-g66745e000c83
-Git Commit: 66745e000c837d52e736de131726a861c6ea1ebf
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 60 unique boards, 21 SoC families, 15 builds out of 201
+    USB: EHCI: Do not return -EPIPE when hub is disconnected
 
-Boot Failure Detected:
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Offline Platforms:
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-arm:
+If you have any questions about this process, please let me know.
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
+From 64cc3f12d1c7dd054a215bc1ff9cc2abcfe35832 Mon Sep 17 00:00:00 2001
+From: Erkka Talvitie <erkka.talvitie@vincit.fi>
+Date: Wed, 11 Dec 2019 10:08:39 +0200
+Subject: USB: EHCI: Do not return -EPIPE when hub is disconnected
 
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
+When disconnecting a USB hub that has some child device(s) connected to it
+(such as a USB mouse), then the stack tries to clear halt and
+reset device(s) which are _already_ physically disconnected.
 
-    omap2plus_defconfig:
-        gcc-8
-            omap4-panda: 1 offline lab
+The issue has been reproduced with:
 
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            omap4-panda: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
+CPU: IMX6D5EYM10AD or MCIMX6D5EYM10AE.
+SW: U-Boot 2019.07 and kernel 4.19.40.
 
-arm64:
+CPU: HP Proliant Microserver Gen8.
+SW: Linux version 4.2.3-300.fc23.x86_64
 
-    defconfig:
-        gcc-8
-            meson-gxl-s905x-libretech-cc: 1 offline lab
+In this situation there will be error bit for MMF active yet the
+CERR equals EHCI_TUNE_CERR + halt. Existing implementation
+interprets this as a stall [1] (chapter 8.4.5).
 
+The possible conditions when the MMF will be active + halt
+can be found from [2] (Table 4-13).
+
+Fix for the issue is to check whether MMF is active and PID Code is
+IN before checking for the stall. If these conditions are true then
+it is not a stall.
+
+What happens after the fix is that when disconnecting a hub with
+attached device(s) the situation is not interpret as a stall.
+
+[1] [https://www.usb.org/document-library/usb-20-specification, usb_20.pdf]
+[2] [https://www.intel.com/content/dam/www/public/us/en/documents/
+     technical-specifications/ehci-specification-for-usb.pdf]
+
+Signed-off-by: Erkka Talvitie <erkka.talvitie@vincit.fi>
+Reviewed-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/ef70941d5f349767f19c0ed26b0dd9eed8ad81bb.1576050523.git.erkka.talvitie@vincit.fi
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/usb/host/ehci-q.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/ehci-q.c b/drivers/usb/host/ehci-q.c
+index aa2f77f1506d..8a5c9b3ebe1e 100644
+--- a/drivers/usb/host/ehci-q.c
++++ b/drivers/usb/host/ehci-q.c
+@@ -27,6 +27,10 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
++/* PID Codes that are used here, from EHCI specification, Table 3-16. */
++#define PID_CODE_IN    1
++#define PID_CODE_SETUP 2
++
+ /* fill a qtd, returning how much of the buffer we were able to queue up */
+ 
+ static int
+@@ -190,7 +194,7 @@ static int qtd_copy_status (
+ 	int	status = -EINPROGRESS;
+ 
+ 	/* count IN/OUT bytes, not SETUP (even short packets) */
+-	if (likely (QTD_PID (token) != 2))
++	if (likely(QTD_PID(token) != PID_CODE_SETUP))
+ 		urb->actual_length += length - QTD_LENGTH (token);
+ 
+ 	/* don't modify error codes */
+@@ -206,6 +210,13 @@ static int qtd_copy_status (
+ 		if (token & QTD_STS_BABBLE) {
+ 			/* FIXME "must" disable babbling device's port too */
+ 			status = -EOVERFLOW;
++		/*
++		 * When MMF is active and PID Code is IN, queue is halted.
++		 * EHCI Specification, Table 4-13.
++		 */
++		} else if ((token & QTD_STS_MMF) &&
++					(QTD_PID(token) == PID_CODE_IN)) {
++			status = -EPROTO;
+ 		/* CERR nonzero + halt --> stall */
+ 		} else if (QTD_CERR(token)) {
+ 			status = -EPIPE;
+-- 
+2.24.1
+
+
