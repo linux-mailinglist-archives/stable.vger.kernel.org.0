@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C3E11236C5
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1971236C6
 	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728750AbfLQULb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:11:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38150 "EHLO mail.kernel.org"
+        id S1728768AbfLQULc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:11:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728740AbfLQULa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 15:11:30 -0500
+        id S1728757AbfLQULc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:11:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC5A2206D8;
-        Tue, 17 Dec 2019 20:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15FFA2176D;
+        Tue, 17 Dec 2019 20:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576613489;
-        bh=OrIF2nE77aTOY/GWiSHEfGG6CpmdeAJGxqV9Ru+vC6A=;
+        s=default; t=1576613491;
+        bh=Jk2WK0gpxpGOm7b/DRmsYrr/d03CP+EHVZIj9KNKkcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nOmeDvNsuglTqLrpku+3aMNtguMVr6Nm1BKn80Ypmr9zsaoJFnza4i8OGtVZyyGRj
-         v6O+7as8BlWFf1j1Prs9f0ijCea+7UymNoa1GzOcPhAIAVH1sudFNYdly7K9G/wgwE
-         98zVSuAPtvIraPMwiLec4bTK95p+UEy43tnCPosA=
+        b=A9iKaADvJdeL/amHIs/qM0WZTYi8TMV3NaklL6Z12rOBGApg+RMfl2FR/puLETc6e
+         bEvNRYbBrPl9NXVUJE8LCcbWxxICUf4KczOEma7Gb6v85MGcKo1tfqBRUWNXBLhDdF
+         6L0I1VPaZIiZfdrzX959PzGfsRdctP9CcEgMTPyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 07/37] net_sched: validate TCA_KIND attribute in tc_chain_tmplt_add()
-Date:   Tue, 17 Dec 2019 21:09:28 +0100
-Message-Id: <20191217200724.051784343@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        David Miller <davem@davemloft.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Subject: [PATCH 5.4 08/37] net-sysfs: Call dev_hold always in netdev_queue_add_kobject
+Date:   Tue, 17 Dec 2019 21:09:29 +0100
+Message-Id: <20191217200724.234482593@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191217200721.741054904@linuxfoundation.org>
 References: <20191217200721.741054904@linuxfoundation.org>
@@ -48,109 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-[ Upstream commit 2dd5616ecdcebdf5a8d007af64e040d4e9214efe ]
+[ Upstream commit e0b60903b434a7ee21ba8d8659f207ed84101e89 ]
 
-Use the new tcf_proto_check_kind() helper to make sure user
-provided value is well formed.
+Dev_hold has to be called always in netdev_queue_add_kobject.
+Otherwise usage count drops below 0 in case of failure in
+kobject_init_and_add.
 
-BUG: KMSAN: uninit-value in string_nocheck lib/vsprintf.c:606 [inline]
-BUG: KMSAN: uninit-value in string+0x4be/0x600 lib/vsprintf.c:668
-CPU: 0 PID: 12358 Comm: syz-executor.1 Not tainted 5.4.0-rc8-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0x128/0x220 mm/kmsan/kmsan_report.c:108
- __msan_warning+0x64/0xc0 mm/kmsan/kmsan_instr.c:245
- string_nocheck lib/vsprintf.c:606 [inline]
- string+0x4be/0x600 lib/vsprintf.c:668
- vsnprintf+0x218f/0x3210 lib/vsprintf.c:2510
- __request_module+0x2b1/0x11c0 kernel/kmod.c:143
- tcf_proto_lookup_ops+0x171/0x700 net/sched/cls_api.c:139
- tc_chain_tmplt_add net/sched/cls_api.c:2730 [inline]
- tc_ctl_chain+0x1904/0x38a0 net/sched/cls_api.c:2850
- rtnetlink_rcv_msg+0x115a/0x1580 net/core/rtnetlink.c:5224
- netlink_rcv_skb+0x431/0x620 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5242
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0xf3e/0x1020 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x110f/0x1330 net/netlink/af_netlink.c:1917
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg net/socket.c:657 [inline]
- ___sys_sendmsg+0x14ff/0x1590 net/socket.c:2311
- __sys_sendmsg net/socket.c:2356 [inline]
- __do_sys_sendmsg net/socket.c:2365 [inline]
- __se_sys_sendmsg+0x305/0x460 net/socket.c:2363
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2363
- do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45a649
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f0790795c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 000000000045a649
-RDX: 0000000000000000 RSI: 0000000020000300 RDI: 0000000000000006
-RBP: 000000000075bfc8 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f07907966d4
-R13: 00000000004c8db5 R14: 00000000004df630 R15: 00000000ffffffff
-
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:149 [inline]
- kmsan_internal_poison_shadow+0x5c/0x110 mm/kmsan/kmsan.c:132
- kmsan_slab_alloc+0x97/0x100 mm/kmsan/kmsan_hooks.c:86
- slab_alloc_node mm/slub.c:2773 [inline]
- __kmalloc_node_track_caller+0xe27/0x11a0 mm/slub.c:4381
- __kmalloc_reserve net/core/skbuff.c:141 [inline]
- __alloc_skb+0x306/0xa10 net/core/skbuff.c:209
- alloc_skb include/linux/skbuff.h:1049 [inline]
- netlink_alloc_large_skb net/netlink/af_netlink.c:1174 [inline]
- netlink_sendmsg+0x783/0x1330 net/netlink/af_netlink.c:1892
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg net/socket.c:657 [inline]
- ___sys_sendmsg+0x14ff/0x1590 net/socket.c:2311
- __sys_sendmsg net/socket.c:2356 [inline]
- __do_sys_sendmsg net/socket.c:2365 [inline]
- __se_sys_sendmsg+0x305/0x460 net/socket.c:2363
- __x64_sys_sendmsg+0x4a/0x70 net/socket.c:2363
- do_syscall_64+0xb6/0x160 arch/x86/entry/common.c:291
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 6f96c3c6904c ("net_sched: fix backward compatibility for TCA_KIND")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
+Fixes: b8eb718348b8 ("net-sysfs: Fix reference count leak in rx|netdev_queue_add_kobject")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: David Miller <davem@davemloft.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_api.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/core/net-sysfs.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -2721,13 +2721,19 @@ static int tc_chain_tmplt_add(struct tcf
- 			      struct netlink_ext_ack *extack)
- {
- 	const struct tcf_proto_ops *ops;
-+	char name[IFNAMSIZ];
- 	void *tmplt_priv;
+--- a/net/core/net-sysfs.c
++++ b/net/core/net-sysfs.c
+@@ -1459,14 +1459,17 @@ static int netdev_queue_add_kobject(stru
+ 	struct kobject *kobj = &queue->kobj;
+ 	int error = 0;
  
- 	/* If kind is not set, user did not specify template. */
- 	if (!tca[TCA_KIND])
- 		return 0;
- 
--	ops = tcf_proto_lookup_ops(nla_data(tca[TCA_KIND]), true, extack);
-+	if (tcf_proto_check_kind(tca[TCA_KIND], name)) {
-+		NL_SET_ERR_MSG(extack, "Specified TC chain template name too long");
-+		return -EINVAL;
-+	}
++	/* Kobject_put later will trigger netdev_queue_release call
++	 * which decreases dev refcount: Take that reference here
++	 */
++	dev_hold(queue->dev);
 +
-+	ops = tcf_proto_lookup_ops(name, true, extack);
- 	if (IS_ERR(ops))
- 		return PTR_ERR(ops);
- 	if (!ops->tmplt_create || !ops->tmplt_destroy || !ops->tmplt_dump) {
+ 	kobj->kset = dev->queues_kset;
+ 	error = kobject_init_and_add(kobj, &netdev_queue_ktype, NULL,
+ 				     "tx-%u", index);
+ 	if (error)
+ 		goto err;
+ 
+-	dev_hold(queue->dev);
+-
+ #ifdef CONFIG_BQL
+ 	error = sysfs_create_group(kobj, &dql_group);
+ 	if (error)
 
 
