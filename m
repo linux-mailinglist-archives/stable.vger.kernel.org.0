@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 886A012207C
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B9D12206D
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727690AbfLQAzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:55:21 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35272 "EHLO
+        id S1728159AbfLQAyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:54:38 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35416 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727031AbfLQAvn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:43 -0500
+        by vger.kernel.org with ESMTP id S1727110AbfLQAvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:44 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15K-0003Mn-N7; Tue, 17 Dec 2019 00:51:34 +0000
+        id 1ih15K-0003Mq-Qx; Tue, 17 Dec 2019 00:51:34 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15I-0005Zh-MC; Tue, 17 Dec 2019 00:51:32 +0000
+        id 1ih15I-0005Zn-OK; Tue, 17 Dec 2019 00:51:32 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Vineet Gupta" <vgupta@synopsys.com>,
-        "Alexey Brodkin" <abrodkin@synopsys.com>,
-        "Alexey Brodkin" <Alexey.Brodkin@synopsys.com>
-Date:   Tue, 17 Dec 2019 00:46:57 +0000
-Message-ID: <lsq.1576543535.455415966@decadent.org.uk>
+        "Daniel Wagner" <dwagner@suse.de>,
+        "Hannes Reinecke" <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Dick Kennedy" <dick.kennedy@broadcom.com>,
+        "James Smart" <james.smart@broadcom.com>
+Date:   Tue, 17 Dec 2019 00:46:58 +0000
+Message-ID: <lsq.1576543535.154349840@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 083/136] ARC: perf: Accommodate big-endian CPU
+Subject: [PATCH 3.16 084/136] scsi: lpfc: Honor module parameter
+ lpfc_use_adisc
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,76 +50,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-commit 5effc09c4907901f0e71e68e5f2e14211d9a203f upstream.
+commit 0fd103ccfe6a06e40e2d9d8c91d96332cc9e1239 upstream.
 
-8-letter strings representing ARC perf events are stores in two
-32-bit registers as ASCII characters like that: "IJMP", "IALL", "IJMPTAK" etc.
+The initial lpfc_desc_set_adisc implementation in commit
+dea3101e0a5c ("lpfc: add Emulex FC driver version 8.0.28") enabled ADISC if
 
-And the same order of bytes in the word is used regardless CPU endianness.
+	cfg_use_adisc && RSCN_MODE && FCP_2_DEVICE
 
-Which means in case of big-endian CPU core we need to swap bytes to get
-the same order as if it was on little-endian CPU.
+In commit 92d7f7b0cde3 ("[SCSI] lpfc: NPIV: add NPIV support on top of
+SLI-3") this changed to
 
-Otherwise we're seeing the following error message on boot:
-------------------------->8----------------------
-ARC perf        : 8 counters (32 bits), 40 conditions, [overflow IRQ support]
-sysfs: cannot create duplicate filename '/devices/arc_pct/events/pmji'
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  sysfs_warn_dup+0x46/0x58
-  sysfs_add_file_mode_ns+0xb2/0x168
-  create_files+0x70/0x2a0
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1 at kernel/events/core.c:12144 perf_event_sysfs_init+0x70/0xa0
-Failed to register pmu: arc_pct, reason -17
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  __warn+0x9c/0xd4
-  warn_slowpath_fmt+0x22/0x2c
-  perf_event_sysfs_init+0x70/0xa0
----[ end trace a75fb9a9837bd1ec ]---
-------------------------->8----------------------
+	(cfg_use_adisc && RSC_MODE) || FCP_2_DEVICE
 
-What happens here we're trying to register more than one raw perf event
-with the same name "PMJI". Why? Because ARC perf events are 4 to 8 letters
-and encoded into two 32-bit words. In this particular case we deal with 2
-events:
- * "IJMP____" which counts all jump & branch instructions
- * "IJMPC___" which counts only conditional jumps & branches
+and later in commit ffc954936b13 ("[SCSI] lpfc 8.3.13: FC Discovery Fixes
+and enhancements.") to
 
-Those strings are split in two 32-bit words this way "IJMP" + "____" &
-"IJMP" + "C___" correspondingly. Now if we read them swapped due to CPU core
-being big-endian then we read "PMJI" + "____" & "PMJI" + "___C".
+	(cfg_use_adisc && RSC_MODE) || (FCP_2_DEVICE && FCP_TARGET)
 
-And since we interpret read array of ASCII letters as a null-terminated string
-on big-endian CPU we end up with 2 events of the same name "PMJI".
+A customer reports that after a devloss, an ADISC failure is logged. It
+turns out the ADISC flag is set even the user explicitly set lpfc_use_adisc
+= 0.
 
-Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-[bwh: Backported to 3.16: adjust context]
+[Sat Dec 22 22:55:58 2018] lpfc 0000:82:00.0: 2:(0):0203 Devloss timeout on WWPN 50:01:43:80:12:8e:40:20 NPort x05df00 Data: x82000000 x8 xa
+[Sat Dec 22 23:08:20 2018] lpfc 0000:82:00.0: 2:(0):2755 ADISC failure DID:05DF00 Status:x9/x70000
+
+[mkp: fixed Hannes' email]
+
+Fixes: 92d7f7b0cde3 ("[SCSI] lpfc: NPIV: add NPIV support on top of SLI-3")
+Cc: Dick Kennedy <dick.kennedy@broadcom.com>
+Cc: James Smart <james.smart@broadcom.com>
+Link: https://lore.kernel.org/r/20191022072112.132268-1-dwagner@suse.de
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/arc/kernel/perf_event.c | 4 ++--
+ drivers/scsi/lpfc/lpfc_nportdisc.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arc/kernel/perf_event.c
-+++ b/arch/arc/kernel/perf_event.c
-@@ -274,8 +274,8 @@ static int arc_pmu_device_probe(struct p
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -742,9 +742,9 @@ lpfc_disc_set_adisc(struct lpfc_vport *v
  
- 	for (j = 0; j < cc_bcr.c; j++) {
- 		write_aux_reg(ARC_REG_CC_INDEX, j);
--		cc_name.indiv.word0 = read_aux_reg(ARC_REG_CC_NAME0);
--		cc_name.indiv.word1 = read_aux_reg(ARC_REG_CC_NAME1);
-+		cc_name.indiv.word0 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME0));
-+		cc_name.indiv.word1 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME1));
- 		for (i = 0; i < ARRAY_SIZE(arc_pmu_ev_hw_map); i++) {
- 			if (arc_pmu_ev_hw_map[i] &&
- 			    !strcmp(arc_pmu_ev_hw_map[i], cc_name.str) &&
+ 	if (!(vport->fc_flag & FC_PT2PT)) {
+ 		/* Check config parameter use-adisc or FCP-2 */
+-		if ((vport->cfg_use_adisc && (vport->fc_flag & FC_RSCN_MODE)) ||
++		if (vport->cfg_use_adisc && ((vport->fc_flag & FC_RSCN_MODE) ||
+ 		    ((ndlp->nlp_fcp_info & NLP_FCP_2_DEVICE) &&
+-		     (ndlp->nlp_type & NLP_FCP_TARGET))) {
++		     (ndlp->nlp_type & NLP_FCP_TARGET)))) {
+ 			spin_lock_irq(shost->host_lock);
+ 			ndlp->nlp_flag |= NLP_NPR_ADISC;
+ 			spin_unlock_irq(shost->host_lock);
 
