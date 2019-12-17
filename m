@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC67122003
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 901A8122006
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726191AbfLQAv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:51:29 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34454 "EHLO
+        id S1725805AbfLQAvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:51:31 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34476 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726133AbfLQAv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:29 -0500
+        by vger.kernel.org with ESMTP id S1726313AbfLQAvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:31 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15D-0003IN-Mx; Tue, 17 Dec 2019 00:51:27 +0000
+        id 1ih15E-0003Ia-AD; Tue, 17 Dec 2019 00:51:28 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15C-0005RK-Sk; Tue, 17 Dec 2019 00:51:26 +0000
+        id 1ih15D-0005Rj-GT; Tue, 17 Dec 2019 00:51:27 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Frederic Weisbecker" <fweisbec@gmail.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Viresh Kumar" <viresh.kumar@linaro.org>
-Date:   Tue, 17 Dec 2019 00:45:35 +0000
-Message-ID: <lsq.1576543535.245186895@decadent.org.uk>
+        "Oliver Neukum" <oneukum@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Date:   Tue, 17 Dec 2019 00:45:40 +0000
+Message-ID: <lsq.1576543535.191587988@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 001/136] hrtimer: Store cpu-number in struct
- hrtimer_cpu_base
+Subject: [PATCH 3.16 006/136] scsi: sd: Ignore a failure to sync cache due
+ to lack of authorization
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,65 +47,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit cddd02489f52ccf635ed65931214729a23b93cd6 upstream.
+commit 21e3d6c81179bbdfa279efc8de456c34b814cfd2 upstream.
 
-In lowres mode, hrtimers are serviced by the tick instead of a clock
-event. Now it works well as long as the tick stays periodic but we
-must also make sure that the hrtimers are serviced in dynticks mode.
+I've got a report about a UAS drive enclosure reporting back Sense: Logical
+unit access not authorized if the drive it holds is password protected.
+While the drive is obviously unusable in that state as a mass storage
+device, it still exists as a sd device and when the system is asked to
+perform a suspend of the drive, it will be sent a SYNCHRONIZE CACHE. If
+that fails due to password protection, the error must be ignored.
 
-Part of that job consist in kicking a dynticks hrtimer target in order
-to make it reconsider the next tick to schedule to correctly handle the
-hrtimer's expiring time. And that part isn't handled by the hrtimers
-subsystem.
-
-To prepare for fixing this, we need __hrtimer_start_range_ns() to be
-able to resolve the CPU target associated to a hrtimer's object
-'cpu_base' so that the kick can be centralized there.
-
-So lets store it in the 'struct hrtimer_cpu_base' to resolve the CPU
-without overhead. It is set once at CPU's online notification.
-
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Frederic Weisbecker <fweisbec@gmail.com>
-Link: http://lkml.kernel.org/r/1403393357-2070-4-git-send-email-fweisbec@gmail.com
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-[bwh: Backported to 3.16 as dependency of commit b9023b91dd02
- "tick: broadcast-hrtimer: Fix a race in bc_set_next":
- - Adjust filename, context]
+Link: https://lore.kernel.org/r/20190903101840.16483-1-oneukum@suse.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[bwh: Backported to 3.16: sshdr is a struct not a pointer here]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- include/linux/hrtimer.h | 2 ++
- kernel/hrtimer.c        | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/scsi/sd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/hrtimer.h
-+++ b/include/linux/hrtimer.h
-@@ -165,6 +165,7 @@ enum  hrtimer_base_type {
-  * struct hrtimer_cpu_base - the per cpu clock bases
-  * @lock:		lock protecting the base and associated clock bases
-  *			and timers
-+ * @cpu:		cpu number
-  * @active_bases:	Bitfield to mark bases with active timers
-  * @clock_was_set:	Indicates that clock was set from irq context.
-  * @expires_next:	absolute time of the next event which was scheduled
-@@ -179,6 +180,7 @@ enum  hrtimer_base_type {
-  */
- struct hrtimer_cpu_base {
- 	raw_spinlock_t			lock;
-+	unsigned int			cpu;
- 	unsigned int			active_bases;
- 	unsigned int			clock_was_set;
- #ifdef CONFIG_HIGH_RES_TIMERS
---- a/kernel/hrtimer.c
-+++ b/kernel/hrtimer.c
-@@ -1687,6 +1687,7 @@ static void init_hrtimers_cpu(int cpu)
- 	}
- 
- 	cpu_base->active_bases = 0;
-+	cpu_base->cpu = cpu;
- 	hrtimer_init_hres(cpu_base);
- }
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1470,7 +1470,8 @@ static int sd_sync_cache(struct scsi_dis
+ 		/* we need to evaluate the error return  */
+ 		if (scsi_sense_valid(&sshdr) &&
+ 			(sshdr.asc == 0x3a ||	/* medium not present */
+-			 sshdr.asc == 0x20))	/* invalid command */
++			 sshdr.asc == 0x20 ||	/* invalid command */
++			 (sshdr.asc == 0x74 && sshdr.ascq == 0x71)))	/* drive is password locked */
+ 				/* this is no error here */
+ 				return 0;
  
 
