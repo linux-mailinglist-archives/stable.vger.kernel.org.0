@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C431220C2
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:57:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 110B31220E9
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:59:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727002AbfLQA5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:57:43 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34940 "EHLO
+        id S1727386AbfLQA7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:59:02 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34760 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726808AbfLQAvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:40 -0500
+        by vger.kernel.org with ESMTP id S1726402AbfLQAvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:37 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15H-0003Ku-KI; Tue, 17 Dec 2019 00:51:31 +0000
+        id 1ih15H-0003Ky-J7; Tue, 17 Dec 2019 00:51:31 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15G-0005UF-Kd; Tue, 17 Dec 2019 00:51:30 +0000
+        id 1ih15G-0005UJ-MJ; Tue, 17 Dec 2019 00:51:30 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Peter Korsgaard" <jacmet@sunsite.dk>,
-        "Randy Dunlap" <rdunlap@infradead.org>
-Date:   Tue, 17 Dec 2019 00:46:11 +0000
-Message-ID: <lsq.1576543535.650458793@decadent.org.uk>
+        "Lorenzo Bianconi" <lorenzo.bianconi@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Date:   Tue, 17 Dec 2019 00:46:12 +0000
+Message-ID: <lsq.1576543535.858518471@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 037/136] serial: uartlite: fix exit path null pointer
+Subject: [PATCH 3.16 038/136] net: ipv4: use a dedicated counter for
+ icmp_v4 redirect packets
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,41 +47,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
 
-commit a553add0846f355a28ed4e81134012e4a1e280c2 upstream.
+commit c09551c6ff7fe16a79a42133bcecba5fc2fc3291 upstream.
 
-Call uart_unregister_driver() conditionally instead of
-unconditionally, only if it has been previously registered.
+According to the algorithm described in the comment block at the
+beginning of ip_rt_send_redirect, the host should try to send
+'ip_rt_redirect_number' ICMP redirect packets with an exponential
+backoff and then stop sending them at all assuming that the destination
+ignores redirects.
+If the device has previously sent some ICMP error packets that are
+rate-limited (e.g TTL expired) and continues to receive traffic,
+the redirect packets will never be transmitted. This happens since
+peer->rate_tokens will be typically greater than 'ip_rt_redirect_number'
+and so it will never be reset even if the redirect silence timeout
+(ip_rt_redirect_silence) has elapsed without receiving any packet
+requiring redirects.
 
-This uses driver.state, just as the sh-sci.c driver does.
+Fix it by using a dedicated counter for the number of ICMP redirect
+packets that has been sent by the host
 
-Fixes this null pointer dereference in tty_unregister_driver(),
-since the 'driver' argument is null:
+I have not been able to identify a given commit that introduced the
+issue since ip_rt_send_redirect implements the same rate-limiting
+algorithm from commit 1da177e4c3f4 ("Linux-2.6.12-rc2")
 
-  general protection fault: 0000 [#1] PREEMPT SMP KASAN PTI
-  RIP: 0010:tty_unregister_driver+0x25/0x1d0
-
-Fixes: 238b8721a554 ("[PATCH] serial uartlite driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>
-Link: https://lore.kernel.org/r/9c8e6581-6fcc-a595-0897-4d90f5d710df@infradead.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16: adjust context, indentation]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/tty/serial/uartlite.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/inetpeer.h | 1 +
+ net/ipv4/inetpeer.c    | 1 +
+ net/ipv4/route.c       | 7 +++++--
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/uartlite.c
-+++ b/drivers/tty/serial/uartlite.c
-@@ -708,7 +708,8 @@ err_uart:
- static void __exit ulite_exit(void)
- {
- 	platform_driver_unregister(&ulite_platform_driver);
--	uart_unregister_driver(&ulite_uart_driver);
-+	if (ulite_uart_driver.state)
-+		uart_unregister_driver(&ulite_uart_driver);
- }
+--- a/include/net/inetpeer.h
++++ b/include/net/inetpeer.h
+@@ -35,6 +35,7 @@ struct inet_peer {
  
- module_init(ulite_init);
+ 	u32			metrics[RTAX_MAX];
+ 	u32			rate_tokens;	/* rate limiting for ICMP */
++	u32			n_redirects;
+ 	unsigned long		rate_last;
+ 	union {
+ 		struct list_head	gc_list;
+--- a/net/ipv4/inetpeer.c
++++ b/net/ipv4/inetpeer.c
+@@ -485,6 +485,7 @@ relookup:
+ 		atomic_set(&p->rid, 0);
+ 		p->metrics[RTAX_LOCK-1] = INETPEER_METRICS_NEW;
+ 		p->rate_tokens = 0;
++		p->n_redirects = 0;
+ 		/* 60*HZ is arbitrary, but chosen enough high so that the first
+ 		 * calculation of tokens is at its maximum.
+ 		 */
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -872,13 +872,15 @@ void ip_rt_send_redirect(struct sk_buff
+ 	/* No redirected packets during ip_rt_redirect_silence;
+ 	 * reset the algorithm.
+ 	 */
+-	if (time_after(jiffies, peer->rate_last + ip_rt_redirect_silence))
++	if (time_after(jiffies, peer->rate_last + ip_rt_redirect_silence)) {
+ 		peer->rate_tokens = 0;
++		peer->n_redirects = 0;
++	}
+ 
+ 	/* Too many ignored redirects; do not send anything
+ 	 * set dst.rate_last to the last seen redirected packet.
+ 	 */
+-	if (peer->rate_tokens >= ip_rt_redirect_number) {
++	if (peer->n_redirects >= ip_rt_redirect_number) {
+ 		peer->rate_last = jiffies;
+ 		goto out_put_peer;
+ 	}
+@@ -895,6 +897,7 @@ void ip_rt_send_redirect(struct sk_buff
+ 		icmp_send(skb, ICMP_REDIRECT, ICMP_REDIR_HOST, gw);
+ 		peer->rate_last = jiffies;
+ 		++peer->rate_tokens;
++		++peer->n_redirects;
+ #ifdef CONFIG_IP_ROUTE_VERBOSE
+ 		if (log_martians &&
+ 		    peer->rate_tokens == ip_rt_redirect_number)
 
