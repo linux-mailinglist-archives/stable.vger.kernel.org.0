@@ -2,104 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC5D1239E0
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 23:22:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC57123B23
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 00:51:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726470AbfLQWWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 17:22:09 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:50827 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726750AbfLQWWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 17:22:09 -0500
-Received: by mail-wm1-f66.google.com with SMTP id a5so82171wmb.0
-        for <stable@vger.kernel.org>; Tue, 17 Dec 2019 14:22:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rooGQlOwXpu0YFiXkGb/CI3p2XvWKRuArsHUnKwfPno=;
-        b=Ei/Fif/2uYRJNyOuw+Zj95cO5PnJnwgwNWoQ1HTJH58dJtnnLsTdgHYeJ7+cwde/U6
-         FgfQEXwYykOuE4uB3RbtyMoyYx7i75My1U1xTEjIOKTsLbcHdmswwG8BAVbVoDAjelFD
-         v1WisqD4tHLYcS0YLATf7fBkBi5sGkFRxP56sRGZrwmwr+yaelZwbhQPWXaVpf9eY/FF
-         AyHhNk4kCY7fPJQp5gDcMxdKELKnrUs6cn+nv7W+i5ckFjbFxyM4IrEzCLKJRi7kNlpp
-         pJGligs2MkFnOl4pw5+9WJRoS0/udpYKWrVODYm+hKbHKJo/TvoUQwS5s1wYLNFvraN4
-         xHJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rooGQlOwXpu0YFiXkGb/CI3p2XvWKRuArsHUnKwfPno=;
-        b=I9pf04jHgogZVp8xhDyaSOTbg9xuRqeEpvNkNLuKonz5o+4gqW+pMyPYbElAPnfAaw
-         yDr8J5Qt69peH6r+AyyHGsI8eRhzRKUyooaHMm0JvYaj7AnmCYPt7o+/qpCGFTBNoO3z
-         wPK+FeASnoPnZUOOovawT0W6fbS/j0f9BjOzyPe+s+ER2yoivT7yhpJoqzEnEju37lej
-         roW4FfjjR3+OQiO33eLBsDl6X4OHobeBINbmIC0CS6E1f0hHwvyV/QCLszEFpFGPpEPB
-         ObL3tkdp41dt7FHvl84eqFHZy4y4VABYa0rj84mGzhKwTg5sL5iOstnQEkk6f8kT+b+E
-         o3/Q==
-X-Gm-Message-State: APjAAAV58i5Mge94sIEi0OP1HY4s8bqfuEz+z4zpREBtK9uHrOMF7YFX
-        WqAyjl41ywj7Grrbr2HNKXW5WvifEBNjng==
-X-Google-Smtp-Source: APXvYqxI/gDyNTi2dtOn0TqJ43rumdGG9cMJdQmsrVmjxQNbTXyJ1XA+nSKvixKrAQiNZDgHLTgF9w==
-X-Received: by 2002:a05:600c:290f:: with SMTP id i15mr8170936wmd.115.1576621327467;
-        Tue, 17 Dec 2019 14:22:07 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a184sm237079wmf.29.2019.12.17.14.22.06
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Dec 2019 14:22:07 -0800 (PST)
-Message-ID: <5df9550f.1c69fb81.19355.1288@mx.google.com>
-Date:   Tue, 17 Dec 2019 14:22:07 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1725975AbfLQXvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 18:51:19 -0500
+Received: from bilbo.ozlabs.org ([203.11.71.1]:46597 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725946AbfLQXvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 18:51:18 -0500
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 47cvzl1j8Rz9sR1;
+        Wed, 18 Dec 2019 10:51:15 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=canb.auug.org.au;
+        s=201702; t=1576626676;
+        bh=GnAUl3PzTD6UAywDYOK5oZBCRdCtb1Q1Fvz2NZyJwW4=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=FEDg76Bk1tsPQeXr3u1NZQNYOZrA6PbRIZKko1PfFko37HZicLFhauEfRY7pHiBNN
+         3AVfAzKjEUUp9gYrPHXlmgFtC4aPw6SC5MvoVyS7MAbAWKoQIpqiwD3GXW/bk03fOR
+         mlXrg5vlq4J/raXu+fL5edfZPAoRt0ekqBMQoOClyw6fpUlOe1Imd+JbvCYUNb4Tsm
+         aQBmggN2jrYso14Eajag2u2xFfj5WPXpXy9+saXwLt2FFl+996ZlIrL06yNCgzR7Pe
+         FOmSmaqe0QkmjX650wK9PNkqZFHe2e2h1rL5OQOpEuTXzdAAg/VPTEY+AQMGzONakF
+         hWwzNe+RsImng==
+Date:   Wed, 18 Dec 2019 10:51:13 +1100
+From:   Stephen Rothwell <sfr@canb.auug.org.au>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        linux-kernel@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Ammy Yi <ammy.yi@intel.com>, stable@vger.kernel.org
+Subject: Re: [GIT PULL 4/4] intel_th: msu: Fix window switching without
+ windows
+Message-ID: <20191218105113.21cc94fb@canb.auug.org.au>
+In-Reply-To: <20191217120629.GB3156341@kroah.com>
+References: <20191217115527.74383-1-alexander.shishkin@linux.intel.com>
+        <20191217115527.74383-5-alexander.shishkin@linux.intel.com>
+        <20191217120629.GB3156341@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.158-275-g0ddb1a505fdb
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 57 boots: 2 failed,
- 54 passed with 1 untried/unknown (v4.14.158-275-g0ddb1a505fdb)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; boundary="Sig_/UIwpCo_nVWJXHjBngfC9MRi";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 57 boots: 2 failed, 54 passed with 1 untried/u=
-nknown (v4.14.158-275-g0ddb1a505fdb)
+--Sig_/UIwpCo_nVWJXHjBngfC9MRi
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.158-275-g0ddb1a505fdb/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.158-275-g0ddb1a505fdb/
+Hi Greg,
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.158-275-g0ddb1a505fdb
-Git Commit: 0ddb1a505fdb4334b66b11d3aa91bc6faa1fa31d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 36 unique boards, 12 SoC families, 11 builds out of 193
+On Tue, 17 Dec 2019 13:06:29 +0100 Greg Kroah-Hartman <gregkh@linuxfoundati=
+on.org> wrote:
+>
+> On Tue, Dec 17, 2019 at 01:55:27PM +0200, Alexander Shishkin wrote:
+> > Commit 6cac7866c2741 ("intel_th: msu: Add a sysfs attribute to trigger
+> > window switch") adds a NULL pointer dereference in the case when there =
+are
+> > no windows allocated: =20
+>=20
+> Commit ids should only be specified in 12 digits, not 13 :)
 
-Boot Regressions Detected:
+It is possible that 13 digits may be necessary to be unambiguous within
+a git repo.  In fact, as we continue with a single git repo (Linus'), at
+some point 13 digits will become normal.
 
-i386:
+--=20
+Cheers,
+Stephen Rothwell
 
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-collabora: new failure (last pass: v4.14.158-268-g66745e0=
-00c83)
+--Sig_/UIwpCo_nVWJXHjBngfC9MRi
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
-Boot Failures Detected:
+-----BEGIN PGP SIGNATURE-----
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl35afEACgkQAVBC80lX
+0Gyn5gf9EbgzxPiJZyCJewP+YFS3xms6a67yK8sbNVizB+qvdjP0YmGOdYwYll/u
+sKqhu2CLRiTcZrzsqCYR0sGPm5BJ/0K2z7T0ZRvOZzulAS0N+WKilLqdRmsaYuFJ
+EC9p+i2Exr4aJldLUDNbLmzcPaXTAHXGEPbzUwgrOAD/edV3CIEydM1/c+HliD9N
+ap/6mYV181HvYOG3poYi4E0aGOvk1nWUtMPLubXnRg/2xT7F3bHD+cMGi0zYFJ4T
+R+S/lPvWRaCtBcmVnNFI2vpdj1ZkAq+uB07hgVfCAJ2ZRdJHi2KEIaA0XuV+nExC
+8peLAA0uvQs1X03M39e2fY1o/z45hQ==
+=lBmi
+-----END PGP SIGNATURE-----
 
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+--Sig_/UIwpCo_nVWJXHjBngfC9MRi--
