@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3EA123703
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:17:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E3081236F6
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbfLQURo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:17:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41822 "EHLO mail.kernel.org"
+        id S1728834AbfLQURX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:17:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728793AbfLQURV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 15:17:21 -0500
+        id S1728823AbfLQURW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:17:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F0D0206D8;
-        Tue, 17 Dec 2019 20:17:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E6AE21775;
+        Tue, 17 Dec 2019 20:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576613840;
-        bh=kU/g2d6zDLkg2lDHlxUGE+KJKoOB9BR28nfUxunsxVo=;
+        s=default; t=1576613842;
+        bh=7I/A2Gv6FuvwnPeTtQRWUP+nBGtZ1qPYwGx36MZx0LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyOjwhqjPLYV2DyD+qHPVlIZb8aQyxYJkBOpgXImLIQu41Us7vRegN8i99olzcmYD
-         fCzObSLf7VbiliuV8pSoXHWSogv4A9oUutYeK6eRpR8j4sm1e1/ONEnQpRTa5vMyTR
-         yjrkGbXp/vXTlGojzDaB+GOyFoRSVlUFZuK53w7A=
+        b=zjkhR5VxbS/9tPGHU4tnAlFJSZY858/v94zzTz/Tem5bpmXHVKwuxxjrhnQ5Sw+Ot
+         8wldtg+fhPYixZkI2Qk/TbE31rylxtxEbhlQTfyKv/mI+XR3ykTzA+WWKkBImB1WPz
+         +IVRQw7XIXE++/23gtMLxHy+QAZlQHh+SrUUXnL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@dlink.ru>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 04/25] net: dsa: fix flow dissection on Tx path
-Date:   Tue, 17 Dec 2019 21:16:03 +0100
-Message-Id: <20191217200905.191919415@linuxfoundation.org>
+Subject: [PATCH 5.3 05/25] net: ethernet: ti: cpsw: fix extra rx interrupt
+Date:   Tue, 17 Dec 2019 21:16:04 +0100
+Message-Id: <20191217200905.642350955@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191217200903.179327435@linuxfoundation.org>
 References: <20191217200903.179327435@linuxfoundation.org>
@@ -44,114 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@dlink.ru>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 8bef0af09a5415df761b04fa487a6c34acae74bc ]
+[ Upstream commit 51302f77bedab8768b761ed1899c08f89af9e4e2 ]
 
-Commit 43e665287f93 ("net-next: dsa: fix flow dissection") added an
-ability to override protocol and network offset during flow dissection
-for DSA-enabled devices (i.e. controllers shipped as switch CPU ports)
-in order to fix skb hashing for RPS on Rx path.
+Now RX interrupt is triggered twice every time, because in
+cpsw_rx_interrupt() it is asked first and then disabled. So there will be
+pending interrupt always, when RX interrupt is enabled again in NAPI
+handler.
 
-However, skb_hash() and added part of code can be invoked not only on
-Rx, but also on Tx path if we have a multi-queued device and:
- - kernel is running on UP system or
- - XPS is not configured.
+Fix it by first disabling IRQ and then do ask.
 
-The call stack in this two cases will be like: dev_queue_xmit() ->
-__dev_queue_xmit() -> netdev_core_pick_tx() -> netdev_pick_tx() ->
-skb_tx_hash() -> skb_get_hash().
-
-The problem is that skbs queued for Tx have both network offset and
-correct protocol already set up even after inserting a CPU tag by DSA
-tagger, so calling tag_ops->flow_dissect() on this path actually only
-breaks flow dissection and hashing.
-
-This can be observed by adding debug prints just before and right after
-tag_ops->flow_dissect() call to the related block of code:
-
-Before the patch:
-
-Rx path (RPS):
-
-[   19.240001] Rx: proto: 0x00f8, nhoff: 0	/* ETH_P_XDSA */
-[   19.244271] tag_ops->flow_dissect()
-[   19.247811] Rx: proto: 0x0800, nhoff: 8	/* ETH_P_IP */
-
-[   19.215435] Rx: proto: 0x00f8, nhoff: 0	/* ETH_P_XDSA */
-[   19.219746] tag_ops->flow_dissect()
-[   19.223241] Rx: proto: 0x0806, nhoff: 8	/* ETH_P_ARP */
-
-[   18.654057] Rx: proto: 0x00f8, nhoff: 0	/* ETH_P_XDSA */
-[   18.658332] tag_ops->flow_dissect()
-[   18.661826] Rx: proto: 0x8100, nhoff: 8	/* ETH_P_8021Q */
-
-Tx path (UP system):
-
-[   18.759560] Tx: proto: 0x0800, nhoff: 26	/* ETH_P_IP */
-[   18.763933] tag_ops->flow_dissect()
-[   18.767485] Tx: proto: 0x920b, nhoff: 34	/* junk */
-
-[   22.800020] Tx: proto: 0x0806, nhoff: 26	/* ETH_P_ARP */
-[   22.804392] tag_ops->flow_dissect()
-[   22.807921] Tx: proto: 0x920b, nhoff: 34	/* junk */
-
-[   16.898342] Tx: proto: 0x86dd, nhoff: 26	/* ETH_P_IPV6 */
-[   16.902705] tag_ops->flow_dissect()
-[   16.906227] Tx: proto: 0x920b, nhoff: 34	/* junk */
-
-After:
-
-Rx path (RPS):
-
-[   16.520993] Rx: proto: 0x00f8, nhoff: 0	/* ETH_P_XDSA */
-[   16.525260] tag_ops->flow_dissect()
-[   16.528808] Rx: proto: 0x0800, nhoff: 8	/* ETH_P_IP */
-
-[   15.484807] Rx: proto: 0x00f8, nhoff: 0	/* ETH_P_XDSA */
-[   15.490417] tag_ops->flow_dissect()
-[   15.495223] Rx: proto: 0x0806, nhoff: 8	/* ETH_P_ARP */
-
-[   17.134621] Rx: proto: 0x00f8, nhoff: 0	/* ETH_P_XDSA */
-[   17.138895] tag_ops->flow_dissect()
-[   17.142388] Rx: proto: 0x8100, nhoff: 8	/* ETH_P_8021Q */
-
-Tx path (UP system):
-
-[   15.499558] Tx: proto: 0x0800, nhoff: 26	/* ETH_P_IP */
-
-[   20.664689] Tx: proto: 0x0806, nhoff: 26	/* ETH_P_ARP */
-
-[   18.565782] Tx: proto: 0x86dd, nhoff: 26	/* ETH_P_IPV6 */
-
-In order to fix that we can add the check 'proto == htons(ETH_P_XDSA)'
-to prevent code from calling tag_ops->flow_dissect() on Tx.
-I also decided to initialize 'offset' variable so tagger callbacks can
-now safely leave it untouched without provoking a chaos.
-
-Fixes: 43e665287f93 ("net-next: dsa: fix flow dissection")
-Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 870915feabdc ("drivers: net: cpsw: remove disable_irq/enable_irq as irq can be masked from cpsw itself")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/flow_dissector.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ti/cpsw.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -853,9 +853,10 @@ bool __skb_flow_dissect(const struct net
- 		nhoff = skb_network_offset(skb);
- 		hlen = skb_headlen(skb);
- #if IS_ENABLED(CONFIG_NET_DSA)
--		if (unlikely(skb->dev && netdev_uses_dsa(skb->dev))) {
-+		if (unlikely(skb->dev && netdev_uses_dsa(skb->dev) &&
-+			     proto == htons(ETH_P_XDSA))) {
- 			const struct dsa_device_ops *ops;
--			int offset;
-+			int offset = 0;
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -890,8 +890,8 @@ static irqreturn_t cpsw_rx_interrupt(int
+ {
+ 	struct cpsw_common *cpsw = dev_id;
  
- 			ops = skb->dev->dsa_ptr->tag_ops;
- 			if (ops->flow_dissect &&
+-	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
+ 	writel(0, &cpsw->wr_regs->rx_en);
++	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
+ 
+ 	if (cpsw->quirk_irq) {
+ 		disable_irq_nosync(cpsw->irqs_table[0]);
 
 
