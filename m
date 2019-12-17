@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E301236E1
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:16:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17CB0123708
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727241AbfLQUQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:16:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
+        id S1728266AbfLQUQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:16:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727594AbfLQUQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 15:16:36 -0500
+        id S1727594AbfLQUQi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:16:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2242A21775;
-        Tue, 17 Dec 2019 20:16:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B7D221775;
+        Tue, 17 Dec 2019 20:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576613795;
-        bh=JG9DOh+IoZQ3r3wJXk/PkDVTYhAM1YS6uaGnCJGbDfE=;
+        s=default; t=1576613797;
+        bh=IHzMM2maoLgK/NDRYcIVKcvpPDeFmrfH5TzgT+2Ohak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h6tGzOVse33jWC59va3dB+Jt6rl0yNgMWsRHVlGbMTnrEjHXhYcL5ZzRxkMP0yO0
-         uk7MJXxlRPgdtlEFPJ8UWwoJB1pw8Z8UVxDHghOWPGk/+i4U5iRD5GhWuhiA2+jh3i
-         B+r7R1edwALUgCImIiUaeoBll1Vzn7TtxafioSZI=
+        b=D3UiRzINpsCbt/Xo8I8g0Is4kfPkexJoTrWom6bCd4ZxK0FJf+zfbWe+YjxEhKWPK
+         skUDjb+hyu9mClkFt3kvyRm1iMapmgNcSSg4jjL6HHR34r60PP2VGT9qIg1MxH4fO4
+         ocASpCtzpaU5DJo2aQxqcDeC066aLIK7FUQejeYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Conole <aconole@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 10/25] openvswitch: support asymmetric conntrack
-Date:   Tue, 17 Dec 2019 21:16:09 +0100
-Message-Id: <20191217200907.705861351@linuxfoundation.org>
+Subject: [PATCH 5.3 11/25] tcp: md5: fix potential overestimation of TCP option space
+Date:   Tue, 17 Dec 2019 21:16:10 +0100
+Message-Id: <20191217200908.055769377@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191217200903.179327435@linuxfoundation.org>
 References: <20191217200903.179327435@linuxfoundation.org>
@@ -43,46 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Conole <aconole@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5d50aa83e2c8e91ced2cca77c198b468ca9210f4 ]
+[ Upstream commit 9424e2e7ad93ffffa88f882c9bc5023570904b55 ]
 
-The openvswitch module shares a common conntrack and NAT infrastructure
-exposed via netfilter.  It's possible that a packet needs both SNAT and
-DNAT manipulation, due to e.g. tuple collision.  Netfilter can support
-this because it runs through the NAT table twice - once on ingress and
-again after egress.  The openvswitch module doesn't have such capability.
+Back in 2008, Adam Langley fixed the corner case of packets for flows
+having all of the following options : MD5 TS SACK
 
-Like netfilter hook infrastructure, we should run through NAT twice to
-keep the symmetry.
+Since MD5 needs 20 bytes, and TS needs 12 bytes, no sack block
+can be cooked from the remaining 8 bytes.
 
-Fixes: 05752523e565 ("openvswitch: Interface with NAT.")
-Signed-off-by: Aaron Conole <aconole@redhat.com>
+tcp_established_options() correctly sets opts->num_sack_blocks
+to zero, but returns 36 instead of 32.
+
+This means TCP cooks packets with 4 extra bytes at the end
+of options, containing unitialized bytes.
+
+Fixes: 33ad798c924b ("tcp: options clean up")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/conntrack.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/ipv4/tcp_output.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -903,6 +903,17 @@ static int ovs_ct_nat(struct net *net, s
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -755,8 +755,9 @@ static unsigned int tcp_established_opti
+ 			min_t(unsigned int, eff_sacks,
+ 			      (remaining - TCPOLEN_SACK_BASE_ALIGNED) /
+ 			      TCPOLEN_SACK_PERBLOCK);
+-		size += TCPOLEN_SACK_BASE_ALIGNED +
+-			opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
++		if (likely(opts->num_sack_blocks))
++			size += TCPOLEN_SACK_BASE_ALIGNED +
++				opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
  	}
- 	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype);
  
-+	if (err == NF_ACCEPT &&
-+	    ct->status & IPS_SRC_NAT && ct->status & IPS_DST_NAT) {
-+		if (maniptype == NF_NAT_MANIP_SRC)
-+			maniptype = NF_NAT_MANIP_DST;
-+		else
-+			maniptype = NF_NAT_MANIP_SRC;
-+
-+		err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
-+					 maniptype);
-+	}
-+
- 	/* Mark NAT done if successful and update the flow key. */
- 	if (err == NF_ACCEPT)
- 		ovs_nat_update_key(key, skb, maniptype);
+ 	return size;
 
 
