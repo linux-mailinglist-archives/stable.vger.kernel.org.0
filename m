@@ -2,81 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0C1123548
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 19:52:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B835612355F
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 20:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726992AbfLQSwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 13:52:55 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:32907 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726623AbfLQSwz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 13:52:55 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id EEB9321EA0;
-        Tue, 17 Dec 2019 13:52:53 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 17 Dec 2019 13:52:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=Z
-        nNrkjW8IniNHg0L9hPLeTQoGfjn80wDfO1+ofBRRVU=; b=e6qvkPXEz/ZgLQq5r
-        LNXz6jVLR/pZUO6ibx/XygVIcEm8kCfYGe1GTFIVwlN+hN5Hgni5fa8pSlLQI9DS
-        d8kkwsJqkyNpHO2UMxk+toiYzdBeR7X2WagUq0DXnAWnZBn96Tw0qXN8LDQe/0zI
-        cpr8ffKjqEEblD/ZL2jrBr+AOSZt97s0s3h2DNi+MsCm+43IiSFLFQLiN99jFd69
-        v7XmUcNnafikoOMpM0j9f6V9f6T5lR3Qpi1iMpRgwZUgYxaL02aYr38c+8irTYcO
-        2iNw/mqYePRLJmAG0jEEr+fvjSUuT+4yg/055N0TvMOCF12Jc6pNAxVCXBpspAOk
-        r6TrQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=ZnNrkjW8IniNHg0L9hPLeTQoGfjn80wDfO1+ofBRR
-        VU=; b=rD6RVPr8xHwcRglqe7jlxv394T3Xq7bO/VhVbuHCIisuZuei1EKQ0QMbp
-        rCpE2tw2M8Uf4vhDKIp7P38DMjWKBEgn4CFkruDX5yd/OmTFq7gJh36edY2iSJhq
-        WvCCmbjqoRslAmRGbvlfRNTScFGmk88OgIZ9VdatBcJrCp/MUCast5bv30cap1MB
-        YRwvD/kkSLxQX1ssG9BySg3h7Vt3ocoyoObT6jlExYMqr1qHNUy9HwpDWDA1Urlm
-        K1S+HFBpI0UFNfOHNJiCPovMNKCb9NptlFlg4Xa45ZER1U+e8i3ICSDbZG/kZglm
-        smC0rDiWXEyJdK4NJgRbEpgPMvUYQ==
-X-ME-Sender: <xms:BST5XcQcX_Qj1kW-z-OZ9miVPW111rZ6s1LdRzv4dlnZOkGmkbwZ1Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvddtjedguddujecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtugfgjgesth
-    ekredttddtjeenucfhrhhomhepifhrvghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtgho
-    mheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:BST5XXUzS-hDfknO1AJ1AoSM8Ae6s7WP_Pb2eo9pfIPyzGOpsaDYng>
-    <xmx:BST5XQR1y-x-Mwf-vTcVxyM8B43AYy0q0RXbMnhAEM5TaER_Ohtu7Q>
-    <xmx:BST5XRk_Jz1v-0dBy4vrG4pRg_UjBbJGJgNHWWBp7qzdudm30HvUbQ>
-    <xmx:BST5XQxvi6ILuEQAyzhq7zx5D0Gieu5uw87Dqr2hH6y88QZopPo8Sw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 83D8030600D4;
-        Tue, 17 Dec 2019 13:52:53 -0500 (EST)
-Date:   Tue, 17 Dec 2019 19:52:50 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: 4.4.y/4.9.y stable queue build failures
-Message-ID: <20191217185250.GB3867407@kroah.com>
-References: <20191217182309.GA29679@roeck-us.net>
+        id S1726623AbfLQTGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 14:06:14 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:45381 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727613AbfLQTGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 14:06:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576609573;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=b0zxRRtx431jc/y/uldsiCxJPFBL7PynAZnho2SH+cY=;
+        b=CE+hrIYol8R+OYGv/be3oeOCE25DhjbEdbhAIqVNRQJfLuQripdra+wECRK42cZFB5SMRs
+        s2eUHpKAVYfIihGhjxAl+pB6lP1LiOFXQz7e440MlaV+7I33DVLCEG6IkM47RbTC6LIcZ7
+        T1J/AlOaHCMXXrswiFkMealoX5274qM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-200-_Bi380WDNKqpTK94Ahy16A-1; Tue, 17 Dec 2019 14:06:08 -0500
+X-MC-Unique: _Bi380WDNKqpTK94Ahy16A-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A25F910866FE;
+        Tue, 17 Dec 2019 19:06:07 +0000 (UTC)
+Received: from shalem.localdomain.com (ovpn-116-227.ams2.redhat.com [10.36.116.227])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 623C319C58;
+        Tue, 17 Dec 2019 19:06:06 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] platform/x86: hp-wmi: Make buffer for HPWMI_FEATURE2_QUERY 128 bytes
+Date:   Tue, 17 Dec 2019 20:06:04 +0100
+Message-Id: <20191217190604.638467-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191217182309.GA29679@roeck-us.net>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 17, 2019 at 10:23:09AM -0800, Guenter Roeck wrote:
-> Just in case this hasn't been reported already.
-> 
-> arch/powerpc/kernel/asm-offsets.c:30:0:
-> arch/powerpc/kernel/asm-offsets.c: In function ‘main’:
-> arch/powerpc/kernel/asm-offsets.c:401:37: error: expected specifier-qualifier-list before ‘vdso_data’
-> 
-> This affects all powerpc builds in v4.4.y / v4.9.y stable queues.
+At least on the HP Envy x360 15-cp0xxx model the WMI interface
+for HPWMI_FEATURE2_QUERY requires an outsize of at least 128 bytes,
+otherwise it fails with an error code 5 (HPWMI_RET_INVALID_PARAMETERS):
 
-Ah, I see the issue, thanks, will go fix that up now.
+Dec 06 00:59:38 kernel: hp_wmi: query 0xd returned error 0x5
 
-greg k-h
+We do not care about the contents of the buffer, we just want to know
+if the HPWMI_FEATURE2_QUERY command is supported.
+
+This commits bumps the buffer size, fixing the error.
+
+Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1520703
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/platform/x86/hp-wmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.=
+c
+index 9579a706fc08..a881b709af25 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -300,7 +300,7 @@ static int __init hp_wmi_bios_2008_later(void)
+=20
+ static int __init hp_wmi_bios_2009_later(void)
+ {
+-	int state =3D 0;
++	u8 state[128];
+ 	int ret =3D hp_wmi_perform_query(HPWMI_FEATURE2_QUERY, HPWMI_READ, &sta=
+te,
+ 				       sizeof(state), sizeof(state));
+ 	if (!ret)
+--=20
+2.23.0
+
