@@ -2,77 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ADC11225ED
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 08:54:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B80F1226AC
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 09:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726637AbfLQHxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 02:53:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52544 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725730AbfLQHxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 02:53:42 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF3D2206D8;
-        Tue, 17 Dec 2019 07:53:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576569222;
-        bh=GBDK8XppUFNSz5gp2F8XZAezflx4x5mLVQRxqNz4gkw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BdbY+e9e/+FSfuBi2RL5ZEMUEeOCQMMBWOoDI94CM9dBkAeh4OqcC9HbySIZ6PJSi
-         txsQcQ73hbyzlbVYJIait0GDPgQNJ+wWKe1fi9yT6f59/NHXYpAbPcT9q2mIeG/0z/
-         7ZfIoJHkoEiaaD5O2yC3VHTUnvO4yzsSfFcg4M3I=
-Date:   Tue, 17 Dec 2019 08:53:37 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.4 000/177] 5.4.4-stable review
-Message-ID: <20191217075337.GF2474507@kroah.com>
-References: <20191216174811.158424118@linuxfoundation.org>
- <CA+G9fYt-=ZbHLEEn8VisqAN9ry6rj_Vc-7yFr+bVn3uTwhCxqQ@mail.gmail.com>
+        id S1726275AbfLQI2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 03:28:44 -0500
+Received: from mx1.pb.gov.br ([200.164.109.71]:44652 "HELO mx1.pb.gov.br"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1725870AbfLQI2o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 03:28:44 -0500
+X-Greylist: delayed 729 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Dec 2019 03:28:33 EST
+Received: from localhost (localhost [127.0.0.1])
+        by mx1.pb.gov.br (Postfix) with ESMTP id 5AB8F3AAFE;
+        Tue, 17 Dec 2019 05:16:23 -0300 (-03)
+X-Virus-Scanned: Debian amavisd-new at mx1.pb.gov.br
+Received: from mx1.pb.gov.br ([127.0.0.1])
+        by localhost (mx1.pb.gov.br [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id eyhH1gpz-cse; Tue, 17 Dec 2019 05:16:23 -0300 (-03)
+Received: from gerencia.webmail.pb.gov.br (unknown [200.164.109.75])
+        by mx1.pb.gov.br (Postfix) with ESMTPS id 046433AAF7;
+        Tue, 17 Dec 2019 05:16:22 -0300 (-03)
+Received: from localhost (localhost [127.0.0.1])
+        by gerencia.webmail.pb.gov.br (Postfix) with ESMTP id 867B338030C;
+        Tue, 17 Dec 2019 05:16:19 -0300 (BRT)
+Received: from gerencia.webmail.pb.gov.br ([127.0.0.1])
+        by localhost (gerencia.webmail.pb.gov.br [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id Plh-iWCJIm8S; Tue, 17 Dec 2019 05:16:17 -0300 (BRT)
+Received: from localhost (localhost [127.0.0.1])
+        by gerencia.webmail.pb.gov.br (Postfix) with ESMTP id 6C46A380381;
+        Tue, 17 Dec 2019 05:16:13 -0300 (BRT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 gerencia.webmail.pb.gov.br 6C46A380381
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ses.pb.gov.br;
+        s=DF097E4A-2002-11E9-B7D5-D974AFC91483; t=1576570575;
+        bh=KgUgQlfJbej+DHIgSE4SItT35/zGnbGQcdhxQCPkNcU=;
+        h=Date:From:Message-ID:MIME-Version;
+        b=Aw28MNf7FAI+SIi3o8jsr1uoyiDs/8baMWXrs1sxxbialjIHwQEjLdWnaTNv8+BfV
+         NthvnDDbKQXHyhViy8ET4MXJ32mBkqP4ZSgJyYvoJnlUnfXS45nfoRZ2jc+U1dWay/
+         bsXqCPgNY/1BdXZvgXxwxw/XoxbHItkpMpBb1HuVG9zIe5NuzYrn3azT/yyjbX/rVc
+         DooSD024T5XERlrMaOkddgCUVZ3NZgEpXKvM2yPVw/L2xQnSvtyI2SfvTdBwQuAWSY
+         vAk2Wiz1J7ZoUbBJPYfpyv3rWDoGbz+vg9pOT+k+4rv/Vx9yhfLLpiAJ7HHoIFIKi+
+         7HKxwneSTbzDQ==
+X-Virus-Scanned: amavisd-new at gerencia.webmail.pb.gov.br
+Received: from gerencia.webmail.pb.gov.br ([127.0.0.1])
+        by localhost (gerencia.webmail.pb.gov.br [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id wtVIn4tVgGBl; Tue, 17 Dec 2019 05:16:11 -0300 (BRT)
+Received: from gerencia.webmail.pb.gov.br (localhost [127.0.0.1])
+        by gerencia.webmail.pb.gov.br (Postfix) with ESMTP id 5F3293802C1;
+        Tue, 17 Dec 2019 05:15:49 -0300 (BRT)
+Date:   Tue, 17 Dec 2019 05:15:49 -0300 (BRT)
+From:   Luisa Adams <fernanda.medeiros@ses.pb.gov.br>
+Reply-To: Luisa Adams <fundingcirclelimited19@gmail.com>
+Message-ID: <1634445112.12354579.1576570549208.JavaMail.zimbra@ses.pb.gov.br>
+Subject: hallo
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYt-=ZbHLEEn8VisqAN9ry6rj_Vc-7yFr+bVn3uTwhCxqQ@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [200.164.109.74]
+X-Mailer: Zimbra 8.8.15_GA_3847 (zclient/8.8.15_GA_3847)
+X-Authenticated-User: fernanda.medeiros@ses.pb.gov.br
+Thread-Index: D2eQtms8ouGJ/9ZJgWzqraPpzur3+A==
+Thread-Topic: hallo
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 17, 2019 at 12:53:37PM +0530, Naresh Kamboju wrote:
-> On Mon, 16 Dec 2019 at 23:46, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.4.4 release.
-> > There are 177 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed, 18 Dec 2019 17:41:25 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.4-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
 
-Thanks for testing all of these other ones too.
 
-greg k-h
+Gr=C3=BC=C3=9Fe an alle da!
+
+Dies ist Luisa Adams von FUNDING CIRCLE LTD mit Sitz in Gro=C3=9Fbritannien=
+. Wir sind hier, um Ihre finanziellen Probleme zu l=C3=B6sen: Haben Sie une=
+rwartete Kosten? Pers=C3=B6nliche Darlehen? Autokredite? Heimwerker? F=C3=
+=BCr weitere Informationen gehen Sie zu einem Darlehen, um uns zu kaufen:
+
+Kontaktieren Sie uns per E-Mail, wenn Sie an unseren Dienstleistungen inter=
+essiert sind: fundscirclelimited@gmail.com.
+
+Vollst=C3=A4ndiger Name:
+Darlehen
+Dauer:
+Land:
+
+Vielen Dank,
+
+
+
+
