@@ -2,127 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC3B112246B
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 07:01:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA101224C5
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 07:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727592AbfLQF7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 00:59:53 -0500
-Received: from rcdn-iport-4.cisco.com ([173.37.86.75]:53298 "EHLO
-        rcdn-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725812AbfLQF7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 00:59:53 -0500
-X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Tue, 17 Dec 2019 00:59:51 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=cisco.com; i=@cisco.com; l=2634; q=dns/txt; s=iport;
-  t=1576562391; x=1577771991;
-  h=from:to:subject:date:message-id:in-reply-to:references:
-   mime-version:content-transfer-encoding;
-  bh=bGXWBeyhHcB2dqzyzM3uIDWKAkmJQndzdgQJb340dK0=;
-  b=URcB7Kd0MUZLLGhqLpxzQmYYdrgGTZEue+jCQLzIfQZ5TLUUACRgsgBg
-   3axP+Ayv6GcKvFVX1xXdUk14n2ywUVt+lM1g5SdtqmwLoUxY99E5RSsuz
-   y+Gw6bCrLxaTDY7Ksr8RD6YGV/0liHrUscQ5guO2+51H5kH2SdcWu8l47
-   o=;
-X-IronPort-AV: E=Sophos;i="5.69,324,1571702400"; 
-   d="scan'208";a="686174188"
-Received: from rcdn-core-2.cisco.com ([173.37.93.153])
-  by rcdn-iport-4.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 17 Dec 2019 05:52:46 +0000
-Received: from sjc-ads-7483.cisco.com (sjc-ads-7483.cisco.com [10.30.221.19])
-        by rcdn-core-2.cisco.com (8.15.2/8.15.2) with ESMTP id xBH5qjqo030490;
-        Tue, 17 Dec 2019 05:52:46 GMT
-Received: by sjc-ads-7483.cisco.com (Postfix, from userid 838444)
-        id ACFE8128F; Mon, 16 Dec 2019 21:52:45 -0800 (PST)
-From:   Aviraj CJ <acj@cisco.com>
-To:     peppe.cavallaro@st.com, gregkh@linuxfoundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, xe-linux-external@cisco.com, acj@cisco.com
-Subject: [PATCH stable v4.4 2/2] net: stmmac: don't stop NAPI processing when dropping a packet
-Date:   Mon, 16 Dec 2019 21:52:28 -0800
-Message-Id: <20191217055228.57282-2-acj@cisco.com>
-X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20191217055228.57282-1-acj@cisco.com>
-References: <20191217055228.57282-1-acj@cisco.com>
+        id S1726718AbfLQGhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 01:37:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48674 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725812AbfLQGhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 01:37:45 -0500
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE804206B7;
+        Tue, 17 Dec 2019 06:37:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576564665;
+        bh=zfgZpyYTrpEBik1kM3Kdi8UuauyCHDxYWQ0Iu8vP57g=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=CeR0fyXDDV2+gqgU6xdDY5uj/hCrAmfudQISdYzd2xYGHt0xn1NB6DHrGNcE767tb
+         2+R6ihhKKGDWSf/WP2TEse+ewZYp8+9C3eB4hGtXdVYoMPmZpW5mau+wDZrTGogDJp
+         TZyQzixHdfTACgulc0RPlMBrmy/9S/ZqsVfUX0yM=
+Received: by mail-wr1-f54.google.com with SMTP id z7so9945973wrl.13;
+        Mon, 16 Dec 2019 22:37:44 -0800 (PST)
+X-Gm-Message-State: APjAAAWGISrmO3xD6T6hq8/9g5SqhB/9xsaZdmSOcWzUVdFBTR6eNSEv
+        VwVtJ//HlhPLttauSlLAgkaWGxVME984+xoAcJI=
+X-Google-Smtp-Source: APXvYqwOzeYFksshtl8cKEZvNg6R+lSFFmbarnDLhVj5qjGMkKvO227EBiMcR74GFbwtbrGWX9VLvGzShqB+eojMorQ=
+X-Received: by 2002:adf:ef4e:: with SMTP id c14mr21010657wrp.142.1576564663477;
+ Mon, 16 Dec 2019 22:37:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Auto-Response-Suppress: DR, OOF, AutoReply
-X-Outbound-SMTP-Client: 10.30.221.19, sjc-ads-7483.cisco.com
-X-Outbound-Node: rcdn-core-2.cisco.com
+References: <20191205085054.6049-1-wens@kernel.org> <20191211163647.2F34C214D8@mail.kernel.org>
+In-Reply-To: <20191211163647.2F34C214D8@mail.kernel.org>
+From:   Chen-Yu Tsai <wens@kernel.org>
+Date:   Tue, 17 Dec 2019 14:37:32 +0800
+X-Gmail-Original-Message-ID: <CAGb2v66jRHQw+ZFtxeNXkOXGfDyXbQ3k26KcHQrEawdZWyv0_Q@mail.gmail.com>
+Message-ID: <CAGb2v66jRHQw+ZFtxeNXkOXGfDyXbQ3k26KcHQrEawdZWyv0_Q@mail.gmail.com>
+Subject: Re: [PATCH] rtc: sun6i: Add support for RTC clocks on R40
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Chen-Yu Tsai <wens@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-upstream 07b3975352374c3f5ebb4a42ef0b253fe370542d commit
+Hi,
 
-Currently, if we drop a packet, we exit from NAPI loop before the budget
-is consumed. In some situations this will make the RX processing stall
-e.g. when flood pinging the system with oversized packets, as the
-errorneous packets are not dropped efficiently.
+On Thu, Dec 12, 2019 at 12:36 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: d6624cc75021 ("rtc: sun6i: Add R40 compatible").
+>
+> The bot has tested the following trees: v5.4.2, v5.3.15.
+>
+> v5.4.2: Build OK!
+> v5.3.15: Failed to apply! Possible dependencies:
+>     b60ff2cfb598 ("rtc: sun6i: Add support for H6 RTC")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
 
-If we drop a packet, we should just continue to the next one as long as
-the budget allows.
+This can be queued for v5.4.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[acj: backport v4.4 -stable
--adjust context]
-Signed-off-by: Aviraj CJ <acj@cisco.com>
----
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+I'll send a separate backport for v5.3.
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index e9d41e03121c..28a6b7764044 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2176,8 +2176,7 @@ static inline void stmmac_rx_refill(struct stmmac_priv *priv)
- static int stmmac_rx(struct stmmac_priv *priv, int limit)
- {
- 	unsigned int rxsize = priv->dma_rx_size;
--	unsigned int entry = priv->cur_rx % rxsize;
--	unsigned int next_entry;
-+	unsigned int next_entry = priv->cur_rx % rxsize;
- 	unsigned int count = 0;
- 	int coe = priv->hw->rx_csum;
- 
-@@ -2189,9 +2188,11 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit)
- 			stmmac_display_ring((void *)priv->dma_rx, rxsize, 0);
- 	}
- 	while (count < limit) {
--		int status;
-+		int status, entry;
- 		struct dma_desc *p;
- 
-+		entry = next_entry;
-+
- 		if (priv->extend_desc)
- 			p = (struct dma_desc *)(priv->dma_erx + entry);
- 		else
-@@ -2239,7 +2240,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit)
- 			/*  check if frame_len fits the preallocated memory */
- 			if (frame_len > priv->dma_buf_sz) {
- 				priv->dev->stats.rx_length_errors++;
--				break;
-+				continue;
- 			}
- 
- 			/* ACS is set; GMAC core strips PAD/FCS for IEEE 802.3
-@@ -2260,7 +2261,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit)
- 				pr_err("%s: Inconsistent Rx descriptor chain\n",
- 				       priv->dev->name);
- 				priv->dev->stats.rx_dropped++;
--				break;
-+				continue;
- 			}
- 			prefetch(skb->data - NET_IP_ALIGN);
- 			priv->rx_skbuff[entry] = NULL;
-@@ -2291,7 +2292,6 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit)
- 			priv->dev->stats.rx_packets++;
- 			priv->dev->stats.rx_bytes += frame_len;
- 		}
--		entry = next_entry;
- 	}
- 
- 	stmmac_rx_refill(priv);
--- 
-2.19.1
-
+ChenYu
