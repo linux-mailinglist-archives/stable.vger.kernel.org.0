@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39BE7123693
+	by mail.lfdr.de (Postfix) with ESMTP id B3690123694
 	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:10:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728325AbfLQUKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:10:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
+        id S1728362AbfLQUKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:10:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728299AbfLQUKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 15:10:30 -0500
+        id S1728342AbfLQUKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:10:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D28F24650;
-        Tue, 17 Dec 2019 20:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B321E24682;
+        Tue, 17 Dec 2019 20:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576613429;
-        bh=yBaLDoqXBMy9t4MltYPcOtCrwmMOCYf0KkacjI2VAz0=;
+        s=default; t=1576613432;
+        bh=dlQpLBRe8TK1LcBNEIdw9PoCk0gC0VXWyhPJAdiQzBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIPfUPGlajKRaGyplompPwOFg7VzF9W8nUYNgO6UHRUZ88RzU5rh4NPRHpcxj9+nq
-         G6G9IsMqz0gtFBlJwAeN8LrIAVc1xc32vLgHU+kibT1tctpkUQk1NS5ek32CELSkD7
-         opnB/En4ZwF1wgbGo3p9SY0w3bheWArBkvjow3O4=
+        b=C5NSCAKpaS8jIjf5D51jgmNGLti7YfNiAbIPW2kEOhCzh0LwrgN9K8+cocA35X4L5
+         MzDKcqbx2XgJiOqOEw0h3tBXY9AFziVZulcEh4ghEWvvrYOE8nN+7faerm+J5f3Ums
+         93iLS1apZddVxlQWGUcp6qGqGgFEdKMyZ3Qlda5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
         Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 18/37] tcp: tighten acceptance of ACKs not matching a child socket
-Date:   Tue, 17 Dec 2019 21:09:39 +0100
-Message-Id: <20191217200727.218847469@linuxfoundation.org>
+Subject: [PATCH 5.4 19/37] tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
+Date:   Tue, 17 Dec 2019 21:09:40 +0100
+Message-Id: <20191217200727.666289371@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191217200721.741054904@linuxfoundation.org>
 References: <20191217200721.741054904@linuxfoundation.org>
@@ -46,84 +46,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit cb44a08f8647fd2e8db5cc9ac27cd8355fa392d8 ]
+[ Upstream commit 721c8dafad26ccfa90ff659ee19755e3377b829d ]
 
-When no synflood occurs, the synflood timestamp isn't updated.
-Therefore it can be so old that time_after32() can consider it to be
-in the future.
+Syncookies borrow the ->rx_opt.ts_recent_stamp field to store the
+timestamp of the last synflood. Protect them with READ_ONCE() and
+WRITE_ONCE() since reads and writes aren't serialised.
 
-That's a problem for tcp_synq_no_recent_overflow() as it may report
-that a recent overflow occurred while, in fact, it's just that jiffies
-has grown past 'last_overflow' + TCP_SYNCOOKIE_VALID + 2^31.
+Use of .rx_opt.ts_recent_stamp for storing the synflood timestamp was
+introduced by a0f82f64e269 ("syncookies: remove last_synq_overflow from
+struct tcp_sock"). But unprotected accesses were already there when
+timestamp was stored in .last_synq_overflow.
 
-Spurious detection of recent overflows lead to extra syncookie
-verification in cookie_v[46]_check(). At that point, the verification
-should fail and the packet dropped. But we should have dropped the
-packet earlier as we didn't even send a syncookie.
-
-Let's refine tcp_synq_no_recent_overflow() to report a recent overflow
-only if jiffies is within the
-[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval. This
-way, no spurious recent overflow is reported when jiffies wraps and
-'last_overflow' becomes in the future from the point of view of
-time_after32().
-
-However, if jiffies wraps and enters the
-[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval (with
-'last_overflow' being a stale synflood timestamp), then
-tcp_synq_no_recent_overflow() still erroneously reports an
-overflow. In such cases, we have to rely on syncookie verification
-to drop the packet. We unfortunately have no way to differentiate
-between a fresh and a stale syncookie timestamp.
-
-In practice, using last_overflow as lower bound is problematic.
-If the synflood timestamp is concurrently updated between the time
-we read jiffies and the moment we store the timestamp in
-'last_overflow', then 'now' becomes smaller than 'last_overflow' and
-tcp_synq_no_recent_overflow() returns true, potentially dropping a
-valid syncookie.
-
-Reading jiffies after loading the timestamp could fix the problem,
-but that'd require a memory barrier. Let's just accommodate for
-potential timestamp growth instead and extend the interval using
-'last_overflow - HZ' as lower bound.
-
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ include/net/tcp.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 --- a/include/net/tcp.h
 +++ b/include/net/tcp.h
-@@ -518,13 +518,23 @@ static inline bool tcp_synq_no_recent_ov
- 		reuse = rcu_dereference(sk->sk_reuseport_cb);
- 		if (likely(reuse)) {
- 			last_overflow = READ_ONCE(reuse->synq_overflow_ts);
--			return time_after32(now, last_overflow +
--					    TCP_SYNCOOKIE_VALID);
-+			return !time_between32(now, last_overflow - HZ,
-+					       last_overflow +
-+					       TCP_SYNCOOKIE_VALID);
+@@ -501,9 +501,9 @@ static inline void tcp_synq_overflow(con
  		}
  	}
  
- 	last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
--	return time_after32(now, last_overflow + TCP_SYNCOOKIE_VALID);
-+
-+	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
-+	 * then we're under synflood. However, we have to use
-+	 * 'last_overflow - HZ' as lower bound. That's because a concurrent
-+	 * tcp_synq_overflow() could update .ts_recent_stamp after we read
-+	 * jiffies but before we store .ts_recent_stamp into last_overflow,
-+	 * which could lead to rejecting a valid syncookie.
-+	 */
-+	return !time_between32(now, last_overflow - HZ,
-+			       last_overflow + TCP_SYNCOOKIE_VALID);
+-	last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
++	last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
+ 	if (!time_between32(now, last_overflow, last_overflow + HZ))
+-		tcp_sk(sk)->rx_opt.ts_recent_stamp = now;
++		WRITE_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp, now);
  }
  
- static inline u32 tcp_cookie_time(void)
+ /* syncookies: no recent synqueue overflow on this listening socket? */
+@@ -524,7 +524,7 @@ static inline bool tcp_synq_no_recent_ov
+ 		}
+ 	}
+ 
+-	last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
++	last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
+ 
+ 	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
+ 	 * then we're under synflood. However, we have to use
 
 
