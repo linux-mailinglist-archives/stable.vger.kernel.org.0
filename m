@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCFA122069
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B388A122014
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 01:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbfLQAyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Dec 2019 19:54:37 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35356 "EHLO
+        id S1727281AbfLQAvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Dec 2019 19:51:46 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35498 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727071AbfLQAvo (ORCPT
+        by vger.kernel.org with ESMTP id S1727160AbfLQAvo (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Dec 2019 19:51:44 -0500
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15L-0003M9-Df; Tue, 17 Dec 2019 00:51:35 +0000
+        id 1ih15N-0003P6-JF; Tue, 17 Dec 2019 00:51:37 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC7)
         (envelope-from <ben@decadent.org.uk>)
-        id 1ih15L-0005eN-2b; Tue, 17 Dec 2019 00:51:35 +0000
+        id 1ih15L-0005eS-4V; Tue, 17 Dec 2019 00:51:35 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Yong Zhao" <yong.zhao@amd.com>,
-        "Alex Deucher" <alexander.deucher@amd.com>
-Date:   Tue, 17 Dec 2019 00:47:37 +0000
-Message-ID: <lsq.1576543535.572177647@decadent.org.uk>
+        "Jens Axboe" <axboe@kernel.dk>,
+        "Dan Carpenter" <dan.carpenter@oracle.com>
+Date:   Tue, 17 Dec 2019 00:47:38 +0000
+Message-ID: <lsq.1576543535.970054131@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 123/136] drm/radeon: fix si_enable_smc_cac() failed issue
+Subject: [PATCH 3.16 124/136] block: drbd: remove a stray unlock in
+ __drbd_send_protocol()
 In-Reply-To: <lsq.1576543534.33060804@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,30 +47,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 2c409ba81be25516afe05ae27a4a15da01740b01 upstream.
+commit 8e9c523016cf9983b295e4bc659183d1fa6ef8e0 upstream.
 
-Need to set the dte flag on this asic.
+There are two callers of this function and they both unlock the mutex so
+this ends up being a double unlock.
 
-Port the fix from amdgpu:
-5cb818b861be114 ("drm/amd/amdgpu: fix si_enable_smc_cac() failed issue")
-
-Reviewed-by: Yong Zhao <yong.zhao@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 44ed167da748 ("drbd: rcu_read_lock() and rcu_dereference() for tconn->net_conf")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/gpu/drm/radeon/si_dpm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/drbd/drbd_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/gpu/drm/radeon/si_dpm.c
-+++ b/drivers/gpu/drm/radeon/si_dpm.c
-@@ -1951,6 +1951,7 @@ static void si_initialize_powertune_defa
- 		case 0x682C:
- 			si_pi->cac_weights = cac_weights_cape_verde_pro;
- 			si_pi->dte_data = dte_data_sun_xt;
-+			update_dte_from_pl2 = true;
- 			break;
- 		case 0x6825:
- 		case 0x6827:
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -786,7 +786,6 @@ int __drbd_send_protocol(struct drbd_con
+ 
+ 	if (nc->tentative && connection->agreed_pro_version < 92) {
+ 		rcu_read_unlock();
+-		mutex_unlock(&sock->mutex);
+ 		drbd_err(connection, "--dry-run is not supported by peer");
+ 		return -EOPNOTSUPP;
+ 	}
 
