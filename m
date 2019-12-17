@@ -2,267 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A10EC123685
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:10:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7594123687
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 21:10:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727036AbfLQUKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 15:10:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
+        id S1727628AbfLQUKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 15:10:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726852AbfLQUKD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 15:10:03 -0500
+        id S1726852AbfLQUKG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 17 Dec 2019 15:10:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACCC9206D7;
-        Tue, 17 Dec 2019 20:10:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D0DB2146E;
+        Tue, 17 Dec 2019 20:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576613402;
-        bh=MOVkRkXctavxVys2EcUjzm7vPp28gaKX3IfqZQE8d/8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=b+aqPT/bkOJsrtY+vanV5yl9ygE6lIR/lAC8pOVux1MNZvqSBosl3k+70Zt+ydOJ5
-         to5UKnYxeNhjHVpC0zAophQJ/EiSnquLy6sp6AIzBowfyGglUs5Fuxu4Uh94AB63QX
-         utwansDMAIb1I4Opj3zwPCNn2yi+dEWc+1CwxC14=
+        s=default; t=1576613404;
+        bh=mLR60Ngzz5pwqzesIpXSmVHCcDHfMeKMk2LJpo8W/bY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cyKwIK6zdqyFJqyTagGHRErZngXq0wCYrueVM3rzsxSW1fF01q3yLXx0WMsxjcrOK
+         BnrMP5s9XxwJeEfjNZ8K9s027RHNHcNFIX9BXONQUM9LhyXTNIfaIPgCm0SMKpSyeY
+         zWsfnnouOGMsbk8Fr3PzKEWxC1wmQUiyRWBhS1U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.4 00/37] 5.4.5-stable review
-Date:   Tue, 17 Dec 2019 21:09:21 +0100
-Message-Id: <20191217200721.741054904@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 01/37] inet: protect against too small mtu values.
+Date:   Tue, 17 Dec 2019 21:09:22 +0100
+Message-Id: <20191217200722.711174933@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-MIME-Version: 1.0
+In-Reply-To: <20191217200721.741054904@linuxfoundation.org>
+References: <20191217200721.741054904@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.5-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.5-rc1
-X-KernelTest-Deadline: 2019-12-19T20:07+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.5 release.
-There are 37 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Eric Dumazet <edumazet@google.com>
 
-Responses should be made by Thu, 19 Dec 2019 20:06:21 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 501a90c945103e8627406763dac418f20f3837b2 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.5-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+syzbot was once again able to crash a host by setting a very small mtu
+on loopback device.
 
-thanks,
+Let's make inetdev_valid_mtu() available in include/net/ip.h,
+and use it in ip_setup_cork(), so that we protect both ip_append_page()
+and __ip_append_data()
 
-greg k-h
+Also add a READ_ONCE() when the device mtu is read.
 
--------------
-Pseudo-Shortlog of commits:
+Pairs this lockless read with one WRITE_ONCE() in __dev_set_mtu(),
+even if other code paths might write over this field.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.5-rc1
+Add a big comment in include/linux/netdevice.h about dev->mtu
+needing READ_ONCE()/WRITE_ONCE() annotations.
 
-Heiner Kallweit <hkallweit1@gmail.com>
-    r8169: add missing RX enabling for WoL on RTL8125
+Hopefully we will add the missing ones in followup patches.
 
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: unregister the PTP clock on deinit
+[1]
 
-Shannon Nelson <snelson@pensando.io>
-    ionic: keep users rss hash across lif reset
+refcount_t: saturated; leaking memory.
+WARNING: CPU: 0 PID: 9464 at lib/refcount.c:22 refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 9464 Comm: syz-executor850 Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ panic+0x2e3/0x75c kernel/panic.c:221
+ __warn.cold+0x2f/0x3e kernel/panic.c:582
+ report_bug+0x289/0x300 lib/bug.c:195
+ fixup_bug arch/x86/kernel/traps.c:174 [inline]
+ fixup_bug arch/x86/kernel/traps.c:169 [inline]
+ do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
+ do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
+ invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
+RIP: 0010:refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
+Code: 06 31 ff 89 de e8 c8 f5 e6 fd 84 db 0f 85 6f ff ff ff e8 7b f4 e6 fd 48 c7 c7 e0 71 4f 88 c6 05 56 a6 a4 06 01 e8 c7 a8 b7 fd <0f> 0b e9 50 ff ff ff e8 5c f4 e6 fd 0f b6 1d 3d a6 a4 06 31 ff 89
+RSP: 0018:ffff88809689f550 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff815e4336 RDI: ffffed1012d13e9c
+RBP: ffff88809689f560 R08: ffff88809c50a3c0 R09: fffffbfff15d31b1
+R10: fffffbfff15d31b0 R11: ffffffff8ae98d87 R12: 0000000000000001
+R13: 0000000000040100 R14: ffff888099041104 R15: ffff888218d96e40
+ refcount_add include/linux/refcount.h:193 [inline]
+ skb_set_owner_w+0x2b6/0x410 net/core/sock.c:1999
+ sock_wmalloc+0xf1/0x120 net/core/sock.c:2096
+ ip_append_page+0x7ef/0x1190 net/ipv4/ip_output.c:1383
+ udp_sendpage+0x1c7/0x480 net/ipv4/udp.c:1276
+ inet_sendpage+0xdb/0x150 net/ipv4/af_inet.c:821
+ kernel_sendpage+0x92/0xf0 net/socket.c:3794
+ sock_sendpage+0x8b/0xc0 net/socket.c:936
+ pipe_to_sendpage+0x2da/0x3c0 fs/splice.c:458
+ splice_from_pipe_feed fs/splice.c:512 [inline]
+ __splice_from_pipe+0x3ee/0x7c0 fs/splice.c:636
+ splice_from_pipe+0x108/0x170 fs/splice.c:671
+ generic_splice_sendpage+0x3c/0x50 fs/splice.c:842
+ do_splice_from fs/splice.c:861 [inline]
+ direct_splice_actor+0x123/0x190 fs/splice.c:1035
+ splice_direct_to_actor+0x3b4/0xa30 fs/splice.c:990
+ do_splice_direct+0x1da/0x2a0 fs/splice.c:1078
+ do_sendfile+0x597/0xd00 fs/read_write.c:1464
+ __do_sys_sendfile64 fs/read_write.c:1525 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1511 [inline]
+ __x64_sys_sendfile64+0x1dd/0x220 fs/read_write.c:1511
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x441409
+Code: e8 ac e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fffb64c4f78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441409
+RDX: 0000000000000000 RSI: 0000000000000006 RDI: 0000000000000005
+RBP: 0000000000073b8a R08: 0000000000000010 R09: 0000000000000010
+R10: 0000000000010001 R11: 0000000000000246 R12: 0000000000402180
+R13: 0000000000402210 R14: 0000000000000000 R15: 0000000000000000
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
 
-Jonathan Lemon <jonathan.lemon@gmail.com>
-    xdp: obtain the mem_id mutex before trying to remove an entry.
+Fixes: 1470ddf7f8ce ("inet: Remove explicit write references to sk/inet in ip_append_data")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/linux/netdevice.h |    5 +++++
+ include/net/ip.h          |    5 +++++
+ net/core/dev.c            |    3 ++-
+ net/ipv4/devinet.c        |    5 -----
+ net/ipv4/ip_output.c      |   13 ++++++++-----
+ 5 files changed, 20 insertions(+), 11 deletions(-)
 
-Jonathan Lemon <jonathan.lemon@gmail.com>
-    page_pool: do not release pool until inflight == 0.
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: ethtool, Fix analysis of speed setting
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: Fix translation of link mode into speed
-
-Roi Dayan <roid@mellanox.com>
-    net/mlx5e: Fix freeing flow with kfree() and not kvfree()
-
-Eran Ben Elisha <eranbe@mellanox.com>
-    net/mlx5e: Fix SFF 8472 eeprom length
-
-Aaron Conole <aconole@redhat.com>
-    act_ct: support asymmetric conntrack
-
-Eran Ben Elisha <eranbe@mellanox.com>
-    net/mlx5e: Fix TXQ indices to be sequential
-
-Martin Varghese <martin.varghese@nokia.com>
-    net: Fixed updating of ethertype in skb_mpls_push()
-
-Taehee Yoo <ap420073@gmail.com>
-    hsr: fix a NULL pointer dereference in hsr_dev_xmit()
-
-Martin Varghese <martin.varghese@nokia.com>
-    Fixed updating of ethertype in function skb_mpls_pop
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    gre: refetch erspan header from skb->data after pskb_may_pull()
-
-Yoshiki Komachi <komachi.yoshiki@gmail.com>
-    cls_flower: Fix the behavior using port ranges with hw-offload
-
-John Hurley <john.hurley@netronome.com>
-    net: sched: allow indirect blocks to bind to clsact in TC
-
-John Hurley <john.hurley@netronome.com>
-    net: core: rename indirect block ingress cb function
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: tighten acceptance of ACKs not matching a child socket
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: fix rejected syncookies due to stale timestamps
-
-Sabrina Dubroca <sd@queasysnail.net>
-    net: ipv6_stub: use ip6_dst_lookup_flow instead of ip6_dst_lookup
-
-Sabrina Dubroca <sd@queasysnail.net>
-    net: ipv6: add net argument to ip6_dst_lookup_flow
-
-Huy Nguyen <huyn@mellanox.com>
-    net/mlx5e: Query global pause state before setting prio2buffer
-
-Taehee Yoo <ap420073@gmail.com>
-    tipc: fix ordering of tipc module init and exit routine
-
-Eric Dumazet <edumazet@google.com>
-    tcp: md5: fix potential overestimation of TCP option space
-
-Aaron Conole <aconole@redhat.com>
-    openvswitch: support asymmetric conntrack
-
-Valentin Vidic <vvidic@valentin-vidic.from.hr>
-    net/tls: Fix return values to avoid ENOTSUPP
-
-Mian Yousaf Kaukab <ykaukab@suse.de>
-    net: thunderx: start phy before starting autonegotiation
-
-Jouni Hogander <jouni.hogander@unikie.com>
-    net-sysfs: Call dev_hold always in netdev_queue_add_kobject
-
-Eric Dumazet <edumazet@google.com>
-    net_sched: validate TCA_KIND attribute in tc_chain_tmplt_add()
-
-Dust Li <dust.li@linux.alibaba.com>
-    net: sched: fix dump qlen for sch_mq/sch_mqprio with NOLOCK subqueues
-
-Grygorii Strashko <grygorii.strashko@ti.com>
-    net: ethernet: ti: cpsw: fix extra rx interrupt
-
-Alexander Lobakin <alobakin@dlink.ru>
-    net: dsa: fix flow dissection on Tx path
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: deny dev_set_mac_address() when unregistering
-
-Vladyslav Tarasiuk <vladyslavt@mellanox.com>
-    mqprio: Fix out-of-bounds access in mqprio_dump
-
-Eric Dumazet <edumazet@google.com>
-    inet: protect against too small mtu values.
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- drivers/infiniband/core/addr.c                     |   7 +-
- drivers/infiniband/sw/rxe/rxe_net.c                |   8 +-
- drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en.h       |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en/port.c  |   1 +
- .../ethernet/mellanox/mlx5/core/en/port_buffer.c   |  27 ++++-
- .../net/ethernet/mellanox/mlx5/core/en/tc_tun.c    |   8 +-
- .../net/ethernet/mellanox/mlx5/core/en_ethtool.c   |  15 +--
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |  31 ++----
- drivers/net/ethernet/mellanox/mlx5/core/en_stats.c |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c    |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_tx.c    |   2 +-
- drivers/net/ethernet/mscc/ocelot.c                 |  14 ++-
- drivers/net/ethernet/pensando/ionic/ionic_lif.c    |  16 ++-
- drivers/net/ethernet/realtek/r8169_main.c          |   2 +-
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   4 +-
- drivers/net/ethernet/ti/cpsw.c                     |   2 +-
- drivers/net/geneve.c                               |   4 +-
- drivers/net/vxlan.c                                |   8 +-
- include/linux/netdevice.h                          |   5 +
- include/linux/skbuff.h                             |   5 +-
- include/linux/time.h                               |  13 +++
- include/net/flow_dissector.h                       |   1 +
- include/net/flow_offload.h                         |  15 ++-
- include/net/ip.h                                   |   5 +
- include/net/ipv6.h                                 |   2 +-
- include/net/ipv6_stubs.h                           |   6 +-
- include/net/page_pool.h                            |  52 +++------
- include/net/tcp.h                                  |  27 +++--
- include/net/xdp_priv.h                             |   4 -
- include/trace/events/xdp.h                         |  19 +---
- net/bridge/br_device.c                             |   6 +
- net/core/dev.c                                     |   3 +-
- net/core/flow_dissector.c                          |  42 +++++--
- net/core/flow_offload.c                            |  45 ++++----
- net/core/lwt_bpf.c                                 |   4 +-
- net/core/net-sysfs.c                               |   7 +-
- net/core/page_pool.c                               | 122 +++++++++++++--------
- net/core/skbuff.c                                  |  10 +-
- net/core/xdp.c                                     | 117 +++++++-------------
- net/dccp/ipv6.c                                    |   6 +-
- net/hsr/hsr_device.c                               |   9 +-
- net/ipv4/devinet.c                                 |   5 -
- net/ipv4/gre_demux.c                               |   2 +-
- net/ipv4/ip_output.c                               |  13 ++-
- net/ipv4/tcp_output.c                              |   5 +-
- net/ipv6/addrconf_core.c                           |  11 +-
- net/ipv6/af_inet6.c                                |   4 +-
- net/ipv6/datagram.c                                |   2 +-
- net/ipv6/inet6_connection_sock.c                   |   4 +-
- net/ipv6/ip6_output.c                              |   8 +-
- net/ipv6/raw.c                                     |   2 +-
- net/ipv6/syncookies.c                              |   2 +-
- net/ipv6/tcp_ipv6.c                                |   4 +-
- net/l2tp/l2tp_ip6.c                                |   2 +-
- net/mpls/af_mpls.c                                 |   7 +-
- net/netfilter/nf_tables_offload.c                  |   6 +-
- net/openvswitch/actions.c                          |   6 +-
- net/openvswitch/conntrack.c                        |  11 ++
- net/sched/act_ct.c                                 |  13 ++-
- net/sched/act_mpls.c                               |   7 +-
- net/sched/cls_api.c                                |  60 ++++++----
- net/sched/cls_flower.c                             | 118 +++++++++++---------
- net/sched/sch_mq.c                                 |   1 +
- net/sched/sch_mqprio.c                             |   3 +-
- net/sctp/ipv6.c                                    |   4 +-
- net/tipc/core.c                                    |  29 ++---
- net/tipc/udp_media.c                               |   9 +-
- net/tls/tls_device.c                               |   8 +-
- net/tls/tls_main.c                                 |   4 +-
- net/tls/tls_sw.c                                   |   8 +-
- tools/testing/selftests/net/tls.c                  |   8 +-
- 73 files changed, 581 insertions(+), 471 deletions(-)
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1867,6 +1867,11 @@ struct net_device {
+ 	unsigned char		if_port;
+ 	unsigned char		dma;
+ 
++	/* Note : dev->mtu is often read without holding a lock.
++	 * Writers usually hold RTNL.
++	 * It is recommended to use READ_ONCE() to annotate the reads,
++	 * and to use WRITE_ONCE() to annotate the writes.
++	 */
+ 	unsigned int		mtu;
+ 	unsigned int		min_mtu;
+ 	unsigned int		max_mtu;
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -760,4 +760,9 @@ int ip_misc_proc_init(void);
+ int rtm_getroute_parse_ip_proto(struct nlattr *attr, u8 *ip_proto, u8 family,
+ 				struct netlink_ext_ack *extack);
+ 
++static inline bool inetdev_valid_mtu(unsigned int mtu)
++{
++	return likely(mtu >= IPV4_MIN_MTU);
++}
++
+ #endif	/* _IP_H */
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7967,7 +7967,8 @@ int __dev_set_mtu(struct net_device *dev
+ 	if (ops->ndo_change_mtu)
+ 		return ops->ndo_change_mtu(dev, new_mtu);
+ 
+-	dev->mtu = new_mtu;
++	/* Pairs with all the lockless reads of dev->mtu in the stack */
++	WRITE_ONCE(dev->mtu, new_mtu);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(__dev_set_mtu);
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -1496,11 +1496,6 @@ skip:
+ 	}
+ }
+ 
+-static bool inetdev_valid_mtu(unsigned int mtu)
+-{
+-	return mtu >= IPV4_MIN_MTU;
+-}
+-
+ static void inetdev_send_gratuitous_arp(struct net_device *dev,
+ 					struct in_device *in_dev)
+ 
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -1258,15 +1258,18 @@ static int ip_setup_cork(struct sock *sk
+ 		cork->addr = ipc->addr;
+ 	}
+ 
+-	/*
+-	 * We steal reference to this route, caller should not release it
+-	 */
+-	*rtp = NULL;
+ 	cork->fragsize = ip_sk_use_pmtu(sk) ?
+-			 dst_mtu(&rt->dst) : rt->dst.dev->mtu;
++			 dst_mtu(&rt->dst) : READ_ONCE(rt->dst.dev->mtu);
++
++	if (!inetdev_valid_mtu(cork->fragsize))
++		return -ENETUNREACH;
+ 
+ 	cork->gso_size = ipc->gso_size;
++
+ 	cork->dst = &rt->dst;
++	/* We stole this route, caller should not release it. */
++	*rtp = NULL;
++
+ 	cork->length = 0;
+ 	cork->ttl = ipc->ttl;
+ 	cork->tos = ipc->tos;
 
 
