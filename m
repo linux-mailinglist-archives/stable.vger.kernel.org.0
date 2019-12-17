@@ -2,76 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA101224C5
-	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 07:38:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D121224DE
+	for <lists+stable@lfdr.de>; Tue, 17 Dec 2019 07:41:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726718AbfLQGhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 01:37:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48674 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725812AbfLQGhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 01:37:45 -0500
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE804206B7;
-        Tue, 17 Dec 2019 06:37:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576564665;
-        bh=zfgZpyYTrpEBik1kM3Kdi8UuauyCHDxYWQ0Iu8vP57g=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=CeR0fyXDDV2+gqgU6xdDY5uj/hCrAmfudQISdYzd2xYGHt0xn1NB6DHrGNcE767tb
-         2+R6ihhKKGDWSf/WP2TEse+ewZYp8+9C3eB4hGtXdVYoMPmZpW5mau+wDZrTGogDJp
-         TZyQzixHdfTACgulc0RPlMBrmy/9S/ZqsVfUX0yM=
-Received: by mail-wr1-f54.google.com with SMTP id z7so9945973wrl.13;
-        Mon, 16 Dec 2019 22:37:44 -0800 (PST)
-X-Gm-Message-State: APjAAAWGISrmO3xD6T6hq8/9g5SqhB/9xsaZdmSOcWzUVdFBTR6eNSEv
-        VwVtJ//HlhPLttauSlLAgkaWGxVME984+xoAcJI=
-X-Google-Smtp-Source: APXvYqwOzeYFksshtl8cKEZvNg6R+lSFFmbarnDLhVj5qjGMkKvO227EBiMcR74GFbwtbrGWX9VLvGzShqB+eojMorQ=
-X-Received: by 2002:adf:ef4e:: with SMTP id c14mr21010657wrp.142.1576564663477;
- Mon, 16 Dec 2019 22:37:43 -0800 (PST)
+        id S1726609AbfLQGk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Dec 2019 01:40:59 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:46771 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725856AbfLQGk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Dec 2019 01:40:59 -0500
+Received: by mail-lf1-f66.google.com with SMTP id f15so6087634lfl.13
+        for <stable@vger.kernel.org>; Mon, 16 Dec 2019 22:40:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ZzbVgb0Dsc1MnhDpYFuAmdtYBehM6wFQjI2gRgSINqU=;
+        b=Zj+IxevzHy0cniNQF1XM329WmC/mEHJ6bVqLYiolS6BCzCQYIS80V0Ay+zq45WAEq1
+         /d+PM7m7EM/K9JqGTbV+hYCbCruQkT3CIvMhhFYmaLutNBtiZCyXoHO88vjFHBD8Vc4Z
+         V6UXm7oOMsl5k1i8WL4bUXrjCBwJ4Lg0nYN3Yo7DRae1Ir3gow+mS8VSRK9R8TRErr1P
+         PRpsuqYr3TmH29WlF3asaFmJUnApFdH5K4dYVgDC9MLbtiVJ0FnCHcJ+FYC5iAl7VeMK
+         m9RxKdGx7/zzW31Q1bpDQj60G3FLz+ROuOHomzHvS8Sll++BN9chP0sqneCFmTg+Jfe3
+         evxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ZzbVgb0Dsc1MnhDpYFuAmdtYBehM6wFQjI2gRgSINqU=;
+        b=dsg3ONNuQjirukMeSW3ONP4c+krJ+xU3B4jb90C9Agvitaj3B0SE2d3wMqwmg3Cj2m
+         6KA2xcdqp6DaU6ACQwwGKSvGgczhN3w1tv3EBXnCBAZ8J5tmWwoNdY6f92mEO6aBj6Ls
+         SPEjGt64ToRfboGqOR3lRdpEuYY+sOlZGHxDEQeuUSpRh3UoqR2VDoGPVgreYRqJKMdb
+         AqqzEwRTuwFIi1xFDQu8x/KeMoiXDNM57fcG1hgV2+JHpIr8xNBiqGPsFO+KQxhozjO8
+         82gJsWUHAcy776ApSnjTxr15d1WJ6xgimjnIzuLfZcB74TxNSEcnAeOTLSzHjh/Tgxez
+         bsOg==
+X-Gm-Message-State: APjAAAVcXsqgdeLO075qtlv9GmmHejlEEojYtNZPw5f2ZvOtQZ4Ckpxj
+        iFDhNRRz/5JVj0xT2A/S2rIHzH88MajWCkFetomQVw==
+X-Google-Smtp-Source: APXvYqyb73zwNv3ziW7+e9hRPvnZdExviQMYWdITo3G7CKWq6hPnOC6EIBQlYWoq/vh+8BOBYsy23JgHCyUPJ0f7tdY=
+X-Received: by 2002:ac2:5337:: with SMTP id f23mr1690949lfh.192.1576564857544;
+ Mon, 16 Dec 2019 22:40:57 -0800 (PST)
 MIME-Version: 1.0
-References: <20191205085054.6049-1-wens@kernel.org> <20191211163647.2F34C214D8@mail.kernel.org>
-In-Reply-To: <20191211163647.2F34C214D8@mail.kernel.org>
-From:   Chen-Yu Tsai <wens@kernel.org>
-Date:   Tue, 17 Dec 2019 14:37:32 +0800
-X-Gmail-Original-Message-ID: <CAGb2v66jRHQw+ZFtxeNXkOXGfDyXbQ3k26KcHQrEawdZWyv0_Q@mail.gmail.com>
-Message-ID: <CAGb2v66jRHQw+ZFtxeNXkOXGfDyXbQ3k26KcHQrEawdZWyv0_Q@mail.gmail.com>
-Subject: Re: [PATCH] rtc: sun6i: Add support for RTC clocks on R40
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Chen-Yu Tsai <wens@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, stable <stable@vger.kernel.org>
+References: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 17 Dec 2019 12:10:46 +0530
+Message-ID: <CA+G9fYtyVeFfOGAPcCPCwDKayFLc2_niPJfi=5-x+hbwHg3UVg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/140] 4.19.90-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, 16 Dec 2019 at 23:31, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.90 release.
+> There are 140 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 18 Dec 2019 17:41:25 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.90-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On Thu, Dec 12, 2019 at 12:36 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: d6624cc75021 ("rtc: sun6i: Add R40 compatible").
->
-> The bot has tested the following trees: v5.4.2, v5.3.15.
->
-> v5.4.2: Build OK!
-> v5.3.15: Failed to apply! Possible dependencies:
->     b60ff2cfb598 ("rtc: sun6i: Add support for H6 RTC")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-This can be queued for v5.4.
+Summary
+------------------------------------------------------------------------
 
-I'll send a separate backport for v5.3.
+kernel: 4.19.90-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 9cc8b117a9932aaa067980374b1de1145afc4645
+git describe: v4.19.89-140-g9cc8b117a993
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.89-140-g9cc8b117a993
 
-ChenYu
+No regressions (compared to build v4.19.89)
+
+No fixes (compared to build v4.19.89)
+
+Ran 22793 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* spectre-meltdown-checker-test
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* v4l2-compliance
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
