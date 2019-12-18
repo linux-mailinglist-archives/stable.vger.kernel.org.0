@@ -2,114 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1127124A7B
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 15:57:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4719B124AAF
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 16:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbfLRO5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 09:57:34 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:34094 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727120AbfLRO5d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 09:57:33 -0500
-Received: by mail-wr1-f65.google.com with SMTP id t2so2647769wrr.1
-        for <stable@vger.kernel.org>; Wed, 18 Dec 2019 06:57:32 -0800 (PST)
+        id S1727063AbfLRPI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 10:08:27 -0500
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:45688 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727001AbfLRPI0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 10:08:26 -0500
+Received: by mail-pl1-f193.google.com with SMTP id b22so1087436pls.12;
+        Wed, 18 Dec 2019 07:08:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=avK/HKE62hktMm4idL3dIY2G4sUDTZ7wZ1dhagpfVqs=;
-        b=N2Sm2w9PEt41O40DD1dMispC+2VWLhwpZk+6jNf9PM7VLVy+UrD97uJgaVd8o5Bmmu
-         s94icUjf+OaxC4zsgsxWBNZ0uVzsNgaUXG6ad5qd3bJ6AGdFKyE9rR05maa3gaUZUmkP
-         7lO0fpk30uL7RWdxi6TGqAWgaxlETe932OOUvxk+etQILIUXgoswpoyUC3Ej0iQQ6GXJ
-         ufblxhCUQsUQC4qALIhPc6/rMymxLJHsDmYDH3uPFJdqmONzssdL/NsV7SBSi3bzEfN/
-         S+RDrr8JIbyaTvyKgCh+6693Lht68L4OWG7PWXpIF7urEWM7gSAcW60F5aVJGzM+ir9B
-         cRIw==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=O/Gc+Nk4cNpzcx2hTPtC5UA91cr7QkRAoGkZhjoba98=;
+        b=XuUNTTR+Bu2rLHcBfVuIRId9B2MzsCQF/RCiW7UGzMo8S1CCFvzCeJu/cCqXY2gF3Z
+         8uN+SlNxaMWN5XO2P0+VVEliyvh1lMqxSvorxCHzvrMpsz1rDXCAuW4N4viH6JyPaMKh
+         6bvh70wcFUEtLHugk2Os8spnDmlKoPuo1xKnpYGNAyCMduKQeI+N8qyCQ/5E21QHWR6c
+         zVagatbkJ/GTkBGRQ6/cAiUdVvgI0cEyFXJk6tMTOnWTVpOV3rz89wFb0rVBoWojwFzm
+         XZ0qlCjcE96lKKj1qv6KGNvY+siu0GRojufEjmN4Id2PeVjoqRJtJy5eXmM7uwsRdsPH
+         qw5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=avK/HKE62hktMm4idL3dIY2G4sUDTZ7wZ1dhagpfVqs=;
-        b=Npay/x8Fy8PJHrypH0y4LLKhXfm6Hs5UusAHX0KyN62xaHn334UVSMy9mgVZJh2mm1
-         64XWgdUdyI/lLiyc4EhG126o9FKI7e8lIZeM+OFx2Axs0SedvaAezCUFqR3u06miubXO
-         /5z6CHeehpPxNNpeTxjPI9/q9il14+EDbpp9DYd3tzneT3NM83UXE+lGJiYru3zGRm1D
-         rOnRwSvSXbjnIRawUIcmeGkusVkOPjHOuXckXFmk+Nh/CbaG0UAtPwWwDJwCTb245q0W
-         MIe39OmJBdwPOiVDiV9j7cXSy8yFy862hcCWJDl2ah8T3bbA+/sGkaO/ULYlAaihf0Hl
-         BhCQ==
-X-Gm-Message-State: APjAAAVR0b5VUefdb3Sghf2VgjfS0a0cp6mmOfINXD9kkvxejGgMs88f
-        o7S9Da4ky7p+bSTqcW6oGJVNUW/HJRs=
-X-Google-Smtp-Source: APXvYqypBqZhCTuVt39cEytVP11EjaZ1nivv4GHvOS32VzO9hTPNJDmIBX4dZ4FWVZZdc8vbXjm+Qw==
-X-Received: by 2002:adf:fe90:: with SMTP id l16mr3511948wrr.265.1576681051994;
-        Wed, 18 Dec 2019 06:57:31 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x132sm6674255wmg.0.2019.12.18.06.57.31
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Dec 2019 06:57:31 -0800 (PST)
-Message-ID: <5dfa3e5b.1c69fb81.9ee25.36e6@mx.google.com>
-Date:   Wed, 18 Dec 2019 06:57:31 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=O/Gc+Nk4cNpzcx2hTPtC5UA91cr7QkRAoGkZhjoba98=;
+        b=CBA+X62cO83inZRgTi+TV7N2CNVxHhanTHSR0wKHLCo46N7RGqy0nLc+I8pXiPjItG
+         dgH3TvYNZKa546PctOiuXUtBlbGki2WcqVoCkx1Mx+RJvU2cs1cXV6PEZqbxGsm4qp6v
+         q9YiARwF6vOh6KMudDFkTWOMaw5GkDpin+i+eKmp80m586CScWkqJVShXn5SX/uIYPP9
+         IHMAHjv7hN1gYdB8qmFnDmOQ7JtUeYX5KMn86nrAFuzO+kyQijCRxc4iuXYKX01tLT2V
+         HVfSkUaygRhlY1IIJAFyufRDy0OtwZqQ72tIMxTUvCgcToYuXhNnYw/hUR5zzcd9abX6
+         GKlg==
+X-Gm-Message-State: APjAAAVYL4H0plj/67OIiNsE2Yp4EkiE7qW9hhWLtbeEdF1N/aBnbWO0
+        4dwvQ3rMg//sZEyLCExRLj3huwLwJyVQ8j15Aedkl+Xp
+X-Google-Smtp-Source: APXvYqyMjxN7aSTmKOU9lPUYY/iVdbF3GF6BLMviv+qeEUyw+kvAG7vn1ONmiCDgg70PSgbR6aBkdCw9x/6zJE3Gq5I=
+X-Received: by 2002:a17:902:6901:: with SMTP id j1mr3404514plk.18.1576681706038;
+ Wed, 18 Dec 2019 07:08:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.3.16-215-g8f8658b68c66
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.3.y
-Subject: stable-rc/linux-5.3.y boot: 106 boots: 0 failed,
- 99 passed with 6 offline, 1 untried/unknown (v5.3.16-215-g8f8658b68c66)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20191217190604.638467-1-hdegoede@redhat.com> <CAHp75Vf8CDwW731uD4OMzB69P-D1AN3PzCMFBGGD4fvBFccpLg@mail.gmail.com>
+ <92800c93-9d03-ab26-e71f-ce40df1ad3bc@redhat.com>
+In-Reply-To: <92800c93-9d03-ab26-e71f-ce40df1ad3bc@redhat.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Wed, 18 Dec 2019 17:08:15 +0200
+Message-ID: <CAHp75Ve7wsd96yn97JihBq1QpLkKLtuhqKvcp-o8yeviCTvkwA@mail.gmail.com>
+Subject: Re: [PATCH] platform/x86: hp-wmi: Make buffer for HPWMI_FEATURE2_QUERY
+ 128 bytes
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.3.y boot: 106 boots: 0 failed, 99 passed with 6 offline, =
-1 untried/unknown (v5.3.16-215-g8f8658b68c66)
+On Wed, Dec 18, 2019 at 1:18 PM Hans de Goede <hdegoede@redhat.com> wrote:
+> On 18-12-2019 11:17, Andy Shevchenko wrote:
+> > On Tue, Dec 17, 2019 at 9:06 PM Hans de Goede <hdegoede@redhat.com> wrote:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.3.y/kernel/v5.3.16-215-g8f8658b68c66/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
-/kernel/v5.3.16-215-g8f8658b68c66/
+> > Fixes tag?
+>
+> The HPWMI_FEATURE2_QUERY call was introduced in 8a1513b4932, so I guess
+> this should have a:
+>
+> Fixes: 8a1513b4932 ("hp-wmi: limit hotkey enable")
+>
+> Tag, shall I send a v2 with this, or can you add it while applying the patch?
 
-Tree: stable-rc
-Branch: linux-5.3.y
-Git Describe: v5.3.16-215-g8f8658b68c66
-Git Commit: 8f8658b68c66a7a3269eb2aceb53b1c76b4b2833
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 69 unique boards, 22 SoC families, 17 builds out of 208
+I added it.
 
-Boot Regressions Detected:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-8:
-          dm365evm,legacy:
-              lab-baylibre-seattle: new failure (last pass: v5.3.16-216-g07=
-63039c4844)
-
-Offline Platforms:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+With Best Regards,
+Andy Shevchenko
