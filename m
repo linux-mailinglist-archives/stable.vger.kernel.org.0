@@ -2,157 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 852FD1243EC
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 11:05:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D104124419
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 11:17:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725799AbfLRKFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 05:05:49 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:43204 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725955AbfLRKFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 05:05:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576663547;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=FSkrFpm1DW1Y7i6HiHHtFhN9Nhr2jT7JhuCbqt9yG0o=;
-        b=HMa3mKavab7DQS2DFwwIWWNhmOmZWMoMFVdu21e8w+LbkG5UedcBRm3DMMoXm5yatDYskF
-        XuBIJf+ESBkOnB3GNvphc2Kr9h8rprswGAqZ5vwMjqNdDOXIOXoYiVw4vSLNsKONzjx/fc
-        dSOcv6KPjh0GosY2FFeODBSihENLfQE=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-102-WOdplLdKMRemhvP5r9jliw-1; Wed, 18 Dec 2019 05:05:44 -0500
-X-MC-Unique: WOdplLdKMRemhvP5r9jliw-1
-Received: by mail-wr1-f71.google.com with SMTP id l20so662607wrc.13
-        for <stable@vger.kernel.org>; Wed, 18 Dec 2019 02:05:43 -0800 (PST)
+        id S1725785AbfLRKRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 05:17:31 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:47052 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726360AbfLRKRb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 05:17:31 -0500
+Received: by mail-pl1-f196.google.com with SMTP id y8so751734pll.13;
+        Wed, 18 Dec 2019 02:17:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=M9u/AAhgp7vczaWl5nRaS1BNA2aTAiH2Swv5B8ibH/Q=;
+        b=csWjRkJ8ifwjkXfMnaGss5kZ3MngkIY+uU3MmTF0fjYfCz09pVZnvfS0t2+u6fCY5u
+         XiElqaZ2m0CgIWwTkQAsXf8YyGnxyEHVOIJKNokeVb8GZ9kb1AxIeSyqoNU90HU24Mcf
+         T1vZNZ5pKgowYBfyYtzNaWHlW92S1t9iKht+RkFxnw63U005rLNlL0ufy3h1GorbtFzh
+         P/6Hq831StBoti94+hvtB53jy8tsxYzhT3KP4L2mV64tS6G23XyPiPmXUM3qkmZTmyfU
+         4eb8DUWjzjfxBoU1lzWc/q/5yTIfq0ul4XrtiPe0j+8c+cZXWq/GGZMD4Fn8RTejcuNi
+         tibA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=FSkrFpm1DW1Y7i6HiHHtFhN9Nhr2jT7JhuCbqt9yG0o=;
-        b=nWU7XsMVIGN+pWUpPXRtmgf0rBpfE3XNSN3anndGSyPzR5rayr/Y36C421DQOZTRdH
-         RlvOJKr2wCdn/VIMOV7cwDeazJ7g0hDFL6eKs+o5YHoP2zaEiaqtVBDeyYsQXjBcttf0
-         nSRGNYIs4D38F+Qo6OdCFhIRtl9X+NilwlbH91PdwMKhmQvjcJ0wQadw4EkfRiHTpgtf
-         3HDp38CuRY0o5p6IUMnOBGhGUcr+9z2C299q4/RCKWP9xEb6szSSI9f/TWtN6YGEa/9n
-         fJfdhhi2fPeZqbVKmwZdpBkYsUY1JBAShIVboagRpndgs1YqJhh+nV48tNr2x7+C9QXz
-         xF4A==
-X-Gm-Message-State: APjAAAUPWVsSH45I+D0m+Q9/QxWVdoiOkwa1cYyl/AYJTHZ6jcqebaU0
-        vHbEobzGKDRqMvbGoGwuVSWdOB2ON9Uh7aXmNjRDR/mjrTnrhMaYYK8QA0onVNJKMZNwCeLzusB
-        FnGPub2FMD5T6XIQF
-X-Received: by 2002:adf:f54d:: with SMTP id j13mr499122wrp.19.1576663542651;
-        Wed, 18 Dec 2019 02:05:42 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxX6RhlxdEWJs66pu6RNx9WXgk/AjvVABJfgEXDOjUWKh9KkobAdo1xitp5e/cWXJ63qptzmA==
-X-Received: by 2002:adf:f54d:: with SMTP id j13mr499080wrp.19.1576663542320;
-        Wed, 18 Dec 2019 02:05:42 -0800 (PST)
-Received: from shalem.localdomain (2001-1c00-0c0c-fe00-7e79-4dac-39d0-9c14.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:7e79:4dac:39d0:9c14])
-        by smtp.gmail.com with ESMTPSA id 5sm2130892wrh.5.2019.12.18.02.05.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Dec 2019 02:05:41 -0800 (PST)
-Subject: Re: [PATCH] serdev: Don't claim unsupported serial devices
-To:     Punit Agrawal <punit1.agrawal@toshiba.co.jp>,
-        linux-serial@vger.kernel.org
-Cc:     linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        nobuhiro1.iwamatsu@toshiba.co.jp, shrirang.bagul@canonical.com,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Johan Hovold <johan@kernel.org>
-References: <20191218065646.817493-1-punit1.agrawal@toshiba.co.jp>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <096046b6-324a-8496-8599-ed7e5ffc6e3c@redhat.com>
-Date:   Wed, 18 Dec 2019 11:05:40 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=M9u/AAhgp7vczaWl5nRaS1BNA2aTAiH2Swv5B8ibH/Q=;
+        b=jqvoqjVsjIGw41tegF/QbFPAMvr+KBlwmePjTLYpvDliApSLwRK4PjWs24vfTNE+BE
+         cjVes494kNqEbpU8qXqAvvB14E/GfjWldNiOohH+A7I7QBLH/91WmNKfwzOdYlBRNWWm
+         Iy8odnZCsLjR2g45KSMivFWAzpfXzYZv4ZbHRS03gLZlcVH3x+jiPXiz7bICmC3TM3UF
+         1HQ+TsSvwHkUz3IP9izAwZ+8Jd1b9QrP41RZV3Yp9CPrsFMbzXm0bGtvCodKdQiyN+/P
+         FI7XZKhj6F1hYr0X/+aULsgP/1LTGvHxFJt/q+Pgj1tYEz9PKtYoEuv6rixofsCskEe+
+         V2Pw==
+X-Gm-Message-State: APjAAAUy4T8dauCOq8bO372yROQ9Yl5gF9BDhGsrSC2OXvFo2PB73Q9M
+        u9uqYO3aESvBDmhxsJIY/bRjkfkN9uMoH2sYvvY=
+X-Google-Smtp-Source: APXvYqzkCy2aaHhQ4KsBIIbZJOe/vQs2YULgfDTU+9TvKf8ov3kabEdE3fGrQQXxhlhovh7ZPbPDlSa/0/j4zbEIla8=
+X-Received: by 2002:a17:902:8d96:: with SMTP id v22mr1849928plo.262.1576664250410;
+ Wed, 18 Dec 2019 02:17:30 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191218065646.817493-1-punit1.agrawal@toshiba.co.jp>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191217190604.638467-1-hdegoede@redhat.com>
+In-Reply-To: <20191217190604.638467-1-hdegoede@redhat.com>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Wed, 18 Dec 2019 12:17:20 +0200
+Message-ID: <CAHp75Vf8CDwW731uD4OMzB69P-D1AN3PzCMFBGGD4fvBFccpLg@mail.gmail.com>
+Subject: Re: [PATCH] platform/x86: hp-wmi: Make buffer for HPWMI_FEATURE2_QUERY
+ 128 bytes
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, Dec 17, 2019 at 9:06 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> At least on the HP Envy x360 15-cp0xxx model the WMI interface
+> for HPWMI_FEATURE2_QUERY requires an outsize of at least 128 bytes,
+> otherwise it fails with an error code 5 (HPWMI_RET_INVALID_PARAMETERS):
+>
+> Dec 06 00:59:38 kernel: hp_wmi: query 0xd returned error 0x5
+>
+> We do not care about the contents of the buffer, we just want to know
+> if the HPWMI_FEATURE2_QUERY command is supported.
+>
+> This commits bumps the buffer size, fixing the error.
+>
 
-On 18-12-2019 07:56, Punit Agrawal wrote:
-> Serdev sub-system claims all serial devices that are not already
-> enumerated. As a result, no device node is created for serial port on
-> certain boards such as the Apollo Lake based UP2. This has the
-> unintended consequence of not being able to raise the login prompt via
-> serial connection.
-> 
-> Introduce a blacklist to reject devices that should not be treated as
-> a serdev device. Add the Intel HS UART peripheral ids to the blacklist
-> to bring back serial port on SoCs carrying them.
-> 
+Fixes tag?
+
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-> Cc: Rob Herring <robh@kernel.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Johan Hovold <johan@kernel.org>
-> Cc: Hans de Goede <hdegoede@redhat.com>
-
-Thank you for addressing this long standing issue.
-
-The basic approach here looks good to me, once the minor
-comments from other reviewers are addressed you can add my:
-
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-
-to the next version.
-
-Regards,
-
-Hans
-
-
-
+> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1520703
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
-> 
-> Hi,
-> 
-> The patch has been updated based on feedback recieved on the RFC[0].
-> 
-> Please consider merging if there are no objections.
-> 
-> Thanks,
-> Punit
-> 
-> [0] https://www.spinics.net/lists/linux-serial/msg36646.html
-> 
->   drivers/tty/serdev/core.c | 10 ++++++++++
->   1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/tty/serdev/core.c b/drivers/tty/serdev/core.c
-> index 226adeec2aed..0d64fb7d4f36 100644
-> --- a/drivers/tty/serdev/core.c
-> +++ b/drivers/tty/serdev/core.c
-> @@ -663,6 +663,12 @@ static acpi_status acpi_serdev_register_device(struct serdev_controller *ctrl,
->   	return AE_OK;
->   }
->   
-> +static const struct acpi_device_id serdev_blacklist_devices[] = {
-> +	{"INT3511", 0},
-> +	{"INT3512", 0},
-> +	{ },
-> +};
-> +
->   static acpi_status acpi_serdev_add_device(acpi_handle handle, u32 level,
->   					  void *data, void **return_value)
->   {
-> @@ -675,6 +681,10 @@ static acpi_status acpi_serdev_add_device(acpi_handle handle, u32 level,
->   	if (acpi_device_enumerated(adev))
->   		return AE_OK;
->   
-> +	/* Skip if black listed */
-> +	if (!acpi_match_device_ids(adev, serdev_blacklist_devices))
-> +		return AE_OK;
-> +
->   	if (acpi_serdev_check_resources(ctrl, adev))
->   		return AE_OK;
->   
-> 
+>  drivers/platform/x86/hp-wmi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+> index 9579a706fc08..a881b709af25 100644
+> --- a/drivers/platform/x86/hp-wmi.c
+> +++ b/drivers/platform/x86/hp-wmi.c
+> @@ -300,7 +300,7 @@ static int __init hp_wmi_bios_2008_later(void)
+>
+>  static int __init hp_wmi_bios_2009_later(void)
+>  {
+> -       int state = 0;
+> +       u8 state[128];
+>         int ret = hp_wmi_perform_query(HPWMI_FEATURE2_QUERY, HPWMI_READ, &state,
+>                                        sizeof(state), sizeof(state));
+>         if (!ret)
+> --
+> 2.23.0
+>
 
+
+-- 
+With Best Regards,
+Andy Shevchenko
