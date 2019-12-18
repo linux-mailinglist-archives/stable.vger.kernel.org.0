@@ -2,63 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 910901249A9
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 15:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D62B1249CA
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 15:34:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727006AbfLRO3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 09:29:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40628 "EHLO mail.kernel.org"
+        id S1727063AbfLROeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 09:34:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726856AbfLRO3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Dec 2019 09:29:36 -0500
+        id S1726921AbfLROeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Dec 2019 09:34:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5FED20716;
-        Wed, 18 Dec 2019 14:29:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7431D21582;
+        Wed, 18 Dec 2019 14:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576679376;
-        bh=6TmEszoREjc8yIfDNgzG2vNgMDwZQPO+PjlcW1S5bh4=;
+        s=default; t=1576679689;
+        bh=+kiBjXCYTKlNThCpuJsw524K5bztl5tghYfwt2X23I4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RDHNBfurToKdwV7ffFSdbuHn3zL79IJ87rn+Zbcw216Yx6jJBxvxeODd4nSQAlK+O
-         fNTn2LN9if3KXjonfafq7PQ3pCczWxlmvyPK8cSz2GynnL/F9ErgIhGhcaNJbNYdoh
-         VOUYSQNFIO1qb//yDvvOtqp5UomLqkZbSCkT19y8=
-Date:   Wed, 18 Dec 2019 15:29:32 +0100
+        b=nPgKwLNOW2aW2uHjNjUkSVycegyjLY6ssU9+tzohwtLLm9Tw5nRUCZFZcC6fBRq3o
+         wL7rj1TsEqu9nQsU+rJL0TEbGPYZBewdXfKrSHkPyLfX2B0LIcAcjzompUe67NCNDG
+         3nmpHmWFJ6Bzd3mVAeUrdt5Vrc40LDNSDwFZjnS0=
+Date:   Wed, 18 Dec 2019 15:34:47 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Henry Lin <henryl@nvidia.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: xhci: Fix build warning seen with CONFIG_PM=n
-Message-ID: <20191218142932.GA237894@kroah.com>
-References: <20191218011911.6907-1-linux@roeck-us.net>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 00/37] 5.4.5-stable review
+Message-ID: <20191218143447.GA259271@kroah.com>
+References: <20191217200721.741054904@linuxfoundation.org>
+ <778e872e-0eb4-a888-f0a3-e6ba79eba569@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191218011911.6907-1-linux@roeck-us.net>
+In-Reply-To: <778e872e-0eb4-a888-f0a3-e6ba79eba569@nvidia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 17, 2019 at 05:19:11PM -0800, Guenter Roeck wrote:
-> The following build warning is seen if CONFIG_PM is disabled.
+On Wed, Dec 18, 2019 at 10:24:29AM +0000, Jon Hunter wrote:
 > 
-> drivers/usb/host/xhci-pci.c:498:13: warning:
-> 	unused function 'xhci_pci_shutdown'
+> On 17/12/2019 20:09, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.4.5 release.
+> > There are 37 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 19 Dec 2019 20:06:21 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.5-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > -------------
 > 
-> Fixes: f2c710f7dca8 ("usb: xhci: only set D3hot for pci device")
-> Cc: Henry Lin <henryl@nvidia.com>
-> Cc: stable@vger.kernel.org	# all stable releases with 2f23dc86c3f8
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
->  drivers/usb/host/xhci-pci.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> All tests are passing for Tegra ...
+> 
+> Test results for stable-v5.4:
+>     13 builds:	13 pass, 0 fail
+>     22 boots:	22 pass, 0 fail
+>     38 tests:	38 pass, 0 fail
+> 
+> Linux version:	5.4.5-rc1-g3400efb6b47c
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra30-cardhu-a04
+> 
 
-Nice catch.
-
-Mathias, I can queue this up now if you give me an ack.
-
-thanks,
+Thanks for testing both of these and letting me know.
 
 greg k-h
