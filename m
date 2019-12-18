@@ -2,88 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0963D124EB1
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 18:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61E96124FEE
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 18:59:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727680AbfLRRDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 12:03:07 -0500
-Received: from foss.arm.com ([217.140.110.172]:54154 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727526AbfLRRDH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Dec 2019 12:03:07 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 895B61FB;
-        Wed, 18 Dec 2019 09:03:06 -0800 (PST)
-Received: from localhost (unknown [10.37.6.21])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 056A43F67D;
-        Wed, 18 Dec 2019 09:03:05 -0800 (PST)
-Date:   Wed, 18 Dec 2019 17:03:04 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Siddharth Kapoor <ksiddharth@google.com>, lee.jones@linaro.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Kernel panic on Google Pixel devices due to regulator patch
-Message-ID: <20191218170304.GI3219@sirena.org.uk>
-References: <CAJRo92+eD9F6Q60yVY2PfwaPWO_8Dts8QwH7mhpJaem7SpLihg@mail.gmail.com>
- <20191218113458.GA3219@sirena.org.uk>
- <20191218122157.GA17086@kroah.com>
- <20191218131114.GD3219@sirena.org.uk>
- <20191218142219.GB234539@kroah.com>
- <20191218161806.GF3219@sirena.org.uk>
- <20191218162424.GA482612@kroah.com>
+        id S1727184AbfLRR6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 12:58:55 -0500
+Received: from mail26.static.mailgun.info ([104.130.122.26]:14482 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727071AbfLRR6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 12:58:55 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1576691935; h=Date: Message-Id: Cc: To: References:
+ In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
+ Content-Type: Sender; bh=3C6L4b2dA8aEQpFcyQGCt4S6TCBt8DWzO/OHKf/+d/Q=;
+ b=sjS0HqG9ljt91DXxDWPuhJvCKcG8+ewseIy2bBGLz7Cw0vZxjK/+tqsLO9NibEMA9auj8yXq
+ Z9RINFuXO7MBurF0g9cq0bZOi2DKrZLk+3fJS0H2dh4XtxRforeIUV+NrrOGGShyIkpnr5N1
+ jEtnfB/mO1rqCloLkH128Xl2uls=
+X-Mailgun-Sending-Ip: 104.130.122.26
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5dfa68d9.7f828cb120d8-smtp-out-n02;
+ Wed, 18 Dec 2019 17:58:49 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 79F77C447A0; Wed, 18 Dec 2019 17:58:47 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
+        MISSING_MID,SPF_NONE,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 00DB5C433CB;
+        Wed, 18 Dec 2019 17:58:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 00DB5C433CB
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="l0l+eSofNeLXHSnY"
-Content-Disposition: inline
-In-Reply-To: <20191218162424.GA482612@kroah.com>
-X-Cookie: Power is poison.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1/7] ath9k: fix storage endpoint lookup
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20191210114426.4713-2-johan@kernel.org>
+References: <20191210114426.4713-2-johan@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     QCA ath9k Development <ath9k-devel@qca.qualcomm.com>,
+        Arend van Spriel <arend@broadcom.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
+        Wright Feng <wright.feng@cypress.com>,
+        Jes Sorensen <Jes.Sorensen@redhat.com>,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Siva Rebbagondla <siva8118@gmail.com>,
+        Daniel Drake <dsd@gentoo.org>,
+        Ulrich Kunitz <kune@deine-taler.de>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20191218175847.79F77C447A0@smtp.codeaurora.org>
+Date:   Wed, 18 Dec 2019 17:58:47 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Johan Hovold <johan@kernel.org> wrote:
 
---l0l+eSofNeLXHSnY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Make sure to use the current alternate setting when verifying the
+> storage interface descriptors to avoid submitting an URB to an invalid
+> endpoint.
+> 
+> Failing to do so could cause the driver to misbehave or trigger a WARN()
+> in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+> 
+> Fixes: 36bcce430657 ("ath9k_htc: Handle storage devices")
+> Cc: stable <stable@vger.kernel.org>     # 2.6.39
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 
-On Wed, Dec 18, 2019 at 05:24:24PM +0100, Greg KH wrote:
-> On Wed, Dec 18, 2019 at 04:18:06PM +0000, Mark Brown wrote:
+Patch applied to ath-next branch of ath.git, thanks.
 
-> > What you appear to have caught here is an interaction with some
-> > unreviewed vendor code - how much of that is going on in the vendor
-> > trees you're not testing?  If we want to encourage people to pull in
-> > stable we should be paying attention to that sort of stuff.
+0ef332951e85 ath9k: fix storage endpoint lookup
 
-> I get weekly merge reports from all of the major SoC vendors when they
-> pull these releases into their tree and run through their full suite of
-> tests.  So I am paying attention to this type of thing.
+-- 
+https://patchwork.kernel.org/patch/11282013/
 
-Are you sure you're not just definining major SoC vendors as being
-people who send you reports here?  :P  In any case, that's only going to
-cover a limited subset of potential drivers and subsystems, devices that
-don't appear on reference designs aren't going to get any coverage at
-all that way for example.
-
-> What I need to figure out here is what is going wrong and why the SoC's
-> testing did not catch this.  That's going to take a bit longer...
-
-There's a reasonable chance this is something board specific.
-
---l0l+eSofNeLXHSnY
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl36W8cACgkQJNaLcl1U
-h9CfnQf8CWSZuEP46wNWKFkPq8tFFHkVLzNk7rZmtBfqo2XGes7Op0rkizHA28ET
-CR7+OhJEJ1xXP1xdzfdoN8E/tbYUu8Gv800GNhG+m/TsnnZBsmGWTJmGEElY8CPd
-VpFIRv3Al+rcbWs6Yn7Ig3b6uzjmhbGdpvSuQL9mkPkBnMeQYCYjL9sGnpUFvmK6
-Jmq1mNifpcb6snu1EY0ffbSCn95wOC+UrBBehr9+CYxBX+UVzQGGEnp8n5s0/ZCk
-KF9NmXkxF/XzOQ7VxozpXKzbtsyDS0l3bCVi3ia3gcVYh7Nb82pyonbqsdiU4n2j
-WofRpeJsb7azQLsu8Kliwrj+uz+cJA==
-=Ih6b
------END PGP SIGNATURE-----
-
---l0l+eSofNeLXHSnY--
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
