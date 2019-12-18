@@ -2,100 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C8C1246B0
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 13:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 112801246B7
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 13:23:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbfLRMWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 07:22:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44428 "EHLO mail.kernel.org"
+        id S1726545AbfLRMX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 07:23:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725930AbfLRMWA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Dec 2019 07:22:00 -0500
+        id S1726029AbfLRMX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Dec 2019 07:23:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D114121582;
-        Wed, 18 Dec 2019 12:21:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A32921582;
+        Wed, 18 Dec 2019 12:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576671719;
-        bh=mwUG7T4wiluvDMoa+8uM1MTApMMhiYa8/vECsa8OAxE=;
+        s=default; t=1576671807;
+        bh=OIhlETukxqmmcn2ntslZDezXtG1c2lQqB+bonPynyW8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ucr2Uf3eUh2mEBA62plUWANWmrqEmolSuEx8tTmm+okxdOQ13Aeegy8KhfAVwjKp9
-         72hB7zUnKvDuzwQM06zyPIoAuoX9th/aNWWQ1jnQ/LKYlqo0XUvfLfN1NQiqBZK23l
-         qiG/XbRV18woNVgm8AnBtPO7Ztxa3rOPd3wJs3EA=
-Date:   Wed, 18 Dec 2019 13:21:57 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Siddharth Kapoor <ksiddharth@google.com>, lee.jones@linaro.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Kernel panic on Google Pixel devices due to regulator patch
-Message-ID: <20191218122157.GA17086@kroah.com>
-References: <CAJRo92+eD9F6Q60yVY2PfwaPWO_8Dts8QwH7mhpJaem7SpLihg@mail.gmail.com>
- <20191218113458.GA3219@sirena.org.uk>
+        b=eAAsTOXIm4AMtHCO0Us/JJGjAXbIBr5LvDGRPlXHfsyWZuJky6gjh+mtZ2HQ0Lj9P
+         XccMOp3ZDMQ39qoMQQLfAmI4zkAu+NL0jsDm/70/EFRQLr6SSfzxU2BbMGa3qDDTs/
+         WujGKyg5Tk7pbK8XByVf7JasCU04VZPGc6Dny/7o=
+Date:   Wed, 18 Dec 2019 13:23:24 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     Andrey Konovalov <andreyknvl@google.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        linux-media@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Kostya Serebryany <kcc@google.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH RESEND RESEND] media: uvc: Avoid cyclic entity chains due
+ to malformed USB descriptors
+Message-ID: <20191218122324.GB17086@kroah.com>
+References: <20191108154838.21487-1-will@kernel.org>
+ <20191108155503.GB15731@pendragon.ideasonboard.com>
+ <20191216121651.GA12947@willie-the-truck>
+ <CAAeHK+xdVmEFtK78bWd2Odn0uBynqnt5UT9jZJFvqGL=_9NU2w@mail.gmail.com>
+ <20191218114137.GA15505@willie-the-truck>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191218113458.GA3219@sirena.org.uk>
+In-Reply-To: <20191218114137.GA15505@willie-the-truck>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 18, 2019 at 11:34:58AM +0000, Mark Brown wrote:
-> On Tue, Dec 17, 2019 at 11:51:55PM +0800, Siddharth Kapoor wrote:
+On Wed, Dec 18, 2019 at 11:41:38AM +0000, Will Deacon wrote:
+> On Mon, Dec 16, 2019 at 02:17:52PM +0100, Andrey Konovalov wrote:
+> > On Mon, Dec 16, 2019 at 1:16 PM Will Deacon <will@kernel.org> wrote:
+> > > On Fri, Nov 08, 2019 at 05:55:03PM +0200, Laurent Pinchart wrote:
+> > > > Thank you for the patch.
+> > > >
+> > > > I'm sorry for the delay, and will have to ask you to be a bit more
+> > > > patient I'm afraid. I will leave tomorrow for a week without computer
+> > > > access and will only be able to go through my backlog when I will be
+> > > > back on the 17th.
+> > >
+> > > Gentle reminder on this, now you've been back a month ;)
+> > 
+> > I think we now have a reproducer for this issue that syzbot just reported:
+> > 
+> > https://syzkaller.appspot.com/bug?extid=0a5c96772a9b26f2a876
+> > 
+> > You can try you patch on it :)
 > 
-> > I would like to share a concern with the regulator patch which is part of
-> > 4.9.196 LTS kernel.
-> 
-> That's an *extremely* old kernel.
+> Oh wow, I *really* like the raw USB gadget thingy you have to reproduce
+> these! I also really like that this patch fixes the issue. Logs below.
 
-It is, but it's the latest stable kernel (well close to), and your patch
-was tagged by you to be backported to here, so if there's a problem with
-a stable branch, I want to know about it as I don't want to see
-regressions happen in it.
+Ok, that's a good poke for me to go review that raw gadget code to see
+if it can be merged upstream :)
 
-> > https://lore.kernel.org/lkml/20190904124250.25844-1-broonie@kernel.org/
-> 
-> That's the patch "[PATCH] regulator: Defer init completion for a while
-> after late_initcall" which defers disabling of idle regulators for a
-> while.
-> 
-> Please include human readable descriptions of things like commits and
-> issues being discussed in e-mail in your mails, this makes them much
-> easier for humans to read especially when they have no internet access.
-> I do frequently catch up on my mail on flights or while otherwise
-> travelling so this is even more pressing for me than just being about
-> making things a bit easier to read.
-> 
-> > We have reverted the patch in Pixel kernels and would like you to look into
-> > this and consider reverting it upstream as well.
-> 
-> I've got nothing to do with the stable kernels so there's nothing I can
-> do here, sorry.
+> Laurent -- can we please merge this now?
 
-Should I revert it everywhere?  This patch reads as it should be fixing
-problems, not causing them :)
-
-> However if this is triggering anything it's almost
-> certainly some kind of timing issue (this code isn't new, it's just
-> being run a bit later) and is only currently working through luck so I
-> do strongly recommend trying to figure out the actual problem since it's
-> liable to come back and bite you later - we did find one buggy driver in
-> mainline as a result of this change, it's possible you've got another
-> one.  
-> 
-> Possibly your GPU supplies need to be flagged as always on, possibly
-> your GPU driver is forgetting to enable some supplies it needs, or
-> possibly there's a missing always-on constraint on one of the regulators
-> depending on how the driver expects this to work (if it's a proprietary
-> driver it shouldn't be using the regulator API itself).  I'm quite
-> surprised you've not seen any issue before given that the supplies would
-> still be being disabled earlier.
-
-Timing "luck" is probably something we shouldn't be messing with in
-stable kernels.  How about I revert this for the 4.14 and older releases
-and let new devices deal with the timing issues when they are brought up
-on new hardware?
+Yes, that would be good to have, as this obviously fixes a problem, and
+I can take it off of my "patches to track" list....
 
 thanks,
 
