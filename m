@@ -2,76 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0AD125405
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 22:00:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F2712540C
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 22:03:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbfLRVAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 16:00:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42806 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726092AbfLRVAZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Dec 2019 16:00:25 -0500
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD27F21582;
-        Wed, 18 Dec 2019 21:00:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576702825;
-        bh=ZNJraewX/i31LpNaURIQAkN2DiYLTRgEHkAUTtmT1H4=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=YNikuLqKHLwdudaWg4x2OkKj0HtoyhAF75eqIJkPUFiI9YDynEKF3aE6T2RUhMT+B
-         USCUGGDPbbJ02fHeEZNKdPfnkttfVcQkbgWmtVf2fJqOza7Jv3YR6WhXj9vkc2/Qnv
-         d8CzXtzLkn17rE/PDNFtmUEWUwI/qeD3Drl4nvLk=
-Subject: Re: [PATCH 5.3 00/25] 5.3.18-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20191217200903.179327435@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <45d3dbe7-fb86-e937-3da6-27d12c5de832@kernel.org>
-Date:   Wed, 18 Dec 2019 14:00:24 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1726463AbfLRVDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 16:03:05 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:34065 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725991AbfLRVDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 16:03:05 -0500
+Received: by mail-ot1-f67.google.com with SMTP id a15so4161382otf.1;
+        Wed, 18 Dec 2019 13:03:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=B022Y0u/lSuMqkjfFGXwIHOe924iIvpp7vfoqhOZjIE=;
+        b=bU0xdC05u1Zh2iy/DTWUOzVNRuzDh0Y7pyKiAIYOxLtEJFFldCyNTigvH2M1QSg0YI
+         CMIbBcbAnrAGJTGHlOeAlCZkN2MBFBPU+U+BfTfy1+IuP2FvajUjfEMj0xPsFr+Oa5FT
+         PXx2rvBW8UY2eTRPMz3tyP1LOF00xf64yJyFqf2Z7SW5FWQ0nIi20F7DBHLP3Tr20IKr
+         geoDL6z75vKRFndXocvHsrvrCmRe/3Ksip8eky2U1zT34NkDz6g+3Qi4z26R9qiimwxZ
+         FnSdDe3p/tW2VllY1aMSc/X1/in4XiBm4qnkHqDjCD0zCJeqMEZanS2tcCP2K17id5pa
+         fucg==
+X-Gm-Message-State: APjAAAXTLKrbKwQAwS0zxj/QkXGFzYbwRMkifVVEJw4um3rP9hDEhWwe
+        HOed5V0mj0CCsZ6/Mxil9AaGal5HHb6GnlogUVz1h5My
+X-Google-Smtp-Source: APXvYqwnQ7jvI9l31qt943pfNsnqKIyElZdfXdIX7/cUcBTyrOWAPfCfDUGR/VD8UiENb5Ue0XNu5H5S3/n3kP8QKzM=
+X-Received: by 2002:a9d:2073:: with SMTP id n106mr4764006ota.145.1576702984486;
+ Wed, 18 Dec 2019 13:03:04 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191217200903.179327435@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191217200721.741054904@linuxfoundation.org>
+In-Reply-To: <20191217200721.741054904@linuxfoundation.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 18 Dec 2019 22:02:53 +0100
+Message-ID: <CAMuHMdU92QPEi9bYnzG4z_EVimstZ1u_gubuaWxwZVaDca+OGg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/37] 5.4.5-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>,
+        Yoshiki Komachi <komachi.yoshiki@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/17/19 1:15 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.3.18 release.
-> There are 25 patches in this series, all will be posted as a response
+Hi Greg,
+
+On Tue, Dec 17, 2019 at 9:10 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.4.5 release.
+> There are 37 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
-> Note, this is the LAST 5.3.y kernel to be released, after this one, it
-> will be end-of-life.  You should have moved to the 5.4.y series already
-> by now.
-> 
-> Responses should be made by Thu, 19 Dec 2019 20:08:42 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.18-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-Compiled and booted on my test system. No dmesg regressions.
+> Yoshiki Komachi <komachi.yoshiki@gmail.com>
+>     cls_flower: Fix the behavior using port ranges with hw-offload
 
-thanks,
--- Shuah
+Given I bisected a WARNING to this commit, it's probably safer to not
+backport it to stable yet.
 
+So far no response to my report
+https://lore.kernel.org/lkml/CAMuHMdXKNMgAQHAE4f-0=srAZtDNUPB6Hmdm277XTgukrtiJ4Q@mail.gmail.com/
+
+Given it's networking, it could be an endian issue, manifesting on big
+endian systems only.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
