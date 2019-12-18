@@ -2,77 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED021249CB
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 15:35:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C9E124A10
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 15:47:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727035AbfLROfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 09:35:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41600 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726921AbfLROfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Dec 2019 09:35:06 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB326218AC;
-        Wed, 18 Dec 2019 14:35:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576679705;
-        bh=a853z8YunYyVMRiQmu0Vi5eC2vYvgzYAS3MEJDKbuvI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RPx8Wf7+qkzCJAccQvu+s343jR/vrGR/b3G44JcTwGekbT7IzTvVEx2FBwXC83GA7
-         WuL6NEoOJOOqewB43G/cfGkYNuIKx7+aYbL7H9tXpzPOPjhhpT2q6FDQWjsp4PM04k
-         iBQ9Qe1lhLIpH+gjeVId/FGeHebQdeYpQtSb7FPQ=
-Date:   Wed, 18 Dec 2019 15:35:03 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.4 00/37] 5.4.5-stable review
-Message-ID: <20191218143503.GB259271@kroah.com>
-References: <20191217200721.741054904@linuxfoundation.org>
- <CA+G9fYur78nMLo8=PkcTJ5LP+UY54RH9cTDmk9m2RR0h+4Mqug@mail.gmail.com>
+        id S1727120AbfLROrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 09:47:43 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:33431 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726921AbfLROrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 09:47:42 -0500
+Received: by mail-pg1-f195.google.com with SMTP id 6so1417723pgk.0;
+        Wed, 18 Dec 2019 06:47:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=guFwf+wCa12JSxYCT/+nf881wz06mcBiWToUaJNXU+I=;
+        b=fQMdv/vhVoW4o4bNtXzhG4yJUPXzUyaCEdzXdPxDo8S1IHbrFubu1HtXnUstlkNwjN
+         sAsNoFaemGt9CFgffOHZLOhCP5ihIJzIXIB7y73SVcDTTpWeoNPyC1F1eys+lLkqSeYy
+         gKrXjN/t5Al7GahcB8pusfDRaMAAP4nLlxEoXieWtFVaj+Y2TaFpicX7e5Y0MPaQ0v8C
+         V3EVlxom5lkK02ZIKKMky/TES8fuyrfKj37ewYlMKeQg7sjZEhr72nO3ERheRY4lZY1q
+         36taH3Hqjb9bDk7dNv2QHE4bBDXAfmw3kX5xUAO4GaFeNV2XLnksTwJegKDK5+A4Tq9D
+         ii3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=guFwf+wCa12JSxYCT/+nf881wz06mcBiWToUaJNXU+I=;
+        b=KTDt6FNoDbCiM1BRM28lQY8YNilDe6zbzpI+QvhlnVTW0NFBWDMDnSHSSlyoEkSZ/2
+         KX3cuCEgj1D6aM3ab3AL8F8OAGNu4D4ZKCySNBc2/ROFkFJ2/ixfY6KbSmbxJz5e9KUx
+         +PcWZxc8P1KRZFNZJjWfzorxAH0jRzpabsETyvDYyVNTBfMwCg6v+6ahP6V3AubFcawg
+         gY9ywFcso0/jBTgO3+3yIJ/WUE9UQpkPRSfMqmIyNELsynDojjsw2mSraZugHnG9XmsA
+         FJxP79D4Xs8BVzmQqMpXYf/BoDsURw3IcpdRZAZSrhSppgq2quAmtkjPQtBgHmb7o4gV
+         iuqw==
+X-Gm-Message-State: APjAAAW6aGK8T5ZAnb/IvYAvMXFUw1Rz88VCGAb92h+3UJ7dwk7gAEnN
+        VpybCc5ZuFppDuQ1FOl/imY=
+X-Google-Smtp-Source: APXvYqyM9FqA1ARCYVXS0NxiH0ecdtuCZqFkvEMg+feJh4WBiJZ4U68zBxyrj7d6NSrqilRo+FzblQ==
+X-Received: by 2002:a63:504f:: with SMTP id q15mr3486434pgl.8.1576680462221;
+        Wed, 18 Dec 2019 06:47:42 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id w38sm3731258pgk.45.2019.12.18.06.47.40
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 18 Dec 2019 06:47:40 -0800 (PST)
+Date:   Wed, 18 Dec 2019 06:47:39 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.3 00/25] 5.3.18-stable review
+Message-ID: <20191218144739.GA19358@roeck-us.net>
+References: <20191217200903.179327435@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYur78nMLo8=PkcTJ5LP+UY54RH9cTDmk9m2RR0h+4Mqug@mail.gmail.com>
+In-Reply-To: <20191217200903.179327435@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 18, 2019 at 07:52:16PM +0530, Naresh Kamboju wrote:
-> On Wed, 18 Dec 2019 at 01:40, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.4.5 release.
-> > There are 37 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 19 Dec 2019 20:06:21 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.5-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Tue, Dec 17, 2019 at 09:15:59PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.3.18 release.
+> There are 25 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> Note, this is the LAST 5.3.y kernel to be released, after this one, it
+> will be end-of-life.  You should have moved to the 5.4.y series already
+> by now.
+> 
+Build results:
+	total: 158 pass: 158 fail: 0
+Qemu test results:
+	total: 384 pass: 384 fail: 0
 
-great, thanks for testing these and letting me know.
-
-greg k-h
+Guenter
