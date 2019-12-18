@@ -2,82 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1823123EA8
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 05:51:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070FC123EB9
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 06:15:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726569AbfLREvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Dec 2019 23:51:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35306 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726518AbfLREvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 17 Dec 2019 23:51:54 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5373921582;
-        Wed, 18 Dec 2019 04:51:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576644713;
-        bh=Vl2hyvtu7Iviw5OO/kfGHA1hcWxfcadVdsZrNSk66dE=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=gSOXi81HNbOMQlPe4599bknzdcu5VEtlFBca3FzYiDWDmwCLD/wNzt7PV28XUkKQg
-         vsYS5Zj9XCU2Y17aYEDhG8tjTvg05LKAzEMp37x55IZK3YjFQOZ5/0HzMRBEtmgZdb
-         s9S9DWaYqePecyFg3Shsb6cALxxsZo1Cgjl4P2dU=
-Date:   Tue, 17 Dec 2019 20:51:52 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, guro@fb.com, hannes@cmpxchg.org,
-        ktkhai@virtuozzo.com, linux-mm@kvack.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, shakeelb@google.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        yang.shi@linux.alibaba.com
-Subject:  [patch 5/6] mm: vmscan: protect shrinker idr replace with
- CONFIG_MEMCG
-Message-ID: <20191218045152.iNg-dg4P2%akpm@linux-foundation.org>
-In-Reply-To: <20191217205020.6e2eaefc78710ec646e99aa9@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1725811AbfLRFPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 00:15:11 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:55543 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725797AbfLRFPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 00:15:11 -0500
+Received: by mail-wm1-f67.google.com with SMTP id q9so416019wmj.5
+        for <stable@vger.kernel.org>; Tue, 17 Dec 2019 21:15:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=SO0/K2O9SN2PLyJBtjlnAky4tDhTXq59+4z8jHiS/cA=;
+        b=E9VivFQm68TRwD0rPhVzMJqOEBKnQ7rgEYwpo/5MNgBUacGNdGFKkMKziMhuZaFjKZ
+         AcAM3WcyVx90Q29t/87AiZj/BXhw+4AaHySefRVqxc2qMR8MAbmoL2TjypsdyeuV2JN6
+         qY7B79+6sx1s3ZIUskMMLoqcWutUwoDDN5FpQglSnYbbK+KsJf0ZxHECnI59gTSJhiuN
+         soGComB9tfAbvJVPDzOOdpELdiBRks6pNYPGy2Sd9tujeR9L+QdLLs4+vqxamC1wDc6m
+         lIgG9vCzG7Oas2iZVFJMs3/qpFIJF6r33NozBDU9oTu7R5KVQhO/O219nZlO4PtFCNTV
+         1LdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=SO0/K2O9SN2PLyJBtjlnAky4tDhTXq59+4z8jHiS/cA=;
+        b=SBdSQ2bVESOZqBKWb0a59On/hXPq/Qz5Owg4h4cXKQqNQuwI5kWwMv5OMFep0hqzBo
+         211DrU0qBDgtdo5I8NZ+hrYq44BwtZDNK3kuI/jBxgFQRQAFFzeyObQSRL1NyE1ZOE3c
+         zS0c7W56xbCMN1cOqxjZhWOLbNq6kPxuSztCvGQ4k7xA/uwVnAlgcO9XcXioVy85LDa4
+         XyD6xb2kh9P/llYSy+mjfLIK/5lwUHIM2OroyRghtioj3r27YzFRGOjyzzeCQSv6/jvT
+         JTtjn0bO4aFlCB7afhj9p0X9Hoa5enUc9VCmM2rcRsQ/GT1qcjyztGr/Ksz71abOVSrN
+         jujQ==
+X-Gm-Message-State: APjAAAUq3jtWsUHr6TMEeVNtJWn2LN7YSdT2LWUxfUicejic5vG8jLZP
+        HfWJ8s8UBSSdmuSslKzvJ55oFhTgQRRqoA==
+X-Google-Smtp-Source: APXvYqxDJLKaV/58CEZSnduir1C9GUHvRDJ0v48ehw0xXHQ/Sr6lCLOsIxpfxhEO5LLEwWoe6XwoVQ==
+X-Received: by 2002:a1c:ed0e:: with SMTP id l14mr696826wmh.74.1576645681798;
+        Tue, 17 Dec 2019 21:08:01 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id q68sm1283421wme.14.2019.12.17.21.08.00
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Dec 2019 21:08:01 -0800 (PST)
+Message-ID: <5df9b431.1c69fb81.dd54.50d3@mx.google.com>
+Date:   Tue, 17 Dec 2019 21:08:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.17
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.3.y
+Subject: stable/linux-5.3.y boot: 71 boots: 1 failed,
+ 69 passed with 1 untried/unknown (v5.3.17)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
-Subject: mm: vmscan: protect shrinker idr replace with CONFIG_MEMCG
+stable/linux-5.3.y boot: 71 boots: 1 failed, 69 passed with 1 untried/unkno=
+wn (v5.3.17)
 
-Since commit 0a432dcbeb32edc ("mm: shrinker: make shrinker not depend on
-memcg kmem"), shrinkers' idr is protected by CONFIG_MEMCG instead of
-CONFIG_MEMCG_KMEM, so it makes no sense to protect shrinker idr replace
-with CONFIG_MEMCG_KMEM.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+3.y/kernel/v5.3.17/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.3.y/ke=
+rnel/v5.3.17/
 
-And in the CONFIG_MEMCG && CONFIG_SLOB case, shrinker_idr contains only
-shrinker, and it is deferred_split_shrinker.  But it is never actually
-called, since idr_replace() is never compiled due to the wrong #ifdef. 
-The deferred_split_shrinker all the time is staying in half-registered
-state, and it's never called for subordinate mem cgroups.
+Tree: stable
+Branch: linux-5.3.y
+Git Describe: v5.3.17
+Git Commit: 5e2cfee1b25c94aa357fca06f30d3be073c36d16
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 52 unique boards, 14 SoC families, 11 builds out of 208
 
-Link: http://lkml.kernel.org/r/1575486978-45249-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: 0a432dcbeb32 ("mm: shrinker: make shrinker not depend on memcg kmem")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Boot Regressions Detected:
+
+arm:
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.3.16)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxm-q200:
+              lab-baylibre: new failure (last pass: v5.3.16)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
 ---
-
- mm/vmscan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/vmscan.c~mm-vmscan-protect-shrinker-idr-replace-with-config_memcg
-+++ a/mm/vmscan.c
-@@ -387,7 +387,7 @@ void register_shrinker_prepared(struct s
- {
- 	down_write(&shrinker_rwsem);
- 	list_add_tail(&shrinker->list, &shrinker_list);
--#ifdef CONFIG_MEMCG_KMEM
-+#ifdef CONFIG_MEMCG
- 	if (shrinker->flags & SHRINKER_MEMCG_AWARE)
- 		idr_replace(&shrinker_idr, shrinker, shrinker->id);
- #endif
-_
+For more info write to <info@kernelci.org>
