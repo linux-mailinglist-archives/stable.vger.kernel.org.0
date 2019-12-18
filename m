@@ -2,129 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60552124496
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 11:33:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32E4B124555
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 12:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725955AbfLRKdC convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 18 Dec 2019 05:33:02 -0500
-Received: from mga05.intel.com ([192.55.52.43]:26988 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725828AbfLRKdC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Dec 2019 05:33:02 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Dec 2019 02:32:54 -0800
-X-IronPort-AV: E=Sophos;i="5.69,329,1571727600"; 
-   d="scan'208";a="210048191"
-Received: from jlahtine-desk.ger.corp.intel.com (HELO localhost) ([10.252.5.38])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Dec 2019 02:32:52 -0800
-Content-Type: text/plain; charset="utf-8"
+        id S1726856AbfLRLGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 06:06:15 -0500
+Received: from mail-qk1-f196.google.com ([209.85.222.196]:36690 "EHLO
+        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726851AbfLRLGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 06:06:15 -0500
+Received: by mail-qk1-f196.google.com with SMTP id a203so1565921qkc.3
+        for <stable@vger.kernel.org>; Wed, 18 Dec 2019 03:06:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=WGgEYCWgZXji+vHjNuzFMD738jFfCCD95nKu7Eh05bE=;
+        b=r7ZAcAsEJheNZQSp21PA/s+gQ6WJZrsEpIEZRelJXwa+bmpeP0Skciy+phRCkeDrPw
+         kmZu/CX37DoK7sWUhrI2Y+zUtbRjL7kKRVp4QMYErd5xlKyp/z2Xdt3GSTBfwK1hVt25
+         7tXPbERXwDgFAt0XGxLoQVuQFEdUNbWsvzrZPDn0X/uQ2L6mowG/Jfg9QOtFmARSpWK0
+         evLnntWCfAJ0gOT9ddtag49g66cqWZBzJkN9QTVeG5/miT1g9/EmyaehaMVg+ZNNC9HM
+         ci3Y8twh5Qn4pyGHF8IzZq6xTVBnEQNIZc3wJ2H5Q5+n2Aocli/dgukUmmh85owECg8J
+         u7dA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=WGgEYCWgZXji+vHjNuzFMD738jFfCCD95nKu7Eh05bE=;
+        b=pjwRI4nt94qzqfZsHzUXUVj/hhZ710PvXqMW3gw+JXgHQmLrPw4EczXni3TgDXYmED
+         yMwaQVNSL/YuC1EWkUAaODt7mwG+RkteW6dqFvuV7RLdQUZby3HLN1VD4cn7xKk29ojW
+         9s+RUfWjR0kBbcp5XvS4cqCUGhhJEB1chkflWRFh1voeXmXY1taLVZR4Q9VSrcCZgG0a
+         xlHUAJeWowZxcFMJcCis0pEkWkH0tOWfgPAytJyKANpPv1u2eYQl6TrjNXbPn6BaiqJP
+         fAdhI7FfMF8ITNMeECccz3fud+DX42SZL/qTHIPtNAuN0VCmI0cY6c4zwoWxwXZcuC0k
+         I2/w==
+X-Gm-Message-State: APjAAAWsDKtd3uYznmUH0coYOKnLOhSO4KsmFGCbYLxQuiK0ZACyDPik
+        /wFhDAA2PMceMVChNyg7WKzcgNpHDlB+n/wrGk8=
+X-Google-Smtp-Source: APXvYqzRMQnQfYvNoHD6JdfYb9HiPxfFpthbyShFpzxAYxJousVMh8iP2+Dy74pZWZRfZ70TOPw3zBJRl+2ws+0MV8A=
+X-Received: by 2002:a37:2e47:: with SMTP id u68mr1758671qkh.485.1576667174501;
+ Wed, 18 Dec 2019 03:06:14 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20191216161717.2688274-2-chris@chris-wilson.co.uk>
-References: <20191216161717.2688274-1-chris@chris-wilson.co.uk> <20191216161717.2688274-2-chris@chris-wilson.co.uk>
-Subject: Re: [Intel-gfx] [PATCH 2/2] drm/i915: Hold reference to intel_frontbuffer as we track activity
-From:   Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc:     Matthew Auld <matthew.auld@intel.com>, stable@vger.kernel.org
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Date:   Wed, 18 Dec 2019 12:32:50 +0200
-Message-ID: <157666517028.1052.16015077712364948876@jlahtine-desk.ger.corp.intel.com>
-User-Agent: alot/0.8.1
+Received: by 2002:ac8:6708:0:0:0:0:0 with HTTP; Wed, 18 Dec 2019 03:06:13
+ -0800 (PST)
+From:   "Mr.Patrick Joseph" <mrpatrickjo09@gmail.com>
+Date:   Wed, 18 Dec 2019 12:06:13 +0100
+X-Google-Sender-Auth: hRouWS938h_dHuBveTCuhiufZts
+Message-ID: <CANxfvuX7wV+B6yOhNGbqEzqGa7px6xeKB0zTNw6-fT5vEa9hzw@mail.gmail.com>
+Subject: Hoping to hear from you soon
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Chris Wilson (2019-12-16 18:17:17)
-> Since obj->frontbuffer is no longer protected by the struct_mutex, as we
-> are processing the execbuf, it may be removed. Mark the
-> intel_frontbuffer as rcu protected, and so acquire a reference to
-> the struct as we track activity upon it.
-> 
-> Closes: https://gitlab.freedesktop.org/drm/intel/issues/827
-> Fixes: 8e7cb1799b4f ("drm/i915: Extract intel_frontbuffer active tracking")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Matthew Auld <matthew.auld@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.4+
+Dear Sir/Madam,
 
-<SNIP>
+Although you might be apprehensive about my email as we have never met
+before. I am Mr.Patrick Joseph, a Banker and Head of Operations with
+Bank here in Burkina Faso West Africa, there is the sum of
+$28.500,000.00 Million Dollars currently in my branch, there were no
+beneficiary stated concerning these funds which means no one would
+ever come to claim it.
 
-> @@ -54,6 +55,35 @@ void intel_frontbuffer_flip_complete(struct drm_i915_private *i915,
->  void intel_frontbuffer_flip(struct drm_i915_private *i915,
->                             unsigned frontbuffer_bits);
->  
-> +void intel_frontbuffer_put(struct intel_frontbuffer *front);
-> +
-> +static inline struct intel_frontbuffer *
-> +__intel_frontbuffer_get(const struct drm_i915_gem_object *obj)
-> +{
-> +       struct intel_frontbuffer *front;
-> +
-> +       if (likely(!rcu_access_pointer(obj->frontbuffer)))
-> +               return NULL;
-> +
-> +       rcu_read_lock();
-> +       do {
-> +               front = rcu_dereference(obj->frontbuffer);
-> +               if (!front)
-> +                       break;
-> +
-> +               if (!kref_get_unless_zero(&front->ref))
-> +                       continue;
-> +
-> +               if (front == rcu_access_pointer(obj->frontbuffer))
-> +                       break;
-> +
-> +               intel_frontbuffer_put(front);
-> +       } while (1);
-> +       rcu_read_unlock();
-> +
-> +       return front;
-> +}
+That is why I ask that can we work together, I will be pleased to work
+with you as trusted person and see that the fund is transferred out of
+my Bank into another Bank Account, Once the funds have been
+transferred to your nominated Bank account we shall then share it in
+the ratio of 60% for me, 40% for you.
 
-Understood that there can only be so many writers, so it's not
-technically blocking, but the constructs looks like it was designed to
-spin.
+If you agree to my business proposal.further details of the transfer
+will be forwarded to you as soon as i receive your return mail,
+sending the below information
 
-It would look more appropriate without the loop:
+1. Full Name.
+2: Your Private telephone and Fax numbers.
+3. Occupations.
+4. Date Of Birth
+5. Country of Residence.
+6. Your full address.
 
-if (unlikely(!kref_get_unless_zero(&front->ref)))
-	goto retry;
+Hoping to hear from you as soon as possible.
 
-<SNIP>
-
-> +void __i915_gem_object_flush_frontbuffer(struct drm_i915_gem_object *obj,
-> +                                        enum fb_op_origin origin)
-> +{
-> +       struct intel_frontbuffer *front;
-> +
-> +       front = __intel_frontbuffer_get(obj);
-> +       if (front) {
-> +               intel_frontbuffer_flush(front, origin);
-> +               intel_frontbuffer_put(front);
-> +       }
-> +}
-> +
-> +void __i915_gem_object_invalidate_frontbuffer(struct drm_i915_gem_object *obj,
-> +                                             enum fb_op_origin origin)
-> +{
-> +       struct intel_frontbuffer *front;
-> +
-> +       front = __intel_frontbuffer_get(obj);
-> +       if (front) {
-> +               intel_frontbuffer_invalidate(front, origin);
-> +               intel_frontbuffer_put(front);
-> +       }
-> +}
-
-Could be de-duped as by taking the vfunc as parameter, but that's
-just by coincidence that parameters match.
-
-The rest checks out, so with the loop removed:
-
-Reviewed-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-
-Regards, Joonas
+Regards,
+Mr.Patrick Joseph.
