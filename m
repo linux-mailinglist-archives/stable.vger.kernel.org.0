@@ -2,170 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA61E1240DE
-	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 09:01:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8800912411C
+	for <lists+stable@lfdr.de>; Wed, 18 Dec 2019 09:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726721AbfLRIB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Dec 2019 03:01:58 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:36126 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726717AbfLRIB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Dec 2019 03:01:58 -0500
-Received: by mail-lf1-f68.google.com with SMTP id n12so994495lfe.3
-        for <stable@vger.kernel.org>; Wed, 18 Dec 2019 00:01:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=MBjT2DfCl1YQDiFc2LHryWAga8NQEb+p9ojRnPoDK+A=;
-        b=ojh4dsnkUSEJW1/tr7ggIumiK/gSPSZ3M2/p6Lo0Zltk7mPp1ZGrxjplf3FTut0h+O
-         6ZaUu9lJaU69yTHpIejSaxexV8b3TyyiHR019uzi7tRqYu+adajeeDoe95L/VJVuAhxW
-         WBQmdeQ89HK2Ny45znibASAEk6z6quAtXN4BAPIbCCxLP0hTRkKQ3lQsrkexSnijqH7v
-         rrz5ROHQaXdtr1mb7UcE4JyJvjrVK62eG8ulNbFNnhcBjpFzTIqlULFBd37WDfY1qW2f
-         SDzk3ypKSvbLsszxXQv1Je52MSIakS2b+JmCRMJ01nGTmOUFXkdi8xBcQOcGY2i8D+f9
-         O2KQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=MBjT2DfCl1YQDiFc2LHryWAga8NQEb+p9ojRnPoDK+A=;
-        b=Yxh+6XVPgFhR3kfg2xsuAkMrvGSWj5vargnm5FUw2An4XQC5vh61CR5hhWIP1Wag3w
-         +rG3T2ZAsnWpwa6SJj7nr5BuG4IA496QOgPdjZJHcGl+twkehv6sgVEmCEbrnGOFzB25
-         nOSaGlWBENZS5ECnL0lOGb161s/CSLCuplhPRUnj2soMOCoM+iq+bEjnUF1IJYNN+JoZ
-         DGfHUJRvS4qTzvytslEkfoyJdhA0X3Hld89fkx+onH1/sFMGLetX+VFVZn9LClCF78d1
-         rNUUxeYU52H5OjWbCWh6zpb6hAVSQUIHo8SN4BrRdnz4S0bExxc+EOwTO+NkBg7q5TTq
-         9kJA==
-X-Gm-Message-State: APjAAAWz0xQy4dS4fpRLJ7aaA2aViOGKjs9X6S+Xr3dgRnXxbtPmvnny
-        yqS1eK3UxmkRFtQRg0XlHKegIhbhpxVcu95Sl5ql2w==
-X-Google-Smtp-Source: APXvYqwhjyTY4pumh/uxn4r02qF7rkOSKr25PxtSobVUM8Djxc8jYxNEfBFVGlQGi4pXtTUsUkmRVndCTBVVcTWHJbU=
-X-Received: by 2002:a19:784:: with SMTP id 126mr843014lfh.191.1576656116500;
- Wed, 18 Dec 2019 00:01:56 -0800 (PST)
+        id S1725955AbfLRIKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Dec 2019 03:10:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47752 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725797AbfLRIKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Dec 2019 03:10:25 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CC43218AC;
+        Wed, 18 Dec 2019 08:10:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576656624;
+        bh=U/8TqUzAxcIc+qf1l+OtBYMcKlgSCegbO9PGNei3WeI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VKDfzirQOjpeHWk5eF3cWwSWFLR3cL9yGD4gaGtlYPSz8A17HM3uxkm4Mvlabygoi
+         CUBl4QJq/nGE9OgZpCANpxnWU2wBFmq2txfaV+f2CFOx3ZaJA9WfaMb3DQyxhocyma
+         P2Nwe8dXfis9xyBpoZFv7Ry3ODg38Bj5lP0gDdYo=
+Date:   Wed, 18 Dec 2019 09:10:22 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+Cc:     linux-serial@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, nobuhiro1.iwamatsu@toshiba.co.jp,
+        shrirang.bagul@canonical.com, stable@vger.kernel.org,
+        Rob Herring <robh@kernel.org>, Johan Hovold <johan@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] serdev: Don't claim unsupported serial devices
+Message-ID: <20191218081022.GA1553073@kroah.com>
+References: <20191218065646.817493-1-punit1.agrawal@toshiba.co.jp>
 MIME-Version: 1.0
-References: <20191217200903.179327435@linuxfoundation.org>
-In-Reply-To: <20191217200903.179327435@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 18 Dec 2019 13:31:44 +0530
-Message-ID: <CA+G9fYuFq9VySZFw1mfZEofkaaDS8z8B3a=rzTFT_knwep59-w@mail.gmail.com>
-Subject: Re: [PATCH 5.3 00/25] 5.3.18-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191218065646.817493-1-punit1.agrawal@toshiba.co.jp>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 18 Dec 2019 at 01:46, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.3.18 release.
-> There are 25 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Note, this is the LAST 5.3.y kernel to be released, after this one, it
-> will be end-of-life.  You should have moved to the 5.4.y series already
-> by now.
->
-> Responses should be made by Thu, 19 Dec 2019 20:08:42 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.3.18-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.3.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Wed, Dec 18, 2019 at 03:56:46PM +0900, Punit Agrawal wrote:
+> Serdev sub-system claims all serial devices that are not already
+> enumerated.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+All ACPI serial devices, right?  Surely not all other types of serial
+devices in the system.
 
-Summary
-------------------------------------------------------------------------
+And what do you mean by "not already enumerated"?
 
-kernel: 5.3.18-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.3.y
-git commit: 0763039c48446b647d8619afe0624d6e5c62e4c0
-git describe: v5.3.16-216-g0763039c4844
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/bui=
-ld/v5.3.16-216-g0763039c4844
+> As a result, no device node is created for serial port on
+> certain boards such as the Apollo Lake based UP2. This has the
+> unintended consequence of not being able to raise the login prompt via
+> serial connection.
+> 
+> Introduce a blacklist to reject devices that should not be treated as
 
+"reject ACPI serial devices"
 
-No regressions (compared to build v5.3.16)
+> a serdev device. Add the Intel HS UART peripheral ids to the blacklist
+> to bring back serial port on SoCs carrying them.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Johan Hovold <johan@kernel.org>
+> Cc: Hans de Goede <hdegoede@redhat.com>
+> ---
+> 
+> Hi,
+> 
+> The patch has been updated based on feedback recieved on the RFC[0].
+> 
+> Please consider merging if there are no objections.
+> 
+> Thanks,
+> Punit
+> 
+> [0] https://www.spinics.net/lists/linux-serial/msg36646.html
+> 
+>  drivers/tty/serdev/core.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/drivers/tty/serdev/core.c b/drivers/tty/serdev/core.c
+> index 226adeec2aed..0d64fb7d4f36 100644
+> --- a/drivers/tty/serdev/core.c
+> +++ b/drivers/tty/serdev/core.c
+> @@ -663,6 +663,12 @@ static acpi_status acpi_serdev_register_device(struct serdev_controller *ctrl,
+>  	return AE_OK;
+>  }
+>  
+> +static const struct acpi_device_id serdev_blacklist_devices[] = {
 
+s/serdev_blacklist_devices/serdev_blacklist/acpi_devices/  ?
 
-No fixes (compared to build v5.3.16)
+This is an acpi-specific thing, not a generic tty thing.
 
-Ran 21111 total tests in the following environments and test suites.
+thanks,
 
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
