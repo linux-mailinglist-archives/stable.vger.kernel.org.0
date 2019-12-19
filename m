@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01C3E126960
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:37:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE505126A2D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:45:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727218AbfLSShE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:37:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54372 "EHLO mail.kernel.org"
+        id S1728184AbfLSSou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:44:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727125AbfLSShD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:03 -0500
+        id S1729057AbfLSSos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7150224679;
-        Thu, 19 Dec 2019 18:37:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2E2424672;
+        Thu, 19 Dec 2019 18:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780622;
-        bh=NzS+thb2zRhKzX02D+ejkXOi1iRJq/6D5XAXZ6VOCSc=;
+        s=default; t=1576781087;
+        bh=cvPAg9I2YwVLNkWL6x0/cKoqr1AmKIBCDJShQFg1R7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TaTOLYfwguwpzyO23FfEYcB8NNVow5JVjcP9hz1sin1TjVNfsUTM4F9gqYivVi/ao
-         KWWALJxqdaI7aQlnT2LFHs1giFGasB+l3eOq7D+TbXmWbnxcF6aHdAVxuxHJj3roGV
-         MEHwXR4pSQ5HivGXOMgm6s0cIhDSaYB2g5RBb640=
+        b=kvvfGzjDcAVAYEeLVESnRUxQP0WhRTwQZkzbCuBW+LpupRdlcHIqB4eqYvtRLt/PL
+         hLdhFht7UnKnNkDZ/4LMDEPWMtH2hyVx4c062nxkyLiTKlcptiNQEG/scwm3nTWLD2
+         gycpKESXXSgRidWSYZkFXzji5R2SdEmGuTBLqzDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 049/162] MIPS: OCTEON: cvmx_pko_mem_debug8: use oldest forward compatible definition
-Date:   Thu, 19 Dec 2019 19:32:37 +0100
-Message-Id: <20191219183210.878655332@linuxfoundation.org>
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>
+Subject: [PATCH 4.9 076/199] coresight: etm4x: Fix input validation for sysfs.
+Date:   Thu, 19 Dec 2019 19:32:38 +0100
+Message-Id: <20191219183219.183611335@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
+From: Mike Leach <mike.leach@linaro.org>
 
-[ Upstream commit 1c6121c39677175bd372076020948e184bad4b6b ]
+commit 2fe6899e36aa174abefd017887f9cfe0cb60c43a upstream.
 
-cn58xx is compatible with cn50xx, so use the latter.
+A number of issues are fixed relating to sysfs input validation:-
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-[paul.burton@mips.com: s/cn52xx/cn50xx/ in commit message.]
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1) bb_ctrl_store() - incorrect compare of bit select field to absolute
+value. Reworked per ETMv4 specification.
+2) seq_event_store() - incorrect mask value - register has two
+event values.
+3) cyc_threshold_store() - must mask with max before checking min
+otherwise wrapped values can set illegal value below min.
+4) res_ctrl_store() - update to mask off all res0 bits.
+
+Reviewed-by: Leo Yan <leo.yan@linaro.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Mike Leach <mike.leach@linaro.org>
+Fixes: a77de2637c9eb ("coresight: etm4x: moving sysFS entries to a dedicated file")
+Cc: stable <stable@vger.kernel.org> # 4.9+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20191104181251.26732-6-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c | 2 +-
- arch/mips/include/asm/octeon/cvmx-pko.h            | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-etm4x-sysfs.c |   21 ++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c b/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c
-index 8241fc6aa17d8..3839feba68f20 100644
---- a/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c
-+++ b/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c
-@@ -266,7 +266,7 @@ int cvmx_cmd_queue_length(cvmx_cmd_queue_id_t queue_id)
- 		} else {
- 			union cvmx_pko_mem_debug8 debug8;
- 			debug8.u64 = cvmx_read_csr(CVMX_PKO_MEM_DEBUG8);
--			return debug8.cn58xx.doorbell;
-+			return debug8.cn50xx.doorbell;
- 		}
- 	case CVMX_CMD_QUEUE_ZIP:
- 	case CVMX_CMD_QUEUE_DFA:
-diff --git a/arch/mips/include/asm/octeon/cvmx-pko.h b/arch/mips/include/asm/octeon/cvmx-pko.h
-index 5f47f76ed510a..20eb9c46a75ab 100644
---- a/arch/mips/include/asm/octeon/cvmx-pko.h
-+++ b/arch/mips/include/asm/octeon/cvmx-pko.h
-@@ -611,7 +611,7 @@ static inline void cvmx_pko_get_port_status(uint64_t port_num, uint64_t clear,
- 		pko_reg_read_idx.s.index = cvmx_pko_get_base_queue(port_num);
- 		cvmx_write_csr(CVMX_PKO_REG_READ_IDX, pko_reg_read_idx.u64);
- 		debug8.u64 = cvmx_read_csr(CVMX_PKO_MEM_DEBUG8);
--		status->doorbell = debug8.cn58xx.doorbell;
-+		status->doorbell = debug8.cn50xx.doorbell;
- 	}
- }
+--- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+@@ -667,10 +667,13 @@ static ssize_t cyc_threshold_store(struc
  
--- 
-2.20.1
-
+ 	if (kstrtoul(buf, 16, &val))
+ 		return -EINVAL;
++
++	/* mask off max threshold before checking min value */
++	val &= ETM_CYC_THRESHOLD_MASK;
+ 	if (val < drvdata->ccitmin)
+ 		return -EINVAL;
+ 
+-	config->ccctlr = val & ETM_CYC_THRESHOLD_MASK;
++	config->ccctlr = val;
+ 	return size;
+ }
+ static DEVICE_ATTR_RW(cyc_threshold);
+@@ -701,14 +704,16 @@ static ssize_t bb_ctrl_store(struct devi
+ 		return -EINVAL;
+ 	if (!drvdata->nr_addr_cmp)
+ 		return -EINVAL;
++
+ 	/*
+-	 * Bit[7:0] selects which address range comparator is used for
+-	 * branch broadcast control.
++	 * Bit[8] controls include(1) / exclude(0), bits[0-7] select
++	 * individual range comparators. If include then at least 1
++	 * range must be selected.
+ 	 */
+-	if (BMVAL(val, 0, 7) > drvdata->nr_addr_cmp)
++	if ((val & BIT(8)) && (BMVAL(val, 0, 7) == 0))
+ 		return -EINVAL;
+ 
+-	config->bb_ctrl = val;
++	config->bb_ctrl = val & GENMASK(8, 0);
+ 	return size;
+ }
+ static DEVICE_ATTR_RW(bb_ctrl);
+@@ -1341,8 +1346,8 @@ static ssize_t seq_event_store(struct de
+ 
+ 	spin_lock(&drvdata->spinlock);
+ 	idx = config->seq_idx;
+-	/* RST, bits[7:0] */
+-	config->seq_ctrl[idx] = val & 0xFF;
++	/* Seq control has two masks B[15:8] F[7:0] */
++	config->seq_ctrl[idx] = val & 0xFFFF;
+ 	spin_unlock(&drvdata->spinlock);
+ 	return size;
+ }
+@@ -1597,7 +1602,7 @@ static ssize_t res_ctrl_store(struct dev
+ 	if (idx % 2 != 0)
+ 		/* PAIRINV, bit[21] */
+ 		val &= ~BIT(21);
+-	config->res_ctrl[idx] = val;
++	config->res_ctrl[idx] = val & GENMASK(21, 0);
+ 	spin_unlock(&drvdata->spinlock);
+ 	return size;
+ }
 
 
