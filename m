@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55BAC126958
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:37:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B618C126A26
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727002AbfLSSgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:36:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53822 "EHLO mail.kernel.org"
+        id S1728376AbfLSSoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:44:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726959AbfLSSgl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:36:41 -0500
+        id S1729015AbfLSSod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99ED624685;
-        Thu, 19 Dec 2019 18:36:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A078224672;
+        Thu, 19 Dec 2019 18:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780601;
-        bh=nyPjgnnBfwWt/2N8wEtW8d5ZLz+D3ujiJBLJiL9K2BQ=;
+        s=default; t=1576781073;
+        bh=V2jUsRlq3Dv+MZnM3Ro+bAzdwMYFMhTFt8fR+Zou3Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+aqu7WKE2nyHKwCvf4v105B4Iis3BUOazUp8x5/NRBgH9kT7mdXXXP6K8QyM3TTR
-         bQXxDLnlMDAfmoBOYwQ0UjaoRniSPk6kL7uyjJyjCFxDH+I/iwvkJgJUrqXBFVO1KX
-         9o9V2av8NHlaZv4lH3bwtNIfM6Gn9RlY8P8Jpzow=
+        b=jJI3eskGr1yI6sogbqMGPcgDpbhtSURXNFtkeTaZp8fSmOPRrhjrL6dUvbNKn3sRa
+         6KqNLvxu58XEpD3hCP3xw1qwFQ/R/D8fP4l+cXDO7ucxaWs3UK2zrPbnRne9xnf7H4
+         Jik6chEhmt1yUECeOQsHfSI311bstsc+7rM8/hVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh@kernel.org>,
+        Will Deacon <will.deacon@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 041/162] net/x25: fix null_x25_address handling
-Date:   Thu, 19 Dec 2019 19:32:29 +0100
-Message-Id: <20191219183210.425144235@linuxfoundation.org>
+Subject: [PATCH 4.9 070/199] ARM: dts: sunxi: Fix PMU compatible strings
+Date:   Thu, 19 Dec 2019 19:32:32 +0100
+Message-Id: <20191219183218.866619677@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 06137619f061f498c2924f6543fa45b7d39f0501 ]
+[ Upstream commit 5719ac19fc32d892434939c1756c2f9a8322e6ef ]
 
-o x25_find_listener(): the compare for the null_x25_address was wrong.
-   We have to check the x25_addr of the listener socket instead of the
-   x25_addr of the incomming call.
+"arm,cortex-a15-pmu" is not a valid fallback compatible string for an
+Cortex-A7 PMU, so drop it.
 
- o x25_bind(): it was not possible to bind a socket to null_x25_address
-
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/sun6i-a31.dtsi | 2 +-
+ arch/arm/boot/dts/sun7i-a20.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 5a041ea25fe25..f330475a87ffb 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -288,7 +288,7 @@ static struct sock *x25_find_listener(struct x25_address *addr,
- 	sk_for_each(s, &x25_list)
- 		if ((!strcmp(addr->x25_addr,
- 			x25_sk(s)->source_addr.x25_addr) ||
--				!strcmp(addr->x25_addr,
-+				!strcmp(x25_sk(s)->source_addr.x25_addr,
- 					null_x25_address.x25_addr)) &&
- 					s->sk_state == TCP_LISTEN) {
- 			/*
-@@ -684,11 +684,15 @@ static int x25_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
- 		goto out;
- 	}
+diff --git a/arch/arm/boot/dts/sun6i-a31.dtsi b/arch/arm/boot/dts/sun6i-a31.dtsi
+index ce1960453a0bb..3bfa79717dfab 100644
+--- a/arch/arm/boot/dts/sun6i-a31.dtsi
++++ b/arch/arm/boot/dts/sun6i-a31.dtsi
+@@ -174,7 +174,7 @@
+ 	};
  
--	len = strlen(addr->sx25_addr.x25_addr);
--	for (i = 0; i < len; i++) {
--		if (!isdigit(addr->sx25_addr.x25_addr[i])) {
--			rc = -EINVAL;
--			goto out;
-+	/* check for the null_x25_address */
-+	if (strcmp(addr->sx25_addr.x25_addr, null_x25_address.x25_addr)) {
-+
-+		len = strlen(addr->sx25_addr.x25_addr);
-+		for (i = 0; i < len; i++) {
-+			if (!isdigit(addr->sx25_addr.x25_addr[i])) {
-+				rc = -EINVAL;
-+				goto out;
-+			}
- 		}
- 	}
+ 	pmu {
+-		compatible = "arm,cortex-a7-pmu", "arm,cortex-a15-pmu";
++		compatible = "arm,cortex-a7-pmu";
+ 		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
+diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+index 94cf5a1c71723..db5d30598ad66 100644
+--- a/arch/arm/boot/dts/sun7i-a20.dtsi
++++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+@@ -172,7 +172,7 @@
+ 	};
  
+ 	pmu {
+-		compatible = "arm,cortex-a7-pmu", "arm,cortex-a15-pmu";
++		compatible = "arm,cortex-a7-pmu";
+ 		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>;
+ 	};
 -- 
 2.20.1
 
