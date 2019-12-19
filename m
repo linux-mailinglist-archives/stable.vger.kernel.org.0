@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6BFA126D1D
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56DE8126C4D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728610AbfLSTIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:08:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60908 "EHLO mail.kernel.org"
+        id S1728345AbfLSTC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:02:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728574AbfLSSlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:41:45 -0500
+        id S1727780AbfLSStA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49795206D7;
-        Thu, 19 Dec 2019 18:41:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5419624686;
+        Thu, 19 Dec 2019 18:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780904;
-        bh=FjQfHrnMKBL/HTRi+36OsxA3RH7s2kM7QEmwxUvZLGg=;
+        s=default; t=1576781339;
+        bh=yYRGy6ghmv3t/ei2FP8SuSFVxrz8N7pQuxBrYEG6MNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXyf956KqMHAxyU886pmnTIt6k1Yauwki+ueu5qxKQxVDfBx/Rcqfv1pzvsJMeWFi
-         uClBCOUQL9yKAfnhCoesn5vT3py24HM4DqAYpblVTgTlyX7ptZ8UhSuM61GFF3gj6p
-         60fRCZFdfU6Xh80lw5gG6ghxVbTBTnIeffkQNqQk=
+        b=05Fm9W+DuScakkNV+GSeA1JAWfCkNOJRS4OK0V0M5h2NaE30wsXdXX+6LeL8fLUVP
+         7v8dlOXV0mR293oiSHjNverwuYVXl99e7/BhB/5Z0qxtI3wPR3bAn48SC2r/w+L9D5
+         tKD+E9dH5cFCXJ+cCM2MZlITTkeFu3qk7L1u191E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.4 156/162] ARM: tegra: Fix FLOW_CTLR_HALT register clobbering by tegra_resume()
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 182/199] tcp: fix rejected syncookies due to stale timestamps
 Date:   Thu, 19 Dec 2019 19:34:24 +0100
-Message-Id: <20191219183217.267453630@linuxfoundation.org>
+Message-Id: <20191219183225.716038281@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit d70f7d31a9e2088e8a507194354d41ea10062994 upstream.
+[ Upstream commit 04d26e7b159a396372646a480f4caa166d1b6720 ]
 
-There is an unfortunate typo in the code that results in writing to
-FLOW_CTLR_HALT instead of FLOW_CTLR_CSR.
+If no synflood happens for a long enough period of time, then the
+synflood timestamp isn't refreshed and jiffies can advance so much
+that time_after32() can't accurately compare them any more.
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Therefore, we can end up in a situation where time_after32(now,
+last_overflow + HZ) returns false, just because these two values are
+too far apart. In that case, the synflood timestamp isn't updated as
+it should be, which can trick tcp_synq_no_recent_overflow() into
+rejecting valid syncookies.
+
+For example, let's consider the following scenario on a system
+with HZ=1000:
+
+  * The synflood timestamp is 0, either because that's the timestamp
+    of the last synflood or, more commonly, because we're working with
+    a freshly created socket.
+
+  * We receive a new SYN, which triggers synflood protection. Let's say
+    that this happens when jiffies == 2147484649 (that is,
+    'synflood timestamp' + HZ + 2^31 + 1).
+
+  * Then tcp_synq_overflow() doesn't update the synflood timestamp,
+    because time_after32(2147484649, 1000) returns false.
+    With:
+      - 2147484649: the value of jiffies, aka. 'now'.
+      - 1000: the value of 'last_overflow' + HZ.
+
+  * A bit later, we receive the ACK completing the 3WHS. But
+    cookie_v[46]_check() rejects it because tcp_synq_no_recent_overflow()
+    says that we're not under synflood. That's because
+    time_after32(2147484649, 120000) returns false.
+    With:
+      - 2147484649: the value of jiffies, aka. 'now'.
+      - 120000: the value of 'last_overflow' + TCP_SYNCOOKIE_VALID.
+
+    Of course, in reality jiffies would have increased a bit, but this
+    condition will last for the next 119 seconds, which is far enough
+    to accommodate for jiffie's growth.
+
+Fix this by updating the overflow timestamp whenever jiffies isn't
+within the [last_overflow, last_overflow + HZ] range. That shouldn't
+have any performance impact since the update still happens at most once
+per second.
+
+Now we're guaranteed to have fresh timestamps while under synflood, so
+tcp_synq_no_recent_overflow() can safely use it with time_after32() in
+such situations.
+
+Stale timestamps can still make tcp_synq_no_recent_overflow() return
+the wrong verdict when not under synflood. This will be handled in the
+next patch.
+
+For 64 bits architectures, the problem was introduced with the
+conversion of ->tw_ts_recent_stamp to 32 bits integer by commit
+cca9bab1b72c ("tcp: use monotonic timestamps for PAWS").
+The problem has always been there on 32 bits architectures.
+
+Fixes: cca9bab1b72c ("tcp: use monotonic timestamps for PAWS")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm/mach-tegra/reset-handler.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/time.h |   12 ++++++++++++
+ include/net/tcp.h    |    2 +-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mach-tegra/reset-handler.S
-+++ b/arch/arm/mach-tegra/reset-handler.S
-@@ -56,16 +56,16 @@ ENTRY(tegra_resume)
- 	cmp	r6, #TEGRA20
- 	beq	1f				@ Yes
- 	/* Clear the flow controller flags for this CPU. */
--	cpu_to_csr_reg r1, r0
-+	cpu_to_csr_reg r3, r0
- 	mov32	r2, TEGRA_FLOW_CTRL_BASE
--	ldr	r1, [r2, r1]
-+	ldr	r1, [r2, r3]
- 	/* Clear event & intr flag */
- 	orr	r1, r1, \
- 		#FLOW_CTRL_CSR_INTR_FLAG | FLOW_CTRL_CSR_EVENT_FLAG
- 	movw	r0, #0x3FFD	@ enable, cluster_switch, immed, bitmaps
- 				@ & ext flags for CPU power mgnt
- 	bic	r1, r1, r0
--	str	r1, [r2]
-+	str	r1, [r2, r3]
- 1:
+--- a/include/linux/time.h
++++ b/include/linux/time.h
+@@ -275,4 +275,16 @@ static __always_inline void timespec_add
+ 	a->tv_nsec = ns;
+ }
  
- 	mov32	r9, 0xc09
++/**
++ * time_between32 - check if a 32-bit timestamp is within a given time range
++ * @t:	the time which may be within [l,h]
++ * @l:	the lower bound of the range
++ * @h:	the higher bound of the range
++ *
++ * time_before32(t, l, h) returns true if @l <= @t <= @h. All operands are
++ * treated as 32-bit integers.
++ *
++ * Equivalent to !(time_before32(@t, @l) || time_after32(@t, @h)).
++ */
++#define time_between32(t, l, h) ((u32)(h) - (u32)(l) >= (u32)(t) - (u32)(l))
+ #endif
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -497,7 +497,7 @@ static inline void tcp_synq_overflow(con
+ 	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
+ 	unsigned long now = jiffies;
+ 
+-	if (time_after(now, last_overflow + HZ))
++	if (!time_between32(now, last_overflow, last_overflow + HZ))
+ 		tcp_sk(sk)->rx_opt.ts_recent_stamp = now;
+ }
+ 
 
 
