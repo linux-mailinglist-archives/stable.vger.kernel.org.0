@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CEC1126DA1
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE96126DA3
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727505AbfLSSib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:38:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
+        id S1728029AbfLSSid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:38:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726840AbfLSSia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:38:30 -0500
+        id S1727504AbfLSSid (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:38:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A651D20716;
-        Thu, 19 Dec 2019 18:38:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D7DA222C2;
+        Thu, 19 Dec 2019 18:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780710;
-        bh=3TWcu9/vsPKBynX4OuH3lh8x9lLJu48NKdQdI7KMP8E=;
+        s=default; t=1576780712;
+        bh=U+Zy8WDW51twCqB13+h4TM2bIhnae75Z5rp9vowzhX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=na4aEdpVcfcHc1kAjrbENQia3R21v5usnEIX/OIpAtdXCWKgEypR0VvOv9KvcDrv+
-         5KgIrVvQaZhPAbcCLZ+YXE07+mLYWGl69Ev0/03Sn/m1lu6n5pQvFejslGMfi5DS4F
-         QoQrzoconsVxFF6H4SxYEg5EFHNOePJpGjH/Tjg4=
+        b=ZKkzF5nogB58fYB4rud1I5P6O2CRFGyEx5npLCCMnwkr8Yazrv1Of4Ce1xMaUhYrZ
+         hYqP1dH+wIVw+qkY3wcOJwU4h/qaUKyNgBnB+Qiqwn+YuNsZK3QU1pm8RxX0uOX0Rl
+         QlNhZ5gngsSMKACJV75PVgkANRI5PZKsVWzZ2F/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com,
-        Hansjoerg Lipp <hjlipp@web.de>,
-        Tilman Schmidt <tilman@imap.cc>,
+        stable@vger.kernel.org, Tilman Schmidt <tilman@imap.cc>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 086/162] staging: gigaset: fix general protection fault on probe
-Date:   Thu, 19 Dec 2019 19:33:14 +0100
-Message-Id: <20191219183213.025639432@linuxfoundation.org>
+Subject: [PATCH 4.4 087/162] staging: gigaset: fix illegal free on probe errors
+Date:   Thu, 19 Dec 2019 19:33:15 +0100
+Message-Id: <20191219183213.083809984@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -48,38 +45,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 53f35a39c3860baac1e5ca80bf052751cfb24a99 upstream.
+commit 84f60ca7b326ed8c08582417493982fe2573a9ad upstream.
 
-Fix a general protection fault when accessing the endpoint descriptors
-which could be triggered by a malicious device due to missing sanity
-checks on the number of endpoints.
+The driver failed to initialise its receive-buffer pointer, something
+which could lead to an illegal free on late probe errors.
 
-Reported-by: syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com
-Fixes: 07dc1f9f2f80 ("[PATCH] isdn4linux: Siemens Gigaset drivers - M105 USB DECT adapter")
-Cc: stable <stable@vger.kernel.org>     # 2.6.17
-Cc: Hansjoerg Lipp <hjlipp@web.de>
+Fix this by making sure to clear all driver data at allocation.
+
+Fixes: 2032e2c2309d ("usb_gigaset: code cleanup")
+Cc: stable <stable@vger.kernel.org>     # 2.6.33
 Cc: Tilman Schmidt <tilman@imap.cc>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191202085610.12719-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20191202085610.12719-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/isdn/gigaset/usb-gigaset.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/isdn/gigaset/usb-gigaset.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 --- a/drivers/isdn/gigaset/usb-gigaset.c
 +++ b/drivers/isdn/gigaset/usb-gigaset.c
-@@ -688,6 +688,11 @@ static int gigaset_probe(struct usb_inte
- 		return -ENODEV;
- 	}
+@@ -574,8 +574,7 @@ static int gigaset_initcshw(struct cards
+ {
+ 	struct usb_cardstate *ucs;
  
-+	if (hostif->desc.bNumEndpoints < 2) {
-+		dev_err(&interface->dev, "missing endpoints\n");
-+		return -ENODEV;
-+	}
-+
- 	dev_info(&udev->dev, "%s: Device matched ... !\n", __func__);
+-	cs->hw.usb = ucs =
+-		kmalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
++	cs->hw.usb = ucs = kzalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
+ 	if (!ucs) {
+ 		pr_err("out of memory\n");
+ 		return -ENOMEM;
+@@ -587,9 +586,6 @@ static int gigaset_initcshw(struct cards
+ 	ucs->bchars[3] = 0;
+ 	ucs->bchars[4] = 0x11;
+ 	ucs->bchars[5] = 0x13;
+-	ucs->bulk_out_buffer = NULL;
+-	ucs->bulk_out_urb = NULL;
+-	ucs->read_urb = NULL;
+ 	tasklet_init(&cs->write_tasklet,
+ 		     gigaset_modem_fill, (unsigned long) cs);
  
- 	/* allocate memory for our device state and initialize it */
 
 
