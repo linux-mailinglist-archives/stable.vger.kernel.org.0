@@ -2,133 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC68D126396
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 14:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EE01263AB
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 14:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726734AbfLSNed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 08:34:33 -0500
-Received: from mx2.suse.de ([195.135.220.15]:47556 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726695AbfLSNed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 08:34:33 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id A0C0CAC5F;
-        Thu, 19 Dec 2019 13:34:30 +0000 (UTC)
-Subject: Re: [PATCH] mm, debug_pagealloc: don't rely on static keys too early
-To:     Qian Cai <cai@lca.pw>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>
-References: <20191219130612.23171-1-vbabka@suse.cz>
- <83B24C03-1484-4DD6-9B42-029FF1B27287@lca.pw>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <703d85ab-899c-8192-2618-995efc292fdb@suse.cz>
-Date:   Thu, 19 Dec 2019 14:34:29 +0100
+        id S1726869AbfLSNhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 08:37:19 -0500
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:60890 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726695AbfLSNhT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 08:37:19 -0500
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id xBJDb5h0061190;
+        Thu, 19 Dec 2019 07:37:05 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1576762625;
+        bh=Z5diJgLciIH9FsxeE6CQFWNDyD6Ix59bO8t5jsRexGo=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=H2Z/PB64AQGzdeA8AezUrjShvv6ldlcdht7J6YjiGba4ISDhP5VSbHNeFbIEXQBt0
+         6XomD4LtFTOKkTtIQ3l51Srnphw5Blx6ohtUdI7KJGWGfRAUCaNLpXGqS8+mb9Z5lp
+         V4yzeYEx6H67idr/7Bgm7Pkz5ZBg9zRnAhDtcmzw=
+Received: from DLEE113.ent.ti.com (dlee113.ent.ti.com [157.170.170.24])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id xBJDb47c027631
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 19 Dec 2019 07:37:05 -0600
+Received: from DLEE102.ent.ti.com (157.170.170.32) by DLEE113.ent.ti.com
+ (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Thu, 19
+ Dec 2019 07:37:05 -0600
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE102.ent.ti.com
+ (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Thu, 19 Dec 2019 07:37:05 -0600
+Received: from [10.250.100.73] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id xBJDb3bG080431;
+        Thu, 19 Dec 2019 07:37:03 -0600
+Subject: Re: [PATCH] can: m_can: Fix default pinmux glitch at init
+To:     Marek Vasut <marex@denx.de>, <linux-can@vger.kernel.org>
+CC:     Bich Hemon <bich.hemon@st.com>,
+        "J . D . Schroeder" <jay.schroeder@garmin.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Roger Quadros <rogerq@ti.com>,
+        linux-stable <stable@vger.kernel.org>
+References: <20191217100740.2687835-1-marex@denx.de>
+ <8b2e0a40-cf23-58a5-4f52-215015c61ea8@ti.com>
+ <3c48dd07-154e-bc47-4aff-73769d9efa22@denx.de>
+From:   Grygorii Strashko <grygorii.strashko@ti.com>
+Message-ID: <be0d0b55-c287-3252-e188-cbaedd5d426c@ti.com>
+Date:   Thu, 19 Dec 2019 15:37:01 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <83B24C03-1484-4DD6-9B42-029FF1B27287@lca.pw>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <3c48dd07-154e-bc47-4aff-73769d9efa22@denx.de>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/19/19 2:16 PM, Qian Cai wrote:
-> 
-> 
->> On Dec 19, 2019, at 8:06 AM, Vlastimil Babka <vbabka@suse.cz> wrote:
+
+
+On 17/12/2019 12:55, Marek Vasut wrote:
+> On 12/17/19 11:42 AM, Grygorii Strashko wrote:
 >>
->> Commit 96a2b03f281d ("mm, debug_pagelloc: use static keys to enable debugging")
->> has introduced a static key to reduce overhead when debug_pagealloc is compiled
->> in but not enabled. It relied on the assumption that jump_label_init() is
->> called before parse_early_param() as in start_kernel(), so when the
->> "debug_pagealloc=on" option is parsed, it is safe to enable the static key.
 >>
->> However, it turns out multiple architectures call parse_early_param() earlier
->> from their setup_arch(). x86 also calls jump_label_init() even earlier, so no
->> issue was found while testing the commit, but same is not true for e.g. ppc64
->> and s390 where the kernel would not boot with debug_pagealloc=on as found by
->> our QA.
+>> On 17/12/2019 12:07, Marek Vasut wrote:
+>>> The current code causes a slight glitch on the pinctrl settings when
+>>> used.
+>>> Since commit ab78029 (drivers/pinctrl: grab default handles from
+>>> device core),
+>>> the device core will automatically set the default pins. This causes
+>>> the pins
+>>> to be momentarily set to the default and then to the sleep state in
+>>> register_m_can_dev(). By adding an optional "enable" state, boards can
+>>> set the
+>>> default pin state to be disabled and avoid the glitch when the switch
+>>> from
+>>> default to sleep first occurs. If the "enable" state is not available
+>>> pinctrl_get_select() falls back to using the "default" pinctrl state.
+>>>
+>>> Fixes: c9b3bce18da4 ("can: m_can: select pinctrl state in each
+>>> suspend/resume function")
+>>> Signed-off-by: Marek Vasut <marex@denx.de>
+>>> Cc: Bich Hemon <bich.hemon@st.com>
+>>> Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+>>> Cc: J.D. Schroeder <jay.schroeder@garmin.com>
+>>> Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+>>> Cc: Roger Quadros <rogerq@ti.com>
+>>> Cc: linux-stable <stable@vger.kernel.org>
+>>> To: linux-can@vger.kernel.org
+>>> ---
+>>> NOTE: This is commit 033365191136 ("can: c_can: Fix default pinmux
+>>> glitch at init")
+>>>         adapted for m_can driver.
+>>> ---
+>>>    drivers/net/can/m_can/m_can.c | 8 ++++++++
+>>>    1 file changed, 8 insertions(+)
+>>>
+>>> diff --git a/drivers/net/can/m_can/m_can.c
+>>> b/drivers/net/can/m_can/m_can.c
+>>> index 02c5795b73936..afb6760b17427 100644
+>>> --- a/drivers/net/can/m_can/m_can.c
+>>> +++ b/drivers/net/can/m_can/m_can.c
+>>> @@ -1243,12 +1243,20 @@ static void m_can_chip_config(struct
+>>> net_device *dev)
+>>>    static void m_can_start(struct net_device *dev)
+>>>    {
+>>>        struct m_can_classdev *cdev = netdev_priv(dev);
+>>> +    struct pinctrl *p;
+>>>          /* basic m_can configuration */
+>>>        m_can_chip_config(dev);
+>>>          cdev->can.state = CAN_STATE_ERROR_ACTIVE;
+>>>    +    /* Attempt to use "active" if available else use "default" */
+>>> +    p = pinctrl_get_select(cdev->dev, "active");
+>>> +    if (!IS_ERR(p))
+>>> +        pinctrl_put(p);
+>>> +    else
+>>> +        pinctrl_pm_select_default_state(cdev->dev);
+>>> +
+>>>        m_can_enable_all_interrupts(cdev);
+>>>    }
+>>>   
+>>
+>> May be init state should be used - #define PINCTRL_STATE_INIT "init"
+>> instead?
 > 
-> This was daily tested on linux-next here for those arches and never saw an issue.
+> I'm not sure I quite understand -- how ?
+> 
 
-Well I assume nobody has booted the kernel specifically with
-debug_pagealloc=on. In case a randconfig run enabled
-CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT then the problem wouldn't manifest
-as the static key would be initialized with DEFINE_STATIC_KEY_TRUE by
-the compiler itself, and the enabling-by-param would be a no-op.
+Sry, for delayed reply.
 
-> Are you able to reproduce it on mainline or linux-next?
+I've looked at m_can code and think issue is a little bit deeper
+  (but I might be wrong as i'm not can expert and below based on code review).
 
-I didn't try, but our kernel is 5.3-based so that's quite recent. The
-offending commit was also introduced in 5.3-rc1 so there's that.
+First, what going on:
+probe:
+  really_probe()
+   pinctrl_bind_pins()
+     	if (IS_ERR(dev->pins->init_state)) {
+		ret = pinctrl_select_state(dev->pins->p,
+					   dev->pins->default_state);
+	} else {
+		ret = pinctrl_select_state(dev->pins->p, dev->pins->init_state);
+	}
+   [GS] So at this point default_state or init_state is set
+
+   ret = dev->bus->probe(dev);
+        m_can_plat_probe()
+	 m_can_class_register()
+	    m_can_clk_start()
+	      pm_runtime_get_sync()
+		m_can_runtime_resume()
+   [GS] Still default_state or init_state is active
+
+	   register_m_can_dev()
+   [GS] at this point m_can netdev is registered, which may lead to .ndo_open = m_can_open() call
+
+   	   m_can_clk_stop()
+   	     pm_runtime_put_sync()
+   [GS] if .ndo_open() was called before it will be a nop
+		m_can_runtime_suspend()
+		 m_can_class_suspend()
+
+			if (netif_running(ndev)) {
+				netif_stop_queue(ndev);
+				netif_device_detach(ndev);
+				m_can_stop(ndev);
+				m_can_clk_stop(cdev);
+   [GS] if .ndo_open() was called before it will lead to deadlock here
+       So, most probably, it will cause deadlock in case of "ifconfig <m_can_dev> up down" case
+			}
+
+			pinctrl_pm_select_sleep_state(dev);
+   [GS] at this point sleep_state will be set - i assume it's the root cause of your glitch.
+        Note - As per code, the pinctrl default_state will never ever configured again, so if after
+        probe m_can will go through PM runtime suspend/resume cycle it will not work any more.
+
+   pinctrl_init_done()
+   [GS] will do nothing in case !init_state
+
+As per above, if sleep_state is defined the m_can seems should not work at all without your patch,
+as there is no code path to switch back sleep_state->default_state.
+And over all PM runtime m_can code is mixed with System suspend code and so not correct.
+
+Also, the very good question - Is it really required to toggle pinctrl states as part of PM runtime?
+(usually it's enough to handle it only during System suspend).
+
+-- 
+Best regards,
+grygorii
