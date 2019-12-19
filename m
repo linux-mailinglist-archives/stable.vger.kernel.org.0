@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B9D126C47
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5479126D13
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729671AbfLSSst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:48:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42030 "EHLO mail.kernel.org"
+        id S1727417AbfLSTIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:08:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729677AbfLSSss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:48:48 -0500
+        id S1728350AbfLSSl5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D0FC24683;
-        Thu, 19 Dec 2019 18:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 694C0206D7;
+        Thu, 19 Dec 2019 18:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781327;
-        bh=Ph09qFfmaBHHIt4pNk55ghnUGqDVXfldIT3+1xaUYjQ=;
+        s=default; t=1576780916;
+        bh=s8lFt2f6UFXAvxzI8p/aGzswDdvHAAy7eKpr0m3ZPdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+CPpPa+dI0UrwLuQKDsyPpUlSsdYuCvsUtQ+BmJf0owYMTzPKBteEyxqZ+tXDUZT
-         2iLG/vrgIw2ZixfM353p4cgDBgJiAkKvgrlCk6pMDSemLcl68AWRX+c+uPwZuy8oPo
-         FxAmUyhwd2IzweT6SfdO0IN9Yqqo831R25z7s41Y=
+        b=BrLNWmNg+LIiVolbVpWKuhiUP2l8AwyIiSGM6kIf1oHB5AMGofKEVggFi7TXDblZq
+         JZeQzMQUE7b7Q5mv4YM4IyZeaqjpeFVGmAZdWvB5PrTzuS3Z1q9aC8D9woMUfsdhXa
+         GummEvNZN9hf9WPOoRRW/DY4YMdOc7ggzAb4qfJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 177/199] net: ethernet: ti: cpsw: fix extra rx interrupt
+        Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Ashok Raj <ashok.raj@intel.com>
+Subject: [PATCH 4.4 151/162] PCI: Fix Intel ACS quirk UPDCR register address
 Date:   Thu, 19 Dec 2019 19:34:19 +0100
-Message-Id: <20191219183225.379351583@linuxfoundation.org>
+Message-Id: <20191219183216.969438627@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
 
-[ Upstream commit 51302f77bedab8768b761ed1899c08f89af9e4e2 ]
+commit d8558ac8c93d429d65d7490b512a3a67e559d0d4 upstream.
 
-Now RX interrupt is triggered twice every time, because in
-cpsw_rx_interrupt() it is asked first and then disabled. So there will be
-pending interrupt always, when RX interrupt is enabled again in NAPI
-handler.
+According to documentation [0] the correct offset for the Upstream Peer
+Decode Configuration Register (UPDCR) is 0x1014.  It was previously defined
+as 0x1114.
 
-Fix it by first disabling IRQ and then do ask.
+d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
+intended to enforce isolation between PCI devices allowing them to be put
+into separate IOMMU groups.  Due to the wrong register offset the intended
+isolation was not fully enforced.  This is fixed with this patch.
 
-Fixes: 870915feabdc ("drivers: net: cpsw: remove disable_irq/enable_irq as irq can be masked from cpsw itself")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Please note that I did not test this patch because I have no hardware that
+implements this register.
+
+[0] https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/4th-gen-core-family-mobile-i-o-datasheet.pdf (page 325)
+Fixes: d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
+Link: https://lore.kernel.org/r/7a3505df-79ba-8a28-464c-88b83eefffa6@kernkonzept.com
+Signed-off-by: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Acked-by: Ashok Raj <ashok.raj@intel.com>
+Cc: stable@vger.kernel.org	# v3.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/ti/cpsw.c |    2 +-
+ drivers/pci/quirks.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -773,8 +773,8 @@ static irqreturn_t cpsw_rx_interrupt(int
- {
- 	struct cpsw_common *cpsw = dev_id;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4038,7 +4038,7 @@ int pci_dev_specific_acs_enabled(struct
+ #define INTEL_BSPR_REG_BPPD  (1 << 9)
  
--	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
- 	writel(0, &cpsw->wr_regs->rx_en);
-+	cpdma_ctlr_eoi(cpsw->dma, CPDMA_EOI_RX);
+ /* Upstream Peer Decode Configuration Register */
+-#define INTEL_UPDCR_REG 0x1114
++#define INTEL_UPDCR_REG 0x1014
+ /* 5:0 Peer Decode Enable bits */
+ #define INTEL_UPDCR_REG_MASK 0x3f
  
- 	if (cpsw->quirk_irq) {
- 		disable_irq_nosync(cpsw->irqs_table[0]);
 
 
