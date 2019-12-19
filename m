@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD321126A91
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:48:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36294126B96
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727964AbfLSSsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:48:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41898 "EHLO mail.kernel.org"
+        id S1730463AbfLSSyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:54:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729671AbfLSSsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:48:43 -0500
+        id S1730124AbfLSSyO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:54:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A75A24682;
-        Thu, 19 Dec 2019 18:48:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63978222C2;
+        Thu, 19 Dec 2019 18:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781323;
-        bh=letbtSQP/YSdE1Oeu6VrrL5GA1YWFBCC4BEfr7ppU5k=;
+        s=default; t=1576781653;
+        bh=q1pcPo/Ma7GIQSnLrokYGmnJGAfNARn6hiRv5Gp4GJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lhm7GvBetAkTCiIj0Ul2VaaT9b71pqTvj1mWcHMn4/KxwjUN82eeNVtFUe4XzlrP5
-         hdTcJdYSRhHMbj9+WfHReAa/t469WJxvPa6Yr+GiGkusTSKT7YvKauhhVoooV9TBhx
-         zVi7jLyWD3QYqWg//sLQdFbx/DYibSk0cG3ioy9o=
+        b=PVekG9E4bgRo+6hK7OpMrtizW2EwsC6Wa8kyc/wzA4bQC8cvM8bJSX5egT4opKMTT
+         q9ldbZA+Ipccb4Vtvb8bxsPpZHHXY0rQnLYKTFV/uatu1ekOsMFkK96eqX0gvsjfNp
+         XwDI/e87Vo3F1cCF28SWbrHT27skrEg4cNkeQJC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Bornyakov <brnkv.i1@gmail.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 175/199] nvme: host: core: fix precedence of ternary operator
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Chris Lew <clew@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 25/80] rpmsg: glink: Fix rpmsg_register_device err handling
 Date:   Thu, 19 Dec 2019 19:34:17 +0100
-Message-Id: <20191219183225.247358027@linuxfoundation.org>
+Message-Id: <20191219183102.424124451@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Bornyakov <brnkv.i1@gmail.com>
+From: Chris Lew <clew@codeaurora.org>
 
-commit e9a9853c23c13a37546397b61b270999fd0fb759 upstream.
+commit f7e714988edaffe6ac578318e99501149b067ba0 upstream.
 
-Ternary operator have lower precedence then bitwise or, so 'cdw10' was
-calculated wrong.
+The device release function is set before registering with rpmsg. If
+rpmsg registration fails, the framework will call device_put(), which
+invokes the release function. The channel create logic does not need to
+free rpdev if rpmsg_register_device() fails and release is called.
 
-Signed-off-by: Ivan Bornyakov <brnkv.i1@gmail.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Fixes: b4f8e52b89f6 ("rpmsg: Introduce Qualcomm RPM glink driver")
+Cc: stable@vger.kernel.org
+Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Chris Lew <clew@codeaurora.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvme/host/core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rpmsg/qcom_glink_native.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1043,7 +1043,7 @@ static int nvme_pr_reserve(struct block_
- static int nvme_pr_preempt(struct block_device *bdev, u64 old, u64 new,
- 		enum pr_type type, bool abort)
- {
--	u32 cdw10 = nvme_pr_type(type) << 8 | abort ? 2 : 1;
-+	u32 cdw10 = nvme_pr_type(type) << 8 | (abort ? 2 : 1);
- 	return nvme_pr_command(bdev, cdw10, old, new, nvme_cmd_resv_acquire);
- }
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -1423,15 +1423,13 @@ static int qcom_glink_rx_open(struct qco
  
-@@ -1055,7 +1055,7 @@ static int nvme_pr_clear(struct block_de
+ 		ret = rpmsg_register_device(rpdev);
+ 		if (ret)
+-			goto free_rpdev;
++			goto rcid_remove;
  
- static int nvme_pr_release(struct block_device *bdev, u64 key, enum pr_type type)
- {
--	u32 cdw10 = nvme_pr_type(type) << 8 | key ? 1 << 3 : 0;
-+	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 1 << 3 : 0);
- 	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
- }
+ 		channel->rpdev = rpdev;
+ 	}
  
+ 	return 0;
+ 
+-free_rpdev:
+-	kfree(rpdev);
+ rcid_remove:
+ 	spin_lock_irqsave(&glink->idr_lock, flags);
+ 	idr_remove(&glink->rcids, channel->rcid);
 
 
