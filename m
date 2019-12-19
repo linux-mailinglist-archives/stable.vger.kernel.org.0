@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D431126D5C
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC53126C7C
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726869AbfLSSja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:39:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57752 "EHLO mail.kernel.org"
+        id S1729415AbfLSSrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:47:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727939AbfLSSj3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:39:29 -0500
+        id S1729147AbfLSSrE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05BF82467F;
-        Thu, 19 Dec 2019 18:39:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3931F24676;
+        Thu, 19 Dec 2019 18:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780768;
-        bh=WYGse47zJqmu8OPDrDIr4HqPeHb5eVkPhECgC2ioHUE=;
+        s=default; t=1576781223;
+        bh=fHrbUCUbox+/VKqWzedN0KhyVov7PkUo1FGuGQCnq2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ryuJhnhD6Yl7626RWCVqDn8jnLNqP5pNDPCcBgIOey6FZrszo4OqYILHE3lE2SmqY
-         k7IBtk1MxbriUo5WSfSS4ARvcsU4Ux3INe27asjz4WERkt7s7/E6EniiHruPXcvFo3
-         UAjScHBjnGYxWChGC2V/sflhg3Hcqrw9CbuHqB6w=
+        b=bn07AwvJVQTmGobn5c66dtrDkRqQIwzU0WSkKPauPwfDedc0VWxTdgiMIrvqc7Wgk
+         j7yb6Zn0gEAAgpFzxp/3ZOWrtJLcSMm2azvv3sMfQ5I/aaQKnbd7b53TPsGmijCKNj
+         naI393M5hWrfiTm+5eXkyBxE4edWJjOuDMYmc/pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 108/162] blk-mq: avoid sysfs buffer overflow with too many CPU cores
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH 4.9 134/199] PM / devfreq: Lock devfreq in trans_stat_show
 Date:   Thu, 19 Dec 2019 19:33:36 +0100
-Message-Id: <20191219183214.334211170@linuxfoundation.org>
+Message-Id: <20191219183222.501723636@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Leonard Crestez <leonard.crestez@nxp.com>
 
-commit 8962842ca5abdcf98e22ab3b2b45a103f0408b95 upstream.
+commit 2abb0d5268ae7b5ddf82099b1f8d5aa8414637d4 upstream.
 
-It is reported that sysfs buffer overflow can be triggered if the system
-has too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
-hctx via /sys/block/$DEV/mq/$N/cpu_list.
+There is no locking in this sysfs show function so stats printing can
+race with a devfreq_update_status called as part of freq switching or
+with initialization.
 
-Use snprintf to avoid the potential buffer overflow.
+Also add an assert in devfreq_update_status to make it clear that lock
+must be held by caller.
 
-This version doesn't change the attribute format, and simply stops
-showing CPU numbers if the buffer is going to overflow.
-
+Fixes: 39688ce6facd ("PM / devfreq: account suspend/resume for stats")
 Cc: stable@vger.kernel.org
-Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq-sysfs.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/devfreq/devfreq.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -231,20 +231,25 @@ static ssize_t blk_mq_hw_sysfs_active_sh
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -135,6 +135,7 @@ int devfreq_update_status(struct devfreq
+ 	int lev, prev_lev, ret = 0;
+ 	unsigned long cur_time;
  
- static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
- {
-+	const size_t size = PAGE_SIZE - 1;
- 	unsigned int i, first = 1;
--	ssize_t ret = 0;
-+	int ret = 0, pos = 0;
++	lockdep_assert_held(&devfreq->lock);
+ 	cur_time = jiffies;
  
- 	for_each_cpu(i, hctx->cpumask) {
- 		if (first)
--			ret += sprintf(ret + page, "%u", i);
-+			ret = snprintf(pos + page, size - pos, "%u", i);
- 		else
--			ret += sprintf(ret + page, ", %u", i);
-+			ret = snprintf(pos + page, size - pos, ", %u", i);
+ 	/* Immediately exit if previous_freq is not initialized yet. */
+@@ -1170,12 +1171,17 @@ static ssize_t trans_stat_show(struct de
+ 	int i, j;
+ 	unsigned int max_state = devfreq->profile->max_state;
+ 
+-	if (!devfreq->stop_polling &&
+-			devfreq_update_status(devfreq, devfreq->previous_freq))
+-		return 0;
+ 	if (max_state == 0)
+ 		return sprintf(buf, "Not Supported.\n");
+ 
++	mutex_lock(&devfreq->lock);
++	if (!devfreq->stop_polling &&
++			devfreq_update_status(devfreq, devfreq->previous_freq)) {
++		mutex_unlock(&devfreq->lock);
++		return 0;
++	}
++	mutex_unlock(&devfreq->lock);
 +
-+		if (ret >= size - pos)
-+			break;
- 
- 		first = 0;
-+		pos += ret;
- 	}
- 
--	ret += sprintf(ret + page, "\n");
--	return ret;
-+	ret = snprintf(pos + page, size - pos, "\n");
-+	return pos + ret;
- }
- 
- static struct blk_mq_ctx_sysfs_entry blk_mq_sysfs_dispatched = {
+ 	len = sprintf(buf, "     From  :   To\n");
+ 	len += sprintf(buf + len, "           :");
+ 	for (i = 0; i < max_state; i++)
 
 
