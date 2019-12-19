@@ -2,89 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C895C126E37
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:51:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F139B126E55
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 21:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726836AbfLSTvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:51:19 -0500
-Received: from foss.arm.com ([217.140.110.172]:43628 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726840AbfLSTvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 14:51:19 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DF12B1FB;
-        Thu, 19 Dec 2019 11:51:18 -0800 (PST)
-Received: from localhost (unknown [10.37.6.21])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5C61C3F67D;
-        Thu, 19 Dec 2019 11:51:18 -0800 (PST)
-Date:   Thu, 19 Dec 2019 19:51:16 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Peng Fan <peng.fan@nxp.com>
-Subject: Re: [PATCH AUTOSEL 5.4 177/350] regulator: fixed: add off-on-delay
-Message-ID: <20191219195116.GI5047@sirena.org.uk>
-References: <20191210210735.9077-1-sashal@kernel.org>
- <20191210210735.9077-138-sashal@kernel.org>
- <20191211105934.GB3870@sirena.org.uk>
- <20191219194012.GP17708@sasha-vm>
+        id S1726897AbfLSUFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 15:05:16 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:46518 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726884AbfLSUFP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 15:05:15 -0500
+Received: by mail-wr1-f67.google.com with SMTP id z7so7197866wrl.13
+        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 12:05:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IDab6Lhy0egQpQtLVvNP3lbeteiH2YDGTTgMC4J1R+s=;
+        b=q0MhacBT2i3BxTkRDKSHlZXTumdLjXyrueR5Y+KOTttCaNYL/KSjZem3P55n1kvUGy
+         ZemKukhg6ImIgnU9f0eSIYtHFPCHKv831B1EOpLglTatR+7oEc3x8CRWl9hVCAiEbHns
+         xI6WRccB0Govbnp3js+/vUqC7eIn7fpv4GxtXaeEwkZ7UYU/uKcKMRqdtdJ5Vab9A0pj
+         ++zj6T0sy+sWWbDKRz/UVwnGBenGYHQZvI9HgaaaQt1hTDJ8UXDW8wQHjftzWzEsFRwf
+         4ihRNUQHVBZlrnC5O85JGqYCBBR0x6Fgyb3avbHWohAVlheUq4MprjJ74PbdDIQJ//js
+         C2Ww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IDab6Lhy0egQpQtLVvNP3lbeteiH2YDGTTgMC4J1R+s=;
+        b=cmO1Ztxmmo8mshyh53lJZ3MwoRNxFUjBB5gLUNqTqqAx6FQbIiyWjxJMnTQQIRWMMC
+         xenmk8dnBnULqR6ffOtLCO4cDJq877N4OWlBoL8x25xl6fTAFOtjA+AyHQ5RTw2yAS/b
+         kenqiLW9dRlLwXRSsaeEqtfViu6zKDHoL8sdCMK01dKD4Vawoci9aDgQ8hAJBp0K3AXX
+         2SgX8eKSxQqo/2GG6yDdrRCTgzqlrHSU13z571l1uLL597xdvl66t1Z5AUlq8NKJiyOg
+         dHDfzyVUFlOi1ZW+JmGYhrd1Q20MwSYE7PsN1FHM91e1+/Ztv6+cfmHN5Gi9jEXYlX4u
+         A0Tg==
+X-Gm-Message-State: APjAAAXpqXQLRIorVTLKZ6lJ+z19nozlDmWGxPkjb9/gO/1st+WzEnMJ
+        kQ0DKm+P066xbPtl06ttACMDKNUnH8vEWw==
+X-Google-Smtp-Source: APXvYqy8b0Ib5aIt0OKv2k7X0EoG0zcJZ0pK802m6IdFeyQlbFH5Upm8DCirzcZBBuAj4rK+LniA+Q==
+X-Received: by 2002:adf:f606:: with SMTP id t6mr10938129wrp.85.1576785913806;
+        Thu, 19 Dec 2019 12:05:13 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id n3sm7216580wrs.8.2019.12.19.12.05.13
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Dec 2019 12:05:13 -0800 (PST)
+Message-ID: <5dfbd7f9.1c69fb81.fc66f.5303@mx.google.com>
+Date:   Thu, 19 Dec 2019 12:05:13 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4BlIp4fARb6QCoOq"
-Content-Disposition: inline
-In-Reply-To: <20191219194012.GP17708@sasha-vm>
-X-Cookie: I smell a RANCID CORN DOG!
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.206-163-gfa8359d689a7
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 75 boots: 1 failed,
+ 69 passed with 5 offline (v4.4.206-163-gfa8359d689a7)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 75 boots: 1 failed, 69 passed with 5 offline (v=
+4.4.206-163-gfa8359d689a7)
 
---4BlIp4fARb6QCoOq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.206-163-gfa8359d689a7/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.206-163-gfa8359d689a7/
 
-On Thu, Dec 19, 2019 at 02:40:12PM -0500, Sasha Levin wrote:
-> On Wed, Dec 11, 2019 at 10:59:34AM +0000, Mark Brown wrote:
-> > On Tue, Dec 10, 2019 at 04:04:42PM -0500, Sasha Levin wrote:
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.206-163-gfa8359d689a7
+Git Commit: fa8359d689a7649d0f197a295edce3eb7c1ac175
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 17 SoC families, 15 builds out of 190
 
-> > > Depends on board design, the gpio controlling regulator may
-> > > connects with a big capacitance. When need off, it takes some time
-> > > to let the regulator to be truly off. If not add enough delay, the
-> > > regulator might have always been on, so introduce off-on-delay to
-> > > handle such case.
+Boot Failure Detected:
 
-> > This is clearly adding a new feature and doesn't include the matching DT
-> > binding addition for that new feature.
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-> This new "feature" fixes a bug, no? Should we take the DT bindings as
-> well?
+Offline Platforms:
 
-This new feature enables support for new hardware which would not
-otherwise be supported if someone also updates the DT for the system.
-Most features are on some level a bugfix for the lack of whatever the
-feature is, this is on a similar level to adding a new device driver
-(some device drivers are about as complex!).  It's a good change but it
-doesn't seem to fit into what stable is supposed to be doing.
+arm:
 
-If you are backporting features that need new DT bindings then yes, you
-should be backporting the bindings as well but that's a pretty good
-indication that it's adding a feature.
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
---4BlIp4fARb6QCoOq
-Content-Type: application/pgp-signature; name="signature.asc"
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
------BEGIN PGP SIGNATURE-----
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl371LQACgkQJNaLcl1U
-h9AEUQf/Vb0ua5Fshs7qlXdH3zFMjMfcDEAUQm7UkfQk3AOKUbm//XKgVbpKeGGq
-jtXGr++AJOzIpioXiiqQvOW5nhfCuvM4t1YWWUCrVb5qR/Z63siauE3AZMtpXfxZ
-P9LcoGG2OIaP+HEmOXYfkqEvd46Ou6za5aI3lSKJd1qOBFIDoWyIxwriIxeuyGLA
-vmpzTUJNS6Z3YamfS/FonHuSYN79wlEbdOI7MRhoYEQIEsdmrRiFqppdFxhFSlCB
-zmUy8PjNJZCHaa6+J8jWnVYVe35JDUxkjRWmhsi42IIoO8uQVdC577ia0rN7mJ5G
-tuwpFhs+zt9d1ExXF4VNQUaA5LMcqg==
-=+GqG
------END PGP SIGNATURE-----
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
---4BlIp4fARb6QCoOq--
+---
+For more info write to <info@kernelci.org>
