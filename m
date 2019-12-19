@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36294126B96
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:58:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E36FE1269CD
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730463AbfLSSyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:54:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
+        id S1727780AbfLSSlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:41:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730124AbfLSSyO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:54:14 -0500
+        id S1727465AbfLSSlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63978222C2;
-        Thu, 19 Dec 2019 18:54:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACBA0222C2;
+        Thu, 19 Dec 2019 18:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781653;
-        bh=q1pcPo/Ma7GIQSnLrokYGmnJGAfNARn6hiRv5Gp4GJQ=;
+        s=default; t=1576780868;
+        bh=tCw8QJg3B9DlB75EFu+E5iiZzdj56AWbnDGLFoiTRXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PVekG9E4bgRo+6hK7OpMrtizW2EwsC6Wa8kyc/wzA4bQC8cvM8bJSX5egT4opKMTT
-         q9ldbZA+Ipccb4Vtvb8bxsPpZHHXY0rQnLYKTFV/uatu1ekOsMFkK96eqX0gvsjfNp
-         XwDI/e87Vo3F1cCF28SWbrHT27skrEg4cNkeQJC8=
+        b=PQEAk6K55K/PEPpwGbdwTe2hWVr2J0QHtZLXbMEu1W1ysQCSz8rMnQpYNnoWBDmE9
+         VZ7G1fR7O26X5KVO/BbQ2U4z7BiQDsoy/pNJmoN+Gy5QxPiPFbcMgUdmMzHfgry6NW
+         8YdVGZYS+YM/ZwmGyzC2tuFARx1x2qyWCXmA+TEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Chris Lew <clew@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.4 25/80] rpmsg: glink: Fix rpmsg_register_device err handling
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 149/162] tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
 Date:   Thu, 19 Dec 2019 19:34:17 +0100
-Message-Id: <20191219183102.424124451@linuxfoundation.org>
+Message-Id: <20191219183216.839942258@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
-References: <20191219183031.278083125@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Lew <clew@codeaurora.org>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit f7e714988edaffe6ac578318e99501149b067ba0 upstream.
+[ Upstream commit 721c8dafad26ccfa90ff659ee19755e3377b829d ]
 
-The device release function is set before registering with rpmsg. If
-rpmsg registration fails, the framework will call device_put(), which
-invokes the release function. The channel create logic does not need to
-free rpdev if rpmsg_register_device() fails and release is called.
+Syncookies borrow the ->rx_opt.ts_recent_stamp field to store the
+timestamp of the last synflood. Protect them with READ_ONCE() and
+WRITE_ONCE() since reads and writes aren't serialised.
 
-Fixes: b4f8e52b89f6 ("rpmsg: Introduce Qualcomm RPM glink driver")
-Cc: stable@vger.kernel.org
-Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Chris Lew <clew@codeaurora.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Use of .rx_opt.ts_recent_stamp for storing the synflood timestamp was
+introduced by a0f82f64e269 ("syncookies: remove last_synq_overflow from
+struct tcp_sock"). But unprotected accesses were already there when
+timestamp was stored in .last_synq_overflow.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/rpmsg/qcom_glink_native.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ include/net/tcp.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/rpmsg/qcom_glink_native.c
-+++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -1423,15 +1423,13 @@ static int qcom_glink_rx_open(struct qco
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -502,17 +502,17 @@ struct sock *cookie_v4_check(struct sock
+  */
+ static inline void tcp_synq_overflow(const struct sock *sk)
+ {
+-	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
++	unsigned long last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
+ 	unsigned long now = jiffies;
  
- 		ret = rpmsg_register_device(rpdev);
- 		if (ret)
--			goto free_rpdev;
-+			goto rcid_remove;
+ 	if (!time_between32(now, last_overflow, last_overflow + HZ))
+-		tcp_sk(sk)->rx_opt.ts_recent_stamp = now;
++		WRITE_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp, now);
+ }
  
- 		channel->rpdev = rpdev;
- 	}
+ /* syncookies: no recent synqueue overflow on this listening socket? */
+ static inline bool tcp_synq_no_recent_overflow(const struct sock *sk)
+ {
+-	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
++	unsigned long last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
  
- 	return 0;
- 
--free_rpdev:
--	kfree(rpdev);
- rcid_remove:
- 	spin_lock_irqsave(&glink->idr_lock, flags);
- 	idr_remove(&glink->rcids, channel->rcid);
+ 	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
+ 	 * then we're under synflood. However, we have to use
 
 
