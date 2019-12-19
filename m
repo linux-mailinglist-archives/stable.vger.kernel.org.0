@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F878126AE2
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41726126B68
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:57:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729978AbfLSSvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:51:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46194 "EHLO mail.kernel.org"
+        id S1727903AbfLSS4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:56:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729777AbfLSSvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:51:48 -0500
+        id S1730791AbfLSS4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:56:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C65282064B;
-        Thu, 19 Dec 2019 18:51:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FAE9206EC;
+        Thu, 19 Dec 2019 18:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781508;
-        bh=PG9KEUH7TkC5EcssOfLAyGK+OCnkSeHV3uybCoZxYCA=;
+        s=default; t=1576781776;
+        bh=BahGp/WcvJzSgRLqgRvYNiiQbWUBKF2w/g8tzngIBnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/emO/zChAMpyL4DEafBCXJzFl1AHuNCJ5nRmUtXn+4jfmPJYEawTe/yaAfRUzO9g
-         KVoKwK07Sb9Cm1uoaRdjZwyt8z1G9cniQklCsiO0yph8d/64MmpMvwJgJnOdZ11nIr
-         mGSt9KWS7dgpjGXHq7W23mb1VhPYjBB5OxP8soqA=
+        b=NdFRQq3L+VZRXlbVAM++tUdiftVhk56eb4Ci1+FKYSLeI3OBEyXAN2Lwefmek0VvN
+         3bmh+AZzmj1dySJpzE0/Lgd4hBGHhBKCuQsUFaVxNcIUEsBHr5SdzlH5sHE65D8NJy
+         sgEezNPB4Y3gMyADgkecXivJTE2Y1LrqXg4GW1rE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 14/47] tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
-Date:   Thu, 19 Dec 2019 19:34:28 +0100
-Message-Id: <20191219182912.205576955@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.4 37/80] CIFS: Fix NULL pointer dereference in mid callback
+Date:   Thu, 19 Dec 2019 19:34:29 +0100
+Message-Id: <20191219183107.612439697@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-[ Upstream commit 721c8dafad26ccfa90ff659ee19755e3377b829d ]
+commit 86a7964be7afaf3df6b64faaa10a7032d2444e51 upstream.
 
-Syncookies borrow the ->rx_opt.ts_recent_stamp field to store the
-timestamp of the last synflood. Protect them with READ_ONCE() and
-WRITE_ONCE() since reads and writes aren't serialised.
+There is a race between a system call processing thread
+and the demultiplex thread when mid->resp_buf becomes NULL
+and later is being accessed to get credits. It happens when
+the 1st thread wakes up before a mid callback is called in
+the 2nd one but the mid state has already been set to
+MID_RESPONSE_RECEIVED. This causes NULL pointer dereference
+in mid callback.
 
-Use of .rx_opt.ts_recent_stamp for storing the synflood timestamp was
-introduced by a0f82f64e269 ("syncookies: remove last_synq_overflow from
-struct tcp_sock"). But unprotected accesses were already there when
-timestamp was stored in .last_synq_overflow.
+Fix this by saving credits from the response before we
+update the mid state and then use this value in the mid
+callback rather then accessing a response buffer.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Stable <stable@vger.kernel.org>
+Fixes: ee258d79159afed5 ("CIFS: Move credit processing to mid callbacks for SMB3")
+Tested-by: Frank Sorenson <sorenson@redhat.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/tcp.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -492,9 +492,9 @@ static inline void tcp_synq_overflow(con
- 		}
- 	}
- 
--	last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
-+	last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
- 	if (!time_between32(now, last_overflow, last_overflow + HZ))
--		tcp_sk(sk)->rx_opt.ts_recent_stamp = now;
-+		WRITE_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp, now);
+---
+ fs/cifs/cifsglob.h |    1 +
+ fs/cifs/connect.c  |   15 +++++++++++++++
+ fs/cifs/smb2ops.c  |    8 +-------
+ 3 files changed, 17 insertions(+), 7 deletions(-)
+
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1524,6 +1524,7 @@ struct mid_q_entry {
+ 	struct TCP_Server_Info *server;	/* server corresponding to this mid */
+ 	__u64 mid;		/* multiplex id */
+ 	__u16 credits;		/* number of credits consumed by this mid */
++	__u16 credits_received;	/* number of credits from the response */
+ 	__u32 pid;		/* process id */
+ 	__u32 sequence_number;  /* for CIFS signing */
+ 	unsigned long when_alloc;  /* when mid was created */
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -905,6 +905,20 @@ dequeue_mid(struct mid_q_entry *mid, boo
+ 	spin_unlock(&GlobalMid_Lock);
  }
  
- /* syncookies: no recent synqueue overflow on this listening socket? */
-@@ -515,7 +515,7 @@ static inline bool tcp_synq_no_recent_ov
- 		}
- 	}
++static unsigned int
++smb2_get_credits_from_hdr(char *buffer, struct TCP_Server_Info *server)
++{
++	struct smb2_sync_hdr *shdr = (struct smb2_sync_hdr *)buffer;
++
++	/*
++	 * SMB1 does not use credits.
++	 */
++	if (server->vals->header_preamble_size)
++		return 0;
++
++	return le16_to_cpu(shdr->CreditRequest);
++}
++
+ static void
+ handle_mid(struct mid_q_entry *mid, struct TCP_Server_Info *server,
+ 	   char *buf, int malformed)
+@@ -912,6 +926,7 @@ handle_mid(struct mid_q_entry *mid, stru
+ 	if (server->ops->check_trans2 &&
+ 	    server->ops->check_trans2(mid, server, buf, malformed))
+ 		return;
++	mid->credits_received = smb2_get_credits_from_hdr(buf, server);
+ 	mid->resp_buf = buf;
+ 	mid->large_buf = server->large_buf;
+ 	/* Was previous buf put in mpx struct for multi-rsp? */
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -151,13 +151,7 @@ smb2_get_credits_field(struct TCP_Server
+ static unsigned int
+ smb2_get_credits(struct mid_q_entry *mid)
+ {
+-	struct smb2_sync_hdr *shdr = (struct smb2_sync_hdr *)mid->resp_buf;
+-
+-	if (mid->mid_state == MID_RESPONSE_RECEIVED
+-	    || mid->mid_state == MID_RESPONSE_MALFORMED)
+-		return le16_to_cpu(shdr->CreditRequest);
+-
+-	return 0;
++	return mid->credits_received;
+ }
  
--	last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
-+	last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
- 
- 	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
- 	 * then we're under synflood. However, we have to use
+ static int
 
 
