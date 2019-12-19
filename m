@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F08A126C9E
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43294126DB6
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728236AbfLSSp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:45:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38512 "EHLO mail.kernel.org"
+        id S1727176AbfLSTLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:11:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728640AbfLSSp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:45:58 -0500
+        id S1727280AbfLSSiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:38:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EDE3206D7;
-        Thu, 19 Dec 2019 18:45:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0159B2467B;
+        Thu, 19 Dec 2019 18:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781157;
-        bh=tXiHxWutDSqcxAY5guEkaYdDDjqecu9sBI3xxjh9P34=;
+        s=default; t=1576780695;
+        bh=+h9+Fs19oWm1bKe6eOPAtfg9Z/lsZkSSW92OUu3lXdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLbsqq7fNRO+aasNw04y22kUYxVT0emYBBT7GJi6Y4UBtXgalqVtf4uqgU5Z0P+aQ
-         oVBfwgh3lPLXz2+48214gMNziWOEGROMg6PQZ+ME8oiIKnxet9yV5duAAkK6bCN8ir
-         cpxBjJMREVwRE3Uo/9mgqhOFM7UDbLGmUkCbYq+k=
+        b=SABjeKc6+KbVBUmNvuYc/opu0zOGK23xPoFpI0aWTmh4qdKP9LN+4h8oiQ+t2iqVs
+         1zRWxEeYCB0lrPIqVtaR0/UciGVsbsZ3MERUHu1VG+roa4XXsqbcVSEI4e6hebr46q
+         GfHP8CHMCPuguIMk7OTemL1hHoyShbl+UHawmqG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.9 106/199] ARM: dts: pandora-common: define wl1251 as child node of mmc3
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        "Kohli, Gaurav" <gkohli@codeaurora.org>,
+        John Ogness <john.ogness@linutronix.de>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "zhangyi (F)" <yi.zhang@huawei.com>
+Subject: [PATCH 4.4 080/162] proc: fix coredump vs read /proc/*/stat race
 Date:   Thu, 19 Dec 2019 19:33:08 +0100
-Message-Id: <20191219183220.755085420@linuxfoundation.org>
+Message-Id: <20191219183212.664539137@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +49,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-commit 4f9007d692017cef38baf2a9b82b7879d5b2407b upstream.
+commit 8bb2ee192e482c5d500df9f2b1b26a560bd3026f upstream.
 
-Since v4.7 the dma initialization requires that there is a
-device tree property for "rx" and "tx" channels which is
-not provided by the pdata-quirks initialization.
+do_task_stat() accesses IP and SP of a task without bumping reference
+count of a stack (which became an entity with independent lifetime at
+some point).
 
-By conversion of the mmc3 setup to device tree this will
-finally allows to remove the OpenPandora wlan specific omap3
-data-quirks.
+Steps to reproduce:
 
-Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: <stable@vger.kernel.org> # v4.7+
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+    #include <stdio.h>
+    #include <sys/types.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <sys/time.h>
+    #include <sys/resource.h>
+    #include <unistd.h>
+    #include <sys/wait.h>
+
+    int main(void)
+    {
+    	setrlimit(RLIMIT_CORE, &(struct rlimit){});
+
+    	while (1) {
+    		char buf[64];
+    		char buf2[4096];
+    		pid_t pid;
+    		int fd;
+
+    		pid = fork();
+    		if (pid == 0) {
+    			*(volatile int *)0 = 0;
+    		}
+
+    		snprintf(buf, sizeof(buf), "/proc/%u/stat", pid);
+    		fd = open(buf, O_RDONLY);
+    		read(fd, buf2, sizeof(buf2));
+    		close(fd);
+
+    		waitpid(pid, NULL, 0);
+    	}
+    	return 0;
+    }
+
+    BUG: unable to handle kernel paging request at 0000000000003fd8
+    IP: do_task_stat+0x8b4/0xaf0
+    PGD 800000003d73e067 P4D 800000003d73e067 PUD 3d558067 PMD 0
+    Oops: 0000 [#1] PREEMPT SMP PTI
+    CPU: 0 PID: 1417 Comm: a.out Not tainted 4.15.0-rc8-dirty #2
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1.fc27 04/01/2014
+    RIP: 0010:do_task_stat+0x8b4/0xaf0
+    Call Trace:
+     proc_single_show+0x43/0x70
+     seq_read+0xe6/0x3b0
+     __vfs_read+0x1e/0x120
+     vfs_read+0x84/0x110
+     SyS_read+0x3d/0xa0
+     entry_SYSCALL_64_fastpath+0x13/0x6c
+    RIP: 0033:0x7f4d7928cba0
+    RSP: 002b:00007ffddb245158 EFLAGS: 00000246
+    Code: 03 b7 a0 01 00 00 4c 8b 4c 24 70 4c 8b 44 24 78 4c 89 74 24 18 e9 91 f9 ff ff f6 45 4d 02 0f 84 fd f7 ff ff 48 8b 45 40 48 89 ef <48> 8b 80 d8 3f 00 00 48 89 44 24 20 e8 9b 97 eb ff 48 89 44 24
+    RIP: do_task_stat+0x8b4/0xaf0 RSP: ffffc90000607cc8
+    CR2: 0000000000003fd8
+
+John Ogness said: for my tests I added an else case to verify that the
+race is hit and correctly mitigated.
+
+Link: http://lkml.kernel.org/r/20180116175054.GA11513@avx2
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Reported-by: "Kohli, Gaurav" <gkohli@codeaurora.org>
+Tested-by: John Ogness <john.ogness@linutronix.de>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/omap3-pandora-common.dtsi |   36 ++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
+ fs/proc/array.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/omap3-pandora-common.dtsi
-+++ b/arch/arm/boot/dts/omap3-pandora-common.dtsi
-@@ -221,6 +221,17 @@
- 		gpio = <&gpio6 4 GPIO_ACTIVE_HIGH>;	/* GPIO_164 */
- 	};
+--- a/fs/proc/array.c
++++ b/fs/proc/array.c
+@@ -435,8 +435,11 @@ static int do_task_stat(struct seq_file
+ 		 * safe because the task has stopped executing permanently.
+ 		 */
+ 		if (permitted && (task->flags & PF_DUMPCORE)) {
+-			eip = KSTK_EIP(task);
+-			esp = KSTK_ESP(task);
++			if (try_get_task_stack(task)) {
++				eip = KSTK_EIP(task);
++				esp = KSTK_ESP(task);
++				put_task_stack(task);
++			}
+ 		}
+ 	}
  
-+	/* wl1251 wifi+bt module */
-+	wlan_en: fixed-regulator-wg7210_en {
-+		compatible = "regulator-fixed";
-+		regulator-name = "vwlan";
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
-+		startup-delay-us = <50000>;
-+		enable-active-high;
-+		gpio = <&gpio1 23 GPIO_ACTIVE_HIGH>;
-+	};
-+
- 	/* wg7210 (wifi+bt module) 32k clock buffer */
- 	wg7210_32k: fixed-regulator-wg7210_32k {
- 		compatible = "regulator-fixed";
-@@ -514,9 +525,30 @@
- 	/*wp-gpios = <&gpio4 31 GPIO_ACTIVE_HIGH>;*/	/* GPIO_127 */
- };
- 
--/* mmc3 is probed using pdata-quirks to pass wl1251 card data */
- &mmc3 {
--	status = "disabled";
-+	vmmc-supply = <&wlan_en>;
-+
-+	bus-width = <4>;
-+	non-removable;
-+	ti,non-removable;
-+	cap-power-off-card;
-+
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&mmc3_pins>;
-+
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
-+	wlan: wifi@1 {
-+		compatible = "ti,wl1251";
-+
-+		reg = <1>;
-+
-+		interrupt-parent = <&gpio1>;
-+		interrupts = <21 IRQ_TYPE_LEVEL_HIGH>;	/* GPIO_21 */
-+
-+		ti,wl1251-has-eeprom;
-+	};
- };
- 
- /* bluetooth*/
 
 
