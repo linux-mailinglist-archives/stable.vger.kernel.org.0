@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17ECE126AB1
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFAE3126BCD
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729893AbfLSSuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:50:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43728 "EHLO mail.kernel.org"
+        id S1729481AbfLSS7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:59:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729911AbfLSSuD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:50:03 -0500
+        id S1730408AbfLSSxp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:53:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C71112465E;
-        Thu, 19 Dec 2019 18:50:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 443EA20674;
+        Thu, 19 Dec 2019 18:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781403;
-        bh=C63ypNwTA40y8aoGJ0EuopfgNS+M8vFsGiCfxu7LPi4=;
+        s=default; t=1576781624;
+        bh=J5/14ErjQFX/vUZvANlmfZEZ14nE/YRklZ5JEAAXeqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tn6kOHvp1QTy4at7uI/QXpRpFCQ3sQqgqNJdHwUtqmFdW4M0FWTeLZKJJD3jp6Xhh
-         ubZeg/LBKLNH8HbjyO8sM8w3TMOuolIh/5sMicbmf9Jyzj5Y5qrtqbbQKE5BnwDVa0
-         0ytikn1yU2QuAXYpcUEcBl31O7DjD4vraS1WcyTM=
+        b=G4fTqlmljGM47x95GjNMy659zFC5Ocrd91E/3nsQPq/vSE8C+8cFjdRMvPzm3AXwG
+         yqRUSW6U0RSIOgZZ7rCWmLT03rFvORVj2GMlFilaf1dAI5zQsJmtTAZYp0GxmbfiiO
+         ErRUqjGM6CqMflVYzNtu92kkXZ8LxZQahV+m2p28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 164/199] scsi: qla2xxx: Always check the qla2x00_wait_for_hba_online() return value
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 14/80] PM / QoS: Redefine FREQ_QOS_MAX_DEFAULT_VALUE to S32_MAX
 Date:   Thu, 19 Dec 2019 19:34:06 +0100
-Message-Id: <20191219183224.507346963@linuxfoundation.org>
+Message-Id: <20191219183050.779066263@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Leonard Crestez <leonard.crestez@nxp.com>
 
-[ Upstream commit e6803efae5acd109fad9f2f07dab674563441a53 ]
+commit c6a3aea93571a5393602256d8f74772bd64c8225 upstream.
 
-This patch fixes several Coverity complaints about not always checking
-the qla2x00_wait_for_hba_online() return value.
+QOS requests for DEFAULT_VALUE are supposed to be ignored but this is
+not the case for FREQ_QOS_MAX. Adding one request for MAX_DEFAULT_VALUE
+and one for a real value will cause freq_qos_read_value to unexpectedly
+return MAX_DEFAULT_VALUE (-1).
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Tested-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This happens because freq_qos max value is aggregated with PM_QOS_MIN
+but FREQ_QOS_MAX_DEFAULT_VALUE is (-1) so it's smaller than other
+values.
+
+Fix this by redefining FREQ_QOS_MAX_DEFAULT_VALUE to S32_MAX.
+
+Looking at current users for freq_qos it seems that none of them create
+requests for FREQ_QOS_MAX_DEFAULT_VALUE.
+
+Fixes: 77751a466ebd ("PM: QoS: Introduce frequency QoS")
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Reported-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_attr.c   | 3 ++-
- drivers/scsi/qla2xxx/qla_target.c | 7 +++++--
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ include/linux/pm_qos.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index 5c3dfd92ea024..33f4181ba9f76 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -682,7 +682,8 @@ qla2x00_sysfs_write_reset(struct file *filp, struct kobject *kobj,
- 			break;
- 		} else {
- 			/* Make sure FC side is not in reset */
--			qla2x00_wait_for_hba_online(vha);
-+			WARN_ON_ONCE(qla2x00_wait_for_hba_online(vha) !=
-+				     QLA_SUCCESS);
+--- a/include/linux/pm_qos.h
++++ b/include/linux/pm_qos.h
+@@ -256,7 +256,7 @@ static inline s32 dev_pm_qos_raw_resume_
+ #endif
  
- 			/* Issue MPI reset */
- 			scsi_block_requests(vha->host);
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 3b20cf8b161e4..b889caa556a0b 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -6341,7 +6341,8 @@ qlt_enable_vha(struct scsi_qla_host *vha)
+ #define FREQ_QOS_MIN_DEFAULT_VALUE	0
+-#define FREQ_QOS_MAX_DEFAULT_VALUE	(-1)
++#define FREQ_QOS_MAX_DEFAULT_VALUE	S32_MAX
  
- 		set_bit(ISP_ABORT_NEEDED, &base_vha->dpc_flags);
- 		qla2xxx_wake_dpc(base_vha);
--		qla2x00_wait_for_hba_online(base_vha);
-+		WARN_ON_ONCE(qla2x00_wait_for_hba_online(base_vha) !=
-+			     QLA_SUCCESS);
- 	}
- }
- EXPORT_SYMBOL(qlt_enable_vha);
-@@ -6371,7 +6372,9 @@ static void qlt_disable_vha(struct scsi_qla_host *vha)
- 
- 	set_bit(ISP_ABORT_NEEDED, &vha->dpc_flags);
- 	qla2xxx_wake_dpc(vha);
--	qla2x00_wait_for_hba_online(vha);
-+	if (qla2x00_wait_for_hba_online(vha) != QLA_SUCCESS)
-+		ql_dbg(ql_dbg_tgt, vha, 0xe081,
-+		       "qla2x00_wait_for_hba_online() failed\n");
- }
- 
- /*
--- 
-2.20.1
-
+ enum freq_qos_req_type {
+ 	FREQ_QOS_MIN = 1,
 
 
