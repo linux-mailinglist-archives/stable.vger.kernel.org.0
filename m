@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 797DA126D33
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ED4B126C86
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727576AbfLSSkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58958 "EHLO mail.kernel.org"
+        id S1727800AbfLSTEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:04:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728345AbfLSSkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:17 -0500
+        id S1729425AbfLSSrO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44F91222C2;
-        Thu, 19 Dec 2019 18:40:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E884C2465E;
+        Thu, 19 Dec 2019 18:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780816;
-        bh=t4gPPwpKYB+p3CGg1LOOHBYsxOHEph6hE6VO8OEGwRU=;
+        s=default; t=1576781233;
+        bh=IUtYO+uS0Eddzxw4xtQEOjWU5msvKA9bePjJTUT7/rY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYcNx15aziSDBby7kq6ZqFo5dfMle3ygSX3vDB/fPlzCaRjdtANOUEROXu8NNwxCk
-         PkEOqDKGSmzg8ykxJbZMzyI0IFnCUpAN1LIefH38wF0dzPRFehgMwk2FpF6Wpe1YO5
-         oTOaBAlKhWMXOLytX47IJ23sR9Ghs/jbVsG6nG2M=
+        b=e+Jfqm8Ce1mojECZ4itsfXl8pZjhtWmT1BUNriqeAu680UqFBqYW1KKo5QhqlDPjD
+         NSiPD5LYFcFEK6vl+0rYoN3IP4SH0Ziul7UtskwBAScaEr1oU0d4uKLQB0a6C3dJOa
+         jMAqp4kOnxf0933cKNIsj64aqQ66KhZaVC+w2UtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matti Aaltonen <matti.j.aaltonen@nokia.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.4 112/162] media: radio: wl1273: fix interrupt masking on release
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.9 138/199] pinctrl: samsung: Fix device node refcount leaks in S3C24xx wakeup controller init
 Date:   Thu, 19 Dec 2019 19:33:40 +0100
-Message-Id: <20191219183214.558751502@linuxfoundation.org>
+Message-Id: <20191219183222.773358566@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 1091eb830627625dcf79958d99353c2391f41708 upstream.
+commit 6fbbcb050802d6ea109f387e961b1dbcc3a80c96 upstream.
 
-If a process is interrupted while accessing the radio device and the
-core lock is contended, release() could return early and fail to update
-the interrupt mask.
+In s3c24xx_eint_init() the for_each_child_of_node() loop is used with a
+break to find a matching child node.  Although each iteration of
+for_each_child_of_node puts the previous node, but early exit from loop
+misses it.  This leads to leak of device node.
 
-Note that the return value of the v4l2 release file operation is
-ignored.
-
-Fixes: 87d1a50ce451 ("[media] V4L2: WL1273 FM Radio: TI WL1273 FM radio driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.38
-Cc: Matti Aaltonen <matti.j.aaltonen@nokia.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: af99a7507469 ("pinctrl: Add pinctrl-s3c24xx driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/radio/radio-wl1273.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/pinctrl/samsung/pinctrl-s3c24xx.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/media/radio/radio-wl1273.c
-+++ b/drivers/media/radio/radio-wl1273.c
-@@ -1149,8 +1149,7 @@ static int wl1273_fm_fops_release(struct
- 	if (radio->rds_users > 0) {
- 		radio->rds_users--;
- 		if (radio->rds_users == 0) {
--			if (mutex_lock_interruptible(&core->lock))
--				return -EINTR;
-+			mutex_lock(&core->lock);
+--- a/drivers/pinctrl/samsung/pinctrl-s3c24xx.c
++++ b/drivers/pinctrl/samsung/pinctrl-s3c24xx.c
+@@ -495,8 +495,10 @@ static int s3c24xx_eint_init(struct sams
+ 		return -ENODEV;
  
- 			radio->irq_flags &= ~WL1273_RDS_EVENT;
+ 	eint_data = devm_kzalloc(dev, sizeof(*eint_data), GFP_KERNEL);
+-	if (!eint_data)
++	if (!eint_data) {
++		of_node_put(eint_np);
+ 		return -ENOMEM;
++	}
  
+ 	eint_data->drvdata = d;
+ 
+@@ -508,12 +510,14 @@ static int s3c24xx_eint_init(struct sams
+ 		irq = irq_of_parse_and_map(eint_np, i);
+ 		if (!irq) {
+ 			dev_err(dev, "failed to get wakeup EINT IRQ %d\n", i);
++			of_node_put(eint_np);
+ 			return -ENXIO;
+ 		}
+ 
+ 		eint_data->parents[i] = irq;
+ 		irq_set_chained_handler_and_data(irq, handlers[i], eint_data);
+ 	}
++	of_node_put(eint_np);
+ 
+ 	bank = d->pin_banks;
+ 	for (i = 0; i < d->nr_banks; ++i, ++bank) {
 
 
