@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD33126C2E
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D04126C42
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729931AbfLSSuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:50:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44008 "EHLO mail.kernel.org"
+        id S1729460AbfLSStT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:49:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729940AbfLSSuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:50:13 -0500
+        id S1729760AbfLSStR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABF5220674;
-        Thu, 19 Dec 2019 18:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77E1924672;
+        Thu, 19 Dec 2019 18:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781413;
-        bh=xw9rSUlv1p5+XLwRU5oY6kCiRg0a1mYRQAtXI0AV/+Q=;
+        s=default; t=1576781357;
+        bh=GqAFOTv0a9RtHQ56hi09qCi4T7GetSCA3QHzEhxSVjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/FoAS8DOMl/fINL6044wmWeoxnn1gRemQQ1njspbyHxd2tkfuSzHRF8QdTtMHZho
-         QVd9FsKeXg5lMvcQ14iwGQTriRrCGK88kfFH1wq3U6OpI/2ph7/2wLJHQabC6Cq2Hs
-         IRcWbR4XtqD1z7EXz8K/R4Aora2d9zNQlWoHmGTQ=
+        b=iWtcppm72CEJ/Nr48IACVPZoVjDWCvCXKaZ0Wy1CJ/34VFHOMzaOsxRqJxGkM1D6u
+         uHvKgCKqsNza9l7qEfL5+bGTyuzTOeYTn9QJqWVks7uwzrRX+D8Zc67Fbk4lDFNDWk
+         nZAK8VQXqD0hMeZ87z7PSFBi6Yq0zyO6u3BIs7Ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Bornyakov <brnkv.i1@gmail.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 12/36] nvme: host: core: fix precedence of ternary operator
-Date:   Thu, 19 Dec 2019 19:34:29 +0100
-Message-Id: <20191219182857.828368336@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.9 188/199] xtensa: fix TLB sanity checker
+Date:   Thu, 19 Dec 2019 19:34:30 +0100
+Message-Id: <20191219183226.118463276@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
-References: <20191219182848.708141124@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Bornyakov <brnkv.i1@gmail.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit e9a9853c23c13a37546397b61b270999fd0fb759 upstream.
+commit 36de10c4788efc6efe6ff9aa10d38cb7eea4c818 upstream.
 
-Ternary operator have lower precedence then bitwise or, so 'cdw10' was
-calculated wrong.
+Virtual and translated addresses retrieved by the xtensa TLB sanity
+checker must be consistent, i.e. correspond to the same state of the
+checked TLB entry. KASAN shadow memory is mapped dynamically using
+auto-refill TLB entries and thus may change TLB state between the
+virtual and translated address retrieval, resulting in false TLB
+insanity report.
+Move read_xtlb_translation close to read_xtlb_virtual to make sure that
+read values are consistent.
 
-Signed-off-by: Ivan Bornyakov <brnkv.i1@gmail.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: stable@vger.kernel.org
+Fixes: a99e07ee5e88 ("xtensa: check TLB sanity on return to userspace")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvme/host/core.c |    4 ++--
+ arch/xtensa/mm/tlb.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1331,7 +1331,7 @@ static int nvme_pr_reserve(struct block_
- static int nvme_pr_preempt(struct block_device *bdev, u64 old, u64 new,
- 		enum pr_type type, bool abort)
- {
--	u32 cdw10 = nvme_pr_type(type) << 8 | abort ? 2 : 1;
-+	u32 cdw10 = nvme_pr_type(type) << 8 | (abort ? 2 : 1);
- 	return nvme_pr_command(bdev, cdw10, old, new, nvme_cmd_resv_acquire);
- }
+--- a/arch/xtensa/mm/tlb.c
++++ b/arch/xtensa/mm/tlb.c
+@@ -218,6 +218,8 @@ static int check_tlb_entry(unsigned w, u
+ 	unsigned tlbidx = w | (e << PAGE_SHIFT);
+ 	unsigned r0 = dtlb ?
+ 		read_dtlb_virtual(tlbidx) : read_itlb_virtual(tlbidx);
++	unsigned r1 = dtlb ?
++		read_dtlb_translation(tlbidx) : read_itlb_translation(tlbidx);
+ 	unsigned vpn = (r0 & PAGE_MASK) | (e << PAGE_SHIFT);
+ 	unsigned pte = get_pte_for_vaddr(vpn);
+ 	unsigned mm_asid = (get_rasid_register() >> 8) & ASID_MASK;
+@@ -233,8 +235,6 @@ static int check_tlb_entry(unsigned w, u
+ 	}
  
-@@ -1343,7 +1343,7 @@ static int nvme_pr_clear(struct block_de
- 
- static int nvme_pr_release(struct block_device *bdev, u64 key, enum pr_type type)
- {
--	u32 cdw10 = nvme_pr_type(type) << 8 | key ? 1 << 3 : 0;
-+	u32 cdw10 = nvme_pr_type(type) << 8 | (key ? 1 << 3 : 0);
- 	return nvme_pr_command(bdev, cdw10, key, 0, nvme_cmd_resv_release);
- }
- 
+ 	if (tlb_asid == mm_asid) {
+-		unsigned r1 = dtlb ? read_dtlb_translation(tlbidx) :
+-			read_itlb_translation(tlbidx);
+ 		if ((pte ^ r1) & PAGE_MASK) {
+ 			pr_err("%cTLB: way: %u, entry: %u, mapping: %08x->%08x, PTE: %08x\n",
+ 					dtlb ? 'D' : 'I', w, e, r0, r1, pte);
 
 
