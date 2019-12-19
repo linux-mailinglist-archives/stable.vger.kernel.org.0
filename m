@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63851126D35
+	by mail.lfdr.de (Postfix) with ESMTP id D76C4126D36
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728367AbfLSSk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
+        id S1727639AbfLSSkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:40:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728071AbfLSSk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:26 -0500
+        id S1728378AbfLSSk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C067624682;
-        Thu, 19 Dec 2019 18:40:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D68724679;
+        Thu, 19 Dec 2019 18:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780826;
-        bh=atv7YAxSoS79URw9rbDEbE0+hZXe8bkNhGKUBQKyMAM=;
+        s=default; t=1576780828;
+        bh=gYixBj+Z0j6dKD9kAf7Nre3FIdd6/MyceRv3Vd1hygY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FvHsVPvYKMTKEoM3bQXJRck159XKITVlQcpPJOzNSBOH5978ZP1OK4u32U5l+s77
-         0lGS5E+fcdV0FuBdNz+naYFvHz+QXwu6P6vNKAVCc9S8yLXCTZ+zxZBYJKC4nOvA4V
-         uwAkAU5jnkDgptuYJSbIapIuRDag8RtpiMi9/Pkw=
+        b=Tga/j22fX4o8+YuSYRhNnxjVIc95WHwpZtoesFWa/piwXI2S3lROjWlPO5BTtFBPf
+         2W5S3FtsLwW1+bnXdgH+52bvOZg+2koy2fWxbkGjXbSh74U1VYZ4bcv0x9GfL2gws9
+         1eHVkGF4HJIm9sYC2yp2mrDVhIEPeoasJJw1fDy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 133/162] pinctrl: samsung: Fix device node refcount leaks in S3C64xx wakeup controller init
-Date:   Thu, 19 Dec 2019 19:34:01 +0100
-Message-Id: <20191219183215.873963985@linuxfoundation.org>
+Subject: [PATCH 4.4 134/162] scsi: qla2xxx: Fix DMA unmap leak
+Date:   Thu, 19 Dec 2019 19:34:02 +0100
+Message-Id: <20191219183215.937277258@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -43,51 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Himanshu Madhani <hmadhani@marvell.com>
 
-[ Upstream commit 7f028caadf6c37580d0f59c6c094ed09afc04062 ]
+[ Upstream commit 5d328de64d89400dcf9911125844d8adc0db697f ]
 
-In s3c64xx_eint_eint0_init() the for_each_child_of_node() loop is used
-with a break to find a matching child node.  Although each iteration of
-for_each_child_of_node puts the previous node, but early exit from loop
-misses it.  This leads to leak of device node.
+With debug kernel we see following wanings indicating memory leak.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 61dd72613177 ("pinctrl: Add pinctrl-s3c64xx driver")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+[28809.523959] WARNING: CPU: 3 PID: 6790 at lib/dma-debug.c:978
+dma_debug_device_change+0x166/0x1d0
+[28809.523964] pci 0000:0c:00.6: DMA-API: device driver has pending DMA
+allocations while released from device [count=5]
+[28809.523964] One of leaked entries details: [device
+address=0x00000002aefe4000] [size=8208 bytes] [mapped with DMA_BIDIRECTIONAL]
+[mapped as coherent]
+
+Fix this by unmapping DMA memory.
+
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/samsung/pinctrl-s3c64xx.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/qla2xxx/qla_bsg.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pinctrl/samsung/pinctrl-s3c64xx.c b/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
-index 43407ab248f51..0cd9f3a7bb11a 100644
---- a/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
-+++ b/drivers/pinctrl/samsung/pinctrl-s3c64xx.c
-@@ -713,6 +713,7 @@ static int s3c64xx_eint_eint0_init(struct samsung_pinctrl_drv_data *d)
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
- 	if (!data) {
- 		dev_err(dev, "could not allocate memory for wkup eint data\n");
-+		of_node_put(eint0_np);
- 		return -ENOMEM;
+diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
+index 2d5375d677367..df856a2895ae1 100644
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -336,6 +336,8 @@ qla2x00_process_els(struct fc_bsg_job *bsg_job)
+ 		dma_map_sg(&ha->pdev->dev, bsg_job->request_payload.sg_list,
+ 		bsg_job->request_payload.sg_cnt, DMA_TO_DEVICE);
+ 	if (!req_sg_cnt) {
++		dma_unmap_sg(&ha->pdev->dev, bsg_job->request_payload.sg_list,
++		    bsg_job->request_payload.sg_cnt, DMA_TO_DEVICE);
+ 		rval = -ENOMEM;
+ 		goto done_free_fcport;
  	}
- 	data->drvdata = d;
-@@ -723,6 +724,7 @@ static int s3c64xx_eint_eint0_init(struct samsung_pinctrl_drv_data *d)
- 		irq = irq_of_parse_and_map(eint0_np, i);
- 		if (!irq) {
- 			dev_err(dev, "failed to get wakeup EINT IRQ %d\n", i);
-+			of_node_put(eint0_np);
- 			return -ENXIO;
- 		}
- 
-@@ -730,6 +732,7 @@ static int s3c64xx_eint_eint0_init(struct samsung_pinctrl_drv_data *d)
- 						 s3c64xx_eint0_handlers[i],
- 						 data);
+@@ -343,6 +345,8 @@ qla2x00_process_els(struct fc_bsg_job *bsg_job)
+ 	rsp_sg_cnt = dma_map_sg(&ha->pdev->dev, bsg_job->reply_payload.sg_list,
+ 		bsg_job->reply_payload.sg_cnt, DMA_FROM_DEVICE);
+         if (!rsp_sg_cnt) {
++		dma_unmap_sg(&ha->pdev->dev, bsg_job->reply_payload.sg_list,
++		    bsg_job->reply_payload.sg_cnt, DMA_FROM_DEVICE);
+ 		rval = -ENOMEM;
+ 		goto done_free_fcport;
  	}
-+	of_node_put(eint0_np);
- 
- 	bank = d->pin_banks;
- 	for (i = 0; i < d->nr_banks; ++i, ++bank) {
 -- 
 2.20.1
 
