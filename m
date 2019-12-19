@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 723711269BF
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A131F126A6F
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728001AbfLSSko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59548 "EHLO mail.kernel.org"
+        id S1728456AbfLSSrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:47:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728415AbfLSSko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:44 -0500
+        id S1728126AbfLSSrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13D3124682;
-        Thu, 19 Dec 2019 18:40:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A0CC24672;
+        Thu, 19 Dec 2019 18:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780843;
-        bh=l/h8r2712rG5mlyOgtU7hkWL61xkjIonKVs5KNoRkQY=;
+        s=default; t=1576781235;
+        bh=PGBoSnLW4Rb1DhKStngull8p7dQLICcEIG8kZDgP+9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N73oI9xSThMN6aXK5Ps5c66/uxbj4cRQNeftNMRjhVZ0ipfCIHa280oc+Mp2WwR0q
-         +bzxZA0RoDd4+suohIAEZzRYp/mZDbsVkaGJiAb72qvFC2RL2Rn7GVuQkILM4nqYRo
-         LBz5ZednaP/VNK1EmEDgaGcSs4eryvIlJDgt7nSU=
+        b=RFNysEBEDBEQ2eD8NaouLei9WZZU+UvELzaRqtQtU6fX+FJ4orvOPaNkFPPfl9OCZ
+         +nLdR+gntLk6vMBb8pyqprz0GNEOLX/mhbMC5214oociR8VRDG2ukddmM7MCw3nS4M
+         QUAZN2No7mhxT2S/MEaar5TgJdt/K6Jbq2nA867U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.4 113/162] cpuidle: Do not unset the driver if it is there already
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.9 139/199] pinctrl: samsung: Fix device node refcount leaks in init code
 Date:   Thu, 19 Dec 2019 19:33:41 +0100
-Message-Id: <20191219183214.621732667@linuxfoundation.org>
+Message-Id: <20191219183222.838135508@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit 918c1fe9fbbe46fcf56837ff21f0ef96424e8b29 upstream.
+commit a322b3377f4bac32aa25fb1acb9e7afbbbbd0137 upstream.
 
-Fix __cpuidle_set_driver() to check if any of the CPUs in the mask has
-a driver different from drv already and, if so, return -EBUSY before
-updating any cpuidle_drivers per-CPU pointers.
+Several functions use for_each_child_of_node() loop with a break to find
+a matching child node.  Although each iteration of
+for_each_child_of_node puts the previous node, but early exit from loop
+misses it.  This leads to leak of device node.
 
-Fixes: 82467a5a885d ("cpuidle: simplify multiple driver support")
-Cc: 3.11+ <stable@vger.kernel.org> # 3.11+
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-[ rjw: Subject & changelog ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 9a2c1c3b91aa ("pinctrl: samsung: Allow grouping multiple pinmux/pinconf nodes")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpuidle/driver.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/pinctrl/samsung/pinctrl-samsung.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/cpuidle/driver.c
-+++ b/drivers/cpuidle/driver.c
-@@ -60,24 +60,23 @@ static inline void __cpuidle_unset_drive
-  * __cpuidle_set_driver - set per CPU driver variables for the given driver.
-  * @drv: a valid pointer to a struct cpuidle_driver
-  *
-- * For each CPU in the driver's cpumask, unset the registered driver per CPU
-- * to @drv.
-- *
-- * Returns 0 on success, -EBUSY if the CPUs have driver(s) already.
-+ * Returns 0 on success, -EBUSY if any CPU in the cpumask have a driver
-+ * different from drv already.
-  */
- static inline int __cpuidle_set_driver(struct cpuidle_driver *drv)
- {
- 	int cpu;
- 
- 	for_each_cpu(cpu, drv->cpumask) {
-+		struct cpuidle_driver *old_drv;
- 
--		if (__cpuidle_get_cpu_driver(cpu)) {
--			__cpuidle_unset_driver(drv);
-+		old_drv = __cpuidle_get_cpu_driver(cpu);
-+		if (old_drv && old_drv != drv)
- 			return -EBUSY;
--		}
-+	}
- 
-+	for_each_cpu(cpu, drv->cpumask)
- 		per_cpu(cpuidle_drivers, cpu) = drv;
--	}
- 
- 	return 0;
- }
+--- a/drivers/pinctrl/samsung/pinctrl-samsung.c
++++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
+@@ -281,6 +281,7 @@ static int samsung_dt_node_to_map(struct
+ 						&reserved_maps, num_maps);
+ 		if (ret < 0) {
+ 			samsung_dt_free_map(pctldev, *map, *num_maps);
++			of_node_put(np);
+ 			return ret;
+ 		}
+ 	}
+@@ -770,8 +771,10 @@ static struct samsung_pmx_func *samsung_
+ 		if (!of_get_child_count(cfg_np)) {
+ 			ret = samsung_pinctrl_create_function(dev, drvdata,
+ 							cfg_np, func);
+-			if (ret < 0)
++			if (ret < 0) {
++				of_node_put(cfg_np);
+ 				return ERR_PTR(ret);
++			}
+ 			if (ret > 0) {
+ 				++func;
+ 				++func_cnt;
+@@ -782,8 +785,11 @@ static struct samsung_pmx_func *samsung_
+ 		for_each_child_of_node(cfg_np, func_np) {
+ 			ret = samsung_pinctrl_create_function(dev, drvdata,
+ 						func_np, func);
+-			if (ret < 0)
++			if (ret < 0) {
++				of_node_put(func_np);
++				of_node_put(cfg_np);
+ 				return ERR_PTR(ret);
++			}
+ 			if (ret > 0) {
+ 				++func;
+ 				++func_cnt;
 
 
