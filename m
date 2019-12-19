@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E19D126CB8
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CF9126D85
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729036AbfLSSol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:44:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36760 "EHLO mail.kernel.org"
+        id S1727715AbfLSSgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729030AbfLSSoi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:44:38 -0500
+        id S1727709AbfLSSgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E24124676;
-        Thu, 19 Dec 2019 18:44:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B20C424679;
+        Thu, 19 Dec 2019 18:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781077;
-        bh=3Jr3asvrNskAxqWkPJ2PRJglhyuOHOISyuAJUre/cJE=;
+        s=default; t=1576780613;
+        bh=y7PJEwvRvvxykxAcJ3PnpOSmhXF2KCRA4ZmeQkYGcXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qtn8xFEZn7GzUObJI2MhsuNpjGUGaot01h7fmhPv2ygAjLBW2LtxyV4skaK2tgW8e
-         vEaPQ+hRQHD+H3VK9xreUCJms6HFP3ma1WtZG9M73J7y7cCIgb8E6KbLsqnIEc3Jp2
-         ftbIwPrKRgPQFvT7ACv2tXynR3XBLGu6JNY0meSg=
+        b=IvvSZ1k52y6qw5RI5oRob67r9cQ4NUi4o26ZbdyxXhvBD7cnKnaphDjXRoWy1vCuf
+         2WnzuVDQDtQZE7K2wCaQMNspfeJgrmfzXB4/c5/L9Fra9PH9vntfGzEvWX+9nnL0uv
+         U1cNIkM8CHFzzjiJlYHpskj0fW1c5BCXrycREEvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.9 072/199] fuse: verify nlink
+        stable@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
+        Sergey Yanovich <ynvich@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 046/162] ARM: dts: pxa: clean up USB controller nodes
 Date:   Thu, 19 Dec 2019 19:32:34 +0100
-Message-Id: <20191219183218.970919427@linuxfoundation.org>
+Message-Id: <20191219183210.710776991@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Daniel Mack <daniel@zonque.org>
 
-commit c634da718db9b2fac201df2ae1b1b095344ce5eb upstream.
+[ Upstream commit c40ad24254f1dbd54f2df5f5f524130dc1862122 ]
 
-When adding a new hard link, make sure that i_nlink doesn't overflow.
+PXA25xx SoCs don't have a USB controller, so drop the node from the
+common pxa2xx.dtsi base file. Both pxa27x and pxa3xx have a dedicated
+node already anyway.
 
-Fixes: ac45d61357e8 ("fuse: fix nlink after unlink")
-Cc: <stable@vger.kernel.org> # v3.4
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While at it, unify the names for the nodes across all pxa platforms.
 
+Signed-off-by: Daniel Mack <daniel@zonque.org>
+Reported-by: Sergey Yanovich <ynvich@gmail.com>
+Link: https://patchwork.kernel.org/patch/8375421/
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dir.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/pxa27x.dtsi | 2 +-
+ arch/arm/boot/dts/pxa2xx.dtsi | 7 -------
+ arch/arm/boot/dts/pxa3xx.dtsi | 2 +-
+ 3 files changed, 2 insertions(+), 9 deletions(-)
 
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -830,7 +830,8 @@ static int fuse_link(struct dentry *entr
+diff --git a/arch/arm/boot/dts/pxa27x.dtsi b/arch/arm/boot/dts/pxa27x.dtsi
+index 4448505e34d3b..e1a8466b77a4c 100644
+--- a/arch/arm/boot/dts/pxa27x.dtsi
++++ b/arch/arm/boot/dts/pxa27x.dtsi
+@@ -27,7 +27,7 @@
+ 			clocks = <&clks CLK_NONE>;
+ 		};
  
- 		spin_lock(&fc->lock);
- 		fi->attr_version = ++fc->attr_version;
--		inc_nlink(inode);
-+		if (likely(inode->i_nlink < UINT_MAX))
-+			inc_nlink(inode);
- 		spin_unlock(&fc->lock);
- 		fuse_invalidate_attr(inode);
- 		fuse_update_ctime(inode);
+-		pxa27x_ohci: usb@4c000000 {
++		usb0: usb@4c000000 {
+ 			compatible = "marvell,pxa-ohci";
+ 			reg = <0x4c000000 0x10000>;
+ 			interrupts = <3>;
+diff --git a/arch/arm/boot/dts/pxa2xx.dtsi b/arch/arm/boot/dts/pxa2xx.dtsi
+index 5e5af078b9b54..7343115c6d55b 100644
+--- a/arch/arm/boot/dts/pxa2xx.dtsi
++++ b/arch/arm/boot/dts/pxa2xx.dtsi
+@@ -117,13 +117,6 @@
+ 			status = "disabled";
+ 		};
+ 
+-		usb0: ohci@4c000000 {
+-			compatible = "marvell,pxa-ohci";
+-			reg = <0x4c000000 0x10000>;
+-			interrupts = <3>;
+-			status = "disabled";
+-		};
+-
+ 		mmc0: mmc@41100000 {
+ 			compatible = "marvell,pxa-mmc";
+ 			reg = <0x41100000 0x1000>;
+diff --git a/arch/arm/boot/dts/pxa3xx.dtsi b/arch/arm/boot/dts/pxa3xx.dtsi
+index fec47bcd8292f..c714e583e5c75 100644
+--- a/arch/arm/boot/dts/pxa3xx.dtsi
++++ b/arch/arm/boot/dts/pxa3xx.dtsi
+@@ -88,7 +88,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		pxa3xx_ohci: usb@4c000000 {
++		usb0: usb@4c000000 {
+ 			compatible = "marvell,pxa-ohci";
+ 			reg = <0x4c000000 0x10000>;
+ 			interrupts = <3>;
+-- 
+2.20.1
+
 
 
