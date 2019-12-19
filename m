@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 127E4126AF8
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:52:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CA8126B6E
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730294AbfLSSwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:52:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47508 "EHLO mail.kernel.org"
+        id S1730821AbfLSS43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:56:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730289AbfLSSwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:52:47 -0500
+        id S1730819AbfLSS43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:56:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F00C6222C2;
-        Thu, 19 Dec 2019 18:52:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1199424680;
+        Thu, 19 Dec 2019 18:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781566;
-        bh=MSTmn19y5LfHBUQ5A/ONZHHDbesMDuEavtreafrtXao=;
+        s=default; t=1576781788;
+        bh=Yo9CFf4PoozPwftEeU9+puyfoaQCOgPONOUKYf5ajww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1sChXQmsQOCN+F1sF4XPcJUqEo87zUxBpngRwCRy16mTr0J3ApR6LE8EWjMLHmyX
-         u7yjtJgvaRefJNpZ0+7UEe4kAt3VtEKi7AXzjdWhR8UB/PI1ZnlUUmNqrXUhNrhepG
-         gDAX+RuUvR/wJl2It06Qtr/sxxmWpzvCmlsPhFxA=
+        b=HyAcvWhlV4AQLa030c4M7RzPFYwIWMGC/UTk8IW4mZrP4R/b63Gk1eZ5mX7mAhOln
+         WD4+gSMnXhq3TL85lG6NJDzXIe9MaWG44zyEkD06x08pEzOEcpu0QVVQLYlbvOiewf
+         LgdVx+lIlMegwjh14mCG+UTmlGDuetRtFSGY/VCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 09/47] tcp: md5: fix potential overestimation of TCP option space
-Date:   Thu, 19 Dec 2019 19:34:23 +0100
-Message-Id: <20191219182906.185214546@linuxfoundation.org>
+        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.4 32/80] cifs: smbd: Return -ECONNABORTED when trasnport is not in connected state
+Date:   Thu, 19 Dec 2019 19:34:24 +0100
+Message-Id: <20191219183105.601289021@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Long Li <longli@microsoft.com>
 
-[ Upstream commit 9424e2e7ad93ffffa88f882c9bc5023570904b55 ]
+commit acd4680e2bef2405a0e1ef2149fbb01cce7e116c upstream.
 
-Back in 2008, Adam Langley fixed the corner case of packets for flows
-having all of the following options : MD5 TS SACK
+The transport should return this error so the upper layer will reconnect.
 
-Since MD5 needs 20 bytes, and TS needs 12 bytes, no sack block
-can be cooked from the remaining 8 bytes.
-
-tcp_established_options() correctly sets opts->num_sack_blocks
-to zero, but returns 36 instead of 32.
-
-This means TCP cooks packets with 4 extra bytes at the end
-of options, containing unitialized bytes.
-
-Fixes: 33ad798c924b ("tcp: options clean up")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Long Li <longli@microsoft.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_output.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -740,8 +740,9 @@ static unsigned int tcp_established_opti
- 			min_t(unsigned int, eff_sacks,
- 			      (remaining - TCPOLEN_SACK_BASE_ALIGNED) /
- 			      TCPOLEN_SACK_PERBLOCK);
--		size += TCPOLEN_SACK_BASE_ALIGNED +
--			opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
-+		if (likely(opts->num_sack_blocks))
-+			size += TCPOLEN_SACK_BASE_ALIGNED +
-+				opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
+---
+ fs/cifs/smbdirect.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/fs/cifs/smbdirect.c
++++ b/fs/cifs/smbdirect.c
+@@ -1972,7 +1972,7 @@ read_rfc1002_done:
+ 
+ 	if (info->transport_status != SMBD_CONNECTED) {
+ 		log_read(ERR, "disconnected\n");
+-		return 0;
++		return -ECONNABORTED;
  	}
  
- 	return size;
+ 	goto again;
 
 
