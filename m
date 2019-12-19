@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C99A126AE4
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:52:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C25A126AD9
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:51:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729564AbfLSSv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:51:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46310 "EHLO mail.kernel.org"
+        id S1727462AbfLSSvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:51:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730186AbfLSSvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:51:53 -0500
+        id S1730150AbfLSSvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:51:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B00C92064B;
-        Thu, 19 Dec 2019 18:51:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 446282064B;
+        Thu, 19 Dec 2019 18:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781513;
-        bh=wzrWLkjW0uPzgoAymaZOMN7L1Rznj01UlrJbLeIfw4k=;
+        s=default; t=1576781493;
+        bh=t1GW1a7Ja0FWvmcjtLafhEm/7vEhnxmHnmKRej6gs3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kad6cY9KiLgFQExjhald6/JNGCLIE9I6U5a30oWUJ1OfLM/kAeGDoKExmuuHVKh11
-         VyPwMCVVaCTdGSSZXbQA19NoqrJ3kNfBv8nZ3XVV4ZP/iPBw/hwFtjipGdA+1qaTFi
-         s/ToQ0HCoJAgpGjKJyH92LQUFjujW9YMcFTYLe20=
+        b=MNUJdMWgDPhMhg8HaKbW1cQkghtz1QHbUSUGA21hn5olv/0h7vua6oxrkeSyxvdsa
+         7Bn30yTyBdMwiEQfXNVqTBG5FtDy0PHZ+i2sG/s9vJRT7gaeBpoof+YrOymhQiotzw
+         oMvK4+/gI0VjH7/cY63vp+SVMQVlhN0GT1bWQoXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 16/47] mmc: block: Make card_busy_detect() a bit more generic
+        stable@vger.kernel.org, Siddharth Kapoor <ksiddharth@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 13/36] Revert "regulator: Defer init completion for a while after late_initcall"
 Date:   Thu, 19 Dec 2019 19:34:30 +0100
-Message-Id: <20191219182917.317219858@linuxfoundation.org>
+Message-Id: <20191219182859.196871204@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
+References: <20191219182848.708141124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 3869468e0c4800af52bfe1e0b72b338dcdae2cfc upstream.
+This reverts commit d7ce17fba6c8e316ca9a554a87edddce6f862435 which is
+commit 55576cf1853798e86f620766e23b604c9224c19c upstream.
 
-To prepare for more users of card_busy_detect(), let's drop the struct
-request * as an in-parameter and convert to log the error message via
-dev_err() instead of pr_err().
+It's causing "odd" interactions with older kernels, so it probably isn't
+a good idea to cause timing changes there.  This has been reported to
+cause oopses on Pixel devices.
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: Siddharth Kapoor <ksiddharth@google.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mmc/core/block.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/regulator/core.c |   42 +++++++++++-------------------------------
+ 1 file changed, 11 insertions(+), 31 deletions(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -982,7 +982,7 @@ static inline bool mmc_blk_in_tran_state
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -4503,7 +4503,7 @@ static int __init regulator_init(void)
+ /* init early to allow our consumers to complete system booting */
+ core_initcall(regulator_init);
+ 
+-static int regulator_late_cleanup(struct device *dev, void *data)
++static int __init regulator_late_cleanup(struct device *dev, void *data)
+ {
+ 	struct regulator_dev *rdev = dev_to_rdev(dev);
+ 	const struct regulator_ops *ops = rdev->desc->ops;
+@@ -4552,9 +4552,18 @@ unlock:
+ 	return 0;
  }
  
- static int card_busy_detect(struct mmc_card *card, unsigned int timeout_ms,
--			    struct request *req, u32 *resp_errs)
-+			    u32 *resp_errs)
+-static void regulator_init_complete_work_function(struct work_struct *work)
++static int __init regulator_init_complete(void)
  {
- 	unsigned long timeout = jiffies + msecs_to_jiffies(timeout_ms);
- 	int err = 0;
-@@ -993,8 +993,8 @@ static int card_busy_detect(struct mmc_c
- 
- 		err = __mmc_send_status(card, &status, 5);
- 		if (err) {
--			pr_err("%s: error %d requesting status\n",
--			       req->rq_disk->disk_name, err);
-+			dev_err(mmc_dev(card->host),
-+				"error %d requesting status\n", err);
- 			return err;
- 		}
- 
-@@ -1007,9 +1007,9 @@ static int card_busy_detect(struct mmc_c
- 		 * leaves the program state.
- 		 */
- 		if (done) {
--			pr_err("%s: Card stuck in wrong state! %s %s status: %#x\n",
--				mmc_hostname(card->host),
--				req->rq_disk->disk_name, __func__, status);
-+			dev_err(mmc_dev(card->host),
-+				"Card stuck in wrong state! %s status: %#x\n",
-+				 __func__, status);
- 			return -ETIMEDOUT;
- 		}
- 
-@@ -1678,7 +1678,7 @@ static int mmc_blk_fix_state(struct mmc_
- 
- 	mmc_blk_send_stop(card, timeout);
- 
--	err = card_busy_detect(card, timeout, req, NULL);
-+	err = card_busy_detect(card, timeout, NULL);
- 
- 	mmc_retune_release(card->host);
- 
-@@ -1902,7 +1902,7 @@ static int mmc_blk_card_busy(struct mmc_
- 	if (mmc_host_is_spi(card->host) || rq_data_dir(req) == READ)
- 		return 0;
- 
--	err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, req, &status);
-+	err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, &status);
- 
  	/*
- 	 * Do not assume data transferred correctly if there are any error bits
++	 * Since DT doesn't provide an idiomatic mechanism for
++	 * enabling full constraints and since it's much more natural
++	 * with DT to provide them just assume that a DT enabled
++	 * system has full constraints.
++	 */
++	if (of_have_populated_dt())
++		has_full_constraints = true;
++
++	/*
+ 	 * Regulators may had failed to resolve their input supplies
+ 	 * when were registered, either because the input supply was
+ 	 * not registered yet or because its parent device was not
+@@ -4571,35 +4580,6 @@ static void regulator_init_complete_work
+ 	 */
+ 	class_for_each_device(&regulator_class, NULL, NULL,
+ 			      regulator_late_cleanup);
+-}
+-
+-static DECLARE_DELAYED_WORK(regulator_init_complete_work,
+-			    regulator_init_complete_work_function);
+-
+-static int __init regulator_init_complete(void)
+-{
+-	/*
+-	 * Since DT doesn't provide an idiomatic mechanism for
+-	 * enabling full constraints and since it's much more natural
+-	 * with DT to provide them just assume that a DT enabled
+-	 * system has full constraints.
+-	 */
+-	if (of_have_populated_dt())
+-		has_full_constraints = true;
+-
+-	/*
+-	 * We punt completion for an arbitrary amount of time since
+-	 * systems like distros will load many drivers from userspace
+-	 * so consumers might not always be ready yet, this is
+-	 * particularly an issue with laptops where this might bounce
+-	 * the display off then on.  Ideally we'd get a notification
+-	 * from userspace when this happens but we don't so just wait
+-	 * a bit and hope we waited long enough.  It'd be better if
+-	 * we'd only do this on systems that need it, and a kernel
+-	 * command line option might be useful.
+-	 */
+-	schedule_delayed_work(&regulator_init_complete_work,
+-			      msecs_to_jiffies(30000));
+ 
+ 	return 0;
+ }
 
 
