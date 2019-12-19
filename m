@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D941126CC6
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5C8126CC5
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728773AbfLSSol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:44:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
+        id S1728432AbfLSTGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:06:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728615AbfLSSol (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:44:41 -0500
+        id S1729040AbfLSSon (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1EE72465E;
-        Thu, 19 Dec 2019 18:44:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31D9D24672;
+        Thu, 19 Dec 2019 18:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781080;
-        bh=NzR97RwD8MzjY5GTfyC2TPQM15rKS34g3vdOFrLKDDA=;
+        s=default; t=1576781082;
+        bh=YOOKKu7KZKalCYc9fcrbvluf+Q6hWobR9h7/kUaryYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJk37k07qNrWWLIP4TiQMP+SNvrPEHXx5UmeuTzLoJK+rsEhL9RZm75JxJOzJLR0g
-         9AyAemrHCF4yFwnjJGXND8kQfVNn6rxc8/gQZw7nfPItpwbuugR/i/FrYIVV3QLgTM
-         7qVsVqQL/N8asNsgLB607r7UWCDJ/U1oAmu7frC8=
+        b=0NGuWEa2+NK/AP/ACPc2Uud8u0m+5FOzwnGKa+F9Y4RuKEOZNsoc6Eiq/vHrZZ57n
+         zGRkQw5xlsq4VeeDzCpioT21rn4CRwC4OU3wI5bd+CA/Z+VvOXZ0VC1MIHmJMFaJBw
+         g0jL+J79lcJOcH3Vc9y0zCft8CIN/PZYQVTg6rUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arijit Banerjee <arijit@rubrik.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.9 073/199] fuse: verify attributes
-Date:   Thu, 19 Dec 2019 19:32:35 +0100
-Message-Id: <20191219183219.024463431@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 074/199] ALSA: pcm: oss: Avoid potential buffer overflows
+Date:   Thu, 19 Dec 2019 19:32:36 +0100
+Message-Id: <20191219183219.079341521@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -43,121 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit eb59bd17d2fa6e5e84fba61a5ebdea984222e6d5 upstream.
+commit 4cc8d6505ab82db3357613d36e6c58a297f57f7c upstream.
 
-If a filesystem returns negative inode sizes, future reads on the file were
-causing the cpu to spin on truncate_pagecache.
+syzkaller reported an invalid access in PCM OSS read, and this seems
+to be an overflow of the internal buffer allocated for a plugin.
+Since the rate plugin adjusts its transfer size dynamically, the
+calculation for the chained plugin might be bigger than the given
+buffer size in some extreme cases, which lead to such an buffer
+overflow as caught by KASAN.
 
-Create a helper to validate the attributes.  This now does two things:
+Fix it by limiting the max transfer size properly by checking against
+the destination size in each plugin transfer callback.
 
- - check the file mode
- - check if the file size fits in i_size without overflowing
-
-Reported-by: Arijit Banerjee <arijit@rubrik.com>
-Fixes: d8a5ba45457e ("[PATCH] FUSE - core")
-Cc: <stable@vger.kernel.org> # v2.6.14
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Reported-by: syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191204144824.17801-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/dir.c    |   24 +++++++++++++++++-------
- fs/fuse/fuse_i.h |    2 ++
- 2 files changed, 19 insertions(+), 7 deletions(-)
+ sound/core/oss/linear.c |    2 ++
+ sound/core/oss/mulaw.c  |    2 ++
+ sound/core/oss/route.c  |    2 ++
+ 3 files changed, 6 insertions(+)
 
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -234,7 +234,8 @@ static int fuse_dentry_revalidate(struct
- 		kfree(forget);
- 		if (ret == -ENOMEM)
- 			goto out;
--		if (ret || (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
-+		if (ret || fuse_invalid_attr(&outarg.attr) ||
-+		    (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
- 			goto invalid;
- 
- 		forget_all_cached_acls(inode);
-@@ -297,6 +298,12 @@ int fuse_valid_type(int m)
- 		S_ISBLK(m) || S_ISFIFO(m) || S_ISSOCK(m);
- }
- 
-+bool fuse_invalid_attr(struct fuse_attr *attr)
-+{
-+	return !fuse_valid_type(attr->mode) ||
-+		attr->size > LLONG_MAX;
-+}
-+
- int fuse_lookup_name(struct super_block *sb, u64 nodeid, const struct qstr *name,
- 		     struct fuse_entry_out *outarg, struct inode **inode)
- {
-@@ -328,7 +335,7 @@ int fuse_lookup_name(struct super_block
- 	err = -EIO;
- 	if (!outarg->nodeid)
- 		goto out_put_forget;
--	if (!fuse_valid_type(outarg->attr.mode))
-+	if (fuse_invalid_attr(&outarg->attr))
- 		goto out_put_forget;
- 
- 	*inode = fuse_iget(sb, outarg->nodeid, outarg->generation,
-@@ -451,7 +458,8 @@ static int fuse_create_open(struct inode
- 		goto out_free_ff;
- 
- 	err = -EIO;
--	if (!S_ISREG(outentry.attr.mode) || invalid_nodeid(outentry.nodeid))
-+	if (!S_ISREG(outentry.attr.mode) || invalid_nodeid(outentry.nodeid) ||
-+	    fuse_invalid_attr(&outentry.attr))
- 		goto out_free_ff;
- 
- 	ff->fh = outopen.fh;
-@@ -557,7 +565,7 @@ static int create_new_entry(struct fuse_
- 		goto out_put_forget_req;
- 
- 	err = -EIO;
--	if (invalid_nodeid(outarg.nodeid))
-+	if (invalid_nodeid(outarg.nodeid) || fuse_invalid_attr(&outarg.attr))
- 		goto out_put_forget_req;
- 
- 	if ((outarg.attr.mode ^ mode) & S_IFMT)
-@@ -911,7 +919,8 @@ static int fuse_do_getattr(struct inode
- 	args.out.args[0].value = &outarg;
- 	err = fuse_simple_request(fc, &args);
- 	if (!err) {
--		if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-+		if (fuse_invalid_attr(&outarg.attr) ||
-+		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
- 			make_bad_inode(inode);
- 			err = -EIO;
- 		} else {
-@@ -1219,7 +1228,7 @@ static int fuse_direntplus_link(struct f
- 
- 	if (invalid_nodeid(o->nodeid))
- 		return -EIO;
--	if (!fuse_valid_type(o->attr.mode))
-+	if (fuse_invalid_attr(&o->attr))
- 		return -EIO;
- 
- 	fc = get_fuse_conn(dir);
-@@ -1696,7 +1705,8 @@ int fuse_do_setattr(struct dentry *dentr
- 		goto error;
+--- a/sound/core/oss/linear.c
++++ b/sound/core/oss/linear.c
+@@ -107,6 +107,8 @@ static snd_pcm_sframes_t linear_transfer
+ 		}
  	}
+ #endif
++	if (frames > dst_channels[0].frames)
++		frames = dst_channels[0].frames;
+ 	convert(plugin, src_channels, dst_channels, frames);
+ 	return frames;
+ }
+--- a/sound/core/oss/mulaw.c
++++ b/sound/core/oss/mulaw.c
+@@ -269,6 +269,8 @@ static snd_pcm_sframes_t mulaw_transfer(
+ 		}
+ 	}
+ #endif
++	if (frames > dst_channels[0].frames)
++		frames = dst_channels[0].frames;
+ 	data = (struct mulaw_priv *)plugin->extra_data;
+ 	data->func(plugin, src_channels, dst_channels, frames);
+ 	return frames;
+--- a/sound/core/oss/route.c
++++ b/sound/core/oss/route.c
+@@ -57,6 +57,8 @@ static snd_pcm_sframes_t route_transfer(
+ 		return -ENXIO;
+ 	if (frames == 0)
+ 		return 0;
++	if (frames > dst_channels[0].frames)
++		frames = dst_channels[0].frames;
  
--	if ((inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-+	if (fuse_invalid_attr(&outarg.attr) ||
-+	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
- 		make_bad_inode(inode);
- 		err = -EIO;
- 		goto error;
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -898,6 +898,8 @@ void fuse_ctl_remove_conn(struct fuse_co
-  */
- int fuse_valid_type(int m);
- 
-+bool fuse_invalid_attr(struct fuse_attr *attr);
-+
- /**
-  * Is current process allowed to perform filesystem operation?
-  */
+ 	nsrcs = plugin->src_format.channels;
+ 	ndsts = plugin->dst_format.channels;
 
 
