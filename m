@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF933126C8E
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5884A126D91
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728847AbfLSSqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:46:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39552 "EHLO mail.kernel.org"
+        id S1727865AbfLSShk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:37:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729068AbfLSSqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:46:47 -0500
+        id S1727860AbfLSShj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:37:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EBF4222C2;
-        Thu, 19 Dec 2019 18:46:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC3B920716;
+        Thu, 19 Dec 2019 18:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781206;
-        bh=wg6xEPyzN+QW9rUxBPw/45Bdi9Xh4+pcfjxZdhhjDe4=;
+        s=default; t=1576780659;
+        bh=ukK3tZ03T2ojLubsfuqKbVnsJ0LNvG8yLEX+MReaYbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPZCwpO+hrej151AKIAJGJ7Y2a+rkU9KrAFVYzzLL3koiVxol/Due/oEtgBceTqs7
-         Cba9wSUmFKBQxgz0bgoW6BBA8D6PP+3vqRFMnytRNeZ9eThrSHd6M6/PcDI+Be+Z2a
-         OfhQI7Rfz/6WGXYEqowAMVxOYbEtEDm3LuwqeM3U=
+        b=kGbruHSQtIMlc7JtiwfrTbgPmJa8Iys90ng+KqAX914QZ0jKLiXozr5eqUCdFJ/ph
+         yT26IkkNPP1xJ4gl1BNK5nM5MeAYq0/RaYNTcs7ZshClF0oOoNE5p0sTQlgawo9rKu
+         AwQ2ICJYj9ufqy4SSJ9pt87Un9pumTECHO8pkkqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 089/199] crypto: user - fix memory leak in crypto_report
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>
+Subject: [PATCH 4.4 063/162] drm/i810: Prevent underflow in ioctl
 Date:   Thu, 19 Dec 2019 19:32:51 +0100
-Message-Id: <20191219183219.861072954@linuxfoundation.org>
+Message-Id: <20191219183211.688422226@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit ffdde5932042600c6807d46c1550b28b0db6a3bc upstream.
+commit 4f69851fbaa26b155330be35ce8ac393e93e7442 upstream.
 
-In crypto_report, a new skb is created via nlmsg_new(). This skb should
-be released if crypto_report_alg() fails.
+The "used" variables here come from the user in the ioctl and it can be
+negative.  It could result in an out of bounds write.
 
-Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191004102251.GC823@mwanda
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/crypto_user.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i810/i810_dma.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/crypto/crypto_user.c
-+++ b/crypto/crypto_user.c
-@@ -269,8 +269,10 @@ static int crypto_report(struct sk_buff
- drop_alg:
- 	crypto_mod_put(alg);
+--- a/drivers/gpu/drm/i810/i810_dma.c
++++ b/drivers/gpu/drm/i810/i810_dma.c
+@@ -723,7 +723,7 @@ static void i810_dma_dispatch_vertex(str
+ 	if (nbox > I810_NR_SAREA_CLIPRECTS)
+ 		nbox = I810_NR_SAREA_CLIPRECTS;
  
--	if (err)
-+	if (err) {
-+		kfree_skb(skb);
- 		return err;
-+	}
+-	if (used > 4 * 1024)
++	if (used < 0 || used > 4 * 1024)
+ 		used = 0;
  
- 	return nlmsg_unicast(crypto_nlsk, skb, NETLINK_CB(in_skb).portid);
- }
+ 	if (sarea_priv->dirty)
+@@ -1043,7 +1043,7 @@ static void i810_dma_dispatch_mc(struct
+ 	if (u != I810_BUF_CLIENT)
+ 		DRM_DEBUG("MC found buffer that isn't mine!\n");
+ 
+-	if (used > 4 * 1024)
++	if (used < 0 || used > 4 * 1024)
+ 		used = 0;
+ 
+ 	sarea_priv->dirty = 0x7f;
 
 
