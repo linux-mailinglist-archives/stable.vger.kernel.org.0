@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6A23126BC9
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D93DF126BBD
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727166AbfLSSxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:53:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
+        id S1728308AbfLSSyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:54:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730395AbfLSSxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:53:34 -0500
+        id S1730434AbfLSSyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:54:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12707227BF;
-        Thu, 19 Dec 2019 18:53:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E49DE222C2;
+        Thu, 19 Dec 2019 18:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781612;
-        bh=EB2nvPfIkj8d84Tc6Qbg9G35n5LNc0PSNGRHzsUl68o=;
+        s=default; t=1576781639;
+        bh=RQyUUDlMhra9YJ2uHOjLojmvdH6zxmXIcsWihEGODXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClImys3Da6AEKWNkqXmigX9/SQO2dXBZKDdrV1eSmhSKP0Gvfum26PJ3yMwNiYmQ9
-         yLEsFCjIoYnJgTb8TEB+Dumdy1bhS9flCA/fgRyEml+DrvRb5bVqtS/z7QBMVojepV
-         O23igsbMRH8p4XHdoGmeRRXjOX5TFiWb7pe9He5s=
+        b=QdpoMMRYjombr9Xq14htD1PuSPm+LlRLoB0ccVwi3XpUQWP1wfu2ZmlLVYsLTmgdt
+         hJhBMibb+FgT8HQREmPgywOxn0u4QYXjxwgQWfhWDrCJ4eXkWjixtsScBvZD+qnPSH
+         fdFTC5Z7Jsjpx4GKPXRoSchoqvkF6+YqoBKdrv3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fredrik Noring <noring@nocrew.org>
-Subject: [PATCH 5.4 01/80] USB: Fix incorrect DMA allocations for local memory pool drivers
-Date:   Thu, 19 Dec 2019 19:33:53 +0100
-Message-Id: <20191219183032.004373296@linuxfoundation.org>
+        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 02/80] mmc: block: Make card_busy_detect() a bit more generic
+Date:   Thu, 19 Dec 2019 19:33:54 +0100
+Message-Id: <20191219183032.988998208@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
 References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,126 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Noring <noring@nocrew.org>
+From: Chaotian Jing <chaotian.jing@mediatek.com>
 
-commit f8c63edfd78905320e86b6b2be2b7a5ac768fa4e upstream.
+commit 3869468e0c4800af52bfe1e0b72b338dcdae2cfc upstream.
 
-Fix commit 7b81cb6bddd2 ("usb: add a HCD_DMA flag instead of
-guestimating DMA capabilities") where local memory USB drivers
-erroneously allocate DMA memory instead of pool memory, causing
+To prepare for more users of card_busy_detect(), let's drop the struct
+request * as an in-parameter and convert to log the error message via
+dev_err() instead of pr_err().
 
-	OHCI Unrecoverable Error, disabled
-	HC died; cleaning up
-
-The order between hcd_uses_dma() and hcd->localmem_pool is now
-arranged as in hcd_buffer_alloc() and hcd_buffer_free(), with the
-test for hcd->localmem_pool placed first.
-
-As an alternative, one might consider adjusting hcd_uses_dma() with
-
- static inline bool hcd_uses_dma(struct usb_hcd *hcd)
- {
--	return IS_ENABLED(CONFIG_HAS_DMA) && (hcd->driver->flags & HCD_DMA);
-+	return IS_ENABLED(CONFIG_HAS_DMA) &&
-+		(hcd->driver->flags & HCD_DMA) &&
-+		(hcd->localmem_pool == NULL);
- }
-
-One can also consider unsetting HCD_DMA for local memory pool drivers.
-
-Fixes: 7b81cb6bddd2 ("usb: add a HCD_DMA flag instead of guestimating DMA capabilities")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Fredrik Noring <noring@nocrew.org>
-Link: https://lore.kernel.org/r/20191210172905.GA52526@sx9
+Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/hcd.c         |   42 ++++++++++++++++++++---------------------
- drivers/usb/storage/scsiglue.c |    3 +-
- 2 files changed, 23 insertions(+), 22 deletions(-)
+ drivers/mmc/core/block.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1409,7 +1409,17 @@ int usb_hcd_map_urb_for_dma(struct usb_h
- 	if (usb_endpoint_xfer_control(&urb->ep->desc)) {
- 		if (hcd->self.uses_pio_for_control)
- 			return ret;
--		if (hcd_uses_dma(hcd)) {
-+		if (hcd->localmem_pool) {
-+			ret = hcd_alloc_coherent(
-+					urb->dev->bus, mem_flags,
-+					&urb->setup_dma,
-+					(void **)&urb->setup_packet,
-+					sizeof(struct usb_ctrlrequest),
-+					DMA_TO_DEVICE);
-+			if (ret)
-+				return ret;
-+			urb->transfer_flags |= URB_SETUP_MAP_LOCAL;
-+		} else if (hcd_uses_dma(hcd)) {
- 			if (is_vmalloc_addr(urb->setup_packet)) {
- 				WARN_ONCE(1, "setup packet is not dma capable\n");
- 				return -EAGAIN;
-@@ -1427,23 +1437,22 @@ int usb_hcd_map_urb_for_dma(struct usb_h
- 						urb->setup_dma))
- 				return -EAGAIN;
- 			urb->transfer_flags |= URB_SETUP_MAP_SINGLE;
--		} else if (hcd->localmem_pool) {
--			ret = hcd_alloc_coherent(
--					urb->dev->bus, mem_flags,
--					&urb->setup_dma,
--					(void **)&urb->setup_packet,
--					sizeof(struct usb_ctrlrequest),
--					DMA_TO_DEVICE);
--			if (ret)
--				return ret;
--			urb->transfer_flags |= URB_SETUP_MAP_LOCAL;
- 		}
- 	}
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -981,7 +981,7 @@ static inline bool mmc_blk_in_tran_state
+ }
  
- 	dir = usb_urb_dir_in(urb) ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
- 	if (urb->transfer_buffer_length != 0
- 	    && !(urb->transfer_flags & URB_NO_TRANSFER_DMA_MAP)) {
--		if (hcd_uses_dma(hcd)) {
-+		if (hcd->localmem_pool) {
-+			ret = hcd_alloc_coherent(
-+					urb->dev->bus, mem_flags,
-+					&urb->transfer_dma,
-+					&urb->transfer_buffer,
-+					urb->transfer_buffer_length,
-+					dir);
-+			if (ret == 0)
-+				urb->transfer_flags |= URB_MAP_LOCAL;
-+		} else if (hcd_uses_dma(hcd)) {
- 			if (urb->num_sgs) {
- 				int n;
+ static int card_busy_detect(struct mmc_card *card, unsigned int timeout_ms,
+-			    struct request *req, u32 *resp_errs)
++			    u32 *resp_errs)
+ {
+ 	unsigned long timeout = jiffies + msecs_to_jiffies(timeout_ms);
+ 	int err = 0;
+@@ -992,8 +992,8 @@ static int card_busy_detect(struct mmc_c
  
-@@ -1497,15 +1506,6 @@ int usb_hcd_map_urb_for_dma(struct usb_h
- 				else
- 					urb->transfer_flags |= URB_DMA_MAP_SINGLE;
- 			}
--		} else if (hcd->localmem_pool) {
--			ret = hcd_alloc_coherent(
--					urb->dev->bus, mem_flags,
--					&urb->transfer_dma,
--					&urb->transfer_buffer,
--					urb->transfer_buffer_length,
--					dir);
--			if (ret == 0)
--				urb->transfer_flags |= URB_MAP_LOCAL;
+ 		err = __mmc_send_status(card, &status, 5);
+ 		if (err) {
+-			pr_err("%s: error %d requesting status\n",
+-			       req->rq_disk->disk_name, err);
++			dev_err(mmc_dev(card->host),
++				"error %d requesting status\n", err);
+ 			return err;
  		}
- 		if (ret && (urb->transfer_flags & (URB_SETUP_MAP_SINGLE |
- 				URB_SETUP_MAP_LOCAL)))
---- a/drivers/usb/storage/scsiglue.c
-+++ b/drivers/usb/storage/scsiglue.c
-@@ -135,7 +135,8 @@ static int slave_configure(struct scsi_d
- 	 * For such controllers we need to make sure the block layer sets
- 	 * up bounce buffers in addressable memory.
- 	 */
--	if (!hcd_uses_dma(bus_to_hcd(us->pusb_dev->bus)))
-+	if (!hcd_uses_dma(bus_to_hcd(us->pusb_dev->bus)) ||
-+			(bus_to_hcd(us->pusb_dev->bus)->localmem_pool != NULL))
- 		blk_queue_bounce_limit(sdev->request_queue, BLK_BOUNCE_HIGH);
+ 
+@@ -1006,9 +1006,9 @@ static int card_busy_detect(struct mmc_c
+ 		 * leaves the program state.
+ 		 */
+ 		if (done) {
+-			pr_err("%s: Card stuck in wrong state! %s %s status: %#x\n",
+-				mmc_hostname(card->host),
+-				req->rq_disk->disk_name, __func__, status);
++			dev_err(mmc_dev(card->host),
++				"Card stuck in wrong state! %s status: %#x\n",
++				 __func__, status);
+ 			return -ETIMEDOUT;
+ 		}
+ 
+@@ -1671,7 +1671,7 @@ static int mmc_blk_fix_state(struct mmc_
+ 
+ 	mmc_blk_send_stop(card, timeout);
+ 
+-	err = card_busy_detect(card, timeout, req, NULL);
++	err = card_busy_detect(card, timeout, NULL);
+ 
+ 	mmc_retune_release(card->host);
+ 
+@@ -1895,7 +1895,7 @@ static int mmc_blk_card_busy(struct mmc_
+ 	if (mmc_host_is_spi(card->host) || rq_data_dir(req) == READ)
+ 		return 0;
+ 
+-	err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, req, &status);
++	err = card_busy_detect(card, MMC_BLK_TIMEOUT_MS, &status);
  
  	/*
+ 	 * Do not assume data transferred correctly if there are any error bits
 
 
