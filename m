@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F13126969
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40DFB12696C
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:37:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727791AbfLSShU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:37:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
+        id S1727830AbfLSSha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727804AbfLSShU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:20 -0500
+        id S1727824AbfLSSh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:37:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4987820716;
-        Thu, 19 Dec 2019 18:37:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0765D24679;
+        Thu, 19 Dec 2019 18:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780639;
-        bh=YOOKKu7KZKalCYc9fcrbvluf+Q6hWobR9h7/kUaryYI=;
+        s=default; t=1576780649;
+        bh=BH8qikRBDt42ngMKoPw5Pib1vwe/elbNsYhbcf3y2MA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oEGS7Ya4T9iRkwf9u5sgJfroN6JEzrt/4OKyY1YI19q6e5oy3R7OYNBDKpuLbvRh
-         8AYBiY5/J2QJ2a8hmToTPpJ3yGdlEhXr5+0DLhbLTHQC6yRQQRxvOp+Yt3V9Z90IPz
-         PUyDnmQeTb3tn+MQnhbrmvCxXbpxixUsIiByDY4M=
+        b=cFhzklpTP+HnOT2JnJkwGIwP3uxwvHj6HNNTTnRuVcqRQmZn71/ZNGDJQoysHYbQ4
+         tgJOj9LU6lXhQJK+wDHxOcdbzXmEBmNs4Du+0dHVAbhbeIp31tdETeZ2nvJ+T5Rr8h
+         aQhl0HU3VTfKqznCtctJ2OwQ7vKzxU2dFzXz/SKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 056/162] ALSA: pcm: oss: Avoid potential buffer overflows
-Date:   Thu, 19 Dec 2019 19:32:44 +0100
-Message-Id: <20191219183211.290219925@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.4 059/162] CIFS: Fix SMB2 oplock break processing
+Date:   Thu, 19 Dec 2019 19:32:47 +0100
+Message-Id: <20191219183211.467075228@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -44,64 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-commit 4cc8d6505ab82db3357613d36e6c58a297f57f7c upstream.
+commit fa9c2362497fbd64788063288dc4e74daf977ebb upstream.
 
-syzkaller reported an invalid access in PCM OSS read, and this seems
-to be an overflow of the internal buffer allocated for a plugin.
-Since the rate plugin adjusts its transfer size dynamically, the
-calculation for the chained plugin might be bigger than the given
-buffer size in some extreme cases, which lead to such an buffer
-overflow as caught by KASAN.
+Even when mounting modern protocol version the server may be
+configured without supporting SMB2.1 leases and the client
+uses SMB2 oplock to optimize IO performance through local caching.
 
-Fix it by limiting the max transfer size properly by checking against
-the destination size in each plugin transfer callback.
+However there is a problem in oplock break handling that leads
+to missing a break notification on the client who has a file
+opened. It latter causes big latencies to other clients that
+are trying to open the same file.
 
-Reported-by: syzbot+f153bde47a62e0b05f83@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191204144824.17801-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The problem reproduces when there are multiple shares from the
+same server mounted on the client. The processing code tries to
+match persistent and volatile file ids from the break notification
+with an open file but it skips all share besides the first one.
+Fix this by looking up in all shares belonging to the server that
+issued the oplock break.
+
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/oss/linear.c |    2 ++
- sound/core/oss/mulaw.c  |    2 ++
- sound/core/oss/route.c  |    2 ++
- 3 files changed, 6 insertions(+)
+ fs/cifs/smb2misc.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/sound/core/oss/linear.c
-+++ b/sound/core/oss/linear.c
-@@ -107,6 +107,8 @@ static snd_pcm_sframes_t linear_transfer
- 		}
- 	}
- #endif
-+	if (frames > dst_channels[0].frames)
-+		frames = dst_channels[0].frames;
- 	convert(plugin, src_channels, dst_channels, frames);
- 	return frames;
- }
---- a/sound/core/oss/mulaw.c
-+++ b/sound/core/oss/mulaw.c
-@@ -269,6 +269,8 @@ static snd_pcm_sframes_t mulaw_transfer(
- 		}
- 	}
- #endif
-+	if (frames > dst_channels[0].frames)
-+		frames = dst_channels[0].frames;
- 	data = (struct mulaw_priv *)plugin->extra_data;
- 	data->func(plugin, src_channels, dst_channels, frames);
- 	return frames;
---- a/sound/core/oss/route.c
-+++ b/sound/core/oss/route.c
-@@ -57,6 +57,8 @@ static snd_pcm_sframes_t route_transfer(
- 		return -ENXIO;
- 	if (frames == 0)
- 		return 0;
-+	if (frames > dst_channels[0].frames)
-+		frames = dst_channels[0].frames;
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -582,10 +582,10 @@ smb2_is_valid_oplock_break(char *buffer,
+ 	spin_lock(&cifs_tcp_ses_lock);
+ 	list_for_each(tmp, &server->smb_ses_list) {
+ 		ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
++
+ 		list_for_each(tmp1, &ses->tcon_list) {
+ 			tcon = list_entry(tmp1, struct cifs_tcon, tcon_list);
  
- 	nsrcs = plugin->src_format.channels;
- 	ndsts = plugin->dst_format.channels;
+-			cifs_stats_inc(&tcon->stats.cifs_stats.num_oplock_brks);
+ 			spin_lock(&tcon->open_file_lock);
+ 			list_for_each(tmp2, &tcon->openFileList) {
+ 				cfile = list_entry(tmp2, struct cifsFileInfo,
+@@ -597,6 +597,8 @@ smb2_is_valid_oplock_break(char *buffer,
+ 					continue;
+ 
+ 				cifs_dbg(FYI, "file id match, oplock break\n");
++				cifs_stats_inc(
++				    &tcon->stats.cifs_stats.num_oplock_brks);
+ 				cinode = CIFS_I(d_inode(cfile->dentry));
+ 				spin_lock(&cfile->file_info_lock);
+ 				if (!CIFS_CACHE_WRITE(cinode) &&
+@@ -628,9 +630,6 @@ smb2_is_valid_oplock_break(char *buffer,
+ 				return true;
+ 			}
+ 			spin_unlock(&tcon->open_file_lock);
+-			spin_unlock(&cifs_tcp_ses_lock);
+-			cifs_dbg(FYI, "No matching file for oplock break\n");
+-			return true;
+ 		}
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
 
 
