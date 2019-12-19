@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE529126B6B
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F8E126ACE
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730488AbfLSS4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:56:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52958 "EHLO mail.kernel.org"
+        id S1730102AbfLSSvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:51:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730809AbfLSS4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:56:24 -0500
+        id S1730087AbfLSSvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:51:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47575206EC;
-        Thu, 19 Dec 2019 18:56:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E313224685;
+        Thu, 19 Dec 2019 18:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781783;
-        bh=jk0VuUMvYHyoH4GIwFD9bkaY87rYKm6vgjLVmpGwtis=;
+        s=default; t=1576781464;
+        bh=sKj9dKNPh7LtuldzJsMWW7xOyu3jdMpa/F+Jy+biODo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=er5lXTOcIaL4Dwh3TAVqLwNPLN5dzdW0WLuTSnIZ9+b4Oc6H6n0YdmB/fgwcRpIWC
-         B/QNLvRY0nWUvykPJeFVQc2BPr0ZaaniP6XdDJp7roQo2UYw0NerwbOpJRUQ8dl/sF
-         TkUx6wQDvhMvWG9xXK9lFrguaQ175bDMd0vX4MtU=
+        b=MomtK3COdNt4MPxHf+7rNAm52Q8X/zpPcrxmad5dr9Ekoj3CdbIBkPmdt7fn1wzzu
+         KwRz4UT8HpbvWt1rmfLgIIYCCoIagoZsj8Iwx9X3o4rBQvohwk3Pzxr4WCPXCCHZkn
+         CdEu9fcN6FAL037G72GQ3iQOnZh1iORBzE/GKygc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.4 40/80] ARM: tegra: Fix FLOW_CTLR_HALT register clobbering by tegra_resume()
+        Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Ashok Raj <ashok.raj@intel.com>
+Subject: [PATCH 4.14 15/36] PCI: Fix Intel ACS quirk UPDCR register address
 Date:   Thu, 19 Dec 2019 19:34:32 +0100
-Message-Id: <20191219183108.704774605@linuxfoundation.org>
+Message-Id: <20191219182900.407406273@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
-References: <20191219183031.278083125@linuxfoundation.org>
+In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
+References: <20191219182848.708141124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
 
-commit d70f7d31a9e2088e8a507194354d41ea10062994 upstream.
+commit d8558ac8c93d429d65d7490b512a3a67e559d0d4 upstream.
 
-There is an unfortunate typo in the code that results in writing to
-FLOW_CTLR_HALT instead of FLOW_CTLR_CSR.
+According to documentation [0] the correct offset for the Upstream Peer
+Decode Configuration Register (UPDCR) is 0x1014.  It was previously defined
+as 0x1114.
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
+intended to enforce isolation between PCI devices allowing them to be put
+into separate IOMMU groups.  Due to the wrong register offset the intended
+isolation was not fully enforced.  This is fixed with this patch.
+
+Please note that I did not test this patch because I have no hardware that
+implements this register.
+
+[0] https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/4th-gen-core-family-mobile-i-o-datasheet.pdf (page 325)
+Fixes: d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
+Link: https://lore.kernel.org/r/7a3505df-79ba-8a28-464c-88b83eefffa6@kernkonzept.com
+Signed-off-by: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Acked-by: Ashok Raj <ashok.raj@intel.com>
+Cc: stable@vger.kernel.org	# v3.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-tegra/reset-handler.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pci/quirks.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/mach-tegra/reset-handler.S
-+++ b/arch/arm/mach-tegra/reset-handler.S
-@@ -44,16 +44,16 @@ ENTRY(tegra_resume)
- 	cmp	r6, #TEGRA20
- 	beq	1f				@ Yes
- 	/* Clear the flow controller flags for this CPU. */
--	cpu_to_csr_reg r1, r0
-+	cpu_to_csr_reg r3, r0
- 	mov32	r2, TEGRA_FLOW_CTRL_BASE
--	ldr	r1, [r2, r1]
-+	ldr	r1, [r2, r3]
- 	/* Clear event & intr flag */
- 	orr	r1, r1, \
- 		#FLOW_CTRL_CSR_INTR_FLAG | FLOW_CTRL_CSR_EVENT_FLAG
- 	movw	r0, #0x3FFD	@ enable, cluster_switch, immed, bitmaps
- 				@ & ext flags for CPU power mgnt
- 	bic	r1, r1, r0
--	str	r1, [r2]
-+	str	r1, [r2, r3]
- 1:
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4600,7 +4600,7 @@ int pci_dev_specific_acs_enabled(struct
+ #define INTEL_BSPR_REG_BPPD  (1 << 9)
  
- 	mov32	r9, 0xc09
+ /* Upstream Peer Decode Configuration Register */
+-#define INTEL_UPDCR_REG 0x1114
++#define INTEL_UPDCR_REG 0x1014
+ /* 5:0 Peer Decode Enable bits */
+ #define INTEL_UPDCR_REG_MASK 0x3f
+ 
 
 
