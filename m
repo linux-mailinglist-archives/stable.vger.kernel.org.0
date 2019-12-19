@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 282FE126BFC
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42ACE126D2B
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729600AbfLSSvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:51:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45918 "EHLO mail.kernel.org"
+        id S1727465AbfLSTJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:09:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728291AbfLSSvh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:51:37 -0500
+        id S1727574AbfLSSlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAA7424679;
-        Thu, 19 Dec 2019 18:51:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 381EF206D7;
+        Thu, 19 Dec 2019 18:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781496;
-        bh=apsvo307xRZXSs4sK/VamReIvrBywVuTRXQhNEyJn8Q=;
+        s=default; t=1576780865;
+        bh=k/Vn97eY/o48QnUPvrMfmIs4W8FZyzJ3R15DAh3PVyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9e9JXM7e8H9zJqzuw1Htjn3jkOSj4F4jcQ1oVTYSeG/nI4jxUksttaOkr4damD8F
-         iyQAD5l7ruP3Vu1XQEojUnJPrx9QzyZP126xslodKn28PLFTWUWUAyElB8wu0dVlsF
-         kwCsggqdJZaH+jA2GHklwGGcu0xflTmDe8DqnVpY=
+        b=0hQfjfk6h5VNbnEdhKf17EsIIyHyZhugZdCKAvoZH9bfeswTcB+UKvuSTYVq1TiPh
+         Saeai+OOqSEMdiGeICw6RXRTzP4VH3KxfWTaCP557aqXnc25myLHMrqtA3itkFmb4g
+         8+CeeUoTZmLTx9ut84aWn/rKD7d5glwKF6TGFwW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 01/47] inet: protect against too small mtu values.
-Date:   Thu, 19 Dec 2019 19:34:15 +0100
-Message-Id: <20191219182858.618858122@linuxfoundation.org>
+Subject: [PATCH 4.4 148/162] tcp: tighten acceptance of ACKs not matching a child socket
+Date:   Thu, 19 Dec 2019 19:34:16 +0100
+Message-Id: <20191219183216.782494552@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,177 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 501a90c945103e8627406763dac418f20f3837b2 ]
+[ Upstream commit cb44a08f8647fd2e8db5cc9ac27cd8355fa392d8 ]
 
-syzbot was once again able to crash a host by setting a very small mtu
-on loopback device.
+When no synflood occurs, the synflood timestamp isn't updated.
+Therefore it can be so old that time_after32() can consider it to be
+in the future.
 
-Let's make inetdev_valid_mtu() available in include/net/ip.h,
-and use it in ip_setup_cork(), so that we protect both ip_append_page()
-and __ip_append_data()
+That's a problem for tcp_synq_no_recent_overflow() as it may report
+that a recent overflow occurred while, in fact, it's just that jiffies
+has grown past 'last_overflow' + TCP_SYNCOOKIE_VALID + 2^31.
 
-Also add a READ_ONCE() when the device mtu is read.
+Spurious detection of recent overflows lead to extra syncookie
+verification in cookie_v[46]_check(). At that point, the verification
+should fail and the packet dropped. But we should have dropped the
+packet earlier as we didn't even send a syncookie.
 
-Pairs this lockless read with one WRITE_ONCE() in __dev_set_mtu(),
-even if other code paths might write over this field.
+Let's refine tcp_synq_no_recent_overflow() to report a recent overflow
+only if jiffies is within the
+[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval. This
+way, no spurious recent overflow is reported when jiffies wraps and
+'last_overflow' becomes in the future from the point of view of
+time_after32().
 
-Add a big comment in include/linux/netdevice.h about dev->mtu
-needing READ_ONCE()/WRITE_ONCE() annotations.
+However, if jiffies wraps and enters the
+[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval (with
+'last_overflow' being a stale synflood timestamp), then
+tcp_synq_no_recent_overflow() still erroneously reports an
+overflow. In such cases, we have to rely on syncookie verification
+to drop the packet. We unfortunately have no way to differentiate
+between a fresh and a stale syncookie timestamp.
 
-Hopefully we will add the missing ones in followup patches.
+In practice, using last_overflow as lower bound is problematic.
+If the synflood timestamp is concurrently updated between the time
+we read jiffies and the moment we store the timestamp in
+'last_overflow', then 'now' becomes smaller than 'last_overflow' and
+tcp_synq_no_recent_overflow() returns true, potentially dropping a
+valid syncookie.
 
-[1]
+Reading jiffies after loading the timestamp could fix the problem,
+but that'd require a memory barrier. Let's just accommodate for
+potential timestamp growth instead and extend the interval using
+'last_overflow - HZ' as lower bound.
 
-refcount_t: saturated; leaking memory.
-WARNING: CPU: 0 PID: 9464 at lib/refcount.c:22 refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 9464 Comm: syz-executor850 Not tainted 5.4.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- panic+0x2e3/0x75c kernel/panic.c:221
- __warn.cold+0x2f/0x3e kernel/panic.c:582
- report_bug+0x289/0x300 lib/bug.c:195
- fixup_bug arch/x86/kernel/traps.c:174 [inline]
- fixup_bug arch/x86/kernel/traps.c:169 [inline]
- do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
- do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
- invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
-RIP: 0010:refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
-Code: 06 31 ff 89 de e8 c8 f5 e6 fd 84 db 0f 85 6f ff ff ff e8 7b f4 e6 fd 48 c7 c7 e0 71 4f 88 c6 05 56 a6 a4 06 01 e8 c7 a8 b7 fd <0f> 0b e9 50 ff ff ff e8 5c f4 e6 fd 0f b6 1d 3d a6 a4 06 31 ff 89
-RSP: 0018:ffff88809689f550 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff815e4336 RDI: ffffed1012d13e9c
-RBP: ffff88809689f560 R08: ffff88809c50a3c0 R09: fffffbfff15d31b1
-R10: fffffbfff15d31b0 R11: ffffffff8ae98d87 R12: 0000000000000001
-R13: 0000000000040100 R14: ffff888099041104 R15: ffff888218d96e40
- refcount_add include/linux/refcount.h:193 [inline]
- skb_set_owner_w+0x2b6/0x410 net/core/sock.c:1999
- sock_wmalloc+0xf1/0x120 net/core/sock.c:2096
- ip_append_page+0x7ef/0x1190 net/ipv4/ip_output.c:1383
- udp_sendpage+0x1c7/0x480 net/ipv4/udp.c:1276
- inet_sendpage+0xdb/0x150 net/ipv4/af_inet.c:821
- kernel_sendpage+0x92/0xf0 net/socket.c:3794
- sock_sendpage+0x8b/0xc0 net/socket.c:936
- pipe_to_sendpage+0x2da/0x3c0 fs/splice.c:458
- splice_from_pipe_feed fs/splice.c:512 [inline]
- __splice_from_pipe+0x3ee/0x7c0 fs/splice.c:636
- splice_from_pipe+0x108/0x170 fs/splice.c:671
- generic_splice_sendpage+0x3c/0x50 fs/splice.c:842
- do_splice_from fs/splice.c:861 [inline]
- direct_splice_actor+0x123/0x190 fs/splice.c:1035
- splice_direct_to_actor+0x3b4/0xa30 fs/splice.c:990
- do_splice_direct+0x1da/0x2a0 fs/splice.c:1078
- do_sendfile+0x597/0xd00 fs/read_write.c:1464
- __do_sys_sendfile64 fs/read_write.c:1525 [inline]
- __se_sys_sendfile64 fs/read_write.c:1511 [inline]
- __x64_sys_sendfile64+0x1dd/0x220 fs/read_write.c:1511
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x441409
-Code: e8 ac e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fffb64c4f78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441409
-RDX: 0000000000000000 RSI: 0000000000000006 RDI: 0000000000000005
-RBP: 0000000000073b8a R08: 0000000000000010 R09: 0000000000000010
-R10: 0000000000010001 R11: 0000000000000246 R12: 0000000000402180
-R13: 0000000000402210 R14: 0000000000000000 R15: 0000000000000000
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
-
-Fixes: 1470ddf7f8ce ("inet: Remove explicit write references to sk/inet in ip_append_data")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netdevice.h |    5 +++++
- include/net/ip.h          |    5 +++++
- net/core/dev.c            |    3 ++-
- net/ipv4/devinet.c        |    5 -----
- net/ipv4/ip_output.c      |   13 ++++++++-----
- 5 files changed, 20 insertions(+), 11 deletions(-)
+ include/net/tcp.h |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1834,6 +1834,11 @@ struct net_device {
- 	unsigned char		if_port;
- 	unsigned char		dma;
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -514,7 +514,15 @@ static inline bool tcp_synq_no_recent_ov
+ {
+ 	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
  
-+	/* Note : dev->mtu is often read without holding a lock.
-+	 * Writers usually hold RTNL.
-+	 * It is recommended to use READ_ONCE() to annotate the reads,
-+	 * and to use WRITE_ONCE() to annotate the writes.
+-	return time_after(jiffies, last_overflow + TCP_SYNCOOKIE_VALID);
++	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
++	 * then we're under synflood. However, we have to use
++	 * 'last_overflow - HZ' as lower bound. That's because a concurrent
++	 * tcp_synq_overflow() could update .ts_recent_stamp after we read
++	 * jiffies but before we store .ts_recent_stamp into last_overflow,
++	 * which could lead to rejecting a valid syncookie.
 +	 */
- 	unsigned int		mtu;
- 	unsigned int		min_mtu;
- 	unsigned int		max_mtu;
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -692,4 +692,9 @@ int ip_misc_proc_init(void);
- int rtm_getroute_parse_ip_proto(struct nlattr *attr, u8 *ip_proto, u8 family,
- 				struct netlink_ext_ack *extack);
- 
-+static inline bool inetdev_valid_mtu(unsigned int mtu)
-+{
-+	return likely(mtu >= IPV4_MIN_MTU);
-+}
-+
- #endif	/* _IP_H */
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -7595,7 +7595,8 @@ int __dev_set_mtu(struct net_device *dev
- 	if (ops->ndo_change_mtu)
- 		return ops->ndo_change_mtu(dev, new_mtu);
- 
--	dev->mtu = new_mtu;
-+	/* Pairs with all the lockless reads of dev->mtu in the stack */
-+	WRITE_ONCE(dev->mtu, new_mtu);
- 	return 0;
- }
- EXPORT_SYMBOL(__dev_set_mtu);
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1441,11 +1441,6 @@ skip:
- 	}
++	return !time_between32(jiffies, last_overflow - HZ,
++			       last_overflow + TCP_SYNCOOKIE_VALID);
  }
  
--static bool inetdev_valid_mtu(unsigned int mtu)
--{
--	return mtu >= IPV4_MIN_MTU;
--}
--
- static void inetdev_send_gratuitous_arp(struct net_device *dev,
- 					struct in_device *in_dev)
- 
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -1142,15 +1142,18 @@ static int ip_setup_cork(struct sock *sk
- 		cork->addr = ipc->addr;
- 	}
- 
--	/*
--	 * We steal reference to this route, caller should not release it
--	 */
--	*rtp = NULL;
- 	cork->fragsize = ip_sk_use_pmtu(sk) ?
--			 dst_mtu(&rt->dst) : rt->dst.dev->mtu;
-+			 dst_mtu(&rt->dst) : READ_ONCE(rt->dst.dev->mtu);
-+
-+	if (!inetdev_valid_mtu(cork->fragsize))
-+		return -ENETUNREACH;
- 
- 	cork->gso_size = ipc->gso_size;
-+
- 	cork->dst = &rt->dst;
-+	/* We stole this route, caller should not release it. */
-+	*rtp = NULL;
-+
- 	cork->length = 0;
- 	cork->ttl = ipc->ttl;
- 	cork->tos = ipc->tos;
+ static inline u32 tcp_cookie_time(void)
 
 
