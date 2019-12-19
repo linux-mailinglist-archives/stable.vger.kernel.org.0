@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40422126D18
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE27126C04
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728128AbfLSSlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:41:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60968 "EHLO mail.kernel.org"
+        id S1728010AbfLSTAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:00:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728587AbfLSSlr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:41:47 -0500
+        id S1729385AbfLSSvl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:51:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B675F206D7;
-        Thu, 19 Dec 2019 18:41:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8239320674;
+        Thu, 19 Dec 2019 18:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780907;
-        bh=w3xchpWSaeEifrs1U1NvINkb8ay7YrSJsH15zMdBVQU=;
+        s=default; t=1576781501;
+        bh=FfnKSyZoMFlkOL6GydMHuUSODldEug/qdjcyseevXTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJZzukD3wDS/4Qdji8A3ZzqmW5ZGrmUZiOf9akHlBthRJPJbh39XGriNbg2tN9BI9
-         AkRGi7BpcOAhOLuYvY5JYf4NSWzRPCSWmbjqPNqKqnLKuZfSMqpG/GYPdzCyD7CCIR
-         TcsL5tITg4KLoVzN9ZznFrZxzhYKrv50/BLNEXgc=
+        b=0MpbCGAWjPe5ulJCNYtckvZCyL/BEERGkHd3CUg3ouG2LE6gzH5lmAK9npfaEh/4D
+         btOFhEPnTrPH26UPhyF+PK7XuwhI8G52oJHV/UnWvDdzRHoXSVEadeAHtkw1YJVDBb
+         eYNb6fk1rI3hXEVyxS1KtyVg33rtWAl1bZEO8+tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiang Yi <giangyi@amazon.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.4 157/162] vfio/pci: call irq_bypass_unregister_producer() before freeing irq
+        stable@vger.kernel.org, Huy Nguyen <huyn@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.19 11/47] net/mlx5e: Query global pause state before setting prio2buffer
 Date:   Thu, 19 Dec 2019 19:34:25 +0100
-Message-Id: <20191219183217.321443381@linuxfoundation.org>
+Message-Id: <20191219182908.132827581@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
+References: <20191219182857.659088743@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Yi <giangyi@amazon.com>
+From: Huy Nguyen <huyn@mellanox.com>
 
-commit d567fb8819162099035e546b11a736e29c2af0ea upstream.
+[ Upstream commit 73e6551699a32fac703ceea09214d6580edcf2d5 ]
 
-Since irq_bypass_register_producer() is called after request_irq(), we
-should do tear-down in reverse order: irq_bypass_unregister_producer()
-then free_irq().
+When the user changes prio2buffer mapping while global pause is
+enabled, mlx5 driver incorrectly sets all active buffers
+(buffer that has at least one priority mapped) to lossy.
 
-Specifically free_irq() may release resources required by the
-irqbypass del_producer() callback.  Notably an example provided by
-Marc Zyngier on arm64 with GICv4 that he indicates has the potential
-to wedge the hardware:
+Solution:
+If global pause is enabled, set all the active buffers to lossless
+in prio2buffer command.
+Also, add error message when buffer size is not enough to meet
+xoff threshold.
 
- free_irq(irq)
-   __free_irq(irq)
-     irq_domain_deactivate_irq(irq)
-       its_irq_domain_deactivate()
-         [unmap the VLPI from the ITS]
-
- kvm_arch_irq_bypass_del_producer(cons, prod)
-   kvm_vgic_v4_unset_forwarding(kvm, irq, ...)
-     its_unmap_vlpi(irq)
-       [Unmap the VLPI from the ITS (again), remap the original LPI]
-
-Signed-off-by: Jiang Yi <giangyi@amazon.com>
-Cc: stable@vger.kernel.org # v4.4+
-Fixes: 6d7425f109d26 ("vfio: Register/unregister irq_bypass_producer")
-Link: https://lore.kernel.org/kvm/20191127164910.15888-1-giangyi@amazon.com
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-[aw: commit log]
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 0696d60853d5 ("net/mlx5e: Receive buffer configuration")
+Signed-off-by: Huy Nguyen <huyn@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/vfio/pci/vfio_pci_intrs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c |   27 +++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -318,8 +318,8 @@ static int vfio_msi_set_vector_signal(st
- 		return -EINVAL;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
+@@ -155,8 +155,11 @@ static int update_xoff_threshold(struct
+ 		}
  
- 	if (vdev->ctx[vector].trigger) {
--		free_irq(irq, vdev->ctx[vector].trigger);
- 		irq_bypass_unregister_producer(&vdev->ctx[vector].producer);
-+		free_irq(irq, vdev->ctx[vector].trigger);
- 		kfree(vdev->ctx[vector].name);
- 		eventfd_ctx_put(vdev->ctx[vector].trigger);
- 		vdev->ctx[vector].trigger = NULL;
+ 		if (port_buffer->buffer[i].size <
+-		    (xoff + max_mtu + (1 << MLX5E_BUFFER_CELL_SHIFT)))
++		    (xoff + max_mtu + (1 << MLX5E_BUFFER_CELL_SHIFT))) {
++			pr_err("buffer_size[%d]=%d is not enough for lossless buffer\n",
++			       i, port_buffer->buffer[i].size);
+ 			return -ENOMEM;
++		}
+ 
+ 		port_buffer->buffer[i].xoff = port_buffer->buffer[i].size - xoff;
+ 		port_buffer->buffer[i].xon  =
+@@ -232,6 +235,26 @@ static int update_buffer_lossy(unsigned
+ 	return 0;
+ }
+ 
++static int fill_pfc_en(struct mlx5_core_dev *mdev, u8 *pfc_en)
++{
++	u32 g_rx_pause, g_tx_pause;
++	int err;
++
++	err = mlx5_query_port_pause(mdev, &g_rx_pause, &g_tx_pause);
++	if (err)
++		return err;
++
++	/* If global pause enabled, set all active buffers to lossless.
++	 * Otherwise, check PFC setting.
++	 */
++	if (g_rx_pause || g_tx_pause)
++		*pfc_en = 0xff;
++	else
++		err = mlx5_query_port_pfc(mdev, pfc_en, NULL);
++
++	return err;
++}
++
+ #define MINIMUM_MAX_MTU 9216
+ int mlx5e_port_manual_buffer_config(struct mlx5e_priv *priv,
+ 				    u32 change, unsigned int mtu,
+@@ -277,7 +300,7 @@ int mlx5e_port_manual_buffer_config(stru
+ 
+ 	if (change & MLX5E_PORT_BUFFER_PRIO2BUFFER) {
+ 		update_prio2buffer = true;
+-		err = mlx5_query_port_pfc(priv->mdev, &curr_pfc_en, NULL);
++		err = fill_pfc_en(priv->mdev, &curr_pfc_en);
+ 		if (err)
+ 			return err;
+ 
 
 
