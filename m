@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFBCA1269F7
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C38E126949
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:36:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728763AbfLSSmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:42:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34260 "EHLO mail.kernel.org"
+        id S1726866AbfLSSgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728756AbfLSSmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:42:51 -0500
+        id S1727505AbfLSSgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBE8024680;
-        Thu, 19 Dec 2019 18:42:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89B0224679;
+        Thu, 19 Dec 2019 18:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780970;
-        bh=4xRt0p9sa+Ph6Il2jVKOkVrDa2bzHozBFcjjEmyrhmU=;
+        s=default; t=1576780574;
+        bh=w3yhLTO+m3owtSpnXd91u23gP/yH1TzFv6KaobX7H+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bkGa12+YczUpy4rPALEyYiG3zUMU4ioAM2sQL4pXP5ZiacHDFzcU+KU/hdECdg1g
-         UDePqBQ0jaly0Kqqu6Tq4OFD7S95Rvq0N7eStlb2dVNbGlgpPmXvhNDpyglU6NDMP9
-         eLH1zB+CopmUZDPu3CETT0iEk4MlJ0GxFnug5Kbs=
+        b=JS8FDxHydg5Cfz14hnVvt/HVre8bm0IiOWWL6IVqRhI0Jfs/9v69a7PCyX107btbV
+         VRv2zujR2aWzgVPYv4qQ192ia2vAbTCG0o/h1BW3/lobTK94QAM5a/4v8K13x8YjMC
+         sxcgLjkTmu2OQe2UYyl2paRGzI3ueCjTiCAeJjq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 029/199] pinctrl: qcom: ssbi-gpio: fix gpio-hog related boot issues
-Date:   Thu, 19 Dec 2019 19:31:51 +0100
-Message-Id: <20191219183216.485984063@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.4 004/162] x86/PCI: Avoid AMD FCH XHCI USB PME# from D0 defect
+Date:   Thu, 19 Dec 2019 19:31:52 +0100
+Message-Id: <20191219183157.527365032@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <masneyb@onstation.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 7ed07855773814337b9814f1c3e866df52ebce68 ]
+commit 7e8ce0e2b036dbc6617184317983aea4f2c52099 upstream.
 
-When attempting to setup up a gpio hog, device probing will repeatedly
-fail with -EPROBE_DEFERED errors. It is caused by a circular dependency
-between the gpio and pinctrl frameworks. If the gpio-ranges property is
-present in device tree, then the gpio framework will handle the gpio pin
-registration and eliminate the circular dependency.
+The AMD FCH USB XHCI Controller advertises support for generating PME#
+while in D0.  When in D0, it does signal PME# for USB 3.0 connect events,
+but not for USB 2.0 or USB 1.1 connect events, which means the controller
+doesn't wake correctly for those events.
 
-See Christian Lamparter's commit a86caa9ba5d7 ("pinctrl: msm: fix
-gpio-hog related boot issues") for a detailed commit message that
-explains the issue in much more detail. The code comment in this commit
-came from Christian's commit.
+  00:10.0 USB controller [0c03]: Advanced Micro Devices, Inc. [AMD] FCH USB XHCI Controller [1022:7914] (rev 20) (prog-if 30 [XHCI])
+        Subsystem: Dell FCH USB XHCI Controller [1028:087e]
+        Capabilities: [50] Power Management version 3
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
 
-I did not test this change against any hardware supported by this
-particular driver, however I was able to validate this same fix works
-for pinctrl-spmi-gpio.c using a LG Nexus 5 (hammerhead) phone.
+Clear PCI_PM_CAP_PME_D0 in dev->pme_support to indicate the device will not
+assert PME# from D0 so we don't rely on it.
 
-Signed-off-by: Brian Masney <masneyb@onstation.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203673
+Link: https://lore.kernel.org/r/20190902145252.32111-1-kai.heng.feng@canonical.com
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ arch/x86/pci/fixup.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c b/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
-index e86c4de2f6db1..92855f45bc537 100644
---- a/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
-+++ b/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
-@@ -762,12 +762,23 @@ static int pm8xxx_gpio_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+--- a/arch/x86/pci/fixup.c
++++ b/arch/x86/pci/fixup.c
+@@ -542,6 +542,17 @@ static void twinhead_reserve_killing_zon
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, 0x27B9, twinhead_reserve_killing_zone);
  
--	ret = gpiochip_add_pin_range(&pctrl->chip,
--				     dev_name(pctrl->dev),
--				     0, 0, pctrl->chip.ngpio);
--	if (ret) {
--		dev_err(pctrl->dev, "failed to add pin range\n");
--		goto unregister_gpiochip;
-+	/*
-+	 * For DeviceTree-supported systems, the gpio core checks the
-+	 * pinctrl's device node for the "gpio-ranges" property.
-+	 * If it is present, it takes care of adding the pin ranges
-+	 * for the driver. In this case the driver can skip ahead.
-+	 *
-+	 * In order to remain compatible with older, existing DeviceTree
-+	 * files which don't set the "gpio-ranges" property or systems that
-+	 * utilize ACPI the driver has to call gpiochip_add_pin_range().
-+	 */
-+	if (!of_property_read_bool(pctrl->dev->of_node, "gpio-ranges")) {
-+		ret = gpiochip_add_pin_range(&pctrl->chip, dev_name(pctrl->dev),
-+					     0, 0, pctrl->chip.ngpio);
-+		if (ret) {
-+			dev_err(pctrl->dev, "failed to add pin range\n");
-+			goto unregister_gpiochip;
-+		}
- 	}
- 
- 	platform_set_drvdata(pdev, pctrl);
--- 
-2.20.1
-
+ /*
++ * Device [1022:7914]
++ * When in D0, PME# doesn't get asserted when plugging USB 2.0 device.
++ */
++static void pci_fixup_amd_fch_xhci_pme(struct pci_dev *dev)
++{
++	dev_info(&dev->dev, "PME# does not work under D0, disabling it\n");
++	dev->pme_support &= ~(PCI_PM_CAP_PME_D0 >> PCI_PM_CAP_PME_SHIFT);
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x7914, pci_fixup_amd_fch_xhci_pme);
++
++/*
+  * Broadwell EP Home Agent BARs erroneously return non-zero values when read.
+  *
+  * See http://www.intel.com/content/www/us/en/processors/xeon/xeon-e5-v4-spec-update.html
 
 
