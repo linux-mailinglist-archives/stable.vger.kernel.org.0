@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BEC1269F6
+	by mail.lfdr.de (Postfix) with ESMTP id EFBCA1269F7
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:42:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728752AbfLSSmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:42:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34184 "EHLO mail.kernel.org"
+        id S1728763AbfLSSmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:42:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728750AbfLSSms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:42:48 -0500
+        id S1728756AbfLSSmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:42:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FE0524672;
-        Thu, 19 Dec 2019 18:42:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBE8024680;
+        Thu, 19 Dec 2019 18:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780967;
-        bh=gI9ePgusSsFa9b87u0tWBwlUXgH8iTKtcqzc0ElY/y4=;
+        s=default; t=1576780970;
+        bh=4xRt0p9sa+Ph6Il2jVKOkVrDa2bzHozBFcjjEmyrhmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEusJCWfaqh3MDS55H3EMT7PPkBf+aD15aFFbs2ioQNcdQZvBEBXfzFFeH8NS22Sl
-         1V7TEO6ZkeIAhRGSNDmwLYFqMxyWeW384E24SlQNBleAdWhdmQbSDt6mhSoIC34Riw
-         M0JvVOB11l36N15aCT4KwJWf6hNwSOhfi+updroU=
+        b=2bkGa12+YczUpy4rPALEyYiG3zUMU4ioAM2sQL4pXP5ZiacHDFzcU+KU/hdECdg1g
+         UDePqBQ0jaly0Kqqu6Tq4OFD7S95Rvq0N7eStlb2dVNbGlgpPmXvhNDpyglU6NDMP9
+         eLH1zB+CopmUZDPu3CETT0iEk4MlJ0GxFnug5Kbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 028/199] scsi: zfcp: drop default switch case which might paper over missing case
-Date:   Thu, 19 Dec 2019 19:31:50 +0100
-Message-Id: <20191219183216.423690955@linuxfoundation.org>
+Subject: [PATCH 4.9 029/199] pinctrl: qcom: ssbi-gpio: fix gpio-hog related boot issues
+Date:   Thu, 19 Dec 2019 19:31:51 +0100
+Message-Id: <20191219183216.485984063@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -45,51 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Brian Masney <masneyb@onstation.org>
 
-[ Upstream commit 0c902936e55cff9335b27ed632fc45e7115ced75 ]
+[ Upstream commit 7ed07855773814337b9814f1c3e866df52ebce68 ]
 
-This was introduced with v4.18 commit 8c3d20aada70 ("scsi: zfcp: fix
-missing REC trigger trace for all objects in ERP_FAILED") but would now
-suppress helpful -Wswitch compiler warnings when building with W=1 such as
-the following forced example:
+When attempting to setup up a gpio hog, device probing will repeatedly
+fail with -EPROBE_DEFERED errors. It is caused by a circular dependency
+between the gpio and pinctrl frameworks. If the gpio-ranges property is
+present in device tree, then the gpio framework will handle the gpio pin
+registration and eliminate the circular dependency.
 
-drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_handle_failed':
-drivers/s390/scsi/zfcp_erp.c:126:2: warning: enumeration value 'ZFCP_ERP_ACTION_REOPEN_PORT_FORCED' not handled in switch [-Wswitch]
-  switch (want) {
-  ^~~~~~
+See Christian Lamparter's commit a86caa9ba5d7 ("pinctrl: msm: fix
+gpio-hog related boot issues") for a detailed commit message that
+explains the issue in much more detail. The code comment in this commit
+came from Christian's commit.
 
-But then again, only with W=1 we would notice unhandled enum cases.
-Without the default cases and a missed unhandled enum case, the code might
-perform unforeseen things we might not want...
+I did not test this change against any hardware supported by this
+particular driver, however I was able to validate this same fix works
+for pinctrl-spmi-gpio.c using a LG Nexus 5 (hammerhead) phone.
 
-As of today, we never run through the removed default case, so removing it
-is no functional change.  In the future, we never should run through a
-default case but introduce the necessary specific case(s) to handle new
-functionality.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Brian Masney <masneyb@onstation.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/scsi/zfcp_erp.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index cc62d8cc8cfdd..d5214c4eb9ddb 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -178,9 +178,6 @@ static int zfcp_erp_handle_failed(int want, struct zfcp_adapter *adapter,
- 				adapter, ZFCP_STATUS_COMMON_ERP_FAILED);
- 		}
- 		break;
--	default:
--		need = 0;
--		break;
+diff --git a/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c b/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
+index e86c4de2f6db1..92855f45bc537 100644
+--- a/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
++++ b/drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c
+@@ -762,12 +762,23 @@ static int pm8xxx_gpio_probe(struct platform_device *pdev)
+ 		return ret;
  	}
  
- 	return need;
+-	ret = gpiochip_add_pin_range(&pctrl->chip,
+-				     dev_name(pctrl->dev),
+-				     0, 0, pctrl->chip.ngpio);
+-	if (ret) {
+-		dev_err(pctrl->dev, "failed to add pin range\n");
+-		goto unregister_gpiochip;
++	/*
++	 * For DeviceTree-supported systems, the gpio core checks the
++	 * pinctrl's device node for the "gpio-ranges" property.
++	 * If it is present, it takes care of adding the pin ranges
++	 * for the driver. In this case the driver can skip ahead.
++	 *
++	 * In order to remain compatible with older, existing DeviceTree
++	 * files which don't set the "gpio-ranges" property or systems that
++	 * utilize ACPI the driver has to call gpiochip_add_pin_range().
++	 */
++	if (!of_property_read_bool(pctrl->dev->of_node, "gpio-ranges")) {
++		ret = gpiochip_add_pin_range(&pctrl->chip, dev_name(pctrl->dev),
++					     0, 0, pctrl->chip.ngpio);
++		if (ret) {
++			dev_err(pctrl->dev, "failed to add pin range\n");
++			goto unregister_gpiochip;
++		}
+ 	}
+ 
+ 	platform_set_drvdata(pdev, pctrl);
 -- 
 2.20.1
 
