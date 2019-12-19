@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E26C12602F
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 11:58:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC4C1260A2
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 12:17:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726694AbfLSK6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 05:58:41 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:49489 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726681AbfLSK6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 05:58:41 -0500
+        id S1726652AbfLSLRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 06:17:38 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:53215 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726656AbfLSLRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 06:17:38 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3AFDE223F1;
-        Thu, 19 Dec 2019 05:58:40 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 19 Dec 2019 05:58:40 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 825FF5CA;
+        Thu, 19 Dec 2019 06:17:36 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 19 Dec 2019 06:17:36 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=0NuXtu
-        SBazIFJsABlGo3wuWVIMOKbiW787HxOafYbAA=; b=SXvFU3qGjJsepFFwC2d8P7
-        RZkWcHN+970Mb8D6qSlx2NGSp2qrIwJll9a2KjbuGLnoXLvfXUnYRs2y8SPQUrCI
-        0CfQWcZ18PbAwA2YB+mdLRA3VIFhc3JnBJXjcTJwTWt5pCQ+UXn3BAac7kIHEYeZ
-        w5SzB3J/5XLcqryN7use1ZTTAli4b+0606HlN1hOeQBGWCCAwHIvTtuBHkphy4JE
-        DFlquaClXuvPHqCe2U1VQqTSEDwZY4IPbPGWpvu2ywBaat//u3aRj/LwTBCR3qSH
-        Tg0dgRooCPhgOlLH5slL6CyIS9C7CybfeQQrV4/5hacstLSRg1ZATbr7HvSQmOtg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GNHsFh
+        zxh4dare4UzqUEHZI9gD70TL3g+ni3B5NTgsA=; b=fsVyFZgMBb9LzFZCP3V6oy
+        XU4jLAX9oj8C9OlXKHaaKrgBR8NnRafydlQ7AxZ30ZLHnJZn/Uy6IxhXHPUwkLf2
+        joKA5kcRGzPcNxuziRPy93IzVEs1GN4NnE2TGJLltW0NGz6Ep5irGdw7fguV2+Ld
+        8PYyEMJss8vIZspDsWkMl5cJT1xkg8lqPzDqLSYumwGdlE3eJ9WsHNwDJ4ltnF5K
+        bR1qUvYNcRSZ9FwinaNg1QrO0xo3Avu4a07Z2zZ8Lqx7W1YgpCgq75+3H3mvBl52
+        hGekRWmsBLJmFRj9moA0d/N4gka8R87m1STlln7ND2ArGe9ZRl/LKJOc9nTPvi7w
         ==
-X-ME-Sender: <xms:31f7XRVR61LrLiE9TfvDkQOxfyJx2KUWUHTw9yUGjQT5cUb7kIhoHg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdduuddgvddvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:T1z7XZ8P6Q8xGt2uD62OmTC5tljC1ofuCAHMA7tZnsMbRlv7GOwa_w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdduuddgvdeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:31f7XYypQXG3Zq-VDncTH6xUYFhttruRZvVTVA--3iuHxCF4RbNGJQ>
-    <xmx:31f7XRzvt5R-W51q1YSATAajOoKW5c2BjVAqjnLO6hMDEtCVhRs9gA>
-    <xmx:31f7XdBgdmPRFicTo9gah0BexopK9jcNORBDnTCq-okNt1-e54JFcA>
-    <xmx:4Ff7XZvOoKrR_bydplOhggscdwS486nb13ZpFjsYlWB9cB0txrhjuQ>
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
+    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:T1z7XUP2ZGR3kGAYP2hLnRxeqHslBR4A6FBbPzGIRClG7YL8lT2OAw>
+    <xmx:T1z7XaOt_fJw73c5R5OI767CK5iQ3oijmTEbnyjDEL8cMdb8_6sROA>
+    <xmx:T1z7XXf1pwreDYLZvRUfXiOAW2qnGEej909ZgvaawVTCRY5Fnr_yMQ>
+    <xmx:UFz7XcbWvx-13eCAPP7y_KAUn34pamfEDWbpYfnhZkuMfhqrYoo-4g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7A74930609D4;
-        Thu, 19 Dec 2019 05:58:39 -0500 (EST)
-Subject: FAILED: patch "[PATCH] cifs: Fix retrieval of DFS referrals in cifs_mount()" failed to apply to 4.19-stable tree
-To:     pc@cjr.nz, matthew.ruffell@canonical.com, stfrench@microsoft.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1EF258005B;
+        Thu, 19 Dec 2019 06:17:35 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Detect if we miss WaIdleLiteRestore" failed to apply to 5.4-stable tree
+To:     chris@chris-wilson.co.uk, joonas.lahtinen@linux.intel.com,
+        mika.kuoppala@linux.intel.com, tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 19 Dec 2019 11:58:38 +0100
-Message-ID: <157675311816525@kroah.com>
+Date:   Thu, 19 Dec 2019 12:17:33 +0100
+Message-ID: <1576754253218173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,77 +69,140 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5bb30a4dd60e2a10a4de9932daff23e503f1dd2b Mon Sep 17 00:00:00 2001
-From: "Paulo Alcantara (SUSE)" <pc@cjr.nz>
-Date: Fri, 22 Nov 2019 12:30:56 -0300
-Subject: [PATCH] cifs: Fix retrieval of DFS referrals in cifs_mount()
+From f26a9e959a7b1588c59f7a919b41b67175b211d8 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Mon, 9 Dec 2019 02:32:15 +0000
+Subject: [PATCH] drm/i915/gt: Detect if we miss WaIdleLiteRestore
 
-Make sure that DFS referrals are sent to newly resolved root targets
-as in a multi tier DFS setup.
+In order to avoid confusing the HW, we must never submit an empty ring
+during lite-restore, that is we should always advance the RING_TAIL
+before submitting to stay ahead of the RING_HEAD.
 
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Link: https://lkml.kernel.org/r/05aa2995-e85e-0ff4-d003-5bb08bd17a22@canonical.com
-Cc: stable@vger.kernel.org
-Tested-by: Matthew Ruffell <matthew.ruffell@canonical.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Normally this is prevented by keeping a couple of spare NOPs in the
+request->wa_tail so that on resubmission we can advance the tail. This
+relies on the request only being resubmitted once, which is the normal
+condition as it is seen once for ELSP[1] and then later in ELSP[0]. On
+preemption, the requests are unwound and the tail reset back to the
+normal end point (as we know the request is incomplete and therefore its
+RING_HEAD is even earlier).
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index f611163b5bc3..86d1baedf21c 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -4786,6 +4786,17 @@ static int is_path_remote(struct cifs_sb_info *cifs_sb, struct smb_vol *vol,
+However, if this w/a should fail we would try and resubmit the request
+with the RING_TAIL already set to the location of this request's wa_tail
+potentially causing a GPU hang. We can spot when we do try and
+incorrectly resubmit without advancing the RING_TAIL and spare any
+embarrassment by forcing the context restore.
+
+In the case of preempt-to-busy, we leave the requests running on the HW
+while we unwind. As the ring is still live, we cannot rewind our
+rq->tail without forcing a reload so leave it set to rq->wa_tail and
+only force a reload if we resubmit after a lite-restore. (Normally, the
+forced reload will be a part of the preemption event.)
+
+Fixes: 22b7a426bbe1 ("drm/i915/execlists: Preempt-to-busy")
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/673
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: stable@kernel.vger.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20191209023215.3519970-1-chris@chris-wilson.co.uk
+(cherry picked from commit 82c69bf58650e644c61aa2bf5100b63a1070fd2f)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 17bb52aeff19..75dd0e0367b7 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -845,12 +845,6 @@ static const u8 *reg_offsets(const struct intel_engine_cs *engine)
+ 	}
  }
  
- #ifdef CONFIG_CIFS_DFS_UPCALL
-+static inline void set_root_tcon(struct cifs_sb_info *cifs_sb,
-+				 struct cifs_tcon *tcon,
-+				 struct cifs_tcon **root)
-+{
-+	spin_lock(&cifs_tcp_ses_lock);
-+	tcon->tc_count++;
-+	tcon->remap = cifs_remap(cifs_sb);
-+	spin_unlock(&cifs_tcp_ses_lock);
-+	*root = tcon;
-+}
-+
- int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb_vol *vol)
+-static void unwind_wa_tail(struct i915_request *rq)
+-{
+-	rq->tail = intel_ring_wrap(rq->ring, rq->wa_tail - WA_TAIL_BYTES);
+-	assert_ring_tail_valid(rq->ring, rq->tail);
+-}
+-
+ static struct i915_request *
+ __unwind_incomplete_requests(struct intel_engine_cs *engine)
  {
- 	int rc = 0;
-@@ -4887,18 +4898,10 @@ int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb_vol *vol)
- 	/* Cache out resolved root server */
- 	(void)dfs_cache_find(xid, ses, cifs_sb->local_nls, cifs_remap(cifs_sb),
- 			     root_path + 1, NULL, NULL);
--	/*
--	 * Save root tcon for additional DFS requests to update or create a new
--	 * DFS cache entry, or even perform DFS failover.
--	 */
--	spin_lock(&cifs_tcp_ses_lock);
--	tcon->tc_count++;
--	tcon->dfs_path = root_path;
-+	kfree(root_path);
- 	root_path = NULL;
--	tcon->remap = cifs_remap(cifs_sb);
--	spin_unlock(&cifs_tcp_ses_lock);
+@@ -863,12 +857,10 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
+ 	list_for_each_entry_safe_reverse(rq, rn,
+ 					 &engine->active.requests,
+ 					 sched.link) {
+-
+ 		if (i915_request_completed(rq))
+ 			continue; /* XXX */
  
--	root_tcon = tcon;
-+	set_root_tcon(cifs_sb, tcon, &root_tcon);
+ 		__i915_request_unsubmit(rq);
+-		unwind_wa_tail(rq);
  
- 	for (count = 1; ;) {
- 		if (!rc && tcon) {
-@@ -4935,6 +4938,15 @@ int cifs_mount(struct cifs_sb_info *cifs_sb, struct smb_vol *vol)
- 			mount_put_conns(cifs_sb, xid, server, ses, tcon);
- 			rc = mount_get_conns(vol, cifs_sb, &xid, &server, &ses,
- 					     &tcon);
-+			/*
-+			 * Ensure that DFS referrals go through new root server.
-+			 */
-+			if (!rc && tcon &&
-+			    (tcon->share_flags & (SHI1005_FLAGS_DFS |
-+						  SHI1005_FLAGS_DFS_ROOT))) {
-+				cifs_put_tcon(root_tcon);
-+				set_root_tcon(cifs_sb, tcon, &root_tcon);
-+			}
+ 		/*
+ 		 * Push the request back into the queue for later resubmission.
+@@ -1161,13 +1153,29 @@ execlists_schedule_out(struct i915_request *rq)
+ 	i915_request_put(rq);
+ }
+ 
+-static u64 execlists_update_context(const struct i915_request *rq)
++static u64 execlists_update_context(struct i915_request *rq)
+ {
+ 	struct intel_context *ce = rq->hw_context;
+-	u64 desc;
++	u64 desc = ce->lrc_desc;
++	u32 tail;
+ 
+-	ce->lrc_reg_state[CTX_RING_TAIL] =
+-		intel_ring_set_tail(rq->ring, rq->tail);
++	/*
++	 * WaIdleLiteRestore:bdw,skl
++	 *
++	 * We should never submit the context with the same RING_TAIL twice
++	 * just in case we submit an empty ring, which confuses the HW.
++	 *
++	 * We append a couple of NOOPs (gen8_emit_wa_tail) after the end of
++	 * the normal request to be able to always advance the RING_TAIL on
++	 * subsequent resubmissions (for lite restore). Should that fail us,
++	 * and we try and submit the same tail again, force the context
++	 * reload.
++	 */
++	tail = intel_ring_set_tail(rq->ring, rq->tail);
++	if (unlikely(ce->lrc_reg_state[CTX_RING_TAIL] == tail))
++		desc |= CTX_DESC_FORCE_RESTORE;
++	ce->lrc_reg_state[CTX_RING_TAIL] = tail;
++	rq->tail = rq->wa_tail;
+ 
+ 	/*
+ 	 * Make sure the context image is complete before we submit it to HW.
+@@ -1186,13 +1194,11 @@ static u64 execlists_update_context(const struct i915_request *rq)
+ 	 */
+ 	mb();
+ 
+-	desc = ce->lrc_desc;
+-	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
+-
+ 	/* Wa_1607138340:tgl */
+ 	if (IS_TGL_REVID(rq->i915, TGL_REVID_A0, TGL_REVID_A0))
+ 		desc |= CTX_DESC_FORCE_RESTORE;
+ 
++	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
+ 	return desc;
+ }
+ 
+@@ -1703,16 +1709,6 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 
+ 				return;
+ 			}
+-
+-			/*
+-			 * WaIdleLiteRestore:bdw,skl
+-			 * Apply the wa NOOPs to prevent
+-			 * ring:HEAD == rq:TAIL as we resubmit the
+-			 * request. See gen8_emit_fini_breadcrumb() for
+-			 * where we prepare the padding after the
+-			 * end of the request.
+-			 */
+-			last->tail = last->wa_tail;
  		}
- 		if (rc) {
- 			if (rc == -EACCES || rc == -EOPNOTSUPP)
+ 	}
+ 
 
