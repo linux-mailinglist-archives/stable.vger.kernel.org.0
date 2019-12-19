@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 174B4126CBD
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6ED2126D6D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728936AbfLSSpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:45:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37264 "EHLO mail.kernel.org"
+        id S1727266AbfLSSfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:35:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728446AbfLSSpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:45:02 -0500
+        id S1727262AbfLSSfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:35:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 953142465E;
-        Thu, 19 Dec 2019 18:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B9A1222C2;
+        Thu, 19 Dec 2019 18:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781102;
-        bh=Pz3oXwnhBnyh5QoKhGy5gN1yyj4plupGvpSL/A4Xxwo=;
+        s=default; t=1576780544;
+        bh=6h8/HF5JaHlVvQxwfiJqOQenju0p/dbWVLnPBinmTRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ss+bMsZwlW7peQgOW5Vq6kh3O95ZonOCVqRs5SPxonWtHMAA5LfCNPLCHlBdWo0L3
-         /DrKLkjtvnKAz2cc3jb3zowMZIJ2AG/Gz06Nf6cM+adBXHIyCvJRemkzO0HsA/CYI0
-         I/3pe6Zg8aguOpZ6b9agy53wF1TJ7wKZTNX7QjUU=
+        b=KfPL68XYs+B1PoJv+nwUsdCATrxjIOcz16zjR4foCWKNvUTTjys8uYD7VMQ9/3Qe7
+         A2sGoVVCwgmKXzHoVqXiCG1IWaikn9WgaLOs3g1xYSmtWui55g4NPbxxYGEvKfEO+O
+         M1YjYlcedBGg8/CLftPzNyKPZP+y2QBX7WcLz1B0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 044/199] serial: imx: fix error handling in console_setup
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 018/162] clk: rockchip: fix rk3188 sclk_mac_lbtest parameter ordering
 Date:   Thu, 19 Dec 2019 19:32:06 +0100
-Message-Id: <20191219183217.385205660@linuxfoundation.org>
+Message-Id: <20191219183207.478952122@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Heiko Stuebner <heiko@sntech.de>
 
-[ Upstream commit 63fd4b94b948c14eeb27a3bbf50ea0f7f0593bad ]
+[ Upstream commit ac8cb53829a6ba119082e067f5bc8fab3611ce6a ]
 
-The ipg clock only needs to be unprepared in case preparing
-per clock fails. The ipg clock has already disabled at the point.
+Similar to commit a9f0c0e56371 ("clk: rockchip: fix rk3188 sclk_smc
+gate data") there is one other gate clock in the rk3188 clock driver
+with a similar wrong ordering, the sclk_mac_lbtest. So fix it as well.
 
-Fixes: 1cf93e0d5488 ("serial: imx: remove the uart_console() check")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/rockchip/clk-rk3188.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 0d82be145c680..6d596c6351591 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -1943,7 +1943,7 @@ imx_console_setup(struct console *co, char *options)
+diff --git a/drivers/clk/rockchip/clk-rk3188.c b/drivers/clk/rockchip/clk-rk3188.c
+index 986a558c361d6..4051782b6f844 100644
+--- a/drivers/clk/rockchip/clk-rk3188.c
++++ b/drivers/clk/rockchip/clk-rk3188.c
+@@ -329,8 +329,8 @@ static struct rockchip_clk_branch common_clk_branches[] __initdata = {
+ 			RK2928_CLKGATE_CON(2), 5, GFLAGS),
+ 	MUX(SCLK_MAC, "sclk_macref", mux_sclk_macref_p, CLK_SET_RATE_PARENT,
+ 			RK2928_CLKSEL_CON(21), 4, 1, MFLAGS),
+-	GATE(0, "sclk_mac_lbtest", "sclk_macref",
+-			RK2928_CLKGATE_CON(2), 12, 0, GFLAGS),
++	GATE(0, "sclk_mac_lbtest", "sclk_macref", 0,
++			RK2928_CLKGATE_CON(2), 12, GFLAGS),
  
- 	retval = clk_prepare(sport->clk_per);
- 	if (retval)
--		clk_disable_unprepare(sport->clk_ipg);
-+		clk_unprepare(sport->clk_ipg);
- 
- error_console:
- 	return retval;
+ 	COMPOSITE(0, "hsadc_src", mux_pll_src_gpll_cpll_p, 0,
+ 			RK2928_CLKSEL_CON(22), 0, 1, MFLAGS, 8, 8, DFLAGS,
 -- 
 2.20.1
 
