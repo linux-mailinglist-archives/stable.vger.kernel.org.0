@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8240126CE3
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:07:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A70B126D76
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728856AbfLSSni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:43:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35318 "EHLO mail.kernel.org"
+        id S1727431AbfLSSgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728649AbfLSSnh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:43:37 -0500
+        id S1727411AbfLSSgC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ADAE206D7;
-        Thu, 19 Dec 2019 18:43:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 584202467B;
+        Thu, 19 Dec 2019 18:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781016;
-        bh=HWfVOk9ffR+9BCLe8fI2YOt95dbyHc8Er0MDZ8RP7I8=;
+        s=default; t=1576780561;
+        bh=k2Tugx47zeg+LMX++8o2J3UvSOhXZuufBvGIQnE3IIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6F5QAttFB53Lcgo1Pv/oN+RDWgCIvwDj+iGwdOAeq7PmF+z6tYTYPA6W7Uxdq4xn
-         ACV/LLzITk/JnEk6uWwD4CdSRSxUzwQREQ6AjrJ41Cu8TeYkdvTmKfgo8ncwcJCUw6
-         Naemm4RmF89A4u1LsP9Rp2KmvVQxC6RPRfVemMNU=
+        b=RJGyTSc+xIfqnbapY2y8sxnOHEteXropBRt91jV4dPwCWFHkrVyFwYCBQhfFN8GlC
+         ulQP6E4PbwZwZ1GBexsmOAipegWaDsy+IZra/qW5lP9bqIkK14gUt99wfAHk+S2kOd
+         UaQ6ZVvB/JB5kdjLs03WEaz2C1LamnZad08NYdas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Cheng-Yi Chiang <cychiang@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 049/199] ARM: OMAP1/2: fix SoC name printing
-Date:   Thu, 19 Dec 2019 19:32:11 +0100
-Message-Id: <20191219183217.669837002@linuxfoundation.org>
+Subject: [PATCH 4.4 024/162] regulator: Fix return value of _set_load() stub
+Date:   Thu, 19 Dec 2019 19:32:12 +0100
+Message-Id: <20191219183208.988306001@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 04a92358b3964988c78dfe370a559ae550383886 ]
+[ Upstream commit f1abf67217de91f5cd3c757ae857632ca565099a ]
 
-Currently we get extra newlines on OMAP1/2 when the SoC name is printed:
+The stub implementation of _set_load() returns a mode value which is
+within the bounds of valid return codes for success (the documentation
+just says that failures are negative error codes) but not sensible or
+what the actual implementation does.  Fix it to just return 0.
 
-[    0.000000] OMAP1510
-[    0.000000]  revision 2 handled as 15xx id: bc058c9b93111a16
-
-[    0.000000] OMAP2420
-[    0.000000]
-
-Fix by using pr_cont.
-
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Reported-by: Cheng-Yi Chiang <cychiang@chromium.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/id.c | 6 +++---
- arch/arm/mach-omap2/id.c | 4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ include/linux/regulator/consumer.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap1/id.c b/arch/arm/mach-omap1/id.c
-index 52de382fc8047..7e49dfda3d2f4 100644
---- a/arch/arm/mach-omap1/id.c
-+++ b/arch/arm/mach-omap1/id.c
-@@ -200,10 +200,10 @@ void __init omap_check_revision(void)
- 		printk(KERN_INFO "Unknown OMAP cpu type: 0x%02x\n", cpu_type);
- 	}
+diff --git a/include/linux/regulator/consumer.h b/include/linux/regulator/consumer.h
+index 9e0e76992be08..bf62713af290e 100644
+--- a/include/linux/regulator/consumer.h
++++ b/include/linux/regulator/consumer.h
+@@ -485,7 +485,7 @@ static inline unsigned int regulator_get_mode(struct regulator *regulator)
  
--	printk(KERN_INFO "OMAP%04x", omap_revision >> 16);
-+	pr_info("OMAP%04x", omap_revision >> 16);
- 	if ((omap_revision >> 8) & 0xff)
--		printk(KERN_INFO "%x", (omap_revision >> 8) & 0xff);
--	printk(KERN_INFO " revision %i handled as %02xxx id: %08x%08x\n",
-+		pr_cont("%x", (omap_revision >> 8) & 0xff);
-+	pr_cont(" revision %i handled as %02xxx id: %08x%08x\n",
- 	       die_rev, omap_revision & 0xff, system_serial_low,
- 	       system_serial_high);
- }
-diff --git a/arch/arm/mach-omap2/id.c b/arch/arm/mach-omap2/id.c
-index cc6d9fa609242..9d942f022f2f6 100644
---- a/arch/arm/mach-omap2/id.c
-+++ b/arch/arm/mach-omap2/id.c
-@@ -199,8 +199,8 @@ void __init omap2xxx_check_revision(void)
- 
- 	pr_info("%s", soc_name);
- 	if ((omap_rev() >> 8) & 0x0f)
--		pr_info("%s", soc_rev);
--	pr_info("\n");
-+		pr_cont("%s", soc_rev);
-+	pr_cont("\n");
+ static inline int regulator_set_load(struct regulator *regulator, int load_uA)
+ {
+-	return REGULATOR_MODE_NORMAL;
++	return 0;
  }
  
- #define OMAP3_SHOW_FEATURE(feat)		\
+ static inline int regulator_allow_bypass(struct regulator *regulator,
 -- 
 2.20.1
 
