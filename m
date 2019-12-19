@@ -2,275 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7901C126AFC
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:53:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E09CB1269C9
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730136AbfLSSwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:52:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47568 "EHLO mail.kernel.org"
+        id S1727791AbfLSSlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:41:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730097AbfLSSwu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:52:50 -0500
+        id S1728465AbfLSSlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C0D9227BF;
-        Thu, 19 Dec 2019 18:52:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42E69222C2;
+        Thu, 19 Dec 2019 18:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781568;
-        bh=woKZccQoLBP0IUC8gc0C/WI+qpKovcccYv2xm7A8gQk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Jj4LDf3Quxpb3mxrsw/ORipN82URt/8BaCqgK6A1kwkki/WFa4c7WxqtQwTDnwCPO
-         qb7j1/PRnuVyXHJNMo/9wAPJD7oazcKgEYZuVJ3JCOxrvR2iRytBWzqRNEEw1mggki
-         XqwKjUPEqfEGYbuDoCzKseA5v30QbKr0CfgiQsao=
+        s=default; t=1576780860;
+        bh=u+ud5aK2s3DdLvBbZGWG3E50dHWR2COqMjZUP1TnmqM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FJPGLW3+XF9G4cYS36s0qk0po7l82n8ED1qmWJhD2z43ZT4ZSe34VuW1s4XA75YpO
+         /JLFYFxWd582h2+6IxcGVyqLdQPF6W2Tdk3YdRnOjsmFXXaB5qJvrTCd8yNyo9nWrE
+         hT0qGdiYiPv7pC2Dn9d7fqIrZEfglNyUldH/0y2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 00/47] 4.19.91-stable review
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 146/162] inet: protect against too small mtu values.
 Date:   Thu, 19 Dec 2019 19:34:14 +0100
-Message-Id: <20191219182857.659088743@linuxfoundation.org>
+Message-Id: <20191219183216.659060685@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-MIME-Version: 1.0
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.91-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.91-rc1
-X-KernelTest-Deadline: 2019-12-21T18:29+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.91 release.
-There are 47 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Eric Dumazet <edumazet@google.com>
 
-Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 501a90c945103e8627406763dac418f20f3837b2 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.91-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+syzbot was once again able to crash a host by setting a very small mtu
+on loopback device.
 
-thanks,
+Let's make inetdev_valid_mtu() available in include/net/ip.h,
+and use it in ip_setup_cork(), so that we protect both ip_append_page()
+and __ip_append_data()
 
-greg k-h
+Also add a READ_ONCE() when the device mtu is read.
 
--------------
-Pseudo-Shortlog of commits:
+Pairs this lockless read with one WRITE_ONCE() in __dev_set_mtu(),
+even if other code paths might write over this field.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.91-rc1
+Add a big comment in include/linux/netdevice.h about dev->mtu
+needing READ_ONCE()/WRITE_ONCE() annotations.
 
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: fix USB3 device initiated resume race with roothub autosuspend
+Hopefully we will add the missing ones in followup patches.
 
-Alex Deucher <alexander.deucher@amd.com>
-    drm/radeon: fix r1xx/r2xx register checker for POT textures
+[1]
 
-Roman Bolshakov <r.bolshakov@yadro.com>
-    scsi: qla2xxx: Change discovery state before PLOGI
+refcount_t: saturated; leaking memory.
+WARNING: CPU: 0 PID: 9464 at lib/refcount.c:22 refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 9464 Comm: syz-executor850 Not tainted 5.4.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ panic+0x2e3/0x75c kernel/panic.c:221
+ __warn.cold+0x2f/0x3e kernel/panic.c:582
+ report_bug+0x289/0x300 lib/bug.c:195
+ fixup_bug arch/x86/kernel/traps.c:174 [inline]
+ fixup_bug arch/x86/kernel/traps.c:169 [inline]
+ do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
+ do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
+ invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
+RIP: 0010:refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
+Code: 06 31 ff 89 de e8 c8 f5 e6 fd 84 db 0f 85 6f ff ff ff e8 7b f4 e6 fd 48 c7 c7 e0 71 4f 88 c6 05 56 a6 a4 06 01 e8 c7 a8 b7 fd <0f> 0b e9 50 ff ff ff e8 5c f4 e6 fd 0f b6 1d 3d a6 a4 06 31 ff 89
+RSP: 0018:ffff88809689f550 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff815e4336 RDI: ffffed1012d13e9c
+RBP: ffff88809689f560 R08: ffff88809c50a3c0 R09: fffffbfff15d31b1
+R10: fffffbfff15d31b0 R11: ffffffff8ae98d87 R12: 0000000000000001
+R13: 0000000000040100 R14: ffff888099041104 R15: ffff888218d96e40
+ refcount_add include/linux/refcount.h:193 [inline]
+ skb_set_owner_w+0x2b6/0x410 net/core/sock.c:1999
+ sock_wmalloc+0xf1/0x120 net/core/sock.c:2096
+ ip_append_page+0x7ef/0x1190 net/ipv4/ip_output.c:1383
+ udp_sendpage+0x1c7/0x480 net/ipv4/udp.c:1276
+ inet_sendpage+0xdb/0x150 net/ipv4/af_inet.c:821
+ kernel_sendpage+0x92/0xf0 net/socket.c:3794
+ sock_sendpage+0x8b/0xc0 net/socket.c:936
+ pipe_to_sendpage+0x2da/0x3c0 fs/splice.c:458
+ splice_from_pipe_feed fs/splice.c:512 [inline]
+ __splice_from_pipe+0x3ee/0x7c0 fs/splice.c:636
+ splice_from_pipe+0x108/0x170 fs/splice.c:671
+ generic_splice_sendpage+0x3c/0x50 fs/splice.c:842
+ do_splice_from fs/splice.c:861 [inline]
+ direct_splice_actor+0x123/0x190 fs/splice.c:1035
+ splice_direct_to_actor+0x3b4/0xa30 fs/splice.c:990
+ do_splice_direct+0x1da/0x2a0 fs/splice.c:1078
+ do_sendfile+0x597/0xd00 fs/read_write.c:1464
+ __do_sys_sendfile64 fs/read_write.c:1525 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1511 [inline]
+ __x64_sys_sendfile64+0x1dd/0x220 fs/read_write.c:1511
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x441409
+Code: e8 ac e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fffb64c4f78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441409
+RDX: 0000000000000000 RSI: 0000000000000006 RDI: 0000000000000005
+RBP: 0000000000073b8a R08: 0000000000000010 R09: 0000000000000010
+R10: 0000000000010001 R11: 0000000000000246 R12: 0000000000402180
+R13: 0000000000402210 R14: 0000000000000000 R15: 0000000000000000
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
 
-Bart Van Assche <bvanassche@acm.org>
-    scsi: iscsi: Fix a potential deadlock in the timeout handler
+Fixes: 1470ddf7f8ce ("inet: Remove explicit write references to sk/inet in ip_append_data")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/linux/netdevice.h |    5 +++++
+ include/net/ip.h          |    5 +++++
+ net/core/dev.c            |    3 ++-
+ net/ipv4/devinet.c        |    5 -----
+ net/ipv4/ip_output.c      |   14 +++++++++-----
+ 5 files changed, 21 insertions(+), 11 deletions(-)
 
-Hou Tao <houtao1@huawei.com>
-    dm btree: increase rebalance threshold in __rebalance2()
-
-Mike Snitzer <snitzer@redhat.com>
-    dm mpath: remove harmful bio-based optimization
-
-Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-    drm: meson: venc: cvbs: fix CVBS mode matching
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    dma-buf: Fix memory leak in sync_file_merge()
-
-Jiang Yi <giangyi@amazon.com>
-    vfio/pci: call irq_bypass_unregister_producer() before freeing irq
-
-Dmitry Osipenko <digetx@gmail.com>
-    ARM: tegra: Fix FLOW_CTLR_HALT register clobbering by tegra_resume()
-
-Lihua Yao <ylhuajnu@outlook.com>
-    ARM: dts: s3c64xx: Fix init order of clock providers
-
-Pavel Shilovsky <pshilov@microsoft.com>
-    CIFS: Close open handle after interrupted close
-
-Pavel Shilovsky <pshilov@microsoft.com>
-    CIFS: Respect O_SYNC and O_DIRECT flags during reconnect
-
-Long Li <longli@microsoft.com>
-    cifs: Don't display RDMA transport on reconnect
-
-Long Li <longli@microsoft.com>
-    cifs: smbd: Return -EINVAL when the number of iovs exceeds SMBDIRECT_MAX_SGE
-
-Long Li <longli@microsoft.com>
-    cifs: smbd: Add messages on RDMA session destroy and reconnection
-
-Long Li <longli@microsoft.com>
-    cifs: smbd: Return -EAGAIN when transport is reconnecting
-
-Bjorn Andersson <bjorn.andersson@linaro.org>
-    rpmsg: glink: Free pending deferred work on remove
-
-Bjorn Andersson <bjorn.andersson@linaro.org>
-    rpmsg: glink: Don't send pending rx_done during remove
-
-Chris Lew <clew@codeaurora.org>
-    rpmsg: glink: Fix rpmsg_register_device err handling
-
-Chris Lew <clew@codeaurora.org>
-    rpmsg: glink: Put an extra reference during cleanup
-
-Arun Kumar Neelakantam <aneela@codeaurora.org>
-    rpmsg: glink: Fix use after free in open_ack TIMEOUT case
-
-Arun Kumar Neelakantam <aneela@codeaurora.org>
-    rpmsg: glink: Fix reuse intents memory leak issue
-
-Chris Lew <clew@codeaurora.org>
-    rpmsg: glink: Set tail pointer to 0 at end of FIFO
-
-Max Filippov <jcmvbkbc@gmail.com>
-    xtensa: fix TLB sanity checker
-
-George Cherian <george.cherian@marvell.com>
-    PCI: Apply Cavium ACS quirk to ThunderX2 and ThunderX3
-
-Jian-Hong Pan <jian-hong@endlessm.com>
-    PCI/MSI: Fix incorrect MSI-X masking on resume
-
-Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
-    PCI: Fix Intel ACS quirk UPDCR register address
-
-Lukas Wunner <lukas@wunner.de>
-    PCI: pciehp: Avoid returning prematurely from sysfs requests
-
-Dexuan Cui <decui@microsoft.com>
-    PCI/PM: Always return devices to D0 when thawing
-
-Chaotian Jing <chaotian.jing@mediatek.com>
-    mmc: block: Add CMD13 polling for MMC IOCTLS with R1B response
-
-Chaotian Jing <chaotian.jing@mediatek.com>
-    mmc: block: Make card_busy_detect() a bit more generic
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "arm64: preempt: Fix big-endian when checking preempt count in assembly"
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: tighten acceptance of ACKs not matching a child socket
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: fix rejected syncookies due to stale timestamps
-
-Huy Nguyen <huyn@mellanox.com>
-    net/mlx5e: Query global pause state before setting prio2buffer
-
-Taehee Yoo <ap420073@gmail.com>
-    tipc: fix ordering of tipc module init and exit routine
-
-Eric Dumazet <edumazet@google.com>
-    tcp: md5: fix potential overestimation of TCP option space
-
-Aaron Conole <aconole@redhat.com>
-    openvswitch: support asymmetric conntrack
-
-Mian Yousaf Kaukab <ykaukab@suse.de>
-    net: thunderx: start phy before starting autonegotiation
-
-Dust Li <dust.li@linux.alibaba.com>
-    net: sched: fix dump qlen for sch_mq/sch_mqprio with NOLOCK subqueues
-
-Grygorii Strashko <grygorii.strashko@ti.com>
-    net: ethernet: ti: cpsw: fix extra rx interrupt
-
-Alexander Lobakin <alobakin@dlink.ru>
-    net: dsa: fix flow dissection on Tx path
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: deny dev_set_mac_address() when unregistering
-
-Vladyslav Tarasiuk <vladyslavt@mellanox.com>
-    mqprio: Fix out-of-bounds access in mqprio_dump
-
-Eric Dumazet <edumazet@google.com>
-    inet: protect against too small mtu values.
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm/boot/dts/s3c6410-mini6410.dts             |   4 +
- arch/arm/boot/dts/s3c6410-smdk6410.dts             |   4 +
- arch/arm/mach-tegra/reset-handler.S                |   6 +-
- arch/arm64/include/asm/assembler.h                 |   8 +-
- arch/arm64/kernel/entry.S                          |   6 +-
- arch/xtensa/mm/tlb.c                               |   4 +-
- drivers/dma-buf/sync_file.c                        |   2 +-
- drivers/gpu/drm/meson/meson_venc_cvbs.c            |  48 ++++---
- drivers/gpu/drm/radeon/r100.c                      |   4 +-
- drivers/gpu/drm/radeon/r200.c                      |   4 +-
- drivers/md/dm-mpath.c                              |  37 +----
- drivers/md/persistent-data/dm-btree-remove.c       |   8 +-
- drivers/mmc/core/block.c                           | 151 ++++++++-------------
- drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |   2 +-
- .../ethernet/mellanox/mlx5/core/en/port_buffer.c   |  27 +++-
- drivers/net/ethernet/ti/cpsw.c                     |   2 +-
- drivers/pci/hotplug/pciehp.h                       |   2 +
- drivers/pci/hotplug/pciehp_ctrl.c                  |   6 +-
- drivers/pci/hotplug/pciehp_hpc.c                   |   2 +
- drivers/pci/msi.c                                  |   2 +-
- drivers/pci/pci-driver.c                           |  17 ++-
- drivers/pci/quirks.c                               |  22 +--
- drivers/rpmsg/qcom_glink_native.c                  |  53 ++++++--
- drivers/rpmsg/qcom_glink_smem.c                    |   2 +-
- drivers/scsi/libiscsi.c                            |   4 +-
- drivers/scsi/qla2xxx/qla_init.c                    |   1 +
- drivers/usb/host/xhci-hub.c                        |   8 ++
- drivers/usb/host/xhci-ring.c                       |   3 +-
- drivers/vfio/pci/vfio_pci_intrs.c                  |   2 +-
- fs/cifs/cifs_debug.c                               |   5 +
- fs/cifs/file.c                                     |   7 +
- fs/cifs/smb2misc.c                                 |  59 ++++++--
- fs/cifs/smb2pdu.c                                  |  16 ++-
- fs/cifs/smb2proto.h                                |   3 +
- fs/cifs/smbdirect.c                                |   8 +-
- fs/cifs/transport.c                                |   7 +-
- include/linux/netdevice.h                          |   5 +
- include/linux/time.h                               |  13 ++
- include/net/ip.h                                   |   5 +
- include/net/tcp.h                                  |  27 ++--
- net/bridge/br_device.c                             |   6 +
- net/core/dev.c                                     |   3 +-
- net/core/flow_dissector.c                          |   5 +-
- net/ipv4/devinet.c                                 |   5 -
- net/ipv4/ip_output.c                               |  13 +-
- net/ipv4/tcp_output.c                              |   5 +-
- net/openvswitch/conntrack.c                        |  11 ++
- net/sched/sch_mq.c                                 |   1 +
- net/sched/sch_mqprio.c                             |   3 +-
- net/tipc/core.c                                    |  29 ++--
- 51 files changed, 416 insertions(+), 265 deletions(-)
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1617,6 +1617,11 @@ struct net_device {
+ 	unsigned char		if_port;
+ 	unsigned char		dma;
+ 
++	/* Note : dev->mtu is often read without holding a lock.
++	 * Writers usually hold RTNL.
++	 * It is recommended to use READ_ONCE() to annotate the reads,
++	 * and to use WRITE_ONCE() to annotate the writes.
++	 */
+ 	unsigned int		mtu;
+ 	unsigned short		type;
+ 	unsigned short		hard_header_len;
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -596,4 +596,9 @@ extern int sysctl_icmp_msgs_burst;
+ int ip_misc_proc_init(void);
+ #endif
+ 
++static inline bool inetdev_valid_mtu(unsigned int mtu)
++{
++	return likely(mtu >= IPV4_MIN_MTU);
++}
++
+ #endif	/* _IP_H */
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6126,7 +6126,8 @@ static int __dev_set_mtu(struct net_devi
+ 	if (ops->ndo_change_mtu)
+ 		return ops->ndo_change_mtu(dev, new_mtu);
+ 
+-	dev->mtu = new_mtu;
++	/* Pairs with all the lockless reads of dev->mtu in the stack */
++	WRITE_ONCE(dev->mtu, new_mtu);
+ 	return 0;
+ }
+ 
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -1364,11 +1364,6 @@ skip:
+ 	}
+ }
+ 
+-static bool inetdev_valid_mtu(unsigned int mtu)
+-{
+-	return mtu >= IPV4_MIN_MTU;
+-}
+-
+ static void inetdev_send_gratuitous_arp(struct net_device *dev,
+ 					struct in_device *in_dev)
+ 
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -1145,13 +1145,17 @@ static int ip_setup_cork(struct sock *sk
+ 	rt = *rtp;
+ 	if (unlikely(!rt))
+ 		return -EFAULT;
+-	/*
+-	 * We steal reference to this route, caller should not release it
+-	 */
+-	*rtp = NULL;
++
+ 	cork->fragsize = ip_sk_use_pmtu(sk) ?
+-			 dst_mtu(&rt->dst) : rt->dst.dev->mtu;
++			 dst_mtu(&rt->dst) : READ_ONCE(rt->dst.dev->mtu);
++
++	if (!inetdev_valid_mtu(cork->fragsize))
++		return -ENETUNREACH;
++
+ 	cork->dst = &rt->dst;
++	/* We stole this route, caller should not release it. */
++	*rtp = NULL;
++
+ 	cork->length = 0;
+ 	cork->ttl = ipc->ttl;
+ 	cork->tos = ipc->tos;
 
 
