@@ -2,151 +2,293 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3651261A4
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 13:05:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 827531262E3
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 14:06:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727201AbfLSMEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 07:04:43 -0500
-Received: from mga14.intel.com ([192.55.52.115]:31176 "EHLO mga14.intel.com"
+        id S1726734AbfLSNGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 08:06:33 -0500
+Received: from mx2.suse.de ([195.135.220.15]:33094 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727189AbfLSMEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 07:04:42 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Dec 2019 04:04:41 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,331,1571727600"; 
-   d="scan'208";a="222273941"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by fmsmga001.fm.intel.com with ESMTP; 19 Dec 2019 04:04:40 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Lee Hou-hsun <hou-hsun.lee@intel.com>,
-        Lee Chiasheng <chiasheng.lee@intel.com>
-Subject: [PATCH backport 4.9 4.4] xhci: fix USB3 device initiated resume race with roothub autosuspend
-Date:   Thu, 19 Dec 2019 14:06:32 +0200
-Message-Id: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1726701AbfLSNGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 08:06:33 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 139B1B371;
+        Thu, 19 Dec 2019 13:06:30 +0000 (UTC)
+From:   Vlastimil Babka <vbabka@suse.cz>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Vlastimil Babka <vbabka@suse.cz>, stable@vger.kernel.org,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>
+Subject: [PATCH] mm, debug_pagealloc: don't rely on static keys too early
+Date:   Thu, 19 Dec 2019 14:06:12 +0100
+Message-Id: <20191219130612.23171-1-vbabka@suse.cz>
+X-Mailer: git-send-email 2.24.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream
+Commit 96a2b03f281d ("mm, debug_pagelloc: use static keys to enable debugging")
+has introduced a static key to reduce overhead when debug_pagealloc is compiled
+in but not enabled. It relied on the assumption that jump_label_init() is
+called before parse_early_param() as in start_kernel(), so when the
+"debug_pagealloc=on" option is parsed, it is safe to enable the static key.
 
-Backport for 4.9 and 4.4 stable kernels
+However, it turns out multiple architectures call parse_early_param() earlier
+from their setup_arch(). x86 also calls jump_label_init() even earlier, so no
+issue was found while testing the commit, but same is not true for e.g. ppc64
+and s390 where the kernel would not boot with debug_pagealloc=on as found by
+our QA.
 
-A race in xhci USB3 remote wake handling may force device back to suspend
-after it initiated resume siganaling, causing a missed resume event or warm
-reset of device.
+To fix this without tricky changes to init code of multiple architectures, this
+patch partially reverts the static key conversion from 96a2b03f281d. Init-time
+and non-fastpath calls (such as in arch code) of debug_pagealloc_enabled() will
+again test a simple bool variable. Fastpath mm code is converted to a new
+debug_pagealloc_enabled_static() variant that relies on the static key, which
+is enabled in a well-defined point in mm_init() where it's guaranteed that
+jump_label_init() has been called, regardless of architecture.
 
-When a USB3 link completes resume signaling and goes to enabled (UO)
-state a interrupt is issued and the interrupt handler will clear the
-bus_state->port_remote_wakeup resume flag, allowing bus suspend.
-
-If the USB3 roothub thread just finished reading port status before
-the interrupt, finding ports still in suspended (U3) state, but hasn't
-yet started suspending the hub, then the xhci interrupt handler will clear
-the flag that prevented roothub suspend and allow bus to suspend, forcing
-all port links back to suspended (U3) state.
-
-Example case:
-usb_runtime_suspend() # because all ports still show suspended U3
-  usb_suspend_both()
-    hub_suspend();   # successful as hub->wakeup_bits not set yet
-==> INTERRUPT
-xhci_irq()
-  handle_port_status()
-    clear bus_state->port_remote_wakeup
-    usb_wakeup_notification()
-      sets hub->wakeup_bits;
-        kick_hub_wq()
-<== END INTERRUPT
-      hcd_bus_suspend()
-        xhci_bus_suspend() # success as port_remote_wakeup bits cleared
-
-Fix this by increasing roothub usage count during port resume to prevent
-roothub autosuspend, and by making sure bus_state->port_remote_wakeup
-flag is only cleared after resume completion is visible, i.e.
-after xhci roothub returned U0 or other non-U3 link state link on a
-get port status request.
-
-Issue rootcaused by Chiasheng Lee
-
-Cc: Lee Hou-hsun <hou-hsun.lee@intel.com>
-Cc: Lee Chiasheng <chiasheng.lee@intel.com>
-Reported-by: Lee Chiasheng <chiasheng.lee@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Fixes: 96a2b03f281d ("mm, debug_pagelloc: use static keys to enable debugging")
+Cc: <stable@vger.kernel.org>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 ---
- drivers/usb/host/xhci-hub.c  | 8 ++++++++
- drivers/usb/host/xhci-ring.c | 6 +-----
- drivers/usb/host/xhci.h      | 1 +
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ include/linux/mm.h | 18 +++++++++++++++---
+ init/main.c        |  1 +
+ mm/page_alloc.c    | 36 ++++++++++++------------------------
+ mm/slab.c          |  4 ++--
+ mm/slub.c          |  2 +-
+ mm/vmalloc.c       |  4 ++--
+ 6 files changed, 33 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index 39e2d3271035..1d9cb29400f3 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -760,6 +760,14 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
- 			status |= USB_PORT_STAT_C_BH_RESET << 16;
- 		if ((raw_port_status & PORT_CEC))
- 			status |= USB_PORT_STAT_C_CONFIG_ERROR << 16;
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index c97ea3b694e6..5cf260d5e248 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2655,13 +2655,25 @@ static inline bool want_init_on_free(void)
+ 	       !page_poisoning_enabled();
+ }
+ 
+-#ifdef CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT
+-DECLARE_STATIC_KEY_TRUE(_debug_pagealloc_enabled);
++#ifdef CONFIG_DEBUG_PAGEALLOC
++extern void init_debug_pagealloc(void);
+ #else
+-DECLARE_STATIC_KEY_FALSE(_debug_pagealloc_enabled);
++static inline void init_debug_pagealloc(void) {}
+ #endif
++extern bool _debug_pagealloc_enabled_early;
++DECLARE_STATIC_KEY_FALSE(_debug_pagealloc_enabled);
+ 
+ static inline bool debug_pagealloc_enabled(void)
++{
++	return IS_ENABLED(CONFIG_DEBUG_PAGEALLOC) &&
++		_debug_pagealloc_enabled_early;
++}
 +
-+		/* USB3 remote wake resume signaling completed */
-+		if (bus_state->port_remote_wakeup & (1 << wIndex) &&
-+		    (raw_port_status & PORT_PLS_MASK) != XDEV_RESUME &&
-+		    (raw_port_status & PORT_PLS_MASK) != XDEV_RECOVERY) {
-+			bus_state->port_remote_wakeup &= ~(1 << wIndex);
-+			usb_hcd_end_port_resume(&hcd->self, wIndex);
-+		}
- 	}
++/*
++ * For use in fast paths after init_debug_pagealloc() has run, or when a
++ * false negative result is not harmful when called too early.
++ */
++static inline bool debug_pagealloc_enabled_static(void)
+ {
+ 	if (!IS_ENABLED(CONFIG_DEBUG_PAGEALLOC))
+ 		return false;
+diff --git a/init/main.c b/init/main.c
+index ec3a1463ac69..c93b9cc201fa 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -554,6 +554,7 @@ static void __init mm_init(void)
+ 	 * bigger than MAX_ORDER unless SPARSEMEM.
+ 	 */
+ 	page_ext_init_flatmem();
++	init_debug_pagealloc();
+ 	report_meminit();
+ 	mem_init();
+ 	kmem_cache_init();
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 4785a8a2040e..5e3fe156ffb4 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -694,34 +694,26 @@ void prep_compound_page(struct page *page, unsigned int order)
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ unsigned int _debug_guardpage_minorder;
  
- 	if (hcd->speed < HCD_USB3) {
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 69ad9817076a..b426c83ecb9b 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1609,9 +1609,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
- 		usb_hcd_resume_root_hub(hcd);
- 	}
+-#ifdef CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT
+-DEFINE_STATIC_KEY_TRUE(_debug_pagealloc_enabled);
+-#else
++bool _debug_pagealloc_enabled_early __read_mostly
++			= IS_ENABLED(CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT);
+ DEFINE_STATIC_KEY_FALSE(_debug_pagealloc_enabled);
+-#endif
+ EXPORT_SYMBOL(_debug_pagealloc_enabled);
  
--	if (hcd->speed >= HCD_USB3 && (temp & PORT_PLS_MASK) == XDEV_INACTIVE)
--		bus_state->port_remote_wakeup &= ~(1 << faked_port_index);
+ DEFINE_STATIC_KEY_FALSE(_debug_guardpage_enabled);
+ 
+ static int __init early_debug_pagealloc(char *buf)
+ {
+-	bool enable = false;
 -
- 	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) == XDEV_RESUME) {
- 		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
+-	if (kstrtobool(buf, &enable))
+-		return -EINVAL;
+-
+-	if (enable)
+-		static_branch_enable(&_debug_pagealloc_enabled);
+-
+-	return 0;
++	return kstrtobool(buf, &_debug_pagealloc_enabled_early);
+ }
+ early_param("debug_pagealloc", early_debug_pagealloc);
  
-@@ -1630,6 +1627,7 @@ static void handle_port_status(struct xhci_hcd *xhci,
- 			bus_state->port_remote_wakeup |= 1 << faked_port_index;
- 			xhci_test_and_clear_bit(xhci, port_array,
- 					faked_port_index, PORT_PLC);
-+			usb_hcd_start_port_resume(&hcd->self, faked_port_index);
- 			xhci_set_link_state(xhci, port_array, faked_port_index,
- 						XDEV_U0);
- 			/* Need to wait until the next link state change
-@@ -1667,8 +1665,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
- 		if (slot_id && xhci->devs[slot_id])
- 			xhci_ring_device(xhci, slot_id);
- 		if (bus_state->port_remote_wakeup & (1 << faked_port_index)) {
--			bus_state->port_remote_wakeup &=
--				~(1 << faked_port_index);
- 			xhci_test_and_clear_bit(xhci, port_array,
- 					faked_port_index, PORT_PLC);
- 			usb_wakeup_notification(hcd->self.root_hub,
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index de4771ce0df6..424c07d1ac0e 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -316,6 +316,7 @@ struct xhci_op_regs {
- #define XDEV_U3		(0x3 << 5)
- #define XDEV_INACTIVE	(0x6 << 5)
- #define XDEV_POLLING	(0x7 << 5)
-+#define XDEV_RECOVERY	(0x8 << 5)
- #define XDEV_COMP_MODE  (0xa << 5)
- #define XDEV_RESUME	(0xf << 5)
- /* true: port has power (see HCC_PPC) */
+-static void init_debug_guardpage(void)
++void init_debug_pagealloc(void)
+ {
+ 	if (!debug_pagealloc_enabled())
+ 		return;
+ 
++	static_branch_enable(&_debug_pagealloc_enabled);
++
+ 	if (!debug_guardpage_minorder())
+ 		return;
+ 
+@@ -1186,7 +1178,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
+ 	 */
+ 	arch_free_page(page, order);
+ 
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		kernel_map_pages(page, 1 << order, 0);
+ 
+ 	kasan_free_nondeferred_pages(page, order);
+@@ -1207,7 +1199,7 @@ static bool free_pcp_prepare(struct page *page)
+ 
+ static bool bulkfree_pcp_prepare(struct page *page)
+ {
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		return free_pages_check(page);
+ 	else
+ 		return false;
+@@ -1221,7 +1213,7 @@ static bool bulkfree_pcp_prepare(struct page *page)
+  */
+ static bool free_pcp_prepare(struct page *page)
+ {
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		return free_pages_prepare(page, 0, true);
+ 	else
+ 		return free_pages_prepare(page, 0, false);
+@@ -1973,10 +1965,6 @@ void __init page_alloc_init_late(void)
+ 
+ 	for_each_populated_zone(zone)
+ 		set_zone_contiguous(zone);
+-
+-#ifdef CONFIG_DEBUG_PAGEALLOC
+-	init_debug_guardpage();
+-#endif
+ }
+ 
+ #ifdef CONFIG_CMA
+@@ -2106,7 +2094,7 @@ static inline bool free_pages_prezeroed(void)
+  */
+ static inline bool check_pcp_refill(struct page *page)
+ {
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		return check_new_page(page);
+ 	else
+ 		return false;
+@@ -2128,7 +2116,7 @@ static inline bool check_pcp_refill(struct page *page)
+ }
+ static inline bool check_new_pcp(struct page *page)
+ {
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		return check_new_page(page);
+ 	else
+ 		return false;
+@@ -2155,7 +2143,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+ 	set_page_refcounted(page);
+ 
+ 	arch_alloc_page(page, order);
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		kernel_map_pages(page, 1 << order, 1);
+ 	kasan_alloc_pages(page, order);
+ 	kernel_poison_pages(page, 1 << order, 1);
+diff --git a/mm/slab.c b/mm/slab.c
+index f1e1840af533..a89633603b2d 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1416,7 +1416,7 @@ static void kmem_rcu_free(struct rcu_head *head)
+ #if DEBUG
+ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
+ {
+-	if (debug_pagealloc_enabled() && OFF_SLAB(cachep) &&
++	if (debug_pagealloc_enabled_static() && OFF_SLAB(cachep) &&
+ 		(cachep->size % PAGE_SIZE) == 0)
+ 		return true;
+ 
+@@ -2008,7 +2008,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
+ 	 * to check size >= 256. It guarantees that all necessary small
+ 	 * sized slab is initialized in current slab initialization sequence.
+ 	 */
+-	if (debug_pagealloc_enabled() && (flags & SLAB_POISON) &&
++	if (debug_pagealloc_enabled_static() && (flags & SLAB_POISON) &&
+ 		size >= 256 && cachep->object_size > cache_line_size()) {
+ 		if (size < PAGE_SIZE || size % PAGE_SIZE == 0) {
+ 			size_t tmp_size = ALIGN(size, PAGE_SIZE);
+diff --git a/mm/slub.c b/mm/slub.c
+index d11389710b12..8eafccf75940 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -288,7 +288,7 @@ static inline void *get_freepointer_safe(struct kmem_cache *s, void *object)
+ 	unsigned long freepointer_addr;
+ 	void *p;
+ 
+-	if (!debug_pagealloc_enabled())
++	if (!debug_pagealloc_enabled_static())
+ 		return get_freepointer(s, object);
+ 
+ 	freepointer_addr = (unsigned long)object + s->offset;
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 4d3b3d60d893..544cc9a725cf 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1375,7 +1375,7 @@ static void free_unmap_vmap_area(struct vmap_area *va)
+ {
+ 	flush_cache_vunmap(va->va_start, va->va_end);
+ 	unmap_vmap_area(va);
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		flush_tlb_kernel_range(va->va_start, va->va_end);
+ 
+ 	free_vmap_area_noflush(va);
+@@ -1673,7 +1673,7 @@ static void vb_free(const void *addr, unsigned long size)
+ 
+ 	vunmap_page_range((unsigned long)addr, (unsigned long)addr + size);
+ 
+-	if (debug_pagealloc_enabled())
++	if (debug_pagealloc_enabled_static())
+ 		flush_tlb_kernel_range((unsigned long)addr,
+ 					(unsigned long)addr + size);
+ 
 -- 
-2.17.1
+2.24.0
 
