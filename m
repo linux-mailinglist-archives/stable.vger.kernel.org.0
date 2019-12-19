@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5489C126B90
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:58:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30227126B85
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729955AbfLSSzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:55:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51930 "EHLO mail.kernel.org"
+        id S1728463AbfLSS50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:57:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730702AbfLSSzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:55:44 -0500
+        id S1730775AbfLSS4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:56:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8592C24676;
-        Thu, 19 Dec 2019 18:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B776F24679;
+        Thu, 19 Dec 2019 18:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781743;
-        bh=evkCinW7sZmVDT71TB5X7RzDelWavbVQam8KagxZbK4=;
+        s=default; t=1576781769;
+        bh=HaRorocpD35JNXQ/vtSF4X4qwl0NGYvERY6bEGeqHVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1eYSz1YqU4pOzlFlHVhBE4KtokpaQQo+mnyovn0AZYdF4EJiE2nhKSji0AbaQFwFK
-         5o1eo/0TW4nSMtWEc0IrzOTG+dBL3MOK7f7xszyqYhmCJO+gko5p5/1UP/L8ElaKBF
-         OtruoJcJsq+lSpCWAVVnns2lD5RhAYVrDk4lMVWI=
+        b=TD5F8RFoN95vSPgv6M0uRgeuSRfRBghfHcIF5PgjIm63lt42N/yxmR4dTYYfPy9nA
+         /PrKK6aqjuRlOAZEvXdjJJEXuyQ1n0AxBD3C2h10lTyH+X5O9oGScKm3uDppLhHb7w
+         jzrVVXIKDqTKTwTJ14VdSrC00Ka11zrIi6tenVNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ronnie Sahlberg <lsahlber@redhat.com>,
         Pavel Shilovsky <pshilov@microsoft.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 35/80] CIFS: Close open handle after interrupted close
-Date:   Thu, 19 Dec 2019 19:34:27 +0100
-Message-Id: <20191219183106.903932675@linuxfoundation.org>
+Subject: [PATCH 5.4 36/80] CIFS: Do not miss cancelled OPEN responses
+Date:   Thu, 19 Dec 2019 19:34:28 +0100
+Message-Id: <20191219183107.361460846@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
 References: <20191219183031.278083125@linuxfoundation.org>
@@ -47,16 +47,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Shilovsky <pshilov@microsoft.com>
 
-commit 9150c3adbf24d77cfba37f03639d4a908ca4ac25 upstream.
+commit 7b71843fa7028475b052107664cbe120156a2cfc upstream.
 
-If Close command is interrupted before sending a request
-to the server the client ends up leaking an open file
-handle. This wastes server resources and can potentially
-block applications that try to remove the file or any
-directory containing this file.
+When an OPEN command is cancelled we mark a mid as
+cancelled and let the demultiplex thread process it
+by closing an open handle. The problem is there is
+a race between a system call thread and the demultiplex
+thread and there may be a situation when the mid has
+been already processed before it is set as cancelled.
 
-Fix this by putting the close command into a worker queue,
-so another thread retries it later.
+Fix this by processing cancelled requests when mids
+are being destroyed which means that there is only
+one thread referencing a particular mid. Also set
+mids as cancelled unconditionally on their state.
 
 Cc: Stable <stable@vger.kernel.org>
 Tested-by: Frank Sorenson <sorenson@redhat.com>
@@ -66,131 +69,52 @@ Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2misc.c  |   59 +++++++++++++++++++++++++++++++++++++++-------------
- fs/cifs/smb2pdu.c   |   16 +++++++++++++-
- fs/cifs/smb2proto.h |    3 ++
- 3 files changed, 63 insertions(+), 15 deletions(-)
+ fs/cifs/connect.c   |    6 ------
+ fs/cifs/transport.c |   10 ++++++++--
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -743,36 +743,67 @@ smb2_cancelled_close_fid(struct work_str
- 	kfree(cancelled);
- }
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -1222,12 +1222,6 @@ next_pdu:
+ 		for (i = 0; i < num_mids; i++) {
+ 			if (mids[i] != NULL) {
+ 				mids[i]->resp_buf_size = server->pdu_size;
+-				if ((mids[i]->mid_flags & MID_WAIT_CANCELLED) &&
+-				    mids[i]->mid_state == MID_RESPONSE_RECEIVED &&
+-				    server->ops->handle_cancelled_mid)
+-					server->ops->handle_cancelled_mid(
+-							mids[i]->resp_buf,
+-							server);
  
-+/* Caller should already has an extra reference to @tcon */
-+static int
-+__smb2_handle_cancelled_close(struct cifs_tcon *tcon, __u64 persistent_fid,
-+			      __u64 volatile_fid)
-+{
-+	struct close_cancelled_open *cancelled;
+ 				if (!mids[i]->multiRsp || mids[i]->multiEnd)
+ 					mids[i]->callback(mids[i]);
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -93,8 +93,14 @@ static void _cifs_mid_q_entry_release(st
+ 	__u16 smb_cmd = le16_to_cpu(midEntry->command);
+ 	unsigned long now;
+ 	unsigned long roundtrip_time;
+-	struct TCP_Server_Info *server = midEntry->server;
+ #endif
++	struct TCP_Server_Info *server = midEntry->server;
 +
-+	cancelled = kzalloc(sizeof(*cancelled), GFP_KERNEL);
-+	if (!cancelled)
-+		return -ENOMEM;
++	if (midEntry->resp_buf && (midEntry->mid_flags & MID_WAIT_CANCELLED) &&
++	    midEntry->mid_state == MID_RESPONSE_RECEIVED &&
++	    server->ops->handle_cancelled_mid)
++		server->ops->handle_cancelled_mid(midEntry->resp_buf, server);
 +
-+	cancelled->fid.persistent_fid = persistent_fid;
-+	cancelled->fid.volatile_fid = volatile_fid;
-+	cancelled->tcon = tcon;
-+	INIT_WORK(&cancelled->work, smb2_cancelled_close_fid);
-+	WARN_ON(queue_work(cifsiod_wq, &cancelled->work) == false);
-+
-+	return 0;
-+}
-+
-+int
-+smb2_handle_cancelled_close(struct cifs_tcon *tcon, __u64 persistent_fid,
-+			    __u64 volatile_fid)
-+{
-+	int rc;
-+
-+	cifs_dbg(FYI, "%s: tc_count=%d\n", __func__, tcon->tc_count);
-+	spin_lock(&cifs_tcp_ses_lock);
-+	tcon->tc_count++;
-+	spin_unlock(&cifs_tcp_ses_lock);
-+
-+	rc = __smb2_handle_cancelled_close(tcon, persistent_fid, volatile_fid);
-+	if (rc)
-+		cifs_put_tcon(tcon);
-+
-+	return rc;
-+}
-+
- int
- smb2_handle_cancelled_mid(char *buffer, struct TCP_Server_Info *server)
- {
- 	struct smb2_sync_hdr *sync_hdr = (struct smb2_sync_hdr *)buffer;
- 	struct smb2_create_rsp *rsp = (struct smb2_create_rsp *)buffer;
- 	struct cifs_tcon *tcon;
--	struct close_cancelled_open *cancelled;
-+	int rc;
- 
- 	if (sync_hdr->Command != SMB2_CREATE ||
- 	    sync_hdr->Status != STATUS_SUCCESS)
- 		return 0;
- 
--	cancelled = kzalloc(sizeof(*cancelled), GFP_KERNEL);
--	if (!cancelled)
--		return -ENOMEM;
--
- 	tcon = smb2_find_smb_tcon(server, sync_hdr->SessionId,
- 				  sync_hdr->TreeId);
--	if (!tcon) {
--		kfree(cancelled);
-+	if (!tcon)
- 		return -ENOENT;
--	}
- 
--	cancelled->fid.persistent_fid = rsp->PersistentFileId;
--	cancelled->fid.volatile_fid = rsp->VolatileFileId;
--	cancelled->tcon = tcon;
--	INIT_WORK(&cancelled->work, smb2_cancelled_close_fid);
--	queue_work(cifsiod_wq, &cancelled->work);
-+	rc = __smb2_handle_cancelled_close(tcon, rsp->PersistentFileId,
-+					   rsp->VolatileFileId);
-+	if (rc)
-+		cifs_put_tcon(tcon);
- 
--	return 0;
-+	return rc;
- }
- 
- /**
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -2972,7 +2972,21 @@ int
- SMB2_close(const unsigned int xid, struct cifs_tcon *tcon,
- 	   u64 persistent_fid, u64 volatile_fid)
- {
--	return SMB2_close_flags(xid, tcon, persistent_fid, volatile_fid, 0);
-+	int rc;
-+	int tmp_rc;
-+
-+	rc = SMB2_close_flags(xid, tcon, persistent_fid, volatile_fid, 0);
-+
-+	/* retry close in a worker thread if this one is interrupted */
-+	if (rc == -EINTR) {
-+		tmp_rc = smb2_handle_cancelled_close(tcon, persistent_fid,
-+						     volatile_fid);
-+		if (tmp_rc)
-+			cifs_dbg(VFS, "handle cancelled close fid 0x%llx returned error %d\n",
-+				 persistent_fid, tmp_rc);
-+	}
-+
-+	return rc;
- }
- 
- int
---- a/fs/cifs/smb2proto.h
-+++ b/fs/cifs/smb2proto.h
-@@ -212,6 +212,9 @@ extern int SMB2_set_compression(const un
- extern int SMB2_oplock_break(const unsigned int xid, struct cifs_tcon *tcon,
- 			     const u64 persistent_fid, const u64 volatile_fid,
- 			     const __u8 oplock_level);
-+extern int smb2_handle_cancelled_close(struct cifs_tcon *tcon,
-+				       __u64 persistent_fid,
-+				       __u64 volatile_fid);
- extern int smb2_handle_cancelled_mid(char *buffer,
- 					struct TCP_Server_Info *server);
- void smb2_cancelled_close_fid(struct work_struct *work);
+ 	midEntry->mid_state = MID_FREE;
+ 	atomic_dec(&midCount);
+ 	if (midEntry->large_buf)
+@@ -1122,8 +1128,8 @@ compound_send_recv(const unsigned int xi
+ 				 midQ[i]->mid, le16_to_cpu(midQ[i]->command));
+ 			send_cancel(server, &rqst[i], midQ[i]);
+ 			spin_lock(&GlobalMid_Lock);
++			midQ[i]->mid_flags |= MID_WAIT_CANCELLED;
+ 			if (midQ[i]->mid_state == MID_REQUEST_SUBMITTED) {
+-				midQ[i]->mid_flags |= MID_WAIT_CANCELLED;
+ 				midQ[i]->callback = cifs_cancelled_callback;
+ 				cancelled_mid[i] = true;
+ 				credits[i].value = 0;
 
 
