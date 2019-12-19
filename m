@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C10126AA2
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:49:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD78126BB4
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729780AbfLSSt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:49:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42862 "EHLO mail.kernel.org"
+        id S1726959AbfLSS6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:58:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729786AbfLSSt1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:49:27 -0500
+        id S1730273AbfLSSyz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:54:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 253832465E;
-        Thu, 19 Dec 2019 18:49:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9334D206EC;
+        Thu, 19 Dec 2019 18:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781366;
-        bh=RkCqlMxkWpQHQAgkiX7rCYVVXYAeeMu3h4lelkadcqI=;
+        s=default; t=1576781695;
+        bh=jM4AaFsdUm+PCgilD4TxVD2a/AGAmFNdPl4DlFC+EvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kj4tDzZ7L5ZEMBpRezyT90lsdQbUoaffDTxwZAt90FHFsVAFvyamTQGcT3oIm3xAT
-         EAkUTC/fsllvnzWtDVJrWTT5TXBlqloXzW3K4gV6O+K1ZkdtRGAv1eYB7tyD6yqwAF
-         7K7ErHty3ZfH+20prMyVOLVVUo0NWw/rkngD4mII=
+        b=Nwpdwecqpy74LXwL7VivJDnDmds/T6W3ciX2Cd5CHPGlxtUEaMVE2QAn+23C5M1A4
+         6cMV3h4eDytV5X07Eqxy9lMTX65fcum3wX74yw1XIBYk6gqzBRMlTPPtt/qrYlkgGz
+         UfC4+PVqHLt5eaDOjy/qBD/ctQXqFX889KGQ6zM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiang Yi <giangyi@amazon.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.9 192/199] vfio/pci: call irq_bypass_unregister_producer() before freeing irq
-Date:   Thu, 19 Dec 2019 19:34:34 +0100
-Message-Id: <20191219183226.382696816@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Steven Price <steven.price@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 43/80] drm/panfrost: Fix a race in panfrost_ioctl_madvise()
+Date:   Thu, 19 Dec 2019 19:34:35 +0100
+Message-Id: <20191219183111.174687637@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Yi <giangyi@amazon.com>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit d567fb8819162099035e546b11a736e29c2af0ea upstream.
+commit 70cc77952efebf6722d483cb83cfb563ac9768db upstream.
 
-Since irq_bypass_register_producer() is called after request_irq(), we
-should do tear-down in reverse order: irq_bypass_unregister_producer()
-then free_irq().
+If 2 threads change the MADVISE property of the same BO in parallel we
+might end up with an shmem->madv value that's inconsistent with the
+presence of the BO in the shrinker list.
 
-Specifically free_irq() may release resources required by the
-irqbypass del_producer() callback.  Notably an example provided by
-Marc Zyngier on arm64 with GICv4 that he indicates has the potential
-to wedge the hardware:
+The easiest solution to fix that is to protect the
+drm_gem_shmem_madvise() call with the shrinker lock.
 
- free_irq(irq)
-   __free_irq(irq)
-     irq_domain_deactivate_irq(irq)
-       its_irq_domain_deactivate()
-         [unmap the VLPI from the ITS]
-
- kvm_arch_irq_bypass_del_producer(cons, prod)
-   kvm_vgic_v4_unset_forwarding(kvm, irq, ...)
-     its_unmap_vlpi(irq)
-       [Unmap the VLPI from the ITS (again), remap the original LPI]
-
-Signed-off-by: Jiang Yi <giangyi@amazon.com>
-Cc: stable@vger.kernel.org # v4.4+
-Fixes: 6d7425f109d26 ("vfio: Register/unregister irq_bypass_producer")
-Link: https://lore.kernel.org/kvm/20191127164910.15888-1-giangyi@amazon.com
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-[aw: commit log]
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Acked-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191129135908.2439529-3-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/pci/vfio_pci_intrs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/panfrost/panfrost_drv.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -297,8 +297,8 @@ static int vfio_msi_set_vector_signal(st
- 	irq = pci_irq_vector(pdev, vector);
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -347,20 +347,19 @@ static int panfrost_ioctl_madvise(struct
+ 		return -ENOENT;
+ 	}
  
- 	if (vdev->ctx[vector].trigger) {
--		free_irq(irq, vdev->ctx[vector].trigger);
- 		irq_bypass_unregister_producer(&vdev->ctx[vector].producer);
-+		free_irq(irq, vdev->ctx[vector].trigger);
- 		kfree(vdev->ctx[vector].name);
- 		eventfd_ctx_put(vdev->ctx[vector].trigger);
- 		vdev->ctx[vector].trigger = NULL;
++	mutex_lock(&pfdev->shrinker_lock);
+ 	args->retained = drm_gem_shmem_madvise(gem_obj, args->madv);
+ 
+ 	if (args->retained) {
+ 		struct panfrost_gem_object *bo = to_panfrost_bo(gem_obj);
+ 
+-		mutex_lock(&pfdev->shrinker_lock);
+-
+ 		if (args->madv == PANFROST_MADV_DONTNEED)
+-			list_add_tail(&bo->base.madv_list, &pfdev->shrinker_list);
++			list_add_tail(&bo->base.madv_list,
++				      &pfdev->shrinker_list);
+ 		else if (args->madv == PANFROST_MADV_WILLNEED)
+ 			list_del_init(&bo->base.madv_list);
+-
+-		mutex_unlock(&pfdev->shrinker_lock);
+ 	}
++	mutex_unlock(&pfdev->shrinker_lock);
+ 
+ 	drm_gem_object_put_unlocked(gem_obj);
+ 	return 0;
 
 
