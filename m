@@ -2,192 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2537C125E8B
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 11:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D523F125ECF
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 11:24:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726622AbfLSKIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 05:08:06 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:37102 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726759AbfLSKIF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 05:08:05 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1576750083;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:in-reply-to:in-reply-to:  references:references;
-        bh=l5IEbrYkGbA+uzv9F0SWz6YFiqb5Twn8DMBOAdSn76Y=;
-        b=DpHN5gv8J/zP0JozLuSbhz1BwvziaOOHKiLICBEj7L7ar4AdiW8k4+tPnS4ifP8oNiqLVA
-        /GQWcG5xMj2lqZvrRLJ3MMiDgvdDirSlOMEmWk3+byOaEgmXOBsuWZ3iSRMux82Uj8VdU/
-        SeVCo2qsLB7CLihdSWjGN238KZ+FOdI=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-302-nU4mZEnJPImKuXffeKfOyQ-1; Thu, 19 Dec 2019 05:07:56 -0500
-X-MC-Unique: nU4mZEnJPImKuXffeKfOyQ-1
-Received: by mail-qt1-f200.google.com with SMTP id b14so3371524qtt.1
-        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 02:07:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=l5IEbrYkGbA+uzv9F0SWz6YFiqb5Twn8DMBOAdSn76Y=;
-        b=ONFo9Q3X4Ky2hqRtF3/8vkc4UEnTG+MJJT3CDC3BgegvvQB/p9eIdxNoDA0vnecpG+
-         RxJ2QpemCAzjTCposalrV1h5vSRfV8SbZl8QQjGtfd6VMcPpqmPNIkX+57KhKBg/3XJm
-         rrZSSSPnFwEYwDVeBDdZTx5MH7k0nJRt4pkL/dfNO+vuXB17NxXctNES05SPR3l6ySt9
-         lOQ/hiNgaVd6qf1JgllGfTwjtoqAD/wgwk0fAW8Un6QA5fcsH5A9LlWY5F4ayOO3oZw6
-         eXSIPeYNiNg5rHhZo2zSLKDKABBTMmkwgp9Au0r4kYs1wD1IGJazJKjZ05/35qdLpwBh
-         sSrQ==
-X-Gm-Message-State: APjAAAU5MA/SbuHOGEW1PjbBQvfnLhZ2mKI4raxYCsi2uvAiNQIs80Xq
-        qJAO28MSdjOQLWSPKDqApIsT9NQjaHXrHu6dxUXO9l3tUVR/Y+yup80qTEcLBqQ/ItnuUCAp+h2
-        RDXDofeio4ydub3D/
-X-Received: by 2002:a05:6214:1150:: with SMTP id b16mr6773881qvt.71.1576750075528;
-        Thu, 19 Dec 2019 02:07:55 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzGQHlbLu28ChVwBf+PQOYB9WLnMKuof8pJdCAO3zkW4CCjNgvuJfhbmqigII0eHNeYPs9//A==
-X-Received: by 2002:a05:6214:1150:: with SMTP id b16mr6773857qvt.71.1576750075235;
-        Thu, 19 Dec 2019 02:07:55 -0800 (PST)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id w21sm1769397qth.17.2019.12.19.02.07.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Dec 2019 02:07:54 -0800 (PST)
-Date:   Thu, 19 Dec 2019 03:07:47 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Christian Bundy <christianbundy@fraction.io>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>, linux-integrity@vger.kernel.org
-Subject: Re: [PATCH v2] tpm_tis: reserve chip for duration of
- tpm_tis_core_init
-Message-ID: <20191219100747.fhbqmzk7xby3tt3l@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Dan Williams <dan.j.williams@intel.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Christian Bundy <christianbundy@fraction.io>,
-        Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Stefan Berger <stefanb@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>, linux-integrity@vger.kernel.org
-References: <20191211231758.22263-1-jsnitsel@redhat.com>
- <20191211235455.24424-1-jsnitsel@redhat.com>
- <5aef0fbe28ed23b963c53d61445b0bac6f108642.camel@linux.intel.com>
- <CAPcyv4h60z889bfbiwvVhsj6MxmOPiPY8ZuPB_skxkZx-N+OGw@mail.gmail.com>
- <20191217020022.knh7uxt4pn77wk5m@cantor>
- <CAPcyv4iepQup4bwMuWzq6r5gdx83hgYckUWFF7yF=rszjz3dtQ@mail.gmail.com>
- <5d0763334def7d7ae1e7cf931ef9b14184dce238.camel@linux.intel.com>
- <20191217171844.huqlj5csr262zkkk@cantor>
- <37f4ed0d6145dbe1e8724a5d05d0da82b593bf9c.camel@linux.intel.com>
- <CAPcyv4h8sK+geVvBb1534V9CgdvOnkpPeStV3B8Q1Qdve3is0A@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4h8sK+geVvBb1534V9CgdvOnkpPeStV3B8Q1Qdve3is0A@mail.gmail.com>
+        id S1726818AbfLSKYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 05:24:12 -0500
+Received: from mailout2.samsung.com ([203.254.224.25]:58485 "EHLO
+        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726664AbfLSKYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 05:24:11 -0500
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20191219102408epoutp02ae211e70078e56b1d1cf403b59e0be8c~hvrlthwuo2447424474epoutp02M
+        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 10:24:08 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20191219102408epoutp02ae211e70078e56b1d1cf403b59e0be8c~hvrlthwuo2447424474epoutp02M
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1576751048;
+        bh=lNrhRejjZJSzCkKB4e9oz198En7AGkhdGjzwETzjwSA=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=KRYEj2JzULwya/Lqwzr7vEUGg8ieaFAf3rPegr29B0PVUF3SyMCsP9klN81Hb1v0F
+         ECc7o8e5so/QQv3UuwVcxFPji6Ab/CxyYfVztMOTNtOYbFxz8BKojI0vtLkS7M66Ta
+         3ZaPRb8yNlIUrnHGCUZ5g5Hn6i5XMQy/gom60bkg=
+Received: from epsmges5p2new.samsung.com (unknown [182.195.42.74]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+        20191219102407epcas5p1b5c225f18bdc03ded34454fd31c43f6f~hvrlMFaTh0414504145epcas5p1y;
+        Thu, 19 Dec 2019 10:24:07 +0000 (GMT)
+Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
+        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        84.91.20197.7CF4BFD5; Thu, 19 Dec 2019 19:24:07 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
+        20191219102407epcas5p103b26e6fb191f7135d870a3449115c89~hvrktDiNf1266012660epcas5p1U;
+        Thu, 19 Dec 2019 10:24:07 +0000 (GMT)
+Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20191219102407epsmtrp176085784dc461fe6da3d95f7ca863b62~hvrksUUAR2283122831epsmtrp1j;
+        Thu, 19 Dec 2019 10:24:07 +0000 (GMT)
+X-AuditID: b6c32a4a-781ff70000014ee5-d8-5dfb4fc75a10
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        41.F3.06569.6CF4BFD5; Thu, 19 Dec 2019 19:24:07 +0900 (KST)
+Received: from Jaguar.sa.corp.samsungelectronics.net (unknown
+        [107.108.73.139]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20191219102405epsmtip2fd5ad69fdeaf24c9021b65c50e814a81~hvri16nI00195201952epsmtip2W;
+        Thu, 19 Dec 2019 10:24:04 +0000 (GMT)
+From:   Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>
+To:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     peppe.cavallaro@st.com, alexandre.torgue@st.com,
+        Jose.Abreu@synopsys.com, davem@davemloft.net,
+        stable@vger.kernel.org, jayati.sahu@samsung.com,
+        pankaj.dubey@samsung.com, rcsekar@samsung.com,
+        Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>,
+        Sriram Dash <sriram.dash@samsung.com>
+Subject: [PATCH] net: stmmac: platform: Fix MDIO init for platforms without
+ PHY
+Date:   Thu, 19 Dec 2019 15:47:01 +0530
+Message-Id: <1576750621-78066-1-git-send-email-p.rajanbabu@samsung.com>
+X-Mailer: git-send-email 2.7.4
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpgleLIzCtJLcpLzFFi42LZdlhTS/e4/+9Yg6/PlC02PjnNaDHnfAuL
+        xZFTS5gs7v35wGqx6fE1VovLu+awWXRde8JqcWyBmMXRjcEWi7Z+Ybf4/3oro8WsCztYLW6s
+        Z7dYsPERowOfx5aVN5k8Ni+p9+jbsorR4+A+Q4+nP/Yye2zZ/5nR4/MmuQD2KC6blNSczLLU
+        In27BK6MVZMa2Qs2clb8n7+QrYGxjaOLkYNDQsBEYsqyoC5GLg4hgd2MEmd3/mOBcD4xSmxb
+        s5+1i5ETyPnGKLFnoQ2IDdIw6/htNoiivYwSSx5OYIJwWpgkbk1+ygxSxSZgKrFqTiMrSEJE
+        oItRYteBOWCjmAUWMkm82GcJYgsLBEp82dbNAmKzCKhKbHlwhhHE5hVwl/j7dx0rxDo5iZvn
+        Opkh7CNsEl9XaELYLhLvlz9ng7CFJV4d38IOYUtJvOxvg7LLJV5+Wgx2qoRAA6PEzInTGSES
+        9hIHrsxhAQUAs4CmxPpd+hC38Un0/n7CBAkXXomONiGIalWJ9cs3QXVKS+y7vhfK9pDoubqB
+        BRJCsRKT1xxhnsAoMwth6AJGxlWMkqkFxbnpqcWmBUZ5qeV6xYm5xaV56XrJ+bmbGMHpQstr
+        B+Oycz6HGAU4GJV4eH+4/ooVYk0sK67MPcQowcGsJMJ7u+NnrBBvSmJlVWpRfnxRaU5q8SFG
+        aQ4WJXHeSaxXY4QE0hNLUrNTUwtSi2CyTBycUg2MtgKXHZhlDwa5b13vK+t5rXEtX7X5Tr7X
+        ew7NszL866pvqH72wbIZvV6pLjp/Ze68S2SMO/nw+ax77G4F710djOwEn1/0tnF5sT8yfi9j
+        2IX+n1sWf2n97WqUfP33xaT8r2+W/q9/ZWM4PVXLN13UKDvgnulymb939sxRCtaffrOgpSe5
+        TNpAiaU4I9FQi7moOBEANvs2axMDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrGLMWRmVeSWpSXmKPExsWy7bCSvO5x/9+xBru6GS02PjnNaDHnfAuL
+        xZFTS5gs7v35wGqx6fE1VovLu+awWXRde8JqcWyBmMXRjcEWi7Z+Ybf4/3oro8WsCztYLW6s
+        Z7dYsPERowOfx5aVN5k8Ni+p9+jbsorR4+A+Q4+nP/Yye2zZ/5nR4/MmuQD2KC6blNSczLLU
+        In27BK6MVZMa2Qs2clb8n7+QrYGxjaOLkZNDQsBEYtbx22xdjFwcQgK7GSV+LpzNBpGQlpje
+        vwfKFpZY+e85O0RRE5NE98UtYAk2AVOJVXMaWUESIgJ9jBL/F/1hAnGYBVYzSexY08IEUiUs
+        4C9x//4LFhCbRUBVYsuDM4wgNq+Au8Tfv+tYIVbISdw818k8gZFnASPDKkbJ1ILi3PTcYsMC
+        o7zUcr3ixNzi0rx0veT83E2M4NDU0trBeOJE/CFGAQ5GJR7eH66/YoVYE8uKK3MPMUpwMCuJ
+        8N7u+BkrxJuSWFmVWpQfX1Sak1p8iFGag0VJnFc+/1ikkEB6YklqdmpqQWoRTJaJg1OqgXGZ
+        bP8snY0e68QWK7Kq80bprA/YcKM3K0EhI73gvVDxo8C5NWJ7Xtkm1P+t29F7+rRuwBYTFaPj
+        zofvSPscrcgI8dwmEMrtHr+kz/LLI93mvh1ft9x/+CxVhi9i3qPoRzd36q9hXf/z4d8zlZEp
+        Nz2X7hFOdXhuPm/yghOWrX9u/d+0Kt85+IASS3FGoqEWc1FxIgDJWKlXSQIAAA==
+X-CMS-MailID: 20191219102407epcas5p103b26e6fb191f7135d870a3449115c89
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+CMS-TYPE: 105P
+X-CMS-RootMailID: 20191219102407epcas5p103b26e6fb191f7135d870a3449115c89
+References: <CGME20191219102407epcas5p103b26e6fb191f7135d870a3449115c89@epcas5p1.samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed Dec 18 19, Dan Williams wrote:
->On Wed, Dec 18, 2019 at 3:07 PM Jarkko Sakkinen
-><jarkko.sakkinen@linux.intel.com> wrote:
->>
->> On Tue, 2019-12-17 at 10:18 -0700, Jerry Snitselaar wrote:
->> > On Tue Dec 17 19, Jarkko Sakkinen wrote:
->> > > On Mon, 2019-12-16 at 18:14 -0800, Dan Williams wrote:
->> > > > On Mon, Dec 16, 2019 at 6:00 PM Jerry Snitselaar <jsnitsel@redhat.com> wrote:
->> > > > > On Mon Dec 16 19, Dan Williams wrote:
->> > > > > > On Mon, Dec 16, 2019 at 4:59 PM Jarkko Sakkinen
->> > > > > > <jarkko.sakkinen@linux.intel.com> wrote:
->> > > > > > > On Wed, 2019-12-11 at 16:54 -0700, Jerry Snitselaar wrote:
->> > > > > > > > Instead of repeatedly calling tpm_chip_start/tpm_chip_stop when
->> > > > > > > > issuing commands to the tpm during initialization, just reserve the
->> > > > > > > > chip after wait_startup, and release it when we are ready to call
->> > > > > > > > tpm_chip_register.
->> > > > > > > >
->> > > > > > > > Cc: Christian Bundy <christianbundy@fraction.io>
->> > > > > > > > Cc: Dan Williams <dan.j.williams@intel.com>
->> > > > > > > > Cc: Peter Huewe <peterhuewe@gmx.de>
->> > > > > > > > Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
->> > > > > > > > Cc: Jason Gunthorpe <jgg@ziepe.ca>
->> > > > > > > > Cc: Stefan Berger <stefanb@linux.vnet.ibm.com>
->> > > > > > > > Cc: stable@vger.kernel.org
->> > > > > > > > Cc: linux-integrity@vger.kernel.org
->> > > > > > > > Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
->> > > > > > > > Fixes: 5b359c7c4372 ("tpm_tis_core: Turn on the TPM before probing IRQ's")
->> > > > > > > > Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
->> > > > > > >
->> > > > > > > I pushed to my master with minor tweaks and added my tags.
->> > > > > > >
->> > > > > > > Please check before I put it to linux-next.
->> > > > > >
->> > > > > > I don't see it yet here:
->> > > > > >
->> > > > > > http://git.infradead.org/users/jjs/linux-tpmdd.git/shortlog/refs/heads/master
->> > > > > >
->> > > > > > However, I wanted to make sure you captured that this does *not* fix
->> > > > > > the interrupt issue. I.e. make sure you remove the "Fixes:
->> > > > > > 5b359c7c4372 ("tpm_tis_core: Turn on the TPM before probing IRQ's")"
->> > > > > > tag.
->> > > > > >
->> > > > > > With that said, are you going to include the revert of:
->> > > > > >
->> > > > > > 1ea32c83c699 tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
->> > > > >
->> > > > > Dan, with the above reverted do you still get the screaming interrupt?
->> > > >
->> > > > Yes, the screaming interrupt goes away, although it is replaced by
->> > > > these messages when the driver starts:
->> > > >
->> > > > [    3.725131] tpm_tis IFX0740:00: 2.0 TPM (device-id 0x1B, rev-id 16)
->> > > > [    3.725358] tpm tpm0: tpm_try_transmit: send(): error -5
->> > > > [    3.725359] tpm tpm0: [Firmware Bug]: TPM interrupt not working,
->> > > > polling instead
->> > > >
->> > > > If the choice is "error message + polled-mode" vs "pinning a cpu with
->> > > > interrupts" I'd accept the former, but wanted Jarkko with his
->> > > > maintainer hat to weigh in.
->> > > >
->> > > > Is there a simple sanity check I can run to see if the TPM is still
->> > > > operational in this state?
->> > >
->> > > What about T490S?
->> > >
->> > > /Jarkko
->> > >
->> >
->> > Hi Jarkko, I'm waiting to hear back from the t490s user, but I imagine
->> > it still has the problem as well.
->> >
->> > Christian, were you able to try this patch and verify it still
->> > resolves the issue you were having with the kernel failing to get the
->> > timeouts and durations from the tpm?
->>
->> Including those reverts would be a bogus change at this point.
->
->I'm failing to see how you arrived at that conclusion.
->
->> The fix that I already applied obviously fixes an issue even if
->> it does not fix all the issues.
->
->These patches take a usable system and make it unusable:
->
->1ea32c83c699 tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before probing for interrupts
->5b359c7c4372 tpm_tis_core: Turn on the TPM before probing IRQ's
->
->...they need to be reverted, or the regression needs to be fixed, but
->asserting that you fixed something else unrelated does not help.
->
+The current implementation of "stmmac_dt_phy" function initializes
+the MDIO platform bus data, even in the absence of PHY. This fix
+will skip MDIO initialization if there is no PHY present.
 
-Reverting 1ea32c83c699 ("tpm_tis_core: Set TPM_CHIP_FLAG_IRQ before
-probing for interrupts") would at least allow people impacted by this
-to boot their systems without disabling the tpm, or blacklisting the
-module while we figure this out. From what I can tell the tpm_tis code
-was operating in that state since 570a36097f30 ("tpm: drop 'irq' from
-struct tpm_vendor_specific") until Stefan's patch.
+Fixes: 7437127 ("net: stmmac: Convert to phylink and remove phylib logic")
+Acked-by: Jayati Sahu <jayati.sahu@samsung.com>
+Signed-off-by: Sriram Dash <sriram.dash@samsung.com>
+Signed-off-by: Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>
+---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Regards,
-Jerry
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index bedaff0..cc8d7e7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -320,7 +320,7 @@ static int stmmac_mtl_setup(struct platform_device *pdev,
+ static int stmmac_dt_phy(struct plat_stmmacenet_data *plat,
+ 			 struct device_node *np, struct device *dev)
+ {
+-	bool mdio = true;
++	bool mdio = false;
+ 	static const struct of_device_id need_mdio_ids[] = {
+ 		{ .compatible = "snps,dwc-qos-ethernet-4.10" },
+ 		{},
+-- 
+2.7.4
 
