@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA17126D4A
+	by mail.lfdr.de (Postfix) with ESMTP id B4080126D4B
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727435AbfLSSkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58626 "EHLO mail.kernel.org"
+        id S1727857AbfLSTJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:09:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728323AbfLSSkC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:02 -0500
+        id S1728330AbfLSSkF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84AC5206D7;
-        Thu, 19 Dec 2019 18:40:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03F84222C2;
+        Thu, 19 Dec 2019 18:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780802;
-        bh=gRXEjFAfXikEhoAMADE+phBfpxgJ8jYl1DmBHBNGdLE=;
+        s=default; t=1576780804;
+        bh=5YqInx0aKveKicVgm5QX2Q8FUyLiPskq8FO3r48P7os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NJKppowj8z3VOk0DeGAmh2GpZn1KA5bx5OyDQJ3NPUo1zk3feFayaJEcIngLda4lX
-         qD72DXNluh8OcVYwNqjTWVhejnp57lIQY2TjEWWDIJXrUjiVxkLN3nnOB6okwJjKTt
-         LFwuxVQgQL8iSfHyQ73D824ij5m+M8BIXtlUTX4Q=
+        b=SSuMfdz2GAR8y40NM7mMcnOjAMESK/20ADMRAVkmhQoiWSNrh0aMeVCc7Y74cRm5w
+         3+91q/G3tK7qSz09+3fybqVdGdvHImZzSpVQtc30dcWqDLKMcHrmlQLVmjJmJpc+dP
+         t4d6l/PL1GvjlRiwYM+W+SA8zBfbhPEcJGbH5DVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 124/162] usb: xhci: only set D3hot for pci device
-Date:   Thu, 19 Dec 2019 19:33:52 +0100
-Message-Id: <20191219183215.310756164@linuxfoundation.org>
+Subject: [PATCH 4.4 125/162] xhci: Fix memory leak in xhci_add_in_port()
+Date:   Thu, 19 Dec 2019 19:33:53 +0100
+Message-Id: <20191219183215.375350082@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -44,90 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Lin <henryl@nvidia.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit f2c710f7dca8457e88b4ac9de2060f011254f9dd ]
+[ Upstream commit ce91f1a43b37463f517155bdfbd525eb43adbd1a ]
 
-Xhci driver cannot call pci_set_power_state() on non-pci xhci host
-controllers. For example, NVIDIA Tegra XHCI host controller which acts
-as platform device with XHCI_SPURIOUS_WAKEUP quirk set in some platform
-hits this issue during shutdown.
+When xHCI is part of Alpine or Titan Ridge Thunderbolt controller and
+the xHCI device is hot-removed as a result of unplugging a dock for
+example, the driver leaks memory it allocates for xhci->usb3_rhub.psi
+and xhci->usb2_rhub.psi in xhci_add_in_port() as reported by kmemleak:
 
-Cc: <stable@vger.kernel.org>
-Fixes: 638298dc66ea ("xhci: Fix spurious wakeups after S5 on Haswell")
-Signed-off-by: Henry Lin <henryl@nvidia.com>
+unreferenced object 0xffff922c24ef42f0 (size 16):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 16 bytes):
+    21 00 0c 00 12 00 dc 05 23 00 e0 01 00 00 00 00  !.......#.......
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+unreferenced object 0xffff922c24ef3318 (size 8):
+  comm "kworker/u16:2", pid 178, jiffies 4294711640 (age 956.620s)
+  hex dump (first 8 bytes):
+    34 01 05 00 35 41 0a 00                          4...5A..
+  backtrace:
+    [<000000007ac80914>] xhci_mem_init+0xcf8/0xeb7
+    [<0000000001b6d775>] xhci_init+0x7c/0x160
+    [<00000000db443fe3>] xhci_gen_setup+0x214/0x340
+    [<00000000fdffd320>] xhci_pci_setup+0x48/0x110
+    [<00000000541e1e03>] usb_add_hcd.cold+0x265/0x747
+    [<00000000ca47a56b>] usb_hcd_pci_probe+0x219/0x3b4
+    [<0000000021043861>] xhci_pci_probe+0x24/0x1c0
+    [<00000000b9231f25>] local_pci_probe+0x3d/0x70
+    [<000000006385c9d7>] pci_device_probe+0xd0/0x150
+    [<0000000070241068>] really_probe+0xf5/0x3c0
+    [<0000000061f35c0a>] driver_probe_device+0x58/0x100
+    [<000000009da11198>] bus_for_each_drv+0x79/0xc0
+    [<000000009ce45f69>] __device_attach+0xda/0x160
+    [<00000000df201aaf>] pci_bus_add_device+0x46/0x70
+    [<0000000088a1bc48>] pci_bus_add_devices+0x27/0x60
+    [<00000000ad9ee708>] pci_bus_add_devices+0x52/0x60
+
+Fix this by calling kfree() for the both psi objects in
+xhci_mem_cleanup().
+
+Cc: <stable@vger.kernel.org> # 4.4+
+Fixes: 47189098f8be ("xhci: parse xhci protocol speed ID list for usb 3.1 usage")
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-4-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20191211142007.8847-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c | 13 +++++++++++++
- drivers/usb/host/xhci.c     |  5 +----
- drivers/usb/host/xhci.h     |  1 +
- 3 files changed, 15 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci-mem.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index d6e2199bcfe57..bda176fa6e488 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -446,6 +446,18 @@ static int xhci_pci_resume(struct usb_hcd *hcd, bool hibernated)
- }
- #endif /* CONFIG_PM */
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1928,10 +1928,14 @@ no_bw:
+ 	kfree(xhci->port_array);
+ 	kfree(xhci->rh_bw);
+ 	kfree(xhci->ext_caps);
++	kfree(xhci->usb2_rhub.psi);
++	kfree(xhci->usb3_rhub.psi);
  
-+static void xhci_pci_shutdown(struct usb_hcd *hcd)
-+{
-+	struct xhci_hcd		*xhci = hcd_to_xhci(hcd);
-+	struct pci_dev		*pdev = to_pci_dev(hcd->self.controller);
-+
-+	xhci_shutdown(hcd);
-+
-+	/* Yet another workaround for spurious wakeups at shutdown with HSW */
-+	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
-+		pci_set_power_state(pdev, PCI_D3hot);
-+}
-+
- /*-------------------------------------------------------------------------*/
+ 	xhci->usb2_ports = NULL;
+ 	xhci->usb3_ports = NULL;
+ 	xhci->port_array = NULL;
++	xhci->usb2_rhub.psi = NULL;
++	xhci->usb3_rhub.psi = NULL;
+ 	xhci->rh_bw = NULL;
+ 	xhci->ext_caps = NULL;
  
- /* PCI driver selection metadata; PCI hotplugging uses this */
-@@ -481,6 +493,7 @@ static int __init xhci_pci_init(void)
- #ifdef CONFIG_PM
- 	xhci_pci_hc_driver.pci_suspend = xhci_pci_suspend;
- 	xhci_pci_hc_driver.pci_resume = xhci_pci_resume;
-+	xhci_pci_hc_driver.shutdown = xhci_pci_shutdown;
- #endif
- 	return pci_register_driver(&xhci_pci_driver);
- }
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 7a0db7fb731ee..af4e68152776e 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -754,11 +754,8 @@ void xhci_shutdown(struct usb_hcd *hcd)
- 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
- 			"xhci_shutdown completed - status = %x",
- 			readl(&xhci->op_regs->status));
--
--	/* Yet another workaround for spurious wakeups at shutdown with HSW */
--	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
--		pci_set_power_state(to_pci_dev(hcd->self.controller), PCI_D3hot);
- }
-+EXPORT_SYMBOL_GPL(xhci_shutdown);
- 
- #ifdef CONFIG_PM
- static void xhci_save_registers(struct xhci_hcd *xhci)
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index b57bee70cdef2..e23e3a381672d 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1833,6 +1833,7 @@ int xhci_run(struct usb_hcd *hcd);
- void xhci_stop(struct usb_hcd *hcd);
- void xhci_shutdown(struct usb_hcd *hcd);
- int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
-+void xhci_shutdown(struct usb_hcd *hcd);
- void xhci_init_driver(struct hc_driver *drv,
- 		      const struct xhci_driver_overrides *over);
- 
--- 
-2.20.1
-
 
 
