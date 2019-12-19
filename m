@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C4E126B9C
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:58:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8201269B1
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730333AbfLSSyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:54:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50114 "EHLO mail.kernel.org"
+        id S1727900AbfLSSkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:40:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730521AbfLSSyg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:54:36 -0500
+        id S1727576AbfLSSkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07DF9206EC;
-        Thu, 19 Dec 2019 18:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4A49222C2;
+        Thu, 19 Dec 2019 18:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781675;
-        bh=3ES9370mW67huKRscDNwlyDxGs8a4q6eF+E6RqcTyrY=;
+        s=default; t=1576780814;
+        bh=Aw3CkJJExJrh3zGVGpAmpviVL7MrJSZAcQX0oKlGy0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2XlCL8x7IFq49zl/+HVAk8PKirimZTIWJk9bceNBc/+WUR4dp1FCePKAH26hcBRCA
-         LmO+akUWm2Z9A/v0D7n/nyYGvbcsh10anuqlWJK0Ma5OkoIlObsneOOA1B1N9SYlPF
-         vyO25S8n+O5SKMGYpTS3ZKWRAxtTLvYusrJC3h0I=
+        b=n6bEjO62/I5pr9HoNpFNYLyIPr0UcpKdmAbYU1/tE86YiRRKycTa3ho0Ep9apOeTy
+         5Yc28SDfuTBSoNolffPM9nr0XB4htXZT9xiuIKUCBo/1uBPOClw6VvRhNqvvCLY5jy
+         XT6TUJ6ybyPqxcGIZmXX43zfXDU3bj/fgN9bdYqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 05/80] mmc: core: Re-work HW reset for SDIO cards
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 129/162] scsi: lpfc: Cap NPIV vports to 256
 Date:   Thu, 19 Dec 2019 19:33:57 +0100
-Message-Id: <20191219183034.971092272@linuxfoundation.org>
+Message-Id: <20191219183215.626603701@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
-References: <20191219183031.278083125@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,170 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 2ac55d5e5ec9ad0a07e194f0eaca865fe5aa3c40 upstream.
+[ Upstream commit 8b47ae69e049ae0b3373859d901f0334322f9fe9 ]
 
-It have turned out that it's not a good idea to unconditionally do a power
-cycle and then to re-initialize the SDIO card, as currently done through
-mmc_hw_reset() -> mmc_sdio_hw_reset(). This because there may be multiple
-SDIO func drivers probed, who also shares the same SDIO card.
+Depending on the chipset, the number of NPIV vports may vary and be in
+excess of what most switches support (256). To avoid confusion with the
+users, limit the reported NPIV vports to 256.
 
-To address these scenarios, one may be tempted to use a notification
-mechanism, as to allow the core to inform each of the probed func drivers,
-about an ongoing HW reset. However, supporting such an operation from the
-func driver point of view, may not be entirely trivial.
+Additionally correct the 16G adapter which is reporting a bogus NPIV vport
+number if the link is down.
 
-Therefore, let's use a more simplistic approach to solve the problem, by
-instead forcing the card to be removed and re-detected, via scheduling a
-rescan-work. In this way, we can rely on existing infrastructure, as the
-func driver's ->remove() and ->probe() callbacks, becomes invoked to deal
-with the cleanup and the re-initialization.
-
-This solution may be considered as rather heavy, especially if a func
-driver doesn't share its card with other func drivers. To address this,
-let's keep the current immediate HW reset option as well, but run it only
-when there is one func driver probed for the card.
-
-Finally, to allow the caller of mmc_hw_reset(), to understand if the reset
-is being asynchronously managed from a scheduled work, it returns 1
-(propagated from mmc_sdio_hw_reset()). If the HW reset is executed
-successfully and synchronously it returns 0, which maintains the existing
-behaviour.
-
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/core.c     |    5 ++---
- drivers/mmc/core/core.h     |    2 ++
- drivers/mmc/core/sdio.c     |   28 +++++++++++++++++++++++++++-
- drivers/mmc/core/sdio_bus.c |    9 ++++++++-
- include/linux/mmc/card.h    |    1 +
- 5 files changed, 40 insertions(+), 5 deletions(-)
+ drivers/scsi/lpfc/lpfc.h      |  3 ++-
+ drivers/scsi/lpfc/lpfc_attr.c | 12 ++++++++++--
+ drivers/scsi/lpfc/lpfc_init.c |  3 +++
+ 3 files changed, 15 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -1469,8 +1469,7 @@ void mmc_detach_bus(struct mmc_host *hos
- 	mmc_bus_put(host);
- }
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index ceee9a3fd9e52..a1a9cb952414c 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -867,7 +867,8 @@ struct lpfc_hba {
+ 	struct list_head port_list;
+ 	struct lpfc_vport *pport;	/* physical lpfc_vport pointer */
+ 	uint16_t max_vpi;		/* Maximum virtual nports */
+-#define LPFC_MAX_VPI 0xFFFF		/* Max number of VPI supported */
++#define LPFC_MAX_VPI	0xFF		/* Max number VPI supported 0 - 0xff */
++#define LPFC_MAX_VPORTS	0x100		/* Max vports per port, with pport */
+ 	uint16_t max_vports;            /*
+ 					 * For IOV HBAs max_vpi can change
+ 					 * after a reset. max_vports is max
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index f096766150bc9..93092dfba2937 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -1213,6 +1213,9 @@ lpfc_get_hba_info(struct lpfc_hba *phba,
+ 		max_vpi = (bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config) > 0) ?
+ 			(bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config) - 1) : 0;
  
--static void _mmc_detect_change(struct mmc_host *host, unsigned long delay,
--				bool cd_irq)
-+void _mmc_detect_change(struct mmc_host *host, unsigned long delay, bool cd_irq)
- {
- 	/*
- 	 * If the device is configured as wakeup, we prevent a new sleep for
-@@ -2129,7 +2128,7 @@ int mmc_hw_reset(struct mmc_host *host)
- 	ret = host->bus_ops->hw_reset(host);
- 	mmc_bus_put(host);
++		/* Limit the max we support */
++		if (max_vpi > LPFC_MAX_VPI)
++			max_vpi = LPFC_MAX_VPI;
+ 		if (mvpi)
+ 			*mvpi = max_vpi;
+ 		if (avpi)
+@@ -1228,8 +1231,13 @@ lpfc_get_hba_info(struct lpfc_hba *phba,
+ 			*axri = pmb->un.varRdConfig.avail_xri;
+ 		if (mvpi)
+ 			*mvpi = pmb->un.varRdConfig.max_vpi;
+-		if (avpi)
+-			*avpi = pmb->un.varRdConfig.avail_vpi;
++		if (avpi) {
++			/* avail_vpi is only valid if link is up and ready */
++			if (phba->link_state == LPFC_HBA_READY)
++				*avpi = pmb->un.varRdConfig.avail_vpi;
++			else
++				*avpi = pmb->un.varRdConfig.max_vpi;
++		}
+ 	}
  
--	if (ret)
-+	if (ret < 0)
- 		pr_warn("%s: tried to HW reset card, got error %d\n",
- 			mmc_hostname(host), ret);
- 
---- a/drivers/mmc/core/core.h
-+++ b/drivers/mmc/core/core.h
-@@ -70,6 +70,8 @@ void mmc_rescan(struct work_struct *work
- void mmc_start_host(struct mmc_host *host);
- void mmc_stop_host(struct mmc_host *host);
- 
-+void _mmc_detect_change(struct mmc_host *host, unsigned long delay,
-+			bool cd_irq);
- int _mmc_detect_card_removed(struct mmc_host *host);
- int mmc_detect_card_removed(struct mmc_host *host);
- 
---- a/drivers/mmc/core/sdio.c
-+++ b/drivers/mmc/core/sdio.c
-@@ -1048,9 +1048,35 @@ static int mmc_sdio_runtime_resume(struc
- 	return ret;
- }
- 
-+/*
-+ * SDIO HW reset
-+ *
-+ * Returns 0 if the HW reset was executed synchronously, returns 1 if the HW
-+ * reset was asynchronously scheduled, else a negative error code.
-+ */
- static int mmc_sdio_hw_reset(struct mmc_host *host)
- {
--	mmc_power_cycle(host, host->card->ocr);
-+	struct mmc_card *card = host->card;
-+
-+	/*
-+	 * In case the card is shared among multiple func drivers, reset the
-+	 * card through a rescan work. In this way it will be removed and
-+	 * re-detected, thus all func drivers becomes informed about it.
-+	 */
-+	if (atomic_read(&card->sdio_funcs_probed) > 1) {
-+		if (mmc_card_removed(card))
-+			return 1;
-+		host->rescan_entered = 0;
-+		mmc_card_set_removed(card);
-+		_mmc_detect_change(host, 0, false);
-+		return 1;
-+	}
-+
-+	/*
-+	 * A single func driver has been probed, then let's skip the heavy
-+	 * hotplug dance above and execute the reset immediately.
-+	 */
-+	mmc_power_cycle(host, card->ocr);
- 	return mmc_sdio_reinit_card(host);
- }
- 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -138,6 +138,8 @@ static int sdio_bus_probe(struct device
- 	if (ret)
- 		return ret;
- 
-+	atomic_inc(&func->card->sdio_funcs_probed);
-+
- 	/* Unbound SDIO functions are always suspended.
- 	 * During probe, the function is set active and the usage count
- 	 * is incremented.  If the driver supports runtime PM,
-@@ -153,7 +155,10 @@ static int sdio_bus_probe(struct device
- 	/* Set the default block size so the driver is sure it's something
- 	 * sensible. */
- 	sdio_claim_host(func);
--	ret = sdio_set_block_size(func, 0);
-+	if (mmc_card_removed(func->card))
-+		ret = -ENOMEDIUM;
-+	else
-+		ret = sdio_set_block_size(func, 0);
- 	sdio_release_host(func);
- 	if (ret)
- 		goto disable_runtimepm;
-@@ -165,6 +170,7 @@ static int sdio_bus_probe(struct device
- 	return 0;
- 
- disable_runtimepm:
-+	atomic_dec(&func->card->sdio_funcs_probed);
- 	if (func->card->host->caps & MMC_CAP_POWER_OFF_CARD)
- 		pm_runtime_put_noidle(dev);
- 	dev_pm_domain_detach(dev, false);
-@@ -181,6 +187,7 @@ static int sdio_bus_remove(struct device
- 		pm_runtime_get_sync(dev);
- 
- 	drv->remove(func);
-+	atomic_dec(&func->card->sdio_funcs_probed);
- 
- 	if (func->irq_handler) {
- 		pr_warn("WARNING: driver %s did not remove its interrupt handler!\n",
---- a/include/linux/mmc/card.h
-+++ b/include/linux/mmc/card.h
-@@ -291,6 +291,7 @@ struct mmc_card {
- 	struct sd_switch_caps	sw_caps;	/* switch (CMD6) caps */
- 
- 	unsigned int		sdio_funcs;	/* number of SDIO functions */
-+	atomic_t		sdio_funcs_probed; /* number of probed SDIO funcs */
- 	struct sdio_cccr	cccr;		/* common card info */
- 	struct sdio_cis		cis;		/* common tuple info */
- 	struct sdio_func	*sdio_func[SDIO_MAX_FUNCS]; /* SDIO functions (devices) */
+ 	mempool_free(pmboxq, phba->mbox_mem_pool);
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 7e06fd6127ccb..1a7ac17534d6b 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -6890,6 +6890,9 @@ lpfc_sli4_read_config(struct lpfc_hba *phba)
+ 			bf_get(lpfc_mbx_rd_conf_xri_base, rd_config);
+ 		phba->sli4_hba.max_cfg_param.max_vpi =
+ 			bf_get(lpfc_mbx_rd_conf_vpi_count, rd_config);
++		/* Limit the max we support */
++		if (phba->sli4_hba.max_cfg_param.max_vpi > LPFC_MAX_VPORTS)
++			phba->sli4_hba.max_cfg_param.max_vpi = LPFC_MAX_VPORTS;
+ 		phba->sli4_hba.max_cfg_param.vpi_base =
+ 			bf_get(lpfc_mbx_rd_conf_vpi_base, rd_config);
+ 		phba->sli4_hba.max_cfg_param.max_rpi =
+-- 
+2.20.1
+
 
 
