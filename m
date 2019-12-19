@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59184126987
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 203C4126A5B
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:46:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbfLSSil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:38:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56646 "EHLO mail.kernel.org"
+        id S1729336AbfLSSqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:46:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727180AbfLSSik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:38:40 -0500
+        id S1728945AbfLSSqa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:46:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53D2C222C2;
-        Thu, 19 Dec 2019 18:38:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 485AC206D7;
+        Thu, 19 Dec 2019 18:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780719;
-        bh=2cgxN95gJ/7MxnKtjeVGHD1kZjzMaHrY/1+RGcdAYe0=;
+        s=default; t=1576781189;
+        bh=3meat4GAxA5yeKcb9u/aD+NUxNzTC+2FO4R5XzIejTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UhM/8fSzrp1/4ISmS7P0MI4Vgf7cwleeC76u02LTMn/R6OsFONaXif0GXhxjO9yV8
-         Zth79UtYJl0nLhzESQcL78VuMuAvPoaDVglNYaeJvmKHbFpV+AxB1dNGZemb97+eSd
-         zxvmOreXrCtTmaJaAOX++Z/+pt9oMo+rFrrVp8EA=
+        b=PTHzhHkplQi4CtOrzh5enI2wndtsB+x3x+/U/uWmacnRmeRy9SE3UN4w0GLLj37qF
+         IdLJG49UwlDbF5yzHjYNS/W3e32A9GNFUg/fantUMEQvCQKj5mnk3YBm3Se8ihkgpk
+         /DFvvlDwnHMbP0ZpbNF3JsZE4xmo8cg1hc5tv+Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.4 089/162] xhci: Increase STS_HALT timeout in xhci_suspend()
-Date:   Thu, 19 Dec 2019 19:33:17 +0100
-Message-Id: <20191219183213.209701693@linuxfoundation.org>
+        stable@vger.kernel.org, Atemu <atemu.main@gmail.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 118/199] Btrfs: send, skip backreference walking for extents with many references
+Date:   Thu, 19 Dec 2019 19:33:20 +0100
+Message-Id: <20191219183221.434717247@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 7c67cf6658cec70d8a43229f2ce74ca1443dc95e upstream.
+commit fd0ddbe2509568b00df364156f47561e9f469f15 upstream.
 
-I've recently observed failed xHCI suspend attempt on AMD Raven Ridge
-system:
-kernel: xhci_hcd 0000:04:00.4: WARN: xHC CMD_RUN timeout
-kernel: PM: suspend_common(): xhci_pci_suspend+0x0/0xd0 returns -110
-kernel: PM: pci_pm_suspend(): hcd_pci_suspend+0x0/0x30 returns -110
-kernel: PM: dpm_run_callback(): pci_pm_suspend+0x0/0x150 returns -110
-kernel: PM: Device 0000:04:00.4 failed to suspend async: error -110
+Backreference walking, which is used by send to figure if it can issue
+clone operations instead of write operations, can be very slow and use
+too much memory when extents have many references. This change simply
+skips backreference walking when an extent has more than 64 references,
+in which case we fallback to a write operation instead of a clone
+operation. This limit is conservative and in practice I observed no
+signicant slowdown with up to 100 references and still low memory usage
+up to that limit.
 
-Similar to commit ac343366846a ("xhci: Increase STS_SAVE timeout in
-xhci_suspend()") we also need to increase the HALT timeout to make it be
-able to suspend again.
+This is a temporary workaround until there are speedups in the backref
+walking code, and as such it does not attempt to add extra interfaces or
+knobs to tweak the threshold.
 
-Cc: <stable@vger.kernel.org> # 5.2+
-Fixes: f7fac17ca925 ("xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20191211142007.8847-5-mathias.nyman@linux.intel.com
+Reported-by: Atemu <atemu.main@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/CAE4GHgkvqVADtS4AzcQJxo0Q1jKQgKaW3JGp3SGdoinVo=C9eQ@mail.gmail.com/T/#me55dc0987f9cc2acaa54372ce0492c65782be3fa
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/send.c |   25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -929,7 +929,7 @@ static bool xhci_pending_portevent(struc
- int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
- {
- 	int			rc = 0;
--	unsigned int		delay = XHCI_MAX_HALT_USEC;
-+	unsigned int		delay = XHCI_MAX_HALT_USEC * 2;
- 	struct usb_hcd		*hcd = xhci_to_hcd(xhci);
- 	u32			command;
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -37,6 +37,14 @@
+ #include "compression.h"
  
+ /*
++ * Maximum number of references an extent can have in order for us to attempt to
++ * issue clone operations instead of write operations. This currently exists to
++ * avoid hitting limitations of the backreference walking code (taking a lot of
++ * time and using too much memory for extents with large number of references).
++ */
++#define SEND_MAX_EXTENT_REFS	64
++
++/*
+  * A fs_path is a helper to dynamically build path names with unknown size.
+  * It reallocates the internal buffer on demand.
+  * It allows fast adding of path elements on the right side (normal path) and
+@@ -1327,6 +1335,7 @@ static int find_extent_clone(struct send
+ 	struct clone_root *cur_clone_root;
+ 	struct btrfs_key found_key;
+ 	struct btrfs_path *tmp_path;
++	struct btrfs_extent_item *ei;
+ 	int compressed;
+ 	u32 i;
+ 
+@@ -1376,7 +1385,6 @@ static int find_extent_clone(struct send
+ 	ret = extent_from_logical(fs_info, disk_byte, tmp_path,
+ 				  &found_key, &flags);
+ 	up_read(&fs_info->commit_root_sem);
+-	btrfs_release_path(tmp_path);
+ 
+ 	if (ret < 0)
+ 		goto out;
+@@ -1385,6 +1393,21 @@ static int find_extent_clone(struct send
+ 		goto out;
+ 	}
+ 
++	ei = btrfs_item_ptr(tmp_path->nodes[0], tmp_path->slots[0],
++			    struct btrfs_extent_item);
++	/*
++	 * Backreference walking (iterate_extent_inodes() below) is currently
++	 * too expensive when an extent has a large number of references, both
++	 * in time spent and used memory. So for now just fallback to write
++	 * operations instead of clone operations when an extent has more than
++	 * a certain amount of references.
++	 */
++	if (btrfs_extent_refs(tmp_path->nodes[0], ei) > SEND_MAX_EXTENT_REFS) {
++		ret = -ENOENT;
++		goto out;
++	}
++	btrfs_release_path(tmp_path);
++
+ 	/*
+ 	 * Setup the clone roots.
+ 	 */
 
 
