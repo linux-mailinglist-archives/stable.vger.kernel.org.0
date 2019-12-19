@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB53B126C90
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67944126C91
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbfLSTEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729095AbfLSTEi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 19 Dec 2019 14:04:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39792 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729068AbfLSSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:46:56 -0500
+        id S1729404AbfLSSq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:46:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5822222C2;
-        Thu, 19 Dec 2019 18:46:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 629FC24679;
+        Thu, 19 Dec 2019 18:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781216;
-        bh=fNccwqWA+SRuS5QnXcv5KmJy7FvExzlUIFIQAkUaYT4=;
+        s=default; t=1576781218;
+        bh=t4gPPwpKYB+p3CGg1LOOHBYsxOHEph6hE6VO8OEGwRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVLnQebRz1Vh0+k8sQyMrvHajZ+H/ZQzVwgARxZQnuuzwkAW6/O3Cphugc8NLV+8c
-         V/9il/9R6W+XFMJTp+xsdalRFp87CRhDmmU0yIrzdCufnQyScCCpQFrw1+kwEz6pVf
-         9b0Sr5Mvf39kbqtymi9NSCvKLQF16y8zOGs9TMsc=
+        b=z0yyoTB/vbueu6F4GonsIw1gLjRc54csR3oCqekKen2lTFtLuioxlmlfem8m42BG/
+         xR6lImaa5ndB5u7zX4cccrjq1WfR+EF7hMdU2d7eCQqlIvob9RRCvQbA+2CI8PwE4m
+         37otWqsuzIv/YbKjTEI/BjIT+153KZ7osdzMM9i4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Fabien Dessenne <fabien.dessenne@st.com>,
+        stable@vger.kernel.org,
+        Matti Aaltonen <matti.j.aaltonen@nokia.com>,
+        Johan Hovold <johan@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.9 131/199] media: bdisp: fix memleak on release
-Date:   Thu, 19 Dec 2019 19:33:33 +0100
-Message-Id: <20191219183222.299466691@linuxfoundation.org>
+Subject: [PATCH 4.9 132/199] media: radio: wl1273: fix interrupt masking on release
+Date:   Thu, 19 Dec 2019 19:33:34 +0100
+Message-Id: <20191219183222.368499968@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -47,38 +48,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 11609a7e21f8cea42630350aa57662928fa4dc63 upstream.
+commit 1091eb830627625dcf79958d99353c2391f41708 upstream.
 
-If a process is interrupted while accessing the video device and the
-device lock is contended, release() could return early and fail to free
-related resources.
+If a process is interrupted while accessing the radio device and the
+core lock is contended, release() could return early and fail to update
+the interrupt mask.
 
 Note that the return value of the v4l2 release file operation is
 ignored.
 
-Fixes: 28ffeebbb7bd ("[media] bdisp: 2D blitter driver using v4l2 mem2mem framework")
-Cc: stable <stable@vger.kernel.org>     # 4.2
+Fixes: 87d1a50ce451 ("[media] V4L2: WL1273 FM Radio: TI WL1273 FM radio driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.38
+Cc: Matti Aaltonen <matti.j.aaltonen@nokia.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/sti/bdisp/bdisp-v4l2.c |    3 +--
+ drivers/media/radio/radio-wl1273.c |    3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
-+++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
-@@ -651,8 +651,7 @@ static int bdisp_release(struct file *fi
+--- a/drivers/media/radio/radio-wl1273.c
++++ b/drivers/media/radio/radio-wl1273.c
+@@ -1149,8 +1149,7 @@ static int wl1273_fm_fops_release(struct
+ 	if (radio->rds_users > 0) {
+ 		radio->rds_users--;
+ 		if (radio->rds_users == 0) {
+-			if (mutex_lock_interruptible(&core->lock))
+-				return -EINTR;
++			mutex_lock(&core->lock);
  
- 	dev_dbg(bdisp->dev, "%s\n", __func__);
- 
--	if (mutex_lock_interruptible(&bdisp->lock))
--		return -ERESTARTSYS;
-+	mutex_lock(&bdisp->lock);
- 
- 	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
+ 			radio->irq_flags &= ~WL1273_RDS_EVENT;
  
 
 
