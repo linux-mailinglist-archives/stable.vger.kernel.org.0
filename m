@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31003126CE4
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54FC8126DCC
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728868AbfLSSnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:43:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
+        id S1727152AbfLSTM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:12:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728865AbfLSSnj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:43:39 -0500
+        id S1726984AbfLSSgE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DABAF24672;
-        Thu, 19 Dec 2019 18:43:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9E052467E;
+        Thu, 19 Dec 2019 18:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781019;
-        bh=bi/8A1ieS2KJBVjW6wsQtCjcWkcfnIBmZ4CPqoDWohg=;
+        s=default; t=1576780564;
+        bh=NgaDp8ria1OxDrw2K/1iYyfGnKeCvu5YH/rIDxYsvHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIt/PmXj1t8xZlj6vrFsjEu8ovb/4nG24HD6H6vRAHN/YqFQV16vqJ8TIoj+Mzdat
-         DbHQ43rsYqeA/6GQ+yWHcdsHksgkpO3oVYNB125ipm4oHOoCxILrRzvssMDRVsqct+
-         /a3uqxaFsu1UbJIn1a7k17LVanW1LIEYCxCY3WgI=
+        b=Qz6WLU/mEOukgAhCFkPIqWW+KYk/nxY9C1JG/aZ3zCCxVJ3rZNQyHyPvRvJWy/SKk
+         pbALWxxwtt2fG6GuQnzQPhlQEftnTRKfOza7v4Sc259dYxDIdcmyU3mT3rmb4o8fLs
+         fOKWuVKsWJ2PF/1/c6aiArRktfKJ3j+jHwVAZFQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 050/199] net/x25: fix called/calling length calculation in x25_parse_address_block
-Date:   Thu, 19 Dec 2019 19:32:12 +0100
-Message-Id: <20191219183217.725140750@linuxfoundation.org>
+Subject: [PATCH 4.4 025/162] MIPS: OCTEON: octeon-platform: fix typing
+Date:   Thu, 19 Dec 2019 19:32:13 +0100
+Message-Id: <20191219183209.053268444@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
 
-[ Upstream commit d449ba3d581ed29f751a59792fdc775572c66904 ]
+[ Upstream commit 2cf1c8933dd93088cfb5f8f58b3bb9bbdf1781b9 ]
 
-The length of the called and calling address was not calculated
-correctly (BCD encoding).
+Use correct type for fdt_property nameoff field.
 
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Patchwork: https://patchwork.linux-mips.org/patch/21204/
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@linux-mips.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 2 +-
+ arch/mips/cavium-octeon/octeon-platform.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 770ababb8f928..ebd9c5f50a571 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -100,7 +100,7 @@ int x25_parse_address_block(struct sk_buff *skb,
- 	}
+diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
+index 6df3a4ea77fc5..a56620cb7cad2 100644
+--- a/arch/mips/cavium-octeon/octeon-platform.c
++++ b/arch/mips/cavium-octeon/octeon-platform.c
+@@ -485,7 +485,7 @@ static void __init octeon_fdt_set_phy(int eth, int phy_addr)
+ 	if (phy_addr >= 256 && alt_phy > 0) {
+ 		const struct fdt_property *phy_prop;
+ 		struct fdt_property *alt_prop;
+-		u32 phy_handle_name;
++		fdt32_t phy_handle_name;
  
- 	len = *skb->data;
--	needed = 1 + (len >> 4) + (len & 0x0f);
-+	needed = 1 + ((len >> 4) + (len & 0x0f) + 1) / 2;
- 
- 	if (!pskb_may_pull(skb, needed)) {
- 		/* packet is too short to hold the addresses it claims
+ 		/* Use the alt phy node instead.*/
+ 		phy_prop = fdt_get_property(initial_boot_params, eth, "phy-handle", NULL);
 -- 
 2.20.1
 
