@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 544E1126D83
+	by mail.lfdr.de (Postfix) with ESMTP id BD0DE126D84
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727682AbfLSSgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:36:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53936 "EHLO mail.kernel.org"
+        id S1727185AbfLSSgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727040AbfLSSgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:36:46 -0500
+        id S1727688AbfLSSgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C35624685;
-        Thu, 19 Dec 2019 18:36:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 088EC24672;
+        Thu, 19 Dec 2019 18:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780606;
-        bh=9P/PmFr8QwkkPCwyg8tLxg+CnZ8404FjjoYCGQo8n+M=;
+        s=default; t=1576780608;
+        bh=BbG1MRN8dBGmcn2B4PnnDIylaywchjGJrrAUibn852c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7+R8EZuyRnt//JTKL37Vlx5K/FrtcEDgdM6uD1ZELeNeh5xRFz/WxSAec33I2DTX
-         tauxyVPL6Y5Rl2BLGmI6yjFZujQv+81fM+SuphvhpRekGMrnvJ4RyMspd3mtfCfd8R
-         VZVUMxQAIzNBSl3RSKGxb2J1q8UIM1YNl+JkwIg0=
+        b=tC+5aVvccleqJ+PoZuzYGThB3NcwmK2Qhlp2L0k3roChUOOQmaUGLrRJ5qwkc2PpJ
+         76Atj1LfU2hDp7CojNHIkT6nAOQsw8ufKWF12o9pJqHNU/eB7LiOfcNnL5k65ZJVln
+         RbXCjiHKRCxQGKHVFoCmC8YAKIzKz7Njyf8+5D4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>,
+        Paul Walmsley <paul@pwsan.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 043/162] tcp: fix off-by-one bug on aborting window-probing socket
-Date:   Thu, 19 Dec 2019 19:32:31 +0100
-Message-Id: <20191219183210.543197518@linuxfoundation.org>
+Subject: [PATCH 4.4 044/162] modpost: skip ELF local symbols during section mismatch check
+Date:   Thu, 19 Dec 2019 19:32:32 +0100
+Message-Id: <20191219183210.598801805@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -46,36 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchung Cheng <ycheng@google.com>
+From: Paul Walmsley <paul.walmsley@sifive.com>
 
-[ Upstream commit 3976535af0cb9fe34a55f2ffb8d7e6b39a2f8188 ]
+[ Upstream commit a4d26f1a0958bb1c2b60c6f1e67c6f5d43e2647b ]
 
-Previously there is an off-by-one bug on determining when to abort
-a stalled window-probing socket. This patch fixes that so it is
-consistent with tcp_write_timeout().
+During development of a serial console driver with a gcc 8.2.0
+toolchain for RISC-V, the following modpost warning appeared:
 
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+----
+WARNING: vmlinux.o(.data+0x19b10): Section mismatch in reference from the variable .LANCHOR1 to the function .init.text:sifive_serial_console_setup()
+The variable .LANCHOR1 references
+the function __init sifive_serial_console_setup()
+If the reference is valid then annotate the
+variable with __init* or __refdata (see linux/init.h) or name the variable:
+*_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+----
+
+".LANCHOR1" is an ELF local symbol, automatically created by gcc's section
+anchor generation code:
+
+https://gcc.gnu.org/onlinedocs/gccint/Anchored-Addresses.html
+
+https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=gcc/varasm.c;h=cd9591a45617464946dcf9a126dde277d9de9804;hb=9fb89fa845c1b2e0a18d85ada0b077c84508ab78#l7473
+
+This was verified by compiling the kernel with -fno-section-anchors
+and observing that the ".LANCHOR1" ELF local symbol disappeared, and
+modpost no longer warned about the section mismatch.  The serial
+driver code idiom triggering the warning is standard Linux serial
+driver practice that has a specific whitelist inclusion in modpost.c.
+
+I'm neither a modpost nor an ELF expert, but naively, it doesn't seem
+useful for modpost to report section mismatch warnings caused by ELF
+local symbols by default.  Local symbols have compiler-generated
+names, and thus bypass modpost's whitelisting algorithm, which relies
+on the presence of a non-autogenerated symbol name.  This increases
+the likelihood that false positive warnings will be generated (as in
+the above case).
+
+Thus, disable section mismatch reporting on ELF local symbols.  The
+rationale here is similar to that of commit 2e3a10a1551d ("ARM: avoid
+ARM binutils leaking ELF local symbols") and of similar code already
+present in modpost.c:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/scripts/mod/modpost.c?h=v4.19-rc4&id=7876320f88802b22d4e2daf7eb027dd14175a0f8#n1256
+
+This third version of the patch implements a suggestion from Masahiro
+Yamada <yamada.masahiro@socionext.com> to restructure the code as an
+additional pattern matching step inside secref_whitelist(), and
+further improves the patch description.
+
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Paul Walmsley <paul@pwsan.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_timer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/mod/modpost.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index 61359944acc71..710cde1a5a832 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -336,7 +336,7 @@ static void tcp_probe_timer(struct sock *sk)
- 			return;
- 	}
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index 81b1c02a76fad..f27df76059995 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1156,6 +1156,14 @@ static const struct sectioncheck *section_mismatch(
+  *   fromsec = text section
+  *   refsymname = *.constprop.*
+  *
++ * Pattern 6:
++ *   Hide section mismatch warnings for ELF local symbols.  The goal
++ *   is to eliminate false positive modpost warnings caused by
++ *   compiler-generated ELF local symbol names such as ".LANCHOR1".
++ *   Autogenerated symbol names bypass modpost's "Pattern 2"
++ *   whitelisting, which relies on pattern-matching against symbol
++ *   names to work.  (One situation where gcc can autogenerate ELF
++ *   local symbols is when "-fsection-anchors" is used.)
+  **/
+ static int secref_whitelist(const struct sectioncheck *mismatch,
+ 			    const char *fromsec, const char *fromsym,
+@@ -1194,6 +1202,10 @@ static int secref_whitelist(const struct sectioncheck *mismatch,
+ 	    match(fromsym, optim_symbols))
+ 		return 0;
  
--	if (icsk->icsk_probes_out > max_probes) {
-+	if (icsk->icsk_probes_out >= max_probes) {
- abort:		tcp_write_err(sk);
- 	} else {
- 		/* Only send another probe if we didn't close things up. */
++	/* Check for pattern 6 */
++	if (strstarts(fromsym, ".L"))
++		return 0;
++
+ 	return 1;
+ }
+ 
 -- 
 2.20.1
 
