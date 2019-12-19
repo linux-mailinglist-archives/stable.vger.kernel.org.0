@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EFDC126BFE
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A409F126C46
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730175AbfLSSvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:51:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46120 "EHLO mail.kernel.org"
+        id S1729738AbfLSStL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:49:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730170AbfLSSvq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:51:46 -0500
+        id S1729236AbfLSStK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6510F20674;
-        Thu, 19 Dec 2019 18:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25C462465E;
+        Thu, 19 Dec 2019 18:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781505;
-        bh=O5G0hKE6HK0VPuLIX+BPH8BvpGsTGynaMG+lo67m6/Q=;
+        s=default; t=1576781349;
+        bh=Bn0If5Wk3WW9HZ9OqrXH4CvWfVZAr01tMjmEe3qSPy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zl5JSNaC5JdIg/e3fBiFO3frtNnMB4NGpt2myByO6wxY5pHyC6MII+g0wzJHKb/S8
-         Q30h4HC4CwWncBQpKVsd+dgkXEEcoReEPVNkg5YHUf8kCzrdvmxKSljzzTaBuaqOaJ
-         bLP2Z+vKVnhFOv3dxc+0/da5qT5FOk9NA26NIyf0=
+        b=FcPaXiVV2wLNG/xi2UvLOOPXuKQO4vpqO1j98s0mWja7mp8JYXbOD38pabDud++tI
+         q4pg91Rm3Rsu267K/Fyugme7ulfcL8e/TnR/ZcogAGJdVYpjKOcuqyLu1VXpveE8w5
+         vLvtPjmS22aCU6oHlxdwWc0Ee5lPiLlS7Zwddqpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 13/47] tcp: tighten acceptance of ACKs not matching a child socket
+        stable@vger.kernel.org, Siddharth Kapoor <ksiddharth@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 185/199] Revert "regulator: Defer init completion for a while after late_initcall"
 Date:   Thu, 19 Dec 2019 19:34:27 +0100
-Message-Id: <20191219182911.985451104@linuxfoundation.org>
+Message-Id: <20191219183225.914268543@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
-References: <20191219182857.659088743@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit cb44a08f8647fd2e8db5cc9ac27cd8355fa392d8 ]
+This reverts commit 8b8c8d69b1a31004517d4c71a490f47bdf3405a2 which is
+commit 55576cf1853798e86f620766e23b604c9224c19c upstream.
 
-When no synflood occurs, the synflood timestamp isn't updated.
-Therefore it can be so old that time_after32() can consider it to be
-in the future.
+It's causing "odd" interactions with older kernels, so it probably isn't
+a good idea to cause timing changes there.  This has been reported to
+cause oopses on Pixel devices.
 
-That's a problem for tcp_synq_no_recent_overflow() as it may report
-that a recent overflow occurred while, in fact, it's just that jiffies
-has grown past 'last_overflow' + TCP_SYNCOOKIE_VALID + 2^31.
-
-Spurious detection of recent overflows lead to extra syncookie
-verification in cookie_v[46]_check(). At that point, the verification
-should fail and the packet dropped. But we should have dropped the
-packet earlier as we didn't even send a syncookie.
-
-Let's refine tcp_synq_no_recent_overflow() to report a recent overflow
-only if jiffies is within the
-[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval. This
-way, no spurious recent overflow is reported when jiffies wraps and
-'last_overflow' becomes in the future from the point of view of
-time_after32().
-
-However, if jiffies wraps and enters the
-[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval (with
-'last_overflow' being a stale synflood timestamp), then
-tcp_synq_no_recent_overflow() still erroneously reports an
-overflow. In such cases, we have to rely on syncookie verification
-to drop the packet. We unfortunately have no way to differentiate
-between a fresh and a stale syncookie timestamp.
-
-In practice, using last_overflow as lower bound is problematic.
-If the synflood timestamp is concurrently updated between the time
-we read jiffies and the moment we store the timestamp in
-'last_overflow', then 'now' becomes smaller than 'last_overflow' and
-tcp_synq_no_recent_overflow() returns true, potentially dropping a
-valid syncookie.
-
-Reading jiffies after loading the timestamp could fix the problem,
-but that'd require a memory barrier. Let's just accommodate for
-potential timestamp growth instead and extend the interval using
-'last_overflow - HZ' as lower bound.
-
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Siddharth Kapoor <ksiddharth@google.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/regulator/core.c |   42 +++++++++++-------------------------------
+ 1 file changed, 11 insertions(+), 31 deletions(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -509,13 +509,23 @@ static inline bool tcp_synq_no_recent_ov
- 		reuse = rcu_dereference(sk->sk_reuseport_cb);
- 		if (likely(reuse)) {
- 			last_overflow = READ_ONCE(reuse->synq_overflow_ts);
--			return time_after32(now, last_overflow +
--					    TCP_SYNCOOKIE_VALID);
-+			return !time_between32(now, last_overflow - HZ,
-+					       last_overflow +
-+					       TCP_SYNCOOKIE_VALID);
- 		}
- 	}
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -4452,7 +4452,7 @@ static int __init regulator_init(void)
+ /* init early to allow our consumers to complete system booting */
+ core_initcall(regulator_init);
  
- 	last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
--	return time_after32(now, last_overflow + TCP_SYNCOOKIE_VALID);
-+
-+	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
-+	 * then we're under synflood. However, we have to use
-+	 * 'last_overflow - HZ' as lower bound. That's because a concurrent
-+	 * tcp_synq_overflow() could update .ts_recent_stamp after we read
-+	 * jiffies but before we store .ts_recent_stamp into last_overflow,
-+	 * which could lead to rejecting a valid syncookie.
-+	 */
-+	return !time_between32(now, last_overflow - HZ,
-+			       last_overflow + TCP_SYNCOOKIE_VALID);
+-static int regulator_late_cleanup(struct device *dev, void *data)
++static int __init regulator_late_cleanup(struct device *dev, void *data)
+ {
+ 	struct regulator_dev *rdev = dev_to_rdev(dev);
+ 	const struct regulator_ops *ops = rdev->desc->ops;
+@@ -4501,9 +4501,18 @@ unlock:
+ 	return 0;
  }
  
- static inline u32 tcp_cookie_time(void)
+-static void regulator_init_complete_work_function(struct work_struct *work)
++static int __init regulator_init_complete(void)
+ {
+ 	/*
++	 * Since DT doesn't provide an idiomatic mechanism for
++	 * enabling full constraints and since it's much more natural
++	 * with DT to provide them just assume that a DT enabled
++	 * system has full constraints.
++	 */
++	if (of_have_populated_dt())
++		has_full_constraints = true;
++
++	/*
+ 	 * Regulators may had failed to resolve their input supplies
+ 	 * when were registered, either because the input supply was
+ 	 * not registered yet or because its parent device was not
+@@ -4520,35 +4529,6 @@ static void regulator_init_complete_work
+ 	 */
+ 	class_for_each_device(&regulator_class, NULL, NULL,
+ 			      regulator_late_cleanup);
+-}
+-
+-static DECLARE_DELAYED_WORK(regulator_init_complete_work,
+-			    regulator_init_complete_work_function);
+-
+-static int __init regulator_init_complete(void)
+-{
+-	/*
+-	 * Since DT doesn't provide an idiomatic mechanism for
+-	 * enabling full constraints and since it's much more natural
+-	 * with DT to provide them just assume that a DT enabled
+-	 * system has full constraints.
+-	 */
+-	if (of_have_populated_dt())
+-		has_full_constraints = true;
+-
+-	/*
+-	 * We punt completion for an arbitrary amount of time since
+-	 * systems like distros will load many drivers from userspace
+-	 * so consumers might not always be ready yet, this is
+-	 * particularly an issue with laptops where this might bounce
+-	 * the display off then on.  Ideally we'd get a notification
+-	 * from userspace when this happens but we don't so just wait
+-	 * a bit and hope we waited long enough.  It'd be better if
+-	 * we'd only do this on systems that need it, and a kernel
+-	 * command line option might be useful.
+-	 */
+-	schedule_delayed_work(&regulator_init_complete_work,
+-			      msecs_to_jiffies(30000));
+ 
+ 	return 0;
+ }
 
 
