@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE34126D5A
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2B1A126C7D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728241AbfLSSje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:39:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57868 "EHLO mail.kernel.org"
+        id S1729419AbfLSSrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:47:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728235AbfLSSje (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:39:34 -0500
+        id S1727462AbfLSSrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:47:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E402220716;
-        Thu, 19 Dec 2019 18:39:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D4C024672;
+        Thu, 19 Dec 2019 18:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780773;
-        bh=UJD928C7anYrORACAu6Oao0G9JR8oRn8ffJSvKjKt3I=;
+        s=default; t=1576781226;
+        bh=wIOxz9h/1fpnplrRfLmE8p8swLUE7URyYaiVcoUWFug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJBuLZMBeK4bejroaSDA+2OOm7nrfrISG27JG6x4OStMzi0QkDoKcmJO986gN6iqp
-         K47+h4C95KRrCze9l/qTCtz3AQseOD64uWKAqih3rflUYIbUPGxl8rVIYE5L3DNFyC
-         EpjS0Z6XOi/dC/Ib0His69tF16YPiXPgf4gvKg+s=
+        b=uI2ZbCX+U6XsXVDktR8AR/w/aABLYlDg2T9lSP27g+hbKqj0zOXMqdhun59YICzbt
+         PM6JBR/SwDKaaCJ5i1BP0HACyWDiyTdvlTVda1mpHvJcnOLZQvvMJgcJ5/EHmrs+JK
+         n4x2kh07TiUKJcVhoI8d1imxQysm83VfzaJcEOyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.4 109/162] cgroup: pids: use atomic64_t for pids->limit
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 135/199] ACPI: OSL: only free map once in osl.c
 Date:   Thu, 19 Dec 2019 19:33:37 +0100
-Message-Id: <20191219183214.393367665@linuxfoundation.org>
+Message-Id: <20191219183222.569036787@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksa Sarai <cyphar@cyphar.com>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-commit a713af394cf382a30dd28a1015cbe572f1b9ca75 upstream.
+commit 833a426cc471b6088011b3d67f1dc4e147614647 upstream.
 
-Because pids->limit can be changed concurrently (but we don't want to
-take a lock because it would be needlessly expensive), use atomic64_ts
-instead.
+acpi_os_map_cleanup checks map->refcount outside of acpi_ioremap_lock
+before freeing the map. This creates a race condition the can result
+in the map being freed more than once.
+A panic can be caused by running
 
-Fixes: commit 49b786ea146f ("cgroup: implement the PIDs subsystem")
-Cc: stable@vger.kernel.org # v4.3+
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+for ((i=0; i<10; i++))
+do
+        for ((j=0; j<100000; j++))
+        do
+                cat /sys/firmware/acpi/tables/data/BERT >/dev/null
+        done &
+done
+
+This patch makes sure that only the process that drops the reference
+to 0 does the freeing.
+
+Fixes: b7c1fadd6c2e ("ACPI: Do not use krefs under a mutex in osl.c")
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Reviewed-by: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/cgroup_pids.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/acpi/osl.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/kernel/cgroup_pids.c
-+++ b/kernel/cgroup_pids.c
-@@ -48,7 +48,7 @@ struct pids_cgroup {
- 	 * %PIDS_MAX = (%PID_MAX_LIMIT + 1).
- 	 */
- 	atomic64_t			counter;
--	int64_t				limit;
-+	atomic64_t			limit;
- };
- 
- static struct pids_cgroup *css_pids(struct cgroup_subsys_state *css)
-@@ -70,8 +70,8 @@ pids_css_alloc(struct cgroup_subsys_stat
- 	if (!pids)
- 		return ERR_PTR(-ENOMEM);
- 
--	pids->limit = PIDS_MAX;
- 	atomic64_set(&pids->counter, 0);
-+	atomic64_set(&pids->limit, PIDS_MAX);
- 	return &pids->css;
+--- a/drivers/acpi/osl.c
++++ b/drivers/acpi/osl.c
+@@ -375,19 +375,21 @@ void *__ref acpi_os_map_memory(acpi_phys
  }
+ EXPORT_SYMBOL_GPL(acpi_os_map_memory);
  
-@@ -142,13 +142,14 @@ static int pids_try_charge(struct pids_c
- 
- 	for (p = pids; parent_pids(p); p = parent_pids(p)) {
- 		int64_t new = atomic64_add_return(num, &p->counter);
-+		int64_t limit = atomic64_read(&p->limit);
- 
- 		/*
- 		 * Since new is capped to the maximum number of pid_t, if
- 		 * p->limit is %PIDS_MAX then we know that this test will never
- 		 * fail.
- 		 */
--		if (new > p->limit)
-+		if (new > limit)
- 			goto revert;
- 	}
- 
-@@ -262,7 +263,7 @@ set_limit:
- 	 * Limit updates don't need to be mutex'd, since it isn't
- 	 * critical that any racing fork()s follow the new limit.
- 	 */
--	pids->limit = limit;
-+	atomic64_set(&pids->limit, limit);
- 	return nbytes;
- }
- 
-@@ -270,7 +271,7 @@ static int pids_max_show(struct seq_file
+-static void acpi_os_drop_map_ref(struct acpi_ioremap *map)
++/* Must be called with mutex_lock(&acpi_ioremap_lock) */
++static unsigned long acpi_os_drop_map_ref(struct acpi_ioremap *map)
  {
- 	struct cgroup_subsys_state *css = seq_css(sf);
- 	struct pids_cgroup *pids = css_pids(css);
--	int64_t limit = pids->limit;
-+	int64_t limit = atomic64_read(&pids->limit);
+-	if (!--map->refcount)
++	unsigned long refcount = --map->refcount;
++
++	if (!refcount)
+ 		list_del_rcu(&map->list);
++	return refcount;
+ }
  
- 	if (limit >= PIDS_MAX)
- 		seq_printf(sf, "%s\n", PIDS_MAX_STR);
+ static void acpi_os_map_cleanup(struct acpi_ioremap *map)
+ {
+-	if (!map->refcount) {
+-		synchronize_rcu_expedited();
+-		acpi_unmap(map->phys, map->virt);
+-		kfree(map);
+-	}
++	synchronize_rcu_expedited();
++	acpi_unmap(map->phys, map->virt);
++	kfree(map);
+ }
+ 
+ /**
+@@ -407,6 +409,7 @@ static void acpi_os_map_cleanup(struct a
+ void __ref acpi_os_unmap_iomem(void __iomem *virt, acpi_size size)
+ {
+ 	struct acpi_ioremap *map;
++	unsigned long refcount;
+ 
+ 	if (!acpi_gbl_permanent_mmap) {
+ 		__acpi_unmap_table(virt, size);
+@@ -420,10 +423,11 @@ void __ref acpi_os_unmap_iomem(void __io
+ 		WARN(true, PREFIX "%s: bad address %p\n", __func__, virt);
+ 		return;
+ 	}
+-	acpi_os_drop_map_ref(map);
++	refcount = acpi_os_drop_map_ref(map);
+ 	mutex_unlock(&acpi_ioremap_lock);
+ 
+-	acpi_os_map_cleanup(map);
++	if (!refcount)
++		acpi_os_map_cleanup(map);
+ }
+ EXPORT_SYMBOL_GPL(acpi_os_unmap_iomem);
+ 
+@@ -464,6 +468,7 @@ void acpi_os_unmap_generic_address(struc
+ {
+ 	u64 addr;
+ 	struct acpi_ioremap *map;
++	unsigned long refcount;
+ 
+ 	if (gas->space_id != ACPI_ADR_SPACE_SYSTEM_MEMORY)
+ 		return;
+@@ -479,10 +484,11 @@ void acpi_os_unmap_generic_address(struc
+ 		mutex_unlock(&acpi_ioremap_lock);
+ 		return;
+ 	}
+-	acpi_os_drop_map_ref(map);
++	refcount = acpi_os_drop_map_ref(map);
+ 	mutex_unlock(&acpi_ioremap_lock);
+ 
+-	acpi_os_map_cleanup(map);
++	if (!refcount)
++		acpi_os_map_cleanup(map);
+ }
+ EXPORT_SYMBOL(acpi_os_unmap_generic_address);
+ 
 
 
