@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A4A126A3D
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D12126A42
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728495AbfLSSpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:45:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37758 "EHLO mail.kernel.org"
+        id S1729176AbfLSSpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:45:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729148AbfLSSpY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:45:24 -0500
+        id S1729185AbfLSSpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:45:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79D452465E;
-        Thu, 19 Dec 2019 18:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3692B24672;
+        Thu, 19 Dec 2019 18:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781123;
-        bh=mN6YQ+PzkcvOkuHpK70M6xy2RAC+WMY5QHxUamRj06U=;
+        s=default; t=1576781133;
+        bh=35yKDkiE8KL4FQ6IGuKiSvQsrdEoHklWw7BgukhTtfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/6O/YqeF8/LeeSFZtjRcTyjF0/UOriqrODmlAS96QuKx/ZoYKWdhzjp6T+dSbcVb
-         Q1ktx57NDq5MIyBE6jPJXlFWUvQxhgyvNZCgfadZi1vMpGt28c1VbnpZEPdExXQN+u
-         hGVPHZV2Sh9PCzvxrMqtu+ewDx/Lo1AUphikEYeI=
+        b=p4WxtpYMiktqb/RyVadpcooYZNiqmw7IMYs84Aph7mDUaDG29wvBjw9RkpPgmlwfJ
+         p3zKBx5A1M/iL8OW19GRrxOzd+7RpZD2wiF3HP3tDthFB1TNpT+uvZh0ecj0pxv16F
+         2Q3rKkWoeVeQcFjgldN17bmALhQkhF1mv73YYEkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e3f4897236c4eeb8af4f@syzkaller.appspotmail.com,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 093/199] KVM: x86: fix out-of-bounds write in KVM_GET_EMULATED_CPUID (CVE-2019-19332)
-Date:   Thu, 19 Dec 2019 19:32:55 +0100
-Message-Id: <20191219183220.072569008@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.9 097/199] USB: uas: honor flag to avoid CAPACITY16
+Date:   Thu, 19 Dec 2019 19:32:59 +0100
+Message-Id: <20191219183220.282932558@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -45,43 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 433f4ba1904100da65a311033f17a9bf586b287e upstream.
+commit bff000cae1eec750d62e265c4ba2db9af57b17e1 upstream.
 
-The bounds check was present in KVM_GET_SUPPORTED_CPUID but not
-KVM_GET_EMULATED_CPUID.
+Copy the support over from usb-storage to get feature parity
 
-Reported-by: syzbot+e3f4897236c4eeb8af4f@syzkaller.appspotmail.com
-Fixes: 84cffe499b94 ("kvm: Emulate MOVBE", 2013-10-29)
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191114112758.32747-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/cpuid.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/storage/uas.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -389,7 +389,7 @@ static inline int __do_cpuid_ent(struct
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -832,6 +832,10 @@ static int uas_slave_configure(struct sc
+ 		sdev->wce_default_on = 1;
+ 	}
  
- 	r = -E2BIG;
- 
--	if (*nent >= maxnent)
-+	if (WARN_ON(*nent >= maxnent))
- 		goto out;
- 
- 	do_cpuid_1_ent(entry, function, index);
-@@ -691,6 +691,9 @@ out:
- static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 func,
- 			u32 idx, int *nent, int maxnent, unsigned int type)
- {
-+	if (*nent >= maxnent)
-+		return -E2BIG;
++	/* Some disks cannot handle READ_CAPACITY_16 */
++	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
++		sdev->no_read_capacity_16 = 1;
 +
- 	if (type == KVM_GET_EMULATED_CPUID)
- 		return __do_cpuid_ent_emulated(entry, func, idx, nent, maxnent);
- 
+ 	/*
+ 	 * Some disks return the total number of blocks in response
+ 	 * to READ CAPACITY rather than the highest block number.
 
 
