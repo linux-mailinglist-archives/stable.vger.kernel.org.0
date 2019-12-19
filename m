@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5C7126C33
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D5F2126C12
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729856AbfLSStr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:49:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43330 "EHLO mail.kernel.org"
+        id S1730040AbfLSSut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:50:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729850AbfLSStq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:49:46 -0500
+        id S1729759AbfLSSup (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:50:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8217E24672;
-        Thu, 19 Dec 2019 18:49:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F6512467F;
+        Thu, 19 Dec 2019 18:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781386;
-        bh=o3ktvA+EiatetoIy9/RAgk8wlz/pnSPTx9v3FR2top8=;
+        s=default; t=1576781445;
+        bh=kYqNubHyQokemBhQ/7OuH7fwMiQPADTBVzdD2Cob9+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GK0fU52NNHAPwU1+CdAW4uC+/PRMcldfMYCIdU50zY7nQomgDDjRHYIBfuYbsimhT
-         SL6kQ55LrMuuqlND/eiq0WPjHCGQ5W1cBMw9sBPe9BUJHfDoyDOav7ErOryypDSWLY
-         FeAjeGAT7AV46vB+hRGtbjh+b3FXCYlTiCOSAGdY=
+        b=xe1LJ0UGNOFb08MXi88YCXW4xHExMsdU6ypDlaVQ1ps/HzfKyvnOgH68mvqUgV6Ip
+         uUcpH5EcdPW00vDuXyaEGbUULkaU15wpwFfy9Lm7NuETRpn5aLU9X2DtLvwvvsXPdD
+         ijL0pASKioLIYIxxhT9mSsjw9OdIz7+dy0NQPHws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>, Aviraj CJ <acj@cisco.com>
-Subject: [PATCH 4.9 199/199] net: stmmac: dont stop NAPI processing when dropping a packet
-Date:   Thu, 19 Dec 2019 19:34:41 +0100
-Message-Id: <20191219183226.843312108@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Lew <clew@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 4.14 25/36] rpmsg: glink: Free pending deferred work on remove
+Date:   Thu, 19 Dec 2019 19:34:42 +0100
+Message-Id: <20191219182917.324506203@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
+References: <20191219182848.708141124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit 07b3975352374c3f5ebb4a42ef0b253fe370542d upstream.
+commit 278bcb7300f61785dba63840bd2a8cf79f14554c upstream.
 
-Currently, if we drop a packet, we exit from NAPI loop before the budget
-is consumed. In some situations this will make the RX processing stall
-e.g. when flood pinging the system with oversized packets, as the
-errorneous packets are not dropped efficiently.
+By just cancelling the deferred rx worker during GLINK instance teardown
+any pending deferred commands are leaked, so free them.
 
-If we drop a packet, we should just continue to the next one as long as
-the budget allows.
-
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[acj: backport v4.9 -stable
--adjust context]
-Signed-off-by: Aviraj CJ <acj@cisco.com>
+Fixes: b4f8e52b89f6 ("rpmsg: Introduce Qualcomm RPM glink driver")
+Cc: stable@vger.kernel.org
+Acked-by: Chris Lew <clew@codeaurora.org>
+Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2499,8 +2499,7 @@ static inline void stmmac_rx_refill(stru
-  */
- static int stmmac_rx(struct stmmac_priv *priv, int limit)
- {
--	unsigned int entry = priv->cur_rx;
--	unsigned int next_entry;
-+	unsigned int next_entry = priv->cur_rx;
- 	unsigned int count = 0;
- 	int coe = priv->hw->rx_csum;
- 
-@@ -2516,10 +2515,12 @@ static int stmmac_rx(struct stmmac_priv
- 		priv->hw->desc->display_ring(rx_head, DMA_RX_SIZE, true);
+---
+ drivers/rpmsg/qcom_glink_native.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -1539,6 +1539,18 @@ static void qcom_glink_work(struct work_
  	}
- 	while (count < limit) {
--		int status;
-+		int entry, status;
- 		struct dma_desc *p;
- 		struct dma_desc *np;
+ }
  
-+		entry = next_entry;
++static void qcom_glink_cancel_rx_work(struct qcom_glink *glink)
++{
++	struct glink_defer_cmd *dcmd;
++	struct glink_defer_cmd *tmp;
 +
- 		if (priv->extend_desc)
- 			p = (struct dma_desc *)(priv->dma_erx + entry);
- 		else
-@@ -2584,7 +2585,7 @@ static int stmmac_rx(struct stmmac_priv
- 				       priv->dev->name, frame_len,
- 				       priv->dma_buf_sz);
- 				priv->dev->stats.rx_length_errors++;
--				break;
-+				continue;
- 			}
++	/* cancel any pending deferred rx_work */
++	cancel_work_sync(&glink->rx_work);
++
++	list_for_each_entry_safe(dcmd, tmp, &glink->rx_queue, node)
++		kfree(dcmd);
++}
++
+ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
+ 					   unsigned long features,
+ 					   struct qcom_glink_pipe *rx,
+@@ -1611,7 +1623,7 @@ void qcom_glink_native_remove(struct qco
+ 	int ret;
  
- 			/* ACS is set; GMAC core strips PAD/FCS for IEEE 802.3
-@@ -2615,7 +2616,7 @@ static int stmmac_rx(struct stmmac_priv
- 						dev_warn(priv->device,
- 							 "packet dropped\n");
- 					priv->dev->stats.rx_dropped++;
--					break;
-+					continue;
- 				}
+ 	disable_irq(glink->irq);
+-	cancel_work_sync(&glink->rx_work);
++	qcom_glink_cancel_rx_work(glink);
  
- 				dma_sync_single_for_cpu(priv->device,
-@@ -2638,7 +2639,7 @@ static int stmmac_rx(struct stmmac_priv
- 					pr_err("%s: Inconsistent Rx chain\n",
- 					       priv->dev->name);
- 					priv->dev->stats.rx_dropped++;
--					break;
-+					continue;
- 				}
- 				prefetch(skb->data - NET_IP_ALIGN);
- 				priv->rx_skbuff[entry] = NULL;
-@@ -2672,7 +2673,6 @@ static int stmmac_rx(struct stmmac_priv
- 			priv->dev->stats.rx_packets++;
- 			priv->dev->stats.rx_bytes += frame_len;
- 		}
--		entry = next_entry;
- 	}
- 
- 	stmmac_rx_refill(priv);
+ 	ret = device_for_each_child(glink->dev, NULL, qcom_glink_remove_device);
+ 	if (ret)
 
 
