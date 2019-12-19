@@ -2,50 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25645126523
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 15:47:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C2F1265A4
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 16:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726840AbfLSOrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 09:47:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58994 "EHLO mail.kernel.org"
+        id S1726943AbfLSPWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 10:22:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726767AbfLSOrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 09:47:08 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726760AbfLSPWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 10:22:31 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B9B32053B;
-        Thu, 19 Dec 2019 14:47:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D68442053B;
+        Thu, 19 Dec 2019 15:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576766828;
-        bh=rVU1vC8HYIGK4Bl9VIZXc8ZtnzCOjjAeV/VU/SErGSg=;
+        s=default; t=1576768950;
+        bh=F+rYk+LJR2nTrz/ibA+mwpo10qBbrMh+7m/qM/VBiF8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wJ8Ca1khvjJ6ocW0pM/u3sZEopoXP5g1qjSeyee10ml6KC0EauO4xLwJf1N3c4VEc
-         1/w5Vbr0tmknXMRMKKWz20JMLivZ59Nk9VnetoBzqKu3kBubgjT3Q1ccKvemYQG3qB
-         Tx1GmZWPLrM9AMqg/nNq4RnnOHtrKe72chv+vUnk=
-Date:   Thu, 19 Dec 2019 15:47:05 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc:     stable@vger.kernel.org, Lee Hou-hsun <hou-hsun.lee@intel.com>,
-        Lee Chiasheng <chiasheng.lee@intel.com>
-Subject: Re: [PATCH backport 4.9 4.4] xhci: fix USB3 device initiated resume
- race with roothub autosuspend
-Message-ID: <20191219144705.GA1960287@kroah.com>
-References: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
+        b=jHoxyRjxzH6beQ/+z+Gx12s3j0gYhu4CtQLJaaBWCcAe4v3ca++HXkLlD81yZQenq
+         Xo9aV7PBiYp3IUnuHncigOM/oKcuslHAUQc6JdlqJ+EsWLdBIzR/XyhLxaRdcw8Ai9
+         H7X+gc7tkTQyRV01QgMuqgl6EZokOatuz1ytC5mE=
+Date:   Thu, 19 Dec 2019 10:22:28 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        linux-iio@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.4 019/350] iio: tcs3414: fix
+ iio_triggered_buffer_{pre,post}enable positions
+Message-ID: <20191219152228.GK17708@sasha-vm>
+References: <20191210210402.8367-1-sashal@kernel.org>
+ <20191210210402.8367-19-sashal@kernel.org>
+ <20191215155203.607cc56d@archlinux>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
+In-Reply-To: <20191215155203.607cc56d@archlinux>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 19, 2019 at 02:06:32PM +0200, Mathias Nyman wrote:
-> commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream
-> 
-> Backport for 4.9 and 4.4 stable kernels
+On Sun, Dec 15, 2019 at 03:52:03PM +0000, Jonathan Cameron wrote:
+>On Tue, 10 Dec 2019 15:58:31 -0500
+>Sasha Levin <sashal@kernel.org> wrote:
+>
+>> From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+>>
+>> [ Upstream commit 0fe2f2b789190661df24bb8bf62294145729a1fe ]
+>>
+>> The iio_triggered_buffer_{predisable,postenable} functions attach/detach
+>> the poll functions.
+>>
+>> For the predisable hook, the disable code should occur before detaching
+>> the poll func, and for the postenable hook, the poll func should be
+>> attached before the enable code.
+>>
+>> The driver was slightly reworked. The preenable hook was moved to the
+>> postenable, to add some symmetry to the postenable/predisable part.
+>>
+>> Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+>> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>I doubt this did any harm, but wouldn't consider it stable material normally.
+>
+>This is part of a general rework going on to allow some core refactoring.
+>
+>I should have added a note to this one like some related patches that it
+>is a logical fix, but we don't have an actual known bug afaik.
 
-Thanks for these, all 4 of them now queued up.
+I'll drop it from everywhere, thanks!
 
-greg k-h
+-- 
+Thanks,
+Sasha
