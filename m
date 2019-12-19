@@ -2,51 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E748C126E45
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:55:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4DCD126E0C
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:39:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726911AbfLSTzK convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 19 Dec 2019 14:55:10 -0500
-Received: from hglps.gob.ec ([181.196.146.12]:48837 "EHLO hglps.gob.ec"
+        id S1727097AbfLSTjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:39:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726869AbfLSTzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 14:55:10 -0500
-X-Greylist: delayed 8230 seconds by postgrey-1.27 at vger.kernel.org; Thu, 19 Dec 2019 14:55:09 EST
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by hglps.gob.ec (Postfix) with ESMTP id 3334F240CFC9;
-        Thu, 19 Dec 2019 11:18:59 -0500 (ECT)
-Received: from hglps.gob.ec ([127.0.0.1])
-        by localhost (hglps.gob.ec [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 7AkEWz6Dq48i; Thu, 19 Dec 2019 11:18:58 -0500 (ECT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by hglps.gob.ec (Postfix) with ESMTP id 79830240CFCD;
-        Thu, 19 Dec 2019 11:18:57 -0500 (ECT)
-X-Virus-Scanned: amavisd-new at hglps.gob.ec
-Received: from hglps.gob.ec ([127.0.0.1])
-        by localhost (hglps.gob.ec [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id SXcjfNoLIyc8; Thu, 19 Dec 2019 11:18:57 -0500 (ECT)
-Received: from [172.245.153.183] (unknown [172.245.153.183])
-        by hglps.gob.ec (Postfix) with ESMTPSA id 42611240CB53;
-        Thu, 19 Dec 2019 11:18:51 -0500 (ECT)
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1726907AbfLSTjD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 14:39:03 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF46C227BF;
+        Thu, 19 Dec 2019 19:39:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576784343;
+        bh=uJm4jvux9MuuNbHKtwxAPbxkxjWoPXqWjllj1M32RjM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZbLazEACfPBAOHrYpCHQeXom0uBE7xt9sHfwefIGotmi/OGyzl2JI8metT64wkYBK
+         sKQ7XcHenPRlDV7RVBc31L/OBklaSENRaH8Umi2qZLdJFeL8D8aoNiXwMUjMlVL+TU
+         pTc3j2CjLiUe9Lj7HhBTMHSWjfpu4NxyGitKs+fs=
+Date:   Thu, 19 Dec 2019 14:39:01 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Juston Li <juston.li@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>, Harry Wentland <hwentlan@amd.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sean Paul <sean@poorly.run>, dri-devel@lists.freedesktop.org,
+        nouveau@lists.freedesktop.org
+Subject: Re: [PATCH AUTOSEL 5.4 143/350] drm/nouveau: Resume hotplug
+ interrupts earlier
+Message-ID: <20191219193901.GO17708@sasha-vm>
+References: <20191210210735.9077-1-sashal@kernel.org>
+ <20191210210735.9077-104-sashal@kernel.org>
+ <90e9126b9692ce6a1b0fcd85a4d0327bf818e58a.camel@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: info
-To:     "Mr. David" <anibal.reinoso@hgdc.gob.ec>
-From:   "Mr. David" <anibal.reinoso@hgdc.gob.ec>
-Date:   Thu, 19 Dec 2019 08:23:34 -0800
-Reply-To: contact-alexeyvolgohimneft@inbox.ru
-Message-Id: <20191219161851.42611240CB53@hglps.gob.ec>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <90e9126b9692ce6a1b0fcd85a4d0327bf818e58a.camel@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir/ Madam,
- 
-I'm direct mandate to a reputable refinery in the Russian Federation they currently have product allocation for D2, D6, ESPO, JET A1, JP54 and M100 respectively. They can supply products in FOB delivery terms. FOB ROTTERDAM AND FOB HOUSTON contact details bellow.
+On Tue, Dec 10, 2019 at 04:29:54PM -0500, Lyude Paul wrote:
+>huh? Not sure how this got put in the stable queue, but this probably should
+>be dropped. this was prepatory work for some MST functionality that got added
+>recently, not a fix.
 
-email: alexeyvolgohimneft@inbox.ru
-Phone: +7-926-77-413-97,
-skype: contact-alexeyvolgohimneft@inbox.ru
+Dropped, thanks!
+
+-- 
+Thanks,
+Sasha
