@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C2F4126C56
+	by mail.lfdr.de (Postfix) with ESMTP id 89661126C57
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729638AbfLSSsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729048AbfLSSsf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 19 Dec 2019 13:48:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41672 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729641AbfLSSsb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:48:31 -0500
+        id S1728300AbfLSSse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:48:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5446524672;
-        Thu, 19 Dec 2019 18:48:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC3982465E;
+        Thu, 19 Dec 2019 18:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781310;
-        bh=wLwQlMeEYv/NL2uzCNnJdO5ELlnKe/9pJiyN1sUCszo=;
+        s=default; t=1576781313;
+        bh=eUMcKAz5SHVJYqA7TJftOjKDuTCsol5guaw7UlNA5yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fV02F7tZJclWdNvW1wvuG3b7rBfYGHZqKd7ZmMFVgFqNZTi9IVGfxMBL6d1A4MJ64
-         5CAlO0aywWzgwrX17DC+AYUfqiOmTSQu6AeA4GXbQYQlyb+TvIkpuQEyQJmjhqfx19
-         +tIdTTUiZREjqhHP50UTPNYOk0GMs0VVKpDTqhmU=
+        b=Nweue0GjL/0RFuIc1B0r743FccdfTW0WY2G6/3shBmv7OApE5UqkV0U6x7u617SzH
+         oOVNF5n0BSYQlZASUaEk8xsX5XU7z1ZZy1WU/krj3D9h10ipbrO1FOY2DoSba3xheP
+         PYEldYDkNTwuGrQ6GBrk2ZfZdjr0uDDe66GSunmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 128/199] blk-mq: avoid sysfs buffer overflow with too many CPU cores
-Date:   Thu, 19 Dec 2019 19:33:30 +0100
-Message-Id: <20191219183222.094589863@linuxfoundation.org>
+        stable@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.9 129/199] cgroup: pids: use atomic64_t for pids->limit
+Date:   Thu, 19 Dec 2019 19:33:31 +0100
+Message-Id: <20191219183222.162247453@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -43,61 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Aleksa Sarai <cyphar@cyphar.com>
 
-commit 8962842ca5abdcf98e22ab3b2b45a103f0408b95 upstream.
+commit a713af394cf382a30dd28a1015cbe572f1b9ca75 upstream.
 
-It is reported that sysfs buffer overflow can be triggered if the system
-has too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
-hctx via /sys/block/$DEV/mq/$N/cpu_list.
+Because pids->limit can be changed concurrently (but we don't want to
+take a lock because it would be needlessly expensive), use atomic64_ts
+instead.
 
-Use snprintf to avoid the potential buffer overflow.
-
-This version doesn't change the attribute format, and simply stops
-showing CPU numbers if the buffer is going to overflow.
-
-Cc: stable@vger.kernel.org
-Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: commit 49b786ea146f ("cgroup: implement the PIDs subsystem")
+Cc: stable@vger.kernel.org # v4.3+
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq-sysfs.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ kernel/cgroup_pids.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -243,20 +243,25 @@ static ssize_t blk_mq_hw_sysfs_active_sh
+--- a/kernel/cgroup_pids.c
++++ b/kernel/cgroup_pids.c
+@@ -48,7 +48,7 @@ struct pids_cgroup {
+ 	 * %PIDS_MAX = (%PID_MAX_LIMIT + 1).
+ 	 */
+ 	atomic64_t			counter;
+-	int64_t				limit;
++	atomic64_t			limit;
  
- static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
- {
-+	const size_t size = PAGE_SIZE - 1;
- 	unsigned int i, first = 1;
--	ssize_t ret = 0;
-+	int ret = 0, pos = 0;
+ 	/* Handle for "pids.events" */
+ 	struct cgroup_file		events_file;
+@@ -76,8 +76,8 @@ pids_css_alloc(struct cgroup_subsys_stat
+ 	if (!pids)
+ 		return ERR_PTR(-ENOMEM);
  
- 	for_each_cpu(i, hctx->cpumask) {
- 		if (first)
--			ret += sprintf(ret + page, "%u", i);
-+			ret = snprintf(pos + page, size - pos, "%u", i);
- 		else
--			ret += sprintf(ret + page, ", %u", i);
-+			ret = snprintf(pos + page, size - pos, ", %u", i);
-+
-+		if (ret >= size - pos)
-+			break;
+-	pids->limit = PIDS_MAX;
+ 	atomic64_set(&pids->counter, 0);
++	atomic64_set(&pids->limit, PIDS_MAX);
+ 	atomic64_set(&pids->events_limit, 0);
+ 	return &pids->css;
+ }
+@@ -149,13 +149,14 @@ static int pids_try_charge(struct pids_c
  
- 		first = 0;
-+		pos += ret;
+ 	for (p = pids; parent_pids(p); p = parent_pids(p)) {
+ 		int64_t new = atomic64_add_return(num, &p->counter);
++		int64_t limit = atomic64_read(&p->limit);
+ 
+ 		/*
+ 		 * Since new is capped to the maximum number of pid_t, if
+ 		 * p->limit is %PIDS_MAX then we know that this test will never
+ 		 * fail.
+ 		 */
+-		if (new > p->limit)
++		if (new > limit)
+ 			goto revert;
  	}
  
--	ret += sprintf(ret + page, "\n");
--	return ret;
-+	ret = snprintf(pos + page, size - pos, "\n");
-+	return pos + ret;
+@@ -280,7 +281,7 @@ set_limit:
+ 	 * Limit updates don't need to be mutex'd, since it isn't
+ 	 * critical that any racing fork()s follow the new limit.
+ 	 */
+-	pids->limit = limit;
++	atomic64_set(&pids->limit, limit);
+ 	return nbytes;
  }
  
- static struct blk_mq_ctx_sysfs_entry blk_mq_sysfs_dispatched = {
+@@ -288,7 +289,7 @@ static int pids_max_show(struct seq_file
+ {
+ 	struct cgroup_subsys_state *css = seq_css(sf);
+ 	struct pids_cgroup *pids = css_pids(css);
+-	int64_t limit = pids->limit;
++	int64_t limit = atomic64_read(&pids->limit);
+ 
+ 	if (limit >= PIDS_MAX)
+ 		seq_printf(sf, "%s\n", PIDS_MAX_STR);
 
 
