@@ -2,232 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC137126AC1
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:50:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B7E126AF2
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730015AbfLSSuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:50:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44510 "EHLO mail.kernel.org"
+        id S1728691AbfLSSwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:52:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730008AbfLSSug (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:50:36 -0500
+        id S1729482AbfLSSwa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:52:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A628D2064B;
-        Thu, 19 Dec 2019 18:50:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EAD9222C2;
+        Thu, 19 Dec 2019 18:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781435;
-        bh=Qv7E2OuioSDxlU0VReXiZmlP7tE7UmrfQyW9nm3JkpA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=TiIdvOKrTb7Bvu+TvWOP7p8HdFnDBgiV08d5824kN++F6IEFQaJDWxdVcZM0PTY7g
-         zCR7r1qJO/2Sga4mJ/feig/efuKgrz4q8ig3XE0WpOGc3SIca4gPn1QJJR2a2YQqT9
-         jBaiiP5JLNKBzMBzSQdlBs/OTHOkdwJGceYoZsy0=
+        s=default; t=1576781549;
+        bh=Tl+cwKs1KEpr9E/rqXzA/XAl3ITKMtV/OSVEF0P9scs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WqC5esDJbrsLQbPIVsd6rKedIhFxZ/DMcI20nkRUWyOpkPCIn8zLIeba1aXCKyjpe
+         02/6v8Bilwww3l7X9adVvm/Dh0soJ7/AyTRWeOq1UM7ja4Syybwre2HDbRT+FFGvD5
+         q3l2z8Plhdjako7f1YB6kF37txr2PUJk74oCbf2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 00/36] 4.14.160-stable review
+        stable@vger.kernel.org,
+        syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 03/47] net: bridge: deny dev_set_mac_address() when unregistering
 Date:   Thu, 19 Dec 2019 19:34:17 +0100
-Message-Id: <20191219182848.708141124@linuxfoundation.org>
+Message-Id: <20191219182859.778509456@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-MIME-Version: 1.0
+In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
+References: <20191219182857.659088743@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.160-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.160-rc1
-X-KernelTest-Deadline: 2019-12-21T18:29+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.160 release.
-There are 36 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-Responses should be made by Sat, 21 Dec 2019 18:24:44 +0000.
-Anything received after that time might be too late.
+[ Upstream commit c4b4c421857dc7b1cf0dccbd738472360ff2cd70 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.160-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+We have an interesting memory leak in the bridge when it is being
+unregistered and is a slave to a master device which would change the
+mac of its slaves on unregister (e.g. bond, team). This is a very
+unusual setup but we do end up leaking 1 fdb entry because
+dev_set_mac_address() would cause the bridge to insert the new mac address
+into its table after all fdbs are flushed, i.e. after dellink() on the
+bridge has finished and we call NETDEV_UNREGISTER the bond/team would
+release it and will call dev_set_mac_address() to restore its original
+address and that in turn will add an fdb in the bridge.
+One fix is to check for the bridge dev's reg_state in its
+ndo_set_mac_address callback and return an error if the bridge is not in
+NETREG_REGISTERED.
 
-thanks,
+Easy steps to reproduce:
+ 1. add bond in mode != A/B
+ 2. add any slave to the bond
+ 3. add bridge dev as a slave to the bond
+ 4. destroy the bridge device
 
-greg k-h
+Trace:
+ unreferenced object 0xffff888035c4d080 (size 128):
+   comm "ip", pid 4068, jiffies 4296209429 (age 1413.753s)
+   hex dump (first 32 bytes):
+     41 1d c9 36 80 88 ff ff 00 00 00 00 00 00 00 00  A..6............
+     d2 19 c9 5e 3f d7 00 00 00 00 00 00 00 00 00 00  ...^?...........
+   backtrace:
+     [<00000000ddb525dc>] kmem_cache_alloc+0x155/0x26f
+     [<00000000633ff1e0>] fdb_create+0x21/0x486 [bridge]
+     [<0000000092b17e9c>] fdb_insert+0x91/0xdc [bridge]
+     [<00000000f2a0f0ff>] br_fdb_change_mac_address+0xb3/0x175 [bridge]
+     [<000000001de02dbd>] br_stp_change_bridge_id+0xf/0xff [bridge]
+     [<00000000ac0e32b1>] br_set_mac_address+0x76/0x99 [bridge]
+     [<000000006846a77f>] dev_set_mac_address+0x63/0x9b
+     [<00000000d30738fc>] __bond_release_one+0x3f6/0x455 [bonding]
+     [<00000000fc7ec01d>] bond_netdev_event+0x2f2/0x400 [bonding]
+     [<00000000305d7795>] notifier_call_chain+0x38/0x56
+     [<0000000028885d4a>] call_netdevice_notifiers+0x1e/0x23
+     [<000000008279477b>] rollback_registered_many+0x353/0x6a4
+     [<0000000018ef753a>] unregister_netdevice_many+0x17/0x6f
+     [<00000000ba854b7a>] rtnl_delete_link+0x3c/0x43
+     [<00000000adf8618d>] rtnl_dellink+0x1dc/0x20a
+     [<000000009b6395fd>] rtnetlink_rcv_msg+0x23d/0x268
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 43598813386f ("bridge: add local MAC address to forwarding table (v2)")
+Reported-by: syzbot+2add91c08eb181fea1bf@syzkaller.appspotmail.com
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/bridge/br_device.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.160-rc1
-
-Aaro Koskinen <aaro.koskinen@nokia.com>
-    net: stmmac: don't stop NAPI processing when dropping a packet
-
-Aaro Koskinen <aaro.koskinen@nokia.com>
-    net: stmmac: use correct DMA buffer size in the RX descriptor
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: fix USB3 device initiated resume race with roothub autosuspend
-
-Alex Deucher <alexander.deucher@amd.com>
-    drm/radeon: fix r1xx/r2xx register checker for POT textures
-
-Bart Van Assche <bvanassche@acm.org>
-    scsi: iscsi: Fix a potential deadlock in the timeout handler
-
-Hou Tao <houtao1@huawei.com>
-    dm btree: increase rebalance threshold in __rebalance2()
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    dma-buf: Fix memory leak in sync_file_merge()
-
-Jiang Yi <giangyi@amazon.com>
-    vfio/pci: call irq_bypass_unregister_producer() before freeing irq
-
-Dmitry Osipenko <digetx@gmail.com>
-    ARM: tegra: Fix FLOW_CTLR_HALT register clobbering by tegra_resume()
-
-Lihua Yao <ylhuajnu@outlook.com>
-    ARM: dts: s3c64xx: Fix init order of clock providers
-
-Pavel Shilovsky <pshilov@microsoft.com>
-    CIFS: Respect O_SYNC and O_DIRECT flags during reconnect
-
-Bjorn Andersson <bjorn.andersson@linaro.org>
-    rpmsg: glink: Free pending deferred work on remove
-
-Bjorn Andersson <bjorn.andersson@linaro.org>
-    rpmsg: glink: Don't send pending rx_done during remove
-
-Chris Lew <clew@codeaurora.org>
-    rpmsg: glink: Fix rpmsg_register_device err handling
-
-Chris Lew <clew@codeaurora.org>
-    rpmsg: glink: Put an extra reference during cleanup
-
-Arun Kumar Neelakantam <aneela@codeaurora.org>
-    rpmsg: glink: Fix use after free in open_ack TIMEOUT case
-
-Arun Kumar Neelakantam <aneela@codeaurora.org>
-    rpmsg: glink: Fix reuse intents memory leak issue
-
-Chris Lew <clew@codeaurora.org>
-    rpmsg: glink: Set tail pointer to 0 at end of FIFO
-
-Max Filippov <jcmvbkbc@gmail.com>
-    xtensa: fix TLB sanity checker
-
-George Cherian <george.cherian@marvell.com>
-    PCI: Apply Cavium ACS quirk to ThunderX2 and ThunderX3
-
-Jian-Hong Pan <jian-hong@endlessm.com>
-    PCI/MSI: Fix incorrect MSI-X masking on resume
-
-Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
-    PCI: Fix Intel ACS quirk UPDCR register address
-
-Dexuan Cui <decui@microsoft.com>
-    PCI/PM: Always return devices to D0 when thawing
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "regulator: Defer init completion for a while after late_initcall"
-
-Ivan Bornyakov <brnkv.i1@gmail.com>
-    nvme: host: core: fix precedence of ternary operator
-
-Eric Dumazet <edumazet@google.com>
-    inet: protect against too small mtu values.
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: tighten acceptance of ACKs not matching a child socket
-
-Guillaume Nault <gnault@redhat.com>
-    tcp: fix rejected syncookies due to stale timestamps
-
-Taehee Yoo <ap420073@gmail.com>
-    tipc: fix ordering of tipc module init and exit routine
-
-Eric Dumazet <edumazet@google.com>
-    tcp: md5: fix potential overestimation of TCP option space
-
-Aaron Conole <aconole@redhat.com>
-    openvswitch: support asymmetric conntrack
-
-Mian Yousaf Kaukab <ykaukab@suse.de>
-    net: thunderx: start phy before starting autonegotiation
-
-Grygorii Strashko <grygorii.strashko@ti.com>
-    net: ethernet: ti: cpsw: fix extra rx interrupt
-
-Alexander Lobakin <alobakin@dlink.ru>
-    net: dsa: fix flow dissection on Tx path
-
-Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-    net: bridge: deny dev_set_mac_address() when unregistering
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/s3c6410-mini6410.dts             |  4 ++
- arch/arm/boot/dts/s3c6410-smdk6410.dts             |  4 ++
- arch/arm/mach-tegra/reset-handler.S                |  6 +--
- arch/xtensa/mm/tlb.c                               |  4 +-
- drivers/dma-buf/sync_file.c                        |  2 +-
- drivers/gpu/drm/radeon/r100.c                      |  4 +-
- drivers/gpu/drm/radeon/r200.c                      |  4 +-
- drivers/md/persistent-data/dm-btree-remove.c       |  8 +++-
- drivers/net/ethernet/cavium/thunder/thunder_bgx.c  |  2 +-
- drivers/net/ethernet/stmicro/stmmac/common.h       |  2 +-
- drivers/net/ethernet/stmicro/stmmac/descs_com.h    | 22 +++++----
- drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c |  2 +-
- drivers/net/ethernet/stmicro/stmmac/enh_desc.c     | 10 ++--
- drivers/net/ethernet/stmicro/stmmac/norm_desc.c    | 10 ++--
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  | 22 +++++----
- drivers/net/ethernet/ti/cpsw.c                     |  2 +-
- drivers/nvme/host/core.c                           |  4 +-
- drivers/pci/msi.c                                  |  2 +-
- drivers/pci/pci-driver.c                           | 17 ++++---
- drivers/pci/quirks.c                               | 22 +++++----
- drivers/regulator/core.c                           | 42 +++++------------
- drivers/rpmsg/qcom_glink_native.c                  | 53 +++++++++++++++++-----
- drivers/rpmsg/qcom_glink_smem.c                    |  2 +-
- drivers/scsi/libiscsi.c                            |  4 +-
- drivers/usb/host/xhci-hub.c                        |  8 ++++
- drivers/usb/host/xhci-ring.c                       |  6 +--
- drivers/vfio/pci/vfio_pci_intrs.c                  |  2 +-
- fs/cifs/file.c                                     |  7 +++
- include/linux/netdevice.h                          |  5 ++
- include/linux/time.h                               | 13 ++++++
- include/net/ip.h                                   |  5 ++
- include/net/tcp.h                                  | 18 ++++++--
- net/bridge/br_device.c                             |  6 +++
- net/core/dev.c                                     |  3 +-
- net/core/flow_dissector.c                          |  5 +-
- net/ipv4/devinet.c                                 |  5 --
- net/ipv4/ip_output.c                               | 14 ++++--
- net/ipv4/tcp_output.c                              |  5 +-
- net/openvswitch/conntrack.c                        | 11 +++++
- net/tipc/core.c                                    | 29 ++++++------
- 41 files changed, 257 insertions(+), 143 deletions(-)
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -246,6 +246,12 @@ static int br_set_mac_address(struct net
+ 	if (!is_valid_ether_addr(addr->sa_data))
+ 		return -EADDRNOTAVAIL;
+ 
++	/* dev_set_mac_addr() can be called by a master device on bridge's
++	 * NETDEV_UNREGISTER, but since it's being destroyed do nothing
++	 */
++	if (dev->reg_state != NETREG_REGISTERED)
++		return -EBUSY;
++
+ 	spin_lock_bh(&br->lock);
+ 	if (!ether_addr_equal(dev->dev_addr, addr->sa_data)) {
+ 		/* Mac address will be changed in br_stp_change_bridge_id(). */
 
 
