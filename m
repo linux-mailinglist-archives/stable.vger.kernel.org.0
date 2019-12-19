@@ -2,86 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDFE126525
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 15:48:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25645126523
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 15:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbfLSOsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 09:48:19 -0500
-Received: from 142-4-0-23.unifiedlayer.com ([142.4.0.23]:40890 "EHLO
-        142-4-0-23.ipage.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726701AbfLSOsT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 09:48:19 -0500
-X-Greylist: delayed 11801 seconds by postgrey-1.27 at vger.kernel.org; Thu, 19 Dec 2019 09:48:19 EST
-Received: from omoraka25 by 142-4-0-23.ipage.com with local (Exim 4.92)
-        (envelope-from <omoraka25@142-4-0-23.ipage.com>)
-        id 1ihtse-0003Vx-JF; Thu, 19 Dec 2019 11:22:08 +0000
-To:     stan.constantin90@yahoo.com
-Subject: MANUSCRIPT PROOFREADING
-X-PHP-Script: uofejiro.com/mail5/send.php for 105.112.99.141
-X-PHP-Originating-Script: 500:send.php
-From:   scriptediting12@pub34.org
-Reply-To: modernacademicedit@gmail.com
-Message-Id: <E1ihtse-0003Vx-JF@142-4-0-23.ipage.com>
-Date:   Thu, 19 Dec 2019 11:22:08 +0000
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 142-4-0-23.ipage.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [500 500] / [47 12]
-X-AntiAbuse: Sender Address Domain - 142-4-0-23.ipage.com
-X-Get-Message-Sender-Via: 142-4-0-23.ipage.com: authenticated_id: omoraka25/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: 142-4-0-23.ipage.com: omoraka25
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+        id S1726840AbfLSOrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 09:47:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58994 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726767AbfLSOrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 09:47:08 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B9B32053B;
+        Thu, 19 Dec 2019 14:47:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1576766828;
+        bh=rVU1vC8HYIGK4Bl9VIZXc8ZtnzCOjjAeV/VU/SErGSg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wJ8Ca1khvjJ6ocW0pM/u3sZEopoXP5g1qjSeyee10ml6KC0EauO4xLwJf1N3c4VEc
+         1/w5Vbr0tmknXMRMKKWz20JMLivZ59Nk9VnetoBzqKu3kBubgjT3Q1ccKvemYQG3qB
+         Tx1GmZWPLrM9AMqg/nNq4RnnOHtrKe72chv+vUnk=
+Date:   Thu, 19 Dec 2019 15:47:05 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc:     stable@vger.kernel.org, Lee Hou-hsun <hou-hsun.lee@intel.com>,
+        Lee Chiasheng <chiasheng.lee@intel.com>
+Subject: Re: [PATCH backport 4.9 4.4] xhci: fix USB3 device initiated resume
+ race with roothub autosuspend
+Message-ID: <20191219144705.GA1960287@kroah.com>
+References: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MODERN ACADEMIC EDITING
-www.modernacademicedit.com
+On Thu, Dec 19, 2019 at 02:06:32PM +0200, Mathias Nyman wrote:
+> commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream
+> 
+> Backport for 4.9 and 4.4 stable kernels
 
+Thanks for these, all 4 of them now queued up.
 
-Don't allow poor spelling or poor formatting in a target journal deny your manuscript(s) of publication in high-quality journals
-Don't become one of the hundreds of authors who have their manuscripts rejected due to spelling errors, grammatical errors, typographical errors or punctuation errors.
-Hence, what Are You Waiting For?
-Modern Academic Editing is the most trusted academic proofreading and editing services for you.
-
-Dear Colleague,
-MODERN ACADEMIC EDITING is the Number 1 choice for native and non-native English speaking professionals, authors, and individuals from around the globe in ensuring the highest-possible quality of editing and making sure that their ideas are communicated clearly and effectively. Thousands of academic authors and researchers have already experienced our specialist Proofreading services — now it’s your turn! Therefore, we call on writers/authors in all fields of academics to submit their manuscripts for proofreading/editing. We also observed that incorrect grammar, punctuation, spelling or syntax often leads to a negative response to your manuscript from reviewers, and using an online grammar correction service will not always highlight mistakes. Hence, we advise that authors should send their manuscript(s) to us for accurate grammatical proofreading and editing.
-
-We invite you to submit your articles and theses (MS-Word document) as e-mail attachment to the Editorial Office at: articles@modernacademicedit.com or modernacademicedit@gmail.com. Articles are expected to be in double line spacing (Still depends on the journal's format). Upon receipt of the Manuscript, an acknowledgment letter, including the manuscript number and the payment charges, will be sent to the corresponding author.
-
-Our charges are as follows:
-
-WORD COUNT	STANDARD
-3 days	EXPRESS
-2 days	URGENT**
-24 hrs
-Up to 1,000	$25	$35	$50
-1,001 to 2,000	$50	$70	$100
-2,001 to 3,000	$75	$105	$150
-3,001 to 4,000	$100	$140	$200
-4,001 to 5,000	$125	$175	$250
-5,001 to 6,000	$150	$210	$300
-6,001 to 7,000	$175	$240	$350
-8,001 to 9,000	$200	$275	$400
-9,001 to 10,000	$225	$310	$450
-10,001 to 11,000	$250	$345	$500
-11,001 to 12,000	$275	$380	$550
-12,001 to 13,000	$300	$415	$600
-Over 13,000 Words (e.g thesis)	Available on request with special discount	Available on request with special discount	Available on request with special discount
-
-Payments are made through bank wire or via credit card online (instant payment). Also, our areas of specialization include proofreading, grammatical editing, proper punctuation, paraphrasing and editing of sentences, aligning of articles to the required format and translating from your native language to English.
-
-For more information, visit our site https://modernacademicedit.com. It is appreciated if you could share this information with your colleagues and associates. 
-
-Best regards,
-
-Dr. Chris Tom
-Editor
-Modern Academic Editing
-
-To unsubscribe, kindly send a mail to unsubscribe.modernacademicedit@gmail.com
-
-
+greg k-h
