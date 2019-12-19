@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 428FB126CE0
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 854A1126D72
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728848AbfLSSnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:43:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35266 "EHLO mail.kernel.org"
+        id S1727395AbfLSSgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727551AbfLSSnf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:43:35 -0500
+        id S1727386AbfLSSf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:35:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E952424672;
-        Thu, 19 Dec 2019 18:43:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCDED24686;
+        Thu, 19 Dec 2019 18:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781014;
-        bh=pO4lacVKq57i/HeIY8f9aUj1nN3FE2OYzqeHQmrqVrs=;
+        s=default; t=1576780559;
+        bh=NKIKF7A5zn42BO7JUEY9uTMY+4ubMBgIJXguLfS5Lgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UF12j+qu6PLj9y5k6rXGNyPb16DKW93kvH6Kko5o7kWnex8LngrsmHtdHIA0g16tU
-         iBH7b01HasOUmvjw8cfOkUo5+XtbJPsBLTeyLlUPERW3gXiKXVF2qmfm5HXlZQWDRw
-         ZyLvD/SbC+kXNgkj7havtE40B7V7K+1q5xL8QsKg=
+        b=ERfSHwxX7RFokTAzUEAWtubQg7fU/mfSR2tq1bmMmYGUZo5QcU65wvz9+XpDTAN38
+         v27YeEAlPllGLQDn3vr6hYQaNtOpEC8V2sljuYnAjLSO9aAoPw+sE60wS3HBxUW2CN
+         XOjZktiBtgY4rT2Y6LKlHxw7pLG5xRSyVnBAV3C0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org,
+        Shreeya Patel <shreeya.patel23498@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 048/199] nfsd: fix a warning in __cld_pipe_upcall()
-Date:   Thu, 19 Dec 2019 19:32:10 +0100
-Message-Id: <20191219183217.615536127@linuxfoundation.org>
+Subject: [PATCH 4.4 023/162] Staging: iio: adt7316: Fix i2c data reading, set the data field
+Date:   Thu, 19 Dec 2019 19:32:11 +0100
+Message-Id: <20191219183208.807901786@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Shreeya Patel <shreeya.patel23498@gmail.com>
 
-[ Upstream commit b493fd31c0b89d9453917e977002de58bebc3802 ]
+[ Upstream commit 688cd642ba0c393344c802647848da5f0d925d0e ]
 
-__cld_pipe_upcall() emits a "do not call blocking ops when
-!TASK_RUNNING" warning due to the dput() call in rpc_queue_upcall().
-Fix it by using a completion instead of hand coding the wait.
+adt7316_i2c_read function nowhere sets the data field.
+It is necessary to have an appropriate value for it.
+Hence, assign the value stored in 'ret' variable to data field.
 
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+This is an ancient bug, and as no one seems to have noticed,
+probably no sense in applying it to stable.
+
+Signed-off-by: Shreeya Patel <shreeya.patel23498@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4recover.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/staging/iio/addac/adt7316-i2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
-index 66eaeb1e8c2ce..dc9586feab317 100644
---- a/fs/nfsd/nfs4recover.c
-+++ b/fs/nfsd/nfs4recover.c
-@@ -661,7 +661,7 @@ struct cld_net {
- struct cld_upcall {
- 	struct list_head	 cu_list;
- 	struct cld_net		*cu_net;
--	struct task_struct	*cu_task;
-+	struct completion	 cu_done;
- 	struct cld_msg		 cu_msg;
- };
- 
-@@ -670,23 +670,18 @@ __cld_pipe_upcall(struct rpc_pipe *pipe, struct cld_msg *cmsg)
- {
- 	int ret;
- 	struct rpc_pipe_msg msg;
-+	struct cld_upcall *cup = container_of(cmsg, struct cld_upcall, cu_msg);
- 
- 	memset(&msg, 0, sizeof(msg));
- 	msg.data = cmsg;
- 	msg.len = sizeof(*cmsg);
- 
--	/*
--	 * Set task state before we queue the upcall. That prevents
--	 * wake_up_process in the downcall from racing with schedule.
--	 */
--	set_current_state(TASK_UNINTERRUPTIBLE);
- 	ret = rpc_queue_upcall(pipe, &msg);
- 	if (ret < 0) {
--		set_current_state(TASK_RUNNING);
- 		goto out;
+diff --git a/drivers/staging/iio/addac/adt7316-i2c.c b/drivers/staging/iio/addac/adt7316-i2c.c
+index 78fe0b5572802..fa1ef25d7a9a3 100644
+--- a/drivers/staging/iio/addac/adt7316-i2c.c
++++ b/drivers/staging/iio/addac/adt7316-i2c.c
+@@ -35,6 +35,8 @@ static int adt7316_i2c_read(void *client, u8 reg, u8 *data)
+ 		return ret;
  	}
  
--	schedule();
-+	wait_for_completion(&cup->cu_done);
- 
- 	if (msg.errno < 0)
- 		ret = msg.errno;
-@@ -753,7 +748,7 @@ cld_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
- 	if (copy_from_user(&cup->cu_msg, src, mlen) != 0)
- 		return -EFAULT;
- 
--	wake_up_process(cup->cu_task);
-+	complete(&cup->cu_done);
- 	return mlen;
++	*data = ret;
++
+ 	return 0;
  }
  
-@@ -768,7 +763,7 @@ cld_pipe_destroy_msg(struct rpc_pipe_msg *msg)
- 	if (msg->errno >= 0)
- 		return;
- 
--	wake_up_process(cup->cu_task);
-+	complete(&cup->cu_done);
- }
- 
- static const struct rpc_pipe_ops cld_upcall_ops = {
-@@ -899,7 +894,7 @@ restart_search:
- 			goto restart_search;
- 		}
- 	}
--	new->cu_task = current;
-+	init_completion(&new->cu_done);
- 	new->cu_msg.cm_vers = CLD_UPCALL_VERSION;
- 	put_unaligned(cn->cn_xid++, &new->cu_msg.cm_xid);
- 	new->cu_net = cn;
 -- 
 2.20.1
 
