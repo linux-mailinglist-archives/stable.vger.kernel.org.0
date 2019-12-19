@@ -2,38 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21F46126BA4
+	by mail.lfdr.de (Postfix) with ESMTP id 951E2126BA5
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730598AbfLSSzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:55:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50656 "EHLO mail.kernel.org"
+        id S1728422AbfLSSzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:55:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730596AbfLSSzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:55:00 -0500
+        id S1729849AbfLSSzD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:55:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75CC7206EC;
-        Thu, 19 Dec 2019 18:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC2B1222C2;
+        Thu, 19 Dec 2019 18:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781699;
-        bh=Be1O2j7Z4b1WMstvecL4tEM81NqtYVosdwqztphEMZw=;
+        s=default; t=1576781702;
+        bh=lxiLAwc3bq7yRsFDpS8Y/vXlzk3A1s79z7n/XxmpgZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vVbXIRG8GiS//HAnTBrW5aPAgYCLejA/4kB0AYlDrtiij+zknKS1gA1IbgpW4i3Fc
-         fV/YEx9WGsarhX+ays+d6CEQ8+bKFyF1peJ1tm0GJ0rUKH4ljnmJdhmJrbne+YrLMN
-         /pmRqUeTfbdCcQVD7DGoNBYSTZsYvnGSoCFqMNx4=
+        b=M04HltVi8w1WzySTFYCLneYGnfUjHaeOgfGU4jXb075J3ZmGFIkKipVVZuMFlMeqS
+         Shpd4BYLSo5gvTwCaJ1xSE008COi+3g+5EUt9+1KojMB0RTCADeWWJyr+YgLuzkRlv
+         BpEX40ap6iWS1dfdblQ4NdEdxvqHHpI7YjVhc6GA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Steven Price <steven.price@arm.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.4 45/80] drm/panfrost: Fix a race in panfrost_gem_free_object()
-Date:   Thu, 19 Dec 2019 19:34:37 +0100
-Message-Id: <20191219183113.201635558@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        John Donnelly <john.p.donnelly@oracle.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        "Y.C. Chen" <yc_chen@aspeedtech.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.4 46/80] drm/mgag200: Extract device type from flags
+Date:   Thu, 19 Dec 2019 19:34:38 +0100
+Message-Id: <20191219183113.297293802@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
 References: <20191219183031.278083125@linuxfoundation.org>
@@ -46,58 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-commit aed44cbeae2b7674cd155ba5cc6506aafe46a94e upstream.
+commit 3a8a5aba142a44eaeba0cb0ec1b4a8f177b5e59a upstream.
 
-panfrost_gem_shrinker_scan() might purge a BO (release the sgt and
-kill the GPU mapping) that's being freed by panfrost_gem_free_object()
-if we don't remove the BO from the shrinker list at the beginning of
-panfrost_gem_free_object().
+Adds a conversion function that extracts the device type from the
+PCI id-table flags. Allows for storing additional information in the
+other flag bits.
 
-Fixes: 013b65101315 ("drm/panfrost: Add madvise and shrinker support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Acked-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191129135908.2439529-5-boris.brezillon@collabora.com
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 81da87f63a1e ("drm: Replace drm_gem_vram_push_to_system() with kunmap + unpin")
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: John Donnelly <john.p.donnelly@oracle.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: "José Roberto de Souza" <jose.souza@intel.com>
+Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.3+
+Link: https://patchwork.freedesktop.org/patch/msgid/20191126101529.20356-2-tzimmermann@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/panfrost/panfrost_gem.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_drv.h  |    7 +++++++
+ drivers/gpu/drm/mgag200/mgag200_main.c |    2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -19,6 +19,16 @@ static void panfrost_gem_free_object(str
- 	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
- 	struct panfrost_device *pfdev = obj->dev->dev_private;
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.h
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+@@ -159,6 +159,8 @@ enum mga_type {
+ 	G200_EW3,
+ };
  
-+	/*
-+	 * Make sure the BO is no longer inserted in the shrinker list before
-+	 * taking care of the destruction itself. If we don't do that we have a
-+	 * race condition between this function and what's done in
-+	 * panfrost_gem_shrinker_scan().
-+	 */
-+	mutex_lock(&pfdev->shrinker_lock);
-+	list_del_init(&bo->base.madv_list);
-+	mutex_unlock(&pfdev->shrinker_lock);
++#define MGAG200_TYPE_MASK	(0x000000ff)
 +
- 	if (bo->sgts) {
- 		int i;
- 		int n_sgt = bo->base.base.size / SZ_2M;
-@@ -33,11 +43,6 @@ static void panfrost_gem_free_object(str
- 		kfree(bo->sgts);
- 	}
+ #define IS_G200_SE(mdev) (mdev->type == G200_SE_A || mdev->type == G200_SE_B)
  
--	mutex_lock(&pfdev->shrinker_lock);
--	if (!list_empty(&bo->base.madv_list))
--		list_del(&bo->base.madv_list);
--	mutex_unlock(&pfdev->shrinker_lock);
--
- 	drm_gem_shmem_free_object(obj);
- }
+ struct mga_device {
+@@ -188,6 +190,11 @@ struct mga_device {
+ 	u32 unique_rev_id;
+ };
  
++static inline enum mga_type
++mgag200_type_from_driver_data(kernel_ulong_t driver_data)
++{
++	return (enum mga_type)(driver_data & MGAG200_TYPE_MASK);
++}
+ 				/* mgag200_mode.c */
+ int mgag200_modeset_init(struct mga_device *mdev);
+ void mgag200_modeset_fini(struct mga_device *mdev);
+--- a/drivers/gpu/drm/mgag200/mgag200_main.c
++++ b/drivers/gpu/drm/mgag200/mgag200_main.c
+@@ -94,7 +94,7 @@ static int mgag200_device_init(struct dr
+ 	struct mga_device *mdev = dev->dev_private;
+ 	int ret, option;
+ 
+-	mdev->type = flags;
++	mdev->type = mgag200_type_from_driver_data(flags);
+ 
+ 	/* Hardcode the number of CRTCs to 1 */
+ 	mdev->num_crtc = 1;
 
 
