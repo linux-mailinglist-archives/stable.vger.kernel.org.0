@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33CF2126BA0
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01880126A9B
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:49:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730574AbfLSSyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:54:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
+        id S1729737AbfLSStI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:49:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729702AbfLSSyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:54:50 -0500
+        id S1729731AbfLSStH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5E95227BF;
-        Thu, 19 Dec 2019 18:54:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B227224676;
+        Thu, 19 Dec 2019 18:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781690;
-        bh=TRjs8bxBQvu1ekSCCmNtZ0zJVUQ5t1Naq2n7iuyAVjM=;
+        s=default; t=1576781347;
+        bh=tc9iaH0QKNlux55ZJu8yFPkzOJn+awv5dQxmAPwZQUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5XRWXWcekJIQFacQgjJC+EUf0tvE0x4J6HPiOMDm/vhXvBaLA+0ILMPCrm6C4hGn
-         49M08XZPLxTg0BaaEzW73KBcVR2gjI7pMgTlTzpStF42i4ezRoB7cIJW2YALGlJQmS
-         UXMjyGQThEcSJQMK3Td1/Y/bw0KVSZHPi+QdzdsY=
+        b=WP2oTLsi4y6qaJgvaCxfm9GVE6Id3Lxy/Iu3PCrGU9CDiUrpJgXrsV4g3YZrirP6G
+         E2qb7EBgPubQarM3MWxK0DG+igjukfwom4Ht96kLeij6Z5IhtkhUjXTTpciPtxyyil
+         nWaGEGYc4kcZWmh9o0lyyfizjXBHGFNYA47pBhys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 33/80] cifs: Dont display RDMA transport on reconnect
-Date:   Thu, 19 Dec 2019 19:34:25 +0100
-Message-Id: <20191219183106.105637638@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 184/199] tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
+Date:   Thu, 19 Dec 2019 19:34:26 +0100
+Message-Id: <20191219183225.848766336@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
-References: <20191219183031.278083125@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit 14cc639c17ab0b6671526a7459087352507609e4 upstream.
+[ Upstream commit 721c8dafad26ccfa90ff659ee19755e3377b829d ]
 
-On reconnect, the transport data structure is NULL and its information is not
-available.
+Syncookies borrow the ->rx_opt.ts_recent_stamp field to store the
+timestamp of the last synflood. Protect them with READ_ONCE() and
+WRITE_ONCE() since reads and writes aren't serialised.
 
-Signed-off-by: Long Li <longli@microsoft.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Use of .rx_opt.ts_recent_stamp for storing the synflood timestamp was
+introduced by a0f82f64e269 ("syncookies: remove last_synq_overflow from
+struct tcp_sock"). But unprotected accesses were already there when
+timestamp was stored in .last_synq_overflow.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/cifs/cifs_debug.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ include/net/tcp.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/cifs_debug.c
-+++ b/fs/cifs/cifs_debug.c
-@@ -256,6 +256,11 @@ static int cifs_debug_data_proc_show(str
- 		if (!server->rdma)
- 			goto skip_rdma;
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -494,17 +494,17 @@ struct sock *cookie_v4_check(struct sock
+  */
+ static inline void tcp_synq_overflow(const struct sock *sk)
+ {
+-	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
++	unsigned long last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
+ 	unsigned long now = jiffies;
  
-+		if (!server->smbd_conn) {
-+			seq_printf(m, "\nSMBDirect transport not available");
-+			goto skip_rdma;
-+		}
-+
- 		seq_printf(m, "\nSMBDirect (in hex) protocol version: %x "
- 			"transport status: %x",
- 			server->smbd_conn->protocol,
+ 	if (!time_between32(now, last_overflow, last_overflow + HZ))
+-		tcp_sk(sk)->rx_opt.ts_recent_stamp = now;
++		WRITE_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp, now);
+ }
+ 
+ /* syncookies: no recent synqueue overflow on this listening socket? */
+ static inline bool tcp_synq_no_recent_overflow(const struct sock *sk)
+ {
+-	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
++	unsigned long last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
+ 
+ 	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
+ 	 * then we're under synflood. However, we have to use
 
 
