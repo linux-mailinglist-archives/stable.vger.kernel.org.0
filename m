@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A8B1126954
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FDA8126A1F
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:44:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727016AbfLSSgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:36:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53684 "EHLO mail.kernel.org"
+        id S1728755AbfLSSoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:44:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727126AbfLSSgg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:36:36 -0500
+        id S1728966AbfLSSoT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B81F924686;
-        Thu, 19 Dec 2019 18:36:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08FE124672;
+        Thu, 19 Dec 2019 18:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780596;
-        bh=3VX1Wbcb6ISk8Q1g7+T6f6LdT3PmIWkQFNwukL2Wgp4=;
+        s=default; t=1576781058;
+        bh=NzS+thb2zRhKzX02D+ejkXOi1iRJq/6D5XAXZ6VOCSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpV3ZNWi14M06KLX6vhQzTlLLQFPNZzziGur7wpkUhJarBWxv4lJQv4S4waIQPGCv
-         sk+FMYQNz2ddkvahfMZsoVMUXPNGZU9qaLWN2uuuObJeo/H1BF6D85q1Tvly2Lh3qs
-         LSo6xfvpINILhbmWKv/jeUxDd5Le5hyb+qH5ZSgw=
+        b=0e566Pxn3cKxX5R9OJ1tIxkOaxiZTlsTHj2F4VsETZbcbz7JDqf65ihJADeaUq2vT
+         /zuIbM/ty4Tq5zkgFF8sy6ZItOipqvobIeYl3i+07kjmhZxfqQBuEOruyhnCakp9bk
+         n0RfXeu4KGqs9fPirl9sDYmXEumTKXIzSm5Y+k+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Tony Lindgren <tony@atomide.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 039/162] ARM: OMAP1/2: fix SoC name printing
+Subject: [PATCH 4.9 065/199] MIPS: OCTEON: cvmx_pko_mem_debug8: use oldest forward compatible definition
 Date:   Thu, 19 Dec 2019 19:32:27 +0100
-Message-Id: <20191219183210.235292074@linuxfoundation.org>
+Message-Id: <20191219183218.605427662@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +48,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Aaro Koskinen <aaro.koskinen@iki.fi>
 
-[ Upstream commit 04a92358b3964988c78dfe370a559ae550383886 ]
+[ Upstream commit 1c6121c39677175bd372076020948e184bad4b6b ]
 
-Currently we get extra newlines on OMAP1/2 when the SoC name is printed:
-
-[    0.000000] OMAP1510
-[    0.000000]  revision 2 handled as 15xx id: bc058c9b93111a16
-
-[    0.000000] OMAP2420
-[    0.000000]
-
-Fix by using pr_cont.
+cn58xx is compatible with cn50xx, so use the latter.
 
 Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+[paul.burton@mips.com: s/cn52xx/cn50xx/ in commit message.]
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/id.c | 6 +++---
- arch/arm/mach-omap2/id.c | 4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c | 2 +-
+ arch/mips/include/asm/octeon/cvmx-pko.h            | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-omap1/id.c b/arch/arm/mach-omap1/id.c
-index 52de382fc8047..7e49dfda3d2f4 100644
---- a/arch/arm/mach-omap1/id.c
-+++ b/arch/arm/mach-omap1/id.c
-@@ -200,10 +200,10 @@ void __init omap_check_revision(void)
- 		printk(KERN_INFO "Unknown OMAP cpu type: 0x%02x\n", cpu_type);
+diff --git a/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c b/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c
+index 8241fc6aa17d8..3839feba68f20 100644
+--- a/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c
++++ b/arch/mips/cavium-octeon/executive/cvmx-cmd-queue.c
+@@ -266,7 +266,7 @@ int cvmx_cmd_queue_length(cvmx_cmd_queue_id_t queue_id)
+ 		} else {
+ 			union cvmx_pko_mem_debug8 debug8;
+ 			debug8.u64 = cvmx_read_csr(CVMX_PKO_MEM_DEBUG8);
+-			return debug8.cn58xx.doorbell;
++			return debug8.cn50xx.doorbell;
+ 		}
+ 	case CVMX_CMD_QUEUE_ZIP:
+ 	case CVMX_CMD_QUEUE_DFA:
+diff --git a/arch/mips/include/asm/octeon/cvmx-pko.h b/arch/mips/include/asm/octeon/cvmx-pko.h
+index 5f47f76ed510a..20eb9c46a75ab 100644
+--- a/arch/mips/include/asm/octeon/cvmx-pko.h
++++ b/arch/mips/include/asm/octeon/cvmx-pko.h
+@@ -611,7 +611,7 @@ static inline void cvmx_pko_get_port_status(uint64_t port_num, uint64_t clear,
+ 		pko_reg_read_idx.s.index = cvmx_pko_get_base_queue(port_num);
+ 		cvmx_write_csr(CVMX_PKO_REG_READ_IDX, pko_reg_read_idx.u64);
+ 		debug8.u64 = cvmx_read_csr(CVMX_PKO_MEM_DEBUG8);
+-		status->doorbell = debug8.cn58xx.doorbell;
++		status->doorbell = debug8.cn50xx.doorbell;
  	}
- 
--	printk(KERN_INFO "OMAP%04x", omap_revision >> 16);
-+	pr_info("OMAP%04x", omap_revision >> 16);
- 	if ((omap_revision >> 8) & 0xff)
--		printk(KERN_INFO "%x", (omap_revision >> 8) & 0xff);
--	printk(KERN_INFO " revision %i handled as %02xxx id: %08x%08x\n",
-+		pr_cont("%x", (omap_revision >> 8) & 0xff);
-+	pr_cont(" revision %i handled as %02xxx id: %08x%08x\n",
- 	       die_rev, omap_revision & 0xff, system_serial_low,
- 	       system_serial_high);
- }
-diff --git a/arch/arm/mach-omap2/id.c b/arch/arm/mach-omap2/id.c
-index 8a2ae82cb2271..9651872a9e091 100644
---- a/arch/arm/mach-omap2/id.c
-+++ b/arch/arm/mach-omap2/id.c
-@@ -199,8 +199,8 @@ void __init omap2xxx_check_revision(void)
- 
- 	pr_info("%s", soc_name);
- 	if ((omap_rev() >> 8) & 0x0f)
--		pr_info("%s", soc_rev);
--	pr_info("\n");
-+		pr_cont("%s", soc_rev);
-+	pr_cont("\n");
  }
  
- #define OMAP3_SHOW_FEATURE(feat)		\
 -- 
 2.20.1
 
