@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3065126994
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C60126998
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:39:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727664AbfLSSjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:39:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57286 "EHLO mail.kernel.org"
+        id S1728184AbfLSSjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:39:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727845AbfLSSjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:39:09 -0500
+        id S1727467AbfLSSjR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:39:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80A1D222C2;
-        Thu, 19 Dec 2019 18:39:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C704C24684;
+        Thu, 19 Dec 2019 18:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780749;
-        bh=pOaiTSfXfkzb4yCkG99q6kYmRc3WfbW5SLo/nngysWg=;
+        s=default; t=1576780756;
+        bh=nooujZ1DsWjnhi4o+/CzvbZ/9qJ5W2ZL6euaFzbSMVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKbN3QlA20O6/IXaYeioVqnbZ7+7UoW43ehBHpN0goFQbSUlgYEUoWaAYtr7vDP3i
-         eKRNT9KLs/X62Yw2ye2ZTGNmstiFN6kHIzRHht+hyYmommBSZTiw7ML2WVnkE+uxq7
-         8pAfuPhyALY0I4e42AdHx9s0kueAca6xcYoU7NOo=
+        b=ZT978HC3MoLoyYqrAF8Q02qjUCvlSXGJ4VhmigcgkRlQDgSQ3VPtu1Lv85PMKPtCK
+         ZBZ9Xc0orYuuxbd9LAskLOvCgQ20oulJYVL8/3JDoi8h/7O2H6tZfykJGST/fB+GIU
+         xBJXpirgMd10gPhFF7LfIGVvnHWGgG0xQQnd9TpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.4 100/162] btrfs: Remove btrfs_bio::flags member
-Date:   Thu, 19 Dec 2019 19:33:28 +0100
-Message-Id: <20191219183213.864044070@linuxfoundation.org>
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 103/162] rtlwifi: rtl8192de: Fix missing enable interrupt flag
+Date:   Thu, 19 Dec 2019 19:33:31 +0100
+Message-Id: <20191219183214.037943358@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -43,36 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 34b127aecd4fe8e6a3903e10f204a7b7ffddca22 upstream.
+commit 330bb7117101099c687e9c7f13d48068670b9c62 upstream.
 
-The last user of btrfs_bio::flags was removed in commit 326e1dbb5736
-("block: remove management of bi_remaining when restoring original
-bi_end_io"), remove it.
+In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
+new drivers"), the flag that indicates that interrupts are enabled was
+never set.
 
-(Tagged for stable as the structure is heavily used and space savings
-are desirable.)
+In addition, there are several places when enable/disable interrupts
+were commented out are restored. A sychronize_interrupts() call is
+removed.
 
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
+Cc: Stable <stable@vger.kernel.org>	# v3.18+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.h |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/hw.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/volumes.h
-+++ b/fs/btrfs/volumes.h
-@@ -312,7 +312,6 @@ struct btrfs_bio {
- 	u64 map_type; /* get from map_lookup->type */
- 	bio_end_io_t *end_io;
- 	struct bio *orig_bio;
--	unsigned long flags;
- 	void *private;
- 	atomic_t error;
- 	int max_errors;
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/hw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/hw.c
+@@ -1206,6 +1206,7 @@ void rtl92de_enable_interrupt(struct iee
+ 
+ 	rtl_write_dword(rtlpriv, REG_HIMR, rtlpci->irq_mask[0] & 0xFFFFFFFF);
+ 	rtl_write_dword(rtlpriv, REG_HIMRE, rtlpci->irq_mask[1] & 0xFFFFFFFF);
++	rtlpci->irq_enabled = true;
+ }
+ 
+ void rtl92de_disable_interrupt(struct ieee80211_hw *hw)
+@@ -1215,7 +1216,7 @@ void rtl92de_disable_interrupt(struct ie
+ 
+ 	rtl_write_dword(rtlpriv, REG_HIMR, IMR8190_DISABLED);
+ 	rtl_write_dword(rtlpriv, REG_HIMRE, IMR8190_DISABLED);
+-	synchronize_irq(rtlpci->pdev->irq);
++	rtlpci->irq_enabled = false;
+ }
+ 
+ static void _rtl92de_poweroff_adapter(struct ieee80211_hw *hw)
+@@ -1386,7 +1387,7 @@ void rtl92de_set_beacon_related_register
+ 
+ 	bcn_interval = mac->beacon_interval;
+ 	atim_window = 2;
+-	/*rtl92de_disable_interrupt(hw);  */
++	rtl92de_disable_interrupt(hw);
+ 	rtl_write_word(rtlpriv, REG_ATIMWND, atim_window);
+ 	rtl_write_word(rtlpriv, REG_BCN_INTERVAL, bcn_interval);
+ 	rtl_write_word(rtlpriv, REG_BCNTCFG, 0x660f);
+@@ -1406,9 +1407,9 @@ void rtl92de_set_beacon_interval(struct
+ 
+ 	RT_TRACE(rtlpriv, COMP_BEACON, DBG_DMESG,
+ 		 "beacon_interval:%d\n", bcn_interval);
+-	/* rtl92de_disable_interrupt(hw); */
++	rtl92de_disable_interrupt(hw);
+ 	rtl_write_word(rtlpriv, REG_BCN_INTERVAL, bcn_interval);
+-	/* rtl92de_enable_interrupt(hw); */
++	rtl92de_enable_interrupt(hw);
+ }
+ 
+ void rtl92de_update_interrupt_mask(struct ieee80211_hw *hw,
 
 
