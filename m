@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F7A126CD0
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 711D5126CD2
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbfLSSo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:44:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36482 "EHLO mail.kernel.org"
+        id S1728979AbfLSTGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:06:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728216AbfLSSo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:44:29 -0500
+        id S1728985AbfLSSob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDB6024672;
-        Thu, 19 Dec 2019 18:44:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4174F24679;
+        Thu, 19 Dec 2019 18:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781068;
-        bh=+YAmTaND9wQX1INLoAIes12pJjrdbmC96OQLhzaGlPk=;
+        s=default; t=1576781070;
+        bh=1MPMx1l2YY6G49X7p5LPea+7hTic56kzUOXi0+eR7lU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQNQjzqtyXb8ykuH6kEzfIFD7mcodjoK9bdJdbUwjQDbTxXChsbpsqXBDhrOQQ8Uz
-         uMFw0J0O5Am/7nF6obcTVmE0QOx3RQrNa9Cmo6r2ksgA2s60NgZSMbRQN0nVdeuuEb
-         vxP/3VEr9+wBCZ/PVxt8FmGkwFPolJnmfLQJRmas=
+        b=t9PJ19ZD1cKrgPnIi3j6Swym6smRDGk/snD3mOthVy9DL/abq5ICOfw0fMhcZ6NaQ
+         hivmTJjEYgkpcW9WIaxBNwMLT41+CdxZaWrFTtge0FknR3KU9Su8XGvdlTjOQvvLZy
+         VDheeLatzw1IrUijKNeAHXJi0uykUvbNSKLRcnb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Pape <ap@ca-pape.de>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Qian Cai <cai@gmx.us>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 068/199] media: stkwebcam: Bugfix for wrong return values
-Date:   Thu, 19 Dec 2019 19:32:30 +0100
-Message-Id: <20191219183218.762617898@linuxfoundation.org>
+Subject: [PATCH 4.9 069/199] mlx4: Use snprintf instead of complicated strcpy
+Date:   Thu, 19 Dec 2019 19:32:31 +0100
+Message-Id: <20191219183218.814817462@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -45,40 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Pape <ap@ca-pape.de>
+From: Qian Cai <cai@gmx.us>
 
-[ Upstream commit 3c28b91380dd1183347d32d87d820818031ebecf ]
+[ Upstream commit 0fbc9b8b4ea3f688a5da141a64f97aa33ad02ae9 ]
 
-usb_control_msg returns in case of a successfully sent message the number
-of sent bytes as a positive number. Don't use this value as a return value
-for stk_camera_read_reg, as a non-zero return value is used as an error
-condition in some cases when stk_camera_read_reg is called.
+This fixes a compilation warning in sysfs.c
 
-Signed-off-by: Andreas Pape <ap@ca-pape.de>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+drivers/infiniband/hw/mlx4/sysfs.c:360:2: warning: 'strncpy' output may be
+truncated copying 8 bytes from a string of length 31
+[-Wstringop-truncation]
+
+By eliminating the temporary stack buffer.
+
+Signed-off-by: Qian Cai <cai@gmx.us>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx4/sysfs.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/usb/stkwebcam/stk-webcam.c b/drivers/media/usb/stkwebcam/stk-webcam.c
-index 7297fd261df94..f9844f87467b4 100644
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -166,7 +166,11 @@ int stk_camera_read_reg(struct stk_camera *dev, u16 index, u8 *value)
- 		*value = *buf;
+diff --git a/drivers/infiniband/hw/mlx4/sysfs.c b/drivers/infiniband/hw/mlx4/sysfs.c
+index 69fb5ba94d0f2..19caacd26f61a 100644
+--- a/drivers/infiniband/hw/mlx4/sysfs.c
++++ b/drivers/infiniband/hw/mlx4/sysfs.c
+@@ -352,16 +352,12 @@ err:
  
- 	kfree(buf);
--	return ret;
-+
-+	if (ret < 0)
-+		return ret;
-+	else
-+		return 0;
+ static void get_name(struct mlx4_ib_dev *dev, char *name, int i, int max)
+ {
+-	char base_name[9];
+-
+-	/* pci_name format is: bus:dev:func -> xxxx:yy:zz.n */
+-	strlcpy(name, pci_name(dev->dev->persist->pdev), max);
+-	strncpy(base_name, name, 8); /*till xxxx:yy:*/
+-	base_name[8] = '\0';
+-	/* with no ARI only 3 last bits are used so when the fn is higher than 8
++	/* pci_name format is: bus:dev:func -> xxxx:yy:zz.n
++	 * with no ARI only 3 last bits are used so when the fn is higher than 8
+ 	 * need to add it to the dev num, so count in the last number will be
+ 	 * modulo 8 */
+-	sprintf(name, "%s%.2d.%d", base_name, (i/8), (i%8));
++	snprintf(name, max, "%.8s%.2d.%d", pci_name(dev->dev->persist->pdev),
++		 i / 8, i % 8);
  }
  
- static int stk_start_stream(struct stk_camera *dev)
+ struct mlx4_port {
 -- 
 2.20.1
 
