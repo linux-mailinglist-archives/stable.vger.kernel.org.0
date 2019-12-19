@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECBF91269F1
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:42:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CBAC12692F
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:35:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728724AbfLSSmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:42:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33956 "EHLO mail.kernel.org"
+        id S1726981AbfLSSfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:35:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728722AbfLSSmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:42:38 -0500
+        id S1726840AbfLSSfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:35:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89D9924672;
-        Thu, 19 Dec 2019 18:42:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 470D4222C2;
+        Thu, 19 Dec 2019 18:35:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780958;
-        bh=NFaUdtNMTJbLwLHPMDyZJswPRj1T5In7yyI5roXQVrU=;
+        s=default; t=1576780522;
+        bh=HbKxxugpZirVwNnEh78pfGb/jb0v+Y2FkH2TKXKjbsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rf2L8CDdMtd6YOacPVMAtmLm3/cMe5WsEvqHK7qaQBOGGV1WGX+owolU8Tup6n+3j
-         2NjE8flqeYRpv4YqvQGh+EaP+jf8s4IpATWjya2q8NY/bl3L6tqGJBWFH1otHZnEh8
-         CcRxpgM/HpF9GRSTEhpYxc5hMU4YW5MISWbtl3xw=
+        b=raGgkjWRH5FRMIdW4d5jwNFTIc88z1m9M5O6dMqa09e58w2AmxE5/GEjYuUI+mAJ5
+         KErBdlBKeuEYph2zh6DH5VufYP9y9sxG5+3Iyu9/h1CZe3tfXrfLfi8YVvDlYpahsX
+         bd9Pr8s221QuSdPm0InUL9cUUW/45DZr9EIvmisE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 024/199] clk: rockchip: fix rk3188 sclk_mac_lbtest parameter ordering
-Date:   Thu, 19 Dec 2019 19:31:46 +0100
-Message-Id: <20191219183216.147483846@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Richard Narron <comet.berkeley@gmail.com>
+Subject: [PATCH 4.4 001/162] x86/apic/32: Avoid bogus LDR warnings
+Date:   Thu, 19 Dec 2019 19:31:49 +0100
+Message-Id: <20191219183152.151951186@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,37 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Stuebner <heiko@sntech.de>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit ac8cb53829a6ba119082e067f5bc8fab3611ce6a ]
+commit fe6f85ca121e9c74e7490fe66b0c5aae38e332c3 upstream.
 
-Similar to commit a9f0c0e56371 ("clk: rockchip: fix rk3188 sclk_smc
-gate data") there is one other gate clock in the rk3188 clock driver
-with a similar wrong ordering, the sclk_mac_lbtest. So fix it as well.
+The removal of the LDR initialization in the bigsmp_32 APIC code unearthed
+a problem in setup_local_APIC().
 
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The code checks unconditionally for a mismatch of the logical APIC id by
+comparing the early APIC id which was initialized in get_smp_config() with
+the actual LDR value in the APIC.
+
+Due to the removal of the bogus LDR initialization the check now can
+trigger on bigsmp_32 APIC systems emitting a warning for every booting
+CPU. This is of course a false positive because the APIC is not using
+logical destination mode.
+
+Restrict the check and the possibly resulting fixup to systems which are
+actually using the APIC in logical destination mode.
+
+[ tglx: Massaged changelog and added Cc stable ]
+
+Fixes: bae3a8d3308 ("x86/apic: Do not initialize LDR and DFR for bigsmp")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/666d8f91-b5a8-1afd-7add-821e72a35f03@suse.com
+[ comet.berkeley: Backported to 4.4: adjust context ]
+Signed-off-by: Richard Narron <comet.berkeley@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/rockchip/clk-rk3188.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/apic/apic.c |   25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/clk/rockchip/clk-rk3188.c b/drivers/clk/rockchip/clk-rk3188.c
-index a4c49906acf2c..d62031eedbe64 100644
---- a/drivers/clk/rockchip/clk-rk3188.c
-+++ b/drivers/clk/rockchip/clk-rk3188.c
-@@ -361,8 +361,8 @@ static struct rockchip_clk_branch common_clk_branches[] __initdata = {
- 			RK2928_CLKGATE_CON(2), 5, GFLAGS),
- 	MUX(SCLK_MAC, "sclk_macref", mux_sclk_macref_p, CLK_SET_RATE_PARENT,
- 			RK2928_CLKSEL_CON(21), 4, 1, MFLAGS),
--	GATE(0, "sclk_mac_lbtest", "sclk_macref",
--			RK2928_CLKGATE_CON(2), 12, 0, GFLAGS),
-+	GATE(0, "sclk_mac_lbtest", "sclk_macref", 0,
-+			RK2928_CLKGATE_CON(2), 12, GFLAGS),
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1298,16 +1298,21 @@ void setup_local_APIC(void)
+ 	apic->init_apic_ldr();
  
- 	COMPOSITE(0, "hsadc_src", mux_pll_src_gpll_cpll_p, 0,
- 			RK2928_CLKSEL_CON(22), 0, 1, MFLAGS, 8, 8, DFLAGS,
--- 
-2.20.1
-
+ #ifdef CONFIG_X86_32
+-	/*
+-	 * APIC LDR is initialized.  If logical_apicid mapping was
+-	 * initialized during get_smp_config(), make sure it matches the
+-	 * actual value.
+-	 */
+-	i = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
+-	WARN_ON(i != BAD_APICID && i != logical_smp_processor_id());
+-	/* always use the value from LDR */
+-	early_per_cpu(x86_cpu_to_logical_apicid, cpu) =
+-		logical_smp_processor_id();
++	if (apic->dest_logical) {
++		int logical_apicid, ldr_apicid;
++
++		/*
++		 * APIC LDR is initialized.  If logical_apicid mapping was
++		 * initialized during get_smp_config(), make sure it matches
++		 * the actual value.
++		 */
++		logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
++		ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
++		if (logical_apicid != BAD_APICID)
++			WARN_ON(logical_apicid != ldr_apicid);
++		/* Always use the value from LDR. */
++		early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
++	}
+ #endif
+ 
+ 	/*
 
 
