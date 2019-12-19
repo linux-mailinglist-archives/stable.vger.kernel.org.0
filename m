@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F5231269DA
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46FC3126BE4
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728569AbfLSSlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60722 "EHLO mail.kernel.org"
+        id S1728887AbfLSSwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:52:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728560AbfLSSli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:41:38 -0500
+        id S1730283AbfLSSwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:52:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED544206D7;
-        Thu, 19 Dec 2019 18:41:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B1482468A;
+        Thu, 19 Dec 2019 18:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780897;
-        bh=GqAFOTv0a9RtHQ56hi09qCi4T7GetSCA3QHzEhxSVjs=;
+        s=default; t=1576781564;
+        bh=1PxvcWMoJDi7qVwBIOeTcemwFDTFkq4tPGTvQHkT/QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9HmRLRdVlp4sVrblvg52nnFF1TqtknATTrAO41RuKL9Il4Ik6CmELPtqWpXBsQtw
-         1D9+fP6/V6LnKQ6++89jryzRhf1HuhbAm/yi7CfdF0ok4yFzEdsttwt7JSNGncTXvh
-         HZgGEJXWa/5jEEk849Naf8CnbofXVO40y+Fohk64=
+        b=giJxS7pkkUIe8Ag1ZmiFiGi/Id8B0GlhROR5lw3BZkYVywAYUf6jfCheAKtlpkhWg
+         FX7hclBTJ/QmbFxuwcxAi3pszGHzxO/myHmYb0MJ3Gc+hOVj7Aer1CD3c3VvGs7i8W
+         RlsxOpmYuA4HHaJi4xCsWPB8NGaYlls49/cB8/YA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.4 153/162] xtensa: fix TLB sanity checker
-Date:   Thu, 19 Dec 2019 19:34:21 +0100
-Message-Id: <20191219183217.085516474@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Conole <aconole@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 08/47] openvswitch: support asymmetric conntrack
+Date:   Thu, 19 Dec 2019 19:34:22 +0100
+Message-Id: <20191219182903.506958631@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
+References: <20191219182857.659088743@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Aaron Conole <aconole@redhat.com>
 
-commit 36de10c4788efc6efe6ff9aa10d38cb7eea4c818 upstream.
+[ Upstream commit 5d50aa83e2c8e91ced2cca77c198b468ca9210f4 ]
 
-Virtual and translated addresses retrieved by the xtensa TLB sanity
-checker must be consistent, i.e. correspond to the same state of the
-checked TLB entry. KASAN shadow memory is mapped dynamically using
-auto-refill TLB entries and thus may change TLB state between the
-virtual and translated address retrieval, resulting in false TLB
-insanity report.
-Move read_xtlb_translation close to read_xtlb_virtual to make sure that
-read values are consistent.
+The openvswitch module shares a common conntrack and NAT infrastructure
+exposed via netfilter.  It's possible that a packet needs both SNAT and
+DNAT manipulation, due to e.g. tuple collision.  Netfilter can support
+this because it runs through the NAT table twice - once on ingress and
+again after egress.  The openvswitch module doesn't have such capability.
 
-Cc: stable@vger.kernel.org
-Fixes: a99e07ee5e88 ("xtensa: check TLB sanity on return to userspace")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Like netfilter hook infrastructure, we should run through NAT twice to
+keep the symmetry.
+
+Fixes: 05752523e565 ("openvswitch: Interface with NAT.")
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/xtensa/mm/tlb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/openvswitch/conntrack.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/xtensa/mm/tlb.c
-+++ b/arch/xtensa/mm/tlb.c
-@@ -218,6 +218,8 @@ static int check_tlb_entry(unsigned w, u
- 	unsigned tlbidx = w | (e << PAGE_SHIFT);
- 	unsigned r0 = dtlb ?
- 		read_dtlb_virtual(tlbidx) : read_itlb_virtual(tlbidx);
-+	unsigned r1 = dtlb ?
-+		read_dtlb_translation(tlbidx) : read_itlb_translation(tlbidx);
- 	unsigned vpn = (r0 & PAGE_MASK) | (e << PAGE_SHIFT);
- 	unsigned pte = get_pte_for_vaddr(vpn);
- 	unsigned mm_asid = (get_rasid_register() >> 8) & ASID_MASK;
-@@ -233,8 +235,6 @@ static int check_tlb_entry(unsigned w, u
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -897,6 +897,17 @@ static int ovs_ct_nat(struct net *net, s
  	}
+ 	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype);
  
- 	if (tlb_asid == mm_asid) {
--		unsigned r1 = dtlb ? read_dtlb_translation(tlbidx) :
--			read_itlb_translation(tlbidx);
- 		if ((pte ^ r1) & PAGE_MASK) {
- 			pr_err("%cTLB: way: %u, entry: %u, mapping: %08x->%08x, PTE: %08x\n",
- 					dtlb ? 'D' : 'I', w, e, r0, r1, pte);
++	if (err == NF_ACCEPT &&
++	    ct->status & IPS_SRC_NAT && ct->status & IPS_DST_NAT) {
++		if (maniptype == NF_NAT_MANIP_SRC)
++			maniptype = NF_NAT_MANIP_DST;
++		else
++			maniptype = NF_NAT_MANIP_SRC;
++
++		err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
++					 maniptype);
++	}
++
+ 	/* Mark NAT done if successful and update the flow key. */
+ 	if (err == NF_ACCEPT)
+ 		ovs_nat_update_key(key, skb, maniptype);
 
 
