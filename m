@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57D50126D42
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E258E126D41
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727604AbfLSSkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58810 "EHLO mail.kernel.org"
+        id S1727967AbfLSTJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:09:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727070AbfLSSkM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:12 -0500
+        id S1728026AbfLSSkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54174206D7;
-        Thu, 19 Dec 2019 18:40:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4D4124682;
+        Thu, 19 Dec 2019 18:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780811;
-        bh=dKgJsCTSUmbtavJ0CaPjre5DnKmiGld9hyTZB+L+Pek=;
+        s=default; t=1576780819;
+        bh=UtmX9GiSmxXu/9EaoD1243Db0uC3Xo+gs5g7A8/UcsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIE9yA97ENnXaeDx04wV8k8wjy8ubLdc88NxoU3GRkBOVDzQtdc7sUjcy3ssugdEe
-         lqN11WAWln9yy9EJgyK1MzGtl6043yzI0ls41OPKpXNVvS9B2PNL7JmCrsYKhiDDhB
-         mJ3EePH410gVItDxZPidbYpk5lBXDoQfG2To9GuQ=
+        b=vqncGjWuKi/fLpHIQS2be4zVK6Eb7WRA3U6dLVnhO0MKaxrN/n2rJq8Y+gT0UwH0E
+         q1BENUwo0V6UQlJ4zCeeD2jKV8z0x4vMKOF4WtfPZQ4IsSb4R2Fi+lMQPei+drkQtS
+         JCcZFV2O3yXz8YKl1zUYKqZPobhwgp05JZiGIDsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 128/162] Btrfs: fix negative subv_writers counter and data space leak after buffered write
-Date:   Thu, 19 Dec 2019 19:33:56 +0100
-Message-Id: <20191219183215.570080109@linuxfoundation.org>
+Subject: [PATCH 4.4 130/162] e100: Fix passing zero to PTR_ERR warning in e100_load_ucode_wait
+Date:   Thu, 19 Dec 2019 19:33:58 +0100
+Message-Id: <20191219183215.686862734@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -45,88 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit a0e248bb502d5165b3314ac3819e888fdcdf7d9f ]
+[ Upstream commit cd0d465bb697a9c7bf66a9fe940f7981232f1676 ]
 
-When doing a buffered write it's possible to leave the subv_writers
-counter of the root, used for synchronization between buffered nocow
-writers and snapshotting. This happens in an exceptional case like the
-following:
+Fix a static code checker warning:
+drivers/net/ethernet/intel/e100.c:1349
+ e100_load_ucode_wait() warn: passing zero to 'PTR_ERR'
 
-1) We fail to allocate data space for the write, since there's not
-   enough available data space nor enough unallocated space for allocating
-   a new data block group;
-
-2) Because of that failure, we try to go to NOCOW mode, which succeeds
-   and therefore we set the local variable 'only_release_metadata' to true
-   and set the root's sub_writers counter to 1 through the call to
-   btrfs_start_write_no_snapshotting() made by check_can_nocow();
-
-3) The call to btrfs_copy_from_user() returns zero, which is very unlikely
-   to happen but not impossible;
-
-4) No pages are copied because btrfs_copy_from_user() returned zero;
-
-5) We call btrfs_end_write_no_snapshotting() which decrements the root's
-   subv_writers counter to 0;
-
-6) We don't set 'only_release_metadata' back to 'false' because we do
-   it only if 'copied', the value returned by btrfs_copy_from_user(), is
-   greater than zero;
-
-7) On the next iteration of the while loop, which processes the same
-   page range, we are now able to allocate data space for the write (we
-   got enough data space released in the meanwhile);
-
-8) After this if we fail at btrfs_delalloc_reserve_metadata(), because
-   now there isn't enough free metadata space, or in some other place
-   further below (prepare_pages(), lock_and_cleanup_extent_if_need(),
-   btrfs_dirty_pages()), we break out of the while loop with
-   'only_release_metadata' having a value of 'true';
-
-9) Because 'only_release_metadata' is 'true' we end up decrementing the
-   root's subv_writers counter to -1 (through a call to
-   btrfs_end_write_no_snapshotting()), and we also end up not releasing the
-   data space previously reserved through btrfs_check_data_free_space().
-   As a consequence the mechanism for synchronizing NOCOW buffered writes
-   with snapshotting gets broken.
-
-Fix this by always setting 'only_release_metadata' to false at the start
-of each iteration.
-
-Fixes: 8257b2dc3c1a ("Btrfs: introduce btrfs_{start, end}_nocow_write() for each subvolume")
-Fixes: 7ee9e4405f26 ("Btrfs: check if we can nocow if we don't have data space")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e100.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index d056060529f81..73b547f88bfca 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -1525,6 +1525,7 @@ static noinline ssize_t __btrfs_buffered_write(struct file *file,
- 		}
+diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
+index 068789e694c9b..93c29094ceff9 100644
+--- a/drivers/net/ethernet/intel/e100.c
++++ b/drivers/net/ethernet/intel/e100.c
+@@ -1370,8 +1370,8 @@ static inline int e100_load_ucode_wait(struct nic *nic)
  
- 		reserve_bytes = num_pages << PAGE_CACHE_SHIFT;
-+		only_release_metadata = false;
+ 	fw = e100_request_firmware(nic);
+ 	/* If it's NULL, then no ucode is required */
+-	if (!fw || IS_ERR(fw))
+-		return PTR_ERR(fw);
++	if (IS_ERR_OR_NULL(fw))
++		return PTR_ERR_OR_ZERO(fw);
  
- 		if ((BTRFS_I(inode)->flags & (BTRFS_INODE_NODATACOW |
- 					      BTRFS_INODE_PREALLOC)) &&
-@@ -1659,7 +1660,6 @@ again:
- 			set_extent_bit(&BTRFS_I(inode)->io_tree, lockstart,
- 				       lockend, EXTENT_NORESERVE, NULL,
- 				       NULL, GFP_NOFS);
--			only_release_metadata = false;
- 		}
- 
- 		btrfs_drop_pages(pages, num_pages);
+ 	if ((err = e100_exec_cb(nic, (void *)fw, e100_setup_ucode)))
+ 		netif_err(nic, probe, nic->netdev,
 -- 
 2.20.1
 
