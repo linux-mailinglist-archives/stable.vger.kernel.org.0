@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46496126BCC
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B8B126B16
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:54:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730253AbfLSSxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:53:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48850 "EHLO mail.kernel.org"
+        id S1730235AbfLSSxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:53:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730243AbfLSSxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:53:41 -0500
+        id S1728433AbfLSSxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:53:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B54A20674;
-        Thu, 19 Dec 2019 18:53:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF46C227BF;
+        Thu, 19 Dec 2019 18:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781619;
-        bh=Uj9E8kuIcuJcaFvwCz3724I4GeY3wXgkV4YygOur5hA=;
+        s=default; t=1576781622;
+        bh=dMGkbPFe123XI7GBxfT6EbFpYp1DKEsZBNIpCaq7Lbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NtXcLJLaNKN576itynnB9PuaeoJ+5m9mdL01gix3LUk1fvjX2GZQliGs6WxIKxWKF
-         xqKBIZ2lQXTXIh+P6k2E6U6zU3IEaHyWZs3un5YnxxlcgVyeqLqcYS/Hg1uurJz93x
-         khohwbJQKhn8BavZeAjqqhgUENw3s9A3ti/vaDCc=
+        b=UdJuIduz8q8fkxhBGv7mTURK6wicVBFDZkakU7jFGkUsfcaBbgyuYsSZCY2PExoDR
+         gbL5m4PB4P+9b64bczcmPXwAclCJ/URS609nvcGE7u5hDx9cAy1YRn5BkSbkdR8MwM
+         3LWroxUzv9AJ7cma+gc6Jf6lQgvsw67+9sXChhAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 5.4 12/80] PCI: rcar: Fix missing MACCTLR register setting in initialization sequence
-Date:   Thu, 19 Dec 2019 19:34:04 +0100
-Message-Id: <20191219183048.378988598@linuxfoundation.org>
+        stable@vger.kernel.org,
+        George Cherian <george.cherian@marvell.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Robert Richter <rrichter@marvell.com>
+Subject: [PATCH 5.4 13/80] PCI: Apply Cavium ACS quirk to ThunderX2 and ThunderX3
+Date:   Thu, 19 Dec 2019 19:34:05 +0100
+Message-Id: <20191219183049.551524774@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
 References: <20191219183031.278083125@linuxfoundation.org>
@@ -45,73 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: George Cherian <george.cherian@marvell.com>
 
-commit 7c7e53e1c93df14690bd12c1f84730fef927a6f1 upstream.
+commit f338bb9f0179cb959977b74e8331b312264d720b upstream.
 
-The R-Car Gen2/3 manual - available at:
+Enhance the ACS quirk for Cavium Processors. Add the root port vendor IDs
+for ThunderX2 and ThunderX3 series of processors.
 
-https://www.renesas.com/eu/en/products/microcontrollers-microprocessors/rz/rzg/rzg1m.html#documents
-
-"RZ/G Series User's Manual: Hardware" section
-
-strictly enforces the MACCTLR inizialization value - 39.3.1 - "Initial
-Setting of PCI Express":
-
-"Be sure to write the initial value (= H'80FF 0000) to MACCTLR before
-enabling PCIETCTLR.CFINIT".
-
-To avoid unexpected behavior and to match the SW initialization sequence
-guidelines, this patch programs the MACCTLR with the correct value.
-
-Note that the MACCTLR.SPCHG bit in the MACCTLR register description
-reports that "Only writing 1 is valid and writing 0 is invalid" but this
-"invalid" has to be interpreted as a write-ignore aka "ignored", not
-"prohibited".
-
-Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
-Fixes: be20bbcb0a8c ("PCI: rcar: Add the initialization of PCIe link in resume_noirq()")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: <stable@vger.kernel.org> # v5.2+
+[bhelgaas: add Fixes: and stable tag]
+Fixes: f2ddaf8dfd4a ("PCI: Apply Cavium ThunderX ACS quirk to more Root Ports")
+Link: https://lore.kernel.org/r/20191111024243.GA11408@dc5-eodlnx05.marvell.com
+Signed-off-by: George Cherian <george.cherian@marvell.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Robert Richter <rrichter@marvell.com>
+Cc: stable@vger.kernel.org	# v4.12+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/pcie-rcar.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/pci/quirks.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/pci/controller/pcie-rcar.c
-+++ b/drivers/pci/controller/pcie-rcar.c
-@@ -93,8 +93,11 @@
- #define  LINK_SPEED_2_5GTS	(1 << 16)
- #define  LINK_SPEED_5_0GTS	(2 << 16)
- #define MACCTLR			0x011058
-+#define  MACCTLR_NFTS_MASK	GENMASK(23, 16)	/* The name is from SH7786 */
- #define  SPEED_CHANGE		BIT(24)
- #define  SCRAMBLE_DISABLE	BIT(27)
-+#define  LTSMDIS		BIT(31)
-+#define  MACCTLR_INIT_VAL	(LTSMDIS | MACCTLR_NFTS_MASK)
- #define PMSR			0x01105c
- #define MACS2R			0x011078
- #define MACCGSPSETR		0x011084
-@@ -615,6 +618,8 @@ static int rcar_pcie_hw_init(struct rcar
- 	if (IS_ENABLED(CONFIG_PCI_MSI))
- 		rcar_pci_write_reg(pcie, 0x801f0000, PCIEMSITXR);
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4313,15 +4313,21 @@ static int pci_quirk_amd_sb_acs(struct p
  
-+	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
+ static bool pci_quirk_cavium_acs_match(struct pci_dev *dev)
+ {
++	if (!pci_is_pcie(dev) || pci_pcie_type(dev) != PCI_EXP_TYPE_ROOT_PORT)
++		return false;
 +
- 	/* Finish initialization - establish a PCI Express link */
- 	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
- 
-@@ -1237,6 +1242,7 @@ static int rcar_pcie_resume_noirq(struct
- 		return 0;
- 
- 	/* Re-establish the PCIe link */
-+	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
- 	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
- 	return rcar_pcie_wait_for_dl(pcie);
++	switch (dev->device) {
+ 	/*
+-	 * Effectively selects all downstream ports for whole ThunderX 1
+-	 * family by 0xf800 mask (which represents 8 SoCs), while the lower
+-	 * bits of device ID are used to indicate which subdevice is used
+-	 * within the SoC.
++	 * Effectively selects all downstream ports for whole ThunderX1
++	 * (which represents 8 SoCs).
+ 	 */
+-	return (pci_is_pcie(dev) &&
+-		(pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT) &&
+-		((dev->device & 0xf800) == 0xa000));
++	case 0xa000 ... 0xa7ff: /* ThunderX1 */
++	case 0xaf84:  /* ThunderX2 */
++	case 0xb884:  /* ThunderX3 */
++		return true;
++	default:
++		return false;
++	}
  }
+ 
+ static int pci_quirk_cavium_acs(struct pci_dev *dev, u16 acs_flags)
 
 
