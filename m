@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72BFB126974
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:38:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A4A126A3D
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727885AbfLSShs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55568 "EHLO mail.kernel.org"
+        id S1728495AbfLSSpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:45:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727881AbfLSShr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:47 -0500
+        id S1729148AbfLSSpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:45:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BAB824679;
-        Thu, 19 Dec 2019 18:37:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79D452465E;
+        Thu, 19 Dec 2019 18:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780666;
-        bh=tqqSbL3wDs7vPZ25IGZn+gmqQoApZ1G5ZTIp/DzGsHo=;
+        s=default; t=1576781123;
+        bh=mN6YQ+PzkcvOkuHpK70M6xy2RAC+WMY5QHxUamRj06U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfIMW1SklfNyER7mMIrdFBl+V4FkXDeGjyF3LvQJyyYzDMnbeBfR+rVP/ex7JpgC+
-         tj8HVq3+b6jkDhn7eqfdH8GTBdtDgDuF6TuQT1jcblXLqKb3peSMO5Tko/5AjmtM7L
-         fDglW4vO0dNUTjWqxTM78gZqePaDcQe3wgCB6o+g=
+        b=U/6O/YqeF8/LeeSFZtjRcTyjF0/UOriqrODmlAS96QuKx/ZoYKWdhzjp6T+dSbcVb
+         Q1ktx57NDq5MIyBE6jPJXlFWUvQxhgyvNZCgfadZi1vMpGt28c1VbnpZEPdExXQN+u
+         hGVPHZV2Sh9PCzvxrMqtu+ewDx/Lo1AUphikEYeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 066/162] crypto: crypto4xx - fix double-free in crypto4xx_destroy_sdr
-Date:   Thu, 19 Dec 2019 19:32:54 +0100
-Message-Id: <20191219183211.858183332@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e3f4897236c4eeb8af4f@syzkaller.appspotmail.com,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 093/199] KVM: x86: fix out-of-bounds write in KVM_GET_EMULATED_CPUID (CVE-2019-19332)
+Date:   Thu, 19 Dec 2019 19:32:55 +0100
+Message-Id: <20191219183220.072569008@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 746c908c4d72e49068ab216c3926d2720d71a90d upstream.
+commit 433f4ba1904100da65a311033f17a9bf586b287e upstream.
 
-This patch fixes a crash that can happen during probe
-when the available dma memory is not enough (this can
-happen if the crypto4xx is built as a module).
+The bounds check was present in KVM_GET_SUPPORTED_CPUID but not
+KVM_GET_EMULATED_CPUID.
 
-The descriptor window mapping would end up being free'd
-twice, once in crypto4xx_build_pdr() and the second time
-in crypto4xx_destroy_sdr().
-
-Fixes: 5d59ad6eea82 ("crypto: crypto4xx - fix crypto4xx_build_pdr, crypto4xx_build_sdr leak")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-by: syzbot+e3f4897236c4eeb8af4f@syzkaller.appspotmail.com
+Fixes: 84cffe499b94 ("kvm: Emulate MOVBE", 2013-10-29)
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/amcc/crypto4xx_core.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/x86/kvm/cpuid.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/amcc/crypto4xx_core.c
-+++ b/drivers/crypto/amcc/crypto4xx_core.c
-@@ -399,12 +399,8 @@ static u32 crypto4xx_build_sdr(struct cr
- 		dma_alloc_coherent(dev->core_dev->device,
- 			dev->scatter_buffer_size * PPC4XX_NUM_SD,
- 			&dev->scatter_buffer_pa, GFP_ATOMIC);
--	if (!dev->scatter_buffer_va) {
--		dma_free_coherent(dev->core_dev->device,
--				  sizeof(struct ce_sd) * PPC4XX_NUM_SD,
--				  dev->sdr, dev->sdr_pa);
-+	if (!dev->scatter_buffer_va)
- 		return -ENOMEM;
--	}
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -389,7 +389,7 @@ static inline int __do_cpuid_ent(struct
  
- 	sd_array = dev->sdr;
+ 	r = -E2BIG;
+ 
+-	if (*nent >= maxnent)
++	if (WARN_ON(*nent >= maxnent))
+ 		goto out;
+ 
+ 	do_cpuid_1_ent(entry, function, index);
+@@ -691,6 +691,9 @@ out:
+ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 func,
+ 			u32 idx, int *nent, int maxnent, unsigned int type)
+ {
++	if (*nent >= maxnent)
++		return -E2BIG;
++
+ 	if (type == KVM_GET_EMULATED_CPUID)
+ 		return __do_cpuid_ent_emulated(entry, func, idx, nent, maxnent);
  
 
 
