@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CF9126D85
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F2E6126D87
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727715AbfLSSgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:36:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54132 "EHLO mail.kernel.org"
+        id S1727728AbfLSSg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727709AbfLSSgx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:36:53 -0500
+        id S1727724AbfLSSg4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B20C424679;
-        Thu, 19 Dec 2019 18:36:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28C4B24685;
+        Thu, 19 Dec 2019 18:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780613;
-        bh=y7PJEwvRvvxykxAcJ3PnpOSmhXF2KCRA4ZmeQkYGcXY=;
+        s=default; t=1576780615;
+        bh=wlFN9d50h02PaPBfx6PlJ0M0ClduW2Tw33Yl2vxu8jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvvSZ1k52y6qw5RI5oRob67r9cQ4NUi4o26ZbdyxXhvBD7cnKnaphDjXRoWy1vCuf
-         2WnzuVDQDtQZE7K2wCaQMNspfeJgrmfzXB4/c5/L9Fra9PH9vntfGzEvWX+9nnL0uv
-         U1cNIkM8CHFzzjiJlYHpskj0fW1c5BCXrycREEvs=
+        b=Y5e4CoPkOezf88Y/en3cQjVAD3mkQxU8OGj/o1pHZQMdJaYLHbXYjGd3cJMOGpPmN
+         N6HHzjqRsR6G1n3YjNrYKwQ5/I0lwG6Lt9Cx4ocbwhQ/5P37gFQUd9VfXPyGr8J5lo
+         5ii5Yy9GBn6Fxj3CLRAhaPI5amKol61jvb5AF08M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
-        Sergey Yanovich <ynvich@gmail.com>,
-        Robert Jarzmik <robert.jarzmik@free.fr>,
+        stable@vger.kernel.org, David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 046/162] ARM: dts: pxa: clean up USB controller nodes
-Date:   Thu, 19 Dec 2019 19:32:34 +0100
-Message-Id: <20191219183210.710776991@linuxfoundation.org>
+Subject: [PATCH 4.4 047/162] dlm: fix invalid cluster name warning
+Date:   Thu, 19 Dec 2019 19:32:35 +0100
+Message-Id: <20191219183210.763638053@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -45,71 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Mack <daniel@zonque.org>
+From: David Teigland <teigland@redhat.com>
 
-[ Upstream commit c40ad24254f1dbd54f2df5f5f524130dc1862122 ]
+[ Upstream commit 3595c559326d0b660bb088a88e22e0ca630a0e35 ]
 
-PXA25xx SoCs don't have a USB controller, so drop the node from the
-common pxa2xx.dtsi base file. Both pxa27x and pxa3xx have a dedicated
-node already anyway.
+The warning added in commit 3b0e761ba83
+  "dlm: print log message when cluster name is not set"
 
-While at it, unify the names for the nodes across all pxa platforms.
+did not account for the fact that lockspaces created
+from userland do not supply a cluster name, so bogus
+warnings are printed every time a userland lockspace
+is created.
 
-Signed-off-by: Daniel Mack <daniel@zonque.org>
-Reported-by: Sergey Yanovich <ynvich@gmail.com>
-Link: https://patchwork.kernel.org/patch/8375421/
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/pxa27x.dtsi | 2 +-
- arch/arm/boot/dts/pxa2xx.dtsi | 7 -------
- arch/arm/boot/dts/pxa3xx.dtsi | 2 +-
- 3 files changed, 2 insertions(+), 9 deletions(-)
+ fs/dlm/user.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/pxa27x.dtsi b/arch/arm/boot/dts/pxa27x.dtsi
-index 4448505e34d3b..e1a8466b77a4c 100644
---- a/arch/arm/boot/dts/pxa27x.dtsi
-+++ b/arch/arm/boot/dts/pxa27x.dtsi
-@@ -27,7 +27,7 @@
- 			clocks = <&clks CLK_NONE>;
- 		};
+diff --git a/fs/dlm/user.c b/fs/dlm/user.c
+index dd2b7416e40ae..761d74a84f92f 100644
+--- a/fs/dlm/user.c
++++ b/fs/dlm/user.c
+@@ -25,6 +25,7 @@
+ #include "lvb_table.h"
+ #include "user.h"
+ #include "ast.h"
++#include "config.h"
  
--		pxa27x_ohci: usb@4c000000 {
-+		usb0: usb@4c000000 {
- 			compatible = "marvell,pxa-ohci";
- 			reg = <0x4c000000 0x10000>;
- 			interrupts = <3>;
-diff --git a/arch/arm/boot/dts/pxa2xx.dtsi b/arch/arm/boot/dts/pxa2xx.dtsi
-index 5e5af078b9b54..7343115c6d55b 100644
---- a/arch/arm/boot/dts/pxa2xx.dtsi
-+++ b/arch/arm/boot/dts/pxa2xx.dtsi
-@@ -117,13 +117,6 @@
- 			status = "disabled";
- 		};
+ static const char name_prefix[] = "dlm";
+ static const struct file_operations device_fops;
+@@ -402,7 +403,7 @@ static int device_create_lockspace(struct dlm_lspace_params *params)
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
  
--		usb0: ohci@4c000000 {
--			compatible = "marvell,pxa-ohci";
--			reg = <0x4c000000 0x10000>;
--			interrupts = <3>;
--			status = "disabled";
--		};
--
- 		mmc0: mmc@41100000 {
- 			compatible = "marvell,pxa-mmc";
- 			reg = <0x41100000 0x1000>;
-diff --git a/arch/arm/boot/dts/pxa3xx.dtsi b/arch/arm/boot/dts/pxa3xx.dtsi
-index fec47bcd8292f..c714e583e5c75 100644
---- a/arch/arm/boot/dts/pxa3xx.dtsi
-+++ b/arch/arm/boot/dts/pxa3xx.dtsi
-@@ -88,7 +88,7 @@
- 			status = "disabled";
- 		};
- 
--		pxa3xx_ohci: usb@4c000000 {
-+		usb0: usb@4c000000 {
- 			compatible = "marvell,pxa-ohci";
- 			reg = <0x4c000000 0x10000>;
- 			interrupts = <3>;
+-	error = dlm_new_lockspace(params->name, NULL, params->flags,
++	error = dlm_new_lockspace(params->name, dlm_config.ci_cluster_name, params->flags,
+ 				  DLM_USER_LVB_LEN, NULL, NULL, NULL,
+ 				  &lockspace);
+ 	if (error)
 -- 
 2.20.1
 
