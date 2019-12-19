@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE0F126B07
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:53:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2224C126B09
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730364AbfLSSxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:53:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48352 "EHLO mail.kernel.org"
+        id S1728188AbfLSSxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:53:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729583AbfLSSxV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:53:21 -0500
+        id S1730369AbfLSSxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:53:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E956E227BF;
-        Thu, 19 Dec 2019 18:53:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6755024682;
+        Thu, 19 Dec 2019 18:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781600;
-        bh=p1Mnta1SqL0RwazWoE7/sborPswyjbp4DYjTcxwHCOc=;
+        s=default; t=1576781602;
+        bh=FjQfHrnMKBL/HTRi+36OsxA3RH7s2kM7QEmwxUvZLGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z42pA+yzlqM9ma/DZqcx0DYreWjfT1TSQApx0DG4Deh4bpE+nzGjZdKQJMXyr+Wjg
-         ghHSbDasZ1UgwOsr6ZbOrhxT8unrYwcZUg4oiAYNYpeLe6n2pq+x+kDhOrW1kkzycO
-         bmEnjQ0Odza3gyrsnSkACbjd0ssSV2CTUKqZzVK4=
+        b=Fo2lVyM3lRKwPd65vh086nBdth0tr0e1nlmdajuiGC8L7vVXY4Maz1iQrI1B40+UY
+         77ExEDt6y3N8DlcOiiIKlKdAZzLiyadvNqcgTnVx/+J0eZBhGmzls3/LjfSmohJTD8
+         M2GtLA9HUqdY4gEMXdINm6UJLlW4IWDUc1N3IcQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lihua Yao <ylhuajnu@outlook.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 4.19 37/47] ARM: dts: s3c64xx: Fix init order of clock providers
-Date:   Thu, 19 Dec 2019 19:34:51 +0100
-Message-Id: <20191219182939.224882575@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.19 38/47] ARM: tegra: Fix FLOW_CTLR_HALT register clobbering by tegra_resume()
+Date:   Thu, 19 Dec 2019 19:34:52 +0100
+Message-Id: <20191219182943.242978960@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
 References: <20191219182857.659088743@linuxfoundation.org>
@@ -44,59 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lihua Yao <ylhuajnu@outlook.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit d60d0cff4ab01255b25375425745c3cff69558ad upstream.
+commit d70f7d31a9e2088e8a507194354d41ea10062994 upstream.
 
-fin_pll is the parent of clock-controller@7e00f000, specify
-the dependency to ensure proper initialization order of clock
-providers.
-
-without this patch:
-[    0.000000] S3C6410 clocks: apll = 0, mpll = 0
-[    0.000000]  epll = 0, arm_clk = 0
-
-with this patch:
-[    0.000000] S3C6410 clocks: apll = 532000000, mpll = 532000000
-[    0.000000]  epll = 24000000, arm_clk = 532000000
+There is an unfortunate typo in the code that results in writing to
+FLOW_CTLR_HALT instead of FLOW_CTLR_CSR.
 
 Cc: <stable@vger.kernel.org>
-Fixes: 3f6d439f2022 ("clk: reverse default clk provider initialization order in of_clk_init()")
-Signed-off-by: Lihua Yao <ylhuajnu@outlook.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Peter De Schrijver <pdeschrijver@nvidia.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/s3c6410-mini6410.dts |    4 ++++
- arch/arm/boot/dts/s3c6410-smdk6410.dts |    4 ++++
- 2 files changed, 8 insertions(+)
+ arch/arm/mach-tegra/reset-handler.S |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/s3c6410-mini6410.dts
-+++ b/arch/arm/boot/dts/s3c6410-mini6410.dts
-@@ -165,6 +165,10 @@
- 	};
- };
+--- a/arch/arm/mach-tegra/reset-handler.S
++++ b/arch/arm/mach-tegra/reset-handler.S
+@@ -56,16 +56,16 @@ ENTRY(tegra_resume)
+ 	cmp	r6, #TEGRA20
+ 	beq	1f				@ Yes
+ 	/* Clear the flow controller flags for this CPU. */
+-	cpu_to_csr_reg r1, r0
++	cpu_to_csr_reg r3, r0
+ 	mov32	r2, TEGRA_FLOW_CTRL_BASE
+-	ldr	r1, [r2, r1]
++	ldr	r1, [r2, r3]
+ 	/* Clear event & intr flag */
+ 	orr	r1, r1, \
+ 		#FLOW_CTRL_CSR_INTR_FLAG | FLOW_CTRL_CSR_EVENT_FLAG
+ 	movw	r0, #0x3FFD	@ enable, cluster_switch, immed, bitmaps
+ 				@ & ext flags for CPU power mgnt
+ 	bic	r1, r1, r0
+-	str	r1, [r2]
++	str	r1, [r2, r3]
+ 1:
  
-+&clocks {
-+	clocks = <&fin_pll>;
-+};
-+
- &sdhci0 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&sd0_clk>, <&sd0_cmd>, <&sd0_cd>, <&sd0_bus4>;
---- a/arch/arm/boot/dts/s3c6410-smdk6410.dts
-+++ b/arch/arm/boot/dts/s3c6410-smdk6410.dts
-@@ -69,6 +69,10 @@
- 	};
- };
- 
-+&clocks {
-+	clocks = <&fin_pll>;
-+};
-+
- &sdhci0 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&sd0_clk>, <&sd0_cmd>, <&sd0_cd>, <&sd0_bus4>;
+ 	mov32	r9, 0xc09
 
 
