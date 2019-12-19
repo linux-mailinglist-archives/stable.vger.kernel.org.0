@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01891126D2F
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F65126C32
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728374AbfLSTJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:09:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59720 "EHLO mail.kernel.org"
+        id S1729475AbfLSStx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:49:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728437AbfLSSkv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:51 -0500
+        id S1729872AbfLSStv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E82F24672;
-        Thu, 19 Dec 2019 18:40:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5881124672;
+        Thu, 19 Dec 2019 18:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780851;
-        bh=uQUVYng6M2m7kzxbBQV0vOzdqoLKSFhgyXgpvSS2DUA=;
+        s=default; t=1576781390;
+        bh=csmZ5m1Nk2ltj51pOEL2Ap3oMpsMbVo1RC4/sxfU7hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Msc3qdehJy7u8Pc20PC+t76aHkFINb2bJMjfC4Zhj3vgrdO7FTuM+irdNHDgn7C36
-         JUlCAa33ZXFOkIlMoSTuWUfhCDiQwf4W4BZMEI/DVBiLOCG2N9GSyR876Ct1rmehvL
-         zUme/ZBWLT1Du0JEeW23AtABN/6Kr9jY8nNS1AlU=
+        b=qXKZEw//RF9eyFEPurRZpuhZcqCfi5kQIIw6Jbrpr7kSmQlfh2Nb1UqvTMhKSgbkK
+         BFsGtyVFVm3wdYDvSjBHppWCYYqTeiGQTe5n+gJyAULLQ4+/kBhqQzVKNxMCz705A5
+         A4YXMAJ1ZB+mKELi7qIoT2NBLGdbUVmPB7fSfh3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
-        Konstantin Khorenko <khorenko@virtuozzo.com>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 142/162] kernel/module.c: wakeup processes in module_wq on module unload
-Date:   Thu, 19 Dec 2019 19:34:10 +0100
-Message-Id: <20191219183216.407633843@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 169/199] ext4: fix a bug in ext4_wait_for_tail_page_commit
+Date:   Thu, 19 Dec 2019 19:34:11 +0100
+Message-Id: <20191219183224.841910223@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khorenko <khorenko@virtuozzo.com>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit 5d603311615f612320bb77bd2a82553ef1ced5b7 ]
+commit 565333a1554d704789e74205989305c811fd9c7a upstream.
 
-Fix the race between load and unload a kernel module.
+No need to wait for any commit once the page is fully truncated.
+Besides, it may confuse e.g. concurrent ext4_writepage() with the page
+still be dirty (will be cleared by truncate_pagecache() in
+ext4_setattr()) but buffers has been freed; and then trigger a bug
+show as below:
 
-sys_delete_module()
- try_stop_module()
-  mod->state = _GOING
-					add_unformed_module()
-					 old = find_module_all()
-					 (old->state == _GOING =>
-					  wait_event_interruptible())
+[   26.057508] ------------[ cut here ]------------
+[   26.058531] kernel BUG at fs/ext4/inode.c:2134!
+...
+[   26.088130] Call trace:
+[   26.088695]  ext4_writepage+0x914/0xb28
+[   26.089541]  writeout.isra.4+0x1b4/0x2b8
+[   26.090409]  move_to_new_page+0x3b0/0x568
+[   26.091338]  __unmap_and_move+0x648/0x988
+[   26.092241]  unmap_and_move+0x48c/0xbb8
+[   26.093096]  migrate_pages+0x220/0xb28
+[   26.093945]  kernel_mbind+0x828/0xa18
+[   26.094791]  __arm64_sys_mbind+0xc8/0x138
+[   26.095716]  el0_svc_common+0x190/0x490
+[   26.096571]  el0_svc_handler+0x60/0xd0
+[   26.097423]  el0_svc+0x8/0xc
 
-					 During pre-condition
-					 finished_loading() rets 0
-					 schedule()
-					 (never gets waken up later)
- free_module()
-  mod->state = _UNFORMED
-   list_del_rcu(&mod->list)
-   (dels mod from "modules" list)
+Run the procedure (generate by syzkaller) parallel with ext3.
 
-return
+void main()
+{
+	int fd, fd1, ret;
+	void *addr;
+	size_t length = 4096;
+	int flags;
+	off_t offset = 0;
+	char *str = "12345";
 
-The race above leads to modprobe hanging forever on loading
-a module.
+	fd = open("a", O_RDWR | O_CREAT);
+	assert(fd >= 0);
 
-Error paths on loading module call wake_up_all(&module_wq) after
-freeing module, so let's do the same on straight module unload.
+	/* Truncate to 4k */
+	ret = ftruncate(fd, length);
+	assert(ret == 0);
 
-Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
-Reviewed-by: Prarit Bhargava <prarit@redhat.com>
-Signed-off-by: Konstantin Khorenko <khorenko@virtuozzo.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	/* Journal data mode */
+	flags = 0xc00f;
+	ret = ioctl(fd, _IOW('f', 2, long), &flags);
+	assert(ret == 0);
+
+	/* Truncate to 0 */
+	fd1 = open("a", O_TRUNC | O_NOATIME);
+	assert(fd1 >= 0);
+
+	addr = mmap(NULL, length, PROT_WRITE | PROT_READ,
+					MAP_SHARED, fd, offset);
+	assert(addr != (void *)-1);
+
+	memcpy(addr, str, 5);
+	mbind(addr, length, 0, 0, 0, MPOL_MF_MOVE);
+}
+
+And the bug will be triggered once we seen the below order.
+
+reproduce1                         reproduce2
+
+...                            |   ...
+truncate to 4k                 |
+change to journal data mode    |
+                               |   memcpy(set page dirty)
+truncate to 0:                 |
+ext4_setattr:                  |
+...                            |
+ext4_wait_for_tail_page_commit |
+                               |   mbind(trigger bug)
+truncate_pagecache(clean dirty)|   ...
+...                            |
+
+mbind will call ext4_writepage() since the page still be dirty, and then
+report the bug since the buffers has been free. Fix it by return
+directly once offset equals to 0 which means the page has been fully
+truncated.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Link: https://lore.kernel.org/r/20190919063508.1045-1-yangerkun@huawei.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/module.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/inode.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1014,6 +1014,8 @@ SYSCALL_DEFINE2(delete_module, const cha
- 	strlcpy(last_unloaded_module, mod->name, sizeof(last_unloaded_module));
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5080,11 +5080,15 @@ static void ext4_wait_for_tail_page_comm
  
- 	free_module(mod);
-+	/* someone could wait for the module in add_unformed_module() */
-+	wake_up_all(&module_wq);
- 	return 0;
- out:
- 	mutex_unlock(&module_mutex);
+ 	offset = inode->i_size & (PAGE_SIZE - 1);
+ 	/*
+-	 * All buffers in the last page remain valid? Then there's nothing to
+-	 * do. We do the check mainly to optimize the common PAGE_SIZE ==
+-	 * blocksize case
++	 * If the page is fully truncated, we don't need to wait for any commit
++	 * (and we even should not as __ext4_journalled_invalidatepage() may
++	 * strip all buffers from the page but keep the page dirty which can then
++	 * confuse e.g. concurrent ext4_writepage() seeing dirty page without
++	 * buffers). Also we don't need to wait for any commit if all buffers in
++	 * the page remain valid. This is most beneficial for the common case of
++	 * blocksize == PAGESIZE.
+ 	 */
+-	if (offset > PAGE_SIZE - i_blocksize(inode))
++	if (!offset || offset > (PAGE_SIZE - i_blocksize(inode)))
+ 		return;
+ 	while (1) {
+ 		page = find_lock_page(inode->i_mapping,
 
 
