@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD4C21260B9
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 12:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37FD3126148
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 12:52:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726695AbfLSLVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 06:21:03 -0500
-Received: from mga06.intel.com ([134.134.136.31]:13040 "EHLO mga06.intel.com"
+        id S1726935AbfLSLwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 06:52:25 -0500
+Received: from mga11.intel.com ([192.55.52.93]:24554 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726652AbfLSLVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 06:21:03 -0500
+        id S1726730AbfLSLwZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 06:52:25 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Dec 2019 03:21:02 -0800
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Dec 2019 03:52:24 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.69,331,1571727600"; 
-   d="scan'208";a="241133503"
+   d="scan'208";a="228221312"
 Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by fmsmga004.fm.intel.com with ESMTP; 19 Dec 2019 03:21:00 -0800
+  by orsmga002.jf.intel.com with ESMTP; 19 Dec 2019 03:52:22 -0800
 From:   Mathias Nyman <mathias.nyman@linux.intel.com>
 To:     stable@vger.kernel.org
-Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>, Lee@vger.kernel.org,
-        Hou-hsun <hou-hsun.lee@intel.com>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Lee Hou-hsun <hou-hsun.lee@intel.com>,
+        Lee Chiasheng <chiasheng.lee@intel.com>
 Subject: [PATCH] xhci: fix USB3 device initiated resume race with roothub autosuspend
-Date:   Thu, 19 Dec 2019 13:22:52 +0200
-Message-Id: <20191219112252.6890-1-mathias.nyman@linux.intel.com>
+Date:   Thu, 19 Dec 2019 13:53:50 +0200
+Message-Id: <20191219115350.16801-1-mathias.nyman@linux.intel.com>
 X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -35,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream
 
-Backport for linux-4.19.y stable
+Backport for linux-4.14.y stable
 
 A race in xhci USB3 remote wake handling may force device back to suspend
 after it initiated resume siganaling, causing a missed resume event or warm
@@ -74,20 +75,20 @@ get port status request.
 
 Issue rootcaused by Chiasheng Lee
 
-Cc: <stable@vger.kernel.org>
-Cc: Lee, Hou-hsun <hou-hsun.lee@intel.com>
-Reported-by: Lee, Chiasheng <chiasheng.lee@intel.com>
+Cc: Lee Hou-hsun <hou-hsun.lee@intel.com>
+Cc: Lee Chiasheng <chiasheng.lee@intel.com>
+Reported-by: Lee Chiasheng <chiasheng.lee@intel.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 ---
  drivers/usb/host/xhci-hub.c  | 8 ++++++++
- drivers/usb/host/xhci-ring.c | 3 +--
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-ring.c | 6 +-----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index 02843c16f9c7..8f180bf7561a 100644
+index 95503bb9b067..d1363f3fabfa 100644
 --- a/drivers/usb/host/xhci-hub.c
 +++ b/drivers/usb/host/xhci-hub.c
-@@ -868,6 +868,14 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
+@@ -887,6 +887,14 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
  			status |= USB_PORT_STAT_C_BH_RESET << 16;
  		if ((raw_port_status & PORT_CEC))
  			status |= USB_PORT_STAT_C_CONFIG_ERROR << 16;
@@ -103,33 +104,36 @@ index 02843c16f9c7..8f180bf7561a 100644
  
  	if (hcd->speed < HCD_USB3) {
 diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index b03974958a28..98b67605d3cf 100644
+index 89af395cd89c..61fa3007a74a 100644
 --- a/drivers/usb/host/xhci-ring.c
 +++ b/drivers/usb/host/xhci-ring.c
-@@ -1609,7 +1609,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
- 		slot_id = xhci_find_slot_id_by_port(hcd, xhci, hcd_portnum + 1);
- 		if (slot_id && xhci->devs[slot_id])
- 			xhci->devs[slot_id]->flags |= VDEV_PORT_ERROR;
--		bus_state->port_remote_wakeup &= ~(1 << hcd_portnum);
+@@ -1679,9 +1679,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
+ 		usb_hcd_resume_root_hub(hcd);
  	}
  
+-	if (hcd->speed >= HCD_USB3 && (portsc & PORT_PLS_MASK) == XDEV_INACTIVE)
+-		bus_state->port_remote_wakeup &= ~(1 << faked_port_index);
+-
  	if ((portsc & PORT_PLC) && (portsc & PORT_PLS_MASK) == XDEV_RESUME) {
-@@ -1630,6 +1629,7 @@ static void handle_port_status(struct xhci_hcd *xhci,
- 			bus_state->port_remote_wakeup |= 1 << hcd_portnum;
- 			xhci_test_and_clear_bit(xhci, port, PORT_PLC);
- 			xhci_set_link_state(xhci, port, XDEV_U0);
-+			usb_hcd_start_port_resume(&hcd->self, hcd_portnum);
+ 		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
+ 
+@@ -1700,6 +1697,7 @@ static void handle_port_status(struct xhci_hcd *xhci,
+ 			bus_state->port_remote_wakeup |= 1 << faked_port_index;
+ 			xhci_test_and_clear_bit(xhci, port_array,
+ 					faked_port_index, PORT_PLC);
++			usb_hcd_start_port_resume(&hcd->self, faked_port_index);
+ 			xhci_set_link_state(xhci, port_array, faked_port_index,
+ 						XDEV_U0);
  			/* Need to wait until the next link state change
- 			 * indicates the device is actually in U0.
- 			 */
-@@ -1669,7 +1669,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
+@@ -1737,8 +1735,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
  		if (slot_id && xhci->devs[slot_id])
  			xhci_ring_device(xhci, slot_id);
- 		if (bus_state->port_remote_wakeup & (1 << hcd_portnum)) {
--			bus_state->port_remote_wakeup &= ~(1 << hcd_portnum);
- 			xhci_test_and_clear_bit(xhci, port, PORT_PLC);
+ 		if (bus_state->port_remote_wakeup & (1 << faked_port_index)) {
+-			bus_state->port_remote_wakeup &=
+-				~(1 << faked_port_index);
+ 			xhci_test_and_clear_bit(xhci, port_array,
+ 					faked_port_index, PORT_PLC);
  			usb_wakeup_notification(hcd->self.root_hub,
- 					hcd_portnum + 1);
 -- 
 2.17.1
 
