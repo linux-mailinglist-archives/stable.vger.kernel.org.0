@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE013126CA2
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D31126DC0
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729289AbfLSSqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:46:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38718 "EHLO mail.kernel.org"
+        id S1727419AbfLSTMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:12:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729287AbfLSSqI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:46:08 -0500
+        id S1727384AbfLSSh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:37:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D74C24679;
-        Thu, 19 Dec 2019 18:46:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 908C820716;
+        Thu, 19 Dec 2019 18:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781167;
-        bh=ukK3tZ03T2ojLubsfuqKbVnsJ0LNvG8yLEX+MReaYbk=;
+        s=default; t=1576780647;
+        bh=NEpL2CzNtWa8pl2T6jNiFSD8t5+OTKp74Cn9n98fZfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yK41FEhz4nKRO3f+vM7R9xTsiVvsVEIyJKRTxUQydM+H0B2imLYbWQAEeZlauMkjQ
-         m13LiCqZdDtH7ygnhTuuTx9sb5F/FzEQk+KT3q7b599BTwiy5OxgtqgKru8aevbMYy
-         1QxwofepZNy/yNZJsO6e7ZGFzqvvm/l2eQHruUrw=
+        b=Crz+OkuJno1y/BXpP1vu6s5b3lU5Q+0Y/+em1H8v5y+3cDkFNb+SyNlG1ZmEOKp/7
+         UYTfp8OUq80tWp5WqkRyrNqWPnKuAmLj5FShc9cdLjbih9aBgWmC0a1qSu2sWo0H+x
+         /EU14kSuuw1XT0sUQASb6y8Qd7HFbyEwoKHaEqkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>
-Subject: [PATCH 4.9 083/199] drm/i810: Prevent underflow in ioctl
-Date:   Thu, 19 Dec 2019 19:32:45 +0100
-Message-Id: <20191219183219.549159529@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.4 058/162] CIFS: Fix NULL-pointer dereference in smb2_push_mandatory_locks
+Date:   Thu, 19 Dec 2019 19:32:46 +0100
+Message-Id: <20191219183211.406082600@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-commit 4f69851fbaa26b155330be35ce8ac393e93e7442 upstream.
+commit 6f582b273ec23332074d970a7fb25bef835df71f upstream.
 
-The "used" variables here come from the user in the ioctl and it can be
-negative.  It could result in an out of bounds write.
+Currently when the client creates a cifsFileInfo structure for
+a newly opened file, it allocates a list of byte-range locks
+with a pointer to the new cfile and attaches this list to the
+inode's lock list. The latter happens before initializing all
+other fields, e.g. cfile->tlink. Thus a partially initialized
+cifsFileInfo structure becomes available to other threads that
+walk through the inode's lock list. One example of such a thread
+may be an oplock break worker thread that tries to push all
+cached byte-range locks. This causes NULL-pointer dereference
+in smb2_push_mandatory_locks() when accessing cfile->tlink:
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191004102251.GC823@mwanda
-Cc: stable@vger.kernel.org
+[598428.945633] BUG: kernel NULL pointer dereference, address: 0000000000000038
+...
+[598428.945749] Workqueue: cifsoplockd cifs_oplock_break [cifs]
+[598428.945793] RIP: 0010:smb2_push_mandatory_locks+0xd6/0x5a0 [cifs]
+...
+[598428.945834] Call Trace:
+[598428.945870]  ? cifs_revalidate_mapping+0x45/0x90 [cifs]
+[598428.945901]  cifs_oplock_break+0x13d/0x450 [cifs]
+[598428.945909]  process_one_work+0x1db/0x380
+[598428.945914]  worker_thread+0x4d/0x400
+[598428.945921]  kthread+0x104/0x140
+[598428.945925]  ? process_one_work+0x380/0x380
+[598428.945931]  ? kthread_park+0x80/0x80
+[598428.945937]  ret_from_fork+0x35/0x40
+
+Fix this by reordering initialization steps of the cifsFileInfo
+structure: initialize all the fields first and then add the new
+byte-range lock list to the inode's lock list.
+
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i810/i810_dma.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/file.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/i810/i810_dma.c
-+++ b/drivers/gpu/drm/i810/i810_dma.c
-@@ -723,7 +723,7 @@ static void i810_dma_dispatch_vertex(str
- 	if (nbox > I810_NR_SAREA_CLIPRECTS)
- 		nbox = I810_NR_SAREA_CLIPRECTS;
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -312,9 +312,6 @@ cifs_new_fileinfo(struct cifs_fid *fid,
+ 	INIT_LIST_HEAD(&fdlocks->locks);
+ 	fdlocks->cfile = cfile;
+ 	cfile->llist = fdlocks;
+-	cifs_down_write(&cinode->lock_sem);
+-	list_add(&fdlocks->llist, &cinode->llist);
+-	up_write(&cinode->lock_sem);
  
--	if (used > 4 * 1024)
-+	if (used < 0 || used > 4 * 1024)
- 		used = 0;
+ 	cfile->count = 1;
+ 	cfile->pid = current->tgid;
+@@ -338,6 +335,10 @@ cifs_new_fileinfo(struct cifs_fid *fid,
+ 		oplock = 0;
+ 	}
  
- 	if (sarea_priv->dirty)
-@@ -1043,7 +1043,7 @@ static void i810_dma_dispatch_mc(struct
- 	if (u != I810_BUF_CLIENT)
- 		DRM_DEBUG("MC found buffer that isn't mine!\n");
- 
--	if (used > 4 * 1024)
-+	if (used < 0 || used > 4 * 1024)
- 		used = 0;
- 
- 	sarea_priv->dirty = 0x7f;
++	cifs_down_write(&cinode->lock_sem);
++	list_add(&fdlocks->llist, &cinode->llist);
++	up_write(&cinode->lock_sem);
++
+ 	spin_lock(&tcon->open_file_lock);
+ 	if (fid->pending_open->oplock != CIFS_OPLOCK_NO_CHANGE && oplock)
+ 		oplock = fid->pending_open->oplock;
 
 
