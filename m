@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AAE6126D3C
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01891126D2F
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728164AbfLSSku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59652 "EHLO mail.kernel.org"
+        id S1728374AbfLSTJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:09:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728432AbfLSSkt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:49 -0500
+        id S1728437AbfLSSkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:40:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09DA7222C2;
-        Thu, 19 Dec 2019 18:40:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E82F24672;
+        Thu, 19 Dec 2019 18:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780848;
-        bh=GFPI9xKpXp0lA04rr8bphw4S6OeM+uXMO2bXD1X8AnU=;
+        s=default; t=1576780851;
+        bh=uQUVYng6M2m7kzxbBQV0vOzdqoLKSFhgyXgpvSS2DUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GoDV+q8/tndsMw+XPly27wpPMoPkv13oFMQoa4frW8C25BZERO5Gk8ZPN2pmwbyQw
-         oYWjlM1fGgswZjXsXEXpYh4tzfuRLe8WUI0MfoOdExqs3ZBD21MtHuTGD0UMDBKtUd
-         OKQRm8nw3VeXJU6D1M/8Bii5Qbwwabmjpq3oQJPQ=
+        b=Msc3qdehJy7u8Pc20PC+t76aHkFINb2bJMjfC4Zhj3vgrdO7FTuM+irdNHDgn7C36
+         JUlCAa33ZXFOkIlMoSTuWUfhCDiQwf4W4BZMEI/DVBiLOCG2N9GSyR876Ct1rmehvL
+         zUme/ZBWLT1Du0JEeW23AtABN/6Kr9jY8nNS1AlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        NeilBrown <neilb@suse.de>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 141/162] sunrpc: fix crash when cache_head become valid before update
-Date:   Thu, 19 Dec 2019 19:34:09 +0100
-Message-Id: <20191219183216.356078014@linuxfoundation.org>
+        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+        Konstantin Khorenko <khorenko@virtuozzo.com>,
+        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 142/162] kernel/module.c: wakeup processes in module_wq on module unload
+Date:   Thu, 19 Dec 2019 19:34:10 +0100
+Message-Id: <20191219183216.407633843@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -46,127 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+From: Konstantin Khorenko <khorenko@virtuozzo.com>
 
-[ Upstream commit 5fcaf6982d1167f1cd9b264704f6d1ef4c505d54 ]
+[ Upstream commit 5d603311615f612320bb77bd2a82553ef1ced5b7 ]
 
-I was investigating a crash in our Virtuozzo7 kernel which happened in
-in svcauth_unix_set_client. I found out that we access m_client field
-in ip_map structure, which was received from sunrpc_cache_lookup (we
-have a bit older kernel, now the code is in sunrpc_cache_add_entry), and
-these field looks uninitialized (m_client == 0x74 don't look like a
-pointer) but in the cache_head in flags we see 0x1 which is CACHE_VALID.
+Fix the race between load and unload a kernel module.
 
-It looks like the problem appeared from our previous fix to sunrpc (1):
-commit 4ecd55ea0742 ("sunrpc: fix cache_head leak due to queued
-request")
+sys_delete_module()
+ try_stop_module()
+  mod->state = _GOING
+					add_unformed_module()
+					 old = find_module_all()
+					 (old->state == _GOING =>
+					  wait_event_interruptible())
 
-And we've also found a patch already fixing our patch (2):
-commit d58431eacb22 ("sunrpc: don't mark uninitialised items as VALID.")
+					 During pre-condition
+					 finished_loading() rets 0
+					 schedule()
+					 (never gets waken up later)
+ free_module()
+  mod->state = _UNFORMED
+   list_del_rcu(&mod->list)
+   (dels mod from "modules" list)
 
-Though the crash is eliminated, I think the core of the problem is not
-completely fixed:
+return
 
-Neil in the patch (2) makes cache_head CACHE_NEGATIVE, before
-cache_fresh_locked which was added in (1) to fix crash. These way
-cache_is_valid won't say the cache is valid anymore and in
-svcauth_unix_set_client the function cache_check will return error
-instead of 0, and we don't count entry as initialized.
+The race above leads to modprobe hanging forever on loading
+a module.
 
-But it looks like we need to remove cache_fresh_locked completely in
-sunrpc_cache_lookup:
+Error paths on loading module call wake_up_all(&module_wq) after
+freeing module, so let's do the same on straight module unload.
 
-In (1) we've only wanted to make cache_fresh_unlocked->cache_dequeue so
-that cache_requests with no readers also release corresponding
-cache_head, to fix their leak.  We with Vasily were not sure if
-cache_fresh_locked and cache_fresh_unlocked should be used in pair or
-not, so we've guessed to use them in pair.
-
-Now we see that we don't want the CACHE_VALID bit set here by
-cache_fresh_locked, as "valid" means "initialized" and there is no
-initialization in sunrpc_cache_add_entry. Both expiry_time and
-last_refresh are not used in cache_fresh_unlocked code-path and also not
-required for the initial fix.
-
-So to conclude cache_fresh_locked was called by mistake, and we can just
-safely remove it instead of crutching it with CACHE_NEGATIVE. It looks
-ideologically better for me. Hope I don't miss something here.
-
-Here is our crash backtrace:
-[13108726.326291] BUG: unable to handle kernel NULL pointer dereference at 0000000000000074
-[13108726.326365] IP: [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
-[13108726.326448] PGD 0
-[13108726.326468] Oops: 0002 [#1] SMP
-[13108726.326497] Modules linked in: nbd isofs xfs loop kpatch_cumulative_81_0_r1(O) xt_physdev nfnetlink_queue bluetooth rfkill ip6table_nat nf_nat_ipv6 ip_vs_wrr ip_vs_wlc ip_vs_sh nf_conntrack_netlink ip_vs_sed ip_vs_pe_sip nf_conntrack_sip ip_vs_nq ip_vs_lc ip_vs_lblcr ip_vs_lblc ip_vs_ftp ip_vs_dh nf_nat_ftp nf_conntrack_ftp iptable_raw xt_recent nf_log_ipv6 xt_hl ip6t_rt nf_log_ipv4 nf_log_common xt_LOG xt_limit xt_TCPMSS xt_tcpmss vxlan ip6_udp_tunnel udp_tunnel xt_statistic xt_NFLOG nfnetlink_log dummy xt_mark xt_REDIRECT nf_nat_redirect raw_diag udp_diag tcp_diag inet_diag netlink_diag af_packet_diag unix_diag rpcsec_gss_krb5 xt_addrtype ip6t_rpfilter ipt_REJECT nf_reject_ipv4 ip6t_REJECT nf_reject_ipv6 ebtable_nat ebtable_broute nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_mangle ip6table_raw nfsv4
-[13108726.327173]  dns_resolver cls_u32 binfmt_misc arptable_filter arp_tables ip6table_filter ip6_tables devlink fuse_kio_pcs ipt_MASQUERADE nf_nat_masquerade_ipv4 xt_nat iptable_nat nf_nat_ipv4 xt_comment nf_conntrack_ipv4 nf_defrag_ipv4 xt_wdog_tmo xt_multiport bonding xt_set xt_conntrack iptable_filter iptable_mangle kpatch(O) ebtable_filter ebt_among ebtables ip_set_hash_ip ip_set nfnetlink vfat fat skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass fuse pcspkr ses enclosure joydev sg mei_me hpwdt hpilo lpc_ich mei ipmi_si shpchp ipmi_devintf ipmi_msghandler xt_ipvs acpi_power_meter ip_vs_rr nfsv3 nfsd auth_rpcgss nfs_acl nfs lockd grace fscache nf_nat cls_fw sch_htb sch_cbq sch_sfq ip_vs em_u32 nf_conntrack tun br_netfilter veth overlay ip6_vzprivnet ip6_vznetstat ip_vznetstat
-[13108726.327817]  ip_vzprivnet vziolimit vzevent vzlist vzstat vznetstat vznetdev vzmon vzdev bridge pio_kaio pio_nfs pio_direct pfmt_raw pfmt_ploop1 ploop ip_tables ext4 mbcache jbd2 sd_mod crc_t10dif crct10dif_generic mgag200 i2c_algo_bit drm_kms_helper scsi_transport_iscsi 8021q syscopyarea sysfillrect garp sysimgblt fb_sys_fops mrp stp ttm llc bnx2x crct10dif_pclmul crct10dif_common crc32_pclmul crc32c_intel drm dm_multipath ghash_clmulni_intel uas aesni_intel lrw gf128mul glue_helper ablk_helper cryptd tg3 smartpqi scsi_transport_sas mdio libcrc32c i2c_core usb_storage ptp pps_core wmi sunrpc dm_mirror dm_region_hash dm_log dm_mod [last unloaded: kpatch_cumulative_82_0_r1]
-[13108726.328403] CPU: 35 PID: 63742 Comm: nfsd ve: 51332 Kdump: loaded Tainted: G        W  O   ------------   3.10.0-862.20.2.vz7.73.29 #1 73.29
-[13108726.328491] Hardware name: HPE ProLiant DL360 Gen10/ProLiant DL360 Gen10, BIOS U32 10/02/2018
-[13108726.328554] task: ffffa0a6a41b1160 ti: ffffa0c2a74bc000 task.ti: ffffa0c2a74bc000
-[13108726.328610] RIP: 0010:[<ffffffffc01f79eb>]  [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
-[13108726.328706] RSP: 0018:ffffa0c2a74bfd80  EFLAGS: 00010246
-[13108726.328750] RAX: 0000000000000001 RBX: ffffa0a6183ae000 RCX: 0000000000000000
-[13108726.328811] RDX: 0000000000000074 RSI: 0000000000000286 RDI: ffffa0c2a74bfcf0
-[13108726.328864] RBP: ffffa0c2a74bfe00 R08: ffffa0bab8c22960 R09: 0000000000000001
-[13108726.328916] R10: 0000000000000001 R11: 0000000000000001 R12: ffffa0a32aa7f000
-[13108726.328969] R13: ffffa0a6183afac0 R14: ffffa0c233d88d00 R15: ffffa0c2a74bfdb4
-[13108726.329022] FS:  0000000000000000(0000) GS:ffffa0e17f9c0000(0000) knlGS:0000000000000000
-[13108726.329081] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[13108726.332311] CR2: 0000000000000074 CR3: 00000026a1b28000 CR4: 00000000007607e0
-[13108726.334606] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[13108726.336754] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[13108726.338908] PKRU: 00000000
-[13108726.341047] Call Trace:
-[13108726.343074]  [<ffffffff8a2c78b4>] ? groups_alloc+0x34/0x110
-[13108726.344837]  [<ffffffffc01f5eb4>] svc_set_client+0x24/0x30 [sunrpc]
-[13108726.346631]  [<ffffffffc01f2ac1>] svc_process_common+0x241/0x710 [sunrpc]
-[13108726.348332]  [<ffffffffc01f3093>] svc_process+0x103/0x190 [sunrpc]
-[13108726.350016]  [<ffffffffc07d605f>] nfsd+0xdf/0x150 [nfsd]
-[13108726.351735]  [<ffffffffc07d5f80>] ? nfsd_destroy+0x80/0x80 [nfsd]
-[13108726.353459]  [<ffffffff8a2bf741>] kthread+0xd1/0xe0
-[13108726.355195]  [<ffffffff8a2bf670>] ? create_kthread+0x60/0x60
-[13108726.356896]  [<ffffffff8a9556dd>] ret_from_fork_nospec_begin+0x7/0x21
-[13108726.358577]  [<ffffffff8a2bf670>] ? create_kthread+0x60/0x60
-[13108726.360240] Code: 4c 8b 45 98 0f 8e 2e 01 00 00 83 f8 fe 0f 84 76 fe ff ff 85 c0 0f 85 2b 01 00 00 49 8b 50 40 b8 01 00 00 00 48 89 93 d0 1a 00 00 <f0> 0f c1 02 83 c0 01 83 f8 01 0f 8e 53 02 00 00 49 8b 44 24 38
-[13108726.363769] RIP  [<ffffffffc01f79eb>] svcauth_unix_set_client+0x2ab/0x520 [sunrpc]
-[13108726.365530]  RSP <ffffa0c2a74bfd80>
-[13108726.367179] CR2: 0000000000000074
-
-Fixes: d58431eacb22 ("sunrpc: don't mark uninitialised items as VALID.")
-Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Acked-by: NeilBrown <neilb@suse.de>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
+Reviewed-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Konstantin Khorenko <khorenko@virtuozzo.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/cache.c | 6 ------
- 1 file changed, 6 deletions(-)
+ kernel/module.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/sunrpc/cache.c b/net/sunrpc/cache.c
-index a8ab98b53a3af..570832949f912 100644
---- a/net/sunrpc/cache.c
-+++ b/net/sunrpc/cache.c
-@@ -54,9 +54,6 @@ static void cache_init(struct cache_head *h, struct cache_detail *detail)
- 	h->last_refresh = now;
- }
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -1014,6 +1014,8 @@ SYSCALL_DEFINE2(delete_module, const cha
+ 	strlcpy(last_unloaded_module, mod->name, sizeof(last_unloaded_module));
  
--static inline int cache_is_valid(struct cache_head *h);
--static void cache_fresh_locked(struct cache_head *head, time_t expiry,
--				struct cache_detail *detail);
- static void cache_fresh_unlocked(struct cache_head *head,
- 				struct cache_detail *detail);
- 
-@@ -101,9 +98,6 @@ struct cache_head *sunrpc_cache_lookup(struct cache_detail *detail,
- 			if (cache_is_expired(detail, tmp)) {
- 				hlist_del_init(&tmp->cache_list);
- 				detail->entries --;
--				if (cache_is_valid(tmp) == -EAGAIN)
--					set_bit(CACHE_NEGATIVE, &tmp->flags);
--				cache_fresh_locked(tmp, 0, detail);
- 				freeme = tmp;
- 				break;
- 			}
--- 
-2.20.1
-
+ 	free_module(mod);
++	/* someone could wait for the module in add_unformed_module() */
++	wake_up_all(&module_wq);
+ 	return 0;
+ out:
+ 	mutex_unlock(&module_mutex);
 
 
