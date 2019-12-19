@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A2DC126BF8
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC23126C39
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730132AbfLSSvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:51:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45622 "EHLO mail.kernel.org"
+        id S1729413AbfLSSte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:49:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729205AbfLSSvW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:51:22 -0500
+        id S1729814AbfLSSte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:49:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 149E924679;
-        Thu, 19 Dec 2019 18:51:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78AAD2064B;
+        Thu, 19 Dec 2019 18:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781481;
-        bh=GqAFOTv0a9RtHQ56hi09qCi4T7GetSCA3QHzEhxSVjs=;
+        s=default; t=1576781373;
+        bh=ZDWjkucWnuNDUFia2/GxQNQEtlT4iZWmBPaU8zSh7vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alwhA33O6tlTR5kSyh0dzQGDcFisAlbtFahmnwavaU4yjzJBrIH6WiXEBmrkHXglc
-         89KeFxJSp/uOTnni1nqhG8hZpALSLbjNg1Bk9vL7jh+2XGC3VWzmnAq4ojjvcAwetp
-         CSmc+MQyjB4MfvzrJlidqKMeGj6sPPoUTyxgVB1s=
+        b=ljLAPKdnBJZMqCBjvnvYoVyMyD+ttiZKu/micDpkBH/Da5WpwhSQxSazpVUtF5lQy
+         XUtwGvUjxxEB+vEVNi43HynE3AXfEa1P4v5lOxYG5aHYWeOFvwsp+RLnqaqcPXEjH6
+         0ImagnGhjS0Ou2M8OKg+eG//tgUKH2mhJ57KvZ28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.14 18/36] xtensa: fix TLB sanity checker
-Date:   Thu, 19 Dec 2019 19:34:35 +0100
-Message-Id: <20191219182907.300079882@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 194/199] dm btree: increase rebalance threshold in __rebalance2()
+Date:   Thu, 19 Dec 2019 19:34:36 +0100
+Message-Id: <20191219183226.514476773@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
-References: <20191219182848.708141124@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit 36de10c4788efc6efe6ff9aa10d38cb7eea4c818 upstream.
+commit 474e559567fa631dea8fb8407ab1b6090c903755 upstream.
 
-Virtual and translated addresses retrieved by the xtensa TLB sanity
-checker must be consistent, i.e. correspond to the same state of the
-checked TLB entry. KASAN shadow memory is mapped dynamically using
-auto-refill TLB entries and thus may change TLB state between the
-virtual and translated address retrieval, resulting in false TLB
-insanity report.
-Move read_xtlb_translation close to read_xtlb_virtual to make sure that
-read values are consistent.
+We got the following warnings from thin_check during thin-pool setup:
+
+  $ thin_check /dev/vdb
+  examining superblock
+  examining devices tree
+    missing devices: [1, 84]
+      too few entries in btree_node: 41, expected at least 42 (block 138, max_entries = 126)
+  examining mapping tree
+
+The phenomenon is the number of entries in one node of details_info tree is
+less than (max_entries / 3). And it can be easily reproduced by the following
+procedures:
+
+  $ new a thin pool
+  $ presume the max entries of details_info tree is 126
+  $ new 127 thin devices (e.g. 1~127) to make the root node being full
+    and then split
+  $ remove the first 43 (e.g. 1~43) thin devices to make the children
+    reblance repeatedly
+  $ stop the thin pool
+  $ thin_check
+
+The root cause is that the B-tree removal procedure in __rebalance2()
+doesn't guarantee the invariance: the minimal number of entries in
+non-root node should be >= (max_entries / 3).
+
+Simply fix the problem by increasing the rebalance threshold to
+make sure the number of entries in each child will be greater
+than or equal to (max_entries / 3 + 1), so no matter which
+child is used for removal, the number will still be valid.
 
 Cc: stable@vger.kernel.org
-Fixes: a99e07ee5e88 ("xtensa: check TLB sanity on return to userspace")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/xtensa/mm/tlb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/persistent-data/dm-btree-remove.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/arch/xtensa/mm/tlb.c
-+++ b/arch/xtensa/mm/tlb.c
-@@ -218,6 +218,8 @@ static int check_tlb_entry(unsigned w, u
- 	unsigned tlbidx = w | (e << PAGE_SHIFT);
- 	unsigned r0 = dtlb ?
- 		read_dtlb_virtual(tlbidx) : read_itlb_virtual(tlbidx);
-+	unsigned r1 = dtlb ?
-+		read_dtlb_translation(tlbidx) : read_itlb_translation(tlbidx);
- 	unsigned vpn = (r0 & PAGE_MASK) | (e << PAGE_SHIFT);
- 	unsigned pte = get_pte_for_vaddr(vpn);
- 	unsigned mm_asid = (get_rasid_register() >> 8) & ASID_MASK;
-@@ -233,8 +235,6 @@ static int check_tlb_entry(unsigned w, u
- 	}
+--- a/drivers/md/persistent-data/dm-btree-remove.c
++++ b/drivers/md/persistent-data/dm-btree-remove.c
+@@ -203,7 +203,13 @@ static void __rebalance2(struct dm_btree
+ 	struct btree_node *right = r->n;
+ 	uint32_t nr_left = le32_to_cpu(left->header.nr_entries);
+ 	uint32_t nr_right = le32_to_cpu(right->header.nr_entries);
+-	unsigned threshold = 2 * merge_threshold(left) + 1;
++	/*
++	 * Ensure the number of entries in each child will be greater
++	 * than or equal to (max_entries / 3 + 1), so no matter which
++	 * child is used for removal, the number will still be not
++	 * less than (max_entries / 3).
++	 */
++	unsigned int threshold = 2 * (merge_threshold(left) + 1);
  
- 	if (tlb_asid == mm_asid) {
--		unsigned r1 = dtlb ? read_dtlb_translation(tlbidx) :
--			read_itlb_translation(tlbidx);
- 		if ((pte ^ r1) & PAGE_MASK) {
- 			pr_err("%cTLB: way: %u, entry: %u, mapping: %08x->%08x, PTE: %08x\n",
- 					dtlb ? 'D' : 'I', w, e, r0, r1, pte);
+ 	if (nr_left + nr_right < threshold) {
+ 		/*
 
 
