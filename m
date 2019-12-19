@@ -2,124 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D523F125ECF
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 11:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78414125FFE
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 11:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726818AbfLSKYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 05:24:12 -0500
-Received: from mailout2.samsung.com ([203.254.224.25]:58485 "EHLO
-        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726664AbfLSKYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 05:24:11 -0500
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20191219102408epoutp02ae211e70078e56b1d1cf403b59e0be8c~hvrlthwuo2447424474epoutp02M
-        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 10:24:08 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20191219102408epoutp02ae211e70078e56b1d1cf403b59e0be8c~hvrlthwuo2447424474epoutp02M
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1576751048;
-        bh=lNrhRejjZJSzCkKB4e9oz198En7AGkhdGjzwETzjwSA=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=KRYEj2JzULwya/Lqwzr7vEUGg8ieaFAf3rPegr29B0PVUF3SyMCsP9klN81Hb1v0F
-         ECc7o8e5so/QQv3UuwVcxFPji6Ab/CxyYfVztMOTNtOYbFxz8BKojI0vtLkS7M66Ta
-         3ZaPRb8yNlIUrnHGCUZ5g5Hn6i5XMQy/gom60bkg=
-Received: from epsmges5p2new.samsung.com (unknown [182.195.42.74]) by
-        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
-        20191219102407epcas5p1b5c225f18bdc03ded34454fd31c43f6f~hvrlMFaTh0414504145epcas5p1y;
-        Thu, 19 Dec 2019 10:24:07 +0000 (GMT)
-Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        84.91.20197.7CF4BFD5; Thu, 19 Dec 2019 19:24:07 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-        20191219102407epcas5p103b26e6fb191f7135d870a3449115c89~hvrktDiNf1266012660epcas5p1U;
-        Thu, 19 Dec 2019 10:24:07 +0000 (GMT)
-Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20191219102407epsmtrp176085784dc461fe6da3d95f7ca863b62~hvrksUUAR2283122831epsmtrp1j;
-        Thu, 19 Dec 2019 10:24:07 +0000 (GMT)
-X-AuditID: b6c32a4a-781ff70000014ee5-d8-5dfb4fc75a10
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        41.F3.06569.6CF4BFD5; Thu, 19 Dec 2019 19:24:07 +0900 (KST)
-Received: from Jaguar.sa.corp.samsungelectronics.net (unknown
-        [107.108.73.139]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20191219102405epsmtip2fd5ad69fdeaf24c9021b65c50e814a81~hvri16nI00195201952epsmtip2W;
-        Thu, 19 Dec 2019 10:24:04 +0000 (GMT)
-From:   Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>
-To:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     peppe.cavallaro@st.com, alexandre.torgue@st.com,
-        Jose.Abreu@synopsys.com, davem@davemloft.net,
-        stable@vger.kernel.org, jayati.sahu@samsung.com,
-        pankaj.dubey@samsung.com, rcsekar@samsung.com,
-        Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>,
-        Sriram Dash <sriram.dash@samsung.com>
-Subject: [PATCH] net: stmmac: platform: Fix MDIO init for platforms without
- PHY
-Date:   Thu, 19 Dec 2019 15:47:01 +0530
-Message-Id: <1576750621-78066-1-git-send-email-p.rajanbabu@samsung.com>
-X-Mailer: git-send-email 2.7.4
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpgleLIzCtJLcpLzFFi42LZdlhTS/e4/+9Yg6/PlC02PjnNaDHnfAuL
-        xZFTS5gs7v35wGqx6fE1VovLu+awWXRde8JqcWyBmMXRjcEWi7Z+Ybf4/3oro8WsCztYLW6s
-        Z7dYsPERowOfx5aVN5k8Ni+p9+jbsorR4+A+Q4+nP/Yye2zZ/5nR4/MmuQD2KC6blNSczLLU
-        In27BK6MVZMa2Qs2clb8n7+QrYGxjaOLkYNDQsBEYsqyoC5GLg4hgd2MEmd3/mOBcD4xSmxb
-        s5+1i5ETyPnGKLFnoQ2IDdIw6/htNoiivYwSSx5OYIJwWpgkbk1+ygxSxSZgKrFqTiMrSEJE
-        oItRYteBOWCjmAUWMkm82GcJYgsLBEp82dbNAmKzCKhKbHlwhhHE5hVwl/j7dx0rxDo5iZvn
-        Opkh7CNsEl9XaELYLhLvlz9ng7CFJV4d38IOYUtJvOxvg7LLJV5+Wgx2qoRAA6PEzInTGSES
-        9hIHrsxhAQUAs4CmxPpd+hC38Un0/n7CBAkXXomONiGIalWJ9cs3QXVKS+y7vhfK9pDoubqB
-        BRJCsRKT1xxhnsAoMwth6AJGxlWMkqkFxbnpqcWmBUZ5qeV6xYm5xaV56XrJ+bmbGMHpQstr
-        B+Oycz6HGAU4GJV4eH+4/ooVYk0sK67MPcQowcGsJMJ7u+NnrBBvSmJlVWpRfnxRaU5q8SFG
-        aQ4WJXHeSaxXY4QE0hNLUrNTUwtSi2CyTBycUg2MtgKXHZhlDwa5b13vK+t5rXEtX7X5Tr7X
-        ew7NszL866pvqH72wbIZvV6pLjp/Ze68S2SMO/nw+ax77G4F710djOwEn1/0tnF5sT8yfi9j
-        2IX+n1sWf2n97WqUfP33xaT8r2+W/q9/ZWM4PVXLN13UKDvgnulymb939sxRCtaffrOgpSe5
-        TNpAiaU4I9FQi7moOBEANvs2axMDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrGLMWRmVeSWpSXmKPExsWy7bCSvO5x/9+xBru6GS02PjnNaDHnfAuL
-        xZFTS5gs7v35wGqx6fE1VovLu+awWXRde8JqcWyBmMXRjcEWi7Z+Ybf4/3oro8WsCztYLW6s
-        Z7dYsPERowOfx5aVN5k8Ni+p9+jbsorR4+A+Q4+nP/Yye2zZ/5nR4/MmuQD2KC6blNSczLLU
-        In27BK6MVZMa2Qs2clb8n7+QrYGxjaOLkZNDQsBEYtbx22xdjFwcQgK7GSV+LpzNBpGQlpje
-        vwfKFpZY+e85O0RRE5NE98UtYAk2AVOJVXMaWUESIgJ9jBL/F/1hAnGYBVYzSexY08IEUiUs
-        4C9x//4LFhCbRUBVYsuDM4wgNq+Au8Tfv+tYIVbISdw818k8gZFnASPDKkbJ1ILi3PTcYsMC
-        o7zUcr3ixNzi0rx0veT83E2M4NDU0trBeOJE/CFGAQ5GJR7eH66/YoVYE8uKK3MPMUpwMCuJ
-        8N7u+BkrxJuSWFmVWpQfX1Sak1p8iFGag0VJnFc+/1ikkEB6YklqdmpqQWoRTJaJg1OqgXGZ
-        bP8snY0e68QWK7Kq80bprA/YcKM3K0EhI73gvVDxo8C5NWJ7Xtkm1P+t29F7+rRuwBYTFaPj
-        zofvSPscrcgI8dwmEMrtHr+kz/LLI93mvh1ft9x/+CxVhi9i3qPoRzd36q9hXf/z4d8zlZEp
-        Nz2X7hFOdXhuPm/yghOWrX9u/d+0Kt85+IASS3FGoqEWc1FxIgDJWKlXSQIAAA==
-X-CMS-MailID: 20191219102407epcas5p103b26e6fb191f7135d870a3449115c89
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-X-CMS-RootMailID: 20191219102407epcas5p103b26e6fb191f7135d870a3449115c89
-References: <CGME20191219102407epcas5p103b26e6fb191f7135d870a3449115c89@epcas5p1.samsung.com>
+        id S1726741AbfLSKxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 05:53:40 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59685 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726652AbfLSKxk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 05:53:40 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9013322390;
+        Thu, 19 Dec 2019 05:53:39 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 19 Dec 2019 05:53:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=PhrBpT
+        IqTYfKeAiYYnh15rpR9pMQ9qXgM8hGtiIaRNk=; b=OklB0Z+PFZKKmLuOKGE3GI
+        KH01i2KsQK5cVGA4Pmx1pizw500IKpdPUU5p9JBqZF1kWwrEKL020unJmiGBye7m
+        xNnDz36hnZOTDbQgl/Ke6dh7ixUfcO32OW8EeDeFP5pxJIFIinIFeUzbalicLjf4
+        6yfLlZpk9dRq2MCs1OlOcavUYdaBCKGNx3nEtNSzKSxv+vpipnZ9PQ+BV2eibWQL
+        M2ncWEv2n/M8Wmd3gV9C/JkicGGmFNy+t/d8IUhgfVZHDFOyh/cCyWazW20yPogk
+        zEQA8qRaN8REaK2L2Mw5suE+Abnv1VB3ZmqWmy2DuTycN1uEqlBxKHE8MqGGye/w
+        ==
+X-ME-Sender: <xms:s1b7XVwkEkGBu3zwCzELm2nago7ejeN1JzdDZsdBFKyQI09KrZNzOg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrvdduuddgvdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:s1b7XZDolDF0BEyHEFHl8ASC4AcrOCkuwFBAd78DdQ5FILIPZ9sQ9g>
+    <xmx:s1b7XYNxYA8yiDLBJY683TliurT3myeF2ZQK4qM0aHAKHvJWuGxdvg>
+    <xmx:s1b7Xfptx59b_U27TobBs88zM8K3T4ypsUlnZlAYqpxpMBPYi2-nNQ>
+    <xmx:s1b7XfnLGBp98mKuAqz8FT34uUQ-gWgDc4GiZY6vehq1YWqymuBRfw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2571830609DC;
+        Thu, 19 Dec 2019 05:53:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] cifs: smbd: Only queue work for error recovery on memory" failed to apply to 4.19-stable tree
+To:     longli@microsoft.com, stfrench@microsoft.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 19 Dec 2019 11:53:36 +0100
+Message-ID: <15767528162211@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The current implementation of "stmmac_dt_phy" function initializes
-the MDIO platform bus data, even in the absence of PHY. This fix
-will skip MDIO initialization if there is no PHY present.
 
-Fixes: 7437127 ("net: stmmac: Convert to phylink and remove phylib logic")
-Acked-by: Jayati Sahu <jayati.sahu@samsung.com>
-Signed-off-by: Sriram Dash <sriram.dash@samsung.com>
-Signed-off-by: Padmanabhan Rajanbabu <p.rajanbabu@samsung.com>
----
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index bedaff0..cc8d7e7 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -320,7 +320,7 @@ static int stmmac_mtl_setup(struct platform_device *pdev,
- static int stmmac_dt_phy(struct plat_stmmacenet_data *plat,
- 			 struct device_node *np, struct device *dev)
- {
--	bool mdio = true;
-+	bool mdio = false;
- 	static const struct of_device_id need_mdio_ids[] = {
- 		{ .compatible = "snps,dwc-qos-ethernet-4.10" },
- 		{},
--- 
-2.7.4
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c21ce58eab1eda4c66507897207e20c82e62a5ac Mon Sep 17 00:00:00 2001
+From: Long Li <longli@microsoft.com>
+Date: Wed, 16 Oct 2019 13:51:55 -0700
+Subject: [PATCH] cifs: smbd: Only queue work for error recovery on memory
+ registration
+
+It's not necessary to queue invalidated memory registration to work queue, as
+all we need to do is to unmap the SG and make it usable again. This can save
+CPU cycles in normal data paths as memory registration errors are rare and
+normally only happens during reconnection.
+
+Signed-off-by: Long Li <longli@microsoft.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
+
+diff --git a/fs/cifs/smbdirect.c b/fs/cifs/smbdirect.c
+index d91f2f60e2df..5b1b97e9e0c9 100644
+--- a/fs/cifs/smbdirect.c
++++ b/fs/cifs/smbdirect.c
+@@ -2271,12 +2271,7 @@ static void smbd_mr_recovery_work(struct work_struct *work)
+ 	int rc;
+ 
+ 	list_for_each_entry(smbdirect_mr, &info->mr_list, list) {
+-		if (smbdirect_mr->state == MR_INVALIDATED)
+-			ib_dma_unmap_sg(
+-				info->id->device, smbdirect_mr->sgl,
+-				smbdirect_mr->sgl_count,
+-				smbdirect_mr->dir);
+-		else if (smbdirect_mr->state == MR_ERROR) {
++		if (smbdirect_mr->state == MR_ERROR) {
+ 
+ 			/* recover this MR entry */
+ 			rc = ib_dereg_mr(smbdirect_mr->mr);
+@@ -2604,11 +2599,20 @@ int smbd_deregister_mr(struct smbd_mr *smbdirect_mr)
+ 		 */
+ 		smbdirect_mr->state = MR_INVALIDATED;
+ 
+-	/*
+-	 * Schedule the work to do MR recovery for future I/Os
+-	 * MR recovery is slow and we don't want it to block the current I/O
+-	 */
+-	queue_work(info->workqueue, &info->mr_recovery_work);
++	if (smbdirect_mr->state == MR_INVALIDATED) {
++		ib_dma_unmap_sg(
++			info->id->device, smbdirect_mr->sgl,
++			smbdirect_mr->sgl_count,
++			smbdirect_mr->dir);
++		smbdirect_mr->state = MR_READY;
++		if (atomic_inc_return(&info->mr_ready_count) == 1)
++			wake_up_interruptible(&info->wait_mr);
++	} else
++		/*
++		 * Schedule the work to do MR recovery for future I/Os MR
++		 * recovery is slow and don't want it to block current I/O
++		 */
++		queue_work(info->workqueue, &info->mr_recovery_work);
+ 
+ done:
+ 	if (atomic_dec_and_test(&info->mr_used_count))
 
