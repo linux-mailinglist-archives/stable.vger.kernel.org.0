@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF0A126DA8
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 074EF126C58
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728091AbfLSSis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:38:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
+        id S1729661AbfLSSsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:48:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728089AbfLSSir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:38:47 -0500
+        id S1729653AbfLSSsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:48:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E27D222C2;
-        Thu, 19 Dec 2019 18:38:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37B6C24672;
+        Thu, 19 Dec 2019 18:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780727;
-        bh=Sgkhd3pJREA3CUXciHyFhjWfspP5e00Oladewn/tE70=;
+        s=default; t=1576781315;
+        bh=RWxwab80TY1PaH/MVpLU0B8OeDnTrNO7TreYWl8Nzmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RryhaLlVa2fwULlzAK/nU4SJZd6lGHc3J2qaAwcrxcJx6qaC2LM8Dl7M+w3cxx3Va
-         zFxCiAgObx0oYmGKCUeATPKJOzvjYQt8wHhwth3yQjdKNB/zYOqFrAzJwOmjAsYXzg
-         k90AqUrpBN2JIZ7FEgOxAQBCqfIoTG8fjY+FZaGk=
+        b=zmgVc55SJ9Uh6WsHXgLjJvGvuPAhkLGrXiL0g9NXkd9VyIchkwoQVqAXW5X2saah+
+         Ds8QuqDz3Dv/ae1w8QxZOP9kyvaC1DK7obUOc1uSgPXn+sR+au7xo6d53FBJ0OMicp
+         6EXwnGve5H+DG3Ld/8PBXTFI5ItMYFyFM/mogf6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 092/162] USB: idmouse: fix interface sanity checks
-Date:   Thu, 19 Dec 2019 19:33:20 +0100
-Message-Id: <20191219183213.393889923@linuxfoundation.org>
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 120/199] rtlwifi: rtl8192de: Fix missing code to retrieve RX buffer address
+Date:   Thu, 19 Dec 2019 19:33:22 +0100
+Message-Id: <20191219183221.563732899@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 59920635b89d74b9207ea803d5e91498d39e8b69 upstream.
+commit 0e531cc575c4e9e3dd52ad287b49d3c2dc74c810 upstream.
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
+new drivers"), a callback to get the RX buffer address was added to
+the PCI driver. Unfortunately, driver rtl8192de was not modified
+appropriately and the code runs into a WARN_ONCE() call. The use
+of an incorrect array is also fixed.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210112601.3561-4-johan@kernel.org
+Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
+Cc: Stable <stable@vger.kernel.org> # 3.18+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/idmouse.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/misc/idmouse.c
-+++ b/drivers/usb/misc/idmouse.c
-@@ -342,7 +342,7 @@ static int idmouse_probe(struct usb_inte
- 	int result;
- 
- 	/* check if we have gotten the data or the hid interface */
--	iface_desc = &interface->altsetting[0];
-+	iface_desc = interface->cur_altsetting;
- 	if (iface_desc->desc.bInterfaceClass != 0x0A)
- 		return -ENODEV;
- 
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
+@@ -843,13 +843,15 @@ u32 rtl92de_get_desc(u8 *p_desc, bool is
+ 			break;
+ 		}
+ 	} else {
+-		struct rx_desc_92c *pdesc = (struct rx_desc_92c *)p_desc;
+ 		switch (desc_name) {
+ 		case HW_DESC_OWN:
+-			ret = GET_RX_DESC_OWN(pdesc);
++			ret = GET_RX_DESC_OWN(p_desc);
+ 			break;
+ 		case HW_DESC_RXPKT_LEN:
+-			ret = GET_RX_DESC_PKT_LEN(pdesc);
++			ret = GET_RX_DESC_PKT_LEN(p_desc);
++			break;
++		case HW_DESC_RXBUFF_ADDR:
++			ret = GET_RX_DESC_BUFF_ADDR(p_desc);
+ 			break;
+ 		default:
+ 			RT_ASSERT(false, "ERR rxdesc :%d not process\n",
 
 
