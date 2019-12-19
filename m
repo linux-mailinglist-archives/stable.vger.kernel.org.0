@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F11F2126CF7
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:07:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98755126D7B
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728521AbfLSSm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:42:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34418 "EHLO mail.kernel.org"
+        id S1727545AbfLSSgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:36:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728773AbfLSSm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:42:58 -0500
+        id S1727531AbfLSSgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:36:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1790B222C2;
-        Thu, 19 Dec 2019 18:42:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F54224679;
+        Thu, 19 Dec 2019 18:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780977;
-        bh=7qZGJelULVxUzXvNCcQGpWBoKxbjnvtdeG82dKQgVT4=;
+        s=default; t=1576780578;
+        bh=DEKBXRB7nsaAebTFX9q8Bi8Dx7ghdIEtxFRSQFrfSRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wo+2xaPF1zes/pqfAeCF7oMfEGrKuFZBQTssrwB7QWtsHg7TtWd/WkxkSty+bizSw
-         nGXX2o6EdnaRKh2LahAuergEt9QRDKGqjb6doJVeMcplGhSz+Tbk/c7PwSO8mXl90H
-         sb9D9HfsbOs+GmNM9k8LGl0Fg2iIa+zam28LljEA=
+        b=l9qYV6m/XPgyN7iniDRNlFPo4MvX02R8QD722+To3fhfPXqoHVCzX05SL++O4mgV+
+         +n1NcpOVzuLaK4Fs230JMQ5SMiD+EnF2fBoMADUErk0fHW4xQ8fc7Jty+Xx3tMyyNa
+         XYiyCr6mvdIwl9u3tObFNpK/l7dGQBjVTUWU+6sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cheng-Yi Chiang <cychiang@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 031/199] regulator: Fix return value of _set_load() stub
-Date:   Thu, 19 Dec 2019 19:31:53 +0100
-Message-Id: <20191219183216.600647207@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+Subject: [PATCH 4.4 006/162] serial: ifx6x60: add missed pm_runtime_disable
+Date:   Thu, 19 Dec 2019 19:31:54 +0100
+Message-Id: <20191219183157.631482908@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit f1abf67217de91f5cd3c757ae857632ca565099a ]
+commit 50b2b571c5f3df721fc81bf9a12c521dfbe019ba upstream.
 
-The stub implementation of _set_load() returns a mode value which is
-within the bounds of valid return codes for success (the documentation
-just says that failures are negative error codes) but not sensible or
-what the actual implementation does.  Fix it to just return 0.
+The driver forgets to call pm_runtime_disable in remove.
+Add the missed calls to fix it.
 
-Reported-by: Cheng-Yi Chiang <cychiang@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191118024833.21587-1-hslester96@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/regulator/consumer.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/ifx6x60.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/regulator/consumer.h b/include/linux/regulator/consumer.h
-index 692108222271a..bab9236e43675 100644
---- a/include/linux/regulator/consumer.h
-+++ b/include/linux/regulator/consumer.h
-@@ -479,7 +479,7 @@ static inline unsigned int regulator_get_mode(struct regulator *regulator)
- 
- static inline int regulator_set_load(struct regulator *regulator, int load_uA)
- {
--	return REGULATOR_MODE_NORMAL;
-+	return 0;
- }
- 
- static inline int regulator_allow_bypass(struct regulator *regulator,
--- 
-2.20.1
-
+--- a/drivers/tty/serial/ifx6x60.c
++++ b/drivers/tty/serial/ifx6x60.c
+@@ -1241,6 +1241,9 @@ static int ifx_spi_spi_remove(struct spi
+ 	struct ifx_spi_device *ifx_dev = spi_get_drvdata(spi);
+ 	/* stop activity */
+ 	tasklet_kill(&ifx_dev->io_work_tasklet);
++
++	pm_runtime_disable(&spi->dev);
++
+ 	/* free irq */
+ 	free_irq(gpio_to_irq(ifx_dev->gpio.reset_out), ifx_dev);
+ 	free_irq(gpio_to_irq(ifx_dev->gpio.srdy), ifx_dev);
 
 
