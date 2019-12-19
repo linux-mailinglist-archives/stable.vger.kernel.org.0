@@ -2,110 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F139B126E55
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 21:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92279126E87
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 21:15:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726897AbfLSUFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 15:05:16 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:46518 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726884AbfLSUFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 15:05:15 -0500
-Received: by mail-wr1-f67.google.com with SMTP id z7so7197866wrl.13
-        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 12:05:14 -0800 (PST)
+        id S1726880AbfLSUPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 15:15:31 -0500
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:38008 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726869AbfLSUPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 15:15:31 -0500
+Received: by mail-qk1-f193.google.com with SMTP id k6so5719840qki.5
+        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 12:15:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=IDab6Lhy0egQpQtLVvNP3lbeteiH2YDGTTgMC4J1R+s=;
-        b=q0MhacBT2i3BxTkRDKSHlZXTumdLjXyrueR5Y+KOTttCaNYL/KSjZem3P55n1kvUGy
-         ZemKukhg6ImIgnU9f0eSIYtHFPCHKv831B1EOpLglTatR+7oEc3x8CRWl9hVCAiEbHns
-         xI6WRccB0Govbnp3js+/vUqC7eIn7fpv4GxtXaeEwkZ7UYU/uKcKMRqdtdJ5Vab9A0pj
-         ++zj6T0sy+sWWbDKRz/UVwnGBenGYHQZvI9HgaaaQt1hTDJ8UXDW8wQHjftzWzEsFRwf
-         4ihRNUQHVBZlrnC5O85JGqYCBBR0x6Fgyb3avbHWohAVlheUq4MprjJ74PbdDIQJ//js
-         C2Ww==
+        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=PQjMXND29ZOsAnerzkU8MnmW/ZfdROUZu9qjhxqG6EY=;
+        b=U9cHXkPP72WvtcADClYC4DRQZ5M9c6gavTG4jpBe5tnz0P1dbHdjkyNQIWHFb7REgV
+         OU1lHIoA9ockLBIBMzzu298VqW4UBfWXuOZCXpX+uPXItDxIXEC8HO1TbE4DkkL4o70d
+         l4uxkJ0tU2czRYZwVB4DcWQZN+2DE4CIgNvIkZ76H+bkje/KoyMvIZ+VrCU88Qz3biQu
+         pIvJaydN73S20ffqz0xQT4TcjYpgveoRn3QYKhXZoHsjQtIp6gBibHSes3ZHyw2GLyh0
+         g6o8Ogkl4cY5CLlC0RXVFXz0Wl0lwj4K9GQlbkG5eecE1EqYjDsvo3K+6hkInGRMTqzd
+         +0Bg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=IDab6Lhy0egQpQtLVvNP3lbeteiH2YDGTTgMC4J1R+s=;
-        b=cmO1Ztxmmo8mshyh53lJZ3MwoRNxFUjBB5gLUNqTqqAx6FQbIiyWjxJMnTQQIRWMMC
-         xenmk8dnBnULqR6ffOtLCO4cDJq877N4OWlBoL8x25xl6fTAFOtjA+AyHQ5RTw2yAS/b
-         kenqiLW9dRlLwXRSsaeEqtfViu6zKDHoL8sdCMK01dKD4Vawoci9aDgQ8hAJBp0K3AXX
-         2SgX8eKSxQqo/2GG6yDdrRCTgzqlrHSU13z571l1uLL597xdvl66t1Z5AUlq8NKJiyOg
-         dHDfzyVUFlOi1ZW+JmGYhrd1Q20MwSYE7PsN1FHM91e1+/Ztv6+cfmHN5Gi9jEXYlX4u
-         A0Tg==
-X-Gm-Message-State: APjAAAXpqXQLRIorVTLKZ6lJ+z19nozlDmWGxPkjb9/gO/1st+WzEnMJ
-        kQ0DKm+P066xbPtl06ttACMDKNUnH8vEWw==
-X-Google-Smtp-Source: APXvYqy8b0Ib5aIt0OKv2k7X0EoG0zcJZ0pK802m6IdFeyQlbFH5Upm8DCirzcZBBuAj4rK+LniA+Q==
-X-Received: by 2002:adf:f606:: with SMTP id t6mr10938129wrp.85.1576785913806;
-        Thu, 19 Dec 2019 12:05:13 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n3sm7216580wrs.8.2019.12.19.12.05.13
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=PQjMXND29ZOsAnerzkU8MnmW/ZfdROUZu9qjhxqG6EY=;
+        b=poOnwfgBV6k+ee5BSUe4LRXJ1To+YGrlcOzLzrkKIu2Zy0L2ZjF7prkkKBaqcC03TW
+         K0h56R9r4JhF+2eZBq5g2mvE6qEO5BgamapmiKlhdONyUoVk2ZPcdrtgg4NG51DTKZCC
+         kMfoU2WR37OVUWY3ERcbmDngW1ryp8dWzRrI/3HCUnZiMerBrWvxchEUWY1UoAyv8A5M
+         yqAccLMokGwE3NvxPyzK83QirCHC+ULJe2G+xS29QpKfIiIw3Ds/LgddXuz/NK7G8G7f
+         9RPdGp21YjCCiFjPdzUjAUK4xo+lpSOZnQRzJu4vW5V9CzoCKVwmaDKONz+0/BGhNNyT
+         Dn2g==
+X-Gm-Message-State: APjAAAUVYUCQQwCiRrzty+kPWq+0eEpwKrKGFvjz3pwINR4+DYlEnBvS
+        5vm7G6xJbJOR5FVQGBThiFgGuA==
+X-Google-Smtp-Source: APXvYqyRYyW05k3AdGpltsQgBfP/jVScYLnn+lr2hLrvDn9gjqevIFa5OGfLlQB1Pz3gmzV/mkhgDQ==
+X-Received: by 2002:a05:620a:147c:: with SMTP id j28mr9051619qkl.13.1576786530431;
+        Thu, 19 Dec 2019 12:15:30 -0800 (PST)
+Received: from localhost ([2620:10d:c091:500::91a1])
+        by smtp.gmail.com with ESMTPSA id 53sm2260936qtu.40.2019.12.19.12.15.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Dec 2019 12:05:13 -0800 (PST)
-Message-ID: <5dfbd7f9.1c69fb81.fc66f.5303@mx.google.com>
-Date:   Thu, 19 Dec 2019 12:05:13 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 19 Dec 2019 12:15:29 -0800 (PST)
+Date:   Thu, 19 Dec 2019 15:15:29 -0500
+From:   Johannes Weiner <hannes@cmpxchg.org>
+To:     Roman Gushchin <guro@fb.com>
+Cc:     linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>, linux-kernel@vger.kernel.org,
+        kernel-team@fb.com, stable@vger.kernel.org
+Subject: Re: [PATCH] mm: memcg/slab: fix percpu slab vmstats flushing
+Message-ID: <20191219201529.GA15960@cmpxchg.org>
+References: <20191218230501.3858124-1-guro@fb.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.206-163-gfa8359d689a7
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 75 boots: 1 failed,
- 69 passed with 5 offline (v4.4.206-163-gfa8359d689a7)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191218230501.3858124-1-guro@fb.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 75 boots: 1 failed, 69 passed with 5 offline (v=
-4.4.206-163-gfa8359d689a7)
+On Wed, Dec 18, 2019 at 03:05:01PM -0800, Roman Gushchin wrote:
+> Currently slab percpu vmstats are flushed twice: during the memcg
+> offlining and just before freeing the memcg structure.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.206-163-gfa8359d689a7/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.206-163-gfa8359d689a7/
+Please explain here why this double flushing is done. You allude to it
+below in how it goes wrong, but it'd be better to describe the intent
+when describing the current implementation, to be clear about the
+trade offs we are making with this patch.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.206-163-gfa8359d689a7
-Git Commit: fa8359d689a7649d0f197a295edce3eb7c1ac175
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 17 SoC families, 15 builds out of 190
+> Each time percpu counters are summed, added to the atomic counterparts
+> and propagated up by the cgroup tree.
+> 
+> The problem is that percpu counters are not zeroed after the first
+> flushing. So every cached percpu value is summed twice. It creates
+> a small error (up to 32 pages per cpu, but usually less) which
+> accumulates on parent cgroup level. After creating and destroying
+> of thousands of child cgroups, slab counter on parent level can
+> be way off the real value.
+> 
+> For now, let's just stop flushing slab counters on memcg offlining.
+> It can't be done correctly without scheduling a work on each cpu:
+> reading and zeroing it during css offlining can race with an
+> asynchronous update, which doesn't expect values to be changed
+> underneath.
+> 
+> With this change, slab counters on parent level will become eventually
+> consistent. Once all dying children are gone, values are correct.
+> And if not, the error is capped by 32 * NR_CPUS pages per dying
+> cgroup.
+> 
+> It's not perfect, as slab are reparented, so any updates after
+> the reparenting will happen on the parent level. It means that
+> if a slab page was allocated, a counter on child level was bumped,
+> then the page was reparented and freed, the annihilation of positive
+> and negative counter values will not happen until the child cgroup is
+> released. It makes slab counters different from others, and it might
+> want us to implement flushing in a correct form again.
+> But it's also a question of performance: scheduling a work on each
+> cpu isn't free, and it's an open question if the benefit of having
+> more accurate counters is worth it.
+> 
+> We might also consider flushing all counters on offlining, not only
+> slab counters.
+> 
+> So let's fix the main problem now: make the slab counters eventually
+> consistent, so at least the error won't grow with uptime (or more
+> precisely the number of created and destroyed cgroups). And think
+> about the accuracy of counters separately.
+> 
+> Signed-off-by: Roman Gushchin <guro@fb.com>
+> Fixes: bee07b33db78 ("mm: memcontrol: flush percpu slab vmstats on kmem offlining")
+> Cc: stable@vger.kernel.org
 
-Boot Failure Detected:
+Other than that, the change looks reasonable to me.
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
