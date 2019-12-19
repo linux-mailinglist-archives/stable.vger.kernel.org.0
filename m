@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42ACE126D2B
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFED126BF3
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:00:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727465AbfLSTJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:09:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60010 "EHLO mail.kernel.org"
+        id S1730212AbfLSSwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:52:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727574AbfLSSlH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:41:07 -0500
+        id S1730206AbfLSSwD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:52:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 381EF206D7;
-        Thu, 19 Dec 2019 18:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F29024682;
+        Thu, 19 Dec 2019 18:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780865;
-        bh=k/Vn97eY/o48QnUPvrMfmIs4W8FZyzJ3R15DAh3PVyY=;
+        s=default; t=1576781522;
+        bh=gKp0kLwEZtfoMIRyilffqiIiy8JnWwnaPbDGjIDGXFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hQfjfk6h5VNbnEdhKf17EsIIyHyZhugZdCKAvoZH9bfeswTcB+UKvuSTYVq1TiPh
-         Saeai+OOqSEMdiGeICw6RXRTzP4VH3KxfWTaCP557aqXnc25myLHMrqtA3itkFmb4g
-         8+CeeUoTZmLTx9ut84aWn/rKD7d5glwKF6TGFwW4=
+        b=BEAhJTtmmUsOn05EJ6Hx8zxjjgWgivS+uyQ6RRPj3qPo09Ie1dM6oe8nxcxP/iGLm
+         Nuwy0vJqW8qTrYoBXQrJPgrOYmymYzIpi/fNrgyqkilO8c1yPNjbrMOuWIGDoKq55Q
+         73PM1Fs24vKMs49wMQMLn4BUVePY4dYyOQvvc0cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org,
+        Vladyslav Tarasiuk <vladyslavt@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 148/162] tcp: tighten acceptance of ACKs not matching a child socket
+Subject: [PATCH 4.19 02/47] mqprio: Fix out-of-bounds access in mqprio_dump
 Date:   Thu, 19 Dec 2019 19:34:16 +0100
-Message-Id: <20191219183216.782494552@linuxfoundation.org>
+Message-Id: <20191219182859.277595108@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
+References: <20191219182857.659088743@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Vladyslav Tarasiuk <vladyslavt@mellanox.com>
 
-[ Upstream commit cb44a08f8647fd2e8db5cc9ac27cd8355fa392d8 ]
+[ Upstream commit 9f104c7736904ac72385bbb48669e0c923ca879b ]
 
-When no synflood occurs, the synflood timestamp isn't updated.
-Therefore it can be so old that time_after32() can consider it to be
-in the future.
+When user runs a command like
+tc qdisc add dev eth1 root mqprio
+KASAN stack-out-of-bounds warning is emitted.
+Currently, NLA_ALIGN macro used in mqprio_dump provides too large
+buffer size as argument for nla_put and memcpy down the call stack.
+The flow looks like this:
+1. nla_put expects exact object size as an argument;
+2. Later it provides this size to memcpy;
+3. To calculate correct padding for SKB, nla_put applies NLA_ALIGN
+   macro itself.
 
-That's a problem for tcp_synq_no_recent_overflow() as it may report
-that a recent overflow occurred while, in fact, it's just that jiffies
-has grown past 'last_overflow' + TCP_SYNCOOKIE_VALID + 2^31.
+Therefore, NLA_ALIGN should not be applied to the nla_put parameter.
+Otherwise it will lead to out-of-bounds memory access in memcpy.
 
-Spurious detection of recent overflows lead to extra syncookie
-verification in cookie_v[46]_check(). At that point, the verification
-should fail and the packet dropped. But we should have dropped the
-packet earlier as we didn't even send a syncookie.
-
-Let's refine tcp_synq_no_recent_overflow() to report a recent overflow
-only if jiffies is within the
-[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval. This
-way, no spurious recent overflow is reported when jiffies wraps and
-'last_overflow' becomes in the future from the point of view of
-time_after32().
-
-However, if jiffies wraps and enters the
-[last_overflow, last_overflow + TCP_SYNCOOKIE_VALID] interval (with
-'last_overflow' being a stale synflood timestamp), then
-tcp_synq_no_recent_overflow() still erroneously reports an
-overflow. In such cases, we have to rely on syncookie verification
-to drop the packet. We unfortunately have no way to differentiate
-between a fresh and a stale syncookie timestamp.
-
-In practice, using last_overflow as lower bound is problematic.
-If the synflood timestamp is concurrently updated between the time
-we read jiffies and the moment we store the timestamp in
-'last_overflow', then 'now' becomes smaller than 'last_overflow' and
-tcp_synq_no_recent_overflow() returns true, potentially dropping a
-valid syncookie.
-
-Reading jiffies after loading the timestamp could fix the problem,
-but that'd require a memory barrier. Let's just accommodate for
-potential timestamp growth instead and extend the interval using
-'last_overflow - HZ' as lower bound.
-
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 4e8b86c06269 ("mqprio: Introduce new hardware offload mode and shaper in mqprio")
+Signed-off-by: Vladyslav Tarasiuk <vladyslavt@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/sched/sch_mqprio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -514,7 +514,15 @@ static inline bool tcp_synq_no_recent_ov
- {
- 	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
+--- a/net/sched/sch_mqprio.c
++++ b/net/sched/sch_mqprio.c
+@@ -435,7 +435,7 @@ static int mqprio_dump(struct Qdisc *sch
+ 		opt.offset[tc] = dev->tc_to_txq[tc].offset;
+ 	}
  
--	return time_after(jiffies, last_overflow + TCP_SYNCOOKIE_VALID);
-+	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
-+	 * then we're under synflood. However, we have to use
-+	 * 'last_overflow - HZ' as lower bound. That's because a concurrent
-+	 * tcp_synq_overflow() could update .ts_recent_stamp after we read
-+	 * jiffies but before we store .ts_recent_stamp into last_overflow,
-+	 * which could lead to rejecting a valid syncookie.
-+	 */
-+	return !time_between32(jiffies, last_overflow - HZ,
-+			       last_overflow + TCP_SYNCOOKIE_VALID);
- }
+-	if (nla_put(skb, TCA_OPTIONS, NLA_ALIGN(sizeof(opt)), &opt))
++	if (nla_put(skb, TCA_OPTIONS, sizeof(opt), &opt))
+ 		goto nla_put_failure;
  
- static inline u32 tcp_cookie_time(void)
+ 	if ((priv->flags & TC_MQPRIO_F_MODE) &&
 
 
