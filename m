@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9251269C6
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 059A6126BBB
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727999AbfLSSk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:40:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
+        id S1730453AbfLSSyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:54:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727791AbfLSSk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:56 -0500
+        id S1730445AbfLSSyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:54:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 677F8222C2;
-        Thu, 19 Dec 2019 18:40:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE8A2222C2;
+        Thu, 19 Dec 2019 18:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780855;
-        bh=bf/3d6uS+5f02VCacqGyDuHjI7m2Js6mnRbSpfCnVjw=;
+        s=default; t=1576781644;
+        bh=iGXz/x6xZIxMlB36RE7c/0DO5szquI6BsXtST0kPL2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPWIV3BOa1mVESIPDsLFQMsXbNE8WvmygYdd1m+L2Kb1eHH50EcjRbxq0kz8oWtwV
-         vkl145vdXFTd/xg/+u13e/aqJ8vdlMrMCacbhN0WVU/BmypLNhmFOKA4F5LSoY5GGF
-         jZC2W8r176bjr2IAbFOm86nypiMxr9RjjksZ35/Y=
+        b=oQpucYABzKNuxORMhyoOv6x25SAayAEYsvDr8E8J0G+IY3oxOaq2iDTFqBgkH9ZA/
+         mliRUjCRKMFSrLXFhqfBK60diZNOyRnA98ri3RX2UzwyRMpP1w5u18f2cQmeCYCsHA
+         URBwQuk7IFe5Rjdhmx1Bl6n7IHSQMo5aXCOyJ7rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 144/162] tcp: md5: fix potential overestimation of TCP option space
-Date:   Thu, 19 Dec 2019 19:34:12 +0100
-Message-Id: <20191219183216.532731687@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Lew <clew@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.4 21/80] rpmsg: glink: Set tail pointer to 0 at end of FIFO
+Date:   Thu, 19 Dec 2019 19:34:13 +0100
+Message-Id: <20191219183101.268904080@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Chris Lew <clew@codeaurora.org>
 
-[ Upstream commit 9424e2e7ad93ffffa88f882c9bc5023570904b55 ]
+commit 4623e8bf1de0b86e23a56cdb39a72f054e89c3bd upstream.
 
-Back in 2008, Adam Langley fixed the corner case of packets for flows
-having all of the following options : MD5 TS SACK
+When wrapping around the FIFO, the remote expects the tail pointer to
+be reset to 0 on the edge case where the tail equals the FIFO length.
 
-Since MD5 needs 20 bytes, and TS needs 12 bytes, no sack block
-can be cooked from the remaining 8 bytes.
-
-tcp_established_options() correctly sets opts->num_sack_blocks
-to zero, but returns 36 instead of 32.
-
-This means TCP cooks packets with 4 extra bytes at the end
-of options, containing unitialized bytes.
-
-Fixes: 33ad798c924b ("tcp: options clean up")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: caf989c350e8 ("rpmsg: glink: Introduce glink smem based transport")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chris Lew <clew@codeaurora.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_output.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -710,8 +710,9 @@ static unsigned int tcp_established_opti
- 			min_t(unsigned int, eff_sacks,
- 			      (remaining - TCPOLEN_SACK_BASE_ALIGNED) /
- 			      TCPOLEN_SACK_PERBLOCK);
--		size += TCPOLEN_SACK_BASE_ALIGNED +
--			opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
-+		if (likely(opts->num_sack_blocks))
-+			size += TCPOLEN_SACK_BASE_ALIGNED +
-+				opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
- 	}
+---
+ drivers/rpmsg/qcom_glink_smem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/rpmsg/qcom_glink_smem.c
++++ b/drivers/rpmsg/qcom_glink_smem.c
+@@ -105,7 +105,7 @@ static void glink_smem_rx_advance(struct
+ 	tail = le32_to_cpu(*pipe->tail);
  
- 	return size;
+ 	tail += count;
+-	if (tail > pipe->native.length)
++	if (tail >= pipe->native.length)
+ 		tail -= pipe->native.length;
+ 
+ 	*pipe->tail = cpu_to_le32(tail);
 
 
