@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6FE126DC4
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98827126CBC
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727631AbfLSTMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:12:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54636 "EHLO mail.kernel.org"
+        id S1728840AbfLSSo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:44:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727777AbfLSShO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:14 -0500
+        id S1728417AbfLSSo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9475222C2;
-        Thu, 19 Dec 2019 18:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A473124676;
+        Thu, 19 Dec 2019 18:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780632;
-        bh=aDbn1bwYxv0Fr5AI2V6CwZjwn0FgbesOi5xWBwJ9Abs=;
+        s=default; t=1576781097;
+        bh=pIzQLN7+bmAR3aa4BXgqcgki2eojaIZW0t78AIQx4iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xnu5nD02Kl+NNvqy7XqBpRhakr/iPb3WbvgQTdDmcA54D9pPf5QoKzUl6LGnGFjIG
-         EjicQbf21CJmq89wJO7cGFkzrITyz2If1i9yBWxdJqNJ2lvXkc/V6UfJfKitVMt84E
-         metVJgW4LFPN6xjRCi3rbZ8oldHrD7BEfzxW7TGA=
+        b=X3Q+fGf2YsrSdcAJxvGJGy2braFaTDtrIcaTxochi7FEiapIPuCiASSMwyd4/st2r
+         exLmIRA/LTGaTaarYRjxvIg/c1dX7xFSjDUm6Dwt3rO8MfKpBe95wNkDCGbGZQox8y
+         0Dym0NPv3xN/8Okp8LAjWGmCDUy87mlvvvehSSME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
-        Xuewei Zhang <xueweiz@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ben Segall <bsegall@google.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.4 053/162] sched/fair: Scale bandwidth quota and period without losing quota/period ratio precision
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 079/199] CIFS: Fix SMB2 oplock break processing
 Date:   Thu, 19 Dec 2019 19:32:41 +0100
-Message-Id: <20191219183211.113172209@linuxfoundation.org>
+Message-Id: <20191219183219.340564627@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuewei Zhang <xueweiz@google.com>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-commit 4929a4e6faa0f13289a67cae98139e727f0d4a97 upstream.
+commit fa9c2362497fbd64788063288dc4e74daf977ebb upstream.
 
-The quota/period ratio is used to ensure a child task group won't get
-more bandwidth than the parent task group, and is calculated as:
+Even when mounting modern protocol version the server may be
+configured without supporting SMB2.1 leases and the client
+uses SMB2 oplock to optimize IO performance through local caching.
 
-  normalized_cfs_quota() = [(quota_us << 20) / period_us]
+However there is a problem in oplock break handling that leads
+to missing a break notification on the client who has a file
+opened. It latter causes big latencies to other clients that
+are trying to open the same file.
 
-If the quota/period ratio was changed during this scaling due to
-precision loss, it will cause inconsistency between parent and child
-task groups.
+The problem reproduces when there are multiple shares from the
+same server mounted on the client. The processing code tries to
+match persistent and volatile file ids from the break notification
+with an open file but it skips all share besides the first one.
+Fix this by looking up in all shares belonging to the server that
+issued the oplock break.
 
-See below example:
-
-A userspace container manager (kubelet) does three operations:
-
- 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
- 2) Create a few children cgroups.
- 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
-
-These operations are expected to succeed. However, if the scaling of
-147/128 happens before step 3, quota and period of the parent cgroup
-will be changed:
-
-  new_quota: 1148437ns,   1148us
- new_period: 11484375ns, 11484us
-
-And when step 3 comes in, the ratio of the child cgroup will be
-104857, which will be larger than the parent cgroup ratio (104821),
-and will fail.
-
-Scaling them by a factor of 2 will fix the problem.
-
-Tested-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Xuewei Zhang <xueweiz@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Phil Auld <pauld@redhat.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-Link: https://lkml.kernel.org/r/20191004001243.140897-1-xueweiz@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- kernel/sched/fair.c |   34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ fs/cifs/smb2misc.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4055,20 +4055,28 @@ static enum hrtimer_restart sched_cfs_pe
- 		if (++count > 3) {
- 			u64 new, old = ktime_to_ns(cfs_b->period);
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -617,10 +617,10 @@ smb2_is_valid_oplock_break(char *buffer,
+ 	spin_lock(&cifs_tcp_ses_lock);
+ 	list_for_each(tmp, &server->smb_ses_list) {
+ 		ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
++
+ 		list_for_each(tmp1, &ses->tcon_list) {
+ 			tcon = list_entry(tmp1, struct cifs_tcon, tcon_list);
  
--			new = (old * 147) / 128; /* ~115% */
--			new = min(new, max_cfs_quota_period);
-+			/*
-+			 * Grow period by a factor of 2 to avoid losing precision.
-+			 * Precision loss in the quota/period ratio can cause __cfs_schedulable
-+			 * to fail.
-+			 */
-+			new = old * 2;
-+			if (new < max_cfs_quota_period) {
-+				cfs_b->period = ns_to_ktime(new);
-+				cfs_b->quota *= 2;
+-			cifs_stats_inc(&tcon->stats.cifs_stats.num_oplock_brks);
+ 			spin_lock(&tcon->open_file_lock);
+ 			list_for_each(tmp2, &tcon->openFileList) {
+ 				cfile = list_entry(tmp2, struct cifsFileInfo,
+@@ -632,6 +632,8 @@ smb2_is_valid_oplock_break(char *buffer,
+ 					continue;
  
--			cfs_b->period = ns_to_ktime(new);
--
--			/* since max is 1s, this is limited to 1e9^2, which fits in u64 */
--			cfs_b->quota *= new;
--			cfs_b->quota = div64_u64(cfs_b->quota, old);
--
--			pr_warn_ratelimited(
--        "cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
--	                        smp_processor_id(),
--	                        div_u64(new, NSEC_PER_USEC),
--                                div_u64(cfs_b->quota, NSEC_PER_USEC));
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(new, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			} else {
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, but cannot scale up without losing precision (cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(old, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			}
- 
- 			/* reset count so we don't come right back in here */
- 			count = 0;
+ 				cifs_dbg(FYI, "file id match, oplock break\n");
++				cifs_stats_inc(
++				    &tcon->stats.cifs_stats.num_oplock_brks);
+ 				cinode = CIFS_I(d_inode(cfile->dentry));
+ 				spin_lock(&cfile->file_info_lock);
+ 				if (!CIFS_CACHE_WRITE(cinode) &&
+@@ -664,9 +666,6 @@ smb2_is_valid_oplock_break(char *buffer,
+ 				return true;
+ 			}
+ 			spin_unlock(&tcon->open_file_lock);
+-			spin_unlock(&cifs_tcp_ses_lock);
+-			cifs_dbg(FYI, "No matching file for oplock break\n");
+-			return true;
+ 		}
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
 
 
