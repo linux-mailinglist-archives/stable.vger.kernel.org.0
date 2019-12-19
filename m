@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EE9126D71
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3A7126CC0
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727346AbfLSSfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:35:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52618 "EHLO mail.kernel.org"
+        id S1727690AbfLSSpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:45:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727333AbfLSSfw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:35:52 -0500
+        id S1729114AbfLSSpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:45:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88EAD24683;
-        Thu, 19 Dec 2019 18:35:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA6DA2465E;
+        Thu, 19 Dec 2019 18:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780552;
-        bh=wCr4oXlxYFh5iatZpY7G7s/BwOUP0VA8+9jnlrIjENg=;
+        s=default; t=1576781109;
+        bh=ffTe4d7s93MEfe2IPClkV/CGEEI3SDnmgDMPU/pkQz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDXZdpDHDmhGEFu41ftcQVUoauHytDAoNjEIYGm7QEewDxN50rNp1QM5OthVlLlCU
-         eFdN43uUsY2/tdJcpZ3SpfV12681nDWxEs7/H6ElLe4znqZFAoIePV07Wkvcsrpj7Y
-         4vUySayIXz8hTbc/KlP7ucM8cDHzwtHiJPVGrRM8=
+        b=Yc4XIGq/RZLvCMHpHE8pNB+TpUVrXH5EJwcvyVOPkChi0tverBo6kRxbL3V9aPgbo
+         d/vkliGlB3o41pLSWG6rvCTKjtcHGqTfkgpps8gSV+l10gudHwAr0TGkREdsX91JQZ
+         kLGKg4TbH2cYGrZfdbAyOX/7Eoq9tUWnKRszrJxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 020/162] MIPS: SiByte: Enable ZONE_DMA32 for LittleSur
-Date:   Thu, 19 Dec 2019 19:32:08 +0100
-Message-Id: <20191219183208.127758298@linuxfoundation.org>
+Subject: [PATCH 4.9 047/199] ARM: debug: enable UART1 for socfpga Cyclone5
+Date:   Thu, 19 Dec 2019 19:32:09 +0100
+Message-Id: <20191219183217.548758301@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@linux-mips.org>
+From: Clément Péron <peron.clem@gmail.com>
 
-[ Upstream commit 756d6d836dbfb04a5a486bc2ec89397aa4533737 ]
+[ Upstream commit f6628486c8489e91c513b62608f89ccdb745600d ]
 
-The LittleSur board is marked for high memory support and therefore
-clearly must provide a way to have enough memory installed for some to
-be present outside the low 4GiB physical address range.  With the memory
-map of the BCM1250 SOC it has been built around it means over 1GiB of
-actual DRAM, as only the first 1GiB is mapped in the low 4GiB physical
-address range[1].
+Cyclone5 and Arria10 doesn't have the same memory map for UART1.
 
-Complement commit cce335ae47e2 ("[MIPS] 64-bit Sibyte kernels need
-DMA32.") then and also enable ZONE_DMA32 for LittleSur.
+Split the SOCFPGA_UART1 into 2 options to allow debugging on UART1 for Cyclone5.
 
-
-[1] "BCM1250/BCM1125/BCM1125H User Manual", Revision 1250_1125-UM100-R,
-    Broadcom Corporation, 21 Oct 2002, Section 3: "System Overview",
-    "Memory Map", pp. 34-38
-
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Patchwork: https://patchwork.linux-mips.org/patch/21107/
-Fixes: cce335ae47e2 ("[MIPS] 64-bit Sibyte kernels need DMA32.")
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/Kconfig.debug | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 422624ca01329..596cbda9cb3d3 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -773,6 +773,7 @@ config SIBYTE_LITTLESUR
- 	select SYS_SUPPORTS_BIG_ENDIAN
- 	select SYS_SUPPORTS_HIGHMEM
- 	select SYS_SUPPORTS_LITTLE_ENDIAN
-+	select ZONE_DMA32 if 64BIT
+diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
+index a5625430bef64..bb8f39fe3a225 100644
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -987,14 +987,21 @@ choice
+ 		  Say Y here if you want kernel low-level debugging support
+ 		  on SOCFPGA(Cyclone 5 and Arria 5) based platforms.
  
- config SIBYTE_SENTOSA
- 	bool "Sibyte BCM91250E-Sentosa"
+-	config DEBUG_SOCFPGA_UART1
++	config DEBUG_SOCFPGA_ARRIA10_UART1
+ 		depends on ARCH_SOCFPGA
+-		bool "Use SOCFPGA UART1 for low-level debug"
++		bool "Use SOCFPGA Arria10 UART1 for low-level debug"
+ 		select DEBUG_UART_8250
+ 		help
+ 		  Say Y here if you want kernel low-level debugging support
+ 		  on SOCFPGA(Arria 10) based platforms.
+ 
++	config DEBUG_SOCFPGA_CYCLONE5_UART1
++		depends on ARCH_SOCFPGA
++		bool "Use SOCFPGA Cyclone 5 UART1 for low-level debug"
++		select DEBUG_UART_8250
++		help
++		  Say Y here if you want kernel low-level debugging support
++		  on SOCFPGA(Cyclone 5 and Arria 5) based platforms.
+ 
+ 	config DEBUG_SUN9I_UART0
+ 		bool "Kernel low-level debugging messages via sun9i UART0"
+@@ -1534,7 +1541,8 @@ config DEBUG_UART_PHYS
+ 	default 0xfe800000 if ARCH_IOP32X
+ 	default 0xff690000 if DEBUG_RK32_UART2
+ 	default 0xffc02000 if DEBUG_SOCFPGA_UART0
+-	default 0xffc02100 if DEBUG_SOCFPGA_UART1
++	default 0xffc02100 if DEBUG_SOCFPGA_ARRIA10_UART1
++	default 0xffc03000 if DEBUG_SOCFPGA_CYCLONE5_UART1
+ 	default 0xffd82340 if ARCH_IOP13XX
+ 	default 0xffe40000 if DEBUG_RCAR_GEN1_SCIF0
+ 	default 0xffe42000 if DEBUG_RCAR_GEN1_SCIF2
+@@ -1624,7 +1632,8 @@ config DEBUG_UART_VIRT
+ 	default 0xfeb30c00 if DEBUG_KEYSTONE_UART0
+ 	default 0xfeb31000 if DEBUG_KEYSTONE_UART1
+ 	default 0xfec02000 if DEBUG_SOCFPGA_UART0
+-	default 0xfec02100 if DEBUG_SOCFPGA_UART1
++	default 0xfec02100 if DEBUG_SOCFPGA_ARRIA10_UART1
++	default 0xfec03000 if DEBUG_SOCFPGA_CYCLONE5_UART1
+ 	default 0xfec12000 if (DEBUG_MVEBU_UART0 || DEBUG_MVEBU_UART0_ALTERNATE) && ARCH_MVEBU
+ 	default 0xfec12100 if DEBUG_MVEBU_UART1_ALTERNATE
+ 	default 0xfec10000 if DEBUG_SIRFATLAS7_UART0
+@@ -1672,9 +1681,9 @@ config DEBUG_UART_8250_WORD
+ 	depends on DEBUG_LL_UART_8250 || DEBUG_UART_8250
+ 	depends on DEBUG_UART_8250_SHIFT >= 2
+ 	default y if DEBUG_PICOXCELL_UART || \
+-		DEBUG_SOCFPGA_UART0 || DEBUG_SOCFPGA_UART1 || \
+-		DEBUG_KEYSTONE_UART0 || DEBUG_KEYSTONE_UART1 || \
+-		DEBUG_ALPINE_UART0 || \
++		DEBUG_SOCFPGA_UART0 || DEBUG_SOCFPGA_ARRIA10_UART1 || \
++		DEBUG_SOCFPGA_CYCLONE5_UART1 || DEBUG_KEYSTONE_UART0 || \
++		DEBUG_KEYSTONE_UART1 || DEBUG_ALPINE_UART0 || \
+ 		DEBUG_DAVINCI_DMx_UART0 || DEBUG_DAVINCI_DA8XX_UART1 || \
+ 		DEBUG_DAVINCI_DA8XX_UART2 || \
+ 		DEBUG_BCM_KONA_UART || DEBUG_RK32_UART2
 -- 
 2.20.1
 
