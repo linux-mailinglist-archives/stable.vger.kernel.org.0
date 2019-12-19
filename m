@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3D9126DA7
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EF0A126DA8
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728080AbfLSSiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:38:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56742 "EHLO mail.kernel.org"
+        id S1728091AbfLSSis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:38:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727768AbfLSSip (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:38:45 -0500
+        id S1728089AbfLSSir (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:38:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2934D222C2;
-        Thu, 19 Dec 2019 18:38:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E27D222C2;
+        Thu, 19 Dec 2019 18:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780724;
-        bh=6s41C/ku8CxZtDH/9HpVSknr1nn7NPsSuaDaixRw6lQ=;
+        s=default; t=1576780727;
+        bh=Sgkhd3pJREA3CUXciHyFhjWfspP5e00Oladewn/tE70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejiB5CY55U6GX+/MhGBQhW0mw5VrcOkoZWecKds+SmHcJt1vZ1Cv+iamFjt7wLG1t
-         K0/CKZPCla/gTI4rigd+lTECwuorWVTSFYxmdsDXNYkTlnqGXcFUSM1rsUb/RME/h9
-         XsuSEEzySR7T2VKXDPet5S+bwyWdm+GjddSKIgcY=
+        b=RryhaLlVa2fwULlzAK/nU4SJZd6lGHc3J2qaAwcrxcJx6qaC2LM8Dl7M+w3cxx3Va
+         zFxCiAgObx0oYmGKCUeATPKJOzvjYQt8wHhwth3yQjdKNB/zYOqFrAzJwOmjAsYXzg
+         k90AqUrpBN2JIZ7FEgOxAQBCqfIoTG8fjY+FZaGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 091/162] USB: atm: ueagle-atm: add missing endpoint check
-Date:   Thu, 19 Dec 2019 19:33:19 +0100
-Message-Id: <20191219183213.335021056@linuxfoundation.org>
+Subject: [PATCH 4.4 092/162] USB: idmouse: fix interface sanity checks
+Date:   Thu, 19 Dec 2019 19:33:20 +0100
+Message-Id: <20191219183213.393889923@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -44,88 +44,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 09068c1ad53fb077bdac288869dec2435420bdc4 upstream.
+commit 59920635b89d74b9207ea803d5e91498d39e8b69 upstream.
 
-Make sure that the interrupt interface has an endpoint before trying to
-access its endpoint descriptors to avoid dereferencing a NULL pointer.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid binding to an invalid interface.
 
-The driver binds to the interrupt interface with interface number 0, but
-must not assume that this interface or its current alternate setting are
-the first entries in the corresponding configuration arrays.
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
 
-Fixes: b72458a80c75 ("[PATCH] USB: Eagle and ADI 930 usb adsl modem driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.16
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210112601.3561-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20191210112601.3561-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/atm/ueagle-atm.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/usb/misc/idmouse.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/atm/ueagle-atm.c
-+++ b/drivers/usb/atm/ueagle-atm.c
-@@ -2167,10 +2167,11 @@ resubmit:
- /*
-  * Start the modem : init the data and start kernel thread
-  */
--static int uea_boot(struct uea_softc *sc)
-+static int uea_boot(struct uea_softc *sc, struct usb_interface *intf)
- {
--	int ret, size;
- 	struct intr_pkt *intr;
-+	int ret = -ENOMEM;
-+	int size;
+--- a/drivers/usb/misc/idmouse.c
++++ b/drivers/usb/misc/idmouse.c
+@@ -342,7 +342,7 @@ static int idmouse_probe(struct usb_inte
+ 	int result;
  
- 	uea_enters(INS_TO_USBDEV(sc));
- 
-@@ -2195,6 +2196,11 @@ static int uea_boot(struct uea_softc *sc
- 	if (UEA_CHIP_VERSION(sc) == ADI930)
- 		load_XILINX_firmware(sc);
- 
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
-+		ret = -ENODEV;
-+		goto err0;
-+	}
-+
- 	intr = kmalloc(size, GFP_KERNEL);
- 	if (!intr) {
- 		uea_err(INS_TO_USBDEV(sc),
-@@ -2211,8 +2217,7 @@ static int uea_boot(struct uea_softc *sc
- 	usb_fill_int_urb(sc->urb_int, sc->usb_dev,
- 			 usb_rcvintpipe(sc->usb_dev, UEA_INTR_PIPE),
- 			 intr, size, uea_intr, sc,
--			 sc->usb_dev->actconfig->interface[0]->altsetting[0].
--			 endpoint[0].desc.bInterval);
-+			 intf->cur_altsetting->endpoint[0].desc.bInterval);
- 
- 	ret = usb_submit_urb(sc->urb_int, GFP_KERNEL);
- 	if (ret < 0) {
-@@ -2227,6 +2232,7 @@ static int uea_boot(struct uea_softc *sc
- 	sc->kthread = kthread_create(uea_kthread, sc, "ueagle-atm");
- 	if (IS_ERR(sc->kthread)) {
- 		uea_err(INS_TO_USBDEV(sc), "failed to create thread\n");
-+		ret = PTR_ERR(sc->kthread);
- 		goto err2;
- 	}
- 
-@@ -2241,7 +2247,7 @@ err1:
- 	kfree(intr);
- err0:
- 	uea_leaves(INS_TO_USBDEV(sc));
--	return -ENOMEM;
-+	return ret;
- }
- 
- /*
-@@ -2604,7 +2610,7 @@ static int uea_bind(struct usbatm_data *
- 	if (ret < 0)
- 		goto error;
- 
--	ret = uea_boot(sc);
-+	ret = uea_boot(sc, intf);
- 	if (ret < 0)
- 		goto error_rm_grp;
+ 	/* check if we have gotten the data or the hid interface */
+-	iface_desc = &interface->altsetting[0];
++	iface_desc = interface->cur_altsetting;
+ 	if (iface_desc->desc.bInterfaceClass != 0x0A)
+ 		return -ENODEV;
  
 
 
