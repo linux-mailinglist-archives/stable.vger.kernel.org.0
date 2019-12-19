@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C712126D61
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2F4126C56
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbfLSSjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:39:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57398 "EHLO mail.kernel.org"
+        id S1729638AbfLSSsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:48:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727507AbfLSSjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:39:14 -0500
+        id S1729641AbfLSSsb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:48:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57BAC222C2;
-        Thu, 19 Dec 2019 18:39:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5446524672;
+        Thu, 19 Dec 2019 18:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780753;
-        bh=t9tvHhA04/aiiLzjrLCxtD1JyJV9fKexIXDsX4Gg0zw=;
+        s=default; t=1576781310;
+        bh=wLwQlMeEYv/NL2uzCNnJdO5ELlnKe/9pJiyN1sUCszo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LEO0G8Z+1acksCNbfvBhyL6LxrsMH7rjMK9wxgTn498IMuw4NXvGVMrxgIyEPttf2
-         nSKaG76wZq6mK0ukcl594EQzEacb60JTI3rzzYEmQfWwAlzczJnY2eWdPbo4diA67+
-         XtOFxek+APDMc56lz1d9ZHLPg3KaOaIRrmGjDI4M=
+        b=fV02F7tZJclWdNvW1wvuG3b7rBfYGHZqKd7ZmMFVgFqNZTi9IVGfxMBL6d1A4MJ64
+         5CAlO0aywWzgwrX17DC+AYUfqiOmTSQu6AeA4GXbQYQlyb+TvIkpuQEyQJmjhqfx19
+         +tIdTTUiZREjqhHP50UTPNYOk0GMs0VVKpDTqhmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 102/162] rtlwifi: rtl8192de: Fix missing callback that tests for hw release of buffer
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 128/199] blk-mq: avoid sysfs buffer overflow with too many CPU cores
 Date:   Thu, 19 Dec 2019 19:33:30 +0100
-Message-Id: <20191219183213.975401652@linuxfoundation.org>
+Message-Id: <20191219183222.094589863@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 3155db7613edea8fb943624062baf1e4f9cfbfd6 upstream.
+commit 8962842ca5abdcf98e22ab3b2b45a103f0408b95 upstream.
 
-In commit 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for
-new drivers"), a callback needed to check if the hardware has released
-a buffer indicating that a DMA operation is completed was not added.
+It is reported that sysfs buffer overflow can be triggered if the system
+has too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
+hctx via /sys/block/$DEV/mq/$N/cpu_list.
 
-Fixes: 38506ecefab9 ("rtlwifi: rtl_pci: Start modification for new drivers")
-Cc: Stable <stable@vger.kernel.org>	# v3.18+
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Use snprintf to avoid the potential buffer overflow.
+
+This version doesn't change the attribute format, and simply stops
+showing CPU numbers if the buffer is going to overflow.
+
+Cc: stable@vger.kernel.org
+Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c  |    1 +
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c |   17 +++++++++++++++++
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h |    2 ++
- 3 files changed, 20 insertions(+)
+ block/blk-mq-sysfs.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/sw.c
-@@ -242,6 +242,7 @@ static struct rtl_hal_ops rtl8192de_hal_
- 	.led_control = rtl92de_led_control,
- 	.set_desc = rtl92de_set_desc,
- 	.get_desc = rtl92de_get_desc,
-+	.is_tx_desc_closed = rtl92de_is_tx_desc_closed,
- 	.tx_polling = rtl92de_tx_polling,
- 	.enable_hw_sec = rtl92de_enable_hw_security_config,
- 	.set_key = rtl92de_set_key,
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.c
-@@ -862,6 +862,23 @@ u32 rtl92de_get_desc(u8 *p_desc, bool is
- 	return ret;
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -243,20 +243,25 @@ static ssize_t blk_mq_hw_sysfs_active_sh
+ 
+ static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char *page)
+ {
++	const size_t size = PAGE_SIZE - 1;
+ 	unsigned int i, first = 1;
+-	ssize_t ret = 0;
++	int ret = 0, pos = 0;
+ 
+ 	for_each_cpu(i, hctx->cpumask) {
+ 		if (first)
+-			ret += sprintf(ret + page, "%u", i);
++			ret = snprintf(pos + page, size - pos, "%u", i);
+ 		else
+-			ret += sprintf(ret + page, ", %u", i);
++			ret = snprintf(pos + page, size - pos, ", %u", i);
++
++		if (ret >= size - pos)
++			break;
+ 
+ 		first = 0;
++		pos += ret;
+ 	}
+ 
+-	ret += sprintf(ret + page, "\n");
+-	return ret;
++	ret = snprintf(pos + page, size - pos, "\n");
++	return pos + ret;
  }
  
-+bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
-+			       u8 hw_queue, u16 index)
-+{
-+	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
-+	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[hw_queue];
-+	u8 *entry = (u8 *)(&ring->desc[ring->idx]);
-+	u8 own = (u8)rtl92de_get_desc(entry, true, HW_DESC_OWN);
-+
-+	/* a beacon packet will only use the first
-+	 * descriptor by defaut, and the own bit may not
-+	 * be cleared by the hardware
-+	 */
-+	if (own)
-+		return false;
-+	return true;
-+}
-+
- void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue)
- {
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/trx.h
-@@ -740,6 +740,8 @@ bool rtl92de_rx_query_desc(struct ieee80
- void rtl92de_set_desc(struct ieee80211_hw *hw, u8 *pdesc, bool istx,
- 		      u8 desc_name, u8 *val);
- u32 rtl92de_get_desc(u8 *pdesc, bool istx, u8 desc_name);
-+bool rtl92de_is_tx_desc_closed(struct ieee80211_hw *hw,
-+			       u8 hw_queue, u16 index);
- void rtl92de_tx_polling(struct ieee80211_hw *hw, u8 hw_queue);
- void rtl92de_tx_fill_cmddesc(struct ieee80211_hw *hw, u8 *pdesc,
- 			     bool b_firstseg, bool b_lastseg,
+ static struct blk_mq_ctx_sysfs_entry blk_mq_sysfs_dispatched = {
 
 
