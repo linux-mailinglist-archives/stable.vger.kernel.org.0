@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A652126AB4
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5489C126B90
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729923AbfLSSuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:50:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43908 "EHLO mail.kernel.org"
+        id S1729955AbfLSSzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:55:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729601AbfLSSuI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:50:08 -0500
+        id S1730702AbfLSSzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:55:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE28A24689;
-        Thu, 19 Dec 2019 18:50:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8592C24676;
+        Thu, 19 Dec 2019 18:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781408;
-        bh=KUMq2bnslT2h33XymdmU23jdbu9sjJMHQecNtRrgTU8=;
+        s=default; t=1576781743;
+        bh=evkCinW7sZmVDT71TB5X7RzDelWavbVQam8KagxZbK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zf4lXDaHJZlBpYmcuQVBbx0yjkzzliWe9hgkwwL2FA8DYMbzave8iIdRJRtSsqj9a
-         3kt/0hOSw+V1irXGr7xAJpop7fpq3eAwRn9AM1gg5P1oHUxKjHuA4qONhOmUJDxuV6
-         zUV6I0bMGB2auYSBwvZxbr8anpKIumAqbfgunHfk=
+        b=1eYSz1YqU4pOzlFlHVhBE4KtokpaQQo+mnyovn0AZYdF4EJiE2nhKSji0AbaQFwFK
+         5o1eo/0TW4nSMtWEc0IrzOTG+dBL3MOK7f7xszyqYhmCJO+gko5p5/1UP/L8ElaKBF
+         OtruoJcJsq+lSpCWAVVnns2lD5RhAYVrDk4lMVWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 10/36] tcp: Protect accesses to .ts_recent_stamp with {READ,WRITE}_ONCE()
+        stable@vger.kernel.org, Frank Sorenson <sorenson@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.4 35/80] CIFS: Close open handle after interrupted close
 Date:   Thu, 19 Dec 2019 19:34:27 +0100
-Message-Id: <20191219182856.768968365@linuxfoundation.org>
+Message-Id: <20191219183106.903932675@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
-References: <20191219182848.708141124@linuxfoundation.org>
+In-Reply-To: <20191219183031.278083125@linuxfoundation.org>
+References: <20191219183031.278083125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-[ Upstream commit 721c8dafad26ccfa90ff659ee19755e3377b829d ]
+commit 9150c3adbf24d77cfba37f03639d4a908ca4ac25 upstream.
 
-Syncookies borrow the ->rx_opt.ts_recent_stamp field to store the
-timestamp of the last synflood. Protect them with READ_ONCE() and
-WRITE_ONCE() since reads and writes aren't serialised.
+If Close command is interrupted before sending a request
+to the server the client ends up leaking an open file
+handle. This wastes server resources and can potentially
+block applications that try to remove the file or any
+directory containing this file.
 
-Use of .rx_opt.ts_recent_stamp for storing the synflood timestamp was
-introduced by a0f82f64e269 ("syncookies: remove last_synq_overflow from
-struct tcp_sock"). But unprotected accesses were already there when
-timestamp was stored in .last_synq_overflow.
+Fix this by putting the close command into a worker queue,
+so another thread retries it later.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Stable <stable@vger.kernel.org>
+Tested-by: Frank Sorenson <sorenson@redhat.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/tcp.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -500,17 +500,17 @@ struct sock *cookie_v4_check(struct sock
-  */
- static inline void tcp_synq_overflow(const struct sock *sk)
- {
--	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
-+	unsigned long last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
- 	unsigned long now = jiffies;
- 
- 	if (!time_between32(now, last_overflow, last_overflow + HZ))
--		tcp_sk(sk)->rx_opt.ts_recent_stamp = now;
-+		WRITE_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp, now);
+---
+ fs/cifs/smb2misc.c  |   59 +++++++++++++++++++++++++++++++++++++++-------------
+ fs/cifs/smb2pdu.c   |   16 +++++++++++++-
+ fs/cifs/smb2proto.h |    3 ++
+ 3 files changed, 63 insertions(+), 15 deletions(-)
+
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -743,36 +743,67 @@ smb2_cancelled_close_fid(struct work_str
+ 	kfree(cancelled);
  }
  
- /* syncookies: no recent synqueue overflow on this listening socket? */
- static inline bool tcp_synq_no_recent_overflow(const struct sock *sk)
++/* Caller should already has an extra reference to @tcon */
++static int
++__smb2_handle_cancelled_close(struct cifs_tcon *tcon, __u64 persistent_fid,
++			      __u64 volatile_fid)
++{
++	struct close_cancelled_open *cancelled;
++
++	cancelled = kzalloc(sizeof(*cancelled), GFP_KERNEL);
++	if (!cancelled)
++		return -ENOMEM;
++
++	cancelled->fid.persistent_fid = persistent_fid;
++	cancelled->fid.volatile_fid = volatile_fid;
++	cancelled->tcon = tcon;
++	INIT_WORK(&cancelled->work, smb2_cancelled_close_fid);
++	WARN_ON(queue_work(cifsiod_wq, &cancelled->work) == false);
++
++	return 0;
++}
++
++int
++smb2_handle_cancelled_close(struct cifs_tcon *tcon, __u64 persistent_fid,
++			    __u64 volatile_fid)
++{
++	int rc;
++
++	cifs_dbg(FYI, "%s: tc_count=%d\n", __func__, tcon->tc_count);
++	spin_lock(&cifs_tcp_ses_lock);
++	tcon->tc_count++;
++	spin_unlock(&cifs_tcp_ses_lock);
++
++	rc = __smb2_handle_cancelled_close(tcon, persistent_fid, volatile_fid);
++	if (rc)
++		cifs_put_tcon(tcon);
++
++	return rc;
++}
++
+ int
+ smb2_handle_cancelled_mid(char *buffer, struct TCP_Server_Info *server)
  {
--	unsigned long last_overflow = tcp_sk(sk)->rx_opt.ts_recent_stamp;
-+	unsigned long last_overflow = READ_ONCE(tcp_sk(sk)->rx_opt.ts_recent_stamp);
+ 	struct smb2_sync_hdr *sync_hdr = (struct smb2_sync_hdr *)buffer;
+ 	struct smb2_create_rsp *rsp = (struct smb2_create_rsp *)buffer;
+ 	struct cifs_tcon *tcon;
+-	struct close_cancelled_open *cancelled;
++	int rc;
  
- 	/* If last_overflow <= jiffies <= last_overflow + TCP_SYNCOOKIE_VALID,
- 	 * then we're under synflood. However, we have to use
+ 	if (sync_hdr->Command != SMB2_CREATE ||
+ 	    sync_hdr->Status != STATUS_SUCCESS)
+ 		return 0;
+ 
+-	cancelled = kzalloc(sizeof(*cancelled), GFP_KERNEL);
+-	if (!cancelled)
+-		return -ENOMEM;
+-
+ 	tcon = smb2_find_smb_tcon(server, sync_hdr->SessionId,
+ 				  sync_hdr->TreeId);
+-	if (!tcon) {
+-		kfree(cancelled);
++	if (!tcon)
+ 		return -ENOENT;
+-	}
+ 
+-	cancelled->fid.persistent_fid = rsp->PersistentFileId;
+-	cancelled->fid.volatile_fid = rsp->VolatileFileId;
+-	cancelled->tcon = tcon;
+-	INIT_WORK(&cancelled->work, smb2_cancelled_close_fid);
+-	queue_work(cifsiod_wq, &cancelled->work);
++	rc = __smb2_handle_cancelled_close(tcon, rsp->PersistentFileId,
++					   rsp->VolatileFileId);
++	if (rc)
++		cifs_put_tcon(tcon);
+ 
+-	return 0;
++	return rc;
+ }
+ 
+ /**
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2972,7 +2972,21 @@ int
+ SMB2_close(const unsigned int xid, struct cifs_tcon *tcon,
+ 	   u64 persistent_fid, u64 volatile_fid)
+ {
+-	return SMB2_close_flags(xid, tcon, persistent_fid, volatile_fid, 0);
++	int rc;
++	int tmp_rc;
++
++	rc = SMB2_close_flags(xid, tcon, persistent_fid, volatile_fid, 0);
++
++	/* retry close in a worker thread if this one is interrupted */
++	if (rc == -EINTR) {
++		tmp_rc = smb2_handle_cancelled_close(tcon, persistent_fid,
++						     volatile_fid);
++		if (tmp_rc)
++			cifs_dbg(VFS, "handle cancelled close fid 0x%llx returned error %d\n",
++				 persistent_fid, tmp_rc);
++	}
++
++	return rc;
+ }
+ 
+ int
+--- a/fs/cifs/smb2proto.h
++++ b/fs/cifs/smb2proto.h
+@@ -212,6 +212,9 @@ extern int SMB2_set_compression(const un
+ extern int SMB2_oplock_break(const unsigned int xid, struct cifs_tcon *tcon,
+ 			     const u64 persistent_fid, const u64 volatile_fid,
+ 			     const __u8 oplock_level);
++extern int smb2_handle_cancelled_close(struct cifs_tcon *tcon,
++				       __u64 persistent_fid,
++				       __u64 volatile_fid);
+ extern int smb2_handle_cancelled_mid(char *buffer,
+ 					struct TCP_Server_Info *server);
+ void smb2_cancelled_close_fid(struct work_struct *work);
 
 
