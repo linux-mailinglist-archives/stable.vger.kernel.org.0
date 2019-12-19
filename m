@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7284C126C2C
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C378F126D11
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729499AbfLSSuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:50:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43956 "EHLO mail.kernel.org"
+        id S1728325AbfLSSl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:41:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729931AbfLSSuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:50:12 -0500
+        id S1727711AbfLSSlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4017D24682;
-        Thu, 19 Dec 2019 18:50:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F003324672;
+        Thu, 19 Dec 2019 18:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781410;
-        bh=arzHDY6Fqc4GHRXtj0ygNCeaXYfoArqR0C8eQqW5bLs=;
+        s=default; t=1576780914;
+        bh=YAaiHFebq0MAtlX9h1+d1UMOmTcd0OM9rUvU91wapyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxRANgqFDQ7K+XuiaAO5VynvhKyPKbHCZyWLTux9Cbog7q/rLFPc7/1nhwFasuioO
-         r3l7wj88cdQZa8q7EzFhlke7qhTx8eZTE/2MAl78NPLUGryI/+2xdVhUCBh2+vYBOk
-         m+iqqyn3cr7C99Q4/UagQvmEr0e+X/vqXDjhqoYA=
+        b=qkQQFpwFMQ8ie93kY+kNjIqrc2tPSoB3bdhQrJrJeERECHmmS4O0f9uKIQs3s7mvf
+         ZzfxXcvrZJrEj5U6IFHJ44KXalFxTYjt6RIadoS5vIA1hvq7wEqU2GU395aJiC4r80
+         wu2ny9wUvsXity/Ewy1XaIa0fMK8gIjztqg/Ff9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 11/36] inet: protect against too small mtu values.
+        stable@vger.kernel.org, "Lee, Hou-hsun" <hou-hsun.lee@intel.com>,
+        "Lee, Chiasheng" <chiasheng.lee@intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Lee@vger.kernel.org
+Subject: [PATCH 4.4 160/162] xhci: fix USB3 device initiated resume race with roothub autosuspend
 Date:   Thu, 19 Dec 2019 19:34:28 +0100
-Message-Id: <20191219182857.307204123@linuxfoundation.org>
+Message-Id: <20191219183217.505075467@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
-References: <20191219182848.708141124@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,176 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 501a90c945103e8627406763dac418f20f3837b2 ]
+commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream.
 
-syzbot was once again able to crash a host by setting a very small mtu
-on loopback device.
+A race in xhci USB3 remote wake handling may force device back to suspend
+after it initiated resume siganaling, causing a missed resume event or warm
+reset of device.
 
-Let's make inetdev_valid_mtu() available in include/net/ip.h,
-and use it in ip_setup_cork(), so that we protect both ip_append_page()
-and __ip_append_data()
+When a USB3 link completes resume signaling and goes to enabled (UO)
+state a interrupt is issued and the interrupt handler will clear the
+bus_state->port_remote_wakeup resume flag, allowing bus suspend.
 
-Also add a READ_ONCE() when the device mtu is read.
+If the USB3 roothub thread just finished reading port status before
+the interrupt, finding ports still in suspended (U3) state, but hasn't
+yet started suspending the hub, then the xhci interrupt handler will clear
+the flag that prevented roothub suspend and allow bus to suspend, forcing
+all port links back to suspended (U3) state.
 
-Pairs this lockless read with one WRITE_ONCE() in __dev_set_mtu(),
-even if other code paths might write over this field.
+Example case:
+usb_runtime_suspend() # because all ports still show suspended U3
+  usb_suspend_both()
+    hub_suspend();   # successful as hub->wakeup_bits not set yet
+==> INTERRUPT
+xhci_irq()
+  handle_port_status()
+    clear bus_state->port_remote_wakeup
+    usb_wakeup_notification()
+      sets hub->wakeup_bits;
+        kick_hub_wq()
+<== END INTERRUPT
+      hcd_bus_suspend()
+        xhci_bus_suspend() # success as port_remote_wakeup bits cleared
 
-Add a big comment in include/linux/netdevice.h about dev->mtu
-needing READ_ONCE()/WRITE_ONCE() annotations.
+Fix this by increasing roothub usage count during port resume to prevent
+roothub autosuspend, and by making sure bus_state->port_remote_wakeup
+flag is only cleared after resume completion is visible, i.e.
+after xhci roothub returned U0 or other non-U3 link state link on a
+get port status request.
 
-Hopefully we will add the missing ones in followup patches.
+Issue rootcaused by Chiasheng Lee
 
-[1]
-
-refcount_t: saturated; leaking memory.
-WARNING: CPU: 0 PID: 9464 at lib/refcount.c:22 refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 9464 Comm: syz-executor850 Not tainted 5.4.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- panic+0x2e3/0x75c kernel/panic.c:221
- __warn.cold+0x2f/0x3e kernel/panic.c:582
- report_bug+0x289/0x300 lib/bug.c:195
- fixup_bug arch/x86/kernel/traps.c:174 [inline]
- fixup_bug arch/x86/kernel/traps.c:169 [inline]
- do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
- do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
- invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
-RIP: 0010:refcount_warn_saturate+0x138/0x1f0 lib/refcount.c:22
-Code: 06 31 ff 89 de e8 c8 f5 e6 fd 84 db 0f 85 6f ff ff ff e8 7b f4 e6 fd 48 c7 c7 e0 71 4f 88 c6 05 56 a6 a4 06 01 e8 c7 a8 b7 fd <0f> 0b e9 50 ff ff ff e8 5c f4 e6 fd 0f b6 1d 3d a6 a4 06 31 ff 89
-RSP: 0018:ffff88809689f550 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff815e4336 RDI: ffffed1012d13e9c
-RBP: ffff88809689f560 R08: ffff88809c50a3c0 R09: fffffbfff15d31b1
-R10: fffffbfff15d31b0 R11: ffffffff8ae98d87 R12: 0000000000000001
-R13: 0000000000040100 R14: ffff888099041104 R15: ffff888218d96e40
- refcount_add include/linux/refcount.h:193 [inline]
- skb_set_owner_w+0x2b6/0x410 net/core/sock.c:1999
- sock_wmalloc+0xf1/0x120 net/core/sock.c:2096
- ip_append_page+0x7ef/0x1190 net/ipv4/ip_output.c:1383
- udp_sendpage+0x1c7/0x480 net/ipv4/udp.c:1276
- inet_sendpage+0xdb/0x150 net/ipv4/af_inet.c:821
- kernel_sendpage+0x92/0xf0 net/socket.c:3794
- sock_sendpage+0x8b/0xc0 net/socket.c:936
- pipe_to_sendpage+0x2da/0x3c0 fs/splice.c:458
- splice_from_pipe_feed fs/splice.c:512 [inline]
- __splice_from_pipe+0x3ee/0x7c0 fs/splice.c:636
- splice_from_pipe+0x108/0x170 fs/splice.c:671
- generic_splice_sendpage+0x3c/0x50 fs/splice.c:842
- do_splice_from fs/splice.c:861 [inline]
- direct_splice_actor+0x123/0x190 fs/splice.c:1035
- splice_direct_to_actor+0x3b4/0xa30 fs/splice.c:990
- do_splice_direct+0x1da/0x2a0 fs/splice.c:1078
- do_sendfile+0x597/0xd00 fs/read_write.c:1464
- __do_sys_sendfile64 fs/read_write.c:1525 [inline]
- __se_sys_sendfile64 fs/read_write.c:1511 [inline]
- __x64_sys_sendfile64+0x1dd/0x220 fs/read_write.c:1511
- do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x441409
-Code: e8 ac e8 ff ff 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fffb64c4f78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000441409
-RDX: 0000000000000000 RSI: 0000000000000006 RDI: 0000000000000005
-RBP: 0000000000073b8a R08: 0000000000000010 R09: 0000000000000010
-R10: 0000000000010001 R11: 0000000000000246 R12: 0000000000402180
-R13: 0000000000402210 R14: 0000000000000000 R15: 0000000000000000
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
-
-Fixes: 1470ddf7f8ce ("inet: Remove explicit write references to sk/inet in ip_append_data")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Cc: Lee, Hou-hsun <hou-hsun.lee@intel.com>
+Reported-by: Lee, Chiasheng <chiasheng.lee@intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20191211142007.8847-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/netdevice.h |    5 +++++
- include/net/ip.h          |    5 +++++
- net/core/dev.c            |    3 ++-
- net/ipv4/devinet.c        |    5 -----
- net/ipv4/ip_output.c      |   14 +++++++++-----
- 5 files changed, 21 insertions(+), 11 deletions(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1718,6 +1718,11 @@ struct net_device {
- 	unsigned char		if_port;
- 	unsigned char		dma;
- 
-+	/* Note : dev->mtu is often read without holding a lock.
-+	 * Writers usually hold RTNL.
-+	 * It is recommended to use READ_ONCE() to annotate the reads,
-+	 * and to use WRITE_ONCE() to annotate the writes.
-+	 */
- 	unsigned int		mtu;
- 	unsigned int		min_mtu;
- 	unsigned int		max_mtu;
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -644,4 +644,9 @@ extern int sysctl_icmp_msgs_burst;
- int ip_misc_proc_init(void);
- #endif
- 
-+static inline bool inetdev_valid_mtu(unsigned int mtu)
-+{
-+	return likely(mtu >= IPV4_MIN_MTU);
-+}
+
+---
+ drivers/usb/host/xhci-hub.c  |    8 ++++++++
+ drivers/usb/host/xhci-ring.c |    6 +-----
+ drivers/usb/host/xhci.h      |    1 +
+ 3 files changed, 10 insertions(+), 5 deletions(-)
+
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -736,6 +736,14 @@ static u32 xhci_get_port_status(struct u
+ 			status |= USB_PORT_STAT_C_BH_RESET << 16;
+ 		if ((raw_port_status & PORT_CEC))
+ 			status |= USB_PORT_STAT_C_CONFIG_ERROR << 16;
 +
- #endif	/* _IP_H */
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6876,7 +6876,8 @@ int __dev_set_mtu(struct net_device *dev
- 	if (ops->ndo_change_mtu)
- 		return ops->ndo_change_mtu(dev, new_mtu);
- 
--	dev->mtu = new_mtu;
-+	/* Pairs with all the lockless reads of dev->mtu in the stack */
-+	WRITE_ONCE(dev->mtu, new_mtu);
- 	return 0;
- }
- EXPORT_SYMBOL(__dev_set_mtu);
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1426,11 +1426,6 @@ skip:
++		/* USB3 remote wake resume signaling completed */
++		if (bus_state->port_remote_wakeup & (1 << wIndex) &&
++		    (raw_port_status & PORT_PLS_MASK) != XDEV_RESUME &&
++		    (raw_port_status & PORT_PLS_MASK) != XDEV_RECOVERY) {
++			bus_state->port_remote_wakeup &= ~(1 << wIndex);
++			usb_hcd_end_port_resume(&hcd->self, wIndex);
++		}
  	}
- }
  
--static bool inetdev_valid_mtu(unsigned int mtu)
--{
--	return mtu >= IPV4_MIN_MTU;
--}
+ 	if (hcd->speed < HCD_USB3) {
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1602,9 +1602,6 @@ static void handle_port_status(struct xh
+ 		usb_hcd_resume_root_hub(hcd);
+ 	}
+ 
+-	if (hcd->speed >= HCD_USB3 && (temp & PORT_PLS_MASK) == XDEV_INACTIVE)
+-		bus_state->port_remote_wakeup &= ~(1 << faked_port_index);
 -
- static void inetdev_send_gratuitous_arp(struct net_device *dev,
- 					struct in_device *in_dev)
+ 	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) == XDEV_RESUME) {
+ 		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
  
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -1123,13 +1123,17 @@ static int ip_setup_cork(struct sock *sk
- 	rt = *rtp;
- 	if (unlikely(!rt))
- 		return -EFAULT;
--	/*
--	 * We steal reference to this route, caller should not release it
--	 */
--	*rtp = NULL;
-+
- 	cork->fragsize = ip_sk_use_pmtu(sk) ?
--			 dst_mtu(&rt->dst) : rt->dst.dev->mtu;
-+			 dst_mtu(&rt->dst) : READ_ONCE(rt->dst.dev->mtu);
-+
-+	if (!inetdev_valid_mtu(cork->fragsize))
-+		return -ENETUNREACH;
-+
- 	cork->dst = &rt->dst;
-+	/* We stole this route, caller should not release it. */
-+	*rtp = NULL;
-+
- 	cork->length = 0;
- 	cork->ttl = ipc->ttl;
- 	cork->tos = ipc->tos;
+@@ -1623,6 +1620,7 @@ static void handle_port_status(struct xh
+ 			bus_state->port_remote_wakeup |= 1 << faked_port_index;
+ 			xhci_test_and_clear_bit(xhci, port_array,
+ 					faked_port_index, PORT_PLC);
++			usb_hcd_start_port_resume(&hcd->self, faked_port_index);
+ 			xhci_set_link_state(xhci, port_array, faked_port_index,
+ 						XDEV_U0);
+ 			/* Need to wait until the next link state change
+@@ -1660,8 +1658,6 @@ static void handle_port_status(struct xh
+ 		if (slot_id && xhci->devs[slot_id])
+ 			xhci_ring_device(xhci, slot_id);
+ 		if (bus_state->port_remote_wakeup & (1 << faked_port_index)) {
+-			bus_state->port_remote_wakeup &=
+-				~(1 << faked_port_index);
+ 			xhci_test_and_clear_bit(xhci, port_array,
+ 					faked_port_index, PORT_PLC);
+ 			usb_wakeup_notification(hcd->self.root_hub,
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -314,6 +314,7 @@ struct xhci_op_regs {
+ #define XDEV_U3		(0x3 << 5)
+ #define XDEV_INACTIVE	(0x6 << 5)
+ #define XDEV_POLLING	(0x7 << 5)
++#define XDEV_RECOVERY	(0x8 << 5)
+ #define XDEV_COMP_MODE  (0xa << 5)
+ #define XDEV_RESUME	(0xf << 5)
+ /* true: port has power (see HCC_PPC) */
 
 
