@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA5C126C38
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:02:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AECC126BF7
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:01:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729325AbfLSStZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:49:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42842 "EHLO mail.kernel.org"
+        id S1729843AbfLSSvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:51:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729782AbfLSStY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:49:24 -0500
+        id S1730128AbfLSSvT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:51:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B833124672;
-        Thu, 19 Dec 2019 18:49:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AE902064B;
+        Thu, 19 Dec 2019 18:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781364;
-        bh=FjQfHrnMKBL/HTRi+36OsxA3RH7s2kM7QEmwxUvZLGg=;
+        s=default; t=1576781479;
+        bh=0QL1Ak8h+NY9/TrgI6ww+xyNPWumj0sy+A/klAr8Tg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ceix/livFYA47RGl9cqDyARLVeRppvUBKii+u0Igo1/MAZ5044a8AtxuOMH191MmX
-         FddBFBaV8pzOA1kEAiXfn1vJUbCIwE7ktvL2fjaL99apeMzsVyri5rgnVk/QCBX3r6
-         3exvPYmCtNClE6zM29EOnLyZnBPYphjU6bWzIvGk=
+        b=FvLTbYp282PFMKNU9Er0cDgyvgq6t0HxTLc1jU0L4Hu822k2HZHUqGGvrkvDWhn+Y
+         pbk51QtBhzhKem12rsgFBPVZc5Mj5Wq1u+m4vofl45a5iep5F/admGhO0p67cfztNr
+         KuVC+M0TwPtyTQR9qUuy0tBh8r6CQG8UPNWNkw28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.9 191/199] ARM: tegra: Fix FLOW_CTLR_HALT register clobbering by tegra_resume()
-Date:   Thu, 19 Dec 2019 19:34:33 +0100
-Message-Id: <20191219183226.316229908@linuxfoundation.org>
+        George Cherian <george.cherian@marvell.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Robert Richter <rrichter@marvell.com>
+Subject: [PATCH 4.14 17/36] PCI: Apply Cavium ACS quirk to ThunderX2 and ThunderX3
+Date:   Thu, 19 Dec 2019 19:34:34 +0100
+Message-Id: <20191219182902.884582321@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219182848.708141124@linuxfoundation.org>
+References: <20191219182848.708141124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: George Cherian <george.cherian@marvell.com>
 
-commit d70f7d31a9e2088e8a507194354d41ea10062994 upstream.
+commit f338bb9f0179cb959977b74e8331b312264d720b upstream.
 
-There is an unfortunate typo in the code that results in writing to
-FLOW_CTLR_HALT instead of FLOW_CTLR_CSR.
+Enhance the ACS quirk for Cavium Processors. Add the root port vendor IDs
+for ThunderX2 and ThunderX3 series of processors.
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+[bhelgaas: add Fixes: and stable tag]
+Fixes: f2ddaf8dfd4a ("PCI: Apply Cavium ThunderX ACS quirk to more Root Ports")
+Link: https://lore.kernel.org/r/20191111024243.GA11408@dc5-eodlnx05.marvell.com
+Signed-off-by: George Cherian <george.cherian@marvell.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Robert Richter <rrichter@marvell.com>
+Cc: stable@vger.kernel.org	# v4.12+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-tegra/reset-handler.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pci/quirks.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/arch/arm/mach-tegra/reset-handler.S
-+++ b/arch/arm/mach-tegra/reset-handler.S
-@@ -56,16 +56,16 @@ ENTRY(tegra_resume)
- 	cmp	r6, #TEGRA20
- 	beq	1f				@ Yes
- 	/* Clear the flow controller flags for this CPU. */
--	cpu_to_csr_reg r1, r0
-+	cpu_to_csr_reg r3, r0
- 	mov32	r2, TEGRA_FLOW_CTRL_BASE
--	ldr	r1, [r2, r1]
-+	ldr	r1, [r2, r3]
- 	/* Clear event & intr flag */
- 	orr	r1, r1, \
- 		#FLOW_CTRL_CSR_INTR_FLAG | FLOW_CTRL_CSR_EVENT_FLAG
- 	movw	r0, #0x3FFD	@ enable, cluster_switch, immed, bitmaps
- 				@ & ext flags for CPU power mgnt
- 	bic	r1, r1, r0
--	str	r1, [r2]
-+	str	r1, [r2, r3]
- 1:
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4252,15 +4252,21 @@ static int pci_quirk_amd_sb_acs(struct p
  
- 	mov32	r9, 0xc09
+ static bool pci_quirk_cavium_acs_match(struct pci_dev *dev)
+ {
++	if (!pci_is_pcie(dev) || pci_pcie_type(dev) != PCI_EXP_TYPE_ROOT_PORT)
++		return false;
++
++	switch (dev->device) {
+ 	/*
+-	 * Effectively selects all downstream ports for whole ThunderX 1
+-	 * family by 0xf800 mask (which represents 8 SoCs), while the lower
+-	 * bits of device ID are used to indicate which subdevice is used
+-	 * within the SoC.
++	 * Effectively selects all downstream ports for whole ThunderX1
++	 * (which represents 8 SoCs).
+ 	 */
+-	return (pci_is_pcie(dev) &&
+-		(pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT) &&
+-		((dev->device & 0xf800) == 0xa000));
++	case 0xa000 ... 0xa7ff: /* ThunderX1 */
++	case 0xaf84:  /* ThunderX2 */
++	case 0xb884:  /* ThunderX3 */
++		return true;
++	default:
++		return false;
++	}
+ }
+ 
+ static int pci_quirk_cavium_acs(struct pci_dev *dev, u16 acs_flags)
 
 
