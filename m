@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37FD3126148
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 12:52:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA3651261A4
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 13:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726935AbfLSLwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 06:52:25 -0500
-Received: from mga11.intel.com ([192.55.52.93]:24554 "EHLO mga11.intel.com"
+        id S1727201AbfLSMEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 07:04:43 -0500
+Received: from mga14.intel.com ([192.55.52.115]:31176 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726730AbfLSLwZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 06:52:25 -0500
+        id S1727189AbfLSMEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 07:04:42 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Dec 2019 03:52:24 -0800
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Dec 2019 04:04:41 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.69,331,1571727600"; 
-   d="scan'208";a="228221312"
+   d="scan'208";a="222273941"
 Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by orsmga002.jf.intel.com with ESMTP; 19 Dec 2019 03:52:22 -0800
+  by fmsmga001.fm.intel.com with ESMTP; 19 Dec 2019 04:04:40 -0800
 From:   Mathias Nyman <mathias.nyman@linux.intel.com>
 To:     stable@vger.kernel.org
 Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
         Lee Hou-hsun <hou-hsun.lee@intel.com>,
         Lee Chiasheng <chiasheng.lee@intel.com>
-Subject: [PATCH] xhci: fix USB3 device initiated resume race with roothub autosuspend
-Date:   Thu, 19 Dec 2019 13:53:50 +0200
-Message-Id: <20191219115350.16801-1-mathias.nyman@linux.intel.com>
+Subject: [PATCH backport 4.9 4.4] xhci: fix USB3 device initiated resume race with roothub autosuspend
+Date:   Thu, 19 Dec 2019 14:06:32 +0200
+Message-Id: <20191219120632.4037-1-mathias.nyman@linux.intel.com>
 X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 commit 057d476fff778f1d3b9f861fdb5437ea1a3cfc99 upstream
 
-Backport for linux-4.14.y stable
+Backport for 4.9 and 4.4 stable kernels
 
 A race in xhci USB3 remote wake handling may force device back to suspend
 after it initiated resume siganaling, causing a missed resume event or warm
@@ -82,13 +82,14 @@ Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 ---
  drivers/usb/host/xhci-hub.c  | 8 ++++++++
  drivers/usb/host/xhci-ring.c | 6 +-----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/usb/host/xhci.h      | 1 +
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index 95503bb9b067..d1363f3fabfa 100644
+index 39e2d3271035..1d9cb29400f3 100644
 --- a/drivers/usb/host/xhci-hub.c
 +++ b/drivers/usb/host/xhci-hub.c
-@@ -887,6 +887,14 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
+@@ -760,6 +760,14 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
  			status |= USB_PORT_STAT_C_BH_RESET << 16;
  		if ((raw_port_status & PORT_CEC))
  			status |= USB_PORT_STAT_C_CONFIG_ERROR << 16;
@@ -104,20 +105,20 @@ index 95503bb9b067..d1363f3fabfa 100644
  
  	if (hcd->speed < HCD_USB3) {
 diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 89af395cd89c..61fa3007a74a 100644
+index 69ad9817076a..b426c83ecb9b 100644
 --- a/drivers/usb/host/xhci-ring.c
 +++ b/drivers/usb/host/xhci-ring.c
-@@ -1679,9 +1679,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
+@@ -1609,9 +1609,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
  		usb_hcd_resume_root_hub(hcd);
  	}
  
--	if (hcd->speed >= HCD_USB3 && (portsc & PORT_PLS_MASK) == XDEV_INACTIVE)
+-	if (hcd->speed >= HCD_USB3 && (temp & PORT_PLS_MASK) == XDEV_INACTIVE)
 -		bus_state->port_remote_wakeup &= ~(1 << faked_port_index);
 -
- 	if ((portsc & PORT_PLC) && (portsc & PORT_PLS_MASK) == XDEV_RESUME) {
+ 	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) == XDEV_RESUME) {
  		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
  
-@@ -1700,6 +1697,7 @@ static void handle_port_status(struct xhci_hcd *xhci,
+@@ -1630,6 +1627,7 @@ static void handle_port_status(struct xhci_hcd *xhci,
  			bus_state->port_remote_wakeup |= 1 << faked_port_index;
  			xhci_test_and_clear_bit(xhci, port_array,
  					faked_port_index, PORT_PLC);
@@ -125,7 +126,7 @@ index 89af395cd89c..61fa3007a74a 100644
  			xhci_set_link_state(xhci, port_array, faked_port_index,
  						XDEV_U0);
  			/* Need to wait until the next link state change
-@@ -1737,8 +1735,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
+@@ -1667,8 +1665,6 @@ static void handle_port_status(struct xhci_hcd *xhci,
  		if (slot_id && xhci->devs[slot_id])
  			xhci_ring_device(xhci, slot_id);
  		if (bus_state->port_remote_wakeup & (1 << faked_port_index)) {
@@ -134,6 +135,18 @@ index 89af395cd89c..61fa3007a74a 100644
  			xhci_test_and_clear_bit(xhci, port_array,
  					faked_port_index, PORT_PLC);
  			usb_wakeup_notification(hcd->self.root_hub,
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index de4771ce0df6..424c07d1ac0e 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -316,6 +316,7 @@ struct xhci_op_regs {
+ #define XDEV_U3		(0x3 << 5)
+ #define XDEV_INACTIVE	(0x6 << 5)
+ #define XDEV_POLLING	(0x7 << 5)
++#define XDEV_RECOVERY	(0x8 << 5)
+ #define XDEV_COMP_MODE  (0xa << 5)
+ #define XDEV_RESUME	(0xf << 5)
+ /* true: port has power (see HCC_PPC) */
 -- 
 2.17.1
 
