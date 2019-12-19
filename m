@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB6D126972
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34189126A3B
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:45:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727879AbfLSShp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:37:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55512 "EHLO mail.kernel.org"
+        id S1728912AbfLSSpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:45:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727874AbfLSShp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:45 -0500
+        id S1729141AbfLSSpW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:45:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B1F924672;
-        Thu, 19 Dec 2019 18:37:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15EFE222C2;
+        Thu, 19 Dec 2019 18:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780664;
-        bh=BLYYGhasJUgseKVq2KbMLgRmg3y+QLplYPJMrvf+rFQ=;
+        s=default; t=1576781121;
+        bh=wXgQ+EZwRPzcPxdGDKn0T7ZsU1ZsWUw4oshqN7DO+jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1Oq6ENkn+l0yBm+TV24zhfq5B2+XspiGVUmL7k7cYqDkVD08oJkozQSrOOb8Drki
-         WKqnjg0SITTxs02cD1wftAKNicD22JbWBvDem2+JK0gwjuDaXIJJ9VMZl72pX7zpFp
-         q5fY3CaHLu2dWA7qQfx+3e2NhnuxZa7U8vBLZT50=
+        b=2M3PXD2lfSYCgOwtPbnFCwRVpKVj7swdYub7p4hz6XW3Sp8oT/gR6udjdKhuORQas
+         IGpR/9hprljobtTdzxTj11hqpW0/8OB+5WJmFdTdSVF2q/eMCmyL/KpvS9+fNc6fkY
+         1Rwo40CeepBY18Zm683KzGrXKFehN8SPTmRxYMio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 065/162] KVM: x86: fix presentation of TSX feature in ARCH_CAPABILITIES
-Date:   Thu, 19 Dec 2019 19:32:53 +0100
-Message-Id: <20191219183211.803963252@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Wang <wvw@google.com>,
+        Zhang Rui <rui.zhang@intel.com>
+Subject: [PATCH 4.9 092/199] thermal: Fix deadlock in thermal thermal_zone_device_check
+Date:   Thu, 19 Dec 2019 19:32:54 +0100
+Message-Id: <20191219183220.021281963@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Wei Wang <wvw@google.com>
 
-commit cbbaa2727aa3ae9e0a844803da7cef7fd3b94f2b upstream.
+commit 163b00cde7cf2206e248789d2780121ad5e6a70b upstream.
 
-KVM does not implement MSR_IA32_TSX_CTRL, so it must not be presented
-to the guests.  It is also confusing to have !ARCH_CAP_TSX_CTRL_MSR &&
-!RTM && ARCH_CAP_TAA_NO: lack of MSR_IA32_TSX_CTRL suggests TSX was not
-hidden (it actually was), yet the value says that TSX is not vulnerable
-to microarchitectural data sampling.  Fix both.
+1851799e1d29 ("thermal: Fix use-after-free when unregistering thermal zone
+device") changed cancel_delayed_work to cancel_delayed_work_sync to avoid
+a use-after-free issue. However, cancel_delayed_work_sync could be called
+insides the WQ causing deadlock.
 
+[54109.642398] c0   1162 kworker/u17:1   D    0 11030      2 0x00000000
+[54109.642437] c0   1162 Workqueue: thermal_passive_wq thermal_zone_device_check
+[54109.642447] c0   1162 Call trace:
+[54109.642456] c0   1162  __switch_to+0x138/0x158
+[54109.642467] c0   1162  __schedule+0xba4/0x1434
+[54109.642480] c0   1162  schedule_timeout+0xa0/0xb28
+[54109.642492] c0   1162  wait_for_common+0x138/0x2e8
+[54109.642511] c0   1162  flush_work+0x348/0x40c
+[54109.642522] c0   1162  __cancel_work_timer+0x180/0x218
+[54109.642544] c0   1162  handle_thermal_trip+0x2c4/0x5a4
+[54109.642553] c0   1162  thermal_zone_device_update+0x1b4/0x25c
+[54109.642563] c0   1162  thermal_zone_device_check+0x18/0x24
+[54109.642574] c0   1162  process_one_work+0x3cc/0x69c
+[54109.642583] c0   1162  worker_thread+0x49c/0x7c0
+[54109.642593] c0   1162  kthread+0x17c/0x1b0
+[54109.642602] c0   1162  ret_from_fork+0x10/0x18
+[54109.643051] c0   1162 kworker/u17:2   D    0 16245      2 0x00000000
+[54109.643067] c0   1162 Workqueue: thermal_passive_wq thermal_zone_device_check
+[54109.643077] c0   1162 Call trace:
+[54109.643085] c0   1162  __switch_to+0x138/0x158
+[54109.643095] c0   1162  __schedule+0xba4/0x1434
+[54109.643104] c0   1162  schedule_timeout+0xa0/0xb28
+[54109.643114] c0   1162  wait_for_common+0x138/0x2e8
+[54109.643122] c0   1162  flush_work+0x348/0x40c
+[54109.643131] c0   1162  __cancel_work_timer+0x180/0x218
+[54109.643141] c0   1162  handle_thermal_trip+0x2c4/0x5a4
+[54109.643150] c0   1162  thermal_zone_device_update+0x1b4/0x25c
+[54109.643159] c0   1162  thermal_zone_device_check+0x18/0x24
+[54109.643167] c0   1162  process_one_work+0x3cc/0x69c
+[54109.643177] c0   1162  worker_thread+0x49c/0x7c0
+[54109.643186] c0   1162  kthread+0x17c/0x1b0
+[54109.643195] c0   1162  ret_from_fork+0x10/0x18
+[54109.644500] c0   1162 cat             D    0  7766      1 0x00000001
+[54109.644515] c0   1162 Call trace:
+[54109.644524] c0   1162  __switch_to+0x138/0x158
+[54109.644536] c0   1162  __schedule+0xba4/0x1434
+[54109.644546] c0   1162  schedule_preempt_disabled+0x80/0xb0
+[54109.644555] c0   1162  __mutex_lock+0x3a8/0x7f0
+[54109.644563] c0   1162  __mutex_lock_slowpath+0x14/0x20
+[54109.644575] c0   1162  thermal_zone_get_temp+0x84/0x360
+[54109.644586] c0   1162  temp_show+0x30/0x78
+[54109.644609] c0   1162  dev_attr_show+0x5c/0xf0
+[54109.644628] c0   1162  sysfs_kf_seq_show+0xcc/0x1a4
+[54109.644636] c0   1162  kernfs_seq_show+0x48/0x88
+[54109.644656] c0   1162  seq_read+0x1f4/0x73c
+[54109.644664] c0   1162  kernfs_fop_read+0x84/0x318
+[54109.644683] c0   1162  __vfs_read+0x50/0x1bc
+[54109.644692] c0   1162  vfs_read+0xa4/0x140
+[54109.644701] c0   1162  SyS_read+0xbc/0x144
+[54109.644708] c0   1162  el0_svc_naked+0x34/0x38
+[54109.845800] c0   1162 D 720.000s 1->7766->7766 cat [panic]
+
+Fixes: 1851799e1d29 ("thermal: Fix use-after-free when unregistering thermal zone device")
 Cc: stable@vger.kernel.org
-Tested-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Wei Wang <wvw@google.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/thermal/thermal_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1024,10 +1024,15 @@ u64 kvm_get_arch_capabilities(void)
- 	 * If TSX is disabled on the system, guests are also mitigated against
- 	 * TAA and clear CPU buffer mitigation is not required for guests.
- 	 */
--	if (boot_cpu_has_bug(X86_BUG_TAA) && boot_cpu_has(X86_FEATURE_RTM) &&
--	    (data & ARCH_CAP_TSX_CTRL_MSR))
-+	if (!boot_cpu_has(X86_FEATURE_RTM))
-+		data &= ~ARCH_CAP_TAA_NO;
-+	else if (!boot_cpu_has_bug(X86_BUG_TAA))
-+		data |= ARCH_CAP_TAA_NO;
-+	else if (data & ARCH_CAP_TSX_CTRL_MSR)
- 		data &= ~ARCH_CAP_MDS_NO;
- 
-+	/* KVM does not emulate MSR_IA32_TSX_CTRL.  */
-+	data &= ~ARCH_CAP_TSX_CTRL_MSR;
- 	return data;
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -402,7 +402,7 @@ static void thermal_zone_device_set_poll
+ 		mod_delayed_work(system_freezable_wq, &tz->poll_queue,
+ 				 msecs_to_jiffies(delay));
+ 	else
+-		cancel_delayed_work_sync(&tz->poll_queue);
++		cancel_delayed_work(&tz->poll_queue);
  }
  
+ static void monitor_thermal_zone(struct thermal_zone_device *tz)
+@@ -2073,7 +2073,7 @@ void thermal_zone_device_unregister(stru
+ 
+ 	mutex_unlock(&thermal_list_lock);
+ 
+-	thermal_zone_device_set_polling(tz, 0);
++	cancel_delayed_work_sync(&tz->poll_queue);
+ 
+ 	if (tz->type[0])
+ 		device_remove_file(&tz->device, &dev_attr_type);
 
 
