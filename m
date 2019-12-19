@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A772A126BC4
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A5C6126B00
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:53:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730317AbfLSSxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:53:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47910 "EHLO mail.kernel.org"
+        id S1727524AbfLSSxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:53:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728387AbfLSSxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:53:04 -0500
+        id S1730323AbfLSSxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:53:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16159222C2;
-        Thu, 19 Dec 2019 18:53:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A27B24683;
+        Thu, 19 Dec 2019 18:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781583;
-        bh=6do8LPNwnSdk/SBo9CUNRHbKZZltgMohbw9SXzUd2FA=;
+        s=default; t=1576781586;
+        bh=DZTffMPfrJQtkLV5eRy2s0drgVzLds0tyJMKlwS9wv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjGaHBaI/EcMnMhwazOZ5jgMyOKj0zSrZou4+LLWiQJwVhWD5JoPNF2Gr73ZJ9tKT
-         g8tYdJBIbINIbvwM2t52UYMVgFO8wu9n2iMCI0qTbAg7ys7fWOY0CtpLHf6Icjez8P
-         H3nselxG8cRooXXK67i0TPlGLz/9IryN6IwpZBiI=
+        b=KVwWfwm3jEeKVK7oA76PmqhT+t9xjoXtraVgxGbrppcLjm4tEPxqKK4XthSJjQZCT
+         XINCB/G8AIerE9sj9fIfNR84t6KhjTwh2kHhidPQF6SLXlVjCK3wXky4ALP/huHIoo
+         3XcThgjTo3zYPwPt1DjATzZ5260njh2aArIzoj7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 45/47] scsi: qla2xxx: Change discovery state before PLOGI
-Date:   Thu, 19 Dec 2019 19:34:59 +0100
-Message-Id: <20191219182955.693851906@linuxfoundation.org>
+        stable@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 46/47] drm/radeon: fix r1xx/r2xx register checker for POT textures
+Date:   Thu, 19 Dec 2019 19:35:00 +0100
+Message-Id: <20191219182956.768522615@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219182857.659088743@linuxfoundation.org>
 References: <20191219182857.659088743@linuxfoundation.org>
@@ -46,40 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 58e39a2ce4be08162c0368030cdc405f7fd849aa upstream.
+commit 008037d4d972c9c47b273e40e52ae34f9d9e33e7 upstream.
 
-When a port sends PLOGI, discovery state should be changed to login
-pending, otherwise RELOGIN_NEEDED bit is set in
-qla24xx_handle_plogi_done_event(). RELOGIN_NEEDED triggers another PLOGI,
-and it never goes out of the loop until login timer expires.
+Shift and mask were reversed.  Noticed by chance.
 
-Fixes: 8777e4314d397 ("scsi: qla2xxx: Migrate NVME N2N handling into state machine")
-Fixes: 8b5292bcfcacf ("scsi: qla2xxx: Fix Relogin to prevent modifying scan_state flag")
-Cc: Quinn Tran <qutran@marvell.com>
+Tested-by: Meelis Roos <mroos@linux.ee>
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191125165702.1013-6-r.bolshakov@yadro.com
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Tested-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_init.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/radeon/r100.c |    4 ++--
+ drivers/gpu/drm/radeon/r200.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -966,6 +966,7 @@ int qla24xx_post_gnl_work(struct scsi_ql
- 
- 	e->u.fcport.fcport = fcport;
- 	fcport->flags |= FCF_ASYNC_ACTIVE;
-+	fcport->disc_state = DSC_LOGIN_PEND;
- 	return qla2x00_post_work(vha, e);
- }
- 
+--- a/drivers/gpu/drm/radeon/r100.c
++++ b/drivers/gpu/drm/radeon/r100.c
+@@ -1820,8 +1820,8 @@ static int r100_packet0_check(struct rad
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & RADEON_TXFORMAT_CUBIC_MAP_ENABLE)
+ 			track->textures[i].tex_coord_type = 2;
+--- a/drivers/gpu/drm/radeon/r200.c
++++ b/drivers/gpu/drm/radeon/r200.c
+@@ -476,8 +476,8 @@ int r200_packet0_check(struct radeon_cs_
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & R200_TXFORMAT_LOOKUP_DISABLE)
+ 			track->textures[i].lookup_disable = true;
 
 
