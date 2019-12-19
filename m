@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F987126CCA
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 861FF126CCC
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:06:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728106AbfLSSoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:44:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35894 "EHLO mail.kernel.org"
+        id S1728647AbfLSSoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:44:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728937AbfLSSoB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:44:01 -0500
+        id S1728946AbfLSSoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:44:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D749B24679;
-        Thu, 19 Dec 2019 18:44:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5575C24679;
+        Thu, 19 Dec 2019 18:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781041;
-        bh=y+nQxC6lag84zSjjpeCKCucJBQKq2nK/mD3DhW0tzUQ=;
+        s=default; t=1576781043;
+        bh=vKGtRTAO9OrO2yKIbWWQ9WkANzVXLGsOgVLPAQ7WQCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dp4GshD2/Nhrl96CbVifs2gG/FakKdukLyULg1Z5O9xtrSZRR6khZWeJAhSuYETgc
-         bES6dIhzfn82YHssvsKczc27aBRZry/MkaaA6NGtnyO7otlok/VPmZmpu4WJGKUC2a
-         6xvPXgGiV2DE1Vwh7LOtVxKoZvg19agoZE8W949c=
+        b=wXeETxqkuucWvHixDOEmUD/rBU9n2TUwkESdlR8EFUfj9l2flJ4KOdksOsfpwW9sZ
+         LhStwhTYuY8tPuy6gHphZNMwWUw27oaNyZ+AgWHcm+RrgQqDnw/AOWNg8ve5jqhFVY
+         3hhloBQSLooEDC2/gDu+sxfFfNr2crOhWjIvE9GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Boris Brezillon <boris.brezillon@bootlin.com>,
+        stable@vger.kernel.org, Daniel Mack <daniel@zonque.org>,
+        Sergey Yanovich <ynvich@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 058/199] mtd: fix mtd_oobavail() incoherent returned value
-Date:   Thu, 19 Dec 2019 19:32:20 +0100
-Message-Id: <20191219183218.172518536@linuxfoundation.org>
+Subject: [PATCH 4.9 059/199] ARM: dts: pxa: clean up USB controller nodes
+Date:   Thu, 19 Dec 2019 19:32:21 +0100
+Message-Id: <20191219183218.257793815@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
 References: <20191219183214.629503389@linuxfoundation.org>
@@ -44,34 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Daniel Mack <daniel@zonque.org>
 
-[ Upstream commit 4348433d8c0234f44adb6e12112e69343f50f0c5 ]
+[ Upstream commit c40ad24254f1dbd54f2df5f5f524130dc1862122 ]
 
-mtd_oobavail() returns either mtd->oovabail or mtd->oobsize. Both
-values are unsigned 32-bit entities, so there is no reason to pretend
-returning a signed one.
+PXA25xx SoCs don't have a USB controller, so drop the node from the
+common pxa2xx.dtsi base file. Both pxa27x and pxa3xx have a dedicated
+node already anyway.
 
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+While at it, unify the names for the nodes across all pxa platforms.
+
+Signed-off-by: Daniel Mack <daniel@zonque.org>
+Reported-by: Sergey Yanovich <ynvich@gmail.com>
+Link: https://patchwork.kernel.org/patch/8375421/
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mtd/mtd.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/pxa27x.dtsi | 2 +-
+ arch/arm/boot/dts/pxa2xx.dtsi | 7 -------
+ arch/arm/boot/dts/pxa3xx.dtsi | 2 +-
+ 3 files changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/mtd/mtd.h b/include/linux/mtd/mtd.h
-index 13f8052b9ff92..13ddba5e531d3 100644
---- a/include/linux/mtd/mtd.h
-+++ b/include/linux/mtd/mtd.h
-@@ -392,7 +392,7 @@ static inline struct device_node *mtd_get_of_node(struct mtd_info *mtd)
- 	return mtd->dev.of_node;
- }
+diff --git a/arch/arm/boot/dts/pxa27x.dtsi b/arch/arm/boot/dts/pxa27x.dtsi
+index 0e1320afa1562..d629948000db1 100644
+--- a/arch/arm/boot/dts/pxa27x.dtsi
++++ b/arch/arm/boot/dts/pxa27x.dtsi
+@@ -34,7 +34,7 @@
+ 			clocks = <&clks CLK_NONE>;
+ 		};
  
--static inline int mtd_oobavail(struct mtd_info *mtd, struct mtd_oob_ops *ops)
-+static inline u32 mtd_oobavail(struct mtd_info *mtd, struct mtd_oob_ops *ops)
- {
- 	return ops->mode == MTD_OPS_AUTO_OOB ? mtd->oobavail : mtd->oobsize;
- }
+-		pxa27x_ohci: usb@4c000000 {
++		usb0: usb@4c000000 {
+ 			compatible = "marvell,pxa-ohci";
+ 			reg = <0x4c000000 0x10000>;
+ 			interrupts = <3>;
+diff --git a/arch/arm/boot/dts/pxa2xx.dtsi b/arch/arm/boot/dts/pxa2xx.dtsi
+index 3ff077ca44002..5a6f4ed92dac3 100644
+--- a/arch/arm/boot/dts/pxa2xx.dtsi
++++ b/arch/arm/boot/dts/pxa2xx.dtsi
+@@ -117,13 +117,6 @@
+ 			status = "disabled";
+ 		};
+ 
+-		usb0: ohci@4c000000 {
+-			compatible = "marvell,pxa-ohci";
+-			reg = <0x4c000000 0x10000>;
+-			interrupts = <3>;
+-			status = "disabled";
+-		};
+-
+ 		mmc0: mmc@41100000 {
+ 			compatible = "marvell,pxa-mmc";
+ 			reg = <0x41100000 0x1000>;
+diff --git a/arch/arm/boot/dts/pxa3xx.dtsi b/arch/arm/boot/dts/pxa3xx.dtsi
+index 9d6f3aacedb70..4aee150626902 100644
+--- a/arch/arm/boot/dts/pxa3xx.dtsi
++++ b/arch/arm/boot/dts/pxa3xx.dtsi
+@@ -187,7 +187,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		pxa3xx_ohci: usb@4c000000 {
++		usb0: usb@4c000000 {
+ 			compatible = "marvell,pxa-ohci";
+ 			reg = <0x4c000000 0x10000>;
+ 			interrupts = <3>;
 -- 
 2.20.1
 
