@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB758126D60
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB53B126C90
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728191AbfLSSjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:39:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57526 "EHLO mail.kernel.org"
+        id S1729541AbfLSTEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:04:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728188AbfLSSjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:39:19 -0500
+        id S1729068AbfLSSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:46:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DBFB2467B;
-        Thu, 19 Dec 2019 18:39:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5822222C2;
+        Thu, 19 Dec 2019 18:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780758;
-        bh=vT09+Y2atmoIbCV7QqkXaUqPrSgl4UOEZ/3qeExbu4w=;
+        s=default; t=1576781216;
+        bh=fNccwqWA+SRuS5QnXcv5KmJy7FvExzlUIFIQAkUaYT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGxpLF7Xk0QVPOfPEwdywp8WqzItFzaQaEyWWBa5haKMwozx8KFVMOlp4z0nRUGwa
-         l4GfchG7N9W4/qYyNZ547NpNSXdL0qNR13xxPCdSVNw8mjA8XNrzkhBGOvYQJQxcr/
-         38Bkh1DguQZEaSeyqPtbeuz42Sd8Y/PUILWMMHLQ=
+        b=QVLnQebRz1Vh0+k8sQyMrvHajZ+H/ZQzVwgARxZQnuuzwkAW6/O3Cphugc8NLV+8c
+         V/9il/9R6W+XFMJTp+xsdalRFp87CRhDmmU0yIrzdCufnQyScCCpQFrw1+kwEz6pVf
+         9b0Sr5Mvf39kbqtymi9NSCvKLQF16y8zOGs9TMsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 4.4 104/162] lib: raid6: fix awk build warnings
-Date:   Thu, 19 Dec 2019 19:33:32 +0100
-Message-Id: <20191219183214.094008251@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 4.9 131/199] media: bdisp: fix memleak on release
+Date:   Thu, 19 Dec 2019 19:33:33 +0100
+Message-Id: <20191219183222.299466691@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit 702600eef73033ddd4eafcefcbb6560f3e3a90f7 upstream.
+commit 11609a7e21f8cea42630350aa57662928fa4dc63 upstream.
 
-Newer versions of awk spit out these fun warnings:
-	awk: ../lib/raid6/unroll.awk:16: warning: regexp escape sequence `\#' is not a known regexp operator
+If a process is interrupted while accessing the video device and the
+device lock is contended, release() could return early and fail to free
+related resources.
 
-As commit 700c1018b86d ("x86/insn: Fix awk regexp warnings") showed, it
-turns out that there are a number of awk strings that do not need to be
-escaped and newer versions of awk now warn about this.
+Note that the return value of the v4l2 release file operation is
+ignored.
 
-Fix the string up so that no warning is produced.  The exact same kernel
-module gets created before and after this patch, showing that it wasn't
-needed.
-
-Link: https://lore.kernel.org/r/20191206152600.GA75093@kroah.com
+Fixes: 28ffeebbb7bd ("[media] bdisp: 2D blitter driver using v4l2 mem2mem framework")
+Cc: stable <stable@vger.kernel.org>     # 4.2
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Fabien Dessenne <fabien.dessenne@st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/raid6/unroll.awk |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/sti/bdisp/bdisp-v4l2.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/lib/raid6/unroll.awk
-+++ b/lib/raid6/unroll.awk
-@@ -13,7 +13,7 @@ BEGIN {
- 	for (i = 0; i < rep; ++i) {
- 		tmp = $0
- 		gsub(/\$\$/, i, tmp)
--		gsub(/\$\#/, n, tmp)
-+		gsub(/\$#/, n, tmp)
- 		gsub(/\$\*/, "$", tmp)
- 		print tmp
- 	}
+--- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
++++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+@@ -651,8 +651,7 @@ static int bdisp_release(struct file *fi
+ 
+ 	dev_dbg(bdisp->dev, "%s\n", __func__);
+ 
+-	if (mutex_lock_interruptible(&bdisp->lock))
+-		return -ERESTARTSYS;
++	mutex_lock(&bdisp->lock);
+ 
+ 	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
+ 
 
 
