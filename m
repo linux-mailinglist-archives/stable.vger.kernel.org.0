@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B704B126D1B
+	by mail.lfdr.de (Postfix) with ESMTP id 45122126D1A
 	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727890AbfLSTIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:08:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32782 "EHLO mail.kernel.org"
+        id S1727525AbfLSTI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 14:08:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728592AbfLSSlu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:41:50 -0500
+        id S1728183AbfLSSlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:41:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27DE824672;
-        Thu, 19 Dec 2019 18:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8651A206D7;
+        Thu, 19 Dec 2019 18:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780909;
-        bh=ZDWjkucWnuNDUFia2/GxQNQEtlT4iZWmBPaU8zSh7vg=;
+        s=default; t=1576780912;
+        bh=F/DzLy0Md+yRJaxTa2YpI3P8cDeNkEsaZq3s1CPzwF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jdn7XuUiAUTGsl4evuknHJ31GQwDUG5MIC38UJymiSAuEancUBOG0mxYBvOcGqVty
-         3grl7wtTSzfvEQXhcOh/kTAmBCCkijJnv4UAnGwpMVw/Xd+OvSxsAcaI3a7meLpL/Z
-         61xeNJngW+YrA5DrEiSVMwp4QWr5t1oRYCL1gB9Y=
+        b=xFv52IgMuSFBp0xaY5z64V8wSgzCN2uigvSs3lizLqOUpXZwnN5jB8xsWMAULHCQi
+         AC4METz4Mxumt35WjXJJu92jH1GBhKDy2RALi0qGaWTtJ+kksFWAlXxGMvF05Rvtm8
+         t4EYyfeOR16Fwb8OyUBv6YHm2+g54JSuAe2/NTA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.4 158/162] dm btree: increase rebalance threshold in __rebalance2()
-Date:   Thu, 19 Dec 2019 19:34:26 +0100
-Message-Id: <20191219183217.385922830@linuxfoundation.org>
+        stable@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.4 159/162] drm/radeon: fix r1xx/r2xx register checker for POT textures
+Date:   Thu, 19 Dec 2019 19:34:27 +0100
+Message-Id: <20191219183217.451198500@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
 References: <20191219183150.477687052@linuxfoundation.org>
@@ -44,67 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 474e559567fa631dea8fb8407ab1b6090c903755 upstream.
+commit 008037d4d972c9c47b273e40e52ae34f9d9e33e7 upstream.
 
-We got the following warnings from thin_check during thin-pool setup:
+Shift and mask were reversed.  Noticed by chance.
 
-  $ thin_check /dev/vdb
-  examining superblock
-  examining devices tree
-    missing devices: [1, 84]
-      too few entries in btree_node: 41, expected at least 42 (block 138, max_entries = 126)
-  examining mapping tree
-
-The phenomenon is the number of entries in one node of details_info tree is
-less than (max_entries / 3). And it can be easily reproduced by the following
-procedures:
-
-  $ new a thin pool
-  $ presume the max entries of details_info tree is 126
-  $ new 127 thin devices (e.g. 1~127) to make the root node being full
-    and then split
-  $ remove the first 43 (e.g. 1~43) thin devices to make the children
-    reblance repeatedly
-  $ stop the thin pool
-  $ thin_check
-
-The root cause is that the B-tree removal procedure in __rebalance2()
-doesn't guarantee the invariance: the minimal number of entries in
-non-root node should be >= (max_entries / 3).
-
-Simply fix the problem by increasing the rebalance threshold to
-make sure the number of entries in each child will be greater
-than or equal to (max_entries / 3 + 1), so no matter which
-child is used for removal, the number will still be valid.
-
+Tested-by: Meelis Roos <mroos@linux.ee>
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Acked-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/persistent-data/dm-btree-remove.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/r100.c |    4 ++--
+ drivers/gpu/drm/radeon/r200.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/md/persistent-data/dm-btree-remove.c
-+++ b/drivers/md/persistent-data/dm-btree-remove.c
-@@ -203,7 +203,13 @@ static void __rebalance2(struct dm_btree
- 	struct btree_node *right = r->n;
- 	uint32_t nr_left = le32_to_cpu(left->header.nr_entries);
- 	uint32_t nr_right = le32_to_cpu(right->header.nr_entries);
--	unsigned threshold = 2 * merge_threshold(left) + 1;
-+	/*
-+	 * Ensure the number of entries in each child will be greater
-+	 * than or equal to (max_entries / 3 + 1), so no matter which
-+	 * child is used for removal, the number will still be not
-+	 * less than (max_entries / 3).
-+	 */
-+	unsigned int threshold = 2 * (merge_threshold(left) + 1);
- 
- 	if (nr_left + nr_right < threshold) {
- 		/*
+--- a/drivers/gpu/drm/radeon/r100.c
++++ b/drivers/gpu/drm/radeon/r100.c
+@@ -1826,8 +1826,8 @@ static int r100_packet0_check(struct rad
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & RADEON_TXFORMAT_CUBIC_MAP_ENABLE)
+ 			track->textures[i].tex_coord_type = 2;
+--- a/drivers/gpu/drm/radeon/r200.c
++++ b/drivers/gpu/drm/radeon/r200.c
+@@ -476,8 +476,8 @@ int r200_packet0_check(struct radeon_cs_
+ 			track->textures[i].use_pitch = 1;
+ 		} else {
+ 			track->textures[i].use_pitch = 0;
+-			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+-			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
++			track->textures[i].width = 1 << ((idx_value & RADEON_TXFORMAT_WIDTH_MASK) >> RADEON_TXFORMAT_WIDTH_SHIFT);
++			track->textures[i].height = 1 << ((idx_value & RADEON_TXFORMAT_HEIGHT_MASK) >> RADEON_TXFORMAT_HEIGHT_SHIFT);
+ 		}
+ 		if (idx_value & R200_TXFORMAT_LOOKUP_DISABLE)
+ 			track->textures[i].lookup_disable = true;
 
 
