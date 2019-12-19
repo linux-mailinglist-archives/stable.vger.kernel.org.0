@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5983E12693B
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:35:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE66126A32
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727181AbfLSSfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:35:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52374 "EHLO mail.kernel.org"
+        id S1726948AbfLSSpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:45:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726836AbfLSSfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:35:42 -0500
+        id S1728806AbfLSSpA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:45:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2C9624679;
-        Thu, 19 Dec 2019 18:35:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21C642465E;
+        Thu, 19 Dec 2019 18:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780542;
-        bh=qGW1AnRfHulQuoxOcJ1quQ3TEjBJS6JUQMxrNU41tGI=;
+        s=default; t=1576781099;
+        bh=XOTApJkCiuammR73DmCm1PlS4Vhi+iv3evwzFFAsCI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OcxQ0ZO4zYH7gE3YUn36QYBJbZXLmMtdbtam8IZ5DHFTakWFWdF7dPOJH+uq3IdKw
-         XwE2jgBThriX/5jU26+wxNF4N7j3HOSPV1g94Ke1VZc7AecJQX0IRIwAfc4r9vH3We
-         HOFlCwLr7AOWpjRs784fgviV1SFZhoHT4iUn/wGo=
+        b=RZoOmBMhQ9mqFI5RoS6oKvjB9CNdo/thhsDeRLZQHJRtV5B/HOFPtlSwmQzf7HDzE
+         9fI9l/5ndwRHa5wXT9Zoxqq1LWSZ2O2h4QsrxXzXEgGCUN6H28uUwk9DDxD9YddGkc
+         9ZVkWe1JQwow8JNQruuwsx2NUYzdBSySpZsr1umM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finley Xiao <finley.xiao@rock-chips.com>,
-        Johan Jonker <jbx9999@hotmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 017/162] clk: rockchip: fix rk3188 sclk_smc gate data
+Subject: [PATCH 4.9 043/199] altera-stapl: check for a null key before strcasecmping it
 Date:   Thu, 19 Dec 2019 19:32:05 +0100
-Message-Id: <20191219183207.397022772@linuxfoundation.org>
+Message-Id: <20191219183217.321655080@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finley Xiao <finley.xiao@rock-chips.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit a9f0c0e563717b9f63b3bb1c4a7c2df436a206d9 ]
+[ Upstream commit 9ccb645683ef46e3c52c12c088a368baa58447d4 ]
 
-Fix sclk_smc gate data.
-Change variable order, flags come before the register address.
+Currently the null check on key is occurring after the strcasecmp on
+the key, hence there is a potential null pointer dereference on key.
+Fix this by checking if key is null first. Also replace the == 0
+check on strcasecmp with just the ! operator.
 
-Signed-off-by: Finley Xiao <finley.xiao@rock-chips.com>
-Signed-off-by: Johan Jonker <jbx9999@hotmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Detected by CoverityScan, CID#1248787 ("Dereference before null check")
+
+Fixes: fa766c9be58b ("[media] Altera FPGA firmware download module")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-rk3188.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/altera-stapl/altera.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/clk/rockchip/clk-rk3188.c b/drivers/clk/rockchip/clk-rk3188.c
-index fe728f8dcbe43..986a558c361d6 100644
---- a/drivers/clk/rockchip/clk-rk3188.c
-+++ b/drivers/clk/rockchip/clk-rk3188.c
-@@ -360,8 +360,8 @@ static struct rockchip_clk_branch common_clk_branches[] __initdata = {
- 	 * Clock-Architecture Diagram 4
- 	 */
+diff --git a/drivers/misc/altera-stapl/altera.c b/drivers/misc/altera-stapl/altera.c
+index f53e217e963f5..494e263daa748 100644
+--- a/drivers/misc/altera-stapl/altera.c
++++ b/drivers/misc/altera-stapl/altera.c
+@@ -2176,8 +2176,7 @@ static int altera_get_note(u8 *p, s32 program_size,
+ 			key_ptr = &p[note_strings +
+ 					get_unaligned_be32(
+ 					&p[note_table + (8 * i)])];
+-			if ((strncasecmp(key, key_ptr, strlen(key_ptr)) == 0) &&
+-						(key != NULL)) {
++			if (key && !strncasecmp(key, key_ptr, strlen(key_ptr))) {
+ 				status = 0;
  
--	GATE(SCLK_SMC, "sclk_smc", "hclk_peri",
--			RK2928_CLKGATE_CON(2), 4, 0, GFLAGS),
-+	GATE(SCLK_SMC, "sclk_smc", "hclk_peri", 0,
-+			RK2928_CLKGATE_CON(2), 4, GFLAGS),
- 
- 	COMPOSITE_NOMUX(SCLK_SPI0, "sclk_spi0", "pclk_peri", 0,
- 			RK2928_CLKSEL_CON(25), 0, 7, DFLAGS,
+ 				value_ptr = &p[note_strings +
 -- 
 2.20.1
 
