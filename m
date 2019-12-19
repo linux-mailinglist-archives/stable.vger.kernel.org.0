@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CBAC12692F
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:35:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73BEC1269F6
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 19:42:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726981AbfLSSfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:35:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51966 "EHLO mail.kernel.org"
+        id S1728752AbfLSSmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:42:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726840AbfLSSfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:35:23 -0500
+        id S1728750AbfLSSms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:42:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 470D4222C2;
-        Thu, 19 Dec 2019 18:35:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FE0524672;
+        Thu, 19 Dec 2019 18:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780522;
-        bh=HbKxxugpZirVwNnEh78pfGb/jb0v+Y2FkH2TKXKjbsI=;
+        s=default; t=1576780967;
+        bh=gI9ePgusSsFa9b87u0tWBwlUXgH8iTKtcqzc0ElY/y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raGgkjWRH5FRMIdW4d5jwNFTIc88z1m9M5O6dMqa09e58w2AmxE5/GEjYuUI+mAJ5
-         KErBdlBKeuEYph2zh6DH5VufYP9y9sxG5+3Iyu9/h1CZe3tfXrfLfi8YVvDlYpahsX
-         bd9Pr8s221QuSdPm0InUL9cUUW/45DZr9EIvmisE=
+        b=GEusJCWfaqh3MDS55H3EMT7PPkBf+aD15aFFbs2ioQNcdQZvBEBXfzFFeH8NS22Sl
+         1V7TEO6ZkeIAhRGSNDmwLYFqMxyWeW384E24SlQNBleAdWhdmQbSDt6mhSoIC34Riw
+         M0JvVOB11l36N15aCT4KwJWf6hNwSOhfi+updroU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Richard Narron <comet.berkeley@gmail.com>
-Subject: [PATCH 4.4 001/162] x86/apic/32: Avoid bogus LDR warnings
-Date:   Thu, 19 Dec 2019 19:31:49 +0100
-Message-Id: <20191219183152.151951186@linuxfoundation.org>
+        stable@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 028/199] scsi: zfcp: drop default switch case which might paper over missing case
+Date:   Thu, 19 Dec 2019 19:31:50 +0100
+Message-Id: <20191219183216.423690955@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,73 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit fe6f85ca121e9c74e7490fe66b0c5aae38e332c3 upstream.
+[ Upstream commit 0c902936e55cff9335b27ed632fc45e7115ced75 ]
 
-The removal of the LDR initialization in the bigsmp_32 APIC code unearthed
-a problem in setup_local_APIC().
+This was introduced with v4.18 commit 8c3d20aada70 ("scsi: zfcp: fix
+missing REC trigger trace for all objects in ERP_FAILED") but would now
+suppress helpful -Wswitch compiler warnings when building with W=1 such as
+the following forced example:
 
-The code checks unconditionally for a mismatch of the logical APIC id by
-comparing the early APIC id which was initialized in get_smp_config() with
-the actual LDR value in the APIC.
+drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_handle_failed':
+drivers/s390/scsi/zfcp_erp.c:126:2: warning: enumeration value 'ZFCP_ERP_ACTION_REOPEN_PORT_FORCED' not handled in switch [-Wswitch]
+  switch (want) {
+  ^~~~~~
 
-Due to the removal of the bogus LDR initialization the check now can
-trigger on bigsmp_32 APIC systems emitting a warning for every booting
-CPU. This is of course a false positive because the APIC is not using
-logical destination mode.
+But then again, only with W=1 we would notice unhandled enum cases.
+Without the default cases and a missed unhandled enum case, the code might
+perform unforeseen things we might not want...
 
-Restrict the check and the possibly resulting fixup to systems which are
-actually using the APIC in logical destination mode.
+As of today, we never run through the removed default case, so removing it
+is no functional change.  In the future, we never should run through a
+default case but introduce the necessary specific case(s) to handle new
+functionality.
 
-[ tglx: Massaged changelog and added Cc stable ]
-
-Fixes: bae3a8d3308 ("x86/apic: Do not initialize LDR and DFR for bigsmp")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/666d8f91-b5a8-1afd-7add-821e72a35f03@suse.com
-[ comet.berkeley: Backported to 4.4: adjust context ]
-Signed-off-by: Richard Narron <comet.berkeley@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/apic.c |   25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/s390/scsi/zfcp_erp.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1298,16 +1298,21 @@ void setup_local_APIC(void)
- 	apic->init_apic_ldr();
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index cc62d8cc8cfdd..d5214c4eb9ddb 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -178,9 +178,6 @@ static int zfcp_erp_handle_failed(int want, struct zfcp_adapter *adapter,
+ 				adapter, ZFCP_STATUS_COMMON_ERP_FAILED);
+ 		}
+ 		break;
+-	default:
+-		need = 0;
+-		break;
+ 	}
  
- #ifdef CONFIG_X86_32
--	/*
--	 * APIC LDR is initialized.  If logical_apicid mapping was
--	 * initialized during get_smp_config(), make sure it matches the
--	 * actual value.
--	 */
--	i = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
--	WARN_ON(i != BAD_APICID && i != logical_smp_processor_id());
--	/* always use the value from LDR */
--	early_per_cpu(x86_cpu_to_logical_apicid, cpu) =
--		logical_smp_processor_id();
-+	if (apic->dest_logical) {
-+		int logical_apicid, ldr_apicid;
-+
-+		/*
-+		 * APIC LDR is initialized.  If logical_apicid mapping was
-+		 * initialized during get_smp_config(), make sure it matches
-+		 * the actual value.
-+		 */
-+		logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
-+		ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
-+		if (logical_apicid != BAD_APICID)
-+			WARN_ON(logical_apicid != ldr_apicid);
-+		/* Always use the value from LDR. */
-+		early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
-+	}
- #endif
- 
- 	/*
+ 	return need;
+-- 
+2.20.1
+
 
 
