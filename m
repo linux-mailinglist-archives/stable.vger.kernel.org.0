@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C450B126CAA
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA3A126D59
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:10:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728251AbfLSSpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 13:45:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38182 "EHLO mail.kernel.org"
+        id S1727957AbfLSSji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:39:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728797AbfLSSpn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:45:43 -0500
+        id S1728008AbfLSSjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:39:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE1012465E;
-        Thu, 19 Dec 2019 18:45:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69DEA24650;
+        Thu, 19 Dec 2019 18:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576781143;
-        bh=y6rnEU77n16s4mST6pvUdKrdxHfmcibG65MT/rSN5tE=;
+        s=default; t=1576780775;
+        bh=MfkPB+3mgjzOlIIfBKi6A47gBvuFAvcm/AU/f2h8Kzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wi1UrXoaqzwk0/f1l3cXZvZfP6wl478IsPtnwnj1a2sb6dal20IyOjZ2wI6zSs3i7
-         r6XFbH+sVOUinfVbQKZ9tlqyfSm5C9+/ecIdHtSRLNxAqCRIbIhQ5f+uCEfYm+Udhg
-         KQVvfwQnjQIcK+UnApi9WGBubx4eNpNdxIlMO7z0=
+        b=clq2Ep/+w2KmGH5jMWsd854qbCUGn5FTy93AEMM2i+bTqj6Jgj2Ok9cxU4lE7uuFw
+         kZpHWrbKDFbSDk8rMP0/mxMmHUXyMxNNPYOq2RwSLX7E5hhgKBwiRx9j8B8TykELco
+         cvitRYPEFb6M/E+VX9F7p8O9igivtXlH7Xkdq2yE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 100/199] staging: rtl8188eu: fix interface sanity check
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 074/162] ALSA: hda - Fix pending unsol events at shutdown
 Date:   Thu, 19 Dec 2019 19:33:02 +0100
-Message-Id: <20191219183220.438131683@linuxfoundation.org>
+Message-Id: <20191219183212.308417467@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
-References: <20191219183214.629503389@linuxfoundation.org>
+In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
+References: <20191219183150.477687052@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 74ca34118a0e05793935d804ccffcedd6eb56596 upstream.
+[ Upstream commit ca58f55108fee41d87c9123f85ad4863e5de7f45 ]
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid binding to an invalid interface.
+This is an alternative fix attemp for the issue reported in the commit
+caa8422d01e9 ("ALSA: hda: Flush interrupts on disabling") that was
+reverted later due to regressions.  Instead of tweaking the hardware
+disablement order and the enforced irq flushing, do calling
+cancel_work_sync() of the unsol work early enough, and explicitly
+ignore the unsol events during the shutdown by checking the
+bus->shutdown flag.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
-
-Fixes: c2478d39076b ("staging: r8188eu: Add files for new driver - part 20")
-Cc: stable <stable@vger.kernel.org>     # 3.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191210114751.5119-2-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: caa8422d01e9 ("ALSA: hda: Flush interrupts on disabling")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://lore.kernel.org/r/s5h1ruxt9cz.wl-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_bind.c  | 4 ++++
+ sound/pci/hda/hda_intel.c | 3 +++
+ 2 files changed, 7 insertions(+)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -78,7 +78,7 @@ static struct dvobj_priv *usb_dvobj_init
- 	phost_conf = pusbd->actconfig;
- 	pconf_desc = &phost_conf->desc;
+diff --git a/sound/pci/hda/hda_bind.c b/sound/pci/hda/hda_bind.c
+index 7ea201c05e5da..d0d6dfbfcfdf8 100644
+--- a/sound/pci/hda/hda_bind.c
++++ b/sound/pci/hda/hda_bind.c
+@@ -42,6 +42,10 @@ static void hda_codec_unsol_event(struct hdac_device *dev, unsigned int ev)
+ {
+ 	struct hda_codec *codec = container_of(dev, struct hda_codec, core);
  
--	phost_iface = &usb_intf->altsetting[0];
-+	phost_iface = usb_intf->cur_altsetting;
- 	piface_desc = &phost_iface->desc;
++	/* ignore unsol events during shutdown */
++	if (codec->bus->shutdown)
++		return;
++
+ 	if (codec->patch_ops.unsol_event)
+ 		codec->patch_ops.unsol_event(codec, ev);
+ }
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index ef8955abd9186..3e3277100f08a 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1310,8 +1310,11 @@ static int azx_free(struct azx *chip)
+ static int azx_dev_disconnect(struct snd_device *device)
+ {
+ 	struct azx *chip = device->device_data;
++	struct hdac_bus *bus = azx_bus(chip);
  
- 	pdvobjpriv->NumInterfaces = pconf_desc->bNumInterfaces;
+ 	chip->bus.shutdown = 1;
++	cancel_work_sync(&bus->unsol_work);
++
+ 	return 0;
+ }
+ 
+-- 
+2.20.1
+
 
 
