@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21D31126DC0
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:14:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9595126C8C
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727419AbfLSTMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:12:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55100 "EHLO mail.kernel.org"
+        id S1729349AbfLSSqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:46:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727384AbfLSSh1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:37:27 -0500
+        id S1729347AbfLSSqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:46:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908C820716;
-        Thu, 19 Dec 2019 18:37:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A20824676;
+        Thu, 19 Dec 2019 18:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780647;
-        bh=NEpL2CzNtWa8pl2T6jNiFSD8t5+OTKp74Cn9n98fZfI=;
+        s=default; t=1576781194;
+        bh=/2LOJfKNLozt90aEKK9v/cPlnAKXVlic9b08xEtYXu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Crz+OkuJno1y/BXpP1vu6s5b3lU5Q+0Y/+em1H8v5y+3cDkFNb+SyNlG1ZmEOKp/7
-         UYTfp8OUq80tWp5WqkRyrNqWPnKuAmLj5FShc9cdLjbih9aBgWmC0a1qSu2sWo0H+x
-         /EU14kSuuw1XT0sUQASb6y8Qd7HFbyEwoKHaEqkM=
+        b=IO7w6zqgeS+VAFhygZP1fkezb1z3EoK9hCjAJVV4fNkmWwCZJsWh32C6QJZ9fT9Rf
+         bEP6UIk+WkRdfD1FRiQK1Lvbi/BOXEXiRLRuGS4XrzyasPGJq+jlKzyLH+Eo0gItFf
+         XeZ5bLbQEclCHVfELyQnpIlReBrBPpSQGyR8Q/Dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.4 058/162] CIFS: Fix NULL-pointer dereference in smb2_push_mandatory_locks
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 084/199] KVM: x86: do not modify masked bits of shared MSRs
 Date:   Thu, 19 Dec 2019 19:32:46 +0100
-Message-Id: <20191219183211.406082600@linuxfoundation.org>
+Message-Id: <20191219183219.600878872@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 6f582b273ec23332074d970a7fb25bef835df71f upstream.
+commit de1fca5d6e0105c9d33924e1247e2f386efc3ece upstream.
 
-Currently when the client creates a cifsFileInfo structure for
-a newly opened file, it allocates a list of byte-range locks
-with a pointer to the new cfile and attaches this list to the
-inode's lock list. The latter happens before initializing all
-other fields, e.g. cfile->tlink. Thus a partially initialized
-cifsFileInfo structure becomes available to other threads that
-walk through the inode's lock list. One example of such a thread
-may be an oplock break worker thread that tries to push all
-cached byte-range locks. This causes NULL-pointer dereference
-in smb2_push_mandatory_locks() when accessing cfile->tlink:
+"Shared MSRs" are guest MSRs that are written to the host MSRs but
+keep their value until the next return to userspace.  They support
+a mask, so that some bits keep the host value, but this mask is
+only used to skip an unnecessary MSR write and the value written
+to the MSR is always the guest MSR.
 
-[598428.945633] BUG: kernel NULL pointer dereference, address: 0000000000000038
-...
-[598428.945749] Workqueue: cifsoplockd cifs_oplock_break [cifs]
-[598428.945793] RIP: 0010:smb2_push_mandatory_locks+0xd6/0x5a0 [cifs]
-...
-[598428.945834] Call Trace:
-[598428.945870]  ? cifs_revalidate_mapping+0x45/0x90 [cifs]
-[598428.945901]  cifs_oplock_break+0x13d/0x450 [cifs]
-[598428.945909]  process_one_work+0x1db/0x380
-[598428.945914]  worker_thread+0x4d/0x400
-[598428.945921]  kthread+0x104/0x140
-[598428.945925]  ? process_one_work+0x380/0x380
-[598428.945931]  ? kthread_park+0x80/0x80
-[598428.945937]  ret_from_fork+0x35/0x40
+Fix this and, while at it, do not update smsr->values[slot].curr if
+for whatever reason the wrmsr fails.  This should only happen due to
+reserved bits, so the value written to smsr->values[slot].curr
+will not match when the user-return notifier and the host value will
+always be restored.  However, it is untidy and in rare cases this
+can actually avoid spurious WRMSRs on return to userspace.
 
-Fix this by reordering initialization steps of the cifsFileInfo
-structure: initialize all the fields first and then add the new
-byte-range lock list to the inode's lock list.
-
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Tested-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/file.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -312,9 +312,6 @@ cifs_new_fileinfo(struct cifs_fid *fid,
- 	INIT_LIST_HEAD(&fdlocks->locks);
- 	fdlocks->cfile = cfile;
- 	cfile->llist = fdlocks;
--	cifs_down_write(&cinode->lock_sem);
--	list_add(&fdlocks->llist, &cinode->llist);
--	up_write(&cinode->lock_sem);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -273,13 +273,14 @@ int kvm_set_shared_msr(unsigned slot, u6
+ 	struct kvm_shared_msrs *smsr = per_cpu_ptr(shared_msrs, cpu);
+ 	int err;
  
- 	cfile->count = 1;
- 	cfile->pid = current->tgid;
-@@ -338,6 +335,10 @@ cifs_new_fileinfo(struct cifs_fid *fid,
- 		oplock = 0;
- 	}
+-	if (((value ^ smsr->values[slot].curr) & mask) == 0)
++	value = (value & mask) | (smsr->values[slot].host & ~mask);
++	if (value == smsr->values[slot].curr)
+ 		return 0;
+-	smsr->values[slot].curr = value;
+ 	err = wrmsrl_safe(shared_msrs_global.msrs[slot], value);
+ 	if (err)
+ 		return 1;
  
-+	cifs_down_write(&cinode->lock_sem);
-+	list_add(&fdlocks->llist, &cinode->llist);
-+	up_write(&cinode->lock_sem);
-+
- 	spin_lock(&tcon->open_file_lock);
- 	if (fid->pending_open->oplock != CIFS_OPLOCK_NO_CHANGE && oplock)
- 		oplock = fid->pending_open->oplock;
++	smsr->values[slot].curr = value;
+ 	if (!smsr->registered) {
+ 		smsr->urn.on_user_return = kvm_on_user_return;
+ 		user_return_notifier_register(&smsr->urn);
 
 
