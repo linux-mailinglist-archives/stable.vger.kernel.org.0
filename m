@@ -2,194 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13EE01263AB
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 14:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 945EE12648C
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 15:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726869AbfLSNhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 08:37:19 -0500
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:60890 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726695AbfLSNhT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 08:37:19 -0500
-Received: from fllv0034.itg.ti.com ([10.64.40.246])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id xBJDb5h0061190;
-        Thu, 19 Dec 2019 07:37:05 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1576762625;
-        bh=Z5diJgLciIH9FsxeE6CQFWNDyD6Ix59bO8t5jsRexGo=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=H2Z/PB64AQGzdeA8AezUrjShvv6ldlcdht7J6YjiGba4ISDhP5VSbHNeFbIEXQBt0
-         6XomD4LtFTOKkTtIQ3l51Srnphw5Blx6ohtUdI7KJGWGfRAUCaNLpXGqS8+mb9Z5lp
-         V4yzeYEx6H67idr/7Bgm7Pkz5ZBg9zRnAhDtcmzw=
-Received: from DLEE113.ent.ti.com (dlee113.ent.ti.com [157.170.170.24])
-        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id xBJDb47c027631
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 19 Dec 2019 07:37:05 -0600
-Received: from DLEE102.ent.ti.com (157.170.170.32) by DLEE113.ent.ti.com
- (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Thu, 19
- Dec 2019 07:37:05 -0600
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE102.ent.ti.com
- (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Thu, 19 Dec 2019 07:37:05 -0600
-Received: from [10.250.100.73] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id xBJDb3bG080431;
-        Thu, 19 Dec 2019 07:37:03 -0600
-Subject: Re: [PATCH] can: m_can: Fix default pinmux glitch at init
-To:     Marek Vasut <marex@denx.de>, <linux-can@vger.kernel.org>
-CC:     Bich Hemon <bich.hemon@st.com>,
-        "J . D . Schroeder" <jay.schroeder@garmin.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Roger Quadros <rogerq@ti.com>,
-        linux-stable <stable@vger.kernel.org>
-References: <20191217100740.2687835-1-marex@denx.de>
- <8b2e0a40-cf23-58a5-4f52-215015c61ea8@ti.com>
- <3c48dd07-154e-bc47-4aff-73769d9efa22@denx.de>
-From:   Grygorii Strashko <grygorii.strashko@ti.com>
-Message-ID: <be0d0b55-c287-3252-e188-cbaedd5d426c@ti.com>
-Date:   Thu, 19 Dec 2019 15:37:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1726873AbfLSOXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 09:23:41 -0500
+Received: from mail-il1-f194.google.com ([209.85.166.194]:34510 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726695AbfLSOXk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Dec 2019 09:23:40 -0500
+Received: by mail-il1-f194.google.com with SMTP id s15so5041238iln.1
+        for <stable@vger.kernel.org>; Thu, 19 Dec 2019 06:23:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
+        b=ZdyFO6oWRhd499fuFUKUEgWvUNvDd6AS++JCNUxOzIGVj5bSaXd1Q9r0htri88G45s
+         OqPyYOpG37jtSR4ZLaS6pGrVFTVcgJtLBVQGdX34c3JSFnqmVBsFSCo0PnKf5stTA0gN
+         f5Igdlge6hAn6FijdiF7rWo33QeCn+29SAYqyoFoJ+6A859x75pbbYntx4NTpe6brVyb
+         aGyHt5VZkb/YyAPsj70SB3GtFqKuHYul+m9vNJHHD9MUrfALlOcoPXusmBNoKuckWsW8
+         A3xnwdtwNTsXd2/ks3njV7aHIb5rlmZXq7sL9nH46kxJ03OzgW4w35CAZq8wh/tcv8oP
+         qgvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
+        b=bvr9hcvEOFspjVYDj2sM8BTMRbVH+AduXxJjB0OGffGABWJ8552iq3+IN7lY8L1gDq
+         9f2/8SltEUkPXCtZBk4v4uwsmDWPqgmV3dNEEJQ9PFqHhYCFm1QNcQpsvOSMi5vC5RBB
+         SVwmXDzl40uEUa8Z7WyolbmIrYOh0LRH26NcZoXUbvaOiBKSJtfWGh5ZW5vm2t2Hl7VM
+         RBgsKDdmmjlgbEyrjUHqKS3WES6lGYaPUdX6Ml/++qzXEG7PANd8G876GzcqJY+G/tPn
+         IU6J1eqL/CVoZOiWT3kA6ptE9lwujT++mUtUbWi38u+IQ0tHteuMmM8h+xsMydQKBGXF
+         MiIA==
+X-Gm-Message-State: APjAAAUy/eWZE6CQreC5mdxY/hqyq2V7qAJxMKweVlWbU0pmymZVbrmo
+        KnsDkQzDUQt5tMX1AWo8NLHFE2dES7p0RQPnlUs=
+X-Google-Smtp-Source: APXvYqz2K8nmPshFV/CwcidJYpCK3UA8iNRtcyk8GGSYj759VoOpI6fIOBuC2MyXUemE9WhmDkmUGdbncOonuTD42sc=
+X-Received: by 2002:a92:5845:: with SMTP id m66mr7362789ilb.257.1576765420195;
+ Thu, 19 Dec 2019 06:23:40 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <3c48dd07-154e-bc47-4aff-73769d9efa22@denx.de>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Received: by 2002:a92:d6c6:0:0:0:0:0 with HTTP; Thu, 19 Dec 2019 06:23:39
+ -0800 (PST)
+From:   Mrs Carlsen Monika <carlsen.monika@gmail.com>
+Date:   Thu, 19 Dec 2019 15:23:39 +0100
+X-Google-Sender-Auth: iD2Mxsxknnwn7yo7izJeKvUrO88
+Message-ID: <CAHR092GAHyE2YqWT=wWxbb+ijnT78YfukzHUgcuzrBy5H5u2Ew@mail.gmail.com>
+Subject: Greetings My Dear, Please I Need Your Help.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Greetings My Dear,
 
+    I sent this mail praying it will found you in a good condition of
+health, since I myself are in a very critical health condition in
+which I  sleep every night without knowing if I may be alive to see
+the next day. I am Mrs. Monika John  Carlsen from Denmark wife of late
+Mr John Carlsen, a widow suffering from long time illness. I have some
+funds I inherited from my late husband, the sum of (eleven million
+dollars) my Doctor told me recently that I have serious sickness which
+is cancer problem. What disturbs me most is my stroke sickness. Having
+known my condition, I decided to donate this fund to a good person
+that will utilize it the way i am going to instruct herein. I need a
+very honest and God fearing person who can claim this money and use it
+for Charity works, for orphanages, widows and also  build schools for
+less privileges that will be named after my late husband if possible
+and to promote the word of God and the effort that the house of God is
+maintained.
 
-On 17/12/2019 12:55, Marek Vasut wrote:
-> On 12/17/19 11:42 AM, Grygorii Strashko wrote:
->>
->>
->> On 17/12/2019 12:07, Marek Vasut wrote:
->>> The current code causes a slight glitch on the pinctrl settings when
->>> used.
->>> Since commit ab78029 (drivers/pinctrl: grab default handles from
->>> device core),
->>> the device core will automatically set the default pins. This causes
->>> the pins
->>> to be momentarily set to the default and then to the sleep state in
->>> register_m_can_dev(). By adding an optional "enable" state, boards can
->>> set the
->>> default pin state to be disabled and avoid the glitch when the switch
->>> from
->>> default to sleep first occurs. If the "enable" state is not available
->>> pinctrl_get_select() falls back to using the "default" pinctrl state.
->>>
->>> Fixes: c9b3bce18da4 ("can: m_can: select pinctrl state in each
->>> suspend/resume function")
->>> Signed-off-by: Marek Vasut <marex@denx.de>
->>> Cc: Bich Hemon <bich.hemon@st.com>
->>> Cc: Grygorii Strashko <grygorii.strashko@ti.com>
->>> Cc: J.D. Schroeder <jay.schroeder@garmin.com>
->>> Cc: Marc Kleine-Budde <mkl@pengutronix.de>
->>> Cc: Roger Quadros <rogerq@ti.com>
->>> Cc: linux-stable <stable@vger.kernel.org>
->>> To: linux-can@vger.kernel.org
->>> ---
->>> NOTE: This is commit 033365191136 ("can: c_can: Fix default pinmux
->>> glitch at init")
->>>         adapted for m_can driver.
->>> ---
->>>    drivers/net/can/m_can/m_can.c | 8 ++++++++
->>>    1 file changed, 8 insertions(+)
->>>
->>> diff --git a/drivers/net/can/m_can/m_can.c
->>> b/drivers/net/can/m_can/m_can.c
->>> index 02c5795b73936..afb6760b17427 100644
->>> --- a/drivers/net/can/m_can/m_can.c
->>> +++ b/drivers/net/can/m_can/m_can.c
->>> @@ -1243,12 +1243,20 @@ static void m_can_chip_config(struct
->>> net_device *dev)
->>>    static void m_can_start(struct net_device *dev)
->>>    {
->>>        struct m_can_classdev *cdev = netdev_priv(dev);
->>> +    struct pinctrl *p;
->>>          /* basic m_can configuration */
->>>        m_can_chip_config(dev);
->>>          cdev->can.state = CAN_STATE_ERROR_ACTIVE;
->>>    +    /* Attempt to use "active" if available else use "default" */
->>> +    p = pinctrl_get_select(cdev->dev, "active");
->>> +    if (!IS_ERR(p))
->>> +        pinctrl_put(p);
->>> +    else
->>> +        pinctrl_pm_select_default_state(cdev->dev);
->>> +
->>>        m_can_enable_all_interrupts(cdev);
->>>    }
->>>   
->>
->> May be init state should be used - #define PINCTRL_STATE_INIT "init"
->> instead?
-> 
-> I'm not sure I quite understand -- how ?
-> 
+I do not want a situation where this money will be used in an ungodly
+manner. That's why I'm taking this decision. I'm not afraid of death
+so I know where I'm going. I accept this decision because I do not
+have any child who will inherit this money after I die. Please I want
+your sincerely and urgent answer to know if you will be able to
+execute this project, and I will give you more information on how the
+fund will be transferred to your bank account. I am waiting for your
+reply.
 
-Sry, for delayed reply.
-
-I've looked at m_can code and think issue is a little bit deeper
-  (but I might be wrong as i'm not can expert and below based on code review).
-
-First, what going on:
-probe:
-  really_probe()
-   pinctrl_bind_pins()
-     	if (IS_ERR(dev->pins->init_state)) {
-		ret = pinctrl_select_state(dev->pins->p,
-					   dev->pins->default_state);
-	} else {
-		ret = pinctrl_select_state(dev->pins->p, dev->pins->init_state);
-	}
-   [GS] So at this point default_state or init_state is set
-
-   ret = dev->bus->probe(dev);
-        m_can_plat_probe()
-	 m_can_class_register()
-	    m_can_clk_start()
-	      pm_runtime_get_sync()
-		m_can_runtime_resume()
-   [GS] Still default_state or init_state is active
-
-	   register_m_can_dev()
-   [GS] at this point m_can netdev is registered, which may lead to .ndo_open = m_can_open() call
-
-   	   m_can_clk_stop()
-   	     pm_runtime_put_sync()
-   [GS] if .ndo_open() was called before it will be a nop
-		m_can_runtime_suspend()
-		 m_can_class_suspend()
-
-			if (netif_running(ndev)) {
-				netif_stop_queue(ndev);
-				netif_device_detach(ndev);
-				m_can_stop(ndev);
-				m_can_clk_stop(cdev);
-   [GS] if .ndo_open() was called before it will lead to deadlock here
-       So, most probably, it will cause deadlock in case of "ifconfig <m_can_dev> up down" case
-			}
-
-			pinctrl_pm_select_sleep_state(dev);
-   [GS] at this point sleep_state will be set - i assume it's the root cause of your glitch.
-        Note - As per code, the pinctrl default_state will never ever configured again, so if after
-        probe m_can will go through PM runtime suspend/resume cycle it will not work any more.
-
-   pinctrl_init_done()
-   [GS] will do nothing in case !init_state
-
-As per above, if sleep_state is defined the m_can seems should not work at all without your patch,
-as there is no code path to switch back sleep_state->default_state.
-And over all PM runtime m_can code is mixed with System suspend code and so not correct.
-
-Also, the very good question - Is it really required to toggle pinctrl states as part of PM runtime?
-(usually it's enough to handle it only during System suspend).
-
--- 
-Best regards,
-grygorii
+May God Bless you,
+Mrs. Monika John  Carlsen
