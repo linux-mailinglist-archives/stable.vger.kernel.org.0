@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E258E126D41
-	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:09:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 055BF126C69
+	for <lists+stable@lfdr.de>; Thu, 19 Dec 2019 20:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727967AbfLSTJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Dec 2019 14:09:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
+        id S1729563AbfLSSsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Dec 2019 13:48:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728026AbfLSSkT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Dec 2019 13:40:19 -0500
+        id S1728761AbfLSSsD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Dec 2019 13:48:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4D4124682;
-        Thu, 19 Dec 2019 18:40:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EA5C24679;
+        Thu, 19 Dec 2019 18:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1576780819;
-        bh=UtmX9GiSmxXu/9EaoD1243Db0uC3Xo+gs5g7A8/UcsI=;
+        s=default; t=1576781281;
+        bh=KunmRHYVd7NTxlf9m6OM9s34ezRZxez81ev+5ss5gYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqncGjWuKi/fLpHIQS2be4zVK6Eb7WRA3U6dLVnhO0MKaxrN/n2rJq8Y+gT0UwH0E
-         q1BENUwo0V6UQlJ4zCeeD2jKV8z0x4vMKOF4WtfPZQ4IsSb4R2Fi+lMQPei+drkQtS
-         JCcZFV2O3yXz8YKl1zUYKqZPobhwgp05JZiGIDsg=
+        b=Yl1JBswqN2eafEYxWjRbC0GVdozbD48TJ+Ju5fmF7jUoBsfNZ/ndSdWSiaUHdZhYp
+         N99YJj9RtDCFvImpHr3ymEwppex2WzhpuAu4NXuLwdtByXzwuWRf2xhkaSg3jWxvbO
+         7OviVueOkRbd8VolbHgO4dtbY1lU+kbmQUXH68Cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 130/162] e100: Fix passing zero to PTR_ERR warning in e100_load_ucode_wait
+        stable@vger.kernel.org, Shirish S <shirish.s@amd.com>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 156/199] x86/MCE/AMD: Turn off MC4_MISC thresholding on all family 0x15 models
 Date:   Thu, 19 Dec 2019 19:33:58 +0100
-Message-Id: <20191219183215.686862734@linuxfoundation.org>
+Message-Id: <20191219183223.968354314@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20191219183150.477687052@linuxfoundation.org>
-References: <20191219183150.477687052@linuxfoundation.org>
+In-Reply-To: <20191219183214.629503389@linuxfoundation.org>
+References: <20191219183214.629503389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Shirish S <Shirish.S@amd.com>
 
-[ Upstream commit cd0d465bb697a9c7bf66a9fe940f7981232f1676 ]
+[ Upstream commit c95b323dcd3598dd7ef5005d6723c1ba3b801093 ]
 
-Fix a static code checker warning:
-drivers/net/ethernet/intel/e100.c:1349
- e100_load_ucode_wait() warn: passing zero to 'PTR_ERR'
+MC4_MISC thresholding is not supported on all family 0x15 processors,
+hence skip the x86_model check when applying the quirk.
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+ [ bp: massage commit message. ]
+
+Signed-off-by: Shirish S <shirish.s@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/1547106849-3476-2-git-send-email-shirish.s@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e100.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index 068789e694c9b..93c29094ceff9 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -1370,8 +1370,8 @@ static inline int e100_load_ucode_wait(struct nic *nic)
+diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
+index e348bee411e35..2664c3df85a60 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce.c
++++ b/arch/x86/kernel/cpu/mcheck/mce.c
+@@ -1649,11 +1649,10 @@ static int __mcheck_cpu_apply_quirks(struct cpuinfo_x86 *c)
+ 			mce_flags.overflow_recov = 1;
  
- 	fw = e100_request_firmware(nic);
- 	/* If it's NULL, then no ucode is required */
--	if (!fw || IS_ERR(fw))
--		return PTR_ERR(fw);
-+	if (IS_ERR_OR_NULL(fw))
-+		return PTR_ERR_OR_ZERO(fw);
- 
- 	if ((err = e100_exec_cb(nic, (void *)fw, e100_setup_ucode)))
- 		netif_err(nic, probe, nic->netdev,
+ 		/*
+-		 * Turn off MC4_MISC thresholding banks on those models since
++		 * Turn off MC4_MISC thresholding banks on all models since
+ 		 * they're not supported there.
+ 		 */
+-		if (c->x86 == 0x15 &&
+-		    (c->x86_model >= 0x10 && c->x86_model <= 0x1f)) {
++		if (c->x86 == 0x15) {
+ 			int i;
+ 			u64 hwcr;
+ 			bool need_toggle;
 -- 
 2.20.1
 
